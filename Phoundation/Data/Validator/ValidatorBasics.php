@@ -151,30 +151,6 @@ trait ValidatorBasics
 
 
     /**
-     * Disable all validations
-     *
-     * @return void
-     */
-    public static function disable(): void
-    {
-        self::$disabled = true;
-    }
-
-
-
-    /**
-     * Enable all validations
-     *
-     * @return void
-     */
-    public static function enable(): void
-    {
-        self::$disabled = false;
-    }
-
-
-
-    /**
      * Returns the maximum string size that this Validator will touch
      *
      * @return string|null

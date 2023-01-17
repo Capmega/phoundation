@@ -33,6 +33,42 @@ abstract class Validator
 
 
     /**
+     * Returns if all validations are disabled or not
+     *
+     * @return bool
+     */
+    public static function disabled(): bool
+    {
+        return self::$disabled;
+    }
+
+
+
+    /**
+     * Disable all validations
+     *
+     * @return void
+     */
+    public static function disable(): void
+    {
+        self::$disabled = true;
+    }
+
+
+
+    /**
+     * Enable all validations
+     *
+     * @return void
+     */
+    public static function enable(): void
+    {
+        self::$disabled = false;
+    }
+
+
+
+    /**
      * Allow the validator to check each element in a list of values.
      *
      * Basically each method will expect to process a list always and ->select() will put the selected value in an
@@ -89,7 +125,7 @@ abstract class Validator
     {
         if ($this->reflection_process_value->isInitialized($this)){
             // A single value was selected, test only this value
-            $this->process_value = $function($this->process_value);
+            $function($this->process_value);
         } else {
             $this->ensureSelected();
 
@@ -104,7 +140,7 @@ abstract class Validator
                 $this->process_value        = &$value;
                 $this->process_value_failed = false;
 
-                $this->process_value = $function($this->process_value);
+                $function($this->process_value);
             }
 
             // Clear up work data
@@ -127,15 +163,16 @@ abstract class Validator
      */
     public function isBoolean(): static
     {
-        return $this->validateValues(function($value) {
-            if ($this->checkIsOptional($value)) {
-                if (Strings::getBoolean($value, false) === null) {
-                    $this->addFailure(tr('must have a boolean value'));
-                    $value = false;
-                }
-            }
+        return $this->validateValues(function(&$value) {
+            $this->checkIsOptional($value);
 
-            return $value;
+            if (Strings::getBoolean($value, false) === null) {
+                if ($value !== null) {
+                    $this->addFailure(tr('must have a boolean value'));
+                }
+
+                $value = false;
+            }
         });
     }
 
@@ -150,20 +187,21 @@ abstract class Validator
      */
     public function isInteger(): static
     {
-        return $this->validateValues(function($value) {
-            if ($this->checkIsOptional($value)) {
-                if (!is_integer($value)) {
-                    if (is_string($value) and ((int) $value == $value)) {
-                        // This integer value was specified as a numeric string
-                        $value = (int) $value;
-                    } else {
+        return $this->validateValues(function(&$value) {
+            $this->checkIsOptional($value);
+
+            if (!is_integer($value)) {
+                if (is_string($value) and ((int) $value == $value)) {
+                    // This integer value was specified as a numeric string
+                    $value = (int) $value;
+                } else {
+                    if ($value !== null) {
                         $this->addFailure(tr('must have an integer value'));
-                        $value = 0;
                     }
+
+                    $value = 0;
                 }
             }
-
-            return $value;
         });
     }
 
@@ -178,21 +216,22 @@ abstract class Validator
      */
     public function isFloat(): static
     {
-        return $this->validateValues(function($value) {
-            if ($this->checkIsOptional($value)) {
-                if (!is_float($value)) {
-                    if (is_string($value) and ((float) $value == $value)) {
-                        // This float value was specified as a numeric string
+        return $this->validateValues(function(&$value) {
+            $this->checkIsOptional($value);
+
+            if (!is_float($value)) {
+                if (is_string($value) and ((float) $value == $value)) {
+                    // This float value was specified as a numeric string
 // TODO Test this! There may be slight inaccuracies here due to how floats work, so maybe we should check within a range?
-                        $value = (float) $value;
-                    } else {
+                    $value = (float) $value;
+                } else {
+                    if ($value !== null) {
                         $this->addFailure(tr('must have a float value'));
-                        $value = 0.0;
                     }
+
+                    $value = 0.0;
                 }
             }
-
-            return $value;
         });
     }
 
@@ -207,15 +246,16 @@ abstract class Validator
      */
     public function isNumeric(): static
     {
-        return $this->validateValues(function($value) {
-            if ($this->checkIsOptional($value)) {
-                if (!is_numeric($value)) {
-                    $this->addFailure(tr('must have a numeric value'));
-                    $value = 0;
-                }
-            }
+        return $this->validateValues(function(&$value) {
+            $this->checkIsOptional($value);
 
-            return $value;
+            if (!is_numeric($value)) {
+                if ($value !== null) {
+                    $this->addFailure(tr('must have a numeric value'));
+                }
+
+                $value = 0;
+            }
         });
     }
 
@@ -231,19 +271,17 @@ abstract class Validator
      */
     public function isPositive(bool $allow_zero = false): static
     {
-        return $this->validateValues(function($value) use ($allow_zero) {
+        return $this->validateValues(function(&$value) use ($allow_zero) {
             $this->isNumeric();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             if ($value < ($allow_zero ? 0 : 1)) {
                 $this->addFailure(tr('must have a positive value'));
             }
-
-            return $value;
         });
     }
 
@@ -317,16 +355,15 @@ abstract class Validator
      */
     public function isCode(bool $allow_zero = false): static
     {
-        return $this->validateValues(function($value) {
+        return $this->validateValues(function(&$value) {
             $this->hasMinCharacters(2)->hasMaxCharacters(16);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             $this->isPrintable();
-            return $value;
         });
     }
 
@@ -342,19 +379,17 @@ abstract class Validator
      */
     public function isMoreThan(int|float $amount): static
     {
-        return $this->validateValues(function($value) use ($amount) {
+        return $this->validateValues(function(&$value) use ($amount) {
             $this->isNumeric();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             if ($value <= $amount) {
                 $this->addFailure(tr('must be more than than ":amount"', [':amount' => $amount]));
             }
-
-            return $value;
         });
     }
 
@@ -370,19 +405,17 @@ abstract class Validator
      */
     public function isLessThan(int|float $amount): static
     {
-        return $this->validateValues(function($value) use ($amount) {
+        return $this->validateValues(function(&$value) use ($amount) {
             $this->isNumeric();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             if ($value >= $amount) {
                 $this->addFailure(tr('must be less than ":amount"', [':amount' => $amount]));
             }
-
-            return $value;
         });
     }
 
@@ -399,19 +432,17 @@ abstract class Validator
      */
     public function isBetween(int|float $minimum, int|float $maximum): static
     {
-        return $this->validateValues(function($value) use ($minimum, $maximum) {
+        return $this->validateValues(function(&$value) use ($minimum, $maximum) {
             $this->isNumeric();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             if (($value <= $minimum) or ($value >= $maximum)) {
                 $this->addFailure(tr('must be between ":amount" and ":maximum"', [':minimum' => $minimum, ':maximum' => $maximum]));
             }
-
-            return $value;
         });
     }
 
@@ -427,19 +458,17 @@ abstract class Validator
      */
     public function isNegative(bool $allow_zero = false): static
     {
-        return $this->validateValues(function($value) use ($allow_zero) {
+        return $this->validateValues(function(&$value) use ($allow_zero) {
             $this->isNumeric();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             if ($value > ($allow_zero ? 0 : 1)) {
                 $this->addFailure(tr('must have a negative value'));
             }
-
-            return $value;
         });
     }
 
@@ -454,15 +483,16 @@ abstract class Validator
      */
     public function isScalar(): static
     {
-        return $this->validateValues(function($value) {
-            if ($this->checkIsOptional($value)) {
-                if (!is_scalar($value)) {
-                    $value = '';
+        return $this->validateValues(function(&$value) {
+            $this->checkIsOptional($value);
+
+            if (!is_scalar($value)) {
+                if ($value !== null) {
                     $this->addFailure(tr('must have a scalar value'));
                 }
-            }
 
-            return $value;
+                $value = '';
+            }
         });
     }
 
@@ -478,21 +508,19 @@ abstract class Validator
      */
     public function inArray(array $array) : Validator
     {
-        return $this->validateValues(function($value) use ($array) {
+        return $this->validateValues(function(&$value) use ($array) {
             // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
             $this->isScalar();
             $this->hasMaxCharacters(Arrays::getLongestString($array));
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             if (!in_array($value, $array)) {
                 $this->addFailure(tr('must be one of ":list"', [':list' => $array]));
             }
-
-            return $value;
         });
     }
 
@@ -508,20 +536,18 @@ abstract class Validator
      */
     public function contains(string $string) : Validator
     {
-        return $this->validateValues(function($value) use ($string) {
+        return $this->validateValues(function(&$value) use ($string) {
             // This value must be scalar
             $this->isScalar();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             if (!str_contains($value, $string)) {
                 $this->addFailure(tr('must contain ":value"', [':value' => $string]));
             }
-
-            return $value;
         });
     }
 
@@ -538,20 +564,18 @@ abstract class Validator
      */
     public function isQueryColumn(PDOStatement|string $query, ?array $execute = null) : Validator
     {
-        return $this->validateValues(function($value) use ($query, $execute) {
+        return $this->validateValues(function(&$value) use ($query, $execute) {
             // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
             $this->isScalar();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             $execute = $this->applyExecuteVariables($execute);
             $column  = sql()->getColumn($query, $execute);
             $this->isValue($column);
-
-            return $value;
         });
     }
 
@@ -568,20 +592,18 @@ abstract class Validator
      */
     public function containsQueryColumn(PDOStatement|string $query, ?array $execute = null) : Validator
     {
-        return $this->validateValues(function($value) use ($query, $execute) {
+        return $this->validateValues(function(&$value) use ($query, $execute) {
             // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
             $this->isScalar();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             $execute = $this->applyExecuteVariables($execute);
             $column  = sql()->getColumn($query, $execute);
             $this->contains($column);
-
-            return $value;
         });
     }
 
@@ -598,20 +620,18 @@ abstract class Validator
      */
     public function inQueryColumns(PDOStatement|string $query, ?array $execute = null) : Validator
     {
-        return $this->validateValues(function($value) use ($query, $execute) {
+        return $this->validateValues(function(&$value) use ($query, $execute) {
             // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
             $this->isScalar();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             $execute = $this->applyExecuteVariables($execute);
             $results = sql()->list($query, $execute);
             $this->inArray($results);
-
-            return $value;
         });
     }
 
@@ -626,15 +646,16 @@ abstract class Validator
      */
     public function isString(): static
     {
-        return $this->validateValues(function($value) {
-            if ($this->checkIsOptional($value)) {
-                if (!is_string($value)) {
-                    $value = '';
+        return $this->validateValues(function(&$value) {
+            $this->checkIsOptional($value);
+
+            if (!is_string($value)) {
+                if ($value !== null) {
                     $this->addFailure(tr('must have a string value'));
                 }
-            }
 
-            return $value;
+                $value = '';
+            }
         });
     }
 
@@ -648,19 +669,17 @@ abstract class Validator
      */
     public function hasCharacters(int $characters): static
     {
-        return $this->validateValues(function($value) use ($characters) {
+        return $this->validateValues(function(&$value) use ($characters) {
             $this->isString();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             if (strlen($value) != $characters) {
                 $this->addFailure(tr('must have ":count" characters or more', [':count' => $characters]));
             }
-
-            return $value;
         });
     }
 
@@ -674,19 +693,17 @@ abstract class Validator
      */
     public function hasMinCharacters(int $characters): static
     {
-        return $this->validateValues(function($value) use ($characters) {
+        return $this->validateValues(function(&$value) use ($characters) {
             $this->isString();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             if (strlen($value) < $characters) {
                 $this->addFailure(tr('must have ":count" characters or more', [':count' => $characters]));
             }
-
-            return $value;
         });
     }
 
@@ -700,12 +717,12 @@ abstract class Validator
      */
     public function hasMaxCharacters(?int $characters = null): static
     {
-        return $this->validateValues(function($value) use ($characters) {
+        return $this->validateValues(function(&$value) use ($characters) {
             $this->isString();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             // Validate the maximum amount of characters
@@ -723,8 +740,6 @@ abstract class Validator
             if (strlen($value) > $characters) {
                 $this->addFailure(tr('must have ":count" characters or less', [':count' => $characters]));
             }
-
-            return $value;
         });
     }
 
@@ -738,19 +753,17 @@ abstract class Validator
      */
     public function matchesRegex(string $regex): static
     {
-        return $this->validateValues(function($value) use ($regex) {
+        return $this->validateValues(function(&$value) use ($regex) {
             $this->isString();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             if (!preg_match($regex, $value)) {
                 $this->addFailure(tr('must match ":regex"', [':regex' => $regex]));
             }
-
-            return $value;
         });
     }
 
@@ -763,19 +776,17 @@ abstract class Validator
      */
     public function isAlpha(): static
     {
-        return $this->validateValues(function($value) {
+        return $this->validateValues(function(&$value) {
             $this->isString();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             if (!ctype_alpha($value)) {
                 $this->addFailure(tr('must contain only letters'));
             }
-
-            return $value;
         });
     }
 
@@ -788,19 +799,17 @@ abstract class Validator
      */
     public function isAlphaNumeric(): static
     {
-        return $this->validateValues(function($value) {
+        return $this->validateValues(function(&$value) {
             $this->isString();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             if (!ctype_alnum($value)) {
                 $this->addFailure(tr('must contain only letters and numbers'));
             }
-
-            return $value;
         });
     }
 
@@ -813,19 +822,17 @@ abstract class Validator
      */
     public function isLowercase(): static
     {
-        return $this->validateValues(function($value) {
+        return $this->validateValues(function(&$value) {
             $this->isString();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             if (!ctype_lower($value)) {
                 $this->addFailure(tr('must contain only lowercase letters'));
             }
-
-            return $value;
         });
     }
 
@@ -838,19 +845,17 @@ abstract class Validator
      */
     public function isUppercase(): static
     {
-        return $this->validateValues(function($value) {
+        return $this->validateValues(function(&$value) {
             $this->isString();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             if (!ctype_upper($value)) {
                 $this->addFailure(tr('must contain only uppercase letters'));
             }
-
-            return $value;
         });
     }
 
@@ -864,19 +869,17 @@ abstract class Validator
      */
     public function isPunct(): static
     {
-        return $this->validateValues(function($value) {
+        return $this->validateValues(function(&$value) {
             $this->isString();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             if (!ctype_punct($value)) {
                 $this->addFailure(tr('must contain only uppercase letters'));
             }
-
-            return $value;
         });
     }
 
@@ -889,19 +892,17 @@ abstract class Validator
      */
     public function isPrintable(): static
     {
-        return $this->validateValues(function($value) {
+        return $this->validateValues(function(&$value) {
             $this->isString();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             if (!ctype_print($value)) {
                 $this->addFailure(tr('must contain only printable characters'));
             }
-
-            return $value;
         });
     }
 
@@ -914,19 +915,17 @@ abstract class Validator
      */
     public function isGraph(): static
     {
-        return $this->validateValues(function($value) {
+        return $this->validateValues(function(&$value) {
             $this->isString();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             if (!ctype_graph($value)) {
                 $this->addFailure(tr('must contain only visible characters'));
             }
-
-            return $value;
         });
     }
 
@@ -939,19 +938,17 @@ abstract class Validator
      */
     public function isWhitespace(): static
     {
-        return $this->validateValues(function($value) {
+        return $this->validateValues(function(&$value) {
             $this->isString();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             if (!ctype_space($value)) {
                 $this->addFailure(tr('must contain only whitespace characters'));
             }
-
-            return $value;
         });
     }
 
@@ -964,19 +961,17 @@ abstract class Validator
      */
     public function isHexadecimal(): static
     {
-        return $this->validateValues(function($value) {
+        return $this->validateValues(function(&$value) {
             $this->isString();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             if (!ctype_xdigit($value)) {
                 $this->addFailure(tr('must contain only hexadecimal characters'));
             }
-
-            return $value;
         });
     }
 
@@ -989,19 +984,17 @@ abstract class Validator
      */
     public function isOctal(): static
     {
-        return $this->validateValues(function($value) {
+        return $this->validateValues(function(&$value) {
             $this->isString();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             if (!preg_match('/^0-7*$/', $value)) {
                 $this->addFailure(tr('must contain only octal numbers'));
             }
-
-            return $value;
         });
     }
 
@@ -1017,7 +1010,7 @@ abstract class Validator
      */
     public function isValue(mixed $validate_value, bool $strict = false, bool $secret = false): static
     {
-        return $this->validateValues(function($value) use ($validate_value, $strict, $secret) {
+        return $this->validateValues(function(&$value) use ($validate_value, $strict, $secret) {
             if ($strict) {
                 // Strict validation
                 if ($value !== $validate_value) {
@@ -1033,7 +1026,7 @@ abstract class Validator
 
                 if ($this->process_value_failed) {
                     // Validation already failed, don't test anything more
-                    return $value;
+                    return;
                 }
 
                 if ($value != $validate_value) {
@@ -1044,8 +1037,6 @@ abstract class Validator
                     }
                 }
             }
-
-            return $value;
         });
     }
 
@@ -1058,21 +1049,19 @@ abstract class Validator
      */
     public function isDate(): static
     {
-        return $this->validateValues(function($value) {
+        return $this->validateValues(function(&$value) {
             $this->isString();
             $this->hasMaxCharacters(64); // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
 // TODO Implement
 //            if (!preg_match($regex, $value)) {
 //                $this->addFailure(tr('must match ":regex"', [':regex' => $regex]));
 //            }
-
-            return $value;
         });
     }
 
@@ -1085,21 +1074,19 @@ abstract class Validator
      */
     public function isTimezone(): static
     {
-        return $this->validateValues(function($value) {
+        return $this->validateValues(function(&$value) {
             $this->isString();
             $this->hasMaxCharacters(32); // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
 // TODO Implement
 //            if (!preg_match($regex, $value)) {
 //                $this->addFailure(tr('must match ":regex"', [':regex' => $regex]));
 //            }
-
-            return $value;
         });
     }
 
@@ -1113,20 +1100,18 @@ abstract class Validator
      */
     public function isOlderThan(DateTime $date_time): static
     {
-        return $this->validateValues(function($value) use ($date_time) {
+        return $this->validateValues(function(&$value) use ($date_time) {
             $this->isDate();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
 // TODO Implement
 //            if (!preg_match($regex, $value)) {
 //                $this->addFailure(tr('must match ":regex"', [':regex' => $regex]));
 //            }
-
-            return $value;
         });
     }
 
@@ -1140,20 +1125,18 @@ abstract class Validator
      */
     public function isYoungerThan(DateTime $date_time): static
     {
-        return $this->validateValues(function($value) use ($date_time) {
+        return $this->validateValues(function(&$value) use ($date_time) {
             $this->isDate();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
 // TODO Implement
 //            if (!preg_match($regex, $value)) {
 //                $this->addFailure(tr('must match ":regex"', [':regex' => $regex]));
 //            }
-
-            return $value;
         });
     }
 
@@ -1168,15 +1151,16 @@ abstract class Validator
      */
     public function isArray(): static
     {
-        return $this->validateValues(function($value) {
-            if ($this->checkIsOptional($value)) {
-                if (!is_array($value)) {
-                    $this->addFailure(tr('must have an array value'));
-                    $value = [];
-                }
-            }
+        return $this->validateValues(function(&$value) {
+            $this->checkIsOptional($value);
 
-            return $value;
+            if (!is_array($value)) {
+                if ($value !== null) {
+                    $this->addFailure(tr('must have an array value'));
+                }
+
+                $value = [];
+            }
         });
     }
 
@@ -1190,19 +1174,17 @@ abstract class Validator
      */
     public function hasElements(int $count): static
     {
-        return $this->validateValues(function($value) use ($count) {
+        return $this->validateValues(function(&$value) use ($count) {
             $this->isArray();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             if (count($value) != $count) {
                 $this->addFailure(tr('must have exactly ":count" elements', [':count' => $count]));
             }
-
-            return $value;
         });
     }
 
@@ -1216,19 +1198,17 @@ abstract class Validator
      */
     public function hasMinimumElements(int $count): static
     {
-        return $this->validateValues(function($value) use ($count) {
+        return $this->validateValues(function(&$value) use ($count) {
             $this->isArray();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             if (count($value) < $count) {
                 $this->addFailure(tr('must have ":count" elements or more', [':count' => $count]));
             }
-
-            return $value;
         });
     }
 
@@ -1242,19 +1222,17 @@ abstract class Validator
      */
     public function hasMaximumElements(int $count): static
     {
-        return $this->validateValues(function($value) use ($count) {
+        return $this->validateValues(function(&$value) use ($count) {
             $this->isArray();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             if (count($value) > $count) {
                 $this->addFailure(tr('must have ":count" elements or less', [':count' => $count]));
             }
-
-            return $value;
         });
     }
 
@@ -1267,12 +1245,12 @@ abstract class Validator
      */
     public function isHttpMethod(): static
     {
-        return $this->validateValues(function($value) {
+        return $this->validateValues(function(&$value) {
             $this->hasMinCharacters(3)->hasMaxCharacters(128);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             $value = mb_strtoupper($value);
@@ -1280,21 +1258,27 @@ abstract class Validator
             // Check against the HTTP methods that are considered valid
             switch ($value) {
                 case 'GET':
+                    // no break
                 case 'HEAD':
+                    // no break
                 case 'POST':
+                    // no break
                 case 'PUT':
+                    // no break
                 case 'DELETE':
+                    // no break
                 case 'CONNECT':
+                    // no break
                 case 'OPTIONS':
+                    // no break
                 case 'TRACE':
+                    // no break
                 case 'PATCH':
                     break;
 
                 default:
                     $this->addFailure(tr('must contain a valid HTTP method'));
             }
-
-            return $value;
         });
     }
 
@@ -1307,16 +1291,15 @@ abstract class Validator
      */
     public function isPhone(): static
     {
-        return $this->validateValues(function($value) {
+        return $this->validateValues(function(&$value) {
             $this->hasMinCharacters(10)->hasMaxCharacters(20);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             $this->matchesRegex('/[0-9- ].+?/');
-            return $value;
         });
     }
 
@@ -1329,16 +1312,15 @@ abstract class Validator
      */
     public function isPhones(): static
     {
-        return $this->validateValues(function($value) {
+        return $this->validateValues(function(&$value) {
             $this->hasMinCharacters(10)->hasMaxCharacters(64);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             $this->matchesRegex('/[0-9- ,].+?/');
-            return $value;
         });
     }
 
@@ -1351,16 +1333,15 @@ abstract class Validator
      */
     public function isGender(): static
     {
-        return $this->validateValues(function($value) {
+        return $this->validateValues(function(&$value) {
             $this->hasMinCharacters(2)->hasMaxCharacters(16);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             $this->isPrintable();
-            return $value;
         });
     }
 
@@ -1373,16 +1354,15 @@ abstract class Validator
      */
     public function isName(): static
     {
-        return $this->validateValues(function($value) {
+        return $this->validateValues(function(&$value) {
             $this->hasMinCharacters(2)->hasMaxCharacters(128);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             $this->isPrintable();
-            return $value;
         });
     }
 
@@ -1395,16 +1375,15 @@ abstract class Validator
      */
     public function isWord(): static
     {
-        return $this->validateValues(function($value) {
+        return $this->validateValues(function(&$value) {
             $this->hasMinCharacters(2)->hasMaxCharacters(32);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             $this->isPrintable();
-            return $value;
         });
     }
 
@@ -1418,19 +1397,17 @@ abstract class Validator
      */
     public function isFile(?string $prefix = null): static
     {
-        return $this->validateValues(function($value) use($prefix) {
+        return $this->validateValues(function(&$value) use($prefix) {
             $this->hasMinCharacters(1)->hasMaxCharacters(2048);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             if (!str_starts_with($value, '/')) {
                 $this->addFailure(tr('must be a file path'));
             }
-
-            return $value;
         });
     }
 
@@ -1443,19 +1420,17 @@ abstract class Validator
      */
     public function isExistingFile(): static
     {
-        return $this->validateValues(function($value) {
+        return $this->validateValues(function(&$value) {
             $this->hasMinCharacters(1)->hasMaxCharacters(2048);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             if (file_exists($value)) {
                 $this->addFailure(tr('must be an existing file'));
             }
-
-            return $value;
         });
     }
 
@@ -1468,16 +1443,15 @@ abstract class Validator
      */
     public function isDescription(): static
     {
-        return $this->validateValues(function($value) {
+        return $this->validateValues(function(&$value) {
             $this->hasMaxCharacters(16777216);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             $this->isPrintable();
-            return $value;
         });
     }
 
@@ -1490,15 +1464,13 @@ abstract class Validator
      */
     public function isPassword(): static
     {
-        return $this->validateValues(function($value) {
+        return $this->validateValues(function(&$value) {
             $this->hasMinCharacters(10)->hasMaxCharacters(128);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
-
-            return $value;
         });
     }
 
@@ -1511,17 +1483,15 @@ abstract class Validator
      */
     public function isStrongPassword(): static
     {
-        return $this->validateValues(function($value) {
+        return $this->validateValues(function(&$value) {
             $this->hasMinCharacters(10)->hasMaxCharacters(128);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             // TODO Implement
-
-            return $value;
         });
     }
 
@@ -1534,19 +1504,17 @@ abstract class Validator
      */
     public function isEmail(): static
     {
-        return $this->validateValues(function($value) {
+        return $this->validateValues(function(&$value) {
             $this->hasMinCharacters(3)->hasMaxCharacters(128);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
                 $this->addFailure(tr('must contain a valid email'));
             }
-
-            return $value;
         });
     }
 
@@ -1559,19 +1527,17 @@ abstract class Validator
      */
     public function isUrl(): static
     {
-        return $this->validateValues(function($value) {
+        return $this->validateValues(function(&$value) {
             $this->hasMinCharacters(3)->hasMaxCharacters(128);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             if (!filter_var($value, FILTER_VALIDATE_URL)) {
                 $this->addFailure(tr('must contain a valid URL'));
             }
-
-            return $value;
         });
     }
 
@@ -1584,19 +1550,17 @@ abstract class Validator
      */
     public function isDomain(): static
     {
-        return $this->validateValues(function($value) {
+        return $this->validateValues(function(&$value) {
             $this->hasMinCharacters(3)->hasMaxCharacters(128);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             if (!filter_var($value, FILTER_VALIDATE_DOMAIN)) {
                 $this->addFailure(tr('must contain a valid domain'));
             }
-
-            return $value;
         });
     }
 
@@ -1609,19 +1573,17 @@ abstract class Validator
      */
     public function isIp(): static
     {
-        return $this->validateValues(function($value) {
+        return $this->validateValues(function(&$value) {
             $this->hasMinCharacters(3)->hasMaxCharacters(48);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             if (!filter_var($value, FILTER_VALIDATE_IP)) {
                 $this->addFailure(tr('must contain a valid IP address'));
             }
-
-            return $value;
         });
     }
 
@@ -1640,12 +1602,12 @@ abstract class Validator
      */
     public function isJson(): static
     {
-        return $this->validateValues(function($value) {
+        return $this->validateValues(function(&$value) {
             $this->hasMinCharacters(3)->hasMaxCharacters();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             // Try by regex. If that fails. try JSON decode
@@ -1656,8 +1618,6 @@ abstract class Validator
                     $this->addFailure(tr('must contain a valid JSON string'));
                 }
             }
-
-            return $value;
         });
     }
 
@@ -1677,12 +1637,12 @@ abstract class Validator
      */
     public function isCsv(string $separator = ',', string $enclosure = "\"", string $escape = "\\"): static
     {
-        return $this->validateValues(function($value) use ($separator, $enclosure, $escape) {
+        return $this->validateValues(function(&$value) use ($separator, $enclosure, $escape) {
             $this->hasMinCharacters(3)->hasMaxCharacters();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             try {
@@ -1692,8 +1652,6 @@ abstract class Validator
                     ':separator' => $separator
                 ]));
             }
-
-            return $value;
         });
     }
 
@@ -1711,12 +1669,12 @@ abstract class Validator
      */
     public function isSerialized(): static
     {
-        return $this->validateValues(function($value) {
+        return $this->validateValues(function(&$value) {
             $this->hasMinCharacters(3)->hasMaxCharacters();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             try {
@@ -1724,8 +1682,6 @@ abstract class Validator
             } catch (Throwable) {
                 $this->addFailure(tr('must contain a valid serialized string'));
             }
-
-            return $value;
         });
     }
 
@@ -1742,12 +1698,12 @@ abstract class Validator
      */
     public function isBase58(): static
     {
-        return $this->validateValues(function($value) {
+        return $this->validateValues(function(&$value) {
             $this->hasMinCharacters(3)->hasMaxCharacters();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             try {
@@ -1755,8 +1711,6 @@ abstract class Validator
             } catch (Throwable) {
                 $this->addFailure(tr('must contain a valid bas58 encoded string'));
             }
-
-            return $value;
         });
     }
 
@@ -1773,12 +1727,12 @@ abstract class Validator
      */
     public function isBase64(): static
     {
-        return $this->validateValues(function($value) {
+        return $this->validateValues(function(&$value) {
             $this->hasMinCharacters(3)->hasMaxCharacters();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             try {
@@ -1786,8 +1740,6 @@ abstract class Validator
             } catch (Throwable) {
                 $this->addFailure(tr('must contain a valid bas64 encoded string'));
             }
-
-            return $value;
         });
     }
 
@@ -1802,12 +1754,12 @@ abstract class Validator
      */
     public function sanitizeTrim(string $characters = "\t\n\r\0\x0B"): static
     {
-        return $this->validateValues(function($value) use ($characters) {
+        return $this->validateValues(function(&$value) use ($characters) {
             $this->hasMinCharacters(3)->hasMaxCharacters();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             return trim($value, $characters);
@@ -1825,12 +1777,12 @@ abstract class Validator
      */
     public function sanitizeUppercase(): static
     {
-        return $this->validateValues(function($value) {
+        return $this->validateValues(function(&$value) {
             $this->hasMinCharacters(3)->hasMaxCharacters();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             try {
@@ -1838,8 +1790,6 @@ abstract class Validator
             } catch (Throwable) {
                 $this->addFailure(tr('must contain a valid string'));
             }
-
-            return $value;
         });
     }
 
@@ -1854,12 +1804,12 @@ abstract class Validator
      */
     public function sanitizeLowercase(): static
     {
-        return $this->validateValues(function($value) {
+        return $this->validateValues(function(&$value) {
             $this->hasMinCharacters(3)->hasMaxCharacters();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             try {
@@ -1867,8 +1817,6 @@ abstract class Validator
             } catch (Throwable) {
                 $this->addFailure(tr('must contain a valid string'));
             }
-
-            return $value;
         });
     }
 
@@ -1885,12 +1833,12 @@ abstract class Validator
      */
     public function sanitizeSearchReplace(array $replace, bool $regex = false): static
     {
-        return $this->validateValues(function($value) use ($replace, $regex) {
+        return $this->validateValues(function(&$value) use ($replace, $regex) {
             $this->hasMinCharacters(3)->hasMaxCharacters();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             if ($regex) {
@@ -1901,8 +1849,6 @@ abstract class Validator
                 // Standard string search / replace
                 $value = str_replace(array_keys($replace), array_values($replace), $value);
             }
-
-            return $value;
         });
     }
 
@@ -1920,12 +1866,12 @@ abstract class Validator
      */
     public function sanitizeDecodeJson(bool $array = true): static
     {
-        return $this->validateValues(function($value) use ($array) {
+        return $this->validateValues(function(&$value) use ($array) {
             $this->hasMinCharacters(3)->hasMaxCharacters();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             try {
@@ -1933,8 +1879,6 @@ abstract class Validator
             } catch (JsonException) {
                 $this->addFailure(tr('must contain a valid JSON string'));
             }
-
-            return $value;
         });
     }
 
@@ -1957,10 +1901,10 @@ abstract class Validator
      */
     public function sanitizeDecodeCsv(string $separator = ',', string $enclosure = "\"", string $escape = "\\"): static
     {
-        return $this->validateValues(function($value) use ($separator, $enclosure, $escape) {
+        return $this->validateValues(function(&$value) use ($separator, $enclosure, $escape) {
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             try {
@@ -1970,8 +1914,6 @@ abstract class Validator
                     ':separator' => $separator
                 ]));
             }
-
-            return $value;
         });
     }
 
@@ -1990,10 +1932,10 @@ abstract class Validator
      */
     public function sanitizeDecodeSerialized(): static
     {
-        return $this->validateValues(function($value) {
+        return $this->validateValues(function(&$value) {
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             try {
@@ -2001,8 +1943,6 @@ abstract class Validator
             } catch (Throwable $e) {
                 $this->addFailure(tr('must contain a valid serialized string'));
             }
-
-            return $value;
         });
     }
 
@@ -2018,12 +1958,12 @@ abstract class Validator
      */
     public function sanitizeForceArray(string $characters = ','): static
     {
-        return $this->validateValues(function($value) use ($characters) {
+        return $this->validateValues(function(&$value) use ($characters) {
             $this->hasMinCharacters(3)->hasMaxCharacters();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             try {
@@ -2032,8 +1972,6 @@ abstract class Validator
             } catch (Throwable) {
                 $this->addFailure(tr('cannot be processed'));
             }
-
-            return $value;
         });
     }
 
@@ -2052,10 +1990,10 @@ abstract class Validator
      */
     public function sanitizeDecodeBase58(): static
     {
-        return $this->validateValues(function($value) {
+        return $this->validateValues(function(&$value) {
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             try {
@@ -2063,8 +2001,6 @@ abstract class Validator
             } catch (Throwable) {
                 $this->addFailure(tr('must contain a valid base58 encoded string'));
             }
-
-            return $value;
         });
     }
 
@@ -2083,10 +2019,10 @@ abstract class Validator
      */
     public function sanitizeDecodeBase64(): static
     {
-        return $this->validateValues(function($value) {
+        return $this->validateValues(function(&$value) {
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             try {
@@ -2094,8 +2030,6 @@ abstract class Validator
             } catch (Throwable) {
                 $this->addFailure(tr('must contain a valid base64 encoded string'));
             }
-
-            return $value;
         });
     }
 
@@ -2114,10 +2048,10 @@ abstract class Validator
      */
     public function sanitizeDecodeUrl(): static
     {
-        return $this->validateValues(function($value) {
+        return $this->validateValues(function(&$value) {
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             try {
@@ -2125,8 +2059,6 @@ abstract class Validator
             } catch (Throwable) {
                 $this->addFailure(tr('must contain a valid url string'));
             }
-
-            return $value;
         });
     }
 
@@ -2147,10 +2079,10 @@ abstract class Validator
      */
     public function sanitizeForceString(string $characters = ','): static
     {
-        return $this->validateValues(function($value) use ($characters) {
+        return $this->validateValues(function(&$value) use ($characters) {
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
-                return $value;
+                return;
             }
 
             try {
@@ -2159,8 +2091,6 @@ abstract class Validator
             } catch (Throwable) {
                 $this->addFailure(tr('cannot be processed'));
             }
-
-            return $value;
         });
     }
 
