@@ -1,6 +1,6 @@
 <?php
 
-namespace Phoundation\Libraries;
+namespace Phoundation\System;
 
 use Phoundation\Cache\Cache;
 use Phoundation\Core\Arrays;

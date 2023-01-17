@@ -1,6 +1,6 @@
 <?php
 
-namespace Phoundation\Libraries;
+namespace Phoundation\System;
 
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;

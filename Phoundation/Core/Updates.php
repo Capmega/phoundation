@@ -11,13 +11,13 @@ use Phoundation\Core\Locale\Language\Languages;
  *
  * This is the Init class for the Core library
  *
- * @see \Phoundation\Libraries\Updates
+ * @see \Phoundation\System\Updates
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
-class Updates extends \Phoundation\Libraries\Updates
+class Updates extends \Phoundation\System\Updates
 {
     /**
      * The current version for this library
