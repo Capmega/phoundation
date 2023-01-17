@@ -2,12 +2,11 @@
 
 namespace Phoundation\Cli;
 
-use Phoundation\Cli\Exception\CliException;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Processes\Process;
+
 
 
 /**
@@ -22,6 +21,32 @@ use Phoundation\Processes\Process;
  */
 class Cli
 {
+    /**
+     * If true, passwords will be visible on the CLI
+     *
+     * @var bool $show_passwords
+     */
+    protected static bool $show_passwords = false;
+
+
+
+    /**
+     * Sets & returns if passwords are shown or not.
+     *
+     * @param bool|null $show_passwords
+     * @return bool
+     */
+    public static function showPasswords(?bool $show_passwords = null): bool
+    {
+        if ($show_passwords !== null) {
+            self::$show_passwords = $show_passwords;
+        }
+
+        return self::$show_passwords;
+    }
+
+
+
     /**
      * Returns the terminal available for this process
      *
@@ -206,10 +231,15 @@ class Cli
      * Read a password from the command line prompt
      *
      * @param string $prompt
-     * @return string
+     * @return string|null
      */
-    public static function readPassword(string $prompt): string
+    public static function readPassword(string $prompt): ?string
     {
+        if (self::$show_passwords) {
+            // We show passwords!
+            return self::readInput($prompt);
+        }
+
         echo trim($prompt) . ' ';
 
         system('stty -echo');
@@ -217,6 +247,32 @@ class Cli
 
         system('stty echo');
         echo PHP_EOL;
+
+        return $return;
+    }
+
+
+
+    /**
+     * Read an input from the command line prompt
+     *
+     * @param string $prompt
+     * @param string|null $default
+     * @return string|null
+     */
+    public static function readInput(string $prompt, ?string $default = null): ?string
+    {
+        $prompt = Strings::endsWith($prompt, ' ');
+
+        if ($default) {
+            $prompt .= '[' . $default . '] ';
+        }
+
+        $return = readline($prompt);
+
+        if (!$return) {
+            $return = $default;
+        }
 
         return $return;
     }

@@ -140,6 +140,38 @@ trait ValidatorBasics
      */
     protected ReflectionProperty $reflection_process_value;
 
+    /**
+     * If true, all validations will pass
+     *
+     * @note Still, ONLY validated variables will be available after Validate::validate() has been executed!
+     * @var bool $disabled
+     */
+    protected static bool $disabled = false;
+
+
+
+    /**
+     * Disable all validations
+     *
+     * @return void
+     */
+    public static function disable(): void
+    {
+        self::$disabled = true;
+    }
+
+
+
+    /**
+     * Enable all validations
+     *
+     * @return void
+     */
+    public static function enable(): void
+    {
+        self::$disabled = false;
+    }
+
 
 
     /**
@@ -228,7 +260,7 @@ trait ValidatorBasics
                 $this->addFailure(tr('Both fields ":field" and ":selected_field" were set, where only either one of them are allowed', [':field' => $field, ':selected_field' => $this->selected_field]));
             }
         } else {
-            // The currently selected field does not exists, the specified field MUST exist
+            // The currently selected field does not exist, the specified field MUST exist
             if (!isset_get($this->source[$field])) {
                 $this->addFailure(tr('Neither fields ":field" and ":selected_field" were set, where either one of them must be set', [':field' => $field, ':selected_field' => $this->selected_field]));
             }
@@ -403,6 +435,10 @@ trait ValidatorBasics
      */
     public function addFailure(string $failure, ?string $field = null): void
     {
+        if (self::$disabled) {
+            return;
+        }
+
 //show('FAILURE (' . $this->parent_field . ' / ' . $this->selected_field . ' / ' . $this->process_key . '): ' . $failure);
         // Build up the failure string
         if (is_numeric($this->process_key)) {

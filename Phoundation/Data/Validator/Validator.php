@@ -457,6 +457,7 @@ abstract class Validator
         return $this->validateValues(function($value) {
             if ($this->checkIsOptional($value)) {
                 if (!is_scalar($value)) {
+                    $value = '';
                     $this->addFailure(tr('must have a scalar value'));
                 }
             }
@@ -628,8 +629,8 @@ abstract class Validator
         return $this->validateValues(function($value) {
             if ($this->checkIsOptional($value)) {
                 if (!is_string($value)) {
-                    $this->addFailure(tr('must have a string value'));
                     $value = '';
+                    $this->addFailure(tr('must have a string value'));
                 }
             }
 

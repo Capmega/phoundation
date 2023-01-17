@@ -68,7 +68,7 @@ class Web
             return $_SERVER['HTTP_HOST'];
         }
 
-        return Config::get('web.domains.primary.domain');
+        return Url::getDomain(Config::get('web.domains.primary.www'));
     }
 
 

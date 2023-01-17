@@ -9,6 +9,7 @@ use Phoundation\Cli\Script;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\Validator;
 use Phoundation\Date\Date;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\AccessDeniedException;
@@ -474,6 +475,8 @@ class Core {
                         ->select('-S,--status', true)->isOptional(null)->hasMinCharacters(1)->hasMaxCharacters(16)
                         ->select('--language', true)->isOptional(null)->isCode()
                         ->select('--timezone', true)->isOptional(false)->isBoolean()
+                        ->select('--show-passwords')->isOptional(false)->isBoolean()
+                        ->select('--no-validation')->isOptional(false)->isBoolean()
                         ->validate()
                         ->getArgv();
 
@@ -613,6 +616,14 @@ class Core {
 
                     if ($argv['no_warnings']) {
                         define('NOWARNINGS', true);
+                    }
+
+                    if ($argv['show_passwords']) {
+                        Cli::showPasswords(true);
+                    }
+
+                    if ($argv['no_validation']) {
+                        Validator::disable();
                     }
 
                     // Remove the command itself from the argv array

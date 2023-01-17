@@ -152,7 +152,7 @@ class Route
 
         // Ensure the post-processing function is registered
         Log::action(tr('Processing ":domain" routes for ":method" method request ":url" from client ":client"', [
-            ':domain' => Config::get('web.domains.primary.domain'),
+            ':domain' => Url::getDomain(Config::get('web.domains.primary.www')),
             ':method' => self::$method,
             ':url'    => $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
             ':client' => $_SERVER['REMOTE_ADDR'] . (empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: ' . $_SERVER['HTTP_X_REAL_IP'] . ')')

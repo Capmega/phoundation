@@ -9,6 +9,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
+use Phoundation\System\Environment\Configuration;
 use Throwable;
 
 
@@ -46,7 +47,7 @@ class Config
      *
      * @var array $data
      */
-    protected static array $data = array();
+    protected static array $data = [];
 
     /**
      * Configuration files that have been read
@@ -62,6 +63,13 @@ class Config
      */
     protected static array $cache = [];
 
+    /**
+     * The environment used by this configuration object
+     *
+     * @var string $environment
+     */
+    protected static string $environment;
+
 
 
     /**
@@ -69,14 +77,7 @@ class Config
      */
     protected function __construct()
     {
-        if (defined('ENVIRONMENT')) {
-            self::read(ENVIRONMENT);
-        } else {
-            // This should only happen in some rare occasions where startup fails and we require configuration access
-            // before ENVIRONMENT has been defined. In those cases, assuming "production" environment is safe enough
-            // TODO Define all other required constants as well!
-            self::read('production');
-        }
+        self::useEnvironment();
     }
 
 
@@ -93,6 +94,35 @@ class Config
         }
 
         return self::$instance;
+    }
+
+
+
+    /**
+     * Use the specified (or if not specified, the current global) environment
+     *
+     * @param string|null $environment
+     * @return void
+     */
+    public static function useEnvironment(?string $environment = null): void
+    {
+        if ($environment) {
+            // Use the specified environment
+            self::$environment = $environment;
+
+        } elseif (defined('ENVIRONMENT')) {
+            // Use the global environment
+            self::$environment = ENVIRONMENT;
+
+        } else {
+            // This should only happen in some rare occasions where startup fails and we require configuration access
+            // before ENVIRONMENT has been defined. In those cases, assuming "production" environment is safe enough
+            // TODO Define all other required constants as well!
+            self::$environment = 'production';
+        }
+
+        self::reset();
+        self::read(self::$environment);
     }
 
 
@@ -481,10 +511,10 @@ class Config
             ->addSkipPaths([PATH_DATA, PATH_ROOT . 'tests', PATH_ROOT . 'garbage'])
             ->setRecurse(true)
             ->setServerRestrictions(new Restrictions(PATH_ROOT))
-            ->onFiles(function(string $file) use (&$store) {
+            ->onFiles(function (string $file) use (&$store) {
                 $files = File::new($file, PATH_ROOT)->grep(['Config::get(\'', 'Config::set(\'']);
 
-                foreach ($files as $file){
+                foreach ($files as $file) {
                     foreach ($file as $lines) {
                         foreach ($lines as $line) {
                             // Extract the configuration path and default value for each call
@@ -561,7 +591,7 @@ class Config
 
         // Convert the store to an array map
         foreach ($store as $path => $default) {
-            $path    = explode('.', $path);
+            $path = explode('.', $path);
             $section = &$data;
             $count++;
 
@@ -578,9 +608,121 @@ class Config
             unset($section);
         }
 
+        // Save and return count
+        self::save();
+        return $count;
+    }
+
+
+
+    /**
+     * Save the configuration as currently in memory to the configuration file
+     *
+     * @param array|null $data
+     * @return void
+     */
+    public static function save(?array $data = null): void
+    {
+        if ($data === null) {
+            // Save the data from this Config object
+            $data = self::$data;
+        }
+
         // Convert the data into yaml and store the data in the default file
         $data = yaml_emit($data);
         file_put_contents('config/default.yaml', $data);
-        return $count;
+    }
+
+
+
+    /**
+     * Import data from the specified setup configuration and save it in a yaml config file for the current environment
+     *
+     * @param Configuration $configuration
+     * @return void
+     */
+    public static function import(Configuration $configuration): void
+    {
+        // Reset data, then import data
+        self::reset();
+        self::$data = [
+            'security' => [
+                'seed' => Strings::random(random_int(16, 32))
+            ],
+            'debug' => (self::$environment === 'production'),
+            'project' => [
+                'name' => $configuration->getProject(),
+                'version' => '0.0.0'
+            ],
+            'laqnguages' => [
+                'supported' => ['en'],
+                'default' => 'en'
+            ],
+            'databases' => [
+                'sql' => [
+                    'debug' => (self::$environment === 'production'),
+                    'instances' => [
+                        'system' => [
+                            'type'   => 'mysql',
+                            'server' => $configuration->getDatabase()->getHost(),
+                            'name'   => $configuration->getDatabase()->getName(),
+                            'user'   => $configuration->getDatabase()->getUser(),
+                            'pass'   => $configuration->getDatabase()->getPass()
+                        ]
+                    ],
+                ],
+
+                'memcached' => [
+                    'instances' => [
+                        'system' => null
+                    ]
+                ]
+            ],
+            'notifications' => [
+                'groups' => [
+                    'developers' => [
+                        $configuration->getEmail()
+                    ]
+                ]
+            ],
+            'web' => [
+                'minify' => false,
+                'sessions' => [
+                    'cookies' => [
+                        'secure' => false,
+                        'domain' => 'auto',
+                    ]
+                ],
+                'domains' => [
+                    'primary' => [
+                        'www' => 'http://' . $configuration->getDomain() . '/:LANGUAGE/',
+                        'cdn' => 'http://cdn.' . $configuration->getDomain() . '/:LANGUAGE/'
+                    ],
+                    'whitelabel1' => [
+                        'www' => 'https://whitelabel1.phoundation.org/:LANGUAGE/',
+                        'cdn' => 'https://cdn.whitelabel1.phoundation.org/:LANGUAGE/'
+                    ],
+                ],
+                'route' => [
+                    'known-hacks' => [
+                    ]
+                ]
+            ],
+        ];
+    }
+
+
+
+    /**
+     * Reset this Config object
+     *
+     * @return void
+     */
+    protected static function reset(): void
+    {
+        self::$fail  = false;
+        self::$data  = [];
+        self::$files = [];
+        self::$cache = [];
     }
 }
