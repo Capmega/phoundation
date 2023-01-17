@@ -3,13 +3,15 @@
 namespace Phoundation\System\Environment;
 
 use Phoundation\Core\Config;
+use Phoundation\Core\Log;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\System\Libraries;
 
 
+
 /**
- * Setup class
+ * Environment class
  *
  * This is the prototype Init class that contains the basic methods for all other Init classes in all other libraries
  *
@@ -187,8 +189,12 @@ class Environment
      */
     public function setup(): void
     {
+        Log::action(tr('Generating configuration...'));
         Config::import($this->getConfiguration());
         Config::save();
+        Config::useEnvironment($this->name);
+
+        Log::action(tr('Initializing system...'));
         Libraries::initialize(true, true, true, 'System setup');
     }
 }

@@ -1,0 +1,144 @@
+#!/usr/bin/php
+<?php
+
+use Phoundation\Cli\Cli;
+use Phoundation\Core\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Data\Validator\ArrayValidator;
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\System\Environment\Environment;
+use Phoundation\System\Environment\Project;
+
+
+
+/**
+ * This is the setup script for the project. This script will be the first script to be run to set up your system
+ *
+ * In order to be able to set up, one conditions must be met: There is no configuration file available
+ *
+ * @author Sven Oostenbrink <support@capmega.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @category Function reference
+ * @package Phoundation\Core
+ */
+$usage = './cli system project setup [OPTIONS]
+./cli system project setup --no-password-validation
+./cli system project setup --force';
+
+$help  = 'This script allows you to setup a new project
+
+
+
+ARGUMENTS
+
+
+
+[--project]                             Setup the entire project 
+
+[--no-validation]                       (System parameter) If specified, the validation system will not cause any 
+                                        validation errors and all data will be accepted. Please note that this may cause 
+                                        unpredictable behaviour and errors depending on input. Use only for testing! 
+
+[--no-password-validation]              Will only not validate passwords and allow unsafe or even empty passwords. Use 
+                                        only for testing!  
+
+[-F / --force]                          Run the setup in FORCE mode, which will remove any previously set up project
+                                        and start a new project from scratch';
+
+
+
+// Get command line arguments
+ArgvValidator::new()
+    ->select('--no-password-validation')->isOptional(false)->isBoolean()
+    ->select('--project')->isOptional(false)->isBoolean()
+    ->noArgumentsLeft()
+    ->validate();
+
+
+
+// Validate and create project
+if (!Project::exists()) {
+    $create = true;
+ } elseif ($argv['project']) {
+    if (!FORCE) {
+        throw new OutOfBoundsException(tr('Cannot setup system, project file "config/project" already exists. Please re-run this script with -F / --force option'));
+    }
+
+    Project::remove();
+    $create = true;
+}
+
+if (isset($create)) {
+    Project::create(Cli::readInput('Please specify the project name:', 'Phoundation'));
+}
+
+
+
+// Validate environment
+// Load the project
+$project = Project::get();
+$project->useEnvironment(Cli::readInput('Please specify the environment you wish to set up:', 'local'));
+
+
+
+// Get configuration parameters
+$config = [];
+$config['domain']         = Cli::readInput('Please specify the project domain name:', 'localhost');
+$config['database_host']  = Cli::readInput('Please specify the core database host:', 'localhost');
+$config['database_name']  = Cli::readInput('Please specify the core database name:', 'phoundation');
+$config['database_user']  = Cli::readInput('Please specify the core database user:', 'phoundation');
+$config['database_pass1'] = Cli::readPassword('Please specify the core database password:');
+$config['database_pass2'] = Cli::readPassword('Please repeat the core database password:');
+$config['admin_email']    = Cli::readInput('Please specify the administrator email:');
+$config['admin_pass1']    = Cli::readPassword('Please specify the administrator password:');
+$config['admin_pass2']    = Cli::readPassword('Please repeat the administrator password:');
+
+
+
+// Validate configuration parameters
+if ($argv['no_password_validation']) {
+    ArrayValidator::new($config)
+        ->select('project')->isWord()
+        ->select('domain')->isDomain()
+        ->select('database_host')->isDomain()
+        ->select('database_name')->isWord()
+        ->select('database_user')->isWord()
+        ->select('database_pass1')->isPrintable()
+        ->select('admin_email')->isEmail()
+        ->select('admin_pass1')->isPrintable()
+        ->validate();
+
+} else {
+    ArrayValidator::new($config)
+        ->select('project')->isWord()
+        ->select('domain')->isDomain()
+        ->select('database_host')->isDomain()
+        ->select('database_name')->isWord()
+        ->select('database_user')->isWord()
+        ->select('database_pass1')->isPassword()
+        ->select('database_pass2')->isPassword()->isEqualTo('database_pass2')
+        ->select('admin_email')->isEmail()
+        ->select('admin_pass1')->isPassword()
+        ->select('admin_pass2')->isPassword()->isEqualTo('admin_pass1')
+        ->validate();
+}
+
+
+
+// Yay! We can safely set up this environment. Create a basic configuration file from a few basic questions.
+$configuration = $project->getEnvironment()->getConfiguration();
+$configuration->setProject($config['project']);
+$configuration->setDomain($config['domain']);
+$configuration->setEmail($config['admin_email']);
+$configuration->setPassword($config['admin_pass1']);
+$configuration->getDatabase()->setHost($config['database_host']);
+$configuration->getDatabase()->setName($config['database_name']);
+$configuration->getDatabase()->setUser($config['database_user']);
+$configuration->getDatabase()->setPass($config['database_pass1']);
+
+
+
+// Start the setup
+Log::action('Starting system setup, this can take a little while...');
+$project->setup();
