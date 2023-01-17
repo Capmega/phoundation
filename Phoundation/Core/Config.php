@@ -108,11 +108,11 @@ class Config
     {
         if ($environment) {
             // Use the specified environment
-            self::$environment = $environment;
+            self::$environment = strtolower(trim($environment));
 
         } elseif (defined('ENVIRONMENT')) {
             // Use the global environment
-            self::$environment = ENVIRONMENT;
+            self::$environment = strtolower(trim(ENVIRONMENT));
 
         } else {
             // This should only happen in some rare occasions where startup fails and we require configuration access
@@ -458,38 +458,48 @@ class Config
      */
     protected static function read(string $environment): void
     {
-        // What environments should be read?
-        if ($environment === 'production') {
-            $environments = ['production'];
-        } else {
-            $environments = ['production', $environment];
-        }
-
-        // Read the section for each environment
-        foreach ($environments as $environment) {
-            $file = PATH_ROOT . 'config/' . $environment . '.yaml';
-            Restrictions::new(PATH_ROOT . 'config/')->check($file, false);
-
-            // Check if a configuration file exists for this environment
-            if (!file_exists($file)) {
-                // Do NOT use tr() here as it will cause endless loops!
-                throw ConfigException::new('Configuration file "' . Strings::from($file, PATH_ROOT) . '" for environment "' . Strings::log($environment) . '" does not exist')->makeWarning();
+        try {
+            // What environments should be read?
+            if ($environment === 'production') {
+                $environments = ['production'];
+            } else {
+                $environments = ['production', $environment];
             }
 
-            try {
-                // Read the configuration data and merge it in the internal configuration data array
-                $data = yaml_parse_file($file);
-            } catch (Throwable $e) {
-                // Failed to read YAML data from configuration file
-                self::$fail = true;
-                throw $e;
+            // Read the section for each environment
+            foreach ($environments as $environment) {
+                $file = PATH_ROOT . 'config/' . $environment . '.yaml';
+                Restrictions::new(PATH_ROOT . 'config/')->check($file, false);
+
+                // Check if a configuration file exists for this environment
+                if (!file_exists($file)) {
+                    // Do NOT use tr() here as it will cause endless loops!
+                    throw ConfigException::new('Configuration file "' . Strings::from($file, PATH_ROOT) . '" for environment "' . Strings::log($environment) . '" does not exist')
+                        ->makeWarning();
+                }
+
+                try {
+                    // Read the configuration data and merge it in the internal configuration data array
+                    $data = yaml_parse_file($file);
+                } catch (Throwable $e) {
+                    // Failed to read YAML data from configuration file
+                    self::$fail = true;
+                    throw ConfigException::new('Configuration file "' . Strings::from($file, PATH_ROOT) . '" for environment "' . Strings::log($environment) . '" does not exist', null, null, $e)
+                        ->makeWarning();
+                }
+
+                if (!is_array($data)) {
+                    throw new OutOfBoundsException(tr('Configuration data in file ":file" has an invalid format', [
+                        ':file' => $file
+                    ]));
+                }
+
+                self::$data = Arrays::mergeFull(self::$data, $data);
             }
 
-            if (!is_array($data)) {
-                throw new OutOfBoundsException(tr('Configuration data in file ":file" has an invalid format', [':file' => $file]));
-            }
-
-            self::$data = Arrays::mergeFull(self::$data, $data);
+        } catch (ConfigException $e) {
+            self::$fail = true;
+            // TODO Log here that configuration loading failed.
         }
     }
 
@@ -630,7 +640,7 @@ class Config
 
         // Convert the data into yaml and store the data in the default file
         $data = yaml_emit($data);
-        file_put_contents('config/default.yaml', $data);
+        file_put_contents(PATH_ROOT . 'config/' . self::$environment . '.yaml', $data);
     }
 
 
