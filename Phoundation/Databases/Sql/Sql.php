@@ -221,7 +221,9 @@ class Sql
                     ]), $e);
 
                 case 1049:
-                    throw new SqlException(tr('Cannot use database ":db", it does not exist', [':db' => $this->configuration['name']]), $e);
+                    throw new SqlException(tr('Cannot use database ":db", it does not exist', [
+                        ':db' => $this->configuration['name']
+                    ]), $e);
             }
 
             throw $e;
