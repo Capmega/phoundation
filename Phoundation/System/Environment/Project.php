@@ -2,11 +2,12 @@
 
 namespace Phoundation\System\Environment;
 
-use Phoundation\Core\Config;
+use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
+use Phoundation\Filesystem\Restrictions;
 
 
 
@@ -93,14 +94,18 @@ class Project
      * @param string $environment
      * @return Environment
      */
-    public function useEnvironment(string $environment): Environment
+    public static function setEnvironment(string $environment): Environment
     {
         $environment = Environment::sanitize($environment);
 
         if (Environment::exists($environment)) {
-            throw OutOfBoundsException::new(tr('Specified environment ":environment" has already been setup', [
-                ':environment' => $environment
-            ]))->makeWarning();
+            if (!FORCE) {
+                throw OutOfBoundsException::new(tr('Specified environment ":environment" has already been setup', [
+                    ':environment' => $environment
+                ]))->makeWarning();
+            }
+
+            self::removeEnvironment($environment);
         }
 
         self::$environment = Environment::new($environment);
@@ -154,17 +159,15 @@ class Project
      */
     public static function remove(): void
     {
+        Log::action(tr('Removing project'));
+
         foreach (self::getEnvironments() as $environment) {
-            // Use the requested project
-            self::$environment::useEnvironment(self::$name);
+            // Delete this environment
+            self::removeEnvironment($environment);
         }
 
-        // Drop core database
-        sql()->drop();
-
-        // Delete the configuration file
-        Config::useEnvironment();
-        File::new(self::getConfigurationFile(self::$name))->delete();
+        // Remove the project file
+        File::new(PATH_ROOT . 'config/project', Restrictions::new(PATH_ROOT . 'config/project', true))->delete();
     }
 
 
@@ -176,8 +179,23 @@ class Project
      */
     public static function setup(): void
     {
-        Log::information(tr('Initializing project ":project"...', [':project' => self::$name]));
+        $configuration = self::$environment->getConfiguration();
+
+        Log::information(tr('Initializing project ":project", this can take a little while...', [
+            ':project' => self::$name
+        ]));
+
         self::getEnvironment()->setup();
+
+        Log::action(tr('Creating administrative user ":email", almost done...', [
+            ':email' => $configuration->getEmail()
+        ]));
+
+        $user = User::new()
+            ->setEmail($configuration->getEmail())
+            ->save();
+
+        $user->setPassword($configuration->getPassword(), $configuration->getPassword());
     }
 
 
@@ -249,4 +267,23 @@ class Project
 
         return $project;
     }
+
+
+
+    /**
+     * Remove the specified environment
+     *
+     * @param string $environment
+     * @return bool
+     */
+    protected static function removeEnvironment(string $environment): bool
+    {
+        if (!Environment::exists($environment)) {
+            return false;
+        }
+
+        // Get the environment and remove all environment specific data
+        return Environment::get($environment)->remove();
+    }
+
 }

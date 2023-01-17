@@ -2,11 +2,9 @@
 <?php
 
 use Phoundation\Cli\Cli;
-use Phoundation\Core\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\ArrayValidator;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\System\Environment\Environment;
 use Phoundation\System\Environment\Project;
 
 
@@ -36,15 +34,15 @@ ARGUMENTS
 
 [--project]                             Setup the entire project 
 
-[--no-validation]                       (System parameter) If specified, the validation system will not cause any 
+[--no-validation]                       (System argument) If specified, the validation system will not cause any 
                                         validation errors and all data will be accepted. Please note that this may cause 
                                         unpredictable behaviour and errors depending on input. Use only for testing! 
 
 [--no-password-validation]              Will only not validate passwords and allow unsafe or even empty passwords. Use 
                                         only for testing!  
 
-[-F / --force]                          Run the setup in FORCE mode, which will remove any previously set up project
-                                        and start a new project from scratch';
+[-F / --force]                          (System argument) Run the setup in FORCE mode, which will remove any previously 
+                                        set up project and start a new project from scratch';
 
 
 
@@ -78,7 +76,7 @@ if (isset($create)) {
 // Validate environment
 // Load the project
 $project = Project::get();
-$project->useEnvironment(Cli::readInput('Please specify the environment you wish to set up:', 'local'));
+$project->setEnvironment(Cli::readInput('Please specify the environment you wish to set up:', 'local'));
 
 
 
@@ -139,6 +137,5 @@ $configuration->getDatabase()->setPass($config['database_pass1']);
 
 
 
-// Start the setup
-Log::action('Starting system setup, this can take a little while...');
+// Run setup
 $project->setup();

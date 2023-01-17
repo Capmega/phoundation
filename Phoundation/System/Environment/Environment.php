@@ -6,8 +6,9 @@ use Phoundation\Core\Config;
 use Phoundation\Core\Log;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
+use Phoundation\Filesystem\Restrictions;
 use Phoundation\System\Libraries;
-
+use Throwable;
 
 
 /**
@@ -47,6 +48,46 @@ class Environment
     {
         $this->name   = self::sanitize($environment);
         $this->config = new Configuration();
+    }
+
+
+
+    /**
+     * Returns a new environment with the specified name
+     *
+     * @param string $environment
+     * @return Environment
+     */
+    public static function new(string $environment): Environment
+    {
+        Log::action(tr('Generating new environment ":env"', [':env' => $environment]));
+
+        if (self::exists($environment)) {
+            throw new OutOfBoundsException(tr('Specified environment ":environment" already exist', [
+                ':environment' => $environment
+            ]));
+        }
+
+        return new Environment($environment);
+    }
+
+
+
+    /**
+     * Returns the specified environment
+     *
+     * @param string $environment
+     * @return Environment
+     */
+    public static function get(string $environment): Environment
+    {
+        if (!self::exists($environment)) {
+            throw new OutOfBoundsException(tr('Specified environment ":environment" does not exist', [
+                ':environment' => $environment
+            ]));
+        }
+
+        return new Environment($environment);
     }
 
 
@@ -112,44 +153,6 @@ class Environment
 
 
     /**
-     * Returns a new environment with the specified name
-     *
-     * @param string $environment
-     * @return Environment
-     */
-    public static function new(string $environment): Environment
-    {
-        if (self::exists($environment)) {
-            throw new OutOfBoundsException(tr('Specified environment ":environment" already exist', [
-                ':environment' => $environment
-            ]));
-        }
-
-        return new Environment($environment);
-    }
-
-
-
-    /**
-     * Returns the specified environment
-     *
-     * @param string $environment
-     * @return Environment
-     */
-    public function get(string $environment): Environment
-    {
-        if (!self::exists($environment)) {
-            throw new OutOfBoundsException(tr('Specified environment ":environment" does not exist', [
-                ':environment' => $environment
-            ]));
-        }
-
-        return new Environment($environment);
-    }
-
-
-
-    /**
      * Returns the configuration for this environment
      *
      * @return Configuration
@@ -165,19 +168,29 @@ class Environment
      * Remove this environment
      *
      * This will remove all databases and configuration files for this environment
-     * @return void
+     * @return bool
      */
-    public function remove(): void
+    public function remove(): bool
     {
         // Use the requested environment
-        Config::useEnvironment($this->name);
+        Config::setEnvironment($this->name);
+
+        Log::action(tr('Removing environment ":env"', [':env' => strtolower($this->name)]));
 
         // Drop core database
-        sql()->drop();
+        try {
+            sql('system', false)->drop();
+        } catch (Throwable $e) {
+            Log::warning(tr('Failed to drop system database for environment ":env" because ":message", continuing...', [
+                ':env'     => strtolower($this->name),
+                ':message' => $e->getMessage() . ($e->getPrevious() ? ', ' . $e->getPrevious()->getMessage() : null)
+            ]));
+        }
 
-        // Delete the configuration file
-        Config::useEnvironment();
-        File::new(self::getConfigurationFile($this->name))->delete();
+        // Stop using this environment and delete the environment configuration file
+        File::new(self::getConfigurationFile($this->name), Restrictions::new(PATH_ROOT . 'config/', true))->delete();
+        Config::setEnvironment('');
+        return true;
     }
 
 
@@ -189,10 +202,10 @@ class Environment
      */
     public function setup(): void
     {
-        Log::action(tr('Generating configuration...'));
+        Log::action(tr('Generating configuration for environment ":env"...', [':env' => strtolower($this->name)]));
+        Config::setEnvironment($this->name);
         Config::import($this->getConfiguration());
         Config::save();
-        Config::useEnvironment($this->name);
 
         Log::action(tr('Initializing system...'));
         Libraries::initialize(true, true, true, 'System setup');
