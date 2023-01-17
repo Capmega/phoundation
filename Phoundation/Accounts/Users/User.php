@@ -14,13 +14,14 @@ use Phoundation\Cli\Script;
 use Phoundation\Content\Images\Image;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
-use Phoundation\Core\Locale\Language\Language;
 use Phoundation\Core\Locale\Language\Languages;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry;
 use Phoundation\Data\DataEntryNameDescription;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\Validator;
+use Phoundation\Data\Validator\ValidatorBasics;
 use Phoundation\Date\DateTime;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Geo\City;
@@ -2005,16 +2006,22 @@ class User extends DataEntry
      */
     protected function testPasswordSecurity(string $password): void
     {
-        if ($this->passwordIsWeak($password)) {
-            throw new ValidationFailedException(tr('This password is not secure enough'));
-        }
+        try {
+            if ($this->passwordIsWeak($password)) {
+                throw new ValidationFailedException(tr('This password is not secure enough'));
+            }
 
-        if ($this->passwordIsCompromised($password)) {
-            throw new ValidationFailedException(tr('This password has been compromised'));
-        }
+            if ($this->passwordIsCompromised($password)) {
+                throw new ValidationFailedException(tr('This password has been compromised'));
+            }
 
-        if ($this->passwordIsUsedPreviously($password)) {
-            throw new ValidationFailedException(tr('This password has been used before'));
+            if ($this->passwordIsUsedPreviously($password)) {
+                throw new ValidationFailedException(tr('This password has been used before'));
+            }
+        } catch (ValidationFailedException $e) {
+            if (!Validator::disabled()) {
+                throw $e;
+            }
         }
     }
 
@@ -2029,7 +2036,14 @@ class User extends DataEntry
     protected function passwordIsWeak(string $password): bool
     {
         $strength = $this->getPasswordStrength($password);
-        return ($strength < Config::get('security.password.strength', 50));
+        $weak     = ($strength < Config::get('security.password.strength', 50));
+
+        if ($weak and Validator::disabled()) {
+            Log::warning(tr('Ignoring weak password because validation is disabled'));
+            return false;
+        }
+
+        return $weak;
     }
 
 
@@ -2205,6 +2219,19 @@ class User extends DataEntry
     protected function seedPassword(string $password): string
     {
         return Config::get('security.seed', 'phoundation') . $this->getDataValue('id') . $password;
+    }
+
+
+
+    /**
+     * Save the user to database
+     *
+     * @return static
+     */
+    public function save(): static
+    {
+        Log::action(tr('Saving user ":user"', [':user' => $this->getDisplayName()]));
+        return parent::save();
     }
 
 
