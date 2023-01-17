@@ -16,9 +16,9 @@ use Phoundation\Developer\Exception\DebugException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Web\Http\Html\Html;
-use Phoundation\Web\Http\Http;
 use Phoundation\Notifications\Notification;
 use Phoundation\Web\WebPage;
+
 
 
 /**
@@ -63,6 +63,15 @@ class Debug {
      */
     public static function enabled(?bool $enabled = null): bool
     {
+        static $loop = false;
+
+        if ($loop) {
+            // We're in a loop!
+            return false;
+        }
+
+        $loop = true;
+
         if (Core::initState()) {
             // System startup has not yet completed, disable debug!
             return false;
@@ -70,11 +79,15 @@ class Debug {
 
         if ($enabled === null) {
             // Return the setting
-            return strings::getBoolean(Config::get('debug.enabled', false));
+            $return = strings::getBoolean(Config::get('debug.enabled', false));
+            $loop   = false;
+
+            return $return;
         }
 
         // Make the setting
         Config::set('debug.enabled', $enabled);
+        $loop = false;
         return $enabled;
     }
 
@@ -106,23 +119,37 @@ class Debug {
      */
     public static function production(?bool $production = null): bool
     {
+        static $loop = false;
+
+        if ($loop) {
+            // We're in a loop!
+            return false;
+        }
+
+        $loop = true;
+
         try {
             if ($production === null) {
                 if (!defined('ENVIRONMENT')) {
                     // Oops, we're so early in startup that we don't have an environment available yet!
                     // Assume production!
+                    $loop = false;
                     return true;
                 }
 
                 // Return the setting
-                return (bool) Config::get('debug.production', false);
+                $return = Config::getBoolean('debug.production', false);
+                $loop   = false;
+                return $return;
             }
 
             // Set the value
             Config::set('debug.production', $production);
+            $loop = false;
             return $production;
         } catch (ConfigException) {
             // Failed to get (or write) config. Assume production
+            $loop = false;
             return true;
         }
     }
@@ -308,9 +335,10 @@ class Debug {
                             WebPage::sendHttpHeaders(WebPage::buildHttpHeaders($value));
                         }
 
-                        $output = PHP_EOL . tr('DEBUG SHOW (:file@:line) ', [
+                        $output = PHP_EOL . tr('DEBUG SHOW (:file@:line) [:size]', [
                             ':file' => self::currentFile($trace_offset - 1),
-                            ':line' => self::currentLine($trace_offset - 1)
+                            ':line' => self::currentLine($trace_offset - 1),
+                            ':size' => ($value === null ? 'NULL' : (is_scalar($value) ? strlen((string) $value) : count((array) $value)))
                         ]) . PHP_EOL . print_r($value, true) . PHP_EOL;
                         break;
 
@@ -330,9 +358,10 @@ class Debug {
                 flush();
 
             } else {
-                echo PHP_EOL . tr('DEBUG SHOW (:file@:line) ', [
+                echo PHP_EOL . tr('DEBUG SHOW (:file@:line) [:size]', [
                     ':file' => self::currentFile($trace_offset),
-                    ':line' => self::currentLine($trace_offset)
+                    ':line' => self::currentLine($trace_offset),
+                        ':size' => ($value === null ? 'NULL' : (is_scalar($value) ? strlen((string) $value) : count((array) $value)))
                 ]) . PHP_EOL;;
                 print_r($value) . PHP_EOL;;
                 flush();
@@ -351,8 +380,8 @@ class Debug {
             if (is_scalar($value)) {
                 $return .= ($quiet ? '' : tr('DEBUG SHOW (:file@:line) [:size] ', [
                     ':file' => self::currentFile($trace_offset),
-                        ':line' => self::currentLine($trace_offset),
-                        ':size' => strlen((string) $value)
+                    ':line' => self::currentLine($trace_offset),
+                    ':size' => strlen((string) $value)
                     ])) . $value . PHP_EOL;
 
             } else {
@@ -365,7 +394,7 @@ class Debug {
                     $return .= tr('DEBUG SHOW (:file@:line) [:size]', [
                         ':file' => self::currentFile($trace_offset),
                         ':line' => self::currentLine($trace_offset),
-                        ':size' => count((array) $value)
+                        ':size' => ($value === null ? 'NULL' : count((array) $value))
                     ]) . PHP_EOL;
                 }
 
