@@ -242,56 +242,54 @@ class Path extends FileBasics
     public function clear(bool $sudo = false): void
     {
         $this->file = Strings::slash($this->file);
-        $this->checkRestrictions($this->file, true);
 
-        while ($this->file) {
-            // Restrict location access
-            try {
+        try {
+            while ($this->file) {
+                // Restrict location access
                 $this->checkRestrictions($this->file, true);
-            } catch (RestrictionsException) {
-                // We're out of our territory, stop scanning!
-                break;
-            }
 
-            if (!file_exists($this->file)) {
-                // This section does not exist, jump up to the next section above
+                if (!file_exists($this->file)) {
+                    // This section does not exist, jump up to the next section above
+                    $this->file = dirname($this->file);
+                    continue;
+                }
+
+                if (!is_dir($this->file)) {
+                    // This is a normal file, we only delete directories here!
+                    throw new OutOfBoundsException(tr('Not clearing path ":path", it is not a directory', [
+                        ':path' => $this->file
+                    ]));
+                }
+
+                if (!Path::new($this->file, $this->server_restrictions)->isEmpty()) {
+                    // Do not remove anything more, there is contents here!
+                    break;
+                }
+
+                // Remove this entry and continue;
+                try {
+                    File::new($this->file, $this->server_restrictions)->delete(false, $sudo);
+
+                }catch(Exception $e) {
+                    /*
+                     * The directory WAS empty, but cannot be removed
+                     *
+                     * In all probability, a parallel process added a new content in this directory, so it's no longer empty.
+                     * Just register the event and leave it be.
+                     */
+                    Log::warning(tr('Failed to remove empty pattern ":pattern" with exception ":e"', [
+                        ':pattern' => $this->file,
+                        ':e'       => $e
+                    ]));
+
+                    break;
+                }
+
+                // Go one entry up, check if we're still within restrictions, and continue deleting
                 $this->file = dirname($this->file);
-                continue;
             }
-
-            if (!is_dir($this->file)) {
-                // This is a normal file, we only delete directories here!
-                throw new OutOfBoundsException(tr('Not clearing path ":path", it is not a directory', [
-                    ':path' => $this->file
-                ]));
-            }
-
-            if (!Path::new($this->file, $this->server_restrictions)->isEmpty()) {
-                // Do not remove anything more, there is contents here!
-                break;
-            }
-
-            // Remove this entry and continue;
-            try {
-                File::new($this->file, $this->server_restrictions)->delete(false, $sudo);
-
-            }catch(Exception $e) {
-                /*
-                 * The directory WAS empty, but cannot be removed
-                 *
-                 * In all probability, a parrallel process added a new content in this directory, so it's no longer empty.
-                 * Just register the event and leave it be.
-                 */
-                Log::warning(tr('Failed to remove empty pattern ":pattern" with exception ":e"', [
-                    ':pattern' => $this->file,
-                    ':e'       => $e
-                ]));
-
-                break;
-            }
-
-            // Go one entry up, check if we're still within restrictions, and continue deleting
-            $this->file = dirname($this->file);
+        } catch (RestrictionsException) {
+            // We're out of our territory, stop scanning!
         }
     }
 
