@@ -1,15 +1,4 @@
 <?php
-/**
- * functions file functions.php
- *
- * This is the core functions library file
- *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package functions
- */
 
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Exception\CoreException;
@@ -25,6 +14,33 @@ use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exception;
 use Phoundation\Filesystem\File;
 use Phoundation\Web\WebPage;
+
+
+
+/**
+ * functions file functions.php
+ *
+ * This is the core functions library file
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package functions
+ */
+
+
+
+/**
+ * Shortcut to echo-ing a new line
+ *
+ * @return void
+ */
+function nl(): void
+{
+    echo PHP_EOL;
+}
+
 
 
 /**
