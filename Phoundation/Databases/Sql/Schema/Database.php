@@ -118,6 +118,7 @@ class Database extends SchemaAbstract
     public function drop(): void
     {
         // This query cannot use bound variables!
+        Log::action(tr('Dropping database ":db"', [':db' => $this->sql->getDatabase()]));
         $this->sql->query('DROP DATABASE IF EXISTS `' . $this->sql->getDatabase() . '`');
     }
 
