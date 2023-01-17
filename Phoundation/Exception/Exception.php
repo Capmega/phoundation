@@ -4,11 +4,8 @@ namespace Phoundation\Exception;
 
 use MongoDB\Exception\RuntimeException;
 use Phoundation\Core\Arrays;
-use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreException;
-use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
-use Phoundation\Developer\Debug;
 use Throwable;
 
 
