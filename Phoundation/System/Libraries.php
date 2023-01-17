@@ -469,7 +469,7 @@ class Libraries
     protected static function force(): void
     {
         if (Debug::production()) {
-            throw new AccessDeniedException(tr('For safety reasons, init force is NOT allowed on production environment!'));
+            throw new AccessDeniedException(tr('For safety reasons, init or setup force is NOT allowed on production environment!'));
         }
 
         sql()->schema()->database()->drop();

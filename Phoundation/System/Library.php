@@ -57,7 +57,7 @@ class Library
         $this->library = Strings::fromReverse(Strings::unslash($path), '/');
         $this->library = strtolower($this->library);
 
-        if ($this->library === 'libraries') {
+        if ($this->library === 'system') {
             // The libraries library does not have init support itself
             return;
         }
