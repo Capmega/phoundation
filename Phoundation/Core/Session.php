@@ -426,7 +426,7 @@ Log::warning('RESTART SESSION');
              * Ensure that we have a cloaked URL users_id and that it matches the sessions users_id
              * Only check cloaking rules if we are NOT displaying a system page
              */
-            if (!Core::getCallType('system')) {
+            if (!Core::getRequestType('system')) {
                 if (empty($core->register['url_cloak_users_id'])) {
                     throw new SessionException(tr('Failed cloaked URL strict checking, no cloaked URL users_id registered'));
                 }

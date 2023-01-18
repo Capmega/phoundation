@@ -7,9 +7,11 @@ use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\Script;
 use Phoundation\Core\Exception\CoreException;
+use Phoundation\Core\Exception\NoProjectException;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Validator;
+use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Date\Date;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\AccessDeniedException;
@@ -28,7 +30,7 @@ use Phoundation\Web\Route;
 use Phoundation\Web\WebPage;
 use Phoundation\Web\Web;
 use Throwable;
-
+use tubalmartin\CssMin\Tests\MinifierTest;
 
 
 /**
@@ -74,7 +76,7 @@ class Core {
      *
      * @var string|null
      */
-    protected static ?string $call_type = null;
+    protected static ?string $request_type = null;
 
     /**
      *
@@ -129,16 +131,25 @@ class Core {
      */
     protected static string $state = 'init';
 
+    /**
+     * Internal flag indicating if there is a failure or not
+     *
+     * @var bool $failed
+     */
+    protected static bool $failed = false;
+
 
 
     /**
-     * Initialize the class object through the constructor.
-     *
-     * Core constructor.
+     * Core class constructor
      */
     protected function __construct()
     {
         try {
+            self::$state = 'startup';
+            self::$register['system']['startup'] = microtime(true);
+            self::$register['system']['script']  = Strings::until(Strings::fromReverse($_SERVER['PHP_SELF'], '/'), '.');
+
             // Register the process start
             define('STARTTIME', Timer::create('process')->getStart());
 
@@ -174,68 +185,17 @@ class Core {
             require(PATH_ROOT . 'Phoundation/functions.php');
             require(PATH_ROOT . 'Phoundation/mb.php');
 
-            // Ensure safe PHP configuration
+            // Set timeout and request type, ensure safe PHP configuration, apply general server restrictions, set the
+            // project name, platform and request type
+            self::setTimeout();
             self::securePhpSettings();
+            self::setServerRestrictions();
+            self::setProject();
+            self::setPlatform();
+            self::setRequestType();
 
-            // Set up the Core restrictions object with default file access restrictions
-            self::$server_restrictions = new Server(new Restrictions(PATH_DATA, false, 'Core'));
-
-            // Get the project name
-            try {
-                define('PROJECT', strtoupper(trim(file_get_contents( PATH_ROOT . 'config/project'))));
-
-                if (!PROJECT) {
-                    throw new OutOfBoundsException('No project defined in PATH_ROOT/config/project file');
-                }
-            } catch (Throwable $e) {
-                if ($e instanceof  OutOfBoundsException) {
-                    throw $e;
-                }
-
-                // Project file is not readable
-                if(!is_readable(PATH_ROOT . 'config/project')) {
-                    throw new CoreException('Project file "' . PATH_ROOT . 'config/project" cannot be read. Please ensure it exists');
-                }
-            }
-
-            // Check what platform we're in
-            switch (php_sapi_name()) {
-                case 'cli':
-                    define('PLATFORM'     , 'cli');
-                    define('PLATFORM_HTTP', false);
-                    define('PLATFORM_CLI' , true);
-                    break;
-
-                default:
-                    define('PLATFORM'     , 'http');
-                    define('PLATFORM_HTTP', true);
-                    define('PLATFORM_CLI' , false);
-                    define('NOCOLOR'      , (getenv('NOCOLOR') ? 'NOCOLOR' : null));
-
-                    // Check what environment we're in
-                    $env = getenv('PHOUNDATION_' . PROJECT . '_ENVIRONMENT');
-
-                    if (empty($env)) {
-                        // No environment set in ENV, maybe given by parameter?
-                        Web::die(1, 'startup: No required environment specified for project "' . PROJECT . '"');
-                    }
-
-                    if (str_contains($env, '_')) {
-                        Web::die(1, 'startup: Specified environment "' . $env . '" is invalid, environment names cannot contain the underscore character');
-                    }
-
-                    define('ENVIRONMENT', $env);
-
-                    // Set protocol
-                    define('PROTOCOL', Config::get('web.protocol', 'https://'));
-
-                    // Register basic HTTP information
-                    // TODO MOVE TO HTTP CLASS
-                    self::$register['http']['code'] = 200;
-//                    self::$register['http']['accepts'] = Page::accepts();
-//                    self::$register['http']['accepts_languages'] = Page::acceptsLanguages();
-                    break;
-            }
+        } catch (SqlException|NoProjectException $e) {
+            throw $e;
 
         } catch (Throwable $e) {
             try {
@@ -257,7 +217,7 @@ class Core {
             }
 
             // Wowza things went to @#*$@( really fast! The standard defines aren't even available yet
-            @error_log('Startup failed with "' . $e->getMessage() . '", see exception below.                    ');
+            @error_log('Startup failed with "' . $e->getMessage() . '", see exception below');
             @error_log($e);
             die('Startup: Failed, see error log');
         }
@@ -297,487 +257,8 @@ class Core {
                 ]));
             }
 
-            self::$state = 'startup';
-
             self::getInstance();
-            self::$register['system']['startup'] = microtime(true);
-            self::$register['system']['script']  = Strings::until(Strings::fromReverse($_SERVER['PHP_SELF'], '/'), '.');
-
-            // Detect platform and execute specific platform startup sequence
-            switch (PLATFORM) {
-                case 'http':
-                    /*
-                     * Determine what our target file is. With direct execution, $_SERVER[PHP_SELF] would contain this,
-                     * with route execution, $_SERVER[PHP_SELF] would be route, so we cannot use that. Route will store
-                     * the file being executed in self::$register['script_path'] instead
-                     */
-                    $file = $_SERVER['REQUEST_URI'];
-
-                    // Autodetect what http call type we're on from the script being executed
-                    if (str_contains($file, '/admin/')) {
-                        self::$call_type = 'admin';
-
-                    } elseif (str_contains($file, '/ajax/')) {
-                        self::$call_type = 'ajax';
-
-                    } elseif (str_contains($file, '/api/')) {
-                        self::$call_type = 'api';
-
-                    } elseif ((str_starts_with($_SERVER['SERVER_NAME'], 'api')) and preg_match('/^api(?:-[0-9]+)?\./', $_SERVER['SERVER_NAME'])) {
-                        self::$call_type = 'api';
-
-                    } elseif ((str_starts_with($_SERVER['SERVER_NAME'], 'cdn')) and preg_match('/^cdn(?:-[0-9]+)?\./', $_SERVER['SERVER_NAME'])) {
-                        self::$call_type = 'api';
-
-                    } elseif (Config::get('web.html.amp.enabled', false) and !empty($_GET['amp'])) {
-                        self::$call_type = 'amp';
-
-                    } elseif (is_numeric(substr($file, -3, 3))) {
-                        self::$register['http']['code'] = substr($file, -3, 3);
-                        self::$call_type = 'system';
-
-                    } else {
-                        self::$call_type = 'http';
-                    }
-
-                    // Set timeout and define basic platform constants
-                    self::setTimeout();
-
-                    define('ADMIN'   , '');
-                    define('PWD'     , Strings::slash(isset_get($_SERVER['PWD'])));
-                    define('STARTDIR', Strings::slash(getcwd()));
-                    define('FORCE'   , (getenv('FORCE')   ? 'FORCE'   : false));
-                    define('TEST'    , (getenv('TEST')    ? 'TEST'    : false));
-                    define('QUIET'   , (getenv('QUIET')   ? 'QUIET'   : false));
-                    define('PAGE'    , isset_get($_GET['page'], 1));
-                    define('LIMIT'   , (getenv('LIMIT')   ? 'LIMIT'   : Config::getNatural('paging.limit', 50)));
-                    define('ALL'     , (getenv('ALL')     ? 'ALL'     : false));
-                    define('DELETED' , (getenv('DELETED') ? 'DELETED' : false));
-                    define('ORDERBY' , (getenv('ORDERBY') ? 'ORDERBY' : ''));
-                    define('STATUS'  , (getenv('STATUS')  ? 'STATUS'  : ''));
-
-                    // Check HEAD and OPTIONS requests. If HEAD was requested, just return basic HTTP headers
-// :TODO: Should pages themselves not check for this and perhaps send other headers?
-                    switch ($_SERVER['REQUEST_METHOD'] ) {
-                        case 'OPTIONS':
-                            throw new UnderConstructionException();
-                    }
-
-                    // Set security umask
-                    umask(Config::get('filesystem.umask', 0007));
-
-                    /*
-                     * Set language data
-                     *
-                     * This is normally done by checking the current dirname of the startup file, this will be
-                     * LANGUAGECODE/libs/handlers/system-webpage.php
-                     */
-                    // DEPRECATED
-                    // TODO THIS SHOULD BE DONE BY THE Route CLASS!
-                    try {
-                        $supported = Config::get('languages.supported', ['en', 'es']);
-
-                        if ($supported) {
-                            // Language is defined by the www/LANGUAGE dir that is used.
-                            $url      = $_SERVER['REQUEST_URI'];
-                            $url      = Strings::startsNotWith($url, '/');
-                            $language = Strings::until($url, '/');
-
-                            if (!in_array($language, $supported)) {
-                                Log::warning(tr('Detected language ":language" is not supported, falling back to default. See configuration languages.supported', [':language' => $language]));
-                                $language = Config::get('languages.default', 'en');
-                            }
-
-                        } else {
-                            $language = Config::get('languages.default', 'en');
-                        }
-
-                        define('LANGUAGE', $language);
-                        define('LOCALE'  , $language.(empty($_SESSION['location']['country']['code']) ? '' : '_' . $_SESSION['location']['country']['code']));
-
-                        // Ensure $_SESSION['language'] available
-                        if (empty($_SESSION['language'])) {
-                            $_SESSION['language'] = LANGUAGE;
-                        }
-
-                    }catch(Throwable $e) {
-                        // Language selection failed
-                        if (!defined('LANGUAGE')) {
-                            define('LANGUAGE', 'en');
-                        }
-
-                        $e = new OutOfBoundsException('Language selection failed', $e);
-                    }
-
-                    // Setup locale and character encoding
-                    // TODO Check this mess!
-                    ini_set('default_charset', Config::get('languages.encoding.charset', 'UTF-8'));
-                    self::$register['system']['locale'] = self::setLocale();
-
-                    // Prepare for unicode usage
-                    if (Config::get('languages.encoding.charset', 'UTF-8') === 'UTF-8') {
-                        mb_init(not_empty(Config::get('locale.LC_CTYPE', ''), Config::get('locale.LC_ALL', '')));
-
-                        if (function_exists('mb_internal_encoding')) {
-                            mb_internal_encoding('UTF-8');
-                        }
-                    }
-
-                    // Check for configured maintenance mode
-                    if (Config::getBoolean('system.maintenance', false)) {
-                        // We are in maintenance mode, have to show mainenance page.
-                        Route::executeSystem(503);
-                    }
-
-                    // Set cookie, start session where needed, etc.
-                    Session::startup();
-                    self::setTimeZone();
-
-                    // If POST request, automatically untranslate translated POST entries
-                    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-//                        Html::untranslate();
-//                        Html::fixCheckboxValues();
-
-                        if (Config::get('security.csrf.enabled', true) === 'force') {
-                            // Force CSRF checks on every submit!
-//                            Http::checkCsrf();
-                        }
-                    }
-
-                    // Set the CDN url for javascript and validate HTTP GET request data
-// TODO Below
-//                    Html::setJsCdnUrl();
-                    Http::validateGet();
-                    break;
-
-                case 'cli':
-                    self::$call_type = 'cli';
-
-                    ArgvValidator::hideData($GLOBALS['argv']);
-
-                    $argv = ArgvValidator::new()
-                        ->select('--deleted')->isOptional(false)->isBoolean()
-                        ->select('-A,--all')->isOptional(false)->isBoolean()
-                        ->select('-C,--no-color')->isOptional(false)->isBoolean()
-                        ->select('-D,--debug')->isOptional(false)->isBoolean()
-                        ->select('-F,--force')->isOptional(false)->isBoolean()
-                        ->select('-H,--help')->isOptional(false)->isBoolean()
-                        ->select('-Q,--quiet')->isOptional(false)->isBoolean()
-                        ->select('-T,--test')->isOptional(false)->isBoolean()
-                        ->select('-U,--usage')->isOptional(false)->isBoolean()
-                        ->select('-V,--verbose')->isOptional(false)->isBoolean()
-                        ->select('-W,--no-warnings')->isOptional(false)->isBoolean()
-                        ->select('--version')->isOptional(false)->isBoolean()
-                        ->select('-E,--environment', true)->isOptional(null)->hasMinCharacters(1)->hasMaxCharacters(64)
-                        ->select('-L,--limit', true)->isOptional(Config::get('paging.limit', 50))->isId()
-                        ->select('-O,--order-by', true)->isOptional(null)->hasMinCharacters(1)->hasMaxCharacters(128)
-                        ->select('-P,--page', true)->isOptional(1)->isId()
-                        ->select('-S,--status', true)->isOptional(null)->hasMinCharacters(1)->hasMaxCharacters(16)
-                        ->select('--language', true)->isOptional(null)->isCode()
-                        ->select('--timezone', true)->isOptional(false)->isBoolean()
-                        ->select('--show-passwords')->isOptional(false)->isBoolean()
-                        ->select('--no-validation')->isOptional(false)->isBoolean()
-                        ->validate()
-                        ->getArgv();
-
-                    // Define basic platform constants
-                    define('ADMIN'   , '');
-                    define('PWD'     , Strings::slash(isset_get($_SERVER['PWD'])));
-                    define('STARTDIR', Strings::slash(getcwd()));
-
-                    define('QUIET'   , $argv['quiet']);
-                    define('VERBOSE' , $argv['verbose']);
-                    define('FORCE'   , $argv['force']);
-                    define('NOCOLOR' , $argv['no_color']);
-                    define('TEST'    , $argv['test']);
-                    define('DELETED' , $argv['deleted']);
-                    define('ALL'     , $argv['all']);
-                    define('STATUS'  , $argv['status']);
-                    define('PAGE'    , $argv['page']);
-                    define('LIMIT'   , $argv['limit']);
-
-                    // Check what environment we're in
-                    if (isset($argv['environment'])) {
-                        // Environment was manually specified on command line
-                        $env = $argv['environment'];
-                    } else {
-                        $env = getenv('PHOUNDATION_' . PROJECT . '_ENVIRONMENT');
-
-                        if (empty($env)) {
-                            define('ENVIRONMENT', 'production');
-                            Script::shutdown(2, 'startup: No required environment specified for project "' . PROJECT . '"');
-                        }
-                    }
-
-                    define('ENVIRONMENT', $env);
-
-                    // Set protocol
-                    define('PROTOCOL', Config::get('web.protocol', 'https://'));
-
-                    // Correct $_SERVER['PHP_SELF'], sometimes seems empty
-                    if (empty($_SERVER['PHP_SELF'])) {
-                        if (!isset($_SERVER['_'])) {
-                            $e = new OutOfBoundsException('No $_SERVER[PHP_SELF] or $_SERVER[_] found');
-                        }
-
-                        $_SERVER['PHP_SELF'] =  $_SERVER['_'];
-                    }
-
-                    // Process command line system arguments if we have no exception so far
-                    if ($argv['version']) {
-                        Log::information(tr('Phoundation framework code version ":fv"', [
-                            ':fv' => self::FRAMEWORKCODEVERSION
-                        ]));
-                        $die = 0;
-                    }
-
-                    // Set more system parameters
-                    if ($argv['debug']) {
-                        Debug::enabled();
-                    }
-
-                    if ($argv['usage']) {
-                        Script::showUsage(isset_get($GLOBALS['usage']), 'white');
-                        $die = 0;
-                    }
-
-                    if ($argv['help']) {
-                        if (isset_get($GLOBALS['argv'][$argid + 1]) == 'system') {
-                            Script::showHelp('system');
-
-                        } else {
-                            if (empty($GLOBALS['help'])) {
-                                $e = new CoreException(tr('Sorry, this script has no help text defined'), 'warning');
-                            }
-
-                            $GLOBALS['help'] = Arrays::force($GLOBALS['help'], "\n");
-
-                            if (count($GLOBALS['help']) == 1) {
-                                Log::information(array_shift($GLOBALS['help']));
-
-                            } else {
-                                foreach (Arrays::force($GLOBALS['help'], "\n") as $line) {
-                                    Log::information($line);
-                                }
-
-                                Log::information();
-                            }
-                        }
-
-                        $die = 0;
-                    }
-
-                    if ($argv['language']) {
-                        // Set language to be used
-                        if (isset($language)) {
-                            $e = new CoreException(tr('Language has been specified twice'));
-                        }
-
-                        if (!isset($GLOBALS['argv'][$argid + 1])) {
-                            $e = new CoreException(tr('The "language" argument requires a two letter language core right after it'));
-                        }
-
-                        $language = $GLOBALS['argv'][$argid + 1];
-
-                        unset($GLOBALS['argv'][$argid]);
-                        unset($GLOBALS['argv'][$argid + 1]);
-                    }
-
-                    if ($argv['order_by']) {
-                        define('ORDERBY', ' ORDER BY `' . Strings::until($argv['order_by'], ' ') . '` ' . Strings::from($argv['order_by'], ' ') . ' ');
-
-                        $valid = preg_match('/^ ORDER BY `[a-z0-9_]+`(?:\s+(?:DESC|ASC))? $/', ORDERBY);
-
-                        if (!$valid) {
-                            // The specified column ordering is NOT valid
-                            $e = new CoreException(tr('The specified orderby argument ":argument" is invalid', [':argument' => ORDERBY]));
-                        }
-
-                        unset($GLOBALS['argv'][$argid]);
-                        unset($GLOBALS['argv'][$argid + 1]);
-                    }
-
-                    if ($argv['timezone']) {
-                        // Set timezone
-                        if (isset($timezone)) {
-                            $e = new CoreException(tr('Timezone has been specified twice'), 'exists');
-                        }
-
-                        if (!isset($GLOBALS['argv'][$argid + 1])) {
-                            $e = new CoreException(tr('The "timezone" argument requires a valid and existing timezone name right after it'));
-
-                        }
-
-                        $timezone = $GLOBALS['argv'][$argid + 1];
-
-                        unset($GLOBALS['argv'][$argid]);
-                        unset($GLOBALS['argv'][$argid + 1]);
-                    }
-
-                    if ($argv['no_warnings']) {
-                        define('NOWARNINGS', true);
-                    }
-
-                    if ($argv['show_passwords']) {
-                        Cli::showPasswords(true);
-                    }
-
-                    if ($argv['no_validation']) {
-                        Validator::disable();
-                    }
-
-                    // Remove the command itself from the argv array
-                    array_shift($GLOBALS['argv']);
-
-                    // Set timeout
-                    self::setTimeout();
-
-                    // Something failed?
-                    if (isset($e)) {
-                        echo "startup-cli: Command line parser failed with \"".$e->getMessage()."\"\n";
-                        Script::setExitCode(1);
-                        die(1);
-                    }
-
-                    if (isset($die)) {
-                        Script::shutdown($die);
-                    }
-
-                    // set terminal data
-                    self::$register['cli'] = ['term' => Cli::getTerm()];
-
-                    if (self::$register['cli']['term']) {
-                        self::$register['cli']['columns'] = Cli::getColumns();
-                        self::$register['cli']['lines']   = Cli::getLines();
-
-                        if (!self::$register['cli']['columns']) {
-                            self::$register['cli']['size'] = 'unknown';
-
-                        } elseif (self::$register['cli']['columns'] <= 80) {
-                            self::$register['cli']['size'] = 'small';
-
-                        } elseif (self::$register['cli']['columns'] <= 160) {
-                            self::$register['cli']['size'] = 'medium';
-
-                        } else {
-                            self::$register['cli']['size'] = 'large';
-                        }
-                    }
-
-                    // Set security umask
-                    umask(Config::get('filesystem.umask', 0007));
-
-                    // Ensure that the process UID matches the file UID
-                    self::processFileUidMatches(true);
-                    Log::notice(tr('Running script ":script"', [':script' => $_SERVER['PHP_SELF']]), 1);
-
-                    // Get required language.
-                    try {
-                        $language = not_empty($argv['language'], Config::get('language.default', 'en'));
-
-                        if (Config::get('language.default', ['en']) and Config::exists('language.supported.' . $language)) {
-                            throw new CoreException(tr('Unknown language ":language" specified', array(':language' => $language)), 'unknown');
-                        }
-
-                        define('LANGUAGE', $language);
-                        define('LOCALE'  , $language.(empty($_SESSION['location']['country']['code']) ? '' : '_' . $_SESSION['location']['country']['code']));
-
-                        $_SESSION['language'] = $language;
-
-                    }catch(Throwable $e) {
-                        // Language selection failed
-                        if (!defined('LANGUAGE')) {
-                            define('LANGUAGE', 'en');
-                        }
-
-                        $e = new CoreException('Language selection failed', $e);
-                    }
-
-                    // Setup locale and character encoding
-                    // TODO Check this mess!
-                    ini_set('default_charset', Config::get('languages.encoding.charset', 'UTF-8'));
-                    self::$register['system']['locale'] = self::setLocale();
-
-                    // Prepare for unicode usage
-                    if (Config::get('languages.encoding.charset', 'UTF-8') === 'UTF-8') {
-// TOOD Fix this godawful mess!
-                        mb_init(not_empty(Config::get('locale.LC_CTYPE', ''), Config::get('locale.LC_ALL', '')));
-
-                        if (function_exists('mb_internal_encoding')) {
-                            mb_internal_encoding('UTF-8');
-                        }
-                    }
-
-                    self::setTimeZone();
-
-                    //
-                    self::$register['ready'] = true;
-
-                    // Validate parameters and give some startup messages, if needed
-                    if (Debug::enabled()) {
-                        if (QUIET) {
-                            throw new CoreException(tr('Both QUIET and Debug::enabled() have been specified but these options are mutually exclusive. Please specify either one or the other'));
-                        }
-
-                        if (Debug::enabled()) {
-                            Log::information(tr('Running in Debug::enabled() mode, started @ ":datetime"', array(':datetime' => Date::convert(STARTTIME, 'human_datetime'))));
-
-                        } else {
-                            Log::information(tr('Running in Debug::enabled() mode, started @ ":datetime"', array(':datetime' => Date::convert(STARTTIME, 'human_datetime'))));
-                        }
-
-                        Log::notice(tr('Detected ":size" terminal with ":columns" columns and ":lines" lines', [':size' => self::$register['cli']['size'], ':columns' => self::$register['cli']['columns'], ':lines' => self::$register['cli']['lines']]));
-                    }
-
-                    if (FORCE) {
-                        if (TEST) {
-                            throw new CoreException(tr('Both FORCE and TEST modes where specified, these modes are mutually exclusive'));
-                        }
-
-                        Log::warning(tr('Running in FORCE mode'));
-
-                    } elseif (TEST) {
-                        Log::warning(tr('Running in TEST mode'));
-                    }
-
-                    if (Debug::enabled()) {
-                        Log::warning(tr('Running in DEBUG mode'), 8);
-                    }
-
-                    if (!is_natural(PAGE)) {
-                        throw new CoreException(tr('Specified -P or --page ":page" is not a natural number', [
-                            ':page' => PAGE
-                        ]));
-                    }
-
-                    if (!is_natural(LIMIT)) {
-                        throw new CoreException(tr('Specified --limit":limit" is not a natural number', [
-                            ':limit' => LIMIT
-                        ]));
-                    }
-
-                    if (ALL) {
-                        if (PAGE > 1) {
-                            throw new CoreException(tr('Both -A or --all and -P or --page have been specified, these options are mutually exclusive'));
-                        }
-
-                        if (DELETED) {
-                            throw new CoreException(tr('Both -A or --all and -D or --deleted have been specified, these options are mutually exclusive'));
-                        }
-
-                        if (STATUS) {
-                            throw new CoreException(tr('Both -A or --all and -S or --status have been specified, these options are mutually exclusive'));
-                        }
-
-                    }
-
-                    // Setup language map in case domain() calls are used
-//                    Route::map();
-                    break;
-            }
-
-            // We're done, transfer control to script
-            self::$state = 'script';
+            self::selectStartup();
 
         } catch (Throwable $e) {
             if (PLATFORM_HTTP and headers_sent($file, $line)) {
@@ -794,6 +275,601 @@ class Core {
 
             throw $e;
         }
+    }
+
+
+
+    /**
+     * Select what startup should be executed
+     *
+     * @return void
+     */
+    protected static function selectStartup(): void
+    {
+        // Detect platform and execute specific platform startup sequence
+        switch (PLATFORM) {
+            case 'http':
+                self::startupHttp();
+                break;
+
+            case 'cli':
+                self::startupCli();
+        }
+
+        // We're done, transfer control to script
+        self::$state = 'script';
+    }
+
+
+
+    /**
+     * Startup for HTTP requests
+     *
+     * @return void
+     */
+    protected static function startupHttp(): void
+    {
+        // Define basic platform constants
+        define('ADMIN'   , '');
+        define('PWD'     , Strings::slash(isset_get($_SERVER['PWD'])));
+        define('STARTDIR', Strings::slash(getcwd()));
+        define('PAGE'    , isset_get($_GET['page'], 1));
+        define('FORCE'   , (getenv('FORCE')   ? 'FORCE'   : false));
+        define('QUIET'   , (getenv('QUIET')   ? 'QUIET'   : false));
+        define('LIMIT'   , (getenv('LIMIT')   ? 'LIMIT'   : Config::getNatural('paging.limit', 50)));
+        define('TEST'    , (getenv('TEST')    ? 'TEST'    : false));
+        define('ALL'     , (getenv('ALL')     ? 'ALL'     : false));
+        define('DELETED' , (getenv('DELETED') ? 'DELETED' : false));
+        define('ORDERBY' , (getenv('ORDERBY') ? 'ORDERBY' : ''));
+        define('STATUS'  , (getenv('STATUS')  ? 'STATUS'  : ''));
+
+        // Check HEAD and OPTIONS requests. If HEAD was requested, just return basic HTTP headers
+// :TODO: Should pages themselves not check for this and perhaps send other headers?
+        switch ($_SERVER['REQUEST_METHOD']) {
+            case 'OPTIONS':
+                throw new UnderConstructionException();
+        }
+
+        // Set security umask
+        umask(Config::get('filesystem.umask', 0007));
+
+        // Set language and locale
+        self::setLanguage();
+        self::setLocale();
+
+        // Prepare for unicode usage
+        if (Config::get('languages.encoding.charset', 'UTF-8') === 'UTF-8') {
+            mb_init(not_empty(Config::get('locale.LC_CTYPE', ''), Config::get('locale.LC_ALL', '')));
+
+            if (function_exists('mb_internal_encoding')) {
+                mb_internal_encoding('UTF-8');
+            }
+        }
+
+        // Check for configured maintenance mode
+        if (Config::getBoolean('system.maintenance', false)) {
+            // We are in maintenance mode, have to show mainenance page.
+            Route::executeSystem(503);
+        }
+
+        // Set cookie, start session where needed, etc.
+        if (!self::$failed) {
+            Session::startup();
+        }
+
+        self::setTimeZone();
+
+        // If POST request, automatically untranslate translated POST entries
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+//                        Html::untranslate();
+//                        Html::fixCheckboxValues();
+
+            if (Config::get('security.csrf.enabled', true) === 'force') {
+                // Force CSRF checks on every submit!
+//                            Http::checkCsrf();
+            }
+        }
+
+        // Set the CDN url for javascript and validate HTTP GET request data
+// TODO Below
+//                    Html::setJsCdnUrl();
+        Http::validateGet();
+    }
+
+
+
+    /**
+     * Startup for Command Line Interface
+     *
+     * @return void
+     */
+    protected static function startupCli(): void
+    {
+        self::$request_type = 'cli';
+
+        ArgvValidator::hideData($GLOBALS['argv']);
+
+        $argv = ArgvValidator::new()
+            ->select('--deleted')->isOptional(false)->isBoolean()
+            ->select('-A,--all')->isOptional(false)->isBoolean()
+            ->select('-C,--no-color')->isOptional(false)->isBoolean()
+            ->select('-D,--debug')->isOptional(false)->isBoolean()
+            ->select('-F,--force')->isOptional(false)->isBoolean()
+            ->select('-H,--help')->isOptional(false)->isBoolean()
+            ->select('-Q,--quiet')->isOptional(false)->isBoolean()
+            ->select('-T,--test')->isOptional(false)->isBoolean()
+            ->select('-U,--usage')->isOptional(false)->isBoolean()
+            ->select('-V,--verbose')->isOptional(false)->isBoolean()
+            ->select('-W,--no-warnings')->isOptional(false)->isBoolean()
+            ->select('--version')->isOptional(false)->isBoolean()
+            ->select('-E,--environment', true)->isOptional(null)->hasMinCharacters(1)->hasMaxCharacters(64)
+            ->select('-L,--limit', true)->isOptional(Config::get('paging.limit', 50))->isId()
+            ->select('-O,--order-by', true)->isOptional(null)->hasMinCharacters(1)->hasMaxCharacters(128)
+            ->select('-P,--page', true)->isOptional(1)->isId()
+            ->select('-S,--status', true)->isOptional(null)->hasMinCharacters(1)->hasMaxCharacters(16)
+            ->select('--language', true)->isOptional(null)->isCode()
+            ->select('--timezone', true)->isOptional(false)->isBoolean()
+            ->select('--show-passwords')->isOptional(false)->isBoolean()
+            ->select('--no-validation')->isOptional(false)->isBoolean()
+            ->validate()
+            ->getArgv();
+
+        // Define basic platform constants
+        define('ADMIN', '');
+        define('PWD', Strings::slash(isset_get($_SERVER['PWD'])));
+        define('STARTDIR', Strings::slash(getcwd()));
+
+        define('QUIET', $argv['quiet']);
+        define('VERBOSE', $argv['verbose']);
+        define('FORCE', $argv['force']);
+        define('NOCOLOR', $argv['no_color']);
+        define('TEST', $argv['test']);
+        define('DELETED', $argv['deleted']);
+        define('ALL', $argv['all']);
+        define('STATUS', $argv['status']);
+        define('PAGE', $argv['page']);
+        define('LIMIT', $argv['limit']);
+
+        // Check what environment we're in
+        if (isset($argv['environment'])) {
+            // Environment was manually specified on command line
+            $env = $argv['environment'];
+        } else {
+            $env = getenv('PHOUNDATION_' . PROJECT . '_ENVIRONMENT');
+
+            if (empty($env)) {
+                define('ENVIRONMENT', 'production');
+                Script::shutdown(2, 'startup: No required environment specified for project "' . PROJECT . '"');
+            }
+        }
+
+        define('ENVIRONMENT', $env);
+
+        // Set protocol
+        define('PROTOCOL', Config::get('web.protocol', 'https://'));
+
+        // Correct $_SERVER['PHP_SELF'], sometimes seems empty
+        if (empty($_SERVER['PHP_SELF'])) {
+            if (!isset($_SERVER['_'])) {
+                $e = new OutOfBoundsException('No $_SERVER[PHP_SELF] or $_SERVER[_] found');
+            }
+
+            $_SERVER['PHP_SELF'] = $_SERVER['_'];
+        }
+
+        // Process command line system arguments if we have no exception so far
+        if ($argv['version']) {
+            Log::information(tr('Phoundation framework code version ":fv"', [
+                ':fv' => self::FRAMEWORKCODEVERSION
+            ]));
+            $die = 0;
+        }
+
+        // Set more system parameters
+        if ($argv['debug']) {
+            Debug::enabled();
+        }
+
+        if ($argv['usage']) {
+            Script::showUsage(isset_get($GLOBALS['usage']), 'white');
+            $die = 0;
+        }
+
+        if ($argv['help']) {
+            if (isset_get($GLOBALS['argv'][$argid + 1]) == 'system') {
+                Script::showHelp('system');
+
+            } else {
+                if (empty($GLOBALS['help'])) {
+                    $e = new CoreException(tr('Sorry, this script has no help text defined'), 'warning');
+                }
+
+                $GLOBALS['help'] = Arrays::force($GLOBALS['help'], "\n");
+
+                if (count($GLOBALS['help']) == 1) {
+                    Log::information(array_shift($GLOBALS['help']));
+
+                } else {
+                    foreach (Arrays::force($GLOBALS['help'], "\n") as $line) {
+                        Log::information($line);
+                    }
+
+                    Log::information();
+                }
+            }
+
+            $die = 0;
+        }
+
+        if ($argv['language']) {
+            // Set language to be used
+            if (isset($language)) {
+                $e = new CoreException(tr('Language has been specified twice'));
+            }
+
+            if (!isset($GLOBALS['argv'][$argid + 1])) {
+                $e = new CoreException(tr('The "language" argument requires a two letter language core right after it'));
+            }
+
+            $language = $GLOBALS['argv'][$argid + 1];
+
+            unset($GLOBALS['argv'][$argid]);
+            unset($GLOBALS['argv'][$argid + 1]);
+        }
+
+        if ($argv['order_by']) {
+            define('ORDERBY', ' ORDER BY `' . Strings::until($argv['order_by'], ' ') . '` ' . Strings::from($argv['order_by'], ' ') . ' ');
+
+            $valid = preg_match('/^ ORDER BY `[a-z0-9_]+`(?:\s+(?:DESC|ASC))? $/', ORDERBY);
+
+            if (!$valid) {
+                // The specified column ordering is NOT valid
+                $e = new CoreException(tr('The specified orderby argument ":argument" is invalid', [':argument' => ORDERBY]));
+            }
+
+            unset($GLOBALS['argv'][$argid]);
+            unset($GLOBALS['argv'][$argid + 1]);
+        }
+
+        if ($argv['timezone']) {
+            // Set timezone
+            if (isset($timezone)) {
+                $e = new CoreException(tr('Timezone has been specified twice'), 'exists');
+            }
+
+            if (!isset($GLOBALS['argv'][$argid + 1])) {
+                $e = new CoreException(tr('The "timezone" argument requires a valid and existing timezone name right after it'));
+
+            }
+
+            $timezone = $GLOBALS['argv'][$argid + 1];
+
+            unset($GLOBALS['argv'][$argid]);
+            unset($GLOBALS['argv'][$argid + 1]);
+        }
+
+        if ($argv['no_warnings']) {
+            define('NOWARNINGS', true);
+        }
+
+        if ($argv['show_passwords']) {
+            Cli::showPasswords(true);
+        }
+
+        if ($argv['no_validation']) {
+            Validator::disable();
+        }
+
+        // Remove the command itself from the argv array
+        array_shift($GLOBALS['argv']);
+
+        // Set timeout
+        self::setTimeout();
+
+        // Something failed?
+        if (isset($e)) {
+            echo "startup-cli: Command line parser failed with \"" . $e->getMessage() . "\"\n";
+            Script::setExitCode(1);
+            die(1);
+        }
+
+        if (isset($die)) {
+            Script::shutdown($die);
+        }
+
+        // set terminal data
+        self::$register['cli'] = ['term' => Cli::getTerm()];
+
+        if (self::$register['cli']['term']) {
+            self::$register['cli']['columns'] = Cli::getColumns();
+            self::$register['cli']['lines'] = Cli::getLines();
+
+            if (!self::$register['cli']['columns']) {
+                self::$register['cli']['size'] = 'unknown';
+
+            } elseif (self::$register['cli']['columns'] <= 80) {
+                self::$register['cli']['size'] = 'small';
+
+            } elseif (self::$register['cli']['columns'] <= 160) {
+                self::$register['cli']['size'] = 'medium';
+
+            } else {
+                self::$register['cli']['size'] = 'large';
+            }
+        }
+
+        // Set security umask
+        umask(Config::get('filesystem.umask', 0007));
+
+        // Ensure that the process UID matches the file UID
+        self::processFileUidMatches(true);
+        Log::notice(tr('Running script ":script"', [':script' => $_SERVER['PHP_SELF']]), 1);
+
+        // Get required language.
+        try {
+            $language = not_empty($argv['language'], Config::get('language.default', 'en'));
+
+            if (Config::get('language.default', ['en']) and Config::exists('language.supported.' . $language)) {
+                throw new CoreException(tr('Unknown language ":language" specified', array(':language' => $language)), 'unknown');
+            }
+
+            define('LANGUAGE', $language);
+            define('LOCALE', $language . (empty($_SESSION['location']['country']['code']) ? '' : '_' . $_SESSION['location']['country']['code']));
+
+            $_SESSION['language'] = $language;
+
+        } catch (Throwable $e) {
+            // Language selection failed
+            if (!defined('LANGUAGE')) {
+                define('LANGUAGE', 'en');
+            }
+
+            $e = new CoreException('Language selection failed', $e);
+        }
+
+        // Setup locale and character encoding
+        // TODO Check this mess!
+        ini_set('default_charset', Config::get('languages.encoding.charset', 'UTF-8'));
+        self::$register['system']['locale'] = self::setLocale();
+
+        // Prepare for unicode usage
+        if (Config::get('languages.encoding.charset', 'UTF-8') === 'UTF-8') {
+// TOOD Fix this godawful mess!
+            mb_init(not_empty(Config::get('locale.LC_CTYPE', ''), Config::get('locale.LC_ALL', '')));
+
+            if (function_exists('mb_internal_encoding')) {
+                mb_internal_encoding('UTF-8');
+            }
+        }
+
+        self::setTimeZone();
+
+        //
+        self::$register['ready'] = true;
+
+        // Validate parameters and give some startup messages, if needed
+        if (Debug::enabled()) {
+            if (QUIET) {
+                throw new CoreException(tr('Both QUIET and Debug::enabled() have been specified but these options are mutually exclusive. Please specify either one or the other'));
+            }
+
+            if (Debug::enabled()) {
+                Log::information(tr('Running in Debug::enabled() mode, started @ ":datetime"', array(':datetime' => Date::convert(STARTTIME, 'human_datetime'))));
+
+            } else {
+                Log::information(tr('Running in Debug::enabled() mode, started @ ":datetime"', array(':datetime' => Date::convert(STARTTIME, 'human_datetime'))));
+            }
+
+            Log::notice(tr('Detected ":size" terminal with ":columns" columns and ":lines" lines', [':size' => self::$register['cli']['size'], ':columns' => self::$register['cli']['columns'], ':lines' => self::$register['cli']['lines']]));
+        }
+
+        if (FORCE) {
+            if (TEST) {
+                throw new CoreException(tr('Both FORCE and TEST modes where specified, these modes are mutually exclusive'));
+            }
+
+            Log::warning(tr('Running in FORCE mode'));
+
+        } elseif (TEST) {
+            Log::warning(tr('Running in TEST mode'));
+        }
+
+        if (Debug::enabled()) {
+            Log::warning(tr('Running in DEBUG mode'), 8);
+        }
+
+        if (!is_natural(PAGE)) {
+            throw new CoreException(tr('Specified -P or --page ":page" is not a natural number', [
+                ':page' => PAGE
+            ]));
+        }
+
+        if (!is_natural(LIMIT)) {
+            throw new CoreException(tr('Specified --limit":limit" is not a natural number', [
+                ':limit' => LIMIT
+            ]));
+        }
+
+        if (ALL) {
+            if (PAGE > 1) {
+                throw new CoreException(tr('Both -A or --all and -P or --page have been specified, these options are mutually exclusive'));
+            }
+
+            if (DELETED) {
+                throw new CoreException(tr('Both -A or --all and -D or --deleted have been specified, these options are mutually exclusive'));
+            }
+
+            if (STATUS) {
+                throw new CoreException(tr('Both -A or --all and -S or --status have been specified, these options are mutually exclusive'));
+            }
+
+        }
+
+        // Setup language map in case domain() calls are used
+        // Route::map();
+    }
+
+
+
+    /**
+     * Checks what platform we're running on and sets definitions for those
+     *
+     * @return void
+     */
+    protected static function setPlatform(): void
+    {
+        // Check what platform we're in
+        switch (php_sapi_name()) {
+            case 'cli':
+                define('PLATFORM'     , 'cli');
+                define('PLATFORM_HTTP', false);
+                define('PLATFORM_CLI' , true);
+                break;
+
+            default:
+                define('PLATFORM'     , 'http');
+                define('PLATFORM_HTTP', true);
+                define('PLATFORM_CLI' , false);
+                define('NOCOLOR'      , (getenv('NOCOLOR') ? 'NOCOLOR' : null));
+
+                if (PROJECT === 'UNKNOWN') {
+                    $env = 'UNKNOWN';
+                } else {
+                    // Check what environment we're in
+                    $env = getenv('PHOUNDATION_' . PROJECT . '_ENVIRONMENT');
+
+                    if (empty($env)) {
+                        // No environment set in ENV, maybe given by parameter?
+                        Web::die(1, 'startup: No required environment specified for project "' . PROJECT . '"');
+                    }
+
+                    if (str_contains($env, '_')) {
+                        Web::die(1, 'startup: Specified environment "' . $env . '" is invalid, environment names cannot contain the underscore character');
+                    }
+                }
+
+                // Set environment and protocol
+                define('ENVIRONMENT', $env);
+                define('PROTOCOL', Config::get('web.protocol', 'https://'));
+
+                // Register basic HTTP information
+                // TODO MOVE TO HTTP CLASS
+                self::$register['http']['code'] = 200;
+//                    self::$register['http']['accepts'] = Page::accepts();
+//                    self::$register['http']['accepts_languages'] = Page::acceptsLanguages();
+                break;
+        }
+    }
+
+
+
+    /**
+     * Set general file access restrictions
+     *
+     * @return void
+     */
+    protected static function setServerRestrictions(): void
+    {
+        // Set up the Core restrictions object with default file access restrictions
+        self::$server_restrictions = new Server(new Restrictions(PATH_DATA, false, 'Core'));
+    }
+
+
+
+    /**
+     * Detect and set the project name
+     *
+     * @return void
+     */
+    protected static function setProject(): void
+    {
+        // Get the project name
+        try {
+            define('PROJECT', strtoupper(trim(file_get_contents( PATH_ROOT . 'config/project'))));
+
+            if (!PROJECT) {
+                throw new OutOfBoundsException('No project defined in PATH_ROOT/config/project file');
+            }
+        } catch (Throwable $e) {
+            self::$failed = true;
+            define('PROJECT', 'UNKNOWN');
+
+            if ($e instanceof OutOfBoundsException) {
+                throw $e;
+            }
+
+            // Project file is not readable
+            if(!is_readable(PATH_ROOT . 'config/project')) {
+                self::setPlatform();
+                self::setRequestType();
+                self::selectStartup();
+
+                throw new NoProjectException('Project file "' . PATH_ROOT . 'config/project" cannot be read. Please ensure it exists');
+            }
+        }
+
+    }
+
+
+
+    /**
+     * Determine the request type
+     *
+     * @return void
+     */
+    protected static function setRequestType(): void
+    {
+        if (PLATFORM_HTTP) {
+            /*
+             * Determine what our target file is. With direct execution, $_SERVER[PHP_SELF] would contain this,
+             * with route execution, $_SERVER[PHP_SELF] would be route, so we cannot use that. Route will store
+             * the file being executed in self::$register['script_path'] instead
+             */
+            $file = $_SERVER['REQUEST_URI'];
+
+            // Autodetect what http call type we're on from the script being executed
+            if (str_contains($file, '/admin/')) {
+                self::$request_type = 'admin';
+
+            } elseif (str_contains($file, '/ajax/')) {
+                self::$request_type = 'ajax';
+
+            } elseif (str_contains($file, '/api/')) {
+                self::$request_type = 'api';
+
+            } elseif ((str_starts_with($_SERVER['SERVER_NAME'], 'api')) and preg_match('/^api(?:-[0-9]+)?\./', $_SERVER['SERVER_NAME'])) {
+                self::$request_type = 'api';
+
+            } elseif ((str_starts_with($_SERVER['SERVER_NAME'], 'cdn')) and preg_match('/^cdn(?:-[0-9]+)?\./', $_SERVER['SERVER_NAME'])) {
+                self::$request_type = 'api';
+
+            } elseif (Config::get('web.html.amp.enabled', false) and !empty($_GET['amp'])) {
+                self::$request_type = 'amp';
+
+            } elseif (is_numeric(substr($file, -3, 3))) {
+                self::$register['http']['code'] = substr($file, -3, 3);
+                self::$request_type = 'system';
+
+            } else {
+                self::$request_type = 'http';
+            }
+
+        } else {
+            // We're running on the command line
+            self::$request_type = 'cli';
+        }
+    }
+
+
+
+    /**
+     * Returns true if the Core is running in failed state
+     *
+     * @return bool
+     */
+    public static function getFailed(): bool
+    {
+        return self::$failed;
     }
 
 
@@ -1086,9 +1162,9 @@ class Core {
      *
      * @return string Returns core::callType
      */
-    public static function getCallType(): string
+    public static function getRequestType(): string
     {
-        return self::$call_type;
+        return self::$request_type;
     }
 
 
@@ -1101,7 +1177,7 @@ class Core {
      */
     public static function isCallType(string $type): bool
     {
-        return (self::$call_type === $type);
+        return (self::$request_type === $type);
     }
 
 
@@ -1274,7 +1350,7 @@ class Core {
 
                 if (!defined('PLATFORM')) {
                     // System crashed before platform detection.
-                    Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', [':code' => $e->getCode(), ':type' => self::getCallType(), ':script' => self::readRegister('system', 'script')]));
+                    Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', [':code' => $e->getCode(), ':type' => self::getRequestType(), ':script' => self::readRegister('system', 'script')]));
                     Log::error($e);
                     die('exception before platform detection');
                 }
@@ -1363,7 +1439,7 @@ class Core {
 //                                    die(Script::getExitCode());
 //                            }
 
-                        Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', [':code' => $e->getCode(), ':type' => self::getCallType(), ':script' => self::readRegister('system', 'script')]));
+                        Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', [':code' => $e->getCode(), ':type' => self::getRequestType(), ':script' => self::readRegister('system', 'script')]));
                         Log::error(tr('Exception data:'));
                         Log::error($e);
                         Script::shutdown(1);
@@ -1380,7 +1456,7 @@ class Core {
                             Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
                         } else {
                             // Log exception data
-                            Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', [':code' => $e->getCode(), ':type' => self::getCallType(), ':script' => self::readRegister('system', 'script')]));
+                            Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', [':code' => $e->getCode(), ':type' => self::getRequestType(), ':script' => self::readRegister('system', 'script')]));
                             Log::error(tr('Exception data:'));
                             Log::error($e);
                         }
@@ -1450,7 +1526,7 @@ class Core {
                                 header('Content-Type: text/html', true);
                             }
 
-                            switch (Core::getCallType()) {
+                            switch (Core::getRequestType()) {
                                 case 'api':
                                     // no-break
                                 case 'ajax':
@@ -1501,7 +1577,7 @@ class Core {
                                         <table class="exception">
                                             <thead>
                                                 <td colspan="2" class="center">
-                                                    '.tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', array(':code' => $e->getCode(), ':script' => self::readRegister('system', 'script'), 'type' => Core::getCallType())).'
+                                                    '.tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', array(':code' => $e->getCode(), ':script' => self::readRegister('system', 'script'), 'type' => Core::getRequestType())).'
                                                 </td>
                                             </thead>
                                             <tbody>
@@ -1549,7 +1625,7 @@ class Core {
                             ->setException($e)
                             ->send();
 
-                        switch (Core::getCallType()) {
+                        switch (Core::getRequestType()) {
                             case 'api':
                                 // no-break
                             case 'ajax':
@@ -1647,35 +1723,82 @@ class Core {
 
 
     /**
+     * Set the language for this request
+     *
+     * @return void
+     */
+    protected static function setLanguage(): void
+    {
+        try {
+            $supported = Config::get('languages.supported', ['en', 'es']);
+
+            if ($supported) {
+                // Language is defined by the www/LANGUAGE dir that is used.
+                $url = $_SERVER['REQUEST_URI'];
+                $url = Strings::startsNotWith($url, '/');
+                $language = Strings::until($url, '/');
+
+                if (!in_array($language, $supported)) {
+                    $language = Config::get('languages.default', 'en');
+
+                    Log::warning(tr('Detected language ":language" is not supported, falling back to default. See configuration languages.supported', [
+                            ':language' => $language]
+                    ));
+                }
+
+            } else {
+                $language = Config::get('languages.default', 'en');
+            }
+
+            define('LANGUAGE', $language);
+            define('LOCALE', $language . (empty($_SESSION['location']['country']['code']) ? '' : '_' . $_SESSION['location']['country']['code']));
+
+            // Ensure $_SESSION['language'] available
+            if (empty($_SESSION['language'])) {
+                $_SESSION['language'] = LANGUAGE;
+            }
+
+        } catch (Throwable $e) {
+            // Language selection failed
+            if (!defined('LANGUAGE')) {
+                define('LANGUAGE', 'en');
+            }
+
+            $e = new OutOfBoundsException('Language selection failed', $e);
+        }
+    }
+
+
+
+    /**
      * Apply the specified or configured locale
      *
      * @todo what is this supposed to return anyway?
-     * @param array $locale
-     * @return string
+     * @return void
      */
-    public static function setLocale(array $locale = null): string
+    public static function setLocale(): void
     {
-        $return = '';
+        // Setup locale and character encoding
+        // TODO Check this mess!
+        ini_set('default_charset', Config::get('languages.encoding.charset', 'UTF-8'));
 
-        if (!$locale) {
-            $locale = Config::get('locale', [
-                LC_ALL      => ':LANGUAGE_:COUNTRY.UTF8',
-                LC_COLLATE  => null,
-                LC_CTYPE    => null,
-                LC_MONETARY => null,
-                LC_NUMERIC  => null,
-                LC_TIME     => null,
-                LC_MESSAGES => null
-            ]);
-        }
+        $locale = Config::get('locale', [
+            LC_ALL      => ':LANGUAGE_:COUNTRY.UTF8',
+            LC_COLLATE  => null,
+            LC_CTYPE    => null,
+            LC_MONETARY => null,
+            LC_NUMERIC  => null,
+            LC_TIME     => null,
+            LC_MESSAGES => null
+        ]);
 
         if (!is_array($locale)) {
-            throw new CoreException(tr('Specified $data should be an array but is an ":type"', [':type' => gettype($locale)]));
+            throw new CoreException(tr('Specified $data should be an array but is an ":type"', [
+                ':type' => gettype($locale)
+            ]));
         }
 
-        /*
-         * Determine language and location
-         */
+        // Determine language and location
         if (defined('LANGUAGE')) {
             $language = LANGUAGE;
 
@@ -1696,7 +1819,6 @@ class Core {
             $locale[LC_ALL] = str_replace(':COUNTRY' , $country , $locale[LC_ALL]);
 
             setlocale(LC_ALL, $locale[LC_ALL]);
-            $return = $locale[LC_ALL];
             unset($locale[LC_ALL]);
         }
 
@@ -1718,7 +1840,7 @@ class Core {
             setlocale($key, $value);
         }
 
-        return $return;
+        self::$register['system']['locale'] = $locale;
     }
 
 

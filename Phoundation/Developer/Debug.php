@@ -326,7 +326,7 @@ class Debug {
 
         if (Core::readyState() and PLATFORM_HTTP) {
             if (empty($core->register['debug_plain'])) {
-                switch (Core::getCallType()) {
+                switch (Core::getRequestType()) {
                     case 'api':
                         // no-break
                     case 'ajax':

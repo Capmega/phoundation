@@ -205,7 +205,7 @@ class Bundler
      */
     protected function newBundle(array $files, string $extension): void
     {
-        $admin_path = (Core::getCallType('admin') ? 'admin/' : '');
+        $admin_path = (Core::getRequestType('admin') ? 'admin/' : '');
 
         $this->extension   = (Config::get('web.minify', true) ? '.min.' . $extension : '.' . $extension);
         $this->path        =  PATH_WWW . LANGUAGE . '/' . $admin_path . 'pub/' . $extension.'/';
