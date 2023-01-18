@@ -240,6 +240,13 @@ class WebPage
      */
     protected static FlashMessages $flash_messages;
 
+    /**
+     * Optional alternative body class
+     *
+     * @var string|null $body_class
+     */
+    protected static ?string $body_class = null;
+
 
 
     /**
@@ -314,6 +321,32 @@ class WebPage
 
 
     /**
+     * Sets an alternative class for the <body> tag
+     *
+     * @param string|null $class
+     * @return void
+     */
+    public static function setBodyClass(?string $class): void
+    {
+        self::$body_class = $class;
+    }
+
+
+
+    /**
+     * Returns the alternative class for the <body> tag or if not preset, the default
+     *
+     * @param string|null $default
+     * @return string|null
+     */
+    public static function getBodyClass(?string $default): ?string
+    {
+        return self::$body_class ?? $default;
+    }
+
+
+
+    /**
      * Returns the request method for this page
      *
      * @param bool $default If true, if no referer is available, the current page URL will be returned instead. If
@@ -362,6 +395,32 @@ class WebPage
     public static function isRequestMethod(#[ExpectedValues(values: ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'CONNECT', 'OPTIONS', 'TRACE', 'PATCH'])] string $method): bool
     {
         return $method === strtoupper($_SERVER['REQUEST_METHOD']);
+    }
+
+
+
+    /**
+     * Return the domain for this page
+     *
+     * @return string
+     */
+    public static function getDomain(): string
+    {
+// TODO ENSURE THAT HTTP_HOST IS ALLOWED WITH EITHER PRIMARY OR WHITELABEL DOMAINS?
+//        return Config::get('web.domains.primary.www');
+        return $_SERVER['HTTP_HOST'];
+    }
+
+
+
+    /**
+     * Return the URL for this page
+     *
+     * @return string
+     */
+    public static function getUrl(): string
+    {
+        return $_SERVER['SERVER_PROTOCOL'] . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
     }
 
 
@@ -842,13 +901,13 @@ class WebPage
             try {
                 // Execute the file and send the output HTML as a web page
                 Log::action(tr('Executing ":call" type page ":target" with template ":template" in language ":language" and sending output as HTML web page', [
-                    ':call'     => Core::getCallType(),
+                    ':call'     => Core::getRequestType(),
                     ':target'   => Strings::from($target, PATH_ROOT),
                     ':template' => $template->getName(),
                     ':language' => LANGUAGE
                 ]));
 
-                switch (Core::getCallType()) {
+                switch (Core::getRequestType()) {
                     case 'api':
                         // no-break
                     case 'ajax':
@@ -868,7 +927,7 @@ class WebPage
                     ':new'    => $new_target
                 ]));
 
-                switch (Core::getCallType()) {
+                switch (Core::getRequestType()) {
                     case 'api':
                         // no-break
                     case 'ajax':
@@ -926,7 +985,7 @@ class WebPage
         } catch (Exception $e) {
             Notification::new()
                 ->setTitle(tr('Failed to execute ":type" page ":page" with language ":language"', [
-                    ':type'     => Core::getCallType(),
+                    ':type'     => Core::getRequestType(),
                     ':page'     => $target,
                     ':language' => LANGUAGE
                 ]))
@@ -1472,7 +1531,7 @@ class WebPage
 
         // Add noidex, nofollow and nosnipped headers for non production environments and non normal HTTP pages.
         // These pages should NEVER be indexed
-        if (!Debug::production() or !Core::getCallType('http') or Config::get('web.noindex', false)) {
+        if (!Debug::production() or !Core::getRequestType('http') or Config::get('web.noindex', false)) {
             $headers[] = 'X-Robots-Tag: noindex, nofollow, nosnippet, noarchive, noydir';
         }
 
@@ -1617,7 +1676,7 @@ class WebPage
 
             } else {
                 // Send caching headers. Ajax, API, and admin calls do not have proxy caching
-                switch (Core::getCallType()) {
+                switch (Core::getRequestType()) {
                     case 'api':
                         // no-break
                     case 'ajax':
@@ -1683,7 +1742,7 @@ class WebPage
             return false;
         }
 
-        if (Core::getCallType('ajax') or Core::getCallType('api')) {
+        if (Core::getRequestType('ajax') or Core::getRequestType('api')) {
             return false;
         }
 
@@ -1712,7 +1771,7 @@ class WebPage
     protected static function cacheEtag(): bool
     {
         // ETAG requires HTTP caching enabled. Ajax and API calls do not use ETAG
-        if (!Config::get('web.cache.enabled', 'auto') or Core::getCallType('ajax') or Core::getCallType('api')) {
+        if (!Config::get('web.cache.enabled', 'auto') or Core::getRequestType('ajax') or Core::getRequestType('api')) {
             self::$etag = null;
             return false;
         }

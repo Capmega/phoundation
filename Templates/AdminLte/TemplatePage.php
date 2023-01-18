@@ -3,6 +3,7 @@
 namespace Templates\AdminLte;
 
 use Phoundation\Core\Config;
+use Phoundation\Core\Core;
 use Phoundation\Web\Http\Html\Components\Footer;
 use Phoundation\Web\Http\Html\Components\SidePanel;
 use Phoundation\Web\Http\Html\Components\TopPanel;
@@ -84,7 +85,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
         WebPage::setPageTitle(tr('Phoundation platform'));
         WebPage::setFavIcon('favicon/phoundation.png');
 
-        return WebPage::buildHeaders();
+        return WebPage::buildHeaders() . '<body class="' . WebPage::getBodyClass('sidebar-mini') . '" style="height: auto;">';
     }
 
 
@@ -96,8 +97,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
      */
     public function buildPageHeader(): ?string
     {
-        return '<body class="sidebar-mini" style="height: auto;">
-                    <div class="wrapper">
+        return '    <div class="wrapper">
                         ' . WebPage::getFlashMessages()->render() . '
                         ' . $this->buildTopPanel() . '
                         ' . $this->buildSidePanel();
@@ -157,18 +157,21 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     public function buildBody(string $target): ?string
     {
         $body = parent::buildBody($target);
-        $body = '   <div class="content-wrapper" style="min-height: 1518.06px;">                   
-                       ' . $this->buildBodyHeader() . '
-                        <section class="content">
-                            <div class="container-fluid">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        ' . $body . '
+
+        if (!Core::getFailed()) {
+            $body = '   <div class="content-wrapper" style="min-height: 1518.06px;">                   
+                           ' . $this->buildBodyHeader() . '
+                            <section class="content">
+                                <div class="container-fluid">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            ' . $body . '
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </section>
-                    </div>';
+                            </section>
+                        </div>';
+        }
 
         return $body;
     }

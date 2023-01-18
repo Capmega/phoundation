@@ -7,15 +7,16 @@ use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
+use Phoundation\Core\Exception\NoProjectException;
 use Phoundation\Core\Log;
 use Phoundation\Core\Numbers;
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Date\Time;
 use Phoundation\Developer\Debug;
-use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Restrictions;
@@ -25,6 +26,7 @@ use Phoundation\Web\Http\File;
 use Phoundation\Web\Http\Html\Template\Template;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Exception\RouteException;
+use Templates\AdminLte\AdminLte;
 use Throwable;
 
 
@@ -119,10 +121,17 @@ class Route
     protected function __construct()
     {
         // Start the Core object, hide $_GET & $_POST
-        if (Core::getState() === 'init') {
-            Core::startup();
-            GetValidator::hideData();
-            PostValidator::hideData();
+        try {
+            if (Core::getState() === 'init') {
+                Core::startup();
+                GetValidator::hideData();
+                PostValidator::hideData();
+            }
+        } catch (SqlException|NoProjectException $e) {
+            // Either we have no project or no system database
+            self::$server_restrictions = Core::ensureServer(PATH_WWW, null, 'Route');
+            self::setPageParameters(AdminLte::class); // Use AdminLTE template as default system template
+            self::execute(PATH_WWW . 'setup.php', false);
         }
 
         /*
@@ -152,7 +161,7 @@ class Route
 
         // Ensure the post-processing function is registered
         Log::action(tr('Processing ":domain" routes for ":method" method request ":url" from client ":client"', [
-            ':domain' => Url::getDomain(Config::get('web.domains.primary.www')),
+            ':domain' => WebPage::getDomain(),
             ':method' => self::$method,
             ':url'    => $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
             ':client' => $_SERVER['REMOTE_ADDR'] . (empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: ' . $_SERVER['HTTP_X_REAL_IP'] . ')')

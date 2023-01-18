@@ -6,12 +6,15 @@ use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Cli\Exception\CliException;
 use Phoundation\Cli\Exception\MethodNotFoundException;
 use Phoundation\Core\Core;
+use Phoundation\Core\Exception\NoProjectException;
 use Phoundation\Core\Log;
 use Phoundation\Core\Numbers;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Date\Time;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\ScriptException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Path;
 use Phoundation\Processes\Commands\Command;
@@ -56,7 +59,16 @@ class Script
     public static function execute(): void
     {
         // All scripts will execute the cli_done() call, register basic script information
-        Core::startup();
+        try {
+            Core::startup();
+        } catch (SqlException $e) {
+            $reason = tr('Core database not found');
+            $limit  = 'system/project/init';
+        } catch (NoProjectException $e) {
+            $reason = tr('Project file not found');
+            $limit  = 'system/project/setup';
+        }
+
         Core::registerShutdown('core_shutdown', ['\Phoundation\Cli\Script', 'shutdown']);
 
         // Only allow this to be run by the cli script
@@ -67,6 +79,17 @@ class Script
         self::$script = self::findScript();
 
         // Execute the script
+        if (isset($limit)) {
+            $script = Strings::from(self::$script, 'scripts/');
+
+            if ($script !== $limit) {
+                throw new ScriptException(tr('Cannot execute script ":script" because ":reason"', [
+                    ':script' => $script,
+                    ':reason' => $reason
+                ]));
+            }
+        }
+
         execute_script(self::$script);
     }
 

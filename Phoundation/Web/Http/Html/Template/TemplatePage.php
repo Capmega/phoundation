@@ -2,6 +2,7 @@
 
 namespace Phoundation\Web\Http\Html\Template;
 
+use Phoundation\Core\Core;
 use Phoundation\Web\Http\Html\Components\Menu;
 use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\WebPage;
@@ -138,10 +139,16 @@ abstract class TemplatePage
         $output = $this->buildHtmlHeader();
         WebPage::htmlHeadersSent(true);
 
-        $output .= $this->buildPageHeader();
-        $output .= $this->buildMenu();
-        $output .= $body;
-        $output .= $this->buildPageFooter();
+        if (Core::getFailed()) {
+            // We're running in failed mode, only show the body
+            $output .= $body;
+        } else {
+            $output .= $this->buildPageHeader();
+            $output .= $this->buildMenu();
+            $output .= $body;
+            $output .= $this->buildPageFooter();
+        }
+
         $output .= $this->buildHtmlFooter();
         $output  = Html::minify($output);
 
@@ -159,6 +166,12 @@ abstract class TemplatePage
      */
     protected function loadMenus(): void
     {
+        if (Core::getFailed()) {
+            $this->primary_menu   = Menu::new();
+            $this->secondary_menu = Menu::new();
+            return;
+        }
+
         $primary_menu   = sql()->getColumn('SELECT `value` FROM `key_value_store` WHERE `key` = :key', [':key' => 'primary_menu']);
         $secondary_menu = sql()->getColumn('SELECT `value` FROM `key_value_store` WHERE `key` = :key', [':key' => 'secondary_menu']);
 

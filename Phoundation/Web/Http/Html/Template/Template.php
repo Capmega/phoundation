@@ -2,6 +2,7 @@
 
 namespace Phoundation\Web\Http\Html\Template;
 
+use Phoundation\Core\Core;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Developer\Debug;
@@ -51,6 +52,7 @@ abstract class Template
     protected TemplatePage $page;
 
 
+
     /**
      * Template constructor
      *
@@ -64,7 +66,9 @@ abstract class Template
         }
 
         if (empty($this->menus_class)) {
-            throw new OutOfBoundsException('Cannot start template "' . $this->getName() . '", the menus class was not defined');
+            throw new OutOfBoundsException(tr('Cannot start template ":name", the menus class was not defined', [
+                ':name' => $this->getName()
+            ]));
         }
     }
 
@@ -78,6 +82,7 @@ abstract class Template
     {
         return new static();
     }
+
 
 
     /**
@@ -96,6 +101,7 @@ abstract class Template
             ]));
         }
     }
+
 
 
     /**
@@ -121,6 +127,7 @@ abstract class Template
 
         return $this->page;
     }
+
 
 
     /**
@@ -168,6 +175,8 @@ abstract class Template
      * @return string
      */
     abstract public function getDescription(): string;
+
+
 
     /**
      * Returns the root path for this template

@@ -2,6 +2,7 @@
 <?php
 
 use Phoundation\Cli\Cli;
+use Phoundation\Core\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\ArrayValidator;
 use Phoundation\Exception\OutOfBoundsException;

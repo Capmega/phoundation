@@ -82,7 +82,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
         WebPage::setPageTitle(tr('Phoundation platform'));
         WebPage::setFavIcon('favicon/phoundation.ico');
 
-        return WebPage::buildHeaders();
+        return WebPage::buildHeaders() . '<body class="' . WebPage::getBodyClass('mdb-skin-custom') . '" data-mdb-spy="scroll" data-mdb-target="#scrollspy" data-mdb-offset="250">';
     }
 
 
@@ -94,8 +94,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
      */
     public function buildPageHeader(): ?string
     {
-        $html = '<body class="mdb-skin-custom " data-mdb-spy="scroll" data-mdb-target="#scrollspy" data-mdb-offset="250">
-                    <header>
+        $html = '   <header>
                     ' . $this->buildTopPanel($this->secondary_menu) . '
                     </header>
                     <main class="pt-5 mdb-docs-layout">
