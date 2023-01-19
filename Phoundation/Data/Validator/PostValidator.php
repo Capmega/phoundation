@@ -4,6 +4,8 @@ namespace Phoundation\Data\Validator;
 
 
 
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
+
 /**
  * PostValidator class
  *
@@ -23,7 +25,7 @@ class PostValidator extends Validator
      *
      * @var array|null $post
      */
-    protected static ?array $post = null;
+    public static ?array $post = null;
 
 
 
@@ -100,8 +102,15 @@ class PostValidator extends Validator
      */
     public function validate(): static
     {
-        parent::validate();
-        $this->liberateData();
+        try {
+            parent::validate();
+            $this->liberateData();
+        } catch (ValidationFailedException $e) {
+            // Failed data will have been filtered, liberate data!
+            $this->liberateData();
+            throw $e;
+        }
+
         return $this;
     }
 
@@ -125,7 +134,7 @@ class PostValidator extends Validator
      *
      * @return void
      */
-    protected static function liberateData(): void
+    protected function liberateData(): void
     {
         global $_POST;
         $_POST = self::$post;

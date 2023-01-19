@@ -6,7 +6,7 @@ use Phoundation\Core\Config;
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Web\Http\Url;
-
+use Phoundation\Web\Http\UrlBuilder;
 
 
 /**
@@ -29,8 +29,8 @@ class SidePanel extends \Phoundation\Web\Http\Html\Components\SidePanel
     public function render(): ?string
     {
         $this->render = ' <aside class="main-sidebar sidebar-dark-primary elevation-4">
-                            <a href="' . Url::build()->www() . '" class="brand-link">
-                              <img src="' . Url::build('logos/phoundation-top.png')->img() . '" alt="' . tr(':project logo', [':project' => Strings::capitalize(Config::get('project.name'))]) . '" class="brand-image img-circle elevation-3" style="opacity: .8">
+                            <a href="' . UrlBuilder::current() . '" class="brand-link">
+                              <img src="' . UrlBuilder::img('logos/phoundation-top.png') . '" alt="' . tr(':project logo', [':project' => Strings::capitalize(Config::get('project.name'))]) . '" class="brand-image img-circle elevation-3" style="opacity: .8">
                               <span class="brand-text font-weight-light">' . Strings::capitalize(Config::get('project.name')) . '</span>
                             </a>
                             <div class="sidebar">
@@ -43,7 +43,7 @@ class SidePanel extends \Phoundation\Web\Http\Html\Components\SidePanel
                                             ->render() . '
                                 </div>
                                 <div class="info">
-                                  <a href="' . (Session::getUser()->isGuest() ? '#' : Url::build('/users/entry/' . urlencode(Session::getUser()->getEmail()))->www()) . '" class="d-block">' . Session::getUser()->getDisplayName() . '</a>
+                                  <a href="' . (Session::getUser()->isGuest() ? '#' : UrlBuilder::www('/users/entry/' . urlencode(Session::getUser()->getEmail()))) . '" class="d-block">' . Session::getUser()->getDisplayName() . '</a>
                                 </div>
                               </div>
                               <div class="form-inline">

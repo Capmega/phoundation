@@ -141,12 +141,20 @@ trait ValidatorBasics
     protected ReflectionProperty $reflection_process_value;
 
     /**
-     * If true, all validations will pass
+     * If true, all validations will ALWAYS pass
      *
      * @note Still, ONLY validated variables will be available after Validate::validate() has been executed!
      * @var bool $disabled
      */
     protected static bool $disabled = false;
+
+    /**
+     * If true, ONLY password validations will ALWAYS pass
+     *
+     * @note Still, ONLY validated variables will be available after Validate::validate() has been executed!
+     * @var bool $password_disabled
+     */
+    protected static bool $password_disabled = false;
 
 
 

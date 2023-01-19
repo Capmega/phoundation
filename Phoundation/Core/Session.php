@@ -601,7 +601,7 @@ Log::warning('RESTART SESSION');
 
         // Check the detected domain against the configured domain. If it doesn't match then check if it's a registered
         // whitelabel domain
-        if (self::$domain === Web::getDomain()) {
+        if (self::$domain === WebPage::getDomain()) {
             // This is the primary domain
 
         } else {
@@ -611,10 +611,10 @@ Log::warning('RESTART SESSION');
                     // White label domains are disabled, so the requested domain MUST match the configured domain
                     Log::warning(tr('Whitelabels are disabled, redirecting domain ":source" to ":target"', [
                         ':source' => $_SERVER['HTTP_HOST'],
-                        ':target' => Web::getDomain()
+                        ':target' => WebPage::getDomain()
                     ]));
 
-                    WebPage::redirect(PROTOCOL . Web::getDomain());
+                    WebPage::redirect(PROTOCOL . WebPage::getDomain());
 
                 case 'all':
                     // All domains are allowed
@@ -622,13 +622,13 @@ Log::warning('RESTART SESSION');
 
                 case 'sub':
                     // White label domains are disabled, but subdomains from the primary domain are allowed
-                    if (Strings::from(self::$domain, '.') !== Web::getDomain()) {
+                    if (Strings::from(self::$domain, '.') !== WebPage::getDomain()) {
                         Log::warning(tr('Whitelabels are set to subdomains only, redirecting domain ":source" to ":target"', [
                             ':source' => $_SERVER['HTTP_HOST'],
-                            ':target' => Web::getDomain()
+                            ':target' => WebPage::getDomain()
                         ]));
 
-                        WebPage::redirect(PROTOCOL . Web::getDomain());
+                        WebPage::redirect(PROTOCOL . WebPage::getDomain());
                     }
 
                     break;
@@ -644,10 +644,10 @@ Log::warning('RESTART SESSION');
                     if (empty(self::$domain)) {
                         Log::warning(tr('Whitelabel check failed because domain was not found in database, redirecting domain ":source" to ":target"', [
                             ':source' => $_SERVER['HTTP_HOST'],
-                            ':target' => Web::getDomain()
+                            ':target' => WebPage::getDomain()
                         ]));
 
-                        WebPage::redirect(PROTOCOL . Web::getDomain());
+                        WebPage::redirect(PROTOCOL . WebPage::getDomain());
                     }
 
                     break;
@@ -658,10 +658,10 @@ Log::warning('RESTART SESSION');
                         if (!in_array(self::$domain, Config::get('web.domains.whitelabels', false))) {
                             Log::warning(tr('Whitelabel check failed because domain was not found in configured array, redirecting domain ":source" to ":target"', [
                                 ':source' => $_SERVER['HTTP_HOST'],
-                                ':target' => Web::getDomain()
+                                ':target' => WebPage::getDomain()
                             ]));
 
-                            WebPage::redirect(PROTOCOL . Web::getDomain());
+                            WebPage::redirect(PROTOCOL . WebPage::getDomain());
                         }
 
                     } else {
@@ -670,10 +670,10 @@ Log::warning('RESTART SESSION');
                         if (self::$domain !== Config::get('web.domains.whitelabels', false)) {
                             Log::warning(tr('Whitelabel check failed because domain did not match only configured alternative, redirecting domain ":source" to ":target"', [
                                 ':source' => $_SERVER['HTTP_HOST'],
-                                ':target' => Web::getDomain()
+                                ':target' => WebPage::getDomain()
                             ]));
 
-                            WebPage::redirect(PROTOCOL . Web::getDomain());
+                            WebPage::redirect(PROTOCOL . WebPage::getDomain());
                         }
                     }
             }

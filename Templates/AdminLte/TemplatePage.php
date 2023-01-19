@@ -9,6 +9,7 @@ use Phoundation\Web\Http\Html\Components\SidePanel;
 use Phoundation\Web\Http\Html\Components\TopPanel;
 use Phoundation\Web\Http\Html\Modals\SignInModal;
 use Phoundation\Web\Http\Url;
+use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\WebPage;
 
 
@@ -222,7 +223,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
         $sign_in->getForm()
             ->setId('form-signin')
             ->setMethod('post')
-            ->setAction(Url::build(Config::get('web.pages.signin', '/system/sign-in.html'))->ajax());
+            ->setAction(UrlBuilder::ajax(Config::get('web.pages.signin', '/system/sign-in.html')));
 
         $panel = SidePanel::new();
         $panel->setMenu($this->primary_menu);

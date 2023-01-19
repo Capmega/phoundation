@@ -10,6 +10,7 @@ use Phoundation\Cache\Cache;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
+use Phoundation\Core\Exception\ConfigNotExistsException;
 use Phoundation\Core\Log;
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
@@ -34,6 +35,7 @@ use Phoundation\Web\Http\Html\Template\Template;
 use Phoundation\Web\Http\Html\Template\TemplatePage;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\Url;
+use Phoundation\Web\Http\UrlBuilder;
 use Throwable;
 
 
@@ -256,6 +258,7 @@ class WebPage
      */
     protected function __construct()
     {
+        self::setFavIcon('project/favicon.png');
         self::$headers['meta']['charset']  = Config::get('languages.encoding.charset', 'UTF-8');
         self::$headers['meta']['viewport'] = Config::get('web.viewport'              , 'width=device-width, initial-scale=1, shrink-to-fit=no');
     }
@@ -364,7 +367,7 @@ class WebPage
 
         if ($default) {
             // We don't have a referer, return the current URL instead
-            return Url::build($default)->www();
+            return UrlBuilder::www($default);
         }
 
         // We got nothing...
@@ -394,7 +397,7 @@ class WebPage
      */
     public static function isRequestMethod(#[ExpectedValues(values: ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'CONNECT', 'OPTIONS', 'TRACE', 'PATCH'])] string $method): bool
     {
-        return $method === strtoupper($_SERVER['REQUEST_METHOD']);
+        return strtoupper($method) === strtoupper($_SERVER['REQUEST_METHOD']);
     }
 
 
@@ -406,9 +409,58 @@ class WebPage
      */
     public static function getDomain(): string
     {
-// TODO ENSURE THAT HTTP_HOST IS ALLOWED WITH EITHER PRIMARY OR WHITELABEL DOMAINS?
-//        return Config::get('web.domains.primary.www');
-        return $_SERVER['HTTP_HOST'];
+        if (PLATFORM_HTTP) {
+            return $_SERVER['HTTP_HOST'];
+        }
+
+        return WebPage::getPRimaryDomain();
+    }
+
+
+
+    /**
+     * Return the request URI for this page
+     *
+     * @note On the CLI platform this method will return "/"
+     * @return string
+     */
+    public static function getUri(): string
+    {
+        if (PLATFORM_HTTP) {
+            return $_SERVER['REQUEST_URI'];
+        }
+
+        return '/';
+    }
+
+
+
+    /**
+     * Return the request URI for this page
+     *
+     * @param string|null $domain The domain to get the root URI for. If not specified, on HTTP platform the current
+     *                            domain will be used. On the CLI platform, the primary domain will be assumed instead
+     * @return string
+     *
+     * @note While all whitelabel domains are specified by their domain name, the primary domain must be specified by
+     *       "primary"!
+     * @note On the CLI platform this method will return "/"
+     * @throws ConfigNotExistsException If the specified domain does not exist
+     */
+    public static function getRootUri(?string $domain = null): string
+    {
+        try {
+            if (!$domain) {
+                $domain = self::getDomain();
+            }
+
+            return Config::get('web.domains.' . $domain . '.www');
+
+        } catch (ConfigNotExistsException) {
+            throw new ConfigNotExistsException(tr('Cannot get root URI for domain ":domain", there is no configuration for that domain', [
+                ':domain' => $domain
+            ]));
+        }
     }
 
 
@@ -416,11 +468,12 @@ class WebPage
     /**
      * Return the URL for this page
      *
+     * @param bool $no_queries
      * @return string
      */
-    public static function getUrl(): string
+    public static function getUrl(bool $no_queries = false): string
     {
-        return $_SERVER['SERVER_PROTOCOL'] . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        return $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . ($no_queries ? Strings::until($_SERVER['REQUEST_URI'], '?') : $_SERVER['REQUEST_URI']);
     }
 
 
@@ -1019,10 +1072,10 @@ class WebPage
         }
 
         // Build URL
-        $url = Url::build($url)->www();
+        $url = UrlBuilder::www($url);
 
         if (isset_get($_GET['redirect'])) {
-            $url = Url::build($url)->addQueries('redirect=' . urlencode($_GET['redirect']));
+            $url = UrlBuilder::www($url)->addQueries('redirect=' . urlencode($_GET['redirect']));
         }
 
         /*
@@ -1309,7 +1362,7 @@ class WebPage
         try {
             self::$headers['link'][$url] = [
                 'rel'  => 'icon',
-                'href' => Url::build($url)->img(),
+                'href' => UrlBuilder::img($url),
                 'type' => File::new(Filesystem::absolute($url, 'img'), PATH_CDN . LANGUAGE . '/img')->mimetype()
             ];
         } catch (FilesystemException $e) {
@@ -1344,13 +1397,13 @@ class WebPage
             if ($header) {
                 self::$headers['javascript'][$url] = [
                     'type' => 'text/javascript',
-                    'src'  => Url::build($url)->js()
+                    'src'  => UrlBuilder::js($url)
                 ];
 
             } else {
                 self::$footers['javascript'][$url] = [
                     'type' => 'text/javascript',
-                    'src'  => Url::build($url)->js()
+                    'src'  => UrlBuilder::js($url)
                 ];
             }
         }
@@ -1371,7 +1424,7 @@ class WebPage
         foreach (Arrays::force($urls, '') as $url) {
             self::$headers['link'][$url] = [
                 'rel'  => 'stylesheet',
-                'href' => Url::build($url)->css(),
+                'href' => UrlBuilder::css($url),
             ];
         }
 
@@ -1645,6 +1698,20 @@ class WebPage
 
 
     /**
+     * Kill this script process
+     *
+     * @todo Add required functionality
+     * @return void
+     */
+    #[NoReturn] public static function die(): void
+    {
+        // Do we need to run other shutdown functions?
+        die();
+    }
+
+
+
+    /**
      * Return HTTP caching headers
      *
      * Returns headers Cache-Control and ETag
@@ -1748,9 +1815,7 @@ class WebPage
 
         if ((strtotime(isset_get($_SERVER['HTTP_IF_MODIFIED_SINCE'])) == filemtime($_SERVER['SCRIPT_FILENAME'])) or trim(isset_get($_SERVER['HTTP_IF_NONE_MATCH']), '') == self::$etag) {
             if (empty($core->register['flash'])) {
-                /*
-                 * The client sent an etag which is still valid, no body (or anything else) necesary
-                 */
+                // The client sent an etag which is still valid, no body (or anything else) necesary
                 http_headers(304, 0);
             }
         }

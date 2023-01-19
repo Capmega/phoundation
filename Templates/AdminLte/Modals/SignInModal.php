@@ -5,6 +5,7 @@ namespace Templates\AdminLte\Modals;
 use Phoundation\Core\Config;
 use Phoundation\Web\Http\Html\Components\Script;
 use Phoundation\Web\Http\Url;
+use Phoundation\Web\Http\UrlBuilder;
 use Templates\AdminLte\Layouts\Grid;
 use Templates\AdminLte\Layouts\GridColumn;
 use Templates\AdminLte\Layouts\GridRow;
@@ -52,7 +53,7 @@ class SignInModal extends \Phoundation\Web\Http\Html\Modals\SignInModal
             $("form#form-signin").submit(function(e) {
                 e.stopPropagation();
                 
-                $.post("' . Url::build(Config::get('web.pages.signin', '/system/sign-in.html'))->ajax() . '", $(this).serialize())
+                $.post("' . UrlBuilder::ajax(Config::get('web.pages.signin', '/system/sign-in.html')) . '", $(this).serialize())
                     .done(function (data, textStatus, jqXHR) {
                         $(".image-menu").replaceWith(data.html);
                         $("#signinModal").modal("hide");                     

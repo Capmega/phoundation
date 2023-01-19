@@ -1,8 +1,10 @@
 <?php
 
 use Phoundation\Templates\Template;
-use Phoundation\Web\Http\Url;
+use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\WebPage;
+
+
 
 echo Template::page('admin/system/detail-error')->render([
     ':h2'     => '500',
@@ -12,7 +14,7 @@ echo Template::page('admin/system/detail-error')->render([
     ]),
     ':type'   => 'warning',
     ':search' => tr('Search'),
-    ':action' => Url::build('search/')->www()
+    ':action' => UrlBuilder::www('search/')
 ]);
 
 // Set page meta data

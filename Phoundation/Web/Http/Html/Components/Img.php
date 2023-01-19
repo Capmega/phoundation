@@ -8,6 +8,7 @@ use Phoundation\Filesystem\File;
 use Phoundation\Servers\Server;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
 use Phoundation\Web\Http\Url;
+use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\WebPage;
 
 
@@ -165,7 +166,7 @@ class Img extends Element
     {
 //        // Get a built src string. If $built_src is equal to specified $src then it wasn't changed and so it's an
 //        $domain         = Url::getDomain($src);
-//        $built_src      = Url::build($src)->cdn();
+//        $built_src      = UrlBuilder::cdn($src);
 //        $this->external = Url::isExternal($src);
 //
 //        if ($this->external) {
@@ -208,13 +209,13 @@ class Img extends Element
 //            $file_src =
 //            $file_src = PATH_DATA . 'cdn/' . Session::getLanguage() . 'img/' . $src;
 //            $file_src = '/pub'.Strings::startsWith($src, '/');
-//            $src      = Url::build($src)->img();
+//            $src      = UrlBuilder::img($src);
 //        }
 
         if (is_object($src)) {
             $src = $src->getFile();
         }
-        $this->src = Url::build($src)->img();
+        $this->src = UrlBuilder::img($src);
         return $this;
     }
 
@@ -914,7 +915,7 @@ class Img extends Element
 //
 //            // Convert src back to URL again
 //            $this->file_src = $target;
-//            $this->src      = Url::build($target_part)->img();
+//            $this->src      = UrlBuilder::img($target_part);
 //
 //        }catch(Throwable $e) {
 //            // Failed to upgrade image. Use the original image

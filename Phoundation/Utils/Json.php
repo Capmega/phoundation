@@ -13,6 +13,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Http;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Exception\JsonException;
+use Phoundation\Web\Http\UrlBuilder;
 use Throwable;
 
 
@@ -272,13 +273,13 @@ class Json
             case 301:
                 // no-break
             case 'redirect':
-                Json::error(null, array('location' => $data), 'REDIRECT', 301);
+                Json::error(null, ['location' => $data], 'REDIRECT', 301);
 
             case 302:
-                Json::error(null, array('location' => Http::buildUrl($_CONFIG['redirects']['signin'])), 'REDIRECT', 302);
+                Json::error(null, ['location' => UrlBuilder::ajax($_CONFIG['redirects']['signin'])], 'REDIRECT', 302);
 
             case 'signin':
-                Json::error(null, array('location' => Http::buildUrl($_CONFIG['redirects']['signin'])), 'SIGNIN', 302);
+                Json::error(null, ['location' => UrlBuilder::ajax($_CONFIG['redirects']['signin'])], 'SIGNIN', 302);
 
             case 400:
                 // no-break

@@ -4,7 +4,7 @@ use Phoundation\Accounts\Users\Users;
 use Phoundation\Web\Http\Html\Components\BreadCrumbs;
 use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Http\Html\Layouts\Grid;
-use Phoundation\Web\Http\Url;
+use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\WebPage;
 
 
@@ -24,7 +24,7 @@ $users = Card::new()
     ->useForm(true);
 
 $users->getForm()
-        ->setAction(Url::build()->www())
+        ->setAction(UrlBuilder::current())
         ->setMethod('POST');
 
 
@@ -33,8 +33,8 @@ $users->getForm()
 $relevant = Card::new()
     ->setMode('info')
     ->setTitle(tr('Relevant links'))
-    ->setContent('<a href="' . Url::build('/admin/accounts/roles.html')->www() . '">' . tr('Roles management') . '</a><br>
-                         <a href="' . Url::build('/admin/accounts/rights.html')->www() . '">' . tr('Rights management') . '</a>');
+    ->setContent('<a href="' . UrlBuilder::www('/admin/accounts/roles.html') . '">' . tr('Roles management') . '</a><br>
+                         <a href="' . UrlBuilder::www('/admin/accounts/rights.html') . '">' . tr('Rights management') . '</a>');
 
 
 

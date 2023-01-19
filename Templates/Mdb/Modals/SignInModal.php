@@ -5,6 +5,7 @@ namespace Templates\Mdb\Modals;
 use Phoundation\Core\Config;
 use Phoundation\Web\Http\Html\Components\Script;
 use Phoundation\Web\Http\Url;
+use Phoundation\Web\Http\UrlBuilder;
 use Templates\Mdb\Components\Modal;
 use Templates\Mdb\Forms\SignInForm;
 use Templates\Mdb\Layouts\Grid;
@@ -66,7 +67,7 @@ class SignInModal extends Modal
             $("form#form-signin").submit(function(e) {
                 e.stopPropagation();
                 
-                $.post("' . Url::build(Config::get('web.pages.signin', '/system/sign-in.html'))->ajax() . '", $(this).serialize())
+                $.post("' . UrlBuilder::ajax(Config::get('web.pages.signin', '/system/sign-in.html')) . '", $(this).serialize())
                     .done(function (data, textStatus, jqXHR) {
                         $(".image-menu").replaceWith(data.profileImage);
                         $("#top-menu").replaceWith(data.topMenu);

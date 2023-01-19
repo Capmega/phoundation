@@ -2,6 +2,7 @@
 
 namespace Phoundation\Accounts\Users;
 
+use Phoundation\Accounts\Passwords;
 use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Accounts\Roles\Roles;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
@@ -10,18 +11,13 @@ use Phoundation\Accounts\Users\Exception\UsersException;
 use Phoundation\Business\Companies\Branches\Branch;
 use Phoundation\Business\Companies\Company;
 use Phoundation\Business\Companies\Departments\Department;
-use Phoundation\Cli\Script;
 use Phoundation\Content\Images\Image;
-use Phoundation\Core\Arrays;
-use Phoundation\Core\Config;
 use Phoundation\Core\Locale\Language\Languages;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry;
 use Phoundation\Data\DataEntryNameDescription;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
-use Phoundation\Data\Validator\Validator;
-use Phoundation\Data\Validator\ValidatorBasics;
 use Phoundation\Date\DateTime;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Geo\City;
@@ -29,7 +25,8 @@ use Phoundation\Geo\Country;
 use Phoundation\Geo\State;
 use Phoundation\Geo\Timezone;
 use Phoundation\Web\Http\Html\Components\Form;
-
+use Phoundation\Web\Http\Url;
+use Phoundation\Web\Http\UrlBuilder;
 
 
 /**
@@ -152,6 +149,23 @@ class User extends DataEntry
         throw new AuthenticationException(tr('The specified password did not match for user ":user"', [
             ':user' => $identifier
         ]));
+    }
+
+
+
+    /**
+     * Returns true if the specified password matches the users password
+     *
+     * @param string $password
+     * @return bool
+     */
+    public function passwordMatch(string $password): bool
+    {
+        if (!array_key_exists('id', $this->data)) {
+            throw new OutOfBoundsException(tr('Cannot match passwords, this user does not have a database id'));
+        }
+
+        return Passwords::match($this->data['id'], $password, $this->data['password']);
     }
 
 
@@ -1154,14 +1168,11 @@ class User extends DataEntry
      * @param string|null $redirect
      * @return static
      */
-    public function setRedirect(?string $redirect): static
+    public function setRedirect(?string $redirect = null): static
     {
         if ($redirect) {
-            if (!filter_var($redirect, FILTER_VALIDATE_URL)) {
-                throw new OutOfBoundsException(tr('Invalid redirect URL ":redirect" specified', [
-                    ':redirect' => $redirect
-                ]));
-            }
+            // Ensure we have a valid redirect URL
+            $redirect = UrlBuilder::www($redirect);
         }
 
         return $this->setDataValue('redirect', get_null($redirect));
@@ -1349,7 +1360,7 @@ class User extends DataEntry
     public function setPassword(string $password, string $validation): static
     {
         $this->validatePassword($password, $validation);
-        $this->setPasswordDirectly($this->hashPassword($password));
+        $this->setPasswordDirectly(Passwords::hash($password, $this->data['id']));
 
         return $this->savePassword();
     }
@@ -1393,12 +1404,20 @@ class User extends DataEntry
             throw new ValidationFailedException(tr('The password must match the validation password'));
         }
 
+        if (empty($this->data['id'])) {
+            throw new OutOfBoundsException(tr('Cannot set password for this user, it has not been saved yet'));
+        }
+
+        if (empty($this->data['email'])) {
+            throw new OutOfBoundsException(tr('Cannot set password for this user, it has no password'));
+        }
+
         // Is the password secure?
-        $this->testPasswordSecurity($password);
+        Passwords::testSecurity($password, $this->data['email'], $this->data['id']);
 
         // Is the password not the same as the current password?
         try {
-            self::authenticate($this->getEmail(), $password);
+            self::authenticate($this->data['email'], $password);
             throw new PasswordNotChangedException(tr('The specified password is the same as the current password'));
 
         } catch (AuthenticationException) {
@@ -1643,72 +1662,6 @@ class User extends DataEntry
         }
 
         return $this->rights()->containsKey($rights, false, 'god');
-    }
-
-
-
-    /**
-     * Returns true if the specified password matches the users password
-     *
-     * @param string $password
-     * @return bool
-     */
-    public function passwordMatch(string $password): bool
-    {
-        return $this->passwordCompare($password, $this->data['password']);
-    }
-
-
-
-    /**
-     * Returns true if the specified password and password hash match
-     *
-     * @param string $password
-     * @param string $hashed_password
-     * @return bool
-     */
-    protected function passwordCompare(string $password, string $hashed_password): bool
-    {
-        return password_verify($this->seedPassword($password), $hashed_password);
-    }
-
-
-
-    /**
-     * Returns the best encryption cost available on this machine
-     *
-     * This code will benchmark your server to determine how high of a cost you can afford. You want to set the highest
-     * cost that you can without slowing down you server too much. 8-10 is a good baseline, and more is good if your
-     * servers are fast enough. The code below aims for ≤ 50 milliseconds stretching time, which is a good baseline for
-     * systems handling interactive logins.
-     *
-     * @note Taken from https://www.php.net/manual/en/function.password-hash.php and modified by Sven Olaf Oostenbrink
-     * @param int $tries
-     * @return int
-     */
-    public static function findBestEncryptionCost(int $tries = 20): int
-    {
-        $time  = Config::get('security.password.time', 50) / 1000;
-        $costs = [];
-        $try   = 0;
-
-        while (++$try < $tries) {
-            $cost = 3;
-
-            do {
-                $cost++;
-                $start = microtime(true);
-                password_hash('test', PASSWORD_BCRYPT, ['cost' => $cost]);
-                $end = microtime(true);
-                Script::dot();
-            } while (($end - $start) < $time);
-
-            $costs[] = $cost;
-        }
-
-        Log::cli();
-
-        return (int) Arrays::average($costs);
     }
 
 
@@ -1994,231 +1947,6 @@ class User extends DataEntry
             'description'             => 12,
             'comments'                => 12
         ] ;
-    }
-
-
-
-    /**
-     * Returns true if the password is considered secure enough
-     *
-     * @param string $password
-     * @return void
-     */
-    protected function testPasswordSecurity(string $password): void
-    {
-        try {
-            if ($this->passwordIsWeak($password)) {
-                throw new ValidationFailedException(tr('This password is not secure enough'));
-            }
-
-            if ($this->passwordIsCompromised($password)) {
-                throw new ValidationFailedException(tr('This password has been compromised'));
-            }
-
-            if ($this->passwordIsUsedPreviously($password)) {
-                throw new ValidationFailedException(tr('This password has been used before'));
-            }
-        } catch (ValidationFailedException $e) {
-            if (!Validator::disabled()) {
-                throw $e;
-            }
-        }
-    }
-
-
-
-    /**
-     * Returns true if the password is considered secure enough
-     *
-     * @param string $password
-     * @return bool
-     */
-    protected function passwordIsWeak(string $password): bool
-    {
-        $strength = $this->getPasswordStrength($password);
-        $weak     = ($strength < Config::get('security.password.strength', 50));
-
-        if ($weak and Validator::disabled()) {
-            Log::warning(tr('Ignoring weak password because validation is disabled'));
-            return false;
-        }
-
-        return $weak;
-    }
-
-
-
-    /**
-     * Returns true if the password is considered secure enough
-     *
-     * @param string $password
-     * @return int
-     */
-    protected function getPasswordStrength(string $password): int
-    {
-        // Get the length of the password
-        $strength = 10;
-        $length   = strlen($password);
-
-        if($length < 8) {
-            if(!$length) {
-                Log::warning(tr('No password specified'));
-                return -1;
-            }
-
-            Log::warning(tr('Specified password has length ":length" which is too short and cannot be accepted', [
-                ':length' => $length
-            ]));
-
-            return -1;
-        }
-
-        // Test for email parts
-        if ($this->getEmail()) {
-            $tests = [
-                'user'    => Strings::from($this->getEmail(), '@'),
-                'domain'  => Strings::until($this->getEmail(), '@'),
-                'ruser'   => strrev(Strings::from($this->getEmail(), '@')),
-                'rdomain' => strrev(Strings::until($this->getEmail(), '@'))
-            ];
-
-            foreach ($tests as $test) {
-                if (str_contains($password, $test)) {
-                    // password contains email parts, either straight or in reverse. Both are not allowed
-                    return -1;
-                }
-            }
-        }
-
-        // Check if password is not all lower case
-        if(strtolower($password) === $password){
-            $strength -= 15;
-        }
-
-        // Check if password is not all upper case
-        if(strtoupper($password) === $password){
-            $strength -= 15;
-        }
-
-        // Bonus for long passwords
-        $strength += ($length * 2);
-
-        // Get the amount of upper case letters in the password
-        preg_match_all('/[A-Z]/', $password, $matches);
-        $strength += (count($matches[0]) * 2);
-
-        // Get the amount of lower case letters in the password
-        preg_match_all('/[a-z]/', $password, $matches);
-        $strength += (count($matches[0]) * 2);
-
-        // Get the numbers in the password
-        preg_match_all('/[0-9]/', $password, $matches);
-        $strength += (count($matches[0]) * 2);
-
-        // Check for special chars
-        preg_match_all('/[|!@#$%&*\/=?,;.:\-_+~^\\\]/', $password, $matches);
-        $strength += (count($matches[0]) * 2);
-
-        // Get the number of unique chars
-        $chars            = str_split($password);
-        $num_unique_chars = count(array_unique($chars));
-
-        $strength += $num_unique_chars * 4;
-
-        // Test for same character repeats
-        $repeats = Strings::countCharacters($password);
-        $count   = (array_pop($repeats) + array_pop($repeats) + array_pop($repeats));
-
-        if (($count / ($length + 3) * 10) >= 3) {
-            $strength = $strength - ($strength * ($count / $length));
-        } else {
-            $strength = $strength + ($strength * ($count / $length));
-        }
-
-        // Test for character series
-        $series     = Strings::countAlphaNumericSeries($password);
-        $percentage = ($series / strlen($password)) * 100;
-        $strength  += ((100 - $percentage) / 2);
-
-        // Strength is a number 1 - 100;
-        $strength = floor(($strength > 99) ? 99 : $strength);
-
-        if(VERBOSE){
-            Log::notice(tr('Password strength is ":strength"', [':strength' => $strength]));
-        }
-
-        return $strength;
-    }
-
-
-
-    /**
-     * Returns true if the password is considered secure enough
-     *
-     * @param string $password
-     * @return bool
-     */
-    protected function passwordIsCompromised(string $password): bool
-    {
-        return (bool) sql()->get('SELECT `id` FROM `accounts_compromised_passwords` WHERE `password` = :password', [
-            ':password' => $password
-        ]);
-    }
-
-
-
-    /**
-     * Returns true if the password is considered secure enough
-     *
-     * @todo add limiting to 6-12 months, then passwords should be dumped
-     * @param string $new_password
-     * @return bool
-     */
-    protected function passwordIsUsedPreviously(string $new_password): bool
-    {
-        $hash_passwords = sql()->list('SELECT `id` FROM `accounts_old_passwords` WHERE `created_by` = :created_by', [
-            ':created_by' => $this->getId()
-        ]);
-
-        foreach ($hash_passwords as $hash_password) {
-            if ($this->passwordCompare($new_password, $hash_password)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-
-
-    /**
-     * Returns the hashed version of the password
-     *
-     * @param string $password
-     * @return string
-     */
-    protected function hashPassword(string $password): string
-    {
-        if (!$password) {
-            throw new OutOfBoundsException(tr('No password specified'));
-        }
-
-        return password_hash($this->seedPassword($password), PASSWORD_BCRYPT, [
-            'cost' => Config::get('security.passwords.cost', 10)
-        ]);
-    }
-
-
-
-    /**
-     * Returns the password with a seed
-     *
-     * @param string $password
-     * @return string
-     */
-    protected function seedPassword(string $password): string
-    {
-        return Config::get('security.seed', 'phoundation') . $this->getDataValue('id') . $password;
     }
 
 

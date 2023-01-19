@@ -30,7 +30,6 @@ use Phoundation\Web\Route;
 use Phoundation\Web\WebPage;
 use Phoundation\Web\Web;
 use Throwable;
-use tubalmartin\CssMin\Tests\MinifierTest;
 
 
 /**
@@ -187,12 +186,12 @@ class Core {
 
             // Set timeout and request type, ensure safe PHP configuration, apply general server restrictions, set the
             // project name, platform and request type
-            self::setTimeout();
             self::securePhpSettings();
             self::setServerRestrictions();
             self::setProject();
             self::setPlatform();
             self::setRequestType();
+            self::setTimeout();
 
         } catch (SqlException|NoProjectException $e) {
             throw $e;
@@ -204,7 +203,7 @@ class Core {
                     if (PLATFORM_HTTP) {
                         // Died in browser
                         Log::error('startup: Failed with "' . $e->getMessage() . '"');
-                        Web::die('startup: Failed, see web server error log');
+                        WebPage::die('startup: Failed, see web server error log');
                     }
 
                     // Died in CLI
@@ -314,14 +313,15 @@ class Core {
         define('PWD'     , Strings::slash(isset_get($_SERVER['PWD'])));
         define('STARTDIR', Strings::slash(getcwd()));
         define('PAGE'    , isset_get($_GET['page'], 1));
-        define('FORCE'   , (getenv('FORCE')   ? 'FORCE'   : false));
-        define('QUIET'   , (getenv('QUIET')   ? 'QUIET'   : false));
-        define('LIMIT'   , (getenv('LIMIT')   ? 'LIMIT'   : Config::getNatural('paging.limit', 50)));
-        define('TEST'    , (getenv('TEST')    ? 'TEST'    : false));
         define('ALL'     , (getenv('ALL')     ? 'ALL'     : false));
         define('DELETED' , (getenv('DELETED') ? 'DELETED' : false));
+        define('FORCE'   , (getenv('FORCE')   ? 'FORCE'   : false));
         define('ORDERBY' , (getenv('ORDERBY') ? 'ORDERBY' : ''));
         define('STATUS'  , (getenv('STATUS')  ? 'STATUS'  : ''));
+        define('QUIET'   , (getenv('QUIET')   ? 'QUIET'   : false));
+        define('TEST'    , (getenv('TEST')    ? 'TEST'    : false));
+        define('VERBOSE' , (getenv('VERBOSE') ? 'VERBOSE' : false));
+        define('LIMIT'   , (getenv('LIMIT')   ? 'LIMIT'   : Config::getNatural('paging.limit', 50)));
 
         // Check HEAD and OPTIONS requests. If HEAD was requested, just return basic HTTP headers
 // :TODO: Should pages themselves not check for this and perhaps send other headers?
@@ -411,24 +411,24 @@ class Core {
             ->select('--timezone', true)->isOptional(false)->isBoolean()
             ->select('--show-passwords')->isOptional(false)->isBoolean()
             ->select('--no-validation')->isOptional(false)->isBoolean()
+            ->select('--no-password-validation')->isOptional(false)->isBoolean()
             ->validate()
             ->getArgv();
 
         // Define basic platform constants
-        define('ADMIN', '');
-        define('PWD', Strings::slash(isset_get($_SERVER['PWD'])));
+        define('ADMIN'   , '');
+        define('PWD'     , Strings::slash(isset_get($_SERVER['PWD'])));
         define('STARTDIR', Strings::slash(getcwd()));
-
-        define('QUIET', $argv['quiet']);
-        define('VERBOSE', $argv['verbose']);
-        define('FORCE', $argv['force']);
-        define('NOCOLOR', $argv['no_color']);
-        define('TEST', $argv['test']);
-        define('DELETED', $argv['deleted']);
-        define('ALL', $argv['all']);
-        define('STATUS', $argv['status']);
-        define('PAGE', $argv['page']);
-        define('LIMIT', $argv['limit']);
+        define('QUIET'   , $argv['quiet']);
+        define('VERBOSE' , $argv['verbose']);
+        define('FORCE'   , $argv['force']);
+        define('NOCOLOR' , $argv['no_color']);
+        define('TEST'    , $argv['test']);
+        define('DELETED' , $argv['deleted']);
+        define('ALL'     , $argv['all']);
+        define('STATUS'  , $argv['status']);
+        define('PAGE'    , $argv['page']);
+        define('LIMIT'   , $argv['limit']);
 
         // Check what environment we're in
         if (isset($argv['environment'])) {
@@ -443,9 +443,8 @@ class Core {
             }
         }
 
+        // Set environment and protocol
         define('ENVIRONMENT', $env);
-
-        // Set protocol
         define('PROTOCOL', Config::get('web.protocol', 'https://'));
 
         // Correct $_SERVER['PHP_SELF'], sometimes seems empty
@@ -558,6 +557,10 @@ class Core {
 
         if ($argv['no_validation']) {
             Validator::disable();
+        }
+
+        if ($argv['no_password_validation']) {
+            Validator::disablePasswords();
         }
 
         // Remove the command itself from the argv array
@@ -740,11 +743,11 @@ class Core {
 
                     if (empty($env)) {
                         // No environment set in ENV, maybe given by parameter?
-                        Web::die(1, 'startup: No required environment specified for project "' . PROJECT . '"');
+                        WebPage::die(1, 'startup: No required environment specified for project "' . PROJECT . '"');
                     }
 
                     if (str_contains($env, '_')) {
-                        Web::die(1, 'startup: Specified environment "' . $env . '" is invalid, environment names cannot contain the underscore character');
+                        WebPage::die(1, 'startup: Specified environment "' . $env . '" is invalid, environment names cannot contain the underscore character');
                     }
                 }
 
@@ -820,11 +823,9 @@ class Core {
     protected static function setRequestType(): void
     {
         if (PLATFORM_HTTP) {
-            /*
-             * Determine what our target file is. With direct execution, $_SERVER[PHP_SELF] would contain this,
-             * with route execution, $_SERVER[PHP_SELF] would be route, so we cannot use that. Route will store
-             * the file being executed in self::$register['script_path'] instead
-             */
+            // Determine what our target file is. With direct execution, $_SERVER[PHP_SELF] would contain this, with
+            // route execution, $_SERVER[PHP_SELF] would be route, so we cannot use that. Route will store the file
+            // being executed in self::$register['script_path'] instead
             $file = $_SERVER['REQUEST_URI'];
 
             // Autodetect what http call type we're on from the script being executed
@@ -1503,7 +1504,7 @@ class Core {
                                 Log::error($e->getMessage());
                             }
 
-                            Web::die(tr('System startup exception. Please check your PATH_ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information'));
+                            WebPage::die(tr('System startup exception. Please check your PATH_ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information'));
                         }
 
                         if ($e->getCode() === 'validation') {
@@ -1633,14 +1634,11 @@ class Core {
                                     Json::message($e->getCode(), ['reason' => ($e->isWarning() ? trim(Strings::from($e->getMessage(), ':')) : '')]);
                                 }
 
-                                /*
-                                 * Assume that all non CoreException exceptions are not
-                                 * warnings!
-                                 */
-                            Json::message($e->getCode(), ['reason' => '']);
+                                // Assume that all non CoreException exceptions are not warnings!
+                                Json::message($e->getCode(), ['reason' => '']);
                         }
 
-                        Web::execute($e->getCode());
+                        Route::executeSystem($e->getCode());
                 }
 
             }catch(Throwable $f) {

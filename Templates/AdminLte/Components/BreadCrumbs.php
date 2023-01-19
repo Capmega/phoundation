@@ -2,7 +2,7 @@
 
 namespace Templates\AdminLte\Components;
 
-use Phoundation\Web\Http\Url;
+use Phoundation\Web\Http\UrlBuilder;
 
 
 
@@ -36,7 +36,7 @@ class BreadCrumbs extends \Phoundation\Web\Http\Html\Components\BreadCrumbs
                     $this->render .= '<li class="breadcrumb-item active">' . $label . '</li>';
 
                 } else {
-                    $this->render .= '<li class="breadcrumb-item"><a href="' . Url::build($url)->www() . '">' . $label . '</a></li>';
+                    $this->render .= '<li class="breadcrumb-item"><a href="' . UrlBuilder::www$url) . '">' . $label . '</a></li>';
                 }
             }
         }

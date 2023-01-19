@@ -5,10 +5,11 @@ namespace Phoundation\System\Environment;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
+use Phoundation\Data\Validator\Validator;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Restrictions;
-
+use Phoundation\System\Environment\Exception\EnvironmentExists;
 
 
 /**
@@ -73,22 +74,6 @@ class Project
 
 
     /**
-     * Returns the specified project
-     *
-     * @return Project
-     */
-    public static function get(): Project
-    {
-        if (!self::exists()) {
-            throw new OutOfBoundsException(tr('Project file "config/project" does not exist'));
-        }
-
-        return new Project();
-    }
-
-
-
-    /**
      * Returns the configuration for this project
      *
      * @param string $environment
@@ -100,7 +85,7 @@ class Project
 
         if (Environment::exists($environment)) {
             if (!FORCE) {
-                throw OutOfBoundsException::new(tr('Specified environment ":environment" has already been setup', [
+                throw EnvironmentExists::new(tr('Specified environment ":environment" has already been setup', [
                     ':environment' => $environment
                 ]))->makeWarning();
             }
@@ -108,7 +93,7 @@ class Project
             self::removeEnvironment($environment);
         }
 
-        self::$environment = Environment::new($environment);
+        self::$environment = Environment::new(self::$name, $environment);
         return self::$environment;
     }
 
@@ -179,6 +164,10 @@ class Project
      */
     public static function setup(): void
     {
+        if (!isset(self::$environment)) {
+            throw new OutOfBoundsException(tr('No environment specified'));
+        }
+
         $configuration = self::$environment->getConfiguration();
 
         Log::information(tr('Initializing project ":project", this can take a little while...', [
@@ -208,6 +197,31 @@ class Project
     public static function exists(): bool
     {
         return file_exists(PATH_ROOT . 'config/project');
+    }
+
+
+
+    /**
+     * Validate the specified information
+     *
+     * @param Validator $validator
+     * @return void
+     */
+    public static function validate(Validator $validator): void
+    {
+        $validator
+            ->select('admin_email')->isEmail()
+            ->select('admin_pass1')->isPassword()
+            ->select('admin_pass2')->isPassword()->isEqualTo('admin_pass1')
+            ->select('domain')->isDomain()
+            ->select('database_host')->isDomain()
+            ->select('database_name')->isVariable()
+            ->select('database_user')->isVariable()
+            ->select('database_pass1')->isPassword()
+            ->select('database_pass2')->isPassword()->isEqualTo('database_pass1')
+            ->select('project')->isVariable()
+            ->select('environment')->isVariable()
+            ->validate();
     }
 
 

@@ -3,14 +3,16 @@
 namespace Phoundation\Web\Http;
 
 use JetBrains\PhpStorm\ExpectedValues;
-use Phoundation\Core\Arrays;
+use Phoundation\Content\Images\Image;
 use Phoundation\Core\Config;
 use Phoundation\Core\Exception\ConfigNotExistsException;
 use Phoundation\Core\Log;
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
+use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Web\WebPage;
 
 
 
@@ -27,25 +29,11 @@ use Phoundation\Exception\UnderConstructionException;
 class UrlBuilder
 {
     /**
-     * The domain to build the URL with
+     * Will be true if the current URL as-is is cloaked
      *
-     * @var string $domain
+     * @var bool $is_cloaked
      */
-    protected string $domain;
-
-    /**
-     * If true, the URL will be built, if false, the URL is a full external URL and will not be built
-     *
-     * @var bool $process
-     */
-    protected bool $process = true;
-
-    /**
-     * The configuration for the domain to build the URL with
-     *
-     * @var array $configuration
-     */
-    protected array $configuration;
+    protected bool $is_cloaked = false;
 
     /**
      * The url to work with
@@ -54,168 +42,67 @@ class UrlBuilder
      */
     protected string $url;
 
+    /**
+     * If true, this URL will be returned cloaked
+     *
+     * @var bool $cloak
+     */
+    protected bool $cloak;
+
 
 
     /**
-     * UrlBuilder constructor
+     * UrlBuilder class constructor
      *
-     * @param string|bool|null $url
-     * @param bool|null $cloaked
+     * @param string|null $url
      */
-    public function __construct(string|bool|null $url = null, ?bool $cloaked = null)
+    protected function __construct(string|null $url = null)
     {
-        // Apply URL presets. Any of these presets will result in full URLs, and we will not have to build anything so
-        // $this->process will be set to false.
-        if (($url === true) or ($url === 'self')) {
-            // THIS URL.
-            $this->useCurrentDomain();
-            $this->url = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        $url = trim((string) $url);
 
-        } elseif ($url === false) {
-            // Special redirect. Redirect to this very page, but without queries
-            $this->useCurrentDomain();
-            $this->url = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . Strings::until($_SERVER['REQUEST_URI'], '?');
-
-        } elseif (($url === 'prev') or ($url === 'referer')) {
-            // Previous page; Assume we came from the HTTP_REFERER page
-            $this->url = isset_get($_SERVER['HTTP_REFERER']);
-            $this->process = false;
-
-            if (!$this->url or ($this->url == $_SERVER['REQUEST_URI'])) {
-                // Don't redirect to the same page! If the referrer was this page, then drop back to the index page
-                $this->url = $this->getIndexUrl();
-                $this->process = true;
-            }
-
-        } elseif (!$url) {
-            // No target specified, redirect to index page
-            $this->url = $this->getIndexUrl();
-            $this->process = false;
-        } else {
-            // This is a URL section
+        // This is either part of a URL or a complete URL
+        if (!Url::isValid($url)) {
+            // This is a section
             $this->url = Strings::startsNotWith($url, '/');
+        } else {
+            // This is a valid URL, continue.
+            $this->url = $url;
         }
-
-        $this->setCloaked($cloaked);
     }
 
 
 
     /**
-     * Returns if generated URL's will be cloaked or not
-     *
-     * @return bool
-     */
-    public function getCloaked(): bool
-    {
-        return (bool) isset_get($this->configuration['cloaked']);
-    }
-
-
-
-    /**
-     * Sets if generated URL's will be cloaked or not
-     *
-     * @param bool|null $cloaked
-     * @return UrlBuilder
-     */
-    public function setCloaked(?bool $cloaked): UrlBuilder
-    {
-        $this->ensureDomain();
-
-        if ($cloaked === null) {
-            $cloaked = (bool) Config::get('web.domains.' . $this->configuration['domain'] . '.cloaked', false);
-        }
-
-        $this->cloaked = $cloaked;
-        return $this;
-    }
-
-
-
-    /**
-     * Returns the used domain
+     * When used as string, will always return the internal URL as available
      *
      * @return string
      */
-    public function getDomain(): string
+    public function __toString(): string
     {
-        return $this->domain;
-    }
+        // Auto cloak URL's?
+        $domain = Url::getDomainFromUrl($this->url);
 
+        try {
+            if (Domains::getConfigurationKey($domain, 'cloaked')) {
+                $this->cloak();
+            }
+        } catch (ConfigNotExistsException) {
+            // This domain is not configured, ignore it
+        }
 
-
-    /**
-     * Sets the used domain
-     *
-     * @param string $domain
-     * @return UrlBuilder
-     */
-    public function useDomain(string $domain): UrlBuilder
-    {
-        $this->setDomainConfiguration($domain);
-        $this->domain = $domain;
-        return $this;
-    }
-
-
-
-    /**
-     * Sets the used domain to the current domain (WEB only)
-     *
-     * @return UrlBuilder
-     */
-    public function useCurrentDomain(): UrlBuilder
-    {
-        $this->setDomainConfiguration($_SERVER['HTTP_HOST']);
-        $this->domain = $_SERVER['HTTP_HOST'];
-        return $this;
-    }
-
-
-
-    /**
-     * Returns the used domain
-     *
-     * @return UrlBuilder
-     */
-    public function usePrimaryDomain(): UrlBuilder
-    {
-        $this->setDomainConfiguration('primary');
-        $this->domain = $this->configuration['domain'];
-        return $this;
-    }
-
-
-
-    /**
-     * Returns the URL as it has been built
-     *
-     * @return string
-     */
-    public function get(): string
-    {
         return $this->url;
     }
 
 
 
     /**
-     * Returns a CDN URL
+     * Returns the current URL
      *
-     * @param string|null $extension
-     * @return string
+     * @return static
      */
-    public function cdn(?string $extension = null): string
+    public static function current(): static
     {
-        if (Url::is($this->url)) {
-            return $this->url;
-        }
-
-        $this->url = $this->buildDomainPrefix('cdn', $this->url);
-        $this->url = $this->buildExtension($extension);
-
-        return $this->url;
+        return self::currentDomainUrl();
     }
 
 
@@ -223,17 +110,161 @@ class UrlBuilder
     /**
      * Returns a www URL
      *
-     * @return string
+     * @param string|null $url
+     * @return static
      */
-    public function www(): string
+    public static function www(?string $url = null): static
     {
-        if (Url::is($this->url)) {
-            return $this->url;
+        if (!$url) {
+            return self::current();
         }
 
-        $this->url = $this->buildDomainPrefix('www', $this->url);
+        if (Url::isValid($url)) {
+            return new UrlBuilder($url);
+        }
 
-        return $this->url;
+        return new UrlBuilder(self::buildDomainPrefix('www', $url));
+    }
+
+
+
+    /**
+     * Returns a CDN URL
+     *
+     * @param string $url
+     * @param string|null $extension
+     * @return static
+     */
+    public static function cdn(string $url, ?string $extension = null): static
+    {
+        if (Url::isValid($url)) {
+            return new UrlBuilder($url);
+        }
+
+        self::buildCdn($url, $extension);
+    }
+
+
+
+    /**
+     * Returns the root URL for the primary domain
+     *
+     * @return static
+     */
+    public static function currentDomainRootUrl(): static
+    {
+        return new UrlBuilder(Domains::from()->getThis() . WebPage::getRootUri());
+    }
+
+
+
+    /**
+     * Returns the URL as requested for the primary domain
+     *
+     * @return static
+     */
+    public static function currentDomainUrl(): static
+    {
+        return new UrlBuilder(Domains::from()->getThis() . WebPage::getRootUri());
+    }
+
+
+
+    /**
+     * Returns the root URL for the parent domain
+     *
+     * @return static
+     */
+    public static function parentDomainRootUrl(): static
+    {
+        return new UrlBuilder(Domains::from()->getParent() . WebPage::getRootUri());
+    }
+
+
+
+    /**
+     * Returns the URL as requested for the parent domain
+     *
+     * @return static
+     */
+    public static function parentDomainUrl(): static
+    {
+        return new UrlBuilder(Domains::from()->getParent() . WebPage::getUri());
+    }
+
+
+
+    /**
+     * Returns the root URL for the root domain
+     *
+     * @return static
+     */
+    public static function rootDomainRootUrl(): static
+    {
+        return new UrlBuilder(Domains::from()->getRoot() . WebPage::getRootUri());
+    }
+
+
+
+    /**
+     * Returns the URL as requested for the root domain
+     *
+     * @return static
+     */
+    public static function rootDomainUrl(): static
+    {
+        return new UrlBuilder(Domains::from()->getRoot() . WebPage::getUri());
+    }
+
+
+
+    /**
+     * Returns the root URL for the primary domain
+     *
+     * @return static
+     */
+    public static function primaryDomainRootUrl(): static
+    {
+        return new UrlBuilder(Domains::getPrimary() . WebPage::getRootUri());
+    }
+
+
+
+    /**
+     * Returns the URL as requested for the primary domain
+     *
+     * @return static
+     */
+    public static function primaryDomainUrl(): static
+    {
+        return new UrlBuilder(Domains::getPrimary() . WebPage::getUri());
+    }
+
+
+
+    /**
+     * Returns the referer (previous) URL
+     *
+     * @param string|null $url
+     * @return static
+     */
+    public static function referer(?string $url = null): static
+    {
+        // The previous page; Assume we came from the HTTP_REFERER page
+        $referer = isset_get($_SERVER['HTTP_REFERER']);
+
+        if (!$referer or ($referer === $_SERVER['REQUEST_URI'])) {
+            // Don't redirect to the same page! If the referrer was this page, then drop back to the specified page or
+            // the index page
+            if ($url) {
+                $referer = $url;
+
+            } else {
+                $referer = self::rootDomainRootUrl();
+            }
+        }
+
+        return new UrlBuilder($referer);
     }
 
 
@@ -241,17 +272,15 @@ class UrlBuilder
     /**
      * Returns an ajax URL
      *
-     * @return string
+     * @param string $url
+     * @return static
      */
-    public function ajax(): string
+    public static function ajax(string $url): static
     {
-        if (Url::is($this->url)) {
-            return $this->url;
-        }
+        $url = Strings::startsNotWith($url, '/');
+        $url = self::buildDomainPrefix('www', 'ajax/' . $url);
 
-        $this->url = $this->buildDomainPrefix('www', 'ajax/' . $this->url);
-
-        return $this->url;
+        return self::www($url);
     }
 
 
@@ -259,17 +288,15 @@ class UrlBuilder
     /**
      * Returns an api URL
      *
-     * @return string
+     * @param string $url
+     * @return static
      */
-    public function api(): string
+    public static function api(string $url): static
     {
-        if (Url::is($this->url)) {
-            return $this->url;
-        }
+        $url = Strings::startsNotWith($url, '/');
+        $url = self::buildDomainPrefix('www', 'api/' . $url);
 
-        $this->url = $this->buildDomainPrefix('www', 'api' . $this->url);
-
-        return $this->url;
+        return self::www($url);
     }
 
 
@@ -277,17 +304,19 @@ class UrlBuilder
     /**
      * Returns a CSS URL
      *
-     * @return string
+     * @param string $url
+     * @return static
      */
-    public function css(): string
+    public static function css(string $url): static
     {
-        if (Url::is($this->url)) {
-            return $this->url;
+        if (Url::isValid($url)) {
+            return new UrlBuilder($url);
         }
 
-        $this->url = Strings::startsNotWith($this->url, '/');
+        $url = Strings::startsNotWith($url, '/');
+        $url = self::buildDomainPrefix('cdn', '/' . $url);
 
-        return $this->cdn('css');
+        return self::buildCdn($url, 'css');
     }
 
 
@@ -295,17 +324,19 @@ class UrlBuilder
     /**
      * Returns a Javascript URL
      *
-     * @return string
+     * @param string $url
+     * @return static
      */
-    public function js(): string
+    public static function js(string $url): static
     {
-        if (Url::is($this->url)) {
-            return $this->url;
+        if (Url::isValid($url)) {
+            return new UrlBuilder($url);
         }
 
-        $this->url = Strings::startsNotWith($this->url, '/');
+        $url = Strings::startsNotWith($url, '/');
+        $url = self::buildDomainPrefix('cdn', '/' . $url);
 
-        return $this->cdn('js');
+        return self::buildCdn($url, 'js');
     }
 
 
@@ -313,50 +344,95 @@ class UrlBuilder
     /**
      * Returns an image URL
      *
-     * @return string|null
+     * @param Image|string $url
+     * @return static
      */
-    public function img(bool $path = false): ?string
+    public static function img(Image|string $url): static
     {
-        if ($path) {
-            // Return the local filesystem path instead of a public URL
-            if (Url::is($this->url)) {
-                // This is an external URL, there is no local file
-                return null;
-            }
-
-            $path = Strings::startsNotWith($this->url, '/');
-
-            if (!str_starts_with($path, 'img/')) {
-                $path = 'img/' . $path;
-            }
-
-            return $path;
+        if (is_object($url)) {
+            $url->getHtmlElement()->getSrc();
+        } elseif (Url::isValid($url)) {
+            return new UrlBuilder($url);
         }
 
-        if (Url::is($this->url)) {
-            return $this->url;
+//        if ($path) {
+//            throw new UnderConstructionException();
+//            // Return the local filesystem path instead of a public URL
+//            if (Url::isValid($url)) {
+//                // This is an external URL, there is no local file
+//                return new UrlBuilder($url);
+//            }
+//
+//            $path = Strings::startsNotWith($this->url, '/');
+//
+//            if (!str_starts_with($path, 'img/')) {
+//                $path = 'img/' . $path;
+//            }
+//
+//            return $path;
+//        }
+
+        $url = Strings::startsNotWith($url, '/');
+        $url = self::buildDomainPrefix('cdn', '/' . $url);
+
+        if (!str_starts_with($url, 'img/')) {
+            $url = 'img/' . $url;
         }
 
-        $this->url = Strings::startsNotWith($this->url, '/');
-
-        if (!str_starts_with($this->url, 'img/')) {
-            $this->url = 'img/' . $this->url;
-        }
-
-        return $this->cdn();
+        return self::buildCdn($url);
     }
 
 
 
     /**
-     * Returns true if the specified string is a full URL
+     * Returns if generated URL's is cloaked or not
      *
-     * @return string
+     * @return bool
      */
-    public function getIndexUrl(): string
+    public function isCloaked(): bool
     {
-        $this->useCurrentDomain();
-        return $this->buildDomainPrefix('www', $this->configuration['index']);
+        return isset_get($this->is_cloaked);
+    }
+
+
+
+    /**
+     * Cloak the specified URL.
+     *
+     * URL cloaking is nothing more than replacing a full URL (with query) with a random string. This function will
+     * register the requested URL
+     *
+     * @return static
+     */
+    public function cloak(): static
+    {
+        $cloak = sql()->getColumn('SELECT `cloak`
+                                         FROM   `url_cloaks`
+                                         WHERE  `url`        = :url
+                                         AND    `created_by` = :created_by', [
+            ':url'        => $this->url,
+            ':created_by' => isset_get($_SESSION['user']['id'])
+        ]);
+
+        if ($cloak) {
+            // Found cloaking URL, update the created_on time so that it won't exipre too soon
+            sql()->query('UPDATE `url_cloaks` 
+                                SET    `created_on` = NOW() 
+                                WHERE  `url`        = :url', [
+                ':url' => $this->url
+            ]);
+        } else {
+            $cloak = Strings::random(32);
+
+            sql()->insert('url_cloaks', [
+                'created_by' => Session::getUser()->getId(),
+                'cloak'      => $cloak,
+                'url'        => $this->url
+            ]);
+        }
+
+        $this->url = $cloak;
+        return $this;
     }
 
 
@@ -366,26 +442,21 @@ class UrlBuilder
      *
      * URL cloaking is nothing more than
      *
-     * @return UrlBuilder
+     * @return static
      */
-    public function decloak(): UrlBuilder
+    public function decloak(): static
     {
-        $data = sql()->getColumn('SELECT `created_by`, `url` 
-                                        FROM   `url_cloaks` 
-                                        WHERE  `cloak` = :cloak', [':cloak' => $this->url]);
+        $url = sql()->getColumn('SELECT `created_by`, `url` 
+                                       FROM   `url_cloaks` 
+                                       WHERE  `cloak` = :cloak', [':cloak' => $this->url]);
 
-        if (!$data) {
+        if (!$url) {
+            throw new NotExistsException(tr('The specified cloaked URL ":url" does not exist', [
+                ':url' => $this->url
+            ]));
         }
 
-        // Auto cleanup?
-        // TODO Redo this. We can't cleanup once in a 100 clicks or something that is stupid with any traffic at all. Clean up all after 24 hours, cleanup once every 24 hours, something like that.
-
-        //        $interval = Config::get('web.url.cloaking.interval', 86400);
-        //
-        //        if (mt_rand(0, 100) <=  {
-        //            self::cleanupCloak();
-        //        }
-
+        sql()->delete('url_cloaks', [':cloak' => $this->url]);
         return $this;
     }
 
@@ -399,10 +470,8 @@ class UrlBuilder
      * @see Url::decloak()
      * @return int The amount of expired entries removed from the `url_cloaks` table
      */
-    public function cleanupCloak(): int
+    public static function cleanupCloak(): int
     {
-        global $_CONFIG;
-
         Log::notice(tr('Cleaning up `url_cloaks` table'));
 
         $r = sql()->query('DELETE FROM `url_cloaks` 
@@ -418,102 +487,14 @@ class UrlBuilder
 
 
     /**
-     * Builds and returns the domain prefix
+     * Remove the query part from the URL
      *
-     * @param string $type
-     * @param string $url
-     * @return string
+     * @return static
      */
-    protected function buildDomainPrefix(#[ExpectedValues(values: ['www', 'cdn'])] string $type, string $url): string
+    public function removeQueries(): static
     {
-        $this->ensureDomain();
-
-        if ($this->process) {
-            $this->configuration[$type] = Strings::endsWith($this->configuration[$type], '/');
-
-            $url = Strings::startsNotWith($url, '/');
-            $url = str_replace(':LANGUAGE', Session::getLanguage(), $this->configuration[$type]) . $url;
-        }
-
-        if ($this->configuration['cloaked']) {
-            $url = $this->cloak($url);
-        }
-
-        $this->url = $url;
-        return $url;
-    }
-
-
-
-    /**
-     * Build a URL with extension
-     *
-     * @param string|null $extension
-     * @return string
-     */
-    protected function buildExtension(?string $extension): string
-    {
-        if (!$extension) {
-            return $this->url;
-        }
-
-        if (Config::get('web.minify', true)) {
-            return $this->url . '.min.' . $extension;
-        }
-
-        return $this->url . '.' . $extension;
-    }
-
-
-
-    /**
-     * Sets the internal configuration for the selected domain
-     *
-     * @param string $domain
-     * @return void
-     */
-    protected function setDomainConfiguration(string $domain): void
-    {
-        // Use current domain
-        $domains = Config::get('web.domains');
-
-        if ($domains['primary']['domain'] === $domain) {
-            // Specified domain is the primary domain
-            $domain = 'primary';
-        } else {
-            // It's not the primary domain
-            if (!array_key_exists($domain, $domains)) {
-                // It's not a listed domain either, we don't know this domain, oh noes!
-                throw ConfigNotExistsException::new(tr('No configuration available for domain ":domain"', [
-                    ':domain' => $domain
-                ]));
-            }
-        }
-
-        $configuration = $domains[$domain];
-
-        unset($domains);
-
-        // Validate configuration
-        // TODO implement
-        Arrays::requiredKeys($configuration, 'domain,www,cdn', ConfigNotExistsException::class);
-        Arrays::default($configuration, 'index'  , '/');
-        Arrays::default($configuration, 'cloaked', false);
-
-        $this->configuration = $configuration;
-    }
-
-
-
-    /**
-     * @return void
-     */
-    protected function ensureDomain(): void
-    {
-        if (!isset($this->domain)) {
-            // We have no domain selected yet! Assume current domain
-            $this->useCurrentDomain();
-        }
+        $this->url = Strings::until($this->url, '?');
+        return $this;
     }
 
 
@@ -522,9 +503,9 @@ class UrlBuilder
      * Add specified query to the specified URL and return
      *
      * @param string $query [$query] ... All the queries to add to this URL
-     * @return UrlBuilder
+     * @return static
      */
-    public function addQueries(): UrlBuilder
+    public function addQueries(): static
     {
         $queries = func_get_args();
 
@@ -597,39 +578,66 @@ class UrlBuilder
 
 
     /**
-     * Cloak the specified URL.
+     * Returns the extension for the URL
      *
-     * URL cloaking is nothing more than replacing a full URL (with query) with a random string. This function will
-     * register the requested URL
+     * @param string|null $extension
+     * @return string|null
+     */
+    protected static function addExtension(?string $extension): ?string
+    {
+        if (!$extension) {
+            return $extension;
+        }
+
+        if (Config::get('web.minify', true)) {
+            return '.min.' . $extension;
+        }
+
+        return '.' . $extension;
+    }
+
+
+
+    /**
+     * Builds and returns the domain prefix
      *
+     * @param string $type
+     * @param string $url
+     * @param string|null $domain
      * @return string
      */
-    protected function cloak(string $url): string
+    protected static function buildDomainPrefix(#[ExpectedValues(values: ['www', 'cdn'])] string $type, string $url, ?string $domain = null): string
     {
-        $cloak = sql()->getColumn('SELECT `cloak`
-                                  FROM   `url_cloaks`
-                                  WHERE  `url`        = :url
-                                  AND    `created_by` = :created_by', [
-            ':url'        => $url,
-            ':created_by' => isset_get($_SESSION['user']['id'])
-        ]);
+        if (!Url::isValid($url)) {
+            // Get the base URL configuration for the domain
+            if (!$domain) {
+                $domain = Domains::getCurrent();
+            }
 
-        if ($cloak) {
-            // Found cloaking URL, update the created_on time so that it won't exipre too soon
-            sql()->query('UPDATE `url_cloaks` 
-                                SET    `created_on` = NOW() 
-                                WHERE  `url` = :url', [':url' => $url]);
-        } else {
-            $cloak = Strings::random(32);
-
-            sql()->insert('url_cloaks', [
-                'created_by' => isset_get($_SESSION['user']['id']),
-                'cloak'      => $cloak,
-                'url'        => $url
-            ]);
+            $base = Domains::getConfigurationKey($domain, $type);
+            $base = Strings::endsWith($base, '/');
+            $url  = Strings::startsNotWith($url, '/');
+            $url  = str_replace(':LANGUAGE', Session::getLanguage(), $base . $url);
         }
 
         return $url;
+    }
+
+
+
+    /**
+     * Returns a CDN URL
+     *
+     * @param string $url
+     * @param string|null $extension
+     * @return static
+     */
+    public static function buildCdn(string $url, ?string $extension = null): static
+    {
+        $url  = self::buildDomainPrefix('cdn', $url);
+        $url .= self::addExtension($extension);
+
+        return new UrlBuilder(self::buildDomainPrefix('cdn', $url));
     }
 
 

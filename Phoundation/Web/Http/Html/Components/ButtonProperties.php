@@ -6,6 +6,7 @@ namespace Phoundation\Web\Http\Html\Components;
 
 use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Web\Http\Url;
+use Phoundation\Web\Http\UrlBuilder;
 
 /**
  * ButtonProperties trait
@@ -170,7 +171,7 @@ trait ButtonProperties
      */
     public function setAnchorUrl(?string $anchor_url): static
     {
-        $this->anchor_url = Url::build($anchor_url)->www();
+        $this->anchor_url = UrlBuilder::www($anchor_url);
 
         if ($anchor_url) {
             $this->setElement('a');

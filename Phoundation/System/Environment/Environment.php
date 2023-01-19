@@ -7,6 +7,7 @@ use Phoundation\Core\Log;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Restrictions;
+use Phoundation\System\Environment\Exception\EnvironmentException;
 use Phoundation\System\Libraries;
 use Throwable;
 
@@ -42,12 +43,13 @@ class Environment
     /**
      * Environment class constructor
      *
+     * @param string $project
      * @param string $environment
      */
-    protected function __construct(string $environment)
+    protected function __construct(string $project, string $environment)
     {
         $this->name   = self::sanitize($environment);
-        $this->config = new Configuration();
+        $this->config = new Configuration($project);
     }
 
 
@@ -55,10 +57,11 @@ class Environment
     /**
      * Returns a new environment with the specified name
      *
+     * @param string $project
      * @param string $environment
      * @return Environment
      */
-    public static function new(string $environment): Environment
+    public static function new(string $project, string $environment): Environment
     {
         Log::action(tr('Generating new environment ":env"', [':env' => $environment]));
 
@@ -68,7 +71,7 @@ class Environment
             ]));
         }
 
-        return new Environment($environment);
+        return new Environment($project, $environment);
     }
 
 
@@ -76,10 +79,11 @@ class Environment
     /**
      * Returns the specified environment
      *
+     * @param string $project
      * @param string $environment
      * @return Environment
      */
-    public static function get(string $environment): Environment
+    public static function get(string $project, string $environment): Environment
     {
         if (!self::exists($environment)) {
             throw new OutOfBoundsException(tr('Specified environment ":environment" does not exist', [
@@ -87,7 +91,7 @@ class Environment
             ]));
         }
 
-        return new Environment($environment);
+        return new Environment($project, $environment);
     }
 
 
@@ -202,10 +206,20 @@ class Environment
      */
     public function setup(): void
     {
-        Log::action(tr('Generating configuration for environment ":env"...', [':env' => strtolower($this->name)]));
-        Config::setEnvironment($this->name);
-        Config::import($this->getConfiguration());
-        Config::save();
+        try {
+            Log::action(tr('Generating configuration for environment ":env"...', [':env' => strtolower($this->name)]));
+            Config::setEnvironment($this->name);
+            Config::import($this->getConfiguration());
+            Config::save();
+        } catch (Throwable $e) {
+            if (str_contains($e->getMessage(), 'must not be accessed before initialization')) {
+                throw new EnvironmentException(tr('Failed to generate new environment configuration because not all setup parameters were copied into the project environment configuration. Please check your setup script.'));
+            }
+
+            throw new EnvironmentException(tr('Failed to generate new environment configuration because ":e"', [
+                ':e' => $e->getMessage()
+            ]));
+        }
 
         Log::action(tr('Initializing system...'));
         Libraries::initialize(true, true, true, 'System setup');

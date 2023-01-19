@@ -2,15 +2,9 @@
 
 namespace Phoundation\Web\Http;
 
-use JetBrains\PhpStorm\NoReturn;
-use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
-use Phoundation\Core\Core;
-use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Exception\PageException;
-use Phoundation\Web\Exception\WebException;
+
 
 
 /**
@@ -21,36 +15,9 @@ use Phoundation\Web\Exception\WebException;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Http
+ * @package Phoundation\Web
  */
 class Url {
-    /**
-     * Build URL's
-     *
-     * @param string|bool|null $url
-     * @param bool|null $cloaked
-     * @return UrlBuilder
-     */
-    public static function build(string|bool|null $url = null, ?bool $cloaked = null): UrlBuilder
-    {
-        return new UrlBuilder($url, $cloaked);
-    }
-
-
-
-    /**
-     * Returns true if the specified string APPEARS to be a URL
-     *
-     * @param string $url
-     * @return bool
-     */
-    public static function is(string $url): bool
-    {
-        return preg_match('/http(?:s)?:\/\//i', $url);
-    }
-
-
-
     /**
      * Returns true if the specified string is a full and VALID URL
      *
@@ -99,7 +66,7 @@ class Url {
     public static function getDomainType(string $url, bool $check_sub_domains = true): ?string
     {
         // Get all domain names and check if its primary or subdomain of those.
-        $url_domain = self::getDomain($url);
+        $url_domain = self::getDomainFromUrl($url);
         $domains    = Config::get('web.domains');
 
         foreach ($domains as $domain) {
@@ -137,7 +104,7 @@ class Url {
      * @param string $url
      * @return string|null
      */
-    public static function getDomain(string $url): ?string
+    public static function getDomainFromUrl(string $url): ?string
     {
         $url = parse_url($url);
         return isset_get($url['host']);

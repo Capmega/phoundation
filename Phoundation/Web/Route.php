@@ -26,6 +26,7 @@ use Phoundation\Web\Http\File;
 use Phoundation\Web\Http\Html\Template\Template;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Exception\RouteException;
+use Phoundation\Web\Http\UrlBuilder;
 use Templates\AdminLte\AdminLte;
 use Throwable;
 
@@ -129,6 +130,9 @@ class Route
             }
         } catch (SqlException|NoProjectException $e) {
             // Either we have no project or no system database
+            GetValidator::hideData();
+            PostValidator::hideData();
+
             self::$server_restrictions = Core::ensureServer(PATH_WWW, null, 'Route');
             self::setPageParameters(AdminLte::class); // Use AdminLTE template as default system template
             self::execute(PATH_WWW . 'setup.php', false);
@@ -690,7 +694,7 @@ class Route
                         ]));
 
                         Core::unregisterShutdown('route_postprocess');
-                        WebPage::redirect(Url::build($route)->addQueries($_GET)->www(), $http_code);
+                        WebPage::redirect(UrlBuilder::www($route)->addQueries($_GET), $http_code);
 
                     case 'S':
                         $until = substr($flag, 1);
@@ -790,7 +794,7 @@ class Route
 
                         case 301:
                             // Redirect to URL without query
-                            $domain = Web::getDomain(true);
+                            $domain = Url::getDomain()->getThis();
                             $domain = Strings::until($domain, '?');
 
                             Log::warning(tr('Matched route ":route" allows GET key ":key" as redirect to URL without query', [
@@ -1096,15 +1100,17 @@ class Route
     /**
      * Show the system page for the specified HTTP code
      *
-     * @param int $http_code
+     * @param int|null $http_code
      * @return void
      *
      * @see Route::add()
      * @see Route::shutdown()
      */
-    #[NoReturn] public static function executeSystem(int $http_code): void
+    #[NoReturn] public static function executeSystem(?int $http_code): void
     {
-        if (($http_code < 0) or ($http_code > 1000)) {
+        if (!$http_code) {
+            $http_code = 500;
+        } elseif (($http_code < 0) or ($http_code > 1000)) {
             throw new OutOfBoundsException(tr('Specified HTTP code ":code" is invalid', [':code' => $http_code]));
         }
 

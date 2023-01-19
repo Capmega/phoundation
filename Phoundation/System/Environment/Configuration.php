@@ -52,11 +52,14 @@ class Configuration
     protected string $project;
 
 
+
     /**
      * Configuration class constructor
      *
+     * @param string $project
      */
-    public function __construct() {
+    public function __construct(string $project) {
+        $this->project  = $project;
         $this->database = new Database();
     }
 

@@ -4,13 +4,17 @@ namespace Phoundation\Data\Validator;
 
 use DateTime;
 use PDOStatement;
+use Phoundation\Accounts\Passwords;
+use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Exception\KeyAlreadySelectedException;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
+use Phoundation\Web\Http\Url;
 use ReflectionProperty;
 use Throwable;
 
@@ -64,6 +68,42 @@ abstract class Validator
     public static function enable(): void
     {
         self::$disabled = false;
+    }
+
+
+
+    /**
+     * Returns if all validations are disabled or not
+     *
+     * @return bool
+     */
+    public static function passwordsDisabled(): bool
+    {
+        return self::$password_disabled;
+    }
+
+
+
+    /**
+     * Disable password validations
+     *
+     * @return void
+     */
+    public static function disablePasswords(): void
+    {
+        self::$password_disabled = true;
+    }
+
+
+
+    /**
+     * Enable password validations
+     *
+     * @return void
+     */
+    public static function enablePasswords(): void
+    {
+        self::$password_disabled = false;
     }
 
 
@@ -1383,7 +1423,28 @@ abstract class Validator
                 return;
             }
 
-            $this->isPrintable();
+            $this->matchesRegex('/^[a-z-]+$/i');
+        });
+    }
+
+
+
+    /**
+     * Validates if the selected field is a valid variable
+     *
+     * @return static
+     */
+    public function isVariable(): static
+    {
+        return $this->validateValues(function(&$value) {
+            $this->hasMinCharacters(2)->hasMaxCharacters(32);
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return;
+            }
+
+            $this->matchesRegex('/^[a-z_]+$/i');
         });
     }
 
@@ -1465,11 +1526,22 @@ abstract class Validator
     public function isPassword(): static
     {
         return $this->validateValues(function(&$value) {
+            if (self::passwordsDisabled()) {
+                // Don't test passwords
+                return;
+            }
+
             $this->hasMinCharacters(10)->hasMaxCharacters(128);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
+            }
+
+            try {
+                Passwords::testSecurity($value);
+            } catch (ValidationFailedException $e) {
+                $this->addFailure(tr('failed because ":e"', [':e' => $e->getMessage()]));
             }
         });
     }
@@ -1535,7 +1607,7 @@ abstract class Validator
                 return;
             }
 
-            if (!filter_var($value, FILTER_VALIDATE_URL)) {
+            if (!Url::isValid($value)) {
                 $this->addFailure(tr('must contain a valid URL'));
             }
         });

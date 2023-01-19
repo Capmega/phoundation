@@ -2,7 +2,7 @@
 
 namespace Templates\AdminLte\Components;
 
-use Phoundation\Web\Http\Url;
+use Phoundation\Web\Http\UrlBuilder;
 
 
 
@@ -30,7 +30,7 @@ class TopMenu extends \Phoundation\Web\Http\Html\Components\TopMenu
                             <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
                         </li>
                         <li class="nav-item d-none d-sm-inline-block">
-                            <a href="' . Url::build()->www() . '" class="nav-link">' . tr('Home') . '</a>
+                            <a href="' . UrlBuilder::current() . '" class="nav-link">' . tr('Home') . '</a>
                         </li>';
 
         if ($this->getSource()) {

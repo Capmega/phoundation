@@ -66,9 +66,9 @@ class Config
     /**
      * The environment used by this configuration object
      *
-     * @var string $environment
+     * @var string|null $environment
      */
-    protected static string $environment;
+    protected static ?string $environment = null;
 
 
 
@@ -99,7 +99,19 @@ class Config
 
 
     /**
-     * Use the specified (or if not specified, the current global) environment
+     * Returns the current environment for the configuration object
+     *
+     * @return string|null
+     */
+    public static function getEnvironment(): ?string
+    {
+        return self::$environment;
+    }
+
+
+
+    /**
+     * Lets the Config object use the specified (or if not specified, the current global) environment
      *
      * @param string|null $environment
      * @return void
@@ -108,7 +120,8 @@ class Config
     {
         if (is_string($environment)) {
             if (!$environment) {
-                // Use no environment!
+                // Environment was specified as "", use no environment!
+                self::$environment = null;
                 self::reset();
                 return;
             }
@@ -121,10 +134,10 @@ class Config
             self::$environment = strtolower(trim(ENVIRONMENT));
 
         } else {
-            // This should only happen in some rare occasions where startup fails and we require configuration access
-            // before ENVIRONMENT has been defined. In those cases, assuming "production" environment is safe enough
-            // TODO Define all other required constants as well!
-            self::$environment = 'production';
+echo '<pre>';
+            print_r(debug_backtrace());
+            die();
+            self::$environment = ENVIRONMENT;
         }
 
         Log::action(tr('Using environment ":env"', [':env' => self::$environment]), 5);
@@ -677,7 +690,7 @@ class Config
                 'name' => $configuration->getProject(),
                 'version' => '0.0.0'
             ],
-            'laqnguages' => [
+            'languages' => [
                 'supported' => ['en'],
                 'default' => 'en'
             ],

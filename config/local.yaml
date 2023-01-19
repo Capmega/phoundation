@@ -1,52 +1,42 @@
 security:
-  seed: "t456lerwtvgjh2ql453kywlkcejghle5k6jy14v(4%#^yrtynRY1"
-debug:
-  enabled: true
+  seed: d5OK9sDYiWzq3gbD
+debug: false
 project:
-  name: "Phoundation"
-  version: "0.0.0"
+  name: phoundation
+  version: 0.0.0
 languages:
-  supported: ["en", "es"]
-  default: "en"
-web:
-  minify: false
-  sessions:
-    cookies:
-      secure: false
-      domain: 'auto'
-  domains:
-    primary:
-      domain: "localhost" #is this key needed???
-      cloaked: false
-      index: "/"
-      www: "http://localhost/:LANGUAGE/"
-      cdn: "http://cdn.localhost/:LANGUAGE/"
-    test:
-      domain: "test" #is this key needed???
-      www: "https://test/:LANGUAGE/"
-      cdn: "https://cdn.test.localhost/:LANGUAGE/"
-    trial:
-      domain: "trial" #is this key needed???
-      www: "https://trial/:LANGUAGE/"
-      cdn: "https://cdn.trial.localhost/:LANGUAGE/"
-  route:
-    known-hacks:
-  template:
-    name: "phoundation"
-notifications:
-  groups:
-    developers:
-      "so.oostenbrink@gmail.com"
+  supported:
+  - en
+  default: en
 databases:
   sql:
     debug: false
     instances:
       system:
-        type: "mysql"
-        server: "localhost"
-        name: "phoundation"
-        user: "base"
-        pass: "base"
+        type: mysql
+        server: localhost
+        name: phoundation
+        user: base
+        pass: base
   memcached:
     instances:
-      system:
+      system: ~
+notifications:
+  groups:
+    developers:
+    - so.oostenbrink@gmail.com
+web:
+  minify: false
+  sessions:
+    cookies:
+      secure: false
+      domain: auto
+  domains:
+    primary:
+      www: http://localhost/:LANGUAGE/
+      cdn: http://cdn.localhost/:LANGUAGE/
+    whitelabel1.phoundation.org:
+      www: https://whitelabel1.phoundation.org/:LANGUAGE/
+      cdn: https://cdn.whitelabel1.phoundation.org/:LANGUAGE/
+  route:
+    known-hacks: []

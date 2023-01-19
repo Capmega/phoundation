@@ -2,7 +2,7 @@
 
 namespace Phoundation\Web\Http\Html\Components;
 
-use Phoundation\Web\Http\Url;
+use Phoundation\Web\Http\UrlBuilder;
 
 
 
@@ -43,7 +43,7 @@ abstract class Menu extends ElementsBlock
             }
 
             if (array_key_exists('url', $entry)) {
-                $entry['url'] = Url::build($entry['url'])->www();
+                $entry['url'] = UrlBuilder::www($entry['url']);
             }
 
             if (array_key_exists('menu', $entry)) {

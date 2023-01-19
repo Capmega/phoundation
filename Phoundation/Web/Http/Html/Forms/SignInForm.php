@@ -5,7 +5,7 @@ namespace Phoundation\Web\Http\Html\Forms;
 use Phoundation\Core\Config;
 use Phoundation\Web\Http\Html\Components\Form;
 use Phoundation\Web\Http\Url;
-
+use Phoundation\Web\Http\UrlBuilder;
 
 
 /**
@@ -78,7 +78,7 @@ class SignInForm extends Form
      */
     public function setSignInUrl(string $sign_in_url): static
     {
-        $this->sign_in_url = Url::build($sign_in_url)->www();
+        $this->sign_in_url = UrlBuilder::www($sign_in_url);
         return $this;
     }
 
@@ -104,7 +104,7 @@ class SignInForm extends Form
      */
     public function setRegisterUrl(string $register_url): static
     {
-        $this->register_url = Url::build($register_url)->www();
+        $this->register_url = UrlBuilder::www($register_url);
         return $this;
     }
 
@@ -130,7 +130,7 @@ class SignInForm extends Form
      */
     public function setForgotPasswordUrl(string $forgot_password_url): static
     {
-        $this->forgot_password_url = Url::build($forgot_password_url)->www();
+        $this->forgot_password_url = UrlBuilder::www($forgot_password_url);
         return $this;
     }
 }

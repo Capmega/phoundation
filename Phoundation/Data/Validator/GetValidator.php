@@ -4,6 +4,8 @@ namespace Phoundation\Data\Validator;
 
 
 
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
+
 /**
  * GetValidator class
  *
@@ -98,8 +100,15 @@ class GetValidator extends Validator
      */
     public function validate(): static
     {
-        parent::validate();
-        $this->liberateData();
+        try {
+            parent::validate();
+            $this->liberateData();
+        } catch (ValidationFailedException $e) {
+            // Failed data will have been filtered, liberate data!
+            $this->liberateData();
+            throw $e;
+        }
+
         return $this;
     }
 
@@ -123,7 +132,7 @@ class GetValidator extends Validator
      *
      * @return void
      */
-    protected static function liberateData(): void
+    protected function liberateData(): void
     {
         global $_GET;
         $_GET = self::$get;

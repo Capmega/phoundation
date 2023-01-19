@@ -6,7 +6,7 @@ use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Core\Config;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Url;
-
+use Phoundation\Web\Http\UrlBuilder;
 
 
 /**
@@ -94,7 +94,7 @@ class Form extends Element
      */
     public function getAction(): ?string
     {
-        return $this->action ?? Url::build(true)->www();
+        return $this->action ?? UrlBuilder::www();
     }
 
 
@@ -102,12 +102,17 @@ class Form extends Element
     /**
      * Sets the form action
      *
-     * @param string $action
+     * @param ?string $action
      * @return static
      */
-    public function setAction(string $action): static
+    public function setAction(?string $action): static
     {
-        $this->action = Url::build($action)->www();
+        if ($action) {
+            $this->action = UrlBuilder::www($action);
+        } else {
+            $this->action = null;
+        }
+
         return $this;
     }
 

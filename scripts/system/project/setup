@@ -76,8 +76,7 @@ if (isset($create)) {
 
 // Validate environment
 // Load the project
-$project = Project::get();
-$project->setEnvironment(Cli::readInput('Please specify the environment you wish to set up:', 'local'));
+Project::setEnvironment(Cli::readInput('Please specify the environment you wish to set up:', 'local'));
 
 
 
@@ -96,37 +95,12 @@ $config['admin_pass2']    = Cli::readPassword('Please repeat the administrator p
 
 
 // Validate configuration parameters
-if ($argv['no_password_validation']) {
-    ArrayValidator::new($config)
-        ->select('project')->isWord()
-        ->select('domain')->isDomain()
-        ->select('database_host')->isDomain()
-        ->select('database_name')->isWord()
-        ->select('database_user')->isWord()
-        ->select('database_pass1')->isPrintable()
-        ->select('admin_email')->isEmail()
-        ->select('admin_pass1')->isPrintable()
-        ->validate();
-
-} else {
-    ArrayValidator::new($config)
-        ->select('project')->isWord()
-        ->select('domain')->isDomain()
-        ->select('database_host')->isDomain()
-        ->select('database_name')->isWord()
-        ->select('database_user')->isWord()
-        ->select('database_pass1')->isPassword()
-        ->select('database_pass2')->isPassword()->isEqualTo('database_pass2')
-        ->select('admin_email')->isEmail()
-        ->select('admin_pass1')->isPassword()
-        ->select('admin_pass2')->isPassword()->isEqualTo('admin_pass1')
-        ->validate();
-}
+Project::validate(ArrayValidator::new($config));
 
 
 
 // Yay! We can safely set up this environment. Create a basic configuration file from a few basic questions.
-$configuration = $project->getEnvironment()->getConfiguration();
+$configuration = Project::getEnvironment()->getConfiguration();
 $configuration->setProject($config['project']);
 $configuration->setDomain($config['domain']);
 $configuration->setEmail($config['admin_email']);
@@ -139,4 +113,4 @@ $configuration->getDatabase()->setPass($config['database_pass1']);
 
 
 // Run setup
-$project->setup();
+Project::setup();

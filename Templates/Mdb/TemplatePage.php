@@ -5,6 +5,7 @@ namespace Templates\Mdb;
 use Phoundation\Core\Config;
 use Phoundation\Core\Session;
 use Phoundation\Web\Http\Url;
+use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\WebPage;
 use Templates\Mdb\Components\BreadCrumbs;
 use Templates\Mdb\Components\Footer;
@@ -196,7 +197,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
                     ->getForm()
                         ->setId('form-signin')
                         ->setMethod('post')
-                        ->setAction(Url::build(Config::get('web.pages.signin', '/system/sign-in.html'))->ajax());
+                        ->setAction(UrlBuilder::ajax(Config::get('web.pages.signin', '/system/sign-in.html')));
 
         return $navigation_bar->render();
     }

@@ -3,7 +3,7 @@
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Web\Http\Html\Layouts\Grid;
-use Phoundation\Web\Http\Url;
+use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\WebPage;
 use Phoundation\Web\Http\Html\Components\BreadCrumbs;
 use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
@@ -30,8 +30,8 @@ $card = Card::new()
 $relevant = Card::new()
     ->setMode('info')
     ->setTitle(tr('Relevant links'))
-    ->setContent('<a href="' . Url::build('/admin/accounts/users.html')->www() . '">' . tr('Users management') . '</a><br>
-                         <a href="' . Url::build('/admin/accounts/rights.html')->www() . '">' . tr('Rights management') . '</a>');
+    ->setContent('<a href="' . UrlBuilder::www(('/admin/accounts/users.html') . '">' . tr('Users management') . '</a><br>
+                         <a href="' . UrlBuilder::www(('/admin/accounts/rights.html') . '">' . tr('Rights management') . '</a>');
 
 
 

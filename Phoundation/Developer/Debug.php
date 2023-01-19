@@ -272,7 +272,7 @@ class Debug {
                 }
 
                 // Class method or function in file@line
-                return $function . 'in' . $return;
+                return $function . '() in ' . $return;
         }
     }
 

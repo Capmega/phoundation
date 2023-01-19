@@ -5,7 +5,7 @@ namespace Templates\AdminLte\Components;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Messages\Messages;
 use Phoundation\Web\Http\Url;
-
+use Phoundation\Web\Http\UrlBuilder;
 
 
 /**
@@ -82,7 +82,7 @@ class MessagesDropDown extends \Phoundation\Web\Http\Html\Components\MessagesDro
      */
     public function setMessagesUrl(?string $messages_url): static
     {
-        $this->messages_url = Url::build($messages_url)->www();
+        $this->messages_url = UrlBuilder::www($messages_url);
         return $this;
     }
 

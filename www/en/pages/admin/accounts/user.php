@@ -1,7 +1,6 @@
 <?php
 
 use Phoundation\Accounts\Users\User;
-use Phoundation\Core\Log;
 use Phoundation\Core\Timers;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
@@ -9,7 +8,7 @@ use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Web\Http\Html\Components\Buttons;
 use Phoundation\Web\Http\Html\Components\Img;
 use Phoundation\Web\Http\Html\Layouts\Grid;
-use Phoundation\Web\Http\Url;
+use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\WebPage;
 use Phoundation\Web\Http\Html\Components\BreadCrumbs;
 use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
@@ -125,8 +124,8 @@ $picture = Card::new()
 $relevant = Card::new()
     ->setMode('info')
     ->setTitle(tr('Relevant links'))
-    ->setContent('<a href="' . Url::build('/admin/accounts/roles.html')->www() . '">' . tr('Roles management') . '</a><br>
-                         <a href="' . Url::build('/admin/accounts/rights.html')->www() . '">' . tr('Rights management') . '</a>');
+    ->setContent('<a href="' . UrlBuilder::www('/admin/accounts/roles.html') . '">' . tr('Roles management') . '</a><br>
+                         <a href="' . UrlBuilder::www('/admin/accounts/rights.html') . '">' . tr('Rights management') . '</a>');
 
 
 

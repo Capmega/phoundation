@@ -8,7 +8,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Input\InputCheckbox;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
-use Phoundation\Web\Http\Url;
+use Phoundation\Web\Http\UrlBuilder;
 
 
 
@@ -753,7 +753,7 @@ class Table extends ResourceElement
             // Apply URL row / column specific information
             $url = str_replace(':ROW'   , $row_id, $url);
             $url = str_replace(':COLUMN', $column, $url);
-            $url = Url::build($url)->www();
+            $url = UrlBuilder::www($url);
 
             return '<td><a href="' . $url . '">' . $value . '</a></td>';
         }

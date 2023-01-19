@@ -4,7 +4,7 @@ namespace Templates\Mdb\Components;
 
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Http\Url;
+use Phoundation\Web\Http\UrlBuilder;
 
 
 
@@ -66,7 +66,7 @@ class Menu extends \Phoundation\Web\Http\Html\Components\Menu
                           </li>';
             } else {
                 $html .= '  <li class="nav-item">
-                              <a class="nav-link" href="' . Url::build(isset_get($entry['url']))->www() . '">' . $label . '</a>
+                              <a class="nav-link" href="' . UrlBuilder::www(isset_get($entry['url'])) . '">' . $label . '</a>
                             </li>';
             }
         }
@@ -113,7 +113,7 @@ class Menu extends \Phoundation\Web\Http\Html\Components\Menu
                           </li>';
             } else {
                 $html .= '  <li>
-                              <a class="dropdown-item" href="' . Url::build($entry['url'])->www() . '">' . $label . '</a>
+                              <a class="dropdown-item" href="' . UrlBuilder::www($entry['url']) . '">' . $label . '</a>
                             </li>';
             }
         }
