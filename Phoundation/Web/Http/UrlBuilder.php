@@ -372,13 +372,6 @@ class UrlBuilder
 //            return $path;
 //        }
 
-        $url = Strings::startsNotWith($url, '/');
-        $url = self::buildDomainPrefix('cdn', '/' . $url);
-
-        if (!str_starts_with($url, 'img/')) {
-            $url = 'img/' . $url;
-        }
-
         return self::buildCdn($url);
     }
 
@@ -635,6 +628,7 @@ class UrlBuilder
      */
     public static function buildCdn(string $url, ?string $extension = null): static
     {
+        $url  = Strings::startsNotWith($url, '/');
         $url  = self::buildDomainPrefix('cdn', $url);
         $url .= self::addExtension($extension);
 

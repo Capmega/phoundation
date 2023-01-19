@@ -79,7 +79,7 @@ class RouteSystem
     {
         self::execute([
             'code'    => 400,
-            'title'   => tr('bad request'),
+            'title'   => tr('Bad request'),
             'message' => tr('Server cannot or will not process the request because of incorrect information sent by client')
         ]);
     }
@@ -115,7 +115,7 @@ class RouteSystem
     {
         self::execute([
             'code'    => 403,
-            'title'   => tr('forbidden'),
+            'title'   => tr('Forbidden'),
             'message' => tr('You do not have access to the requested URL on this server')
         ]);
     }
@@ -133,7 +133,7 @@ class RouteSystem
     {
         self::execute([
             'code'    => 404,
-            'title'   => tr('forbidden'),
+            'title'   => tr('Not found'),
             'message' => tr('The requested URL does not exist on this server'),
         ]);
     }

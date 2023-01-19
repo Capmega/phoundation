@@ -27,6 +27,7 @@ use Phoundation\Notifications\Notification;
 use Phoundation\Servers\Server;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Exception\WebException;
+use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\Exception\HttpException;
 use Phoundation\Web\Http\Flash;
 use Phoundation\Web\Http\Html\Components\BreadCrumbs;
@@ -446,18 +447,11 @@ class Page
      */
     public static function getRootUri(?string $domain = null): string
     {
-        try {
-            if (!$domain) {
-                $domain = self::getDomain();
-            }
-
-            return Config::get('web.domains.' . $domain . '.www');
-
-        } catch (ConfigNotExistsException) {
-            throw new ConfigNotExistsException(tr('Cannot get root URI for domain ":domain", there is no configuration for that domain', [
-                ':domain' => $domain
-            ]));
+        if (!$domain) {
+            $domain = self::getDomain();
         }
+
+        return Domains::getBaseUrl($domain);
     }
 
 

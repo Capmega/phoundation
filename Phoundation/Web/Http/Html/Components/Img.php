@@ -7,7 +7,6 @@ use Phoundation\Core\Strings;
 use Phoundation\Filesystem\File;
 use Phoundation\Servers\Server;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
-use Phoundation\Web\Http\Url;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
@@ -215,6 +214,7 @@ class Img extends Element
         if (is_object($src)) {
             $src = $src->getFile();
         }
+
         $this->src = UrlBuilder::img($src);
         return $this;
     }
@@ -307,8 +307,7 @@ class Img extends Element
             throw new HtmlException(tr('No alt attribute specified'));
         }
 
-//        show($this);
-//        showdie(parent::render());
+        return parent::render();
 
 
 
@@ -865,9 +864,6 @@ class Img extends Element
 //        }
 //
 //        return '<'.$params['tag'].' src="'.$params['src'].'" alt="'.htmlentities($params['alt']).'"'.$params['width'].$params['height'].$params['extra'].'>';
-
-
-        return parent::render();
     }
 
 

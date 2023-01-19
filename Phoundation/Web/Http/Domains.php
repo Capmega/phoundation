@@ -2,11 +2,13 @@
 
 namespace Phoundation\Web\Http;
 
+use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\ConfigNotExistsException;
 use Phoundation\Core\Log;
+use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Web\Page;
 
@@ -243,6 +245,32 @@ class Domains {
     {
         $domain_config = self::getConfiguration($domain);
         return isset_get($domain_config[$key], $default);
+    }
+
+
+
+    /**
+     * Returns the base URL for the specified domain and its type (www or cdn)
+     *
+     * @param string $domain
+     * @param string $type
+     * @param string|null $language
+     * @return mixed
+     * @throws ConfigNotExistsException If the specified domain does not exist
+     */
+
+    public static function getBaseUrl(string $domain, #[ExpectedValues('www', 'cdn')] string $type = 'www', ?string $language = null): mixed
+    {
+        try {
+            $language = $language ?? Session::getLanguage();
+            $url      = self::getConfigurationKey($domain, $type);
+            return str_replace(':LANGUAGE', $language, $url);
+
+        } catch (ConfigNotExistsException) {
+            throw new ConfigNotExistsException(tr('Cannot get root URI for domain ":domain", there is no configuration for that domain', [
+                ':domain' => $domain
+            ]));
+        }
     }
 
 

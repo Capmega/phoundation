@@ -218,7 +218,7 @@ class User extends DataEntry
     public function setPicture(Image|string|null $picture): static
     {
         if (!$picture) {
-            $picture = Image::new('profiles/default.png');
+            $picture = Image::new('img/profiles/default.png');
         }
 
         return $this->setDataValue('picture', Strings::from(PATH_CDN, $picture->getFile()));

@@ -3,6 +3,7 @@
 namespace Templates\Mdb\Components;
 
 use Phoundation\Web\Http\Html\Components\Img;
+use Phoundation\Web\Http\UrlBuilder;
 use Templates\Mdb\Modals\SignInModal;
 
 
@@ -58,10 +59,10 @@ class TopPanel extends \Phoundation\Web\Http\Html\Components\TopPanel
                                 <!-- Collapsible wrapper -->
                                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                                   <!-- Navbar brand -->
-                                  <a class="navbar-brand mt-2 mt-lg-0" href="#">
+                                  <a class="navbar-brand mt-2 mt-lg-0" href="' . UrlBuilder::currentDomainRootUrl() . '">
                                   ' . Img::new()
-                                        ->setSrc('/logos/phoundation/phoundation-top.png')
-                                        ->setAlt(tr('The Mdb logo'))
+                                        ->setSrc('img/logos/phoundation/phoundation-64x64.png')
+                                        ->setAlt(tr('The Phoundation logo'))
                                         ->addAttributes([
                                             'loading' => 'lazy',
                                             'height'  => 50
