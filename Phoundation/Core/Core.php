@@ -1764,8 +1764,8 @@ class Core {
                 if (!in_array($language, $supported)) {
                     $language = Config::get('languages.default', 'en');
 
-                    Log::warning(tr('Detected language ":language" is not supported, falling back to default. See configuration languages.supported', [
-                            ':language' => $language]
+                    Log::warning(tr('Detected language ":language" is not supported, falling back to default. See configuration path "languages.supported"', [
+                        ':language' => $language]
                     ));
                 }
 

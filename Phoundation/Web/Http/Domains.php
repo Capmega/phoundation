@@ -308,7 +308,8 @@ class Domains {
 
             if ($configuration === null) {
                 if (!Core::stateIs('setup')) {
-                    // In setup we won't have configuration and that is fine. If we're not in setup, then it is not fine
+                    // In set up we won't have configuration and that is fine. If we're not in set up, then it is not
+                    // so fine
                     throw new ConfigNotExistsException(tr('The configuration path "web.domains" does not exist'));
                 }
 

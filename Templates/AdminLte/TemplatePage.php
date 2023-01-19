@@ -132,7 +132,8 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
                   </html>';
         }
 
-        return '</html>';
+        return     Page::buildFooters() . '
+               </html>';
     }
 
 
