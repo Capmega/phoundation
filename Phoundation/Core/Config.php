@@ -681,11 +681,15 @@ die();
     {
         // Reset data, then import data
         self::reset();
+
         self::$data = [
             'security' => [
                 'seed' => Strings::random(random_int(16, 32))
             ],
-            'debug' => (self::$environment === 'production'),
+            'debug' => [
+                'enabled' => (self::$environment !== 'production'),
+                'production' => (self::$environment !== 'production')
+            ],
             'project' => [
                 'name' => $configuration->getProject(),
                 'version' => '0.0.0'
