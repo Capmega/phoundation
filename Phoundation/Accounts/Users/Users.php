@@ -35,7 +35,7 @@ class Users extends DataList
     public function __construct(Role|User|null $parent = null, ?string $id_column = null)
     {
         $this->entry_class = User::class;
-        $this->setHtmlQuery('SELECT `id`, CONCAT(`firstname`, `lastname`) AS `name`, `nickname`, `email`, `status`, `created_on` FROM `accounts_users`');
+        $this->setHtmlQuery('SELECT `id`, CONCAT(`first_names`, `last_names`) AS `name`, `nickname`, `email`, `status`, `created_on` FROM `accounts_users`');
         parent::__construct($parent, $id_column);
     }
 

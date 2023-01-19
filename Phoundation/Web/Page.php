@@ -1654,7 +1654,7 @@ class Page
             http_response_code(self::$http_code);
 
             if ((self::$http_code != 200)) {
-                Log::warning(tr('Phoundation sent "HTTP:http" for URL ":url"', [
+                Log::warning(tr('Phoundation sent ":http" for URL ":url"', [
                     ':http' => (self::$http_code ? 'HTTP' . self::$http_code : 'HTTP0'),
                     ':url'  => (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']
                 ]));

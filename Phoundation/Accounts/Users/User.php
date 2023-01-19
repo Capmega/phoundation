@@ -1769,10 +1769,10 @@ class User extends DataEntry
             'title' => [
                 'label'    => tr('Title')
             ],
-            'firstname' => [
+            'first_names' => [
                 'label'    => tr('First names')
             ],
-            'lastname' => [
+            'last_names' => [
                 'label'    => tr('Last names')
             ],
             'nickname' => [

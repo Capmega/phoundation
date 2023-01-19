@@ -141,6 +141,42 @@ class RouteSystem
 
 
     /**
+     * Show the 500 - Internal Server Error page
+     *
+     * @see Route::add()
+     * @see Route::shutdown()
+     * @return void
+     */
+    #[NoReturn] public static function execute500(): void
+    {
+        self::execute([
+            'code'    => 500,
+            'title'   => tr('Internal Server Error'),
+            'message' => tr('The server encountered an unexpected condition that prevented it from fulfilling the request'),
+        ]);
+    }
+
+
+
+    /**
+     * Show the 503 - Service unavailable page
+     *
+     * @see Route::add()
+     * @see Route::shutdown()
+     * @return void
+     */
+    #[NoReturn] public static function execute503(): void
+    {
+        self::execute([
+            'code'    => 503,
+            'title'   => tr('Service unavailable'),
+            'message' => tr('The server is currently unable to handle the request due to a temporary overload or scheduled maintenance'),
+        ]);
+    }
+
+
+
+    /**
      * Protect exceptions generated whilst trying to execute system pages
      *
      * @param array $variables
