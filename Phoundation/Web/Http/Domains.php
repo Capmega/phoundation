@@ -4,6 +4,7 @@ namespace Phoundation\Web\Http;
 
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
+use Phoundation\Core\Core;
 use Phoundation\Core\Exception\ConfigNotExistsException;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
@@ -44,11 +45,11 @@ class Domains {
     protected static array $whitelist_domains;
 
     /**
-     * The configurted primary domain
+     * The configured primary domain
      *
-     * @var string $primary_domain
+     * @var string|null $primary_domain
      */
-    protected static string $primary_domain;
+    protected static ?string $primary_domain = null;
 
 
 
@@ -93,14 +94,20 @@ class Domains {
      */
     public static function getPrimary(): string
     {
-        if (!isset(self::$primary_domain)) {
+        if (!self::$primary_domain) {
             // Build cache
             self::loadConfiguration();
-            self::$primary_domain = Url::getDomainFromUrl(isset_get(self::$domains_configuration['primary']['www']));
-            show(self::$domains_configuration['primary']);
-            show(isset_get(self::$domains_configuration['primary']['www']));
-            show(Url::getDomainFromUrl(isset_get(self::$domains_configuration['primary']['www'])));
-            showdie(self::$primary_domain);
+            self::$primary_domain = Url::getDomainFromUrl((string) isset_get(self::$domains_configuration['primary']['www']));
+
+            if (!self::$primary_domain) {
+                // Whoops! We didn't get our primary domain from configuration, likely configuration isn't available yet
+                // Assume the current domain is the primary domain instead
+                self::$primary_domain = Domains::getCurrent();
+
+                Log::warning(tr('Failed to get primary domain from configuration, assuming current domain ":domain" is the primary domain', [
+                    ':domain' => self::$primary_domain
+                ]));
+            }
         }
 
         // Return cache
@@ -208,9 +215,17 @@ class Domains {
         $domain_config = &self::$domains_configuration[$domain];
 
         // Validate configuration
-        Arrays::requiredKeys($domain_config, 'domain,www,cdn', ConfigNotExistsException::class);
-        Arrays::default($domain_config, 'index'  , '/');
-        Arrays::default($domain_config, 'cloaked', false);
+        try {
+            Arrays::requiredKeys($domain_config, 'domain,www,cdn', ConfigNotExistsException::class);
+            Arrays::default($domain_config, 'index'  , '/');
+            Arrays::default($domain_config, 'cloaked', false);
+        } catch (ConfigNotExistsException $e) {
+            if (!Core::getFailed()) {
+                // If Core had failed we could continue as we would likely be in setup mode
+                // TODO Change this to use Core->status = "setup" or something!
+                throw $e;
+            }
+        }
 
         return $domain_config;
     }
@@ -290,9 +305,22 @@ class Domains {
     protected static function loadConfiguration(): void
     {
         if (!isset(self::$domains_configuration)) {
-            self::$domains_configuration = Config::get('web.domains');
-            showdie(self::$domains_configuration);
+            $configuration = Config::get('web.domains');
 
+            if ($configuration === null) {
+                if (!Core::getFailed()) {
+                    throw new ConfigNotExistsException(tr('The configuration path "web.domains" does not exist'));
+                }
+
+                // Core has already failed, yet we are here, likely this is the setup page
+                Log::warning(tr('The configuration path "web.domains" does not exist'));
+                self::$domains_configuration = [];
+
+            } else {
+                self::$domains_configuration = &$configuration;
+            }
+
+            self::$whitelist_domains = [];
         }
     }
 }

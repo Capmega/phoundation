@@ -8,7 +8,6 @@ use Phoundation\Web\Http\Html\Components\Footer;
 use Phoundation\Web\Http\Html\Components\SidePanel;
 use Phoundation\Web\Http\Html\Components\TopPanel;
 use Phoundation\Web\Http\Html\Modals\SignInModal;
-use Phoundation\Web\Http\Url;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
@@ -65,6 +64,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     public function buildHtmlHeader(): ?string
     {
         // Set head meta data
+        Page::setFavIcon('img/favicons/project.png');
         Page::setViewport('width=device-width, initial-scale=1');
 
         // Load basic MDB and fonts CSS
@@ -86,7 +86,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
         Page::setPageTitle(tr('Phoundation platform'));
         Page::setFavIcon('favicon/phoundation.png');
 
-        return Page::buildHeaders() . '<body class="' . Page::getBodyClass('sidebar-mini') . '" style="height: auto;">';
+        return Page::buildHeaders();
     }
 
 
@@ -98,10 +98,15 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
      */
     public function buildPageHeader(): ?string
     {
-        return '    <div class="wrapper">
-                        ' . Page::getFlashMessages()->render() . '
-                        ' . $this->buildTopPanel() . '
-                        ' . $this->buildSidePanel();
+        if (Page::getBuildBody()) {
+            return '<body class="sidebar-mini" style="height: auto;">    
+                        <div class="wrapper">
+                            ' . Page::getFlashMessages()->render() . '
+                            ' . $this->buildTopPanel() . '
+                            ' . $this->buildSidePanel();
+        }
+
+        return null;
     }
 
 
@@ -128,11 +133,13 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
      */
     public function buildHtmlFooter(): ?string
     {
-        $html  =          Page::buildFooters() . '
+        if (Page::getBuildBody()) {
+            return        Page::buildFooters() . '
                       </body>
                   </html>';
+        }
 
-        return $html;
+        return '</html>';
     }
 
 

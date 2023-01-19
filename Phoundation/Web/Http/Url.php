@@ -106,7 +106,14 @@ class Url {
      */
     public static function getDomainFromUrl(string $url): ?string
     {
-        $url = parse_url($url);
-        return isset_get($url['host']);
+        $url     = parse_url($url);
+        $domain  = isset_get($url['host']);
+
+        if ($domain === null) {
+            // Since there is no domain, assume we need the current domain
+            return Domains::getCurrent();
+        }
+
+        return $domain;
     }
 }

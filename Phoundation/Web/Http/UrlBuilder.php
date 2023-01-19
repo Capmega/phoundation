@@ -615,6 +615,7 @@ class UrlBuilder
             }
 
             $base = Domains::getConfigurationKey($domain, $type);
+            $base = $base ?? 'http://cdn.localhost/:LANGUAGE/';
             $base = Strings::endsWith($base, '/');
             $url  = Strings::startsNotWith($url, '/');
             $url  = str_replace(':LANGUAGE', Session::getLanguage(), $base . $url);

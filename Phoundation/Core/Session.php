@@ -227,15 +227,16 @@ class Session
     /**
      * Returns the language for this session
      *
+     * @param string $default
      * @return string
      */
-    public static function getLanguage(): string
+    public static function getLanguage(string $default = 'en'): string
     {
         if (empty(self::$language)) {
             self::setLanguage();
         }
 
-        return self::$language;
+        return self::$language ?? $default;
     }
 
 

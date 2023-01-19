@@ -242,11 +242,11 @@ class Page
     protected static FlashMessages $flash_messages;
 
     /**
-     * Optional alternative body class
+     * If true, the template will build the <body> tag. If false, the page will have to build it itself
      *
-     * @var string|null $body_class
+     * @var bool $build_body
      */
-    protected static ?string $body_class = null;
+    protected static bool $build_body = true;
 
 
 
@@ -257,7 +257,6 @@ class Page
      */
     protected function __construct()
     {
-        self::setFavIcon('project/favicon.png');
         self::$headers['meta']['charset']  = Config::get('languages.encoding.charset', 'UTF-8');
         self::$headers['meta']['viewport'] = Config::get('web.viewport'              , 'width=device-width, initial-scale=1, shrink-to-fit=no');
     }
@@ -325,12 +324,12 @@ class Page
     /**
      * Sets an alternative class for the <body> tag
      *
-     * @param string|null $class
+     * @param bool $build_body
      * @return void
      */
-    public static function setBodyClass(?string $class): void
+    public static function setBuildBody(bool $build_body): void
     {
-        self::$body_class = $class;
+        self::$build_body = $build_body;
     }
 
 
@@ -338,12 +337,11 @@ class Page
     /**
      * Returns the alternative class for the <body> tag or if not preset, the default
      *
-     * @param string|null $default
      * @return string|null
      */
-    public static function getBodyClass(?string $default): ?string
+    public static function getBuildBody(): ?string
     {
-        return self::$body_class ?? $default;
+        return self::$build_body;
     }
 
 
