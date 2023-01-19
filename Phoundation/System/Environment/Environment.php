@@ -207,7 +207,10 @@ class Environment
     public function setup(): void
     {
         try {
-            Log::action(tr('Generating configuration for environment ":env"...', [':env' => strtolower($this->name)]));
+            Log::action(tr('Generating configuration for environment ":env"...', [
+                ':env' => strtolower($this->name)
+            ]));
+
             Config::setEnvironment($this->name);
             Config::import($this->getConfiguration());
             Config::save();
