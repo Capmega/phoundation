@@ -77,10 +77,10 @@ class Roles extends DataList
     /**
      * Add the specified data entry to the data list
      *
-     * @param Role|array|int|null $role
+     * @param Role|array|string|int|null $role
      * @return static
      */
-    public function add(Role|array|int|null $role): static
+    public function add(Role|array|string|int|null $role): static
     {
         $this->ensureParent('add entry to parent');
 

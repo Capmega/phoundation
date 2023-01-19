@@ -79,10 +79,10 @@ class Rights extends DataList
     /**
      * Add the specified data entry to the data list
      *
-     * @param Right|array|int|null $right
+     * @param Right|array|string|int|null $right
      * @return static
      */
-    public function add(Right|array|int|null $right): static
+    public function add(Right|array|string|int|null $right): static
     {
         $this->ensureParent('add entry to parent');
 

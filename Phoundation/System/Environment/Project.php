@@ -187,6 +187,7 @@ class Project
             ->save();
 
         $user->setPassword($configuration->getPassword(), $configuration->getPassword());
+        $user->roles()->add('god');
 
         Log::success(tr('Finished project setup'));
     }

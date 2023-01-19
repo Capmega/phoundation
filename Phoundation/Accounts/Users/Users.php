@@ -94,10 +94,10 @@ class Users extends DataList
     /**
      * Add the specified data entry to the data list
      *
-     * @param User|array|int|null $user
+     * @param User|array|string|int|null $user
      * @return static
      */
-    public function add(User|array|int|null $user): static
+    public function add(User|array|string|int|null $user): static
     {
         $this->ensureParent('add entry to parent');
 
