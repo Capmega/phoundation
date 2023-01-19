@@ -5,6 +5,7 @@ namespace Phoundation\Accounts;
 use Phoundation\Cli\Script;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
+use Phoundation\Core\Core;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
@@ -40,13 +41,16 @@ class Passwords
                 throw new ValidationFailedException(tr('This password is not secure enough'));
             }
 
-            if (self::isCompromised($password)) {
-                throw new ValidationFailedException(tr('This password has been compromised'));
-            }
+            // In setup mode we won't have database access yet, so these 2 tests may be skipped in that case.
+            if (!Core::stateIs('setup')) {
+                if (self::isCompromised($password)) {
+                    throw new ValidationFailedException(tr('This password has been compromised'));
+                }
 
-            if ($email) {
-                if (self::isUsedPreviously($password, $id)) {
-                    throw new ValidationFailedException(tr('This password has been used before'));
+                if ($email) {
+                    if (self::isUsedPreviously($password, $id)) {
+                        throw new ValidationFailedException(tr('This password has been used before'));
+                    }
                 }
             }
         } catch (ValidationFailedException $e) {

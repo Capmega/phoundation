@@ -123,12 +123,12 @@ class Route
     {
         // Start the Core object, hide $_GET & $_POST
         try {
-            if (Core::getState() === 'init') {
+            if (Core::stateIs('init')) {
                 Core::startup();
                 GetValidator::hideData();
                 PostValidator::hideData();
             }
-        } catch (SqlException|NoProjectException $e) {
+        } catch (SqlException|NoProjectException) {
             // Either we have no project or no system database
             GetValidator::hideData();
             PostValidator::hideData();
@@ -1144,6 +1144,11 @@ class Route
         $target = Filesystem::absolute(Strings::unslash($target), self::$path);
 
         if (str_ends_with($target, 'php')) {
+            Log::action(tr('Executing target ":target":attachment', [
+                ':target'     => $target,
+                ':attachment' => ($attachment ? ' as attachment' : null)
+            ]));
+
             // Remove the 404 auto execution on shutdown
             // TODO route_postprocess() This should be a class method!
             Core::unregisterShutdown('route_postprocess');

@@ -220,9 +220,8 @@ class Domains {
             Arrays::default($domain_config, 'index'  , '/');
             Arrays::default($domain_config, 'cloaked', false);
         } catch (ConfigNotExistsException $e) {
-            if (!Core::getFailed()) {
-                // If Core had failed we could continue as we would likely be in setup mode
-                // TODO Change this to use Core->status = "setup" or something!
+            if (!Core::stateIs('setup')) {
+                // In setup mode we won't have any configuration but we will be able to continue
                 throw $e;
             }
         }
@@ -308,7 +307,8 @@ class Domains {
             $configuration = Config::get('web.domains');
 
             if ($configuration === null) {
-                if (!Core::getFailed()) {
+                if (!Core::stateIs('setup')) {
+                    // In setup we won't have configuration and that is fine. If we're not in setup, then it is not fine
                     throw new ConfigNotExistsException(tr('The configuration path "web.domains" does not exist'));
                 }
 

@@ -795,6 +795,7 @@ class Core {
             }
         } catch (Throwable $e) {
             self::$failed = true;
+
             define('PROJECT', 'UNKNOWN');
 
             if ($e instanceof OutOfBoundsException) {
@@ -803,14 +804,24 @@ class Core {
 
             // Project file is not readable
             if(!is_readable(PATH_ROOT . 'config/project')) {
+                if (file_exists(PATH_ROOT . 'config/project')) {
+                    // Okay, we have a problem here! The project file DOES exist but is not readable. This is either
+                    // (likely) a security file owner / group / mode issue, or a filesystem problem. Either way, we
+                    // won't be able to work our way around this.
+                    throw new CoreException(tr('Project file "config/project" does exist but is not readable. Please check the owner, group and mode for this file'));
+                }
+
+                // The file doesn't exist, that is good. Go to setup mode
+                error_log('Project file "config/project" does not exist, entering setup mode');
+
                 self::setPlatform();
                 self::setRequestType();
                 self::selectStartup();
+                self::$state = 'setup';
 
                 throw new NoProjectException('Project file "' . PATH_ROOT . 'config/project" cannot be read. Please ensure it exists');
             }
         }
-
     }
 
 
@@ -999,6 +1010,7 @@ class Core {
      *
      * Can be one of
      *
+     * setup    System is in setup mode
      * startup  System is starting up
      * script   Script execution is now running
      * shutdown System is shutting down after normal script execution
@@ -1008,9 +1020,22 @@ class Core {
      *
      * @return string
      */
+    #[ExpectedValues(values: ['setup', 'startup', 'script', 'shutdown', 'error', 'phperror'])]
     public static function getState(): string
     {
         return self::$state;
+    }
+
+
+
+    /**
+     * Returns true if the Core state is the same as the specified state
+     * @param string $state
+     * @return bool
+     */
+    public static function stateIs(#[ExpectedValues(values: ['setup', 'startup', 'script', 'shutdown', 'error', 'phperror'])] string $state): bool
+    {
+        return self::$state === $state;
     }
 
 
@@ -1022,7 +1047,7 @@ class Core {
      * @param string|null $state
      * @return void
      */
-    public static function setState(#[ExpectedValues(values: ["error", "phperror", "init", "startup", "script", "shutdow"])] ?string $state): void
+    public static function setState(#[ExpectedValues(values: ['error', 'phperror'])] ?string $state): void
     {
         switch ($state) {
             case 'error':

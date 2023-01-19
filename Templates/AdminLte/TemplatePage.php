@@ -3,7 +3,6 @@
 namespace Templates\AdminLte;
 
 use Phoundation\Core\Config;
-use Phoundation\Core\Core;
 use Phoundation\Web\Http\Html\Components\Footer;
 use Phoundation\Web\Http\Html\Components\SidePanel;
 use Phoundation\Web\Http\Html\Components\TopPanel;
@@ -98,15 +97,11 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
      */
     public function buildPageHeader(): ?string
     {
-        if (Page::getBuildBody()) {
-            return '<body class="sidebar-mini" style="height: auto;">    
-                        <div class="wrapper">
-                            ' . Page::getFlashMessages()->render() . '
-                            ' . $this->buildTopPanel() . '
-                            ' . $this->buildSidePanel();
-        }
-
-        return null;
+        return '<body class="sidebar-mini" style="height: auto;">    
+                    <div class="wrapper">
+                        ' . Page::getFlashMessages()->render() . '
+                        ' . $this->buildTopPanel() . '
+                        ' . $this->buildSidePanel();
     }
 
 
@@ -118,10 +113,8 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
      */
     public function buildPageFooter(): ?string
     {
-        $html =     Footer::new()->render() . '
+        return      Footer::new()->render() . '
                 </div>';
-
-        return $html;
     }
 
 
@@ -166,7 +159,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     {
         $body = parent::buildBody($target);
 
-        if (!Core::getFailed()) {
+        if (Page::getBuildBody()) {
             $body = '   <div class="content-wrapper" style="min-height: 1518.06px;">                   
                            ' . $this->buildBodyHeader() . '
                             <section class="content">

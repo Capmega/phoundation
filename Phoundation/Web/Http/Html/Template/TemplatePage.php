@@ -3,6 +3,7 @@
 namespace Phoundation\Web\Http\Html\Template;
 
 use Phoundation\Core\Core;
+use Phoundation\Core\Log;
 use Phoundation\Web\Http\Html\Components\Menu;
 use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Page;
@@ -139,14 +140,14 @@ abstract class TemplatePage
         $output = $this->buildHtmlHeader();
         Page::htmlHeadersSent(true);
 
-        if (Core::getFailed()) {
-            // We're running in failed mode, only show the body
-            $output .= $body;
-        } else {
+        if (Page::getBuildBody()) {
             $output .= $this->buildPageHeader();
             $output .= $this->buildMenu();
             $output .= $body;
             $output .= $this->buildPageFooter();
+        } else {
+            // Page requested that no body parts be built
+            $output .= $body;
         }
 
         $output .= $this->buildHtmlFooter();
@@ -166,7 +167,8 @@ abstract class TemplatePage
      */
     protected function loadMenus(): void
     {
-        if (Core::getFailed()) {
+        if (Core::stateIs('setup')) {
+            // In setup mode we don't need menus...
             $this->primary_menu   = Menu::new();
             $this->secondary_menu = Menu::new();
             return;

@@ -135,8 +135,8 @@ class Config
 
         } else {
 echo '<pre>';
-            print_r(debug_backtrace());
-            die();
+print_r(debug_backtrace());
+die();
             self::$environment = ENVIRONMENT;
         }
 
