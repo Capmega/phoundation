@@ -5,7 +5,7 @@ namespace Phoundation\Web\Http\Html\Template;
 use Phoundation\Core\Core;
 use Phoundation\Web\Http\Html\Components\Menu;
 use Phoundation\Web\Http\Html\Html;
-use Phoundation\Web\WebPage;
+use Phoundation\Web\Page;
 
 
 
@@ -137,7 +137,7 @@ abstract class TemplatePage
 
         // Build HTML and minify the output
         $output = $this->buildHtmlHeader();
-        WebPage::htmlHeadersSent(true);
+        Page::htmlHeadersSent(true);
 
         if (Core::getFailed()) {
             // We're running in failed mode, only show the body

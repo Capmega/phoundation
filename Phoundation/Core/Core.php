@@ -27,7 +27,7 @@ use Phoundation\Web\Http\Http;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Route;
-use Phoundation\Web\WebPage;
+use Phoundation\Web\Page;
 use Phoundation\Web\Web;
 use Throwable;
 
@@ -203,7 +203,7 @@ class Core {
                     if (PLATFORM_HTTP) {
                         // Died in browser
                         Log::error('startup: Failed with "' . $e->getMessage() . '"');
-                        WebPage::die('startup: Failed, see web server error log');
+                        Page::die('startup: Failed, see web server error log');
                     }
 
                     // Died in CLI
@@ -743,11 +743,11 @@ class Core {
 
                     if (empty($env)) {
                         // No environment set in ENV, maybe given by parameter?
-                        WebPage::die(1, 'startup: No required environment specified for project "' . PROJECT . '"');
+                        Page::die(1, 'startup: No required environment specified for project "' . PROJECT . '"');
                     }
 
                     if (str_contains($env, '_')) {
-                        WebPage::die(1, 'startup: Specified environment "' . $env . '" is invalid, environment names cannot contain the underscore character');
+                        Page::die(1, 'startup: Specified environment "' . $env . '" is invalid, environment names cannot contain the underscore character');
                     }
                 }
 
@@ -1474,7 +1474,7 @@ class Core {
                         }
 
                         //
-                        WebPage::setHttpCode(500);
+                        Page::setHttpCode(500);
                         self::unregisterShutdown('route_postprocess');
 
                         Notification::new()
@@ -1504,7 +1504,7 @@ class Core {
                                 Log::error($e->getMessage());
                             }
 
-                            WebPage::die(tr('System startup exception. Please check your PATH_ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information'));
+                            Page::die(tr('System startup exception. Please check your PATH_ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information'));
                         }
 
                         if ($e->getCode() === 'validation') {

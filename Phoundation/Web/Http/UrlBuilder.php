@@ -12,7 +12,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Web\WebPage;
+use Phoundation\Web\Page;
 
 
 
@@ -153,7 +153,7 @@ class UrlBuilder
      */
     public static function currentDomainRootUrl(): static
     {
-        return new UrlBuilder(Domains::from()->getThis() . WebPage::getRootUri());
+        return new UrlBuilder(Domains::from()->getThis() . Page::getRootUri());
     }
 
 
@@ -165,7 +165,7 @@ class UrlBuilder
      */
     public static function currentDomainUrl(): static
     {
-        return new UrlBuilder(Domains::from()->getThis() . WebPage::getRootUri());
+        return new UrlBuilder(Domains::from()->getThis() . Page::getRootUri());
     }
 
 
@@ -177,7 +177,7 @@ class UrlBuilder
      */
     public static function parentDomainRootUrl(): static
     {
-        return new UrlBuilder(Domains::from()->getParent() . WebPage::getRootUri());
+        return new UrlBuilder(Domains::from()->getParent() . Page::getRootUri());
     }
 
 
@@ -189,7 +189,7 @@ class UrlBuilder
      */
     public static function parentDomainUrl(): static
     {
-        return new UrlBuilder(Domains::from()->getParent() . WebPage::getUri());
+        return new UrlBuilder(Domains::from()->getParent() . Page::getUri());
     }
 
 
@@ -201,7 +201,7 @@ class UrlBuilder
      */
     public static function rootDomainRootUrl(): static
     {
-        return new UrlBuilder(Domains::from()->getRoot() . WebPage::getRootUri());
+        return new UrlBuilder(Domains::from()->getRoot() . Page::getRootUri());
     }
 
 
@@ -213,7 +213,7 @@ class UrlBuilder
      */
     public static function rootDomainUrl(): static
     {
-        return new UrlBuilder(Domains::from()->getRoot() . WebPage::getUri());
+        return new UrlBuilder(Domains::from()->getRoot() . Page::getUri());
     }
 
 
@@ -225,7 +225,7 @@ class UrlBuilder
      */
     public static function primaryDomainRootUrl(): static
     {
-        return new UrlBuilder(Domains::getPrimary() . WebPage::getRootUri());
+        return new UrlBuilder(Domains::getPrimary() . Page::getRootUri());
     }
 
 
@@ -237,7 +237,7 @@ class UrlBuilder
      */
     public static function primaryDomainUrl(): static
     {
-        return new UrlBuilder(Domains::getPrimary() . WebPage::getUri());
+        return new UrlBuilder(Domains::getPrimary() . Page::getUri());
     }
 
 

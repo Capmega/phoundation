@@ -9,7 +9,7 @@ use Phoundation\Web\Http\Html\Components\Buttons;
 use Phoundation\Web\Http\Html\Components\Img;
 use Phoundation\Web\Http\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\WebPage;
+use Phoundation\Web\Page;
 use Phoundation\Web\Http\Html\Components\BreadCrumbs;
 use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
 use Templates\Mdb\Layouts\GridColumn;
@@ -24,7 +24,7 @@ GetValidator::new()
 $user = User::get($_GET['id']);
 
 // Validate POST and submit
-if (WebPage::isRequestMethod('POST')) {
+if (Page::isRequestMethod('POST')) {
     try {
         PostValidator::new()
             ->select('username')->isOptional()->isName()
@@ -64,12 +64,12 @@ if (WebPage::isRequestMethod('POST')) {
 
         // Go back to where we came from
 showdie(Timers::get('query'));
-        WebPage::getFlashMessages()->add(tr('Success'), tr('User ":user" has been updated', [':user' => $user->getDisplayName()]), 'success');
-        WebPage::redirect('prev');
+        Page::getFlashMessages()->add(tr('Success'), tr('User ":user" has been updated', [':user' => $user->getDisplayName()]), 'success');
+        Page::redirect('prev');
 
     } catch (ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
-        WebPage::getFlashMessages()->add($e);
+        Page::getFlashMessages()->add($e);
     }
 }
 
@@ -148,9 +148,9 @@ echo $grid->render();
 
 
 // Set page meta data
-WebPage::setHeaderTitle(tr('User'));
-WebPage::setHeaderSubTitle($user->getName());
-WebPage::setBreadCrumbs(BreadCrumbs::new()->setSource([
+Page::setHeaderTitle(tr('User'));
+Page::setHeaderSubTitle($user->getName());
+Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/admin/'                    => tr('Home'),
     '/admin/accounts/users.html' => tr('Users'),
     ''                           => $user->getDisplayName()

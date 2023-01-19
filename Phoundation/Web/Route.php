@@ -165,7 +165,7 @@ class Route
 
         // Ensure the post-processing function is registered
         Log::action(tr('Processing ":domain" routes for ":method" method request ":url" from client ":client"', [
-            ':domain' => WebPage::getDomain(),
+            ':domain' => Page::getDomain(),
             ':method' => self::$method,
             ':url'    => $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
             ':client' => $_SERVER['REMOTE_ADDR'] . (empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: ' . $_SERVER['HTTP_X_REAL_IP'] . ')')
@@ -694,7 +694,7 @@ class Route
                         ]));
 
                         Core::unregisterShutdown('route_postprocess');
-                        WebPage::redirect(UrlBuilder::www($route)->addQueries($_GET), $http_code);
+                        Page::redirect(UrlBuilder::www($route)->addQueries($_GET), $http_code);
 
                     case 'S':
                         $until = substr($flag, 1);
@@ -803,7 +803,7 @@ class Route
                             ]));
 
                             Core::unregisterShutdown('route_postprocess');
-                            WebPage::redirect($domain);
+                            Page::redirect($domain);
                     }
                 }
             }
@@ -1138,7 +1138,7 @@ class Route
     public static function execute(string $target, bool $attachment): bool
     {
         // Set the server filesystem restrictions and template for this page
-        WebPage::setServerRestrictions(self::getServerRestrictions());
+        Page::setServerRestrictions(self::getServerRestrictions());
 
         // Find the correct target page
         $target = Filesystem::absolute(Strings::unslash($target), self::$path);
@@ -1147,7 +1147,7 @@ class Route
             // Remove the 404 auto execution on shutdown
             // TODO route_postprocess() This should be a class method!
             Core::unregisterShutdown('route_postprocess');
-            $html = WebPage::execute($target, self::$template, $attachment);
+            $html = Page::execute($target, self::$template, $attachment);
 
             if ($attachment) {
                 // Send download headers and send the $html payload

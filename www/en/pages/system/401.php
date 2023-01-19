@@ -1,7 +1,7 @@
 <?php
 
 use Phoundation\Templates\Template;
-use Phoundation\Web\WebPage;
+use Phoundation\Web\Page;
 
 
 
@@ -9,14 +9,14 @@ use Phoundation\Web\WebPage;
 echo Template::page('system/detail-error')->render([
     ':h1'     => tr('(401) Unauthorized'),
     ':p'      => tr('You need to sign in to be able to access this information. If you think this was in error, please contact the system administrator. Meanwhile, you may <a href=":url">return to dashboard</a> or try using the search form.', [
-        ':url' => WebPage::getReferer(true)
+        ':url' => Page::getReferer(true)
     ])
 ]);
 
 
 
 // Set page meta data
-WebPage::setPageTitle('401 - Unauthorized');
-WebPage::setHeaderTitle(tr('401 - Error'));
-WebPage::setDescription(tr('You need to sign in to be able to access this information'));
-WebPage::setBreadCrumbs();
+Page::setPageTitle('401 - Unauthorized');
+Page::setHeaderTitle(tr('401 - Error'));
+Page::setDescription(tr('You need to sign in to be able to access this information'));
+Page::setBreadCrumbs();

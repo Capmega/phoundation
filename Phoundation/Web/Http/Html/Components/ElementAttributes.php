@@ -5,7 +5,7 @@ namespace Phoundation\Web\Http\Html\Components;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\WebPage;
+use Phoundation\Web\Page;
 
 
 
@@ -159,13 +159,13 @@ trait ElementAttributes
 
 
     /**
-     * Return new Templated HTML Element object using the current WebPage template
+     * Return new Templated HTML Element object using the current Page template
      *
      * return static
      */
     public static function new(): static
     {
-        $class = WebPage::getTemplate()->getTemplateComponentClass(static::class);
+        $class = Page::getTemplate()->getTemplateComponentClass(static::class);
         return new $class();
     }
 

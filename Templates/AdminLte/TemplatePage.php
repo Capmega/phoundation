@@ -10,7 +10,7 @@ use Phoundation\Web\Http\Html\Components\TopPanel;
 use Phoundation\Web\Http\Html\Modals\SignInModal;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\WebPage;
+use Phoundation\Web\Page;
 
 
 
@@ -51,8 +51,8 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
      */
     public function buildHttpHeaders(string $output): void
     {
-        WebPage::setContentType('text/html');
-        WebPage::setDoctype('html');
+        Page::setContentType('text/html');
+        Page::setDoctype('html');
     }
 
 
@@ -65,16 +65,16 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     public function buildHtmlHeader(): ?string
     {
         // Set head meta data
-        WebPage::setViewport('width=device-width, initial-scale=1');
+        Page::setViewport('width=device-width, initial-scale=1');
 
         // Load basic MDB and fonts CSS
-        WebPage::loadCss('https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback');
-        WebPage::loadCss('adminlte/plugins/fontawesome-free/css/all');
-        WebPage::loadCss('adminlte/css/adminlte');
-        WebPage::loadCss('adminlte/plugins/overlayScrollbars/css/OverlayScrollbars');
+        Page::loadCss('https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback');
+        Page::loadCss('adminlte/plugins/fontawesome-free/css/all');
+        Page::loadCss('adminlte/css/adminlte');
+        Page::loadCss('adminlte/plugins/overlayScrollbars/css/OverlayScrollbars');
 
         // Load basic MDB amd jQuery javascript libraries
-        WebPage::loadJavascript([
+        Page::loadJavascript([
             'adminlte/plugins/jquery/jquery',
             'adminlte/plugins/jquery-ui/jquery-ui',
             'adminlte/plugins/bootstrap/js/bootstrap.bundle',
@@ -83,10 +83,10 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
         ]);
 
         // Set basic page details
-        WebPage::setPageTitle(tr('Phoundation platform'));
-        WebPage::setFavIcon('favicon/phoundation.png');
+        Page::setPageTitle(tr('Phoundation platform'));
+        Page::setFavIcon('favicon/phoundation.png');
 
-        return WebPage::buildHeaders() . '<body class="' . WebPage::getBodyClass('sidebar-mini') . '" style="height: auto;">';
+        return Page::buildHeaders() . '<body class="' . Page::getBodyClass('sidebar-mini') . '" style="height: auto;">';
     }
 
 
@@ -99,7 +99,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     public function buildPageHeader(): ?string
     {
         return '    <div class="wrapper">
-                        ' . WebPage::getFlashMessages()->render() . '
+                        ' . Page::getFlashMessages()->render() . '
                         ' . $this->buildTopPanel() . '
                         ' . $this->buildSidePanel();
     }
@@ -128,7 +128,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
      */
     public function buildHtmlFooter(): ?string
     {
-        $html  =          WebPage::buildFooters() . '
+        $html  =          Page::buildFooters() . '
                       </body>
                   </html>';
 
@@ -242,19 +242,19 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
      */
     protected function buildBodyHeader(): string
     {
-        $sub_title = WebPage::getHeaderSubTitle();
+        $sub_title = Page::getHeaderSubTitle();
 
         $html = '   <section class="content-header">
                       <div class="container-fluid">
                         <div class="row mb-2">
                           <div class="col-sm-6">
                             <h1>
-                              ' . WebPage::getHeaderTitle() . '
+                              ' . Page::getHeaderTitle() . '
                               ' . ($sub_title ? '<small>' . $sub_title . '</small>' : '') . '                          
                             </h1>
                           </div>
                           <div class="col-sm-6">
-                            ' . WebPage::getBreadCrumbs()?->render() .  '
+                            ' . Page::getBreadCrumbs()?->render() .  '
                           </div>
                         </div>
                       </div>

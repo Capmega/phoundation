@@ -7,7 +7,7 @@ use Phoundation\Core\Config;
 use Phoundation\Core\Exception\ConfigNotExistsException;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
-use Phoundation\Web\WebPage;
+use Phoundation\Web\Page;
 
 
 
@@ -63,7 +63,7 @@ class Domains {
     protected function __construct(?string $domain = null)
     {
         if (!$domain) {
-            $domain = WebPage::getDomain();
+            $domain = Page::getDomain();
         } else {
             $domain = Url::getDomainFromUrl($domain);
         }
@@ -125,12 +125,12 @@ class Domains {
     /**
      * Returns the current domain
      *
-     * @note This is a wrapper for WebPage::getDomain();
+     * @note This is a wrapper for Page::getDomain();
      * @return string
      */
     public static function getCurrent(): string
     {
-        return WebPage::getDomain();
+        return Page::getDomain();
     }
 
 

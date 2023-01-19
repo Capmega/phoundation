@@ -8,7 +8,7 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\WebPage;
+use Phoundation\Web\Page;
 use Throwable;
 
 
@@ -149,7 +149,7 @@ class Csrf
             Log::warning('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb');
             Log::warning(Core::getRequestType('http'));
             Log::warning($e);
-            WebPage::flash()->add(tr('The form data was too old, please try again'), 'warning');
+            Page::flash()->add(tr('The form data was too old, please try again'), 'warning');
         }
     }
 }

@@ -17,7 +17,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Web\Http\Html\Html;
 use Phoundation\Notifications\Notification;
-use Phoundation\Web\WebPage;
+use Phoundation\Web\Page;
 
 
 
@@ -331,8 +331,8 @@ class Debug {
                         // no-break
                     case 'ajax':
                         if (!headers_sent()) {
-                            WebPage::setContentType('text/html');
-                            WebPage::sendHttpHeaders(WebPage::buildHttpHeaders($value));
+                            Page::setContentType('text/html');
+                            Page::sendHttpHeaders(Page::buildHttpHeaders($value));
                         }
 
                         $output = PHP_EOL . tr('DEBUG SHOW (:file@:line) [:size]', [
@@ -349,8 +349,8 @@ class Debug {
 
                 // Show output on web
                 if (!headers_sent()) {
-                    WebPage::setContentType('text/html');
-                    WebPage::sendHttpHeaders(WebPage::buildHttpHeaders($output));
+                    Page::setContentType('text/html');
+                    Page::sendHttpHeaders(Page::buildHttpHeaders($output));
                 }
 
                 echo $output;

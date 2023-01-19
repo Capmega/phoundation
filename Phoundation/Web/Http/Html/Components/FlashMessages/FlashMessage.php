@@ -8,7 +8,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\ElementsBlock;
 use Phoundation\Web\Http\Html\Components\Script;
-use Phoundation\Web\WebPage;
+use Phoundation\Web\Page;
 
 
 

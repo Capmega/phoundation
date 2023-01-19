@@ -4,7 +4,7 @@ use Phoundation\Accounts\Rights\Right;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Web\Http\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\WebPage;
+use Phoundation\Web\Page;
 use Phoundation\Web\Http\Html\Components\BreadCrumbs;
 use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
 
@@ -52,9 +52,9 @@ echo $grid->render();
 
 
 // Set page meta data
-WebPage::setHeaderTitle(tr('Right'));
-WebPage::setHeaderSubTitle($right->getName());
-WebPage::setBreadCrumbs(BreadCrumbs::new()->setSource([
+Page::setHeaderTitle(tr('Right'));
+Page::setHeaderSubTitle($right->getName());
+Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/admin/'                    => tr('Home'),
     '/admin/accounts/rights.html' => tr('Rights'),
     ''                           => $right->getName()

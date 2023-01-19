@@ -9,7 +9,7 @@ use Phoundation\Servers\Server;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\WebPage;
+use Phoundation\Web\Page;
 
 
 
@@ -97,7 +97,7 @@ class Img extends Element
 
         if ($lazy_load) {
             $this->addClass('lazy');
-            WebPage::loadJavascript('jquery/lazyload/jquery.lazyload');
+            Page::loadJavascript('jquery/lazyload/jquery.lazyload');
         }
 
         $this->lazy_load = $lazy_load;
@@ -287,7 +287,7 @@ class Img extends Element
      */
     protected function isAccepted(string $format): bool
     {
-        return WebPage::accepts('image/' . $format);
+        return Page::accepts('image/' . $format);
     }
 
 

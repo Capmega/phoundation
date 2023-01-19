@@ -13,7 +13,7 @@ use Phoundation\Databases\Sql\Sql;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exception;
 use Phoundation\Filesystem\File;
-use Phoundation\Web\WebPage;
+use Phoundation\Web\Page;
 
 
 
@@ -566,7 +566,7 @@ function execute_page(string $__file): ?string
     ob_start(chunk_size: 4096);
 
     // Merge the flash messages from sessions into page flash messages
-    WebPage::getFlashMessages()->mergeMessagesFrom(Session::getFlashMessages());
+    Page::getFlashMessages()->mergeMessagesFrom(Session::getFlashMessages());
 
     return $body;
 }

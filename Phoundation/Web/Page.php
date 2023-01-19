@@ -34,14 +34,13 @@ use Phoundation\Web\Http\Html\Components\FlashMessages\FlashMessages;
 use Phoundation\Web\Http\Html\Template\Template;
 use Phoundation\Web\Http\Html\Template\TemplatePage;
 use Phoundation\Web\Http\Http;
-use Phoundation\Web\Http\Url;
 use Phoundation\Web\Http\UrlBuilder;
 use Throwable;
 
 
 
 /**
- * Class WebPage
+ * Class Page
  *
  * This class contains methods to assist in building web pages
  *
@@ -50,14 +49,14 @@ use Throwable;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class WebPage
+class Page
 {
     /**
      * Singleton
      *
-     * @var WebPage $instance
+     * @var Page $instance
      */
-    protected static WebPage $instance;
+    protected static Page $instance;
 
     /**
      * The server filesystem restrictions
@@ -270,10 +269,10 @@ class WebPage
      *
      * @return static
      */
-    public static function getInstance(): WebPage
+    public static function getInstance(): Page
     {
         if (!isset(self::$instance)) {
-            self::$instance = new WebPage();
+            self::$instance = new Page();
         }
 
         return self::$instance;
@@ -413,7 +412,7 @@ class WebPage
             return $_SERVER['HTTP_HOST'];
         }
 
-        return WebPage::getPRimaryDomain();
+        return Page::getPRimaryDomain();
     }
 
 
@@ -1068,7 +1067,7 @@ class WebPage
     #[NoReturn] public static function redirect(string|bool|null $url = null, int $http_code = 301, ?int $time_delay = null): void
     {
         if (!PLATFORM_HTTP) {
-            throw new WebException(tr('WebPage::redirect() can only be called on web sessions'));
+            throw new WebException(tr('Page::redirect() can only be called on web sessions'));
         }
 
         // Build URL

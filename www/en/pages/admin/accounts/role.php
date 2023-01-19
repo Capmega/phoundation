@@ -4,7 +4,7 @@ use Phoundation\Accounts\Roles\Role;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Web\Http\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\WebPage;
+use Phoundation\Web\Page;
 use Phoundation\Web\Http\Html\Components\BreadCrumbs;
 use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
 
@@ -64,9 +64,9 @@ echo $grid->render();
 
 
 // Set page meta data
-WebPage::setHeaderTitle(tr('Role'));
-WebPage::setHeaderSubTitle($role->getName());
-WebPage::setBreadCrumbs(BreadCrumbs::new()->setSource([
+Page::setHeaderTitle(tr('Role'));
+Page::setHeaderSubTitle($role->getName());
+Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/admin/'                    => tr('Home'),
     '/admin/accounts/roles.html' => tr('Roles'),
     ''                           => $role->getName()

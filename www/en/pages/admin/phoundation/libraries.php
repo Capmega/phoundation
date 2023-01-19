@@ -3,7 +3,7 @@
 use Phoundation\System\Libraries;
 use Phoundation\Web\Http\Html\Components\BreadCrumbs;
 use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
-use Phoundation\Web\WebPage;
+use Phoundation\Web\Page;
 
 
 
@@ -15,8 +15,8 @@ echo Card::new()
 
 
 // Set page meta data
-WebPage::setHeaderTitle(tr('Libraries'));
-WebPage::setBreadCrumbs(BreadCrumbs::new()->setSource([
+Page::setHeaderTitle(tr('Libraries'));
+Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'            => tr('Home'),
     '/phoundation' => tr('Phoundation'),
     ''             => tr('Libraries')

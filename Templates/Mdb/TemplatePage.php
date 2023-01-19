@@ -6,7 +6,7 @@ use Phoundation\Core\Config;
 use Phoundation\Core\Session;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\WebPage;
+use Phoundation\Web\Page;
 use Templates\Mdb\Components\BreadCrumbs;
 use Templates\Mdb\Components\Footer;
 use Templates\Mdb\Components\ProfileImage;
@@ -37,8 +37,8 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
      */
     public function execute(string $target): ?string
     {
-        // Set the WebPage breadcrumbs
-        WebPage::setBreadCrumbs(new BreadCrumbs());
+        // Set the Page breadcrumbs
+        Page::setBreadCrumbs(new BreadCrumbs());
 
         return parent::execute($target);
     }
@@ -54,8 +54,8 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
      */
     public function buildHttpHeaders(string $output): void
     {
-        WebPage::setContentType('text/html');
-        WebPage::setDoctype('html');
+        Page::setContentType('text/html');
+        Page::setDoctype('html');
     }
 
 
@@ -68,22 +68,22 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     public function buildHtmlHeader(): ?string
     {
         // Set head meta data
-        WebPage::setViewport('width=device-width, initial-scale=1');
+        Page::setViewport('width=device-width, initial-scale=1');
 
         // Load basic MDB and fonts CSS
-        WebPage::loadCss('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
-        WebPage::loadCss('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap');
-        WebPage::loadCss('css/mdb');
-        WebPage::loadCss('css/mdb-fix');
+        Page::loadCss('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
+        Page::loadCss('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap');
+        Page::loadCss('css/mdb');
+        Page::loadCss('css/mdb-fix');
 
         // Load basic MDB amd jQuery javascript libraries
-        WebPage::loadJavascript('js/mdb,js/jquery/jquery');
+        Page::loadJavascript('js/mdb,js/jquery/jquery');
 
         // Set basic page details
-        WebPage::setPageTitle(tr('Phoundation platform'));
-        WebPage::setFavIcon('favicon/phoundation.ico');
+        Page::setPageTitle(tr('Phoundation platform'));
+        Page::setFavIcon('favicon/phoundation.ico');
 
-        return WebPage::buildHeaders() . '<body class="' . WebPage::getBodyClass('mdb-skin-custom') . '" data-mdb-spy="scroll" data-mdb-target="#scrollspy" data-mdb-offset="250">';
+        return Page::buildHeaders() . '<body class="' . Page::getBodyClass('mdb-skin-custom') . '" data-mdb-spy="scroll" data-mdb-target="#scrollspy" data-mdb-offset="250">';
     }
 
 
@@ -131,7 +131,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
      */
     public function buildHtmlFooter(): ?string
     {
-        $html  =            WebPage::buildFooters() . '
+        $html  =            Page::buildFooters() . '
                         </body>
                     </html>';
 

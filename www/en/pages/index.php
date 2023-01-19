@@ -4,7 +4,7 @@ use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Http\Html\Layouts\Grid;
 use Phoundation\Web\Http\Html\Layouts\GridColumn;
 use Phoundation\Web\Http\Html\Layouts\GridRow;
-use Phoundation\Web\WebPage;
+use Phoundation\Web\Page;
 use Phoundation\Web\Http\Html\Components\BreadCrumbs;
 
 
@@ -32,11 +32,11 @@ echo $layout->render();
 
 
 // Set page meta data
-WebPage::setPageTitle(tr('Dashboard (under development)'));
-WebPage::setHeaderTitle(tr('Dashboard'));
-WebPage::setHeaderSubTitle(tr('(under development)'));
-WebPage::setDescription(tr(''));
-WebPage::setBreadCrumbs(BreadCrumbs::new()->setSource([
+Page::setPageTitle(tr('Dashboard (under development)'));
+Page::setHeaderTitle(tr('Dashboard'));
+Page::setHeaderSubTitle(tr('(under development)'));
+Page::setDescription(tr(''));
+Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/' => tr('Home'),
     ''  => tr('Dashboard')
 ]));
