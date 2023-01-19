@@ -164,7 +164,7 @@ class Route
         }
 
         // Ensure the post-processing function is registered
-        Log::action(tr('Processing ":domain" routes for ":method" method request ":url" from client ":client"', [
+        Log::information(tr('Processing ":domain" routes for ":method" method request ":url" from client ":client"', [
             ':domain' => Page::getDomain(),
             ':method' => self::$method,
             ':url'    => $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
@@ -1144,11 +1144,6 @@ class Route
         $target = Filesystem::absolute(Strings::unslash($target), self::$path);
 
         if (str_ends_with($target, 'php')) {
-            Log::action(tr('Executing target ":target":attachment', [
-                ':target'     => $target,
-                ':attachment' => ($attachment ? ' as attachment' : null)
-            ]));
-
             // Remove the 404 auto execution on shutdown
             // TODO route_postprocess() This should be a class method!
             Core::unregisterShutdown('route_postprocess');

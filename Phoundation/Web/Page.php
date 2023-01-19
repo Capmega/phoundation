@@ -944,7 +944,7 @@ class Page
             // Execute the specified target
             try {
                 // Execute the file and send the output HTML as a web page
-                Log::action(tr('Executing ":call" type page ":target" with template ":template" in language ":language" and sending output as HTML web page', [
+                Log::information(tr('Executing ":call" type page ":target" with template ":template" in language ":language" and sending output as HTML web page', [
                     ':call'     => Core::getRequestType(),
                     ':target'   => Strings::from($target, PATH_ROOT),
                     ':template' => $template->getName(),

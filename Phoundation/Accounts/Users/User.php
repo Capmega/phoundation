@@ -203,6 +203,10 @@ class User extends DataEntry
      */
     public function getPicture(): Image
     {
+        if (!$this->getDataValue('picture')) {
+            $this->setDataValue('picture', 'img/profiles/default.png');
+        }
+
         return Image::new($this->getDataValue('picture'))
             ->setDescription(tr('Profile image for :user', [':user' => $this->getDisplayName()]));
     }
@@ -217,10 +221,6 @@ class User extends DataEntry
      */
     public function setPicture(Image|string|null $picture): static
     {
-        if (!$picture) {
-            $picture = Image::new('img/profiles/default.png');
-        }
-
         return $this->setDataValue('picture', Strings::from(PATH_CDN, $picture->getFile()));
     }
 

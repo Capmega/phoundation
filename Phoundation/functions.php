@@ -2,6 +2,7 @@
 
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Exception\CoreException;
+use Phoundation\Core\Log;
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Databases\Databases;

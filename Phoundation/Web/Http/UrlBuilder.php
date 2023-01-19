@@ -153,7 +153,7 @@ class UrlBuilder
      */
     public static function currentDomainRootUrl(): static
     {
-        return new UrlBuilder(Domains::from()->getThis() . Page::getRootUri());
+        return new UrlBuilder(Page::getRootUri());
     }
 
 
@@ -165,7 +165,7 @@ class UrlBuilder
      */
     public static function currentDomainUrl(): static
     {
-        return new UrlBuilder(Domains::from()->getThis() . Page::getRootUri());
+        return new UrlBuilder(Page::getRootUri());
     }
 
 
@@ -625,9 +625,14 @@ class UrlBuilder
      * @param string $url
      * @param string|null $extension
      * @return static
+     * @throws OutOfBoundsException If no URL was specified
      */
     public static function buildCdn(string $url, ?string $extension = null): static
     {
+        if (!$url) {
+            throw new OutOfBoundsException(tr('No URL specified'));
+        }
+
         $url  = Strings::startsNotWith($url, '/');
         $url  = self::buildDomainPrefix('cdn', $url);
         $url .= self::addExtension($extension);

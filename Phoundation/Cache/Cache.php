@@ -3,6 +3,7 @@
 namespace Phoundation\Cache;
 
 use Phoundation\Core\Config;
+use Phoundation\Core\Core;
 use Phoundation\Core\Exception\ConfigException;
 use Phoundation\Core\Log;
 use Phoundation\Databases\Mc;
@@ -63,6 +64,11 @@ class Cache
      */
     public static function read(string $key, ?string $namespace = null): ?string
     {
+        if (!Core::stateIs('script')) {
+            // When core is NOT in script state, cache will be disabled
+            return null;
+        }
+
         return null;
 
         $result = self::driver()->get($key, $namespace);

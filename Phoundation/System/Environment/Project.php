@@ -174,8 +174,10 @@ class Project
             ':project' => self::$name
         ]));
 
+        // Setup environment
         self::getEnvironment()->setup();
 
+        // Create admin user
         Log::action(tr('Creating administrative user ":email", almost done...', [
             ':email' => $configuration->getEmail()
         ]));
@@ -185,6 +187,8 @@ class Project
             ->save();
 
         $user->setPassword($configuration->getPassword(), $configuration->getPassword());
+
+        Log::success(tr('Finished project setup'));
     }
 
 

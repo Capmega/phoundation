@@ -39,7 +39,7 @@ class SidePanel extends \Phoundation\Web\Http\Html\Components\SidePanel
                                   ' . Session::getUser()->getPicture()
                                         ->getHtmlElement()
                                             ->setClass('img-circle elevation-2')
-                                            ->setAlt(tr('Image for :user', [':user' => Session::getUser()->getDisplayName()]))
+                                            ->setAlt(tr('Profile picture for :user', [':user' => Session::getUser()->getDisplayName()]))
                                             ->render() . '
                                 </div>
                                 <div class="info">

@@ -4,7 +4,7 @@ namespace Templates\AdminLte\Components;
 
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Notifications;
-use Phoundation\Web\Http\Url;
+use Phoundation\Web\Http\UrlBuilder;
 
 
 /**
