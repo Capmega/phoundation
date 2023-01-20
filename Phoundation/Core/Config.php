@@ -134,13 +134,8 @@ class Config
             self::$environment = strtolower(trim(ENVIRONMENT));
 
         } else {
-echo '<pre>';
-print_r(debug_backtrace());
-die();
             self::$environment = ENVIRONMENT;
         }
-
-        Log::action(tr('Using environment ":env"', [':env' => self::$environment]), 5);
 
         self::reset();
         self::read(self::$environment);
