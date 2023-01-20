@@ -43,7 +43,7 @@ class SidePanel extends \Phoundation\Web\Http\Html\Components\SidePanel
                                             ->render() . '
                                 </div>
                                 <div class="info">
-                                  <a href="' . (Session::getUser()->isGuest() ? '#' : UrlBuilder::www('/users/entry/' . urlencode(Session::getUser()->getEmail()))) . '" class="d-block">' . Session::getUser()->getDisplayName() . '</a>
+                                  <a href="' . (Session::getUser()->isGuest() ? '#' : UrlBuilder::www('/profile.html')) . '" class="d-block">' . Session::getUser()->getDisplayName() . '</a>
                                 </div>
                               </div>
                               <div class="form-inline">
