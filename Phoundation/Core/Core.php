@@ -20,14 +20,14 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
+use Phoundation\Notifications\Notification;
 use Phoundation\Processes\Commands\SystemCommands;
 use Phoundation\Processes\Process;
 use Phoundation\Servers\Server;
-use Phoundation\Web\Http\Http;
-use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Json;
-use Phoundation\Web\Route;
+use Phoundation\Web\Http\Http;
 use Phoundation\Web\Page;
+use Phoundation\Web\Routing\Route;
 use Phoundation\Web\Web;
 use Throwable;
 
@@ -2085,7 +2085,7 @@ class Core {
 
                 // Execute this shutdown function for each data value
                 foreach ($data as $value) {
-                    Log::notice(tr('Executing shutdown function ":identifier" with data value ":value"', [
+                    Log::action(tr('Executing shutdown function ":identifier" with data value ":value"', [
                         ':identifier' => $identifier,
                         ':value'      => $value
                     ]));
