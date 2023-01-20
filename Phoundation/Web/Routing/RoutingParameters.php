@@ -10,6 +10,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Servers\Server;
+use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\Html\Template\Template;
 use Phoundation\Web\Http\UrlBuilder;
 use Templates\AdminLte\AdminLte;
@@ -294,11 +295,8 @@ class RoutingParameters
     public function getRootUrl(): string
     {
         if (!isset($this->root_url)) {
-            // If not specified, use the configured base url for this domain
-            $this->root_url = UrlBuilder::currentDomainRootUrl();
-            $this->root_url = Strings::from($this->root_url, '://');
-            $this->root_url = Strings::from($this->root_url, '/');
-            $this->root_url = '/' . $this->root_url;
+            // If not specified, use the default configured root uri for this domain
+            return Domains::getRootUrl();
         }
 
         return $this->root_url;

@@ -116,14 +116,10 @@ class UrlBuilder
     public static function www(?string $url = null): static
     {
         if (!$url) {
-            return self::current();
+            $url = UrlBuilder::current();
         }
 
-        if (Url::isValid($url)) {
-            return new UrlBuilder($url);
-        }
-
-        return new UrlBuilder(self::buildDomainPrefix('www', $url));
+        return self::buildUrl($url);
     }
 
 
@@ -141,7 +137,7 @@ class UrlBuilder
             return new UrlBuilder($url);
         }
 
-        self::buildCdn($url, $extension);
+        return self::buildCdn($url, $extension);
     }
 
 
@@ -165,7 +161,7 @@ class UrlBuilder
      */
     public static function currentDomainUrl(): static
     {
-        return new UrlBuilder(Page::getRootUri());
+        return new UrlBuilder(Page::getUrl());
     }
 
 
@@ -277,10 +273,11 @@ class UrlBuilder
      */
     public static function ajax(string $url): static
     {
-        $url = Strings::startsNotWith($url, '/');
-        $url = self::buildDomainPrefix('www', 'ajax/' . $url);
+        if (!$url) {
+            throw new OutOfBoundsException(tr('No URL specified'));
+        }
 
-        return self::www($url);
+        return self::buildUrl($url, 'ajax/');
     }
 
 
@@ -293,10 +290,11 @@ class UrlBuilder
      */
     public static function api(string $url): static
     {
-        $url = Strings::startsNotWith($url, '/');
-        $url = self::buildDomainPrefix('www', 'api/' . $url);
+        if (!$url) {
+            throw new OutOfBoundsException(tr('No URL specified'));
+        }
 
-        return self::www($url);
+        return self::buildUrl($url, 'api/');
     }
 
 
@@ -312,9 +310,6 @@ class UrlBuilder
         if (Url::isValid($url)) {
             return new UrlBuilder($url);
         }
-
-        $url = Strings::startsNotWith($url, '/');
-        $url = self::buildDomainPrefix('cdn', '/' . $url);
 
         return self::buildCdn($url, 'css');
     }
@@ -332,9 +327,6 @@ class UrlBuilder
         if (Url::isValid($url)) {
             return new UrlBuilder($url);
         }
-
-        $url = Strings::startsNotWith($url, '/');
-        $url = self::buildDomainPrefix('cdn', '/' . $url);
 
         return self::buildCdn($url, 'js');
     }
@@ -594,27 +586,24 @@ class UrlBuilder
     /**
      * Builds and returns the domain prefix
      *
-     * @param string $type
      * @param string $url
-     * @param string|null $domain
-     * @return string
+     * @param string|null $prefix
+     * @return static
      */
-    protected static function buildDomainPrefix(#[ExpectedValues(values: ['www', 'cdn'])] string $type, string $url, ?string $domain = null): string
+    protected static function buildUrl(string $url, ?string $prefix = null): static
     {
-        if (!Url::isValid($url)) {
-            // Get the base URL configuration for the domain
-            if (!$domain) {
-                $domain = Domains::getCurrent();
-            }
-
-            $base = Domains::getConfigurationKey($domain, $type);
-            $base = $base ?? 'http://cdn.localhost/:LANGUAGE/';
-            $base = Strings::endsWith($base, '/');
-            $url  = Strings::startsNotWith($url, '/');
-            $url  = str_replace(':LANGUAGE', Session::getLanguage(), $base . $url);
+        if (Url::isValid($url)) {
+            return new UrlBuilder($url);
         }
 
-        return $url;
+        // Get the base URL configuration for the domain
+        $base = Page::getRoutingParameters()->getRootUrl();
+        $base = Strings::endsWith($base, '/');
+        $url  = Strings::startsNotWith($url, '/');
+        $url  = $prefix . $url;
+        $url  = str_replace(':LANGUAGE', Session::getLanguage(), $base . $url);
+
+        return new UrlBuilder($url);
     }
 
 
@@ -633,11 +622,17 @@ class UrlBuilder
             throw new OutOfBoundsException(tr('No URL specified'));
         }
 
-        $url  = Strings::startsNotWith($url, '/');
-        $url  = self::buildDomainPrefix('cdn', $url);
-        $url .= self::addExtension($extension);
+        if (Url::isValid($url)) {
+            return new UrlBuilder($url);
+        }
 
-        return new UrlBuilder(self::buildDomainPrefix('cdn', $url));
+        $base = Domains::getConfigurationKey(Domains::getCurrent(), 'cdn', 'http://cdn.localhost/:LANGUAGE/');
+        $base = Strings::endsWith($base, '/');
+        $url  = Strings::startsNotWith($url, '/');
+        $url .= self::addExtension($extension);
+        $url  = str_replace(':LANGUAGE', Session::getLanguage(), $base . $url);
+
+        return new UrlBuilder($url);
     }
 
 

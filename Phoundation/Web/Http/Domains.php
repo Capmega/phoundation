@@ -252,18 +252,45 @@ class Domains {
     /**
      * Returns the base URL for the specified domain and its type (www or cdn)
      *
-     * @param string $domain
+     * @param string|null $domain
      * @param string $type
      * @param string|null $language
      * @return string
      * @throws ConfigNotExistsException If the specified domain does not exist
      */
 
-    public static function getRootUrl(string $domain, #[ExpectedValues('www', 'cdn')] string $type = 'www', ?string $language = null): string
+    public static function getRootUri(?string $domain = null, #[ExpectedValues('www', 'cdn')] string $type = 'www', ?string $language = null): string
+    {
+        // Get the root URL for the specified domain and strip the protocol and domain parts
+        $uri = self::getRootUrl($domain, $type, $language);
+        $uri = Strings::from($uri, '://');
+        $uri = Strings::from($uri, '/');
+
+        return $uri;
+    }
+
+
+
+    /**
+     * Returns the base URL for the specified domain and its type (www or cdn)
+     *
+     * @param string|null $domain
+     * @param string $type
+     * @param string|null $language
+     * @return string
+     * @throws ConfigNotExistsException If the specified domain does not exist
+     */
+
+    public static function getRootUrl(?string $domain = null, #[ExpectedValues('www', 'cdn')] string $type = 'www', ?string $language = null): string
     {
         try {
+            if (!$domain) {
+                $domain = self::getCurrent();
+            }
+
             $language = $language ?? Session::getLanguage();
             $url      = self::getConfigurationKey($domain, $type);
+
             return str_replace(':LANGUAGE', $language, $url);
 
         } catch (ConfigNotExistsException) {

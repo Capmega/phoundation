@@ -449,7 +449,7 @@ class Page
 
 
     /**
-     * Return the domain for this page
+     * Return the domain for this page, or the primary domain on CLI
      *
      * @return string
      */
@@ -459,7 +459,7 @@ class Page
             return $_SERVER['HTTP_HOST'];
         }
 
-        return Page::getPRimaryDomain();
+        return Domains::getPrimary();
     }
 
 
@@ -483,9 +483,6 @@ class Page
 
     /**
      * Return the request URI for this page
-     *
-     * @param string|null $domain The domain to get the root URI for. If not specified, on HTTP platform the current
-     *                            domain will be used. On the CLI platform, the primary domain will be assumed instead
      * @return string
      *
      * @note While all whitelabel domains are specified by their domain name, the primary domain must be specified by
@@ -493,13 +490,9 @@ class Page
      * @note On the CLI platform this method will return "/"
      * @throws ConfigNotExistsException If the specified domain does not exist
      */
-    public static function getRootUri(?string $domain = null): string
+    public static function getRootUri(): string
     {
-        if (!$domain) {
-            $domain = self::getDomain();
-        }
-
-        return Domains::getRootUrl($domain);
+        return self::$parameters->getRootUrl();
     }
 
 

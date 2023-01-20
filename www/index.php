@@ -112,7 +112,7 @@ Route::parameters()
 
     ->add(RoutingParameters::new() // Routing parameters for admin pages
         ->setPattern('/^\w{2}\/admin\//')
-        ->setRootUrl(':LANGUAGE/admin/')
+        ->setRootUrl('http://localhost/:LANGUAGE/admin/')
         ->setTemplate(AdminLte::class))
 
     ->add(RoutingParameters::new() // Routing parameters for default pages
@@ -122,7 +122,7 @@ Route::parameters()
         ->setPattern('/^(\w{2})\/admin\//i')
         ->setTemplate(AdminLte::class)
         ->setRootPath('$1/pages/admin/')
-        ->setRootUrl(':LANGUAGE/admin/')
+        ->setRootUrl('http://localhost/:LANGUAGE/admin/')
         ->setRights('admin')
         ->setSystemPagesOnly(true))
 
