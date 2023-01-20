@@ -151,12 +151,11 @@ abstract class DataEntry
     /**
      * Returns a User object
      *
-     * @param string|int|null $identifier
      * @return static
      */
-    public static function new(string|int|null $identifier = null): static
+    public static function new(): static
     {
-        return new static($identifier);
+        return new static();
     }
 
 
@@ -170,8 +169,13 @@ abstract class DataEntry
      * @param DataEntry|string|int|null $identifier
      * @return static|null
      */
-    public static function get(DataEntry|string|int $identifier = null): ?static
+    public static function get(DataEntry|string|int|null $identifier = null): ?static
     {
+        if (!$identifier) {
+            // No identifier specified, just return an empty object
+            return self::new();
+        }
+
         if (is_object($identifier)) {
             // This already is a DataEntry object, no need to create one
             return $identifier;
