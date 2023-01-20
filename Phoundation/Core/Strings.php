@@ -3,13 +3,11 @@
 namespace Phoundation\Core;
 
 use Exception;
-use Phoundation\Cli\Cli;
 use Phoundation\Cli\Color;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Json;
-use Zend_Utf8;
-
+use Throwable;
 
 
 /**
@@ -290,20 +288,20 @@ class Strings
      * @param int $end
      * @param int $chunk_size
      * @return string
-     * @throws CoreException
+     * @throws OutOfBoundsException
      */
     public static function interleave(string $source, int|string $interleave, int $end = 0, int $chunk_size = 1): string
     {
         if (!$source) {
-            throw new CoreException(tr('Empty source specified'));
+            throw new OutOfBoundsException(tr('Empty source specified'));
         }
 
         if (!$interleave) {
-            throw new CoreException(tr('Empty interleave specified'));
+            throw new OutOfBoundsException(tr('Empty interleave specified'));
         }
 
         if ($chunk_size < 1) {
-            throw new CoreException(tr('Specified chunksize ":chunksize" is invalid, it must be 1 or greater', [':chunksize' => $chunk_size]));
+            throw new OutOfBoundsException(tr('Specified chunksize ":chunksize" is invalid, it must be 1 or greater', [':chunksize' => $chunk_size]));
         }
 
         if ($end) {
@@ -489,83 +487,74 @@ class Strings
      */
     public static function caps(string $string, string $type): string
     {
-        try {
-            /*
-             * First find all words
-             */
-            preg_match_all('/\b(?:\w|\s)+\b/umsi', $string, $results);
+        // First find all words
+        preg_match_all('/\b(?:\w|\s)+\b/umsi', $string, $results);
 
-            if ($type == 'random') {
-                $type = pick_random(1,
-                                    'lowercase',
-                                    'uppercase',
-                                    'capitalize',
-                                    'doublecapitalize',
-                                    'invertcapitalize',
-                                    'invertdoublecapitalize',
-                                    'interleave',
-                                    'invertinterleave',
-                                    'consonantcaps',
-                                    'vowelcaps',
-                                    'lowercentercaps',
-                                    'capscenterlower');
-            }
-
-            /*
-             * Now apply the specified type to all words
-             */
-            foreach ($results as $words) {
-                foreach ($words as $word) {
-                    /*
-                     * Create the $replace string
-                     */
-                    switch ($type) {
-                        case 'lowercase':
-                            $replace = strtolower($word);
-                            break;
-
-                        case 'uppercase':
-                            $replace = strtoupper($word);
-                            break;
-
-                        case 'capitalize':
-                            $replace = strtoupper(substr($word, 0, 1)).strtolower(substr($word, 1));
-                            break;
-
-                        case 'doublecapitalize':
-                            $replace = strtoupper(substr($word, 0, 1)).strtolower(substr($word, 1, -1)).strtoupper(substr($word, -1, 1));
-                            break;
-
-                        case 'invertcapitalize':
-                            $replace = strtolower(substr($word, 0, 1)).strtoupper(substr($word, 1));
-                            break;
-
-                        case 'invertdoublecapitalize':
-                            $replace = strtolower(substr($word, 0, 1)).strtoupper(substr($word, 1, -1)).strtolower(substr($word, -1, 1));
-                            break;
-
-                        case 'interleave':
-                        case 'invertinterleave':
-                        case 'consonantcaps':
-                        case 'vowelcaps':
-                        case 'lowercentercaps':
-                        case 'capscenterlower':
-                            $replace = $word;
-                            break;
-
-                        default:
-                            throw new OutOfBoundsException(tr('Unknown type ":type" specified', [':type' => $type]));
-                    }
-
-                    str_replace($word, $replace, $string);
-                }
-            }
-
-            return $string;
-
-        } catch (Exception $e) {
-            throw new CoreException('str_caps(): Failed', $e);
+        if ($type == 'random') {
+            $type = pick_random(1,
+                                'lowercase',
+                                'uppercase',
+                                'capitalize',
+                                'doublecapitalize',
+                                'invertcapitalize',
+                                'invertdoublecapitalize',
+                                'interleave',
+                                'invertinterleave',
+                                'consonantcaps',
+                                'vowelcaps',
+                                'lowercentercaps',
+                                'capscenterlower');
         }
+
+        // Now apply the specified type to all words
+        foreach ($results as $words) {
+            foreach ($words as $word) {
+                /*
+                 * Create the $replace string
+                 */
+                switch ($type) {
+                    case 'lowercase':
+                        $replace = strtolower($word);
+                        break;
+
+                    case 'uppercase':
+                        $replace = strtoupper($word);
+                        break;
+
+                    case 'capitalize':
+                        $replace = strtoupper(substr($word, 0, 1)).strtolower(substr($word, 1));
+                        break;
+
+                    case 'doublecapitalize':
+                        $replace = strtoupper(substr($word, 0, 1)).strtolower(substr($word, 1, -1)).strtoupper(substr($word, -1, 1));
+                        break;
+
+                    case 'invertcapitalize':
+                        $replace = strtolower(substr($word, 0, 1)).strtoupper(substr($word, 1));
+                        break;
+
+                    case 'invertdoublecapitalize':
+                        $replace = strtolower(substr($word, 0, 1)).strtoupper(substr($word, 1, -1)).strtolower(substr($word, -1, 1));
+                        break;
+
+                    case 'interleave':
+                    case 'invertinterleave':
+                    case 'consonantcaps':
+                    case 'vowelcaps':
+                    case 'lowercentercaps':
+                    case 'capscenterlower':
+                        $replace = $word;
+                        break;
+
+                    default:
+                        throw new OutOfBoundsException(tr('Unknown type ":type" specified', [':type' => $type]));
+                }
+
+                str_replace($word, $replace, $string);
+            }
+        }
+
+        return $string;
     }
 
 
@@ -607,14 +596,10 @@ class Strings
                               'lowercentercaps'       ,
                               'capscenterlower'       );
 
-        /*
-         * Now, find all words
-         */
+        // Now, find all words
         preg_match_all('/\b(?:\w\s)+\b/umsi', $string, $words);
 
-        /*
-         * Now apply the specified type to all words
-         */
+        // Now apply the specified type to all words
         foreach ($words as $word) {
         }
 
@@ -851,7 +836,6 @@ class Strings
      *
      * @param mixed $value
      * @return string
-     * @throws CoreException
      */
     public static function boolean(mixed $value): string
     {
@@ -1424,7 +1408,9 @@ class Strings
                 return $fill.trim($return);
 
             default:
-                throw new CoreException(tr('Unknown method ":method" specified, please use "left", "center", or "right" or undefined which will default to "right"', [':method' => $method]), 'unknown');
+                throw new OutOfBoundsException(tr('Unknown method ":method" specified, please use "left", "center", or "right" or undefined which will default to "right"', [
+                    ':method' => $method
+                ]));
         }
     }
 
@@ -1473,8 +1459,8 @@ class Strings
                 $source = Arrays::hide($source, ['password', 'ssh_key']);
                 $source = trim(JSON::encode($source));
 
-            } elseif (is_object($source) and ($source instanceof CoreException)) {
-                $source = $source->getCode() . ' / ' . $source->getMessage();
+            } elseif (is_object($source) and method_exists($source, '__toString')) {
+                $source = (string) $source;
 
             } else {
                 $source = trim(JSON::encode($source));
