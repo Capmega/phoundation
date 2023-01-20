@@ -1,5 +1,6 @@
 <?php
 
+use Phoundation\Accounts\Users\FilterForm;
 use Phoundation\Accounts\Users\Users;
 use Phoundation\Web\Http\Html\Components\BreadCrumbs;
 use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
@@ -10,6 +11,18 @@ use Phoundation\Web\Page;
 
 
 // Build the page content
+
+
+
+// Build users filter card
+$filters_content = FilterForm::new();
+
+
+$filters = Card::new()
+    ->setTitle('Active users')
+    ->setSwitches('reload')
+    ->setContent($filters_content->render())
+    ->useForm(true);
 
 
 
@@ -48,7 +61,7 @@ $documentation = Card::new()
 
 // Build and render the grid
 $grid = Grid::new()
-    ->addColumn($users, 9)
+    ->addColumn($filters->render() . $users->render(), 9)
     ->addColumn($relevant->render() . $documentation->render(), 3);
 
 echo $grid->render();

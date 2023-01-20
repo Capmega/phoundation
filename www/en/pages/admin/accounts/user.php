@@ -18,7 +18,7 @@ use Templates\Mdb\Layouts\GridColumn;
 
 // Validate GET
 GetValidator::new()
-    ->select('id')->isId()
+    ->select('id')->isOptional()->isId()
     ->validate();
 
 $user = User::get($_GET['id']);
@@ -86,11 +86,10 @@ $buttons = Buttons::new()
 
 
 // Build the user form
-$form = User::get($_GET['id'])->getHtmlForm();
 $card = Card::new()
     ->setHasCollapseSwitch(true)
     ->setTitle(tr('Edit data for User :name', [':name' => $user->getDisplayName()]))
-    ->setContent($form->render())
+    ->setContent($user->getHtmlForm()->render())
     ->setButtons($buttons);
 
 
