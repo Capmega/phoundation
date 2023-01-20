@@ -1738,18 +1738,20 @@ class User extends DataEntry
             ],
             'authentication_failures' => [
                 'disabled' => true,
+                'db_null'  => false,
                 'type'     => 'numeric',
                 'label'    => tr('Authentication failures')
             ],
             'locked_until' => [
-                'disabled'      => true,
-                'type'          => 'date',
-                'null_type'     => 'text',
-                'default'       => '-',
-                'label'         => tr('Locked until')
+                'disabled'  => true,
+                'type'      => 'date',
+                'null_type' => 'text',
+                'default'   => '-',
+                'label'     => tr('Locked until')
             ],
             'sign_in_count' => [
                 'disabled' => true,
+                'db_null'  => false,
                 'type'     => 'numeric',
                 'label'    => tr('Sign in count')
             ],
@@ -1757,29 +1759,33 @@ class User extends DataEntry
                 'label'    => tr('Username')
             ],
             'password' => [
-                'type'     => 'password',
-                'label'    => tr('Password')
+                'type'    => 'password',
+                'db_null' => false,
+                'label'   => tr('Password')
             ],
             'fingerprint' => [
-                'element'  => null  // TODO Implement
+                'element' => null  // TODO Implement
             ],
             'domain' => [
-                'label'    => tr('Domain')
+                'label'   => tr('Domain')
             ],
             'title' => [
-                'label'    => tr('Title')
+                'label'   => tr('Title')
             ],
             'first_names' => [
-                'label'    => tr('First names')
+                'label'   => tr('First names')
             ],
             'last_names' => [
-                'label'    => tr('Last names')
+                'label'   => tr('Last names')
             ],
             'nickname' => [
-                'label'    => tr('Nickname')
+                'label'   => tr('Nickname')
             ],
             'avatar' => [
-                'label'    => tr('Avatar')
+                'display' => false
+            ],
+            'type' => [
+                'label'    => tr('Type')
             ],
             'email' => [
                 'display'  => true,
@@ -1917,14 +1923,14 @@ class User extends DataEntry
             'domain'                  => 6,
             'username'                => 6,
             'nickname'                => 6,
-            'firstname'               => 6,
-            'lastname'                => 6,
+            'first_names'             => 6,
+            'last_names'              => 6,
             'gender'                  => 6,
             'birthday'                => 6,
             'title'                   => 6,
             'phones'                  => 6,
             'address'                 => 12,
-            'avatar'                  => 12,
+            'type'                    => 12,
             'keywords'                => 12,
             'code'                    => 12,
             'website'                 => 12,

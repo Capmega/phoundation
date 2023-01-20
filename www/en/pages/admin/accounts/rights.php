@@ -15,7 +15,7 @@ use Phoundation\Web\Page;
 
 // Build rights table
 $table = Rights::new()->getHtmlTable()
-    ->setRowUrl('/admin/accounts/right-:ROW.html');
+    ->setRowUrl('/accounts/right-:ROW.html');
 
 $rights = Card::new()
     ->setTitle('Active rights')
@@ -33,8 +33,8 @@ $rights->getForm()
 $relevant = Card::new()
     ->setMode('info')
     ->setTitle(tr('Relevant links'))
-    ->setContent('<a href="' . UrlBuilder::www('/admin/accounts/users.html') . '">' . tr('Users management') . '</a><br>
-                         <a href="' . UrlBuilder::www('/admin/accounts/roles.html') . '">' . tr('Roles management') . '</a>');
+    ->setContent('<a href="' . UrlBuilder::www('/accounts/users.html') . '">' . tr('Users management') . '</a><br>
+                         <a href="' . UrlBuilder::www('/accounts/roles.html') . '">' . tr('Roles management') . '</a>');
 
 
 

@@ -1,5 +1,6 @@
 <?php
 
+use Phoundation\Core\Log;
 use Phoundation\Core\Session;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Utils\Json;
@@ -32,6 +33,11 @@ $image = ProfileImage::new()
     ->setImage(Session::getUser()->getPicture())
     ->setMenu(null)
     ->setUrl(null);
+
+Log::printr([
+    'topMenu'      => $menu->render(),
+    'profileImage' => $image->render()
+]);
 
 Json::reply([
     'topMenu'      => $menu->render(),

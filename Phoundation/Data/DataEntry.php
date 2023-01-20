@@ -528,6 +528,14 @@ abstract class DataEntry
         }
 
         if ($value !== null) {
+            if (!$value) {
+                if (array_key_exists($key, $this->keys)) {
+                    if (!array_key_exists('db_null', $this->keys[$key]) or $this->keys[$key]['db_null'] !== false) {
+                        $value = null;
+                    }
+                }
+            }
+
             $this->data[$key] = $value;
         }
 

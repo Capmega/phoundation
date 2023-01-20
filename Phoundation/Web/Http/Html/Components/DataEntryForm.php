@@ -405,7 +405,7 @@ class DataEntryForm extends ElementsBlock
         foreach ($this->form_keys as $key => $size) {
             if (!array_key_exists($key, $this->keys)) {
                 throw new OutOfBoundsException(tr('Specified form key ":key" does not exist as DataEntry key', [
-                    ':key'
+                    ':key' => $key
                 ]));
             }
 

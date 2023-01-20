@@ -30,8 +30,8 @@ $card  = Card::new()
 $relevant = Card::new()
     ->setMode('info')
     ->setTitle(tr('Relevant links'))
-    ->setContent('<a href="' . UrlBuilder::www('/admin/accounts/users.html') . '">' . tr('Users management') . '</a><br>
-                         <a href="' . UrlBuilder::www('/admin/accounts/roles.html') . '">' . tr('Roles management') . '</a>');
+    ->setContent('<a href="' . UrlBuilder::www('/accounts/users.html') . '">' . tr('Users management') . '</a><br>
+                         <a href="' . UrlBuilder::www('/accounts/roles.html') . '">' . tr('Roles management') . '</a>');
 
 
 
@@ -55,7 +55,7 @@ echo $grid->render();
 Page::setHeaderTitle(tr('Right'));
 Page::setHeaderSubTitle($right->getName());
 Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/admin/'                    => tr('Home'),
-    '/admin/accounts/rights.html' => tr('Rights'),
-    ''                           => $right->getName()
+    '/'                     => tr('Home'),
+    '/accounts/rights.html' => tr('Rights'),
+    ''                      => $right->getName()
 ]));

@@ -55,7 +55,7 @@ if (Page::isRequestMethod('POST')) {
             ->select('comments')->isOptional()->isPrintable()->hasMaxCharacters(16_777_200)
             ->select('website')->isOptional()->isUrl()
             ->select('timezone')->isOptional()->isTimezone()
-    ->validate();
+        ->validate();
 
         // Update user
         $user = User::get($_GET['id']);
@@ -63,13 +63,16 @@ if (Page::isRequestMethod('POST')) {
         $user->save();
 
         // Go back to where we came from
-showdie(Timers::get('query'));
+// TODO Implement timers
+//showdie(Timers::get('query'));
+
         Page::getFlashMessages()->add(tr('Success'), tr('User ":user" has been updated', [':user' => $user->getDisplayName()]), 'success');
-        Page::redirect('prev');
+        Page::redirect('referer');
 
     } catch (ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
         Page::getFlashMessages()->add($e);
+        $user->modify($_POST);
     }
 }
 
@@ -78,7 +81,7 @@ showdie(Timers::get('query'));
 // Build the buttons
 $buttons = Buttons::new()
     ->addButton('Submit')
-    ->addButton('Cancel', 'secondary', '/admin/accounts/users.html', true);
+    ->addButton('Cancel', 'secondary', '/accounts/users.html', true);
 
 
 
@@ -124,8 +127,8 @@ $picture = Card::new()
 $relevant = Card::new()
     ->setMode('info')
     ->setTitle(tr('Relevant links'))
-    ->setContent('<a href="' . UrlBuilder::www('/admin/accounts/roles.html') . '">' . tr('Roles management') . '</a><br>
-                         <a href="' . UrlBuilder::www('/admin/accounts/rights.html') . '">' . tr('Rights management') . '</a>');
+    ->setContent('<a href="' . UrlBuilder::www('/accounts/roles.html') . '">' . tr('Roles management') . '</a><br>
+                         <a href="' . UrlBuilder::www('/accounts/rights.html') . '">' . tr('Rights management') . '</a>');
 
 
 
@@ -151,7 +154,7 @@ echo $grid->render();
 Page::setHeaderTitle(tr('User'));
 Page::setHeaderSubTitle($user->getName());
 Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/admin/'                    => tr('Home'),
-    '/admin/accounts/users.html' => tr('Users'),
-    ''                           => $user->getDisplayName()
+    '/'                    => tr('Home'),
+    '/accounts/users.html' => tr('Users'),
+    ''                     => $user->getDisplayName()
 ]));

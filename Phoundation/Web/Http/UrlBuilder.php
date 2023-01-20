@@ -121,6 +121,8 @@ class UrlBuilder
             $url = UrlBuilder::current();
         }
 
+        $url= self::applyPredefined($url);
+
         return self::buildUrl($url, null, $use_configured_root);
     }
 
@@ -641,6 +643,25 @@ class UrlBuilder
         $url  = str_replace(':LANGUAGE', Session::getLanguage(), $base . $url);
 
         return new UrlBuilder($url);
+    }
+
+
+
+    /**
+     * Apply predefined URL names
+     *
+     * @param $url
+     * @return string
+     */
+    protected static function applyPredefined($url): string
+    {
+        return match ($url) {
+            'self', 'this'                => self::current(),
+            'root'                        => self::currentDomainRootUrl(),
+            'prev', 'previous', 'referer' => self::referer(),
+            default => $url,
+        };
+
     }
 
 

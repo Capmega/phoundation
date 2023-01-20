@@ -1558,17 +1558,17 @@ class Strings
      * FALSE: FALSE, "false", "no", "n", "off", "0"
      * TRUE: TRUE, "true", "yes", "y", "on", "1"
      *
-     * @param bool|int|string $value
+     * @param string|int|bool|null $value
      * @param bool $exception
      * @return bool|null
      */
-    public static function getBoolean(bool|int|string $value, bool $exception = true): ?bool
+    public static function getBoolean(string|int|bool|null $value, bool $exception = true): ?bool
     {
         if (is_bool($value)) {
             return $value;
         }
 
-        switch (strtolower($value)) {
+        switch (strtolower((string) $value)) {
             case 'true':
                 // no-break
             case 'yes':
