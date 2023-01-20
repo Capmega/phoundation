@@ -108,18 +108,20 @@ class UrlBuilder
 
 
     /**
-     * Returns a www URL
+     * Returns a complete www URL
      *
-     * @param string|null $url
+     * @param string $url The URL to build
+     * @param bool $use_configured_root If true, the builder will not use the root URI from the routing parameters but
+     *                                  from the static configuration
      * @return static
      */
-    public static function www(?string $url = null): static
+    public static function www(?string $url = null, bool $use_configured_root = false): static
     {
         if (!$url) {
             $url = UrlBuilder::current();
         }
 
-        return self::buildUrl($url);
+        return self::buildUrl($url, null, $use_configured_root);
     }
 
 
@@ -268,16 +270,18 @@ class UrlBuilder
     /**
      * Returns an ajax URL
      *
-     * @param string $url
+     * @param string $url The URL to build
+     * @param bool $use_configured_root If true, the builder will not use the root URI from the routing parameters but
+     *                                  from the static configuration
      * @return static
      */
-    public static function ajax(string $url): static
+    public static function ajax(string $url, bool $use_configured_root = false): static
     {
         if (!$url) {
             throw new OutOfBoundsException(tr('No URL specified'));
         }
 
-        return self::buildUrl($url, 'ajax/');
+        return self::buildUrl($url, 'ajax/', $use_configured_root);
     }
 
 
@@ -285,16 +289,18 @@ class UrlBuilder
     /**
      * Returns an api URL
      *
-     * @param string $url
+     * @param string $url The URL to build
+     * @param bool $use_configured_root If true, the builder will not use the root URI from the routing parameters but
+     *                                  from the static configuration
      * @return static
      */
-    public static function api(string $url): static
+    public static function api(string $url, bool $use_configured_root = false): static
     {
         if (!$url) {
             throw new OutOfBoundsException(tr('No URL specified'));
         }
 
-        return self::buildUrl($url, 'api/');
+        return self::buildUrl($url, 'api/', $use_configured_root);
     }
 
 
@@ -588,16 +594,18 @@ class UrlBuilder
      *
      * @param string $url
      * @param string|null $prefix
+     * @param bool $use_configured_root If true, the builder will not use the root URI from the routing parameters but
+     *                                  from the static configuration
      * @return static
      */
-    protected static function buildUrl(string $url, ?string $prefix = null): static
+    protected static function buildUrl(string $url, ?string $prefix, bool $use_configured_root): static
     {
         if (Url::isValid($url)) {
             return new UrlBuilder($url);
         }
 
         // Get the base URL configuration for the domain
-        $base = Page::getRoutingParameters()->getRootUrl();
+        $base = ($use_configured_root ? Domains::getRootUrl() : Page::getRoutingParameters()->getRootUrl());
         $base = Strings::endsWith($base, '/');
         $url  = Strings::startsNotWith($url, '/');
         $url  = $prefix . $url;
