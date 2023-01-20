@@ -11,8 +11,10 @@ use Phoundation\Core\Exception\ConfigException;
 use Phoundation\Core\Exception\SessionException;
 use Phoundation\Data\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Exception\DataEntryStatusException;
+use Phoundation\Data\Validator\Validator;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\AccessDeniedException;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
@@ -168,6 +170,25 @@ class Session
         }
 
         return self::$flash_messages;
+    }
+
+
+
+    /**
+     * Validate sign in data
+     *
+     * @return void
+     */
+    public static function validateSignIn(Validator $validator = null): void
+    {
+        if (!$validator) {
+            $validator = PostValidator::new();
+        }
+
+        $validator
+            ->select('email')->isEmail()
+            ->select('password')->isPassword()
+            ->validate();
     }
 
 
@@ -482,6 +503,37 @@ Log::warning('RESTART SESSION');
 
 
     /**
+     * Returns true if the specified sign in method is supported
+     *
+     * @param string $method
+     * @return bool
+     */
+    public static function supports(string $method): bool
+    {
+        // TODO Implement
+        switch ($method) {
+            case 'facebook':
+            case 'google':
+                return false;
+
+            case 'email':
+                return true;
+
+            case 'register':
+                // no break
+            case 'registration':
+                return false;
+
+            default:
+                throw new OutOfBoundsException(tr('Unknown Session method ":method" specified', [
+                    ':method' => $method
+                ]));
+        }
+    }
+
+
+
+    /**
      * Configure cookies
      *
      * @return void
@@ -586,6 +638,7 @@ Log::warning('RESTART SESSION');
     /**
      * Check the requested domain, if its a valid main domain, sub domain or whitelabel domain
      *
+     * @todo See if this needs to move to the Domains class
      * @return void
      */
     protected static function checkDomains(): void
