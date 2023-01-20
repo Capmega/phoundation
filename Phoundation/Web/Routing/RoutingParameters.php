@@ -6,6 +6,7 @@ use Phoundation\Accounts\Rights\Right;
 use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Core;
+use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Restrictions;
@@ -90,7 +91,7 @@ class RoutingParameters
      *
      * @var array|null $matches
      */
-    protected ?array $matches;
+    protected ?array $matches = null;
 
 
 
@@ -299,7 +300,10 @@ class RoutingParameters
             return Domains::getRootUrl();
         }
 
-        return $this->root_url;
+        $root_url = $this->root_url;
+        $root_url = str_replace(':LANGUAGE', Session::getLanguage(), $root_url);
+
+        return $root_url;
     }
 
 

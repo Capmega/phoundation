@@ -42,21 +42,14 @@ class UrlBuilder
      */
     protected string $url;
 
-    /**
-     * If true, this URL will be returned cloaked
-     *
-     * @var bool $cloak
-     */
-    protected bool $cloak;
-
 
 
     /**
      * UrlBuilder class constructor
      *
-     * @param string|null $url
+     * @param UrlBuilder|string|null $url
      */
-    protected function __construct(string|null $url = null)
+    protected function __construct(UrlBuilder|string|null $url = null)
     {
         $url = trim((string) $url);
 
@@ -110,7 +103,7 @@ class UrlBuilder
     /**
      * Returns a complete www URL
      *
-     * @param string $url The URL to build
+     * @param string|null $url The URL to build
      * @param bool $use_configured_root If true, the builder will not use the root URI from the routing parameters but
      *                                  from the static configuration
      * @return static
@@ -119,9 +112,9 @@ class UrlBuilder
     {
         if (!$url) {
             $url = UrlBuilder::current();
+        } else {
+            $url = self::applyPredefined($url);
         }
-
-        $url= self::applyPredefined($url);
 
         return self::buildUrl($url, null, $use_configured_root);
     }
@@ -153,7 +146,7 @@ class UrlBuilder
      */
     public static function currentDomainRootUrl(): static
     {
-        return new UrlBuilder(Page::getRootUri());
+        return new UrlBuilder(Page::getRootUrl());
     }
 
 
@@ -260,7 +253,7 @@ class UrlBuilder
                 $referer = $url;
 
             } else {
-                $referer = self::rootDomainRootUrl();
+                $referer = self::currentDomainRootUrl();
             }
         }
 

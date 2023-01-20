@@ -18,6 +18,7 @@ use Phoundation\Date\DateTime;
 use Phoundation\Date\Time;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Notifications\Notification;
 use Phoundation\Web\Exception\RouteException;
@@ -134,14 +135,12 @@ class Route
         }
 
         /*
-         * Cleanup the request URI by removing all GET requests and the leading
-         * slash, URIs cannot be longer than 255 characters
+         * Cleanup the request URI by removing all GET requests and the leading slash, URIs cannot be longer than 255
+         * characters
          *
-         * Deny URI's larger than 255 characters. If these are specified,
-         * automatically 404 because this is a hard coded limit. The reason for
-         * this is that the routes_static table columns currently only hold 255
-         * characters and at the moment I see no reason why anyone would want
-         * more than 255 characters in their URL.
+         * Deny URI's larger than 255 characters. If these are specified, automatically 404 because this is a hard coded
+         * limit. The reason for this is that the routes_static table columns currently only hold 255 characters and at
+         * the moment I see no reason why anyone would want more than 255 characters in their URL.
          */
         self::$method = ($_POST ? 'POST' : 'GET');
         self::$ip     = (empty($_SERVER['HTTP_X_REAL_IP']) ? $_SERVER['REMOTE_ADDR'] : $_SERVER['HTTP_X_REAL_IP']);
@@ -441,10 +440,11 @@ class Route
             }
 
             if (Debug::enabled()) {
-                Log::success(tr('Regex ":count" ":regex" matched with matches ":matches"', [
+                Log::success(tr('Regex ":count" ":regex" matched with matches ":matches" and flags ":flags"', [
                     ':count'   => $count,
                     ':regex'   => $url_regex,
-                    ':matches' => $matches
+                    ':matches' => $matches,
+                    ':flags'   => $flags
                 ]));
             }
 
@@ -651,21 +651,19 @@ class Route
                                 ]));
                         }
 
-                        // We are going to redirect so we no longer need to default to 404
-                        Log::success(tr('Redirecting to ":route" with HTTP code ":code"', [
-                            ':route' => $route,
-                            ':code'  => $http_code
-                        ]));
-
                         Core::unregisterShutdown('route_postprocess');
+                        Page::setRoutingParameters(self::parameters()->select(self::$uri));
                         Page::redirect(UrlBuilder::www($route)->addQueries($_GET), $http_code);
 
                     case 'S':
                         $until = substr($flag, 1);
 
                         if ($until and !is_natural($until)) {
-                            Log::warning(tr('Specified S flag value ":value" is invalid, natural number expected. Falling back to default value of 86400', [':value' => $until]));
                             $until = null;
+
+                            Log::warning(tr('Specified S flag value ":value" is invalid, natural number expected. Falling back to default value of 86400', [
+                                ':value' => $until
+                            ]));
                         }
 
                         if (!$until) {
@@ -754,9 +752,12 @@ class Route
                     // Okay, the key is allowed, yay! What action are we going to take?
                     switch ($get[$key]) {
                         case null:
+                            // Just allow this query variable
                             break;
 
                         case 301:
+                            // TODO What is going on here? Redirects to URL, but only domain is used? Wut?
+                            throw new UnderConstructionException();
                             // Redirect to URL without query
                             $domain = Url::getDomain()->getThis();
                             $domain = Strings::until($domain, '?');
@@ -767,6 +768,7 @@ class Route
                             ]));
 
                             Core::unregisterShutdown('route_postprocess');
+                            Page::setRoutingParameters(self::parameters()->select(self::$uri));
                             Page::redirect($domain);
                     }
                 }
@@ -1099,24 +1101,21 @@ class Route
      *
      * @param string $target
      * @param bool $attachment
-     * @param RoutingParameters|null $parameters
      * @return bool
      */
-    public static function execute(string $target, bool $attachment, ?RoutingParameters $parameters = null): bool
+    public static function execute(string $target, bool $attachment): bool
     {
-        // Get routing parameters for this URI
-        if (!$parameters) {
-            $parameters = self::parameters()->select(self::$uri);
-        }
-
         // Find the correct target page
-        $target = Filesystem::absolute($parameters->getRootPath() . Strings::unslash($target));
+        $parameters = self::parameters()->select(self::$uri);
+        $target     = Filesystem::absolute($parameters->getRootPath() . Strings::unslash($target));
+
+        Page::setRoutingParameters($parameters);
 
         if (str_ends_with($target, 'php')) {
             // Remove the 404 auto execution on shutdown
             // TODO route_postprocess() This should be a class method!
             Core::unregisterShutdown('route_postprocess');
-            $html = Page::execute($target, $parameters, $attachment);
+            $html = Page::execute($target, $attachment);
 
             if ($attachment) {
                 // Send download headers and send the $html payload

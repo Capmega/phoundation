@@ -332,7 +332,7 @@ class Page
      * @param RoutingParameters $parameters
      * @return void
      */
-    protected static function setRoutingParameters(RoutingParameters $parameters): void
+    public static function setRoutingParameters(RoutingParameters $parameters): void
     {
         self::$parameters = $parameters;
 
@@ -466,39 +466,6 @@ class Page
 
 
     /**
-     * Return the request URI for this page
-     *
-     * @note On the CLI platform this method will return "/"
-     * @return string
-     */
-    public static function getUri(): string
-    {
-        if (PLATFORM_HTTP) {
-            return $_SERVER['REQUEST_URI'];
-        }
-
-        return '/';
-    }
-
-
-
-    /**
-     * Return the request URI for this page
-     * @return string
-     *
-     * @note While all whitelabel domains are specified by their domain name, the primary domain must be specified by
-     *       "primary"!
-     * @note On the CLI platform this method will return "/"
-     * @throws ConfigNotExistsException If the specified domain does not exist
-     */
-    public static function getRootUri(): string
-    {
-        return self::$parameters->getRootUrl();
-    }
-
-
-
-    /**
      * Return the URL for this page
      *
      * @param bool $no_queries
@@ -506,7 +473,57 @@ class Page
      */
     public static function getUrl(bool $no_queries = false): string
     {
-        return $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . ($no_queries ? Strings::until($_SERVER['REQUEST_URI'], '?') : $_SERVER['REQUEST_URI']);
+        if (PLATFORM_HTTP) {
+            return $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . self::getUri($no_queries);
+        }
+
+        return self::$parameters->getRootUrl();
+    }
+
+
+
+    /**
+     * Return the request URI for this page
+     *
+     * @note On the CLI platform this method will return "/"
+     * @param bool $no_queries
+     * @return string
+     */
+    public static function getUri(bool $no_queries = false): string
+    {
+        if (PLATFORM_HTTP) {
+            return ($no_queries ? Strings::until($_SERVER['REQUEST_URI'], '?') : $_SERVER['REQUEST_URI']);
+        }
+
+        return self::$parameters->getUri();
+    }
+
+
+
+    /**
+     * Return the complete request URL for this page (WITH domain)
+     *
+     * @return string
+     */
+    public static function getRootUrl(): string
+    {
+        return self::$parameters->getRootUrl();
+    }
+
+
+
+    /**
+     * Returns the request URI for this page (WITHOUT domain)
+     *
+     * @return string
+     */
+    public static function getRootUri(): string
+    {
+        $uri = self::getRootUrl();
+        $uri = Strings::from($uri, '://');
+        $uri = Strings::from($uri, '/');
+
+        return $uri;
     }
 
 
@@ -915,8 +932,7 @@ class Page
      * @note Since this method required a RoutingParameters object do NOT execute this directly to execute a page, use
      * Route::execute() instead!
      *
-     * @param string $target The target file that should be executed or sent to the client
-     * @param RoutingParameters $parameters
+     * @param string $target      The target file that should be executed or sent to the client
      * @param boolean $attachment If specified as true, will send the file as a downloadable attachment, to be written
      *                            to disk instead of displayed on the browser. If set to false, the file will be sent as
      *                            a file to be displayed in the browser itself.
@@ -925,10 +941,8 @@ class Page
      * @see Route::execute()
      * @see Template::execute()
      */
-    public static function execute(string $target, RoutingParameters $parameters, bool $attachment = false): ?string
+    public static function execute(string $target, bool $attachment = false): ?string
     {
-        self::setRoutingParameters($parameters);
-
         try {
             if (Strings::fromReverse(dirname($target), '/') === 'system') {
                 // Wait a small random time to avoid timing attacks on system pages
@@ -1084,7 +1098,8 @@ class Page
         $url = UrlBuilder::www($url);
 
         if (isset_get($_GET['redirect'])) {
-            $url = UrlBuilder::www($url)->addQueries('redirect=' . urlencode($_GET['redirect']));
+            // Add redirect back query
+            $url = UrlBuilder::www($url)->addQueries(['redirect' => urlencode($_GET['redirect'])]);
         }
 
         /*
@@ -1127,7 +1142,7 @@ class Page
         }
 
         // Redirect immediately
-        Log::action(tr('Redirecting to url ":url"', [':url' => $url]));
+        Log::information(tr('Redirecting to url ":url"', [':url' => $url]));
         header('Location:' . $url , true, $http_code);
         die();
     }
