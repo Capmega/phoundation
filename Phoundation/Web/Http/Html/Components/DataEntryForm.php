@@ -161,8 +161,8 @@ class DataEntryForm extends ElementsBlock
      */
     public function render(): ?string
     {
-        if (!isset($this->source)) {
-            throw new OutOfBoundsException(tr('Cannot render DataEntryForm, no data source specified'));
+        if (!isset($this->keys)) {
+            throw new OutOfBoundsException(tr('Cannot render DataEntryForm, no form keys specified'));
         }
 
         // Possible $data contents:
