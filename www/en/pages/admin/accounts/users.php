@@ -19,8 +19,8 @@ $filters_content = FilterForm::new();
 
 
 $filters = Card::new()
-    ->setTitle('Active users')
-    ->setSwitches('reload')
+    ->setHasCollapseSwitch(true)
+    ->setTitle('Users filters')
     ->setContent($filters_content->render())
     ->useForm(true);
 
