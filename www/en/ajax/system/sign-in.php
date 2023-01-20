@@ -2,7 +2,6 @@
 
 use Phoundation\Core\Log;
 use Phoundation\Core\Session;
-use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Components\ProfileImage;
 use Phoundation\Web\Http\Html\Template\TemplateMenus;
@@ -19,10 +18,7 @@ use Phoundation\Web\Http\Html\Template\TemplateMenus;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
-PostValidator::new()
-    ->select('email')->isEmail()
-    ->select('password')->isPassword()
-    ->validate();
+Session::validateSignIn();
 
 // Attempt to sign in and if all okay, return an updated profile image with menu
 $user  = Session::signIn($_POST['email'], $_POST['password']);

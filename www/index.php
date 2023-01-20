@@ -136,8 +136,8 @@ Route::parameters()
 Route::try('/^(\w{2})\/admin\/ajax\/(.+?).html$/'       , '/$1/ajax/$2.php');                 // Execute the requested AJAX page
 Route::try('/^(\w{2})\/admin\/(.+?)\/(.+?)-(.+?).html$/', '/$1/pages/admin/$2/$3.php?id=$4'); // Show the requested form page
 Route::try('/^(\w{2})\/admin\/(.+?).html$/'             , '/$1/pages/admin/$2.php');          // Show the requested table page
-Route::try('/^(\w{2})\/admin\/?$/'                      , '/admin/index.html', ',R301'); // Redirect to admin index page
-Route::try('/^admin\/$/'                                , '/admin/index.html', ',R301'); // Redirect to admin index page
+Route::try('/^(\w{2})\/admin\/?$/'                      , '/index.html', 'R301');       // Redirect to admin index page
+Route::try('/^admin\/$/'                                , '/index.html', 'R301');       // Redirect to admin index page
 
 
 
