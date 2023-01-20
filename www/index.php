@@ -1,6 +1,7 @@
 <?php
 
-use Phoundation\Web\Route;
+use Phoundation\Web\Routing\Route;
+use Phoundation\Web\Routing\RoutingParameters;
 use Templates\AdminLte\AdminLte;
 use Templates\Mdb\Mdb;
 
@@ -106,28 +107,45 @@ require('../vendor/autoload.php');
 
 
 
-/// Set templates for 404 pages in different sections
-Route::addSystemPageParameters(AdminLte::class, 'admin/', '/^\w{2}\/admin\//', 'admin'); // Use AdminLTE template for system pages like 403, 404, etc on admin pages
-Route::addSystemPageParameters(Mdb::class);                                                                // Use Mdb template for system pages like 403, 404, etc for all other pages
+// Set routing parameters to be applied for the various page types
+Route::parameters()
+
+    ->add(RoutingParameters::new() // Routing parameters for admin pages
+        ->setPattern('/^\w{2}\/admin\//')
+        ->setRootUrl(':LANGUAGE/admin/')
+        ->setTemplate(AdminLte::class))
+
+    ->add(RoutingParameters::new() // Routing parameters for default pages
+        ->setTemplate(Mdb::class))
+
+    ->add(RoutingParameters::new() // Routing parameters for admin system pages
+        ->setPattern('/^(\w{2})\/admin\//i')
+        ->setTemplate(AdminLte::class)
+        ->setRootPath('$1/pages/admin/')
+        ->setRootUrl(':LANGUAGE/admin/')
+        ->setRights('admin')
+        ->setSystemPagesOnly(true))
+
+    ->add(RoutingParameters::new() // Routing parameters for default system pages
+        ->setTemplate(Mdb::class)
+        ->setSystemPagesOnly(true));
 
 
 
-// AdminLte based admin routes
-Route::setPageParameters(AdminLte::class);
-Route::try('/^\w{2}\/admin\/ajax\/(.+?).html$/'         , '/en/ajax/$1.php'                , 'Zadmin' );        // Execute the requested AJAX page
-Route::try('/^(\w{2})\/admin\/(.+?)\/(.+?)-(.+?).html$/', '/$1/pages/admin/$2/$3.php?id=$4', 'Zadmin');         // Show the requested form page
-Route::try('/^(\w{2})\/admin\/(.+?).html$/'             , '/$1/pages/admin/$2.php'         , 'Zadmin');         // Show the requested table page
-Route::try('/^(\w{2})\/admin\/?$/'                      , '/admin/index.html'              , 'Zadmin,R301');    // Redirect to admin index page
-Route::try('/^admin\/$/'                                , '/admin/index.html'              , 'Zadmin,R301');    // Redirect to admin index page
+// AdminLte based admin page routes
+Route::try('/^(\w{2})\/admin\/ajax\/(.+?).html$/'       , '/$1/ajax/$2.php');                 // Execute the requested AJAX page
+Route::try('/^(\w{2})\/admin\/(.+?)\/(.+?)-(.+?).html$/', '/$1/pages/admin/$2/$3.php?id=$4'); // Show the requested form page
+Route::try('/^(\w{2})\/admin\/(.+?).html$/'             , '/$1/pages/admin/$2.php');          // Show the requested table page
+Route::try('/^(\w{2})\/admin\/?$/'                      , '/admin/index.html', ',R301'); // Redirect to admin index page
+Route::try('/^admin\/$/'                                , '/admin/index.html', ',R301'); // Redirect to admin index page
 
 
 
-// Mdb based front-page routes
-Route::setPageParameters(Mdb::class);
-Route::try('/^\w{2}\/ajax\/(.+?).html$/', '/en/ajax/$1.php' , '' );     // Execute the requested AJAX page
-Route::try('/^(\w{2})\/(.+?).html$/'    , '/$1/pages/$2.php', '');      // Show the requested page
-Route::try('/^(\w{2})\/?$/'             , '/index.html'     , 'R301');  // Redirect to front-end index page
-Route::try('/^$/'                       , '/index.html'     , 'R301');  // Redirect to front-end index page
+// Mdb based front page routes
+Route::try('/^\w{2}\/ajax\/(.+?).html$/', '/en/ajax/$1.php');           // Execute the requested AJAX page
+Route::try('/^(\w{2})\/(.+?).html$/'    , '/$1/pages/$2.php');          // Show the requested page
+Route::try('/^(\w{2})\/?$/'             , '/index.html', 'R301'); // Redirect to front-end index page
+Route::try('/^$/'                       , '/index.html', 'R301'); // Redirect to front-end index page
 
 
 

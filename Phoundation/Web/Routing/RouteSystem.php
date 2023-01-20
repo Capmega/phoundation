@@ -1,6 +1,6 @@
 <?php
 
-namespace Phoundation\Web;
+namespace Phoundation\Web\Routing;
 
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Arrays;
@@ -26,44 +26,41 @@ use Throwable;
 class RouteSystem
 {
     /**
-     * Singleton
-     *
-     * @var RouteSystem $instance
-     */
-    protected static RouteSystem $instance;
-
-    /**
      * System page template
      *
      * @var Template $system_page
      */
-    protected static Template $system_page;
+    protected Template $system_page;
+
+    /**
+     * Routing parameters for this system page
+     *
+     * @var RoutingParameters $parameters
+     */
+    protected RoutingParameters $parameters;
 
 
 
     /**
      * RouteSystem class constructor
      */
-    protected function __construct()
+    protected function __construct(RoutingParameters $parameters)
     {
-        // Initialize the template
-        self::$system_page = Template::page('system/error');
+        $this->parameters  = $parameters;
+        $this->system_page = Template::page('system/error');
     }
 
 
 
     /**
-     * Singleton access
+     * Returns new RouteSystem object
      *
+     * @param RoutingParameters $parameters
      * @return RouteSystem
      */
-    public static function getInstance(): RouteSystem
+    public static function new(RoutingParameters $parameters): RouteSystem
     {
-        if (!isset(self::$instance)) {
-            self::$instance = new RouteSystem();
-        }
-
-        return self::$instance;
+        return new RouteSystem($parameters);
     }
 
 
@@ -75,9 +72,9 @@ class RouteSystem
      * @see Route::shutdown()
      * @return void
      */
-    #[NoReturn] public static function execute400(): void
+    #[NoReturn] public function execute400(): void
     {
-        self::execute([
+        $this->execute([
             'code'    => 400,
             'title'   => tr('Bad request'),
             'message' => tr('Server cannot or will not process the request because of incorrect information sent by client')
@@ -93,9 +90,9 @@ class RouteSystem
      * @see Route::shutdown()
      * @return void
      */
-    #[NoReturn] public static function execute401(): void
+    #[NoReturn] public function execute401(): void
     {
-        self::execute([
+        $this->execute([
             'code'    => 401,
             'title'   => tr('Unauthorized'),
             'message' => tr('You need to login to access the specified resource')
@@ -111,9 +108,9 @@ class RouteSystem
      * @see Route::shutdown()
      * @return void
      */
-    #[NoReturn] public static function execute403(): void
+    #[NoReturn] public function execute403(): void
     {
-        self::execute([
+        $this->execute([
             'code'    => 403,
             'title'   => tr('Forbidden'),
             'message' => tr('You do not have access to the requested URL on this server')
@@ -129,9 +126,9 @@ class RouteSystem
      * @see Route::shutdown()
      * @return void
      */
-    #[NoReturn] public static function execute404(): void
+    #[NoReturn] public function execute404(): void
     {
-        self::execute([
+        $this->execute([
             'code'    => 404,
             'title'   => tr('Not found'),
             'message' => tr('The requested URL does not exist on this server'),
@@ -147,9 +144,9 @@ class RouteSystem
      * @see Route::shutdown()
      * @return void
      */
-    #[NoReturn] public static function execute500(): void
+    #[NoReturn] public function execute500(): void
     {
-        self::execute([
+        $this->execute([
             'code'    => 500,
             'title'   => tr('Internal Server Error'),
             'message' => tr('The server encountered an unexpected condition that prevented it from fulfilling the request'),
@@ -165,9 +162,9 @@ class RouteSystem
      * @see Route::shutdown()
      * @return void
      */
-    #[NoReturn] public static function execute503(): void
+    #[NoReturn] public function execute503(): void
     {
-        self::execute([
+        $this->execute([
             'code'    => 503,
             'title'   => tr('Service unavailable'),
             'message' => tr('The server is currently unable to handle the request due to a temporary overload or scheduled maintenance'),
@@ -182,17 +179,15 @@ class RouteSystem
      * @param array $variables
      * @return void
      */
-    #[NoReturn] protected static function execute(array $variables): void
+    #[NoReturn] protected function execute(array $variables): void
     {
-        self::getInstance();
-
         Arrays::default($variables, 'code'   , -1);
         Arrays::default($variables, 'title'  , '');
         Arrays::default($variables, 'message', '');
         Arrays::default($variables, 'details', ((Config::get('security.expose.phoundation', false)) ? '<address>Phoundation ' . Core::FRAMEWORKCODEVERSION . '</address>' : ''));
 
         try {
-            Route::execute($page ?? Config::get('web.pages.' . strtolower(str_replace(' ', '-', $variables['title'])), 'system/' . $variables['code'] . '.php'), false);
+            Route::execute($page ?? Config::get('web.pages.' . strtolower(str_replace(' ', '-', $variables['title'])), 'system/' . $variables['code'] . '.php'), false, $this->parameters);
 
         } catch (Throwable $e) {
             if ($e->getCode() === 'not-exists') {
@@ -201,7 +196,7 @@ class RouteSystem
                     ':code' => $variables['code']
                 ]));
 
-                echo self::$system_page->render([
+                echo $this->system_page->render([
                     ':title' => $variables['code'] . ' - ' . Strings::capitalize($variables['title']),
                     ':h1'    => strtoupper($variables['title']),
                     ':p'     => $variables['message'],

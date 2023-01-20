@@ -1,10 +1,9 @@
 <?php
 
-namespace Phoundation\Web;
+namespace Phoundation\Web\Routing;
 
 use Exception;
 use JetBrains\PhpStorm\NoReturn;
-use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\NoProjectException;
@@ -15,19 +14,17 @@ use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Databases\Sql\Exception\SqlException;
+use Phoundation\Date\DateTime;
 use Phoundation\Date\Time;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Filesystem;
-use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
-use Phoundation\Servers\Server;
-use Phoundation\Web\Http\File;
-use Phoundation\Web\Http\Html\Template\Template;
-use Phoundation\Web\Http\Url;
 use Phoundation\Web\Exception\RouteException;
+use Phoundation\Web\Http\File;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Http\UrlBuilder;
-use Templates\AdminLte\AdminLte;
+use Phoundation\Web\Page;
 use Throwable;
 
 
@@ -51,33 +48,26 @@ class Route
      */
     protected static Route $instance;
 
-    /**
-     * The basic file path to search for file for these routes
-     *
-     * @var string $path
-     */
-    protected static string $path;
-
-    /**
-     * The template to use for these routes
-     *
-     * @var Template $template
-     */
-    protected static Template $template;
-
-    /**
-     * The templates to use for 404 pages in different sections
-     *
-     * @var array $system_page_parameters
-     */
-    protected static array $system_page_parameters;
-
-    /**
-     * The default server filesystem access restrictions to use while routing
-     *
-     * @var Server $server_restrictions
-     */
-    protected static Server $server_restrictions;
+//    /**
+//     * The basic file path to search for file for these routes
+//     *
+//     * @var string $path
+//     */
+//    protected static string $path;
+//
+//    /**
+//     * The template to use for these routes
+//     *
+//     * @var Template $template
+//     */
+//    protected static Template $template;
+//
+//    /**
+//     * The default server filesystem access restrictions to use while routing
+//     *
+//     * @var Server $server_restrictions
+//     */
+//    protected static Server $server_restrictions;
 
     /**
      * The temporary template to use while routing ONLY for the current try
@@ -114,6 +104,13 @@ class Route
      */
     protected static string $query;
 
+    /**
+     * Routing parameters list to use for the try() requests
+     *
+     * @var RoutingParametersList $parameters
+     */
+    protected static RoutingParametersList $parameters;
+
 
 
     /**
@@ -133,8 +130,6 @@ class Route
             GetValidator::hideData();
             PostValidator::hideData();
 
-            self::$server_restrictions = Core::ensureServer(PATH_WWW, null, 'Route');
-            self::setPageParameters(AdminLte::class); // Use AdminLTE template as default system template
             self::execute(PATH_WWW . 'setup.php', false);
         }
 
@@ -171,8 +166,8 @@ class Route
             ':client' => $_SERVER['REMOTE_ADDR'] . (empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: ' . $_SERVER['HTTP_X_REAL_IP'] . ')')
         ]));
 
-        Core::registerShutdown('core_shutdown', ['\Phoundation\Web\Route', 'shutdown']);
-        Core::registerShutdown('route_postprocess', ['\Phoundation\Web\Route', 'postProcess']);
+        Core::registerShutdown('core_shutdown', ['\Phoundation\Web\Routing\Route', 'shutdown']);
+        Core::registerShutdown('route_postprocess', ['\Phoundation\Web\Routing\Route', 'postProcess']);
     }
 
 
@@ -194,53 +189,17 @@ class Route
 
 
     /**
-     * After this call, all tries will use the specified template and server restrictions
+     * Returns the routing parameters list
      *
-     * @param string $template
-     * @param string|null $path
-     * @param Server|Restrictions|array|string|null $server_restrictions
+     * @return RoutingParametersList
      */
-    public static function setPageParameters(string $template, ?string $path = null, Server|Restrictions|array|string|null $server_restrictions = null): void
+    public static function parameters(): RoutingParametersList
     {
-        self::getInstance();
-
-        if (!is_subclass_of($template, 'Phoundation\Web\Http\Html\Template\Template')) {
-            throw new OutOfBoundsException(tr('Cannot construct new Route object: Specified template class ":class" is not a sub class of "Phoundation\Web\Http\Html\Template\Template"', [
-                ':class' => $template
-            ]));
+        if (!isset(self::$parameters)) {
+            self::$parameters = new RoutingParametersList();
         }
 
-        // Set what template and default server restrictions  we'll be using
-        self::$path                = PATH_WWW . LANGUAGE . '/pages/' . $path;
-        self::$template            = $template::new();
-        self::$server_restrictions = Core::ensureServer($server_restrictions, PATH_WWW, 'Route');
-    }
-
-
-
-    /**
-     * Set different templates for different site section
-     *
-     * @param string $template
-     * @param string|null $path
-     * @param string|null $pattern
-     * @param array|string|null $rights
-     * @return void
-     */
-    public static function addSystemPageParameters(string $template, ?string $path = null, ?string $pattern = null, array|string|null $rights = null): void
-    {
-        if (!is_subclass_of($template, 'Phoundation\Web\Http\Html\Template\Template')) {
-            throw new OutOfBoundsException(tr('Cannot set system template for pattern ":pattern": Specified template class ":class" is not a sub class of "Phoundation\Web\Http\Html\Template\Template"', [
-                ':pattern' => $pattern,
-                ':class'   => $template
-            ]));
-        }
-
-        self::$system_page_parameters[$pattern] = [
-            'path'     => $path,
-            'template' => $template,
-            'rights'   => Arrays::force($rights)
-        ];
+        return self::$parameters;
     }
 
 
@@ -312,7 +271,7 @@ class Route
      * @see Route::execute()
      * @see domain()
      * @see Route::map()
-     * @see Route::insertStatic()
+     * @see Route::makeStatic()
      * @see https://www.php.net/manual/en/function.preg-match.php
      * @see https://regularexpressions.info/ NOTE: The site currently has broken SSL, but is one of the best resources
      *      out there to learn regular expressions
@@ -379,6 +338,8 @@ class Route
     public static function try(string $url_regex, string $target, string $flags = ''): bool
     {
         static $count = 1;
+
+        self::getInstance();
 
         try {
             if (!$url_regex) {
@@ -550,7 +511,10 @@ class Route
                 foreach ($replacements[1] as $replacement) {
                     try {
                         if (!$replacement[0] or empty($matches[$replacement[0]])) {
-                            throw new RouteException(tr('Non existing regex replacement ":replacement" specified in route ":route"', [':replacement' => '$' . $replacement[0], ':route' => $route]));
+                            throw new RouteException(tr('Non existing regex replacement ":replacement" specified in route ":route"', [
+                                ':replacement' => '$' . $replacement[0],
+                                ':route' => $route
+                            ]));
                         }
 
                         $route = str_replace('$' . $replacement[0], $matches[$replacement[0]][0], $route);
@@ -810,7 +774,7 @@ class Route
 
             // Split the route into the page name and GET requests
             $page = Strings::until($route, '?');
-            $get  = Strings::from($route , '?', 0, true);
+            $get  = Strings::from ($route , '?', 0, true);
 
             // Translate the route?
             if (isset($core->register['Route::map']) and empty($disable_language)) {
@@ -883,11 +847,11 @@ class Route
                 ]));
             }
 
-            $page = PATH_WWW . Strings::startsNotWith($page, '/');
+            $page = Strings::startsNotWith($page, '/');
 
             if (!file_exists($page) and !$block) {
                 if (isset($dynamic_pagematch)) {
-                    Log::warning(tr('Dynamically matched page ":page" does not exist', [':page' => $page]));
+                    Log::warning(tr('Pattern matched page ":page" does not exist', [':page' => $page]));
                     $count++;
                     return false;
 
@@ -948,7 +912,7 @@ class Route
                     }
                 }
 
-                Route::insertStatic([
+                Route::makeStatic([
                     'expiredon' => $until,
                     'target'    => $target,
                     'regex'     => $url_regex,
@@ -968,19 +932,19 @@ class Route
         } catch (Exception $e) {
             if (str_starts_with($e->getMessage(), 'PHP ERROR [2] "preg_match_all():')) {
                 // A user defined regex failed, give pretty error
-                throw new RouteException(tr('Failed to process regex :count ":regex" with error ":e"', [
+                throw new RouteException(tr('Failed to process route pattern ":count" ":regex" with error ":e"', [
                     ':count' => $count,
                     ':regex' => $url_regex,
-                    ':e' => trim(Strings::cut($e->getMessage(), 'preg_match_all():', '" in'))
+                    ':e'     => trim(Strings::cut($e->getMessage(), 'preg_match_all():', '" in'))
                 ]));
             }
 
             if (str_starts_with($e->getMessage(), 'PHP ERROR [2] "preg_match():')) {
                 // A user defined regex failed, give pretty error
-                throw new RouteException(tr('Failed to process regex :count ":regex" with error ":e"', [
+                throw new RouteException(tr('Failed to process route pattern ":count" ":regex" with error ":e"', [
                     ':count' => $count,
                     ':regex' => $url_regex,
-                    ':e' => trim(Strings::cut($e->getMessage(), 'preg_match():', '" in'))
+                    ':e'     => trim(Strings::cut($e->getMessage(), 'preg_match():', '" in'))
                 ]));
             }
 
@@ -1103,14 +1067,16 @@ class Route
      * @param int|null $http_code
      * @return void
      *
-     * @see Route::add()
-     * @see Route::shutdown()
+     * @see Route::try()
+     * @see Route::execute()
      */
     #[NoReturn] public static function executeSystem(?int $http_code): void
     {
+        Log::warning(tr('Executing system page ":page"', [':page' => $http_code]));
+
         if (!$http_code) {
             $http_code = 500;
-        } elseif (($http_code < 0) or ($http_code > 1000)) {
+        } elseif (($http_code < 1) or ($http_code > 1000)) {
             throw new OutOfBoundsException(tr('Specified HTTP code ":code" is invalid', [':code' => $http_code]));
         }
 
@@ -1122,8 +1088,8 @@ class Route
             ]));
         }
 
-        self::selectSystemPageParameters($http_code);
-        RouteSystem::$method();
+        // Route the requested system page
+        RouteSystem::new(self::parameters()->select(self::$uri, true))->$method();
     }
 
 
@@ -1133,21 +1099,24 @@ class Route
      *
      * @param string $target
      * @param bool $attachment
+     * @param RoutingParameters|null $parameters
      * @return bool
      */
-    public static function execute(string $target, bool $attachment): bool
+    public static function execute(string $target, bool $attachment, ?RoutingParameters $parameters = null): bool
     {
-        // Set the server filesystem restrictions and template for this page
-        Page::setServerRestrictions(self::getServerRestrictions());
+        // Get routing parameters for this URI
+        if (!$parameters) {
+            $parameters = self::parameters()->select(self::$uri);
+        }
 
         // Find the correct target page
-        $target = Filesystem::absolute(Strings::unslash($target), self::$path);
+        $target = Filesystem::absolute($parameters->getRootPath() . Strings::unslash($target));
 
         if (str_ends_with($target, 'php')) {
             // Remove the 404 auto execution on shutdown
             // TODO route_postprocess() This should be a class method!
             Core::unregisterShutdown('route_postprocess');
-            $html = Page::execute($target, self::$template, $attachment);
+            $html = Page::execute($target, $parameters, $attachment);
 
             if ($attachment) {
                 // Send download headers and send the $html payload
@@ -1197,10 +1166,12 @@ class Route
 
 
     /**
-     * Insert a route
+     * Create a static route for the specified IP
      *
-     * @param $route
-     * @return void The result
+     * @param string $target
+     * @param string $ip
+     * @return StaticRoute
+     *
      * @throws Throwable
      * @package Web
      * @see Route::map()
@@ -1225,113 +1196,37 @@ class Route
      * /code
      *
      */
-    protected static function insertStatic($route): void
+    protected static function makeStatic(string $target, string $ip): StaticRoute
     {
-        $route = Route::validateStatic($route);
+        Log::notice(tr('Creating static route ":route" for IP ":ip"', [':route' => $target, ':ip' => $ip]));
 
-        Log::notice(tr('Storing routing rule ":rule" for IP ":ip"', [':rule' => $route['target'], ':ip' => $route['ip']]));
-
-        sql()->query(
-            'INSERT INTO `routes_static` (`expiredon`                                , `meta_id`, `ip`, `uri`, `regex`, `target`, `flags`)
-                   VALUES                      (DATE_ADD(NOW(), INTERVAL :expiredon SECOND), :meta_id , :ip , :uri , :regex , :target , :flags )',
-
-            [
-                ':expiredon' => $route['expiredon'],
-                ':meta_id'   => meta_action(),
-                ':ip'        => $route['ip'],
-                ':uri'       => $route['uri'],
-                ':regex'     => $route['regex'],
-                ':target'    => $route['target'],
-                ':flags'     => $route['flags']
-            ]);
+        $route = StaticRoute::new();
+        // TODO Implement
+        return $route;
     }
 
 
 
     /**
-     * Validate a route
+     * Block the specified IP
      *
-     * This function will validate all relevant fields in the specified $route array
-     *
-     * @param StaticRoute $route
-     * @return string HTML for a categories select box within the specified parameters
-     */
-    protected static function validateStatic(StaticRoute $route)
-    {
-//        Validator::array($route)
-//            ->select('uri')->isUrl('uri')
-//            ->select('fields')->sanitizeMakeString()->hasMaxCharacters(16)
-//            ->select('regex')->sanitizeMakeString(255)
-//            ->select('target')->sanitizeMakeString(255)
-//            ->select('ip')->isIp()
-//            ->validate();
-//
-//        return $route;
-    }
-
-
-
-    /**
-     * Returns the temp_server if available, default server otherwise
-     *
-     * @return Server
-     */
-    protected static function getServerRestrictions(): Server
-    {
-        return self::$server_restrictions;
-    }
-
-
-
-    /**
-     * Use one of the specified system templates to display a system page
-     *
-     * @param int $code
+     * @param string $ip
+     * @param int $until
+     * @param string $reason
      * @return void
      */
-    protected static function selectSystemPageParameters(int $code): void
+    protected static function block(string $ip, int $until, string $reason): void
     {
-        foreach (self::$system_page_parameters as $regex => $system_page_parameters) {
-            try {
-                if ($regex) {
-                    if (preg_match($regex, self::$uri)) {
-                        if (!Session::getUser()->hasAllRights($system_page_parameters['rights'])) {
-                            continue;
-                        }
+        if (!$until) {
 
-                        // Use this template
-                        Log::action(tr('Selected template ":template" and path ":path" to display system page ":code"', [
-                            ':code'     => $code,
-                            ':path'     => self::$path,
-                            ':template' => $system_page_parameters['template']
-                        ]));
-
-                        self::$path     = PATH_WWW . LANGUAGE . '/pages/' . $system_page_parameters['path'];
-                        self::$template = $system_page_parameters['template']::new();
-                    }
-                } else {
-                    // This is the default template
-                    self::$path     = PATH_WWW . LANGUAGE . '/pages/' . $system_page_parameters['path'];
-                    self::$template = $system_page_parameters['template']::new();
-
-                    Log::action(tr('Selected template ":template" and path ":path" to display system page ":code"', [
-                        ':code'     => $code,
-                        ':path'     => self::$path,
-                        ':template' => $system_page_parameters['template']
-                    ]));
-                }
-
-                return;
-            } catch (Exception $e) {
-                Log::warning(tr('Not selecting system template ":template" because the regex ":regex" failed with ":e". Ignoring template and skipping to next', [
-                    ':template' => $system_page_parameters['template'],
-                    ':e'        => $e,
-                    ':regex'    => $regex
-                ]));
-            }
         }
 
-        // No system template applied!
-        Log::warning(tr('Failed to select a template to display system page ":code"', [':code' => $code]));
+        Log::notice(tr('Blocking IP ":ip" until ":until" because ":reason"', [':until' => DateTime::new($until), ':ip' => $ip]));
+
+//        $route FirewallEntry = Firewall::block($ip);
+//        // TODO Implement
+//
+//        return FirewallEntry;
+//        return $route;
     }
 }
