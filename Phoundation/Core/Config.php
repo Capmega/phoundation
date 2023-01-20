@@ -688,7 +688,7 @@ die();
             ],
             'debug' => [
                 'enabled' => (self::$environment !== 'production'),
-                'production' => (self::$environment !== 'production')
+                'production' => (self::$environment === 'production')
             ],
             'project' => [
                 'name' => $configuration->getProject(),
