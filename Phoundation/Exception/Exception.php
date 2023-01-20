@@ -81,6 +81,20 @@ class Exception extends RuntimeException
 
 
     /**
+     * Returns this exception object as a string
+     *
+     * @note Some (important!) information may be dropped, like the exception data
+     * @return string
+     */
+    public function __toString(): string
+    {
+        parent::__toString();
+        return '[ ' . ($this->warning ? 'WARNING ' : '') . $this->getCode() . ' ] ' . $this->getMessage();
+    }
+
+
+
+    /**
      * Returns a new exception object
      *
      * @param string|array $messages
