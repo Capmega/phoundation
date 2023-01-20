@@ -255,11 +255,11 @@ class Domains {
      * @param string $domain
      * @param string $type
      * @param string|null $language
-     * @return mixed
+     * @return string
      * @throws ConfigNotExistsException If the specified domain does not exist
      */
 
-    public static function getBaseUrl(string $domain, #[ExpectedValues('www', 'cdn')] string $type = 'www', ?string $language = null): mixed
+    public static function getRootUrl(string $domain, #[ExpectedValues('www', 'cdn')] string $type = 'www', ?string $language = null): string
     {
         try {
             $language = $language ?? Session::getLanguage();
@@ -267,7 +267,7 @@ class Domains {
             return str_replace(':LANGUAGE', $language, $url);
 
         } catch (ConfigNotExistsException) {
-            throw new ConfigNotExistsException(tr('Cannot get root URI for domain ":domain", there is no configuration for that domain', [
+            throw new ConfigNotExistsException(tr('Cannot get root URL for domain ":domain", there is no configuration for that domain', [
                 ':domain' => $domain
             ]));
         }
