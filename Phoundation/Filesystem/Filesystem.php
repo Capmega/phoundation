@@ -225,6 +225,8 @@ class Filesystem
             $return = $path;
         } else {
             // This is not an absolute path, make it an absolute path
+            $prefix = trim((string) $prefix);
+
             if (!$prefix) {
                 $prefix = PATH_ROOT;
             } else {
