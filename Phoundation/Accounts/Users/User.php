@@ -1956,7 +1956,7 @@ class User extends DataEntry
     }
 
 
-
+    
     /**
      * Save the user to database
      *

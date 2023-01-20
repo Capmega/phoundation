@@ -722,6 +722,30 @@ abstract class DataEntry
 
 
     /**
+     * Modify the form keys
+     *
+     * @param string $form_key
+     * @param array $settings
+     * @return static
+     */
+    public function modifyKeys(string $form_key, array $settings): static
+    {
+        if (!array_key_exists($form_key, $this->keys)) {
+            throw new OutOfBoundsException(tr('Specified form key ":key" does not exist', [
+                ':key' => $form_key
+            ]));
+        }
+
+        foreach ($settings as $key => $value) {
+            $this->keys[$form_key][$key] = $value;
+        }
+
+        return $this;
+    }
+
+
+
+    /**
      * Will set the available data keys for this data entry
      *
      * @return void

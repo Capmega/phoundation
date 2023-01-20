@@ -35,8 +35,6 @@ if (Page::isRequestMethod('POST')) {
             ->select('phones')->isOptional()->sanitizeForceArray(',')->each()->isPhone()->sanitizeForceString()
             ->select('address')->isOptional()->isPrintable()
             ->select('priority')->isOptional()->isNatural()->isBetween(1, 10)
-            ->select('is_leader')->isOptional()->isBoolean()
-            ->select('leaders_id')->isOptional()->isId()
             ->select('latitude')->isOptional()->isLatitude()
             ->select('longitude')->isOptional()->isLongitude()
             ->select('accuracy')->isOptional()->isFloat()->isBetween(0, 10)
@@ -48,7 +46,6 @@ if (Page::isRequestMethod('POST')) {
             ->select('gender')->isOptional()->inArray(['unknown', 'male', 'female', 'other'])
             ->select('birthday')->isOptional()->isDate()
             ->select('description')->isOptional()->isPrintable()->hasMaxCharacters(65_530)
-            ->select('comments')->isOptional()->isPrintable()->hasMaxCharacters(16_777_200)
             ->select('website')->isOptional()->isUrl()
             ->select('timezone')->isOptional()->isTimezone()
         ->validate();
@@ -78,6 +75,14 @@ if (Page::isRequestMethod('POST')) {
 $buttons = Buttons::new()
     ->addButton('Submit')
     ->addButton('Cancel', 'secondary', '/accounts/users.html', true);
+
+
+
+// Alter the default user form
+$user
+    ->modifyKeys('comments'  , ['display'  => false])
+    ->modifyKeys('is_leader' , ['disabled' => true])
+    ->modifyKeys('leaders_id', ['disabled' => true]);
 
 
 
