@@ -36,8 +36,9 @@ use Phoundation\Web\Http\Html\Template\Template;
 use Phoundation\Web\Http\Html\Template\TemplatePage;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Routing\Route;
+use Phoundation\Web\Routing\RoutingParameters;
 use Throwable;
-
 
 
 /**
@@ -249,6 +250,13 @@ class Page
      */
     protected static bool $build_body = true;
 
+    /**
+     * Contains the routing parameters like root url, template, etc
+     *
+     * @var RoutingParameters $parameters
+     */
+    protected static RoutingParameters $parameters;
+
 
 
     /**
@@ -296,12 +304,52 @@ class Page
      * Sets the current tab index and automatically increments it
      *
      * @param Server $server_restrictions
-     * @return static
+     * @return void
      */
-    public static function setServerRestrictions(Server $server_restrictions): static
+    public static function setServerRestrictions(Server $server_restrictions): void
     {
         self::$server_restrictions = $server_restrictions;
-        return self::getInstance();
+    }
+
+
+
+    /**
+     * Returns page parameters specified by the router
+     *
+     * @return RoutingParameters
+     */
+    public static function getRoutingParameters(): RoutingParameters
+    {
+        return self::$parameters;
+    }
+
+
+
+    /**
+     * Sets page parameters specified by the router
+     *
+     * @param RoutingParameters $parameters
+     * @return void
+     */
+    protected static function setRoutingParameters(RoutingParameters $parameters): void
+    {
+        self::$parameters = $parameters;
+
+        // Set the server filesystem restrictions and template for this page
+        Page::setServerRestrictions($parameters->getServerRestrictions());
+
+        // Initialize the template
+        if (!$parameters->getTemplate()) {
+            if (!self::$template_page) {
+                throw new OutOfBoundsException(tr('Cannot use routing parameters ":pattern", it has no template set', [
+                    ':pattern' => $parameters->getPattern()
+                ]));
+            }
+        } else {
+            // Get a new template page from the specified template
+            self::$template      = $parameters->getTemplateObject();
+            self::$template_page = self::$template->getPage();
+        }
     }
 
 
@@ -451,7 +499,7 @@ class Page
             $domain = self::getDomain();
         }
 
-        return Domains::getBaseUrl($domain);
+        return Domains::getRootUrl($domain);
     }
 
 
@@ -485,12 +533,11 @@ class Page
      * Sets the bread crumbs for this page
      *
      * @param BreadCrumbs|null $bread_crumbs
-     * @return static
+     * @return void
      */
-    public static function setBreadCrumbs(?BreadCrumbs $bread_crumbs = null): static
+    public static function setBreadCrumbs(?BreadCrumbs $bread_crumbs = null): void
     {
         self::$bread_crumbs = $bread_crumbs;
-        return self::getInstance();
     }
 
 
@@ -613,15 +660,14 @@ class Page
      * Sets the status code that will be sent to the client
      *
      * @param int $code
-     * @return static
+     * @return void
      */
-    public static function setHttpCode(int $code): static
+    public static function setHttpCode(int $code): void
     {
         // Validate status code
         // TODO implement
 
         self::$http_code = $code;
-        return self::getInstance();
     }
 
 
@@ -642,15 +688,14 @@ class Page
      * Sets the mimetype / content type
      *
      * @param string $content_type
-     * @return static
+     * @return void
      */
-    public static function setContentType(string $content_type): static
+    public static function setContentType(string $content_type): void
     {
         // Validate status code
         // TODO implement
 
         self::$content_type = $content_type;
-        return self::getInstance();
     }
 
 
@@ -704,12 +749,11 @@ class Page
      * Sets the current tab index and automatically increments it
      *
      * @param string $doctype
-     * @return static
+     * @return void
      */
-    public static function setDoctype(string $doctype): static
+    public static function setDoctype(string $doctype): void
     {
         self::$doctype = $doctype;
-        return self::getInstance();
     }
 
 
@@ -730,12 +774,11 @@ class Page
      * Sets the browser page title
      *
      * @param string $page_title
-     * @return static
+     * @return void
      */
-    public static function setPageTitle(string $page_title): static
+    public static function setPageTitle(string $page_title): void
     {
         self::$page_title = strip_tags($page_title);
-        return self::getInstance();
     }
 
 
@@ -756,12 +799,11 @@ class Page
      * Sets the browser page description
      *
      * @param string|null $description
-     * @return static
+     * @return void
      */
-    public static function setDescription(?string $description): static
+    public static function setDescription(?string $description): void
     {
         self::$description = strip_tags($description);
-        return self::getInstance();
     }
 
 
@@ -782,17 +824,15 @@ class Page
      * Sets the page header title
      *
      * @param string|null $header_title
-     * @return static
+     * @return void
      */
-    public static function setHeaderTitle(?string $header_title): static
+    public static function setHeaderTitle(?string $header_title): void
     {
         self::$header_title = $header_title;
 
         if (!self::$page_title) {
             self::$page_title = Config::get('project.name', 'Phoundation') . $header_title;
         }
-
-        return self::getInstance();
     }
 
 
@@ -813,12 +853,11 @@ class Page
      * Sets the page header subtitle
      *
      * @param string|null $header_sub_title
-     * @return static
+     * @return void
      */
-    public static function setHeaderSubTitle(?string $header_sub_title): static
+    public static function setHeaderSubTitle(?string $header_sub_title): void
     {
         self::$header_sub_title = $header_sub_title;
-        return self::getInstance();
     }
 
 
@@ -839,12 +878,11 @@ class Page
      * Sets the page charset
      *
      * @param string|null $charset
-     * @return static
+     * @return void
      */
-    public static function setCharset(?string $charset): static
+    public static function setCharset(?string $charset): void
     {
         self::$headers['meta']['charset'] = $charset;
-        return self::getInstance();
     }
 
 
@@ -865,34 +903,38 @@ class Page
      * Sets the page viewport
      *
      * @param string|null $viewport
-     * @return static
+     * @return void
      */
-    public static function setViewport(?string $viewport): static
+    public static function setViewport(?string $viewport): void
     {
         self::$headers['meta']['viewport'] = $viewport;
-        return self::getInstance();
     }
 
 
 
     /**
-     * Process the routed target
+     * Executes the target specified by Route::execute()
      *
-     * We have a target for the requested route. If the resource is a PHP page, then
-     * execute it. Anything else, send it directly to the client
+     * We have a target for the requested route. If the resource is a PHP page, then execute it. Anything else, send it
+     * directly to the client
      *
-     * @see Route::execute()
-     * @see Templateself::execute()
+     * @note Since this method required a RoutingParameters object do NOT execute this directly to execute a page, use
+     * Route::execute() instead!
      *
      * @param string $target The target file that should be executed or sent to the client
-     * @param Template|null $template
+     * @param RoutingParameters $parameters
      * @param boolean $attachment If specified as true, will send the file as a downloadable attachment, to be written
      *                            to disk instead of displayed on the browser. If set to false, the file will be sent as
      *                            a file to be displayed in the browser itself.
      * @return string|null
+     *
+     * @see Route::execute()
+     * @see Template::execute()
      */
-    public static function execute(string $target, ?Template $template = null, bool $attachment = false): ?string
+    public static function execute(string $target, RoutingParameters $parameters, bool $attachment = false): ?string
     {
+        self::setRoutingParameters($parameters);
+
         try {
             if (Strings::fromReverse(dirname($target), '/') === 'system') {
                 // Wait a small random time to avoid timing attacks on system pages
@@ -921,6 +963,7 @@ class Page
                     Log::warning(tr('Failed to send full cache page ":page" with following exception, ignoring cache and building page', [
                         ':page' => self::$hash,
                     ]));
+
                     Log::exception($e);
                 }
             }
@@ -928,26 +971,13 @@ class Page
             Core::writeRegister($target, 'system', 'script_file');
             ob_start();
 
-            // Initialize the template
-            if (!$template) {
-                if (!self::$template_page) {
-                    throw new OutOfBoundsException(tr('Cannot execute page ":target", no Template specified or available', [
-                        ':target' => $target
-                    ]));
-                }
-            } else {
-                // Get a new template page from the specified template
-                self::$template      = $template;
-                self::$template_page = $template->getPage();
-            }
-
             // Execute the specified target
             try {
                 // Execute the file and send the output HTML as a web page
                 Log::information(tr('Executing ":call" type page ":target" with template ":template" in language ":language" and sending output as HTML web page', [
                     ':call'     => Core::getRequestType(),
                     ':target'   => Strings::from($target, PATH_ROOT),
-                    ':template' => $template->getName(),
+                    ':template' => self::$template->getName(),
                     ':language' => LANGUAGE
                 ]));
 
@@ -971,16 +1001,10 @@ class Page
                     ':new'    => $new_target
                 ]));
 
-                switch (Core::getRequestType()) {
-                    case 'api':
-                        // no-break
-                    case 'ajax':
-                        $output = self::$api_interface->execute($new_target);
-                        break;
-
-                    default:
-                        $output = self::$template_page->execute($new_target);
-                };
+                $output = match (Core::getRequestType()) {
+                    'api', 'ajax' => self::$api_interface->execute($new_target),
+                    default       => self::$template_page->execute($new_target),
+                };;
             }
 
             // TODO Work on the HTTP headers, lots of issues here still, like content-length!
@@ -1346,9 +1370,9 @@ class Page
      * Set the favicon for this page
      *
      * @param string $url
-     * @return static
+     * @return void
      */
-    public static function setFavIcon(string $url): static
+    public static function setFavIcon(string $url): void
     {
         try {
             self::$headers['link'][$url] = [
@@ -1359,8 +1383,6 @@ class Page
         } catch (FilesystemException $e) {
             Log::warning($e->makeWarning());
         }
-
-        return self::getInstance();
     }
 
 
@@ -1370,9 +1392,9 @@ class Page
      *
      * @param string|array $urls
      * @param bool|null $header
-     * @return static
+     * @return void
      */
-    public static function loadJavascript(string|array $urls, ?bool $header = null): static
+    public static function loadJavascript(string|array $urls, ?bool $header = null): void
     {
         if ($header === null) {
             $header = !Config::getBoolean('web.javascript.delay', true);
@@ -1398,8 +1420,6 @@ class Page
                 ];
             }
         }
-
-        return self::getInstance();
     }
 
 
@@ -1408,9 +1428,9 @@ class Page
      * Load the specified CSS file(s)
      *
      * @param string|array $urls
-     * @return static
+     * @return void
      */
-    public static function loadCss(string|array $urls): static
+    public static function loadCss(string|array $urls): void
     {
         foreach (Arrays::force($urls, '') as $url) {
             self::$headers['link'][$url] = [
@@ -1418,8 +1438,6 @@ class Page
                 'href' => UrlBuilder::css($url),
             ];
         }
-
-        return self::getInstance();
     }
 
 
