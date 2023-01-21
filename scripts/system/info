@@ -1,7 +1,7 @@
 #!/usr/bin/php
 <?php
 use Phoundation\Cli\Color;
-use Phoundation\Cli\Script;
+use Phoundation\Cli\Documentation;
 use Phoundation\Core\Config;
 use Phoundation\Core\Log;
 use Phoundation\Core\Numbers;
@@ -22,9 +22,8 @@ use Phoundation\System\Libraries;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-$usage = './cli system info';
-
-$help  = 'The info script will show detailed information about the current framework, project, database and more';
+Documentation::setUsage('./cli system info');
+Documentation::setHelp('The info script will show detailed information about the current framework, project, database and more');
 
 ArgvValidator::new()->noArgumentsLeft();
 
@@ -37,6 +36,7 @@ try {
     }
 
     $no_db = true;
+
     define('FRAMEWORKDBVERSION', tr('database ":db" does not exist', [':db' => Config::get('databases.system.name')]));
     define('PROJECTDBVERSION'  , tr('database ":db" does not exist', [':db' => Config::get('databases.system.name')]));
 }
@@ -58,7 +58,7 @@ Log::cli(Color::apply(Strings::size(tr('Core database:'), 28), 'white') . ' ' . 
 Log::cli();
 Log::cli(Color::apply(Strings::size(tr('System libraries:'), 28) . ' ' . Strings::size(tr('Code version'), 14) . Strings::size(tr('Database version'), 18) . Strings::size(tr('Size'), 14), 'white'));
 
-foreach (Libraries::listLibraries(true, false) as $library) {
+foreach (Libraries::listLibraries(true, false, false) as $library) {
     $system_size += $library->getSize();
     Log::cli(Color::apply(Strings::size($library->getName(), 28), 'white') . ' ' . Strings::size($library->getCodeVersion() ?? '-', 14) . Strings::size($library->getDatabaseVersion() ?? '-', 18) . Strings::size(Numbers::getHumanReadableBytes($library->getSize()) ?? '-', 14));
 }
@@ -66,7 +66,7 @@ foreach (Libraries::listLibraries(true, false) as $library) {
 Log::cli();
 Log::cli(Color::apply(Strings::size(tr('Plugin libraries:'), 28) . ' ' . Strings::size(tr('Code version'), 14) . Strings::size(tr('Database version'), 18) . Strings::size(tr('Size'), 14), 'white'));
 
-foreach (Libraries::listLibraries(false) as $library) {
+foreach (Libraries::listLibraries(false, true, false) as $library) {
     $plugins_size += $library->getSize();
     Log::cli(Color::apply(Strings::size($library->getName(), 28) . ' ' . Strings::size($library->getCodeVersion() ?? '-', 14) . Strings::size($library->getDatabaseVersion() ?? '-', 18) . Strings::size(Numbers::getHumanReadableBytes($library->getSize()) ?? '-', 14), 'white'));
 }
