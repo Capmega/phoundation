@@ -1,10 +1,10 @@
 <?php
 
-namespace Phoundation\Security;
+namespace Phoundation\Security\Incidents;
 
 use Phoundation\Core\Log;
 use Phoundation\Data\DataEntry;
-
+use Phoundation\Utils\Json;
 
 
 /**
@@ -146,26 +146,26 @@ class Incident extends DataEntry
 
 
     /**
-     * Returns the description for this object
+     * Returns the details for this object
      *
      * @return string|null
      */
-    public function getDescription(): ?string
+    public function getDetails(): ?string
     {
-        return $this->getDataValue('description');
+        return Json::decode($this->getDataValue('details'));
     }
 
 
 
     /**
-     * Sets the description for this object
+     * Sets the details for this object
      *
-     * @param string|null $description
+     * @param array|null $details
      * @return static
      */
-    public function setDescription(?string $description): static
+    public function setDetails(?array $details): static
     {
-        return $this->setDataValue('description', $description);
+        return $this->setDataValue('details', Json::encode($details));
     }
 
 
@@ -253,22 +253,22 @@ class Incident extends DataEntry
                 'type'     => 'numeric',
                 'label'    => tr('Title')
             ],
-            'description' => [
+            'details' => [
                 'element'  => 'text',
-                'label'    => tr('Description'),
+                'label'    => tr('Details'),
             ]
         ];
 
         $this->form_keys = [
-            'id'          => 12,
-            'created_by'  => 6,
-            'created_on'  => 6,
-            'meta_id'     => 6,
-            'status'      => 6,
-            'type'        => 6,
-            'severity'    => 6,
-            'title'       => 12,
-            'description' => 12,
+            'id'         => 12,
+            'created_by' => 6,
+            'created_on' => 6,
+            'meta_id'    => 6,
+            'status'     => 6,
+            'type'       => 6,
+            'severity'   => 6,
+            'title'      => 12,
+            'details'    => 12,
         ] ;
     }
 }

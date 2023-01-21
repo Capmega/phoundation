@@ -1,9 +1,8 @@
 <?php
 
-namespace Phoundation\Security;
+namespace Phoundation\Security\Incidents;
 
 use Phoundation\Data\DataList;
-
 
 
 /**
@@ -25,7 +24,7 @@ class Incidents extends DataList
     public function __construct()
     {
         $this->entry_class = Incident::class;
-        $this->setHtmlQuery('SELECT `id`, `type`, `severity`, `titl` FROM `security_incidents`');
+        $this->setHtmlQuery('SELECT `id`, `type`, `severity`, `title` FROM `security_incidents` ORDER BY `created_on` DESC');
         parent::__construct(null, null);
     }
 

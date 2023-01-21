@@ -57,10 +57,18 @@ class Updates extends \Phoundation\System\Updates
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `meta_id` int DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
-                    `type` varchar(16) NOT NULL,
+                    `type` varchar(64) NOT NULL,
                     `severity` ENUM("notice", "low", "medium", "high", "severe") NOT NULL,
                     `title` VARCHAR(255) NOT NULL,
                     `details` TEXT NULL,
+                ')
+                ->setIndices('                
+                    PRIMARY KEY (`id`),
+                    KEY `type` (`type`),
+                    KEY `severity` (`severity`)
+                ')
+                ->setForeignKeys('
+                    CONSTRAINT `fk_security_incidents_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                 ')
                 ->create();
         });

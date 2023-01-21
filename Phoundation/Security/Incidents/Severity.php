@@ -1,6 +1,6 @@
 <?php
 
-namespace Phoundation\Security;
+namespace Phoundation\Security\Incidents;
 
 
 
@@ -17,8 +17,8 @@ namespace Phoundation\Security;
 enum Severity: string
 {
     case notice = 'notice';
-    case low = 'low';
+    case low    = 'low';
     case medium = 'medium';
-    case high = 'high';
+    case high   = 'high';
     case severe = 'severe';
 }
