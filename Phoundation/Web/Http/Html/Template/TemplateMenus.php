@@ -80,11 +80,15 @@ class TemplateMenus
                 'icon' => 'fa-lock',
                 'menu' => [
                     tr('Authentications log') => [
-                        'url'  => '/security/log/authentications.html',
+                        'url'  => '/security/authentications.html',
+                        'icon' => 'fa-key'
+                    ],
+                    tr('Incidents log') => [
+                        'url'  => '/security/incidents.html',
                         'icon' => 'fa-key'
                     ],
                     tr('Activity log') => [
-                        'url'  => '/security/log/activity',
+                        'url'  => '/security/activity',
                         'icon' => 'fa-tasks'
                     ]
                 ],
