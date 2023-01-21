@@ -25,6 +25,6 @@ class GuestUser extends User
     {
         parent::__construct(null);
         $this->id = 0;
-        $this->setName('Guest');
+        $this->setNickname('Guest');
     }
 }
