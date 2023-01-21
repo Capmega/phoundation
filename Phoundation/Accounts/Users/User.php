@@ -1650,6 +1650,23 @@ class User extends DataEntry
 
 
     /**
+     * Returns an array of what rights this user misses
+     *
+     * @param array|string $rights
+     * @return array
+     */
+    public function getMissingRights(array|string $rights): array
+    {
+        if (!$rights) {
+            return [];
+        }
+
+        return $this->rights()->missesKeys($rights, true, 'god');
+    }
+
+
+
+    /**
      * Returns true if the user has SOME of the specified rights
      *
      * @param array|string $rights
@@ -1956,7 +1973,7 @@ class User extends DataEntry
     }
 
 
-    
+
     /**
      * Save the user to database
      *
