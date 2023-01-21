@@ -9,7 +9,7 @@ use Phoundation\Web\Page;
 echo Template::page('admin/system/detail-error')->render([
     ':h2'     => '503',
     ':h3'     => tr('503 Service Unavailable'),
-    ':p'      => tr('The server is under maintenance and will return momentarily. Please contact the system administrator for more information. Meanwhile, you may <a href=":url">return to dashboard</a> or try using the search form.', [
+    ':p'      => tr('The server is under maintenance and will return momentarily. Please contact the system administrator for more information', [
         ':url' => Page::getReferer(true)
     ]),
     ':type'   => 'warning',
@@ -20,6 +20,7 @@ echo Template::page('admin/system/detail-error')->render([
 
 
 // Set page meta data
+Page::setBuildBody(false);
 Page::setPageTitle('503 - Service Unavailable');
 Page::setHeaderTitle(tr('503 - Error'));
 Page::setDescription(tr('The server is under maintenance and will return momentarily'));
