@@ -27,7 +27,7 @@ use Phoundation\Web\Http\Html\Components\Table;
 class Users extends DataList
 {
     /**
-     * DataList class constructor
+     * Users class constructor
      *
      * @param Role|User|null $parent
      * @param string|null $id_column
