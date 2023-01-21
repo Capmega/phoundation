@@ -37,7 +37,7 @@ trait DataEntryNameDescription
      */
     public function getName(): ?string
     {
-        return $this->getDataValue('first_names') . ' ' . $this->getDataValue('last_names');
+        return $this->getDataValue('name');
     }
 
 

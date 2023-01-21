@@ -19,11 +19,13 @@ use Phoundation\Data\DataEntry;
 use Phoundation\Data\DataEntryNameDescription;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Date\DateTime;
+use Phoundation\Exception\NotSupportedException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Geo\City;
 use Phoundation\Geo\Country;
 use Phoundation\Geo\State;
 use Phoundation\Geo\Timezone;
+use Phoundation\Seo\Seo;
 use Phoundation\Web\Http\Html\Components\Form;
 use Phoundation\Web\Http\UrlBuilder;
 
@@ -247,6 +249,31 @@ class User extends DataEntry
     public function setNickname(?string $nickname): static
     {
         return $this->setDataValue('nickname', $nickname);
+    }
+
+
+
+    /**
+     * Returns the name for this user
+     *
+     * @return string|null
+     */
+    public function getName(): ?string
+    {
+        return trim($this->getDataValue('first_names') . ' ' . $this->getDataValue('last_names'));
+    }
+
+
+
+    /**
+     * Sets the name for this user
+     *
+     * @param string|null $name
+     * @return static
+     */
+    public function setName(?string $name): static
+    {
+        throw new NotSupportedException(tr('The Accounts\User class does not support the User::setName() method. Please use User::setFirstNames() and User::setLastNames() instead'));
     }
 
 
