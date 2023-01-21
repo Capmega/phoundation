@@ -66,22 +66,22 @@ if (!Project::exists()) {
 
     Project::remove();
     $create = true;
+} else {
+    Project::load();
 }
+
+
+
+// Get setup variables
+$config = [];
 
 if (isset($create)) {
-    Project::create(Cli::readInput('Please specify the project name:', 'Phoundation'));
+    $config['project'] = Cli::readInput('Please specify the project name:', 'Phoundation');
+} else {
+    $config['project'] = Project::getName();
 }
 
-
-
-// Validate environment
-// Load the project
-Project::setEnvironment(Cli::readInput('Please specify the environment you wish to set up:', 'local'));
-
-
-
-// Get configuration parameters
-$config = [];
+$config['environment']    = Cli::readInput('Please specify the environment you wish to set up:', 'local');
 $config['domain']         = Cli::readInput('Please specify the project domain name:', 'localhost');
 $config['database_host']  = Cli::readInput('Please specify the core database host:', 'localhost');
 $config['database_name']  = Cli::readInput('Please specify the core database name:', 'phoundation');
@@ -94,8 +94,17 @@ $config['admin_pass2']    = Cli::readPassword('Please repeat the administrator p
 
 
 
-// Validate configuration parameters
+// Validate setup parameters
 Project::validate(ArrayValidator::new($config));
+
+
+
+// Create the project and set the environment
+if (isset($create)) {
+    Project::create($config['project']);
+}
+
+Project::setEnvironment($config['environment']);
 
 
 
