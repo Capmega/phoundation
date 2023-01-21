@@ -10,6 +10,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\System\Environment\Exception\EnvironmentExists;
+use Throwable;
 
 
 
@@ -35,9 +36,9 @@ class Project
     /**
      * The local environment for this project
      *
-     * @var Environment $environment
+     * @var Environment|null $environment
      */
-    protected static Environment $environment;
+    protected static ?Environment $environment = null;
 
 
 
@@ -101,11 +102,11 @@ class Project
 
 
     /**
-     * Returns the configuration for this project
+     * Returns the selected environment for this project
      *
-     * @return Environment
+     * @return Environment|null
      */
-    public static function getEnvironment(): Environment
+    public static function getEnvironment(): ?Environment
     {
         return self::$environment;
     }
@@ -120,7 +121,7 @@ class Project
     public static function getEnvironments(): array
     {
         $return = [];
-        $files  = scandir(PATH_ROOT . '/config/*.yaml');
+        $files  = glob(PATH_ROOT . 'config/*.yaml');
 
         foreach ($files as $file)
         {
@@ -129,7 +130,7 @@ class Project
                 continue;
             }
 
-            $return[] = Strings::fromReverse($file, '/');
+            $return[] = Strings::untilReverse(basename($file), '.');
         }
 
         return $return;
@@ -153,6 +154,7 @@ class Project
         }
 
         // Remove the project file
+        Log::warning(tr('Removing project file "config/project"'));
         File::new(PATH_ROOT . 'config/project', Restrictions::new(PATH_ROOT . 'config/project', true))->delete();
     }
 
@@ -165,32 +167,44 @@ class Project
      */
     public static function setup(): void
     {
-        if (!isset(self::$environment)) {
-            throw new OutOfBoundsException(tr('No environment specified'));
-        }
-
-        $configuration = self::$environment->getConfiguration();
-
-        Log::information(tr('Initializing project ":project", this can take a little while...', [
-            ':project' => self::$name
-        ]));
-
         // Setup environment
-        self::getEnvironment()->setup();
+        try {
+            if (!isset(self::$environment)) {
+                throw new OutOfBoundsException(tr('No environment specified'));
+            }
 
-        // Create admin user
-        Log::action(tr('Creating administrative user ":email", almost done...', [
-            ':email' => $configuration->getEmail()
-        ]));
+            $configuration = self::$environment->getConfiguration();
 
-        $user = User::new()
-            ->setEmail($configuration->getEmail())
-            ->save();
+            Log::information(tr('Initializing project ":project", this can take a little while...', [
+                ':project' => self::$name
+            ]));
 
-        $user->setPassword($configuration->getPassword(), $configuration->getPassword());
-        $user->roles()->add('god');
+            self::getEnvironment()->setup();
 
-        Log::success(tr('Finished project setup'));
+            // Create admin user
+            Log::action(tr('Creating administrative user ":email", almost done...', [
+                ':email' => $configuration->getEmail()
+            ]));
+
+            $user = User::new()
+                ->setEmail($configuration->getEmail())
+                ->save();
+
+            $user->setPassword($configuration->getPassword(), $configuration->getPassword());
+            $user->roles()->add('god');
+
+            Log::success(tr('Finished project setup'));
+
+        } catch (Throwable $e) {
+            Log::warning('Setup failed with the following exception. Cancelling setup process and removing files.');
+            Log::warning($e);
+
+            // Remove the project and continue throwing the exception
+            Project::remove();
+
+            Log::warning(tr('Setup process was cancelled'));
+            throw $e;
+        }
     }
 
 
@@ -304,8 +318,17 @@ class Project
             return false;
         }
 
+        Log::warning(tr('Removing environment ":environment"', [
+            ':environment' => $environment
+        ]));
+
+        // If we're removing the environment that is currently used then remove it from memory too
+        if (self::$environment->getName() === $environment) {
+            self::$environment = null;
+        }
+
         // Get the environment and remove all environment specific data
-        return Environment::get($environment)->remove();
+        return Environment::get(self::$name, $environment)->remove();
     }
 
 }

@@ -32,6 +32,13 @@ class Environment
     protected string $name;
 
     /**
+     * The project name
+     *
+     * @var string $project
+     */
+    protected string $project;
+
+    /**
      * The core configuration for this environment
      *
      * @var Configuration $config
@@ -48,8 +55,9 @@ class Environment
      */
     protected function __construct(string $project, string $environment)
     {
-        $this->name   = self::sanitize($environment);
-        $this->config = new Configuration($project);
+        $this->name    = self::sanitize($environment);
+        $this->project = $project;
+        $this->config  = new Configuration($project);
     }
 
 
@@ -92,6 +100,18 @@ class Environment
         }
 
         return new Environment($project, $environment);
+    }
+
+
+
+    /**
+     * Returns the name for this environment
+     *
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->name;
     }
 
 
@@ -191,9 +211,14 @@ class Environment
             ]));
         }
 
-        // Stop using this environment and delete the environment configuration file
+        // Stop using this environment, if it was used
+        if (Config::getEnvironment() === $this->name) {
+            Config::setEnvironment('');
+        }
+
+        // delete the environment configuration file
         File::new(self::getConfigurationFile($this->name), Restrictions::new(PATH_ROOT . 'config/', true))->delete();
-        Config::setEnvironment('');
+
         return true;
     }
 
@@ -211,9 +236,17 @@ class Environment
                 ':env' => strtolower($this->name)
             ]));
 
+            // Create production configuration
+            if ($this->name !== 'production') {
+                Config::setEnvironment('production');
+                Config::import($this->getConfiguration());
+                Config::save();
+            }
+
             Config::setEnvironment($this->name);
             Config::import($this->getConfiguration());
             Config::save();
+
         } catch (Throwable $e) {
             if (str_contains($e->getMessage(), 'must not be accessed before initialization')) {
                 throw new EnvironmentException(tr('Failed to generate new environment configuration because not all setup parameters were copied into the project environment configuration. Please check your setup script.'));
@@ -225,7 +258,7 @@ class Environment
         }
 
         Log::action(tr('Ensuring system database is gone'));
-        sql()->drop();
+        sql(null, false)->drop();
 
         Log::action(tr('Initializing system...'));
         Libraries::initialize(true, true, true, 'System setup');
