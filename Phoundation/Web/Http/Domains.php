@@ -218,7 +218,7 @@ class Domains {
 
         // Validate configuration
         try {
-            Arrays::requiredKeys($domain_config, 'domain,www,cdn', ConfigNotExistsException::class);
+            Arrays::requiredKeys($domain_config, 'www,cdn', ConfigNotExistsException::class);
             Arrays::default($domain_config, 'index'  , '/');
             Arrays::default($domain_config, 'cloaked', false);
         } catch (ConfigNotExistsException $e) {
