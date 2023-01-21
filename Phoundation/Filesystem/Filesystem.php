@@ -23,6 +23,8 @@ use Throwable;
  */
 class Filesystem
 {
+    const DIRECTORY_SEPARATOR = '/';
+
     /**
      * Ensures that the object file name is valid
      *
