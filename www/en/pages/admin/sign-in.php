@@ -1,5 +1,6 @@
 <?php
 
+use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Core\Session;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
@@ -15,9 +16,13 @@ if (!Session::getUser()->isGuest()) {
 
 // Validate sign in data and sign in
 if (Page::isRequestMethod('post')) {
-    Session::validateSignIn();
-    Session::signIn($_POST['email'], $_POST['password']);
-    Page::redirect('/');
+    try {
+        Session::validateSignIn();
+        Session::signIn($_POST['email'], $_POST['password']);
+        Page::redirect('/');
+    } catch (AuthenticationException) {
+        Page::getFlashMessages()->add(tr('Access denied'), tr('The specified email or password was incorrect'), 'warning');
+    }
 }
 
 
