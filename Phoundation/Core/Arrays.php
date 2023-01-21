@@ -456,10 +456,10 @@ class Arrays {
      * Filter the specified values out of the source array
      *
      * @param array $source
-     * @param array $values
+     * @param array|string $values
      * @return array
      */
-    public static function filterValues(array $source, array $values): array
+    public static function filterValues(array $source, array|string $values): array
     {
         foreach (Arrays::force($values) as $value) {
             if (($key = array_search($value, $source)) !== false) {
