@@ -10,6 +10,11 @@ use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
 
 
 
+// Check access
+Page::hasRightsOrRedirects('admin');
+
+
+
 // Validate
 GetValidator::new()
     ->select('id')->isId()

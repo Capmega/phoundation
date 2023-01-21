@@ -969,6 +969,9 @@ class Page
                 usleep(mt_rand(1, 500));
             }
 
+            // Check user access rights. Routing parameters should be able to tell us what rights are required now
+            Page::hasRightsOrRedirects(self::$parameters->getRequiredRights($target));
+
             // Do we have access to this page?
             self::$target = $target;
             self::$server_restrictions->checkRestrictions($target, false);

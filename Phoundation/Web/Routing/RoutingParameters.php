@@ -9,11 +9,11 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Servers\Server;
 use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\Html\Template\Template;
-use Phoundation\Web\Http\UrlBuilder;
 use Templates\AdminLte\AdminLte;
 
 
@@ -75,9 +75,9 @@ class RoutingParameters
     /**
      * The required rights to access this resource
      *
-     * @var array|null $rights
+     * @var array $rights
      */
-    protected ?array $rights = null;
+    protected array $rights = [];
 
     /**
      * The URI being processed
@@ -92,6 +92,15 @@ class RoutingParameters
      * @var array|null $matches
      */
     protected ?array $matches = null;
+
+    /**
+     * If set, rights required to access a page would depend on each directory in its path. The last directory in the
+     * specified path, and each subsequent directory below it until the file itself will be a required right for the
+     * user to access that page
+     *
+     * @var string|null $require_directory_rights
+     */
+    protected ?string $require_directory_rights = null;
 
 
 
@@ -118,6 +127,18 @@ class RoutingParameters
 
 
     /**
+     * Returns the template as an object
+     *
+     * @return Template
+     */
+    public function getTemplateObject(): Template
+    {
+        return $this->template::new();
+    }
+
+
+
+    /**
      * Returns the template to use
      *
      * @return string
@@ -130,18 +151,6 @@ class RoutingParameters
         }
 
         return $this->template;
-    }
-
-
-
-    /**
-     * Returns the template as an object
-     *
-     * @return Template
-     */
-    public function getTemplateObject(): Template
-    {
-        return $this->template::new();
     }
 
 
@@ -161,6 +170,71 @@ class RoutingParameters
         }
 
         $this->template = $template;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns what rights are required to access the specified target by specified rights and required directory rights
+     *
+     * @param string $target
+     * @return array
+     */
+    public function getRequiredRights(string $target): array
+    {
+        // Check defined rights and directory rights, both have to pass
+        if ($this->require_directory_rights) {
+            // First cut to WWW path
+            // Then the rest, as the path may be partial
+            // Then remove the file name to only have the path parts
+            // Ensure it doesn't start with a slash to avoid empty right entries
+            // Then explode to array
+            $path = Strings::from($target, PATH_WWW);
+            $path = Strings::from($path, dirname($this->require_directory_rights));
+            $path = Strings::startsNotWith($path, '/');
+            $path = dirname($path);
+            $path = explode(Filesystem::DIRECTORY_SEPARATOR, $path);
+
+            // Merge with the already specified rights
+            return array_merge($this->rights, $path);
+        }
+
+        return $this->rights;
+    }
+
+
+
+    /**
+     * Returns if (and from what directory onwards) rights should be taken from the directories automatically for each
+     * page
+     *
+     * If set, rights required to access a page would depend on each directory in its path. The last directory in the
+     * specified path, and each subsequent directory below it until the file itself will be a required right for the
+     * user to access that page
+     *
+     * @return string|null
+     */
+    public function getRequireDirectoryRights(): ?string
+    {
+        return $this->require_directory_rights;
+    }
+
+
+
+    /**
+     * Sets if (and from what directory onwards) rights should be taken from the directories automatically for each page
+     *
+     * If set, rights required to access a page would depend on each directory in its path. The last directory in the
+     * specified path, and each subsequent directory below it until the file itself will be a required right for the
+     * user to access that page
+     *
+     * @param string $require_directory_rights
+     * @return static
+     */
+    public function setRequireDirectoryRights(string $require_directory_rights): static
+    {
+        $this->require_directory_rights = $require_directory_rights;
         return $this;
     }
 

@@ -1105,7 +1105,7 @@ class Route
      */
     public static function execute(string $target, bool $attachment): bool
     {
-        // Find the correct target page
+        // Get routing parameters and find the correct target page
         $parameters = self::parameters()->select(self::$uri);
         $target     = Filesystem::absolute($parameters->getRootPath() . Strings::unslash($target));
 
