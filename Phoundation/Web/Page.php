@@ -392,6 +392,18 @@ class Page
 
 
     /**
+     * Returns the SEO optimized version of the project name
+     *
+     * @return string
+     */
+    public static function getProjectName():string
+    {
+        return str_replace('_', '-', strtolower(PROJECT));
+    }
+
+
+
+    /**
      * Sets an alternative class for the <body> tag
      *
      * @param bool $build_body
