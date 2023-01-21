@@ -319,10 +319,6 @@ class Core {
                 // No environment set in ENV, maybe given by parameter?
                 Page::die(1, 'startup: No required environment specified for project "' . PROJECT . '"');
             }
-
-            if (str_contains($env, '_')) {
-                Page::die(1, 'startup: Specified environment "' . $env . '" is invalid, environment names cannot contain the underscore character');
-            }
         }
 
         // Set environment and protocol
@@ -1277,24 +1273,9 @@ class Core {
             throw new \Exception('Core startup PHP ERROR [' . $errno . '] "' . $errstr . '" in "' . $errfile . '@' . $errline . '"');
         }
 
-        self::$state = 'phperror';
-
         $trace = Debug::backtrace();
         unset($trace[0]);
         unset($trace[1]);
-
-        Notification::new()
-            ->setCode('PHP-ERROR-' . $errno)
-            ->addGroup('developers')
-            ->setTitle('PHP ERROR "' . $errno . '"')
-            ->setMessage(tr('PHP ERROR [' . $errno . '] "' . $errstr . '" in "' . $errfile . '@' . $errline .'"'))
-            ->setDetails([
-                'errno'   => $errno,
-                'errstr'  => $errstr,
-                'errfile' => $errfile,
-                'errline' => $errline,
-                'trace'   => $trace
-            ])->send();
 
         throw new \Exception('PHP ERROR [' .$errno . '] "' . $errstr . '" in "' . $errfile . '@' . $errline . '"', $errno);
     }
