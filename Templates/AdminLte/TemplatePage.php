@@ -3,6 +3,7 @@
 namespace Templates\AdminLte;
 
 use Phoundation\Core\Config;
+use Phoundation\System\Environment\Project;
 use Phoundation\Web\Http\Html\Components\Footer;
 use Phoundation\Web\Http\Html\Components\SidePanel;
 use Phoundation\Web\Http\Html\Components\TopPanel;
@@ -83,7 +84,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
 
         // Set basic page details
         Page::setPageTitle(tr('Phoundation platform'));
-        Page::setFavIcon('favicon/phoundation.png');
+        Page::setFavIcon('favicon/' . Page::getProjectName() . '/project.png');
 
         return Page::buildHeaders();
     }

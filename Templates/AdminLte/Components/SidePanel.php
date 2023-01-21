@@ -7,6 +7,7 @@ use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Page;
 
 
 /**
@@ -30,7 +31,7 @@ class SidePanel extends \Phoundation\Web\Http\Html\Components\SidePanel
     {
         $this->render = ' <aside class="main-sidebar sidebar-dark-primary elevation-4">
                             <a href="' . UrlBuilder::current() . '" class="brand-link">
-                              <img src="' . UrlBuilder::img('img/logos/phoundation-64x64.png') . '" alt="' . tr(':project logo', [':project' => Strings::capitalize(Config::get('project.name'))]) . '" class="brand-image img-circle elevation-3" style="opacity: .8">
+                              <img src="' . UrlBuilder::img('img/logos/' . Page::getProjectName() . '/project-square-64.png') . '" alt="' . tr(':project logo', [':project' => Strings::capitalize(Config::get('project.name'))]) . '" class="brand-image img-circle elevation-3" style="opacity: .8">
                               <span class="brand-text font-weight-light">' . Strings::capitalize(Config::get('project.name')) . '</span>
                             </a>
                             <div class="sidebar">
