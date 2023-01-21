@@ -2,7 +2,6 @@
 
 namespace Phoundation\Web\Http;
 
-use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Content\Images\Image;
 use Phoundation\Core\Config;
 use Phoundation\Core\Exception\ConfigNotExistsException;
