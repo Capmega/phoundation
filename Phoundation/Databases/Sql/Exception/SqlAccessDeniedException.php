@@ -5,7 +5,7 @@ namespace Phoundation\Databases\Sql\Exception;
 
 
 /**
- * Class SqlColumnDoesNotExistsException
+ * Class SqlAccessDeniedException
  *
  * This exception is thrown by Sql::getColumn() when the specified column does not exist
  *
@@ -14,6 +14,6 @@ namespace Phoundation\Databases\Sql\Exception;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Databases
  */
-class SqlColumnDoesNotExistsException extends SqlException
+class SqlAccessDeniedException extends SqlException
 {
 }

@@ -2,6 +2,8 @@
 
 namespace Phoundation\Databases\Sql\Exception;
 
+
+
 /**
  * Class SqlMultipleResultsException
  *

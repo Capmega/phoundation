@@ -20,6 +20,7 @@ use Phoundation\Core\Meta;
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Core\Timers;
+use Phoundation\Databases\Sql\Exception\SqlAccessDeniedException;
 use Phoundation\Databases\Sql\Exception\SqlColumnDoesNotExistsException;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
@@ -1744,6 +1745,16 @@ class Sql
                     break;
 
                 } catch (Exception $e) {
+                    if ($e->getCode() === 1045) {
+                        // Access  denied!
+                        throw new SqlAccessDeniedException(tr('(:id) Failed to connect to database instance ":instance" with connection string ":string" and user ":user", access was denied by the database server', [
+                            ':id'       => $this->uniqueid,
+                            ':instance' => $this->instance,
+                            ':string'   => $connect_string,
+                            ':user'     => $this->configuration['user']
+                        ]));
+                    }
+
                     Log::error(tr('(:id) Failed to connect to instance ":instance" with PDO connect string ":string", error follows below', [
                         ':id'       => $this->uniqueid,
                         ':instance' => $this->instance,
@@ -1811,6 +1822,9 @@ class Sql
             if (!empty($this->configuration['mode'])) {
                 $this->pdo->query('SET sql_mode="' . $this->configuration['mode'] . '";');
             }
+
+        } catch (SqlAccessDeniedException $e) {
+            throw $e;
 
         } catch (Throwable $e) {
             if ($e->getMessage() == 'could not find driver') {
