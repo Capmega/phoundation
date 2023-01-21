@@ -495,7 +495,7 @@ Log::warning('RESTART SESSION');
      *
      * @return void
      */
-    public static function destroy(): void
+    public static function signOut(): void
     {
         session_destroy();
     }
