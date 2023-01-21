@@ -5,6 +5,7 @@ namespace Phoundation\Web;
 use Exception;
 use JetBrains\PhpStorm\ExpectedValues;
 use JetBrains\PhpStorm\NoReturn;
+use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Api\ApiInterface;
 use Phoundation\Cache\Cache;
 use Phoundation\Core\Arrays;
@@ -1078,7 +1079,11 @@ class Page
             self::getFlashMessages()->add($e);
             Route::executeSystem(400);
 
-        } catch (DataEntryNotExistsException $e) {
+        } catch (AuthenticationException $e) {
+            self::getFlashMessages()->add($e);
+            Route::executeSystem(401);
+
+        } catch (DataEntryNotExistsException) {
             // Show a 404 page instead
             Route::executeSystem(404);
 
@@ -1824,13 +1829,20 @@ class Page
 
 
     /**
-     * Kill this script process
+     * Kill this web page script process
      *
-     * @todo Add required functionality
+     * @param int $exit_code
+     * @param string|null $message
      * @return void
+     * @todo Implement this and add required functionality
      */
-    #[NoReturn] public static function die(): void
+    #[NoReturn] public static function die(int $exit_code, ?string $message): void
     {
+        Log::warning(tr('Phoundation died unexpectedly with exit code ":exitcode" and message ":message"', [
+            ':exitcode' => $exit_code,
+            ':message'  => $message
+        ]));
+
         // Do we need to run other shutdown functions?
         die();
     }
