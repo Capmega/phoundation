@@ -121,6 +121,11 @@ class Route
             self::executeSystem(400);
         }
 
+        // Double slash (//) in the URL is automatically 4o4
+        if (str_contains(self::$uri, '//')) {
+            self::executeSystem(404);
+        }
+
         // Start the Core object, hide $_GET & $_POST
         try {
             if (Core::stateIs('init')) {
