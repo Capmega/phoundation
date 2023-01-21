@@ -152,12 +152,22 @@ Class Log {
         self::$init = true;
 
         // Apply configuration
-        self::$server_restrictions = new Server(new Restrictions(PATH_DATA . 'log/', true, 'Log'));
-        self::setThreshold(Config::get('log.threshold', Core::errorState() ? 1 : 3));
-        self::setFile(Config::get('log.file', PATH_ROOT . 'data/log/syslog'));
-        self::setBacktraceDisplay(Config::get('log.backtrace-display', self::BACKTRACE_DISPLAY_BOTH));
-        self::setLocalId(substr(uniqid(true), -8, 8));
-        self::setGlobalId($global_id);
+        try {
+            self::$server_restrictions = new Server(new Restrictions(PATH_DATA . 'log/', true, 'Log'));
+            self::setThreshold(Config::get('log.threshold', Core::errorState() ? 1 : 3));
+            self::setFile(Config::get('log.file', PATH_ROOT . 'data/log/syslog'));
+            self::setBacktraceDisplay(Config::get('log.backtrace-display', self::BACKTRACE_DISPLAY_BOTH));
+            self::setLocalId(substr(uniqid(true), -8, 8));
+            self::setGlobalId($global_id);
+        } catch (\Throwable) {
+            // Likely configuration read failed. Just set defaults
+            self::$server_restrictions = new Server(new Restrictions(PATH_DATA . 'log/', true, 'Log'));
+            self::setThreshold(10);
+            self::setFile(PATH_ROOT . 'data/log/syslog');
+            self::setBacktraceDisplay(self::BACKTRACE_DISPLAY_BOTH);
+            self::setLocalId('-1');
+            self::setGlobalId($global_id);
+        }
 
         self::$init = false;
     }
