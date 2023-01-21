@@ -1760,4 +1760,17 @@ class Strings
         // Output the 36 character UUID.
         return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
     }
+
+
+
+    /**
+     * Returns a code that is guaranteed unique
+     *
+     * @param string $hash
+     * @return string
+     */
+    function unique(string $hash = 'sha512'): string
+    {
+        return hash($hash, uniqid('', true) . microtime(true) . Config::get('security.seed', ''));
+    }
 }
