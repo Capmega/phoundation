@@ -66,6 +66,8 @@ class Project
 
 
     /**
+     * Returns the project name
+     *
      * @return string
      */
     public static function getName():string

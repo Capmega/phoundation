@@ -432,7 +432,7 @@ class Filesystem
     }
 
 
-    
+
     /**
      * Creates a path to a temporary directory or file
      *
