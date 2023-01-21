@@ -7,6 +7,7 @@ use Phoundation\Cli\Cli;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Meta;
 use Phoundation\Data\Exception\DataEntryNotExistsException;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Utils\Json;
@@ -659,6 +660,9 @@ abstract class DataEntry
      */
     public function save(): static
     {
+        // Validate keys
+        $this->validateData();
+
         // Write the entry
         $this->data['id'] = sql()->write($this->table, $this->getInsertColumns(), $this->getUpdateColumns());
 
@@ -741,6 +745,34 @@ abstract class DataEntry
         }
 
         return $this;
+    }
+
+
+
+    /**
+     * Validate the data according to the key definitions
+     *
+     * @return void
+     */
+    protected function validateData(): void
+    {
+        foreach ($this->data as $key => $value) {
+            if (!array_key_exists($key, $this->keys)) {
+                throw new OutOfBoundsException(tr('Source key ":key" was not defined in the form keys', [
+                    ':key' => $key
+                ]));
+            }
+
+            if (isset_get($this->keys[$key]['required'])) {
+                if (!$value) {
+                    throw new ValidationFailedException(tr('The ":field" field is required', [
+                        ':field' => $key
+                    ]));
+                }
+            }
+
+            // TODO Add more validations
+        }
     }
 
 

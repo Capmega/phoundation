@@ -163,6 +163,40 @@ abstract class DataList implements Iterator
 
 
     /**
+     * Returns a list of items that are specified, but not available in this DataList
+     *
+     * @param DataList|array|string $list
+     * @param string|null $always_match
+     * @return array
+     */
+    public function missesKeys(DataList|array|string $list, string $always_match = null): array
+    {
+        if (is_string($list)) {
+            $list = explode(',', $list);
+        }
+
+        $return = [];
+
+        foreach ($list as $entry) {
+            if (array_key_exists($entry, $this->list)) {
+                continue;
+            }
+
+            // Can still match if $always_match is available!
+            if ($always_match and array_key_exists($always_match, $this->list)) {
+                // Okay, this list contains ALL the requested entries due to $always_match
+                return [];
+            }
+
+            $return[] = $entry;
+        }
+
+        return $return;
+    }
+
+
+
+    /**
      * Returns if all (or optionally any) of the specified entries are in this list
      *
      * @param DataList|array|string $list
