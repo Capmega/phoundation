@@ -4,6 +4,8 @@ namespace Templates\AdminLte\Components;
 
 
 
+use Phoundation\Web\Http\UrlBuilder;
+
 /**
  * AdminLte Plugin TopPanel class
  *
@@ -119,6 +121,11 @@ class TopPanel extends \Phoundation\Web\Http\Html\Components\TopPanel
                               <li class="nav-item">
                                 <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#" role="button">
                                   <i class="fas fa-th-large"></i>
+                                </a>
+                              </li>
+                              <li class="nav-item">
+                                <a class="nav-link" href="' . UrlBuilder::www('sign-out.html') . '" role="button">
+                                  <i class="fas fa-sign-out-alt"></i>
                                 </a>
                               </li>
                             </ul>
