@@ -49,27 +49,6 @@ class Route
      */
     protected static Route $instance;
 
-//    /**
-//     * The basic file path to search for file for these routes
-//     *
-//     * @var string $path
-//     */
-//    protected static string $path;
-//
-//    /**
-//     * The template to use for these routes
-//     *
-//     * @var Template $template
-//     */
-//    protected static Template $template;
-//
-//    /**
-//     * The default server filesystem access restrictions to use while routing
-//     *
-//     * @var Server $server_restrictions
-//     */
-//    protected static Server $server_restrictions;
-
     /**
      * The temporary template to use while routing ONLY for the current try
      *
@@ -119,21 +98,6 @@ class Route
      */
     protected function __construct()
     {
-        // Start the Core object, hide $_GET & $_POST
-        try {
-            if (Core::stateIs('init')) {
-                Core::startup();
-                GetValidator::hideData();
-                PostValidator::hideData();
-            }
-        } catch (SqlException|NoProjectException) {
-            // Either we have no project or no system database
-            GetValidator::hideData();
-            PostValidator::hideData();
-
-            self::execute(PATH_WWW . 'setup.php', false);
-        }
-
         /*
          * Cleanup the request URI by removing all GET requests and the leading slash, URIs cannot be longer than 255
          * characters
@@ -155,6 +119,21 @@ class Route
             ]));
 
             self::executeSystem(400);
+        }
+
+        // Start the Core object, hide $_GET & $_POST
+        try {
+            if (Core::stateIs('init')) {
+                Core::startup();
+                GetValidator::hideData();
+                PostValidator::hideData();
+            }
+        } catch (SqlException|NoProjectException) {
+            // Either we have no project or no system database
+            GetValidator::hideData();
+            PostValidator::hideData();
+
+            self::execute('setup.php', false);
         }
 
         // Ensure the post-processing function is registered
@@ -1103,12 +1082,14 @@ class Route
      * @param bool $attachment
      * @return bool
      */
-    public static function execute(string $target, bool $attachment): bool
+    public static function execute(string $target, bool $attachment, ?RoutingParameters $parameters = null): bool
     {
         // Get routing parameters and find the correct target page
-        $parameters = self::parameters()->select(self::$uri);
-        $target     = Filesystem::absolute($parameters->getRootPath() . Strings::unslash($target));
+        if (!$parameters) {
+            $parameters = self::parameters()->select(self::$uri);
+        }
 
+        $target = Filesystem::absolute($parameters->getRootPath() . Strings::unslash($target));
         Page::setRoutingParameters($parameters);
 
         if (str_ends_with($target, 'php')) {

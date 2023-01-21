@@ -113,22 +113,29 @@ Route::parameters()
     ->add(RoutingParameters::new() // Routing parameters for admin pages
         ->setPattern('/^\w{2}\/admin\//')
         ->setRootUrl('http://localhost/:LANGUAGE/admin/')
-        ->setRequireDirectoryRights('pages/admin/')
+        ->setRequireDirectoryRights('pages/admin/', 'sign-in.php')
         ->setTemplate(AdminLte::class))
 
     ->add(RoutingParameters::new() // Routing parameters for default pages
         ->setTemplate(Mdb::class))
 
     ->add(RoutingParameters::new() // Routing parameters for admin system pages
-        ->setPattern('/^(\w{2})\/admin\//i')
+        ->setPattern('/^(\w{2})\/admin\//')
         ->setTemplate(AdminLte::class)
         ->setRootPath('$1/pages/admin/')
         ->setRootUrl('http://localhost/:LANGUAGE/admin/')
         ->setRights('admin')
         ->setSystemPagesOnly(true))
 
-    ->add(RoutingParameters::new() // Routing parameters for default system pages
+    ->add(RoutingParameters::new() // Routing parameters for default multi lingual system pages
+        ->setPattern('/^(\w{2})\//')
         ->setTemplate(Mdb::class)
+        ->setRootPath('$1/pages/')
+        ->setSystemPagesOnly(true))
+
+    ->add(RoutingParameters::new() // Routing parameters for default english system pages
+        ->setTemplate(Mdb::class)
+        ->setRootPath('en/pages/')
         ->setSystemPagesOnly(true));
 
 

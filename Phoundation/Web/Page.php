@@ -23,8 +23,8 @@ use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Notifications\Notification;
-use Phoundation\Security\Incident;
-use Phoundation\Security\Severity;
+use Phoundation\Security\Incidents\Incident;
+use Phoundation\Security\Incidents\Severity;
 use Phoundation\Servers\Server;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Exception\WebException;
@@ -40,7 +40,6 @@ use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Routing\Route;
 use Phoundation\Web\Routing\RoutingParameters;
 use Throwable;
-
 
 
 /**
@@ -970,14 +969,14 @@ class Page
             }
 
             // Check user access rights. Routing parameters should be able to tell us what rights are required now
-            Page::hasRightsOrRedirects(self::$parameters->getRequiredRights($target));
+            if (Core::stateIs('script')) {
+                Page::hasRightsOrRedirects($target, self::$parameters->getRequiredRights($target));
+            }
 
-            // Do we have access to this page?
+            // Set the page hash and check if we have access to this page?
+            self::$hash   = sha1($_SERVER['REQUEST_URI']);
             self::$target = $target;
             self::$server_restrictions->checkRestrictions($target, false);
-
-            // Set the page hash
-            self::$hash = sha1($_SERVER['REQUEST_URI']);
 
             // Do we have a cached version available?
             $cache = Cache::read(self::$hash, 'pages');
@@ -986,6 +985,7 @@ class Page
                 try {
                     $cache  = Json::decode($cache);
                     $length = self::sendHttpHeaders($cache['headers']);
+
                     Log::success(tr('Sent ":length" bytes of HTTP to client', [':length' => $length]), 3);
 
                     // Send the page to the client
@@ -1103,18 +1103,27 @@ class Page
     /**
      * Ensures that this session user has all the specified rights, or a redirect will happen
      *
+     * @param string $target
      * @param array|string $rights
      * @param string|null $rights_redirect
      * @param string|null $guest_redirect
      * @return void
      */
-    public static function hasRightsOrRedirects(array|string $rights, ?string $rights_redirect = null, ?string $guest_redirect = null): void
+    public static function hasRightsOrRedirects(string $target, array|string $rights, ?string $rights_redirect = null, ?string $guest_redirect = null): void
     {
         if (Session::getUser()->hasAllRights($rights)) {
             return;
         }
 
-        // Oops!
+        // Oops! Is this a system page though? System pages require no rights to be viewed.
+        $system = dirname($target);
+        $system = basename($system);
+
+        if ($system === 'system') {
+            // Hurrah, its a bo.. system page!
+            return;
+        }
+
         if (Session::getUser()->isGuest()) {
             // This user has no rights at all, send to sign-in page
             if (!$guest_redirect) {
@@ -1124,10 +1133,19 @@ class Page
             Incident::new()
                 ->setType('401 - unauthorized')
                 ->setSeverity(Severity::low)
-                ->setTitle(tr('Guest user has no access to target page ":target", redirecting to ":redirect"', [
-                    ':target'   => self::$target,
-                    ':redirect' => $guest_redirect
-                ]))->save();
+                ->setTitle(tr('Guest user has no access to target page ":target" (real target ":real_target"), redirecting to ":redirect"', [
+                    ':target'      => Strings::from(self::$target, PATH_ROOT),
+                    ':real_target' => Strings::from($target, PATH_ROOT),
+                    ':redirect'    => $guest_redirect
+                ]))
+                ->setDetails([
+                    'user'         => 0,
+                    'uri'          => Page::getUri(),
+                    'target'       => Strings::from(self::$target, PATH_ROOT),
+                    ':real_target' => Strings::from($target, PATH_ROOT),
+                    'rights'       => $rights
+                ])
+                ->save();
 
             Page::redirect($guest_redirect);
         }
@@ -1140,12 +1158,21 @@ class Page
         Incident::new()
             ->setType('403 - forbidden')
             ->setSeverity(in_array('admin', Session::getUser()->getMissingRights($rights)) ? Severity::high : Severity::medium)
-            ->setTitle(tr('User ":user" does not have the required rights ":rights" for target page ":target", redirecting to ":redirect"', [
-                ':user'     => Session::getUser(),
-                ':rights'   => $rights,
-                ':target'   => self::$target,
-                ':redirect' => $guest_redirect
-            ]))->save();
+            ->setTitle(tr('User ":user" does not have the required rights ":rights" for target page ":target" (real target ":real_target"), redirecting to ":redirect"', [
+                ':user'        => Session::getUser(),
+                ':rights'      => $rights,
+                ':target'      => Strings::from(self::$target, PATH_ROOT),
+                ':real_target' => Strings::from($target, PATH_ROOT),
+                ':redirect'    => $guest_redirect
+            ]))
+            ->setDetails([
+                'user'         => Session::getUser()->getLogId(),
+                'uri'          => Page::getUri(),
+                'target'       => Strings::from(self::$target, PATH_ROOT),
+                ':real_target' => Strings::from($target, PATH_ROOT),
+                'rights'       => $rights
+            ])
+            ->save();
 
         Page::redirect($rights_redirect);
     }

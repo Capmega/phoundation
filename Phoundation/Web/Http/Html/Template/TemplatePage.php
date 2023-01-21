@@ -3,7 +3,6 @@
 namespace Phoundation\Web\Http\Html\Template;
 
 use Phoundation\Core\Core;
-use Phoundation\Core\Log;
 use Phoundation\Web\Http\Html\Components\Menu;
 use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Page;

@@ -6,6 +6,7 @@ use Phoundation\Accounts\Rights\Right;
 use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Core;
+use Phoundation\Core\Log;
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
@@ -102,6 +103,13 @@ class RoutingParameters
      */
     protected ?string $require_directory_rights = null;
 
+    /**
+     * Exception file names to the required directory rights
+     *
+     * @var array|null $directory_rights_exceptions
+     */
+    protected ?array $directory_rights_exceptions = null;
+
 
 
     /**
@@ -185,19 +193,23 @@ class RoutingParameters
     {
         // Check defined rights and directory rights, both have to pass
         if ($this->require_directory_rights) {
-            // First cut to WWW path
-            // Then the rest, as the path may be partial
-            // Then remove the file name to only have the path parts
-            // Ensure it doesn't start with a slash to avoid empty right entries
-            // Then explode to array
-            $path = Strings::from($target, PATH_WWW);
-            $path = Strings::from($path, dirname($this->require_directory_rights));
-            $path = Strings::startsNotWith($path, '/');
-            $path = dirname($path);
-            $path = explode(Filesystem::DIRECTORY_SEPARATOR, $path);
+            $filename = basename($target);
 
-            // Merge with the already specified rights
-            return array_merge($this->rights, $path);
+            if ($this->directory_rights_exceptions and !in_array($filename, $this->directory_rights_exceptions)) {
+                // First cut to WWW path
+                // Then the rest, as the path may be partial
+                // Then remove the file name to only have the path parts
+                // Ensure it doesn't start with a slash to avoid empty right entries
+                // Then explode to array
+                $path = Strings::from($target, PATH_WWW);
+                $path = Strings::from($path, dirname($this->require_directory_rights));
+                $path = Strings::startsNotWith($path, '/');
+                $path = dirname($path);
+                $path = explode(Filesystem::DIRECTORY_SEPARATOR, $path);
+
+                // Merge with the already specified rights
+                return array_merge($this->rights, $path);
+            }
         }
 
         return $this->rights;
@@ -223,6 +235,18 @@ class RoutingParameters
 
 
     /**
+     * Returns filename exceptions to required directory rights
+     *
+     * @return array|null
+     */
+    public function getRequireDirectoryExceptions(): ?array
+    {
+        return $this->directory_rights_exceptions;
+    }
+
+
+
+    /**
      * Sets if (and from what directory onwards) rights should be taken from the directories automatically for each page
      *
      * If set, rights required to access a page would depend on each directory in its path. The last directory in the
@@ -232,9 +256,10 @@ class RoutingParameters
      * @param string $require_directory_rights
      * @return static
      */
-    public function setRequireDirectoryRights(string $require_directory_rights): static
+    public function setRequireDirectoryRights(string $require_directory_rights, array|string|null $directory_rights_exceptions = null): static
     {
-        $this->require_directory_rights = $require_directory_rights;
+        $this->require_directory_rights    = $require_directory_rights;
+        $this->directory_rights_exceptions = Arrays::force($directory_rights_exceptions);
         return $this;
     }
 

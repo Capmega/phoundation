@@ -73,16 +73,6 @@ class Config
 
 
     /**
-     * Config constructor
-     */
-    protected function __construct()
-    {
-        self::setEnvironment();
-    }
-
-
-
-    /**
      * Singleton, ensure to always return the same Log object.
      *
      * @return Config
@@ -113,32 +103,23 @@ class Config
     /**
      * Lets the Config object use the specified (or if not specified, the current global) environment
      *
-     * @param string|null $environment
+     * @param string $environment
      * @return void
      */
-    public static function setEnvironment(string|null $environment = null): void
+    public static function setEnvironment(string $environment): void
     {
-        if (is_string($environment)) {
-            if (!$environment) {
-                // Environment was specified as "", use no environment!
-                self::$environment = null;
-                self::reset();
-                return;
-            }
-
-            // Use the specified environment
-            self::$environment = strtolower(trim($environment));
-
-        } elseif (defined('ENVIRONMENT')) {
-            // Use the global environment
-            self::$environment = strtolower(trim(ENVIRONMENT));
-
-        } else {
-            self::$environment = ENVIRONMENT;
+        if (!$environment) {
+            // Environment was specified as "", use no environment!
+            self::$environment = null;
+            self::reset();
+            return;
         }
 
+        // Use the specified environment
+        self::$environment = strtolower(trim($environment));
+
         self::reset();
-        self::read(self::$environment);
+        self::read();
     }
 
 
@@ -356,6 +337,11 @@ class Config
      */
     public static function get(string|array $path, mixed $default = null, mixed $specified = null): mixed
     {
+        if (!self::$environment) {
+            // We don't really have an environment, don't check configuration, just return default values
+            return $default;
+        }
+
         Debug::counter('Config::get()')->increase();
 
         if (self::$fail) {
@@ -467,19 +453,23 @@ class Config
     /**
      * Reads the configuration file for the specified configuration environment
      *
-     * @param string $environment
      * @return void
      * @throws ConfigException
      * @throws OutOfBoundsException
      */
-    protected static function read(string $environment): void
+    protected static function read(): void
     {
         try {
+            if (!self::$environment) {
+                // We don't really have an environment, don't read configuration
+                return;
+            }
+
             // What environments should be read?
-            if ($environment === 'production') {
+            if (self::$environment === 'production') {
                 $environments = ['production'];
             } else {
-                $environments = ['production', $environment];
+                $environments = ['production', self::$environment];
             }
 
             // Read the section for each environment
