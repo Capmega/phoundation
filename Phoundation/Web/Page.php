@@ -23,6 +23,8 @@ use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Notifications\Notification;
+use Phoundation\Security\Incident;
+use Phoundation\Security\Severity;
 use Phoundation\Servers\Server;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Exception\WebException;
@@ -1111,30 +1113,36 @@ class Page
 
         // Oops!
         if (Session::getUser()->isGuest()) {
+            // This user has no rights at all, send to sign-in page
             if (!$guest_redirect) {
                 $guest_redirect = '/sign-in.html';
             }
 
-
-
-            Log::warning('Guest user has no access to target page ":target", redirecting to ":redirect"', [
-                ':target'   => self::$target,
-                ':redirect' => $guest_redirect
-            ]);
+            Incident::new()
+                ->setType('401 - unauthorized')
+                ->setSeverity(Severity::low)
+                ->setTitle(tr('Guest user has no access to target page ":target", redirecting to ":redirect"', [
+                    ':target'   => self::$target,
+                    ':redirect' => $guest_redirect
+                ]))->save();
 
             Page::redirect($guest_redirect);
         }
 
+        // This user is missing rights
         if (!$guest_redirect) {
             $guest_redirect = '403';
         }
 
-        Log::warning('User "" does not have the required rights ":rights" for target page ":target", redirecting to ":redirect"', [
-            ':user'     => Session::getUser(),
-            ':rights'   => $rights,
-            ':target'   => self::$target,
-            ':redirect' => $guest_redirect
-        ]);
+        Incident::new()
+            ->setType('403 - forbidden')
+            ->setSeverity(in_array('admin', Session::getUser()->getMissingRights($rights)) ? Severity::high : Severity::medium)
+            ->setTitle(tr('User ":user" does not have the required rights ":rights" for target page ":target", redirecting to ":redirect"', [
+                ':user'     => Session::getUser(),
+                ':rights'   => $rights,
+                ':target'   => self::$target,
+                ':redirect' => $guest_redirect
+            ]))->save();
 
         Page::redirect($rights_redirect);
     }

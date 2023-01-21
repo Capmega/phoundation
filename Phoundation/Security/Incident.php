@@ -2,6 +2,7 @@
 
 namespace Phoundation\Security;
 
+use Phoundation\Core\Log;
 use Phoundation\Data\DataEntry;
 
 
@@ -18,6 +19,31 @@ use Phoundation\Data\DataEntry;
  */
 class Incident extends DataEntry
 {
+    /**
+     * Sets if this incident will be logged in the text log
+     *
+     * @var bool
+     */
+    protected bool $log = true;
+
+
+
+    /**
+     * Incident class constructor
+     *
+     * @param int|string|null $identifier
+     */
+    public function __construct(int|string|null $identifier = null)
+    {
+        self::$entry_name    = 'incident';
+        $this->table         = 'security_incidents';
+        $this->unique_column = 'id';
+
+        parent::__construct($identifier);
+    }
+
+
+
     /**
      * Returns the type for this object
      *
@@ -44,11 +70,37 @@ class Incident extends DataEntry
 
 
     /**
+     * Returns if this incident will be logged in the text log
+     *
+     * @return bool
+     */
+    public function getLog(): bool
+    {
+        return $this->log;
+    }
+
+
+
+    /**
+     * Sets if this incident will be logged in the text log
+     *
+     * @param bool $log
+     * @return static
+     */
+    public function setLog(bool $log): static
+    {
+        $this->log = $log;
+        return $this;
+    }
+
+
+
+    /**
      * Returns the severity for this object
      *
-     * @return string|null
+     * @return string
      */
-    public function getSeverity(): ?string
+    public function getSeverity(): string
     {
         return $this->getDataValue('severity');
     }
@@ -58,12 +110,12 @@ class Incident extends DataEntry
     /**
      * Sets the severity for this object
      *
-     * @param string|null $severity
+     * @param Severity $severity
      * @return static
      */
-    public function setSeverity(?string $severity): static
+    public function setSeverity(Severity $severity): static
     {
-        return $this->setDataValue('severity', $severity);
+        return $this->setDataValue('severity', $severity->value);
     }
 
 
@@ -117,7 +169,26 @@ class Incident extends DataEntry
     }
 
 
-    
+
+    /**
+     * Saves the incident to database
+     *
+     * @return $this
+     */
+    public function save(): static
+    {
+        if ($this->log) {
+            Log::warning(tr('Security incident (:severity): :message', [
+                ':severity' => strtoupper($this->getSeverity()),
+                ':message'  => $this->getTitle()
+            ]));
+        }
+
+        return parent::save();
+    }
+
+
+
     /**
      * Set the form keys for this object
      *
@@ -159,9 +230,15 @@ class Incident extends DataEntry
             ],
             'severity' => [
                 'disabled'  => true,
-                'type'      => 'date',
-                'null_type' => 'text',
-                'default'   => '-',
+                'type'      => 'text',
+                'required'  => true,
+                'source'    => [
+                    Severity::notice->value => tr('Notice'),
+                    Severity::low->value    => tr('Low'),
+                    Severity::medium->value => tr('Medium'),
+                    Severity::high->value   => tr('High'),
+                    Severity::severe->value => tr('Severe')
+                ],
                 'label'     => tr('Severity')
             ],
             'type' => [
