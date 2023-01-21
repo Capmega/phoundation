@@ -1,6 +1,7 @@
 <?php
 
 use JetBrains\PhpStorm\NoReturn;
+use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Log;
 use Phoundation\Core\Session;
@@ -418,7 +419,11 @@ function pick_random_multiple(?int $count = null): string|array
  */
 function show(mixed $source = null, int $trace_offset = 1, bool $quiet = false): mixed
 {
-    return Debug::show($source, $trace_offset, $quiet);
+    if (Core::stateIs('script')) {
+        return Debug::show($source, $trace_offset, $quiet);
+    }
+
+    return show_system($source, false);
 }
 
 
@@ -433,7 +438,11 @@ function show(mixed $source = null, int $trace_offset = 1, bool $quiet = false):
  */
 #[NoReturn] function showdie(mixed $source = null, int $trace_offset = 2, bool $quiet = false): void
 {
-    Debug::showdie($source, $trace_offset, $quiet);
+    if (Core::stateIs('script')) {
+        Debug::showdie($source, $trace_offset, $quiet);
+    }
+
+    show_system($source);
 }
 
 
@@ -702,4 +711,24 @@ function has_trait(string $trait, object|string $class): bool
     }
 
     return false;
+}
+
+
+
+/**
+ * Show command that requires no configuration and can be used at startup times. USE WITH CARE!
+ */
+#[NoReturn] function show_system(mixed $source = null, bool $die = true): mixed
+{
+    echo '<pre>"';
+    echo 'message-' . mt_rand(1,10000) . ' ';
+    print_r($source);
+    echo '"';
+    nl();
+
+    if ($die) {
+        die('die-'.mt_rand(1,10000));
+    }
+
+    return $source;
 }
