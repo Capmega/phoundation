@@ -628,7 +628,7 @@ class UrlBuilder
             return new UrlBuilder($url);
         }
 
-        $base = Domains::getConfigurationKey(Domains::getCurrent(), 'cdn', 'http://cdn.localhost/:LANGUAGE/');
+        $base = Domains::getConfigurationKey(Domains::getCurrent(), 'cdn', 'http://cdn.' . Domains::getCurrent() . '/:LANGUAGE/');
         $base = Strings::endsWith($base, '/');
         $url  = Strings::startsNotWith($url, '/');
         $url .= self::addExtension($extension);
