@@ -10,7 +10,6 @@ use Phoundation\Cache\Cache;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
-use Phoundation\Core\Exception\ConfigNotExistsException;
 use Phoundation\Core\Log;
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
@@ -118,6 +117,13 @@ class Page
      * @var string|null $etag
      */
     protected static ?string $etag = null;
+
+    /**
+     * The target of this page
+     *
+     * @var string|null $target
+     */
+    protected static ?string $target = null;
 
     /**
      * !DOCTYPE variable
@@ -367,6 +373,18 @@ class Page
         }
 
         return self::$flash_messages;
+    }
+
+
+
+    /**
+     * Returns the target of this page
+     *
+     * @return string|null
+     */
+    public static function getTarget(): ?string
+    {
+        return self::$target;
     }
 
 
@@ -950,6 +968,7 @@ class Page
             }
 
             // Do we have access to this page?
+            self::$target = $target;
             self::$server_restrictions->checkRestrictions($target, false);
 
             // Set the page hash
@@ -1077,6 +1096,52 @@ class Page
 
 
     /**
+     * Ensures that this session user has all the specified rights, or a redirect will happen
+     *
+     * @param array|string $rights
+     * @param string|null $rights_redirect
+     * @param string|null $guest_redirect
+     * @return void
+     */
+    public static function hasRightsOrRedirects(array|string $rights, ?string $rights_redirect = null, ?string $guest_redirect = null): void
+    {
+        if (Session::getUser()->hasAllRights($rights)) {
+            return;
+        }
+
+        // Oops!
+        if (Session::getUser()->isGuest()) {
+            if (!$guest_redirect) {
+                $guest_redirect = '/sign-in.html';
+            }
+
+
+
+            Log::warning('Guest user has no access to target page ":target", redirecting to ":redirect"', [
+                ':target'   => self::$target,
+                ':redirect' => $guest_redirect
+            ]);
+
+            Page::redirect($guest_redirect);
+        }
+
+        if (!$guest_redirect) {
+            $guest_redirect = '403';
+        }
+
+        Log::warning('User "" does not have the required rights ":rights" for target page ":target", redirecting to ":redirect"', [
+            ':user'     => Session::getUser(),
+            ':rights'   => $rights,
+            ':target'   => self::$target,
+            ':redirect' => $guest_redirect
+        ]);
+
+        Page::redirect($rights_redirect);
+    }
+
+
+
+    /**
      * Return the specified URL with a redirect URL stored in $core->register['redirect']
      *
      * @note If no URL is specified, the current URL will be used
@@ -1092,6 +1157,11 @@ class Page
     {
         if (!PLATFORM_HTTP) {
             throw new WebException(tr('Page::redirect() can only be called on web sessions'));
+        }
+
+        // Display a system error page instead?
+        if (is_numeric($url)) {
+            Page::execute('system/' . $url);
         }
 
         // Build URL
