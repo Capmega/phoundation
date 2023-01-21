@@ -5,6 +5,7 @@ namespace Phoundation\Core;
 use JetBrains\PhpStorm\ExpectedValues;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Cli\Cli;
+use Phoundation\Cli\Exception\MethodNotFoundException;
 use Phoundation\Cli\Script;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Exception\NoProjectException;
@@ -190,6 +191,7 @@ class Core {
             self::setServerRestrictions();
             self::setProject();
             self::setPlatform();
+            self::selectStartup();
             self::setRequestType();
             self::setTimeout();
 
@@ -257,7 +259,6 @@ class Core {
             }
 
             self::getInstance();
-            self::selectStartup();
 
         } catch (Throwable $e) {
             if (PLATFORM_HTTP and headers_sent($file, $line)) {
@@ -308,6 +309,34 @@ class Core {
      */
     protected static function startupHttp(): void
     {
+        if (PROJECT === 'UNKNOWN') {
+            $env = '';
+        } else {
+            // Check what environment we're in
+            $env = getenv('PHOUNDATION_' . PROJECT . '_ENVIRONMENT');
+
+            if (empty($env)) {
+                // No environment set in ENV, maybe given by parameter?
+                Page::die(1, 'startup: No required environment specified for project "' . PROJECT . '"');
+            }
+
+            if (str_contains($env, '_')) {
+                Page::die(1, 'startup: Specified environment "' . $env . '" is invalid, environment names cannot contain the underscore character');
+            }
+        }
+
+        // Set environment and protocol
+        define('ENVIRONMENT', $env);
+        define('PROTOCOL', Config::get('web.protocol', 'https://'));
+
+        Config::setEnvironment(ENVIRONMENT);
+
+        // Register basic HTTP information
+        // TODO MOVE TO HTTP CLASS
+        self::$register['http']['code'] = 200;
+//                    self::$register['http']['accepts'] = Page::accepts();
+//                    self::$register['http']['accepts_languages'] = Page::acceptsLanguages();
+
         // Define basic platform constants
         define('ADMIN'   , '');
         define('PWD'     , Strings::slash(isset_get($_SERVER['PWD'])));
@@ -403,7 +432,7 @@ class Core {
             ->select('-W,--no-warnings')->isOptional(false)->isBoolean()
             ->select('--version')->isOptional(false)->isBoolean()
             ->select('-E,--environment', true)->isOptional(null)->hasMinCharacters(1)->hasMaxCharacters(64)
-            ->select('-L,--limit', true)->isOptional(Config::get('paging.limit', 50))->isId()
+            ->select('-L,--limit', true)->isOptional(0)->isNatural(true)
             ->select('-O,--order-by', true)->isOptional(null)->hasMinCharacters(1)->hasMaxCharacters(128)
             ->select('-P,--page', true)->isOptional(1)->isId()
             ->select('-S,--status', true)->isOptional(null)->hasMinCharacters(1)->hasMaxCharacters(16)
@@ -414,6 +443,29 @@ class Core {
             ->select('--no-password-validation')->isOptional(false)->isBoolean()
             ->validate()
             ->getArgv();
+
+        // Check what environment we're in
+        if ($argv['environment']) {
+            // Environment was manually specified on command line
+            $env = $argv['environment'];
+        } else {
+            // Get environment variable from the shell environment
+            $env = getenv('PHOUNDATION_' . PROJECT . '_ENVIRONMENT');
+
+            if (empty($env)) {
+                if (PROJECT !== 'UNKNOWN') {
+                    Script::shutdown(2, 'startup: No required environment specified for project "' . PROJECT . '"');
+                }
+
+                $env = '';
+            }
+        }
+
+        // Set environment and protocol
+        define('ENVIRONMENT', $env);
+        define('PROTOCOL', Config::get('web.protocol', 'https://'));
+
+        Config::setEnvironment(ENVIRONMENT);
 
         // Define basic platform constants
         define('ADMIN'   , '');
@@ -428,24 +480,7 @@ class Core {
         define('ALL'     , $argv['all']);
         define('STATUS'  , $argv['status']);
         define('PAGE'    , $argv['page']);
-        define('LIMIT'   , $argv['limit']);
-
-        // Check what environment we're in
-        if (isset($argv['environment'])) {
-            // Environment was manually specified on command line
-            $env = $argv['environment'];
-        } else {
-            $env = getenv('PHOUNDATION_' . PROJECT . '_ENVIRONMENT');
-
-            if (empty($env)) {
-                define('ENVIRONMENT', 'production');
-                Script::shutdown(2, 'startup: No required environment specified for project "' . PROJECT . '"');
-            }
-        }
-
-        // Set environment and protocol
-        define('ENVIRONMENT', $env);
-        define('PROTOCOL', Config::get('web.protocol', 'https://'));
+        define('LIMIT'   , get_null($argv['limit']) ?? Config::getNatural('paging.limit', 50));
 
         // Correct $_SERVER['PHP_SELF'], sometimes seems empty
         if (empty($_SERVER['PHP_SELF'])) {
@@ -734,32 +769,6 @@ class Core {
                 define('PLATFORM_HTTP', true);
                 define('PLATFORM_CLI' , false);
                 define('NOCOLOR'      , (getenv('NOCOLOR') ? 'NOCOLOR' : null));
-
-                if (PROJECT === 'UNKNOWN') {
-                    $env = 'UNKNOWN';
-                } else {
-                    // Check what environment we're in
-                    $env = getenv('PHOUNDATION_' . PROJECT . '_ENVIRONMENT');
-
-                    if (empty($env)) {
-                        // No environment set in ENV, maybe given by parameter?
-                        Page::die(1, 'startup: No required environment specified for project "' . PROJECT . '"');
-                    }
-
-                    if (str_contains($env, '_')) {
-                        Page::die(1, 'startup: Specified environment "' . $env . '" is invalid, environment names cannot contain the underscore character');
-                    }
-                }
-
-                // Set environment and protocol
-                define('ENVIRONMENT', $env);
-                define('PROTOCOL', Config::get('web.protocol', 'https://'));
-
-                // Register basic HTTP information
-                // TODO MOVE TO HTTP CLASS
-                self::$register['http']['code'] = 200;
-//                    self::$register['http']['accepts'] = Page::accepts();
-//                    self::$register['http']['accepts_languages'] = Page::acceptsLanguages();
                 break;
         }
     }
@@ -1345,7 +1354,7 @@ class Core {
             'FORCE'    => (getenv('FORCE')   ? 'FORCE'   : null),
             'TEST'     => (getenv('TEST')    ? 'TEST'    : null),
             'QUIET'    => (getenv('QUIET')   ? 'QUIET'   : null),
-            'LIMIT'    => (getenv('LIMIT')   ? 'LIMIT'   : Config::get('paging.limit', 50)),
+            'LIMIT'    => (getenv('LIMIT')   ? 'LIMIT'   : Config::getNatural('paging.limit', 50)),
             'ORDERBY'  => (getenv('ORDERBY') ? 'ORDERBY' : null),
             'ALL'      => (getenv('ALL')     ? 'ALL'     : null),
             'DELETED'  => (getenv('DELETED') ? 'DELETED' : null),
@@ -1376,7 +1385,12 @@ class Core {
 
                 if (!defined('PLATFORM')) {
                     // System crashed before platform detection.
-                    Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', [':code' => $e->getCode(), ':type' => self::getRequestType(), ':script' => self::readRegister('system', 'script')]));
+                    Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', [
+                        ':code'   => $e->getCode(),
+                        ':type'   => self::getRequestType(),
+                        ':script' => self::readRegister('system', 'script')
+                    ]));
+
                     Log::error($e);
                     die('exception before platform detection');
                 }
@@ -1400,6 +1414,19 @@ class Core {
                             // This is just a simple general warning, no backtrace and such needed, only show the
                             // principal message
                             Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
+
+                            if (($e instanceof MethodNotFoundException) and ($data = $e->getData())) {
+                                Log::information('Available sub commands:');
+
+                                foreach ($data as $file) {
+                                    if (str_starts_with($file, '.')) {
+                                        continue;
+                                    }
+
+                                    Log::notice($file);
+                                }
+                            }
+
                             Script::shutdown(255);
                         }
 
@@ -1465,7 +1492,13 @@ class Core {
 //                                    die(Script::getExitCode());
 //                            }
 
-                        Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', [':code' => $e->getCode(), ':type' => self::getRequestType(), ':script' => self::readRegister('system', 'script')]));
+                        Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" WITH ENVIRONMENT ":environment" ***', [
+                            ':code'        => $e->getCode(),
+                            ':type'        => self::getRequestType(),
+                            ':script'      => self::readRegister('system', 'script'),
+                            ':environment' => (defined('ENVIRONMENT') ? ENVIRONMENT : null)
+                        ]));
+
                         Log::error(tr('Exception data:'));
                         Log::error($e);
                         Script::shutdown(1);
@@ -1482,7 +1515,13 @@ class Core {
                             Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
                         } else {
                             // Log exception data
-                            Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', [':code' => $e->getCode(), ':type' => self::getRequestType(), ':script' => self::readRegister('system', 'script')]));
+                            Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" WITH ENVIRONMENT ":environment" ***', [
+                                ':code'        => $e->getCode(),
+                                ':type'        => self::getRequestType(),
+                                ':script'      => self::readRegister('system', 'script'),
+                                ':environment' => (defined('ENVIRONMENT') ? ENVIRONMENT : null)
+                            ]));
+
                             Log::error(tr('Exception data:'));
                             Log::error($e);
                         }
@@ -1603,7 +1642,11 @@ class Core {
                                         <table class="exception">
                                             <thead>
                                                 <td colspan="2" class="center">
-                                                    '.tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', array(':code' => $e->getCode(), ':script' => self::readRegister('system', 'script'), 'type' => Core::getRequestType())).'
+                                                    '.tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', [
+                                                        ':code'   => $e->getCode(),
+                                                        ':script' => self::readRegister('system', 'script'),
+                                                        'type'    => Core::getRequestType()
+                                                    ]).'
                                                 </td>
                                             </thead>
                                             <tbody>
