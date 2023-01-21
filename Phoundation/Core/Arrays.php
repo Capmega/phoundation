@@ -51,9 +51,13 @@ class Arrays {
     public static function requiredKeys(array $source, array|string $keys, string $exception_class = OutOfBoundsException::class): void
     {
         if (!self::hasAllKeys($source, $keys)) {
-            throw new $exception_class(tr('The specified array does not contain all required keys ":keys"', [
-                ':keys' => $keys
-            ]));
+            if ($exception_class) {
+                throw new $exception_class(tr('The specified array does not contain all required keys ":keys"', [
+                    ':keys' => $keys
+                ]));
+            }
+
+            self::ensure($source, $keys);
         }
     }
 
