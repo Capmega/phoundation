@@ -5,6 +5,7 @@ namespace Phoundation\Cli;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Cli\Exception\CliException;
 use Phoundation\Cli\Exception\MethodNotFoundException;
+use Phoundation\Core\Arrays;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\NoProjectException;
 use Phoundation\Core\Log;
@@ -62,10 +63,10 @@ class Script
         try {
             Core::startup();
         } catch (SqlException $e) {
-            $reason = tr('Core database not found');
+            $reason = tr('Core database not found, please execute "./cli system project setup"');
             $limit  = 'system/project/init';
         } catch (NoProjectException $e) {
-            $reason = tr('Project file not found');
+            $reason = tr('Project file not found, please execute "./cli system project setup"');
             $limit  = 'system/project/setup';
         }
 
@@ -108,7 +109,7 @@ class Script
             Script::setExitCode($exit_code, true);
         }
 
-        if (!QUIET) {
+        if (!defined('QUIET') or !QUIET) {
             if ($exit_code) {
                 if ($exit_code > 200) {
                     if ($exit_message) {
@@ -281,10 +282,13 @@ class Script
             }
         }
 
-        // We're stuck in a directory still, no script to execute
+        // We're stuck in a directory still, no script to execute.
+        // Add the available files to display to help the user
         throw MethodNotFoundException::new(tr('The specified method file ":file" was not found', [
             ':file' => $file
-        ]))->makeWarning();
+        ]))
+            ->setData(Arrays::filterValues(scandir($file), '.,..'))
+            ->makeWarning();
     }
 
 
