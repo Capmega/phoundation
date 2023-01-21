@@ -224,6 +224,9 @@ class Environment
             ]));
         }
 
+        Log::action(tr('Ensuring system database is gone'));
+        sql()->drop();
+
         Log::action(tr('Initializing system...'));
         Libraries::initialize(true, true, true, 'System setup');
     }

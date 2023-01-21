@@ -12,6 +12,7 @@ use Phoundation\Filesystem\Restrictions;
 use Phoundation\System\Environment\Exception\EnvironmentExists;
 
 
+
 /**
  * Project class
  *
@@ -41,16 +42,6 @@ class Project
 
 
     /**
-     * Project class constructor
-     */
-    protected function __construct()
-    {
-        self::$name = self::load();
-    }
-
-
-
-    /**
      * Returns a new project with the specified name
      *
      * @param string $project
@@ -69,6 +60,16 @@ class Project
 
         self::$name = $project;
         self::save();
+    }
+
+
+
+    /**
+     * @return string
+     */
+    public static function getName():string
+    {
+        return self::$name;
     }
 
 
@@ -236,10 +237,12 @@ class Project
      *
      * @return string|null
      */
-    protected static function load(): ?string
+    public static function load(): ?string
     {
         $project = file_get_contents(PATH_ROOT . 'config/project');
         $project = self::sanitize($project);
+
+        self::$name = $project;
 
         return $project;
     }
