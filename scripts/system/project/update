@@ -1,0 +1,22 @@
+#!/usr/bin/php
+<?php
+
+use Phoundation\Cli\Documentation;
+
+
+
+/**
+ * Script system/accounts/users/authenticate
+ *
+ * This script can be used to test the authentication for the specified user
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Scripts
+ */
+
+Documentation::usage('./cli system project update');
+
+Documentation::help('This script will update your Phoundation libraries and plugins');
+

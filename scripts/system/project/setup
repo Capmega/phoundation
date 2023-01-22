@@ -2,6 +2,7 @@
 <?php
 
 use Phoundation\Cli\Cli;
+use Phoundation\Cli\Documentation;
 use Phoundation\Core\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\ArrayValidator;
@@ -21,11 +22,12 @@ use Phoundation\System\Environment\Project;
  * @category Function reference
  * @package Phoundation\Core
  */
-$usage = './cli system project setup [OPTIONS]
-./cli system project setup --no-password-validation
-./cli system project setup --force';
 
-$help  = 'This script allows you to setup a new project
+Documentation::usage('./cli system project setup [OPTIONS]
+./cli system project setup --no-password-validation
+./cli system project setup --force');
+
+Documentation::help('This script allows you to setup a new project
 
 
 
@@ -43,7 +45,7 @@ ARGUMENTS
                                         only for testing!  
 
 [-F / --force]                          (System argument) Run the setup in FORCE mode, which will remove any previously 
-                                        set up project and start a new project from scratch';
+                                        set up project and start a new project from scratch');
 
 
 
