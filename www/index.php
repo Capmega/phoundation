@@ -112,8 +112,8 @@ Route::parameters()
 
     ->add(RoutingParameters::new() // Routing parameters for admin pages
         ->setPattern('/^\w{2}\/admin\//')
-        ->setRootUrl('http://localhost/:LANGUAGE/admin/')
-        ->setRequireDirectoryRights('pages/admin/', 'sign-in.php')
+        ->setRootUrl('http://phoundation.org.local/:LANGUAGE/admin/')
+        ->setRequirePathRights('pages/admin/', 'sign-in.php')
         ->setTemplate(AdminLte::class))
 
     ->add(RoutingParameters::new() // Routing parameters for default pages
@@ -123,7 +123,7 @@ Route::parameters()
         ->setPattern('/^(\w{2})\/admin\//')
         ->setTemplate(AdminLte::class)
         ->setRootPath('$1/pages/admin/')
-        ->setRootUrl('http://localhost/:LANGUAGE/admin/')
+        ->setRootUrl('http://phoundation.org.local/:LANGUAGE/admin/')
         ->setRights('admin')
         ->setSystemPagesOnly(true))
 
