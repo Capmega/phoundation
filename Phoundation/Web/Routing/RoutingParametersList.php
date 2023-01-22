@@ -164,14 +164,18 @@ class RoutingParametersList
     protected function order(): void
     {
         // Order normal page parameters
-        $pattern = isset_get($this->list['']);
-        unset($this->list['']);
-        $this->list[''] = $pattern;
+        if (array_key_exists('', $this->list)) {
+            $pattern = isset_get($this->list['']);
+            unset($this->list['']);
+            $this->list[''] = $pattern;
+        }
 
         // Order system page parameters
-        $pattern = isset_get($this->list['']);
-        unset($this->list['']);
-        $this->list[''] = $pattern;
+        if (array_key_exists('', $this->system_list)) {
+            $pattern = isset_get($this->system_list['']);
+            unset($this->system_list['']);
+            $this->system_list[''] = $pattern;
+        }
 
         $this->ordered = true;
     }
