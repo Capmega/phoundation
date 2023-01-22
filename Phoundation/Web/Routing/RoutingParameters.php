@@ -99,16 +99,16 @@ class RoutingParameters
      * specified path, and each subsequent directory below it until the file itself will be a required right for the
      * user to access that page
      *
-     * @var string|null $require_directory_rights
+     * @var string|null $require_path_rights
      */
-    protected ?string $require_directory_rights = null;
+    protected ?string $require_path_rights = null;
 
     /**
      * Exception file names to the required directory rights
      *
-     * @var array|null $directory_rights_exceptions
+     * @var array|null $path_rights_exceptions
      */
-    protected ?array $directory_rights_exceptions = null;
+    protected ?array $path_rights_exceptions = null;
 
 
 
@@ -192,17 +192,17 @@ class RoutingParameters
     public function getRequiredRights(string $target): array
     {
         // Check defined rights and directory rights, both have to pass
-        if ($this->require_directory_rights) {
+        if ($this->require_path_rights) {
             $filename = basename($target);
 
-            if ($this->directory_rights_exceptions and !in_array($filename, $this->directory_rights_exceptions)) {
+            if ($this->path_rights_exceptions and !in_array($filename, $this->path_rights_exceptions)) {
                 // First cut to WWW path
                 // Then the rest, as the path may be partial
                 // Then remove the file name to only have the path parts
                 // Ensure it doesn't start with a slash to avoid empty right entries
                 // Then explode to array
                 $path = Strings::from($target, PATH_WWW);
-                $path = Strings::from($path, dirname($this->require_directory_rights));
+                $path = Strings::from($path, dirname($this->require_path_rights));
                 $path = Strings::startsNotWith($path, '/');
                 $path = dirname($path);
                 $path = explode(Filesystem::DIRECTORY_SEPARATOR, $path);
@@ -227,9 +227,9 @@ class RoutingParameters
      *
      * @return string|null
      */
-    public function getRequireDirectoryRights(): ?string
+    public function getRequirePathRights(): ?string
     {
-        return $this->require_directory_rights;
+        return $this->require_path_rights;
     }
 
 
@@ -239,9 +239,9 @@ class RoutingParameters
      *
      * @return array|null
      */
-    public function getRequireDirectoryExceptions(): ?array
+    public function getRequirePathExceptions(): ?array
     {
-        return $this->directory_rights_exceptions;
+        return $this->path_rights_exceptions;
     }
 
 
@@ -253,13 +253,13 @@ class RoutingParameters
      * specified path, and each subsequent directory below it until the file itself will be a required right for the
      * user to access that page
      *
-     * @param string $require_directory_rights
+     * @param string $require_path_rights
      * @return static
      */
-    public function setRequireDirectoryRights(string $require_directory_rights, array|string|null $directory_rights_exceptions = null): static
+    public function setRequirePathRights(string $require_path_rights, array|string|null $path_rights_exceptions = null): static
     {
-        $this->require_directory_rights    = $require_directory_rights;
-        $this->directory_rights_exceptions = Arrays::force($directory_rights_exceptions);
+        $this->require_path_rights    = $require_path_rights;
+        $this->path_rights_exceptions = Arrays::force($path_rights_exceptions);
         return $this;
     }
 
