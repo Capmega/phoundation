@@ -57,7 +57,6 @@ abstract class TemplatePage
     public function __construct(TemplateMenus $menus)
     {
         $this->menus = $menus;
-        $this->loadMenus();
     }
 
 
@@ -140,6 +139,8 @@ abstract class TemplatePage
         Page::htmlHeadersSent(true);
 
         if (Page::getBuildBody()) {
+            $this->loadMenus();
+
             $output .= $this->buildPageHeader();
             $output .= $this->buildMenu();
             $output .= $body;
