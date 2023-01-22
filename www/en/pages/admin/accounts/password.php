@@ -27,47 +27,16 @@ $user = User::get($_GET['id']);
 if (Page::isRequestMethod('POST')) {
     try {
         PostValidator::new()
-            ->select('username')->isOptional()->isName()
-            ->select('domain')->isOptional()->isDomain()
-            ->select('title')->isOptional()->isName()
-            ->select('first_names')->isOptional()->isName()
-            ->select('last_names')->isOptional()->isName()
-            ->select('nickname')->isOptional()->isName()
-            ->select('email')->isEmail()
-            ->select('type')->isOptional()->isName()
-            ->select('keywords')->isOptional()->sanitizeForceArray(' ')->each()->isWord()
-            ->select('phones')->isOptional()->sanitizeForceArray(',')->each()->isPhone()->sanitizeForceString()
-            ->select('address')->isOptional()->isPrintable()
-            ->select('priority')->isOptional()->isNatural()->isBetween(1, 10)
-            ->select('is_leader')->isOptional()->isBoolean()
-            ->select('leaders_id')->isOptional()->isId()
-            ->select('latitude')->isOptional()->isLatitude()
-            ->select('longitude')->isOptional()->isLongitude()
-            ->select('accuracy')->isOptional()->isFloat()->isBetween(0, 10)
-            ->select('countries_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':id' => '$countries_id'])
-            ->select('states_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_states` WHERE `id` = :id AND `countries_id` = :countries_id AND `status` IS NULL', [':id' => 'states_id', ':countries_id' => '$countries_id'])
-            ->select('cities_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_cities` WHERE `id` = :id AND `states_id`    = :states_id    AND `status` IS NULL', [':id' => 'cities_id', ':states_id'    => '$states_id'])
-            ->select('redirect')->isOptional()->isUrl()
-            ->select('language')->isQueryColumn('SELECT `code_639_1` FROM `languages` WHERE `code_639_1` = :code_639_1 AND `status` IS NULL', [':code_639_1' => '$language'])
-            ->select('gender')->isOptional()->inArray(['unknown', 'male', 'female', 'other'])
-            ->select('birthday')->isOptional()->isDate()
-            ->select('description')->isOptional()->isPrintable()->hasMaxCharacters(65_530)
-            ->select('comments')->isOptional()->isPrintable()->hasMaxCharacters(16_777_200)
-            ->select('website')->isOptional()->isUrl()
-            ->select('timezone')->isOptional()->isTimezone()
+            ->select('password1')->isPassword()
+            ->select('password2')->isPassword()
         ->validate();
 
-        // Update user
+        // Update user password
         $user = User::get($_GET['id']);
-        $user->modify($_POST);
-        $user->save();
+        $user->setPassword($_POST['password1'] ,$_POST['password2']);
 
-        // Go back to where we came from
-// TODO Implement timers
-//showdie(Timers::get('query'));
-
-        Page::getFlashMessages()->add(tr('Success'), tr('User ":user" has been updated', [':user' => $user->getDisplayName()]), 'success');
-        Page::redirect('referer');
+        Page::getFlashMessages()->add(tr('Success'), tr('The password for user ":user" has been updated', [':user' => $user->getDisplayName()]), 'success');
+        Page::redirect('this');
 
     } catch (ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
@@ -86,7 +55,7 @@ $buttons = Buttons::new()
 
 
 // Build the user form
-$user_card = Card::new()
+$card = Card::new()
     ->setHasCollapseSwitch(true)
     ->setTitle(tr('Edit data for User :name', [':name' => $user->getDisplayName()]))
     ->setContent($user->getHtmlForm()->render())
@@ -95,7 +64,7 @@ $user_card = Card::new()
 
 
 // Build the roles list management section
-$roles_card = Card::new()
+$rights = Card::new()
     ->setTitle(tr('Roles for this user'))
     ->setContent($user->getRolesHtmlForm()
         ->setAction('#')
@@ -107,7 +76,7 @@ $roles_card = Card::new()
 
 // Build the grid column with a form containing the user and roles cards
 $column = GridColumn::new()
-    ->addContent($user_card->render() . $roles_card->render())
+    ->addContent($card->render() . $rights->render())
     ->setSize(9)
     ->useForm(true);
 

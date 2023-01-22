@@ -1,7 +1,6 @@
 <?php
 
-use Phoundation\Accounts\Users\User;
-use Phoundation\Core\Timers;
+use Phoundation\Business\Customers\Customer;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
@@ -21,13 +20,13 @@ GetValidator::new()
     ->select('id')->isOptional()->isId()
     ->validate();
 
-$user = User::get($_GET['id']);
+$customer = Customer::get($_GET['id']);
 
 // Validate POST and submit
 if (Page::isRequestMethod('POST')) {
     try {
         PostValidator::new()
-            ->select('username')->isOptional()->isName()
+            ->select('customername')->isOptional()->isName()
             ->select('domain')->isOptional()->isDomain()
             ->select('title')->isOptional()->isName()
             ->select('first_names')->isOptional()->isName()
@@ -57,22 +56,22 @@ if (Page::isRequestMethod('POST')) {
             ->select('timezone')->isOptional()->isTimezone()
         ->validate();
 
-        // Update user
-        $user = User::get($_GET['id']);
-        $user->modify($_POST);
-        $user->save();
+        // Update customer
+        $customer = Customer::get($_GET['id']);
+        $customer->modify($_POST);
+        $customer->save();
 
         // Go back to where we came from
 // TODO Implement timers
 //showdie(Timers::get('query'));
 
-        Page::getFlashMessages()->add(tr('Success'), tr('User ":user" has been updated', [':user' => $user->getDisplayName()]), 'success');
+        Page::getFlashMessages()->add(tr('Success'), tr('Customer ":customer" has been updated', [':customer' => $customer->getName()]), 'success');
         Page::redirect('referer');
 
     } catch (ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
         Page::getFlashMessages()->add($e);
-        $user->modify($_POST);
+        $customer->modify($_POST);
     }
 }
 
@@ -81,33 +80,22 @@ if (Page::isRequestMethod('POST')) {
 // Build the buttons
 $buttons = Buttons::new()
     ->addButton('Submit')
-    ->addButton('Cancel', 'secondary', '/accounts/users.html', true);
+    ->addButton('Cancel', 'secondary', '/customers/customers.html', true);
 
 
 
-// Build the user form
-$user_card = Card::new()
+// Build the customer form
+$customer_card = Card::new()
     ->setHasCollapseSwitch(true)
-    ->setTitle(tr('Edit data for User :name', [':name' => $user->getDisplayName()]))
-    ->setContent($user->getHtmlForm()->render())
+    ->setTitle(tr('Edit data for customer :name', [':name' => $customer->getName()]))
+    ->setContent($customer->getHtmlForm()->render())
     ->setButtons($buttons);
 
 
 
-// Build the roles list management section
-$roles_card = Card::new()
-    ->setTitle(tr('Roles for this user'))
-    ->setContent($user->getRolesHtmlForm()
-        ->setAction('#')
-        ->setMethod('POST')
-        ->render())
-    ->setButtons($buttons);
-
-
-
-// Build the grid column with a form containing the user and roles cards
+// Build the grid column with a form containing the customer and roles cards
 $column = GridColumn::new()
-    ->addContent($user_card->render() . $roles_card->render())
+    ->addContent($customer_card->render())
     ->setSize(9)
     ->useForm(true);
 
@@ -115,10 +103,10 @@ $column = GridColumn::new()
 
 // Build profile picture card
 $picture = Card::new()
-    ->setTitle(tr('User profile picture'))
+    ->setTitle(tr('Customer profile picture'))
     ->setContent(Img::new()
-        ->setSrc($user->getPicture())
-        ->setAlt(tr('Profile picture for :user', [':user' => $user->getDisplayName()])));
+        ->setSrc($customer->getPicture())
+        ->setAlt(tr('Profile picture for :customer', [':customer' => $customer->getName()])));
 
 
 
@@ -126,9 +114,8 @@ $picture = Card::new()
 $relevant = Card::new()
     ->setMode('info')
     ->setTitle(tr('Relevant links'))
-    ->setContent('<a href="' . UrlBuilder::www('/accounts/password-' . $user->getId() . '.html') . '">' . tr('Change password for this user') . '</a><br>
-                         <a href="' . UrlBuilder::www('/accounts/roles.html') . '">' . tr('Roles management') . '</a><br>
-                         <a href="' . UrlBuilder::www('/accounts/rights.html') . '">' . tr('Rights management') . '</a>');
+    ->setContent('<a href="' . UrlBuilder::www('/business/providers/providers.html') . '">' . tr('Providers management') . '</a><br>
+                         <a href="' . UrlBuilder::www('/business/companies/companies.html') . '">' . tr('Companies management') . '</a>');
 
 
 
@@ -151,10 +138,10 @@ echo $grid->render();
 
 
 // Set page meta data
-Page::setHeaderTitle(tr('User'));
-Page::setHeaderSubTitle($user->getName());
+Page::setHeaderTitle(tr('Customer'));
+Page::setHeaderSubTitle($customer->getName());
 Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                    => tr('Home'),
-    '/accounts/users.html' => tr('Users'),
-    ''                     => $user->getDisplayName()
+    '/customers/customers.html' => tr('Customers'),
+    ''                     => $customer->getName()
 ]));

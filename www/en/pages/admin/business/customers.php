@@ -1,7 +1,7 @@
 <?php
 
-use Phoundation\Accounts\Users\FilterForm;
-use Phoundation\Accounts\Users\Users;
+use Phoundation\Business\Customers\FilterForm;
+use Phoundation\Business\Customers\Customers;
 use Phoundation\Web\Http\Html\Components\BreadCrumbs;
 use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Http\Html\Layouts\Grid;
@@ -14,29 +14,29 @@ use Phoundation\Web\Page;
 
 
 
-// Build users filter card
+// Build customers filter card
 $filters_content = FilterForm::new();
 
 
 $filters = Card::new()
     ->setHasCollapseSwitch(true)
-    ->setTitle('Users filters')
+    ->setTitle('Customers filters')
     ->setContent($filters_content->render())
     ->useForm(true);
 
 
 
-// Build users table
-$table = Users::new()->getHtmlTable()
-    ->setRowUrl('/accounts/user-:ROW.html');
+// Build customers table
+$table = Customers::new()->getHtmlTable()
+    ->setRowUrl('/business/customer-:ROW.html');
 
-$users = Card::new()
-    ->setTitle('Active users')
+$customers = Card::new()
+    ->setTitle('Active customers')
     ->setSwitches('reload')
     ->setContent($table->render())
     ->useForm(true);
 
-$users->getForm()
+$customers->getForm()
         ->setAction(UrlBuilder::current())
         ->setMethod('POST');
 
@@ -46,8 +46,8 @@ $users->getForm()
 $relevant = Card::new()
     ->setMode('info')
     ->setTitle(tr('Relevant links'))
-    ->setContent('<a href="' . UrlBuilder::www('/accounts/roles.html') . '">' . tr('Roles management') . '</a><br>
-                         <a href="' . UrlBuilder::www('/accounts/rights.html') . '">' . tr('Rights management') . '</a>');
+    ->setContent('<a href="' . UrlBuilder::www('/business/providers.html') . '">' . tr('Providers management') . '</a><br>
+                         <a href="' . UrlBuilder::www('/business/companies.html') . '">' . tr('Companies management') . '</a>');
 
 
 
@@ -61,7 +61,7 @@ $documentation = Card::new()
 
 // Build and render the grid
 $grid = Grid::new()
-    ->addColumn($filters->render() . $users->render(), 9)
+    ->addColumn($filters->render() . $customers->render(), 9)
     ->addColumn($relevant->render() . $documentation->render(), 3);
 
 echo $grid->render();
@@ -69,8 +69,8 @@ echo $grid->render();
 
 
 // Set page meta data
-Page::setHeaderTitle(tr('Users'));
+Page::setHeaderTitle(tr('Customers'));
 Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/' => tr('Home'),
-    ''  => tr('Users')
+    ''  => tr('Customers')
 ]));
