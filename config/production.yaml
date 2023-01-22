@@ -13,19 +13,14 @@ web:
     cookies:
   domains:
     primary:
-      domain: "localhost"
-      cloaked: false
-      index: "/"
-      www: "http://phoundation/:LANGUAGE/"
-      cdn: "http://cdn.phoundation/:LANGUAGE/"
-    test:
-      domain: "test"
-      www: "https://test/:LANGUAGE/"
-      cdn: "https://cdn.test.localhost/:LANGUAGE/"
-    trial:
-      domain: "trial"
-      www: "https://trial/:LANGUAGE/"
-      cdn: "https://cdn.trial.localhost/:LANGUAGE/"
+      www: "http://phoundation.org/:LANGUAGE/"
+      cdn: "http://cdn.phoundation.org/:LANGUAGE/"
+    test.phoundation.org.local:
+      www: "https://test.phoundation.org.local/:LANGUAGE/"
+      cdn: "https://cdn.test.phoundation.org.local/:LANGUAGE/"
+    trial.phoundation.local:
+      www: "https://trial.phoundation.org.local/:LANGUAGE/"
+      cdn: "https://cdn.trial.phoundation.org.local/:LANGUAGE/"
   route:
     known-hacks:
   template:

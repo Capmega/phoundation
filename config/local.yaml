@@ -1,6 +1,8 @@
 security:
-  seed: d5OK9sDYiWzq3gbD
-debug: false
+  seed: 8ZNl2d0e0gKnmGGNKp
+debug:
+  enabled: true
+  production: false
 project:
   name: phoundation
   version: 0.0.0
@@ -33,10 +35,7 @@ web:
       domain: auto
   domains:
     primary:
-      www: http://localhost/:LANGUAGE/
-      cdn: http://cdn.localhost/:LANGUAGE/
-    whitelabel1.phoundation.org:
-      www: https://whitelabel1.phoundation.org/:LANGUAGE/
-      cdn: https://cdn.whitelabel1.phoundation.org/:LANGUAGE/
+      www: http://phoundation.org.local/:LANGUAGE/
+      cdn: http://cdn.phoundation.org.local/:LANGUAGE/
   route:
     known-hacks: []
