@@ -500,37 +500,6 @@ class Core {
             Debug::enabled();
         }
 
-        if ($argv['usage']) {
-            Script::showUsage(isset_get($GLOBALS['usage']), 'white');
-            $die = 0;
-        }
-
-        if ($argv['help']) {
-            if (isset_get($GLOBALS['argv'][$argid + 1]) == 'system') {
-                Script::showHelp('system');
-
-            } else {
-                if (empty($GLOBALS['help'])) {
-                    $e = new CoreException(tr('Sorry, this script has no help text defined'), 'warning');
-                }
-
-                $GLOBALS['help'] = Arrays::force($GLOBALS['help'], "\n");
-
-                if (count($GLOBALS['help']) == 1) {
-                    Log::information(array_shift($GLOBALS['help']));
-
-                } else {
-                    foreach (Arrays::force($GLOBALS['help'], "\n") as $line) {
-                        Log::information($line);
-                    }
-
-                    Log::information();
-                }
-            }
-
-            $die = 0;
-        }
-
         if ($argv['language']) {
             // Set language to be used
             if (isset($language)) {

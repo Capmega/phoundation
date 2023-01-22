@@ -2,57 +2,41 @@
 
 namespace Phoundation\Cli;
 
+use Phoundation\Core\Log;
+
 class Documentation
 {
     /**
-     * Script help text
+     * Show help text?
      *
-     * @var string|null $help
+     * @var bool $help
      */
-    protected static ?string $help = null;
+    protected static bool $help = false;
 
     /**
-     * Script usage information
+     * Show usage text?
      *
-     * @var string|null $usage
+     * @var bool $usage
      */
-    protected static ?string $usage = null;
+    protected static bool $usage = false;
 
 
 
     /**
      * Returns the help text
      *
-     * @return string
-     */
-    public static function getHelp(): string
-    {
-        return self::$help;
-    }
-
-
-
-    /**
-     * Sets the help text
-     *
      * @param string $help
      * @return void
      */
-    public static function setHelp(string $help): void
+    public static function help(string $help): void
     {
-        self::$help = $help;
-    }
+        global $argv;
 
-
-
-    /**
-     * Returns the usage text
-     *
-     * @return string
-     */
-    public static function getUsage(): string
-    {
-        return self::$usage;
+        if (isset_get($argv['help'])) {
+            Log::information(tr('Command help:'));
+            Log::notice($help);
+            Script::die();
+        }
     }
 
 
@@ -63,8 +47,14 @@ class Documentation
      * @param string $usage
      * @return void
      */
-    public static function setUsage(string $usage): void
+    public static function usage(string $usage): void
     {
-        self::$usage = $usage;
+        global $argv;
+
+        if (isset_get($argv['usage'])) {
+            Log::information(tr('Command usage:'));
+            Log::notice($usage);
+            Script::die();
+        }
     }
 }
