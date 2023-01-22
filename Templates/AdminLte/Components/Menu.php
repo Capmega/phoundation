@@ -19,6 +19,7 @@ class Menu extends \Phoundation\Web\Http\Html\Components\Menu
     /**
      * Renders the HTML for the menu
      *
+     * @todo Add caching of the menu structure
      * @return string|null
      */
     public function render(): ?string

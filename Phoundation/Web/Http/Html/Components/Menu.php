@@ -2,8 +2,9 @@
 
 namespace Phoundation\Web\Http\Html\Components;
 
+use Phoundation\Core\Session;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+
 
 
 /**
@@ -26,18 +27,54 @@ abstract class Menu extends ElementsBlock
      */
     public function setSource(?array $source): static
     {
+        $source = $this->filterNoAccess($source);
         $source = $this->makeUrlsAbsolute($source);
         return parent::setSource($source);
     }
 
 
+
     /**
-     * Recursively make all "url" keys absolute URL's, recursing into "menu" keys
+     * Filter menu entries where this user has no access to
+     *
+     * @param array $source
+     * @return array
      */
-    public function makeUrlsAbsolute(array $source): array
+    protected function filterNoAccess(array $source): array
+    {
+        foreach ($source as $label => &$entry) {
+            if (!array_key_exists('rights', $entry)) {
+                // No rights required
+                continue;
+            }
+
+            if (Session::getUser()->hasAllRights($entry['rights'])) {
+                if (array_key_exists('menu', $entry)) {
+                    // Recurse
+                    $entry['menu'] = $this->makeUrlsAbsolute($entry['menu']);
+
+                    if ($entry['menu']) {
+                        // The entire sub menu is gone, remove this empty top entry too
+                        continue;
+                    }
+                }
+            }
+
+            unset($source[$label]);
+        }
+
+        return $source;
+    }
+
+
+
+    /**
+     * Recursively make all "url" keys absolute URL's, recurseing into "menu" keys
+     */
+    protected function makeUrlsAbsolute(array $source): array
     {
         // Ensure all URL's are absolute
-        foreach ($source as $label => &$entry) {
+        foreach ($source as &$entry) {
             if (is_string($entry)) {
                 $entry = ['url' => $entry];
             }
