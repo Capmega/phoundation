@@ -1,6 +1,6 @@
 <?php
 
-namespace Phoundation\Geo;
+namespace Phoundation\Geo\Timezones;
 
 use Phoundation\Data\DataEntry;
 use Phoundation\Data\DataEntryNameDescription;
@@ -39,32 +39,7 @@ class Timezone extends DataEntry
 
 
     /**
-     * Load the Timezone data from database
-     *
-     * @param string|int $identifier
-     * @return void
-     */
-    protected function load(string|int $identifier): void
-    {
-
-    }
-
-
-
-    /**
-     * Save the Timezone data to database
-     *
-     * @return static
-     */
-    public function save(): static
-    {
-        return $this;
-    }
-
-
-
-    /**
-     * Set the keys for this DataEntry
+     * Set the form keys for this DataEntry
      *
      * @return void
      */

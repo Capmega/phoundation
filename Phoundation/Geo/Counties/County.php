@@ -1,14 +1,18 @@
 <?php
 
-namespace Phoundation\Geo;
+namespace Phoundation\Geo\Counties;
 
 use Phoundation\Data\DataEntry;
 use Phoundation\Data\DataEntryNameDescription;
+use Phoundation\Geo\Continents\Continent;
+use Phoundation\Geo\Countries\Country;
+use Phoundation\Geo\States\State;
+use Phoundation\Geo\Timezones\Timezone;
 
 
 
 /**
- * Class City
+ * Class County
  *
  *
  *
@@ -17,14 +21,14 @@ use Phoundation\Data\DataEntryNameDescription;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Geo
  */
-class City extends DataEntry
+class County extends DataEntry
 {
     use DataEntryNameDescription;
 
 
 
     /**
-     * Returns the general timezone for this city
+     * Returns the general timezone for this county
      *
      * @return Timezone
      */
@@ -36,7 +40,7 @@ class City extends DataEntry
 
 
     /**
-     * Returns the continent for this city
+     * Returns the continent for this county
      *
      * @return Continent
      */
@@ -48,7 +52,7 @@ class City extends DataEntry
 
 
     /**
-     * Returns the country for this city
+     * Returns the country for this county
      *
      * @return Country
      */
@@ -60,7 +64,7 @@ class City extends DataEntry
 
 
     /**
-     * Returns the state for this city
+     * Returns the state for this county
      *
      * @return State
      */
@@ -72,37 +76,12 @@ class City extends DataEntry
 
 
     /**
-     * Returns the county for this city
-     *
-     * @return County
-     */
-    public function getCounty(): County
-    {
-        return new County($this->getDataValue('counties_id'));
-    }
-
-
-
-    /**
-     * Load the City data from database
-     *
-     * @param string|int $identifier
-     * @return void
-     */
-    protected function load(string|int $identifier): void
-    {
-
-    }
-
-
-
-    /**
-     * Save the City data to database
+     * Set the form keys for this DataEntry
      *
      * @return void
      */
-    protected function save(): void
+    protected function setKeys(): void
     {
-
+        // TODO: Implement setKeys() method.
     }
 }

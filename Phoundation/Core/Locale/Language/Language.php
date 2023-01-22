@@ -149,16 +149,16 @@ class Language extends DataEntry
                 'type'     => 'numeric',
                 'label'    => tr('Database ID')
             ],
+            'created_on' => [
+                'disabled' => true,
+                'type'     => 'date',
+                'label'    => tr('Created on')
+            ],
             'created_by' => [
                 'disabled' => true,
                 'source'   => 'SELECT IFNULL(`username`, `email`) AS `username` FROM `accounts_users` WHERE `id` = :id',
                 'execute'  => 'id',
                 'label'    => tr('Created by')
-            ],
-            'created_on' => [
-                'disabled' => true,
-                'type'     => 'date',
-                'label'    => tr('Created on')
             ],
             'meta_id' => [
                 'disabled' => true,

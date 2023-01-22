@@ -1,6 +1,6 @@
 <?php
 
-namespace Phoundation\Data\Categories;
+namespace Phoundation\Geo\Countries;
 
 use Phoundation\Data\DataList;
 use Phoundation\Web\Http\Html\Components\Input\Select;
@@ -9,28 +9,28 @@ use Phoundation\Web\Http\Html\Components\Table;
 
 
 /**
- * Class Categories
+ * Countries class
  *
  *
  *
- * @see \Phoundation\Data\DataList
+ * @see \Phoundation\Data\DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package Phoundation\Geo
  */
-class Categories extends DataList
+class Countries extends DataList
 {
     /**
-     * Categories class constructor
+     * Cities class constructor
      *
-     * @param Category|null $parent
+     * @param Country|null $parent
      * @param string|null $id_column
      */
-    public function __construct(Category|null $parent = null, ?string $id_column = null)
+    public function __construct(Country|null $parent = null, ?string $id_column = null)
     {
-        $this->entry_class = Category::class;
-        $this->setHtmlQuery('SELECT `id`, `name`, `status`, `created_on` FROM `categories` WHERE `status` IS NULL ORDER BY `name`');
+        $this->entry_class = State::class;
+        $this->setHtmlQuery('SELECT `id`, `name`, `status`, `created_on` FROM `geo_states` WHERE `status` IS NULL ORDER BY `name`');
         parent::__construct($parent, $id_column);
     }
 
@@ -52,20 +52,20 @@ class Categories extends DataList
 
 
     /**
-     * Returns an HTML <select> object with all available categories
+     * Returns an HTML <select> object with all states available in this country
      *
      * @param string $name
      * @return Select
      */
-    public static function getHtmlSelect(string $name = 'categories_id'): Select
+    public static function getHtmlCountriesSelect(string $name = 'countries_id'): Select
     {
         return Select::new()
             ->setSourceQuery('SELECT `id`, `name` 
-                                          FROM  `categories` 
+                                          FROM  `countries` 
                                           WHERE `status` IS NULL ORDER BY `name`')
             ->setName($name)
-            ->setNone(tr('Please select a category'))
-            ->setEmpty(tr('No users available'));
+            ->setNone(tr('Please select a country'))
+            ->setEmpty(tr('No countries available'));
     }
 
 

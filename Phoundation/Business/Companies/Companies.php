@@ -2,8 +2,10 @@
 
 namespace Phoundation\Business\Companies;
 
-use Phoundation\Data\DataEntry;
+use Phoundation\Business\Customers\Customer;
 use Phoundation\Data\DataList;
+use Phoundation\Web\Http\Html\Components\Input\Select;
+use Phoundation\Web\Http\Html\Components\Table;
 
 
 
@@ -21,22 +23,61 @@ use Phoundation\Data\DataList;
 class Companies extends DataList
 {
     /**
-     * DataList class constructor
+     * Companies class constructor
      *
-     * @param DataEntry|null $parent
+     * @param Customer|null $parent
+     * @param string|null $id_column
      */
-    public function __construct(?DataEntry $parent = null)
+    public function __construct(Customer|null $parent = null, ?string $id_column = null)
     {
         $this->entry_class = Company::class;
-        parent::__construct($parent);
+        $this->setHtmlQuery('SELECT `id`, `name`, `email`, `status`, `created_on` FROM `business_companies` WHERE `status` IS NULL ORDER BY `name`');
+        parent::__construct($parent, $id_column);
     }
 
 
 
     /**
-     * @inheritDoc
+     * Creates and returns an HTML table for the data in this list
+     *
+     * @return Table
      */
-     protected function load(bool $details = false): static
+    public function getHtmlTable(): Table
+    {
+        $table = parent::getHtmlTable();
+        $table->setCheckboxSelectors(true);
+
+        return $table;
+    }
+
+
+
+    /**
+     * Returns an HTML <select> object with all available companies
+     *
+     * @param string $name
+     * @return Select
+     */
+    public static function getHtmlSelect(string $name = 'companies_id'): Select
+    {
+        return Select::new()
+            ->setSourceQuery('SELECT `id`, `name` 
+                                          FROM  `business_companies` 
+                                          WHERE `status` IS NULL ORDER BY `name`')
+            ->setName($name)
+            ->setNone(tr('Please select a company'))
+            ->setEmpty(tr('No companies available'));
+    }
+
+
+
+    /**
+     *
+     *
+     * @param string|null $id_column
+     * @return $this
+     */
+    protected function load(?string $id_column = null): static
     {
         // TODO: Implement load() method.
     }
@@ -44,7 +85,23 @@ class Companies extends DataList
 
 
     /**
-     * @inheritDoc
+     *
+     *
+     * @param array|string|null $columns
+     * @param array $filters
+     * @return array
+     */
+    protected function loadDetails(array|string|null $columns, array $filters = []): array
+    {
+        // TODO: Implement loadDetails() method.
+    }
+
+
+
+    /**
+     *
+     *
+     * @return $this
      */
     public function save(): static
     {

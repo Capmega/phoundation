@@ -228,6 +228,9 @@ class TemplateMenus
                     ],
                 ]
             ],
+            tr('Productivity') => [
+                'icon' => '',
+            ],
             tr('Customers') => [
                 'rights' => 'admin,customers',
                 'url'  => '/customers/customers.html',
@@ -238,8 +241,8 @@ class TemplateMenus
                 'url'    => '/providers/providers.html',
                 'icon'   => 'fa-users'
             ],
-            tr('Business') => [
-                'rights' => 'admin,business',
+            tr('Businesses') => [
+                'rights' => 'admin,businesses',
                 'icon'   => 'fa-building',
                 'menu'   => [
                     tr('Companies') => [
@@ -270,7 +273,6 @@ class TemplateMenus
                 ]
             ],
             tr('Other') => [
-                'rights' => 'admin',
                 'icon' => ''
             ],
             tr('About') => [

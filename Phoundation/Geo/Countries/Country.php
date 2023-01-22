@@ -1,9 +1,12 @@
 <?php
 
-namespace Phoundation\Geo;
+namespace Phoundation\Geo\Countries;
 
 use Phoundation\Data\DataEntry;
 use Phoundation\Data\DataEntryNameDescription;
+use Phoundation\Geo\Continents\Continent;
+use Phoundation\Geo\Timezones\Timezone;
+use Phoundation\Web\Http\Html\Components\Input\Select;
 
 
 /**
@@ -62,32 +65,28 @@ class Country extends DataEntry
 
 
     /**
-     * Load the Country data from database
+     * Returns an HTML <select> object with all states available in this country
      *
-     * @param string|int $identifier
-     * @return void
+     * @param string $name
+     * @return Select
      */
-    protected function load(string|int $identifier): void
+    public function getHtmlStatesSelect(string $name = 'states_id'): Select
     {
-
+        return Select::new()
+            ->setSourceQuery('SELECT `id`, `name` 
+                                          FROM  `geo_states` 
+                                          WHERE `countries_id` = :countries_id AND `status` IS NULL ORDER BY `name`', [
+                ':countries_id' => $this->getId()
+            ])
+            ->setName($name)
+            ->setNone(tr('Please select a state'))
+            ->setEmpty(tr('No state available'));
     }
 
 
 
     /**
-     * Save the Country data to database
-     *
-     * @return static
-     */
-    public function save(): static
-    {
-        return $this;
-    }
-
-
-
-    /**
-     * Set the keys for this DataEntry
+     * Set the form keys for this DataEntry
      *
      * @return void
      */

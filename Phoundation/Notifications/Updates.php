@@ -53,8 +53,8 @@ class Updates extends \Phoundation\System\Updates
             sql()->schema()->table('notifications')->define()
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
-                    `created_by` int DEFAULT NULL,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `created_by` int DEFAULT NULL,
                     `meta_id` int NOT NULL,
                     `status` varchar(16) DEFAULT NULL,
                     `code` varchar(16) DEFAULT NULL,
@@ -83,8 +83,8 @@ class Updates extends \Phoundation\System\Updates
             sql()->schema()->table('notifications_groups')->define()
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
-                    `created_by` int DEFAULT NULL,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `created_by` int DEFAULT NULL,
                     `notifications_id` int(11) NOT NULL,
                     `groups_id` int(11) DEFAULT NULL,')
                 ->setIndices('

@@ -21,14 +21,12 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Date\DateTime;
 use Phoundation\Exception\NotSupportedException;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Geo\City;
-use Phoundation\Geo\Country;
-use Phoundation\Geo\State;
-use Phoundation\Geo\Timezone;
-use Phoundation\Seo\Seo;
+use Phoundation\Geo\Cities\City;
+use Phoundation\Geo\Countries\Country;
+use Phoundation\Geo\States\State;
+use Phoundation\Geo\Timezones\Timezone;
 use Phoundation\Web\Http\Html\Components\Form;
 use Phoundation\Web\Http\UrlBuilder;
-
 
 
 /**
@@ -1721,15 +1719,51 @@ class User extends DataEntry
         $roles  = $this->roles();
         $select = $roles->getHtmlSelect()->setCache(true);
 
+        // Add extra entry with nothing selected
+        $select->clearSelected();
+        $form->addContent($select->render() . '<br>');
+
+        // Add all current roles
         foreach ($roles as $role) {
             $select->setSelected($role->getSeoName());
             $form->addContent($select->render() . '<br>');
         }
 
-        // Add extra entry with nothing selected
-        $select->clearSelected();
-        $form->addContent($select->render());
         return $form;
+    }
+
+
+
+    /**
+     * Save the user to database
+     *
+     * @return static
+     */
+    public function save(): static
+    {
+        Log::action(tr('Saving user ":user"', [':user' => $this->getDisplayName()]));
+        return parent::save();
+    }
+
+
+
+    /**
+     * Save the password for this user
+     *
+     * @return static
+     */
+    protected function savePassword(): static
+    {
+        if (empty($this->data['id'])) {
+            throw new UsersException(tr('Cannot save password, this user does not have an id'));
+        }
+
+        sql()->query('UPDATE `accounts_users` SET `password` = :password WHERE `id` = :id', [
+            ':id'       => $this->data['id'],
+            ':password' => $this->data['password']
+        ]);
+
+        return $this;
     }
 
 
@@ -1743,27 +1777,23 @@ class User extends DataEntry
     {
         $this->keys = [
             'id' => [
-                'display'  => true,
                 'disabled' => true,
                 'type'     => 'numeric',
                 'label'    => tr('Database ID')
             ],
+            'created_on' => [
+                'disabled' => true,
+                'type'     => 'date',
+                'label'    => tr('Created on')
+            ],
             'created_by' => [
                 'element'  => 'input',
-                'display'  => true,
                 'disabled' => true,
                 'source'   => 'SELECT IFNULL(`username`, `email`) AS `username` FROM `accounts_users` WHERE `id` = :id',
                 'execute'  => 'id',
                 'label'    => tr('Created by')
             ],
-            'created_on' => [
-                'display'  => true,
-                'disabled' => true,
-                'type'     => 'date',
-                'label'    => tr('Created on')
-            ],
             'meta_id' => [
-                'display'  => true,
                 'disabled' => true,
                 'element'  => null, //Meta::new()->getHtmlTable(), // TODO implement
                 'label'    => tr('Meta information')
@@ -1832,7 +1862,6 @@ class User extends DataEntry
                 'label'    => tr('Type')
             ],
             'email' => [
-                'display'  => true,
                 'type'     => 'email',
                 'label'    => tr('Email address')
             ],
@@ -1997,39 +2026,5 @@ class User extends DataEntry
             'description'             => 12,
             'comments'                => 12
         ] ;
-    }
-
-
-
-    /**
-     * Save the user to database
-     *
-     * @return static
-     */
-    public function save(): static
-    {
-        Log::action(tr('Saving user ":user"', [':user' => $this->getDisplayName()]));
-        return parent::save();
-    }
-
-
-
-    /**
-     * Save the password for this user
-     *
-     * @return static
-     */
-    protected function savePassword(): static
-    {
-        if (empty($this->data['id'])) {
-            throw new UsersException(tr('Cannot save password, this user does not have an id'));
-        }
-
-        sql()->query('UPDATE `accounts_users` SET `password` = :password WHERE `id` = :id', [
-            ':id'       => $this->data['id'],
-            ':password' => $this->data['password']
-        ]);
-
-        return $this;
     }
 }

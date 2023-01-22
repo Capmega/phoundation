@@ -1,9 +1,10 @@
 <?php
 
-namespace Phoundation\Geo;
+namespace Phoundation\Geo\Continents;
 
 use Phoundation\Data\DataEntry;
 use Phoundation\Data\DataEntryNameDescription;
+use Phoundation\Geo\Timezones\Timezone;
 
 
 
@@ -51,32 +52,7 @@ class Continent extends DataEntry
 
 
     /**
-     * Load the Continent data from database
-     *
-     * @param string|int $identifier
-     * @return void
-     */
-    protected function load(string|int $identifier): void
-    {
-
-    }
-
-
-
-    /**
-     * Save the Continent data to database
-     *
-     * @return static
-     */
-    public function save(): static
-    {
-        return $this;
-    }
-
-
-
-    /**
-     * Set the keys for this DataEntry
+     * Set the form keys for this DataEntry
      *
      * @return void
      */

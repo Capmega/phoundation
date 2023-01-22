@@ -1,13 +1,19 @@
 <?php
 
-namespace Phoundation\Geo;
+namespace Phoundation\Geo\Cities;
 
 use Phoundation\Data\DataEntry;
+use Phoundation\Data\DataEntryNameDescription;
+use Phoundation\Geo\Continents\Continent;
+use Phoundation\Geo\Counties\County;
+use Phoundation\Geo\Countries\Country;
+use Phoundation\Geo\States\State;
+use Phoundation\Geo\Timezones\Timezone;
 
 
 
 /**
- * Class County
+ * Class City
  *
  *
  *
@@ -16,14 +22,14 @@ use Phoundation\Data\DataEntry;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Geo
  */
-class County
+class City extends DataEntry
 {
-    use DataEntry;
+    use DataEntryNameDescription;
 
 
 
     /**
-     * Returns the general timezone for this county
+     * Returns the general timezone for this city
      *
      * @return Timezone
      */
@@ -35,7 +41,7 @@ class County
 
 
     /**
-     * Returns the continent for this county
+     * Returns the continent for this city
      *
      * @return Continent
      */
@@ -47,7 +53,7 @@ class County
 
 
     /**
-     * Returns the country for this county
+     * Returns the country for this city
      *
      * @return Country
      */
@@ -59,7 +65,7 @@ class County
 
 
     /**
-     * Returns the state for this county
+     * Returns the state for this city
      *
      * @return State
      */
@@ -71,25 +77,24 @@ class County
 
 
     /**
-     * Load the County data from database
+     * Returns the county for this city
      *
-     * @param string|int $identifier
-     * @return void
+     * @return County
      */
-    protected function load(string|int $identifier): void
+    public function getCounty(): County
     {
-
+        return new County($this->getDataValue('counties_id'));
     }
 
 
 
     /**
-     * Save the County data to database
+     * Set the form keys for this DataEntry
      *
      * @return void
      */
-    protected function save(): void
+    protected function setKeys(): void
     {
-
+        // TODO: Implement setKeys() method.
     }
 }

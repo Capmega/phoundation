@@ -56,8 +56,8 @@ class Updates extends \Phoundation\System\Updates
             sql()->schema()->table('accounts_users')->define()
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
-                    `created_by` int DEFAULT NULL,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `created_by` int DEFAULT NULL,
                     `meta_id` int DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `last_sign_in` datetime DEFAULT NULL,
@@ -222,8 +222,8 @@ class Updates extends \Phoundation\System\Updates
             sql()->schema()->table('accounts_users_rights')->define()
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
-                    `created_by` int DEFAULT NULL,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `created_by` int DEFAULT NULL,
                     `users_id` int NOT NULL,
                     `rights_id` int NOT NULL,
                     `name` varchar(32) NOT NULL,
@@ -250,8 +250,8 @@ class Updates extends \Phoundation\System\Updates
             sql()->schema()->table('accounts_users_roles')->define()
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
-                    `created_by` int DEFAULT NULL,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `created_by` int DEFAULT NULL,
                     `users_id` int NOT NULL,
                     `roles_id` int NOT NULL,
                 ')
@@ -274,8 +274,8 @@ class Updates extends \Phoundation\System\Updates
             sql()->schema()->table('accounts_roles_rights')->define()
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
-                    `created_by` int DEFAULT NULL,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `created_by` int DEFAULT NULL,
                     `roles_id` int NOT NULL,
                     `rights_id` int NOT NULL,
                 ')
@@ -348,8 +348,8 @@ class Updates extends \Phoundation\System\Updates
             sql()->schema()->table('accounts_old_passwords')->define()
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
-                    `created_by` int NOT NULL,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `created_by` int NOT NULL,
                     `password` varchar(255) NOT NULL,
                 ')
                 ->setIndices('
@@ -365,8 +365,8 @@ class Updates extends \Phoundation\System\Updates
             sql()->schema()->table('accounts_compromised_passwords')->define()
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
-                    `created_by` int NOT NULL,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `created_by` int NOT NULL,
                     `password` varchar(255) NOT NULL,
                 ')
                 ->setIndices('

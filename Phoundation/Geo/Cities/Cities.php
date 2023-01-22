@@ -1,36 +1,36 @@
 <?php
 
-namespace Phoundation\Business\Customers;
+namespace Phoundation\Geo\Cities;
 
-use Phoundation\Business\Companies\Company;
 use Phoundation\Data\DataList;
+use Phoundation\Geo\States\State;
 use Phoundation\Web\Http\Html\Components\Table;
 
 
 
 /**
- * Customers class
+ * Cities class
  *
  *
  *
- * @see \Phoundation\Data\DataList
+ * @see \Phoundation\Data\DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Business
+ * @package Phoundation\Geo
  */
-class Customers extends DataList
+class Cities extends DataList
 {
     /**
-     * Users class constructor
+     * Cities class constructor
      *
-     * @param Company|null $parent
+     * @param State|null $parent
      * @param string|null $id_column
      */
-    public function __construct(Company|null $parent = null, ?string $id_column = null)
+    public function __construct(State|null $parent = null, ?string $id_column = null)
     {
-        $this->entry_class = Customer::class;
-        $this->setHtmlQuery('SELECT `id`, `name`, `code`, `status`, `created_on` FROM `business_customers`');
+        $this->entry_class = City::class;
+        $this->setHtmlQuery('SELECT `id`, `name`, `status`, `created_on` FROM `geo_cities` WHERE `status` IS NULL ORDER BY `name`');
         parent::__construct($parent, $id_column);
     }
 
@@ -54,12 +54,18 @@ class Customers extends DataList
     /**
      * @inheritDoc
      */
-     protected function load(bool|string|null $id_column = false): static
+    protected function load(?string $id_column = null): static
     {
         // TODO: Implement load() method.
     }
 
-
+    /**
+     * @inheritDoc
+     */
+    protected function loadDetails(array|string|null $columns, array $filters = []): array
+    {
+        // TODO: Implement loadDetails() method.
+    }
 
     /**
      * @inheritDoc
@@ -67,10 +73,5 @@ class Customers extends DataList
     public function save(): static
     {
         // TODO: Implement save() method.
-    }
-
-    protected function loadDetails(array|string|null $columns, array $filters = []): array
-    {
-        // TODO: Implement loadDetails() method.
     }
 }

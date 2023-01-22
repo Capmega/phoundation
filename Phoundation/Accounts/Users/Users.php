@@ -9,6 +9,7 @@ use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataList;
 use Phoundation\Databases\Sql\QueryBuilder;
+use Phoundation\Web\Http\Html\Components\Input\Select;
 use Phoundation\Web\Http\Html\Components\Table;
 
 
@@ -35,7 +36,7 @@ class Users extends DataList
     public function __construct(Role|User|null $parent = null, ?string $id_column = null)
     {
         $this->entry_class = User::class;
-        $this->setHtmlQuery('SELECT `id`, CONCAT(`first_names`, `last_names`) AS `name`, `nickname`, `email`, `status`, `created_on` FROM `accounts_users`');
+        $this->setHtmlQuery('SELECT `id`, CONCAT(`first_names`, `last_names`) AS `name`, `nickname`, `email`, `status`, `created_on` FROM `accounts_users` WHERE `status` IS NULL ORDER BY `name`');
         parent::__construct($parent, $id_column);
     }
 
@@ -52,6 +53,25 @@ class Users extends DataList
         $table->setCheckboxSelectors(true);
 
         return $table;
+    }
+
+
+
+    /**
+     * Returns an HTML <select> object with all available languages
+     *
+     * @param string $name
+     * @return Select
+     */
+    public static function getHtmlSelect(string $name = 'users_id'): Select
+    {
+        return Select::new()
+            ->setSourceQuery('SELECT COALESCE(NULLIF(TRIM(CONCAT_WS(" ", `first_name`, `last_name`)), ""), `username`, `email`) AS `name` 
+                                          FROM  `accounts_users`
+                                          WHERE `status` IS NULL ORDER BY `name`')
+            ->setName($name)
+            ->setNone(tr('Please select a user'))
+            ->setEmpty(tr('No users available'));
     }
 
 

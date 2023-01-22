@@ -4,7 +4,6 @@ namespace Phoundation\Core\Locale\Language;
 
 use Phoundation\Data\DataList;
 use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Filesystem;
 use Phoundation\Web\Http\Html\Components\Input\Select;
 
 
@@ -21,6 +20,21 @@ use Phoundation\Web\Http\Html\Components\Input\Select;
  */
 class Languages extends DataList
 {
+    /**
+     * Languages class constructor
+     *
+     * @param Language|null $parent
+     * @param string|null $id_column
+     */
+    public function __construct(Language $parent = null, ?string $id_column = null)
+    {
+        $this->entry_class = Language::class;
+        $this->setHtmlQuery('SELECT `id`, `code_639_1`, `name`, `status`, `created_on` FROM `languages` WHERE `status` IS NULL ORDER BY `name`');
+        parent::__construct($parent, $id_column);
+    }
+
+
+
     /**
      * Import the content for the languages table from a data-source file
      *
@@ -63,9 +77,10 @@ class Languages extends DataList
     /**
      * Returns an HTML <select> object with all available languages
      *
+     * @param string $name
      * @return Select
      */
-    public static function getHtmlSelect(string $name = 'language'): Select
+    public static function getHtmlSelect(string $name = 'languages_id'): Select
     {
         return Select::new()
             ->setSourceQuery('SELECT `code_639_1`, `name` FROM `languages` WHERE `status` IS NULL ORDER BY `name`')

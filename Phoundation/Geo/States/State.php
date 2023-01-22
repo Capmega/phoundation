@@ -1,10 +1,13 @@
 <?php
 
-namespace Phoundation\Geo;
+namespace Phoundation\Geo\States;
 
 use Phoundation\Data\DataEntry;
 use Phoundation\Data\DataEntryNameDescription;
-
+use Phoundation\Geo\Continents\Continent;
+use Phoundation\Geo\Countries\Country;
+use Phoundation\Geo\Timezones\Timezone;
+use Phoundation\Web\Http\Html\Components\Input\Select;
 
 
 /**
@@ -75,32 +78,28 @@ class State extends DataEntry
 
 
     /**
-     * Load the State data from database
+     * Returns an HTML <select> object with all cities available in this state
      *
-     * @param string|int $identifier
-     * @return void
+     * @param string $name
+     * @return Select
      */
-    protected function load(string|int $identifier): void
+    public function getHtmlCitiesSelect(string $name = 'cities_id'): Select
     {
-
+        return Select::new()
+            ->setSourceQuery('SELECT `id`, `name` 
+                                          FROM  `geo_cities` 
+                                          WHERE `states_id` = :states_id AND `status` IS NULL ORDER BY `name`', [
+                ':states_id' => $this->getId()
+            ])
+            ->setName($name)
+            ->setNone(tr('Please select a city'))
+            ->setEmpty(tr('No cities available'));
     }
 
 
 
     /**
-     * Save the State data to database
-     *
-     * @return static
-     */
-    public function save(): static
-    {
-
-    }
-
-
-
-    /**
-     * Set the keys for this DataEntry
+     * Set the form keys for this DataEntry
      *
      * @return void
      */

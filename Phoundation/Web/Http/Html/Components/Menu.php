@@ -27,43 +27,8 @@ abstract class Menu extends ElementsBlock
      */
     public function setSource(?array $source): static
     {
-        $source = $this->filterNoAccess($source);
         $source = $this->makeUrlsAbsolute($source);
         return parent::setSource($source);
-    }
-
-
-
-    /**
-     * Filter menu entries where this user has no access to
-     *
-     * @param array $source
-     * @return array
-     */
-    protected function filterNoAccess(array $source): array
-    {
-        foreach ($source as $label => &$entry) {
-            if (!array_key_exists('rights', $entry)) {
-                // No rights required
-                continue;
-            }
-
-            if (Session::getUser()->hasAllRights($entry['rights'])) {
-                if (array_key_exists('menu', $entry)) {
-                    // Recurse
-                    $entry['menu'] = $this->makeUrlsAbsolute($entry['menu']);
-
-                    if ($entry['menu']) {
-                        // The entire sub menu is gone, remove this empty top entry too
-                        continue;
-                    }
-                }
-            }
-
-            unset($source[$label]);
-        }
-
-        return $source;
     }
 
 
@@ -74,9 +39,17 @@ abstract class Menu extends ElementsBlock
     protected function makeUrlsAbsolute(array $source): array
     {
         // Ensure all URL's are absolute
-        foreach ($source as &$entry) {
+        foreach ($source as $label => &$entry) {
             if (is_string($entry)) {
                 $entry = ['url' => $entry];
+            }
+
+            if (array_key_exists('rights', $entry)) {
+                if (!Session::getUser()->hasAllRights($entry['rights'])) {
+                    // User doesn't have access
+                    unset($source[$label]);
+                    continue;
+                }
             }
 
             if (array_key_exists('url', $entry)) {
@@ -86,6 +59,11 @@ abstract class Menu extends ElementsBlock
             if (array_key_exists('menu', $entry)) {
                 // Recurse
                 $entry['menu'] = $this->makeUrlsAbsolute($entry['menu']);
+
+                if (!$entry['menu']) {
+                    // The entire sub menu is empty, remove this empty top entry too
+                    unset($source[$label]);
+                }
             }
         }
 

@@ -55,8 +55,8 @@ class Updates extends \Phoundation\System\Updates
             sql()->schema()->table('versions')->define()
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
-                    `created_by` int DEFAULT NULL,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `created_by` int DEFAULT NULL,
                     `meta_id` int DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `library` VARCHAR(64) NOT NULL,
@@ -107,8 +107,8 @@ class Updates extends \Phoundation\System\Updates
             sql()->schema()->table('sessions_extended')->define()
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
-                    `created_by` int DEFAULT NULL,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `created_by` int DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `session_key` varchar(64) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
                     `ip` int NOT NULL,
@@ -150,8 +150,8 @@ class Updates extends \Phoundation\System\Updates
             sql()->schema()->table('key_value_store')->define()
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
-                    `created_by` int DEFAULT NULL,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `created_by` int DEFAULT NULL,
                     `meta_id` int DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `key` varchar(64) NOT NULL,
@@ -174,8 +174,8 @@ class Updates extends \Phoundation\System\Updates
             sql()->schema()->table('languages')->define()
                 ->setColumns('
                     `id` int NOT NULL AUTO_INCREMENT,
-                    `created_by` int DEFAULT NULL,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `created_by` int DEFAULT NULL,
                     `meta_id` int DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `name` varchar(32) DEFAULT NULL,

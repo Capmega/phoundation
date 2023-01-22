@@ -9,6 +9,7 @@ use Phoundation\Data\DataEntryNameDescription;
 use Phoundation\Web\Http\Html\Components\Form;
 
 
+
 /**
  * Class Role
  *
@@ -101,27 +102,23 @@ class Role extends DataEntry
     {
         $this->keys = [
             'id' => [
-                'display'  => true,
                 'disabled' => true,
                 'type'     => 'numeric',
                 'label'    => tr('Database ID')
             ],
+            'created_on' => [
+                'disabled' => true,
+                'type'     => 'date',
+                'label'    => tr('Created on')
+            ],
             'created_by' => [
                 'element'  => 'input',
-                'display'  => true,
                 'disabled' => true,
                 'source'   => 'SELECT IFNULL(`username`, `email`) AS `username` FROM `accounts_users` WHERE `id` = :id',
                 'execute'  => 'id',
                 'label'    => tr('Created by')
             ],
-            'created_on' => [
-                'display'  => true,
-                'disabled' => true,
-                'type'     => 'date',
-                'label'    => tr('Created on')
-            ],
             'meta_id' => [
-                'display'  => true,
                 'disabled' => true,
                 'element'  => null, //Meta::new()->getHtmlTable(), // TODO implement
                 'label'    => tr('Meta information')
