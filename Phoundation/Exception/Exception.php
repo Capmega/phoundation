@@ -4,6 +4,7 @@ namespace Phoundation\Exception;
 
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Exception\CoreException;
+use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use RuntimeException;
 use Throwable;
@@ -55,15 +56,31 @@ class Exception extends RuntimeException
     /**
      * CoreException __constructor
      *
-     * @param array|string $messages The exception messages
+     * @param Throwable|array|string $messages The exception messages
      * @param array $data [array] Data related to the exception. Should be a named array with elements that may be
      *      anything, string, array, object, resource, etc. The handler for this exception is assumed to know how to
      *      handle this data if it wants to do so
      * @param string|null $code The exception code (optional)
      * @param Throwable|null $previous A previous exception, if available.
      */
-    public function __construct(string|array $messages, mixed $data = null, ?string $code = null, ?Throwable $previous = null)
+    public function __construct(Throwable|array|string $messages, mixed $data = null, ?string $code = null, ?Throwable $previous = null)
     {
+        if (is_object($messages)) {
+            // The message actually is an Exception! Extract data and make this exception the previous
+            $previous = $messages;
+            $code     = $messages->getCode();
+
+            if ($messages instanceof Exception) {
+                // This is a Phoundation exception, get more information
+                $data     = $messages->getData();
+                $messages = $messages->getMessages();
+            } else {
+                // This is a standard PHP exception
+                $data     = null;
+                $messages = $messages->getMessage();
+            }
+        }
+
         if (!is_array($messages)) {
             $messages = [$messages];
         }
@@ -97,13 +114,13 @@ class Exception extends RuntimeException
     /**
      * Returns a new exception object
      *
-     * @param string|array $messages
+     * @param Throwable|array|string $messages
      * @param mixed|null $data
      * @param string|null $code
      * @param Throwable|null $previous
      * @return static
      */
-    public static function new(string|array $messages, mixed $data = null, ?string $code = null, ?Throwable $previous = null): static
+    public static function new(Throwable|array|string $messages, mixed $data = null, ?string $code = null, ?Throwable $previous = null): static
     {
         return new static($messages, $data, $code, $previous);
     }
@@ -265,5 +282,18 @@ class Exception extends RuntimeException
         }
 
         return $trace;
+    }
+
+
+
+    /**
+     * Write this exception to the log file
+     *
+     * @return void
+     */
+    public function log(): static
+    {
+        Log::warning($this);
+        return $this;
     }
 }
