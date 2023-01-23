@@ -5,6 +5,7 @@ namespace Phoundation\Core;
 use DateTimeZone;
 use Exception;
 use GeoIP;
+use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\GuestUser;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Exception\ConfigException;
@@ -202,12 +203,20 @@ class Session
      */
     public static function signIn(string $user, string $password): User
     {
-        self::$user = User::authenticate($user, $password);
-        self::clear();
-        self::init();
+        try {
+            self::$user = User::authenticate($user, $password);
+            self::clear();
+            self::init();
 
-        $_SESSION['user']['id'] = self::$user->getId();
-        return self::$user;
+            $_SESSION['user']['id'] = self::$user->getId();
+            return self::$user;
+
+        } catch (DataEntryNotExistsException) {
+            // The specified user does not exist
+            throw AuthenticationException::new(tr('The specified user ":user" does not exist', [
+                ':user' => $user
+            ]))->makeWarning()->log();
+        }
     }
 
 
