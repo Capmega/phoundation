@@ -210,7 +210,7 @@ class Core {
                     }
 
                     // Died in CLI
-                    Script::shutdown(1, 'startup: Failed with "' . $e->getMessage() . '"');
+                    Script::shutdown($e);
                 }
 
             } catch (Throwable $e) {
@@ -416,7 +416,6 @@ class Core {
         ArgvValidator::hideData($GLOBALS['argv']);
 
         $argv = ArgvValidator::new()
-            ->select('--deleted')->isOptional(false)->isBoolean()
             ->select('-A,--all')->isOptional(false)->isBoolean()
             ->select('-C,--no-color')->isOptional(false)->isBoolean()
             ->select('-D,--debug')->isOptional(false)->isBoolean()
@@ -427,13 +426,14 @@ class Core {
             ->select('-U,--usage')->isOptional(false)->isBoolean()
             ->select('-V,--verbose')->isOptional(false)->isBoolean()
             ->select('-W,--no-warnings')->isOptional(false)->isBoolean()
-            ->select('--version')->isOptional(false)->isBoolean()
+            ->select('-L,--system-language', true)->isOptional(null)->isCode()
             ->select('-E,--environment', true)->isOptional(null)->hasMinCharacters(1)->hasMaxCharacters(64)
-            ->select('-L,--limit', true)->isOptional(0)->isNatural(true)
             ->select('-O,--order-by', true)->isOptional(null)->hasMinCharacters(1)->hasMaxCharacters(128)
             ->select('-P,--page', true)->isOptional(1)->isId()
             ->select('-S,--status', true)->isOptional(null)->hasMinCharacters(1)->hasMaxCharacters(16)
-            ->select('--language', true)->isOptional(null)->isCode()
+            ->select('--deleted')->isOptional(false)->isBoolean()
+            ->select('--version')->isOptional(false)->isBoolean()
+            ->select('--limit', true)->isOptional(0)->isNatural(true)
             ->select('--timezone', true)->isOptional(false)->isBoolean()
             ->select('--show-passwords')->isOptional(false)->isBoolean()
             ->select('--no-validation')->isOptional(false)->isBoolean()
@@ -501,7 +501,7 @@ class Core {
             Debug::enabled();
         }
 
-        if ($argv['language']) {
+        if ($argv['system_language']) {
             // Set language to be used
             if (isset($language)) {
                 $e = new CoreException(tr('Language has been specified twice'));
@@ -610,7 +610,7 @@ class Core {
 
         // Get required language.
         try {
-            $language = not_empty($argv['language'], Config::get('language.default', 'en'));
+            $language = not_empty($argv['system_language'], Config::get('language.default', 'en'));
 
             if (Config::get('language.default', ['en']) and Config::exists('language.supported.' . $language)) {
                 throw new CoreException(tr('Unknown language ":language" specified', array(':language' => $language)), 'unknown');
@@ -1347,15 +1347,11 @@ class Core {
 
                 switch (PLATFORM) {
                     case 'cli':
-                        /*
-                         * Command line script crashed.
-                         *
-                         * If not using Debug::enabled() mode, then try to give nice error messages
-                         * for known issues
-                         */
+                        // Command line script crashed.
+                        // If not using Debug::enabled() mode, then try to give nice error messages for known issues
                         if (($e instanceof ValidationFailedException) and $e->isWarning()) {
                             // This is just a simple validation warning, show warning messages in the exception data
-                            Log::warning(tr('Validation warning: :warning', [':warning' => $e->getMessage()]));
+                            Log::warning($e->getMessage());
                             Log::warning($e->getData());
                             Script::shutdown(255);
                         }
@@ -1366,14 +1362,14 @@ class Core {
                             Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
 
                             if (($e instanceof MethodNotFoundException) and ($data = $e->getData())) {
-                                Log::information('Available sub commands:');
+                                Log::information('Available sub commands:', 10);
 
                                 foreach ($data as $file) {
                                     if (str_starts_with($file, '.')) {
                                         continue;
                                     }
 
-                                    Log::notice($file);
+                                    Log::notice($file, 10);
                                 }
                             }
 
@@ -1456,7 +1452,7 @@ class Core {
                     case 'http':
                         if ($e instanceof ValidationFailedException) {
                             // This is just a simple validation warning, show warning messages in the exception data
-                            Log::warning(tr('Validation warning: :warning', [':warning' => $e->getMessage()]));
+                            Log::warning($e->getMessage());
                             Log::warning($e->getData());
                             Script::shutdown(255);
                         } elseif (($e instanceof Exception) and ($e->isWarning())) {
