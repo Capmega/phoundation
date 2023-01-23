@@ -107,6 +107,18 @@ class Table extends SchemaAbstract
 
 
     /**
+     * Will drop this table
+     *
+     * @return void
+     */
+    public function drop(): void
+    {
+        sql()->query('DROP TABLES IF EXISTS `' . $this->name . '`');
+    }
+
+
+
+    /**
      * Returns the table name
      *
      * @return string|null
