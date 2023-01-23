@@ -202,8 +202,6 @@ class Updates extends \Phoundation\System\Updates
                     CONSTRAINT `fk_languages_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                 ')
                 ->create();
-        })->addUpdate('0.0.9', function () {
-            Languages::import();
         });
     }
 }
