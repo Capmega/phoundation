@@ -10,7 +10,7 @@ use Phoundation\Web\Page;
 
 // Only show sign-in page if we're a guest user
 if (!Session::getUser()->isGuest()) {
-    Page::redirect('prev');
+    Page::redirect('prev', 302);
 }
 
 
