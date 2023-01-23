@@ -143,7 +143,11 @@ class ArgvValidator extends Validator
         }
 
         // Get the value from the arguments list
-        $value = self::argument($fields, $next);
+        try {
+            $value = self::argument($fields, $next);
+        } catch (OutOfBoundsException) {
+
+        }
 
         if (!$field and str_starts_with((string) $value, '-')) {
             // TODO Improve argument handling here. We should be able to mix "--modifier modifiervalue value" with "value --modifier modifiervalue" but with this design we currently can'y
@@ -451,13 +455,10 @@ class ArgvValidator extends Validator
             try {
                 // Return next argument, if available
                 $value = Arrays::nextValue(self::$argv, $keys, true);
-            } catch (OutOfBoundsException $e) {
-                if ($next !== 'optional') {
-                    // This argument requires another parameter
-                    throw $e->makeWarning();
-                }
 
-                $value = $next;
+            } catch (OutOfBoundsException $e) {
+                // This argument requires another parameter. Make it an arguments exception!
+                throw ArgumentsException::new($e)->makeWarning();
             }
 
             if (str_starts_with((string) $value, '-')) {

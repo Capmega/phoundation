@@ -349,7 +349,7 @@ trait ValidatorBasics
         }
 
         if ($this->failures) {
-            throw ValidationFailedException::new(tr('Validation of the specified source array failed with the registered failures'), $this->failures)->makeWarning();
+            throw ValidationFailedException::new(tr('Data validation failed with the following issues:'), $this->failures)->makeWarning();
         }
 
         return $this;
