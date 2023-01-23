@@ -117,50 +117,55 @@ class Cli
         // Determine the size of the keys to display them
         $column_sizes = Arrays::getLongestStringPerColumn($source, 2, $id_column);
 
-        // Get headers from columns
-        if ($headers === null) {
-            $value   = str_replace(['_', '-'], ' ', $id_column);
-            $value   = Strings::capitalize($value) . ':';
-            $headers = ($id_column ? [$id_column => $value] : []);
-            $row     = current($source);
+        if ($source) {
+            // Get headers from columns
+            if ($headers === null) {
+                $value   = str_replace(['_', '-'], ' ', $id_column);
+                $value   = Strings::capitalize($value) . ':';
+                $headers = ($id_column ? [$id_column => $value] : []);
+                $row     = current($source);
 
-            foreach ($row as $header => $value) {
-                $value = str_replace(['_', '-'], ' ', $header);
-                $value = Strings::capitalize($value) . ':';
+                foreach ($row as $header => $value) {
+                    $value = str_replace(['_', '-'], ' ', $header);
+                    $value = Strings::capitalize($value) . ':';
 
-                $headers[$header] = $value;
-            }
-        }
-
-        // Display header
-        foreach ($headers as $column => $header) {
-            Log::cli(Color::apply(Strings::size($header , $column_sizes[$column]), 'white') . Strings::size(' ', $column_spacing), 10, false);
-        }
-
-        Log::cli();
-
-        // Display source
-        foreach ($source as $id => $row) {
-            if (!is_array($row)) {
-                // Wrong! This is a row and as such should be an array
-                throw new OutOfBoundsException(tr('Invalid row ":row" specified for id ":id", it should be an array', [
-                    ':id' => $id,
-                    ':row' => $row,
-                ]));
-            }
-
-            array_unshift($row, $id);
-
-            foreach ($row as $column => $value) {
-                if ($column === 0) {
-                    // Due to the nature of array_unshift (we can't specify key name, so it always has key 0), rename!
-                    $column = $id_column;
+                    $headers[$header] = $value;
                 }
+            }
 
-                Log::cli(Strings::size($value , $column_sizes[$column], ' ', is_numeric($value)) . Strings::size(' ', $column_spacing), 10, false);
+            // Display header
+            foreach ($headers as $column => $header) {
+                Log::cli(Color::apply(Strings::size($header , $column_sizes[$column]), 'white') . Strings::size(' ', $column_spacing), 10, false);
             }
 
             Log::cli();
+
+            // Display source
+            foreach ($source as $id => $row) {
+                if (!is_array($row)) {
+                    // Wrong! This is a row and as such should be an array
+                    throw new OutOfBoundsException(tr('Invalid row ":row" specified for id ":id", it should be an array', [
+                        ':id' => $id,
+                        ':row' => $row,
+                    ]));
+                }
+
+                array_unshift($row, $id);
+
+                foreach ($row as $column => $value) {
+                    if ($column === 0) {
+                        // Due to the nature of array_unshift (we can't specify key name, so it always has key 0), rename!
+                        $column = $id_column;
+                    }
+
+                    Log::cli(Strings::size($value , $column_sizes[$column], ' ', is_numeric($value)) . Strings::size(' ', $column_spacing), 10, false);
+                }
+
+                Log::cli();
+            }
+        } else {
+            // Oops, there are no results!
+            Log::warning(tr('No results'));
         }
     }
 
