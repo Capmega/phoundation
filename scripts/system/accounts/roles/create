@@ -3,6 +3,7 @@
 
 use Phoundation\Accounts\Exception\AccountsException;
 use Phoundation\Accounts\Roles\Role;
+use Phoundation\Cli\Documentation;
 use Phoundation\Core\Log;
 use Phoundation\Data\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
@@ -19,10 +20,10 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-$usage = './cli system accounts roles create NAME [OPTIONS]
-./cli system accounts roles create test -d "This is a test role!"';
+Documentation::usage('./cli system accounts roles create NAME [OPTIONS]
+./cli system accounts roles create test -d "This is a test role!"');
 
-$help  = 'This script allows you to create roles
+Documentation::help('This script allows you to create roles
 
 
 
@@ -32,7 +33,7 @@ ARGUMENTS
 
 NAME                                    The name for the role
 
-[-d / --description]                    The description for the role';
+[-d / --description]                    The description for the role');
 
 
 
