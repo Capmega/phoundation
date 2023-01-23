@@ -33,6 +33,7 @@ use Phoundation\Web\Web;
 use Throwable;
 
 
+
 /**
  * Class Core
  *
@@ -606,7 +607,6 @@ class Core {
 
         // Ensure that the process UID matches the file UID
         self::processFileUidMatches(true);
-        Log::notice(tr('Running script ":script"', [':script' => $_SERVER['PHP_SELF']]), 1);
 
         // Get required language.
         try {
@@ -653,17 +653,21 @@ class Core {
         // Validate parameters and give some startup messages, if needed
         if (Debug::enabled()) {
             if (QUIET) {
-                throw new CoreException(tr('Both QUIET and Debug::enabled() have been specified but these options are mutually exclusive. Please specify either one or the other'));
+                // Quiet takes precedence over debug as it has to be manually specified as a command line parameter
+                Debug::enabled(false);
             }
 
             if (Debug::enabled()) {
-                Log::information(tr('Running in Debug::enabled() mode, started @ ":datetime"', array(':datetime' => Date::convert(STARTTIME, 'human_datetime'))));
+                Log::warning(tr('Running in DEBUG mode, started @ ":datetime"', [
+                    ':datetime' => Date::convert(STARTTIME, 'human_datetime')
+                ]), 8);
 
-            } else {
-                Log::information(tr('Running in Debug::enabled() mode, started @ ":datetime"', array(':datetime' => Date::convert(STARTTIME, 'human_datetime'))));
+                Log::notice(tr('Detected ":size" terminal with ":columns" columns and ":lines" lines', [
+                    ':size' => self::$register['cli']['size'],
+                    ':columns' => self::$register['cli']['columns'],
+                    ':lines' => self::$register['cli']['lines']
+                ]));
             }
-
-            Log::notice(tr('Detected ":size" terminal with ":columns" columns and ":lines" lines', [':size' => self::$register['cli']['size'], ':columns' => self::$register['cli']['columns'], ':lines' => self::$register['cli']['lines']]));
         }
 
         if (FORCE) {
@@ -675,10 +679,6 @@ class Core {
 
         } elseif (TEST) {
             Log::warning(tr('Running in TEST mode'));
-        }
-
-        if (Debug::enabled()) {
-            Log::warning(tr('Running in DEBUG mode'), 8);
         }
 
         if (!is_natural(PAGE)) {
@@ -2054,7 +2054,7 @@ class Core {
             return;
         }
 
-        Log::notice(tr('Starting shutdown procedure for script ":script"', [
+        Log::action(tr('Starting shutdown procedure for script ":script"', [
             ':script' => self::readRegister('system', 'script')
         ]), 2);
 
@@ -2081,7 +2081,7 @@ class Core {
                     Log::action(tr('Executing shutdown function ":identifier" with data value ":value"', [
                         ':identifier' => $identifier,
                         ':value'      => $value
-                    ]));
+                    ]), 1);
 
                     if (is_callable($function)) {
                         // Execute this call directly

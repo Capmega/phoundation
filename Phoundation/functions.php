@@ -720,14 +720,17 @@ function has_trait(string $trait, object|string $class): bool
  */
 #[NoReturn] function show_system(mixed $source = null, bool $die = true): mixed
 {
-    echo '<pre>"';
-    echo 'message-' . mt_rand(1,10000) . ' ';
+    if (php_sapi_name() !== 'cli') {
+        // Only add this on browsers
+        echo '<pre>' . PHP_EOL . '"';
+    }
+
+    echo 'message-' . mt_rand(1,10000) . PHP_EOL . '"';
     print_r($source);
-    echo '"';
-    nl();
+    echo '"' . PHP_EOL;
 
     if ($die) {
-        die('die-'.mt_rand(1,10000));
+        die('die-'.mt_rand(1,10000) . PHP_EOL);
     }
 
     return $source;

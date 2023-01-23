@@ -77,21 +77,17 @@ class Script
         self::only();
 
         // Get the script file to execute
-        self::$script = self::findScript();
+        $script = self::findScript();
+        $script = self::limitScript($script, isset_get($limit), isset_get($reason));
+
+        self::$script = $script;
+
+        Log::action(tr('Executing script ":script"', [
+            ':script' => self::getScript()
+        ]), 1);
 
         // Execute the script
-        if (isset($limit)) {
-            $script = Strings::from(self::$script, 'scripts/');
-
-            if ($script !== $limit) {
-                throw new ScriptException(tr('Cannot execute script ":script" because ":reason"', [
-                    ':script' => $script,
-                    ':reason' => $reason
-                ]));
-            }
-        }
-
-        execute_script(self::$script);
+        execute_script($script);
     }
 
 
@@ -294,6 +290,32 @@ class Script
 
 
     /**
+     * Limit execution of scripts to the specified limit
+     *
+     * @param string $script
+     * @param string|null $limit
+     * @param string|null $reason
+     * @return string
+     */
+    protected static function limitScript(string $script, ?string $limit, ?string $reason): string
+    {
+        if ($limit) {
+            $script = Strings::from($script, 'scripts/');
+
+            if ($script !== $limit) {
+                throw new ScriptException(tr('Cannot execute script ":script" because ":reason"', [
+                    ':script' => $script,
+                    ':reason' => $reason
+                ]));
+            }
+        }
+
+        return $script;
+    }
+
+
+
+    /**
      * Returns the name of the script that is running
      *
      * @param bool $full
@@ -483,17 +505,13 @@ class Script
         }
 
         if ($quiet and QUIET) {
-            /*
-             * Don't show this in QUIET mode
-             */
+            // Don't show this in QUIET mode
             return false;
         }
 
-        if ($each === false) {
+        if (!$each) {
             if ($count) {
-                /*
-                 * Only show "Done" if we have shown any dot at all
-                 */
+                // Only show "Done" if we have shown any dot at all
                 Log::write(tr('Done'), $color, 10, false, false);
             }
 
@@ -523,11 +541,20 @@ class Script
     /**
      * Kill this script process
      *
-     * @todo Add required functionality
+     * @param int $exit_code
+     * @param string|null $exit_message
      * @return void
+     * @todo Add required functionality
      */
-    #[NoReturn] public static function die(): void
+    #[NoReturn] public static function die(int $exit_code = 0, string $exit_message = null): void
     {
-        // Do we need to run other shutdown functions?
-        die();
+        if ($exit_message) {
+            if ($exit_code) {
+                Log::warning($exit_message);
+            } else {
+                Log::success($exit_message);
+            }
+        }
+
+        die($exit_code);
     }}

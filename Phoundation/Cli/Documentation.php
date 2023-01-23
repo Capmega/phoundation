@@ -33,8 +33,8 @@ class Documentation
         global $argv;
 
         if (isset_get($argv['help'])) {
-            Log::information(tr('Command help:'));
-            Log::notice($help);
+            Log::information(tr('Command help:'), 10);
+            Log::notice($help, 10);
             Script::die();
         }
     }
@@ -52,8 +52,8 @@ class Documentation
         global $argv;
 
         if (isset_get($argv['usage'])) {
-            Log::information(tr('Command usage:'));
-            Log::notice($usage);
+            Log::information(tr('Command usage:'), 10);
+            Log::notice($usage, 10);
             Script::die();
         }
     }
