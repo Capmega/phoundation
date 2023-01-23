@@ -13,6 +13,7 @@ use Phoundation\Web\Http\Html\Components\Input\Select;
 use Phoundation\Web\Http\Html\Components\Table;
 
 
+
 /**
  * Class Users
  *
@@ -35,7 +36,12 @@ class Users extends DataList
     public function __construct(Role|User|null $parent = null, ?string $id_column = null)
     {
         $this->entry_class = User::class;
-        $this->setHtmlQuery('SELECT `id`, CONCAT(`first_names`, `last_names`) AS `name`, `nickname`, `email`, `status`, `created_on` FROM `accounts_users` WHERE `status` IS NULL ORDER BY `name`');
+        $this->table_name  = 'accounts_users';
+
+        $this->setHtmlQuery('SELECT   `id`, CONCAT(`first_names`, `last_names`) AS `name`, `nickname`, `email`, `status`, `created_on` 
+                                   FROM     `accounts_users` 
+                                   WHERE    `status` IS NULL 
+                                   ORDER BY `name`');
         parent::__construct($parent, $id_column);
     }
 
@@ -65,7 +71,7 @@ class Users extends DataList
     public static function getHtmlSelect(string $name = 'users_id'): Select
     {
         return Select::new()
-            ->setSourceQuery('SELECT COALESCE(NULLIF(TRIM(CONCAT_WS(" ", `first_name`, `last_name`)), ""), `username`, `email`) AS `name` 
+            ->setSourceQuery('SELECT COALESCE(NULLIF(TRIM(CONCAT_WS(" ", `first_names`, `last_names`)), ""), `nickname`, `username`, `email`) AS `name` 
                                           FROM  `accounts_users`
                                           WHERE `status` IS NULL ORDER BY `name`')
             ->setName($name)
@@ -312,7 +318,7 @@ class Users extends DataList
     {
         // Default columns
         if (!$columns) {
-            $columns = 'id,domain,email,name,phones,roles';
+            $columns = 'id,domain,email,first_names,last_names,phones,roles';
         }
 
         // Default ordering
@@ -328,7 +334,7 @@ class Users extends DataList
 
         // Build query
         $builder = new QueryBuilder();
-        $builder->addSelect(' SELECT ' . $columns);
+        $builder->addSelect('SELECT ' . $columns);
         $builder->addFrom('FROM `accounts_users`');
 
         // Add ordering

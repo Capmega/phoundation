@@ -7,6 +7,7 @@ use Phoundation\Web\Http\Html\Components\Input\Select;
 use Phoundation\Web\Http\Html\Components\Table;
 
 
+
 /**
  * Class Categories
  *
@@ -26,10 +27,15 @@ class Categories extends DataList
      * @param Category|null $parent
      * @param string|null $id_column
      */
-    public function __construct(Category|null $parent = null, ?string $id_column = null)
+    public function __construct(?Category $parent = null, ?string $id_column = null)
     {
         $this->entry_class = Category::class;
-        $this->setHtmlQuery('SELECT `id`, `name`, `status`, `created_on` FROM `categories` WHERE `status` IS NULL ORDER BY `name`');
+        $this->table_name  = 'categories';
+
+        $this->setHtmlQuery('SELECT   `id`, `name`, `status`, `created_on` 
+                                   FROM     `categories` 
+                                   WHERE    `status` IS NULL 
+                                   ORDER BY `name`');
         parent::__construct($parent, $id_column);
     }
 

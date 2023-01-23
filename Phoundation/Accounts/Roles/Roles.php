@@ -12,6 +12,7 @@ use Phoundation\Databases\Sql\QueryBuilder;
 use Phoundation\Web\Http\Html\Components\Input\Select;
 
 
+
 /**
  * Class Roles
  *
@@ -26,7 +27,7 @@ use Phoundation\Web\Http\Html\Components\Input\Select;
 class Roles extends DataList
 {
     /**
-     * DataList class constructor
+     * Roles class constructor
      *
      * @param User|Role|null $parent
      * @param string|null $id_column
@@ -34,7 +35,12 @@ class Roles extends DataList
     public function __construct(User|Role|null $parent = null, ?string $id_column = null)
     {
         $this->entry_class = Role::class;
-        $this->setHtmlQuery('SELECT `id`, `name`, `description` FROM `accounts_roles`');
+        $this->table_name  = 'accounts_roles';
+
+        $this->setHtmlQuery('SELECT   `id`, `name`, `description` 
+                                   FROM     `accounts_roles` 
+                                   WHERE    `status` IS NULL 
+                                   ORDER BY `name`');
         parent::__construct($parent, $id_column);
     }
 

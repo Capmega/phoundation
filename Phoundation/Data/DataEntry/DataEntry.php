@@ -115,7 +115,9 @@ abstract class DataEntry
 
         if ($identifier) {
             if (is_numeric($identifier)) {
-                $this->data['id'] = $identifier;
+                $this->data['id']                 = $identifier;
+            } else {
+                $this->data[$this->unique_column] = $identifier;
             }
 
             $this->load($identifier);
@@ -189,10 +191,10 @@ abstract class DataEntry
             return $entry;
         }
 
-        throw new DataEntryNotExistsException(tr('The ":label" entry ":identifier" does not exist', [
+        throw DataEntryNotExistsException::new(tr('The ":label" entry ":identifier" does not exist', [
             ':label'      => self::$entry_name,
             ':identifier' => $identifier
-        ]));
+        ]))->makeWarning();
     }
 
 

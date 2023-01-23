@@ -64,15 +64,19 @@ trait DataEntryLanguage
     /**
      * Sets the languages_id for this user
      *
-     * @param Language|null $language
+     * @param Language|string|int|null $languages_id
      * @return static
      */
-    public function setLanguage(?Language $language): static
+    public function setLanguage(Language|string|int|null $languages_id): static
     {
-        if (is_object($language)) {
-            $language = $language->getId();
+        if (!is_numeric($languages_id)) {
+            $languages_id = Language::get($languages_id);
         }
 
-        return $this->setDataValue('languages_id', $language);
+        if (is_object($languages_id)) {
+            $languages_id = $languages_id->getId();
+        }
+
+        return $this->setDataValue('languages_id', $languages_id);
     }
 }

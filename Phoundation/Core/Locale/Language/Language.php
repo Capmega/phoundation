@@ -31,7 +31,7 @@ class Language extends DataEntry
     {
         self::$entry_name    = 'language';
         $this->table         = 'languages';
-        $this->unique_column = 'seo_name';
+        $this->unique_column = 'code_639_1';
 
         parent::__construct($identifier);
     }
@@ -53,7 +53,7 @@ class Language extends DataEntry
     /**
      * Sets the code_639_1 for this language
      *
-     * @param string|null $code_639_2_b
+     * @param string|null $code_639_1
      * @return static
      */
     public function setCode_639_1(?string $code_639_1): static

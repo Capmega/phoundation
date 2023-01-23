@@ -5,11 +5,13 @@ namespace Phoundation\Messages;
 use Phoundation\Data\DataList\DataList;
 
 
+
 /**
  * Messages class
  *
  *
  *
+ * @see \Phoundation\Data\DataList\DataList
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -17,6 +19,26 @@ use Phoundation\Data\DataList\DataList;
  */
 class Messages extends DataList
 {
+    /**
+     * Messages class constructor
+     *
+     * @param Message|null $parent
+     * @param string|null $id_column
+     */
+    public function __construct(?Message $parent = null, ?string $id_column = null)
+    {
+        $this->entry_class = Message::class;
+        $this->table_name  = 'messages';
+
+        $this->setHtmlQuery('SELECT   `id`, `title`, `status`, `created_on` 
+                                   FROM     `messages` 
+                                   WHERE    `status` IS NULL 
+                                   ORDER BY `title`');
+        parent::__construct($parent, $id_column);
+    }
+
+
+
     /**
      * @inheritDoc
      */

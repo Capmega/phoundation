@@ -73,15 +73,19 @@ trait DataEntryDepartment
     /**
      * Sets the departments_id for this object
      *
-     * @param Department|null $department
+     * @param Department|string|int|null $departments_id
      * @return static
      */
-    public function setDepartment(?Department $department): static
+    public function setDepartment(Department|string|int|null $departments_id): static
     {
-        if (is_object($department)) {
-            $department = $department->getId();
+        if (!is_numeric($departments_id)) {
+            $departments_id = Department::get($departments_id);
         }
 
-        return $this->setDataValue('departments_id', $department);
+        if (is_object($departments_id)) {
+            $departments_id = $departments_id->getId();
+        }
+
+        return $this->setDataValue('departments_id', $departments_id);
     }
 }

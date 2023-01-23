@@ -73,15 +73,23 @@ trait DataEntryBranch
     /**
      * Sets the branches_id for this object
      *
-     * @param Branch|null $branch
+     * @param Branch|string|int|null $branches_id
      * @return static
      */
-    public function setBranch(?Branch $branch): static
+    public function setBranch(Branch|string|int|null $branches_id): static
     {
-        if (is_object($branch)) {
-            $branch = $branch->getId();
+        if (!is_numeric($branches_id)) {
+            $branches_id = Branch::get($branches_id);
         }
 
-        return $this->setDataValue('branches_id', $branch);
+        if (!is_numeric($branches_id)) {
+            $branches_id = Branch::get($branches_id);
+        }
+
+        if (is_object($branches_id)) {
+            $branches_id = $branches_id->getId();
+        }
+
+        return $this->setDataValue('branches_id', $branches_id);
     }
 }

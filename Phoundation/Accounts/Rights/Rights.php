@@ -12,6 +12,7 @@ use Phoundation\Databases\Sql\QueryBuilder;
 use Phoundation\Web\Http\Html\Components\Input\Select;
 
 
+
 /**
  * Class Rights
  *
@@ -26,7 +27,7 @@ use Phoundation\Web\Http\Html\Components\Input\Select;
 class Rights extends DataList
 {
     /**
-     * DataList class constructor
+     * Rights class constructor
      *
      * @param User|Role|null $parent
      * @param string|null $id_column
@@ -34,7 +35,12 @@ class Rights extends DataList
     public function __construct(User|Role|null $parent = null, ?string $id_column = null)
     {
         $this->entry_class = Right::class;
-        $this->setHtmlQuery('SELECT `id`, `name`, `description` FROM `accounts_rights`');
+        $this->table_name  = 'accounts_rights';
+
+        $this->setHtmlQuery('SELECT   `id`, `name`, `description` 
+                                   FROM     `accounts_rights` 
+                                   WHERE    `status` IS NULL 
+                                   ORDER BY `name`');
         parent::__construct($parent, $id_column);
     }
 

@@ -6,12 +6,13 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataList\DataList;
 
 
+
 /**
  * Class Employees
  *
  *
  *
- * @see \Phoundation\Data\DataEntry\DataEntry
+ * @see \Phoundation\Data\DataList\DataList
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -20,14 +21,21 @@ use Phoundation\Data\DataList\DataList;
 class Employees extends DataList
 {
     /**
-     * DataList class constructor
+     * Employees class constructor
      *
      * @param DataEntry|null $parent
+     * @param string|null $id_column
      */
-    public function __construct(?DataEntry $parent = null)
+    public function __construct(?DataEntry $parent = null, ?string $id_column = null)
     {
         $this->entry_class = Employee::class;
-        parent::__construct($parent);
+        $this->table_name  = 'business_employees';
+
+        $this->setHtmlQuery('SELECT   `id`, `name`, `email`, `status`, `created_on` 
+                                   FROM     `business_employees` 
+                                   WHERE    `status` IS NULL 
+                                   ORDER BY `name`');
+        parent::__construct($parent, $id_column);
     }
 
 
@@ -35,7 +43,7 @@ class Employees extends DataList
     /**
      * @inheritDoc
      */
-     protected function load(bool $details = false): static
+     protected function load(bool|string|null $id_column = false): static
     {
         // TODO: Implement load() method.
     }
@@ -48,5 +56,15 @@ class Employees extends DataList
     public function save(): static
     {
         return $this;
+    }
+
+
+
+    /**
+     * @inheritDoc
+     */
+    protected function loadDetails(array|string|null $columns, array $filters = []): array
+    {
+        // TODO: Implement loadDetails() method.
     }
 }

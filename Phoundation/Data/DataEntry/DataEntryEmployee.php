@@ -73,15 +73,19 @@ trait DataEntryEmployee
     /**
      * Sets the employees_id for this object
      *
-     * @param Employee|null $employee
+     * @param Employee|string|int|null $employees_id
      * @return static
      */
-    public function setEmployee(?Employee $employee): static
+    public function setEmployee(Employee|string|int|null $employees_id): static
     {
-        if (is_object($employee)) {
-            $employee = $employee->getId();
+        if (!is_numeric($employees_id)) {
+            $employees_id = Employee::get($employees_id);
         }
 
-        return $this->setDataValue('employees_id', $employee);
+        if (is_object($employees_id)) {
+            $employees_id = $employees_id->getId();
+        }
+
+        return $this->setDataValue('employees_id', $employees_id);
     }
 }

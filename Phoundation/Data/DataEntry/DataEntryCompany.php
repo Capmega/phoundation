@@ -73,15 +73,19 @@ trait DataEntryCompany
     /**
      * Sets the companies_id for this object
      *
-     * @param Company|null $company
+     * @param Company|string|int|null $companies_id
      * @return static
      */
-    public function setCompany(?Company $company): static
+    public function setCompany(Company|string|int|null $companies_id): static
     {
-        if (is_object($company)) {
-            $company = $company->getId();
+        if (!is_numeric($companies_id)) {
+            $companies_id = Company::get($companies_id);
         }
 
-        return $this->setDataValue('companies_id', $company);
+        if (is_object($companies_id)) {
+            $companies_id = $companies_id->getId();
+        }
+
+        return $this->setDataValue('companies_id', $companies_id);
     }
 }

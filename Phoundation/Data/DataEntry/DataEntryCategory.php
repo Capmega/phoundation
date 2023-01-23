@@ -64,15 +64,19 @@ trait DataEntryCategory
     /**
      * Sets the categories_id for this user
      *
-     * @param Category|null $category
+     * @param Category|string|int|null $categories_id
      * @return static
      */
-    public function setCategory(?Category $category): static
+    public function setCategory(Category|string|int|null $categories_id): static
     {
-        if (is_object($category)) {
-            $category = $category->getId();
+        if (!is_numeric($categories_id)) {
+            $categories_id = Category::get($categories_id);
         }
 
-        return $this->setDataValue('categories_id', $category);
+        if (is_object($categories_id)) {
+            $categories_id = $categories_id->getId();
+        }
+
+        return $this->setDataValue('categories_id', $categories_id);
     }
 }

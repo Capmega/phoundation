@@ -7,11 +7,13 @@ use Phoundation\Filesystem\File;
 use Phoundation\Web\Http\Html\Components\Input\Select;
 
 
+
 /**
  * Languages class
  *
  *
  *
+ * @see \Phoundation\Data\DataList\DataList
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -25,10 +27,15 @@ class Languages extends DataList
      * @param Language|null $parent
      * @param string|null $id_column
      */
-    public function __construct(Language $parent = null, ?string $id_column = null)
+    public function __construct(?Language $parent = null, ?string $id_column = null)
     {
         $this->entry_class = Language::class;
-        $this->setHtmlQuery('SELECT `id`, `code_639_1`, `name`, `status`, `created_on` FROM `languages` WHERE `status` IS NULL ORDER BY `name`');
+        $this->table_name  = 'languages';
+
+        $this->setHtmlQuery('SELECT   `id`, `code_639_1`, `name`, `status`, `created_on` 
+                             FROM     `languages` 
+                             WHERE    `status` IS NULL 
+                             ORDER BY `name`');
         parent::__construct($parent, $id_column);
     }
 
@@ -39,12 +46,12 @@ class Languages extends DataList
      *
      * @return void
      */
-    public static function import(): void
+    public function import(): void
     {
         $file = File::new(PATH_DATA . 'sources/languages/languages');
         $h    = $file->open('r');
 
-        sql()->truncate('languages');
+        $this->getTable()->truncate();
 
         while($line = fgets($h, $file->getBufferSize())) {
             // Parse the line

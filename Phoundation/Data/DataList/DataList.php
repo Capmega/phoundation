@@ -66,6 +66,12 @@ abstract class DataList implements Iterator
      */
     protected string $html_query;
 
+    /**
+     * The name of the source table for this DataList
+     *
+     * @var string
+     */
+    protected string $table_name;
 
 
     /**
@@ -340,6 +346,18 @@ abstract class DataList implements Iterator
 
 
     /**
+     * Returns the table name that is the source for this DataList object
+     *
+     * @return string
+     */
+    public function getTableName(): string
+    {
+        return $this->table_name;
+    }
+
+
+
+    /**
      * Add a filter to apply when loading the data list
      *
      * @param string $key
@@ -349,6 +367,18 @@ abstract class DataList implements Iterator
     {
         unset($this->filters[$key]);
         return $this;
+    }
+
+
+
+    /**
+     * Returns the schema Table object for the table that is the source for this DataList object
+     *
+     * @return \Phoundation\Databases\Sql\Schema\Table
+     */
+    public function getTable(): \Phoundation\Databases\Sql\Schema\Table
+    {
+        return sql()->schema()->table($this->table_name);
     }
 
 

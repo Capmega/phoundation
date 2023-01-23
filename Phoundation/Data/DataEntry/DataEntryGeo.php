@@ -66,16 +66,20 @@ trait DataEntryGeo
     /**
      * Sets the cities_id for this user
      *
-     * @param City|null $city
+     * @param City|string|int|null $cities_id
      * @return static
      */
-    public function setCity(?City $city): static
+    public function setCity(City|string|int|null $cities_id): static
     {
-        if (is_object($city)) {
-            $city = $city->getId();
+        if (!is_numeric($cities_id)) {
+            $cities_id = City::get($cities_id);
         }
 
-        return $this->setDataValue('cities_id', $city);
+        if (is_object($cities_id)) {
+            $cities_id = $cities_id->getId();
+        }
+
+        return $this->setDataValue('cities_id', $cities_id);
     }
 
 
@@ -126,16 +130,20 @@ trait DataEntryGeo
     /**
      * Sets the state for this user
      *
-     * @param State|null $state
+     * @param State|string|int|null $states_id
      * @return static
      */
-    public function setState(?State $state): static
+    public function setState(State|string|int|null $states_id): static
     {
-        if (is_object($state)) {
-            $state = $state->getId();
+        if (!is_numeric($states_id)) {
+            $states_id = State::get($states_id);
         }
 
-        return $this->setDataValue('states_id', $state);
+        if (is_object($states_id)) {
+            $states_id = $states_id->getId();
+        }
+
+        return $this->setDataValue('states_id', $states_id);
     }
 
 
@@ -155,12 +163,12 @@ trait DataEntryGeo
     /**
      * Sets the countries_id for this user
      *
-     * @param int|null $country
+     * @param int|null $countries_id
      * @return static
      */
-    public function setCountriesId(?int $country): static
+    public function setCountriesId(?int $countries_id): static
     {
-        return $this->setDataValue('countries_id', $country);
+        return $this->setDataValue('countries_id', $countries_id);
     }
 
 
@@ -186,15 +194,19 @@ trait DataEntryGeo
     /**
      * Sets the countries_id for this user
      *
-     * @param Country|null $country
+     * @param Country|string|int|null $countries_id
      * @return static
      */
-    public function setCountry(?Country $country): static
+    public function setCountry(Country|string|int|null $countries_id): static
     {
-        if (is_object($country)) {
-            $country = $country->getId();
+        if (!is_numeric($countries_id)) {
+            $countries_id = Country::get($countries_id);
         }
 
-        return $this->setDataValue('countries_id', $country);
+        if (is_object($countries_id)) {
+            $countries_id = $countries_id->getId();
+        }
+
+        return $this->setDataValue('countries_id', $countries_id);
     }
 }

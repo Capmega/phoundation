@@ -7,6 +7,7 @@ use Phoundation\Data\DataList\DataList;
 use Phoundation\Web\Http\Html\Components\Table;
 
 
+
 /**
  * Customers class
  *
@@ -21,15 +22,20 @@ use Phoundation\Web\Http\Html\Components\Table;
 class Customers extends DataList
 {
     /**
-     * Users class constructor
+     * Customers class constructor
      *
      * @param Company|null $parent
      * @param string|null $id_column
      */
-    public function __construct(Company|null $parent = null, ?string $id_column = null)
+    public function __construct(?Company $parent = null, ?string $id_column = null)
     {
         $this->entry_class = Customer::class;
-        $this->setHtmlQuery('SELECT `id`, `name`, `code`, `status`, `created_on` FROM `business_customers`');
+        $this->table_name  = 'business_customers';
+
+        $this->setHtmlQuery('SELECT   `id`, `name`, `code`, `email`, `status`, `created_on` 
+                                   FROM     `business_customers` 
+                                   WHERE    `status` IS NULL 
+                                   ORDER BY `name`');
         parent::__construct($parent, $id_column);
     }
 

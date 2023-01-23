@@ -2,8 +2,9 @@
 
 namespace Phoundation\Business\Companies\Departments;
 
-use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Business\Companies\Company;
 use Phoundation\Data\DataList\DataList;
+
 
 
 /**
@@ -20,14 +21,21 @@ use Phoundation\Data\DataList\DataList;
 class Departments extends DataList
 {
     /**
-     * DataList class constructor
+     * Departments class constructor
      *
-     * @param DataEntry|null $parent
+     * @param Company|null $parent
+     * @param string|null $id_column
      */
-    public function __construct(?DataEntry $parent = null)
+    public function __construct(?Company $parent = null, ?string $id_column = null)
     {
         $this->entry_class = Department::class;
-        parent::__construct($parent);
+        $this->table_name  = 'business_departments';
+
+        $this->setHtmlQuery('SELECT   `id`, `name`, `email`, `status`, `created_on` 
+                                   FROM     `business_departments` 
+                                   WHERE    `status` IS NULL 
+                                   ORDER BY `name`');
+        parent::__construct($parent, $id_column);
     }
 
 
@@ -35,7 +43,7 @@ class Departments extends DataList
     /**
      * @inheritDoc
      */
-     protected function load(bool $details = false): static
+     protected function load(bool|string|null $id_column = false): static
     {
         // TODO: Implement load() method.
     }
@@ -48,5 +56,15 @@ class Departments extends DataList
     public function save(): static
     {
         // TODO: Implement save() method.
+    }
+
+
+
+    /**
+     * @inheritDoc
+     */
+    protected function loadDetails(array|string|null $columns, array $filters = []): array
+    {
+        // TODO: Implement loadDetails() method.
     }
 }

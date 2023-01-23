@@ -675,16 +675,20 @@ class User extends DataEntry
     /**
      * Sets the leader for this user
      *
-     * @param User|int|null $leader
+     * @param User|string|int|null $leaders_id
      * @return static
      */
-    public function setLeader(User|int|null $leader): static
+    public function setLeader(User|string|int|null $leaders_id): static
     {
-        if (is_object($leader)) {
-            $leader = $leader->getId();
+        if (!is_numeric($leaders_id)) {
+            $leaders_id = User::get($leaders_id);
         }
 
-        return $this->setDataValue('leaders_id', $leader);
+        if (is_object($leaders_id)) {
+            $leaders_id = $leaders_id->getId();
+        }
+
+        return $this->setDataValue('leaders_id', $leaders_id);
     }
 
 

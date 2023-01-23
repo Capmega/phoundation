@@ -5,11 +5,13 @@ namespace Phoundation\Web\Routing;
 use Phoundation\Data\DataList\DataList;
 
 
+
 /**
  * Class StaticRoutes
  *
  *
  *
+ * @see \Phoundation\Data\DataList\DataList
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -17,6 +19,25 @@ use Phoundation\Data\DataList\DataList;
  */
 class StaticRoutes extends DataList
 {
+    /**
+     * StaticRoutes class constructor
+     *
+     * @param StaticRoute|null $parent
+     * @param string|null $id_column
+     */
+    public function __construct(?StaticRoute $parent = null, ?string $id_column = null)
+    {
+        $this->entry_class = StaticRoute::class;
+        $this->table_name  = 'security_incidents';
+
+        $this->setHtmlQuery('SELECT   `id`, `type`, `severity`, `title` 
+                                   FROM     `static_routes` 
+                                   WHERE    `status` IS NULL 
+                                   ORDER BY `created_on` DESC');
+        parent::__construct($parent, $id_column);
+    }
+
+
 
     /**
      * @inheritDoc
