@@ -2,6 +2,7 @@
 <?php
 
 use Phoundation\Cli\Documentation;
+use Phoundation\Core\Locale\Language\Import;
 use Phoundation\Core\Locale\Language\Languages;
 use Phoundation\Core\Log;
 use Phoundation\Data\Validator\ArgvValidator;
@@ -38,5 +39,4 @@ ArgvValidator::new()
 
 
 
-Log::information(tr('Importing languages, this may take a few seconds...'));
-Languages::new()->import();
+Import::execute();

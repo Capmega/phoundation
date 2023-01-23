@@ -212,6 +212,20 @@ class Project
 
 
     /**
+     * Run import for all projects that support it
+     *
+     * @return void
+     */
+    public static function import():void
+    {
+        // Find all import objects
+
+        // execute import on each object
+    }
+
+
+
+    /**
      * Returns if the project file exists
      *
      * @return bool

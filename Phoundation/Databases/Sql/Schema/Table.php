@@ -4,6 +4,7 @@ namespace Phoundation\Databases\Sql\Schema;
 
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
+use Phoundation\Core\Log;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\Sql;
 
@@ -113,6 +114,7 @@ class Table extends SchemaAbstract
      */
     public function drop(): void
     {
+        Log::warning(tr('Dropping table :table', [':table' => $this->name]));
         sql()->query('DROP TABLES IF EXISTS `' . $this->name . '`');
     }
 
@@ -125,6 +127,7 @@ class Table extends SchemaAbstract
      */
     public function truncate(): void
     {
+        Log::warning(tr('Truncating table :table', [':table' => $this->name]));
         sql()->query('TRUNCATE `' . $this->name . '`');
     }
 

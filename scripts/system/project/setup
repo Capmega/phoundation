@@ -35,6 +35,10 @@ ARGUMENTS
 
 
 
+[--import]                              Run import for all libraries that support it. This will automatically import all 
+                                        data for all systems. Since this requires (amongst things) downloading and 
+                                        importing (sometimes) very large data sets, this may take a little while 
+
 [--project]                             Setup the entire project 
 
 [--no-validation]                       (System argument) If specified, the validation system will not cause any 
@@ -53,6 +57,7 @@ ARGUMENTS
 ArgvValidator::new()
     ->select('--no-password-validation')->isOptional(false)->isBoolean()
     ->select('--project')->isOptional(false)->isBoolean()
+    ->select('--import')->isOptional(false)->isBoolean()
     ->noArgumentsLeft()
     ->validate();
 
@@ -125,3 +130,8 @@ $configuration->getDatabase()->setPass($config['database_pass1']);
 
 // Run setup
 Project::setup();
+
+// Run import?
+if ($argv['import']) {
+    Project::import();
+}

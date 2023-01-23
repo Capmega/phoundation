@@ -42,45 +42,6 @@ class Languages extends DataList
 
 
     /**
-     * Import the content for the languages table from a data-source file
-     *
-     * @return void
-     */
-    public function import(): void
-    {
-        $file = File::new(PATH_DATA . 'sources/languages/languages');
-        $h    = $file->open('r');
-
-        $this->getTable()->truncate();
-
-        while($line = fgets($h, $file->getBufferSize())) {
-            // Parse the line
-            switch ($line[0]) {
-                case '#':
-                    // no break
-                case ';':
-                    // no break
-                case '//':
-                    continue 2;
-            }
-
-            $line = explode("\t", $line);
-
-            // Import the language data into a language object and save.
-            $language = Language::new();
-            $language->setName(isset_get($line[0]));
-            $language->setCode_639_1(isset_get($line[1]));
-            $language->setCode_639_2_t(isset_get($line[2]));
-            $language->setCode_639_2_b(isset_get($line[3]));
-            $language->setCode_639_3(isset_get($line[4]));
-            $language->setDescription(isset_get($line[5]));
-            $language->save();
-        }
-    }
-
-
-
-    /**
      * Returns an HTML <select> object with all available languages
      *
      * @param string $name
