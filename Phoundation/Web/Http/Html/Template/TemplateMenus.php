@@ -233,12 +233,12 @@ class TemplateMenus
             ],
             tr('Customers') => [
                 'rights' => 'admin,customers',
-                'url'  => '/customers/customers.html',
+                'url'  => '/business/customers.html',
                 'icon' => 'fa-users'
             ],
             tr('Providers') => [
                 'rights' => 'admin,providers',
-                'url'    => '/providers/providers.html',
+                'url'    => '/business/providers.html',
                 'icon'   => 'fa-users'
             ],
             tr('Businesses') => [
