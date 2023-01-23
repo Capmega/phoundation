@@ -1088,14 +1088,23 @@ class Page
 
         } catch (ValidationFailedException $e) {
             // TODO Improve this uncaught validation failure handling
+            Log::warning('Page did not catch the following ValidationFailedException warning, showing "system/400"');
+            Log::warning($e);
+
             self::getFlashMessages()->add($e);
             Route::executeSystem(400);
 
         } catch (AuthenticationException $e) {
+            Log::warning('Page did not catch the following AuthenticationException warning, showing "system/401"');
+            Log::warning($e);
+
             self::getFlashMessages()->add($e);
             Route::executeSystem(401);
 
-        } catch (DataEntryNotExistsException) {
+        } catch (DataEntryNotExistsException $e) {
+            Log::warning('Page did not catch the following DataEntryNotExistsException warning, showing "system/404"');
+            Log::warning($e);
+
             // Show a 404 page instead
             Route::executeSystem(404);
 
@@ -1806,14 +1815,14 @@ class Page
             http_response_code(self::$http_code);
 
             if ((self::$http_code != 200)) {
-                Log::warning(tr('Phoundation sent ":http" for URL ":url"', [
-                    ':http' => (self::$http_code ? 'HTTP' . self::$http_code : 'HTTP0'),
-                    ':url'  => (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']
-                ]));
-            } else {
                 Log::success(tr('Phoundation sent :http for URL ":url"', [
                     ':http' => (self::$http_code ? 'HTTP' . self::$http_code : 'HTTP0'),
                     ':url' => (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']
+                ]), 4);
+            } else {
+                Log::warning(tr('Phoundation sent ":http" for URL ":url"', [
+                    ':http' => (self::$http_code ? 'HTTP' . self::$http_code : 'HTTP0'),
+                    ':url'  => (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']
                 ]));
             }
 
