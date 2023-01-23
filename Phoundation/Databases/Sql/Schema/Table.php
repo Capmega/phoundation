@@ -119,6 +119,18 @@ class Table extends SchemaAbstract
 
 
     /**
+     * Will truncate this table
+     *
+     * @return void
+     */
+    public function truncate(): void
+    {
+        sql()->query('TRUNCATE `' . $this->name . '`');
+    }
+
+
+
+    /**
      * Returns the table name
      *
      * @return string|null
