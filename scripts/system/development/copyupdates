@@ -1,0 +1,56 @@
+#!/usr/bin/php
+<?php
+
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Versioning\Exception\GitHasChangesException;
+use Phoundation\Versioning\Git;
+
+
+
+/**
+ * THIS SCRIPT IS ONLY FOR PHOUNDATION DEVELOPERS
+ *
+ * This script will copy changed files back to your phoundation installation. The script will assume your phoundation
+ * installation is in ~/projects/phoundation
+ *
+ * @author Sven Oostenbrink <support@capmega.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @category Function reference
+ * @package Phoundation\Development
+ */
+
+
+
+// Get command line arguments
+ArgvValidator::new()
+    ->noArgumentsLeft()
+    ->validate();
+
+
+
+// Ensure Phoudation has no changes
+$p_path  = realpath('~/projects/phoundation/');
+$p_git   = Git::new($p_path);
+
+if ($p_git->hasChanges()) {
+    throw new GitHasChangesException::new(tr('Cannot copy changes, your Phoundation installation ":path" has uncommitted changes', [
+            ':path' => $p_path
+    ]))->makeWarning();
+}
+
+
+
+// Find local changes
+$git     = Git::new(PATH_ROOT);
+$changes = $git->getChanges();
+
+if ($git->hasNoChanges()) {
+    throw new GitHasNoChangesException::new(tr('Cannot copy changes, your Phoundation installation ":path" has uncommitted changes', [
+        ':path' => $p_path
+    ]))->makeWarning();
+}
+
+foreach ($changes as $file => $information) {
+
+}

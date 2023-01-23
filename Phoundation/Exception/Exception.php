@@ -2,10 +2,10 @@
 
 namespace Phoundation\Exception;
 
-use MongoDB\Exception\RuntimeException;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Strings;
+use RuntimeException;
 use Throwable;
 
 
