@@ -1,6 +1,6 @@
 <?php
 
-namespace Phoundation\System\Environment\Exception;
+namespace Phoundation\System\Project\Exception;
 
 use Phoundation\System\Exception\SystemException;
 

@@ -3,7 +3,7 @@
 namespace Templates\AdminLte;
 
 use Phoundation\Core\Config;
-use Phoundation\System\Environment\Project;
+use Phoundation\System\Project\Project;
 use Phoundation\Web\Http\Html\Components\Footer;
 use Phoundation\Web\Http\Html\Components\SidePanel;
 use Phoundation\Web\Http\Html\Components\TopPanel;

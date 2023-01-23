@@ -1,6 +1,6 @@
 <?php
 
-namespace Phoundation\System\Environment;
+namespace Phoundation\System\Project;
 
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Log;
@@ -9,7 +9,7 @@ use Phoundation\Data\Validator\Validator;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Restrictions;
-use Phoundation\System\Environment\Exception\EnvironmentExists;
+use Phoundation\System\Project\Exception\EnvironmentExists;
 use Throwable;
 
 

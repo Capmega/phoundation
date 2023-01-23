@@ -1,13 +1,13 @@
 <?php
 
-namespace Phoundation\System\Environment;
+namespace Phoundation\System\Project;
 
 use Phoundation\Core\Config;
 use Phoundation\Core\Log;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Restrictions;
-use Phoundation\System\Environment\Exception\EnvironmentException;
+use Phoundation\System\Project\Exception\EnvironmentException;
 use Phoundation\System\Libraries;
 use Throwable;
 

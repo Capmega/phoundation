@@ -9,7 +9,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
-use Phoundation\System\Environment\Configuration;
+use Phoundation\System\Project\Configuration;
 use Throwable;
 
 
