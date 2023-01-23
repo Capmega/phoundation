@@ -1,0 +1,42 @@
+#!/usr/bin/php
+<?php
+
+use Phoundation\Cli\Documentation;
+use Phoundation\Core\Locale\Language\Languages;
+use Phoundation\Core\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+
+
+
+/**
+ * Script system/languages/import
+ *
+ * This script will import data into the languages table from the data/sources/languages/languages file
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Scripts
+ */
+Documentation::usage('./cli system languages import');
+
+Documentation::help('This script allows you to create users
+
+
+
+ARGUMENTS
+
+
+-');
+
+
+
+// Validate arguments
+ArgvValidator::new()
+    ->noArgumentsLeft()
+    ->validate();
+
+
+
+Log::information(tr('Importing languages, this may take a few seconds...'));
+Languages::new()->import();

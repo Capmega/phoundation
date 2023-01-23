@@ -5,7 +5,6 @@ use Phoundation\Accounts\Exception\AccountsException;
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\Cli;
-use Phoundation\Core\Config;
 use Phoundation\Core\Log;
 use Phoundation\Data\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
@@ -84,7 +83,7 @@ ArgvValidator::new()
     ->select('-c,--comments', true)->isOptional()->isDescription()
     ->select('-d,--description', true)->isOptional()->isDescription()
     ->select('-g,--gender', true)->isOptional()->isGender()
-    ->select('-l,--language', true)->isOptional()->isName()
+    ->select('-l,--language', true)->isName()
     ->select('-n,--name', true)->isName()
     ->select('-p,--phones', true)->isOptional()->isPhones()
     ->select('-t,--title', true)->isOptional()->isName()
@@ -94,7 +93,7 @@ ArgvValidator::new()
     ->select('--first-names')->isOptional()->isName()
     ->select('--last-names')->isOptional()->isName()
     ->select('--timezone', true)->isOptional()->isTimezone()
-    ->select('--domain', true)->isOptional(Config::get('web.domains.primary.domain'))->isDomain()
+    ->select('--domain', true)->isOptional()->isDomain()
     ->select('--is-leader')->isOptional(false)->isBoolean()
     ->select('--lead-by', true)->isOptional()->isEmail()
     ->select('--country', true)->isOptional()->isName()
@@ -103,7 +102,7 @@ ArgvValidator::new()
     ->select('--company', true)->isOptional()->isName()
     ->select('--department', true)->isOptional()->isName()
     ->select('--branch', true)->isOptional()->isName()
-    ->select('-r,--roles,--role', true)->isOptional()->sanitizeForceArray()->each()->isName()
+    ->select('-r,--roles,--role', true)->sanitizeForceArray()->each()->isName()
     ->noArgumentsLeft()
     ->validate();
 
@@ -154,7 +153,7 @@ $user = User::new()
     ->setComments($argv['comments'])
     ->setUsername($argv['username'])
     ->setAddress($argv['address'])
-    ->setWebsite($argv['website'])
+    ->setUrl($argv['website'])
     ->setPhones($argv['phones'])
     ->setBirthday($argv['birthday'])
     ->setTimezone($argv['timezone'])

@@ -1,0 +1,53 @@
+#!/usr/bin/php
+<?php
+
+use Phoundation\Cli\Documentation;
+use Phoundation\Core\Locale\Language\Languages;
+use Phoundation\Core\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+
+
+
+/**
+ * Script system/poroject/import
+ *
+ * This script will import all data to get your system going. Currently this script will import:
+ *
+ * languages
+ * geo data (continents, countries, states, counties, cities, etc) (under construction)
+ * geoip data  (under construction)
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Scripts
+ */
+Documentation::usage('./cli system project import');
+
+Documentation::help('This script allows you to import all project data with one command 
+
+Currently this script will import:
+ * languages
+ * geo data (continents, countries, states, counties, cities, etc) (under construction)
+ * geoip data                                                      (under construction)
+
+
+
+ARGUMENTS
+
+
+-');
+
+
+
+// Validate arguments
+ArgvValidator::new()
+    ->noArgumentsLeft()
+    ->validate();
+
+
+
+Log::information(tr('Importing languages, this may take a few seconds...'));
+Languages::new()->import();
+
+// TODO IMPLEMENT THE REST
