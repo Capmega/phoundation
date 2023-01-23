@@ -6,11 +6,10 @@ use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Log;
-use Phoundation\Data\DataEntry;
+use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Throwable;
-
 
 
 /**

@@ -2,7 +2,7 @@
 
 namespace Phoundation\Security\Incidents;
 
-use Phoundation\Data\DataList;
+use Phoundation\Data\DataList\DataList;
 
 
 /**

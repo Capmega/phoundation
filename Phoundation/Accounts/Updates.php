@@ -52,6 +52,15 @@ class Updates extends \Phoundation\System\Updates
     public function updates(): void
     {
         $this->addUpdate('0.0.4', function () {
+            // Drop the tables to be sure we have a clean slate
+            sql()->schema()->table('accounts_roles_rights')->drop();
+            sql()->schema()->table('accounts_users_roles')->drop();
+            sql()->schema()->table('accounts_users_rights')->drop();
+            sql()->schema()->table('accounts_groups')->drop();
+            sql()->schema()->table('accounts_roles')->drop();
+            sql()->schema()->table('accounts_rights')->drop();
+            sql()->schema()->table('accounts_users')->drop();
+
             // Create the users table.
             sql()->schema()->table('accounts_users')->define()
                 ->setColumns('
@@ -79,6 +88,7 @@ class Updates extends \Phoundation\System\Updates
                     `keywords` varchar(255) DEFAULT NULL,
                     `phones` varchar(64) CHARACTER SET latin1 DEFAULT NULL,
                     `address` varchar(255) DEFAULT NULL,
+                    `zipcode` varchar(8) DEFAULT NULL,
                     `verification_code` varchar(128) DEFAULT NULL,
                     `verified_on` datetime DEFAULT NULL,
                     `priority` int DEFAULT NULL,
@@ -93,13 +103,13 @@ class Updates extends \Phoundation\System\Updates
                     `states_id` int DEFAULT NULL,
                     `countries_id` int DEFAULT NULL,
                     `redirect` varchar(255) DEFAULT NULL,
-                    `language` char(2) DEFAULT NULL,
+                    `languages_id` int DEFAULT NULL,
                     `gender` varchar(16) DEFAULT NULL,
                     `birthday` date DEFAULT NULL,
+                    `url` varchar(2048) DEFAULT NULL,
+                    `timezone` varchar(32) DEFAULT NULL,
                     `description` text DEFAULT NULL,
-                    `comments` mediumtext DEFAULT NULL,
-                    `website` varchar(2048) DEFAULT NULL,
-                    `timezone` varchar(32) DEFAULT NULL
+                    `comments` mediumtext DEFAULT NULL
                 ')
                 ->setIndices('                
                     PRIMARY KEY (`id`),
@@ -107,7 +117,7 @@ class Updates extends \Phoundation\System\Updates
                     UNIQUE KEY `domain-email` (`domain`, `email`),
                     KEY `email` (`email`),
                     KEY `verified_on` (`verified_on`),
-                    KEY `language` (`language`),
+                    KEY `languages_id` (`languages_id`),
                     KEY `latitude` (`latitude`),
                     KEY `longitude` (`longitude`),
                     KEY `birthday` (`birthday`),
@@ -294,6 +304,12 @@ class Updates extends \Phoundation\System\Updates
                 ')
                 ->create();
         })->addUpdate('0.0.5', function () {
+            // Drop the tables to be sure we have a clean slate
+            sql()->schema()->table('accounts_compromised_passwords')->drop();
+            sql()->schema()->table('accounts_old_passwords')->drop();
+            sql()->schema()->table('accounts_password_resets')->drop();
+            sql()->schema()->table('accounts_authentications')->drop();
+
             // Create additional user tables.
             sql()->schema()->table('accounts_authentications')->define()
                 ->setColumns('

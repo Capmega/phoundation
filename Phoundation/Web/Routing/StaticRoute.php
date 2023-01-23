@@ -2,8 +2,7 @@
 
 namespace Phoundation\Web\Routing;
 
-use Phoundation\Data\DataEntry;
-
+use Phoundation\Data\DataEntry\DataEntry;
 
 
 /**

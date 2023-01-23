@@ -2,8 +2,7 @@
 
 namespace Phoundation\Messages;
 
-use Phoundation\Data\DataList;
-
+use Phoundation\Data\DataList\DataList;
 
 
 /**

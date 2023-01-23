@@ -2,9 +2,8 @@
 
 namespace Phoundation\Business\Companies\Employees;
 
-use Phoundation\Data\DataEntry;
-use Phoundation\Data\DataEntryNameDescription;
-
+use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntry\DataEntryNameDescription;
 
 
 /**
@@ -12,7 +11,7 @@ use Phoundation\Data\DataEntryNameDescription;
  *
  *
  *
- * @see \Phoundation\Data\DataEntry
+ * @see \Phoundation\Data\DataEntry\DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>

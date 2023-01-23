@@ -24,7 +24,7 @@ class Updates extends \Phoundation\System\Updates
      */
     public function version(): string
     {
-        return '0.0.8';
+        return '0.0.9';
     }
 
 
@@ -49,6 +49,14 @@ class Updates extends \Phoundation\System\Updates
     public function updates(): void
     {
         $this->addUpdate('0.0.8', function () {
+            // Drop the tables to be sure we have a clean slate
+            sql()->schema()->table('business_employees')->drop();
+            sql()->schema()->table('business_departments')->drop();
+            sql()->schema()->table('business_branches')->drop();
+            sql()->schema()->table('business_companies')->drop();
+            sql()->schema()->table('business_providers')->drop();
+            sql()->schema()->table('business_customers')->drop();
+
             // Add table for customers
             sql()->schema()->table('business_customers')->define()
                 ->setColumns('
@@ -63,10 +71,10 @@ class Updates extends \Phoundation\System\Updates
                     `email` varchar(96) DEFAULT NULL,
                     `phones` varchar(36) DEFAULT NULL,
                     `url` varchar(512) DEFAULT NULL,
-                    `address1` varchar(64) DEFAULT NULL,
+                    `address` varchar(64) DEFAULT NULL,
                     `address2` varchar(64) DEFAULT NULL,
                     `address3` varchar(64) DEFAULT NULL,
-                    `zipcode` varchar(6) DEFAULT NULL,
+                    `zipcode` varchar(8) DEFAULT NULL,
                     `categories_id` int DEFAULT NULL,
                     `companies_id` int DEFAULT NULL,
                     `languages_id` int DEFAULT NULL,
@@ -266,6 +274,78 @@ class Updates extends \Phoundation\System\Updates
                     CONSTRAINT `fk_business_employees_createdby` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`),
                     CONSTRAINT `fk_business_employees_departments_id` FOREIGN KEY (`departments_id`) REFERENCES `business_departments` (`id`),
                     CONSTRAINT `fk_business_employees_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`)                
+                ')
+                ->create();
+        })->addUpdate('0.0.9', function () {
+            // Drop the tables to be sure we have a clean slate
+            sql()->schema()->table('business_invoices_items')->drop();
+            sql()->schema()->table('business_invoices')->drop();
+
+
+            // Add table for invoices
+            sql()->schema()->table('business_invoices')->define()
+                ->setColumns('
+                    `id` int NOT NULL AUTO_INCREMENT,
+                    `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `created_by` int NOT NULL,
+                    `meta_id` int DEFAULT NULL,
+                    `status` varchar(16) DEFAULT NULL,
+                    `accounts_id` int DEFAULT NULL,
+                    `categories_id` int DEFAULT NULL,
+                    `customers_id` int DEFAULT NULL,
+                    `parents_id` int DEFAULT NULL,
+                    `invoice_number` varchar(16) DEFAULT NULL,
+                    `available_date` datetime DEFAULT NULL,
+                    `due_date` datetime DEFAULT NULL,
+                    `amount_total` float DEFAULT NULL,
+                    `description` TEXT DEFAULT NULL,
+                    `comments` TEXT DEFAULT NULL
+                ')
+                ->setIndices('
+                    PRIMARY KEY (`id`),
+                    UNIQUE KEY `invoice_number` (`invoice_number`),
+                    KEY `created_on` (`created_on`),
+                    KEY `created_by` (`created_by`),
+                    KEY `status` (`status`),
+                    KEY `due_date` (`due_date`),
+                    KEY `available_date` (`available_date`),
+                    KEY `customers_id` (`customers_id`),
+                    KEY `accounts_id` (`accounts_id`),
+                    KEY `parents_id` (`parents_id`),
+                ')
+                ->setForeignKeys('
+                    CONSTRAINT `fk_business_invoices_parents_id` FOREIGN KEY (`parents_id`) REFERENCES `business_invoices` (`id`),
+                    CONSTRAINT `fk_business_invoices_categories_id` FOREIGN KEY (`categories_id`) REFERENCES `categories` (`id`),
+                    CONSTRAINT `fk_business_invoices_createdby` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`),
+                    CONSTRAINT `fk_business_invoices_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`),
+                ')
+                ->create();
+            // Add table for invoices
+            sql()->schema()->table('business_invoices_items')->define()
+                ->setColumns('
+                    `id` int NOT NULL AUTO_INCREMENT,
+                    `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `created_by` int NOT NULL,
+                    `meta_id` int DEFAULT NULL,
+                    `status` varchar(16) DEFAULT NULL,
+                    `invoices_id` int DEFAULT NULL,
+                    `products_id` int DEFAULT NULL,
+                    `quantity` int DEFAULT NULL,
+                    `amount_per` float DEFAULT NULL,
+                    `amount_total` float DEFAULT NULL,
+                ')
+                ->setIndices('
+                    PRIMARY KEY (`id`),
+                    KEY `created_on` (`created_on`),
+                    KEY `created_by` (`created_by`),
+                    KEY `status` (`status`),
+                    KEY `invoices_id` (`invoices_id`),
+                    KEY `products_id` (`products_id`),
+                ')
+                ->setForeignKeys('
+                    CONSTRAINT `fk_business_invoices_items_createdby` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`),
+                    CONSTRAINT `fk_business_invoices_items_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`),
+                    CONSTRAINT `fk_business_invoices_items_invoices_id` FOREIGN KEY (`invoices_id`) REFERENCES `business_invoices` (`id`)
                 ')
                 ->create();
         });

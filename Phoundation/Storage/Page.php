@@ -2,8 +2,7 @@
 
 namespace Phoundation\Page;
 
-use Phoundation\Data\DataEntry;
-
+use Phoundation\Data\DataEntry\DataEntry;
 
 
 /**

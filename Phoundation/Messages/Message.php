@@ -2,8 +2,7 @@
 
 namespace Phoundation\Messages;
 
-use Phoundation\Data\DataEntry;
-
+use Phoundation\Data\DataEntry\DataEntry;
 
 
 /**

@@ -3,7 +3,7 @@
 namespace Phoundation\Security\Incidents;
 
 use Phoundation\Core\Log;
-use Phoundation\Data\DataEntry;
+use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Utils\Json;
 
 

@@ -1,9 +1,10 @@
 <?php
 
-namespace Phoundation\Data;
+namespace Phoundation\Data\DataList;
 
 use Iterator;
 use Phoundation\Cli\Cli;
+use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Components\Table;

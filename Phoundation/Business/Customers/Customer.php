@@ -4,16 +4,23 @@ namespace Phoundation\Business\Customers;
 
 use Phoundation\Accounts\Users\Users;
 use Phoundation\Business\Companies\Companies;
-use Phoundation\Content\Images\Image;
 use Phoundation\Core\Locale\Language\Languages;
-use Phoundation\Core\Strings;
 use Phoundation\Data\Categories\Categories;
-use Phoundation\Data\DataEntry;
-use Phoundation\Data\DataEntryNameDescription;
+use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntry\DataEntryAddress;
+use Phoundation\Data\DataEntry\DataEntryCategory;
+use Phoundation\Data\DataEntry\DataEntryCode;
+use Phoundation\Data\DataEntry\DataEntryCompany;
+use Phoundation\Data\DataEntry\DataEntryEmail;
+use Phoundation\Data\DataEntry\DataEntryGeo;
+use Phoundation\Data\DataEntry\DataEntryLanguage;
+use Phoundation\Data\DataEntry\DataEntryNameDescription;
+use Phoundation\Data\DataEntry\DataEntryPhones;
+use Phoundation\Data\DataEntry\DataEntryPicture;
+use Phoundation\Data\DataEntry\DataEntryUrl;
 use Phoundation\Geo\Countries\Countries;
 use Phoundation\Geo\Countries\Country;
 use Phoundation\Geo\States\State;
-
 
 
 /**
@@ -21,7 +28,7 @@ use Phoundation\Geo\States\State;
  *
  *
  *
- * @see \Phoundation\Data\DataEntry
+ * @see \Phoundation\Data\DataEntry\DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -29,7 +36,67 @@ use Phoundation\Geo\States\State;
  */
 class Customer extends DataEntry
 {
+    use DataEntryGeo;
+    use DataEntryUrl;
+    use DataEntryCode;
+    use DataEntryEmail;
+    use DataEntryPhones;
+    use DataEntryAddress;
+    use DataEntryCompany;
+    use DataEntryPicture;
+    use DataEntryCategory;
+    use DataEntryLanguage;
     use DataEntryNameDescription;
+
+
+
+    /**
+     * Returns the address2 for this object
+     *
+     * @return string|null
+     */
+    public function getAddress2(): ?string
+    {
+        return $this->getDataValue('address2');
+    }
+
+
+
+    /**
+     * Sets the address2 for this object
+     *
+     * @param string|null $address2
+     * @return static
+     */
+    public function setAddress2(?string $address2): static
+    {
+        return $this->setDataValue('address2', $address2);
+    }
+
+
+
+    /**
+     * Returns the address3 for this object
+     *
+     * @return string|null
+     */
+    public function getAddress3(): ?string
+    {
+        return $this->getDataValue('address3');
+    }
+
+
+
+    /**
+     * Sets the address3 for this object
+     *
+     * @param string|null $address3
+     * @return static
+     */
+    public function setAddress3(?string $address3): static
+    {
+        return $this->setDataValue('address3', $address3);
+    }
 
 
 
@@ -44,36 +111,6 @@ class Customer extends DataEntry
         $this->table      = 'business_customers';
 
         parent::__construct($identifier);
-    }
-
-
-
-    /**
-     * Returns the picture for this customer
-     *
-     * @return Image
-     */
-    public function getPicture(): Image
-    {
-        if (!$this->getDataValue('picture')) {
-            $this->setDataValue('picture', 'img/profiles/default.png');
-        }
-
-        return Image::new($this->getDataValue('picture'))
-            ->setDescription(tr('Profile image for :customer', [':customer' => $this->getDisplayName()]));
-    }
-
-
-
-    /**
-     * Sets the picture for this customer
-     *
-     * @param Image|string|null $picture
-     * @return static
-     */
-    public function setPicture(Image|string|null $picture): static
-    {
-        return $this->setDataValue('picture', Strings::from(PATH_CDN, $picture->getFile()));
     }
 
 
@@ -103,7 +140,6 @@ class Customer extends DataEntry
                         ->setSelected(isset_get($source['created_by']))
                         ->render();
                 },
-                'execute'  => 'id',
                 'label'    => tr('Created by')
             ],
             'meta_id' => [
@@ -117,26 +153,26 @@ class Customer extends DataEntry
                 'label'    => tr('Status')
             ],
             'name' => [
-                'label'     => tr('Name')
+                'label'    => tr('Name')
             ],
             'seo_name' => [
-                'display'   => false
+                'display'  => false
             ],
             'code' => [
                 'label'    => tr('Code')
             ],
             'email' => [
-                'label'     => tr('Email'),
-                'type'      => 'email'
+                'label'    => tr('Email'),
+                'type'     => 'email'
             ],
             'phones' => [
-                'label'     => tr('Phones')
+                'label'    => tr('Phones')
             ],
             'url' => [
                 'label'    => tr('Url'),
                 'type'     => 'url',
             ],
-            'address1' => [
+            'address' => [
                 'label'     => tr('Address 1')
             ],
             'address2' => [
@@ -151,19 +187,17 @@ class Customer extends DataEntry
             'categories_id' => [
                 'element'  => function (string $key, array $data, array $source) {
                     return Categories::getHtmlSelect($key)
-                        ->setSelected(isset_get($source['language']))
+                        ->setSelected(isset_get($source['categories_id']))
                         ->render();
                 },
-                'source'   => [],
                 'label'    => tr('Category'),
             ],
             'companies_id' => [
                 'element'  => function (string $key, array $data, array $source) {
                     return Companies::getHtmlSelect($key)
-                        ->setSelected(isset_get($source['language']))
+                        ->setSelected(isset_get($source['companies_id']))
                         ->render();
                 },
-                'source'   => [],
                 'label'    => tr('Company'),
             ],
             'languages_id' => [
@@ -172,7 +206,6 @@ class Customer extends DataEntry
                         ->setSelected(isset_get($source['languages_id']))
                         ->render();
                 },
-                'source'   => [],
                 'label'    => tr('Language'),
             ],
             'countries_id' => [
@@ -189,7 +222,6 @@ class Customer extends DataEntry
                         ->setSelected(isset_get($source['states_id']))
                         ->render();
                 },
-                'execute'  => 'countries_id',
                 'label'    => tr('State'),
             ],
             'cities_id' => [
@@ -198,7 +230,6 @@ class Customer extends DataEntry
                         ->setSelected(isset_get($source['cities_id']))
                         ->render();
                 },
-                'execute'  => 'states_id',
                 'label'    => tr('City'),
             ],
             'description' => [
@@ -218,7 +249,7 @@ class Customer extends DataEntry
             'email'         => 6,
             'phones'        => 6,
             'url'           => 12,
-            'address1'      => 12,
+            'address'       => 12,
             'address2'      => 12,
             'address3'      => 6,
             'zipcode'       => 6,

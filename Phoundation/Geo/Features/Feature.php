@@ -2,9 +2,8 @@
 
 namespace Phoundation\Geo\Features;
 
-use Phoundation\Data\DataEntry;
-use Phoundation\Data\DataEntryNameDescription;
-
+use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntry\DataEntryNameDescription;
 
 
 /**

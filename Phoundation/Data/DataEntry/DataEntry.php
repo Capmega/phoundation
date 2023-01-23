@@ -1,15 +1,16 @@
 <?php
 
-namespace Phoundation\Data;
+namespace Phoundation\Data\DataEntry;
 
 use DateTime;
+use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\Cli;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Meta;
+use Phoundation\Data\DataList\DataList;
 use Phoundation\Data\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Accounts\Users\User;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Components\DataEntryForm;
 
@@ -162,7 +163,7 @@ abstract class DataEntry
 
 
     /**
-     * Returns a User object for the user owning the specified email address
+     * Returns a User object for the object owning the specified email address
      *
      * @note This method also accepts DataEntry objects, in which case it will simply return this object. This is to
      *       simplify "if this is not DataEntry object then this is new DataEntry object" into
@@ -271,7 +272,7 @@ abstract class DataEntry
 
 
     /**
-     * Returns the user that created this data entry
+     * Returns the object that created this data entry
      *
      * @note Returns NULL if this class has no support for created_by information or has not been written to disk yet
      * @return User|null
@@ -290,7 +291,7 @@ abstract class DataEntry
 
 
     /**
-     * Returns the user that created this data entry
+     * Returns the object that created this data entry
      *
      * @note Returns NULL if this class has no support for created_by information or has not been written to disk yet
      * @return User|null
@@ -329,7 +330,7 @@ abstract class DataEntry
 
 
     /**
-     * Modify the data for this user with the new specified data
+     * Modify the data for this object with the new specified data
      *
      * @param array|null $data
      * @return static
@@ -705,7 +706,7 @@ abstract class DataEntry
 
 
     /**
-     * Load all user data from database
+     * Load all object data from database
      *
      * @param string|int $identifier
      * @return void

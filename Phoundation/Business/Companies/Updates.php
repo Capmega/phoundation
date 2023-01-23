@@ -101,7 +101,7 @@ class Updates extends \Phoundation\System\Updates
                     `address1` varchar(64) DEFAULT NULL,
                     `address2` varchar(64) DEFAULT NULL,
                     `address3` varchar(64) DEFAULT NULL,
-                    `zipcode` varchar(6) DEFAULT NULL,
+                    `zipcode` varchar(8) DEFAULT NULL,
                     `countries_id` int DEFAULT NULL,
                     `states_id` int DEFAULT NULL,
                     `cities_id` int DEFAULT NULL,

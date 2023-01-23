@@ -4,10 +4,9 @@ namespace Phoundation\Accounts\Roles;
 
 use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Accounts\Users\Users;
-use Phoundation\Data\DataEntry;
-use Phoundation\Data\DataEntryNameDescription;
+use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntry\DataEntryNameDescription;
 use Phoundation\Web\Http\Html\Components\Form;
-
 
 
 /**

@@ -2,8 +2,8 @@
 
 namespace Phoundation\Geo\States;
 
-use Phoundation\Data\DataEntry;
-use Phoundation\Data\DataEntryNameDescription;
+use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntry\DataEntryNameDescription;
 use Phoundation\Geo\Continents\Continent;
 use Phoundation\Geo\Countries\Country;
 use Phoundation\Geo\Timezones\Timezone;

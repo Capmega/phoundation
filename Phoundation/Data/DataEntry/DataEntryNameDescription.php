@@ -1,6 +1,6 @@
 <?php
 
-namespace Phoundation\Data;
+namespace Phoundation\Data\DataEntry;
 
 use Phoundation\Seo\Seo;
 
@@ -19,7 +19,7 @@ use Phoundation\Seo\Seo;
 trait DataEntryNameDescription
 {
     /**
-     * Returns the SEO name for this user
+     * Returns the SEO name for this object
      *
      * @return string|null
      */
@@ -31,7 +31,7 @@ trait DataEntryNameDescription
 
 
     /**
-     * Returns the name for this user
+     * Returns the name for this object
      *
      * @return string|null
      */
@@ -43,7 +43,7 @@ trait DataEntryNameDescription
 
 
     /**
-     * Sets the name for this user
+     * Sets the name for this object
      *
      * @param string|null $name
      * @return static
@@ -61,7 +61,7 @@ trait DataEntryNameDescription
 
 
     /**
-     * Returns the description for this user
+     * Returns the description for this object
      *
      * @return string|null
      */
@@ -73,7 +73,7 @@ trait DataEntryNameDescription
 
 
     /**
-     * Sets the description for this user
+     * Sets the description for this object
      *
      * @param string|null $description
      * @return static

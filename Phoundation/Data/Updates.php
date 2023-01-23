@@ -36,7 +36,7 @@ class Updates extends \Phoundation\System\Updates
      */
     public function description(): string
     {
-        return tr('This library manages all user functionalities');
+        return tr('This library manages all general data management functionalities');
     }
 
 

@@ -2,8 +2,7 @@
 
 namespace Phoundation\Web\Routing;
 
-use Phoundation\Data\DataList;
-
+use Phoundation\Data\DataList\DataList;
 
 
 /**

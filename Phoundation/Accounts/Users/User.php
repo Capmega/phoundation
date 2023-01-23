@@ -11,17 +11,26 @@ use Phoundation\Accounts\Users\Exception\UsersException;
 use Phoundation\Business\Companies\Branches\Branch;
 use Phoundation\Business\Companies\Company;
 use Phoundation\Business\Companies\Departments\Department;
-use Phoundation\Content\Images\Image;
 use Phoundation\Core\Locale\Language\Languages;
 use Phoundation\Core\Log;
-use Phoundation\Core\Strings;
-use Phoundation\Data\DataEntry;
-use Phoundation\Data\DataEntryNameDescription;
+use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntry\DataEntryAddress;
+use Phoundation\Data\DataEntry\DataEntryCode;
+use Phoundation\Data\DataEntry\DataEntryComments;
+use Phoundation\Data\DataEntry\DataEntryDomain;
+use Phoundation\Data\DataEntry\DataEntryEmail;
+use Phoundation\Data\DataEntry\DataEntryGeo;
+use Phoundation\Data\DataEntry\DataEntryLanguage;
+use Phoundation\Data\DataEntry\DataEntryNameDescription;
+use Phoundation\Data\DataEntry\DataEntryPhones;
+use Phoundation\Data\DataEntry\DataEntryPicture;
+use Phoundation\Data\DataEntry\DataEntryType;
+use Phoundation\Data\DataEntry\DataEntryUrl;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Date\DateTime;
 use Phoundation\Exception\NotSupportedException;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Geo\Cities\City;
+use Phoundation\Geo\Countries\Countries;
 use Phoundation\Geo\Countries\Country;
 use Phoundation\Geo\States\State;
 use Phoundation\Geo\Timezones\Timezone;
@@ -41,6 +50,17 @@ use Phoundation\Web\Http\UrlBuilder;
  */
 class User extends DataEntry
 {
+    use DataEntryGeo;
+    use DataEntryUrl;
+    use DataEntryCode;
+    use DataEntryType;
+    use DataEntryEmail;
+    use DataEntryPhones;
+    use DataEntryDomain;
+    use DataEntryPicture;
+    use DataEntryAddress;
+    use DataEntryLanguage;
+    use DataEntryComments;
     use DataEntryNameDescription;
 
 
@@ -58,27 +78,6 @@ class User extends DataEntry
      * @var Rights $rights
      */
     protected Rights $rights;
-
-    /**
-     * The company for this user
-     *
-     * @var Company|null $company
-     */
-    protected ?Company $company;
-
-    /**
-     * The department for this user
-     *
-     * @var Department|null $department
-     */
-    protected ?Department $department;
-
-    /**
-     * The branch for this user
-     *
-     * @var Branch|null $branch
-     */
-    protected ?Branch $branch;
 
     /**
      * Columns that will NOT be inserted
@@ -197,36 +196,6 @@ class User extends DataEntry
 
 
     /**
-     * Returns the picture for this user
-     *
-     * @return Image
-     */
-    public function getPicture(): Image
-    {
-        if (!$this->getDataValue('picture')) {
-            $this->setDataValue('picture', 'img/profiles/default.png');
-        }
-
-        return Image::new($this->getDataValue('picture'))
-            ->setDescription(tr('Profile image for :user', [':user' => $this->getDisplayName()]));
-    }
-
-
-
-    /**
-     * Sets the picture for this user
-     *
-     * @param Image|string|null $picture
-     * @return static
-     */
-    public function setPicture(Image|string|null $picture): static
-    {
-        return $this->setDataValue('picture', Strings::from(PATH_CDN, $picture->getFile()));
-    }
-
-
-
-    /**
      * Returns the nickname for this user
      *
      * @return string|null
@@ -322,31 +291,6 @@ class User extends DataEntry
     public function setLastNames(?string $lastnames): static
     {
         return $this->setDataValue('last_names', $lastnames);
-    }
-
-
-
-    /**
-     * Returns the email for this user
-     *
-     * @return string|null
-     */
-    public function getEmail(): ?string
-    {
-        return $this->getDataValue('email');
-    }
-
-
-
-    /**
-     * Sets the email for this user
-     *
-     * @param string|null $email
-     * @return static
-     */
-    public function setEmail(?string $email): static
-    {
-        return $this->setDataValue('email', $email);
     }
 
 
@@ -511,31 +455,6 @@ class User extends DataEntry
 
 
     /**
-     * Returns the domain for this user
-     *
-     * @return string|null
-     */
-    public function getDomain(): ?string
-    {
-        return $this->getDataValue('domain');
-    }
-
-
-
-    /**
-     * Sets the domain for this user
-     *
-     * @param string|null $domain
-     * @return static
-     */
-    public function setDomain(?string $domain): static
-    {
-        return $this->setDataValue('domain', $domain);
-    }
-
-
-
-    /**
      * Returns the title for this user
      *
      * @return string|null
@@ -586,56 +505,6 @@ class User extends DataEntry
 
 
     /**
-     * Returns the code for this user
-     *
-     * @return string|null
-     */
-    public function getCode(): ?string
-    {
-        return $this->getDataValue('code');
-    }
-
-
-
-    /**
-     * Sets the code for this user
-     *
-     * @param string|null $code
-     * @return static
-     */
-    public function setCode(?string $code): static
-    {
-        return $this->setDataValue('code', $code);
-    }
-
-
-
-    /**
-     * Returns the type for this user
-     *
-     * @return string|null
-     */
-    public function getType(): ?string
-    {
-        return $this->getDataValue('type');
-    }
-
-
-
-    /**
-     * Sets the type for this user
-     *
-     * @param string|null $type
-     * @return static
-     */
-    public function setType(?string $type): static
-    {
-        return $this->setDataValue('type', $type);
-    }
-
-
-
-    /**
      * Returns the keywords for this user
      *
      * @return string|null
@@ -656,56 +525,6 @@ class User extends DataEntry
     public function setKeywords(?string $keywords): static
     {
         return $this->setDataValue('keywords', $keywords);
-    }
-
-
-
-    /**
-     * Returns the phones for this user
-     *
-     * @return string|null
-     */
-    public function getPhones(): ?string
-    {
-        return $this->getDataValue('phones');
-    }
-
-
-
-    /**
-     * Sets the phones for this user
-     *
-     * @param array|string|null $phones
-     * @return static
-     */
-    public function setPhones(array|string|null $phones): static
-    {
-        return $this->setDataValue('phones', Strings::force($phones, ', '));
-    }
-
-
-
-    /**
-     * Returns the address for this user
-     *
-     * @return string|null
-     */
-    public function getAddress(): ?string
-    {
-        return $this->getDataValue('address');
-    }
-
-
-
-    /**
-     * Sets the address for this user
-     *
-     * @param string|null $address
-     * @return static
-     */
-    public function setAddress(?string $address): static
-    {
-        return $this->setDataValue('address', $address);
     }
 
 
@@ -996,186 +815,6 @@ class User extends DataEntry
 
 
     /**
-     * Returns the cities_id for this user
-     *
-     * @return int|null
-     */
-    public function getCitiesId(): ?int
-    {
-        return $this->getDataValue('cities_id');
-    }
-
-
-
-    /**
-     * Sets the cities_id for this user
-     *
-     * @param int|null $cities_id
-     * @return static
-     */
-    public function setCitiesId(?int $cities_id): static
-    {
-        return $this->setDataValue('cities_id', $cities_id);
-    }
-
-
-
-    /**
-     * Returns the cities_id for this user
-     *
-     * @return int|null
-     */
-    public function getCity(): ?int
-    {
-        $cities_id = $this->getDataValue('cities_id');
-
-        if ($cities_id) {
-            return new City($cities_id);
-        }
-
-        return null;
-    }
-
-
-
-    /**
-     * Sets the cities_id for this user
-     *
-     * @param City|null $city
-     * @return static
-     */
-    public function setCity(?City $city): static
-    {
-        if (is_object($city)) {
-            $city = $city->getId();
-        }
-
-        return $this->setDataValue('cities_id', $city);
-    }
-
-
-
-    /**
-     * Returns the states_id for this user
-     *
-     * @return int|null
-     */
-    public function getStatesId(): ?int
-    {
-        return $this->getDataValue('states_id');
-    }
-
-
-
-    /**
-     * Sets the states_id for this user
-     *
-     * @param int|null $states_id
-     * @return static
-     */
-    public function setStatesId(?int $states_id): static
-    {
-        return $this->setDataValue('states_id', $states_id);
-    }
-
-
-
-    /**
-     * Returns the state for this user
-     *
-     * @return State|null
-     */
-    public function getState(): ?State
-    {
-        $states_id = $this->getDataValue('states_id');
-
-        if ($states_id) {
-            return new State($states_id);
-        }
-
-        return null;
-    }
-
-
-
-    /**
-     * Sets the state for this user
-     *
-     * @param State|null $state
-     * @return static
-     */
-    public function setState(?State $state): static
-    {
-        if (is_object($state)) {
-            $state = $state->getId();
-        }
-
-        return $this->setDataValue('states_id', $state);
-    }
-
-
-
-    /**
-     * Returns the countries_id for this user
-     *
-     * @return int|null
-     */
-    public function getCountriesId(): ?int
-    {
-        return $this->getDataValue('countries_id');
-    }
-
-
-
-    /**
-     * Sets the countries_id for this user
-     *
-     * @param int|null $country
-     * @return static
-     */
-    public function setCountriesId(?int $country): static
-    {
-        return $this->setDataValue('countries_id', $country);
-    }
-
-
-
-    /**
-     * Returns the countries_id for this user
-     *
-     * @return Country|null
-     */
-    public function getCountry(): ?Country
-    {
-        $countries_id = $this->getDataValue('countries_id');
-
-        if ($countries_id) {
-            return new Country($countries_id);
-        }
-
-        return null;
-    }
-
-
-
-    /**
-     * Sets the countries_id for this user
-     *
-     * @param Country|null $country
-     * @return static
-     */
-    public function setCountry(?Country $country): static
-    {
-        if (is_object($country)) {
-            $country = $country->getId();
-        }
-
-        return $this->setDataValue('countries_id', $country);
-    }
-
-
-
-    /**
      * Returns the redirect for this user
      *
      * @return string|null
@@ -1201,39 +840,6 @@ class User extends DataEntry
         }
 
         return $this->setDataValue('redirect', get_null($redirect));
-    }
-
-
-
-    /**
-     * Returns the language for this user
-     *
-     * @return string|null
-     */
-    public function getLanguage(): ?string
-    {
-        return $this->getDataValue('language');
-    }
-
-
-
-    /**
-     * Sets the language for this user
-     *
-     * @param string|null $language
-     * @return static
-     */
-    public function setLanguage(?string $language): static
-    {
-        if ($language) {
-            if (strlen($language) != 2) {
-                throw new OutOfBoundsException(tr('Invalid language ":language" specified', [
-                    ':language' => $language
-                ]));
-            }
-        }
-
-        return $this->setDataValue('language', $language);
     }
 
 
@@ -1290,56 +896,6 @@ class User extends DataEntry
     public function setBirthday(?string $birthday): static
     {
         return $this->setDataValue('birthday', $birthday);
-    }
-
-
-
-    /**
-     * Returns the comments for this user
-     *
-     * @return string|null
-     */
-    public function getComments(): ?string
-    {
-        return $this->getDataValue('comments');
-    }
-
-
-
-    /**
-     * Sets the comments for this user
-     *
-     * @param string|null $comments
-     * @return static
-     */
-    public function setComments(?string $comments): static
-    {
-        return $this->setDataValue('comments', $comments);
-    }
-
-
-
-    /**
-     * Returns the website for this user
-     *
-     * @return string|null
-     */
-    public function getWebsite(): ?string
-    {
-        return $this->getDataValue('website');
-    }
-
-
-
-    /**
-     * Sets the website for this user
-     *
-     * @param string|null $website
-     * @return static
-     */
-    public function setWebsite(?string $website): static
-    {
-        return $this->setDataValue('website', $website);
     }
 
 
@@ -1787,10 +1343,12 @@ class User extends DataEntry
                 'label'    => tr('Created on')
             ],
             'created_by' => [
-                'element'  => 'input',
                 'disabled' => true,
-                'source'   => 'SELECT IFNULL(`username`, `email`) AS `username` FROM `accounts_users` WHERE `id` = :id',
-                'execute'  => 'id',
+                'element'  => function (string $key, array $data, array $source) {
+                    return Users::getHtmlSelect($key)
+                        ->setSelected(isset_get($source['created_by']))
+                        ->render();
+                },
                 'label'    => tr('Created by')
             ],
             'meta_id' => [
@@ -1896,8 +1454,11 @@ class User extends DataEntry
                 'label'    => tr('Is leader'),
             ],
             'leaders_id' => [
-                'source'   => 'SELECT `username` FROM `accounts_users` WHERE `id` = :id AND `status` IS NULL',
-                'execute'  => 'id',
+                'element'  => function (string $key, array $data, array $source) {
+                    return Users::getHtmlSelect($key)
+                        ->setSelected(isset_get($source['created_by']))
+                        ->render();
+                },
                 'label'    => tr('Leader'),
             ],
             'latitude' => [
@@ -1918,29 +1479,38 @@ class User extends DataEntry
                 'label'    => tr('Offset longitude'),
             ],
             'countries_id' => [
-                'element'  => 'select',
-                'source'   => 'SELECT `id`, `name` FROM `geo_countries` WHERE `status` IS NULL',
+                'element'  => function (string $key, array $data, array $source) {
+                    return Countries::getHtmlCountriesSelect($key)
+                        ->setSelected(isset_get($source['countries_id']))
+                        ->render();
+                },
                 'label'    => tr('Country')
             ],
             'states_id' => [
-                'element'  => 'select',
-                'source'   => 'SELECT `id`, `name` FROM `geo_states` WHERE `countries_id` = :countries_id AND `status` IS NULL',
+                'element'  => function (string $key, array $data, array $source) {
+                    return Country::get($source['countries_id'])->getHtmlStatesSelect($key)
+                        ->setSelected(isset_get($source['states_id']))
+                        ->render();
+                },
                 'execute'  => 'countries_id',
                 'label'    => tr('State'),
             ],
             'cities_id' => [
-                'element'  => 'select',
-                'source'   => 'SELECT `id`, `name` FROM `geo_cities` WHERE `states_id` = :states_id AND `status` IS NULL',
+                'element'  => function (string $key, array $data, array $source) {
+                    return State::get($source['states_id'])->getHtmlCitiesSelect($key)
+                        ->setSelected(isset_get($source['cities_id']))
+                        ->render();
+                },
                 'execute'  => 'states_id',
                 'label'    => tr('City'),
             ],
             'redirect' => [
                 'label'    => tr('Redirect'),
             ],
-            'language' => [
+            'languages_id' => [
                 'element'  => function (string $key, array $data, array $source) {
                     return Languages::getHtmlSelect($key)
-                      ->setSelected(isset_get($source['language']))
+                      ->setSelected(isset_get($source['languages_id']))
                       ->render();
                 },
                 'source'   => [],
@@ -1960,6 +1530,14 @@ class User extends DataEntry
                 'type'     => 'date',
                 'label'    => tr('Birthday'),
             ],
+            'url' => [
+                'type'     => 'url',
+                'label'    => tr('Website'),
+            ],
+            'timezone' => [
+                'source'   => 'SELECT `seo_name`, `name` FROM `geo_timezones`',
+                'label'    => tr('Timezone'),
+            ],
             'description' => [
                 'element'  => 'text',
                 'label'    => tr('Description'),
@@ -1968,18 +1546,6 @@ class User extends DataEntry
                 'element'  => 'text',
                 'label'    => tr('Comments'),
             ],
-            'website' => [
-                'type'     => 'url',
-                'label'    => tr('Website'),
-            ],
-            'timezone' => [
-                'source'   => 'SELECT `seo_name`, `name` FROM `geo_timezones`',
-                'label'    => tr('Timezone'),
-            ],
-            'companies_id' => [
-                'source'   => 'SELECT `id`, `name` FROM `business_companies`',
-                'label'    => tr('Company'),
-            ]
         ];
 
         $this->form_keys = [
@@ -2006,7 +1572,7 @@ class User extends DataEntry
             'type'                    => 12,
             'keywords'                => 12,
             'code'                    => 12,
-            'website'                 => 12,
+            'url'                     => 12,
             'leaders_id'              => 6,
             'is_leader'               => 6,
             'latitude'                => 6,
@@ -2019,10 +1585,9 @@ class User extends DataEntry
             'countries_id'            => 6,
             'states_id'               => 6,
             'cities_id'               => 6,
-            'redirect'                => 6,
             'timezone'                => 6,
             'verified_on'             => 6,
-            'companies_id'            => 6,
+            'redirect'                => 12,
             'description'             => 12,
             'comments'                => 12
         ] ;
