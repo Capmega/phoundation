@@ -407,7 +407,7 @@ class Route
                 ':regex' => $url_regex,
                 ':type'  => self::$method,
                 ':url'   => $uri
-            ]));
+            ]), 4);
 
             try {
                 $match = preg_match_all($url_regex, $uri, $matches);
@@ -996,22 +996,27 @@ class Route
      * @see Route::postProcess()
      * @return void
      */
-    public static function shutdown(?int $exit_code = null): void
+    public static function shutdown(?int $http_code = null): void
     {
-        if ($exit_code) {
-            Log::warning(tr('Routed script ":script" ended with exit code ":exitcode" warning in ":time" with ":usage" peak memory usage', [
+        if (!$http_code) {
+            // Use page HTTP code
+            $http_code = Page::getHttpCode();
+        }
+
+        if ($http_code === 200) {
+            Log::success(tr('Routed script ":script" ended with HTTP code ":httpcode" in ":time" with ":usage" peak memory usage', [
                 ':script'   => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
                 ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
                 ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
-                ':exitcode' => $exit_code
+                ':httpcode' => $http_code
             ]));
 
         } else {
-            Log::success(tr('Routed script ":script" ended with exit code ":exitcode" warning in ":time" with ":usage" peak memory usage', [
+            Log::warning(tr('Routed script ":script" ended with HTTP code ":httpcode" in ":time" with ":usage" peak memory usage', [
                 ':script'   => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
                 ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
                 ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
-                ':exitcode' => $exit_code
+                ':httpcode' => $http_code
             ]));
         }
     }
