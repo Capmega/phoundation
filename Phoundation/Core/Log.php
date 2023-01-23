@@ -564,7 +564,7 @@ Class Log {
      * @param int $threshold
      * @return bool
      */
-    public static function warning(mixed $messages = null, int $threshold = 10): bool
+    public static function warning(mixed $messages = null, int $threshold = 9): bool
     {
         return self::write($messages, 'warning', $threshold);
     }
