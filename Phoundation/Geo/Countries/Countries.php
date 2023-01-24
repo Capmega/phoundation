@@ -66,7 +66,7 @@ class Countries extends DataList
     {
         return Select::new()
             ->setSourceQuery('SELECT `id`, `name` 
-                                          FROM  `countries` 
+                                          FROM  `geo_countries` 
                                           WHERE `status` IS NULL ORDER BY `name`')
             ->setName($name)
             ->setNone(tr('Please select a country'))
