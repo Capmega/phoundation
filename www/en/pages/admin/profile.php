@@ -1,10 +1,7 @@
 <?php
 
-use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Session;
-use Phoundation\Core\Timers;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
-use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Web\Http\Html\Components\Buttons;
 use Phoundation\Web\Http\Html\Components\Img;
@@ -17,7 +14,10 @@ use Templates\Mdb\Layouts\GridColumn;
 
 
 
-$user = User::get(Session::getUser()->getId());
+// Get the user
+$user = Session::getUser();
+
+
 
 // Validate POST and submit
 if (Page::isRequestMethod('POST')) {
@@ -41,9 +41,9 @@ if (Page::isRequestMethod('POST')) {
             ->select('countries_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':id' => '$countries_id'])
             ->select('states_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_states` WHERE `id` = :id AND `countries_id` = :countries_id AND `status` IS NULL', [':id' => 'states_id', ':countries_id' => '$countries_id'])
             ->select('cities_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_cities` WHERE `id` = :id AND `states_id`    = :states_id    AND `status` IS NULL', [':id' => 'cities_id', ':states_id'    => '$states_id'])
-            ->select('redirect')->isOptional()->isUrl()
-            ->select('language')->isQueryColumn('SELECT `code_639_1` FROM `languages` WHERE `code_639_1` = :code_639_1 AND `status` IS NULL', [':code_639_1' => '$language'])
+            ->select('languages_id')->isQueryColumn('SELECT `id` FROM `languages` WHERE `id` = :id AND `status` IS NULL', [':id' => '$languages_id'])
             ->select('gender')->isOptional()->inArray(['unknown', 'male', 'female', 'other'])
+            ->select('redirect')->isOptional()->isUrl()
             ->select('birthday')->isOptional()->isDate()
             ->select('description')->isOptional()->isPrintable()->hasMaxCharacters(65_530)
             ->select('website')->isOptional()->isUrl()
@@ -51,7 +51,6 @@ if (Page::isRequestMethod('POST')) {
         ->validate();
 
         // Update user
-        $user = User::get($_GET['id']);
         $user->modify($_POST);
         $user->save();
 
@@ -59,7 +58,7 @@ if (Page::isRequestMethod('POST')) {
 // TODO Implement timers
 //showdie(Timers::get('query'));
 
-        Page::getFlashMessages()->add(tr('Success'), tr('User ":user" has been updated', [':user' => $user->getDisplayName()]), 'success');
+        Page::getFlashMessages()->add(tr('Success'), tr('Your profile has been updated'), 'success');
         Page::redirect('referer');
 
     } catch (ValidationFailedException $e) {
@@ -73,8 +72,7 @@ if (Page::isRequestMethod('POST')) {
 
 // Build the buttons
 $buttons = Buttons::new()
-    ->addButton('Submit')
-    ->addButton('Cancel', 'secondary', '/accounts/users.html', true);
+    ->addButton('Submit');
 
 
 
@@ -112,6 +110,15 @@ $picture = Card::new()
 
 
 
+// Build relevant links
+$relevant = Card::new()
+    ->setMode('info')
+    ->setTitle(tr('Relevant links'))
+    ->setContent('<a href="' . UrlBuilder::www('/settings.html') . '">' . tr('Your settings') . '</a><br>
+                         <a href="' . UrlBuilder::www('/api-access.html') . '">' . tr('Your API access') . '</a>');
+
+
+
 // Build documentation
 $documentation = Card::new()
     ->setMode('info')
@@ -125,7 +132,7 @@ $documentation = Card::new()
 // Build and render the grid
 $grid = Grid::new()
     ->addColumn($column)
-    ->addColumn($picture->render() . $documentation->render(), 3);
+    ->addColumn($picture->render() . $relevant->render() . $documentation->render(), 3);
 
 echo $grid->render();
 
@@ -134,6 +141,6 @@ echo $grid->render();
 Page::setHeaderTitle(tr('My profile'));
 Page::setHeaderSubTitle($user->getName());
 Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'             => tr('Home'),
-    '/profile.html' => tr('My profile')
+    '/' => tr('Home'),
+    ''  => tr('My profile')
 ]));
