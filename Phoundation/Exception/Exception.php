@@ -6,6 +6,8 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
+use Phoundation\Developer\Incidents\Incident;
+use Phoundation\Notifications\Notification;
 use RuntimeException;
 use Throwable;
 
@@ -289,11 +291,38 @@ class Exception extends RuntimeException
     /**
      * Write this exception to the log file
      *
-     * @return void
+     * @return Exception
      */
     public function log(): static
     {
         Log::warning($this);
+        return $this;
+    }
+
+
+
+    /**
+     * Send notification about this exception
+     *
+     * @return static
+     */
+    public function notify(): static
+    {
+        Notification::new()->setException($this)->send();
+        return $this;
+    }
+
+
+
+    /**
+     * Register this exception in the developer incidents log
+     *
+     * @return Exception
+     */
+    public function register(): static
+    {
+        Incident::new()->setException($this)->save();
+
         return $this;
     }
 }

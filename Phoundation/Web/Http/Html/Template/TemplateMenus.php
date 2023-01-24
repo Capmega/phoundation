@@ -97,6 +97,22 @@ class TemplateMenus
                         'rights' => 'logs',
                         'url'    => '/security/activity',
                         'icon'   => 'fa-tasks'
+                    ],
+                ],
+            ],
+            tr('Development') => [
+                'rights' => 'admin,development',
+                'icon' => 'fa-lock',
+                'menu' => [
+                    tr('Developer incidents') => [
+                        'rights' => 'incidents',
+                        'url'    => '/development/incidents.html',
+                        'icon'   => 'fa-key'
+                    ],
+                    tr('Slow webpage log') => [
+                        'rights' => 'logs',
+                        'url'    => '/development/slow.html',
+                        'icon'   => 'fa-key'
                     ]
                 ],
             ],
