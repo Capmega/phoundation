@@ -49,7 +49,7 @@ Page::setBuildBody(false);
                 if (Session::supports('email')) {
                     ?>
                     <div class="input-group mb-3">
-                        <input type="email" name="email" id="email" class="form-control" placeholder="<?= tr('Email') ?>">
+                        <input type="email" name="email" id="email" class="form-control" placeholder="<?= tr('Email address') ?>">
                         <div class="input-group-append">
                             <div class="input-group-text">
                                 <span class="fas fa-envelope"></span>
