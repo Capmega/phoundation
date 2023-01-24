@@ -1359,15 +1359,15 @@ class User extends DataEntry
                 'label'    => tr('Database ID')
             ],
             'created_on' => [
-                'disabled' => true,
-                'type'     => 'date',
-                'label'    => tr('Created on')
+                'disabled'  => true,
+                'type'      => 'text',
+                'label'     => tr('Created on')
             ],
             'created_by' => [
-                'disabled' => true,
                 'element'  => function (string $key, array $data, array $source) {
                     return Users::getHtmlSelect($key)
                         ->setSelected(isset_get($source['created_by']))
+                        ->setDisabled(true)
                         ->render();
                 },
                 'label'    => tr('Created by')
@@ -1420,7 +1420,7 @@ class User extends DataEntry
                 'element' => null  // TODO Implement
             ],
             'domain' => [
-                'label'   => tr('Domain')
+                'label'   => tr('Restrict to domain')
             ],
             'title' => [
                 'label'   => tr('Title')
@@ -1464,7 +1464,7 @@ class User extends DataEntry
                 'type'      => 'date',
                 'null_type' => 'text',
                 'default'   => tr('Not verified'),
-                'label'     => tr('Verified on'),
+                'label'     => tr('Account verified on'),
             ],
             'priority' => [
                 'type'     => 'numeric',
@@ -1526,6 +1526,7 @@ class User extends DataEntry
                 'label'    => tr('City'),
             ],
             'redirect' => [
+                'type'     => 'url',
                 'label'    => tr('Redirect'),
             ],
             'languages_id' => [
@@ -1602,7 +1603,7 @@ class User extends DataEntry
             'offset_longitude'        => 6,
             'accuracy'                => 6,
             'priority'                => 6,
-            'language'                => 6,
+            'languages_id'            => 6,
             'countries_id'            => 6,
             'states_id'               => 6,
             'cities_id'               => 6,
@@ -1614,16 +1615,3 @@ class User extends DataEntry
         ] ;
     }
 }
-
-/*
-Perfect! Accepted and I'll work ahead on the demo.
-
-On a side note: I saw Alfred's email. I know that was not meant for me but I understand (And expected) that you
-would be looking around for options. However, with that in mind I just wanted to mention that I can give you the exact
-system that you need for the best price. If quality is an issue: I will be able to deliver the best product of any competition.
-Any other company will have low level developers implement this project where I will develop and maintain this project myself.
-Being an expert developer and DevOps, I will be able to deliver and maintain the best product to aerostream.
-
-If price is an issue then I am open for negotiations. I want to offer my products to more companies here in B.C. and
-as such it is important to me that I have references that are very happy with the results that I have given.
- */
