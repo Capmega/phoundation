@@ -20,6 +20,7 @@ echo Template::page('admin/system/detail-error')->render([
 
 
 // Set page meta data
+Page::setHttpCode(503);
 Page::setBuildBody(false);
 Page::setPageTitle('503 - Service Unavailable');
 Page::setHeaderTitle(tr('503 - Error'));

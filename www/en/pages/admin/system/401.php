@@ -20,6 +20,7 @@ echo Template::page('admin/system/detail-error')->render([
 
 
 // Set page meta data
+Page::setHttpCode(401);
 Page::setBuildBody(false);
 Page::setPageTitle('401 - Unauthorized');
 Page::setHeaderTitle(tr('401 - Error'));

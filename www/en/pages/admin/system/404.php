@@ -20,6 +20,7 @@ echo Template::page('admin/system/detail-error')->render([
 
 
 // Set page meta data
+Page::setHttpCode(404);
 Page::setBuildBody(false);
 Page::setPageTitle('404 - Page not found');
 Page::setHeaderTitle(tr('404 - Error'));

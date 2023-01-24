@@ -20,6 +20,7 @@ echo Template::page('admin/system/detail-error')->render([
 
 
 // Set page meta data
+Page::setHttpCode(400);
 Page::setBuildBody(false);
 Page::setPageTitle('400 - Bad Request');
 Page::setHeaderTitle(tr('400 - Error'));

@@ -20,6 +20,7 @@ echo Template::page('admin/system/detail-error')->render([
 
 
 // Set page meta data
+Page::setHttpCode(403);
 Page::setBuildBody(false);
 Page::setPageTitle('403 - Forbidden');
 Page::setHeaderTitle(tr('403 - Error'));
