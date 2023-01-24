@@ -181,7 +181,14 @@ abstract class DataEntry
         }
 
         if (is_object($identifier)) {
-            // This already is a DataEntry object, no need to create one
+            // This already is a DataEntry object, no need to create one. Just validate that this is the same class
+            if (get_class($identifier) !== static::class) {
+                throw new OutOfBoundsException(tr('Specified identifier has the class ":has" but should have the class ":should"', [
+                    ':has'    => get_class($identifier),
+                    ':should' => self::class
+                ]));
+            }
+
             return $identifier;
         }
 
@@ -716,9 +723,9 @@ abstract class DataEntry
     protected function load(string|int $identifier): void
     {
         if (is_integer($identifier)) {
-            $data = sql()->get('SELECT * FROM `' . $this->table . '` WHERE `id`                           = :id'                     , [':id'                => $identifier]);
+            $data = sql()->get('SELECT * FROM `' . $this->table . '` WHERE `id`                           = :id'                     , [':id'                     => $identifier]);
         } else {
-            $data = sql()->get('SELECT * FROM `' . $this->table . '` WHERE `' . $this->unique_column . '` = :' . $this->unique_column, [$this->unique_column => $identifier]);
+            $data = sql()->get('SELECT * FROM `' . $this->table . '` WHERE `' . $this->unique_column . '` = :' . $this->unique_column, [':'. $this->unique_column => $identifier]);
         }
 
         // Store all data in the object

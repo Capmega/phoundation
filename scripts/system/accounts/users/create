@@ -5,6 +5,7 @@ use Phoundation\Accounts\Exception\AccountsException;
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\Cli;
+use Phoundation\Cli\Documentation;
 use Phoundation\Core\Log;
 use Phoundation\Data\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
@@ -21,14 +22,15 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-$usage = './cli system accounts users create EMAIL [OPTIONS]
-./cli system users create user@example.com -d "This is a test user"';
+Documentation::usage('./cli system accounts users create EMAIL [OPTIONS]
+./cli system users create user@example.com -d "This is a test user"');
 
-$help  = 'This script allows you to create users
+Documentation::help('This script allows you to create users
 
 
 
 ARGUMENTS
+
 
 
 EMAIL                                   The email address for the user
@@ -71,7 +73,7 @@ EMAIL                                   The email address for the user
 
 [--city]
 
-[--is-leader]                           If specified, this user will be registered as having a leadership position';
+[--is-leader]                           If specified, this user will be registered as having a leadership position');
 
 
 

@@ -212,20 +212,6 @@ class Project
 
 
     /**
-     * Run import for all projects that support it
-     *
-     * @return void
-     */
-    public static function import():void
-    {
-        // Find all import objects
-
-        // execute import on each object
-    }
-
-
-
-    /**
      * Returns if the project file exists
      *
      * @return bool
@@ -257,6 +243,7 @@ class Project
             ->select('database_pass2')->isPassword()->isEqualTo('database_pass1')
             ->select('project')->isVariable()
             ->select('environment')->isVariable()
+            ->select('import')->isOptional()->isBoolean()
             ->validate();
     }
 
@@ -347,4 +334,18 @@ class Project
         return Environment::get(self::$name, $environment)->remove();
     }
 
+
+
+    /**
+     * Executes data import for all libraries that support it
+     *
+     * @return void
+     */
+    public static function import(): void
+    {
+        Log::information(tr('Starting import for all libraries that support it'));
+        // Find all import object and execute them
+        // TODO implement, for now its hard coded
+        \Phoundation\Core\Locale\Language\Import::execute();
+    }
 }

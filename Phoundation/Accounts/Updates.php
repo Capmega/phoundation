@@ -114,8 +114,8 @@ class Updates extends \Phoundation\System\Updates
                 ->setIndices('                
                     PRIMARY KEY (`id`),
                     UNIQUE KEY `verification_code` (`verification_code`),
-                    UNIQUE KEY `domain-email` (`domain`, `email`),
-                    KEY `email` (`email`),
+                    UNIQUE KEY `email` (`email`),
+                    KEY `domain` (`domain`),
                     KEY `verified_on` (`verified_on`),
                     KEY `languages_id` (`languages_id`),
                     KEY `latitude` (`latitude`),

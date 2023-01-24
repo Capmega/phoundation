@@ -180,6 +180,18 @@ class Sql
 
 
     /**
+     * Returns the name of this SQL instance
+     *
+     * @return string|null
+     */
+    public function getInstance(): ?string
+    {
+        return $this->instance;
+    }
+
+
+
+    /**
      * Returns an SQL schema object for this instance
      *
      * @return Schema
@@ -1433,18 +1445,6 @@ class Sql
         ]);
 
         $this->get('SELECT TRUE', true, null, $this->instance);
-    }
-
-
-
-    /**
-     * Drop the database for this connector
-     *
-     * @return void
-     */
-    public function drop(): void
-    {
-        $this->query('DROP DATABASE IF EXISTS ' . $this->configuration['name']);
     }
 
 

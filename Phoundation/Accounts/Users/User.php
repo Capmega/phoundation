@@ -34,6 +34,7 @@ use Phoundation\Geo\Countries\Countries;
 use Phoundation\Geo\Countries\Country;
 use Phoundation\Geo\States\State;
 use Phoundation\Geo\Timezones\Timezone;
+use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\Html\Components\Form;
 use Phoundation\Web\Http\UrlBuilder;
 
@@ -135,13 +136,29 @@ class User extends DataEntry
      *
      * @param string|int $identifier
      * @param string $password
+     * @param string|null $domain
      * @return static
      */
-    public static function authenticate(string|int $identifier, string $password): static
+    public static function authenticate(string|int $identifier, string $password, ?string $domain = null): static
     {
         $user = User::get($identifier);
 
         if ($user->passwordMatch($password)) {
+            if ($user->getDomain()) {
+                // User is limited to a domain!
+
+                if (!$domain) {
+                    $domain = Domains::getCurrent();
+                }
+
+                if ($user->getDomain() !== $domain) {
+                    throw new AuthenticationException(tr('The specified user ":user" is not allowed to access the domain ":domain"', [
+                        ':user'   => $identifier,
+                        ':domain' => $domain
+                    ]));
+                }
+            }
+
             return $user;
         }
 
@@ -1597,3 +1614,16 @@ class User extends DataEntry
         ] ;
     }
 }
+
+/*
+Perfect! Accepted and I'll work ahead on the demo.
+
+On a side note: I saw Alfred's email. I know that was not meant for me but I understand (And expected) that you
+would be looking around for options. However, with that in mind I just wanted to mention that I can give you the exact
+system that you need for the best price. If quality is an issue: I will be able to deliver the best product of any competition.
+Any other company will have low level developers implement this project where I will develop and maintain this project myself.
+Being an expert developer and DevOps, I will be able to deliver and maintain the best product to aerostream.
+
+If price is an issue then I am open for negotiations. I want to offer my products to more companies here in B.C. and
+as such it is important to me that I have references that are very happy with the results that I have given.
+ */

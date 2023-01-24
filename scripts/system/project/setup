@@ -131,6 +131,8 @@ $configuration->getDatabase()->setPass($config['database_pass1']);
 // Run setup
 Project::setup();
 
+
+
 // Run import?
 if ($argv['import']) {
     Project::import();

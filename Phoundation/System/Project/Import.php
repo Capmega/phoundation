@@ -2,9 +2,9 @@
 
 namespace Phoundation\System\Project;
 
-
-
 use Phoundation\Databases\Sql\Schema\Table;
+
+
 
 /**
  * Import class
@@ -73,7 +73,7 @@ abstract class Import
 
 
     /**
-     * Execute the import
+     * Execute the data import
      *
      * @return void
      */

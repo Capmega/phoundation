@@ -114,7 +114,12 @@ class Table extends SchemaAbstract
      */
     public function drop(): void
     {
-        Log::warning(tr('Dropping table :table', [':table' => $this->name]));
+        Log::warning(tr('Dropping table ":table" in database ":database" for SQL instance ":instance"', [
+            ':table'    => $this->name,
+            ':instance' => $this->sql->getInstance(),
+            ':database' => $this->sql->getDatabase()
+        ]));
+
         sql()->query('DROP TABLES IF EXISTS `' . $this->name . '`');
     }
 
@@ -129,6 +134,18 @@ class Table extends SchemaAbstract
     {
         Log::warning(tr('Truncating table :table', [':table' => $this->name]));
         sql()->query('TRUNCATE `' . $this->name . '`');
+    }
+
+
+
+    /**
+     * Returns the amount of records in this table
+     *
+     * @return int
+     */
+    public function getCount(): int
+    {
+        return sql()->getColumn('SELECT COUNT(*) as `count` FROM `' . $this->name . '`');
     }
 
 

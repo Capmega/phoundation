@@ -36,11 +36,22 @@ class Import extends \Phoundation\System\Project\Import
      */
     public static function execute(): void
     {
+        self::getInstance();
+
         Log::information(tr('Starting languages import'));
         parent::execute();
 
-        $file = File::new(PATH_DATA . 'sources/languages/languages');
-        $h    = $file->open('r');
+        $file  = File::new(PATH_DATA . 'sources/languages/languages');
+        $h     = $file->open('r');
+        $count = self::getTable()->getCount();
+
+        if ($count and !FORCE) {
+            Log::warning(tr('Not importing data for ":table", the table already contains data', [
+                ':table' => self::$table
+            ]));
+
+            return;
+        }
 
         self::getTable()->truncate();
 

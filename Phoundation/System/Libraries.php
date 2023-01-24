@@ -68,12 +68,7 @@ class Libraries
             switch ($driver) {
                 case 'sql':
                     foreach ($data['instances'] as $instance => $configuration) {
-                        Log::warning(tr('Dropping SQL database ":database" for instance ":instance"', [
-                            ':instance' => $instance,
-                            ':database' => $configuration['name']
-                        ]));
-
-                        sql($instance)->query('DROP DATABASE IF EXISTS `' . $configuration['name'] . '`');
+                        sql($instance, false)->schema()->database()->drop();
                     }
 
                     break;
