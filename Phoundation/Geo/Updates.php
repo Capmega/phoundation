@@ -52,7 +52,7 @@ class Updates extends \Phoundation\System\Updates
             // Create the geo_timezones table.
             sql()->schema()->table('geo_timezones')->define()
                 ->setColumns('  
-                    `id` int NOT NULL AUTO_INCREMENT,                   
+                    `id` bigint NOT NULL AUTO_INCREMENT,                   
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `code` varchar(2) DEFAULT NULL,
                     `coordinates` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
@@ -76,16 +76,16 @@ class Updates extends \Phoundation\System\Updates
             // Create the geo_continents table.
             sql()->schema()->table('geo_continents')->define()
                 ->setColumns('
-                    `id` int NOT NULL AUTO_INCREMENT,                   
+                    `id` bigint NOT NULL AUTO_INCREMENT,                   
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
-                    `geonames_id` int NOT NULL,
+                    `geonames_id` bigint NOT NULL,
                     `code` varchar(2) NOT NULL,
                     `name` varchar(32) NOT NULL,
                     `seo_name` varchar(32) NOT NULL,
                     `alternate_names` varchar(4000) NOT NULL,
                     `latitude` decimal(10,7) NOT NULL,
                     `longitude` decimal(10,7) NOT NULL,
-                    `timezones_id` int DEFAULT NULL,')
+                    `timezones_id` bigint DEFAULT NULL,')
                 ->setIndices('  PRIMARY KEY (`id`),
                     UNIQUE KEY `name` (`name`),
                     UNIQUE KEY `seo_name` (`seo_name`),
@@ -102,11 +102,11 @@ class Updates extends \Phoundation\System\Updates
             // Create the geo_countries table.
             sql()->schema()->table('geo_countries')->define()
                 ->setColumns('
-                    `id` int NOT NULL AUTO_INCREMENT,
+                    `id` bigint NOT NULL AUTO_INCREMENT,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
-                    `geonames_id` int DEFAULT NULL,
-                    `continents_id` int DEFAULT NULL,
-                    `timezones_id` int DEFAULT NULL,
+                    `geonames_id` bigint DEFAULT NULL,
+                    `continents_id` bigint DEFAULT NULL,
+                    `timezones_id` bigint DEFAULT NULL,
                     `code` varchar(2) DEFAULT NULL,
                     `iso_alpha2` char(2) DEFAULT NULL,
                     `iso_alpha3` char(3) DEFAULT NULL,
@@ -164,12 +164,12 @@ class Updates extends \Phoundation\System\Updates
             // Create the geo_states table.
             sql()->schema()->table('geo_states')->define()
                 ->setColumns('
-                    `id` int NOT NULL AUTO_INCREMENT,
+                    `id` bigint NOT NULL AUTO_INCREMENT,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
-                    `geonames_id` int DEFAULT NULL,
-                    `timezones_id` int DEFAULT NULL,
-                    `continents_id` int DEFAULT NULL,
-                    `countries_id` int NOT NULL,
+                    `geonames_id` bigint DEFAULT NULL,
+                    `timezones_id` bigint DEFAULT NULL,
+                    `continents_id` bigint DEFAULT NULL,
+                    `countries_id` bigint NOT NULL,
                     `country_code` varchar(2) NOT NULL,
                     `code` varchar(2) NOT NULL,
                     `name` varchar(200) NOT NULL,
@@ -209,13 +209,13 @@ class Updates extends \Phoundation\System\Updates
             // Create the geo_counties table.
             sql()->schema()->table('geo_counties')->define()
                 ->setColumns('
-                    `id` int NOT NULL AUTO_INCREMENT,
+                    `id` bigint NOT NULL AUTO_INCREMENT,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
-                    `geonames_id` int DEFAULT NULL,
-                    `timezones_id` int DEFAULT NULL,
-                    `continents_id` int DEFAULT NULL,
-                    `countries_id` int NOT NULL,
-                    `states_id` int NOT NULL,
+                    `geonames_id` bigint DEFAULT NULL,
+                    `timezones_id` bigint DEFAULT NULL,
+                    `continents_id` bigint DEFAULT NULL,
+                    `countries_id` bigint NOT NULL,
+                    `states_id` bigint NOT NULL,
                     `code` varchar(2),
                     `name` varchar(64),
                     `seo_name` varchar(64),
@@ -251,7 +251,7 @@ class Updates extends \Phoundation\System\Updates
             // Create the geo_features table.
             sql()->schema()->table('geo_features')->define()
                 ->setColumns('
-                    `id` int NOT NULL AUTO_INCREMENT,
+                    `id` bigint NOT NULL AUTO_INCREMENT,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `code` varchar(10) NOT NULL,
                     `name` varchar(32) NOT NULL,
@@ -266,16 +266,16 @@ class Updates extends \Phoundation\System\Updates
             // Create the geo_cities table.
             sql()->schema()->table('geo_cities')->define()
                 ->setColumns('
-                    `id` int NOT NULL AUTO_INCREMENT,
+                    `id` bigint NOT NULL AUTO_INCREMENT,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `is_city` int DEFAULT NULL,
-                    `geonames_id` int DEFAULT NULL,
-                    `timezones_id` int DEFAULT NULL,
-                    `continents_id` int DEFAULT NULL,
+                    `geonames_id` bigint DEFAULT NULL,
+                    `timezones_id` bigint DEFAULT NULL,
+                    `continents_id` bigint DEFAULT NULL,
                     `country_code` varchar(2) DEFAULT NULL,
-                    `countries_id` int NOT NULL,
-                    `states_id` int NOT NULL,
-                    `counties_id` int DEFAULT NULL,
+                    `countries_id` bigint NOT NULL,
+                    `states_id` bigint NOT NULL,
+                    `counties_id` bigint DEFAULT NULL,
                     `name` varchar(200) NOT NULL,
                     `seo_name` varchar(200) NOT NULL,
                     `alternate_names` text,

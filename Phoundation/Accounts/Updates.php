@@ -64,10 +64,10 @@ class Updates extends \Phoundation\System\Updates
             // Create the users table.
             sql()->schema()->table('accounts_users')->define()
                 ->setColumns('
-                    `id` int NOT NULL AUTO_INCREMENT,
+                    `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` int DEFAULT NULL,
-                    `meta_id` int DEFAULT NULL,
+                    `created_by` bigint DEFAULT NULL,
+                    `meta_id` bigint DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `last_sign_in` datetime DEFAULT NULL,
                     `authentication_failures` int NOT NULL,
@@ -93,17 +93,17 @@ class Updates extends \Phoundation\System\Updates
                     `verified_on` datetime DEFAULT NULL,
                     `priority` int DEFAULT NULL,
                     `is_leader` int DEFAULT NULL,
-                    `leaders_id` int DEFAULT NULL,
+                    `leaders_id` bigint DEFAULT NULL,
                     `latitude` decimal(18,15) DEFAULT NULL,
                     `longitude` decimal(18,15) DEFAULT NULL,
                     `accuracy` int DEFAULT NULL,
                     `offset_latitude` decimal(18,15) DEFAULT NULL,
                     `offset_longitude` decimal(18,15) DEFAULT NULL,
-                    `cities_id` int DEFAULT NULL,
-                    `states_id` int DEFAULT NULL,
-                    `countries_id` int DEFAULT NULL,
+                    `cities_id` bigint DEFAULT NULL,
+                    `states_id` bigint DEFAULT NULL,
+                    `countries_id` bigint DEFAULT NULL,
                     `redirect` varchar(255) DEFAULT NULL,
-                    `languages_id` int DEFAULT NULL,
+                    `languages_id` bigint DEFAULT NULL,
                     `gender` varchar(16) DEFAULT NULL,
                     `birthday` date DEFAULT NULL,
                     `url` varchar(2048) DEFAULT NULL,
@@ -150,10 +150,10 @@ class Updates extends \Phoundation\System\Updates
             // Create the users_rights table.
             sql()->schema()->table('accounts_rights')->define()
                 ->setColumns('
-                    `id` int NOT NULL AUTO_INCREMENT,
+                    `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` int DEFAULT NULL,
-                    `meta_id` int DEFAULT NULL,
+                    `created_by` bigint DEFAULT NULL,
+                    `meta_id` bigint DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `name` varchar(32) NOT NULL,
                     `seo_name` varchar(32) NOT NULL,
@@ -177,10 +177,10 @@ class Updates extends \Phoundation\System\Updates
             // Create the users_roles table.
             sql()->schema()->table('accounts_roles')->define()
                 ->setColumns('
-                    `id` int NOT NULL AUTO_INCREMENT,
+                    `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` int DEFAULT NULL,
-                    `meta_id` int DEFAULT NULL,
+                    `created_by` bigint DEFAULT NULL,
+                    `meta_id` bigint DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `name` varchar(32) DEFAULT NULL,
                     `seo_name` varchar(32) DEFAULT NULL,
@@ -204,10 +204,10 @@ class Updates extends \Phoundation\System\Updates
             // Create the users_groups table.
             sql()->schema()->table('accounts_groups')->define()
                 ->setColumns('
-                    `id` int NOT NULL AUTO_INCREMENT,
+                    `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` int DEFAULT NULL,
-                    `meta_id` int DEFAULT NULL,
+                    `created_by` bigint DEFAULT NULL,
+                    `meta_id` bigint DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `name` varchar(32) DEFAULT NULL,
                     `seo_name` varchar(32) DEFAULT NULL,
@@ -231,11 +231,11 @@ class Updates extends \Phoundation\System\Updates
             // Create the users_rights_links table.
             sql()->schema()->table('accounts_users_rights')->define()
                 ->setColumns('
-                    `id` int NOT NULL AUTO_INCREMENT,
+                    `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` int DEFAULT NULL,
-                    `users_id` int NOT NULL,
-                    `rights_id` int NOT NULL,
+                    `created_by` bigint DEFAULT NULL,
+                    `users_id` bigint NOT NULL,
+                    `rights_id` bigint NOT NULL,
                     `name` varchar(32) NOT NULL,
                     `seo_name` varchar(32) DEFAULT NULL
                 ')
@@ -259,11 +259,11 @@ class Updates extends \Phoundation\System\Updates
             // Create the users_roles_links table.
             sql()->schema()->table('accounts_users_roles')->define()
                 ->setColumns('
-                    `id` int NOT NULL AUTO_INCREMENT,
+                    `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` int DEFAULT NULL,
-                    `users_id` int NOT NULL,
-                    `roles_id` int NOT NULL,
+                    `created_by` bigint DEFAULT NULL,
+                    `users_id` bigint NOT NULL,
+                    `roles_id` bigint NOT NULL,
                 ')
                 ->setIndices('                
                     PRIMARY KEY (`id`),
@@ -283,11 +283,11 @@ class Updates extends \Phoundation\System\Updates
             // Create the users_roles_rights_links table.
             sql()->schema()->table('accounts_roles_rights')->define()
                 ->setColumns('
-                    `id` int NOT NULL AUTO_INCREMENT,
+                    `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` int DEFAULT NULL,
-                    `roles_id` int NOT NULL,
-                    `rights_id` int NOT NULL,
+                    `created_by` bigint DEFAULT NULL,
+                    `roles_id` bigint NOT NULL,
+                    `rights_id` bigint NOT NULL,
                 ')
                 ->setIndices('                
                     PRIMARY KEY (`id`),
@@ -313,13 +313,13 @@ class Updates extends \Phoundation\System\Updates
             // Create additional user tables.
             sql()->schema()->table('accounts_authentications')->define()
                 ->setColumns('
-                    `id` int NOT NULL AUTO_INCREMENT,
+                    `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` int DEFAULT NULL,
+                    `created_by` bigint DEFAULT NULL,
                     `status` varchar(16) DEFAULT NULL,
                     `captcha_required` tinyint(1) NOT NULL,
                     `failed_reason` varchar(127) DEFAULT NULL,
-                    `users_id` int DEFAULT NULL,
+                    `users_id` bigint DEFAULT NULL,
                     `username` varchar(64) NOT NULL,
                     `ip` varchar(46) DEFAULT NULL,
                     `action` enum("authentication", "signin") CHARACTER SET latin1 NOT NULL DEFAULT "authentication",
@@ -343,9 +343,9 @@ class Updates extends \Phoundation\System\Updates
 
             sql()->schema()->table('accounts_password_resets')->define()
                 ->setColumns('
-                    `id` int NOT NULL AUTO_INCREMENT,
+                    `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` int DEFAULT NULL,
+                    `created_by` bigint DEFAULT NULL,
                     `code` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
                     `date_requested` int DEFAULT "0",
                     `date_used` int DEFAULT "0",
@@ -363,9 +363,9 @@ class Updates extends \Phoundation\System\Updates
 
             sql()->schema()->table('accounts_old_passwords')->define()
                 ->setColumns('
-                    `id` int NOT NULL AUTO_INCREMENT,
+                    `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` int NOT NULL,
+                    `created_by` bigint NOT NULL,
                     `password` varchar(255) NOT NULL,
                 ')
                 ->setIndices('
@@ -380,9 +380,9 @@ class Updates extends \Phoundation\System\Updates
 
             sql()->schema()->table('accounts_compromised_passwords')->define()
                 ->setColumns('
-                    `id` int NOT NULL AUTO_INCREMENT,
+                    `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` int NOT NULL,
+                    `created_by` bigint NOT NULL,
                     `password` varchar(255) NOT NULL,
                 ')
                 ->setIndices('

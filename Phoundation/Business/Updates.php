@@ -60,10 +60,10 @@ class Updates extends \Phoundation\System\Updates
             // Add table for customers
             sql()->schema()->table('business_customers')->define()
                 ->setColumns('
-                    `id` int NOT NULL AUTO_INCREMENT,
+                    `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` int NOT NULL,
-                    `meta_id` int DEFAULT NULL,
+                    `created_by` bigint NOT NULL,
+                    `meta_id` bigint DEFAULT NULL,
                     `status` varchar(16) DEFAULT NULL,
                     `name` varchar(64) DEFAULT NULL,
                     `seo_name` varchar(64) DEFAULT NULL,
@@ -75,12 +75,12 @@ class Updates extends \Phoundation\System\Updates
                     `address2` varchar(64) DEFAULT NULL,
                     `address3` varchar(64) DEFAULT NULL,
                     `zipcode` varchar(8) DEFAULT NULL,
-                    `categories_id` int DEFAULT NULL,
-                    `companies_id` int DEFAULT NULL,
-                    `languages_id` int DEFAULT NULL,
-                    `countries_id` int DEFAULT NULL,
-                    `states_id` int DEFAULT NULL,
-                    `cities_id` int DEFAULT NULL,
+                    `categories_id` bigint DEFAULT NULL,
+                    `companies_id` bigint DEFAULT NULL,
+                    `languages_id` bigint DEFAULT NULL,
+                    `countries_id` bigint DEFAULT NULL,
+                    `states_id` bigint DEFAULT NULL,
+                    `cities_id` bigint DEFAULT NULL,
                     `description` TEXT DEFAULT NULL
                 ')
                 ->setIndices('
@@ -111,12 +111,12 @@ class Updates extends \Phoundation\System\Updates
             // Add table for providers
             sql()->schema()->table('business_providers')->define()
                 ->setColumns('
-                    `id` int NOT NULL AUTO_INCREMENT,
+                    `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` int NOT NULL,
-                    `meta_id` int DEFAULT NULL,
+                    `created_by` bigint NOT NULL,
+                    `meta_id` bigint DEFAULT NULL,
                     `status` varchar(16) DEFAULT NULL,
-                    `categories_id` int DEFAULT NULL,
+                    `categories_id` bigint DEFAULT NULL,
                     `name` varchar(32) NOT NULL,
                     `seo_name` varchar(32) NOT NULL,
                     `email` varchar(128) DEFAULT NULL,
@@ -145,14 +145,14 @@ class Updates extends \Phoundation\System\Updates
             // Add table for companies
             sql()->schema()->table('business_companies')->define()
                 ->setColumns('
-                    `id` int NOT NULL AUTO_INCREMENT,
+                    `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` int DEFAULT NULL,
-                    `meta_id` int NOT NULL,
+                    `created_by` bigint DEFAULT NULL,
+                    `meta_id` bigint NOT NULL,
                     `status` varchar(16) DEFAULT NULL,
-                    `categories_id` int DEFAULT NULL,
-                    `customers_id` int DEFAULT NULL,
-                    `providers_id` int DEFAULT NULL,
+                    `categories_id` bigint DEFAULT NULL,
+                    `customers_id` bigint DEFAULT NULL,
+                    `providers_id` bigint DEFAULT NULL,
                     `name` varchar(64) DEFAULT NULL,
                     `seo_name` varchar(64) DEFAULT NULL,
                     `description` varchar(2047) DEFAULT NULL
@@ -181,12 +181,12 @@ class Updates extends \Phoundation\System\Updates
             // Add table for branches
             sql()->schema()->table('business_branches')->define()
                 ->setColumns('
-                    `id` int NOT NULL AUTO_INCREMENT,
+                    `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` int DEFAULT NULL,
-                    `meta_id` int NOT NULL,
+                    `created_by` bigint DEFAULT NULL,
+                    `meta_id` bigint NOT NULL,
                     `status` varchar(16) DEFAULT NULL,
-                    `companies_id` int NOT NULL,
+                    `companies_id` bigint NOT NULL,
                     `name` varchar(64) DEFAULT NULL,
                     `seo_name` varchar(64) DEFAULT NULL,
                     `description` varchar(2047) DEFAULT NULL
@@ -211,13 +211,13 @@ class Updates extends \Phoundation\System\Updates
             // Add table for departments
             sql()->schema()->table('business_departments')->define()
                 ->setColumns('
-                    `id` int NOT NULL AUTO_INCREMENT,
+                    `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` int DEFAULT NULL,
-                    `meta_id` int NOT NULL,
+                    `created_by` bigint DEFAULT NULL,
+                    `meta_id` bigint NOT NULL,
                     `status` varchar(16) DEFAULT NULL,
-                    `companies_id` int NOT NULL,
-                    `branches_id` int DEFAULT NULL,
+                    `companies_id` bigint NOT NULL,
+                    `branches_id` bigint DEFAULT NULL,
                     `name` varchar(64) DEFAULT NULL,
                     `seo_name` varchar(64) DEFAULT NULL,
                     `description` varchar(2047) DEFAULT NULL
@@ -244,15 +244,15 @@ class Updates extends \Phoundation\System\Updates
             // Add table for employees
             sql()->schema()->table('business_employees')->define()
                 ->setColumns('
-                    `id` int NOT NULL AUTO_INCREMENT,
+                    `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` int DEFAULT NULL,
-                    `meta_id` int NOT NULL,
+                    `created_by` bigint DEFAULT NULL,
+                    `meta_id` bigint NOT NULL,
                     `status` varchar(16) DEFAULT NULL,
-                    `companies_id` int NOT NULL,
-                    `branches_id` int DEFAULT NULL,
-                    `departments_id` int DEFAULT NULL,
-                    `users_id` int DEFAULT NULL,
+                    `companies_id` bigint NOT NULL,
+                    `branches_id` bigint DEFAULT NULL,
+                    `departments_id` bigint DEFAULT NULL,
+                    `users_id` bigint DEFAULT NULL,
                     `name` varchar(64) DEFAULT NULL,
                     `seo_name` varchar(64) DEFAULT NULL,
                     `description` varchar(2047) DEFAULT NULL
@@ -285,15 +285,15 @@ class Updates extends \Phoundation\System\Updates
             // Add table for invoices
             sql()->schema()->table('business_invoices')->define()
                 ->setColumns('
-                    `id` int NOT NULL AUTO_INCREMENT,
+                    `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` int NOT NULL,
-                    `meta_id` int DEFAULT NULL,
+                    `created_by` bigint NOT NULL,
+                    `meta_id` bigint DEFAULT NULL,
                     `status` varchar(16) DEFAULT NULL,
-                    `accounts_id` int DEFAULT NULL,
-                    `categories_id` int DEFAULT NULL,
-                    `customers_id` int DEFAULT NULL,
-                    `parents_id` int DEFAULT NULL,
+                    `accounts_id` bigint DEFAULT NULL,
+                    `categories_id` bigint DEFAULT NULL,
+                    `customers_id` bigint DEFAULT NULL,
+                    `parents_id` bigint DEFAULT NULL,
                     `invoice_number` varchar(16) DEFAULT NULL,
                     `available_date` datetime DEFAULT NULL,
                     `due_date` datetime DEFAULT NULL,
@@ -323,13 +323,13 @@ class Updates extends \Phoundation\System\Updates
             // Add table for invoices
             sql()->schema()->table('business_invoices_items')->define()
                 ->setColumns('
-                    `id` int NOT NULL AUTO_INCREMENT,
+                    `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` int NOT NULL,
-                    `meta_id` int DEFAULT NULL,
+                    `created_by` bigint NOT NULL,
+                    `meta_id` bigint DEFAULT NULL,
                     `status` varchar(16) DEFAULT NULL,
-                    `invoices_id` int DEFAULT NULL,
-                    `products_id` int DEFAULT NULL,
+                    `invoices_id` bigint DEFAULT NULL,
+                    `products_id` bigint DEFAULT NULL,
                     `quantity` int DEFAULT NULL,
                     `amount_per` float DEFAULT NULL,
                     `amount_total` float DEFAULT NULL,

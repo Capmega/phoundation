@@ -52,10 +52,10 @@ class Updates extends \Phoundation\System\Updates
             // Add security incidents table
             sql()->schema()->table('security_incidents')->define()
                 ->setColumns('
-                    `id` int NOT NULL AUTO_INCREMENT,
+                    `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` int DEFAULT NULL,
-                    `meta_id` int DEFAULT NULL,
+                    `created_by` bigint DEFAULT NULL,
+                    `meta_id` bigint DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `type` varchar(64) NOT NULL,
                     `severity` ENUM("notice", "low", "medium", "high", "severe") NOT NULL,

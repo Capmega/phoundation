@@ -52,9 +52,9 @@ class Updates extends \Phoundation\System\Updates
             // Add network_curl_cache table
             sql()->schema()->table('network_curl_cache')->define()
                 ->setColumns('
-                  `id` int NOT NULL AUTO_INCREMENT,
+                  `id` bigint NOT NULL AUTO_INCREMENT,
                   `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                  `created_by` int DEFAULT NULL,
+                  `created_by` bigint DEFAULT NULL,
                   `url` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
                   `headers` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
                   `data` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL')

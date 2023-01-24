@@ -52,12 +52,12 @@ class Updates extends \Phoundation\System\Updates
             // Create the providers table.
             sql()->schema()->table('providers')->define()
                 ->setColumns('
-                    `id` int NOT NULL AUTO_INCREMENT,
+                    `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` int NOT NULL,
-                    `meta_id` int DEFAULT NULL,
+                    `created_by` bigint NOT NULL,
+                    `meta_id` bigint DEFAULT NULL,
                     `status` varchar(16) DEFAULT NULL,
-                    `categories_id` int DEFAULT NULL,
+                    `categories_id` bigint DEFAULT NULL,
                     `name` varchar(32) NOT NULL,
                     `seo_name` varchar(32) NOT NULL,
                     `email` varchar(128) DEFAULT NULL,
@@ -86,25 +86,25 @@ class Updates extends \Phoundation\System\Updates
             // Create the customers table.
             sql()->schema()->table('customers')->define()
                 ->setColumns('
-                    `id` int NOT NULL AUTO_INCREMENT,
+                    `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` int NOT NULL,
-                    `meta_id` int DEFAULT NULL,
+                    `created_by` bigint NOT NULL,
+                    `meta_id` bigint DEFAULT NULL,
                     `status` varchar(16) DEFAULT NULL,
                     `name` varchar(64) DEFAULT NULL,
                     `code` varchar(64) DEFAULT NULL,
                     `company` varchar(64) DEFAULT NULL,
                     `email` varchar(96) DEFAULT NULL,
                     `phones` varchar(36) DEFAULT NULL,
-                    `documents_id` int DEFAULT NULL,
-                    `categories_id` int DEFAULT NULL,
+                    `documents_id` bigint DEFAULT NULL,
+                    `categories_id` bigint DEFAULT NULL,
                     `address1` varchar(64) DEFAULT NULL,
                     `address2` varchar(64) DEFAULT NULL,
                     `address3` varchar(64) DEFAULT NULL,
                     `zipcode` varchar(8) DEFAULT NULL,
-                    `countries_id` int DEFAULT NULL,
-                    `states_id` int DEFAULT NULL,
-                    `cities_id` int DEFAULT NULL,
+                    `countries_id` bigint DEFAULT NULL,
+                    `states_id` bigint DEFAULT NULL,
+                    `cities_id` bigint DEFAULT NULL,
                     `seo_name` varchar(64) DEFAULT NULL,
                     `url` varchar(255) DEFAULT NULL,
                     `description` varchar(2040) DEFAULT NULL
@@ -139,14 +139,14 @@ class Updates extends \Phoundation\System\Updates
             // Create the companies table.
             sql()->schema()->table('companies')->define()
                 ->setColumns('
-                    `id` int NOT NULL AUTO_INCREMENT,
+                    `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` int DEFAULT NULL,
-                    `meta_id` int NOT NULL,
+                    `created_by` bigint DEFAULT NULL,
+                    `meta_id` bigint NOT NULL,
                     `status` varchar(16) DEFAULT NULL,
-                    `categories_id` int DEFAULT NULL,
-                    `customers_id` int DEFAULT NULL,
-                    `providers_id` int DEFAULT NULL,
+                    `categories_id` bigint DEFAULT NULL,
+                    `customers_id` bigint DEFAULT NULL,
+                    `providers_id` bigint DEFAULT NULL,
                     `name` varchar(64) DEFAULT NULL,
                     `seo_name` varchar(64) DEFAULT NULL,
                     `description` varchar(2047) DEFAULT NULL
@@ -175,12 +175,12 @@ class Updates extends \Phoundation\System\Updates
             // Create the branches table.
             sql()->schema()->table('branches')->define()
                 ->setColumns('
-                    `id` int NOT NULL AUTO_INCREMENT,
+                    `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` int DEFAULT NULL,
-                    `meta_id` int NOT NULL,
+                    `created_by` bigint DEFAULT NULL,
+                    `meta_id` bigint NOT NULL,
                     `status` varchar(16) DEFAULT NULL,
-                    `companies_id` int NOT NULL,
+                    `companies_id` bigint NOT NULL,
                     `name` varchar(64) DEFAULT NULL,
                     `seo_name` varchar(64) DEFAULT NULL,
                     `description` varchar(2047) DEFAULT NULL
@@ -205,13 +205,13 @@ class Updates extends \Phoundation\System\Updates
             // Create the departments table.
             sql()->schema()->table('departments')->define()
                 ->setColumns('
-                    `id` int NOT NULL AUTO_INCREMENT,
+                    `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` int DEFAULT NULL,
-                    `meta_id` int NOT NULL,
+                    `created_by` bigint DEFAULT NULL,
+                    `meta_id` bigint NOT NULL,
                     `status` varchar(16) DEFAULT NULL,
-                    `companies_id` int NOT NULL,
-                    `branches_id` int DEFAULT NULL,
+                    `companies_id` bigint NOT NULL,
+                    `branches_id` bigint DEFAULT NULL,
                     `name` varchar(64) DEFAULT NULL,
                     `seo_name` varchar(64) DEFAULT NULL,
                     `description` varchar(2047) DEFAULT NULL
@@ -238,15 +238,15 @@ class Updates extends \Phoundation\System\Updates
             // Create the employees table.
             sql()->schema()->table('employees')->define()
                 ->setColumns('
-                    `id` int NOT NULL AUTO_INCREMENT,
+                    `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` int DEFAULT NULL,
-                    `meta_id` int NOT NULL,
+                    `created_by` bigint DEFAULT NULL,
+                    `meta_id` bigint NOT NULL,
                     `status` varchar(16) DEFAULT NULL,
-                    `companies_id` int NOT NULL,
-                    `branches_id` int DEFAULT NULL,
-                    `departments_id` int DEFAULT NULL,
-                    `users_id` int DEFAULT NULL,
+                    `companies_id` bigint NOT NULL,
+                    `branches_id` bigint DEFAULT NULL,
+                    `departments_id` bigint DEFAULT NULL,
+                    `users_id` bigint DEFAULT NULL,
                     `name` varchar(64) DEFAULT NULL,
                     `seo_name` varchar(64) DEFAULT NULL,
                     `description` varchar(2047) DEFAULT NULL

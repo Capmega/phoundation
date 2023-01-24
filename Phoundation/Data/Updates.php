@@ -52,11 +52,11 @@ class Updates extends \Phoundation\System\Updates
             // Create the categories table.
             sql()->schema()->table('categories')->define()
                 ->setColumns('
-                    `id` int NOT NULL AUTO_INCREMENT,
+                    `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `meta_id` int NOT NULL,
+                    `meta_id` bigint NOT NULL,
                     `status` varchar(16) DEFAULT NULL,
-                    `parents_id` int DEFAULT NULL,
+                    `parents_id` bigint DEFAULT NULL,
                     `name` varchar(64) DEFAULT NULL,
                     `seo_name` varchar(64) DEFAULT NULL,
                     `description` varchar(2047) DEFAULT NULL
@@ -79,7 +79,7 @@ class Updates extends \Phoundation\System\Updates
             // Modify the categories table.
             sql()->schema()->table('categories')->alter()
                 ->addColumn('
-                    `created_by` int DEFAULT NULL', 'AFTER `created_on`
+                    `created_by` bigint DEFAULT NULL', 'AFTER `created_on`
                 ')
                 ->addIndices('
                     KEY `created_by` (`created_by`)

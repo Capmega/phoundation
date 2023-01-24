@@ -54,10 +54,10 @@ class Updates extends \Phoundation\System\Updates
             // Add table for version control itself
             sql()->schema()->table('versions')->define()
                 ->setColumns('
-                    `id` int NOT NULL AUTO_INCREMENT,
+                    `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` int DEFAULT NULL,
-                    `meta_id` int DEFAULT NULL,
+                    `created_by` bigint DEFAULT NULL,
+                    `meta_id` bigint DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `library` VARCHAR(64) NOT NULL,
                     `version` VARCHAR(64) NOT NULL,
@@ -74,16 +74,16 @@ class Updates extends \Phoundation\System\Updates
         })->addUpdate('0.0.2', function () {
             // Add tables for the meta library
             sql()->schema()->table('meta')->define()
-                ->setColumns('`id` int NOT NULL AUTO_INCREMENT')
+                ->setColumns('`id` bigint NOT NULL AUTO_INCREMENT')
                 ->setIndices('PRIMARY KEY (`id`)')
                 ->create();
 
             sql()->schema()->table('meta_history')->define()
                 ->setColumns('
-                    `id` int NOT NULL AUTO_INCREMENT,
+                    `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` int DEFAULT NULL,
-                    `meta_id` int DEFAULT NULL,
+                    `created_by` bigint DEFAULT NULL,
+                    `meta_id` bigint DEFAULT NULL,
                     `action` varchar(16) DEFAULT NULL,
                     `comments` varchar(255) DEFAULT NULL,
                     `data` varchar(2555) DEFAULT NULL
@@ -93,7 +93,7 @@ class Updates extends \Phoundation\System\Updates
                     KEY `created_on` (`created_on`),
                     KEY `created_by` (`created_by`),
                     KEY `action` (`action`),
-                    KEY `fk_meta_history_id` (`meta_id`),
+                    KEY `meta_id` (`meta_id`),
                 ')
                 ->setForeignKeys('
                     CONSTRAINT `fk_meta_history_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
@@ -106,9 +106,9 @@ class Updates extends \Phoundation\System\Updates
             // Add tables for the sessions management
             sql()->schema()->table('sessions_extended')->define()
                 ->setColumns('
-                    `id` int NOT NULL AUTO_INCREMENT,
+                    `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` int DEFAULT NULL,
+                    `created_by` bigint DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `session_key` varchar(64) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
                     `ip` int NOT NULL,
@@ -128,9 +128,9 @@ class Updates extends \Phoundation\System\Updates
             // Add tables for the sessions management
             sql()->schema()->table('url_cloaks')->define()
                 ->setColumns('
-                    `id` int NOT NULL AUTO_INCREMENT,
+                    `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` int DEFAULT NULL,
+                    `created_by` bigint DEFAULT NULL,
                     `url` varchar(140) NOT NULL,
                     `cloak` varchar(32) NOT NULL,
                 ')
@@ -149,10 +149,10 @@ class Updates extends \Phoundation\System\Updates
             // Add tables for the sessions management
             sql()->schema()->table('key_value_store')->define()
                 ->setColumns('
-                    `id` int NOT NULL AUTO_INCREMENT,
+                    `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` int DEFAULT NULL,
-                    `meta_id` int DEFAULT NULL,
+                    `created_by` bigint DEFAULT NULL,
+                    `meta_id` bigint DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `key` varchar(64) NOT NULL,
                     `value` varchar(4096) NOT NULL,
@@ -173,10 +173,10 @@ class Updates extends \Phoundation\System\Updates
         })->addUpdate('0.0.8', function () {
             sql()->schema()->table('languages')->define()
                 ->setColumns('
-                    `id` int NOT NULL AUTO_INCREMENT,
+                    `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` int DEFAULT NULL,
-                    `meta_id` int DEFAULT NULL,
+                    `created_by` bigint DEFAULT NULL,
+                    `meta_id` bigint DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `name` varchar(32) DEFAULT NULL,
                     `seo_name` varchar(32) DEFAULT NULL,
