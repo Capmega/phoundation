@@ -79,6 +79,8 @@ class Session
 
 
     /**
+     * Start this session
+     *
      * @return void
      */
     public static function startup(): void
@@ -102,6 +104,30 @@ class Session
 
 
     /**
+     * Shut down the session object
+     *
+     * @return void
+     */
+    public static function shutdown(): void
+    {
+        // Store the flash messages in the $_SESSION array
+        if (Page::getFlashMessages()->getCount()) {
+            // This page has flash messages that have not yet been displayed. Store them in the session variable so they
+            // can be stored with the next page load
+            self::getFlashMessages()->pullMessagesFrom(Page::getFlashMessages());
+        }
+
+        if (self::$flash_messages->getCount()) {
+            // There are flash messages in this session static object, export them to $_SESSIONS for the next page load
+            $_SESSION['flash_messages'] = self::$flash_messages->export();
+        }
+    }
+
+
+
+    /**
+     * Returns the user for this session
+     *
      * @return User
      */
     public static function getUser(): User
@@ -363,7 +389,7 @@ class Session
 
 
     /**
-     * Start a PHP session
+     * Start a session
      *
      * @return bool
      */
@@ -433,7 +459,7 @@ Log::warning('RESTART SESSION');
             }
         }
 
-        // Time that THIS session started
+        // Time that the session for this process started
         $_SESSION['start'] = microtime(true);
 
         // Initialize session?
@@ -493,7 +519,16 @@ Log::warning('RESTART SESSION');
             $_SESSION['first_visit'] = 1;
         }
 
-        $_SESSION['domain'] = self::$domain;
+        if ($_SESSION['domain'] !== self::$domain) {
+            // Domain mismatch? Okay if this is sub domain, but what if its a different domain? Check whitelist domains?
+            // TODO Implement
+        }
+
+        if (isset($_SESSION['flash_messages'])) {
+            self::getFlashMessages()->import((array) $_SESSION['flash_messages']);
+            unset($_SESSION['flash_messages']);
+        }
+
         return true;
     }
 
@@ -802,6 +837,7 @@ Log::warning('RESTART SESSION');
         // Initialize the session
         $_SESSION['init']         = time();
         $_SESSION['first_domain'] = self::$domain;
+        $_SESSION['domain']       = self::$domain;
 
 //                        $_SESSION['client']       = Core::readRegister('system', 'session', 'client');
 //                        $_SESSION['mobile']       = Core::readRegister('system', 'session', 'mobile');

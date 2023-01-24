@@ -85,6 +85,7 @@ abstract class TemplatePage
     }
 
 
+
     /**
      * Sets the side panel menu
      *
@@ -98,6 +99,7 @@ abstract class TemplatePage
     }
 
 
+
     /**
      * Returns the navbar top menu
      *
@@ -107,6 +109,7 @@ abstract class TemplatePage
     {
         return $this->primary_menu;
     }
+
 
 
     /**

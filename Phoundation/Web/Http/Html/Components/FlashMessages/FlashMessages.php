@@ -3,6 +3,7 @@
 namespace Phoundation\Web\Http\Html\Components\FlashMessages;
 
 use Iterator;
+use Phoundation\Core\Log;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
@@ -38,7 +39,7 @@ class FlashMessages extends ElementsBlock implements Iterator
      * @param FlashMessages $messages
      * @return static
      */
-    public function mergeMessagesFrom(FlashMessages $messages): static
+    public function pullMessagesFrom(FlashMessages $messages): static
     {
         foreach ($messages as $message) {
             $this->add($message);
@@ -60,6 +61,18 @@ class FlashMessages extends ElementsBlock implements Iterator
     {
         $this->messages = [];
         return $this;
+    }
+
+
+
+    /**
+     * Return the amount of flash messages in this object
+     *
+     * @return int
+     */
+    public function getCount(): int
+    {
+        return count($this->messages);
     }
 
 
@@ -136,7 +149,43 @@ class FlashMessages extends ElementsBlock implements Iterator
         // Add script tags around all the flash calls
         $this->render = Script::new()->setContent($this->render)->render();
 
+        // Remove all flash messages from this object
+        $this->clear();
+
         return parent::render();
+    }
+
+
+
+    /**
+     * Export the flash messages in this object to an array
+     *
+     * @return array
+     */
+    public function export(): array
+    {
+        $return = [];
+
+        foreach ($this->messages as $message) {
+            $return[] = $message->export();
+        }
+
+        return $return;
+    }
+
+
+
+    /**
+     * Import the flash messages in the specified array to this object
+     *
+     * @param array $source
+     * @return void
+     */
+    public function import(array $source): void
+    {
+        foreach ($source as $message) {
+            $this->add(FlashMessage::new()->import($message));
+        }
     }
 
 

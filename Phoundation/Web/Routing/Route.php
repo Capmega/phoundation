@@ -910,7 +910,7 @@ class Route
 
             if ($block) {
                 // Block the request by dying
-                Core::die();
+                Page::die();
             }
 
             return self::execute($page, $attachment);

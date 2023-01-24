@@ -457,4 +457,54 @@ class FlashMessage extends ElementsBlock
                 body: "' . Strings::escape($this->content) . '"
             });';
     }
+
+
+
+    /**
+     * Import the flash message object data from the specified array
+     *
+     * @param array $source
+     * @return $this
+     */
+    public function import(array $source): static
+    {
+        foreach ($source as $key => $value) {
+            match ($key) {
+                'top'        => $this->top        = $value,
+                'left'       => $this->left       = $value,
+                'type'       => $this->type       = $value,
+                'icon'       => $this->icon       = $value,
+                'image'      => $this->image      = $value,
+                'title'      => $this->title      = $value,
+                'message'    => $this->content    = $value,
+                'can_close'  => $this->can_close  = $value,
+                'auto_close' => $this->auto_close = $value
+            };
+        }
+
+        return $this;
+    }
+
+
+
+    /**
+     * Export this flash message object to an array
+     *
+     * @return array
+     */
+    public function export(): array
+    {
+        return [
+            'top'        => $this->top,
+            'left'       => $this->left,
+            'type'       => $this->type,
+            'icon'       => $this->icon,
+            'image'      => $this->image,
+            'title'      => $this->title,
+            'message'    => $this->content,
+            'can_close'  => $this->can_close,
+            'auto_close' => $this->auto_close
+        ];
+    }
+
 }

@@ -576,7 +576,7 @@ function execute_page(string $__file): ?string
     ob_start(chunk_size: 4096);
 
     // Merge the flash messages from sessions into page flash messages
-    Page::getFlashMessages()->mergeMessagesFrom(Session::getFlashMessages());
+    Page::getFlashMessages()->pullMessagesFrom(Session::getFlashMessages());
 
     return $body;
 }

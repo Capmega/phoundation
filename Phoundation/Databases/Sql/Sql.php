@@ -258,7 +258,7 @@ class Sql
 
         try {
             // PDO statement can be specified instead of a query
-            if (!is_string($query)) {
+            if (is_object($query)) {
                 if (Config::getBoolean('databases.sql.debug', false) or ($query->queryString[0] == ' ')) {
                     // Log query
                     Log::sql('(' . $this->uniqueid . ') ' . $query, $execute);

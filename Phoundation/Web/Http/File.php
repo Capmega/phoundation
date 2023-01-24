@@ -417,7 +417,7 @@ Log::checkpoint();
 
         // Terminate process?
         if ($this->die) {
-            Core::die();
+            Page::die();
         }
     }
 

@@ -50,7 +50,7 @@ class Languages extends DataList
     public static function getHtmlSelect(string $name = 'languages_id'): Select
     {
         return Select::new()
-            ->setSourceQuery('SELECT `code_639_1`, `name` FROM `languages` WHERE `status` IS NULL ORDER BY `name`')
+            ->setSourceQuery('SELECT `id`, `name` FROM `languages` WHERE `status` IS NULL ORDER BY `name`')
             ->setName($name)
             ->setNone(tr('Please select a language'))
             ->setEmpty(tr('No languages available'));

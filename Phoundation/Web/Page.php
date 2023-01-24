@@ -976,6 +976,11 @@ class Page
     public static function execute(string $target, bool $attachment = false): ?string
     {
         try {
+            // Set cookie, start session where needed, etc.
+            if (!Core::getFailed()) {
+                Session::startup();
+            }
+
             if (Strings::fromReverse(dirname($target), '/') === 'system') {
                 // Wait a small random time to avoid timing attacks on system pages
                 usleep(mt_rand(1, 500));
@@ -1848,23 +1853,23 @@ class Page
     }
 
 
-
     /**
      * Kill this web page script process
      *
-     * @param int $exit_code
-     * @param string|null $message
+     * @note Even if $kill_message was specified, the normal shutdown functions will still be called
+     * @param string|null $kill_message If specified, this message will be displayed and the process will be terminated
      * @return void
      * @todo Implement this and add required functionality
      */
-    #[NoReturn] public static function die(int $exit_code, ?string $message): void
+    #[NoReturn] public static function die(?string $kill_message = null): void
     {
-        Log::warning(tr('Phoundation died unexpectedly with exit code ":exitcode" and message ":message"', [
-            ':exitcode' => $exit_code,
-            ':message'  => $message
-        ]));
+        // If something went really, really wrong...
+        if ($kill_message) {
+            die($kill_message);
+        }
 
-        // Do we need to run other shutdown functions?
+        // Normal kill request
+        Log::action(tr('Killing web page process'), 2);
         die();
     }
 

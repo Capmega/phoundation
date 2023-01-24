@@ -205,12 +205,13 @@ class Core {
                 if (defined('PLATFORM_HTTP')) {
                     if (PLATFORM_HTTP) {
                         // Died in browser
-                        Log::error('startup: Failed with "' . $e->getMessage() . '"');
+                        Log::error('startup: Failed with following exception');
+                        Log::error($e);
                         Page::die('startup: Failed, see web server error log');
                     }
 
                     // Died in CLI
-                    Script::shutdown($e);
+                    Script::die($e);
                 }
 
             } catch (Throwable $e) {
@@ -318,7 +319,7 @@ class Core {
 
             if (empty($env)) {
                 // No environment set in ENV, maybe given by parameter?
-                Page::die(1, 'startup: No required environment specified for project "' . PROJECT . '"');
+                Page::die('startup: No required environment specified for project "' . PROJECT . '"');
             }
         }
 
@@ -376,11 +377,6 @@ class Core {
         if (Config::getBoolean('system.maintenance', false)) {
             // We are in maintenance mode, have to show mainenance page.
             Route::executeSystem(503);
-        }
-
-        // Set cookie, start session where needed, etc.
-        if (!self::$failed) {
-            Session::startup();
         }
 
         self::setTimeZone();
@@ -451,7 +447,7 @@ class Core {
 
             if (empty($env)) {
                 if (PROJECT !== 'UNKNOWN') {
-                    Script::shutdown(2, 'startup: No required environment specified for project "' . PROJECT . '"');
+                    Script::die(2, 'startup: No required environment specified for project "' . PROJECT . '"');
                 }
 
                 $env = '';
@@ -578,7 +574,7 @@ class Core {
         }
 
         if (isset($die)) {
-            Script::shutdown($die);
+            Script::die($die);
         }
 
         // set terminal data
@@ -1353,7 +1349,7 @@ class Core {
                             // This is just a simple validation warning, show warning messages in the exception data
                             Log::warning($e->getMessage());
                             Log::warning($e->getData());
-                            Script::shutdown(255);
+                            Script::die(255);
                         }
 
                         if (($e instanceof Exception) and $e->isWarning()) {
@@ -1373,7 +1369,7 @@ class Core {
                                 }
                             }
 
-                            Script::shutdown(255);
+                            Script::die(255);
                         }
 
 // TODO Remplement this with proper exception classes
@@ -1447,14 +1443,14 @@ class Core {
 
                         Log::error(tr('Exception data:'));
                         Log::error($e);
-                        Script::shutdown(1);
+                        Script::die(1);
 
                     case 'http':
                         if ($e instanceof ValidationFailedException) {
                             // This is just a simple validation warning, show warning messages in the exception data
                             Log::warning($e->getMessage());
                             Log::warning($e->getData());
-                            Script::shutdown(255);
+                            Script::die(255);
                         } elseif (($e instanceof Exception) and ($e->isWarning())) {
                             // This is just a simple general warning, no backtrace and such needed, only show the
                             // principal message
@@ -1519,15 +1515,6 @@ class Core {
 
                         if ($e->getCode() === 'validation') {
                             $e->setCode(400);
-                        }
-
-                        if (($e instanceof CoreException) and is_numeric($e->getCode()) and ($e->getCode() > 100) and page_show($e->getCode(), array('exists' => true))) {
-                            if ($e->isWarning()) {
-                                html_flash_set($e->getMessage(), 'warning', $e->getCode());
-                            }
-
-                            Log::error(tr('Displaying exception page ":page"', [':page' => $e->getCode()]));
-                            Web::execute($e->getCode(), ['message' =>$e->getMessage()]);
                         }
 
                         if (Debug::enabled()) {
@@ -2008,28 +1995,11 @@ class Core {
 
 
     /**
-     * Kill this process
-     *
-     * @todo Add required functionality
-     * @return void
-     */
-    #[NoReturn] public static function die(): void
-    {
-        // Do we need to run other shutdown functions?
-        if (PLATFORM_HTTP) {
-            Core::die();
-        }
-
-        Core::die();
-    }
-
-
-
-    /**
      * THIS METHOD SHOULD NOT BE RUN BY ANYBODY! IT IS EXECUTED AUTOMATICALLY ON SHUTDOWN
      *
      * This function facilitates execution of multiple registered shutdown functions
      *
+     * @todo Somehow hide this method so that nobody can call it directly
      * @param int|null $error_code
      * @return void
      */
@@ -2053,6 +2023,8 @@ class Core {
         Log::action(tr('Starting shutdown procedure for script ":script"', [
             ':script' => self::readRegister('system', 'script')
         ]), 2);
+
+        Session::shutdown();
 
         if (!is_array(self::readRegister('system', 'shutdown'))) {
             // Libraries shutdown list

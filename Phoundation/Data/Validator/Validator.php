@@ -615,6 +615,7 @@ abstract class Validator
 
             $execute = $this->applyExecuteVariables($execute);
             $column  = sql()->getColumn($query, $execute);
+
             $this->isValue($column);
         });
     }
