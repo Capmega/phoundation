@@ -1,6 +1,8 @@
 <?php
 
-namespace Phoundation\Accounts\Users;
+namespace Phoundation\Web\Http\Html\Components;
+
+use Templates\AdminLte\Components\DataEntryForm;
 
 
 
@@ -12,9 +14,9 @@ namespace Phoundation\Accounts\Users;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Accounts
+ * @package Phoundation\Web
  */
-class FilterForm extends \Phoundation\Web\Http\Html\Components\FilterForm
+class FilterForm extends DataEntryForm
 {
     /**
      * FilterForm class constructor
@@ -28,8 +30,6 @@ class FilterForm extends \Phoundation\Web\Http\Html\Components\FilterForm
                 'label'    => tr('Type'),
                 'element'  => 'select',
                 'source'   => [
-                    'email'  => tr('Email'),
-                    'phones' => tr('Phone number')
                 ],
             ],
             'filter[]' => [

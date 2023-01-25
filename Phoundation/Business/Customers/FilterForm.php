@@ -2,8 +2,6 @@
 
 namespace Phoundation\Business\Customers;
 
-use Templates\AdminLte\Components\DataEntryForm;
-
 
 
 /**
@@ -16,7 +14,7 @@ use Templates\AdminLte\Components\DataEntryForm;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
-class FilterForm extends DataEntryForm
+class FilterForm extends \Phoundation\Web\Http\Html\Components\FilterForm
 {
     /**
      * FilterForm class constructor
