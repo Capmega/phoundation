@@ -8,6 +8,7 @@ use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Developer\Incidents\Incident;
 use Phoundation\Notifications\Notification;
+use Phoundation\Utils\Json;
 use RuntimeException;
 use Throwable;
 
@@ -323,5 +324,66 @@ class Exception extends RuntimeException
         Incident::new()->setException($this)->save();
 
         return $this;
+    }
+
+
+
+    /**
+     * Import exception data and return this as an exception
+     *
+     * @param array|string $source
+     * @return static
+     */
+    public static function import(array|string $source): static
+    {
+        if (is_string($source)) {
+            // Make it an exception array
+            $source = Json::decode($source);
+        }
+
+        $source['class'] = isset_get($source['class'], Exception::class);
+
+        // Import data
+        $e = new $source['class']($source['message']);
+        $e->setCode(isset_get($source['code']));
+        $e->setData(isset_get($source['data']));
+        $e->setWarning((bool) isset_get($source['warning']));
+        $e->addMessages(isset_get($source['messages']));
+
+        return $e;
+    }
+
+
+
+    /**
+     * Export this exception as an array
+     *
+     * @return array
+     */
+    public function exportArray(): array
+    {
+        return [
+            'class'    => get_class($this),
+            'code'     => $this->getCode(),
+            'message'  => $this->getMessage(),
+            'messages' => $this->getMessages(),
+            'data'     => $this->getData(),
+            'warning'  => $this->getWarning(),
+        ];
+    }
+
+
+
+    /**
+     * Export this exception as a Json string
+     *
+     * @return string
+     */
+    public function exportString(): string
+    {
+        $return = $this->exportArray();
+        $return = Json::encode($return);
+
+        return $return;
     }
 }
