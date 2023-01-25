@@ -37,7 +37,7 @@ $customers = Card::new()
     ->useForm(true);
 
 $customers->getForm()
-        ->setAction(UrlBuilder::current())
+        ->setAction(UrlBuilder::getCurrent())
         ->setMethod('POST');
 
 

@@ -24,7 +24,7 @@ $roles = Card::new()
     ->useForm(true);
 
 $roles->getForm()
-        ->setAction(UrlBuilder::current())
+        ->setAction(UrlBuilder::getCurrent())
         ->setMethod('POST');
 
 

@@ -2,9 +2,11 @@
 
 namespace Phoundation\Core;
 
+use Phoundation\Cli\Script;
+use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Components\Table;
-
+use Phoundation\Web\Http\UrlBuilder;
 
 
 /**
@@ -46,9 +48,24 @@ class Meta
         if ($id and $load) {
             $this->load($id);
         } else {
-            sql()->query('INSERT INTO `meta` (`id`)
-                                VALUES             (NULL)');
-            $this->id = sql()->insertId();
+            $retry = 0;
+
+            while ($retry++ < 5) {
+                try {
+                    $this->id = mt_rand(0, PHP_INT_MAX);
+
+                    sql()->query('INSERT INTO `meta` (`id`)
+                                        VALUES             (' . $this->id . ')');
+
+                } catch (SqlException $e) {
+                    if ($e->getCode() !== 1062) {
+                        // Some different error, keep throwing
+                        throw $e;
+                    }
+
+                    // Duplicate entry, try with a different random number
+                }
+            }
         }
     }
 
@@ -120,10 +137,11 @@ class Meta
     public function action(string $action, ?string $comments = null, ?array $data = null): void
     {
         // Insert the action in the meta_history table
-        sql()->query('INSERT INTO `meta_history` (`meta_id`, `created_by`, `action`, `comments`, `data`) 
-                            VALUES                     (:meta_id , :created_by , :action , :comments , :data )', [
+        sql()->query('INSERT INTO `meta_history` (`meta_id`, `created_by`, `action`, `source`, `comments`, `data`) 
+                            VALUES                     (:meta_id , :created_by , :action , :source , :comments , :data )', [
             ':meta_id'    => $this->id,
             ':created_by' => Session::getUser()->getId(),
+            ':source'     => (PLATFORM_HTTP ? UrlBuilder::getCurrent() : Script::getCurrent()),
             ':action'     => $action,
             ':comments'   => $comments,
             ':data'       => Json::encode($data)

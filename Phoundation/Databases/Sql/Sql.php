@@ -100,6 +100,13 @@ class Sql
      */
     protected string $uniqueid;
 
+    /**
+     * Sets how many times some failures may be retried until an exception is thrown
+     *
+     * @var int $maxretries
+     */
+    protected int $maxretries = 5;
+
 
 
     /**
@@ -490,10 +497,10 @@ class Sql
                 ->log()
                 ->send();
 
-            throw new SqlException(tr('Query ":query" failed with ":messages"', [
+            throw SqlException::new(tr('Query ":query" failed with ":messages"', [
                 ':query'    => $this->buildQueryString($query, $execute),
                 ':messages' => $e->getMessage()
-            ]), $e);
+            ]), $e)->setCode(isset_get($error[1]));
         }
     }
 
@@ -517,16 +524,28 @@ class Sql
     public function write(string $table, array $insert_row, array $update_row, ?string $comments = null): ?int
     {
         if (empty($update_row['id'])) {
-            if (array_key_exists('meta_id', $insert_row)) {
-                // This is a  DataEntry, reserve an id, default metadata, then update that row wit the insert row data
-                $insert_row['id'] = $this->reserveRandomId($table, $insert_row, $comments);
-                $this->update($table, $insert_row, $comments);
-                return $insert_row['id'];
+            // New entry, insert
+            $retry = 0;
+
+            while ($retry++ < $this->maxretries) {
+                try {
+                    // Set a random ID and insert the row
+                    $insert_row = Arrays::prepend($insert_row, 'id', mt_rand(1, PHP_INT_MAX));
+                    return $this->insert($table, $insert_row, $comments);
+                } catch (SqlException $e) {
+                    if ($e->getCode() !== 1062) {
+                        // Some different error, keep throwing
+                        throw $e;
+                    }
+
+                    // Duplicate entry, try with a different random number
+                }
             }
 
-            // This table does NOT have meta_id support and is not a DataEntry table, likely a linked list table
-            // either way, no need for unique id's, do a simple direct insert
-            return $this->insert($table, $insert_row, $comments);
+            // If the randomly selected ID already exists, just try again
+            throw new SqlException(tr('Could not find a unique id in ":retries" retries', [
+                ':retries' => $this->maxretries
+            ]));
         }
 
         // This is an existing entry, update!
@@ -552,17 +571,15 @@ class Sql
     {
         // Set meta fields
         if (array_key_exists('meta_id', $row)) {
-            $row['meta_id'] = Meta::init($comments)->getId();
+            $row['meta_id']    = Meta::init($comments)->getId();
             $row['created_by'] = Session::getUser()->getId();
 
-            if ($row['status'] === '__reserved') {
-                $row['status'] = null;
-            }
+            unset($row['created_on']);
         }
 
         // Build bound variables for query
         $columns = $this->columns($row);
-        $values  = $this->values($row);
+        $values  = $this->values($row, null, true);
         $keys    = $this->keys($row);
 
         $this->query('INSERT INTO `' . $table . '` (' . $columns . ') VALUES (' . $keys . ')', $values);
@@ -1169,20 +1186,20 @@ class Sql
      *
      * @param array|string $source
      * @param string|null $prefix
+     * @param bool $insert
      * @return array
      */
-    protected function values(array|string $source, ?string $prefix = null): array
+    protected function values(array|string $source, ?string $prefix = null, bool $insert = false): array
     {
         $return  = [];
 
         foreach ($source as $key => $value) {
-            switch ($key) {
-                case 'meta_id':
-                    // NEVER update these!
-                    break;
-                default:
-                    $return[':' . $prefix . $key] = $value;
+            if (($key === 'meta_id') and !$insert) {
+                // Only process meta_id on insert operations
+                continue;
             }
+
+            $return[':' . $prefix . $key] = $value;
         }
 
         return $return;
@@ -1219,11 +1236,10 @@ class Sql
      */
     public function reserveRandomId(string $table, array $data, ?string $comments = null): int
     {
-        $retries    = 0;
-        $maxretries = 20;
+        $retries = 0;
 
-        while (++$retries < $maxretries) {
-            $id = mt_rand(1, 2147483648);
+        while (++$retries < $this->maxretries) {
+            $id = mt_rand(1, PHP_INT_MAX);
 
             // Try a random number and see if its used. If not, use it.
             if (!$this->get('SELECT `id` FROM `' . $table . '` WHERE `id` = :id', [':id' => $id])) {
@@ -1239,7 +1255,9 @@ class Sql
             }
         }
 
-        throw new SqlException(tr('Could not find a unique id in ":retries" retries', [':retries' => $maxretries]));
+        throw new SqlException(tr('Could not find a unique id in ":retries" retries', [
+            ':retries' => $this->maxretries
+        ]));
     }
 
 
@@ -1834,7 +1852,7 @@ class Sql
             }
 
             if (PLATFORM_CLI) {
-                switch (Script::getScript(true)) {
+                switch (Script::getCurrent(true)) {
                     case 'system/init/drop':
                         // no break
                     case 'system/init/init':

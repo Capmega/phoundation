@@ -24,7 +24,7 @@ $rights = Card::new()
     ->useForm(true);
 
 $rights->getForm()
-        ->setAction(UrlBuilder::current())
+        ->setAction(UrlBuilder::getCurrent())
         ->setMethod('POST');
 
 

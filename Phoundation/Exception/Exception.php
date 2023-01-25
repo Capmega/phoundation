@@ -302,14 +302,13 @@ class Exception extends RuntimeException
 
 
     /**
-     * Send notification about this exception
+     * Returns a notification object for this exception
      *
-     * @return static
+     * @return Notification
      */
-    public function notify(): static
+    public function notification(): Notification
     {
-        Notification::new()->setException($this)->send();
-        return $this;
+        return Notification::new()->setException($this);
     }
 
 

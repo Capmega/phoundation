@@ -85,8 +85,9 @@ class Updates extends \Phoundation\System\Updates
                     `created_by` bigint DEFAULT NULL,
                     `meta_id` bigint DEFAULT NULL,
                     `action` varchar(16) DEFAULT NULL,
+                    `source` varchar(512) DEFAULT NULL,
                     `comments` varchar(255) DEFAULT NULL,
-                    `data` varchar(2555) DEFAULT NULL
+                    `data` text DEFAULT NULL
                 ')
                 ->setIndices('
                     PRIMARY KEY (`id`),

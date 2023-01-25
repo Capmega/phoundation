@@ -92,7 +92,7 @@ class UrlBuilder
      *
      * @return static
      */
-    public static function current(): static
+    public static function getCurrent(): static
     {
         return self::currentDomainUrl();
     }
@@ -110,7 +110,7 @@ class UrlBuilder
     public static function www(?string $url = null, bool $use_configured_root = false): static
     {
         if (!$url) {
-            $url = UrlBuilder::current();
+            $url = UrlBuilder::getCurrent();
         } else {
             $url = self::applyPredefined($url);
         }
@@ -648,7 +648,7 @@ class UrlBuilder
     protected static function applyPredefined($url): string
     {
         return match ($url) {
-            'self', 'this'                => self::current(),
+            'self', 'this'                => self::getCurrent(),
             'root'                        => self::currentDomainRootUrl(),
             'prev', 'previous', 'referer' => self::referer(),
             default => $url,

@@ -1686,4 +1686,23 @@ class Arrays {
 
         return false;
     }
+
+
+
+    /**
+     * Prepend the key + value to the specified source array
+     *
+     * @param array $source
+     * @param string|float|int $key
+     * @param mixed $value
+     * @return array
+     */
+    public static function prepend(array $source, string|float|int $key, mixed $value): array
+    {
+        $source = array_reverse($source, true);
+        $source[$key] = $value;
+        $source = array_reverse($source, true);
+
+        return $source;
+    }
 }

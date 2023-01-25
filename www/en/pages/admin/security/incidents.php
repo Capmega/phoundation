@@ -37,7 +37,7 @@ $users = Card::new()
     ->useForm(true);
 
 $users->getForm()
-        ->setAction(UrlBuilder::current())
+        ->setAction(UrlBuilder::getCurrent())
         ->setMethod('POST');
 
 

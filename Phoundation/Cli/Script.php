@@ -70,8 +70,6 @@ class Script
             $limit  = 'system/project/setup';
         }
 
-        Core::registerShutdown('core_shutdown', ['\Phoundation\Cli\Script', 'shutdown']);
-
         // Only allow this to be run by the cli script
         // TODO This should be done before Core::startup() but then the PLATFORM_CLI define would not exist yet. Fix this!
         self::only();
@@ -83,7 +81,7 @@ class Script
         self::$script = $script;
 
         Log::action(tr('Executing script ":script"', [
-            ':script' => self::getScript()
+            ':script' => self::getCurrent()
         ]), 1);
 
         // Execute the script
@@ -260,7 +258,7 @@ class Script
      * @param bool $full
      * @return string
      */
-    public static function getScript(bool $full = false): string
+    public static function getCurrent(bool $full = false): string
     {
         if ($full) {
             return Strings::fromReverse(self::$script, PATH_ROOT . 'scripts/');
@@ -280,7 +278,7 @@ class Script
      */
     public static function isScript(string $script, bool $full = false): bool
     {
-        return $script === self::getScript($full);
+        return $script === self::getCurrent($full);
     }
 
 

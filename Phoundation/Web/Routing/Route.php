@@ -149,8 +149,8 @@ class Route
             ':client' => $_SERVER['REMOTE_ADDR'] . (empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: ' . $_SERVER['HTTP_X_REAL_IP'] . ')')
         ]));
 
-        Core::registerShutdown('core_shutdown', ['\Phoundation\Web\Routing\Route', 'shutdown']);
-        Core::registerShutdown('route_postprocess', ['\Phoundation\Web\Routing\Route', 'postProcess']);
+        Core::registerShutdown('route[shutdown]'   , ['\Phoundation\Web\Routing\Route', 'shutdown']);
+        Core::registerShutdown('route[postprocess]', ['\Phoundation\Web\Routing\Route', 'postProcess']);
     }
 
 

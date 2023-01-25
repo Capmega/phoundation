@@ -110,16 +110,18 @@ class Session
      */
     public static function shutdown(): void
     {
-        // Store the flash messages in the $_SESSION array
-        if (Page::getFlashMessages()->getCount()) {
-            // This page has flash messages that have not yet been displayed. Store them in the session variable so they
-            // can be stored with the next page load
-            self::getFlashMessages()->pullMessagesFrom(Page::getFlashMessages());
-        }
+        if (PLATFORM_HTTP) {
+            // Store the flash messages in the $_SESSION array
+            if (Page::getFlashMessages()->getCount()) {
+                // This page has flash messages that have not yet been displayed. Store them in the session variable so they
+                // can be stored with the next page load
+                self::getFlashMessages()->pullMessagesFrom(Page::getFlashMessages());
+            }
 
-        if (self::$flash_messages->getCount()) {
-            // There are flash messages in this session static object, export them to $_SESSIONS for the next page load
-            $_SESSION['flash_messages'] = self::$flash_messages->export();
+            if (self::$flash_messages->getCount()) {
+                // There are flash messages in this session static object, export them to $_SESSIONS for the next page load
+                $_SESSION['flash_messages'] = self::$flash_messages->export();
+            }
         }
     }
 
