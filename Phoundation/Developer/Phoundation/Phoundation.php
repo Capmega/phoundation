@@ -131,7 +131,6 @@ class Phoundation
                     return $path;
                 }
             }
-
         }
 
         throw new PhoundationNotFoundException();
