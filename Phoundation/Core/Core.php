@@ -1469,7 +1469,7 @@ class Core {
                         }
 
                         // Make sure the Router shutdown won't happen so it won't send a 404
-                        Core::unregisterShutdown('route_postprocess');
+                        Core::unregisterShutdown('route[postprocess]');
 
                         // Remove all caching headers
                         if (!headers_sent()) {
@@ -1679,7 +1679,7 @@ class Core {
                         if (!Debug::enabled()) {
                             Notification::new()->setException($f)->send();
                             Notification::new()->setException($e)->send();
-                            page_show(500);
+                            Route::executeSystem(500);
                         }
 
                         show(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => self::readRegister('system', 'script'))));

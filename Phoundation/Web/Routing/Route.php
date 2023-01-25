@@ -534,7 +534,7 @@ class Route
                     case 'B':
                         // Block this request, send nothing
                         Log::warning(tr('Blocking request as per B flag'));
-                        Core::unregisterShutdown('route_postprocess');
+                        Core::unregisterShutdown('route[postprocess]');
                         $block = true;
                         break;
 
@@ -635,7 +635,7 @@ class Route
                                 ]));
                         }
 
-                        Core::unregisterShutdown('route_postprocess');
+                        Core::unregisterShutdown('route[postprocess]');
                         Page::setRoutingParameters(self::parameters()->select(self::$uri));
                         Page::redirect(UrlBuilder::www($route)->addQueries($_GET), $http_code);
 
@@ -751,7 +751,7 @@ class Route
                                 ':key'   => $key
                             ]));
 
-                            Core::unregisterShutdown('route_postprocess');
+                            Core::unregisterShutdown('route[postprocess]');
                             Page::setRoutingParameters(self::parameters()->select(self::$uri));
                             Page::redirect($domain);
                     }
@@ -785,7 +785,7 @@ class Route
                         ]));
 
                         // TODO route_postprocess() This should be a class method!
-                        Core::unregisterShutdown('route_postprocess');
+                        Core::unregisterShutdown('route[postprocess]');
                         // TODO Check if this should be 404 or maybe some other HTTP code?
                         Route::executeSystem(404);
 
@@ -803,7 +803,7 @@ class Route
                         if (!file_exists($page)) {
                             // TODO route_postprocess() This should be a class method!
                             Log::warning(tr('Language remapped page ":page" does not exist', [':page' => $page]));
-                            Core::unregisterShutdown('route_postprocess');
+                            Core::unregisterShutdown('route[postprocess]');
                             // TODO Check if this should be 404 or maybe some other HTTP code?
                             Route::executeSystem(404);
                         }
@@ -819,7 +819,7 @@ class Route
                         ]));
 
                         // TODO route_postprocess() This should be a class method!
-                        Core::unregisterShutdown('route_postprocess');
+                        Core::unregisterShutdown('route[postprocess]');
                         // TODO Check if this should be 404 or maybe some other HTTP code?
                         Route::executeSystem(404);
                     }
@@ -845,7 +845,7 @@ class Route
                     // The hardcoded file for the regex does not exist, oops!
                     Log::warning(tr('Matched hard coded page ":page" does not exist', [':page' => $page]));
                     // TODO route_postprocess() This should be a class method!
-                    Core::unregisterShutdown('route_postprocess');
+                    Core::unregisterShutdown('route[postprocess]');
                     // TODO Check if this should be 404 or maybe some other HTTP code?
                     Route::executeSystem(404);
                 }
@@ -862,7 +862,7 @@ class Route
 
             // We are going to show the matched page so we no longer need to default to 404
             // TODO route_postprocess() This should be a class method!
-            Core::unregisterShutdown('route_postprocess');
+            Core::unregisterShutdown('route[postprocess]');
 
             /*
              * Execute the page specified in $target (from here, $route)
@@ -1105,7 +1105,7 @@ class Route
         if (str_ends_with($target, 'php')) {
             // Remove the 404 auto execution on shutdown
             // TODO route_postprocess() This should be a class method!
-            Core::unregisterShutdown('route_postprocess');
+            Core::unregisterShutdown('route[postprocess]');
             $html = Page::execute($target, $attachment);
 
             if ($attachment) {

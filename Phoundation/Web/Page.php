@@ -248,9 +248,9 @@ class Page
     /**
      * Flash messages control
      *
-     * @var FlashMessages
+     * @var FlashMessages|null
      */
-    protected static FlashMessages $flash_messages;
+    protected static ?FlashMessages $flash_messages = null;
 
     /**
      * If true, the template will build the <body> tag. If false, the page will have to build it itself
@@ -366,14 +366,10 @@ class Page
     /**
      * Returns the page flash messages
      *
-     * @return FlashMessages
+     * @return FlashMessages|null
      */
-    public static function getFlashMessages(): FlashMessages
+    public static function getFlashMessages(): ?FlashMessages
     {
-        if (!isset(self::$flash_messages)) {
-            self::$flash_messages = FlashMessages::new();
-        }
-
         return self::$flash_messages;
     }
 
@@ -976,6 +972,10 @@ class Page
     public static function execute(string $target, bool $attachment = false): ?string
     {
         try {
+            if (!isset(self::$flash_messages)) {
+                self::$flash_messages = FlashMessages::new();
+            }
+
             // Set cookie, start session where needed, etc.
             if (!Core::getFailed()) {
                 Session::startup();
