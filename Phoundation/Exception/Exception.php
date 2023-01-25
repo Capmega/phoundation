@@ -59,32 +59,34 @@ class Exception extends RuntimeException
     /**
      * CoreException __constructor
      *
-     * @param Throwable|array|string $messages The exception messages
+     * @param Throwable|array|string|null $messages The exception messages
      * @param array $data [array] Data related to the exception. Should be a named array with elements that may be
      *      anything, string, array, object, resource, etc. The handler for this exception is assumed to know how to
      *      handle this data if it wants to do so
      * @param string|null $code The exception code (optional)
      * @param Throwable|null $previous A previous exception, if available.
      */
-    public function __construct(Throwable|array|string $messages, mixed $data = null, ?string $code = null, ?Throwable $previous = null)
+    public function __construct(Throwable|array|string|null $messages, mixed $data = null, ?string $code = null, ?Throwable $previous = null)
     {
         if (is_object($messages)) {
             // The message actually is an Exception! Extract data and make this exception the previous
             $previous = $messages;
-            $code     = $messages->getCode();
+            $code = $messages->getCode();
 
             if ($messages instanceof Exception) {
                 // This is a Phoundation exception, get more information
-                $data     = $messages->getData();
+                $data = $messages->getData();
                 $messages = $messages->getMessages();
             } else {
                 // This is a standard PHP exception
-                $data     = null;
+                $data = null;
                 $messages = $messages->getMessage();
             }
-        }
+        } elseif (!is_array($messages)) {
+            if (!$messages) {
+                $messages = tr('No message specified');
+            }
 
-        if (!is_array($messages)) {
             $messages = [$messages];
         }
 

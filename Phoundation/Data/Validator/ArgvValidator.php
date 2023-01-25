@@ -54,7 +54,7 @@ class ArgvValidator extends Validator
 
 
     /**
-     * Returns a new array validator
+     * Returns a new Command Line Arguments data Validator object
      *
      * @param Validator|null $parent
      * @return static

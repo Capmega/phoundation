@@ -56,11 +56,11 @@ class RouteSystem
      * Returns new RouteSystem object
      *
      * @param RoutingParameters $parameters
-     * @return RouteSystem
+     * @return static
      */
-    public static function new(RoutingParameters $parameters): RouteSystem
+    public static function new(RoutingParameters $parameters): static
     {
-        return new RouteSystem($parameters);
+        return new static($parameters);
     }
 
 

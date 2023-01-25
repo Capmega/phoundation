@@ -1,15 +1,15 @@
 <?php
 
-namespace Phoundation\System\Project;
+namespace Phoundation\Developer\Project;
 
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Validator;
+use Phoundation\Developer\Project\Exception\EnvironmentExists;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Restrictions;
-use Phoundation\System\Project\Exception\EnvironmentExists;
 use Throwable;
 
 
@@ -22,7 +22,7 @@ use Throwable;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package \Phoundation\System
+ * @package \Phoundation\Developer
  */
 class Project
 {

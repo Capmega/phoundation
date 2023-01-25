@@ -2,8 +2,6 @@
 
 namespace Phoundation\Developer\Exception;
 
-use Phoundation\Exception\Exception;
-
 
 
 /**
@@ -16,6 +14,6 @@ use Phoundation\Exception\Exception;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Developer
  */
-class DebugException extends Exception
+class DebugException extends DeveloperException
 {
 }

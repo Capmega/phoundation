@@ -24,7 +24,7 @@ class GuestUser extends User
     public function __construct(string|int|null $identifier = null)
     {
         parent::__construct(null);
-        $this->id = 0;
+        $this->id = -1;
         $this->setNickname('Guest');
     }
 }

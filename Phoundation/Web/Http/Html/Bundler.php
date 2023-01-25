@@ -81,11 +81,11 @@ class Bundler
     /**
      * Returns a new bundler object
      *
-     * @return Bundler
+     * @return static
      */
-    public static function new(): Bundler
+    public static function new(): static
     {
-        return new Bundler();
+        return new static();
     }
 
 

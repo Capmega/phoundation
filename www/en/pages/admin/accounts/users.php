@@ -2,11 +2,39 @@
 
 use Phoundation\Accounts\Users\FilterForm;
 use Phoundation\Accounts\Users\Users;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Web\Http\Html\Components\BreadCrumbs;
+use Phoundation\Web\Http\Html\Components\Buttons;
 use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Http\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
+
+
+
+$users = Users::new();
+
+
+
+// Validate POST and submit
+if (Page::isRequestMethod('POST')) {
+    try {
+        PostValidator::new()
+            ->select('id')->isOptional()->isArray()->each()->isId()
+            ->validate();
+
+        // Delete selected users
+        $count = $users->delete($_POST['id']);
+
+        Page::getFlashMessages()->add(tr('Success'), tr('Deleted ":count" users', [':count' => $count]), 'success');
+        Page::redirect('this');
+
+    } catch (ValidationFailedException $e) {
+        // Oops! Show validation errors and remain on page
+        Page::getFlashMessages()->add($e);
+    }
+}
 
 
 
@@ -17,7 +45,6 @@ use Phoundation\Web\Page;
 // Build users filter card
 $filters_content = FilterForm::new();
 
-
 $filters = Card::new()
     ->setHasCollapseSwitch(true)
     ->setTitle('Users filters')
@@ -27,14 +54,21 @@ $filters = Card::new()
 
 
 // Build users table
-$table = Users::new()->getHtmlTable()
+$buttons = Buttons::new()
+    ->addButton(tr('Create'), 'primary', '/accounts/user.html')
+    ->addButton(tr('Delete'), 'warning');
+
+$table = $users->getHtmlTable()
     ->setRowUrl('/accounts/user-:ROW.html');
+// TODO Automatically re-select items if possible
+//    ->select($_POST['id']);
 
 $users = Card::new()
     ->setTitle('Active users')
     ->setSwitches('reload')
     ->setContent($table->render())
-    ->useForm(true);
+    ->useForm(true)
+    ->setButtons($buttons);
 
 $users->getForm()
         ->setAction(UrlBuilder::getCurrent())

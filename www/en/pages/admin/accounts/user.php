@@ -23,6 +23,8 @@ GetValidator::new()
 
 $user = User::get($_GET['id']);
 
+
+
 // Validate POST and submit
 if (Page::isRequestMethod('POST')) {
     try {
@@ -80,34 +82,36 @@ if (Page::isRequestMethod('POST')) {
 
 // Build the buttons
 $buttons = Buttons::new()
-    ->addButton('Submit')
-    ->addButton('Cancel', 'secondary', '/accounts/users.html', true);
+    ->addButton(tr('Submit'))
+    ->addButton(tr('Cancel'), 'secondary', '/accounts/users.html', true);
 
 
 
 // Build the user form
 $user_card = Card::new()
     ->setHasCollapseSwitch(true)
-    ->setTitle(tr('Edit data for User :name', [':name' => $user->getDisplayName()]))
+    ->setTitle(tr('Edit data for user :name', [':name' => $user->getDisplayName()]))
     ->setContent($user->getHtmlForm()->render())
     ->setButtons($buttons);
 
 
 
 // Build the roles list management section
-$roles_card = Card::new()
-    ->setTitle(tr('Roles for this user'))
-    ->setContent($user->getRolesHtmlForm()
-        ->setAction('#')
-        ->setMethod('POST')
-        ->render())
-    ->setButtons($buttons);
+if ($user->getId()) {
+    $roles_card = Card::new()
+        ->setTitle(tr('Roles for this user'))
+        ->setContent($user->getRolesHtmlForm()
+            ->setAction('#')
+            ->setMethod('POST')
+            ->render())
+        ->setButtons($buttons);
+}
 
 
 
 // Build the grid column with a form containing the user and roles cards
 $column = GridColumn::new()
-    ->addContent($user_card->render() . $roles_card->render())
+    ->addContent($user_card->render() . (isset($roles_card) ? $roles_card->render() : ''))
     ->setSize(9)
     ->useForm(true);
 

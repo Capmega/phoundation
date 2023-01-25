@@ -586,6 +586,62 @@ abstract class DataList implements Iterator
 
 
     /**
+     * Set the specified status for the specified entries
+     *
+     * @param string|null $status
+     * @param array $entries
+     * @param string|null $comments
+     * @return int
+     */
+    public function setStatus(?string $status, array $entries, ?string $comments = null): int
+    {
+        return sql()->setStatus($status, $this->table_name, $entries, $comments);
+    }
+
+
+
+    /**
+     * Delete the specified entries
+     *
+     * @param array $entries
+     * @param string|null $comments
+     * @return int
+     */
+    public function delete(array $entries, ?string $comments = null): int
+    {
+        return $this->setStatus('deleted', $entries, $comments);
+    }
+
+
+
+    /**
+     * Undelete the specified entries
+     *
+     * @param array $entries
+     * @param string|null $comments
+     * @return int
+     */
+    public function undelete(array $entries, ?string $comments = null): int
+    {
+        return $this->setStatus(null, $entries, $comments);
+    }
+
+
+
+    /**
+     * Erase the specified entries
+     *
+     * @param array $entries
+     * @return int
+     */
+    public function erase(array $entries): int
+    {
+        return sql()->erase($this->table_name, $entries);
+    }
+
+
+
+    /**
      * Add the specified data entry to the data list
      *
      * @param DataEntry|null $entry

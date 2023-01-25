@@ -1,6 +1,6 @@
 <?php
 
-namespace Phoundation\System;
+namespace Phoundation\Developer\Libraries;
 
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
@@ -39,7 +39,7 @@ class Library
     /**
      * The Updates object for this library
      *
-     * @var Updates|null
+     * @var \Phoundation\Developer\Incidents\Updates|null
      */
     protected ?Updates $updates = null;
 

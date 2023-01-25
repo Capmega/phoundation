@@ -88,11 +88,11 @@ class Server
      * @param Restrictions|array|string|null $restrictions
      * @param string|null $hostname
      * @param string|null $label
-     * @return Server
+     * @return static
      */
     public static function new(Restrictions|array|string|null $restrictions, string $hostname = null, ?string $label = null): static
     {
-        return new Server($restrictions, $hostname, $label);
+        return new static($restrictions, $hostname, $label);
     }
 
 

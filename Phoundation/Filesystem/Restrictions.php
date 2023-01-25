@@ -66,7 +66,7 @@ class Restrictions
      */
     public static function new(string|array|null $paths, bool $write = false, ?string $label = null): static
     {
-        return new Restrictions($paths, $write, $label);
+        return new static($paths, $write, $label);
     }
 
 

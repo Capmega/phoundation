@@ -125,11 +125,11 @@ class RoutingParameters
     /**
      * Returns a new RouteParameters object
      *
-     * @return RoutingParameters
+     * @return static
      */
-    public static function new(): RoutingParameters
+    public static function new(): static
     {
-        return new RoutingParameters();
+        return new static();
     }
 
 

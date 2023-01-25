@@ -39,10 +39,13 @@ class Template
 
     /**
      * Returns a new Template object
+     *
+     * @param string|null $text
+     * @return static
      */
-    public static function new(string $text = null): Template
+    public static function new(string $text = null): static
     {
-        return new Template($text);
+        return new static($text);
     }
 
 

@@ -6,7 +6,6 @@ use Phoundation\Core\Log;
 use Phoundation\Filesystem\File;
 
 
-
 /**
  * Import class
  *
@@ -17,7 +16,7 @@ use Phoundation\Filesystem\File;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package \Phoundation\Core
  */
-class Import extends \Phoundation\System\Project\Import
+class Import extends \Phoundation\Developer\Project\Import
 {
     /**
      * Import constructor

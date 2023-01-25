@@ -4,6 +4,7 @@ namespace Phoundation\Filesystem;
 
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Servers\Server;
 use Throwable;
@@ -222,9 +223,12 @@ class Filesystem
 
         $path = trim($path);
 
-        if ($path[0] === '/') {
-            // This is already an absolute path
+        if (str_starts_with($path, '/')) {
+        // This is already an absolute path
             $return = $path;
+        } elseif (str_starts_with($path, '~')) {
+            // This is a user home directory
+            $return = realpath($_SERVER['HOME'] . substr($path, 1));
         } else {
             // This is not an absolute path, make it an absolute path
             $prefix = trim((string) $prefix);
@@ -271,7 +275,7 @@ class Filesystem
             }
         } else {
             if ($must_exist) {
-                throw new FilesystemException(tr('The specified path ":path" does not exist', [
+                throw new FileNotExistException(tr('The specified path ":path" does not exist', [
                     ':path' => $path
                 ]));
             }

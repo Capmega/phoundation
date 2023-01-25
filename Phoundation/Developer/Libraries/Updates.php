@@ -1,13 +1,13 @@
 <?php
 
-namespace Phoundation\System;
+namespace Phoundation\Developer\Libraries;
 
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
+use Phoundation\Developer\Exception\DoubleVersionException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnexpectedValueException;
-use Phoundation\System\Exception\DoubleVersionException;
 
 
 
@@ -19,7 +19,7 @@ use Phoundation\System\Exception\DoubleVersionException;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package \Phoundation\System
+ * @package \Phoundation\Developer
  */
 abstract class Updates
 {

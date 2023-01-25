@@ -153,7 +153,7 @@ abstract class DataEntry
 
 
     /**
-     * Returns a User object
+     * Returns a new DataEntry object
      *
      * @return static
      */

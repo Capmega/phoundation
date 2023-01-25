@@ -777,7 +777,7 @@ class Table extends ResourceElement
         }
 
         return InputCheckbox::new()
-            ->setName($column)
+            ->setName($column . '[]')
             ->setValue($value)
             ->render();
     }

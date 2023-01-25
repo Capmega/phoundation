@@ -50,7 +50,7 @@ class Command
      * Returns a new Images object
      *
      * @param Server|Restrictions|array|string|null $server_restrictions
-     * @return Command
+     * @return static
      */
     public static function new(Server|Restrictions|array|string|null $server_restrictions = null): static
     {

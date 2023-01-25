@@ -40,11 +40,11 @@ Class Process
      * @param string|null $command
      * @param Server|Restrictions|array|string|null $server_restrictions
      * @param string|null $packages
-     * @return Process
+     * @return static
      */
-    public static function new(?string $command = null, Server|Restrictions|array|string|null $server_restrictions = null, ?string $packages = null): Process
+    public static function new(?string $command = null, Server|Restrictions|array|string|null $server_restrictions = null, ?string $packages = null): static
     {
-        return new Process($command, $server_restrictions, $packages);
+        return new static($command, $server_restrictions, $packages);
     }
 
 
@@ -55,11 +55,11 @@ Class Process
      * @param string|null $command
      * @param Server|Restrictions|array|string|null $server_restrictions
      * @param string|null $packages
-     * @return Process
+     * @return static
      */
-    public static function newCliScript(?string $command = null, Server|Restrictions|array|string|null $server_restrictions = null, ?string $packages = null): Process
+    public static function newCliScript(?string $command = null, Server|Restrictions|array|string|null $server_restrictions = null, ?string $packages = null): static
     {
-        $process = self::new('cli', $server_restrictions, $packages);
+        $process = static::new('cli', $server_restrictions, $packages);
         $process->addArguments(Arrays::force($command, ' '));
 
         return $process;
@@ -158,6 +158,18 @@ Class Process
         $output = implode(PHP_EOL, $output);
 
         return $output;
+    }
+
+
+
+    /**
+     * Execute the command using the PHP exec() call and return a string
+     *
+     * @return void
+     */
+    public function executeNoReturn(): void
+    {
+        $this->executeReturnArray();
     }
 
 
@@ -312,7 +324,12 @@ Class Process
         if ($this->wait) {
             $this->cached_command_line = 'sleep ' . $this->wait . '; ' . $this->cached_command_line;
         }
-        
+
+        // Execute the command in this directory
+        if ($this->execution_path) {
+            $this->cached_command_line = 'cd ' . escapeshellarg($this->execution_path);
+        }
+
         // Add timeout
         if ($this->timeout) {
             $this->cached_command_line = 'timeout --foreground ' . escapeshellarg($this->timeout) . ' ' . $this->cached_command_line;

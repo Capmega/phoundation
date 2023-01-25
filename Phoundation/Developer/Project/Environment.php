@@ -1,14 +1,14 @@
 <?php
 
-namespace Phoundation\System\Project;
+namespace Phoundation\Developer\Project;
 
 use Phoundation\Core\Config;
 use Phoundation\Core\Log;
+use Phoundation\Developer\Libraries\Libraries;
+use Phoundation\Developer\Project\Exception\EnvironmentException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Restrictions;
-use Phoundation\System\Project\Exception\EnvironmentException;
-use Phoundation\System\Libraries;
 use Throwable;
 
 
@@ -21,7 +21,7 @@ use Throwable;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package \Phoundation\System
+ * @package \Phoundation\Developer
  */
 class Environment
 {
@@ -68,9 +68,9 @@ class Environment
      *
      * @param string $project
      * @param string $environment
-     * @return Environment
+     * @return static
      */
-    public static function new(string $project, string $environment): Environment
+    public static function new(string $project, string $environment): static
     {
         Log::action(tr('Generating new environment ":env"', [':env' => $environment]));
 
@@ -80,7 +80,7 @@ class Environment
             ]));
         }
 
-        return new Environment($project, $environment);
+        return new static($project, $environment);
     }
 
 
@@ -204,7 +204,7 @@ class Environment
 
         // Drop core database
         try {
-            sql('system', false)->drop();
+            sql('system', false)->schema()->database()->drop();
         } catch (Throwable $e) {
             Log::warning(tr('Failed to drop system database for environment ":env" because ":message", continuing...', [
                 ':env'     => strtolower($this->name),
@@ -259,7 +259,7 @@ class Environment
         }
 
         Log::action(tr('Ensuring system database is gone'));
-        sql(null, false)->drop();
+        sql(null, false)->schema()->database()->drop();
 
         Log::action(tr('Initializing system...'));
         Libraries::initialize(true, true, true, 'System setup');

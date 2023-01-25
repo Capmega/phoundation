@@ -1,6 +1,6 @@
 <?php
 
-namespace Phoundation\System;
+namespace Phoundation\Developer\Libraries;
 
 use Phoundation\Cache\Cache;
 use Phoundation\Core\Arrays;
@@ -158,7 +158,7 @@ class Libraries
     public static function listLibraries(bool $system = true, bool $plugins = true, bool $templates = true): array
     {
         if (!$system and !$plugins and !$templates) {
-            throw new OutOfBoundsException(tr('Both system and plugin library paths are filtered out'));
+            throw new OutOfBoundsException(tr('All system, plugins, and templates library paths are filtered out'));
         }
 
         $return = [];

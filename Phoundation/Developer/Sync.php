@@ -43,11 +43,11 @@ class Sync
     /**
      * Returns new Sync object
      *
-     * @return Sync
+     * @return static
      */
-    public static function new(): Sync
+    public static function new(): static
     {
-        return new Sync();
+        return new static();
     }
 
 

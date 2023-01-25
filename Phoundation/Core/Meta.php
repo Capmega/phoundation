@@ -72,13 +72,13 @@ class Meta
 
 
     /**
-     * Meta constructor
+     * Returns a new Meta object
      *
-     * @return Meta
+     * @return static
      */
-    public static function new(): Meta
+    public static function new(): static
     {
-        return new Meta();
+        return new static();
     }
 
 

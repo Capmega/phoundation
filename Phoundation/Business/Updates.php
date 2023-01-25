@@ -9,13 +9,13 @@ namespace Phoundation\Business;
  *
  * This is the Init class for the Business library
  *
- * @see \Phoundation\System\Updates
+ * @see \Phoundation\Developer\Libraries\Updates
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Business
  */
-class Updates extends \Phoundation\System\Updates
+class Updates extends \Phoundation\Developer\Libraries\Updates
 {
     /**
      * The current version for this library

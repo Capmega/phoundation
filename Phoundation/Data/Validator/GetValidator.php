@@ -45,7 +45,7 @@ class GetValidator extends Validator
 
 
     /**
-     * Returns a new array validator
+     * Returns a new $_GET data Validator object
      *
      * @param Validator|null $parent
      * @return static

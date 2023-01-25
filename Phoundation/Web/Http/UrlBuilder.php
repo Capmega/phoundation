@@ -648,7 +648,7 @@ class UrlBuilder
     protected static function applyPredefined($url): string
     {
         return match ($url) {
-            'self', 'this'                => self::getCurrent(),
+            'self', 'this' , 'here'       => self::getCurrent(),
             'root'                        => self::currentDomainRootUrl(),
             'prev', 'previous', 'referer' => self::referer(),
             default => $url,

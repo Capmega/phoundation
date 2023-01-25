@@ -21,11 +21,11 @@ class ApiInterface
     /**
      * Returns a new ApiInterface object
      *
-     * @return ApiInterface
+     * @return static
      */
-    public static function new(): ApiInterface
+    public static function new(): static
     {
-        return new ApiInterface();
+        return new static();
     }
 
 

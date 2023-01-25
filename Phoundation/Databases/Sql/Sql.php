@@ -600,7 +600,7 @@ class Sql
      * @param string|null $action
      * @return int
      */
-    public function update(string $table, array $row,  ?string $comments = null, ?string $action = 'update'): int
+    public function update(string $table, array $row, ?string $comments = null, ?string $action = 'update'): int
     {
         // Set meta fields
         if (array_key_exists('meta_id', $row)) {
@@ -706,14 +706,14 @@ class Sql
      * @note This method assumes that the specifies rows are correct to the specified table. If columns not pertaining
      *       to this table are in the $row value, the query will automatically fail with an exception!
      * @param string $table
-     * @param array $row
+     * @param array $rows
      * @return int
      */
-    public function erase(string $table, array $row): int
+    public function erase(string $table, array $rows): int
     {
         // Build bound variables for query
-        $values = $this->values($row);
-        $update = $this->filterColumns($row, ' AND ');
+        $values = $this->values($rows);
+        $update = $this->filterColumns($rows, ' AND ');
 
         return $this->query('DELETE FROM `' . $table . '`
                                    WHERE        ' . $update, $values)->rowCount();

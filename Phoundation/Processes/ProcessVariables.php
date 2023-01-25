@@ -194,6 +194,12 @@ trait ProcessVariables
      */
     protected bool $failed = false;
 
+    /**
+     * If set, the process will first CD to this directory before continuing
+     *
+     * @var string|null $execution_path
+     */
+    protected ?string $execution_path = null;
 
 
     /**
@@ -263,11 +269,38 @@ trait ProcessVariables
     /**
      * Sets if this process will register pid information or not
      *
+     * @param bool $register_run_file
      * @return static This process so that multiple methods can be chained
      */
     public function setRegisterRunfile(bool $register_run_file): static
     {
         $this->register_run_file = $register_run_file;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns if the process will first CD to this directory before continuing
+     *
+     * @return string
+     */
+    public function getExecutionPath(): string
+    {
+        return $this->execution_path;
+    }
+
+
+
+    /**
+     * Sets if the process will first CD to this directory before continuing
+     *
+     * @param string|null $execution_path
+     * @return static This process so that multiple methods can be chained
+     */
+    public function setExecutionPath(?string $execution_path): static
+    {
+        $this->execution_path = $execution_path;
         return $this;
     }
 
@@ -667,13 +700,15 @@ trait ProcessVariables
 
 
     /**
-     * Clears the arguments for the command that will be executed
+     * Clears all cache and arguments
      *
      * @return static This process so that multiple methods can be chained
      */
     public function clearArguments(): static
     {
-        $this->arguments = [];
+        $this->cached_command_line = null;
+        $this->arguments           = [];
+
         return $this;
     }
 

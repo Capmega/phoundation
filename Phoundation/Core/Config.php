@@ -5,13 +5,12 @@ namespace Phoundation\Core;
 use Phoundation\Core\Exception\ConfigException;
 use Phoundation\Core\Exception\ConfigNotExistsException;
 use Phoundation\Developer\Debug;
+use Phoundation\Developer\Project\Configuration;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
-use Phoundation\System\Project\Configuration;
 use Throwable;
-
 
 
 /**

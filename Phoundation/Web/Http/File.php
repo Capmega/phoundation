@@ -113,11 +113,11 @@ class File
      * Returns a new File object with the specified restrictions
      *
      * @param Server|Restrictions|array|string|null $server_restrictions
-     * @return File
+     * @return static
      */
-    public static function new(Server|Restrictions|array|string|null $server_restrictions = null): File
+    public static function new(Server|Restrictions|array|string|null $server_restrictions = null): static
     {
-        return new File($server_restrictions);
+        return new static($server_restrictions);
     }
 
 

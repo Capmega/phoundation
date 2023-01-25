@@ -1055,11 +1055,16 @@ class User extends DataEntry
         }
 
         if ($name = $this->getId()) {
+            if ($this->getId() === -1) {
+                // This is a guest user
+                return tr('Guest');
+            }
+
             return $name;
         }
 
-        // We have no information available about this user
-        return tr('Guest');
+        // This is a new user
+        return tr('[NEW]');
     }
 
 

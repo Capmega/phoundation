@@ -47,7 +47,7 @@ class PostValidator extends Validator
 
 
     /**
-     * Returns a new array validator
+     * Returns a new $_POST data Validator object
      *
      * @param Validator|null $parent
      * @return static

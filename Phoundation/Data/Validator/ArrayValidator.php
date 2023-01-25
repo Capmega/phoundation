@@ -34,7 +34,7 @@ class ArrayValidator extends Validator
 
 
     /**
-     * Returns a new array validator
+     * Returns a new array data Validator object
      *
      * @param array $source
      * @param Validator|null $parent

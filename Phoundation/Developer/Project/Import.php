@@ -1,6 +1,6 @@
 <?php
 
-namespace Phoundation\System\Project;
+namespace Phoundation\Developer\Project;
 
 use Phoundation\Databases\Sql\Schema\Table;
 
@@ -15,7 +15,7 @@ use Phoundation\Databases\Sql\Schema\Table;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package \Phoundation\System
+ * @package \Phoundation\Developer
  */
 abstract class Import
 {
