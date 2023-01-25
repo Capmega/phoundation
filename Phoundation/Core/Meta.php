@@ -141,7 +141,7 @@ class Meta
                             VALUES                     (:meta_id , :created_by , :action , :source , :comments , :data )', [
             ':meta_id'    => $this->id,
             ':created_by' => Session::getUser()->getId(),
-            ':source'     => (PLATFORM_HTTP ? UrlBuilder::getCurrent() : Script::getCurrent()),
+            ':source'     => (string) (PLATFORM_HTTP ? UrlBuilder::getCurrent() : Script::getCurrent()),
             ':action'     => $action,
             ':comments'   => $comments,
             ':data'       => Json::encode($data)
