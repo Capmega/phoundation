@@ -4,6 +4,8 @@ namespace Phoundation\Data\DataEntry;
 
 
 
+use Phoundation\Core\Strings;
+
 /**
  * Trait DataEntryPhones
  *
@@ -31,11 +33,11 @@ trait DataEntryPhones
     /**
      * Sets the phones for this object
      *
-     * @param string|null $phones
+     * @param array|string|null $phones
      * @return static
      */
-    public function setPhones(?string $phones): static
+    public function setPhones(array|string|null $phones): static
     {
-        return $this->setDataValue('phones', $phones);
+        return $this->setDataValue('phones', Strings::force($phones));
     }
 }

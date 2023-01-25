@@ -1,6 +1,6 @@
 <?php
 
-namespace Phoundation\Security\Incidents;
+namespace Phoundation\Developer\Incidents;
 
 
 
@@ -12,7 +12,7 @@ namespace Phoundation\Security\Incidents;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Security
+ * @package Phoundation\Accounts
  */
 class FilterForm extends \Phoundation\Web\Http\Html\Components\FilterForm
 {
@@ -28,8 +28,8 @@ class FilterForm extends \Phoundation\Web\Http\Html\Components\FilterForm
                 'label'    => tr('Type'),
                 'element'  => 'select',
                 'source'   => [
-                    'type'     => tr('Type'),
-                    'severity' => tr('Severity')
+                    'email'  => tr('Email'),
+                    'phones' => tr('Phone number')
                 ],
             ],
             'filter[]' => [

@@ -4,7 +4,9 @@ namespace Phoundation\Security\Incidents;
 
 use Phoundation\Core\Log;
 use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntry\DataEntryType;
 use Phoundation\Utils\Json;
+
 
 
 /**
@@ -19,6 +21,10 @@ use Phoundation\Utils\Json;
  */
 class Incident extends DataEntry
 {
+    use DataEntryType;
+
+
+
     /**
      * Sets if this incident will be logged in the text log
      *
@@ -40,31 +46,6 @@ class Incident extends DataEntry
         $this->unique_column = 'id';
 
         parent::__construct($identifier);
-    }
-
-
-
-    /**
-     * Returns the type for this object
-     *
-     * @return string|null
-     */
-    public function getType(): ?string
-    {
-        return $this->getDataValue('type');
-    }
-
-
-
-    /**
-     * Sets the type for this object
-     *
-     * @param string|null $type
-     * @return static
-     */
-    public function setType(?string $type): static
-    {
-        return $this->setDataValue('type', $type);
     }
 
 

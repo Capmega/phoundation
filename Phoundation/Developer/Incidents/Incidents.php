@@ -2,7 +2,10 @@
 
 namespace Phoundation\Developer\Incidents;
 
+use Phoundation\Accounts\Roles\Role;
+use Phoundation\Accounts\Users\User;
 use Phoundation\Data\DataList\DataList;
+use Phoundation\Web\Http\Html\Components\Table;
 
 
 
@@ -18,6 +21,40 @@ use Phoundation\Data\DataList\DataList;
  */
 class Incidents extends DataList
 {
+    /**
+     * Users class constructor
+     *
+     * @param Role|User|null $parent
+     * @param string|null $id_column
+     */
+    public function __construct(Role|User|null $parent = null, ?string $id_column = null)
+    {
+        $this->entry_class = Incident::class;
+        $this->table_name  = 'developer_incidents';
+
+        $this->setHtmlQuery('SELECT   `id`, `created_on`, `status`, `type`, `title` 
+                                   FROM     `developer_incidents` 
+                                   WHERE    `status` IS NULL 
+                                   ORDER BY `created_on`');
+        parent::__construct($parent, $id_column);
+    }
+
+
+
+    /**
+     * Creates and returns an HTML table for the data in this list
+     *
+     * @return Table
+     */
+    public function getHtmlTable(): Table
+    {
+        $table = parent::getHtmlTable();
+        $table->setCheckboxSelectors(true);
+
+        return $table;
+    }
+
+
 
     /**
      * @inheritDoc

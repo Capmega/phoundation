@@ -307,7 +307,7 @@ class Debug {
             return null;
         }
 
-        Core::unregisterShutdown('route_postprocess');
+        Core::unregisterShutdown('route[postprocess]');
 
         if (Debug::production()) {
             // This is not usually something you want to happen!
@@ -1000,7 +1000,7 @@ class Debug {
 
         if ($counter++ >= $count) {
             // Ensure that the shutdown function doesn't try to show the 404 page
-            Core::unregisterShutdown('route_postprocess');
+            Core::unregisterShutdown('route[postprocess]');
 
             die(Strings::endsWith(str_replace('%count%', $count, $message), PHP_EOL));
         }
