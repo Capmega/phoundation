@@ -5,12 +5,11 @@ namespace Phoundation\Databases;
 use Memcached;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
-use Phoundation\Core\Log;
+use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Notifications\Notification;
 use Throwable;
-
 
 
 /**

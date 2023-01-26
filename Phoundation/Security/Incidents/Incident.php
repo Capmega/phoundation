@@ -2,11 +2,10 @@
 
 namespace Phoundation\Security\Incidents;
 
-use Phoundation\Core\Log;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\DataEntryType;
 use Phoundation\Utils\Json;
-
 
 
 /**

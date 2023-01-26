@@ -2,7 +2,10 @@
 
 namespace Phoundation\Versioning\Git;
 
+use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Filesystem;
+use Phoundation\Filesystem\Path;
 use Phoundation\Processes\Process;
 use Phoundation\Versioning\Versioning;
 
@@ -33,6 +36,13 @@ class Git extends Versioning
      * @var Process $git
      */
     protected Process $git;
+
+    /**
+     * A cache for the changed files
+     *
+     * @var StatusFiles|null $changed_files
+     */
+    protected ?StatusFiles $changed_files = null;
 
 
 
@@ -69,7 +79,7 @@ class Git extends Versioning
      */
     public function setPath(string $path): static
     {
-        $this->path = realpath($path);
+        $this->path = Filesystem::absolute($path);
 
         if (!$this->path) {
             if (!file_exists($path)) {
@@ -79,7 +89,8 @@ class Git extends Versioning
             }
         }
 
-        $this->git = Process::new('git')->setExecutionPath($this->path);
+        $this->git           = Process::new('git')->setExecutionPath($this->path);
+        $this->changed_files = null;
         return $this;
     }
 
@@ -98,6 +109,23 @@ class Git extends Versioning
 
 
     /**
+     * Clone the specified URL to this path
+     *
+     * @return $this
+     */
+    public function clone(string $url): static
+    {
+        $this->git
+            ->clearArguments()
+            ->addArgument('clone')
+            ->addArgument($this->url)
+            ->addArgument('.')
+            ->executeNoReturn();
+    }
+
+
+
+    /**
      * Returns the current git branch for this path
      *
      * @return string
@@ -105,9 +133,80 @@ class Git extends Versioning
     public function getBranch(): string
     {
         return $this->git
+            ->clearArguments()
             ->addArgument('branch')
             ->addArgument($this->path)
             ->executeReturnString();
+    }
+
+
+
+    /**
+     * Stashes the git changes
+     *
+     * @return static
+     */
+    public function stash(): static
+    {
+        $this->git
+            ->clearArguments()
+            ->addArgument('stash')
+            ->executeNoReturn();
+
+        return $this;
+    }
+
+
+
+    /**
+     * Unstashes the git changes
+     *
+     * @return static
+     */
+    public function stashPop(): static
+    {
+        $this->git
+            ->clearArguments()
+            ->addArgument('stash')
+            ->addArgument('pop')
+            ->executeNoReturn();
+
+        return $this;
+    }
+
+
+
+    /**
+     * Lists the available stashes in the git repository
+     *
+     * @return array
+     */
+    public function getStashList(): array
+    {
+        $return  = [];
+        $results = $this->git
+            ->clearArguments()
+            ->addArgument('stash')
+            ->addArgument('list')
+            ->executeReturnArray();
+
+        return $return;
+    }
+
+
+
+    /**
+     * Lists the changes available in the top most stash in the git repository
+     *
+     * @return array
+     */
+    public function getStashShow(): array
+    {
+        return $this->git
+            ->clearArguments()
+            ->addArgument('stash')
+            ->addArgument('show')
+            ->executeReturnArray();
     }
 
 
@@ -121,6 +220,7 @@ class Git extends Versioning
     public function checkout(string $branch): static
     {
         $this->git
+            ->clearArguments()
             ->addArgument('checkout')
             ->addArgument($branch)
             ->executeNoReturn();
@@ -131,22 +231,128 @@ class Git extends Versioning
 
 
     /**
-     * Returns a ChangedFiles object containing all the files that have changes according to git
+     * Resets the current branch to the specified revision
      *
-     * @return ChangedFiles
+     * @param ?string $revision
+     * @return static
      */
-    public function getChanges(): ChangedFiles
+    public function reset(?string $revision): static
     {
-        return new ChangedFiles($this->path);
+        $this->git
+            ->clearArguments()
+            ->addArgument('reset')
+            ->addArgument($revision)
+            ->executeNoReturn();
+
+        return $this;
     }
 
 
 
     /**
+     * Resets the current branch to the specified revision
+     *
+     * @param string $message
+     * @param bool $signed
+     * @return static
+     */
+    public function commit(string $message, bool $signed = false): static
+    {
+        $this->git
+            ->clearArguments()
+            ->addArgument('reset')
+            ->addArgument('-m')
+            ->addArgument($message)
+            ->addArgument($signed ?? null)
+            ->executeNoReturn();
+
+        return $this;
+    }
+
+
+
+    /**
+     * Returns a ChangedFiles object containing all the files that have changes according to git
+     *
+     * @param string|null $path
+     * @return StatusFiles
+     */
+    public function getStatus(?string $path = null): StatusFiles
+    {
+        if (!$path) {
+            $path = $this->path;
+        }
+
+        if (!$this->changed_files) {
+            $this->changed_files = new StatusFiles($path);
+        }
+
+        return $this->changed_files;
+    }
+
+
+
+    /**
+     * Returns if this git path has any changes
+     *
      * @return bool
      */
     public function hasChanges(): bool
     {
-        return (bool) $this->getChanges()->getCount();
+        return (bool) $this->getStatus()->getCount();
+    }
+
+
+
+    /**
+     * Get a diff for the specified file
+     *
+     * @param string $file
+     * @return string
+     */
+    public function getDiff(string $file): string
+    {
+        return $this->git
+            ->clearArguments()
+            ->addArgument('diff')
+            ->addArgument('--no-color')
+            ->addArgument('--')
+            ->addArgument($this->path . $file)
+            ->executeReturnString();
+    }
+
+
+
+    /**
+     * Save the diff for the specified file to the specified target
+     *
+     * @param string $file
+     * @param string|null $storage_path
+     * @return string
+     */
+    public function saveDiff(string $file, ?string $storage_path = null): string
+    {
+        $diff = $this->getDiff($file);
+        $file = Path::getTemporary() . $file . '-' . sha1($file) . '.patch';
+
+        file_put_contents($file, $diff);
+        return $file;
+    }
+
+
+
+    /**
+     * Apply the specified patch to the specified target file
+     *
+     * @param string $patch_file
+     * @return void
+     */
+    public function apply(string $patch_file): void
+    {
+        $this->git
+            ->clearArguments()
+            ->addArgument('apply')
+            ->addArgument($patch_file)
+            ->executeReturnString();
     }
 }

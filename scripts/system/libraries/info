@@ -3,7 +3,7 @@
 
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\Color;
-use Phoundation\Core\Log;
+use Phoundation\Core\Log\Log;
 use Phoundation\Core\Numbers;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\ArgvValidator;

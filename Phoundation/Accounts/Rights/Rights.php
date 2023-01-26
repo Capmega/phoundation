@@ -5,12 +5,11 @@ namespace Phoundation\Accounts\Rights;
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Arrays;
-use Phoundation\Core\Log;
+use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataList\DataList;
 use Phoundation\Databases\Sql\QueryBuilder;
 use Phoundation\Web\Http\Html\Components\Input\Select;
-
 
 
 /**

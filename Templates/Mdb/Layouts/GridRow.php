@@ -2,8 +2,7 @@
 
 namespace Templates\Mdb\Layouts;
 
-use Phoundation\Core\Log;
-
+use Phoundation\Core\Log\Log;
 
 
 /**

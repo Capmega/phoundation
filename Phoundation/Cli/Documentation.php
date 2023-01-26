@@ -2,7 +2,7 @@
 
 namespace Phoundation\Cli;
 
-use Phoundation\Core\Log;
+use Phoundation\Core\Log\Log;
 
 class Documentation
 {

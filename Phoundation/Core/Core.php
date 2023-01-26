@@ -9,6 +9,7 @@ use Phoundation\Cli\Exception\MethodNotFoundException;
 use Phoundation\Cli\Script;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Exception\NoProjectException;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Validator;
@@ -29,9 +30,7 @@ use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Page;
 use Phoundation\Web\Routing\Route;
-use Phoundation\Web\Web;
 use Throwable;
-
 
 
 /**
@@ -2025,6 +2024,7 @@ class Core {
         ]), 2);
 
         Session::shutdown();
+        Path::removeTemporary();
 
         if (!is_array(self::readRegister('system', 'shutdown'))) {
             // Libraries shutdown list

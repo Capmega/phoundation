@@ -6,7 +6,6 @@ use Phoundation\Accounts\Rights\Right;
 use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Core;
-use Phoundation\Core\Log;
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
@@ -16,7 +15,6 @@ use Phoundation\Servers\Server;
 use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\Html\Template\Template;
 use Templates\AdminLte\AdminLte;
-
 
 
 /**

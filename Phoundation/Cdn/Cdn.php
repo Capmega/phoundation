@@ -4,9 +4,8 @@ namespace Phoundation\Cdn;
 
 
 
-use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
-use Phoundation\Core\Log;
+use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
 
 /**

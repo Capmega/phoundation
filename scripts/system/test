@@ -1,22 +1,10 @@
 #!/usr/bin/php
 <?php
-use Phoundation\Cli\Color;
-use Phoundation\Cli\Script;
-use Phoundation\Core\Config;
-use Phoundation\Core\Core;
-use Phoundation\Core\Log;
-use Phoundation\Core\Strings;
+
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\Validator;
-use Phoundation\Databases\Sql\Sql;
-use Phoundation\Developer\Debug;
-use Phoundation\Exception\ScriptException;
-use Phoundation\Processes\Commands\Command;
 use Phoundation\Processes\FilesystemCommands;
 use Phoundation\Processes\ProcessCommands;
-use Phoundation\Processes\Process;
-use Phoundation\Processes\Workers;
-
 
 
 /**

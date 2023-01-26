@@ -7,7 +7,7 @@ use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\NoProjectException;
-use Phoundation\Core\Log;
+use Phoundation\Core\Log\Log;
 use Phoundation\Core\Numbers;
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
@@ -27,7 +27,6 @@ use Phoundation\Web\Http\Url;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 use Throwable;
-
 
 
 /**

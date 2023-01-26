@@ -4,7 +4,7 @@ namespace Phoundation\Network\Curl;
 
 use Exception;
 use Phoundation\Cli\Color;
-use Phoundation\Core\Log;
+use Phoundation\Core\Log\Log;
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
@@ -14,7 +14,6 @@ use Phoundation\Filesystem\Path;
 use Phoundation\Network\Exception\NetworkException;
 use Phoundation\Network\Interfaces;
 use Phoundation\Utils\Json;
-
 
 
 /**

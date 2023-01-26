@@ -1,11 +1,14 @@
 <?php
 
-namespace Phoundation\Core;
+namespace Phoundation\Core\Log;
 
 use JetBrains\PhpStorm\ExpectedValues;
 use PDOStatement;
 use Phoundation\Cli\Color;
+use Phoundation\Core\Config;
+use Phoundation\Core\Core;
 use Phoundation\Core\Exception\LogException;
+use Phoundation\Core\Strings;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
@@ -16,7 +19,10 @@ use Phoundation\Servers\Server;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
 use Throwable;
-
+use function Phoundation\Core\count;
+use function Phoundation\Core\gettype;
+use const Phoundation\Core\QUIET;
+use const Phoundation\Core\VERBOSE;
 
 
 /**
@@ -1008,6 +1014,7 @@ Class Log {
             return false;
         }
     }
+
 
 
     /**

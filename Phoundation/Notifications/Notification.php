@@ -5,7 +5,7 @@ namespace Phoundation\Notifications;
 use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
-use Phoundation\Core\Log;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;

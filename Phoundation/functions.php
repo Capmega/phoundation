@@ -3,7 +3,6 @@
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreException;
-use Phoundation\Core\Log;
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Databases\Databases;
@@ -16,7 +15,6 @@ use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exception;
 use Phoundation\Filesystem\File;
 use Phoundation\Web\Page;
-
 
 
 /**

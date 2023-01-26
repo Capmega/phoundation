@@ -1,0 +1,35 @@
+#!/usr/bin/php
+<?php
+
+use Phoundation\Core\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Developer\Phoundation\Phoundation;
+
+
+
+/**
+ * THIS SCRIPT IS ONLY FOR PHOUNDATION DEVELOPERS
+ *
+ * This script will copy changed files back to your phoundation installation. The script will assume your phoundation
+ * installation is in ~/projects/phoundation
+ *
+ * @author Sven Oostenbrink <support@capmega.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @category Function reference
+ * @package Phoundation\Development
+ */
+
+
+
+// Get command line arguments
+ArgvValidator::new()
+    ->noArgumentsLeft()
+    ->validate();
+
+
+Log::information(tr('Copying Phoundation updates in ":project" project back to your Phoundation installation', [
+        ':project' => PROJECT
+]));
+
+Phoundation::new()->patch();

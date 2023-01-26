@@ -4,9 +4,8 @@ namespace Phoundation\Network\Curl;
 
 use CURLFile;
 use Exception;
-use Phoundation\Core\Log;
+use Phoundation\Core\Log\Log;
 use Phoundation\Network\Exception\NetworkException;
-
 
 
 /**

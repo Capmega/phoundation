@@ -3,8 +3,7 @@
 namespace Phoundation\Web\Http\Html;
 
 use Minify_HTML;
-use Phoundation\Core\Log;
-
+use Phoundation\Core\Log\Log;
 
 
 /**

@@ -5,7 +5,7 @@ namespace Phoundation\Web\Http\Html;
 use Phoundation\Cdn\Cdn;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
-use Phoundation\Core\Log;
+use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Developer\Debug;
 use Phoundation\Filesystem\File;
@@ -16,7 +16,6 @@ use Phoundation\Notifications\Notification;
 use Phoundation\Servers\Server;
 use Phoundation\Web\Page;
 use Throwable;
-
 
 
 /**

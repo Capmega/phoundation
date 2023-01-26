@@ -8,13 +8,12 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreException;
-use Phoundation\Core\Log;
+use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Throwable;
-
 
 
 /**
@@ -1273,6 +1272,30 @@ class File extends FileBasics
         $return['lines'] += count($data);
 
         return $return;
+    }
+
+
+
+    /**
+     * Ensure that the object file is writable
+     *
+     * This method will ensure that the object file will exist and is writable. If it does not exist, an empty file
+     * will be created in the parent directory of the specified $this->file
+     *
+     * @param int|null $mode
+     * @return static
+     */
+    public function ensureWritable(?int $mode = null): static
+    {
+        // Get configuration. We need file and directory default modes
+        $mode = Config::get('filesystem.mode.default.file', 0640, $mode);
+
+        if (!$this->ensureFileWritable($mode)) {
+            touch($this->file);
+            $this->chmod($mode);
+        }
+
+        return $this;
     }
 
 

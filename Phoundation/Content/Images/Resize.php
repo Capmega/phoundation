@@ -3,11 +3,9 @@
 namespace Phoundation\Content\Images;
 
 use JetBrains\PhpStorm\ExpectedValues;
-use Phoundation\Core\Log;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\FileBasics;
 use Phoundation\Processes\Process;
-
 
 
 /**

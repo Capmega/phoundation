@@ -4,7 +4,7 @@ namespace Phoundation\Filesystem;
 
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
-use Phoundation\Core\Log;
+use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
@@ -28,6 +28,15 @@ use Throwable;
  */
 class Path extends FileBasics
 {
+    /**
+     * Temporary path, if set
+     *
+     * @var string|null
+     */
+    protected static ?string $temp_path = null;
+
+
+
     /**
      * Returns an Execute object to execute callbacks on each file in specified paths
      *
@@ -628,5 +637,68 @@ class Path extends FileBasics
             });
 
         return $return;
+    }
+
+
+
+    /**
+     * Ensure that the object file is writable
+     *
+     * This method will ensure that the object file will exist and is writable. If it does not exist, an empty file
+     * will be created in the parent directory of the specified $this->file
+     *
+     * @param int|null $mode
+     * @return static
+     */
+    public function ensureWritable(?int $mode = null): static
+    {
+        // Get configuration. We need file and directory default modes
+        $mode = Config::get('filesystem.mode.default.directory', 0750, $mode);
+
+        if (!$this->ensureFileWritable($mode)) {
+            mkdir($this->file, $mode);
+        }
+
+        return $this;
+    }
+
+
+
+    /**
+     * Returns a temporary path specific for this process
+     *
+     * @param bool $public
+     * @return string
+     */
+    public static function getTemporary(bool $public = false): string
+    {
+        if (!self::$temp_path) {
+            self::$temp_path = PATH_TMP . 'process-' . posix_getpid() . '/';
+
+            self::$temp_path = Path::new(self::$temp_path, Restrictions::new(self::$temp_path, true))
+                ->delete()
+                ->ensureWritable();
+        }
+
+        if ($public) {
+            // TODO IMPROVE THIS, THIS WOULD INDICATE INTERNAL PROCESS ID TO THE OUTSIDE WORLD
+            link(PATH_PUBTMP . 'p-' . posix_getpid() . '/', self::$temp_path);
+        }
+
+        return self::$temp_path;
+    }
+
+
+
+    /**
+     * Removes the temporary path specific for this process
+     *
+     * @return void
+     */
+    public static function removeTemporary(): void
+    {
+        if (self::$temp_path) {
+            File::new(self::$temp_path)->delete();
+        }
     }
 }

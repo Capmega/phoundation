@@ -5,14 +5,13 @@ namespace Phoundation\Web\Http;
 use Phoundation\Content\Images\Image;
 use Phoundation\Core\Config;
 use Phoundation\Core\Exception\ConfigNotExistsException;
-use Phoundation\Core\Log;
+use Phoundation\Core\Log\Log;
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Web\Page;
-
 
 
 /**

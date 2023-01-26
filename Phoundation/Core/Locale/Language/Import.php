@@ -2,7 +2,7 @@
 
 namespace Phoundation\Core\Locale\Language;
 
-use Phoundation\Core\Log;
+use Phoundation\Core\Log\Log;
 use Phoundation\Filesystem\File;
 
 
@@ -21,9 +21,10 @@ class Import extends \Phoundation\Developer\Project\Import
     /**
      * Import constructor
      */
-    protected function __construct()
+    protected function __construct(bool $demo = false)
     {
         self::$table = 'languages';
+        parent::__construct($demo);
     }
 
 

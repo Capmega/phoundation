@@ -4,7 +4,7 @@ namespace Phoundation\Processes;
 
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Core;
-use Phoundation\Core\Log;
+use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
@@ -15,7 +15,6 @@ use Phoundation\Processes\Commands\SystemCommands;
 use Phoundation\Processes\Exception\ProcessesException;
 use Phoundation\Processes\Exception\ProcessException;
 use Phoundation\Servers\Server;
-
 
 
 /**
@@ -300,7 +299,9 @@ trait ProcessVariables
      */
     public function setExecutionPath(?string $execution_path): static
     {
-        $this->execution_path = $execution_path;
+        $this->cached_command_line = null;
+        $this->execution_path      = $execution_path;
+
         return $this;
     }
 
@@ -383,8 +384,9 @@ trait ProcessVariables
     {
         $identifier = $this->getIdentifier();
 
-        $this->log_file = PATH_ROOT . 'data/log/' . $identifier;
-        $this->run_file = PATH_ROOT . 'data/run/' . $identifier;
+        $this->cached_command_line = null;
+        $this->log_file            = PATH_ROOT . 'data/log/' . $identifier;
+        $this->run_file            = PATH_ROOT . 'data/run/' . $identifier;
 
         Log::notice(tr('Set identifier ":identifier"', [':identifier' => $identifier]), 2);
 
@@ -400,7 +402,9 @@ trait ProcessVariables
      */
     protected function setRunFile(): static
     {
-        $this->run_file = PATH_ROOT . 'data/run/' . $this->getIdentifier();
+        $this->cached_command_line = null;
+        $this->run_file            = PATH_ROOT . 'data/run/' . $this->getIdentifier();
+
         return $this;
     }
 
@@ -442,7 +446,7 @@ trait ProcessVariables
     {
         if (!$this->term or !$only_if_empty) {
             $this->cached_command_line = null;
-            $this->term = $term;
+            $this->term                = $term;
         }
 
         return $this;
@@ -540,7 +544,9 @@ trait ProcessVariables
      */
     public function setAcceptedExitCodes(array $exit_codes): static
     {
+        $this->cached_command_line = null;
         $this->accepted_exit_codes = [];
+
         return $this->addAcceptedExitCodes($exit_codes);
     }
 
@@ -604,6 +610,7 @@ trait ProcessVariables
      */
     public function setServerRestrictions(Server|Restrictions|array|string|null $server_restrictions = null): static
     {
+        $this->cached_command_line = null;
         $this->server_restrictions = Core::ensureServer($server_restrictions);
         return $this;
     }
@@ -624,7 +631,7 @@ trait ProcessVariables
             $command = trim($command);
         }
 
-        $real_command = $command;
+        $real_command              = $command;
         $this->cached_command_line = null;
 
         if (!$command) {
@@ -773,7 +780,8 @@ trait ProcessVariables
             $arguments = escapeshellarg($argument);
         }
 
-        $this->arguments[] = $argument;
+        $this->cached_command_line = null;
+        $this->arguments[]         = $argument;
 
         return $this;
     }
@@ -836,7 +844,7 @@ trait ProcessVariables
     public function setVariable(string $key, string $value): static
     {
         $this->cached_command_line = null;
-        $this->variables[$key] = $value;
+        $this->variables[$key]     = $value;
         return $this;
     }
 
@@ -850,7 +858,9 @@ trait ProcessVariables
      */
     public function setPipe(?Process $pipe): static
     {
-        $this->pipe = $pipe;
+        $this->cached_command_line = null;
+        $this->pipe                = $pipe;
+
         $this->pipe->setTerm();
 
         return $this;
@@ -898,6 +908,8 @@ trait ProcessVariables
             $this->output_redirect[$channel] = null;
         }
 
+        $this->cached_command_line = null;
+
         return $this;
     }
 
@@ -938,6 +950,7 @@ trait ProcessVariables
     {
         File::new($redirect, $this->server_restrictions)->checkReadable();
 
+        $this->cached_command_line      = null;
         $this->input_redirect[$channel] = get_null($redirect);
 
         return $this;
@@ -984,7 +997,7 @@ trait ProcessVariables
         }
 
         $this->cached_command_line = null;
-        $this->timeout = $timeout;
+        $this->timeout             = $timeout;
 
         return $this;
     }
@@ -1020,7 +1033,7 @@ trait ProcessVariables
         }
 
         $this->cached_command_line = null;
-        $this->wait = $wait;
+        $this->wait                = $wait;
 
         return $this;
     }
@@ -1047,7 +1060,9 @@ trait ProcessVariables
      */
     public function setPackages(string|array $packages): static
     {
-        $this->packages = $packages;
+        $this->cached_command_line = null;
+        $this->packages            = $packages;
+
         return $this;
     }
 

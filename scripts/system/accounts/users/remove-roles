@@ -1,13 +1,11 @@
 #!/usr/bin/php
 <?php
 
-use Phoundation\Accounts\Rights\Right;
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\User;
-use Phoundation\Core\Log;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
-
 
 
 /**

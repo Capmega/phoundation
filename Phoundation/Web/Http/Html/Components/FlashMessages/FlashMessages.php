@@ -3,13 +3,11 @@
 namespace Phoundation\Web\Http\Html\Components\FlashMessages;
 
 use Iterator;
-use Phoundation\Core\Log;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\ElementsBlock;
 use Phoundation\Web\Http\Html\Components\Script;
-
 
 
 /**

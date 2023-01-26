@@ -3,8 +3,7 @@
 namespace Phoundation\Filesystem;
 
 use Exception;
-use Phoundation\Core\Config;
-use Phoundation\Core\Log;
+use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FileNotWritableException;
@@ -14,7 +13,6 @@ use Phoundation\Processes\Process;
 use Phoundation\Servers\Server;
 use Phoundation\Servers\UsesServer;
 use Throwable;
-
 
 
 /**
@@ -182,13 +180,15 @@ class FileBasics
     /**
      * Checks if the specified file exists
      *
-     * @return void
+     * @return static
      */
-    protected function exists(): void
+    protected function exists(): static
     {
         if (!file_exists($this->file)) {
             throw new FilesystemException(tr('Specified file ":file" does not exist', [':file' => $this->file]));
         }
+
+        return $this;
     }
 
 
@@ -294,65 +294,6 @@ class FileBasics
             ]), previous: $previous_e);
         }
 
-        return $this;
-    }
-
-
-
-    /**
-     * Ensure that the object file is writable
-     *
-     * This method will ensure that the object file will exist and is writable. If it does not exist, an empty file
-     * will be created in the parent directory of the specified $this->file
-     *
-     * @param int|null $mode
-     * @return static
-     */
-    public function ensureWritable(?int $mode = null): static
-    {
-        // Check filesystem restrictions
-        $this->checkRestrictions($this->file, true);
-
-        // Get configuration. We need file and directory default modes
-        $mode = Config::get('filesystem.mode.default.file', 0640, $mode);
-
-        // If the object file exists and is writable, then we're done.
-        if (is_writable($this->file)) {
-            return $this;
-        }
-
-        // From here the file is not writable. It may not exist, or it may simply not be writable. Lets continue...
-
-        if (file_exists($this->file)) {
-            // Great! The file exists, but it is not writable at this moment. Try to make it writable.
-            try {
-                Log::warning(tr('The object file ":file" (Realpath ":path") is not writable. Attempting to apply default file mode ":mode"', [
-                    ':file' => $this->file,
-                    ':path' => realpath($this->file),
-                    ':mode' => $mode
-                ]));
-
-                $this->chmod('u+w');
-
-            } catch (ProcessesException $e) {
-                throw new FileNotWritableException(tr('The object file ":file" (Realpath ":path") is not writable, and could not be made writable', [
-                    ':file' => $this->file,
-                    ':path' => realpath($this->file)
-                ]));
-            }
-        }
-
-        // As of here we know the file doesn't exist. Attempt to create it. First ensure the parent path exists.
-        Path::new(dirname($this->file), $this->server_restrictions)->ensure();
-
-        Log::warning(tr('The object file ":file" (Realpath ":path") does not exist. Attempting to create it with file mode ":mode"', [
-            ':mode' => Strings::fromOctal($mode),
-            ':file' => $this->file,
-            ':path' => realpath($this->file)
-        ]));
-
-        touch($this->file);
-        $this->chmod($mode);
         return $this;
     }
 
@@ -579,11 +520,11 @@ class FileBasics
      *                              well as long as they are empty. This way, no empty directories will be left laying
      *                              around
      * @param boolean $sudo If specified true, the rm command will be executed using sudo
-     * @return void
+     * @return static
      * @see Restrictions::check() This function uses file location restrictions
      *
      */
-    public function delete(bool $clean_path = true, bool $sudo = false): void
+    public function delete(bool $clean_path = true, bool $sudo = false): static
     {
         // Check filesystem restrictions
         $this->checkRestrictions($this->file, true);
@@ -601,6 +542,8 @@ class FileBasics
         if ($clean_path) {
             Path::new(dirname($this->file))->clear($sudo);
         }
+
+        return $this;
     }
 
 
@@ -624,13 +567,15 @@ class FileBasics
     /**
      * Update the object file owner and group
      *
+     * @see $this->chmod()
+     *
      * @note This function ALWAYS requires sudo as chown is a root only filesystem command
      * @param string|null $user
      * @param string|null $group
      * @param bool $recursive
-     * @return void
+     * @return static
      */
-    public function chown(?string $user = null, ?string $group = null, bool $recursive = false): void
+    public function chown(?string $user = null, ?string $group = null, bool $recursive = false): static
     {
         // Check filesystem restrictions
         $this->checkRestrictions($this->file, true);
@@ -653,6 +598,8 @@ class FileBasics
                 ->addArguments($this->file)
                 ->executeReturnArray();
         }
+
+        return $this;
     }
 
 
@@ -660,15 +607,15 @@ class FileBasics
     /**
      * Change file mode, optionally recursively
      *
+     * @see $this->chown()
+     *
      * @param string|int $mode The mode to apply to the specified path (and all files below if recursive is specified)
      * @param boolean $recursive If set to true, apply specified mode to the specified path and all files below by
      *                           recursion
      * @param bool $sudo
-     * @return void
-     * @see $this->chown()
-     *
+     * @return static
      */
-    public function chmod(string|int $mode, bool $recursive = false, bool $sudo = false): void
+    public function chmod(string|int $mode, bool $recursive = false, bool $sudo = false): static
     {
         if (!($mode)) {
             throw new OutOfBoundsException(tr('No file mode specified'));
@@ -687,5 +634,60 @@ class FileBasics
             ->addArgument($mode)
             ->addArguments($this->file)
             ->executeReturnArray();
+
+        return $this;
+    }
+
+
+
+    /**
+     * Ensure that the object file is writable
+     *
+     * This method will ensure that the object file will exist and is writable. If it does not exist, an empty file
+     * will be created in the parent directory of the specified $this->file
+     *
+     * @param int|null $mode
+     * @return bool
+     */
+    public function ensureFileWritable(?int $mode = null): bool
+    {
+        // Check filesystem restrictions
+        $this->checkRestrictions($this->file, true);
+
+        // If the object file exists and is writable, then we're done.
+        if (is_writable($this->file)) {
+            return true;
+        }
+
+        // From here the file is not writable. It may not exist, or it may simply not be writable. Lets continue...
+
+        if (file_exists($this->file)) {
+            // Great! The file exists, but it is not writable at this moment. Try to make it writable.
+            try {
+                Log::warning(tr('The file ":file" (Realpath ":path") is not writable. Attempting to apply default file mode ":mode"', [
+                    ':file' => $this->file,
+                    ':path' => realpath($this->file),
+                    ':mode' => $mode
+                ]));
+
+                $this->chmod('u+w');
+
+            } catch (ProcessesException $e) {
+                throw new FileNotWritableException(tr('The file ":file" (Realpath ":path") is not writable, and could not be made writable', [
+                    ':file' => $this->file,
+                    ':path' => realpath($this->file)
+                ]));
+            }
+        }
+
+        // As of here we know the file doesn't exist. Attempt to create it. First ensure the parent path exists.
+        Path::new(dirname($this->file), $this->server_restrictions)->ensure();
+
+        Log::action(tr('Creating non existing file ":file" with file mode ":mode"', [
+            ':mode' => Strings::fromOctal($mode),
+            ':file' => $this->file
+        ]));
+
+        return false;
     }
 }

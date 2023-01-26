@@ -2,9 +2,8 @@
 
 namespace Phoundation\Web\Routing;
 
-use Phoundation\Core\Log;
+use Phoundation\Core\Log\Log;
 use Phoundation\Web\Exception\RouteException;
-
 
 
 /**

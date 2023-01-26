@@ -4,14 +4,13 @@ namespace Phoundation\Exception;
 
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Exception\CoreException;
-use Phoundation\Core\Log;
+use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Developer\Incidents\Incident;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Json;
 use RuntimeException;
 use Throwable;
-
 
 
 /**

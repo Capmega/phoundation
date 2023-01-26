@@ -2,10 +2,8 @@
 
 namespace Templates\Mdb;
 
-use Phoundation\Core\Log;
 use Phoundation\Core\Session;
 use Templates\Mdb\Components\Menu;
-
 
 
 /**

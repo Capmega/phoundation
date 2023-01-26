@@ -2,10 +2,9 @@
 <?php
 
 use Phoundation\Accounts\Rights\Right;
-use Phoundation\Core\Log;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
-
 
 
 /**

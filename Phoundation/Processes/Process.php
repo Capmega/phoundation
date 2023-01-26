@@ -3,10 +3,9 @@
 namespace Phoundation\Processes;
 
 use Phoundation\Core\Arrays;
-use Phoundation\Core\Log;
+use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Developer\Debug;
-use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
@@ -14,7 +13,6 @@ use Phoundation\Processes\Commands\Command;
 use Phoundation\Processes\Exception\ProcessException;
 use Phoundation\Processes\Exception\ProcessFailedException;
 use Phoundation\Servers\Server;
-
 
 
 /**
@@ -325,16 +323,16 @@ Class Process
             $this->cached_command_line = 'sleep ' . $this->wait . '; ' . $this->cached_command_line;
         }
 
-        // Execute the command in this directory
-        if ($this->execution_path) {
-            $this->cached_command_line = 'cd ' . escapeshellarg($this->execution_path);
-        }
-
         // Add timeout
         if ($this->timeout) {
             $this->cached_command_line = 'timeout --foreground ' . escapeshellarg($this->timeout) . ' ' . $this->cached_command_line;
         }
-        
+
+        // Execute the command in this directory
+        if ($this->execution_path) {
+            $this->cached_command_line = 'cd ' . escapeshellarg($this->execution_path) . '; ' . $this->cached_command_line;
+        }
+
         // Add sudo
         if ($this->sudo) {
             $this->cached_command_line = 'sudo -u ' . escapeshellarg($this->sudo) . ' ' . $this->cached_command_line;

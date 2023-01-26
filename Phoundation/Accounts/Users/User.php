@@ -12,7 +12,7 @@ use Phoundation\Business\Companies\Branches\Branch;
 use Phoundation\Business\Companies\Company;
 use Phoundation\Business\Companies\Departments\Department;
 use Phoundation\Core\Locale\Language\Languages;
-use Phoundation\Core\Log;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\DataEntryAddress;
 use Phoundation\Data\DataEntry\DataEntryCode;

@@ -4,6 +4,7 @@ namespace Phoundation\Core;
 
 use Phoundation\Core\Exception\ConfigException;
 use Phoundation\Core\Exception\ConfigNotExistsException;
+use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Debug;
 use Phoundation\Developer\Project\Configuration;
 use Phoundation\Exception\OutOfBoundsException;
