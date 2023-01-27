@@ -19,11 +19,11 @@ class Import extends \Phoundation\Developer\Project\Import
     /**
      * Import the content for the languages table from a data-source file
      *
-     * @return void
+     * @return int
      */
-    public static function execute(bool $demo, int $min, int $max): void
+    public function execute(): int
     {
-        self::getInstance($demo, $min, $max);
+        $count = 0;
 
         // Download the GeoIP file from maxmind
 
@@ -32,5 +32,7 @@ class Import extends \Phoundation\Developer\Project\Import
         // Import file into database
 
         // Remove tempfiles
+
+        return $count;
     }
 }

@@ -429,7 +429,7 @@ class Strings
         $count = 0;
 
         foreach ($keywords as $keyword) {
-            if (!self::searchKeyword($source, $keyword, $regex, $unicode)) {
+            if (!static::searchKeyword($source, $keyword, $regex, $unicode)) {
                 return true;
             }
         }
@@ -453,7 +453,7 @@ class Strings
         $count = 0;
 
         foreach ($keywords as $keyword) {
-            if (!self::searchKeyword($source, $keyword, $regex, $unicode)) {
+            if (!static::searchKeyword($source, $keyword, $regex, $unicode)) {
                 return false;
             }
         }
@@ -760,7 +760,7 @@ class Strings
             } elseif (is_array($value)) {
                 if ($recurse) {
                     // Recurse
-                    $value = self::trimArray($value);
+                    $value = static::trimArray($value);
                 }
             }
         }
@@ -985,7 +985,7 @@ class Strings
      */
     public static function cut(?string $source, string $start, string $stop): string
     {
-        return self::until(self::from($source, $start), $stop);
+        return static::until(static::from($source, $start), $stop);
     }
 
 
@@ -1300,7 +1300,7 @@ class Strings
      */
     public static function slash(?string $string): string
     {
-        return self::endsWith($string, '/');
+        return static::endsWith($string, '/');
     }
 
 
@@ -1314,7 +1314,7 @@ class Strings
      */
     public static function unslash(?string $string, bool $loop = true): string
     {
-        return self::endsNotWith($string, '/', $loop);
+        return static::endsNotWith($string, '/', $loop);
     }
 
 
@@ -1467,7 +1467,7 @@ class Strings
             }
         }
 
-        return self::noDouble(preg_replace('/[\x00-\x1F\x80-\xFF]/', '', str_replace('  ', ' ', str_replace("\n", ' ', self::truncate($source, $truncate, ' ... ', 'center')))), '\1', ' ');
+        return static::noDouble(preg_replace('/[\x00-\x1F\x80-\xFF]/', '', str_replace('  ', ' ', str_replace("\n", ' ', static::truncate($source, $truncate, ' ... ', 'center')))), '\1', ' ');
     }
 
 

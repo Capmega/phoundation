@@ -48,7 +48,7 @@ class Updates extends \Phoundation\Developer\Libraries\Updates
      */
     public function updates(): void
     {
-        $this->addUpdate('0.0.2', function () {
+        $this->addUpdate('0.0.3', function () {
             // Create the categories table.
             sql()->schema()->table('categories')->define()
                 ->setColumns('

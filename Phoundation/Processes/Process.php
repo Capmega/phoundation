@@ -105,7 +105,10 @@ Class Process
 
         if (!in_array($exit_code, $this->accepted_exit_codes)) {
             // The command finished with an error
-            throw new ProcessFailedException(tr('The command ":command" failed with exit code ":code"', [':command' => $this->command, ':code' => $exit_code]), [
+            throw new ProcessFailedException(tr('The command ":command" failed with exit code ":code"', [
+                ':command' => $this->command,
+                ':code'    => $exit_code
+            ]), [
                 'command'      => $this->command,
                 'full_command' => $this->getFullCommandLine(),
                 'pipe'         => $this->pipe?->getFullCommandLine(),

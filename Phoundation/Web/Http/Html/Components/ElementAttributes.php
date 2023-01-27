@@ -632,7 +632,7 @@ trait ElementAttributes
     {
         if (is_object($content)) {
             // This object must be able to render HTML. Check this and then render.
-            self::hasElementAttributesTrait($content);
+            static::hasElementAttributesTrait($content);
             $content = $content->render();
         }
 

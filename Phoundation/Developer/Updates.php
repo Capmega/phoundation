@@ -15,7 +15,7 @@ namespace Phoundation\Developer;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Developer
  */
-class Updates extends \Phoundation\Developer\Libraries\Updates
+class Updates extends Libraries\Updates
 {
     /**
      * The current version for this library
@@ -64,7 +64,7 @@ class Updates extends \Phoundation\Developer\Libraries\Updates
                     `url` varchar(2048) DEFAULT NULL,
                     `title` varchar(255) DEFAULT NULL,
                     `description` mediumtext DEFAULT NULL,
-                    `exception` mediumtext DEFAULT NULL
+                    `exception` mediumtext DEFAULT NULL,
                     `details` mediumtext DEFAULT NULL
                 ')
                 ->setIndices('                

@@ -22,8 +22,8 @@ use Phoundation\Developer\Libraries\Libraries;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::setUsage('./cli system info');
-Documentation::setHelp('The info script will show detailed information about the current framework, project, database and more');
+Documentation::usage('./cli system info');
+Documentation::help('The info script will show detailed information about the current framework, project, database and more');
 
 ArgvValidator::new()->noArgumentsLeft();
 

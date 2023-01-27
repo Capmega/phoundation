@@ -23,7 +23,7 @@ class Updates extends \Phoundation\Developer\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.0.9';
+        return '0.0.10';
     }
 
 
@@ -59,7 +59,7 @@ class Updates extends \Phoundation\Developer\Libraries\Updates
                     `meta_id` bigint DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `library` VARCHAR(64) NOT NULL,
-                    `version` VARCHAR(64) NOT NULL,
+                    `version` bigint NOT NULL,
                     `comments` VARCHAR(2048) NULL,
                 ')
                 ->setIndices('

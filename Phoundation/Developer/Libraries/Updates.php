@@ -134,9 +134,11 @@ abstract class Updates
             return null;
         }
 
-        return sql()->getColumn('SELECT MAX(`version`) 
-                                       FROM   `versions` 
-                                       WHERE  `library` = :library', [':library' => $this->library]);
+        $version = sql()->getColumn('SELECT MAX(`version`) 
+                                           FROM   `versions` 
+                                           WHERE  `library` = :library', [':library' => $this->library]);
+
+        return Version::getString($version);
     }
 
 
@@ -172,7 +174,7 @@ abstract class Updates
 
             return $version;
 
-        } catch (OutOfBoundsException $e) {
+        } catch (OutOfBoundsException) {
             // There is no next available!
             return null;
         }
@@ -247,7 +249,7 @@ abstract class Updates
     {
         sql()->insert('versions', [
             'library'  => $this->library,
-            'version'  => $version,
+            'version'  => Version::getInteger($version),
             'comments' => $comments
         ]);
     }
@@ -320,7 +322,7 @@ abstract class Updates
                 Log::warning(tr('Skipping init version ":version" for library ":library" because it is a future update', [
                     ':library' => $this->library,
                     ':version' => $version
-                ]));
+                ]), 9);
 
                 return true;
         }

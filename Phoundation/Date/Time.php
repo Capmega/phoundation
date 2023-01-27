@@ -250,7 +250,7 @@ class Time
      */
     public static function format(float $time, int $format = 24, string $separator = ':'): string
     {
-        $time = self::validate($time);
+        $time = static::validate($time);
 
         switch ($format) {
             case 12:

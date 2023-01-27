@@ -80,6 +80,6 @@ class UserAgents
      */
     public static function getRandom(): string
     {
-        return Arrays::getRandomValue(self::list());
+        return Arrays::getRandomValue(static::list());
     }
 }

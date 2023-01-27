@@ -3,9 +3,8 @@
 
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Cli\Cli;
-use Phoundation\Data\Exception\DataEntryNotExistsException;
+use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
-
 
 
 /**

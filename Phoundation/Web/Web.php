@@ -54,7 +54,7 @@ class Web
 //             * example). In that case, fall back on the configured domain
 //             * $_CONFIG[domain]
 //             */
-//            $domain = self::getDomain();
+//            $domain = static::getDomain();
 //        }
 //
 //        // Use url_prefix, for URL's like domain.com/en/admin/page.html, where "/admin/" is the prefix
@@ -64,7 +64,7 @@ class Web
 //
 //        $prefix   = Strings::startsNotWith(Strings::endsWith($prefix, '/'), '/');
 //        $domain   = Strings::slash($domain);
-//        $language = self::getLanguage($language);
+//        $language = static::getLanguage($language);
 //
 //        // Build up the URL part
 //        if (!$url) {
@@ -179,7 +179,7 @@ class Web
 //     */
 //    public static function api_domain($url = null, $query = null, $prefix = null, $domain = null, $language = null, $allow_url_cloak = true): string
 //    {
-//        return self::getDomain($url, $query, $prefix, $_CONFIG['api']['domain'], $language, $allow_url_cloak);
+//        return static::getDomain($url, $query, $prefix, $_CONFIG['api']['domain'], $language, $allow_url_cloak);
 //    }
 
 
@@ -214,9 +214,9 @@ class Web
 //        }
 //
 //        if ($_CONFIG['ajax']['domain']) {
-//            return self::getDomain($url, $query, $prefix, $_CONFIG['ajax']['domain'], $language, $allow_url_cloak);
+//            return static::getDomain($url, $query, $prefix, $_CONFIG['ajax']['domain'], $language, $allow_url_cloak);
 //        }
 //
-//        return self::getDomain($url, $query, $prefix, null, $language, $allow_url_cloak);
+//        return static::getDomain($url, $query, $prefix, null, $language, $allow_url_cloak);
 //    }
 }

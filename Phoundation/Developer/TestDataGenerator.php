@@ -85,7 +85,7 @@ class TestDataGenerator
      */
     public static function email(): string
     {
-        return self::name() . '@' . self::domain();
+        return static::name() . '@' . static::domain();
     }
 
 

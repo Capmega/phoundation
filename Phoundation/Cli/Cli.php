@@ -38,10 +38,10 @@ class Cli
     public static function showPasswords(?bool $show_passwords = null): bool
     {
         if ($show_passwords !== null) {
-            self::$show_passwords = $show_passwords;
+            static::$show_passwords = $show_passwords;
         }
 
-        return self::$show_passwords;
+        return static::$show_passwords;
     }
 
 
@@ -217,7 +217,7 @@ class Cli
 
                 if (is_array($value)) {
                     Log::cli(Color::apply(Strings::size(' ', $offset) . Strings::size($key , $key_size), 'white') );
-                    self::displayArray($value, '', '', $key_size + 1);
+                    static::displayArray($value, '', '', $key_size + 1);
                     continue;
                 }
 
@@ -239,9 +239,9 @@ class Cli
      */
     public static function readPassword(string $prompt): ?string
     {
-        if (self::$show_passwords) {
+        if (static::$show_passwords) {
             // We show passwords!
-            return self::readInput($prompt);
+            return static::readInput($prompt);
         }
 
         echo trim($prompt) . ' ';

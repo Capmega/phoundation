@@ -126,8 +126,8 @@ class Notification extends DataEntry
      */
     public function __construct(int|string|null $identifier = null)
     {
-        self::$auto_log   = Config::get('notifications.auto-log', true);
-        self::$entry_name = 'notification';
+        static::$auto_log   = Config::get('notifications.auto-log', true);
+        static::$entry_name = 'notification';
         $this->table      = 'notifications';
 
         parent::__construct($identifier);
@@ -484,12 +484,12 @@ class Notification extends DataEntry
     public function send(?bool $log = null): static
     {
         if ($log === null) {
-            $log = self::$auto_log;
+            $log = static::$auto_log;
         }
 
-        if (!self::$logged and $log) {
+        if (!static::$logged and $log) {
             // Automatically log this notification
-            self::log();
+            static::log();
         }
 
         Log::warning('Notifications::send() not yet implemented! Not sending subsequent message');
@@ -559,7 +559,7 @@ return $this;
                 break;
         }
 
-        self::$logged = true;
+        static::$logged = true;
 
         return $this;
     }

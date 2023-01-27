@@ -146,9 +146,9 @@ class Core {
     protected function __construct()
     {
         try {
-            self::$state = 'startup';
-            self::$register['system']['startup'] = microtime(true);
-            self::$register['system']['script']  = Strings::until(Strings::fromReverse($_SERVER['PHP_SELF'], '/'), '.');
+            static::$state = 'startup';
+            static::$register['system']['startup'] = microtime(true);
+            static::$register['system']['script']  = Strings::until(Strings::fromReverse($_SERVER['PHP_SELF'], '/'), '.');
 
             // Register the process start
             define('STARTTIME', Timer::create('process')->getStart());
@@ -187,13 +187,13 @@ class Core {
 
             // Set timeout and request type, ensure safe PHP configuration, apply general server restrictions, set the
             // project name, platform and request type
-            self::securePhpSettings();
-            self::setServerRestrictions();
-            self::setProject();
-            self::setPlatform();
-            self::selectStartup();
-            self::setRequestType();
-            self::setTimeout();
+            static::securePhpSettings();
+            static::setServerRestrictions();
+            static::setProject();
+            static::setPlatform();
+            static::selectStartup();
+            static::setRequestType();
+            static::setTimeout();
 
         } catch (SqlException|NoProjectException $e) {
             throw $e;
@@ -230,12 +230,12 @@ class Core {
     /**
      * Singleton
      *
-     * @return Core
+     * @return static
      */
-    public static function getInstance(): Core
+    public static function getInstance(): static
     {
         if (!isset(self::$instance)) {
-            self::$instance = new Core();
+            self::$instance = new static();
         }
 
         return self::$instance;
@@ -253,13 +253,13 @@ class Core {
     public static function startup(): void
     {
         try {
-            if (self::$state !== 'init') {
+            if (static::$state !== 'init') {
                 throw new CoreException(tr('Core::startup() was run in the ":state" state. Check backtrace to see what caused this', [
-                    ':state' => self::$state
+                    ':state' => static::$state
                 ]));
             }
 
-            self::getInstance();
+            static::getInstance();
 
         } catch (Throwable $e) {
             if (PLATFORM_HTTP and headers_sent($file, $line)) {
@@ -290,15 +290,15 @@ class Core {
         // Detect platform and execute specific platform startup sequence
         switch (PLATFORM) {
             case 'http':
-                self::startupHttp();
+                static::startupHttp();
                 break;
 
             case 'cli':
-                self::startupCli();
+                static::startupCli();
         }
 
         // We're done, transfer control to script
-        self::$state = 'script';
+        static::$state = 'script';
     }
 
 
@@ -330,9 +330,9 @@ class Core {
 
         // Register basic HTTP information
         // TODO MOVE TO HTTP CLASS
-        self::$register['http']['code'] = 200;
-//                    self::$register['http']['accepts'] = Page::accepts();
-//                    self::$register['http']['accepts_languages'] = Page::acceptsLanguages();
+        static::$register['http']['code'] = 200;
+//                    static::$register['http']['accepts'] = Page::accepts();
+//                    static::$register['http']['accepts_languages'] = Page::acceptsLanguages();
 
         // Define basic platform constants
         define('ADMIN'   , '');
@@ -360,8 +360,8 @@ class Core {
         umask(Config::get('filesystem.umask', 0007));
 
         // Set language and locale
-        self::setLanguage();
-        self::setLocale();
+        static::setLanguage();
+        static::setLocale();
 
         // Prepare for unicode usage
         if (Config::get('languages.encoding.charset', 'UTF-8') === 'UTF-8') {
@@ -378,7 +378,7 @@ class Core {
             Route::executeSystem(503);
         }
 
-        self::setTimeZone();
+        static::setTimeZone();
 
         // If POST request, automatically untranslate translated POST entries
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -406,7 +406,7 @@ class Core {
      */
     protected static function startupCli(): void
     {
-        self::$request_type = 'cli';
+        static::$request_type = 'cli';
 
         ArgvValidator::hideData($GLOBALS['argv']);
 
@@ -486,7 +486,7 @@ class Core {
         // Process command line system arguments if we have no exception so far
         if ($argv['version']) {
             Log::information(tr('Phoundation framework code version ":fv"', [
-                ':fv' => self::FRAMEWORKCODEVERSION
+                ':fv' => static::FRAMEWORKCODEVERSION
             ]));
             $die = 0;
         }
@@ -563,7 +563,7 @@ class Core {
         array_shift($GLOBALS['argv']);
 
         // Set timeout
-        self::setTimeout();
+        static::setTimeout();
 
         // Something failed?
         if (isset($e)) {
@@ -577,23 +577,23 @@ class Core {
         }
 
         // set terminal data
-        self::$register['cli'] = ['term' => Cli::getTerm()];
+        static::$register['cli'] = ['term' => Cli::getTerm()];
 
-        if (self::$register['cli']['term']) {
-            self::$register['cli']['columns'] = Cli::getColumns();
-            self::$register['cli']['lines'] = Cli::getLines();
+        if (static::$register['cli']['term']) {
+            static::$register['cli']['columns'] = Cli::getColumns();
+            static::$register['cli']['lines'] = Cli::getLines();
 
-            if (!self::$register['cli']['columns']) {
-                self::$register['cli']['size'] = 'unknown';
+            if (!static::$register['cli']['columns']) {
+                static::$register['cli']['size'] = 'unknown';
 
-            } elseif (self::$register['cli']['columns'] <= 80) {
-                self::$register['cli']['size'] = 'small';
+            } elseif (static::$register['cli']['columns'] <= 80) {
+                static::$register['cli']['size'] = 'small';
 
-            } elseif (self::$register['cli']['columns'] <= 160) {
-                self::$register['cli']['size'] = 'medium';
+            } elseif (static::$register['cli']['columns'] <= 160) {
+                static::$register['cli']['size'] = 'medium';
 
             } else {
-                self::$register['cli']['size'] = 'large';
+                static::$register['cli']['size'] = 'large';
             }
         }
 
@@ -601,7 +601,7 @@ class Core {
         umask(Config::get('filesystem.umask', 0007));
 
         // Ensure that the process UID matches the file UID
-        self::processFileUidMatches(true);
+        static::processFileUidMatches(true);
 
         // Get required language.
         try {
@@ -628,7 +628,7 @@ class Core {
         // Setup locale and character encoding
         // TODO Check this mess!
         ini_set('default_charset', Config::get('languages.encoding.charset', 'UTF-8'));
-        self::$register['system']['locale'] = self::setLocale();
+        static::$register['system']['locale'] = static::setLocale();
 
         // Prepare for unicode usage
         if (Config::get('languages.encoding.charset', 'UTF-8') === 'UTF-8') {
@@ -640,10 +640,10 @@ class Core {
             }
         }
 
-        self::setTimeZone();
+        static::setTimeZone();
 
         //
-        self::$register['ready'] = true;
+        static::$register['ready'] = true;
 
         // Validate parameters and give some startup messages, if needed
         if (Debug::enabled()) {
@@ -658,9 +658,9 @@ class Core {
                 ]), 8);
 
                 Log::notice(tr('Detected ":size" terminal with ":columns" columns and ":lines" lines', [
-                    ':size' => self::$register['cli']['size'],
-                    ':columns' => self::$register['cli']['columns'],
-                    ':lines' => self::$register['cli']['lines']
+                    ':size' => static::$register['cli']['size'],
+                    ':columns' => static::$register['cli']['columns'],
+                    ':lines' => static::$register['cli']['lines']
                 ]));
             }
         }
@@ -743,7 +743,7 @@ class Core {
     protected static function setServerRestrictions(): void
     {
         // Set up the Core restrictions object with default file access restrictions
-        self::$server_restrictions = new Server(new Restrictions(PATH_DATA, false, 'Core'));
+        static::$server_restrictions = new Server(new Restrictions(PATH_DATA, false, 'Core'));
     }
 
 
@@ -763,7 +763,7 @@ class Core {
                 throw new OutOfBoundsException('No project defined in PATH_ROOT/config/project file');
             }
         } catch (Throwable $e) {
-            self::$failed = true;
+            static::$failed = true;
 
             define('PROJECT', 'UNKNOWN');
 
@@ -783,10 +783,10 @@ class Core {
                 // The file doesn't exist, that is good. Go to setup mode
                 error_log('Project file "config/project" does not exist, entering setup mode');
 
-                self::setPlatform();
-                self::setRequestType();
-                self::selectStartup();
-                self::$state = 'setup';
+                static::setPlatform();
+                static::setRequestType();
+                static::selectStartup();
+                static::$state = 'setup';
 
                 throw new NoProjectException('Project file "' . PATH_ROOT . 'config/project" cannot be read. Please ensure it exists');
             }
@@ -805,39 +805,39 @@ class Core {
         if (PLATFORM_HTTP) {
             // Determine what our target file is. With direct execution, $_SERVER[PHP_SELF] would contain this, with
             // route execution, $_SERVER[PHP_SELF] would be route, so we cannot use that. Route will store the file
-            // being executed in self::$register['script_path'] instead
+            // being executed in static::$register['script_path'] instead
             $file = $_SERVER['REQUEST_URI'];
 
             // Autodetect what http call type we're on from the script being executed
             if (str_contains($file, '/admin/')) {
-                self::$request_type = 'admin';
+                static::$request_type = 'admin';
 
             } elseif (str_contains($file, '/ajax/')) {
-                self::$request_type = 'ajax';
+                static::$request_type = 'ajax';
 
             } elseif (str_contains($file, '/api/')) {
-                self::$request_type = 'api';
+                static::$request_type = 'api';
 
             } elseif ((str_starts_with($_SERVER['SERVER_NAME'], 'api')) and preg_match('/^api(?:-[0-9]+)?\./', $_SERVER['SERVER_NAME'])) {
-                self::$request_type = 'api';
+                static::$request_type = 'api';
 
             } elseif ((str_starts_with($_SERVER['SERVER_NAME'], 'cdn')) and preg_match('/^cdn(?:-[0-9]+)?\./', $_SERVER['SERVER_NAME'])) {
-                self::$request_type = 'api';
+                static::$request_type = 'api';
 
             } elseif (Config::get('web.html.amp.enabled', false) and !empty($_GET['amp'])) {
-                self::$request_type = 'amp';
+                static::$request_type = 'amp';
 
             } elseif (is_numeric(substr($file, -3, 3))) {
-                self::$register['http']['code'] = substr($file, -3, 3);
-                self::$request_type = 'system';
+                static::$register['http']['code'] = substr($file, -3, 3);
+                static::$request_type = 'system';
 
             } else {
-                self::$request_type = 'http';
+                static::$request_type = 'http';
             }
 
         } else {
             // We're running on the command line
-            self::$request_type = 'cli';
+            static::$request_type = 'cli';
         }
     }
 
@@ -850,7 +850,7 @@ class Core {
      */
     public static function getFailed(): bool
     {
-        return self::$failed;
+        return static::$failed;
     }
 
 
@@ -867,9 +867,9 @@ class Core {
     public static function readRegister(string $key, ?string $subkey = null, mixed $default = null): mixed
     {
         if ($subkey) {
-            $return = isset_get(self::$register[$key][$subkey]);
+            $return = isset_get(static::$register[$key][$subkey]);
         } else {
-            $return = isset_get(self::$register[$key]);
+            $return = isset_get(static::$register[$key]);
         }
 
         if ($return === null) {
@@ -899,21 +899,21 @@ class Core {
 
         if ($subkey) {
             // We want to write to a sub key. Ensure that the key exists and is an array
-            if (array_key_exists($key, self::$register)) {
-                if (!is_array(self::$register[$key])) {
+            if (array_key_exists($key, static::$register)) {
+                if (!is_array(static::$register[$key])) {
                     // Key exists but is not an array so cannot handle sub keys
                     throw new CoreException('Cannot write to register key ":key.:subkey" as register key ":key" already exist as a value instead of an array', [':key' => $key, 'subkey' => $subkey]);
                 }
             } else {
                 // Libraries the register sub array
-                self::$register[$key] = [];
+                static::$register[$key] = [];
             }
 
             // Write the key / subkey
-            self::$register[$key][$subkey] = $value;
+            static::$register[$key][$subkey] = $value;
         } else {
             // Write the key
-            self::$register[$key] = $value;
+            static::$register[$key] = $value;
         }
     }
 
@@ -934,8 +934,8 @@ class Core {
 
         if ($subkey) {
             // We want to write to a sub key. Ensure that the key exists and is an array
-            if (array_key_exists($key, self::$register)) {
-                if (!is_array(self::$register[$key])) {
+            if (array_key_exists($key, static::$register)) {
+                if (!is_array(static::$register[$key])) {
                     // Key exists but is not an array so cannot handle sub keys
                     throw new CoreException('Cannot write to register key ":key.:subkey" as register key ":key" already exist as a value instead of an array', [':key' => $key, 'subkey' => $subkey]);
                 }
@@ -945,10 +945,10 @@ class Core {
             }
 
             // Delete the key / subkey
-            unset(self::$register[$key][$subkey]);
+            unset(static::$register[$key][$subkey]);
         } else {
             // Delete the key
-            unset(self::$register[$key]);
+            unset(static::$register[$key]);
         }
     }
 
@@ -966,10 +966,10 @@ class Core {
     public static function compareRegister(mixed $value, string $key,?string $subkey = null): bool
     {
         if ($subkey === null) {
-            return $value === isset_get(self::$register[$key]);
+            return $value === isset_get(static::$register[$key]);
         }
 
-        return $value === isset_get(self::$register[$key][$subkey]);
+        return $value === isset_get(static::$register[$key][$subkey]);
     }
 
 
@@ -992,7 +992,7 @@ class Core {
     #[ExpectedValues(values: ['setup', 'startup', 'script', 'shutdown', 'error', 'phperror'])]
     public static function getState(): string
     {
-        return self::$state;
+        return static::$state;
     }
 
 
@@ -1004,7 +1004,7 @@ class Core {
      */
     public static function stateIs(#[ExpectedValues(values: ['setup', 'startup', 'script', 'shutdown', 'error', 'phperror'])] string $state): bool
     {
-        return self::$state === $state;
+        return static::$state === $state;
     }
 
 
@@ -1022,7 +1022,7 @@ class Core {
             case 'error':
                 // no-break
             case 'phperror':
-                self::$state = $state;
+                static::$state = $state;
                 break;
 
             case 'init':
@@ -1059,7 +1059,7 @@ class Core {
     public static function startupState(?string $state = null): bool
     {
         if ($state === null) {
-            $state = self::$state;
+            $state = static::$state;
         }
 
         return match ($state) {
@@ -1082,7 +1082,7 @@ class Core {
     public static function initState(?string $state = null): bool
     {
         if ($state === null) {
-            $state = self::$state;
+            $state = static::$state;
         }
 
         return $state === 'init';
@@ -1097,7 +1097,7 @@ class Core {
      */
     public static function isPhpUnitTest(): bool
     {
-        return self::readRegister('system', 'script') === 'phpunit';
+        return static::readRegister('system', 'script') === 'phpunit';
     }
 
 
@@ -1112,7 +1112,7 @@ class Core {
      */
     public static function readyState(?string $state = null): bool
     {
-        return !self::startupState($state);
+        return !static::startupState($state);
     }
 
 
@@ -1125,7 +1125,7 @@ class Core {
      */
     public static function errorState(): bool
     {
-        return match (self::$state) {
+        return match (static::$state) {
             'error', 'phperror' => true,
             default             => false,
         };
@@ -1146,8 +1146,8 @@ class Core {
      */
     public static function executedQuery($query_data)
     {
-        self::$register['debug_queries'][] = $query_data;
-        return count(self::$register['debug_queries']);
+        static::$register['debug_queries'][] = $query_data;
+        return count(static::$register['debug_queries']);
     }
 
 
@@ -1159,7 +1159,7 @@ class Core {
      */
     public static function getRequestType(): string
     {
-        return self::$request_type;
+        return static::$request_type;
     }
 
 
@@ -1172,7 +1172,7 @@ class Core {
      */
     public static function isCallType(string $type): bool
     {
-        return (self::$request_type === $type);
+        return (static::$request_type === $type);
     }
 
 
@@ -1231,7 +1231,7 @@ class Core {
      */
     public static function phpErrorHandler(int $errno, string $errstr, string $errfile, int $errline): void
     {
-        if (self::startupState()) {
+        if (static::startupState()) {
             // Wut? We're not even ready to go! Likely we don't have configuration available so we cannot even send out
             // notifications. Just crash with a standard PHP exception
             throw new \Exception('Core startup PHP ERROR [' . $errno . '] "' . $errstr . '" in "' . $errfile . '@' . $errline . '"');
@@ -1288,8 +1288,8 @@ class Core {
          */
         static $executed = false;
 
-        $state = self::$state;
-        self::$state = 'error';
+        $state = static::$state;
+        static::$state = 'error';
 
         // Ensure that definitions exist
         $defines = [
@@ -1324,16 +1324,16 @@ class Core {
 
                 $executed = true;
 
-                if (empty(self::$register['system']['script'])) {
-                    self::$register['system']['script'] = 'unknown';
+                if (empty(static::$register['system']['script'])) {
+                    static::$register['system']['script'] = 'unknown';
                 }
 
                 if (!defined('PLATFORM')) {
                     // System crashed before platform detection.
                     Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', [
                         ':code'   => $e->getCode(),
-                        ':type'   => self::getRequestType(),
-                        ':script' => self::readRegister('system', 'script')
+                        ':type'   => static::getRequestType(),
+                        ':script' => static::readRegister('system', 'script')
                     ]));
 
                     Log::error($e);
@@ -1403,7 +1403,7 @@ class Core {
 //                                    die(Script::getExitCode());
 //
 //                                case 'validation':
-//                                    if (self::readRegister('system', 'script') === 'init') {
+//                                    if (static::readRegister('system', 'script') === 'init') {
 //                                        /*
 //                                         * In the init script, all validations are fatal!
 //                                         */
@@ -1435,8 +1435,8 @@ class Core {
 
                         Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" WITH ENVIRONMENT ":environment" ***', [
                             ':code'        => $e->getCode(),
-                            ':type'        => self::getRequestType(),
-                            ':script'      => self::readRegister('system', 'script'),
+                            ':type'        => static::getRequestType(),
+                            ':script'      => static::readRegister('system', 'script'),
                             ':environment' => (defined('ENVIRONMENT') ? ENVIRONMENT : null)
                         ]));
 
@@ -1458,8 +1458,8 @@ class Core {
                             // Log exception data
                             Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" WITH ENVIRONMENT ":environment" ***', [
                                 ':code'        => $e->getCode(),
-                                ':type'        => self::getRequestType(),
-                                ':script'      => self::readRegister('system', 'script'),
+                                ':type'        => static::getRequestType(),
+                                ':script'      => static::readRegister('system', 'script'),
                                 ':environment' => (defined('ENVIRONMENT') ? ENVIRONMENT : null)
                             ]));
 
@@ -1480,13 +1480,13 @@ class Core {
 
                         //
                         Page::setHttpCode(500);
-                        self::unregisterShutdown('route_postprocess');
+                        static::unregisterShutdown('route_postprocess');
 
                         Notification::new()
                             ->setException($e)
                             ->send();
 
-                        if (self::startupState($state)) {
+                        if (static::startupState($state)) {
                             /*
                              * Configuration hasn't been loaded yet, we cannot even know
                              * if we are in debug mode or not!
@@ -1576,7 +1576,7 @@ class Core {
                                                 <td colspan="2" class="center">
                                                     '.tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', [
                                                         ':code'   => $e->getCode(),
-                                                        ':script' => self::readRegister('system', 'script'),
+                                                        ':script' => static::readRegister('system', 'script'),
                                                         'type'    => Core::getRequestType()
                                                     ]).'
                                                 </td>
@@ -1584,7 +1584,7 @@ class Core {
                                             <tbody>
                                                 <tr>
                                                     <td colspan="2" class="center">
-                                                        '.tr('An uncaught exception with code ":code" occured in script ":script". See the exception core dump below for more information on how to fix this issue', array(':code' => $e->getCode(), ':script' => self::readRegister('system', 'script'))).'
+                                                        '.tr('An uncaught exception with code ":code" occured in script ":script". See the exception core dump below for more information on how to fix this issue', array(':code' => $e->getCode(), ':script' => static::readRegister('system', 'script'))).'
                                                     </td>
                                                 </tr>
                                                 <tr>
@@ -1649,8 +1649,8 @@ class Core {
 //                    die('Pre core available exception with handling failure. Please your application or webserver error log files, or enable the first line in the exception handler file for more information');
 //                }
 
-                if (!defined('PLATFORM') or self::startupState($state)) {
-                    Log::error(tr('*** UNCAUGHT SYSTEM STARTUP EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => self::readRegister('system', 'script'))));
+                if (!defined('PLATFORM') or static::startupState($state)) {
+                    Log::error(tr('*** UNCAUGHT SYSTEM STARTUP EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => static::readRegister('system', 'script'))));
                     Log::error(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
                     Log::error($f->getMessage());
                     Log::error($f->getTrace());
@@ -1662,7 +1662,7 @@ class Core {
 
                 switch (PLATFORM) {
                     case 'cli':
-                        Log::error(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => self::readRegister('system', 'script'))));
+                        Log::error(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => static::readRegister('system', 'script'))));
                         Log::error(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
 
                         Debug::enabled(true);
@@ -1681,7 +1681,7 @@ class Core {
                             Route::executeSystem(500);
                         }
 
-                        show(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => self::readRegister('system', 'script'))));
+                        show(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => static::readRegister('system', 'script'))));
                         show('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***');
 
                         show($f);
@@ -1714,7 +1714,7 @@ class Core {
             $timeout = Config::get('system.timeout', get_null(getenv('TIMEOUT')) ?? 30);
         }
 
-        self::$register['system']['timeout'] = $timeout;
+        static::$register['system']['timeout'] = $timeout;
         return set_time_limit($timeout);
     }
 
@@ -1838,7 +1838,7 @@ class Core {
             setlocale($key, $value);
         }
 
-        self::$register['system']['locale'] = $locale;
+        static::$register['system']['locale'] = $locale;
     }
 
 
@@ -1946,12 +1946,12 @@ class Core {
      */
     public static function registerShutdown(string $identifier, array|string|callable $function, mixed $data = null): void
     {
-        if (!is_array(self::readRegister('system', 'shutdown'))) {
+        if (!is_array(static::readRegister('system', 'shutdown'))) {
             // Libraries shutdown list
-            self::$register['system']['shutdown'] = [];
+            static::$register['system']['shutdown'] = [];
         }
 
-        self::$register['system']['shutdown'][$identifier] = [
+        static::$register['system']['shutdown'][$identifier] = [
             'data'     => $data,
             'function' => $function
         ];
@@ -1978,13 +1978,13 @@ class Core {
      */
     public static function unregisterShutdown(string $identifier): bool
     {
-        if (!is_array(self::readRegister('system', 'shutdown'))) {
+        if (!is_array(static::readRegister('system', 'shutdown'))) {
             // Libraries shutdown list
-            self::$register['system']['shutdown'] = [];
+            static::$register['system']['shutdown'] = [];
         }
 
-        if (array_key_exists($identifier, self::$register['system']['shutdown'])) {
-            unset(self::$register['system']['shutdown'][$identifier]);
+        if (array_key_exists($identifier, static::$register['system']['shutdown'])) {
+            unset(static::$register['system']['shutdown'][$identifier]);
             return true;
         }
 
@@ -2004,12 +2004,12 @@ class Core {
      */
     public static function shutdown(?int $error_code = null): void
     {
-        self::$state = 'shutdown';
+        static::$state = 'shutdown';
 
         // Do we need to run other shutdown functions?
-        if (self::startupState()) {
+        if (static::startupState()) {
             if (!$error_code) {
-                Log::error(tr('Shutdown procedure started before self::$register[script] was ready, possibly on script ":script"', [
+                Log::error(tr('Shutdown procedure started before static::$register[script] was ready, possibly on script ":script"', [
                     ':script' => $_SERVER['PHP_SELF']
                 ]));
                 return;
@@ -2020,21 +2020,21 @@ class Core {
         }
 
         Log::action(tr('Starting shutdown procedure for script ":script"', [
-            ':script' => self::readRegister('system', 'script')
+            ':script' => static::readRegister('system', 'script')
         ]), 2);
 
         Session::shutdown();
         Path::removeTemporary();
 
-        if (!is_array(self::readRegister('system', 'shutdown'))) {
+        if (!is_array(static::readRegister('system', 'shutdown'))) {
             // Libraries shutdown list
-            self::$register['system']['shutdown'] = [];
+            static::$register['system']['shutdown'] = [];
         }
 
         // Reverse the shutdown calls to execute them last added first, first added last
-        self::$register['system']['shutdown'] = array_reverse(self::$register['system']['shutdown']);
+        static::$register['system']['shutdown'] = array_reverse(static::$register['system']['shutdown']);
 
-        foreach (self::$register['system']['shutdown'] as $identifier => $data) {
+        foreach (static::$register['system']['shutdown'] as $identifier => $data) {
             try {
                 $function = $data['function'];
                 $data     = Arrays::force($data['data'], null);
@@ -2178,7 +2178,7 @@ class Core {
      */
     public static function getMemoryAvailable(): int
     {
-        $limit = self::getMemoryLimit();
+        $limit = static::getMemoryLimit();
         $used  = memory_get_usage();
 
         return $limit - $used;
@@ -2206,7 +2206,7 @@ class Core {
             return $restrictions;
         }
 
-        return self::$server_restrictions->getRestrictions();
+        return static::$server_restrictions->getRestrictions();
     }
 
 
@@ -2248,7 +2248,7 @@ class Core {
         }
 
         // Nope, fall back to the default restrictions
-        return self::$server_restrictions;
+        return static::$server_restrictions;
     }
 
 
@@ -2268,7 +2268,7 @@ class Core {
      */
     protected static function processFileUidMatches(bool $auto_switch = false, bool $permit_root = true): void
     {
-        if (self::isPhpUnitTest()) {
+        if (static::isPhpUnitTest()) {
             // Don't restart PHPUnit
             return;
         }
@@ -2301,17 +2301,17 @@ class Core {
             // Ensure --timeout is added to the script
             if (!in_array('--timeout', $arguments)) {
                 $arguments[] = '--timeout';
-                $arguments[] = self::$register['timeout'];
+                $arguments[] = static::$register['timeout'];
             }
 
             // Execute the process
             Process::new(PATH_ROOT . '/cli')
                 ->setWait(1)
-                ->setTimeout(self::readRegister('system', 'timeout'))
+                ->setTimeout(static::readRegister('system', 'timeout'))
                 ->setArguments($arguments)
                 ->executePassthru();
 
-            Log::success(tr('Finished re-executed script ":script"', [':script' => self::$register['system']['script']]));
+            Log::success(tr('Finished re-executed script ":script"', [':script' => static::$register['system']['script']]));
             die();
         }
     }

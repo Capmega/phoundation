@@ -36,11 +36,11 @@ class Timers
      */
     public static function add(Timer $timer): Timer
     {
-        if (array_key_exists($timer->getName(), self::$timers)) {
+        if (array_key_exists($timer->getName(), static::$timers)) {
             throw new OutOfBoundsException('The specified timer ":name" already exists', [':name' => $timer->getName()]);
         }
 
-        self::$timers[$timer->getName()] = $timer;
+        static::$timers[$timer->getName()] = $timer;
 
         return $timer;
     }
@@ -55,12 +55,12 @@ class Timers
      */
     public static function get(string $name): Timer
     {
-        if (!array_key_exists($name, self::$timers)) {
+        if (!array_key_exists($name, static::$timers)) {
             // Create the timer
             return Timer::create($name);
         }
 
-        return self::$timers[$name];
+        return static::$timers[$name];
     }
 
 
@@ -73,13 +73,13 @@ class Timers
      */
     public static function delete(string $name): Timer
     {
-        if (!array_key_exists($name, self::$timers)) {
+        if (!array_key_exists($name, static::$timers)) {
             throw new OutOfBoundsException('The specified timer ":name" does not exist', [':name' => $name]);
         }
 
         // Find the timer and remove it from the timers list, then return it
-        $timer = self::$timers[$name];
-        unset(self::$timers[$name]);
+        $timer = static::$timers[$name];
+        unset(static::$timers[$name]);
 
         return $timer;
     }

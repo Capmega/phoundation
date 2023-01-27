@@ -70,16 +70,16 @@ class Exception extends RuntimeException
         if (is_object($messages)) {
             // The message actually is an Exception! Extract data and make this exception the previous
             $previous = $messages;
-            $code = $messages->getCode();
+            $code     = $messages->getCode();
 
             if ($messages instanceof Exception) {
                 // This is a Phoundation exception, get more information
-                $data = $messages->getData();
+                $data     = $messages->getData();
                 $messages = $messages->getMessages();
             } else {
                 // This is a standard PHP exception
-                $data = null;
-                $messages = $messages->getMessage();
+                $data     = null;
+                $messages = [$messages->getMessage()];
             }
         } elseif (!is_array($messages)) {
             if (!$messages) {
@@ -118,13 +118,13 @@ class Exception extends RuntimeException
     /**
      * Returns a new exception object
      *
-     * @param Throwable|array|string $messages
+     * @param Throwable|array|string|null $messages
      * @param mixed|null $data
      * @param string|null $code
      * @param Throwable|null $previous
      * @return static
      */
-    public static function new(Throwable|array|string $messages, mixed $data = null, ?string $code = null, ?Throwable $previous = null): static
+    public static function new(Throwable|array|string|null $messages, mixed $data = null, ?string $code = null, ?Throwable $previous = null): static
     {
         return new static($messages, $data, $code, $previous);
     }
@@ -332,11 +332,16 @@ class Exception extends RuntimeException
     /**
      * Import exception data and return this as an exception
      *
-     * @param array|string $source
-     * @return static
+     * @param array|string|null $source
+     * @return static|null
      */
-    public static function import(array|string $source): static
+    public static function import(array|string|null $source): ?static
     {
+        if ($source === null) {
+            // Nothing to import, there is no exception
+            return null;
+        }
+
         if (is_string($source)) {
             // Make it an exception array
             $source = Json::decode($source);

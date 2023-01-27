@@ -39,7 +39,7 @@ class GetValidator extends Validator
      * @param Validator|null $parent If specified, this is actually a child validator to the specified parent
      */
     public function __construct(?Validator $parent = null) {
-        $this->construct($parent, self::$get);
+        $this->construct($parent, static::$get);
     }
 
 
@@ -71,7 +71,7 @@ class GetValidator extends Validator
         global $_GET;
 
         // Copy GET data and reset both GET and REQUEST
-        self::$get = $_GET;
+        static::$get = $_GET;
 
         $_GET     = [];
         $_REQUEST = [];
@@ -88,7 +88,7 @@ class GetValidator extends Validator
      */
     public static function addData(string $key, mixed $value): void
     {
-        self::$get[$key] = $value;
+        static::$get[$key] = $value;
     }
 
 
@@ -135,7 +135,7 @@ class GetValidator extends Validator
     protected function liberateData(): void
     {
         global $_GET;
-        $_GET = self::$get;
-        self::$get = null;
+        $_GET = static::$get;
+        static::$get = null;
     }
 }

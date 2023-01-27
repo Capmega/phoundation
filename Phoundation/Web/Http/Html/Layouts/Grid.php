@@ -185,7 +185,7 @@ class Grid extends Container
 
         if (is_object($column) and !($column instanceof GridColumn)) {
             // This is not a GridColumn object, try to render the object to HTML string
-            self::hasElementAttributesTrait($column);
+            static::hasElementAttributesTrait($column);
 
             // Render the HTML string
             $column = $column->render();

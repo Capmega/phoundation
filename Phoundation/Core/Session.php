@@ -11,8 +11,8 @@ use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Exception\ConfigException;
 use Phoundation\Core\Exception\SessionException;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\Exception\DataEntryNotExistsException;
-use Phoundation\Data\Exception\DataEntryStatusException;
+use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
+use Phoundation\Data\DataEntry\Exception\DataEntryStatusException;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Developer\Debug;
@@ -85,7 +85,7 @@ class Session
      */
     public static function startup(): void
     {
-        if (self::$startup) {
+        if (static::$startup) {
             return;
         }
 
@@ -94,11 +94,11 @@ class Session
             $_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_X_FORWARDED_FOR'];
         }
 
-        self::checkDomains();
-        self::configureCookies();
-        self::checkCookie();
+        static::checkDomains();
+        static::configureCookies();
+        static::checkCookie();
 
-        self::$startup = true;
+        static::$startup = true;
 
         Http::setSslDefaultContext();
     }
@@ -117,12 +117,12 @@ class Session
             if (Page::getFlashMessages()?->getCount()) {
                 // This page has flash messages that have not yet been displayed. Store them in the session variable so they
                 // can be stored with the next page load
-                self::getFlashMessages()->pullMessagesFrom(Page::getFlashMessages());
+                static::getFlashMessages()->pullMessagesFrom(Page::getFlashMessages());
             }
 
-            if (isset(self::$flash_messages) and self::$flash_messages->getCount()) {
+            if (isset(static::$flash_messages) and static::$flash_messages->getCount()) {
                 // There are flash messages in this session static object, export them to $_SESSIONS for the next page load
-                $_SESSION['flash_messages'] = self::$flash_messages->export();
+                $_SESSION['flash_messages'] = static::$flash_messages->export();
             }
         }
     }
@@ -136,7 +136,7 @@ class Session
      */
     public static function getUser(): User
     {
-        if (self::$user === null) {
+        if (static::$user === null) {
             // User object does not yet exist
             if (isset_get($_SESSION['user']['id'])) {
                 // Create new user object and ensure it's still good to go
@@ -183,7 +183,7 @@ class Session
         }
 
         // Return the user object
-        return self::$user;
+        return static::$user;
     }
 
 
@@ -196,11 +196,11 @@ class Session
      */
     public static function getFlashMessages(): FlashMessages
     {
-        if (!isset(self::$flash_messages)) {
-            self::$flash_messages = FlashMessages::new();
+        if (!isset(static::$flash_messages)) {
+            static::$flash_messages = FlashMessages::new();
         }
 
-        return self::$flash_messages;
+        return static::$flash_messages;
     }
 
 
@@ -234,12 +234,12 @@ class Session
     public static function signIn(string $user, string $password): User
     {
         try {
-            self::$user = User::authenticate($user, $password);
-            self::clear();
-            self::init();
+            static::$user = User::authenticate($user, $password);
+            static::clear();
+            static::init();
 
-            $_SESSION['user']['id'] = self::$user->getId();
-            return self::$user;
+            $_SESSION['user']['id'] = static::$user->getId();
+            return static::$user;
 
         } catch (DataEntryNotExistsException) {
             // The specified user does not exist
@@ -258,7 +258,7 @@ class Session
      */
     public static function getDomain(): string
     {
-        return self::$domain;
+        return static::$domain;
     }
 
 
@@ -274,8 +274,8 @@ class Session
         $supported_domains = Config::get('web.domains');
 
         if (array_key_exists($_SERVER['HTTP_HOST'], $supported_domains)) {
-            self::$domain = $_SERVER['HTTP_HOST'];
-            return self::$domain;
+            static::$domain = $_SERVER['HTTP_HOST'];
+            return static::$domain;
         }
 
         // No supported domain found, redirect to the primary domain
@@ -292,11 +292,11 @@ class Session
      */
     public static function getLanguage(string $default = 'en'): string
     {
-        if (empty(self::$language)) {
-            self::setLanguage();
+        if (empty(static::$language)) {
+            static::setLanguage();
         }
 
-        return self::$language ?? $default;
+        return static::$language ?? $default;
     }
 
 
@@ -314,8 +314,8 @@ class Session
 
         foreach ($requested_languages as $requested_language) {
             if (in_array($requested_language['language'], $supported_languages)) {
-                self::$language = $requested_language['language'];
-                return self::$language;
+                static::$language = $requested_language['language'];
+                return static::$language;
             }
         }
 
@@ -444,10 +444,10 @@ class Session
 
         // Start session
         session_start();
-        self::checkExtended();
+        static::checkExtended();
 
         Log::success(tr('Started session for user ":user" from IP ":ip"', [
-            ':user' => self::getUser()->getLogId(),
+            ':user' => static::getUser()->getLogId(),
             ':ip'   => $_SERVER['REMOTE_ADDR']
         ]));
 
@@ -468,7 +468,7 @@ Log::warning('RESTART SESSION');
 
         // Initialize session?
         if (empty($_SESSION['init'])) {
-            self::init();
+            static::init();
         }
 
         // Euro cookie check, can we do cookies at all?
@@ -523,13 +523,13 @@ Log::warning('RESTART SESSION');
             $_SESSION['first_visit'] = 1;
         }
 
-        if ($_SESSION['domain'] !== self::$domain) {
+        if ($_SESSION['domain'] !== static::$domain) {
             // Domain mismatch? Okay if this is sub domain, but what if its a different domain? Check whitelist domains?
             // TODO Implement
         }
 
         if (isset($_SESSION['flash_messages'])) {
-            self::getFlashMessages()->import((array) $_SESSION['flash_messages']);
+            static::getFlashMessages()->import((array) $_SESSION['flash_messages']);
             unset($_SESSION['flash_messages']);
         }
 
@@ -596,13 +596,13 @@ Log::warning('RESTART SESSION');
                 break;
 
             case 'auto':
-                Config::set('sessions.cookies.domain', self::$domain);
-                ini_set('session.cookie_domain', self::$domain);
+                Config::set('sessions.cookies.domain', static::$domain);
+                ini_set('session.cookie_domain', static::$domain);
                 break;
 
             case '.auto':
-                Config::get('web.sessions.cookies.domain', '.'.self::$domain);
-                ini_set('session.cookie_domain', '.'.self::$domain);
+                Config::get('web.sessions.cookies.domain', '.'.static::$domain);
+                ini_set('session.cookie_domain', '.'.static::$domain);
                 break;
 
             default:
@@ -619,7 +619,7 @@ Log::warning('RESTART SESSION');
                     $test = Config::get('web.sessions.cookies.domain');
                 }
 
-                if (!str_contains(self::$domain, $test)) {
+                if (!str_contains(static::$domain, $test)) {
                     Notification::new()
                         ->setCode('configuration')
                         ->setGroups('developers')
@@ -627,7 +627,7 @@ Log::warning('RESTART SESSION');
                         ->setMessage(tr('Specified cookie domain ":cookie_domain" is invalid for current domain ":current_domain". Please fix $_CONFIG[cookie][domain]! Redirecting to ":domain"', [
                             ':domain'         => Strings::startsNotWith(Config::get('web.sessions.cookies.domain'), '.'),
                             ':cookie_domain'  => Config::get('web.sessions.cookies.domain'),
-                            ':current_domain' => self::$domain
+                            ':current_domain' => static::$domain
                         ]))->send();
 
                     Page::redirect(PROTOCOL.Strings::startsNotWith(Config::get('web.sessions.cookies.domain'), '.'));
@@ -653,7 +653,7 @@ Log::warning('RESTART SESSION');
                 ini_set('session.save_path'      , Config::get('sessions.path'                   , PATH_DATA . 'data/sessions/'));
 
                 if (Config::get('web.sessions.check-referrer', true)) {
-                    ini_set('session.referer_check', self::$domain);
+                    ini_set('session.referer_check', static::$domain);
                 }
 
                 if (Debug::enabled() or !Config::get('cache.http.enabled', true)) {
@@ -693,9 +693,9 @@ Log::warning('RESTART SESSION');
     {
         // :TODO: The next section may be included in the whitelabel domain check
         // Check if the requested domain is allowed
-        self::$domain = $_SERVER['HTTP_HOST'];
+        static::$domain = $_SERVER['HTTP_HOST'];
 
-        if (!self::$domain) {
+        if (!static::$domain) {
             // No domain was requested at all, so probably instead of a domain name, an IP was requested. Redirect to
             // the domain name
             Page::redirect();
@@ -703,7 +703,7 @@ Log::warning('RESTART SESSION');
 
         // Check the detected domain against the configured domain. If it doesn't match then check if it's a registered
         // whitelabel domain
-        if (self::$domain === Page::getDomain()) {
+        if (static::$domain === Page::getDomain()) {
             // This is the primary domain
 
         } else {
@@ -724,7 +724,7 @@ Log::warning('RESTART SESSION');
 
                 case 'sub':
                     // White label domains are disabled, but subdomains from the primary domain are allowed
-                    if (Strings::from(self::$domain, '.') !== Page::getDomain()) {
+                    if (Strings::from(static::$domain, '.') !== Page::getDomain()) {
                         Log::warning(tr('Whitelabels are set to subdomains only, redirecting domain ":source" to ":target"', [
                             ':source' => $_SERVER['HTTP_HOST'],
                             ':target' => Page::getDomain()
@@ -737,13 +737,13 @@ Log::warning('RESTART SESSION');
 
                 case 'list':
                     // This domain must be registered in the whitelabels list
-                    self::$domain = sql()->getColumn('SELECT `domain` 
+                    static::$domain = sql()->getColumn('SELECT `domain` 
                                                           FROM   `whitelabels` 
                                                           WHERE  `domain` = :domain 
                                                           AND `status` IS NULL',
                         [':domain' => $_SERVER['HTTP_HOST']]);
 
-                    if (empty(self::$domain)) {
+                    if (empty(static::$domain)) {
                         Log::warning(tr('Whitelabel check failed because domain was not found in database, redirecting domain ":source" to ":target"', [
                             ':source' => $_SERVER['HTTP_HOST'],
                             ':target' => Page::getDomain()
@@ -757,7 +757,7 @@ Log::warning('RESTART SESSION');
                 default:
                     if (is_array(Config::get('web.domains.whitelabels', false))) {
                         // Domain must be specified in one of the array entries
-                        if (!in_array(self::$domain, Config::get('web.domains.whitelabels', false))) {
+                        if (!in_array(static::$domain, Config::get('web.domains.whitelabels', false))) {
                             Log::warning(tr('Whitelabel check failed because domain was not found in configured array, redirecting domain ":source" to ":target"', [
                                 ':source' => $_SERVER['HTTP_HOST'],
                                 ':target' => Page::getDomain()
@@ -769,7 +769,7 @@ Log::warning('RESTART SESSION');
                     } else {
                         // The domain must match either domain configuration or the domain specified in configuration
                         // "whitelabels.enabled"
-                        if (self::$domain !== Config::get('web.domains.whitelabels', false)) {
+                        if (static::$domain !== Config::get('web.domains.whitelabels', false)) {
                             Log::warning(tr('Whitelabel check failed because domain did not match only configured alternative, redirecting domain ":source" to ":target"', [
                                 ':source' => $_SERVER['HTTP_HOST'],
                                 ':target' => Page::getDomain()
@@ -805,7 +805,7 @@ Log::warning('RESTART SESSION');
 
                 if ($user['id']) {
                     // Auto sign in user
-                    self::$user = Users::signin($user, true);
+                    static::$user = Users::signin($user, true);
                     return true;
 
                 } else {
@@ -833,15 +833,15 @@ Log::warning('RESTART SESSION');
     {
         if (empty($_SESSION['start'])) {
             // There is no active session yet, follow the Session::start() path instead!
-            return self::start();
+            return static::start();
         }
 
-        Log::action(tr('Initializing new session for user ":user"', [':user' => self::getUser()->getLogId()]));
+        Log::action(tr('Initializing new session for user ":user"', [':user' => static::getUser()->getLogId()]));
 
         // Initialize the session
         $_SESSION['init']         = time();
-        $_SESSION['first_domain'] = self::$domain;
-        $_SESSION['domain']       = self::$domain;
+        $_SESSION['first_domain'] = static::$domain;
+        $_SESSION['domain']       = static::$domain;
 
 //                        $_SESSION['client']       = Core::readRegister('system', 'session', 'client');
 //                        $_SESSION['mobile']       = Core::readRegister('system', 'session', 'mobile');
@@ -862,7 +862,7 @@ Log::warning('RESTART SESSION');
 
                 Notification::new()
                     ->setException(SessionException::new(tr('Reset timezone for user ":user" to ":timezone"', [
-                        ':user'     => self::getUser()->getLogId(),
+                        ':user'     => static::getUser()->getLogId(),
                         ':timezone' => $_SESSION['user']['timezone']
                     ]), $e)->makeWarning(true))
                     ->send();

@@ -32,7 +32,7 @@ class Role extends DataEntry
      */
     public function __construct(int|string|null $identifier = null)
     {
-        self::$entry_name = 'role';
+        static::$entry_name = 'role';
         $this->table      = 'accounts_roles';
 
         parent::__construct($identifier);

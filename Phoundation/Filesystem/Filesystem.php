@@ -338,7 +338,7 @@ class Filesystem
     {
         // Public or private TMP?
         $tmp_path = ($public ? PATH_PUBTMP : PATH_TMP);
-        $path     = self::createTemp($tmp_path);
+        $path     = static::createTemp($tmp_path);
 
         mkdir($path);
 
@@ -358,7 +358,7 @@ class Filesystem
     {
         // Public or private TMP?
         $tmp_path = ($public ? PATH_PUBTMP : PATH_TMP);
-        $file     = self::createTemp($tmp_path, $extension);
+        $file     = static::createTemp($tmp_path, $extension);
 
         touch($file);
 

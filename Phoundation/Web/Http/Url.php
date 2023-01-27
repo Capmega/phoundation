@@ -42,14 +42,14 @@ class Url {
      */
     public static function isExternal(string $url, bool $check_sub_domains = true): bool
     {
-        if (!self::is($url)) {
+        if (!static::is($url)) {
             // This isn't even a complete URL, must be internal, there is no domain name expected here
             return false;
         }
 
         // We have a complete URL, so there is a domain name in there. Check if it's a "local" (ie, on this server)
         // domain name
-        return !self::getDomainType($url, $check_sub_domains);
+        return !static::getDomainType($url, $check_sub_domains);
     }
 
 
@@ -66,7 +66,7 @@ class Url {
     public static function getDomainType(string $url, bool $check_sub_domains = true): ?string
     {
         // Get all domain names and check if its primary or subdomain of those.
-        $url_domain = self::getDomainFromUrl($url);
+        $url_domain = static::getDomainFromUrl($url);
         $domains    = Config::get('web.domains');
 
         foreach ($domains as $domain) {

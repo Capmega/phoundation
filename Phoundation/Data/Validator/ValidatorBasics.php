@@ -419,7 +419,7 @@ trait ValidatorBasics
      */
     public function addFailure(string $failure, ?string $field = null): void
     {
-        if (self::$disabled) {
+        if (static::$disabled) {
             return;
         }
 

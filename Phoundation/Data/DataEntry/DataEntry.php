@@ -7,13 +7,12 @@ use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\Cli;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Meta;
+use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataList\DataList;
-use Phoundation\Data\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Components\DataEntryForm;
-
 
 
 /**
@@ -177,7 +176,7 @@ abstract class DataEntry
     {
         if (!$identifier) {
             // No identifier specified, just return an empty object
-            return self::new();
+            return static::new();
         }
 
         if (is_object($identifier)) {
@@ -185,7 +184,7 @@ abstract class DataEntry
             if (get_class($identifier) !== static::class) {
                 throw new OutOfBoundsException(tr('Specified identifier has the class ":has" but should have the class ":should"', [
                     ':has'    => get_class($identifier),
-                    ':should' => self::class
+                    ':should' => static::class
                 ]));
             }
 
@@ -199,7 +198,7 @@ abstract class DataEntry
         }
 
         throw DataEntryNotExistsException::new(tr('The ":label" entry ":identifier" does not exist', [
-            ':label'      => self::$entry_name,
+            ':label'      => static::$entry_name,
             ':identifier' => $identifier
         ]))->makeWarning();
     }
@@ -466,7 +465,7 @@ abstract class DataEntry
     /**
      * Returns all data for this data entry at once with an array of information
      *
-     * @note This method filters out all keys defined in self::getProtectedKeys() to ensure that keys like "password"
+     * @note This method filters out all keys defined in static::getProtectedKeys() to ensure that keys like "password"
      *       will not become available outside this object
      * @return array
      */

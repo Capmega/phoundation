@@ -8,6 +8,7 @@ use DateTimeZone;
 use Exception;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
+use Phoundation\Core\Exception\CoreException;
 use Phoundation\Date\Exception\DateException;
 use Phoundation\Exception\OutOfBoundsException;
 use Throwable;

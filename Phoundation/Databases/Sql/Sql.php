@@ -125,7 +125,7 @@ class Sql
         $this->uniqueid = Strings::random();
 
         // Read configuration and connect
-        self::readConfiguration($instance);
+        static::readConfiguration($instance);
         $this->connect($use_database);
     }
 

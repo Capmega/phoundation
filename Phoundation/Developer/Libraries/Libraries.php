@@ -17,6 +17,7 @@ use Phoundation\Notifications\Notification;
 use Phoundation\Web\Http\Html\Components\Table;
 
 
+
 /**
  * Libraries class
  *
@@ -25,7 +26,7 @@ use Phoundation\Web\Http\Html\Components\Table;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\System
+ * @package Phoundation\Developer
  */
 class Libraries
 {
@@ -99,15 +100,15 @@ class Libraries
      */
     public static function initialize(bool $system = true, bool $plugins = true, bool $templates = true, ?string $comments = null, ?string $library = null): void
     {
-        self::$initializing = true;
+        static::$initializing = true;
 
         if (FORCE) {
-            self::force();
+            static::force();
         }
 
         if ($library) {
             // Init only the specified library
-            $library = self::findLibrary($library);
+            $library = static::findLibrary($library);
             $library->init();
 
         } else {
@@ -118,14 +119,14 @@ class Libraries
             Cache::clear();
 
             // Ensure the system database exists
-            self::ensureSystemsDatabase();
+            static::ensureSystemsDatabase();
 
             // Go over all system libraries and initialize them, then do the same for the plugins
-            self::initializeLibraries($system, $plugins, $templates);
+            static::initializeLibraries($system, $plugins, $templates);
         }
 
         // Initialization done!
-        self::$initializing = false;
+        static::$initializing = false;
 
         if (Debug::production()) {
             // Notification developers
@@ -164,28 +165,28 @@ class Libraries
 
         // List system libraries
         if ($system) {
-            $return = array_merge($return, self::listLibraryPaths(self::CLASS_PATH_SYSTEM));
+            $return = array_merge($return, static::listLibraryPaths(static::CLASS_PATH_SYSTEM));
         }
 
         // List plugin libraries
         if ($plugins) {
             try {
-                $return = array_merge($return, self::listLibraryPaths(self::CLASS_PATH_PLUGINS));
+                $return = array_merge($return, static::listLibraryPaths(static::CLASS_PATH_PLUGINS));
 
             } catch (NotExistsException $e) {
                 // The plugins path does not exist. No biggie, note it in the logs and create it for next time.
-                mkdir(self::CLASS_PATH_PLUGINS, Config::get('filesystem.mode.default.directory', 0750));
+                mkdir(static::CLASS_PATH_PLUGINS, Config::get('filesystem.mode.default.directory', 0750));
             }
         }
 
         // List templates libraries
         if ($templates) {
             try {
-                $return = array_merge($return, self::listLibraryPaths(self::CLASS_PATH_TEMPLATES));
+                $return = array_merge($return, static::listLibraryPaths(static::CLASS_PATH_TEMPLATES));
 
             } catch (NotExistsException $e) {
                 // The templates path does not exist. No biggie, note it in the logs and create it for next time.
-                mkdir(self::CLASS_PATH_TEMPLATES, Config::get('filesystem.mode.default.directory', 0750));
+                mkdir(static::CLASS_PATH_TEMPLATES, Config::get('filesystem.mode.default.directory', 0750));
             }
         }
 
@@ -201,7 +202,7 @@ class Libraries
      */
     public static function isInitializing(): bool
     {
-        return self::$initializing;
+        return static::$initializing;
     }
 
 
@@ -223,15 +224,15 @@ class Libraries
         $paths  = [];
 
         if ($system) {
-            $paths[] = self::CLASS_PATH_SYSTEM;
+            $paths[] = static::CLASS_PATH_SYSTEM;
         }
 
         if ($plugin) {
-            $paths[] = self::CLASS_PATH_PLUGINS;
+            $paths[] = static::CLASS_PATH_PLUGINS;
         }
 
         if ($template) {
-            $paths[] = self::CLASS_PATH_TEMPLATES;
+            $paths[] = static::CLASS_PATH_TEMPLATES;
         }
 
         if (empty($paths)) {
@@ -312,7 +313,7 @@ class Libraries
         // Create and return the table
         return Table::new()
             ->setColumnHeaders([tr('Library'), tr('Version'), tr('Description')])
-            ->setSourceArray(self::listLibraries());
+            ->setSourceArray(static::listLibraries());
     }
 
 
@@ -388,14 +389,14 @@ class Libraries
     protected static function initializeLibraries(bool $system = true, bool $plugins = true, bool $templates = true, ?string $comments = null): int
     {
         // Get a list of all available libraries and their versions
-        $libraries     = self::listLibraries($system, $plugins, $templates);
+        $libraries     = static::listLibraries($system, $plugins, $templates);
         $library_count = count($libraries);
         $update_count  = 0;
 
         // Keep initializing libraries until none of them have inits available anymore
         while ($libraries) {
             // Order to have the nearest next init version first
-            self::orderLibraries($libraries);
+            static::orderLibraries($libraries);
 
             // Go over the libraries list and try to update each one
             foreach ($libraries as $path => $library) {

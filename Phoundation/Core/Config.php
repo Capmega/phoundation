@@ -75,12 +75,12 @@ class Config
     /**
      * Singleton, ensure to always return the same Log object.
      *
-     * @return Config
+     * @return static
      */
-    public static function getInstance(): Config
+    public static function getInstance(): static
     {
         if (!isset(self::$instance)) {
-            self::$instance = new Config();
+            self::$instance = new static();
         }
 
         return self::$instance;
@@ -95,7 +95,7 @@ class Config
      */
     public static function getEnvironment(): ?string
     {
-        return self::$environment;
+        return static::$environment;
     }
 
 
@@ -110,16 +110,16 @@ class Config
     {
         if (!$environment) {
             // Environment was specified as "", use no environment!
-            self::$environment = null;
-            self::reset();
+            static::$environment = null;
+            static::reset();
             return;
         }
 
         // Use the specified environment
-        self::$environment = strtolower(trim($environment));
+        static::$environment = strtolower(trim($environment));
 
-        self::reset();
-        self::read();
+        static::reset();
+        static::read();
     }
 
 
@@ -135,7 +135,7 @@ class Config
      */
     public static function getBoolean(string|array $path, ?bool $default = null, mixed $specified = null): bool
     {
-        $return = self::get($path, $default, $specified);
+        $return = static::get($path, $default, $specified);
 
         try {
             if (is_bool($return)) {
@@ -167,7 +167,7 @@ class Config
      */
     public static function getInteger(string|array $path, ?int $default = null, mixed $specified = null): int
     {
-        $return = self::get($path, $default, $specified);
+        $return = static::get($path, $default, $specified);
 
         if (is_integer($return)) {
             return $return;
@@ -192,7 +192,7 @@ class Config
      */
     public static function getNatural(string|array $path, int|float|null $default = null, mixed $specified = null): int|float
     {
-        $return = self::get($path, $default, $specified);
+        $return = static::get($path, $default, $specified);
 
         if (is_natural($return)) {
             return $return;
@@ -217,7 +217,7 @@ class Config
      */
     public static function getFloat(string|array $path, int|float|null $default = null, mixed $specified = null): int|float
     {
-        $return = self::get($path, $default, $specified);
+        $return = static::get($path, $default, $specified);
 
         if (is_float($return)) {
             return $return;
@@ -242,7 +242,7 @@ class Config
      */
     public static function getArray(string|array $path, array|null $default = null, mixed $specified = null): array
     {
-        $return = self::get($path, $default, $specified);
+        $return = static::get($path, $default, $specified);
 
         if (is_array($return)) {
             return $return;
@@ -267,7 +267,7 @@ class Config
      */
     public static function getString(string|array $path, string|null $default = null, mixed $specified = null): string
     {
-        $return = self::get($path, $default, $specified);
+        $return = static::get($path, $default, $specified);
 
         if (is_string($return)) {
             return $return;
@@ -291,7 +291,7 @@ class Config
     public static function exists(string|array $path): bool
     {
         try {
-            self::get($path);
+            static::get($path);
             return true;
 
         } catch (ConfigNotExistsException) {
@@ -314,7 +314,7 @@ class Config
     public static function test(string|array $path): mixed
     {
         try {
-            return self::get($path);
+            return static::get($path);
 
         } catch (ConfigNotExistsException) {
             // Ignore, just return null
@@ -337,14 +337,14 @@ class Config
      */
     public static function get(string|array $path, mixed $default = null, mixed $specified = null): mixed
     {
-        if (!self::$environment) {
+        if (!static::$environment) {
             // We don't really have an environment, don't check configuration, just return default values
             return $default;
         }
 
         Debug::counter('Config::get()')->increase();
 
-        if (self::$fail) {
+        if (static::$fail) {
             // Config class failed, always return all default values
             return $default;
         }
@@ -352,11 +352,11 @@ class Config
         // Do we have cached configuration information?
         $cache_key = Strings::force($path, '.');
 
-        if (array_key_exists($cache_key, self::$cache)) {
-            return self::$cache[$cache_key];
+        if (array_key_exists($cache_key, static::$cache)) {
+            return static::$cache[$cache_key];
         }
 
-        self::getInstance();
+        static::getInstance();
 
         if ($specified) {
             return $specified;
@@ -393,14 +393,14 @@ class Config
                 }
 
                 // The requested key does not exist in configuration, return the default value instead
-                return self::$cache[$cache_key] = $default;
+                return static::$cache[$cache_key] = $default;
             }
 
             // Get the requested subsection. This subsection must be an array!
             $data = &$data[$section];
         }
 
-        return self::$cache[$cache_key] = $data;
+        return static::$cache[$cache_key] = $data;
     }
 
 
@@ -415,7 +415,7 @@ class Config
      */
     public static function set(string|array $path, mixed $value = null): mixed
     {
-        self::getInstance();
+        static::getInstance();
 
         $cache_key = Strings::force($path, '.');
         $path      = Arrays::force($path, '.');
@@ -441,11 +441,11 @@ class Config
         }
 
         // Clear config cache
-        self::$cache = [];
+        static::$cache = [];
 
         // The variable $data should now be the correct leaf node. Assign it $value and return it.
         $data = $value;
-        return self::$cache[$cache_key] = $value;
+        return static::$cache[$cache_key] = $value;
     }
 
 
@@ -460,16 +460,16 @@ class Config
     protected static function read(): void
     {
         try {
-            if (!self::$environment) {
+            if (!static::$environment) {
                 // We don't really have an environment, don't read configuration
                 return;
             }
 
             // What environments should be read?
-            if (self::$environment === 'production') {
+            if (static::$environment === 'production') {
                 $environments = ['production'];
             } else {
-                $environments = ['production', self::$environment];
+                $environments = ['production', static::$environment];
             }
 
             // Read the section for each environment
@@ -489,7 +489,7 @@ class Config
                     $data = yaml_parse_file($file);
                 } catch (Throwable $e) {
                     // Failed to read YAML data from configuration file
-                    self::$fail = true;
+                    static::$fail = true;
                     throw ConfigException::new('Configuration file "' . Strings::from($file, PATH_ROOT) . '" for environment "' . Strings::log($environment) . '" does not exist', null, null, $e)
                         ->makeWarning();
                 }
@@ -500,11 +500,11 @@ class Config
                     ]));
                 }
 
-                self::$data = Arrays::mergeFull(self::$data, $data);
+                static::$data = Arrays::mergeFull(static::$data, $data);
             }
 
         } catch (ConfigException $e) {
-            self::$fail = true;
+            static::$fail = true;
             // TODO Log here that configuration loading failed.
         }
     }
@@ -625,7 +625,7 @@ class Config
         }
 
         // Save and return count
-        self::save();
+        static::save();
         return $count;
     }
 
@@ -641,7 +641,7 @@ class Config
     {
         if ($data === null) {
             // Save the data from this Config object
-            $data = self::$data;
+            $data = static::$data;
         }
 
         // Convert the data into yaml and store the data in the default file
@@ -650,8 +650,8 @@ class Config
         $data = Strings::untilReverse($data, "\n");
         $data = Strings::untilReverse($data, "\n") . "\n";
 
-        Log::action(tr('Saving environment ":env"', [':env' => self::$environment]));
-        file_put_contents(PATH_ROOT . 'config/' . self::$environment . '.yaml', $data);
+        Log::action(tr('Saving environment ":env"', [':env' => static::$environment]));
+        file_put_contents(PATH_ROOT . 'config/' . static::$environment . '.yaml', $data);
     }
 
 
@@ -665,15 +665,15 @@ class Config
     public static function import(Configuration $configuration): void
     {
         // Reset data, then import data
-        self::reset();
+        static::reset();
 
-        self::$data = [
+        static::$data = [
             'security' => [
                 'seed' => Strings::random(random_int(16, 32))
             ],
             'debug' => [
-                'enabled' => (self::$environment !== 'production'),
-                'production' => (self::$environment === 'production')
+                'enabled' => (static::$environment !== 'production'),
+                'production' => (static::$environment === 'production')
             ],
             'project' => [
                 'name' => $configuration->getProject(),
@@ -685,7 +685,7 @@ class Config
             ],
             'databases' => [
                 'sql' => [
-                    'debug' => (self::$environment === 'production'),
+                    'debug' => (static::$environment === 'production'),
                     'instances' => [
                         'system' => [
                             'type'   => 'mysql',
@@ -745,9 +745,9 @@ class Config
      */
     protected static function reset(): void
     {
-        self::$fail  = false;
-        self::$data  = [];
-        self::$files = [];
-        self::$cache = [];
+        static::$fail  = false;
+        static::$data  = [];
+        static::$files = [];
+        static::$cache = [];
     }
 }

@@ -55,7 +55,7 @@ class Environment
      */
     protected function __construct(string $project, string $environment)
     {
-        $this->name    = self::sanitize($environment);
+        $this->name    = static::sanitize($environment);
         $this->project = $project;
         $this->config  = new Configuration($project);
     }
@@ -73,7 +73,7 @@ class Environment
     {
         Log::action(tr('Generating new environment ":env"', [':env' => $environment]));
 
-        if (self::exists($environment)) {
+        if (static::exists($environment)) {
             throw new OutOfBoundsException(tr('Specified environment ":environment" already exist', [
                 ':environment' => $environment
             ]));
@@ -93,7 +93,7 @@ class Environment
      */
     public static function get(string $project, string $environment): Environment
     {
-        if (!self::exists($environment)) {
+        if (!static::exists($environment)) {
             throw new OutOfBoundsException(tr('Specified environment ":environment" does not exist', [
                 ':environment' => $environment
             ]));
@@ -157,8 +157,8 @@ class Environment
      */
     public static function exists(string $environment): bool
     {
-        $environment = self::sanitize($environment);
-        return file_exists(self::getConfigurationFile($environment));
+        $environment = static::sanitize($environment);
+        return file_exists(static::getConfigurationFile($environment));
     }
 
 
@@ -217,7 +217,7 @@ class Environment
         }
 
         // delete the environment configuration file
-        File::new(self::getConfigurationFile($this->name), Restrictions::new(PATH_ROOT . 'config/', true))->delete();
+        File::new(static::getConfigurationFile($this->name), Restrictions::new(PATH_ROOT . 'config/', true))->delete();
 
         return true;
     }

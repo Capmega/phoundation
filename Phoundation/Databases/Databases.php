@@ -72,13 +72,13 @@ class Databases
             $instance = 'system';
         }
 
-        if (!array_key_exists($instance, self::$sql)) {
+        if (!array_key_exists($instance, static::$sql)) {
             // No panic now! This instance isn't registered yet, so it might very well be the first time we're using it
             // Try connecting
-            self::$sql[$instance] = new Sql($instance, $use_database);
+            static::$sql[$instance] = new Sql($instance, $use_database);
         }
 
-        return self::$sql[$instance];
+        return static::$sql[$instance];
     }
 
 
@@ -97,13 +97,13 @@ class Databases
             $instance = 'system';
         }
 
-        if (!array_key_exists($instance, self::$mc)) {
+        if (!array_key_exists($instance, static::$mc)) {
             // No panic now! This instance isn't registered yet, so it might very well be the first time we're using it
             // Try connecting
-            self::$mc[$instance] = new Mc($instance);
+            static::$mc[$instance] = new Mc($instance);
         }
 
-        return self::$mc[$instance];
+        return static::$mc[$instance];
     }
 
 
@@ -122,13 +122,13 @@ class Databases
             $instance = 'system';
         }
 
-        if (!array_key_exists($instance, self::$redis)) {
+        if (!array_key_exists($instance, static::$redis)) {
             // No panic now! This instance isn't registered yet, so it might very well be the first time we're using it
             // Try connecting
-            self::$redis[$instance] = new Redis($instance);
+            static::$redis[$instance] = new Redis($instance);
         }
 
-        return self::$redis[$instance];
+        return static::$redis[$instance];
     }
 
 
@@ -147,13 +147,13 @@ class Databases
             $instance = 'system';
         }
 
-        if (!array_key_exists($instance, self::$mongo)) {
+        if (!array_key_exists($instance, static::$mongo)) {
             // No panic now! This instance isn't registered yet, so it might very well be the first time we're using it
             // Try connecting
-            self::$mongo[$instance] = new Mongo($instance);
+            static::$mongo[$instance] = new Mongo($instance);
         }
 
-        return self::$mongo[$instance];
+        return static::$mongo[$instance];
     }
 
 
@@ -172,12 +172,12 @@ class Databases
             $instance = 'system';
         }
 
-        if (!array_key_exists($instance, self::$null_db)) {
+        if (!array_key_exists($instance, static::$null_db)) {
             // No panic now! This instance isn't registered yet, so it might very well be the first time we're using it
             // Try connecting
-            self::$null_db[$instance] = new NullDb($instance);
+            static::$null_db[$instance] = new NullDb($instance);
         }
 
-        return self::$null_db[$instance];
+        return static::$null_db[$instance];
     }
 }

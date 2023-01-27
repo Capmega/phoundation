@@ -29,7 +29,7 @@ class Language extends DataEntry
      */
     public function __construct(int|string|null $identifier = null)
     {
-        self::$entry_name    = 'language';
+        static::$entry_name    = 'language';
         $this->table         = 'languages';
         $this->unique_column = 'code_639_1';
 

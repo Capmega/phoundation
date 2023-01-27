@@ -30,7 +30,7 @@ class Branch extends DataEntry
      */
     public function __construct(int|string|null $identifier = null)
     {
-        self::$entry_name = 'company branch';
+        static::$entry_name = 'company branch';
         $this->table      = 'business_branches';
 
         parent::__construct($identifier);

@@ -672,20 +672,20 @@ class Path extends FileBasics
      */
     public static function getTemporary(bool $public = false): string
     {
-        if (!self::$temp_path) {
-            self::$temp_path = PATH_TMP . 'process-' . posix_getpid() . '/';
+        if (!static::$temp_path) {
+            static::$temp_path = PATH_TMP . 'process-' . posix_getpid() . '/';
 
-            self::$temp_path = Path::new(self::$temp_path, Restrictions::new(self::$temp_path, true))
+            static::$temp_path = Path::new(static::$temp_path, Restrictions::new(static::$temp_path, true))
                 ->delete()
                 ->ensureWritable();
         }
 
         if ($public) {
             // TODO IMPROVE THIS, THIS WOULD INDICATE INTERNAL PROCESS ID TO THE OUTSIDE WORLD
-            link(PATH_PUBTMP . 'p-' . posix_getpid() . '/', self::$temp_path);
+            link(PATH_PUBTMP . 'p-' . posix_getpid() . '/', static::$temp_path);
         }
 
-        return self::$temp_path;
+        return static::$temp_path;
     }
 
 
@@ -697,8 +697,8 @@ class Path extends FileBasics
      */
     public static function removeTemporary(): void
     {
-        if (self::$temp_path) {
-            File::new(self::$temp_path)->delete();
+        if (static::$temp_path) {
+            File::new(static::$temp_path)->delete();
         }
     }
 }

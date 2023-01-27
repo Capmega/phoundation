@@ -33,12 +33,12 @@ class Http
     /**
      * Singleton
      *
-     * @return Http
+     * @return static
      */
-    public static function getInstance(): Http
+    public static function getInstance(): static
     {
         if (!isset(self::$instance)) {
-            self::$instance = new Http();
+            self::$instance = new static();
         }
 
         return self::$instance;

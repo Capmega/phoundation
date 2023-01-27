@@ -6,11 +6,14 @@ use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Validator;
+use Phoundation\Developer\Debug;
 use Phoundation\Developer\Project\Exception\EnvironmentExists;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Restrictions;
+use Phoundation\Processes\Process;
 use Throwable;
+
 
 
 /**
@@ -50,7 +53,7 @@ class Project
      */
     public static function create(string $project, bool $force = false): void
     {
-        if (self::exists()) {
+        if (static::exists()) {
             if (!$force) {
                 throw new OutOfBoundsException(tr('Project file "config/project" already exist'));
             }
@@ -58,8 +61,8 @@ class Project
             File::new(PATH_ROOT . 'config/project')->delete();
         }
 
-        self::$name = $project;
-        self::save();
+        static::$name = $project;
+        static::save();
     }
 
 
@@ -71,7 +74,7 @@ class Project
      */
     public static function getName():string
     {
-        return self::$name;
+        return static::$name;
     }
 
 
@@ -93,11 +96,11 @@ class Project
                 ]))->makeWarning();
             }
 
-            self::removeEnvironment($environment);
+            static::removeEnvironment($environment);
         }
 
-        self::$environment = Environment::new(self::$name, $environment);
-        return self::$environment;
+        static::$environment = Environment::new(static::$name, $environment);
+        return static::$environment;
     }
 
 
@@ -109,7 +112,7 @@ class Project
      */
     public static function getEnvironment(): ?Environment
     {
-        return self::$environment;
+        return static::$environment;
     }
 
 
@@ -149,9 +152,9 @@ class Project
     {
         Log::action(tr('Removing project'));
 
-        foreach (self::getEnvironments() as $environment) {
+        foreach (static::getEnvironments() as $environment) {
             // Delete this environment
-            self::removeEnvironment($environment);
+            static::removeEnvironment($environment);
         }
 
         // Remove the project file
@@ -170,17 +173,17 @@ class Project
     {
         // Setup environment
         try {
-            if (!isset(self::$environment)) {
+            if (!isset(static::$environment)) {
                 throw new OutOfBoundsException(tr('No environment specified'));
             }
 
-            $configuration = self::$environment->getConfiguration();
+            $configuration = static::$environment->getConfiguration();
 
             Log::information(tr('Initializing project ":project", this can take a little while...', [
-                ':project' => self::$name
+                ':project' => static::$name
             ]));
 
-            self::getEnvironment()->setup();
+            static::getEnvironment()->setup();
 
             // Create admin user
             Log::action(tr('Creating administrative user ":email", almost done...', [
@@ -256,9 +259,9 @@ class Project
     public static function load(): ?string
     {
         $project = file_get_contents(PATH_ROOT . 'config/project');
-        $project = self::sanitize($project);
+        $project = static::sanitize($project);
 
-        self::$name = $project;
+        static::$name = $project;
 
         return $project;
     }
@@ -272,7 +275,7 @@ class Project
      */
     protected static function save(): void
     {
-        file_put_contents(PATH_ROOT . 'config/project', self::$name);
+        file_put_contents(PATH_ROOT . 'config/project', static::$name);
     }
 
 
@@ -325,12 +328,12 @@ class Project
         ]));
 
         // If we're removing the environment that is currently used then remove it from memory too
-        if (self::$environment->getName() === $environment) {
-            self::$environment = null;
+        if (static::$environment->getName() === $environment) {
+            static::$environment = null;
         }
 
         // Get the environment and remove all environment specific data
-        return Environment::get(self::$name, $environment)->remove();
+        return Environment::get(static::$name, $environment)->remove();
     }
 
 
@@ -338,13 +341,58 @@ class Project
     /**
      * Executes data import for all libraries that support it
      *
+     * @param bool $demo
+     * @param int $min
+     * @param int $max
      * @return void
      */
-    public static function import(): void
+    public static function import(bool $demo, int $min, int $max): void
     {
         Log::information(tr('Starting import for all libraries that support it'));
-        // Find all import object and execute them
-        // TODO implement, for now its hard coded
-        \Phoundation\Core\Locale\Language\Import::execute();
+
+        $sections = [
+            'Phoundation/' => tr('Phoundation'),
+            'Plugins/'     => tr('Plugin')
+        ];
+
+        foreach ($sections as $directory => $section) {
+            // Find all import object and execute them
+            $files = Process::new('find')
+                ->addArgument(PATH_ROOT . $directory)
+                ->addArgument('-name')
+                ->addArgument('Import.php')
+                ->executeReturnArray();
+
+            // Execute all Import objects if they are valid
+            foreach ($files as $file) {
+                try {
+                    include_once($file);
+                    $class   = Debug::getClassPath($file);
+                    $library = Strings::until(Strings::from($file, $directory), '/');
+
+                    if (is_subclass_of($class, Import::class)) {
+                        Log::action(tr('Importing data for ":section" library ":library"', [
+                            ':section' => $section,
+                            ':library' => $library
+                        ]), 3);
+
+                        $count = $class::new($demo, $min, $max)->execute();
+
+                        Log::action(tr('Imported ":count" records for ":section" library ":library"', [
+                            ':section' => $section,
+                            ':library' => $library,
+                            ':count'   => $count
+                        ]));
+                    }
+                } catch (Throwable $e) {
+                    Log::action(tr('Failed to import data for ":section" library ":library" with the following exception', [
+                        ':section' => $section,
+                        ':library' => $library
+                    ]), 3);
+
+                    Log::error($e);
+                }
+            }
+        }
     }
 }

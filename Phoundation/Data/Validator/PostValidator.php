@@ -41,7 +41,7 @@ class PostValidator extends Validator
      * @param Validator|null $parent If specified, this is actually a child validator to the specified parent
      */
     public function __construct(?Validator $parent = null) {
-        $this->construct($parent, self::$post);
+        $this->construct($parent, static::$post);
     }
 
 
@@ -73,7 +73,7 @@ class PostValidator extends Validator
         global $_POST;
 
         // Copy POST data and reset both POST and REQUEST
-        self::$post = $_POST;
+        static::$post = $_POST;
 
         $_POST    = [];
         $_REQUEST = [];
@@ -90,7 +90,7 @@ class PostValidator extends Validator
      */
     public static function addData(string $key, mixed $value): void
     {
-        self::$post[$key] = $value;
+        static::$post[$key] = $value;
     }
 
 
@@ -137,7 +137,7 @@ class PostValidator extends Validator
     protected function liberateData(): void
     {
         global $_POST;
-        $_POST = self::$post;
-        self::$post = null;
+        $_POST = static::$post;
+        static::$post = null;
     }
 }

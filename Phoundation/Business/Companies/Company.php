@@ -49,7 +49,7 @@ class Company extends DataEntry
      */
     public function __construct(int|string|null $identifier = null)
     {
-        self::$entry_name = 'company';
+        static::$entry_name = 'company';
         $this->table      = 'business_companies';
 
         parent::__construct($identifier);

@@ -23,7 +23,7 @@ class TemplateMenus extends \Phoundation\Web\Http\Html\Template\TemplateMenus
      */
     public function __construct()
     {
-        self::$menu_class = Menu::class;
+        static::$menu_class = Menu::class;
     }
 
 
@@ -34,7 +34,7 @@ class TemplateMenus extends \Phoundation\Web\Http\Html\Template\TemplateMenus
      */
     public static function getPrimaryMenu(): Menu
     {
-        $menu   = new self::$menu_class();
+        $menu   = new static::$menu_class();
         $source = [
             tr('Home') => [
                 'url'  => '/',

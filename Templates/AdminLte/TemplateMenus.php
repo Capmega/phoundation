@@ -23,6 +23,6 @@ class TemplateMenus extends \Phoundation\Web\Http\Html\Template\TemplateMenus
      */
     public function __construct()
     {
-        self::$menu_class = Menu::class;
+        static::$menu_class = Menu::class;
     }
 }

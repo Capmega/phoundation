@@ -33,7 +33,7 @@ class Country extends DataEntry
      */
     public function __construct(int|string|null $identifier = null)
     {
-        self::$entry_name = 'geo country';
+        static::$entry_name = 'geo country';
         $this->table      = 'geo_countries';
 
         parent::__construct($identifier);

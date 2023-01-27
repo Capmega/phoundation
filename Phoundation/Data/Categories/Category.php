@@ -30,7 +30,7 @@ class Category extends DataEntry
      */
     public function __construct(int|string|null $identifier = null)
     {
-        self::$entry_name = 'category';
+        static::$entry_name = 'category';
         $this->table      = 'categories';
 
         parent::__construct($identifier);

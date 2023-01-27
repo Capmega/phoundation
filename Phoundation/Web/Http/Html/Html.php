@@ -62,11 +62,11 @@ Class Html
      */
     public static function csrf(): Csrf
     {
-        if (!self::$csrf) {
-            self::$csrf = new Csrf();
+        if (!static::$csrf) {
+            static::$csrf = new Csrf();
         }
 
-        return self::$csrf;
+        return static::$csrf;
     }
 
 
@@ -78,7 +78,7 @@ Class Html
      */
     public static function getTabIndex(): int
     {
-        return self::$tabindex++;
+        return static::$tabindex++;
     }
 
 
@@ -119,9 +119,9 @@ Class Html
     public static function addToFooter(array|string $footer): void
     {
         if (is_array($footer)){
-            self::$footers = array_merge(self::$footers, $footer);
+            static::$footers = array_merge(static::$footers, $footer);
         } else {
-            self::$footers[] = $footer;
+            static::$footers[] = $footer;
         }
     }
 
@@ -1756,7 +1756,7 @@ Class Html
         Arrays::default($params, 'resource', false);
         Arrays::default($params, 'selected', '');
 
-        return self::select($params);
+        return static::select($params);
     }
 
 

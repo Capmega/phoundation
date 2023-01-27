@@ -33,7 +33,7 @@ class State extends DataEntry
      */
     public function __construct(int|string|null $identifier = null)
     {
-        self::$entry_name = 'geo state';
+        static::$entry_name = 'geo state';
         $this->table      = 'geo_states';
 
         parent::__construct($identifier);

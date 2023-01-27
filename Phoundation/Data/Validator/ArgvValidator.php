@@ -77,7 +77,7 @@ class ArgvValidator extends Validator
         global $argv;
 
         // Copy $argv data and reset the global $argv
-        self::$argv = $argv;
+        static::$argv = $argv;
         $argv = [];
     }
 
@@ -144,7 +144,7 @@ class ArgvValidator extends Validator
 
         // Get the value from the arguments list
         try {
-            $value = self::argument($fields, $next);
+            $value = static::argument($fields, $next);
         } catch (OutOfBoundsException) {
 
         }
@@ -153,7 +153,7 @@ class ArgvValidator extends Validator
             // TODO Improve argument handling here. We should be able to mix "--modifier modifiervalue value" with "value --modifier modifiervalue" but with this design we currently can'y
             // We're looking not for a modifier, but for a method or value. This is a modifier, so don't use it. Put the
             // value back on the arguments list
-            self::$argv[] = $value;
+            static::$argv[] = $value;
             $value = null;
         }
 
@@ -198,12 +198,12 @@ class ArgvValidator extends Validator
      */
     public function noArgumentsLeft(): static
     {
-        if (empty(self::$argv)) {
+        if (empty(static::$argv)) {
             return $this;
         }
 
         throw CliInvalidArgumentsException::new(tr('Invalid arguments ":arguments" encountered', [
-            ':arguments' => Strings::force(self::$argv, ', ')
+            ':arguments' => Strings::force(static::$argv, ', ')
         ]))->makeWarning();
     }
 
@@ -216,7 +216,7 @@ class ArgvValidator extends Validator
      */
     public static function count(): int
     {
-        return count(self::$argv);
+        return count(static::$argv);
     }
 
 
@@ -231,7 +231,7 @@ class ArgvValidator extends Validator
         $methods = [];
 
         // Scan all arguments until named parameters start
-        foreach (self::$argv as $argument) {
+        foreach (static::$argv as $argument) {
             if (str_starts_with($argument, '-')) {
                 break;
             }
@@ -261,7 +261,7 @@ class ArgvValidator extends Validator
      */
     public static function removeMethod(string $method): void
     {
-        $key = array_search($method, self::$argv);
+        $key = array_search($method, static::$argv);
 
         if ($key === false) {
             throw new ValidatorException(tr('Cannot remove method ":method", it does not exist', [
@@ -269,7 +269,7 @@ class ArgvValidator extends Validator
             ]));
         }
 
-        unset(self::$argv[$key]);
+        unset(static::$argv[$key]);
     }
 
 
@@ -344,13 +344,13 @@ class ArgvValidator extends Validator
         if (is_integer($keys)) {
             // Get arguments by index
             if ($next === 'all') {
-                foreach (self::$argv as $argv_key => $argv_value) {
+                foreach (static::$argv as $argv_key => $argv_value) {
                     if ($argv_key < $keys) {
                         continue;
                     }
 
                     if ($argv_key == $keys) {
-                        unset(self::$argv[$keys]);
+                        unset(static::$argv[$keys]);
                         continue;
                     }
 
@@ -361,15 +361,15 @@ class ArgvValidator extends Validator
 
                     // Add this argument to the list
                     $value[] = $argv_value;
-                    unset(self::$argv[$argv_key]);
+                    unset(static::$argv[$argv_key]);
                 }
 
                 return isset_get($value);
             }
 
-            if (isset(self::$argv[$keys++])) {
-                $argument = self::$argv[$keys - 1];
-                unset(self::$argv[$keys - 1]);
+            if (isset(static::$argv[$keys++])) {
+                $argument = static::$argv[$keys - 1];
+                unset(static::$argv[$keys - 1]);
                 return $argument;
             }
 
@@ -379,7 +379,7 @@ class ArgvValidator extends Validator
 
         if ($keys === null) {
             // Get the next argument?
-            return array_shift(self::$argv);
+            return array_shift(static::$argv);
         }
 
         //Detect multiple key options for the same command, but ensure only one is specified
@@ -420,7 +420,7 @@ class ArgvValidator extends Validator
             };
         }
 
-        if (($key = array_search($keys, self::$argv)) === false) {
+        if (($key = array_search($keys, static::$argv)) === false) {
             return null;
         }
 
@@ -429,11 +429,11 @@ class ArgvValidator extends Validator
                 // Return all following arguments, if available, until the next option
                 $value = [];
 
-                foreach (self::$argv as $argv_key => $argv_value) {
+                foreach (static::$argv as $argv_key => $argv_value) {
                     if (empty($start)) {
                         if ($argv_value == $keys) {
                             $start = true;
-                            unset(self::$argv[$argv_key]);
+                            unset(static::$argv[$argv_key]);
                         }
 
                         continue;
@@ -446,7 +446,7 @@ class ArgvValidator extends Validator
 
                     //Add this argument to the list
                     $value[] = $argv_value;
-                    unset(self::$argv[$argv_key]);
+                    unset(static::$argv[$argv_key]);
                 }
 
                 return $value;
@@ -454,7 +454,7 @@ class ArgvValidator extends Validator
 
             try {
                 // Return next argument, if available
-                $value = Arrays::nextValue(self::$argv, $keys, true);
+                $value = Arrays::nextValue(static::$argv, $keys, true);
 
             } catch (OutOfBoundsException $e) {
                 // This argument requires another parameter. Make it an arguments exception!
@@ -471,7 +471,7 @@ class ArgvValidator extends Validator
             return $value;
         }
 
-        unset(self::$argv[$key]);
+        unset(static::$argv[$key]);
         return true;
     }
 }

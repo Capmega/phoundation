@@ -14,7 +14,7 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
-use Phoundation\Data\Exception\DataEntryNotExistsException;
+use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Date\Date;
 use Phoundation\Developer\Debug;
@@ -98,14 +98,14 @@ class Page
     protected static ?Flash $flash = null;
 
     /**
-     * Tracks if self::sendHeaders() sent headers already or not.
+     * Tracks if static::sendHeaders() sent headers already or not.
      *
      * @note IMPORTANT: Since flush() and ob_flush() will NOT lock headers until the buffers are actually flushed, and
      *                  they will neither actually flush the buffers as long as the process is running AND the buffers
      *                  are not full yet, weird things can happen. With a buffer of 4096 bytes (typically), echo 100
-     *                  characters, and then execute self::sendHeaders(), then ob_flush() and flush() and headers_sent()
+     *                  characters, and then execute static::sendHeaders(), then ob_flush() and flush() and headers_sent()
      *                  will STILL be false, and REMAIN false until the buffer has reached 4096 characters OR the
-     *                  process ends. This variable just keeps track if self::sendHeaders() has been executed (and it
+     *                  process ends. This variable just keeps track if static::sendHeaders() has been executed (and it
      *                  won't execute again), but headers might still be sent out manually. This is rather messed up,
      *                  because it really shows as if information was sent, the buffers are flushed, yet nothing is
      *                  actually flushed, so the headers are also not sent. This is just messed up PHP.
@@ -275,8 +275,8 @@ class Page
      */
     protected function __construct()
     {
-        self::$headers['meta']['charset']  = Config::get('languages.encoding.charset', 'UTF-8');
-        self::$headers['meta']['viewport'] = Config::get('web.viewport'              , 'width=device-width, initial-scale=1, shrink-to-fit=no');
+        static::$headers['meta']['charset']  = Config::get('languages.encoding.charset', 'UTF-8');
+        static::$headers['meta']['viewport'] = Config::get('web.viewport'              , 'width=device-width, initial-scale=1, shrink-to-fit=no');
     }
 
 
@@ -286,10 +286,10 @@ class Page
      *
      * @return static
      */
-    public static function getInstance(): Page
+    public static function getInstance(): static
     {
         if (!isset(self::$instance)) {
-            self::$instance = new Page();
+            self::$instance = new static();
         }
 
         return self::$instance;
@@ -304,7 +304,7 @@ class Page
      */
     public static function getServerRestrictions(): Server
     {
-        return self::$server_restrictions;
+        return static::$server_restrictions;
     }
 
 
@@ -317,7 +317,7 @@ class Page
      */
     public static function setServerRestrictions(Server $server_restrictions): void
     {
-        self::$server_restrictions = $server_restrictions;
+        static::$server_restrictions = $server_restrictions;
     }
 
 
@@ -329,7 +329,7 @@ class Page
      */
     public static function getRoutingParameters(): RoutingParameters
     {
-        return self::$parameters;
+        return static::$parameters;
     }
 
 
@@ -342,22 +342,22 @@ class Page
      */
     public static function setRoutingParameters(RoutingParameters $parameters): void
     {
-        self::$parameters = $parameters;
+        static::$parameters = $parameters;
 
         // Set the server filesystem restrictions and template for this page
         Page::setServerRestrictions($parameters->getServerRestrictions());
 
         // Initialize the template
         if (!$parameters->getTemplate()) {
-            if (!self::$template_page) {
+            if (!static::$template_page) {
                 throw new OutOfBoundsException(tr('Cannot use routing parameters ":pattern", it has no template set', [
                     ':pattern' => $parameters->getPattern()
                 ]));
             }
         } else {
             // Get a new template page from the specified template
-            self::$template      = $parameters->getTemplateObject();
-            self::$template_page = self::$template->getPage();
+            static::$template      = $parameters->getTemplateObject();
+            static::$template_page = static::$template->getPage();
         }
     }
 
@@ -370,7 +370,7 @@ class Page
      */
     public static function getFlashMessages(): ?FlashMessages
     {
-        return self::$flash_messages;
+        return static::$flash_messages;
     }
 
 
@@ -382,7 +382,7 @@ class Page
      */
     public static function getTarget(): ?string
     {
-        return self::$target;
+        return static::$target;
     }
 
 
@@ -407,7 +407,7 @@ class Page
      */
     public static function setBuildBody(bool $build_body): void
     {
-        self::$build_body = $build_body;
+        static::$build_body = $build_body;
     }
 
 
@@ -419,7 +419,7 @@ class Page
      */
     public static function getBuildBody(): ?string
     {
-        return self::$build_body;
+        return static::$build_body;
     }
 
 
@@ -502,10 +502,10 @@ class Page
     public static function getUrl(bool $no_queries = false): string
     {
         if (PLATFORM_HTTP) {
-            return $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . self::getUri($no_queries);
+            return $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . static::getUri($no_queries);
         }
 
-        return self::$parameters->getRootUrl();
+        return static::$parameters->getRootUrl();
     }
 
 
@@ -523,7 +523,7 @@ class Page
             return ($no_queries ? Strings::until($_SERVER['REQUEST_URI'], '?') : $_SERVER['REQUEST_URI']);
         }
 
-        return self::$parameters->getUri();
+        return static::$parameters->getUri();
     }
 
 
@@ -535,7 +535,7 @@ class Page
      */
     public static function getRootUrl(): string
     {
-        return self::$parameters->getRootUrl();
+        return static::$parameters->getRootUrl();
     }
 
 
@@ -547,7 +547,7 @@ class Page
      */
     public static function getRootUri(): string
     {
-        $uri = self::getRootUrl();
+        $uri = static::getRootUrl();
         $uri = Strings::from($uri, '://');
         $uri = Strings::from($uri, '/');
 
@@ -563,7 +563,7 @@ class Page
      */
     public static function getBreadCrumbs(): ?BreadCrumbs
     {
-        return self::$bread_crumbs;
+        return static::$bread_crumbs;
     }
 
 
@@ -576,7 +576,7 @@ class Page
      */
     public static function setBreadCrumbs(?BreadCrumbs $bread_crumbs = null): void
     {
-        self::$bread_crumbs = $bread_crumbs;
+        static::$bread_crumbs = $bread_crumbs;
     }
 
 
@@ -588,7 +588,7 @@ class Page
      */
     public static function getTemplate(): Template
     {
-        return self::$template;
+        return static::$template;
     }
 
 
@@ -600,7 +600,7 @@ class Page
      */
     public static function getTemplatePage(): TemplatePage
     {
-        return self::$template_page;
+        return static::$template_page;
     }
 
 
@@ -631,7 +631,7 @@ class Page
      */
     public static function requiresAllRights(array|string $rights, string|int|null $missing_rights_target = 403, string|int|null $guest_target = 401): void
     {
-        self::requiresNotGuest();
+        static::requiresNotGuest();
 
         if (Session::getUser()->isGuest()) {
             throw AccessDeniedException::new(tr('You have to sign in to view this page'))
@@ -656,7 +656,7 @@ class Page
      */
     public static function requiresSomeRights(array|string $rights, string|int|null $missing_rights_target = 403, string|int|null $guest_target = 401): void
     {
-        self::requiresNotGuest();
+        static::requiresNotGuest();
 
         if (Session::getUser()->isGuest()) {
             throw AccessDeniedException::new(tr('You have to sign in to view this page'))
@@ -678,7 +678,7 @@ class Page
      */
     public static function getHttpHeadersSent(): bool
     {
-        return self::$http_headers_sent;
+        return static::$http_headers_sent;
     }
 
 
@@ -690,7 +690,7 @@ class Page
      */
     public static function getHttpCode(): int
     {
-        return self::$http_code;
+        return static::$http_code;
     }
 
 
@@ -706,7 +706,7 @@ class Page
         // Validate status code
         // TODO implement
 
-        self::$http_code = $code;
+        static::$http_code = $code;
     }
 
 
@@ -718,7 +718,7 @@ class Page
      */
     public static function getContentType(): ?string
     {
-        return self::$content_type;
+        return static::$content_type;
     }
 
 
@@ -734,7 +734,7 @@ class Page
         // Validate status code
         // TODO implement
 
-        self::$content_type = $content_type;
+        static::$content_type = $content_type;
     }
 
 
@@ -746,7 +746,7 @@ class Page
      */
     public static function getCors(): array
     {
-        return self::$cors;
+        return static::$cors;
     }
 
 
@@ -763,7 +763,7 @@ class Page
         // Validate CORS data
         // TODO implement validation
 
-        self::$cors = [
+        static::$cors = [
             'origin'  => '*.',
             'methods' => 'GET, POST',
             'headers' => ''
@@ -779,7 +779,7 @@ class Page
      */
     public static function getDocType(): string
     {
-        return self::$doctype;
+        return static::$doctype;
     }
 
 
@@ -792,7 +792,7 @@ class Page
      */
     public static function setDoctype(string $doctype): void
     {
-        self::$doctype = $doctype;
+        static::$doctype = $doctype;
     }
 
 
@@ -804,7 +804,7 @@ class Page
      */
     public static function getPageTitle(): string
     {
-        return self::$page_title;
+        return static::$page_title;
     }
 
 
@@ -817,7 +817,7 @@ class Page
      */
     public static function setPageTitle(string $page_title): void
     {
-        self::$page_title = strip_tags($page_title);
+        static::$page_title = strip_tags($page_title);
     }
 
 
@@ -829,7 +829,7 @@ class Page
      */
     public static function getDescription(): ?string
     {
-        return self::$description;
+        return static::$description;
     }
 
 
@@ -842,7 +842,7 @@ class Page
      */
     public static function setDescription(?string $description): void
     {
-        self::$description = strip_tags($description);
+        static::$description = strip_tags($description);
     }
 
 
@@ -854,7 +854,7 @@ class Page
      */
     public static function getHeaderTitle(): ?string
     {
-        return self::$header_title;
+        return static::$header_title;
     }
 
 
@@ -867,10 +867,10 @@ class Page
      */
     public static function setHeaderTitle(?string $header_title): void
     {
-        self::$header_title = $header_title;
+        static::$header_title = $header_title;
 
-        if (!self::$page_title) {
-            self::$page_title = Config::get('project.name', 'Phoundation') . $header_title;
+        if (!static::$page_title) {
+            static::$page_title = Config::get('project.name', 'Phoundation') . $header_title;
         }
     }
 
@@ -883,7 +883,7 @@ class Page
      */
     public static function getHeaderSubTitle(): ?string
     {
-        return self::$header_sub_title;
+        return static::$header_sub_title;
     }
 
 
@@ -896,7 +896,7 @@ class Page
      */
     public static function setHeaderSubTitle(?string $header_sub_title): void
     {
-        self::$header_sub_title = $header_sub_title;
+        static::$header_sub_title = $header_sub_title;
     }
 
 
@@ -908,7 +908,7 @@ class Page
      */
     public static function getCharset(): ?string
     {
-        return isset_get(self::$headers['meta']['charset']);
+        return isset_get(static::$headers['meta']['charset']);
     }
 
 
@@ -921,7 +921,7 @@ class Page
      */
     public static function setCharset(?string $charset): void
     {
-        self::$headers['meta']['charset'] = $charset;
+        static::$headers['meta']['charset'] = $charset;
     }
 
 
@@ -933,7 +933,7 @@ class Page
      */
     public static function getViewport(): ?string
     {
-        return isset_get(self::$headers['meta']['viewport']);
+        return isset_get(static::$headers['meta']['viewport']);
     }
 
 
@@ -946,7 +946,7 @@ class Page
      */
     public static function setViewport(?string $viewport): void
     {
-        self::$headers['meta']['viewport'] = $viewport;
+        static::$headers['meta']['viewport'] = $viewport;
     }
 
 
@@ -972,8 +972,8 @@ class Page
     public static function execute(string $target, bool $attachment = false): ?string
     {
         try {
-            if (!isset(self::$flash_messages)) {
-                self::$flash_messages = FlashMessages::new();
+            if (!isset(static::$flash_messages)) {
+                static::$flash_messages = FlashMessages::new();
             }
 
             // Set cookie, start session where needed, etc.
@@ -988,30 +988,30 @@ class Page
 
             // Check user access rights. Routing parameters should be able to tell us what rights are required now
             if (Core::stateIs('script')) {
-                Page::hasRightsOrRedirects($target, self::$parameters->getRequiredRights($target));
+                Page::hasRightsOrRedirects($target, static::$parameters->getRequiredRights($target));
             }
 
             // Set the page hash and check if we have access to this page?
-            self::$hash   = sha1($_SERVER['REQUEST_URI']);
-            self::$target = $target;
-            self::$server_restrictions->checkRestrictions($target, false);
+            static::$hash   = sha1($_SERVER['REQUEST_URI']);
+            static::$target = $target;
+            static::$server_restrictions->checkRestrictions($target, false);
 
             // Do we have a cached version available?
-            $cache = Cache::read(self::$hash, 'pages');
+            $cache = Cache::read(static::$hash, 'pages');
 
             if ($cache) {
                 try {
                     $cache  = Json::decode($cache);
-                    $length = self::sendHttpHeaders($cache['headers']);
+                    $length = static::sendHttpHeaders($cache['headers']);
 
                     Log::success(tr('Sent ":length" bytes of HTTP to client', [':length' => $length]), 3);
 
                     // Send the page to the client
-                    self::send($cache['output']);
+                    static::send($cache['output']);
                 } catch (Throwable $e) {
                     // Cache failed!
                     Log::warning(tr('Failed to send full cache page ":page" with following exception, ignoring cache and building page', [
-                        ':page' => self::$hash,
+                        ':page' => static::$hash,
                     ]));
 
                     Log::exception($e);
@@ -1027,7 +1027,7 @@ class Page
                 Log::information(tr('Executing ":call" type page ":target" with template ":template" in language ":language" and sending output as HTML web page', [
                     ':call'     => Core::getRequestType(),
                     ':target'   => Strings::from($target, PATH_ROOT),
-                    ':template' => self::$template->getName(),
+                    ':template' => static::$template->getName(),
                     ':language' => LANGUAGE
                 ]));
 
@@ -1035,12 +1035,12 @@ class Page
                     case 'api':
                         // no-break
                     case 'ajax':
-                        self::$api_interface = new ApiInterface();
-                        $output = self::$api_interface->execute($target);
+                        static::$api_interface = new ApiInterface();
+                        $output = static::$api_interface->execute($target);
                         break;
 
                     default:
-                        $output = self::$template_page->execute($target);
+                        $output = static::$template_page->execute($target);
                 };
             } catch (AccessDeniedException $e) {
                 $new_target = $e->getNewTarget();
@@ -1052,14 +1052,14 @@ class Page
                 ]));
 
                 $output = match (Core::getRequestType()) {
-                    'api', 'ajax' => self::$api_interface->execute($new_target),
-                    default       => self::$template_page->execute($new_target),
+                    'api', 'ajax' => static::$api_interface->execute($new_target),
+                    default       => static::$template_page->execute($new_target),
                 };;
             }
 
             // TODO Work on the HTTP headers, lots of issues here still, like content-length!
             // Build the headers, cache output and headers together, then send the headers
-            $headers = self::buildHttpHeaders($output, $attachment);
+            $headers = static::buildHttpHeaders($output, $attachment);
 
             if (strtoupper($_SERVER['REQUEST_METHOD']) == 'HEAD') {
                 // HEAD request, do not send any HTML whatsoever
@@ -1067,18 +1067,18 @@ class Page
             }
 
             if ($headers) {
-                // Only cache if there are headers. If self::buildHeaders() returned null this means that the headers
+                // Only cache if there are headers. If static::buildHeaders() returned null this means that the headers
                 // have already been sent before, probably by a debugging function like Debug::show(). DON'T CACHE!
                 Cache::write([
                     'output'  => $output,
                     'headers' => $headers,
                 ], $target,'pages');
 
-                $length = self::sendHttpHeaders($headers);
+                $length = static::sendHttpHeaders($headers);
                 Log::success(tr('Sent ":length" bytes of HTTP to client', [':length' => $length]), 3);
             }
 
-            switch (self::getHttpCode()) {
+            switch (static::getHttpCode()) {
                 case 304:
                     // 304 requests indicate the browser to use it's local cache, send nothing
                     // no-break
@@ -1089,21 +1089,21 @@ class Page
             }
 
             // Send the page to the client
-            self::send($output);
+            static::send($output);
 
         } catch (ValidationFailedException $e) {
             // TODO Improve this uncaught validation failure handling
             Log::warning('Page did not catch the following ValidationFailedException warning, showing "system/400"');
             Log::warning($e);
 
-            self::getFlashMessages()->add($e);
+            static::getFlashMessages()->add($e);
             Route::executeSystem(400);
 
         } catch (AuthenticationException $e) {
             Log::warning('Page did not catch the following AuthenticationException warning, showing "system/401"');
             Log::warning($e);
 
-            self::getFlashMessages()->add($e);
+            static::getFlashMessages()->add($e);
             Route::executeSystem(401);
 
         } catch (DataEntryNotExistsException $e) {
@@ -1165,14 +1165,14 @@ class Page
                 ->setType('401 - unauthorized')
                 ->setSeverity(Severity::low)
                 ->setTitle(tr('Guest user has no access to target page ":target" (real target ":real_target"), redirecting to ":redirect"', [
-                    ':target'      => Strings::from(self::$target, PATH_ROOT),
+                    ':target'      => Strings::from(static::$target, PATH_ROOT),
                     ':real_target' => Strings::from($target, PATH_ROOT),
                     ':redirect'    => $guest_redirect
                 ]))
                 ->setDetails([
                     'user'         => 0,
                     'uri'          => Page::getUri(),
-                    'target'       => Strings::from(self::$target, PATH_ROOT),
+                    'target'       => Strings::from(static::$target, PATH_ROOT),
                     ':real_target' => Strings::from($target, PATH_ROOT),
                     'rights'       => $rights
                 ])
@@ -1192,14 +1192,14 @@ class Page
             ->setTitle(tr('User ":user" does not have the required rights ":rights" for target page ":target" (real target ":real_target"), redirecting to ":redirect"', [
                 ':user'        => Session::getUser(),
                 ':rights'      => $rights,
-                ':target'      => Strings::from(self::$target, PATH_ROOT),
+                ':target'      => Strings::from(static::$target, PATH_ROOT),
                 ':real_target' => Strings::from($target, PATH_ROOT),
                 ':redirect'    => $guest_redirect
             ]))
             ->setDetails([
                 'user'         => Session::getUser()->getLogId(),
                 'uri'          => Page::getUri(),
-                'target'       => Strings::from(self::$target, PATH_ROOT),
+                'target'       => Strings::from(static::$target, PATH_ROOT),
                 ':real_target' => Strings::from($target, PATH_ROOT),
                 'rights'       => $rights
             ])
@@ -1293,7 +1293,7 @@ class Page
      *
      * The function will return true if the specified mimetype is supported, or false, if not
      *
-     * @see self::acceptsLanguages()
+     * @see static::acceptsLanguages()
      * code
      * // This will return true
      * $result = accepts('image/webp');
@@ -1422,7 +1422,7 @@ class Page
      */
     public static function getHash(): string
     {
-        return self::$hash;
+        return static::$hash;
     }
 
 
@@ -1434,7 +1434,7 @@ class Page
      */
     public static function getHtmlHeadersSent(): bool
     {
-        return self::$html_headers_sent;
+        return static::$html_headers_sent;
     }
 
 
@@ -1479,7 +1479,7 @@ class Page
      */
     public static function get(): ?string
     {
-        return self::$template_page->get();
+        return static::$template_page->get();
     }
 
 
@@ -1491,11 +1491,11 @@ class Page
      */
     public static function flash(): Flash
     {
-        if (!self::$flash) {
-            self::$flash = new Flash();
+        if (!static::$flash) {
+            static::$flash = new Flash();
         }
 
-        return self::$flash;
+        return static::$flash;
     }
 
 
@@ -1509,7 +1509,7 @@ class Page
      */
     public static function addMeta(string $key, string $value): void
     {
-        self::$headers['meta'][$key] = $value;
+        static::$headers['meta'][$key] = $value;
     }
 
 
@@ -1523,7 +1523,7 @@ class Page
     public static function setFavIcon(string $url): void
     {
         try {
-            self::$headers['link'][$url] = [
+            static::$headers['link'][$url] = [
                 'rel'  => 'icon',
                 'href' => UrlBuilder::img($url),
                 'type' => File::new(Filesystem::absolute($url, 'img'), PATH_CDN . LANGUAGE . '/img')->mimetype()
@@ -1548,7 +1548,7 @@ class Page
             $header = !Config::getBoolean('web.javascript.delay', true);
         }
 
-        if ($header and self::$html_headers_sent) {
+        if ($header and static::$html_headers_sent) {
             Log::warning(tr('Not adding files ":files" to HTML headers as the HTML headers have already been generated', [
                 ':files' => $urls
             ]));
@@ -1556,13 +1556,13 @@ class Page
 
         foreach (Arrays::force($urls, ',') as $url) {
             if ($header) {
-                self::$headers['javascript'][$url] = [
+                static::$headers['javascript'][$url] = [
                     'type' => 'text/javascript',
                     'src'  => UrlBuilder::js($url)
                 ];
 
             } else {
-                self::$footers['javascript'][$url] = [
+                static::$footers['javascript'][$url] = [
                     'type' => 'text/javascript',
                     'src'  => UrlBuilder::js($url)
                 ];
@@ -1581,7 +1581,7 @@ class Page
     public static function loadCss(string|array $urls): void
     {
         foreach (Arrays::force($urls, '') as $url) {
-            self::$headers['link'][$url] = [
+            static::$headers['link'][$url] = [
                 'rel'  => 'stylesheet',
                 'href' => UrlBuilder::css($url),
             ];
@@ -1597,23 +1597,23 @@ class Page
      */
     public static function buildHeaders(): ?string
     {
-        $return = '<!DOCTYPE ' . self::$doctype . '>
+        $return = '<!DOCTYPE ' . static::$doctype . '>
         <html lang="' . Session::getLanguage() . '">' . PHP_EOL;
 
-        if (self::$page_title) {
-            $return .= '<title>' . self::$page_title . '</title>' . PHP_EOL;
+        if (static::$page_title) {
+            $return .= '<title>' . static::$page_title . '</title>' . PHP_EOL;
         }
 
-        foreach (self::$headers['meta'] as $key => $value) {
+        foreach (static::$headers['meta'] as $key => $value) {
             $return .= '<meta ' . $key . '=' . $value . ' />' . PHP_EOL;
         }
 
-        foreach (self::$headers['link'] as $header) {
+        foreach (static::$headers['link'] as $header) {
             $header  = Arrays::implodeWithKeys($header, ' ', '=', '"', true);
             $return .= '<link ' . $header . ' />' . PHP_EOL;
         }
 
-        foreach (self::$headers['javascript'] as $header) {
+        foreach (static::$headers['javascript'] as $header) {
             $header  = Arrays::implodeWithKeys($header, ' ', '=', '"', true);
             $return .= '<script ' . $header . '></script>' . PHP_EOL;
         }
@@ -1632,7 +1632,7 @@ class Page
     {
         $return = '';
 
-        foreach (self::$footers['javascript'] as $header) {
+        foreach (static::$footers['javascript'] as $header) {
             $header  = Arrays::implodeWithKeys($header, ' ', '=', '"');
             $return .= '<script ' . $header . '></script>' . PHP_EOL;
         }
@@ -1652,10 +1652,10 @@ class Page
     public static function htmlHeadersSent(bool $set = false): bool
     {
         if ($set) {
-            self::$html_headers_sent = true;
+            static::$html_headers_sent = true;
         }
 
-        return self::$html_headers_sent;
+        return static::$html_headers_sent;
     }
 
 
@@ -1672,7 +1672,7 @@ class Page
      */
     public static function buildHttpHeaders(string $output, bool $attachment = false): ?array
     {
-        if (self::httpHeadersSent()) {
+        if (static::httpHeadersSent()) {
             return null;
         }
 
@@ -1691,7 +1691,7 @@ class Page
         }
 
         // Create ETAG, possibly send out HTTP304 if client sent matching ETAG
-        self::cacheEtag();
+        static::cacheEtag();
 
         // What to do with the PHP signature?
         $signature = Config::get('security.expose.php-signature', false);
@@ -1726,11 +1726,11 @@ class Page
                 ]));
         }
 
-        $headers[] = 'Content-Type: ' . self::$content_type . '; charset=' . Config::get('languages.encoding.charset', 'UTF-8');
+        $headers[] = 'Content-Type: ' . static::$content_type . '; charset=' . Config::get('languages.encoding.charset', 'UTF-8');
         $headers[] = 'Content-Language: ' . LANGUAGE;
         $headers[] = 'Content-Length: ' . strlen($output);
 
-        if (self::$http_code == 200) {
+        if (static::$http_code == 200) {
             if (empty($params['last_modified'])) {
                 $headers[] = 'Last-Modified: ' . Date::convert(filemtime($_SERVER['SCRIPT_FILENAME']), 'D, d M Y H:i:s', 'GMT') . ' GMT';
 
@@ -1746,12 +1746,12 @@ class Page
         }
 
         // CORS headers
-        if (Config::get('web.security.cors', true) or self::$cors) {
+        if (Config::get('web.security.cors', true) or static::$cors) {
             // Add CORS / Access-Control-Allow-.... headers
             // TODO This will cause issues if configured web.cors is not an array!
-            self::$cors = array_merge(Arrays::force(Config::get('web.cors', [])), self::$cors);
+            static::$cors = array_merge(Arrays::force(Config::get('web.cors', [])), static::$cors);
 
-            foreach (self::$cors as $key => $value) {
+            foreach (static::$cors as $key => $value) {
                 switch ($key) {
                     case 'origin':
                         if ($value == '*.') {
@@ -1789,7 +1789,7 @@ class Page
         }
 
         // Add cache headers and store headers in object headers list
-        return self::addCacheHeaders($headers);
+        return static::addCacheHeaders($headers);
     }
 
 
@@ -1799,11 +1799,11 @@ class Page
      *
      * @note The amount of sent bytes does NOT include the bytes sent for the HTTP response code header
      * @param array|null $headers
-     * @return int The amount of bytes sent. -1 if self::sendHeaders() was called for the second time.
+     * @return int The amount of bytes sent. -1 if static::sendHeaders() was called for the second time.
      */
     public static function sendHttpHeaders(?array $headers): int
     {
-        if (self::httpHeadersSent(true)) {
+        if (static::httpHeadersSent(true)) {
             // Headers already sent
             return -1;
         }
@@ -1817,16 +1817,16 @@ class Page
             $length = 0;
 
             // Set correct headers
-            http_response_code(self::$http_code);
+            http_response_code(static::$http_code);
 
-            if ((self::$http_code != 200)) {
+            if ((static::$http_code != 200)) {
                 Log::success(tr('Phoundation sent :http for URL ":url"', [
-                    ':http' => (self::$http_code ? 'HTTP' . self::$http_code : 'HTTP0'),
+                    ':http' => (static::$http_code ? 'HTTP' . static::$http_code : 'HTTP0'),
                     ':url' => (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']
                 ]), 4);
             } else {
                 Log::warning(tr('Phoundation sent ":http" for URL ":url"', [
-                    ':http' => (self::$http_code ? 'HTTP' . self::$http_code : 'HTTP0'),
+                    ':http' => (static::$http_code ? 'HTTP' . static::$http_code : 'HTTP0'),
                     ':url'  => (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']
                 ]));
             }
@@ -1845,7 +1845,7 @@ class Page
                 ->setTitle(tr('Failed to send headers to client'))
                 ->send();
 
-            // self::sendHeaders() itself crashed. Since self::sendHeaders() would send out http 500, and since it
+            // static::sendHeaders() itself crashed. Since static::sendHeaders() would send out http 500, and since it
             // crashed, it no longer can do this, send out the http 500 here.
             http_response_code(500);
             throw new $e;
@@ -1900,10 +1900,10 @@ class Page
 
         } elseif (Config::get('web.cache.enabled', 'auto') === true) {
             // Place headers using phoundation algorithms
-            if (!Config::get('web.cache.enabled', 'auto') or (self::$http_code != 200)) {
+            if (!Config::get('web.cache.enabled', 'auto') or (static::$http_code != 200)) {
                 // Non HTTP 200 / 304 pages should NOT have cache enabled! For example 404, 503 etc...
                 $headers[] = 'Cache-Control: no-store, max-age=0';
-                self::$etag = null;
+                static::$etag = null;
 
             } else {
                 // Send caching headers. Ajax, API, and admin calls do not have proxy caching
@@ -1923,8 +1923,8 @@ class Page
 
                         $headers[] = 'Cache-Control: ' . Config::get('web.cache.cacheability', 'private') . ', ' . Config::get('web.cache.expiration', 'max-age=604800') . ', ' . Config::get('web.cache.revalidation', 'must-revalidate') . Config::get('web.cache.other', 'no-transform');
 
-                        if (!empty(self::$etag)) {
-                            $headers[] = 'ETag: "' . self::$etag . '"';
+                        if (!empty(static::$etag)) {
+                            $headers[] = 'ETag: "' . static::$etag . '"';
                         }
                 }
             }
@@ -1967,7 +1967,7 @@ class Page
      */
     protected static function cacheTest($etag = null): bool
     {
-        self::$etag = sha1(PROJECT.$_SERVER['SCRIPT_FILENAME'].filemtime($_SERVER['SCRIPT_FILENAME']) . $etag);
+        static::$etag = sha1(PROJECT.$_SERVER['SCRIPT_FILENAME'].filemtime($_SERVER['SCRIPT_FILENAME']) . $etag);
 
         if (!Config::get('web.cache.enabled', 'auto')) {
             return false;
@@ -1977,7 +1977,7 @@ class Page
             return false;
         }
 
-        if ((strtotime(isset_get($_SERVER['HTTP_IF_MODIFIED_SINCE'])) == filemtime($_SERVER['SCRIPT_FILENAME'])) or trim(isset_get($_SERVER['HTTP_IF_NONE_MATCH']), '') == self::$etag) {
+        if ((strtotime(isset_get($_SERVER['HTTP_IF_MODIFIED_SINCE'])) == filemtime($_SERVER['SCRIPT_FILENAME'])) or trim(isset_get($_SERVER['HTTP_IF_NONE_MATCH']), '') == static::$etag) {
             if (empty($core->register['flash'])) {
                 // The client sent an etag which is still valid, no body (or anything else) necesary
                 http_headers(304, 0);
@@ -2001,15 +2001,15 @@ class Page
     {
         // ETAG requires HTTP caching enabled. Ajax and API calls do not use ETAG
         if (!Config::get('web.cache.enabled', 'auto') or Core::getRequestType('ajax') or Core::getRequestType('api')) {
-            self::$etag = null;
+            static::$etag = null;
             return false;
         }
 
         // Create local ETAG
-        self::$etag = sha1(PROJECT.$_SERVER['SCRIPT_FILENAME'].filemtime($_SERVER['SCRIPT_FILENAME']) . Core::readRegister('etag'));
+        static::$etag = sha1(PROJECT.$_SERVER['SCRIPT_FILENAME'].filemtime($_SERVER['SCRIPT_FILENAME']) . Core::readRegister('etag'));
 
 // :TODO: Document why we are trimming with an empty character mask... It doesn't make sense but something tells me we're doing this for a good reason...
-        if (trim(isset_get($_SERVER['HTTP_IF_NONE_MATCH']), '') == self::$etag) {
+        if (trim(isset_get($_SERVER['HTTP_IF_NONE_MATCH']), '') == static::$etag) {
             if (empty($core->register['flash'])) {
                 // The client sent an etag which is still valid, no body (or anything else) necessary
                 http_response_code(304);
@@ -2039,14 +2039,14 @@ class Page
             return true;
         }
 
-        if (self::$http_headers_sent) {
+        if (static::$http_headers_sent) {
             // Since
-            Log::warning(tr('HTTP Headers already sent by self::sendHeaders(). This can happen with PHP due to PHP ignoring output buffer flushes, causing this to be called over and over. just ignore this message.'), 2);
+            Log::warning(tr('HTTP Headers already sent by static::sendHeaders(). This can happen with PHP due to PHP ignoring output buffer flushes, causing this to be called over and over. just ignore this message.'), 2);
             return true;
         }
 
         if ($send_now) {
-            self::$http_headers_sent = true;
+            static::$http_headers_sent = true;
         }
 
         return false;

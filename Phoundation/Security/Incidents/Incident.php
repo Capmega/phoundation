@@ -40,7 +40,7 @@ class Incident extends DataEntry
      */
     public function __construct(int|string|null $identifier = null)
     {
-        self::$entry_name    = 'incident';
+        static::$entry_name    = 'incident';
         $this->table         = 'security_incidents';
         $this->unique_column = 'id';
 

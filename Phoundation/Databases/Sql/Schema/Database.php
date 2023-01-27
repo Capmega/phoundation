@@ -118,7 +118,7 @@ class Database extends SchemaAbstract
         Log::warning(tr('Dropping database ":database" for SQL instance ":instance"', [
             ':instance' => $this->sql->getInstance(),
             ':database' => $this->sql->getDatabase()
-        ]));
+        ]), 3);
 
         $this->sql->query('DROP DATABASE IF EXISTS `' . $this->sql->getDatabase() . '`');
     }

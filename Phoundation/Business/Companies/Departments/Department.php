@@ -30,7 +30,7 @@ class Department extends DataEntry
      */
     public function __construct(int|string|null $identifier = null)
     {
-        self::$entry_name = 'company department';
+        static::$entry_name = 'company department';
         $this->table      = 'business_departments';
 
         parent::__construct($identifier);

@@ -41,7 +41,7 @@ abstract class Validator
      */
     public static function disabled(): bool
     {
-        return self::$disabled;
+        return static::$disabled;
     }
 
 
@@ -53,7 +53,7 @@ abstract class Validator
      */
     public static function disable(): void
     {
-        self::$disabled = true;
+        static::$disabled = true;
     }
 
 
@@ -65,7 +65,7 @@ abstract class Validator
      */
     public static function enable(): void
     {
-        self::$disabled = false;
+        static::$disabled = false;
     }
 
 
@@ -77,7 +77,7 @@ abstract class Validator
      */
     public static function passwordsDisabled(): bool
     {
-        return self::$password_disabled;
+        return static::$password_disabled;
     }
 
 
@@ -89,7 +89,7 @@ abstract class Validator
      */
     public static function disablePasswords(): void
     {
-        self::$password_disabled = true;
+        static::$password_disabled = true;
     }
 
 
@@ -101,7 +101,7 @@ abstract class Validator
      */
     public static function enablePasswords(): void
     {
-        self::$password_disabled = false;
+        static::$password_disabled = false;
     }
 
 
@@ -1525,7 +1525,7 @@ abstract class Validator
     public function isPassword(): static
     {
         return $this->validateValues(function(&$value) {
-            if (self::passwordsDisabled()) {
+            if (static::passwordsDisabled()) {
                 // Don't test passwords
                 return;
             }
@@ -1665,11 +1665,11 @@ abstract class Validator
      *
      * @copyright The used JSON regex validation taken from a twitter post by @Fish_CTO
      * @return static
-     * @see self::isCsv()
-     * @see self::isBase58()
-     * @see self::isBase64()
-     * @see self::isSerialized()
-     * @see self::sanitizeDecodeJson()
+     * @see static::isCsv()
+     * @see static::isBase58()
+     * @see static::isBase64()
+     * @see static::isSerialized()
+     * @see static::sanitizeDecodeJson()
      */
     public function isJson(): static
     {
@@ -1701,10 +1701,10 @@ abstract class Validator
      * @param string $enclosure
      * @param string $escape
      * @return static
-     * @see self::isBase58()
-     * @see self::isBase64()
-     * @see self::isSerialized()
-     * @see self::sanitizeDecodeCsv()
+     * @see static::isBase58()
+     * @see static::isBase64()
+     * @see static::isSerialized()
+     * @see static::sanitizeDecodeCsv()
      */
     public function isCsv(string $separator = ',', string $enclosure = "\"", string $escape = "\\"): static
     {
@@ -1732,11 +1732,11 @@ abstract class Validator
      * Validates if the selected field is a serialized string
      *
      * @return static
-     * @see self::isCsv()
-     * @see self::isBase58()
-     * @see self::isBase64()
-     * @see self::isSerialized()
-     * @see self::sanitizeDecodeSerialized()
+     * @see static::isCsv()
+     * @see static::isBase58()
+     * @see static::isBase64()
+     * @see static::isSerialized()
+     * @see static::sanitizeDecodeSerialized()
      */
     public function isSerialized(): static
     {
@@ -1762,10 +1762,10 @@ abstract class Validator
      * Validates if the selected field is a base58 string
      *
      * @return static
-     * @see self::isCsv()
-     * @see self::isBase64()
-     * @see self::isSerialized()
-     * @see self::sanitizeDecodeBase58()
+     * @see static::isCsv()
+     * @see static::isBase64()
+     * @see static::isSerialized()
+     * @see static::sanitizeDecodeBase58()
      */
     public function isBase58(): static
     {
@@ -1791,10 +1791,10 @@ abstract class Validator
      * Validates if the selected field is a base64 string
      *
      * @return static
-     * @see self::isCsv()
-     * @see self::isBase58()
-     * @see self::isSerialized()
-     * @see self::sanitizeDecodeBase64()
+     * @see static::isCsv()
+     * @see static::isBase58()
+     * @see static::isSerialized()
+     * @see static::sanitizeDecodeBase64()
      */
     public function isBase64(): static
     {
@@ -1843,8 +1843,8 @@ abstract class Validator
      * Sanitize the selected value by making the entire string uppercase
      *
      * @return static
-     * @see self::sanitizeTrim()
-     * @see self::sanitizeLowercase()
+     * @see static::sanitizeTrim()
+     * @see static::sanitizeLowercase()
      */
     public function sanitizeUppercase(): static
     {
@@ -1870,8 +1870,8 @@ abstract class Validator
      * Sanitize the selected value by making the entire string lowercase
      *
      * @return static
-     * @see self::sanitizeTrim()
-     * @see self::sanitizeUppercase()
+     * @see static::sanitizeTrim()
+     * @see static::sanitizeUppercase()
      */
     public function sanitizeLowercase(): static
     {
@@ -1930,10 +1930,10 @@ abstract class Validator
      *
      * @param bool $array If true, will return the data in associative arrays instead of generic objects
      * @return static
-     * @see self::isJson()
-     * @see self::sanitizeDecodeCsv()
-     * @see self::sanitizeDecodeSerialized()
-     * @see self::sanitizeForceString()
+     * @see static::isJson()
+     * @see static::sanitizeDecodeCsv()
+     * @see static::sanitizeDecodeSerialized()
+     * @see static::sanitizeForceString()
      */
     public function sanitizeDecodeJson(bool $array = true): static
     {
@@ -1962,13 +1962,13 @@ abstract class Validator
      * @param string $enclosure
      * @param string $escape
      * @return static
-     * @see self::isCsv()
-     * @see self::sanitizeDecodeBase58()
-     * @see self::sanitizeDecodeBase64()
-     * @see self::sanitizeDecodeJson()
-     * @see self::sanitizeDecodeSerialized()
-     * @see self::sanitizeDecodeUrl()
-     * @see self::sanitizeForceString()
+     * @see static::isCsv()
+     * @see static::sanitizeDecodeBase58()
+     * @see static::sanitizeDecodeBase64()
+     * @see static::sanitizeDecodeJson()
+     * @see static::sanitizeDecodeSerialized()
+     * @see static::sanitizeDecodeUrl()
+     * @see static::sanitizeForceString()
      */
     public function sanitizeDecodeCsv(string $separator = ',', string $enclosure = "\"", string $escape = "\\"): static
     {
@@ -1994,12 +1994,12 @@ abstract class Validator
      * Sanitize the selected value by decoding the specified CSV
      *
      * @return static
-     * @see self::sanitizeDecodeBase58()
-     * @see self::sanitizeDecodeBase64()
-     * @see self::sanitizeDecodeCsv()
-     * @see self::sanitizeDecodeJson()
-     * @see self::sanitizeDecodeUrl()
-     * @see self::sanitizeForceString()
+     * @see static::sanitizeDecodeBase58()
+     * @see static::sanitizeDecodeBase64()
+     * @see static::sanitizeDecodeCsv()
+     * @see static::sanitizeDecodeJson()
+     * @see static::sanitizeDecodeUrl()
+     * @see static::sanitizeForceString()
      */
     public function sanitizeDecodeSerialized(): static
     {
@@ -2025,7 +2025,7 @@ abstract class Validator
      * @param string $characters
      * @return static
      * @see trim()
-     * @see self::sanitizeForceString()
+     * @see static::sanitizeForceString()
      */
     public function sanitizeForceArray(string $characters = ','): static
     {
@@ -2052,12 +2052,12 @@ abstract class Validator
      * Sanitize the selected value by decoding the specified CSV
      *
      * @return static
-     * @see self::sanitizeDecodeBase64()
-     * @see self::sanitizeDecodeCsv()
-     * @see self::sanitizeDecodeJson()
-     * @see self::sanitizeDecodeSerialized()
-     * @see self::sanitizeDecodeUrl()
-     * @see self::sanitizeForceString()
+     * @see static::sanitizeDecodeBase64()
+     * @see static::sanitizeDecodeCsv()
+     * @see static::sanitizeDecodeJson()
+     * @see static::sanitizeDecodeSerialized()
+     * @see static::sanitizeDecodeUrl()
+     * @see static::sanitizeForceString()
      */
     public function sanitizeDecodeBase58(): static
     {
@@ -2081,12 +2081,12 @@ abstract class Validator
      * Sanitize the selected value by decoding the specified CSV
      *
      * @return static
-     * @see self::sanitizeDecodeBase58()
-     * @see self::sanitizeDecodeCsv()
-     * @see self::sanitizeDecodeJson()
-     * @see self::sanitizeDecodeSerialized()
-     * @see self::sanitizeDecodeUrl()
-     * @see self::sanitizeForceString()
+     * @see static::sanitizeDecodeBase58()
+     * @see static::sanitizeDecodeCsv()
+     * @see static::sanitizeDecodeJson()
+     * @see static::sanitizeDecodeSerialized()
+     * @see static::sanitizeDecodeUrl()
+     * @see static::sanitizeForceString()
      */
     public function sanitizeDecodeBase64(): static
     {
@@ -2110,12 +2110,12 @@ abstract class Validator
      * Sanitize the selected value by decoding the specified CSV
      *
      * @return static
-     * @see self::sanitizeDecodeBase58()
-     * @see self::sanitizeDecodeBase64()
-     * @see self::sanitizeDecodeCsv()
-     * @see self::sanitizeDecodeJson()
-     * @see self::sanitizeDecodeSerialized()
-     * @see self::sanitizeForceString()
+     * @see static::sanitizeDecodeBase58()
+     * @see static::sanitizeDecodeBase64()
+     * @see static::sanitizeDecodeCsv()
+     * @see static::sanitizeDecodeJson()
+     * @see static::sanitizeDecodeSerialized()
+     * @see static::sanitizeForceString()
      */
     public function sanitizeDecodeUrl(): static
     {
@@ -2140,13 +2140,13 @@ abstract class Validator
      *
      * @param string $characters
      * @return static
-     * @see self::sanitizeDecodeBase58()
-     * @see self::sanitizeDecodeBase64()
-     * @see self::sanitizeDecodeCsv()
-     * @see self::sanitizeDecodeJson()
-     * @see self::sanitizeDecodeSerialized()
-     * @see self::sanitizeDecodeUrl()
-     * @see self::sanitizeForceArray()
+     * @see static::sanitizeDecodeBase58()
+     * @see static::sanitizeDecodeBase64()
+     * @see static::sanitizeDecodeCsv()
+     * @see static::sanitizeDecodeJson()
+     * @see static::sanitizeDecodeSerialized()
+     * @see static::sanitizeDecodeUrl()
+     * @see static::sanitizeForceArray()
      */
     public function sanitizeForceString(string $characters = ','): static
     {

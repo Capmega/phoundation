@@ -114,7 +114,7 @@ class Table extends SchemaAbstract
             ':table'    => $this->name,
             ':instance' => $this->sql->getInstance(),
             ':database' => $this->sql->getDatabase()
-        ]));
+        ]),3);
 
         sql()->query('DROP TABLES IF EXISTS `' . $this->name . '`');
     }

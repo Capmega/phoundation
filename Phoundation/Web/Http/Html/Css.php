@@ -40,7 +40,7 @@ class Css
     public static function loadFiles(string|array $files, ?string $media = null): void
     {
         foreach (Arrays::force($files) as $file) {
-            self::$files[$file] = $media;
+            static::$files[$file] = $media;
         }
     }
 
@@ -68,7 +68,7 @@ class Css
     public static function generateHtml(): ?string
     {
         if (!empty($_CONFIG['cdn']['css']['post'])) {
-            self::$files['post'] = [
+            static::$files['post'] = [
                 'min'   => $_CONFIG['cdn']['min'],
                 'media' => (is_string($_CONFIG['cdn']['css']['post']) ? $_CONFIG['cdn']['css']['post'] : '')
             ];
@@ -77,9 +77,9 @@ class Css
         $return = '';
         $min    = $_CONFIG['cdn']['min'];
 
-        Bundler::new()->css(self::$files);
+        Bundler::new()->css(static::$files);
 
-        foreach (self::$files as $file => $meta) {
+        foreach (static::$files as $file => $meta) {
             if (!$file) continue;
 
             if (!str_contains(substr($file, 0, 8), '//')) {

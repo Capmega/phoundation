@@ -29,7 +29,7 @@ class TemplateMenus
      */
     public static function getSecondaryMenu(): Menu
     {
-        return new self::$menu_class();
+        return new static::$menu_class();
     }
 
 
@@ -41,7 +41,7 @@ class TemplateMenus
      */
     public static function getPrimaryMenu(): Menu
     {
-        $menu = new self::$menu_class();
+        $menu = new static::$menu_class();
 
         return $menu->setSource([
             tr('Dashboard') => [
@@ -308,7 +308,7 @@ class TemplateMenus
      */
     public static function getProfileImageMenu(): Menu
     {
-        $menu = new self::$menu_class();
+        $menu = new static::$menu_class();
 
         return $menu->setSource([
             tr('Profile') => [

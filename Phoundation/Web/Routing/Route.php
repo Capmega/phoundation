@@ -105,24 +105,24 @@ class Route
          * limit. The reason for this is that the routes_static table columns currently only hold 255 characters and at
          * the moment I see no reason why anyone would want more than 255 characters in their URL.
          */
-        self::$method = ($_POST ? 'POST' : 'GET');
-        self::$ip     = (empty($_SERVER['HTTP_X_REAL_IP']) ? $_SERVER['REMOTE_ADDR'] : $_SERVER['HTTP_X_REAL_IP']);
-        self::$uri    = Strings::startsNotWith($_SERVER['REQUEST_URI'], '/');
-        self::$uri    = Strings::until(self::$uri                     , '?');
-        self::$query  = Strings::from($_SERVER['REQUEST_URI']         , '?');
+        static::$method = ($_POST ? 'POST' : 'GET');
+        static::$ip     = (empty($_SERVER['HTTP_X_REAL_IP']) ? $_SERVER['REMOTE_ADDR'] : $_SERVER['HTTP_X_REAL_IP']);
+        static::$uri    = Strings::startsNotWith($_SERVER['REQUEST_URI'], '/');
+        static::$uri    = Strings::until(static::$uri                     , '?');
+        static::$query  = Strings::from($_SERVER['REQUEST_URI']         , '?');
 
-        if (strlen(self::$uri) > 2048) {
+        if (strlen(static::$uri) > 2048) {
             Log::warning(tr('Requested URI ":uri" has ":count" characters, where 2048 is a hardcoded limit (See Route() class). 400-ing the request', [
-                ':uri'   => self::$uri,
-                ':count' => strlen(self::$uri)
+                ':uri'   => static::$uri,
+                ':count' => strlen(static::$uri)
             ]));
 
-            self::executeSystem(400);
+            static::executeSystem(400);
         }
 
         // Double slash (//) in the URL is automatically 4o4
-        if (str_contains(self::$uri, '//')) {
-            self::executeSystem(404);
+        if (str_contains(static::$uri, '//')) {
+            static::executeSystem(404);
         }
 
         // Start the Core object, hide $_GET & $_POST
@@ -137,13 +137,13 @@ class Route
             GetValidator::hideData();
             PostValidator::hideData();
 
-            self::execute('setup.php', false);
+            static::execute('setup.php', false);
         }
 
         // Ensure the post-processing function is registered
         Log::information(tr('Processing ":domain" routes for ":method" method request ":url" from client ":client"', [
             ':domain' => Page::getDomain(),
-            ':method' => self::$method,
+            ':method' => static::$method,
             ':url'    => $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
             ':client' => $_SERVER['REMOTE_ADDR'] . (empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: ' . $_SERVER['HTTP_X_REAL_IP'] . ')')
         ]));
@@ -157,12 +157,12 @@ class Route
     /**
      * Singleton, ensure to always return the same Route object.
      *
-     * @return Route
+     * @return static
      */
-    public static function getInstance(): Route
+    public static function getInstance(): static
     {
         if (!isset(self::$instance)) {
-            self::$instance = new Route();
+            self::$instance = new static();
         }
 
         return self::$instance;
@@ -177,11 +177,11 @@ class Route
      */
     public static function parameters(): RoutingParametersList
     {
-        if (!isset(self::$parameters)) {
-            self::$parameters = new RoutingParametersList();
+        if (!isset(static::$parameters)) {
+            static::$parameters = new RoutingParametersList();
         }
 
-        return self::$parameters;
+        return static::$parameters;
     }
 
 
@@ -321,7 +321,7 @@ class Route
     {
         static $count = 1;
 
-        self::getInstance();
+        static::getInstance();
 
         try {
             if (!$url_regex) {
@@ -330,7 +330,7 @@ class Route
             }
 
             // Apply pre-matching flags. Depending on individual flags we may do different things
-            $uri    = self::$uri;
+            $uri    = static::$uri;
             $flags  = explode(',', $flags);
             $until  = false; // By default, do not store this rule
             $block  = false; // By default, do not block this request
@@ -349,7 +349,7 @@ class Route
                         break;
 
                     case 'M':
-                        $uri .= '?' . self::$query;
+                        $uri .= '?' . static::$query;
                         Log::notice(tr('Adding query to URI ":uri"', [':uri' => $uri]));
 
                         if (!array_search('Q', $flags)) {
@@ -373,12 +373,12 @@ class Route
                                                 AND      `status` IS NULL 
                                                 AND      `expiredon` >= NOW() 
                                                 ORDER BY `created_on` DESC 
-                                                LIMIT 1', [':ip' => self::$ip]);
+                                                LIMIT 1', [':ip' => static::$ip]);
 
                     if ($exists) {
                         // Apply semi-permanent routing for this IP
                         Log::warning(tr('Found active routing for IP ":ip", continuing routing as if request is URI ":uri" with regex ":regex", target ":target", and flags ":flags" instead', [
-                            ':ip'     => self::$ip,
+                            ':ip'     => static::$ip,
                             ':uri'    => $exists['uri'],
                             ':regex'  => $exists['regex'],
                             ':target' => $exists['target'],
@@ -404,7 +404,7 @@ class Route
             Log::action(tr('Testing rule ":count" ":regex" on ":type" ":url"', [
                 ':count' => $count,
                 ':regex' => $url_regex,
-                ':type'  => self::$method,
+                ':type'  => static::$method,
                 ':url'   => $uri
             ]), 4);
 
@@ -558,7 +558,7 @@ class Route
 
                         $count = 1;
                         unset($flags[$flags_id]);
-                        self::execute(Debug::currentFile(1), $attachment);
+                        static::execute(Debug::currentFile(1), $attachment);
 
                     case 'G':
                         // MUST be a GET reqest, NO POST data allowed!
@@ -578,7 +578,7 @@ class Route
                             ->setGroups('security')
                             ->setTitle(tr('*Possible hack attempt detected*'))
                             ->setMessage(tr('The IP address ":ip" made the request ":request" which was matched by regex ":regex" with flags ":flags" and caused this notification', [
-                                ':ip'      => self::$ip,
+                                ':ip'      => static::$ip,
                                 ':request' => $uri,
                                 ':regex'   => $url_regex,
                                 ':flags'   => implode(',', $flags)
@@ -635,7 +635,7 @@ class Route
                         }
 
                         Core::unregisterShutdown('route[postprocess]');
-                        Page::setRoutingParameters(self::parameters()->select(self::$uri));
+                        Page::setRoutingParameters(static::parameters()->select(static::$uri));
                         Page::redirect(UrlBuilder::www($route)->addQueries($_GET), $http_code);
 
                     case 'S':
@@ -656,7 +656,7 @@ class Route
                         break;
 
                     case 'T':
-                        self::$temp_template = substr($flag, 1);
+                        static::$temp_template = substr($flag, 1);
                         break;
 
                     case 'X':
@@ -673,7 +673,7 @@ class Route
                                 ':flag' => $flag
                             ]));
 
-                            self::executeSystem(403);
+                            static::executeSystem(403);
                         }
 
                         $right = get_null(isset_get($matches[1][0]));
@@ -681,7 +681,7 @@ class Route
 
                         if (Session::getUser()->isGuest()) {
                             Log::warning(tr('Denied guest user access to resource because signed in user is required'));
-                            self::executeSystem(401);
+                            static::executeSystem(401);
                         }
 
                         if (!Session::getUser()->hasAllRights($right)) {
@@ -690,7 +690,7 @@ class Route
                                 ':right'    => $right
                             ]));
 
-                            self::executeSystem(403);
+                            static::executeSystem(403);
                         }
                 }
             }
@@ -751,7 +751,7 @@ class Route
                             ]));
 
                             Core::unregisterShutdown('route[postprocess]');
-                            Page::setRoutingParameters(self::parameters()->select(self::$uri));
+                            Page::setRoutingParameters(static::parameters()->select(static::$uri));
                             Page::redirect($domain);
                     }
                 }
@@ -903,7 +903,7 @@ class Route
                     'regex'     => $url_regex,
                     'flags'     => $flags,
                     'uri'       => $uri,
-                    'ip'        => self::$ip
+                    'ip'        => static::$ip
                 ]);
             }
 
@@ -912,7 +912,7 @@ class Route
                 Page::die();
             }
 
-            return self::execute($page, $attachment);
+            return static::execute($page, $attachment);
 
         } catch (Exception $e) {
             if (str_starts_with($e->getMessage(), 'PHP ERROR [2] "preg_match_all():')) {
@@ -1041,12 +1041,12 @@ class Route
             Log::warning(tr('Applying known hacking rules'));
 
             foreach (Config::get('web.route.known-hacks') as $hacks) {
-                self::try($hacks['regex'], isset_get($hacks['url']), isset_get($hacks['flags']));
+                static::try($hacks['regex'], isset_get($hacks['url']), isset_get($hacks['flags']));
             }
         }
 
         // This is not a hack, the page simply cannot be found. Show a 404 instead
-        self::executeSystem(404);
+        static::executeSystem(404);
     }
 
 
@@ -1079,7 +1079,7 @@ class Route
         }
 
         // Route the requested system page
-        RouteSystem::new(self::parameters()->select(self::$uri, true))->$method();
+        RouteSystem::new(static::parameters()->select(static::$uri, true))->$method();
     }
 
 
@@ -1095,7 +1095,7 @@ class Route
     {
         // Get routing parameters and find the correct target page
         if (!$parameters) {
-            $parameters = self::parameters()->select(self::$uri);
+            $parameters = static::parameters()->select(static::$uri);
         }
 
         $target = Filesystem::absolute($parameters->getRootPath() . Strings::unslash($target));
@@ -1109,7 +1109,7 @@ class Route
 
             if ($attachment) {
                 // Send download headers and send the $html payload
-                File::new(self::$server_restrictions)
+                File::new(static::$server_restrictions)
                     ->setAttachment(true)
                     ->setData($html)
                     ->setFilename(basename($target))
@@ -1125,7 +1125,7 @@ class Route
             // Upload the file to the client as an attachment
             Log::action(tr('Sending file ":target" as attachment', [':target' => $target]));
 
-            File::new(self::$server_restrictions)
+            File::new(static::$server_restrictions)
                 ->setAttachment(true)
                 ->setFile($target)
                 ->send();

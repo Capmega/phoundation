@@ -4,6 +4,7 @@
 use Phoundation\Cli\Documentation;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Libraries\Libraries;
+use Phoundation\Developer\Libraries\Version;
 use Phoundation\Developer\Project\Project;
 
 
@@ -38,6 +39,15 @@ ARGUMENTS
                                         data for all systems. Since this requires (amongst things) downloading and 
                                         importing (sometimes) very large data sets, this may take a little while
 
+[--min] (10)                            If demo mode is enabled, this will specified the minimum amount of records added 
+                                        in each library 
+
+[--max] (1000)                          If demo mode is enabled, this will specified the maximum amount of records added 
+                                        in each library 
+
+[-d / --demo]                           If specified, will load demo data into the database tables so the system can 
+                                        quickly show actual functionality 
+
 -l / --library LIBRARY                  Only initialize the specified library
 
 -p / --plugins                          Only initalize plugin libraries
@@ -54,7 +64,10 @@ ARGUMENTS
 ArgvValidator::new()
     ->select('--drop')->isOptional(false)->isBoolean()
     ->select('--import')->isOptional(false)->isBoolean()
+    ->select('--min', true)->isOptional(10)->isNatural()
+    ->select('--max', true)->isOptional(1000)->isNatural()
     ->select('-c,--comments', true)->isOptional()->isPrintable()
+    ->select('-d,--demo')->isOptional()->isBoolean()
     ->select('-l,--library', true)->isOptional()->isVariable()
     ->select('-p,--plugins')->isOptional(true)->isBoolean()
     ->select('-s,--system')->isOptional(true)->isBoolean()
@@ -78,7 +91,7 @@ Libraries::initialize($argv['system'], $argv['plugins'], $argv['templates'], $ar
 
 // Run import?
 if ($argv['import']) {
-    Project::import();
+    Project::import($argv['demo'], $argv['min'], $argv['max']);
 }
 
 

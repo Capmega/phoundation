@@ -33,7 +33,7 @@ class Cache
     public static function clear(): void
     {
         // TODO Implement
-        self::driver()->clear();
+        static::driver()->clear();
         Log::success(tr('Cleared cache'));
     }
 
@@ -49,7 +49,7 @@ class Cache
      */
     public static function write(array|string $data, string $key, ?string $namespace = null): void
     {
-        self::driver()->set($data, $key, $namespace);
+        static::driver()->set($data, $key, $namespace);
     }
 
 
@@ -70,7 +70,7 @@ class Cache
 
         return null;
 
-        $result = self::driver()->get($key, $namespace);
+        $result = static::driver()->get($key, $namespace);
 
         if (!$result) {
             return null;
@@ -95,7 +95,7 @@ class Cache
      */
     public static function delete(string $key, ?string $namespace = null): void
     {
-        self::driver()->delete($key, $namespace);
+        static::driver()->delete($key, $namespace);
     }
 
 

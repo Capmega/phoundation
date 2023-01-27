@@ -23,6 +23,7 @@ use Phoundation\Geo\Countries\Country;
 use Phoundation\Geo\States\State;
 
 
+
 /**
  * Customer class
  *
@@ -107,7 +108,7 @@ class Customer extends DataEntry
      */
     public function __construct(int|string|null $identifier = null)
     {
-        self::$entry_name = 'customer';
+        static::$entry_name = 'customer';
         $this->table      = 'business_customers';
 
         parent::__construct($identifier);

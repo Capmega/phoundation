@@ -30,7 +30,7 @@ class Employee extends DataEntry
      */
     public function __construct(int|string|null $identifier = null)
     {
-        self::$entry_name = 'company employee';
+        static::$entry_name = 'company employee';
         $this->table      = 'business_employees';
 
         parent::__construct($identifier);

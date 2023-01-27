@@ -101,6 +101,6 @@ class Interfaces
      */
     public static function getRandomIp(): string
     {
-        return Arrays::getRandomValue(self::listIps());
+        return Arrays::getRandomValue(static::listIps());
     }
 }

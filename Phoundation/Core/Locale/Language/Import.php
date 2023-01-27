@@ -6,6 +6,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Filesystem\File;
 
 
+
 /**
  * Import class
  *
@@ -19,44 +20,36 @@ use Phoundation\Filesystem\File;
 class Import extends \Phoundation\Developer\Project\Import
 {
     /**
-     * Import constructor
-     */
-    protected function __construct(bool $demo = false)
-    {
-        self::$table = 'languages';
-        parent::__construct($demo);
-    }
-
-
-
-    /**
      * Import the content for the languages table from a data-source file
      *
-     * @return void
+     * @return int
      */
-    public static function execute(): void
+    public function execute(): int
     {
-        self::getInstance();
-
         Log::information(tr('Starting languages import'));
-        parent::execute();
+
+        if ($this->demo) {
+            Log::notice('Ignoring "demo" mode for Languages, this does not do anything for this library');
+        }
 
         $file  = File::new(PATH_DATA . 'sources/languages/languages');
         $h     = $file->open('r');
-        $count = self::getTable()->getCount();
+        $table = sql()->schema()->table('languages');
+        $count = $table->getCount();
 
         if ($count and !FORCE) {
-            Log::warning(tr('Not importing data for ":table", the table already contains data', [
-                ':table' => self::$table
-            ]));
-
-            return;
+            Log::warning(tr('Not importing data for "languages", the table already contains data'));
+            return 0;
         }
 
-        self::getTable()->truncate();
+        $table->truncate();
+        $count = 0;
 
         Log::action(tr('Importing languages, this may take a few seconds...'));
+
         while($line = fgets($h, $file->getBufferSize())) {
+            $count++;
+
             // Parse the line
             switch ($line[0]) {
                 case '#':
@@ -79,8 +72,7 @@ class Import extends \Phoundation\Developer\Project\Import
             $language->setDescription(isset_get($line[5]));
             $language->save();
         }
+
+        return $count;
     }
-
-
-
 }

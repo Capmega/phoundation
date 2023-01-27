@@ -6,6 +6,7 @@ use Phoundation\Exception\Exception;
 use Throwable;
 
 
+
 /**
  * Trait DataEntryException
  *
@@ -21,9 +22,9 @@ trait DataEntryException
     /**
      * Returns the exception for this object
      *
-     * @return string|null
+     * @return Exception|null
      */
-    public function getException(): ?string
+    public function getException(): ?Exception
     {
         return Exception::import($this->getDataValue('exception'));
     }
@@ -44,7 +45,7 @@ trait DataEntryException
                 $exception = new Exception($exception);
             }
 
-            $exception = $exception->export();
+            $exception = $exception->exportString();
         }
 
         return $this->setDataValue('exception', $exception);

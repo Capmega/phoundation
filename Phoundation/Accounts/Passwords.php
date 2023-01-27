@@ -36,18 +36,18 @@ class Passwords
     public static function testSecurity(string $password, ?string $email = null, ?int $id = null): void
     {
         try {
-            if (self::isWeak($password, $email)) {
+            if (static::isWeak($password, $email)) {
                 throw new ValidationFailedException(tr('This password is not secure enough'));
             }
 
             // In setup mode we won't have database access yet, so these 2 tests may be skipped in that case.
             if (!Core::stateIs('setup')) {
-                if (self::isCompromised($password)) {
+                if (static::isCompromised($password)) {
                     throw new ValidationFailedException(tr('This password has been compromised'));
                 }
 
                 if ($email) {
-                    if (self::isUsedPreviously($password, $id)) {
+                    if (static::isUsedPreviously($password, $id)) {
                         throw new ValidationFailedException(tr('This password has been used before'));
                     }
                 }
@@ -70,7 +70,7 @@ class Passwords
      */
     protected static function isWeak(string $password, ?string $email): bool
     {
-        $strength = self::getStrength($password, $email);
+        $strength = static::getStrength($password, $email);
         $weak     = ($strength < Config::get('security.password.strength', 50));
 
         if ($weak and Validator::disabled()) {
@@ -217,7 +217,7 @@ class Passwords
         ]);
 
         foreach ($hash_passwords as $hash_password) {
-            if (self::compare($id, $password, $hash_password)) {
+            if (static::compare($id, $password, $hash_password)) {
                 return true;
             }
         }
@@ -240,7 +240,7 @@ class Passwords
             throw new OutOfBoundsException(tr('No password specified'));
         }
 
-        return password_hash(self::seed($id, $password), PASSWORD_BCRYPT, [
+        return password_hash(static::seed($id, $password), PASSWORD_BCRYPT, [
             'cost' => Config::get('security.passwords.cost', 10)
         ]);
     }
@@ -310,7 +310,7 @@ class Passwords
      */
     public static function match(int $id, string $password_test, string $password_database): bool
     {
-        return self::compare($id, $password_test, $password_database);
+        return static::compare($id, $password_test, $password_database);
     }
 
 
@@ -325,6 +325,6 @@ class Passwords
      */
     protected static function compare(int $id, string $password, string $hashed_password): bool
     {
-        return password_verify(self::seed($id, $password), $hashed_password);
+        return password_verify(static::seed($id, $password), $hashed_password);
     }
 }

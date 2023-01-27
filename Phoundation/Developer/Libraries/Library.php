@@ -2,12 +2,15 @@
 
 namespace Phoundation\Developer\Libraries;
 
+use Error;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Developer\Debug;
+use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Path;
 use Phoundation\Utils\Json;
+
 
 
 /**
@@ -18,7 +21,7 @@ use Phoundation\Utils\Json;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\System
+ * @package Phoundation\Developer
  */
 class Library
 {
@@ -39,7 +42,7 @@ class Library
     /**
      * The Updates object for this library
      *
-     * @var \Phoundation\Developer\Incidents\Updates|null
+     * @var Updates|null
      */
     protected ?Updates $updates = null;
 
@@ -56,11 +59,6 @@ class Library
         $this->path    = $path;
         $this->library = Strings::fromReverse(Strings::unslash($path), '/');
         $this->library = strtolower($this->library);
-
-        if ($this->library === 'system') {
-            // The libraries library does not have init support itself
-            return;
-        }
 
         // Get the Init object
         $this->loadUpdatesObject();
@@ -295,7 +293,7 @@ class Library
 
     /**
      * Returns the version for this library
-     *pLr3o297s&&i
+     *
      * @return string|null
      */
     public function getVersion(): ?string
@@ -341,19 +339,34 @@ class Library
             return;
         }
 
-        // Load the PHP file
-        include_once($file);
+        try {
+            // Load the PHP file
+            include_once($file);
 
-        $updates_class_path = Debug::getClassPath($file);
-        $updates            = new $updates_class_path();
+            $updates_class_path = Debug::getClassPath($file);
+            $updates            = new $updates_class_path();
 
-        if (!($updates instanceof Updates)) {
-            Log::Warning(tr('The Updates.php file for the library ":library" in ":path" is invalid, it should contain a class being an instance of the \Phoundation\Libraries\Updates. This updates file will be ignored', [
-                ':path'    => $this->path,
-                ':library' => $this->library
+            if (!($updates instanceof Updates)) {
+                Log::Warning(tr('The Updates.php file for the library ":library" in ":path" is invalid, it should contain a class being an instance of the \Phoundation\Libraries\Updates. This updates file will be ignored', [
+                    ':path'    => $this->path,
+                    ':library' => $this->library
+                ]));
+            }
+
+            $this->updates = $updates;
+
+        } catch (Error $e) {
+            Log::warning(tr('Failed to load the Updates file for library ":library", see the following exception for more information', [
+                ':library' => $this->getName()
             ]));
-        }
 
-        $this->updates = $updates;
+            Exception::new($e)
+                ->log()
+                ->register()
+                ->notification()
+                    ->send();
+
+            $this->updates = null;
+        }
     }
 }

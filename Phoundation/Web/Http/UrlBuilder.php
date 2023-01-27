@@ -93,7 +93,7 @@ class UrlBuilder
      */
     public static function getCurrent(): static
     {
-        return self::currentDomainUrl();
+        return static::currentDomainUrl();
     }
 
 
@@ -111,10 +111,10 @@ class UrlBuilder
         if (!$url) {
             $url = UrlBuilder::getCurrent();
         } else {
-            $url = self::applyPredefined($url);
+            $url = static::applyPredefined($url);
         }
 
-        return self::buildUrl($url, null, $use_configured_root);
+        return static::buildUrl($url, null, $use_configured_root);
     }
 
 
@@ -132,7 +132,7 @@ class UrlBuilder
             return new UrlBuilder($url);
         }
 
-        return self::buildCdn($url, $extension);
+        return static::buildCdn($url, $extension);
     }
 
 
@@ -251,7 +251,7 @@ class UrlBuilder
                 $referer = $url;
 
             } else {
-                $referer = self::currentDomainRootUrl();
+                $referer = static::currentDomainRootUrl();
             }
         }
 
@@ -274,7 +274,7 @@ class UrlBuilder
             throw new OutOfBoundsException(tr('No URL specified'));
         }
 
-        return self::buildUrl($url, 'ajax/', $use_configured_root);
+        return static::buildUrl($url, 'ajax/', $use_configured_root);
     }
 
 
@@ -293,7 +293,7 @@ class UrlBuilder
             throw new OutOfBoundsException(tr('No URL specified'));
         }
 
-        return self::buildUrl($url, 'api/', $use_configured_root);
+        return static::buildUrl($url, 'api/', $use_configured_root);
     }
 
 
@@ -310,7 +310,7 @@ class UrlBuilder
             return new UrlBuilder($url);
         }
 
-        return self::buildCdn($url, 'css');
+        return static::buildCdn($url, 'css');
     }
 
 
@@ -327,7 +327,7 @@ class UrlBuilder
             return new UrlBuilder($url);
         }
 
-        return self::buildCdn($url, 'js');
+        return static::buildCdn($url, 'js');
     }
 
 
@@ -363,7 +363,7 @@ class UrlBuilder
 //            return $path;
 //        }
 
-        return self::buildCdn($url);
+        return static::buildCdn($url);
     }
 
 
@@ -508,10 +508,10 @@ class UrlBuilder
                 foreach ($query as $key => $value) {
                     if (is_numeric($key)) {
                         // $value should contain key=value
-                        self::addQueries($this->url, $value);
+                        static::addQueries($this->url, $value);
 
                     } else {
-                        self::addQueries($this->url, $key . '=' . $value);
+                        static::addQueries($this->url, $key . '=' . $value);
                     }
                 }
 
@@ -630,7 +630,7 @@ class UrlBuilder
         $base = Domains::getConfigurationKey(Domains::getCurrent(), 'cdn', $_SERVER['REQUEST_SCHEME'] . '://cdn.' . Domains::getCurrent() . '/:LANGUAGE/');
         $base = Strings::endsWith($base, '/');
         $url  = Strings::startsNotWith($url, '/');
-        $url .= self::addExtension($extension);
+        $url .= static::addExtension($extension);
         $url  = str_replace(':LANGUAGE', Session::getLanguage(), $base . $url);
 
         return new UrlBuilder($url);
@@ -647,9 +647,9 @@ class UrlBuilder
     protected static function applyPredefined($url): string
     {
         return match ($url) {
-            'self', 'this' , 'here'       => self::getCurrent(),
-            'root'                        => self::currentDomainRootUrl(),
-            'prev', 'previous', 'referer' => self::referer(),
+            'self', 'this' , 'here'       => static::getCurrent(),
+            'root'                        => static::currentDomainRootUrl(),
+            'prev', 'previous', 'referer' => static::referer(),
             default => $url,
         };
 

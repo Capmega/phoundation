@@ -102,10 +102,10 @@ class Debug {
     {
         // Set only if specified
         if (is_bool($enable)) {
-            self::$clean_data = $enable;
+            static::$clean_data = $enable;
         }
 
-        return self::$clean_data;
+        return static::$clean_data;
     }
 
 
@@ -252,9 +252,9 @@ class Debug {
      */
     public static function currentLocation(int $trace = 0): string
     {
-        $class    = self::currentClass($trace + 1, null);
-        $function = self::currentFunction($trace + 1, null);
-        $return   = self::currentFile($trace) . '@' . self::currentLine($trace);
+        $class    = static::currentClass($trace + 1, null);
+        $function = static::currentFunction($trace + 1, null);
+        $return   = static::currentFile($trace) . '@' . static::currentLine($trace);
 
         switch ($function) {
             case null:
@@ -302,7 +302,7 @@ class Debug {
      */
     public static function show(mixed $value = null, int $trace_offset = 0, bool $quiet = false): mixed
     {
-        if (!self::enabled()) {
+        if (!static::enabled()) {
             return null;
         }
 
@@ -335,15 +335,15 @@ class Debug {
                         }
 
                         $output = PHP_EOL . tr('DEBUG SHOW (:file@:line) [:size]', [
-                            ':file' => self::currentFile($trace_offset - 1),
-                            ':line' => self::currentLine($trace_offset - 1),
+                            ':file' => static::currentFile($trace_offset - 1),
+                            ':line' => static::currentLine($trace_offset - 1),
                             ':size' => ($value === null ? 'NULL' : (is_scalar($value) ? strlen((string) $value) : count((array) $value)))
                         ]) . PHP_EOL . print_r($value, true) . PHP_EOL;
                         break;
 
                     default:
                         // Force HTML content type, and show HTML data
-                        $output = self::showHtml($value, tr('Unknown'), $trace_offset);
+                        $output = static::showHtml($value, tr('Unknown'), $trace_offset);
                 }
 
                 // Show output on web
@@ -358,8 +358,8 @@ class Debug {
 
             } else {
                 echo PHP_EOL . tr('DEBUG SHOW (:file@:line) [:size]', [
-                    ':file' => self::currentFile($trace_offset),
-                    ':line' => self::currentLine($trace_offset),
+                    ':file' => static::currentFile($trace_offset),
+                    ':line' => static::currentLine($trace_offset),
                         ':size' => ($value === null ? 'NULL' : (is_scalar($value) ? strlen((string) $value) : count((array) $value)))
                 ]) . PHP_EOL;;
                 print_r($value) . PHP_EOL;;
@@ -378,8 +378,8 @@ class Debug {
             // Show output on CLI console
             if (is_scalar($value)) {
                 $return .= ($quiet ? '' : tr('DEBUG SHOW (:file@:line) [:size] ', [
-                    ':file' => self::currentFile($trace_offset),
-                    ':line' => self::currentLine($trace_offset),
+                    ':file' => static::currentFile($trace_offset),
+                    ':line' => static::currentLine($trace_offset),
                     ':size' => strlen((string) $value)
                     ])) . $value . PHP_EOL;
 
@@ -391,8 +391,8 @@ class Debug {
 
                 if (!$quiet) {
                     $return .= tr('DEBUG SHOW (:file@:line) [:size]', [
-                        ':file' => self::currentFile($trace_offset),
-                        ':line' => self::currentLine($trace_offset),
+                        ':file' => static::currentFile($trace_offset),
+                        ':line' => static::currentLine($trace_offset),
                         ':size' => ($value === null ? 'NULL' : count((array) $value))
                     ]) . PHP_EOL;
                 }
@@ -420,8 +420,8 @@ class Debug {
      */
     #[NoReturn] public static function showDie(mixed $value = null, int $trace_offset = 1, bool $quiet = false): void
     {
-        if (self::enabled()) {
-            self::show($value, $trace_offset, $quiet);
+        if (static::enabled()) {
+            static::show($value, $trace_offset, $quiet);
             die();
         }
     }
@@ -436,7 +436,7 @@ class Debug {
     public static function addStatistic(): Statistic
     {
         $statistic = new Statistic();
-        self::$statistics[] = $statistic;
+        static::$statistics[] = $statistic;
         return $statistic;
     }
 
@@ -488,8 +488,8 @@ class Debug {
         }
 
         return $return . '<table class="debug">
-                    <thead class="debug-header"><td colspan="4">'.self::currentFile(1 + $trace_offset) . '@'.self::currentLine(1 + $trace_offset) . '</td></thead>
-                    <thead class="debug-columns"><td>'.tr('Key') . '</td><td>'.tr('Type') . '</td><td>'.tr('Size') . '</td><td>'.tr('Value') . '</td></thead>'.self::showHtmlRow($value, $key) . '
+                    <thead class="debug-header"><td colspan="4">'.static::currentFile(1 + $trace_offset) . '@'.static::currentLine(1 + $trace_offset) . '</td></thead>
+                    <thead class="debug-columns"><td>'.tr('Key') . '</td><td>'.tr('Type') . '</td><td>'.tr('Size') . '</td><td>'.tr('Value') . '</td></thead>'.static::showHtmlRow($value, $key) . '
                 </table>';
     }
 
@@ -584,7 +584,7 @@ class Debug {
                 ksort($value);
 
                 foreach ($value as $subkey => $subvalue) {
-                    $return .= self::showHtmlRow($subvalue, $subkey);
+                    $return .= static::showHtmlRow($subvalue, $subkey);
                 }
 
                 return '<tr>
@@ -648,7 +648,7 @@ class Debug {
      */
     function value(string $format, ?int $size = null): string
     {
-        if (!self::enabled()) return '';
+        if (!static::enabled()) return '';
         if (!Debug::enabled()) return '';
 
 
@@ -1015,12 +1015,12 @@ class Debug {
      */
     public static function counter(string $counter): DebugCounter
     {
-        if (self::$counter === null) {
-            self::$counter = new DebugCounter();
+        if (static::$counter === null) {
+            static::$counter = new DebugCounter();
         }
 
-        self::$counter->select($counter);
-        return self::$counter;
+        static::$counter->select($counter);
+        return static::$counter;
     }
 
 
@@ -1055,7 +1055,7 @@ class Debug {
 
         // Get the class name
         foreach ($results['class '] as $line) {
-            if (preg_match_all('/^class\s+([a-z0-9_]+)(?:(?:\s+extends\s+.+?)?\s+\{)?/i', $line, $matches)) {
+            if (preg_match_all('/^(?:abstract )?class\s+([a-z0-9_]+)(?:(?:\s+extends\s+.+?)?\s+\{)?/i', $line, $matches)) {
                 $class = $matches[1][0];
             }
         }
@@ -1103,7 +1103,7 @@ class Debug {
      */
     public static function loadClassFile(string $class_path): void
     {
-        $file = self::getClassFile($class_path);
+        $file = static::getClassFile($class_path);
         Log::action(tr('Including class file ":file"', [':file' => $file]), 2);
         include_once($file);
     }

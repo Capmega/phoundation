@@ -80,13 +80,13 @@ class Seo
                     $first = [$column => $value];
                 }
 
-                $value = trim(self::string($value, $replace));
+                $value = trim(static::string($value, $replace));
             }
 
             unset($value);
 
         } else {
-            $source = trim(self::string($source, $replace));
+            $source = trim(static::string($source, $replace));
         }
 
         // Filter out the id of the record itself
@@ -125,7 +125,7 @@ class Seo
                 // Check on multiple columns, add identifier on first column value
                 if ($id) {
                     if ($first_suffix) {
-                        $source[key($first)] = reset($first) . trim(self::string($first_suffix, $replace));
+                        $source[key($first)] = reset($first) . trim(static::string($first_suffix, $replace));
                         $first_suffix = null;
                         $id--;
 
@@ -146,7 +146,7 @@ class Seo
 
                 } else {
                     if ($first_suffix) {
-                        $source = $source . trim(self::string($first_suffix, $replace));
+                        $source = $source . trim(static::string($first_suffix, $replace));
                         $first_suffix = null;
                         $id--;
 

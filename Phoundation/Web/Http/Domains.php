@@ -95,24 +95,24 @@ class Domains {
      */
     public static function getPrimary(): string
     {
-        if (!self::$primary_domain) {
+        if (!static::$primary_domain) {
             // Build cache
-            self::loadConfiguration();
-            self::$primary_domain = Url::getDomainFromUrl((string) isset_get(self::$domains_configuration['primary']['www']));
+            static::loadConfiguration();
+            static::$primary_domain = Url::getDomainFromUrl((string) isset_get(static::$domains_configuration['primary']['www']));
 
-            if (!self::$primary_domain) {
+            if (!static::$primary_domain) {
                 // Whoops! We didn't get our primary domain from configuration, likely configuration isn't available yet
                 // Assume the current domain is the primary domain instead
-                self::$primary_domain = Domains::getCurrent();
+                static::$primary_domain = Domains::getCurrent();
 
                 Log::warning(tr('Failed to get primary domain from configuration, assuming current domain ":domain" is the primary domain', [
-                    ':domain' => self::$primary_domain
+                    ':domain' => static::$primary_domain
                 ]));
             }
         }
 
         // Return cache
-        return self::$primary_domain;
+        return static::$primary_domain;
     }
 
 
@@ -125,7 +125,7 @@ class Domains {
      */
     public static function isPrimary(string $domain): string
     {
-        return self::getPrimary() === $domain;
+        return static::getPrimary() === $domain;
     }
 
 
@@ -151,7 +151,7 @@ class Domains {
      */
     public static function isCurrent(string $domain): string
     {
-        return self::getCurrent() === $domain;
+        return static::getCurrent() === $domain;
     }
 
 
@@ -163,21 +163,21 @@ class Domains {
      */
     public static function getWhitelist(): array
     {
-        if (!isset(self::$whitelist_domains)) {
+        if (!isset(static::$whitelist_domains)) {
             // Build cache
-            self::loadConfiguration();
+            static::loadConfiguration();
 
-            foreach (self::$domains_configuration as $domain => $configuration) {
+            foreach (static::$domains_configuration as $domain => $configuration) {
                 if ($domain === 'primary') {
                     continue;
                 }
 
-                self::$whitelist_domains[] = $domain;
+                static::$whitelist_domains[] = $domain;
             }
         }
 
         // Return cache
-        return self::$whitelist_domains;
+        return static::$whitelist_domains;
     }
 
 
@@ -190,7 +190,7 @@ class Domains {
      */
     public static function isWhitelist(string $domain): bool
     {
-        return in_array($domain, self::getWhitelist());
+        return in_array($domain, static::getWhitelist());
     }
 
 
@@ -203,8 +203,8 @@ class Domains {
      */
     public static function getConfiguration(string $domain): array
     {
-        if (!self::isPrimary($domain)) {
-            if (!self::isWhitelist($domain)) {
+        if (!static::isPrimary($domain)) {
+            if (!static::isWhitelist($domain)) {
                 throw ConfigNotExistsException::new(tr('No configuration available for domain ":domain"', [
                     ':domain' => $domain
                 ]));
@@ -213,7 +213,7 @@ class Domains {
             $domain = 'primary';
         }
 
-        $domain_config = &self::$domains_configuration[$domain];
+        $domain_config = &static::$domains_configuration[$domain];
 
         // Validate configuration
         try {
@@ -242,7 +242,7 @@ class Domains {
      */
     public static function getConfigurationKey(string $domain, string $key, mixed $default = null): mixed
     {
-        $domain_config = self::getConfiguration($domain);
+        $domain_config = static::getConfiguration($domain);
         return isset_get($domain_config[$key], $default);
     }
 
@@ -261,7 +261,7 @@ class Domains {
     public static function getRootUri(?string $domain = null, #[ExpectedValues('www', 'cdn')] string $type = 'www', ?string $language = null): string
     {
         // Get the root URL for the specified domain and strip the protocol and domain parts
-        $uri = self::getRootUrl($domain, $type, $language);
+        $uri = static::getRootUrl($domain, $type, $language);
         $uri = Strings::from($uri, '://');
         $uri = Strings::from($uri, '/');
 
@@ -284,11 +284,11 @@ class Domains {
     {
         try {
             if (!$domain) {
-                $domain = self::getCurrent();
+                $domain = static::getCurrent();
             }
 
             $language = $language ?? Session::getLanguage();
-            $url      = self::getConfigurationKey($domain, $type);
+            $url      = static::getConfigurationKey($domain, $type);
 
             return str_replace(':LANGUAGE', $language, $url);
 
@@ -357,7 +357,7 @@ class Domains {
      */
     protected static function loadConfiguration(): void
     {
-        if (!isset(self::$domains_configuration)) {
+        if (!isset(static::$domains_configuration)) {
             $configuration = Config::get('web.domains');
 
             if ($configuration === null) {
@@ -369,13 +369,13 @@ class Domains {
 
                 // Core has already failed, yet we are here, likely this is the setup page
                 Log::warning(tr('The configuration path "web.domains" does not exist'));
-                self::$domains_configuration = [];
+                static::$domains_configuration = [];
 
             } else {
-                self::$domains_configuration = &$configuration;
+                static::$domains_configuration = &$configuration;
             }
 
-            self::$whitelist_domains = [];
+            static::$whitelist_domains = [];
         }
     }
 }

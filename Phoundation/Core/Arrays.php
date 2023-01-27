@@ -50,14 +50,14 @@ class Arrays {
      */
     public static function requiredKeys(array $source, array|string $keys, string $exception_class = OutOfBoundsException::class): void
     {
-        if (!self::hasAllKeys($source, $keys)) {
+        if (!static::hasAllKeys($source, $keys)) {
             if ($exception_class) {
                 throw new $exception_class(tr('The specified array does not contain all required keys ":keys"', [
                     ':keys' => $keys
                 ]));
             }
 
-            self::ensure($source, $keys);
+            static::ensure($source, $keys);
         }
     }
 
@@ -358,7 +358,7 @@ class Arrays {
 
         foreach ($source as $key => $value) {
             if (is_array($value)) {
-                $return[] .= $key . $key_separator . $row_separator . self::implodeWithKeys($value, $row_separator, $key_separator, $quote_character, $options);
+                $return[] .= $key . $key_separator . $row_separator . static::implodeWithKeys($value, $row_separator, $key_separator, $quote_character, $options);
 
             } else {
                 if (!$value) {
@@ -405,12 +405,12 @@ class Arrays {
      */
     public static function mergeFull(): array
     {
-        $arguments = self::getArgumentArrays(func_get_args());
+        $arguments = static::getArgumentArrays(func_get_args());
         $return    = [];
         $count     = 0;
 
         foreach ($arguments as $id => $array) {
-            self::requireArrayOrNull($array, $id);
+            static::requireArrayOrNull($array, $id);
 
             foreach ($array as $key => $value) {
                 if (is_array($value) and array_key_exists($key, $return) and is_array($return[$key])) {
@@ -847,7 +847,7 @@ class Arrays {
      */
     public static function filteredMerge()
     {
-        $arguments = self::getArgumentArrays(func_get_args(), 3);
+        $arguments = static::getArgumentArrays(func_get_args(), 3);
         $filters   = array_shift($arguments);
         $source    = array_shift($arguments);
         $source    = Arrays::remove($source, $filters);
@@ -1031,7 +1031,7 @@ class Arrays {
      */
     public static function hasAllKeys(array $source, array|string $keys): bool
     {
-        foreach (self::force($keys) as $key) {
+        foreach (static::force($keys) as $key) {
             if (!array_key_exists($key, $source)) {
                 return false;
             }
@@ -1078,7 +1078,7 @@ class Arrays {
      */
     public static function mergeNull(): array
     {
-        $arguments = self::getArgumentArrays(func_get_args(), 3);
+        $arguments = static::getArgumentArrays(func_get_args(), 3);
         $return    = [];
 
         foreach ($arguments as $array) {
@@ -1106,7 +1106,7 @@ class Arrays {
      */
     public static function hide(?array $source, string|array $keys = ['GLOBALS', '%pass', 'ssh_key'], string $hide = '*** HIDDEN ***', string $empty = '-', bool $recurse = true): ?array
     {
-        self::requireArrayOrNull($source);
+        static::requireArrayOrNull($source);
 
         $keys = Arrays::force($keys);
 
@@ -1311,7 +1311,7 @@ class Arrays {
             } elseif (is_array($value)) {
                 if ($recurse) {
                     // Recurse
-                    $value = self::trimStrings($value);
+                    $value = static::trimStrings($value);
                 }
             }
         }
@@ -1489,15 +1489,15 @@ class Arrays {
      */
     public static function addValues(): array
     {
-        $arguments = self::getArgumentArrays(func_get_args());
+        $arguments = static::getArgumentArrays(func_get_args());
         $target    = array_shift($arguments);
 
         // Ensure target is an array
-        self::requireArrayOrNull($target);
+        static::requireArrayOrNull($target);
 
         foreach ($arguments as $id => $source) {
             // Ensure all sources are arrays
-            self::requireArrayOrNull($source, $id);
+            static::requireArrayOrNull($source, $id);
 
             foreach ($source as $key => $value) {
                 // Ensure source is numeric!
@@ -1517,7 +1517,7 @@ class Arrays {
                         }
 
                         // Target is also an array, recurse!
-                        $target[$key] = self::addValues($target[$key], $value);
+                        $target[$key] = static::addValues($target[$key], $value);
                         continue;
                     }
 

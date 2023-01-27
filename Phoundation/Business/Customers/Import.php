@@ -19,29 +19,16 @@ use Phoundation\Developer\TestDataGenerator;
 class Import extends \Phoundation\Developer\Project\Import
 {
     /**
-     * Import constructor
-     */
-    protected function __construct(bool $demo, int $min, int $max)
-    {
-        parent::__construct($demo, $min, $max);
-    }
-
-
-
-    /**
-     * Import the content for the languages table from a data-source file
+     * Import the content for the customers table
      *
-     * @param bool $demo
-     * @param int $min
-     * @param int $max
-     * @return void
+     * @return int
      */
-    public static function execute(bool $demo, int $min, int $max): void
+    public function execute(): int
     {
-        self::getInstance($demo, $min, $max);
+        $count = 0;
 
-        if ($demo) {
-            for ($count = 1; $count <= self::$count; $count++) {
+        if ($this->demo) {
+            for ($count = 1; $count <= $this->count; $count++) {
                 // Add customer
                 Customer::new()
                     ->setCode(TestDataGenerator::code())
@@ -50,5 +37,7 @@ class Import extends \Phoundation\Developer\Project\Import
                     ->save();
             }
         }
+
+        return $count;
     }
 }

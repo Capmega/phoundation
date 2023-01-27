@@ -55,8 +55,8 @@ class Template
      */
     public static function page(string $page_name = null): Template
     {
-        $text = self::getPage($page_name);
-        return self::new($text);
+        $text = static::getPage($page_name);
+        return static::new($text);
     }
 
 

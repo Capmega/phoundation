@@ -71,20 +71,21 @@ class Script
 
         // Only allow this to be run by the cli script
         // TODO This should be done before Core::startup() but then the PLATFORM_CLI define would not exist yet. Fix this!
-        self::only();
+        static::only();
 
         // Get the script file to execute
-        $script = self::findScript();
-        $script = self::limitScript($script, isset_get($limit), isset_get($reason));
+        $script = static::findScript();
+        $script = static::limitScript($script, isset_get($limit), isset_get($reason));
 
-        self::$script = $script;
+        static::$script = $script;
 
         Log::action(tr('Executing script ":script"', [
-            ':script' => self::getCurrent()
+            ':script' => static::getCurrent()
         ]), 1);
 
         // Execute the script
         execute_script($script);
+        self::die();
     }
 
 
@@ -96,7 +97,7 @@ class Script
      */
     public static function getExitCode(): int
     {
-        return self::$exit_code;
+        return static::$exit_code;
     }
 
 
@@ -114,8 +115,8 @@ class Script
             throw new OutOfBoundsException(tr('Invalid exit code ":code" specified, it should be a positive integer value between 0 and 255', [':code' => $code]));
         }
 
-        if (!$only_if_null or !self::$exit_code) {
-            self::$exit_code = $code;
+        if (!$only_if_null or !static::$exit_code) {
+            static::$exit_code = $code;
         }
     }
 
@@ -260,10 +261,10 @@ class Script
     public static function getCurrent(bool $full = false): string
     {
         if ($full) {
-            return Strings::fromReverse(self::$script, PATH_ROOT . 'scripts/');
+            return Strings::fromReverse(static::$script, PATH_ROOT . 'scripts/');
         }
 
-        return Strings::fromReverse(self::$script, '/');
+        return Strings::fromReverse(static::$script, '/');
     }
 
 
@@ -277,7 +278,7 @@ class Script
      */
     public static function isScript(string $script, bool $full = false): bool
     {
-        return $script === self::getCurrent($full);
+        return $script === static::getCurrent($full);
     }
 
 
@@ -295,7 +296,7 @@ class Script
         }
 
         if ($exclusive) {
-            self::runOnceLocal();
+            static::runOnceLocal();
         }
     }
 

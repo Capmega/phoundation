@@ -30,7 +30,7 @@ class Provider extends DataEntry
      */
     public function __construct(int|string|null $identifier = null)
     {
-        self::$entry_name = 'providers';
+        static::$entry_name = 'providers';
         $this->table      = 'business_providers';
 
         parent::__construct($identifier);

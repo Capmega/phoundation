@@ -34,10 +34,10 @@ class Content extends File
         $primary  = Strings::until($mimetype, '/');
 
         match ($primary) {
-            'image'     => self::viewImage(),
-            'video'     => self::viewVideo(),
-            'pdf'       => self::viewPdf(),
-            'directory' => self::viewDirectory(),
+            'image'     => static::viewImage(),
+            'video'     => static::viewVideo(),
+            'pdf'       => static::viewPdf(),
+            'directory' => static::viewDirectory(),
             default     => throw new ContentException(tr('Unknown mimetype ":viewer" for file ":file"', [
                 ':file'     => $file->getFile(),
                 ':mimetype' => $mimetype

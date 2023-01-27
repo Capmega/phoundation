@@ -93,23 +93,23 @@ class Color
         $return = '';
 
         // Validate the specified foreground and background colors
-        if (!array_key_exists($foreground_color, self::$available_foreground_colors)) {
+        if (!array_key_exists($foreground_color, static::$available_foreground_colors)) {
             throw new CliColorException(tr('The specified foreground color ":color" does not exist', [':color' => $foreground_color]));
         }
 
-        if (!array_key_exists($background_color, self::$available_background_colors)) {
+        if (!array_key_exists($background_color, static::$available_background_colors)) {
             throw new CliColorException(tr('The specified background color ":color" does not exist', [':color' => $background_color]));
         }
 
         // Apply colors
-        $return .= "\033[" . self::$available_foreground_colors[$foreground_color] . "m";
-        $return .= "\033[" . self::$available_background_colors[$background_color] . "m";
+        $return .= "\033[" . static::$available_foreground_colors[$foreground_color] . "m";
+        $return .= "\033[" . static::$available_background_colors[$background_color] . "m";
 
         // Add the specified string that should be colored and the coloring reset tag
         $return .= $source;
 
         if ($reset) {
-            $return .= self::getColorReset();
+            $return .= static::getColorReset();
         }
 
 
@@ -125,7 +125,7 @@ class Color
      */
     public static function getForegroundColors(): array
     {
-        return array_keys(self::$available_foreground_colors);
+        return array_keys(static::$available_foreground_colors);
     }
 
 
@@ -137,7 +137,7 @@ class Color
      */
     public static function getBackgroundColors(): array
     {
-        return array_keys(self::$available_background_colors);
+        return array_keys(static::$available_background_colors);
     }
 
 

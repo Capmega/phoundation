@@ -19,10 +19,7 @@ use Phoundation\Servers\Server;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
 use Throwable;
-use function Phoundation\Core\count;
-use function Phoundation\Core\gettype;
-use const Phoundation\Core\QUIET;
-use const Phoundation\Core\VERBOSE;
+
 
 
 /**
@@ -151,11 +148,11 @@ Class Log {
     protected function __construct(string $global_id = '')
     {
         // Ensure that the log class hasn't been initialized yet
-        if (self::$init) {
+        if (static::$init) {
             return;
         }
 
-        self::$init = true;
+        static::$init = true;
 
         // Determine log threshold
         if (defined('QUIET') and QUIET) {
@@ -176,23 +173,23 @@ Class Log {
 
         // Apply configuration
         try {
-            self::$server_restrictions = new Server(new Restrictions(PATH_DATA . 'log/', true, 'Log'));
-            self::setThreshold($threshold);
-            self::setFile(Config::get('log.file', PATH_ROOT . 'data/log/syslog'));
-            self::setBacktraceDisplay(Config::get('log.backtrace-display', self::BACKTRACE_DISPLAY_BOTH));
-            self::setLocalId(substr(uniqid(true), -8, 8));
-            self::setGlobalId($global_id);
+            static::$server_restrictions = new Server(new Restrictions(PATH_DATA . 'log/', true, 'Log'));
+            static::setThreshold($threshold);
+            static::setFile(Config::get('log.file', PATH_ROOT . 'data/log/syslog'));
+            static::setBacktraceDisplay(Config::get('log.backtrace-display', self::BACKTRACE_DISPLAY_BOTH));
+            static::setLocalId(substr(uniqid(true), -8, 8));
+            static::setGlobalId($global_id);
         } catch (\Throwable) {
             // Likely configuration read failed. Just set defaults
-            self::$server_restrictions = new Server(new Restrictions(PATH_DATA . 'log/', true, 'Log'));
-            self::setThreshold(10);
-            self::setFile(PATH_ROOT . 'data/log/syslog');
-            self::setBacktraceDisplay(self::BACKTRACE_DISPLAY_BOTH);
-            self::setLocalId('-1');
-            self::setGlobalId($global_id);
+            static::$server_restrictions = new Server(new Restrictions(PATH_DATA . 'log/', true, 'Log'));
+            static::setThreshold(10);
+            static::setFile(PATH_ROOT . 'data/log/syslog');
+            static::setBacktraceDisplay(self::BACKTRACE_DISPLAY_BOTH);
+            static::setLocalId('-1');
+            static::setGlobalId($global_id);
         }
 
-        self::$init = false;
+        static::$init = false;
     }
 
 
@@ -203,22 +200,22 @@ Class Log {
      * @param string $global_id
      * @return Log
      */
-    public static function getInstance(string $global_id = ''): Log
+    public static function getInstance(string $global_id = ''): static
     {
         try {
             if (!isset(self::$instance)) {
-                self::$instance = new Log($global_id);
+                self::$instance = new static($global_id);
 
                 // Log class startup message
                 if (Debug::enabled()) {
-                    self::information(tr('Logger started, threshold set to ":threshold"', [
-                        ':threshold' => self::$threshold
+                    static::information(tr('Logger started, threshold set to ":threshold"', [
+                        ':threshold' => static::$threshold
                     ]));
                 }
             }
         } catch (Throwable $e) {
             // Crap, we could not get a Log instance
-            self::$fail = true;
+            static::$fail = true;
 
             error_log('Log constructor failed with the following message. Until the following issue has been resolved, all log entries will be written to the PHP system log only');
             error_log($e);
@@ -236,7 +233,7 @@ Class Log {
      */
     public static function getInit(): bool
     {
-        return self::$init;
+        return static::$init;
     }
 
 
@@ -248,7 +245,7 @@ Class Log {
      */
     public static function getLastMessage(): ?string
     {
-        return self::$last_message;
+        return static::$last_message;
     }
 
 
@@ -260,7 +257,7 @@ Class Log {
      */
     public static function getThreshold(): int
     {
-        return self::$threshold;
+        return static::$threshold;
     }
 
 
@@ -280,8 +277,9 @@ Class Log {
             ]))->makeWarning();
         }
 
-        $return = $threshold;
-        self::$threshold = $threshold;
+        $return            = $threshold;
+        static::$threshold = $threshold;
+        
         return $return;
     }
 
@@ -294,7 +292,7 @@ Class Log {
      */
     public static function getFilterDouble(): bool
     {
-        return self::$filter_double;
+        return static::$filter_double;
     }
 
 
@@ -306,7 +304,7 @@ Class Log {
      */
     public static function setFilterDouble(bool $filter_double): void
     {
-        self::$filter_double = $filter_double;
+        static::$filter_double = $filter_double;
     }
 
 
@@ -318,7 +316,7 @@ Class Log {
      */
     public static function getFile(): string
     {
-        return self::$file;
+        return static::$file;
     }
 
 
@@ -334,7 +332,7 @@ Class Log {
     public static function setFile(string $file = null): ?string
     {
         try {
-            $return = self::$file;
+            $return = static::$file;
 
             if ($file === null) {
                 // Default log file is always the syslog
@@ -342,19 +340,19 @@ Class Log {
             }
 
             // Open the specified log file
-            if (empty(self::$handles[$file])) {
-                File::new($file, self::$server_restrictions)->ensureWritable(0640);
-                self::$handles[$file] = File::new($file, self::$server_restrictions)->open('a+');
+            if (empty(static::$handles[$file])) {
+                File::new($file, static::$server_restrictions)->ensureWritable(0640);
+                static::$handles[$file] = File::new($file, static::$server_restrictions)->open('a+');
             }
 
             // Set the class file to the specified file and return the old value and
-            self::$file = $file;
-            self::$fail = false;
+            static::$file = $file;
+            static::$fail = false;
 
         } catch (Throwable $e) {
             // Something went wrong trying to open the log file. Log the error but do continue
-            self::$fail = true;
-            self::error(tr('Failed to open log file ":file" because of exception ":e"', [':file' => $file, ':e' => $e->getMessage()]));
+            static::$fail = true;
+            static::error(tr('Failed to open log file ":file" because of exception ":e"', [':file' => $file, ':e' => $e->getMessage()]));
         }
 
         return $return;
@@ -375,11 +373,11 @@ Class Log {
             $file = PATH_ROOT . 'data/log/syslog';
         }
 
-        if (empty(self::$handles[$file])) {
+        if (empty(static::$handles[$file])) {
             throw new FilesystemException(tr('Cannot close log file ":file", it was never opened', [':file' => $file]));
         }
 
-        fclose(self::$handles[$file]);
+        fclose(static::$handles[$file]);
     }
 
 
@@ -394,7 +392,7 @@ Class Log {
      */
     public static function getLocalId(): string
     {
-        return self::$local_id;
+        return static::$local_id;
     }
 
 
@@ -411,11 +409,11 @@ Class Log {
      */
     public static function setLocalId(string $local_id): void
     {
-        if (self::$local_id !== '-') {
+        if (static::$local_id !== '-') {
             throw new LogException('Cannot set the local log id, it has already been set');
         }
 
-        self::$local_id = $local_id;
+        static::$local_id = $local_id;
     }
 
 
@@ -431,7 +429,7 @@ Class Log {
      */
     public static function getBacktraceDisplay(): int
     {
-        return self::$display;
+        return static::$display;
     }
 
 
@@ -474,8 +472,8 @@ Class Log {
                 ]));
         }
 
-        $return = self::$display;
-        self::$display = $display;
+        $return = static::$display;
+        static::$display = $display;
         return $return;
     }
 
@@ -491,7 +489,7 @@ Class Log {
      */
     public static function getGlobalId(): string
     {
-        return self::$global_id;
+        return static::$global_id;
     }
 
 
@@ -512,11 +510,11 @@ Class Log {
             return;
         }
 
-        if (self::$global_id !== '-') {
+        if (static::$global_id !== '-') {
             throw new LogException('Cannot set the global log id, it has already been set');
         }
 
-        self::$global_id = $global_id;
+        static::$global_id = $global_id;
     }
 
 
@@ -530,7 +528,7 @@ Class Log {
      */
     public static function success(mixed $messages = null, int $threshold = 5): bool
     {
-        return self::write($messages, 'success', $threshold);
+        return static::write($messages, 'success', $threshold);
     }
 
 
@@ -544,7 +542,7 @@ Class Log {
      */
     public static function error(mixed $messages = null, int $threshold = 10): bool
     {
-        return self::write($messages, 'error', $threshold, false);
+        return static::write($messages, 'error', $threshold, false);
     }
 
 
@@ -558,7 +556,7 @@ Class Log {
      */
     public static function exception(Throwable $messages = null, int $threshold = 10): bool
     {
-        return self::write($messages, 'error', $threshold, false);
+        return static::write($messages, 'error', $threshold, false);
     }
 
 
@@ -572,7 +570,7 @@ Class Log {
      */
     public static function warning(mixed $messages = null, int $threshold = 9): bool
     {
-        return self::write($messages, 'warning', $threshold);
+        return static::write($messages, 'warning', $threshold);
     }
 
 
@@ -586,7 +584,7 @@ Class Log {
      */
     public static function notice(mixed $messages = null, int $threshold = 3): bool
     {
-        return self::write($messages, 'notice', $threshold);
+        return static::write($messages, 'notice', $threshold);
     }
 
 
@@ -600,7 +598,7 @@ Class Log {
      */
     public static function action(mixed $messages = null, int $threshold = 5): bool
     {
-        return self::write($messages, 'action', $threshold);
+        return static::write($messages, 'action', $threshold);
     }
 
 
@@ -615,7 +613,7 @@ Class Log {
      */
     public static function cli(mixed $messages = null, int $threshold = 10, bool $newline = true): bool
     {
-        return self::write($messages, 'cli', $threshold, false, $newline);
+        return static::write($messages, 'cli', $threshold, false, $newline);
     }
 
 
@@ -629,7 +627,7 @@ Class Log {
      */
     public static function information(mixed $messages = null, int $threshold = 7): bool
     {
-        return self::write($messages, 'information', $threshold);
+        return static::write($messages, 'information', $threshold);
     }
 
 
@@ -696,8 +694,8 @@ Class Log {
         $prefix = strtoupper($type) . ' [' . $size . '] ';
         $messages = $prefix . $messages;
 
-        self::logDebugHeader('PRINTR', 1, $threshold);
-        return self::write($messages, 'debug', $threshold);
+        static::logDebugHeader('PRINTR', 1, $threshold);
+        return static::write($messages, 'debug', $threshold);
     }
 
 
@@ -710,7 +708,7 @@ Class Log {
      */
     public static function deprecated(int $threshold = 8): bool
     {
-        return self::logDebugHeader('DEPRECATED', 1, $threshold);
+        return static::logDebugHeader('DEPRECATED', 1, $threshold);
     }
 
 
@@ -725,8 +723,8 @@ Class Log {
      */
     public static function hex(mixed $messages = null, int $threshold = 3): bool
     {
-        self::logDebugHeader('HEX', 1, $threshold);
-        return self::write(Strings::interleave(bin2hex(Strings::force($messages)), 10), 'debug', $threshold);
+        static::logDebugHeader('HEX', 1, $threshold);
+        return static::write(Strings::interleave(bin2hex(Strings::force($messages)), 10), 'debug', $threshold);
     }
 
 
@@ -742,7 +740,7 @@ Class Log {
      */
     public static function checkpoint(?string $message = null, int $threshold = 10): bool
     {
-        return self::logDebugHeader('CHECKPOINT ' . $message, 1, $threshold);
+        return static::logDebugHeader('CHECKPOINT ' . $message, 1, $threshold);
     }
 
 
@@ -756,8 +754,8 @@ Class Log {
      */
     public static function printr(mixed $messages = null, int $threshold = 10): bool
     {
-        self::logDebugHeader('PRINTR', 1, $threshold);
-        return self::write(print_r($messages, true), 'debug', $threshold, false);
+        static::logDebugHeader('PRINTR', 1, $threshold);
+        return static::write(print_r($messages, true), 'debug', $threshold, false);
     }
 
 
@@ -771,8 +769,8 @@ Class Log {
      */
     public static function vardump(mixed $messages = null, int $threshold = 10): bool
     {
-        self::logDebugHeader('VARDUMP', 1, $threshold);
-        return self::write(var_export($messages, true), 'debug', $threshold, false);
+        static::logDebugHeader('VARDUMP', 1, $threshold);
+        return static::write(var_export($messages, true), 'debug', $threshold, false);
     }
 
 
@@ -787,9 +785,9 @@ Class Log {
     public static function backtrace(?int $display = null, int $threshold = 10): bool
     {
         $backtrace = Debug::backtrace(1);
-        self::logDebugHeader('BACKTRACE', 1, $threshold);
-        self::dumpTrace($backtrace, $threshold, $display);
-        return self::debug(basename($_SERVER['SCRIPT_FILENAME']), $threshold);
+        static::logDebugHeader('BACKTRACE', 1, $threshold);
+        static::dumpTrace($backtrace, $threshold, $display);
+        return static::debug(basename($_SERVER['SCRIPT_FILENAME']), $threshold);
     }
 
 
@@ -819,7 +817,7 @@ Class Log {
     {
         $query = sql()->buildQueryString($query, $execute, false);
         $query = Strings::endsWith($query, ';');
-        return self::write('SQL QUERY: ' . $query, 'debug', $threshold);
+        return static::write('SQL QUERY: ' . $query, 'debug', $threshold);
     }
 
 
@@ -839,19 +837,19 @@ Class Log {
      */
     public static function write(mixed $messages = null, ?string $class = null, int $threshold = 10, bool $clean = true, bool $newline = true): bool
     {
-        if (self::$init) {
+        if (static::$init) {
             // Do not log anything while locked, initialising, or while dealing with a Log internal failure
             error_log($messages);
             return false;
         }
 
-// TODO Delete self::$lock as it looks like its not needed anymore
-        self::$lock = true;
-        self::getInstance();
+// TODO Delete static::$lock as it looks like its not needed anymore
+        static::$lock = true;
+        static::getInstance();
 
         try {
             // Do we have a log file setup?
-            if (empty(self::$file)) {
+            if (empty(static::$file)) {
                 throw new LogException(tr('Cannot log, no log file specified'));
             }
 
@@ -860,10 +858,10 @@ Class Log {
                 $success = true;
 
                 foreach ($messages as $message) {
-                    $success = ($success and self::write($message, $class, $threshold, $clean));
+                    $success = ($success and static::write($message, $class, $threshold, $clean));
                 }
 
-                self::$lock = false;
+                static::$lock = false;
                 return $success;
             }
 
@@ -871,9 +869,9 @@ Class Log {
             // logged multiple times
             $real_threshold = abs($threshold);
 
-            if ($real_threshold < self::$threshold) {
+            if ($real_threshold < static::$threshold) {
                 // This log message level did not meet the threshold, discard it
-                self::$lock = false;
+                static::$lock = false;
                 return false;
             }
 
@@ -883,7 +881,7 @@ Class Log {
                 if (Debug::enabled()) {
                     if ($real_threshold > 10) {
                         // Yeah, this is not okay
-                        self::warning(tr('Invalid log level ":level" specified for the following log message. This level should be set to 1-10', [
+                        static::warning(tr('Invalid log level ":level" specified for the following log message. This level should be set to 1-10', [
                             ':level' => $threshold
                         ]), 10);
                     }
@@ -912,8 +910,8 @@ Class Log {
                 }
 
                 // Log the initial exception message
-                self::write('Encountered "' . get_class($messages) . '" class exception in "' . $messages->getFile() . '@' . $messages->getLine() . '" (Main script "' . basename(isset_get($_SERVER['SCRIPT_FILENAME'])) . '")', $class, $threshold);
-                self::write('"' . get_class($messages) . '" Exception message: [' . ($messages->getCode() ?? 'N/A') . '] ' . $messages->getMessage(), $class, $threshold, false);
+                static::write('Encountered "' . get_class($messages) . '" class exception in "' . $messages->getFile() . '@' . $messages->getLine() . '" (Main script "' . basename(isset_get($_SERVER['SCRIPT_FILENAME'])) . '")', $class, $threshold);
+                static::write('"' . get_class($messages) . '" Exception message: [' . ($messages->getCode() ?? 'N/A') . '] ' . $messages->getMessage(), $class, $threshold, false);
 
                 // Warning exceptions do not need to show the extra messages, trace, or data or previous exception
                 if ($class == 'error') {
@@ -921,8 +919,8 @@ Class Log {
                     $trace = $messages->getTrace();
 
                     if ($trace) {
-                        self::write(tr('Backtrace:'), 'debug', $threshold);
-                        self::dumpTrace($messages->getTrace());
+                        static::write(tr('Backtrace:'), 'debug', $threshold);
+                        static::dumpTrace($messages->getTrace());
                     }
 
                     // Log the exception data
@@ -930,7 +928,7 @@ Class Log {
                         $data = $messages->getData();
 
                         if ($data) {
-                            return self::write(print_r($messages, true), 'debug', $threshold, false);
+                            return static::write(print_r($messages, true), 'debug', $threshold, false);
                         }
                     }
 
@@ -939,14 +937,14 @@ Class Log {
 
                     while ($previous) {
 
-                        self::write('Previous exception: ', $class, $threshold);
-                        self::write($previous, $class, $threshold, $clean);
+                        static::write('Previous exception: ', $class, $threshold);
+                        static::write($previous, $class, $threshold, $clean);
 
                         $previous = $previous->getPrevious();
                     }
                 }
 
-                self::$lock = false;
+                static::$lock = false;
                 return true;
             }
 
@@ -957,17 +955,17 @@ Class Log {
             }
 
             // Don't log the same message twice in a row
-            if (($threshold > 0) and (self::$last_message === $messages) and (self::$filter_double)) {
-                self::$lock = false;
+            if (($threshold > 0) and (static::$last_message === $messages) and (static::$filter_double)) {
+                static::$lock = false;
                 return false;
             }
 
-            self::$last_message = $messages;
+            static::$last_message = $messages;
 
             // If we're initializing the log then write to the system log
-            if (self::$fail) {
+            if (static::$fail) {
                 error_log($messages);
-                self::$lock = false;
+                static::$lock = false;
                 return true;
             }
 
@@ -980,26 +978,26 @@ Class Log {
                 $messages = Strings::cleanWhiteSpace($messages);
             }
 
-            $line = date('Y-m-d H:i:s.') . substr(microtime(FALSE), 2, 3) . ' ' . ($threshold === 10 ? 10 : ' ' . $threshold) . ' ' . getmypid() . ' ' . self::$global_id . ' / ' . self::$local_id . ' ' . $messages . ($newline ? PHP_EOL : null);
-            fwrite(self::$handles[self::$file], $line);
+            $line = date('Y-m-d H:i:s.') . substr(microtime(FALSE), 2, 3) . ' ' . ($threshold === 10 ? 10 : ' ' . $threshold) . ' ' . getmypid() . ' ' . static::$global_id . ' / ' . static::$local_id . ' ' . $messages . ($newline ? PHP_EOL : null);
+            fwrite(static::$handles[static::$file], $line);
 
             // In Command Line mode always log to the screen too, but not during PHPUnit test!
             if ((PHP_SAPI === 'cli')  and !Core::isPhpUnitTest()) {
                 echo $messages . ($newline ? PHP_EOL : null);
             }
 
-            self::$lock = false;
+            static::$lock = false;
             return true;
 
         } catch (Throwable $e) {
             // Don't ever let the system crash because of a log issue so we catch all possible exceptions
-            self::$fail = true;
+            static::$fail = true;
 
             try {
-                error_log(date('Y-m-d H:i:s') . ' ' . getmypid() . ' [' . self::$global_id . '/' . self::$local_id . '] Failed to log message to internal log files because "' . $e->getMessage() . '"');
+                error_log(date('Y-m-d H:i:s') . ' ' . getmypid() . ' [' . static::$global_id . '/' . static::$local_id . '] Failed to log message to internal log files because "' . $e->getMessage() . '"');
 
                 try {
-                    error_log(date('Y-m-d H:i:s') . ' ' . $threshold . ' ' . getmypid() . ' ' . self::$global_id . '/' . self::$local_id . $messages);
+                    error_log(date('Y-m-d H:i:s') . ' ' . $threshold . ' ' . getmypid() . ' ' . static::$global_id . '/' . static::$local_id . $messages);
                 } catch (Throwable $g) {
                     // Okay this is messed up, we can't even log to system logs.
                     error_log('Failed to log message');
@@ -1038,7 +1036,7 @@ Class Log {
             $class .= '::';
         }
 
-        return self::write(tr('Showing debug data with :keyword :class:function() in :file@:line',
+        return static::write(tr('Showing debug data with :keyword :class:function() in :file@:line',
             [
                 ':keyword'  => $keyword,
                 ':class'    => $class,
@@ -1067,7 +1065,7 @@ Class Log {
             $lines = [];
 
             if ($display === null) {
-                $display = self::$display;
+                $display = static::$display;
             }
 
             // Parse backtrace data and build the log lines
@@ -1098,7 +1096,7 @@ Class Log {
 
                     default:
                         // Wut? Just display both
-                        self::warning(tr('Unknown $display ":display" specified. Please use one of Log::BACKTRACE_DISPLAY_FILE, Log::BACKTRACE_DISPLAY_FUNCTION, or BACKTRACE_DISPLAY_BOTH', [':display' => $display]));
+                        static::warning(tr('Unknown $display ":display" specified. Please use one of Log::BACKTRACE_DISPLAY_FILE, Log::BACKTRACE_DISPLAY_FUNCTION, or BACKTRACE_DISPLAY_BOTH', [':display' => $display]));
                         $display = self::BACKTRACE_DISPLAY_BOTH;
                 }
 
@@ -1126,10 +1124,10 @@ Class Log {
 
                 if (!$line) {
                     // Failed to build backtrace line
-                    self::write(tr('Invalid backtrace data encountered, do not know how to process and display the following entry'), 'warning', $threshold);
-                    self::printr($step, 10);
-                    self::write(tr('Original backtrace data entry format below'), 'warning', $threshold);
-                    self::printr($step, 10);
+                    static::write(tr('Invalid backtrace data encountered, do not know how to process and display the following entry'), 'warning', $threshold);
+                    static::printr($step, 10);
+                    static::write(tr('Original backtrace data entry format below'), 'warning', $threshold);
+                    static::printr($step, 10);
                 }
 
                 // Determine the largest call line
@@ -1151,13 +1149,13 @@ Class Log {
                     $line['call'] = Strings::size($line['call'], $largest);
                 }
 
-                self::write(trim(($line['call'] ?? null) . (isset($line['location']) ? (isset($line['call']) ? ' in ' : null) . $line['location'] : null)), 'debug', $threshold, false);
+                static::write(trim(($line['call'] ?? null) . (isset($line['location']) ? (isset($line['call']) ? ' in ' : null) . $line['location'] : null)), 'debug', $threshold, false);
             }
 
             return $count;
         } catch (Throwable $e) {
             // Don't crash the process because of this, log it and return -1 to indicate an exception
-            self::error(tr('Failed to log backtrace because of exception ":e"', [':e' => $e->getMessage()]));
+            static::error(tr('Failed to log backtrace because of exception ":e"', [':e' => $e->getMessage()]));
             return -1;
         }
     }

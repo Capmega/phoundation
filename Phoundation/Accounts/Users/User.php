@@ -103,7 +103,7 @@ class User extends DataEntry
      */
     public function __construct(int|string|null $identifier = null)
     {
-        self::$entry_name    = 'user';
+        static::$entry_name    = 'user';
         $this->table         = 'accounts_users';
         $this->unique_column = 'email';
 
@@ -1019,7 +1019,7 @@ class User extends DataEntry
 
         // Is the password not the same as the current password?
         try {
-            self::authenticate($this->data['email'], $password);
+            static::authenticate($this->data['email'], $password);
             throw new PasswordNotChangedException(tr('The specified password is the same as the current password'));
 
         } catch (AuthenticationException) {
