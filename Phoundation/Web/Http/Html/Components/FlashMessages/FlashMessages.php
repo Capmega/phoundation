@@ -29,6 +29,13 @@ class FlashMessages extends ElementsBlock implements Iterator
      */
     protected array $messages = [];
 
+    /**
+     * Indicates if flash messages were rendered (and then we can assume, sent to client too)
+     *
+     * @var bool
+     */
+    protected bool $has_rendered = false;
+
 
 
     /**
@@ -71,6 +78,18 @@ class FlashMessages extends ElementsBlock implements Iterator
     public function getCount(): int
     {
         return count($this->messages);
+    }
+
+
+
+    /**
+     * Returns if this FlashMessages object has rendered HTML or not
+     *
+     * @return bool
+     */
+    public function hasRendered(): bool
+    {
+        return $this->has_rendered;
     }
 
 
@@ -149,6 +168,7 @@ class FlashMessages extends ElementsBlock implements Iterator
 
         // Remove all flash messages from this object
         $this->clear();
+        $this->has_rendered = true;
 
         return parent::render();
     }

@@ -478,6 +478,18 @@ class Page
 
 
     /**
+     * Returns if this request is a POST method
+     *
+     * @return bool
+     */
+    public static function isPostRequestMethod(): bool
+    {
+        return static::isRequestMethod('POST');
+    }
+
+
+
+    /**
      * Return the domain for this page, or the primary domain on CLI
      *
      * @return string
@@ -969,102 +981,21 @@ class Page
      * @see Route::execute()
      * @see Template::execute()
      */
-    public static function execute(string $target, bool $attachment = false): ?string
+    #[NoReturn] public static function execute(string $target, bool $attachment = false): ?string
     {
         try {
-            if (!isset(static::$flash_messages)) {
-                static::$flash_messages = FlashMessages::new();
-            }
-
-            // Set cookie, start session where needed, etc.
-            if (!Core::getFailed()) {
-                Session::startup();
-            }
-
-            if (Strings::fromReverse(dirname($target), '/') === 'system') {
-                // Wait a small random time to avoid timing attacks on system pages
-                usleep(mt_rand(1, 500));
-            }
-
-            // Check user access rights. Routing parameters should be able to tell us what rights are required now
-            if (Core::stateIs('script')) {
-                Page::hasRightsOrRedirects($target, static::$parameters->getRequiredRights($target));
-            }
-
-            // Set the page hash and check if we have access to this page?
-            static::$hash   = sha1($_SERVER['REQUEST_URI']);
-            static::$target = $target;
-            static::$server_restrictions->checkRestrictions($target, false);
-
-            // Do we have a cached version available?
-            $cache = Cache::read(static::$hash, 'pages');
-
-            if ($cache) {
-                try {
-                    $cache  = Json::decode($cache);
-                    $length = static::sendHttpHeaders($cache['headers']);
-
-                    Log::success(tr('Sent ":length" bytes of HTTP to client', [':length' => $length]), 3);
-
-                    // Send the page to the client
-                    static::send($cache['output']);
-                } catch (Throwable $e) {
-                    // Cache failed!
-                    Log::warning(tr('Failed to send full cache page ":page" with following exception, ignoring cache and building page', [
-                        ':page' => static::$hash,
-                    ]));
-
-                    Log::exception($e);
-                }
-            }
+            // Startup the page and see if we can use cache
+            self::startup($target);
+            self::tryCache($target, $attachment);
 
             Core::writeRegister($target, 'system', 'script_file');
             ob_start();
 
             // Execute the specified target
-            try {
-                // Execute the file and send the output HTML as a web page
-                Log::information(tr('Executing ":call" type page ":target" with template ":template" in language ":language" and sending output as HTML web page', [
-                    ':call'     => Core::getRequestType(),
-                    ':target'   => Strings::from($target, PATH_ROOT),
-                    ':template' => static::$template->getName(),
-                    ':language' => LANGUAGE
-                ]));
-
-                switch (Core::getRequestType()) {
-                    case 'api':
-                        // no-break
-                    case 'ajax':
-                        static::$api_interface = new ApiInterface();
-                        $output = static::$api_interface->execute($target);
-                        break;
-
-                    default:
-                        $output = static::$template_page->execute($target);
-                };
-            } catch (AccessDeniedException $e) {
-                $new_target = $e->getNewTarget();
-
-                Log::warning(tr('Access denied to target ":target" for user ":user", redirecting to new target ":new"', [
-                    ':target' => $target,
-                    ':user'   => Session::getUser()->getDisplayId(),
-                    ':new'    => $new_target
-                ]));
-
-                $output = match (Core::getRequestType()) {
-                    'api', 'ajax' => static::$api_interface->execute($new_target),
-                    default       => static::$template_page->execute($new_target),
-                };;
-            }
-
-            // TODO Work on the HTTP headers, lots of issues here still, like content-length!
             // Build the headers, cache output and headers together, then send the headers
+            // TODO Work on the HTTP headers, lots of issues here still, like content-length!
+            $output  = self::executeTarget($target);
             $headers = static::buildHttpHeaders($output, $attachment);
-
-            if (strtoupper($_SERVER['REQUEST_METHOD']) == 'HEAD') {
-                // HEAD request, do not send any HTML whatsoever
-                $output = null;
-            }
 
             if ($headers) {
                 // Only cache if there are headers. If static::buildHeaders() returned null this means that the headers
@@ -1078,18 +1009,9 @@ class Page
                 Log::success(tr('Sent ":length" bytes of HTTP to client', [':length' => $length]), 3);
             }
 
-            switch (static::getHttpCode()) {
-                case 304:
-                    // 304 requests indicate the browser to use it's local cache, send nothing
-                    // no-break
-
-                case 429:
-                    // 429 Tell the client that it made too many requests, send nothing
-                    return null;
-            }
-
-            // Send the page to the client
-            static::send($output);
+            // All done, send output to client
+            $output = self::filterOutput($output);
+            self::sendOutputToClient($output, $target, $attachment);
 
         } catch (ValidationFailedException $e) {
             // TODO Improve this uncaught validation failure handling
@@ -1125,8 +1047,6 @@ class Page
 
             throw $e;
         }
-
-        die();
     }
 
 
@@ -1277,13 +1197,13 @@ class Page
             ]));
 
             header('Refresh: '.$time_delay.';'.$url, true, $http_code);
-            die();
+        } else {
+            // Redirect immediately
+            Log::information(tr('Redirecting to url ":url"', [':url' => $url]));
+            header('Location:' . $url , true, $http_code);
         }
 
-        // Redirect immediately
-        Log::information(tr('Redirecting to url ":url"', [':url' => $url]));
-        header('Location:' . $url , true, $http_code);
-        die();
+        static::die();
     }
 
 
@@ -1868,6 +1788,13 @@ class Page
             die($kill_message);
         }
 
+        // POST requests should always show a flash message for feedback!
+        if (Page::isPostRequestMethod()) {
+            if (!Page::getFlashMessages()->getCount()) {
+                Log::warning('Detected POST request without a flash message to give user feedback on what happened with this request!');
+            }
+        }
+
         // Normal kill request
         Log::action(tr('Killing web page process'), 2);
         die();
@@ -2050,5 +1977,173 @@ class Page
         }
 
         return false;
+    }
+
+
+
+    /**
+     * Starts up this page object
+     *
+     * @param string $target
+     * @return void
+     */
+    protected static function startup(string $target): void
+    {
+        // Ensure we have flash messages available
+        if (!isset(static::$flash_messages)) {
+            static::$flash_messages = FlashMessages::new();
+        }
+
+        // Start the session
+        if (!Core::getFailed()) {
+            Session::startup();
+        }
+
+        if (Strings::fromReverse(dirname($target), '/') === 'system') {
+            // Wait a small random time to avoid timing attacks on system pages
+            usleep(mt_rand(1, 500));
+        }
+
+        // Check user access rights. Routing parameters should be able to tell us what rights are required now
+        if (Core::stateIs('script')) {
+            Page::hasRightsOrRedirects($target, static::$parameters->getRequiredRights($target));
+        }
+
+        // Set the page hash and check if we have access to this page?
+        static::$hash   = sha1($_SERVER['REQUEST_URI']);
+        static::$target = $target;
+        static::$server_restrictions->checkRestrictions($target, false);
+    }
+
+
+
+    /**
+     * Try to send this page from cache, if available
+     *
+     * @param string $target
+     * @param bool $attachment
+     * @return void
+     */
+    protected static function tryCache(string $target, bool $attachment): void
+    {
+        // Do we have a cached version available?
+        $cache = Cache::read(static::$hash, 'pages');
+
+        if ($cache) {
+            try {
+                $cache  = Json::decode($cache);
+                $length = static::sendHttpHeaders($cache['headers']);
+                $output = self::filterOutput($cache['output']);
+
+                Log::success(tr('Sent ":length" bytes of HTTP to client', [':length' => $length]), 3);
+                self::sendOutputToClient($output, $target, $attachment);
+
+            } catch (Throwable $e) {
+                // Cache failed!
+                Log::warning(tr('Failed to send full cache page ":page" with following exception, ignoring cache and building page', [
+                    ':page' => static::$hash,
+                ]));
+
+                Log::exception($e);
+            }
+        }
+    }
+
+
+
+    /**
+     * Returns NULL output if the request method was HEAD (don't return output, only headers)
+     *
+     * @param string $output
+     * @return string|null
+     */
+    protected static function filterOutput(string $output): ?string
+    {
+        if (strtoupper($_SERVER['REQUEST_METHOD']) == 'HEAD') {
+            // HEAD request, do not send any HTML whatsoever
+            return null;
+        }
+
+        // 304 requests indicate the browser to use its local cache, send nothing
+        // 429 Tell the client that it made too many requests, send nothing
+        return match (static::getHttpCode()) {
+            304, 429 => null,
+            default  => $output,
+        };
+    }
+
+
+
+    /**
+     * Executes the target with the correct page driver (API or normal web page for now)
+     *
+     * @param string $target
+     * @return string
+     */
+    protected static function executeTarget(string $target): string
+    {
+        try {
+            // Execute the file and send the output HTML as a web page
+            Log::information(tr('Executing ":call" type page ":target" with template ":template" in language ":language" and sending output as HTML web page', [
+                ':call'     => Core::getRequestType(),
+                ':target'   => Strings::from($target, PATH_ROOT),
+                ':template' => static::$template->getName(),
+                ':language' => LANGUAGE
+            ]));
+
+            switch (Core::getRequestType()) {
+                case 'api':
+                    // no-break
+                case 'ajax':
+                    static::$api_interface = new ApiInterface();
+                    $output = static::$api_interface->execute($target);
+                    break;
+
+                default:
+                    $output = static::$template_page->execute($target);
+            }
+        } catch (AccessDeniedException $e) {
+            $new_target = $e->getNewTarget();
+
+            Log::warning(tr('Access denied to target ":target" for user ":user", redirecting to new target ":new"', [
+                ':target' => $target,
+                ':user'   => Session::getUser()->getDisplayId(),
+                ':new'    => $new_target
+            ]));
+
+            $output = match (Core::getRequestType()) {
+                'api', 'ajax' => static::$api_interface->execute($new_target),
+                default       => static::$template_page->execute($new_target),
+            };
+        }
+
+        return $output;
+    }
+
+
+
+    /**
+     * Send the generated page output to the client
+     *
+     * @param string $output
+     * @param string $target
+     * @param bool $attachment
+     * @return void
+     */
+    #[NoReturn] protected static function sendOutputToClient(string $output, string $target, bool $attachment): void
+    {
+        if ($attachment) {
+            // Send download headers and send the $html payload
+            \Phoundation\Web\Http\File::new(static::$server_restrictions)
+                ->setAttachment(true)
+                ->setData($output)
+                ->setFilename(basename($target))
+                ->send();
+        } else {
+            // Send the page to the client
+            static::send($output);
+        }
+
+        static::die();
     }
 }

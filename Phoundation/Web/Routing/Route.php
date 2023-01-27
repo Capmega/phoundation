@@ -1089,9 +1089,9 @@ class Route
      *
      * @param string $target
      * @param bool $attachment
-     * @return bool
+     * @return void
      */
-    public static function execute(string $target, bool $attachment, ?RoutingParameters $parameters = null): bool
+    #[NoReturn] public static function execute(string $target, bool $attachment, ?RoutingParameters $parameters = null): void
     {
         // Get routing parameters and find the correct target page
         if (!$parameters) {
@@ -1105,19 +1105,7 @@ class Route
             // Remove the 404 auto execution on shutdown
             // TODO route_postprocess() This should be a class method!
             Core::unregisterShutdown('route[postprocess]');
-            $html = Page::execute($target, $attachment);
-
-            if ($attachment) {
-                // Send download headers and send the $html payload
-                File::new(static::$server_restrictions)
-                    ->setAttachment(true)
-                    ->setData($html)
-                    ->setFilename(basename($target))
-                    ->send();
-            }
-
-            return true;
-
+            Page::execute($target, $attachment);
         }
 
         if ($attachment) {
@@ -1149,7 +1137,7 @@ class Route
             include($target);
         }
 
-        return true;
+        Page::die();
     }
 
 

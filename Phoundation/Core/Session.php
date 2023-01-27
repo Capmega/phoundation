@@ -236,7 +236,11 @@ class Session
         try {
             static::$user = User::authenticate($user, $password);
             static::clear();
-            static::init();
+
+            // Initialize session?
+            if (!isset($_SESSION['init'])) {
+                static::start();
+            }
 
             $_SESSION['user']['id'] = static::$user->getId();
             return static::$user;
@@ -366,7 +370,7 @@ class Session
         if (array_key_exists(Config::get('web.sessions.cookies.name', 'phoundation'), $_COOKIE)) {
             try {
                 // We have a cookie! Start a session for it
-                Session::start();
+                static::start();
             } catch (SessionException $e) {
                 Log::warning(tr('Failed to resume session due to exception ":e"', [':e' => $e->getMessage()]));
                 // Failed to start an existing session, so we'll have to detect the client anyway
@@ -387,7 +391,17 @@ class Session
     public static function clear(): void
     {
         global $_SESSION;
-        $_SESSION = ['start' => isset_get($_SESSION['start'])];
+
+        if (isset($_SESSION['init'])) {
+            // Conserve init data
+            $_SESSION = [
+                'init'         => $_SESSION['init'],
+                'domain'       => static::$domain,
+                'first_domain' => $_SESSION['first_domain']
+            ];
+        } else {
+            $_SESSION = [];
+        }
     }
 
 
@@ -444,6 +458,14 @@ class Session
 
         // Start session
         session_start();
+
+        // Initialize session?
+        if (empty($_SESSION['init'])) {
+            static::init();
+        }
+
+        // Check for extended sessions
+        // TODO Are we still doing this?
         static::checkExtended();
 
         Log::success(tr('Started session for user ":user" from IP ":ip"', [
@@ -451,6 +473,7 @@ class Session
             ':ip'   => $_SERVER['REMOTE_ADDR']
         ]));
 
+        // check and set last activity
         if (Config::get('web.sessions.cookies.lifetime', 0)) {
             // Session cookie timed out?
             if (isset($_SESSION['last_activity']) and (time() - $_SESSION['last_activity'] > Config::get('web.sessions.cookies.lifetime', 0))) {
@@ -463,13 +486,7 @@ Log::warning('RESTART SESSION');
             }
         }
 
-        // Time that the session for this process started
-        $_SESSION['start'] = microtime(true);
-
-        // Initialize session?
-        if (empty($_SESSION['init'])) {
-            static::init();
-        }
+        $_SESSION['last_activity'] = microtime(true);
 
         // Euro cookie check, can we do cookies at all?
         if (Config::get('web.sessions.cookies.europe', true) and !Config::get('web.sessions.cookies.name', 'phoundation')) {
@@ -511,9 +528,8 @@ Log::warning('RESTART SESSION');
             }
         }
 
-        // Set last activity, and first_visit variables
-        $_SESSION['last_activity'] = time();
-
+        // Is this first visit?
+        // TODO Fix this crap. We should be able to redirect on first visit, or show modal or flash messages. Do much more!
         if (isset($_SESSION['first_visit'])) {
             if ($_SESSION['first_visit']) {
                 $_SESSION['first_visit']--;
@@ -528,6 +544,7 @@ Log::warning('RESTART SESSION');
             // TODO Implement
         }
 
+        // If any flash messages were stored in the $_SESSION, import them into the flash messages object
         if (isset($_SESSION['flash_messages'])) {
             static::getFlashMessages()->import((array) $_SESSION['flash_messages']);
             unset($_SESSION['flash_messages']);
@@ -831,15 +848,10 @@ Log::warning('RESTART SESSION');
      */
     protected static function init(): bool
     {
-        if (empty($_SESSION['start'])) {
-            // There is no active session yet, follow the Session::start() path instead!
-            return static::start();
-        }
-
         Log::action(tr('Initializing new session for user ":user"', [':user' => static::getUser()->getLogId()]));
 
         // Initialize the session
-        $_SESSION['init']         = time();
+        $_SESSION['init']         = microtime(true);
         $_SESSION['first_domain'] = static::$domain;
         $_SESSION['domain']       = static::$domain;
 

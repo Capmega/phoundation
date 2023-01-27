@@ -123,7 +123,7 @@ class User extends DataEntry
 
         if (!$id) {
             // This is a guest user
-            return $id . ' / ' . tr('Guest');
+            return tr('Guest');
         }
 
         return $id . ' / ' . $this->getDataValue($this->unique_column);
