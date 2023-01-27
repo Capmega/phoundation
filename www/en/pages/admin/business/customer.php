@@ -23,7 +23,7 @@ GetValidator::new()
 $customer = Customer::get($_GET['id']);
 
 // Validate POST and submit
-if (Page::isRequestMethod('POST')) {
+if (Page::isPostRequestMethod()) {
     try {
         PostValidator::new()
             ->select('customername')->isOptional()->isName()

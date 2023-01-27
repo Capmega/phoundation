@@ -18,7 +18,7 @@ $users = Users::new();
 
 
 // Validate POST and submit
-if (Page::isRequestMethod('POST')) {
+if (Page::isPostRequestMethod()) {
     try {
         PostValidator::new()
             ->select('id')->isOptional()->isArray()->each()->isId()

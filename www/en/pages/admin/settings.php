@@ -17,7 +17,7 @@ use Templates\Mdb\Layouts\GridColumn;
 $user = User::get(Session::getUser()->getId());
 
 // Validate POST and submit
-if (Page::isRequestMethod('POST')) {
+if (Page::isPostRequestMethod()) {
     try {
 
 

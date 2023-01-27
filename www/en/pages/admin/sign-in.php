@@ -16,7 +16,7 @@ if (!Session::getUser()->isGuest()) {
 
 
 // Validate sign in data and sign in
-if (Page::isRequestMethod('post')) {
+if (Page::isPostRequestMethod()) {
     try {
         Session::validateSignIn();
         Session::signIn($_POST['email'], $_POST['password']);

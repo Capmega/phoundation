@@ -20,7 +20,7 @@ $user = Session::getUser();
 
 
 // Validate POST and submit
-if (Page::isRequestMethod('POST')) {
+if (Page::isPostRequestMethod()) {
     try {
         PostValidator::new()
             ->select('username')->isOptional()->isName()

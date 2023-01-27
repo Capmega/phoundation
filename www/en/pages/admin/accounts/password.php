@@ -24,7 +24,7 @@ GetValidator::new()
 $user = User::get($_GET['id']);
 
 // Validate POST and submit
-if (Page::isRequestMethod('POST')) {
+if (Page::isPostRequestMethod()) {
     try {
         PostValidator::new()
             ->select('password1')->isPassword()
