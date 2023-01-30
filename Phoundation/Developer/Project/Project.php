@@ -4,6 +4,7 @@ namespace Phoundation\Developer\Project;
 
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Arrays;
+use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Validator;
@@ -376,7 +377,7 @@ class Project
             foreach ($files as $file) {
                 try {
                     include_once($file);
-                    $class   = Debug::getClassPath($file);
+                    $class   = Library::getClassPath($file);
                     $library = Strings::until(Strings::from($file, $directory), '/');
 
                     if ($libraries and !in_array(strtolower($library), $libraries)) {

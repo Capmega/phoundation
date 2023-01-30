@@ -3,8 +3,8 @@
 namespace Phoundation\Core\Plugins;
 
 use Phoundation\Accounts\Users\Users;
+use Phoundation\Core\Libraries\Library;
 use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Developer\Debug;
 use Phoundation\Filesystem\File;
 
 
@@ -86,7 +86,7 @@ abstract class Plugin extends DataEntry
     public static function read(string $plugin_name): static
     {
         $file   = self::getFile($plugin_name);
-        $class  = Debug::getClassPath($file);
+        $class  = Library::getClassPath($file);
 
         // Include the class file and create and return the object
         include_once($file);

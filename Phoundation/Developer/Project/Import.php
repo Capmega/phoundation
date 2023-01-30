@@ -114,7 +114,7 @@ abstract class Import
 //            include_once($file);
 //
 //            // Get the class for this file
-//            $return[] = Debug::getClassPath($file);
+//            $return[] = Library::getClassPath($file);
 //        }
 //
 //        return $return;

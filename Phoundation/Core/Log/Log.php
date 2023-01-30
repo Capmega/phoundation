@@ -7,6 +7,7 @@ use PDOStatement;
 use Phoundation\Cli\Color;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
+use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Exception\LogException;
 use Phoundation\Core\Strings;
 use Phoundation\Developer\Debug;
@@ -799,7 +800,7 @@ Class Log {
      */
     public static function statistics(int $threshold = 10): bool
     {
-        return Log::printr(Debug::getJson(), $threshold);
+        return Log::printr(Library::getJson(), $threshold);
     }
 
 

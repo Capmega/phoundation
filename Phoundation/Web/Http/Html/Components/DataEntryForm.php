@@ -3,8 +3,8 @@
 namespace Phoundation\Web\Http\Html\Components;
 
 use Phoundation\Core\Arrays;
+use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Strings;
-use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Input\Select;
 use Phoundation\Web\Http\Html\Components\Input\TextArea;
@@ -275,7 +275,7 @@ class DataEntryForm extends ElementsBlock
 
                     // Build the element class path and load the required class file
                     $element = '\Phoundation\Web\Http\Html\Components\Input\Input' . Strings::capitalize($data['type']);
-                    $file    = Debug::getClassFile($element);
+                    $file    = Library::getClassFile($element);
                     include_once($file);
 
                     // Depending on input type we might need different code
@@ -314,7 +314,7 @@ class DataEntryForm extends ElementsBlock
 
                 // Build the element class path and load the required class file
                     $element = '\Phoundation\Web\Http\Html\Components\Input\TextArea';
-                    $file    = Debug::getClassFile($element);
+                    $file    = Library::getClassFile($element);
                     include_once($file);
 
                     $html = TextArea::new()
@@ -331,7 +331,7 @@ class DataEntryForm extends ElementsBlock
                 case 'select':
                     // Build the element class path and load the required class file
                     $element = '\Phoundation\Web\Http\Html\Components\Input\Select';
-                    $file    = Debug::getClassFile($element);
+                    $file    = Library::getClassFile($element);
                     include_once($file);
 
                     $html = Select::new()

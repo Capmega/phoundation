@@ -2,9 +2,9 @@
 
 namespace Phoundation\Core\Plugins;
 
+use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataList\DataList;
-use Phoundation\Developer\Debug;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Path;
 use Throwable;
@@ -217,7 +217,7 @@ class Plugins extends DataList
                 continue;
             }
 
-            $class = Debug::getClassPath($file);
+            $class = Library::getClassPath($file);
             include_once($file);
 
             if (!is_subclass_of($class, Plugin::class)) {

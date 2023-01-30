@@ -2,8 +2,8 @@
 
 namespace Phoundation\Web\Http\Html\Template;
 
+use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Strings;
-use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Template\Exception\TemplateException;
 use Plugins\Phoundation\Components\Menu;
@@ -172,7 +172,7 @@ abstract class Template
         $file = $this->getPath() . $file . '.php';
 
         if (file_exists($file)) {
-            return Debug::getClassPath($file);
+            return Library::getClassPath($file);
         }
 
         // The template component does not exist, return the basic Phoundation version
