@@ -1,16 +1,16 @@
 <?php
 
-namespace Phoundation\Developer\Libraries;
+namespace Phoundation\Core\Libraries;
 
 use Error;
+use Phoundation\Core\Libraries\Exception\LibrariesException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
-use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Path;
 use Phoundation\Utils\Json;
-
 
 
 /**
@@ -328,6 +328,91 @@ class Library
 
 
     /**
+     * Get the class path from the specified .php file
+     *
+     * @param string $file
+     * @return Object
+     */
+    public static function getClassPath(string $file): string
+    {
+        if (!File::new($file, [PATH_ROOT . 'Phoundation', PATH_ROOT . 'Plugins', PATH_ROOT . 'Templates'])->isPhp()) {
+            throw new OutOfBoundsException(tr('The specified file ":file" is not a PHP file', [':file' => $file]));
+        }
+
+        // Scan for namespace and class lines
+        $namespace = null;
+        $class     = null;
+        $results   = File::new($file, [PATH_ROOT . 'Phoundation', PATH_ROOT . 'Plugins', PATH_ROOT . 'Templates'])->grep(['namespace ', 'class '], 100);
+
+        // Get the namespace
+        foreach ($results['namespace '] as $line) {
+            if (preg_match_all('/^namespace\s+(.+?);$/i', $line, $matches)) {
+                $namespace = $matches[1][0];
+            }
+        }
+
+        if (!$namespace) {
+            throw new LibrariesException(tr('Failed to find a namespace for file ":file"', [':file' => $file]));
+        }
+
+        // Get the class name
+        foreach ($results['class '] as $line) {
+            if (preg_match_all('/^(?:abstract )?class\s+([a-z0-9_]+)(?:(?:\s+extends\s+.+?)?\s+\{)?/i', $line, $matches)) {
+                $class = $matches[1][0];
+            }
+        }
+
+        if (!$class) {
+            throw new LibrariesException(tr('Failed to find a class for file ":file"', [':file' => $file]));
+        }
+
+        // Now we can return the class path
+        return Strings::endsWith($namespace, '\\') . $class;
+    }
+
+
+
+    /**
+     * Get the .php file for the specified class path
+     *
+     * @param string $class_path
+     * @return string
+     */
+    public static function getClassFile(string $class_path): string
+    {
+        if (!$class_path) {
+            throw new OutOfBoundsException(tr('No class path specified'));
+        }
+
+        $file = str_replace('\\', '/', $class_path);
+        $file = Strings::startsNotWith($file, '/');
+        $file = PATH_ROOT . $file . '.php';
+
+        if (!File::new($file, [PATH_ROOT . 'Phoundation', PATH_ROOT . 'Plugins', PATH_ROOT . 'Templates', ])->isPhp()) {
+            throw new OutOfBoundsException(tr('The specified file ":file" is not a PHP file', [':file' => $file]));
+        }
+
+        return $file;
+    }
+
+
+
+    /**
+     * Get the .php file for the specified class path
+     *
+     * @param string $class_path
+     * @return void
+     */
+    public static function loadClassFile(string $class_path): void
+    {
+        $file = static::getClassFile($class_path);
+        Log::action(tr('Including class file ":file"', [':file' => $file]), 2);
+        include_once($file);
+    }
+
+
+
+    /**
      * Load the Init object for this library
      */
     protected function loadUpdatesObject(): void
@@ -343,7 +428,7 @@ class Library
             // Load the PHP file
             include_once($file);
 
-            $updates_class_path = Debug::getClassPath($file);
+            $updates_class_path = self::getClassPath($file);
             $updates            = new $updates_class_path();
 
             if (!($updates instanceof Updates)) {

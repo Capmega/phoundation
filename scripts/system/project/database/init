@@ -2,9 +2,8 @@
 <?php
 
 use Phoundation\Cli\Documentation;
+use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Developer\Libraries\Libraries;
-use Phoundation\Developer\Libraries\Version;
 use Phoundation\Developer\Project\Project;
 use Plugins\Aerostream\AerostreamFes\Maws\Maw;
 

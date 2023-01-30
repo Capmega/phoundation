@@ -1,6 +1,6 @@
 <?php
 
-namespace Phoundation\Developer\Libraries;
+namespace Phoundation\Core\Libraries;
 
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;

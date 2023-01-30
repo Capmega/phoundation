@@ -7,7 +7,7 @@ use PDOStatement;
 use Phoundation\Cli\Color;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
-use Phoundation\Core\Exception\LogException;
+use Phoundation\Core\Log\Exception\LogException;
 use Phoundation\Core\Strings;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exception;
@@ -19,7 +19,6 @@ use Phoundation\Servers\Server;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
 use Throwable;
-
 
 
 /**

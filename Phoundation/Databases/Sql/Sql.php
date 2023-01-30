@@ -14,7 +14,7 @@ use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\ConfigException;
 use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
-use Phoundation\Core\Exception\LogException;
+use Phoundation\Core\Log\Exception\LogException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta;
 use Phoundation\Core\Session;

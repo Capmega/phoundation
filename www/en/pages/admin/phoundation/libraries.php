@@ -1,6 +1,6 @@
 <?php
 
-use Phoundation\Developer\Libraries\Libraries;
+use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Web\Http\Html\Components\BreadCrumbs;
 use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Page;
