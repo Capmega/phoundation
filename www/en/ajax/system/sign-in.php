@@ -1,11 +1,10 @@
 <?php
 
-use Phoundation\Core\Log;
+use Phoundation\Core\Log\Log;
 use Phoundation\Core\Session;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Components\ProfileImage;
-use Phoundation\Web\Http\Html\Template\TemplateMenus;
-
+use Plugins\Phoundation\Components\Menu;
 
 
 /**
@@ -23,7 +22,7 @@ Session::validateSignIn();
 // Attempt to sign in and if all okay, return an updated profile image with menu
 $user  = Session::signIn($_POST['email'], $_POST['password']);
 
-$menu  = TemplateMenus::getPrimaryMenu();
+$menu  = Menu::getPrimaryMenu();
 
 $image = ProfileImage::new()
     ->setImage(Session::getUser()->getPicture())
