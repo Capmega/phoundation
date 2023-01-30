@@ -5,6 +5,7 @@ namespace Phoundation\Core;
 use DateTimeZone;
 use Exception;
 use GeoIP;
+use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\GuestUser;
 use Phoundation\Accounts\Users\User;
@@ -22,6 +23,8 @@ use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
+use Phoundation\Security\Incidents\Incident;
+use Phoundation\Security\Incidents\Severity;
 use Phoundation\Web\Client;
 use Phoundation\Web\Http\Html\Components\FlashMessages\FlashMessages;
 use Phoundation\Web\Http\Http;
@@ -242,10 +245,24 @@ class Session
                 static::start();
             }
 
+            Incident::new()
+                ->setType('User sign in')
+                ->setSeverity(Severity::notice)
+                ->setTitle(tr('The user ":user" signed in', [':user' => $user]))
+                ->setDetails([':user' => $user])
+                ->save();
+
             $_SESSION['user']['id'] = static::$user->getId();
             return static::$user;
 
         } catch (DataEntryNotExistsException) {
+            Incident::new()
+                ->setType('User does not exist')
+                ->setSeverity(Severity::low)
+                ->setTitle(tr('The specified user ":user" does not exist', [':user' => $user]))
+                ->setDetails([':user' => $user])
+                ->save();
+
             // The specified user does not exist
             throw AuthenticationException::new(tr('The specified user ":user" does not exist', [
                 ':user' => $user

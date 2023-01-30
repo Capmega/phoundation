@@ -17,7 +17,7 @@ use Phoundation\Web\Http\UrlBuilder;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation/Web
  */
-abstract class Menu extends ElementsBlock
+class Menu extends ElementsBlock
 {
     /**
      * Set the menu source and ensure all URL's are absolute
@@ -69,5 +69,41 @@ abstract class Menu extends ElementsBlock
 
         unset($entry);
         return $source;
+    }
+
+
+
+    /**
+     * Append the specified menu to the end of this menu
+     *
+     * @param Menu|array $menu
+     * @return $this
+     */
+    public function appendMenu(Menu|array $menu): static
+    {
+        if (is_object($menu)) {
+            $menu = $menu->__toArray();
+        }
+
+        $this->source = array_merge($this->source, $menu);
+        return $this;
+    }
+
+
+
+    /**
+     * Append the specified menu to the beginning of this menu
+     *
+     * @param Menu|array $menu
+     * @return $this
+     */
+    public function prependMenu(Menu|array $menu): static
+    {
+        if (is_object($menu)) {
+            $menu = $menu->__toArray();
+        }
+
+        $this->source = array_merge($menu, $this->source);
+        return $this;
     }
 }

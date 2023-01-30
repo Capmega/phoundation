@@ -641,6 +641,59 @@ class FileBasics
 
 
     /**
+     * Ensure that the object file is readable
+     *
+     * This method will ensure that the object file will exist and is readable. If it does not exist, an empty file
+     * will be created in the parent directory of the specified $this->file
+     *
+     * @param int|null $mode
+     * @return bool
+     */
+    public function ensureFileReadable(?int $mode = null): bool
+    {
+        // Check filesystem restrictions
+        $this->checkRestrictions($this->file, true);
+
+        // If the object file exists and is writable, then we're done.
+        if (is_writable($this->file)) {
+            return true;
+        }
+
+        // From here the file is not writable. It may not exist, or it may simply not be writable. Lets continue...
+
+        if (file_exists($this->file)) {
+            // Great! The file exists, but it is not writable at this moment. Try to make it writable.
+            try {
+                Log::warning(tr('The file ":file" (Realpath ":path") is not readable. Attempting to apply default file mode ":mode"', [
+                    ':file' => $this->file,
+                    ':path' => realpath($this->file),
+                    ':mode' => $mode
+                ]));
+
+                $this->chmod('u+w');
+
+            } catch (ProcessesException) {
+                throw new FileNotWritableException(tr('The file ":file" (Realpath ":path") is not writable, and could not be made writable', [
+                    ':file' => $this->file,
+                    ':path' => realpath($this->file)
+                ]));
+            }
+        }
+
+        // As of here we know the file doesn't exist. Attempt to create it. First ensure the parent path exists.
+        Path::new(dirname($this->file), $this->server_restrictions)->ensure();
+
+        Log::action(tr('Creating non existing file ":file" with file mode ":mode"', [
+            ':mode' => Strings::fromOctal($mode),
+            ':file' => $this->file
+        ]));
+
+        return false;
+    }
+
+
+
+    /**
      * Ensure that the object file is writable
      *
      * This method will ensure that the object file will exist and is writable. If it does not exist, an empty file
@@ -672,7 +725,7 @@ class FileBasics
 
                 $this->chmod('u+w');
 
-            } catch (ProcessesException $e) {
+            } catch (ProcessesException) {
                 throw new FileNotWritableException(tr('The file ":file" (Realpath ":path") is not writable, and could not be made writable', [
                     ':file' => $this->file,
                     ':path' => realpath($this->file)

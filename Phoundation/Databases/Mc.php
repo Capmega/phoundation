@@ -5,6 +5,7 @@ namespace Phoundation\Databases;
 use Memcached;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
+use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
@@ -409,14 +410,9 @@ class Mc
 
         // Default connections to localhost if nothing was defined
         if (empty($this->configuration['connections'])) {
-            Log::warning(tr('No memcached connections configured for instance ":instance", defaulting to localhost::11211', [
+            throw ConfigurationDoesNotExistsException::new(tr('No memcached connections configured for instance ":instance"', [
                 ':instance' => $this->instance_name
-            ]));
-
-            $this->configuration['connections'][] = [
-                'host' => '127.0.0.1',
-                'port' => '11211'
-            ];
+            ]))->makeWarning();
         }
 
         if (!is_array($this->configuration['connections'])) {

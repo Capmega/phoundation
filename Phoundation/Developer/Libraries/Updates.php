@@ -135,7 +135,7 @@ abstract class Updates
         }
 
         $version = sql()->getColumn('SELECT MAX(`version`) 
-                                           FROM   `versions` 
+                                           FROM   `core_versions` 
                                            WHERE  `library` = :library', [':library' => $this->library]);
 
         return Version::getString($version);
@@ -247,7 +247,7 @@ abstract class Updates
      */
     protected function addVersion(string $version, ?string $comments = null): void
     {
-        sql()->insert('versions', [
+        sql()->insert('core_versions', [
             'library'  => $this->library,
             'version'  => Version::getInteger($version),
             'comments' => $comments
@@ -342,7 +342,7 @@ abstract class Updates
     protected function versionsTableExists(): bool
     {
         if (!isset($this->versions_exists)) {
-            $this->versions_exists = (bool) sql()->get('SHOW TABLES LIKE "versions"');
+            $this->versions_exists = (bool) sql()->get('SHOW TABLES LIKE "core_versions"');
         }
 
         return $this->versions_exists;

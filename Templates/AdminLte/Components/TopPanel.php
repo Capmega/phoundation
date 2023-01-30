@@ -2,9 +2,9 @@
 
 namespace Templates\AdminLte\Components;
 
-
-
 use Phoundation\Web\Http\UrlBuilder;
+
+
 
 /**
  * AdminLte Plugin TopPanel class
@@ -79,7 +79,7 @@ class TopPanel extends \Phoundation\Web\Http\Html\Components\TopPanel
     {
         $this->render = ' <nav class="main-header navbar navbar-expand navbar-white navbar-light">
                             <!-- Left navbar links -->
-                            ' . $this->getMenu()->render() . '                    
+                            ' . $this->getMenu()?->render() . '                    
                             <!-- Right navbar links -->
                             <ul class="navbar-nav ml-auto">
                               <!-- Navbar Search -->
@@ -107,11 +107,11 @@ class TopPanel extends \Phoundation\Web\Http\Html\Components\TopPanel
                                
                               <!-- Messages Dropdown Menu -->
                               <li class="nav-item dropdown">
-                                ' . $this->messages->render() . '
+                                ' . $this->messages?->render() . '
                               </li>
                               <!-- Notifications Dropdown Menu -->
                               <li class="nav-item dropdown">
-                                ' . $this->notifications->render() . '
+                                ' . $this->notifications?->render() . '
                               </li>
                               <li class="nav-item">
                                 <a class="nav-link" data-widget="fullscreen" href="#" role="button">

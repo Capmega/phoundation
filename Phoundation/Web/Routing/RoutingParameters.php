@@ -104,9 +104,9 @@ class RoutingParameters
     /**
      * Exception file names to the required directory rights
      *
-     * @var array|null $path_rights_exceptions
+     * @var array|null $rights_exceptions
      */
-    protected ?array $path_rights_exceptions = null;
+    protected ?array $rights_exceptions = null;
 
 
 
@@ -189,25 +189,38 @@ class RoutingParameters
      */
     public function getRequiredRights(string $target): array
     {
+        // Is this file an exception for required rights?
+        if ($this->rights_exceptions and in_array(basename($target), $this->rights_exceptions)) {
+            return [];
+        }
+
         // Check defined rights and directory rights, both have to pass
         if ($this->require_path_rights) {
-            $filename = basename($target);
-
-            if ($this->path_rights_exceptions and !in_array($filename, $this->path_rights_exceptions)) {
-                // First cut to WWW path
-                // Then the rest, as the path may be partial
-                // Then remove the file name to only have the path parts
-                // Ensure it doesn't start with a slash to avoid empty right entries
-                // Then explode to array
-                $path = Strings::from($target, PATH_WWW);
-                $path = Strings::from($path, dirname($this->require_path_rights));
-                $path = Strings::startsNotWith($path, '/');
-                $path = dirname($path);
-                $path = explode(Filesystem::DIRECTORY_SEPARATOR, $path);
-
-                // Merge with the already specified rights
-                return array_merge($this->rights, $path);
+            if (substr_count($this->require_path_rights, '/') > 1) {
+                $dirname = dirname($this->require_path_rights);
+            } else {
+                $dirname = $this->require_path_rights;
             }
+
+            // First cut to WWW path
+            // Then the rest, as the path may be partial
+            // Then remove the file name to only have the path parts
+            // Ensure it doesn't start with a slash to avoid empty right entries
+            // Then explode to array
+            $path = Strings::from($target, PATH_WWW);
+            $path = Strings::from($path, $dirname);
+            $path = Strings::startsNotWith($path, '/');
+            $path = dirname($path);
+
+            if ($path === '.') {
+                // Current directory, there is no path
+                $path = [];
+            } else {
+                $path = explode(Filesystem::DIRECTORY_SEPARATOR, $path);
+            }
+
+            // Merge with the already specified rights
+            return array_merge($this->rights, $path);
         }
 
         return $this->rights;
@@ -237,9 +250,23 @@ class RoutingParameters
      *
      * @return array|null
      */
-    public function getRequirePathExceptions(): ?array
+    public function getRightsExceptions(): ?array
     {
-        return $this->path_rights_exceptions;
+        return $this->rights_exceptions;
+    }
+
+
+
+    /**
+     * Returns filename exceptions to required directory rights
+     *
+     * @param array|string $exceptions
+     * @return static
+     */
+    public function setRightsExceptions(array|string $exceptions): static
+    {
+        $this->rights_exceptions = Arrays::force($exceptions, null);
+        return $this;
     }
 
 
@@ -252,12 +279,17 @@ class RoutingParameters
      * user to access that page
      *
      * @param string $require_path_rights
+     * @param array|string|null $rights_exceptions
      * @return static
      */
-    public function setRequirePathRights(string $require_path_rights, array|string|null $path_rights_exceptions = null): static
+    public function setRequirePathRights(string $require_path_rights, array|string|null $rights_exceptions = null): static
     {
-        $this->require_path_rights    = $require_path_rights;
-        $this->path_rights_exceptions = Arrays::force($path_rights_exceptions);
+        $this->require_path_rights = Strings::slash($require_path_rights);
+
+        if ($rights_exceptions) {
+            $this->rights_exceptions = Arrays::force($rights_exceptions, null);
+        }
+
         return $this;
     }
 

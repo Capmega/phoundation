@@ -5,6 +5,7 @@ namespace Phoundation\Web;
 use Exception;
 use JetBrains\PhpStorm\ExpectedValues;
 use JetBrains\PhpStorm\NoReturn;
+use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Api\ApiInterface;
 use Phoundation\Cache\Cache;
@@ -34,6 +35,7 @@ use Phoundation\Web\Http\Exception\HttpException;
 use Phoundation\Web\Http\Flash;
 use Phoundation\Web\Http\Html\Components\BreadCrumbs;
 use Phoundation\Web\Http\Html\Components\FlashMessages\FlashMessages;
+use Phoundation\Web\Http\Html\Menus\Menus;
 use Phoundation\Web\Http\Html\Template\Template;
 use Phoundation\Web\Http\Html\Template\TemplatePage;
 use Phoundation\Web\Http\Http;
@@ -41,6 +43,7 @@ use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Routing\Route;
 use Phoundation\Web\Routing\RoutingParameters;
 use Throwable;
+
 
 
 /**
@@ -266,6 +269,13 @@ class Page
      */
     protected static RoutingParameters $parameters;
 
+    /**
+     * The menus for this page
+     *
+     * @var Menus $menus
+     */
+    protected static Menus $menus;
+
 
 
     /**
@@ -318,6 +328,36 @@ class Page
     public static function setServerRestrictions(Server $server_restrictions): void
     {
         static::$server_restrictions = $server_restrictions;
+    }
+
+
+
+    /**
+     * Returns the current tab index and automatically increments it
+     *
+     * @return Menus
+     */
+    public static function getMenus(): Menus
+    {
+        if (!isset(static::$menus)) {
+            // Menus have not yet been initialized, do so now.
+            static::$menus = new Menus();
+        }
+
+        return static::$menus;
+    }
+
+
+
+    /**
+     * Sets the current tab index and automatically increments it
+     *
+     * @param Menus $menus
+     * @return void
+     */
+    public static function setMenus(Menus $menus): void
+    {
+        static::$menus = $menus;
     }
 
 
@@ -1054,16 +1094,21 @@ class Page
     /**
      * Ensures that this session user has all the specified rights, or a redirect will happen
      *
-     * @param string $target
      * @param array|string $rights
+     * @param string $target
      * @param string|null $rights_redirect
      * @param string|null $guest_redirect
      * @return void
      */
-    public static function hasRightsOrRedirects(string $target, array|string $rights, ?string $rights_redirect = null, ?string $guest_redirect = null): void
+    public static function hasRightsOrRedirects(array|string $rights, string $target, ?string $rights_redirect = null, ?string $guest_redirect = null): void
     {
         if (Session::getUser()->hasAllRights($rights)) {
             return;
+        }
+
+        if (!$target) {
+            // If target wasn't specified we can safely assume its the same as the real target.
+            $target = self::$target;
         }
 
         // Oops! Is this a system page though? System pages require no rights to be viewed.
@@ -1102,15 +1147,41 @@ class Page
         }
 
         // This user is missing rights
-        if (!$guest_redirect) {
-            $guest_redirect = '403';
+        if (!$rights_redirect) {
+            $rights_redirect = '403';
         }
 
+        // Do the specified rights exist at all? If they aren't defined then no wonder this user doesn't have them
+        if (Rights::getNotExist($rights)) {
+            // One or more of the rights do not exist
+            Incident::new()
+                ->setType('Non existing rights')
+                ->setSeverity(in_array('admin', Session::getUser()->getMissingRights($rights)) ? Severity::high : Severity::medium)
+                ->setTitle(tr('The requested rights ":rights" for target page ":target" (real target ":real_target") do not exist on this system! Redirecting to ":redirect"', [
+                    ':rights'      => Strings::force(Rights::getNotExist($rights), ', '),
+                    ':target'      => Strings::from(static::$target, PATH_ROOT),
+                    ':real_target' => Strings::from($target, PATH_ROOT),
+                    ':redirect'    => $guest_redirect
+                ]))
+                ->setDetails([
+                    'user'           => Session::getUser()->getLogId(),
+                    'uri'            => Page::getUri(),
+                    'target'         => Strings::from(static::$target, PATH_ROOT),
+                    ':real_target'   => Strings::from($target, PATH_ROOT),
+                    'rights'         => $rights,
+                    'missing_rights' => Rights::getNotExist($rights)
+                ])
+                ->save();
+
+            Page::redirect($guest_redirect);
+        }
+
+        // Registered user does not have the required rights
         Incident::new()
             ->setType('403 - forbidden')
             ->setSeverity(in_array('admin', Session::getUser()->getMissingRights($rights)) ? Severity::high : Severity::medium)
             ->setTitle(tr('User ":user" does not have the required rights ":rights" for target page ":target" (real target ":real_target"), redirecting to ":redirect"', [
-                ':user'        => Session::getUser(),
+                ':user'        => Session::getUser()->getLogId(),
                 ':rights'      => $rights,
                 ':target'      => Strings::from(static::$target, PATH_ROOT),
                 ':real_target' => Strings::from($target, PATH_ROOT),
@@ -1134,15 +1205,15 @@ class Page
      * Return the specified URL with a redirect URL stored in $core->register['redirect']
      *
      * @note If no URL is specified, the current URL will be used
-     * @see UrlBuilder
-     * @see UrlBuilder::addQueries()
-     *
-     * @param string|bool|null $url
+     * @param UrlBuilder|string|bool|null $url
      * @param int $http_code
      * @param int|null $time_delay
      * @return void
+     *@see UrlBuilder
+     * @see UrlBuilder::addQueries()
+     *
      */
-    #[NoReturn] public static function redirect(string|bool|null $url = null, int $http_code = 301, ?int $time_delay = null): void
+    #[NoReturn] public static function redirect(UrlBuilder|string|bool|null $url = null, int $http_code = 301, ?int $time_delay = null): void
     {
         if (!PLATFORM_HTTP) {
             throw new WebException(tr('Page::redirect() can only be called on web sessions'));
@@ -1150,15 +1221,31 @@ class Page
 
         // Display a system error page instead?
         if (is_numeric($url)) {
-            Page::execute('system/' . $url);
+            Route::executeSystem($url);
         }
 
         // Build URL
-        $url = UrlBuilder::www($url);
+        $redirect = UrlBuilder::www($url);
+
+        // Protect against endless redirecting.
+        if (UrlBuilder::isCurrent($redirect)) {
+            // POST requests may redirect to the same page as the redirect will change POST to GET
+            if (!Page::isPostRequestMethod()) {
+                // If the specifed redirect URL was a short code like "prev" or "referer", then it was not hard coded
+                // and the system couldn't know that the short code is the same as the current URL. Redirect to domain
+                // root instead
+                $redirect = match ($url) {
+                    'prev', 'previous', 'referer' => UrlBuilder::currentDomainRootUrl(),
+                    default => throw new OutOfBoundsException(tr('Will NOT redirect to ":url", its the current page and the current request method is not POST', [
+                        ':url' => $redirect
+                    ])),
+                };
+            }
+        }
 
         if (isset_get($_GET['redirect'])) {
             // Add redirect back query
-            $url = UrlBuilder::www($url)->addQueries(['redirect' => urlencode($_GET['redirect'])]);
+            $redirect = UrlBuilder::www($redirect)->addQueries(['redirect' => urlencode($_GET['redirect'])]);
         }
 
         /*
@@ -1193,14 +1280,14 @@ class Page
         if ($time_delay) {
             Log::action(tr('Redirecting with ":time" seconds delay to url ":url"', [
                 ':time' => $time_delay,
-                ':url' => $url
+                ':url' => $redirect
             ]));
 
-            header('Refresh: '.$time_delay.';'.$url, true, $http_code);
+            header('Refresh: '.$time_delay.';'.$redirect, true, $http_code);
         } else {
             // Redirect immediately
-            Log::information(tr('Redirecting to url ":url"', [':url' => $url]));
-            header('Location:' . $url , true, $http_code);
+            Log::information(tr('Redirecting to url ":url"', [':url' => $redirect]));
+            header('Location:' . $redirect, true, $http_code);
         }
 
         static::die();
@@ -1495,10 +1582,10 @@ class Page
     /**
      * Load the specified CSS file(s)
      *
-     * @param string|array $urls
+     * @param UrlBuilder|array|string $urls
      * @return void
      */
-    public static function loadCss(string|array $urls): void
+    public static function loadCss(UrlBuilder|array|string $urls): void
     {
         foreach (Arrays::force($urls, '') as $url) {
             static::$headers['link'][$url] = [
@@ -1739,7 +1826,7 @@ class Page
             // Set correct headers
             http_response_code(static::$http_code);
 
-            if ((static::$http_code != 200)) {
+            if (static::$http_code === 200) {
                 Log::success(tr('Phoundation sent :http for URL ":url"', [
                     ':http' => (static::$http_code ? 'HTTP' . static::$http_code : 'HTTP0'),
                     ':url' => (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']
@@ -2004,15 +2091,15 @@ class Page
             usleep(mt_rand(1, 500));
         }
 
-        // Check user access rights. Routing parameters should be able to tell us what rights are required now
-        if (Core::stateIs('script')) {
-            Page::hasRightsOrRedirects($target, static::$parameters->getRequiredRights($target));
-        }
-
         // Set the page hash and check if we have access to this page?
         static::$hash   = sha1($_SERVER['REQUEST_URI']);
         static::$target = $target;
         static::$server_restrictions->checkRestrictions($target, false);
+
+        // Check user access rights. Routing parameters should be able to tell us what rights are required now
+        if (Core::stateIs('script')) {
+            Page::hasRightsOrRedirects(static::$parameters->getRequiredRights($target), $target);
+        }
     }
 
 
@@ -2084,8 +2171,7 @@ class Page
     {
         try {
             // Execute the file and send the output HTML as a web page
-            Log::information(tr('Executing ":call" type page ":target" with template ":template" in language ":language" and sending output as HTML web page', [
-                ':call'     => Core::getRequestType(),
+            Log::information(tr('Executing page ":target" with template ":template" in language ":language" and sending output as HTML web page', [
                 ':target'   => Strings::from($target, PATH_ROOT),
                 ':template' => static::$template->getName(),
                 ':language' => LANGUAGE

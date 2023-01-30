@@ -2,9 +2,11 @@
 
 namespace Phoundation\Cache;
 
+use Phoundation\Cache\Exception\CacheConfigurationException;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\ConfigException;
+use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Databases\Mc;
 use Phoundation\Databases\Mongo;
@@ -49,7 +51,13 @@ class Cache
      */
     public static function write(array|string $data, string $key, ?string $namespace = null): void
     {
-        static::driver()->set($data, $key, $namespace);
+        try {
+            static::driver()->set($data, $key, $namespace);
+
+        } catch (ConfigurationDoesNotExistsException $e) {
+            Log::warning(tr('Cannot cache because the current driver is not properly configured, see exception information'));
+            Log::warning($e);
+        }
     }
 
 

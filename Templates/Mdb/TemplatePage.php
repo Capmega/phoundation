@@ -183,13 +183,13 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     {
         $image = ProfileImage::new()
             ->setImage(Session::getUser()->getPicture())
-            ->setMenu(TemplateMenus::getProfileImageMenu())
+            ->setMenu(Page::getMenus()->get('profile_image'))
             ->setUrl(null);
 
         // Set up the navigation bar
         $navigation_bar = TopPanel::new();
         $navigation_bar
-            ->setMenu($this->primary_menu)
+            ->setMenu(Page::getMenus()->getPrimary())
             ->setProfileImage($image)
             ->getModals()
                 ->get('sign-in')

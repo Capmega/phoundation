@@ -1285,6 +1285,30 @@ class File extends FileBasics
      * @param int|null $mode
      * @return static
      */
+    public function ensureReadable(?int $mode = null): static
+    {
+        // Get configuration. We need file and directory default modes
+        $mode = Config::get('filesystem.mode.default.file', 0440, $mode);
+
+        if (!$this->ensureFileReadable($mode)) {
+            touch($this->file);
+            $this->chmod($mode);
+        }
+
+        return $this;
+    }
+
+
+
+    /**
+     * Ensure that the object file is writable
+     *
+     * This method will ensure that the object file will exist and is writable. If it does not exist, an empty file
+     * will be created in the parent directory of the specified $this->file
+     *
+     * @param int|null $mode
+     * @return static
+     */
     public function ensureWritable(?int $mode = null): static
     {
         // Get configuration. We need file and directory default modes

@@ -1,8 +1,6 @@
 <?php
 
-namespace Phoundation\Web\Http\Html\Template;
-
-use Phoundation\Web\Http\Html\Components\Menu;
+namespace Plugins\Phoundation\Components;
 
 
 
@@ -16,34 +14,13 @@ use Phoundation\Web\Http\Html\Components\Menu;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class TemplateMenus
+class Menu extends \Phoundation\Web\Http\Html\Components\Menu
 {
-    protected static string $menu_class = Menu::class;
-
-
-
-    /**
-     * Returns the default side panel menu
-     *
-     * @return Menu
-     */
-    public static function getSecondaryMenu(): Menu
+    public function __construct()
     {
-        return new static::$menu_class();
-    }
+        parent::__construct();
 
-
-
-    /**
-     * Returns the default top navbar top menu
-     *
-     * @return Menu
-     */
-    public static function getPrimaryMenu(): Menu
-    {
-        $menu = new static::$menu_class();
-
-        return $menu->setSource([
+        $this->setSource([
             tr('Dashboard') => [
                 'rights' => 'admin',
                 'url'    => '/',
@@ -296,29 +273,6 @@ class TemplateMenus
                 'url'  => '/about',
                 'icon' => ''
             ]
-        ]);
-    }
-
-
-
-    /**
-     * Returns the default menu for the profile image
-     *
-     * @return Menu
-     */
-    public static function getProfileImageMenu(): Menu
-    {
-        $menu = new static::$menu_class();
-
-        return $menu->setSource([
-            tr('Profile') => [
-                'url'  => '/profile.html',
-                'icon' => ''
-            ],
-            tr('Sign out') => [
-                'url'  => '/sign-out.html',
-                'icon' => ''
-            ],
         ]);
     }
 }

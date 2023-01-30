@@ -27,7 +27,7 @@ class Mdb extends Template
     {
         $this->name        = 'Mdb';
         $this->page_class  = TemplatePage::class;
-        $this->menus_class = TemplateMenus::class;
+        $this->menus_class = Menu::class;
 
         parent::__construct();
     }

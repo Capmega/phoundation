@@ -2,9 +2,7 @@
 
 namespace Phoundation\Web\Http\Html\Template;
 
-use Phoundation\Core\Core;
-use Phoundation\Core\Log\Log;
-use Phoundation\Web\Http\Html\Components\Menu;
+use Phoundation\Core\Plugins\Plugins;
 use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Page;
 
@@ -23,111 +21,6 @@ use Phoundation\Web\Page;
 abstract class TemplatePage
 {
     /**
-     * The page menus for this template
-     *
-     * @var TemplateMenus $menus
-     */
-    protected TemplateMenus $menus;
-
-    /**
-     * The target page to execute
-     *
-     * @var string $target
-     */
-    protected string $target;
-
-    /**
-     * The page primary menu
-     *
-     * @var Menu $primary_menu
-     */
-    protected Menu $primary_menu;
-
-    /**
-     * The page secondary menu
-     *
-     * @var Menu $secondary_menu
-     */
-    protected Menu $secondary_menu;
-
-
-
-    /**
-     * TemplatePage constructor
-     */
-    public function __construct(TemplateMenus $menus)
-    {
-        $this->menus = $menus;
-    }
-
-
-
-    /**
-     * Returns a new TargetPage object
-     *
-     * @param TemplateMenus $menus
-     * @return static
-     */
-    public static function new(TemplateMenus $menus): static
-    {
-        return new static($menus);
-    }
-
-
-
-    /**
-     * Returns the side panel menu
-     *
-     * @return Menu|null
-     */
-    public function getSecondaryMenu(): ?Menu
-    {
-        return $this->secondary_menu;
-    }
-
-
-
-    /**
-     * Sets the side panel menu
-     *
-     * @param Menu|null $secondary_menu
-     * @return static
-     */
-    public function setSecondaryMenu(?Menu $secondary_menu): static
-    {
-        $this->secondary_menu = $secondary_menu;
-        return $this;
-    }
-
-
-
-    /**
-     * Returns the navbar top menu
-     *
-     * @return Menu|null
-     */
-    public function getPrimaryMenu(): ?Menu
-    {
-        return $this->primary_menu;
-    }
-
-
-
-    /**
-     * Sets the navbar top menu
-     *
-     * @param Menu|null $primary_menu
-     * @return static
-     */
-    public function setPrimaryMenu(?Menu $primary_menu): static
-    {
-        $this->primary_menu = $primary_menu;
-        return $this;
-    }
-
-
-
-    /**
      * Returns the page instead of sending it to the client
      *
      * This WILL send the HTTP headers, but will return the HTML instead of sending it to the browser
@@ -143,7 +36,8 @@ abstract class TemplatePage
         Page::htmlHeadersSent(true);
 
         if (Page::getBuildBody()) {
-            $this->loadMenus();
+            // TODO With hooks, this should be executed in Core startup instead and this replaced by a hook
+            Plugins::start();
 
             $output .= $this->buildPageHeader();
             $output .= $this->buildMenu();
@@ -160,38 +54,6 @@ abstract class TemplatePage
         // Build Template specific HTTP headers
         $this->buildHttpHeaders($output);
         return $output;
-    }
-
-
-
-    /**
-     * Load the menu contents from database
-     *
-     * @return void
-     */
-    protected function loadMenus(): void
-    {
-        if (Core::stateIs('setup')) {
-            // In setup mode we don't need menus...
-            $this->primary_menu   = Menu::new();
-            $this->secondary_menu = Menu::new();
-            return;
-        }
-
-        $primary_menu   = sql()->getColumn('SELECT `value` FROM `key_value_store` WHERE `key` = :key', [':key' => 'primary_menu']);
-        $secondary_menu = sql()->getColumn('SELECT `value` FROM `key_value_store` WHERE `key` = :key', [':key' => 'secondary_menu']);
-
-        if ($primary_menu) {
-            $this->primary_menu = Menu::new($primary_menu);
-        } else {
-            $this->primary_menu = $this->menus->getPrimaryMenu();
-        }
-
-        if ($secondary_menu) {
-            $this->secondary_menu = Menu::new($secondary_menu);
-        } else {
-            $this->secondary_menu = $this->menus->getSecondaryMenu();
-        }
     }
 
 

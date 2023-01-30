@@ -5,9 +5,9 @@ namespace Templates\AdminLte\Components;
 use Phoundation\Core\Config;
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
-use Phoundation\Web\Http\Url;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
+
 
 
 /**
@@ -60,14 +60,14 @@ class SidePanel extends \Phoundation\Web\Http\Html\Components\SidePanel
                         
                               <!-- Sidebar Menu -->
                               <nav>
-                                ' . $this->menu?->render() . '                                
+                                ' . $this->getMenu()?->render() . '                                
                               </nav>
                               <!-- /.sidebar-menu -->
                             </div>
                             <!-- /.sidebar -->
                           </aside>';
 
-        $this->render .= $this->modals->render() . PHP_EOL;
+        $this->render .= $this->getModals()?->render() . PHP_EOL;
 
         return parent::render();
     }

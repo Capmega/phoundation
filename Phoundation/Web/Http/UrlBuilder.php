@@ -4,7 +4,7 @@ namespace Phoundation\Web\Http;
 
 use Phoundation\Content\Images\Image;
 use Phoundation\Core\Config;
-use Phoundation\Core\Exception\ConfigNotExistsException;
+use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
@@ -77,7 +77,7 @@ class UrlBuilder
             if (Domains::getConfigurationKey($domain, 'cloaked')) {
                 $this->cloak();
             }
-        } catch (ConfigNotExistsException) {
+        } catch (ConfigurationDoesNotExistsException) {
             // This domain is not configured, ignore it
         }
 
@@ -94,6 +94,19 @@ class UrlBuilder
     public static function getCurrent(): static
     {
         return static::currentDomainUrl();
+    }
+
+
+
+    /**
+     * Returns true if the specified URL is the same as the current URL
+     *
+     * @param UrlBuilder|string $url
+     * @return bool
+     */
+    public static function isCurrent(UrlBuilder|string $url): bool
+    {
+        return (string) $url === (string) static::getCurrent();
     }
 
 
@@ -244,13 +257,13 @@ class UrlBuilder
         // The previous page; Assume we came from the HTTP_REFERER page
         $referer = isset_get($_SERVER['HTTP_REFERER']);
 
-        if (!$referer or ($referer === $_SERVER['REQUEST_URI'])) {
-            // Don't redirect to the same page! If the referrer was this page, then drop back to the specified page or
-            // the index page
+        if (!$referer) {
+            // No referer available, try the specified URL
             if ($url) {
                 $referer = $url;
 
             } else {
+                // No referer or url, just go to the root page
                 $referer = static::currentDomainRootUrl();
             }
         }
@@ -612,6 +625,7 @@ class UrlBuilder
     /**
      * Returns a CDN URL
      *
+     * @todo Clean URL strings, escape HTML characters, " etc.
      * @param string $url
      * @param string|null $extension
      * @return static

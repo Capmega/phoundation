@@ -3,7 +3,8 @@
 namespace Phoundation\Business\Providers;
 
 use Phoundation\Data\DataList\DataList;
-
+use Phoundation\Web\Http\Html\Components\Input\Select;
+use Phoundation\Web\Http\Html\Components\Table;
 
 
 /**
@@ -35,6 +36,41 @@ class Providers extends DataList
                                    WHERE    `status` IS NULL 
                                    ORDER BY `name`');
         parent::__construct($parent, $id_column);
+    }
+
+
+
+    /**
+     * Creates and returns an HTML table for the data in this list
+     *
+     * @return Table
+     */
+    public function getHtmlTable(): Table
+    {
+        $table = parent::getHtmlTable();
+        $table->setCheckboxSelectors(true);
+
+        return $table;
+    }
+
+
+
+    /**
+     * Returns an HTML <select> object with all available providers
+     *
+     * @param string $name
+     * @return Select
+     */
+    public static function getHtmlSelect(string $name = 'providers_id'): Select
+    {
+        return Select::new()
+            ->setSourceQuery('SELECT    `id`, `name` 
+                                          FROM     `business_providers`
+                                          WHERE    `status` IS NULL 
+                                          ORDER BY `name`')
+            ->setName($name)
+            ->setNone(tr('Please select a provider'))
+            ->setEmpty(tr('No providers available'));
     }
 
 

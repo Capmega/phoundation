@@ -24,7 +24,7 @@ class Menu extends \Phoundation\Web\Http\Html\Components\Menu
      */
     public function render(): ?string
     {
-        return $this->renderMenu($this->source);
+        return $this->renderMenu($this->source, 0);
     }
 
 
@@ -33,13 +33,13 @@ class Menu extends \Phoundation\Web\Http\Html\Components\Menu
      * Renders the HTML for the sidebar menu
      *
      * @param array $source
-     * @param bool $sub_menu
+     * @param int $sub_menu
      * @return string
      */
-    protected function renderMenu(array $source, bool $sub_menu = false): string
+    protected function renderMenu(array $source, int $sub_menu): string
     {
         if ($sub_menu) {
-            $html = '<ul class="nav nav-treeview">';
+            $html = '<ul class="nav nav-treeview sub-menu-' . $sub_menu . '">';
         } else {
             $html = '<ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">';
         }
@@ -54,7 +54,7 @@ class Menu extends \Phoundation\Web\Http\Html\Components\Menu
                             </a>';
 
                 if (isset($entry['menu'])) {
-                    $html .= $this->renderMenu($entry['menu'], true);
+                    $html .= $this->renderMenu($entry['menu'], ++$sub_menu);
                 }
             } else {
                 // Not a clickable menu element, just a label

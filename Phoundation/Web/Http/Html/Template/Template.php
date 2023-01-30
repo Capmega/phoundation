@@ -6,6 +6,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Template\Exception\TemplateException;
+use Plugins\Phoundation\Components\Menu;
 
 
 /**
@@ -59,7 +60,7 @@ abstract class Template
     {
         if (empty($this->page_class)) {
             $this->page_class = TemplatePage::class;
-            $this->menus_class = TemplateMenus::class;
+            $this->menus_class = Menu::class;
         }
 
         if (empty($this->menus_class)) {
@@ -142,17 +143,31 @@ abstract class Template
     /**
      * Returns a template version class for the specified component
      *
-     * @param object|string $component
+     * @param object|string $class
      * @return string
      */
-    public function getTemplateComponentClass(object|string $component): string
+    public function getTemplateComponentClass(object|string $class): string
     {
-        if (!str_starts_with($component, 'Phoundation\\Web\\Http\\Html\\')) {
-            // Assume a template specific path was specified, use this.
-            return $component;
+        if (str_starts_with($class, 'Template\\')) {
+            // A template specific path was specified, use this.
+            return $class;
         }
 
-        $file = Strings::from($component, 'Phoundation\\Web\\Http\\Html\\');
+        if (str_starts_with($class, 'Plugins\\')) {
+            // Don't template plugin objects!
+            return $class;
+        }
+
+        // Detect the component name
+        $file = Strings::from($class, 'Components\\');
+
+        if (!$file) {
+            throw new OutOfBoundsException(tr('Cannot detect web component class for ":class", it should either start with "Phoundation\\Web\\Http\\Html\\Components\\" or "Plugins\\Components\\"', [
+                ':class' => $class
+            ]));
+        }
+
+        $file = 'Components\\' . $file;
         $file = str_replace('\\', '/', $file);
         $file = $this->getPath() . $file . '.php';
 
@@ -161,7 +176,7 @@ abstract class Template
         }
 
         // The template component does not exist, return the basic Phoundation version
-        return $component;
+        return $class;
     }
 
 

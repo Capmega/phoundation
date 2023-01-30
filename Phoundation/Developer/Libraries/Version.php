@@ -26,15 +26,27 @@ class Version
      */
     public static function getString(int $version): string
     {
-        if (!is_version($version)) {
-            throw new OutOfBoundsException(tr('Specified version ":version" is not valid, should be of format "\d.\d.\d"', [
+        $major    = floor($version / 1000000);
+        $minor    = floor(($version - ($major * 1000000)) / 1000);
+        $revision = fmod($version, 1000);
+
+        if ($major > 999) {
+            throw new OutOfBoundsException(tr('The major of version ":version" cannot be greater than "999"', [
                 ':version' => $version
             ]));
         }
 
-        $major    = floor($version / 1000000);
-        $minor    = floor(($version - ($major * 1000000)) / 1000);
-        $revision = fmod($version, 1000);
+        if ($minor > 999) {
+            throw new OutOfBoundsException(tr('The minor of version ":version" cannot be greater than "999"', [
+                ':version' => $version
+            ]));
+        }
+
+        if ($revision > 999) {
+            throw new OutOfBoundsException(tr('The revision of version ":version" cannot be greater than "999"', [
+                ':version' => $version
+            ]));
+        }
 
         return $major . '.' . $minor . '.' . $revision;
     }
@@ -49,27 +61,15 @@ class Version
      */
     public static function getInteger(string $version): int
     {
+        if (!is_version($version)) {
+            throw new OutOfBoundsException(tr('Specified version ":version" is not valid, should be of format "\d{1,4}.\d{1,4}.\d{1,4}"', [
+                ':version' => $version
+            ]));
+        }
+
         $major    = (int) Strings::until($version, '.') * 1000000;
         $minor    = (int) Strings::until(Strings::from($version, '.'), '.') * 1000;
         $revision = (int) Strings::fromReverse($version, '.');
-
-        if ($major > 999000000) {
-            throw new OutOfBoundsException(tr('The major of version ":version" cannot be greater than "999"', [
-                ':version' => $version
-            ]));
-        }
-
-        if ($minor > 999000) {
-            throw new OutOfBoundsException(tr('The minor of version ":version" cannot be greater than "999"', [
-                ':version' => $version
-            ]));
-        }
-
-        if ($revision > 999) {
-            throw new OutOfBoundsException(tr('The revision of version ":version" cannot be greater than "999"', [
-                ':version' => $version
-            ]));
-        }
 
         return $major + $minor + $revision;
     }

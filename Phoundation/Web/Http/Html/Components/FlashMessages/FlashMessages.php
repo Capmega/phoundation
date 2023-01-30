@@ -23,22 +23,6 @@ use Phoundation\Web\Http\Html\Components\Script;
 class FlashMessages extends ElementsBlock implements Iterator
 {
     /**
-     * The flash messages
-     *
-     * @var array $messages
-     */
-    protected array $messages = [];
-
-    /**
-     * Indicates if flash messages were rendered (and then we can assume, sent to client too)
-     *
-     * @var bool
-     */
-    protected bool $has_rendered = false;
-
-
-
-    /**
      * This method will move all messages from the specified FlashMessages object here.
      *
      * @param FlashMessages $messages
@@ -53,43 +37,6 @@ class FlashMessages extends ElementsBlock implements Iterator
         // Clear the messages from the specified FlashMessages object
         $messages->clear();
         return $this;
-    }
-
-
-
-    /**
-     * Clear all messages in this object
-     *
-     * @return $this
-     */
-    public function clear(): static
-    {
-        $this->messages = [];
-        return $this;
-    }
-
-
-
-    /**
-     * Return the amount of flash messages in this object
-     *
-     * @return int
-     */
-    public function getCount(): int
-    {
-        return count($this->messages);
-    }
-
-
-
-    /**
-     * Returns if this FlashMessages object has rendered HTML or not
-     *
-     * @return bool
-     */
-    public function hasRendered(): bool
-    {
-        return $this->has_rendered;
     }
 
 
@@ -144,7 +91,7 @@ class FlashMessages extends ElementsBlock implements Iterator
             }
         }
 
-        $this->messages[] = $title;
+        $this->source[] = $title;
         return $this;
     }
 
@@ -159,7 +106,7 @@ class FlashMessages extends ElementsBlock implements Iterator
     {
         $this->render = '';
 
-        foreach ($this->messages as $message) {
+        foreach ($this->source as $message) {
             $this->render .= $message->renderBare();
         }
 
@@ -184,7 +131,7 @@ class FlashMessages extends ElementsBlock implements Iterator
     {
         $return = [];
 
-        foreach ($this->messages as $message) {
+        foreach ($this->source as $message) {
             $return[] = $message->export();
         }
 
@@ -204,37 +151,5 @@ class FlashMessages extends ElementsBlock implements Iterator
         foreach ($source as $message) {
             $this->add(FlashMessage::new()->import($message));
         }
-    }
-
-
-
-    /**
-     * Iterator methods
-     *
-     * @return mixed
-     */
-    public function current(): mixed
-    {
-        return current($this->messages);
-    }
-
-    public function next(): void
-    {
-        next($this->messages);
-    }
-
-    public function key(): string
-    {
-        return key($this->messages);
-    }
-
-    public function valid(): bool
-    {
-        return isset($this->messages[key($this->messages)]);
-    }
-
-    public function rewind(): void
-    {
-        reset($this->messages);
     }
 }

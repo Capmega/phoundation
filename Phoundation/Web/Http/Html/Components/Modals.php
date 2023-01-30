@@ -19,15 +19,8 @@ use Phoundation\Exception\OutOfBoundsException;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class Modals extends ElementsBlock implements Iterator
+class Modals extends ElementsBlock
 {
-    /**
-     * The list of modal
-     *
-     * @var array $modals
-     */
-    protected array $modals = [];
-
     /**
      * An optional list of modals that are required before rendering can be done
      *
@@ -46,7 +39,7 @@ class Modals extends ElementsBlock implements Iterator
      */
     public function add(string $identifier, Modal $modal): static
     {
-        $this->modals[$identifier] = $modal;
+        $this->source[$identifier] = $modal;
         return $this;
     }
 
@@ -60,7 +53,7 @@ class Modals extends ElementsBlock implements Iterator
      */
     public function remove(string $identifier): static
     {
-        unset($this->modals[$identifier]);
+        unset($this->source[$identifier]);
         return $this;
     }
 
@@ -74,7 +67,7 @@ class Modals extends ElementsBlock implements Iterator
      */
     public function exists(string $identifier): bool
     {
-        return array_key_exists($identifier, $this->modals);
+        return array_key_exists($identifier, $this->source);
     }
 
 
@@ -93,7 +86,7 @@ class Modals extends ElementsBlock implements Iterator
             ]));
         }
         
-        return $this->modals[$identifier];
+        return $this->source[$identifier];
     }
 
 
@@ -118,38 +111,6 @@ class Modals extends ElementsBlock implements Iterator
 
 
     /**
-     * Iterator methods
-     *
-     * @return mixed
-     */
-    public function current(): mixed
-    {
-        return current($this->modals);
-    }
-
-    public function next(): void
-    {
-        next($this->modals);
-    }
-
-    public function key(): mixed
-    {
-        return key($this->modals);
-    }
-
-    public function valid(): bool
-    {
-        return isset($this->modals[key($this->modals)]);
-    }
-
-    public function rewind(): void
-    {
-        reset($this->modals);
-    }
-
-
-
-    /**
      * Render the modals and return the HTML
      *
      * @return string|null
@@ -159,7 +120,7 @@ class Modals extends ElementsBlock implements Iterator
         if ($this->required) {
             // Ensure that these modals are available
             foreach ($this->required as $required) {
-                if (!array_key_exists($required, $this->modals)) {
+                if (!array_key_exists($required, $this->source)) {
                     throw new OutOfBoundsException(tr('Cannot render modals, the required modal ":modal" is not set', [
                         ':modal' => $required
                     ]));
@@ -169,7 +130,7 @@ class Modals extends ElementsBlock implements Iterator
 
         $this->render = '';
 
-        foreach ($this->modals as $modal) {
+        foreach ($this->source as $modal) {
             $this->render .= $modal->render();
         }
 

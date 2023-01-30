@@ -17,6 +17,7 @@ use Phoundation\Utils\Json;
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Security
+ * @todo Incidents should be able to throw exceptions depending on type. AuthenticationFailureExceptions, for example, should be thrown from here so that it is no longer required for the developer to both register the incident AND throw the exception
  */
 class Incident extends DataEntry
 {
@@ -158,10 +159,32 @@ class Incident extends DataEntry
     public function save(): static
     {
         if ($this->log) {
-            Log::warning(tr('Security incident (:severity): :message', [
-                ':severity' => strtoupper($this->getSeverity()),
-                ':message'  => $this->getTitle()
-            ]));
+            $severity = strtoupper($this->getSeverity());
+
+            switch ($severity){
+                case 'NOTICE':
+                    Log::warning(tr('Security notice: :message', [
+                        ':message'  => $this->getTitle()
+                    ]));
+
+                    break;
+
+                case 'high':
+                    // no break
+                case 'severe':
+                    Log::error(tr('Security incident (:severity): :message', [
+                        ':severity' => $severity,
+                        ':message'  => $this->getTitle()
+                    ]));
+
+                    break;
+
+                default:
+                    Log::warning(tr('Security incident (:severity): :message', [
+                        ':severity' => $severity,
+                        ':message'  => $this->getTitle()
+                    ]));
+            }
         }
 
         return parent::save();

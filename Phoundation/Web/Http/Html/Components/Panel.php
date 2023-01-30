@@ -19,34 +19,6 @@ use Phoundation\Content\Images\Image;
 abstract class Panel extends ElementsBlock
 {
     /**
-     * A list of items that will be displayed in the panel in the specified order
-     *
-     * @var array $items
-     */
-    protected array $items;
-
-    /**
-     * The logo for the panel
-     *
-     * @var Image $logo
-     */
-    protected Image $logo;
-
-    /**
-     * Menu for this panel
-     *
-     * @var Menu|null $menu
-     */
-    protected ?Menu $menu = null;
-
-    /**
-     * The profile image block
-     *
-     * @var ImageMenu
-     */
-    protected ImageMenu $profile_image;
-
-    /**
      * Modals for this panel
      *
      * @var Modals $modals
@@ -63,7 +35,7 @@ abstract class Panel extends ElementsBlock
      */
     public function setMenu(?Menu $menu): static
     {
-        $this->menu = $menu;
+        $this->source['menu'] = $menu;
         return $this;
     }
 
@@ -76,7 +48,7 @@ abstract class Panel extends ElementsBlock
      */
     public function getMenu(): ?Menu
     {
-        return $this->menu;
+        return isset_get($this->source['menu']);
     }
 
 
@@ -88,11 +60,7 @@ abstract class Panel extends ElementsBlock
      */
     public function getProfileImage(): ?ProfileImage
     {
-        if (isset($this->profile_image)) {
-            return $this->profile_image;
-        }
-
-        return null;
+        return isset_get($this->source['profile_image']);
     }
 
 
@@ -105,7 +73,7 @@ abstract class Panel extends ElementsBlock
      */
     public function setProfileImage(ImageMenu $profile_image): static
     {
-        $this->profile_image = $profile_image;
+        $this->source['profile_image'] = $profile_image;
         return $this;
     }
 
@@ -118,11 +86,7 @@ abstract class Panel extends ElementsBlock
      */
     public function getLogo(): ?string
     {
-        if (isset($this->logo)) {
-            return $this->logo;
-        }
-
-        return null;
+        return isset_get($this->source['logo']);
     }
 
 
@@ -139,7 +103,7 @@ abstract class Panel extends ElementsBlock
             $logo = Image::new($logo);
         }
 
-        $this->logo = $logo;
+        $this->source['logo'] = $logo;
         return $this;
     }
 
@@ -162,78 +126,12 @@ abstract class Panel extends ElementsBlock
 
 
     /**
-     * Returns the panel profile image
+     * Renders and returns the HTML for this object
      *
-     * @return array
+     * @return string|null
      */
-    public function getItems(): array
+    public function render(): ?string
     {
-        if (!isset($this->items)) {
-            return [];
-        }
-
-        return $this->items;
-    }
-
-
-
-    /**
-     * Clears the panel items
-     *
-     * @return static
-     */
-    public function clearItems(): static
-    {
-        $this->items = [];
-        return $this;
-    }
-
-
-
-    /**
-     * Sets the panel items
-     *
-     * @param array $items
-     * @return static
-     */
-    public function setItems(array $items): static
-    {
-        $this->items = [];
-        return $this->addItems($items);
-    }
-
-
-
-    /**
-     * Adds the specified items to the panel
-     *
-     * @param array $items
-     * @return static
-     */
-    public function addItems(array $items): static
-    {
-        foreach ($items as $item) {
-            $this->addItem($item);
-        }
-
-        return $this;
-    }
-
-
-
-    /**
-     * Adds an item to the panel
-     *
-     * @param string $item
-     * @return static
-     */
-    public function addItem(string $item): static
-    {
-        if (!isset($this->items)) {
-            $this->items = [];
-        }
-
-        $this->items[] = $item;
-        return $this;
+        return parent::render();
     }
 }

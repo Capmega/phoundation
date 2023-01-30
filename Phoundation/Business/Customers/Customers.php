@@ -4,6 +4,7 @@ namespace Phoundation\Business\Customers;
 
 use Phoundation\Business\Companies\Company;
 use Phoundation\Data\DataList\DataList;
+use Phoundation\Web\Http\Html\Components\Input\Select;
 use Phoundation\Web\Http\Html\Components\Table;
 
 
@@ -52,6 +53,26 @@ class Customers extends DataList
         $table->setCheckboxSelectors(true);
 
         return $table;
+    }
+
+
+
+    /**
+     * Returns an HTML <select> object with all available customers
+     *
+     * @param string $name
+     * @return Select
+     */
+    public static function getHtmlSelect(string $name = 'customers_id'): Select
+    {
+        return Select::new()
+            ->setSourceQuery('SELECT    `id`, `name` 
+                                          FROM     `business_customers`
+                                          WHERE    `status` IS NULL 
+                                          ORDER BY `name`')
+            ->setName($name)
+            ->setNone(tr('Please select a customer'))
+            ->setEmpty(tr('No customers available'));
     }
 
 

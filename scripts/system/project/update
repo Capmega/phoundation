@@ -2,6 +2,9 @@
 <?php
 
 use Phoundation\Cli\Documentation;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Developer\Project\Project;
 
 
 
@@ -16,7 +19,33 @@ use Phoundation\Cli\Documentation;
  * @package Phoundation\Scripts
  */
 
-Documentation::usage('./cli system project update');
+Documentation::usage('./cli system project update [OPTIONS]
+./cli system project update --check
+./cli system project update
+');
 
-Documentation::help('This script will update your Phoundation libraries and plugins');
+Documentation::help('This script will update your Phoundation libraries and list
 
+
+ARGUMENTS
+
+
+[-c / --check]                          If specified will only check for available updates');
+
+
+
+// Get command line arguments
+ArgvValidator::new()
+    ->select('-c,--check')->isOptional()->isBoolean()
+    ->noArgumentsLeft()
+    ->validate();
+
+
+
+if ($argv['check']) {
+    Log::information(tr('Checking for Phoudation updates...'));
+    Project::checkUpdates();
+} else {
+    Log::information(tr('Updating Phoudation...'));
+    Project::update();
+}

@@ -13,7 +13,7 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\ConfigException;
-use Phoundation\Core\Exception\ConfigNotExistsException;
+use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
 use Phoundation\Core\Exception\LogException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta;
@@ -1621,7 +1621,7 @@ class Sql
 
         try {
             $configuration = Config::get('databases.sql.instances.' . $instance);
-        } catch (ConfigNotExistsException $e) {
+        } catch (ConfigurationDoesNotExistsException $e) {
             throw new SqlException(tr('The specified SQL instance ":instance" is not configured', [
                 ':instance' => $instance
             ]));
@@ -2035,12 +2035,12 @@ class Sql
 //                     */
 //                    if (!empty($_CONFIG['db'][$this->instance]['init'])) {
 //                        try {
-//                            $r = $this->pdo->query('SELECT `project`, `framework`, `offline_until` FROM `versions` ORDER BY `id` DESC LIMIT 1;');
+//                            $r = $this->pdo->query('SELECT `project`, `framework`, `offline_until` FROM `core_versions` ORDER BY `id` DESC LIMIT 1;');
 //
 //                        } catch (Exception $e) {
 //                            if ($e->getCode() !== '42S02') {
 //                                if ($e->getMessage() === 'SQLSTATE[42S22]: Column not found: 1054 Unknown column \'offline_until\' in \'field list\'') {
-//                                    $r = $this->pdo->query('SELECT `project`, `framework` FROM `versions` ORDER BY `id` DESC LIMIT 1;');
+//                                    $r = $this->pdo->query('SELECT `project`, `framework` FROM `core_versions` ORDER BY `id` DESC LIMIT 1;');
 //
 //                                } else {
 //                                    /*
@@ -2234,26 +2234,26 @@ class Sql
 
 
 
-//    /**
-//     * Return a sequential array that can be used in $this->in
-//     *
-//     * @param array|string $source
-//     * @param string $column
-//     * @param bool $filter_null
-//     * @param bool $null_string
-//     * @return array
-//     */
-//    public function in(array|string $source, string $column = ':value', bool $filter_null = false, bool $null_string = false): array
-//    {
-//        if (empty($source)) {
-//            throw new OutOfBoundsException(tr('Specified source is empty'));
-//        }
-//
-//        $column = Strings::startsWith($column, ':');
-//        $source = Arrays::force($source);
-//
-//        return Arrays::sequentialKeys($source, $column, $filter_null, $null_string);
-//    }
+    /**
+     * Return a sequential array that can be used in $this->in
+     *
+     * @param array|string $source
+     * @param string $column
+     * @param bool $filter_null
+     * @param bool $null_string
+     * @return array
+     */
+    public static function in(array|string $source, string $column = ':value', bool $filter_null = false, bool $null_string = false): array
+    {
+        if (empty($source)) {
+            throw new OutOfBoundsException(tr('Specified source is empty'));
+        }
+
+        $column = Strings::startsWith($column, ':');
+        $source = Arrays::force($source);
+
+        return Arrays::sequentialKeys($source, $column, $filter_null, $null_string);
+    }
 
 
 

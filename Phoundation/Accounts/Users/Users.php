@@ -62,7 +62,7 @@ class Users extends DataList
 
 
     /**
-     * Returns an HTML <select> object with all available languages
+     * Returns an HTML <select> object with all available users
      *
      * @param string $name
      * @return Select

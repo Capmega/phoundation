@@ -9,6 +9,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataList\DataList;
 use Phoundation\Databases\Sql\QueryBuilder;
+use Phoundation\Databases\Sql\Sql;
 use Phoundation\Web\Http\Html\Components\Input\Select;
 
 
@@ -281,6 +282,31 @@ class Rights extends DataList
         $this->list = array_flip($this->list);
 
         return $this;
+    }
+
+
+
+    /**
+     * Checks the list of specified rights if they exist and returns those rights that do not exist.
+     *
+     * @param array|string $rights
+     * @return array
+     */
+    public static function getNotExist(array|string $rights): array
+    {
+        $rights = Arrays::force($rights);
+        $values = Sql::in($rights);
+        $rights = array_flip($rights);
+
+        $exist  = sql()->query('SELECT `seo_name` 
+                                      FROM   `accounts_rights` 
+                                      WHERE  `seo_name` IN (' . implode(', ', array_keys($values)) . ')', $values);
+
+        while ($right = $exist->fetchColumn(0)) {
+            unset($rights[$right]);
+        }
+
+        return array_flip($rights);
     }
 
 

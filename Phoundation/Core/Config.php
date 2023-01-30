@@ -3,7 +3,7 @@
 namespace Phoundation\Core;
 
 use Phoundation\Core\Exception\ConfigException;
-use Phoundation\Core\Exception\ConfigNotExistsException;
+use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Debug;
 use Phoundation\Developer\Project\Configuration;
@@ -294,7 +294,7 @@ class Config
             static::get($path);
             return true;
 
-        } catch (ConfigNotExistsException) {
+        } catch (ConfigurationDoesNotExistsException) {
             // Ignore, just return null
             return false;
         }
@@ -316,7 +316,7 @@ class Config
         try {
             return static::get($path);
 
-        } catch (ConfigNotExistsException) {
+        } catch (ConfigurationDoesNotExistsException) {
             // Ignore, just return null
             return null;
         }
@@ -385,7 +385,7 @@ class Config
                 // The requested key does not exist
                 if ($default === null) {
                     // We have no default configuration either
-                    throw new ConfigNotExistsException(tr('The configuration section ":section" from key path ":path" does not exist. Please check "production.yaml" AND ":environment.yaml"', [
+                    throw new ConfigurationDoesNotExistsException(tr('The configuration section ":section" from key path ":path" does not exist. Please check "production.yaml" AND ":environment.yaml"', [
                         ':environment' => ENVIRONMENT,
                         ':section'     => $section,
                         ':path'        => Strings::force($path, '.')

@@ -6,7 +6,7 @@ use Phoundation\Content\Images\Image;
 use Phoundation\Core\Session;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Menu;
-use Templates\Mdb\TemplateMenus;
+use Templates\Mdb\Menu;
 
 
 
@@ -35,7 +35,7 @@ class ProfileImage extends \Phoundation\Web\Http\Html\Components\ProfileImage
             // This is a guest user, make sure that the profile image shows the sign in modal
             $this->setModalSelector('#signinModal');
         } else {
-            $this->setMenu(TemplateMenus::getProfileImageMenu());
+            $this->setMenu(Menu::getProfileImageMenu());
         }
 
         parent::__construct();

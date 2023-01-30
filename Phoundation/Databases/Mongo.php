@@ -6,7 +6,7 @@ use MongoDB\Client;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Exception\ConfigException;
-use Phoundation\Core\Exception\ConfigNotExistsException;
+use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
 use Phoundation\Databases\Exception\MongoException;
 use Phoundation\Databases\Sql\Sql;
 
@@ -181,7 +181,7 @@ class Mongo extends Client
 
         try {
             $configuration = Config::get('databases.mongo.instances.' . $instance);
-        } catch (ConfigNotExistsException $e) {
+        } catch (ConfigurationDoesNotExistsException $e) {
             throw new MongoException(tr('The specified mongo instance ":instance" is not configured', [
                 ':instance' => $instance
             ]));

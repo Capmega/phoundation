@@ -260,7 +260,7 @@ function is_natural($number, int $start = 1): bool
  */
 function is_version(string $version): bool
 {
-    return preg_match('/\d+\.\d+\.\d+/', $version);
+    return preg_match('/\d{1,4}\.\d{1,4}\.\d{1,4}/', $version);
 }
 
 

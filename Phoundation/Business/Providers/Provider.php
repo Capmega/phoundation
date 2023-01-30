@@ -3,7 +3,12 @@
 namespace Phoundation\Business\Providers;
 
 use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntry\DataEntryCategory;
+use Phoundation\Data\DataEntry\DataEntryCode;
+use Phoundation\Data\DataEntry\DataEntryEmail;
 use Phoundation\Data\DataEntry\DataEntryNameDescription;
+use Phoundation\Data\DataEntry\DataEntryPhones;
+use Phoundation\Data\DataEntry\DataEntryUrl;
 
 
 /**
@@ -20,6 +25,11 @@ use Phoundation\Data\DataEntry\DataEntryNameDescription;
 class Provider extends DataEntry
 {
     use DataEntryNameDescription;
+    use DataEntryCategory;
+    use DataEntryEmail;
+    use DataEntryPhones;
+    use DataEntryCode;
+    use DataEntryUrl;
 
 
 

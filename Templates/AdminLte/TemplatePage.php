@@ -192,9 +192,9 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     /**
      * Builds and returns the top panel HTML
      *
-     * @return string
+     * @return string|null
      */
-    protected function buildTopPanel(): string
+    protected function buildTopPanel(): ?string
     {
         $panel = TopPanel::new();
 
@@ -215,9 +215,9 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     /**
      * Builds and returns the sidebar HTML
      *
-     * @return string
+     * @return string|null
      */
-    protected function buildSidePanel(): string
+    protected function buildSidePanel(): ?string
     {
         $sign_in = new SignInModal();
         $sign_in->getForm()
@@ -226,7 +226,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
             ->setAction(UrlBuilder::ajax(Config::get('web.pages.signin', '/system/sign-in.html')));
 
         $panel = SidePanel::new();
-        $panel->setMenu($this->primary_menu);
+        $panel->setMenu(Page::getMenus()->getPrimary());
         $panel->getModals()
             ->add('sign-in', $sign_in);
 

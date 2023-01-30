@@ -6,7 +6,7 @@ use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
-use Phoundation\Core\Exception\ConfigNotExistsException;
+use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
@@ -205,7 +205,7 @@ class Domains {
     {
         if (!static::isPrimary($domain)) {
             if (!static::isWhitelist($domain)) {
-                throw ConfigNotExistsException::new(tr('No configuration available for domain ":domain"', [
+                throw ConfigurationDoesNotExistsException::new(tr('No configuration available for domain ":domain"', [
                     ':domain' => $domain
                 ]));
             }
@@ -217,10 +217,10 @@ class Domains {
 
         // Validate configuration
         try {
-            Arrays::requiredKeys($domain_config, 'www,cdn', ConfigNotExistsException::class);
+            Arrays::requiredKeys($domain_config, 'www,cdn', ConfigurationDoesNotExistsException::class);
             Arrays::default($domain_config, 'index'  , '/');
             Arrays::default($domain_config, 'cloaked', false);
-        } catch (ConfigNotExistsException $e) {
+        } catch (ConfigurationDoesNotExistsException $e) {
             if (!Core::stateIs('setup')) {
                 // In setup mode we won't have any configuration but we will be able to continue
                 throw $e;
@@ -255,7 +255,7 @@ class Domains {
      * @param string $type
      * @param string|null $language
      * @return string
-     * @throws ConfigNotExistsException If the specified domain does not exist
+     * @throws ConfigurationDoesNotExistsException If the specified domain does not exist
      */
 
     public static function getRootUri(?string $domain = null, #[ExpectedValues('www', 'cdn')] string $type = 'www', ?string $language = null): string
@@ -277,7 +277,7 @@ class Domains {
      * @param string $type
      * @param string|null $language
      * @return string
-     * @throws ConfigNotExistsException If the specified domain does not exist
+     * @throws ConfigurationDoesNotExistsException If the specified domain does not exist
      */
 
     public static function getRootUrl(?string $domain = null, #[ExpectedValues('www', 'cdn')] string $type = 'www', ?string $language = null): string
@@ -292,8 +292,8 @@ class Domains {
 
             return str_replace(':LANGUAGE', $language, $url);
 
-        } catch (ConfigNotExistsException) {
-            throw new ConfigNotExistsException(tr('Cannot get root URL for domain ":domain", there is no configuration for that domain', [
+        } catch (ConfigurationDoesNotExistsException) {
+            throw new ConfigurationDoesNotExistsException(tr('Cannot get root URL for domain ":domain", there is no configuration for that domain', [
                 ':domain' => $domain
             ]));
         }
@@ -364,7 +364,7 @@ class Domains {
                 if (!Core::stateIs('setup')) {
                     // In set up we won't have configuration and that is fine. If we're not in set up, then it is not
                     // so fine
-                    throw new ConfigNotExistsException(tr('The configuration path "web.domains" does not exist'));
+                    throw new ConfigurationDoesNotExistsException(tr('The configuration path "web.domains" does not exist'));
                 }
 
                 // Core has already failed, yet we are here, likely this is the setup page

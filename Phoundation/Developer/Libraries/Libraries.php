@@ -5,6 +5,7 @@ namespace Phoundation\Developer\Libraries;
 use Phoundation\Cache\Cache;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
+use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Core\Tmp;
@@ -115,8 +116,12 @@ class Libraries
             // Wipe all temporary data
             Tmp::clear();
 
-            // Wipe all cache data
-            Cache::clear();
+            try {
+                // Wipe all cache data
+                Cache::clear();
+            } catch (ConfigurationDoesNotExistsException $e) {
+                Log::warning($e->getMessage());
+            }
 
             // Ensure the system database exists
             static::ensureSystemsDatabase();

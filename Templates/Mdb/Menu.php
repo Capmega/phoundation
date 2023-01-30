@@ -3,7 +3,6 @@
 namespace Templates\Mdb;
 
 use Phoundation\Core\Session;
-use Templates\Mdb\Components\Menu;
 
 
 /**
@@ -16,7 +15,7 @@ use Templates\Mdb\Components\Menu;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\Mdb
  */
-class TemplateMenus extends \Phoundation\Web\Http\Html\Template\TemplateMenus
+class Menu extends \Plugins\Phoundation\Components\Menu
 {
     /**
      * TemplateMenus class constructor

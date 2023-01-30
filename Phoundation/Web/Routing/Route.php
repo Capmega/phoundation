@@ -1003,7 +1003,7 @@ class Route
         }
 
         if ($http_code === 200) {
-            Log::success(tr('Routed script ":script" ended with HTTP code ":httpcode" in ":time" with ":usage" peak memory usage', [
+            Log::success(tr('Script ":script" ended with HTTP code ":httpcode" in ":time" with ":usage" peak memory usage', [
                 ':script'   => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
                 ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
                 ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
@@ -1011,7 +1011,7 @@ class Route
             ]));
 
         } else {
-            Log::warning(tr('Routed script ":script" ended with HTTP code ":httpcode" in ":time" with ":usage" peak memory usage', [
+            Log::warning(tr('Script ":script" ended with HTTP code ":httpcode" in ":time" with ":usage" peak memory usage', [
                 ':script'   => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
                 ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
                 ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),

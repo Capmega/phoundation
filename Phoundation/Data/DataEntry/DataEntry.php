@@ -106,15 +106,19 @@ abstract class DataEntry
     /**
      * DataEntry class constructor
      *
-     * @param string|int|null $identifier
+     * @param DataEntry|string|int|null $identifier
      */
-    public function __construct(string|int|null $identifier = null)
+    public function __construct(DataEntry|string|int|null $identifier = null)
     {
         $this->setKeys();
 
         if ($identifier) {
             if (is_numeric($identifier)) {
-                $this->data['id']                 = $identifier;
+                $this->data['id'] = $identifier;
+
+            } elseif (is_object($identifier)) {
+                $this->data['id'] = $identifier->getId();
+
             } else {
                 $this->data[$this->unique_column] = $identifier;
             }
@@ -156,9 +160,9 @@ abstract class DataEntry
      *
      * @return static
      */
-    public static function new(): static
+    public static function new(DataEntry|string|int|null $identifier = null): static
     {
-        return new static();
+        return new static($identifier);
     }
 
 

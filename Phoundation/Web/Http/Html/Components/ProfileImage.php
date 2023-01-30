@@ -4,8 +4,7 @@ namespace Phoundation\Web\Http\Html\Components;
 
 use Phoundation\Content\Images\Image;
 use Phoundation\Core\Session;
-use Phoundation\Web\Http\Html\Template\TemplateMenus;
-
+use Plugins\Phoundation\Components\Menu;
 
 
 /**
@@ -33,7 +32,7 @@ class ProfileImage extends ImageMenu
             // This is a guest user, make sure that the profile image shows the sign in modal
             $this->setModalSelector('#signinModal');
         } else {
-            $this->setMenu(TemplateMenus::getProfileImageMenu());
+            $this->setMenu(Menu::getProfileImageMenu());
         }
 
         parent::__construct();

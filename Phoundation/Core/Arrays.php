@@ -1274,7 +1274,7 @@ class Arrays {
     public static function force(mixed $source, ?string $separator = ','): array
     {
         if (($source === '') or ($source === null)) {
-            return array();
+            return [];
         }
 
         if (!is_array($source)) {

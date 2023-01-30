@@ -34,6 +34,8 @@ use Phoundation\Geo\Countries\Countries;
 use Phoundation\Geo\Countries\Country;
 use Phoundation\Geo\States\State;
 use Phoundation\Geo\Timezones\Timezone;
+use Phoundation\Security\Incidents\Incident;
+use Phoundation\Security\Incidents\Severity;
 use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\Html\Components\Form;
 use Phoundation\Web\Http\UrlBuilder;
@@ -152,6 +154,16 @@ class User extends DataEntry
                 }
 
                 if ($user->getDomain() !== $domain) {
+                    Incident::new()
+                        ->setType('Domain access disallowed')
+                        ->setSeverity(Severity::medium)
+                        ->setTitle(tr('The user ":user" is not allowed to have access to domain ":domain"', [
+                            ':user'   => $user,
+                            ':domain' => $domain
+                        ]))
+                        ->setDetails([':user' => $user, ':domain' => $domain])
+                        ->save();
+
                     throw new AuthenticationException(tr('The specified user ":user" is not allowed to access the domain ":domain"', [
                         ':user'   => $identifier,
                         ':domain' => $domain
@@ -161,6 +173,13 @@ class User extends DataEntry
 
             return $user;
         }
+
+        Incident::new()
+            ->setType('Incorrect password')
+            ->setSeverity(Severity::low)
+            ->setTitle(tr('The specified password for user ":user" is incorrect', [':user' => $user]))
+            ->setDetails([':user' => $user])
+            ->save();
 
         throw new AuthenticationException(tr('The specified password did not match for user ":user"', [
             ':user' => $identifier

@@ -9,6 +9,7 @@ use Phoundation\Data\Validator\Validator;
 use Phoundation\Developer\Debug;
 use Phoundation\Developer\Project\Exception\EnvironmentExists;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Process;
@@ -394,5 +395,35 @@ class Project
                 }
             }
         }
+    }
+
+
+
+    /**
+     * Checks your Phoundation project installation
+     */
+    public static function check(bool $repair): void
+    {
+        throw new UnderConstructionException();
+    }
+
+
+
+    /**
+     * Checks if there are updates availabe for Phoundation
+     */
+    public static function checkUpdates(): void
+    {
+        throw new UnderConstructionException();
+    }
+
+
+
+    /**
+     * Updates your Phoundation installation
+     */
+    public static function update(): void
+    {
+        throw new UnderConstructionException();
     }
 }

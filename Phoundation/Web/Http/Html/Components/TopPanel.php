@@ -16,12 +16,4 @@ namespace Phoundation\Web\Http\Html\Components;
  */
 class TopPanel extends Panel
 {
-    /**
-     * TopPanel constructor
-     */
-    public function __construct()
-    {
-        parent::__construct();
-        $this->menu = new TopMenu();
-    }
 }

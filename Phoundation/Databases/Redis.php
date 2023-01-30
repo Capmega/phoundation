@@ -5,7 +5,7 @@ namespace Phoundation\Databases;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Exception\ConfigException;
-use Phoundation\Core\Exception\ConfigNotExistsException;
+use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
 use Phoundation\Databases\Exception\RedisException;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Utils\Json;
@@ -138,7 +138,7 @@ class Redis extends \Redis
 
         try {
             $configuration = Config::get('databases.redis.instances.' . $instance);
-        } catch (ConfigNotExistsException $e) {
+        } catch (ConfigurationDoesNotExistsException $e) {
             throw new RedisException(tr('The specified redis instance ":instance" is not configured', [
                 ':instance' => $instance
             ]));

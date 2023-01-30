@@ -19,7 +19,7 @@ use Phoundation\Developer\TestDataGenerator;
 class Import extends \Phoundation\Developer\Project\Import
 {
     /**
-     * Import the content for the customers table
+     * Import the content for the business_customers table
      *
      * @return int
      */
