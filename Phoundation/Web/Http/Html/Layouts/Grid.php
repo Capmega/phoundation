@@ -84,23 +84,26 @@ class Grid extends Container
      * @param GridRow|GridColumn|ElementsBlock|null $row
      * @return static
      */
-    public function addRow(GridRow|GridColumn|ElementsBlock|null $row, ?int $column_size = null): static
+    public function addRow(GridRow|GridColumn|ElementsBlock|null $row = null, ?int $column_size = null): static
     {
-        if ($row) {
-            if (!($row instanceof GridRow)) {
-                // This is not a row!
-                if (!($row instanceof GridColumn)) {
-                    // This is not even a column, it's content. Put it in a column first
-                    $row = GridColumn::new()->setContent($row);
-                }
+        if (!$row) {
+            // Just add an empty row
+            $row = new GridRow();
+        }
 
-                // This is a column, put the column in a row
-                $row = GridRow::new()->addColumn($row, $column_size);
+        if (!($row instanceof GridRow)) {
+            // This is not a row!
+            if (!($row instanceof GridColumn)) {
+                // This is not even a column, it's content. Put it in a column first
+                $row = GridColumn::new()->setContent($row);
             }
 
-            // We have a row
-            $this->rows[] = $row;
+            // This is a column, put the column in a row
+            $row = GridRow::new()->addColumn($row, $column_size);
         }
+
+        // We have a row
+        $this->rows[] = $row;
 
         return $this;
     }

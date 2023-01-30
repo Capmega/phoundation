@@ -35,7 +35,7 @@ class Buttons extends \Phoundation\Web\Http\Html\Components\Buttons
             $this->render .= '<div class="btn-group" role="group" aria-label="Button group">';
         }
 
-        foreach ($this->buttons as $button) {
+        foreach ($this->source as $button) {
             $this->render .= $button->render();
         }
 

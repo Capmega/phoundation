@@ -40,7 +40,7 @@ class TestDataGenerator
      * @param int $max
      * @return string
      */
-    public static function getDate(int $min = 0, int $max = 0): string
+    public static function getDate(int $min = 0, int $max = 2147483648): string
     {
         $date = mt_rand($min, $max);
         return date("Y-m-d H:i:s", $date);

@@ -4,7 +4,7 @@ namespace Phoundation\Web\Http\Html\Components;
 
 use Iterator;
 use JetBrains\PhpStorm\ExpectedValues;
-
+use ReturnTypeWillChange;
 
 
 /**
@@ -24,31 +24,11 @@ class Buttons extends ElementsBlock implements Iterator
 
 
     /**
-     * The buttons to render
-     *
-     * @var array $buttons
-     */
-    protected array $buttons = [];
-
-    /**
      * If true, the buttons will be grouped in one larger button
      *
      * @var bool $group
      */
     protected bool $group = false;
-
-
-
-    /**
-     * Clears the buttons list
-     *
-     * @return static
-     */
-    public function clearButtons(): static
-    {
-        $this->buttons = [];
-        return $this;
-    }
 
 
 
@@ -60,7 +40,7 @@ class Buttons extends ElementsBlock implements Iterator
      */
     public function setButtons(array $buttons): static
     {
-        $this->buttons = [];
+        $this->source = [];
         return $this->addButtons($buttons);
     }
 
@@ -129,7 +109,7 @@ class Buttons extends ElementsBlock implements Iterator
         }
 
         if ($button) {
-            $this->buttons[] = $button;
+            $this->source[] = $button;
         }
 
         return $this;
@@ -144,7 +124,7 @@ class Buttons extends ElementsBlock implements Iterator
      */
     public function getButtons(): array
     {
-        return $this->buttons;
+        return $this->source;
     }
 
 
@@ -180,9 +160,9 @@ class Buttons extends ElementsBlock implements Iterator
      *
      * @return Button
      */
-    public function current(): Button
+    #[ReturnTypeWillChange] public function current(): Button
     {
-        return current($this->buttons);
+        return current($this->source);
     }
 
 
@@ -190,11 +170,12 @@ class Buttons extends ElementsBlock implements Iterator
     /**
      * Progresses the internal pointer to the next button
      *
-     * @return void
+     * @return static
      */
-    public function next(): void
+    #[ReturnTypeWillChange] public function next(): static
     {
-        next($this->buttons);
+        next($this->source);
+        return $this;
     }
 
 
@@ -204,9 +185,9 @@ class Buttons extends ElementsBlock implements Iterator
      *
      * @return string
      */
-    public function key(): string
+    #[ReturnTypeWillChange] public function key(): string
     {
-        return key($this->buttons);
+        return key($this->source);
     }
 
 
@@ -219,7 +200,7 @@ class Buttons extends ElementsBlock implements Iterator
      */
     public function valid(): bool
     {
-        return isset($this->buttons[key($this->buttons)]);
+        return isset($this->source[key($this->source)]);
     }
 
 
@@ -227,10 +208,12 @@ class Buttons extends ElementsBlock implements Iterator
     /**
      * Rewinds the internal pointer
      *
-     * @return void
+     * @return static
      */
-    public function rewind(): void
+    #[ReturnTypeWillChange] public function rewind(): static
     {
-        reset($this->buttons);
+        reset($this->source);
+        return $this;
+
     }
 }

@@ -146,28 +146,14 @@ abstract class Template
      * @param object|string $class
      * @return string
      */
-    public function getTemplateComponentClass(object|string $class): string
+    public function getTemplateComponentClass(object|string $component): string
     {
-        if (str_starts_with($class, 'Template\\')) {
-            // A template specific path was specified, use this.
-            return $class;
+        if (!str_starts_with($component, 'Phoundation\\Web\\Http\\Html\\')) {
+            // Assume a template specific path was specified, use this.
+            return $component;
         }
 
-        if (str_starts_with($class, 'Plugins\\')) {
-            // Don't template plugin objects!
-            return $class;
-        }
-
-        // Detect the component name
-        $file = Strings::from($class, 'Components\\');
-
-        if (!$file) {
-            throw new OutOfBoundsException(tr('Cannot detect web component class for ":class", it should either start with "Phoundation\\Web\\Http\\Html\\Components\\" or "Plugins\\Components\\"', [
-                ':class' => $class
-            ]));
-        }
-
-        $file = 'Components\\' . $file;
+        $file = Strings::from($component, 'Phoundation\\Web\\Http\\Html\\');
         $file = str_replace('\\', '/', $file);
         $file = $this->getPath() . $file . '.php';
 
@@ -176,8 +162,42 @@ abstract class Template
         }
 
         // The template component does not exist, return the basic Phoundation version
-        return $class;
+        return $component;
     }
+
+// TODO Remove the defunct function below
+//    public function getTemplateComponentClass(object|string $class): string
+//    {
+//        if (str_starts_with($class, 'Template\\')) {
+//            // A template specific path was specified, use this.
+//            return $class;
+//        }
+//
+//        if (str_starts_with($class, 'Plugins\\')) {
+//            // Don't template plugin objects!
+//            return $class;
+//        }
+//
+//        // Detect the component name
+//        $file = Strings::from($class, 'Components\\');
+//
+//        if (!$file) {
+//            throw new OutOfBoundsException(tr('Cannot detect web component class for ":class", it should either start with "Phoundation\\Web\\Http\\Html\\Components\\" or "Plugins\\Components\\"', [
+//                ':class' => $class
+//            ]));
+//        }
+//
+//        $file = 'Components\\' . $file;
+//        $file = str_replace('\\', '/', $file);
+//        $file = $this->getPath() . $file . '.php';
+//
+//        if (file_exists($file)) {
+//            return Library::getClassPath($file);
+//        }
+//
+//        // The template component does not exist, return the basic Phoundation version
+//        return $class;
+//    }
 
 
 
