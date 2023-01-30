@@ -165,7 +165,7 @@ class Img extends Element
     {
 //        // Get a built src string. If $built_src is equal to specified $src then it wasn't changed and so it's an
 //        $domain         = Url::getDomain($src);
-//        $built_src      = UrlBuilder::cdn($src);
+//        $built_src      = UrlBuilder::getCdn($src);
 //        $this->external = Url::isExternal($src);
 //
 //        if ($this->external) {
@@ -208,7 +208,7 @@ class Img extends Element
 //            $file_src =
 //            $file_src = PATH_DATA . 'cdn/' . Session::getLanguage() . 'img/' . $src;
 //            $file_src = '/pub'.Strings::startsWith($src, '/');
-//            $src      = UrlBuilder::img($src);
+//            $src      = UrlBuilder::getImg($src);
 //        }
 
         if (is_object($src)) {
@@ -911,7 +911,7 @@ class Img extends Element
 //
 //            // Convert src back to URL again
 //            $this->file_src = $target;
-//            $this->src      = UrlBuilder::img($target_part);
+//            $this->src      = UrlBuilder::getImg($target_part);
 //
 //        }catch(Throwable $e) {
 //            // Failed to upgrade image. Use the original image
