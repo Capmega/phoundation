@@ -66,7 +66,7 @@ class Menu extends \Phoundation\Web\Http\Html\Components\Menu
                           </li>';
             } else {
                 $html .= '  <li class="nav-item">
-                              <a class="nav-link" href="' . UrlBuilder::www(isset_get($entry['url'])) . '">' . $label . '</a>
+                              <a class="nav-link" href="' . UrlBuilder::getWww(isset_get($entry['url'])) . '">' . $label . '</a>
                             </li>';
             }
         }
@@ -113,7 +113,7 @@ class Menu extends \Phoundation\Web\Http\Html\Components\Menu
                           </li>';
             } else {
                 $html .= '  <li>
-                              <a class="dropdown-item" href="' . UrlBuilder::www($entry['url']) . '">' . $label . '</a>
+                              <a class="dropdown-item" href="' . UrlBuilder::getWww($entry['url']) . '">' . $label . '</a>
                             </li>';
             }
         }

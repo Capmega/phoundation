@@ -482,7 +482,7 @@ class Page
 
         if ($default) {
             // We don't have a referer, return the current URL instead
-            return UrlBuilder::www($default);
+            return UrlBuilder::getWww($default);
         }
 
         // We got nothing...
@@ -1225,7 +1225,7 @@ class Page
         }
 
         // Build URL
-        $redirect = UrlBuilder::www($url);
+        $redirect = UrlBuilder::getWww($url);
 
         // Protect against endless redirecting.
         if (UrlBuilder::isCurrent($redirect)) {
@@ -1235,7 +1235,7 @@ class Page
                 // and the system couldn't know that the short code is the same as the current URL. Redirect to domain
                 // root instead
                 $redirect = match ($url) {
-                    'prev', 'previous', 'referer' => UrlBuilder::currentDomainRootUrl(),
+                    'prev', 'previous', 'referer' => UrlBuilder::getCurrentDomainRootUrl(),
                     default => throw new OutOfBoundsException(tr('Will NOT redirect to ":url", its the current page and the current request method is not POST', [
                         ':url' => $redirect
                     ])),
@@ -1245,7 +1245,7 @@ class Page
 
         if (isset_get($_GET['redirect'])) {
             // Add redirect back query
-            $redirect = UrlBuilder::www($redirect)->addQueries(['redirect' => urlencode($_GET['redirect'])]);
+            $redirect = UrlBuilder::getWww($redirect)->addQueries(['redirect' => urlencode($_GET['redirect'])]);
         }
 
         /*
@@ -1532,7 +1532,7 @@ class Page
         try {
             static::$headers['link'][$url] = [
                 'rel'  => 'icon',
-                'href' => UrlBuilder::img($url),
+                'href' => UrlBuilder::getImg($url),
                 'type' => File::new(Filesystem::absolute($url, 'img'), PATH_CDN . LANGUAGE . '/img')->mimetype()
             ];
         } catch (FilesystemException $e) {
@@ -1565,13 +1565,13 @@ class Page
             if ($header) {
                 static::$headers['javascript'][$url] = [
                     'type' => 'text/javascript',
-                    'src'  => UrlBuilder::js($url)
+                    'src'  => UrlBuilder::getJs($url)
                 ];
 
             } else {
                 static::$footers['javascript'][$url] = [
                     'type' => 'text/javascript',
-                    'src'  => UrlBuilder::js($url)
+                    'src'  => UrlBuilder::getJs($url)
                 ];
             }
         }
@@ -1590,7 +1590,7 @@ class Page
         foreach (Arrays::force($urls, '') as $url) {
             static::$headers['link'][$url] = [
                 'rel'  => 'stylesheet',
-                'href' => UrlBuilder::css($url),
+                'href' => UrlBuilder::getCss($url),
             ];
         }
     }

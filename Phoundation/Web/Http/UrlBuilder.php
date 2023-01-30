@@ -93,7 +93,7 @@ class UrlBuilder
      */
     public static function getCurrent(): static
     {
-        return static::currentDomainUrl();
+        return static::getCurrentDomainUrl();
     }
 
 
@@ -119,7 +119,7 @@ class UrlBuilder
      *                                  from the static configuration
      * @return static
      */
-    public static function www(?string $url = null, bool $use_configured_root = false): static
+    public static function getWww(?string $url = null, bool $use_configured_root = false): static
     {
         if (!$url) {
             $url = UrlBuilder::getCurrent();
@@ -139,7 +139,7 @@ class UrlBuilder
      * @param string|null $extension
      * @return static
      */
-    public static function cdn(string $url, ?string $extension = null): static
+    public static function getCdn(string $url, ?string $extension = null): static
     {
         if (Url::isValid($url)) {
             return new UrlBuilder($url);
@@ -155,7 +155,7 @@ class UrlBuilder
      *
      * @return static
      */
-    public static function currentDomainRootUrl(): static
+    public static function getCurrentDomainRootUrl(): static
     {
         return new UrlBuilder(Page::getRootUrl());
     }
@@ -167,7 +167,7 @@ class UrlBuilder
      *
      * @return static
      */
-    public static function currentDomainUrl(): static
+    public static function getCurrentDomainUrl(): static
     {
         return new UrlBuilder(Page::getUrl());
     }
@@ -179,7 +179,7 @@ class UrlBuilder
      *
      * @return static
      */
-    public static function parentDomainRootUrl(): static
+    public static function getParentDomainRootUrl(): static
     {
         return new UrlBuilder(Domains::from()->getParent() . Page::getRootUri());
     }
@@ -191,7 +191,7 @@ class UrlBuilder
      *
      * @return static
      */
-    public static function parentDomainUrl(): static
+    public static function getParentDomainUrl(): static
     {
         return new UrlBuilder(Domains::from()->getParent() . Page::getUri());
     }
@@ -203,7 +203,7 @@ class UrlBuilder
      *
      * @return static
      */
-    public static function rootDomainRootUrl(): static
+    public static function getRootDomainRootUrl(): static
     {
         return new UrlBuilder(Domains::from()->getRoot() . Page::getRootUri());
     }
@@ -215,7 +215,7 @@ class UrlBuilder
      *
      * @return static
      */
-    public static function rootDomainUrl(): static
+    public static function getRootDomainUrl(): static
     {
         return new UrlBuilder(Domains::from()->getRoot() . Page::getUri());
     }
@@ -227,7 +227,7 @@ class UrlBuilder
      *
      * @return static
      */
-    public static function primaryDomainRootUrl(): static
+    public static function getPrimaryDomainRootUrl(): static
     {
         return new UrlBuilder(Domains::getPrimary() . Page::getRootUri());
     }
@@ -239,7 +239,7 @@ class UrlBuilder
      *
      * @return static
      */
-    public static function primaryDomainUrl(): static
+    public static function getPrimaryDomainUrl(): static
     {
         return new UrlBuilder(Domains::getPrimary() . Page::getUri());
     }
@@ -252,7 +252,7 @@ class UrlBuilder
      * @param string|null $url
      * @return static
      */
-    public static function referer(?string $url = null): static
+    public static function getReferer(?string $url = null): static
     {
         // The previous page; Assume we came from the HTTP_REFERER page
         $referer = isset_get($_SERVER['HTTP_REFERER']);
@@ -264,7 +264,7 @@ class UrlBuilder
 
             } else {
                 // No referer or url, just go to the root page
-                $referer = static::currentDomainRootUrl();
+                $referer = static::getCurrentDomainRootUrl();
             }
         }
 
@@ -281,7 +281,7 @@ class UrlBuilder
      *                                  from the static configuration
      * @return static
      */
-    public static function ajax(string $url, bool $use_configured_root = false): static
+    public static function getAjax(string $url, bool $use_configured_root = false): static
     {
         if (!$url) {
             throw new OutOfBoundsException(tr('No URL specified'));
@@ -300,7 +300,7 @@ class UrlBuilder
      *                                  from the static configuration
      * @return static
      */
-    public static function api(string $url, bool $use_configured_root = false): static
+    public static function getApi(string $url, bool $use_configured_root = false): static
     {
         if (!$url) {
             throw new OutOfBoundsException(tr('No URL specified'));
@@ -317,7 +317,7 @@ class UrlBuilder
      * @param string $url
      * @return static
      */
-    public static function css(string $url): static
+    public static function getCss(string $url): static
     {
         if (Url::isValid($url)) {
             return new UrlBuilder($url);
@@ -334,7 +334,7 @@ class UrlBuilder
      * @param string $url
      * @return static
      */
-    public static function js(string $url): static
+    public static function getJs(string $url): static
     {
         if (Url::isValid($url)) {
             return new UrlBuilder($url);
@@ -351,7 +351,7 @@ class UrlBuilder
      * @param Image|string $url
      * @return static
      */
-    public static function img(Image|string $url): static
+    public static function getImg(Image|string $url): static
     {
         if (is_object($url)) {
             $url->getHtmlElement()->getSrc();
@@ -631,7 +631,7 @@ class UrlBuilder
      * @return static
      * @throws OutOfBoundsException If no URL was specified
      */
-    public static function buildCdn(string $url, ?string $extension = null): static
+    protected static function buildCdn(string $url, ?string $extension = null): static
     {
         if (!$url) {
             throw new OutOfBoundsException(tr('No URL specified'));
@@ -662,8 +662,8 @@ class UrlBuilder
     {
         return match ($url) {
             'self', 'this' , 'here'       => static::getCurrent(),
-            'root'                        => static::currentDomainRootUrl(),
-            'prev', 'previous', 'referer' => static::referer(),
+            'root'                        => static::getCurrentDomainRootUrl(),
+            'prev', 'previous', 'referer' => static::getReferer(),
             default => $url,
         };
 

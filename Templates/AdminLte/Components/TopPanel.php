@@ -124,7 +124,7 @@ class TopPanel extends \Phoundation\Web\Http\Html\Components\TopPanel
                                 </a>
                               </li>
                               <li class="nav-item">
-                                <a class="nav-link" href="' . UrlBuilder::www('sign-out.html') . '" role="button">
+                                <a class="nav-link" href="' . UrlBuilder::getWww('sign-out.html') . '" role="button">
                                   <i class="fas fa-sign-out-alt"></i>
                                 </a>
                               </li>

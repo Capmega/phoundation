@@ -636,7 +636,7 @@ class Route
 
                         Core::unregisterShutdown('route[postprocess]');
                         Page::setRoutingParameters(static::parameters()->select(static::$uri));
-                        Page::redirect(UrlBuilder::www($route)->addQueries($_GET), $http_code);
+                        Page::redirect(UrlBuilder::getWww($route)->addQueries($_GET), $http_code);
 
                     case 'S':
                         $until = substr($flag, 1);

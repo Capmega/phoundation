@@ -82,7 +82,7 @@ class MessagesDropDown extends \Phoundation\Web\Http\Html\Components\MessagesDro
      */
     public function setMessagesUrl(?string $messages_url): static
     {
-        $this->messages_url = UrlBuilder::www($messages_url);
+        $this->messages_url = UrlBuilder::getWww($messages_url);
         return $this;
     }
 

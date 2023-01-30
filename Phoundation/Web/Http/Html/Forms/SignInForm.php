@@ -78,7 +78,7 @@ class SignInForm extends Form
      */
     public function setSignInUrl(string $sign_in_url): static
     {
-        $this->sign_in_url = UrlBuilder::www($sign_in_url);
+        $this->sign_in_url = UrlBuilder::getWww($sign_in_url);
         return $this;
     }
 
@@ -104,7 +104,7 @@ class SignInForm extends Form
      */
     public function setRegisterUrl(string $register_url): static
     {
-        $this->register_url = UrlBuilder::www($register_url);
+        $this->register_url = UrlBuilder::getWww($register_url);
         return $this;
     }
 
@@ -130,7 +130,7 @@ class SignInForm extends Form
      */
     public function setForgotPasswordUrl(string $forgot_password_url): static
     {
-        $this->forgot_password_url = UrlBuilder::www($forgot_password_url);
+        $this->forgot_password_url = UrlBuilder::getWww($forgot_password_url);
         return $this;
     }
 }

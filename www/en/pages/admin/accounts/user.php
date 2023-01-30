@@ -130,9 +130,9 @@ $picture = Card::new()
 $relevant = Card::new()
     ->setMode('info')
     ->setTitle(tr('Relevant links'))
-    ->setContent('<a href="' . UrlBuilder::www('/accounts/password-' . $user->getId() . '.html') . '">' . tr('Change password for this user') . '</a><br>
-                         <a href="' . UrlBuilder::www('/accounts/roles.html') . '">' . tr('Roles management') . '</a><br>
-                         <a href="' . UrlBuilder::www('/accounts/rights.html') . '">' . tr('Rights management') . '</a>');
+    ->setContent('<a href="' . UrlBuilder::getWww('/accounts/password-' . $user->getId() . '.html') . '">' . tr('Change password for this user') . '</a><br>
+                         <a href="' . UrlBuilder::getWww('/accounts/roles.html') . '">' . tr('Roles management') . '</a><br>
+                         <a href="' . UrlBuilder::getWww('/accounts/rights.html') . '">' . tr('Rights management') . '</a>');
 
 
 

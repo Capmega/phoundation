@@ -196,7 +196,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
                     ->getForm()
                         ->setId('form-signin')
                         ->setMethod('post')
-                        ->setAction(UrlBuilder::ajax(Config::get('web.pages.signin', '/system/sign-in.html')));
+                        ->setAction(UrlBuilder::getAjax(Config::get('web.pages.signin', '/system/sign-in.html')));
 
         return $navigation_bar->render();
     }

@@ -171,7 +171,7 @@ trait ButtonProperties
      */
     public function setAnchorUrl(?string $anchor_url): static
     {
-        $this->anchor_url = UrlBuilder::www($anchor_url);
+        $this->anchor_url = UrlBuilder::getWww($anchor_url);
 
         if ($anchor_url) {
             $this->setElement('a');

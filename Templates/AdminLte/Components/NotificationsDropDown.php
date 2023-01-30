@@ -81,7 +81,7 @@ class NotificationsDropDown extends \Phoundation\Web\Http\Html\Components\Notifi
      */
     public function setNotificationsUrl(?string $notifications_url): static
     {
-        $this->notifications_url = UrlBuilder::www($notifications_url);
+        $this->notifications_url = UrlBuilder::getWww($notifications_url);
         return $this;
     }
 

@@ -35,8 +35,8 @@ $card  = Card::new()
 $relevant = Card::new()
     ->setMode('info')
     ->setTitle(tr('Relevant links'))
-    ->setContent('<a href="' . UrlBuilder::www('/accounts/users.html') . '">' . tr('Users management') . '</a><br>
-                         <a href="' . UrlBuilder::www('/accounts/roles.html') . '">' . tr('Roles management') . '</a>');
+    ->setContent('<a href="' . UrlBuilder::getWww('/accounts/users.html') . '">' . tr('Users management') . '</a><br>
+                         <a href="' . UrlBuilder::getWww('/accounts/roles.html') . '">' . tr('Roles management') . '</a>');
 
 
 

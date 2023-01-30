@@ -53,7 +53,7 @@ class Menu extends ElementsBlock
             }
 
             if (array_key_exists('url', $entry)) {
-                $entry['url'] = UrlBuilder::www($entry['url']);
+                $entry['url'] = UrlBuilder::getWww($entry['url']);
             }
 
             if (array_key_exists('menu', $entry)) {

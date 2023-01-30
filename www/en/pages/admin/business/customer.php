@@ -114,8 +114,8 @@ $picture = Card::new()
 $relevant = Card::new()
     ->setMode('info')
     ->setTitle(tr('Relevant links'))
-    ->setContent('<a href="' . UrlBuilder::www('/business/providers/providers.html') . '">' . tr('Providers management') . '</a><br>
-                         <a href="' . UrlBuilder::www('/business/companies/companies.html') . '">' . tr('Companies management') . '</a>');
+    ->setContent('<a href="' . UrlBuilder::getWww('/business/providers/providers.html') . '">' . tr('Providers management') . '</a><br>
+                         <a href="' . UrlBuilder::getWww('/business/companies/companies.html') . '">' . tr('Companies management') . '</a>');
 
 
 

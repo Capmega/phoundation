@@ -215,7 +215,7 @@ class Img extends Element
             $src = $src->getFile();
         }
 
-        $this->src = UrlBuilder::img($src);
+        $this->src = UrlBuilder::getImg($src);
         return $this;
     }
 

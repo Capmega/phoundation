@@ -848,7 +848,7 @@ class User extends DataEntry
     {
         if ($redirect) {
             // Ensure we have a valid redirect URL
-            $redirect = UrlBuilder::www($redirect);
+            $redirect = UrlBuilder::getWww($redirect);
         }
 
         return $this->setDataValue('redirect', get_null($redirect));

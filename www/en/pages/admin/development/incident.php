@@ -48,8 +48,8 @@ $column = GridColumn::new()
 $relevant = Card::new()
     ->setMode('info')
     ->setTitle(tr('Relevant links'))
-    ->setContent('<a href="' . UrlBuilder::www('/development/slow-pages.html') . '">' . tr('Slow pages') . '</a><br>
-                         <a href="' . UrlBuilder::www('/security/security.html') . '">' . tr('Security management') . '</a>');
+    ->setContent('<a href="' . UrlBuilder::getWww('/development/slow-pages.html') . '">' . tr('Slow pages') . '</a><br>
+                         <a href="' . UrlBuilder::getWww('/security/security.html') . '">' . tr('Security management') . '</a>');
 
 
 

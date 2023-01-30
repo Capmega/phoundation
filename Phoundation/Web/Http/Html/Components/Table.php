@@ -753,7 +753,7 @@ class Table extends ResourceElement
             // Apply URL row / column specific information
             $url = str_replace(':ROW'   , $row_id, $url);
             $url = str_replace(':COLUMN', $column, $url);
-            $url = UrlBuilder::www($url);
+            $url = UrlBuilder::getWww($url);
 
             return '<td><a href="' . $url . '">' . $value . '</a></td>';
         }

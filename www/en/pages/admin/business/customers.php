@@ -46,8 +46,8 @@ $customers->getForm()
 $relevant = Card::new()
     ->setMode('info')
     ->setTitle(tr('Relevant links'))
-    ->setContent('<a href="' . UrlBuilder::www('/business/providers.html') . '">' . tr('Providers management') . '</a><br>
-                         <a href="' . UrlBuilder::www('/business/companies.html') . '">' . tr('Companies management') . '</a>');
+    ->setContent('<a href="' . UrlBuilder::getWww('/business/providers.html') . '">' . tr('Providers management') . '</a><br>
+                         <a href="' . UrlBuilder::getWww('/business/companies.html') . '">' . tr('Companies management') . '</a>');
 
 
 

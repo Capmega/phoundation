@@ -14,7 +14,7 @@ echo Template::page('admin/system/detail-error')->render([
     ]),
     ':type'   => 'warning',
     ':search' => tr('Search'),
-    ':action' => UrlBuilder::www('search/')
+    ':action' => UrlBuilder::getWww('search/')
 ]);
 
 

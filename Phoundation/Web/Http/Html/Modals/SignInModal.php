@@ -66,7 +66,7 @@ class SignInModal extends Modal
             $("form#form-signin").submit(function(e) {
                 e.stopPropagation();
                 
-                $.post("' . UrlBuilder::ajax(Config::get('web.pages.signin', '/system/sign-in.html')) . '", $(this).serialize())
+                $.post("' . UrlBuilder::getAjax(Config::get('web.pages.signin', '/system/sign-in.html')) . '", $(this).serialize())
                     .done(function (data, textStatus, jqXHR) {
                         $(".image-menu").replaceWith(data.html);
                         $("#signinModal").modal("hide");                     

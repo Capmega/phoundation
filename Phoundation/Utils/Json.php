@@ -274,10 +274,10 @@ class Json
                 Json::error(null, ['location' => $data], 'REDIRECT', 301);
 
             case 302:
-                Json::error(null, ['location' => UrlBuilder::ajax($_CONFIG['redirects']['signin'])], 'REDIRECT', 302);
+                Json::error(null, ['location' => UrlBuilder::getAjax($_CONFIG['redirects']['signin'])], 'REDIRECT', 302);
 
             case 'signin':
-                Json::error(null, ['location' => UrlBuilder::ajax($_CONFIG['redirects']['signin'])], 'SIGNIN', 302);
+                Json::error(null, ['location' => UrlBuilder::getAjax($_CONFIG['redirects']['signin'])], 'SIGNIN', 302);
 
             case 400:
                 // no-break

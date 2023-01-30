@@ -114,8 +114,8 @@ $picture = Card::new()
 $relevant = Card::new()
     ->setMode('info')
     ->setTitle(tr('Relevant links'))
-    ->setContent('<a href="' . UrlBuilder::www('/settings.html') . '">' . tr('Your settings') . '</a><br>
-                         <a href="' . UrlBuilder::www('/api-access.html') . '">' . tr('Your API access') . '</a>');
+    ->setContent('<a href="' . UrlBuilder::getWww('/settings.html') . '">' . tr('Your settings') . '</a><br>
+                         <a href="' . UrlBuilder::getWww('/api-access.html') . '">' . tr('Your API access') . '</a>');
 
 
 

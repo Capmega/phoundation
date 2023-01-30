@@ -44,7 +44,7 @@ Page::setBuildBody(false);
         <div class="card-body">
           <p class="login-box-msg"><?= tr('Please sign in to start your session') ?></p>
 
-          <form action="<?= UrlBuilder::www() ?>" method="post">
+          <form action="<?= UrlBuilder::getWww() ?>" method="post">
             <?php
                 if (Session::supports('email')) {
                     ?>
@@ -106,13 +106,13 @@ Page::setBuildBody(false);
 
                 if (Session::supports('register')) {
                     echo '  <p class="mb-1">
-                                <a href="' . UrlBuilder::www('/lost-password.html') . '">' . tr('I forgot my password') . '</a>
+                                <a href="' . UrlBuilder::getWww('/lost-password.html') . '">' . tr('I forgot my password') . '</a>
                             </p>';
                 }
 
                 if (Session::supports('register')) {
                     echo '  <p class="mb-0">
-                                <a href="' . UrlBuilder::www('/sign-in.html') . '" class="text-center">' . tr('Register a new membership') . '</a>
+                                <a href="' . UrlBuilder::getWww('/sign-in.html') . '" class="text-center">' . tr('Register a new membership') . '</a>
                             </p>';
                 }
         ?>
