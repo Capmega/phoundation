@@ -54,7 +54,7 @@ class Updates extends \Phoundation\Developer\Libraries\Updates
                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` bigint NOT NULL,
+                    `created_by` bigint NULL,
                     `meta_id` bigint DEFAULT NULL,
                     `status` varchar(16) DEFAULT NULL,
                     `categories_id` bigint DEFAULT NULL,
@@ -88,7 +88,7 @@ class Updates extends \Phoundation\Developer\Libraries\Updates
                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` bigint NOT NULL,
+                    `created_by` bigint NULL,
                     `meta_id` bigint DEFAULT NULL,
                     `status` varchar(16) DEFAULT NULL,
                     `name` varchar(64) DEFAULT NULL,

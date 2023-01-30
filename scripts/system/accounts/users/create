@@ -172,9 +172,7 @@ $user = User::new()
 
 // Update the users password
 if (!$argv['no_password']) {
-    $user
-        ->validatePassword($argv['password'], $argv['password_validate'])
-        ->setPassword($argv['password'], $argv['password_validate']);
+    $user->setPassword($argv['password'], $argv['password_validate']);
 }
 
 

@@ -9,6 +9,7 @@ use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Core\Tmp;
+use Phoundation\Databases\Mc;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\NotExistsException;
@@ -75,6 +76,16 @@ class Libraries
                     break;
 
                 case 'memcached':
+                    try {
+                        mc()->flush();
+
+                    } catch (ConfigurationDoesNotExistsException $e) {
+                        Log::warning(tr('Cannot flush memcached because the current driver is not properly configured, see exception information'));
+                        Log::warning($e);
+                    }
+
+                    break;
+
                 case 'mongo':
                 case 'redis':
                 case 'elasticsearch':

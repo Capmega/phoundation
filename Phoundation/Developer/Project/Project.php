@@ -3,6 +3,7 @@
 namespace Phoundation\Developer\Project;
 
 use Phoundation\Accounts\Users\User;
+use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Validator;
@@ -345,13 +346,15 @@ class Project
      * @param bool $demo
      * @param int $min
      * @param int $max
+     * @param array|string|null $libraries
      * @return void
      */
-    public static function import(bool $demo, int $min, int $max): void
+    public static function import(bool $demo, int $min, int $max, array|string|null $libraries): void
     {
         Log::information(tr('Starting import for all libraries that support it'));
 
-        $sections = [
+        $libraries = Arrays::force(strtolower(Strings::force($libraries)));
+        $sections  = [
             'Phoundation/' => tr('Phoundation'),
             'Plugins/'     => tr('Plugin')
         ];
@@ -364,6 +367,11 @@ class Project
                 ->addArgument('Import.php')
                 ->executeReturnArray();
 
+            Log::notice(tr('Found ":count" import classes for section ":section"', [
+                ':count'   => count($files),
+                ':section' => $section
+            ]), 5);
+
             // Execute all Import objects if they are valid
             foreach ($files as $file) {
                 try {
@@ -371,19 +379,28 @@ class Project
                     $class   = Debug::getClassPath($file);
                     $library = Strings::until(Strings::from($file, $directory), '/');
 
-                    if (is_subclass_of($class, Import::class)) {
-                        Log::action(tr('Importing data for ":section" library ":library"', [
-                            ':section' => $section,
+                    if ($libraries and !in_array(strtolower($library), $libraries)) {
+                        Log::warning(tr('Not executing import for library ":library" as it is filtered', [
                             ':library' => $library
-                        ]), 3);
+                        ]));
+
+                        continue;
+                    }
+
+                    if (is_subclass_of($class, Import::class)) {
+                        Log::action(tr('Importing data for ":section" library ":library" from file ":file"', [
+                            ':section' => $section,
+                            ':library' => $library,
+                            ':file'    => Strings::from($file, PATH_ROOT . $directory)
+                        ]), 5);
 
                         $count = $class::new($demo, $min, $max)->execute();
 
-                        Log::action(tr('Imported ":count" records for ":section" library ":library"', [
+                        Log::success(tr('Imported ":count" records for ":section" library ":library"', [
                             ':section' => $section,
                             ':library' => $library,
                             ':count'   => $count
-                        ]));
+                        ]), 6);
                     }
                 } catch (Throwable $e) {
                     Log::action(tr('Failed to import data for ":section" library ":library" with the following exception', [

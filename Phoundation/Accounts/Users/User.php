@@ -115,6 +115,18 @@ class User extends DataEntry
 
 
     /**
+     * Returns this user as a string
+     *
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return $this->getLogId();
+    }
+
+
+
+    /**
      * Returns id for this user entry that can be used in logs
      *
      * @return string
@@ -143,47 +155,7 @@ class User extends DataEntry
      */
     public static function authenticate(string|int $identifier, string $password, ?string $domain = null): static
     {
-        $user = User::get($identifier);
-
-        if ($user->passwordMatch($password)) {
-            if ($user->getDomain()) {
-                // User is limited to a domain!
-
-                if (!$domain) {
-                    $domain = Domains::getCurrent();
-                }
-
-                if ($user->getDomain() !== $domain) {
-                    Incident::new()
-                        ->setType('Domain access disallowed')
-                        ->setSeverity(Severity::medium)
-                        ->setTitle(tr('The user ":user" is not allowed to have access to domain ":domain"', [
-                            ':user'   => $user,
-                            ':domain' => $domain
-                        ]))
-                        ->setDetails([':user' => $user, ':domain' => $domain])
-                        ->save();
-
-                    throw new AuthenticationException(tr('The specified user ":user" is not allowed to access the domain ":domain"', [
-                        ':user'   => $identifier,
-                        ':domain' => $domain
-                    ]));
-                }
-            }
-
-            return $user;
-        }
-
-        Incident::new()
-            ->setType('Incorrect password')
-            ->setSeverity(Severity::low)
-            ->setTitle(tr('The specified password for user ":user" is incorrect', [':user' => $user]))
-            ->setDetails([':user' => $user])
-            ->save();
-
-        throw new AuthenticationException(tr('The specified password did not match for user ":user"', [
-            ':user' => $identifier
-        ]));
+        return self::doAuthenticate($identifier, $password, $domain);
     }
 
 
@@ -980,6 +952,9 @@ class User extends DataEntry
      */
     public function setPassword(string $password, string $validation): static
     {
+        $password   = trim($password);
+        $validation = trim($validation);
+
         $this->validatePassword($password, $validation);
         $this->setPasswordDirectly(Passwords::hash($password, $this->data['id']));
 
@@ -1008,7 +983,7 @@ class User extends DataEntry
      * @param string $validation
      * @return static
      */
-    public function validatePassword(string $password, string $validation): static
+    protected function validatePassword(string $password, string $validation): static
     {
         $password   = trim($password);
         $validation = trim($validation);
@@ -1038,7 +1013,7 @@ class User extends DataEntry
 
         // Is the password not the same as the current password?
         try {
-            static::authenticate($this->data['email'], $password);
+            static::doAuthenticate($this->data['email'], $password, isset_get($this->data['domain']), true);
             throw new PasswordNotChangedException(tr('The specified password is the same as the current password'));
 
         } catch (AuthenticationException) {
@@ -1365,6 +1340,65 @@ class User extends DataEntry
         ]);
 
         return $this;
+    }
+
+
+    /**
+     * Authenticates the specified user id / email with its password
+     *
+     * @param string|int $identifier
+     * @param string $password
+     * @param string|null $domain
+     * @param bool $test
+     * @return static
+     */
+    public static function doAuthenticate(string|int $identifier, string $password, ?string $domain = null, bool $test = false): static
+    {
+        $user = User::get($identifier);
+
+        if ($user->passwordMatch($password)) {
+            if ($user->getDomain()) {
+                // User is limited to a domain!
+
+                if (!$domain) {
+                    $domain = Domains::getCurrent();
+                }
+
+                if ($user->getDomain() !== $domain) {
+                    if (!$test) {
+                        Incident::new()
+                            ->setType('Domain access disallowed')
+                            ->setSeverity(Severity::medium)
+                            ->setTitle(tr('The user ":user" is not allowed to have access to domain ":domain"', [
+                                ':user'   => $user,
+                                ':domain' => $domain
+                            ]))
+                            ->setDetails([':user' => $user, ':domain' => $domain])
+                            ->save();
+                    }
+
+                    throw new AuthenticationException(tr('The specified user ":user" is not allowed to access the domain ":domain"', [
+                        ':user'   => $identifier,
+                        ':domain' => $domain
+                    ]));
+                }
+            }
+
+            return $user;
+        }
+
+        if (!$test) {
+            Incident::new()
+                ->setType('Incorrect password')
+                ->setSeverity(Severity::low)
+                ->setTitle(tr('The specified password for user ":user" is incorrect', [':user' => $user]))
+                ->setDetails([':user' => $user])
+                ->save();
+        }
+
+        throw new AuthenticationException(tr('The specified password did not match for user ":user"', [
+            ':user' => $identifier
+        ]));
     }
 
 

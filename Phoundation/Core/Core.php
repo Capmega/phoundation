@@ -2178,10 +2178,21 @@ class Core {
      */
     public static function getMemoryAvailable(): int
     {
-        $limit = static::getMemoryLimit();
-        $used  = memory_get_usage();
+        $limit     = static::getMemoryLimit();
+        $used      = memory_get_usage();
+        $available = $limit - $used;
 
-        return $limit - $used;
+        if ($available < 128) {
+            Log::warning(tr('Failed to properly allocate memory, available memory reported as ":memory" with limit being ":limit" and ":used" being used. Trying default of 4096', [
+                ':limit'  => $limit,
+                ':used'   => $used,
+                ':memory' => $available
+            ]));
+
+            return 4096;
+        }
+
+        return $available;
     }
 
 

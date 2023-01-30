@@ -6,6 +6,7 @@ use DateTime;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\Cli;
 use Phoundation\Core\Arrays;
+use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataList\DataList;
@@ -27,15 +28,12 @@ use Phoundation\Web\Http\Html\Components\DataEntryForm;
  */
 abstract class DataEntry
 {
-    use DataEntryNameDescription;
-
-
-
     /**
      * The label name for this data entry, used in errors, etc
      *
      * @var string $entry_name
      */
+    // TODO Check this, will likely go wrong as we have many sub classes of DataEntry
     protected static string $entry_name;
 
     /**
@@ -168,7 +166,7 @@ abstract class DataEntry
 
 
     /**
-     * Returns a User object for the object owning the specified email address
+     * Returns a DataEntry object matching the specified identifier
      *
      * @note This method also accepts DataEntry objects, in which case it will simply return this object. This is to
      *       simplify "if this is not DataEntry object then this is new DataEntry object" into
@@ -210,14 +208,64 @@ abstract class DataEntry
 
 
     /**
+     * Returns a random DataEntry object
+     *
+     * @return static|null
+     */
+    public static function getRandom(): ?static
+    {
+        $entry      = new static();
+        $table      = $entry->getTable();
+        $identifier = sql()->getColumn('SELECT `id` FROM `' . $table . '` ORDER BY RAND() LIMIT 1;');
+
+        if ($identifier) {
+            return static::get($identifier);
+        }
+
+        throw new OutOfBoundsException(tr('Cannot select random record for table ":table", no records found', [
+            ':table' => $table
+        ]));
+    }
+
+
+
+    /**
      * Returns true if an entry with the specified identifier exists
      *
      * @param string|int|null $identifier
+     * @param bool $throw_exception
      * @return bool
      */
-    public static function exists(string|int $identifier = null): bool
+    public static function exists(string|int $identifier = null, bool $throw_exception = false): bool
     {
-        return (bool) static::new($identifier)->getId();
+        if (!$identifier) {
+            throw new OutOfBoundsException(tr('Cannot check for ":type" type DataEntry, no identifier specified', [
+                ':type' => self::$entry_name
+            ]));
+        }
+
+        $exists = (bool) static::new($identifier)->getId();
+
+        if (!$exists and $throw_exception) {
+            throw new DataEntryNotExistsException(tr('The ":type" type data entry with identifier ":id" does not exist', [
+                ':type' => self::$entry_name,
+                ':id'   => $identifier
+            ]));
+        }
+
+        return $exists;
+    }
+
+
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public function getTable(): string
+    {
+        return $this->table;
     }
 
 
@@ -725,7 +773,7 @@ abstract class DataEntry
      */
     protected function load(string|int $identifier): void
     {
-        if (is_integer($identifier)) {
+        if (is_numeric($identifier)) {
             $data = sql()->get('SELECT * FROM `' . $this->table . '` WHERE `id`                           = :id'                     , [':id'                     => $identifier]);
         } else {
             $data = sql()->get('SELECT * FROM `' . $this->table . '` WHERE `' . $this->unique_column . '` = :' . $this->unique_column, [':'. $this->unique_column => $identifier]);

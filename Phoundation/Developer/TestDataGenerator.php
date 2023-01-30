@@ -2,6 +2,7 @@
 
 namespace Phoundation\Developer;
 
+use Phoundation\Core\Arrays;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 
@@ -21,11 +22,51 @@ class TestDataGenerator
     /**
      * Returns a random code
      *
+     * @param int $min
+     * @param int $max
      * @return string
      */
-    public static function code(int $min = 3, int $max = 6): string
+    public static function code(int $min = 3, int $max = 12, bool $unique = true): string
     {
-        return Strings::random(mt_rand(3, 6));
+        return Strings::random(mt_rand($min, $max), $unique, 'alpha');
+    }
+
+
+
+    /**
+     * Returns a random code
+     *
+     * @param int $min
+     * @param int $max
+     * @return string
+     */
+    public static function date(int $min = 0, int $max = 0): string
+    {
+        $date = mt_rand($min, $max);
+        return date("Y-m-d H:i:s", $date);
+    }
+
+
+
+    /**
+     * Returns a random code
+     *
+     * @return string|null
+     */
+    public static function status(): ?string
+    {
+        return Arrays::getRandomValue([
+            NULL,
+            'deleted',
+            'new',
+            'old',
+            'invalid',
+            'in',
+            'out',
+            'waiting',
+            'error',
+            'unknown'
+        ]);
     }
 
 
@@ -33,6 +74,8 @@ class TestDataGenerator
     /**
      * Returns a random number
      *
+     * @param int $min
+     * @param int $max
      * @return int
      */
     public static function number(int $min = 0, int $max = 1000000): int
@@ -45,11 +88,13 @@ class TestDataGenerator
     /**
      * Returns a random percentage
      *
+     * @param int $min
+     * @param int $max
      * @return int
      */
-    public static function percentage(): int
+    public static function percentage(int $min = 0, int $max = 100): int
     {
-        return (int) Strings::random(mt_rand(0, 100));
+        return (int) Strings::random(mt_rand($min, $max));
     }
 
 
@@ -73,7 +118,7 @@ class TestDataGenerator
      */
     public static function domain(): string
     {
-        return Strings::random(mt_rand(3,16) . '.' . pick_random('com', 'org', 'net', 'info'));
+        return Strings::random(mt_rand(3, 24) . pick_random('.com', '.org', '.net', '.ca', '.nl', '.mx', '.com.mx', '.info', '.local'));
     }
 
 
@@ -91,13 +136,51 @@ class TestDataGenerator
 
 
     /**
+     * Returns a random providers id
+     *
+     * @return int
+     */
+    public static function provider(): int
+    {
+        return sql()->getColumn('SELECT `id` FROM `business_providers` ORDER BY RAND() LIMIT 1;');
+    }
+
+
+
+    /**
+     * Returns a random customers id
+     *
+     * @return int
+     */
+    public static function customer(): int
+    {
+        return sql()->getColumn('SELECT `id` FROM `business_customers` ORDER BY RAND() LIMIT 1;');
+    }
+
+
+
+    /**
+     * Returns a random categories id
+     *
+     * @return int
+     */
+    public static function category(): int
+    {
+        return sql()->getColumn('SELECT `id` FROM `business_categories` ORDER BY RAND() LIMIT 1;');
+    }
+
+
+
+    /**
      * Returns a random amount of lorem ipsum paragraps
      *
+     * @param int $min_paragraphs
+     * @param int $max_paragraphs
      * @return string
      */
-    public static function description(int $min = 0, int $max = 6): string
+    public static function description(int $min_paragraphs = 0, int $max_paragraphs = 6): string
     {
-        $amount = mt_rand($min, $max);
+        $amount = mt_rand($min_paragraphs, $max_paragraphs);
         $return = '';
 
         while ($amount > 0) {

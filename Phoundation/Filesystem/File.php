@@ -45,7 +45,7 @@ class File extends FileBasics
      */
     public function getBufferSize(): int
     {
-        $required  = Config::get('filesystem.buffer.size', $this->buffer_size ?? 65536);
+        $required  = Config::get('filesystem.buffer.size', $this->buffer_size ?? 4096);
         $available = Core::getMemoryAvailable();
 
         if ($required > $available) {
@@ -58,13 +58,13 @@ class File extends FileBasics
             }
 
             // Just auto adjust to half of the available memory
-            Log::warning(tr('File buffer of ":required" but only ":available" memory available. Created buffer of ":size" instead', [
+            Log::warning(tr('File buffer of ":required" requested but only ":available" memory available. Created buffer of ":size" instead', [
                 ':required'  => $required,
                 ':available' => $available,
-                ':size'      => ceil($available * .5)
+                ':size'      => floor($available * .5)
             ]));
 
-            $required = ceil($available * .5);
+            $required = floor($available * .5);
         }
 
         return $required;
@@ -667,8 +667,9 @@ class File extends FileBasics
         $handle = $this->open('r');
         $count  = 0;
         $return = [];
+        $buffer = $this->getBufferSize();
 
-        while (($line = fgets($handle, $this->getBufferSize())) !== false) {
+        while (($line = fgets($handle, $buffer)) !== false) {
             foreach ($filters as $filter) {
                 if (str_contains($line, $filter)) {
                     $return[$filter][] = $line;

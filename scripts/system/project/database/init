@@ -6,6 +6,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Libraries\Libraries;
 use Phoundation\Developer\Libraries\Version;
 use Phoundation\Developer\Project\Project;
+use Plugins\Aerostream\AerostreamFes\Maws\Maw;
 
 
 /**
@@ -39,6 +40,9 @@ ARGUMENTS
                                         data for all systems. Since this requires (amongst things) downloading and 
                                         importing (sometimes) very large data sets, this may take a little while
 
+[-l / --libraries]                      Comma delimited field. Only available if --import was specified. If specified,  
+                                        will only execute import for libraries matching the names specified 
+                                        
 [--min] (10)                            If demo mode is enabled, this will specified the minimum amount of records added 
                                         in each library 
 
@@ -59,11 +63,11 @@ ARGUMENTS
 -c / --comments                         The optional comments to add in the versions table about this init');
 
 
-
 // Get command line arguments
 ArgvValidator::new()
     ->select('--drop')->isOptional(false)->isBoolean()
     ->select('--import')->isOptional(false)->isBoolean()
+    ->select('-l,--libraries', true)->isOptional()->isString()->sanitizeForceArray()
     ->select('--min', true)->isOptional(10)->isNatural()
     ->select('--max', true)->isOptional(1000)->isNatural()
     ->select('-c,--comments', true)->isOptional()->isPrintable()
@@ -91,7 +95,7 @@ Libraries::initialize($argv['system'], $argv['plugins'], $argv['templates'], $ar
 
 // Run import?
 if ($argv['import']) {
-    Project::import($argv['demo'], $argv['min'], $argv['max']);
+    Project::import($argv['demo'], $argv['min'], $argv['max'], $argv['libraries']);
 }
 
 

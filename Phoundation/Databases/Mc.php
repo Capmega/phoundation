@@ -204,6 +204,21 @@ class Mc
     }
 
 
+
+    /**
+     * Flush all cached memcache data
+     *
+     * @param int $delay
+     * @return $this
+     */
+    public function flush(int $delay = 0): static
+    {
+        $this->memcached->flush($delay);
+        return $this;
+    }
+
+
+
     /**
      * Set the specified data to the specified key (and optionally the specified namespace)
      *

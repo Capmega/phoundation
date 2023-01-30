@@ -1,0 +1,66 @@
+#!/usr/bin/php
+<?php
+
+use Phoundation\Cli\Documentation;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Developer\Project\Project;
+
+
+
+/**
+ * Script system/project/import
+ *
+ * This script will import all data to get your system going. Currently this script will import:
+ *
+ * languages
+ * geo data (continents, countries, states, counties, cities, etc) (under construction)
+ * geoip data  (under construction)
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Scripts
+ */
+Documentation::usage('./cli system project import');
+
+Documentation::help('This script allows you to import all project data with one command 
+
+Currently this script will import:
+ * languages
+ * geo data (continents, countries, states, counties, cities, etc) (under construction)
+ * geoip data                                                      (under construction)
+
+
+
+ARGUMENTS
+
+
+
+[-d / --demo]                           If specified, will load demo data into the database tables so the system can 
+                                        quickly show actual functionality
+                                        
+[-l / --libraries]                      Comma delimited field. If specified, will only execute import for libraries 
+                                        matching the names specified 
+                                        
+[--min] (10)                            If demo mode is enabled, this will specified the minimum amount of records added 
+                                        in each library 
+
+[--max] (1000)                          If demo mode is enabled, this will specified the maximum amount of records added 
+                                        in each library');
+
+
+
+// Validate arguments
+ArgvValidator::new()
+    ->select('-d,--demo')->isOptional()->isBoolean()
+    ->select('-l,--libraries', true)->isOptional()->isString()->sanitizeForceArray()
+    ->select('--min', true)->isOptional(10)->isNatural()
+    ->select('--max', true)->isOptional(1000)->isNatural()
+    ->noArgumentsLeft()
+    ->validate();
+
+
+
+Log::information(tr('Importing data, this may take a few minutes...'));
+Project::import($argv['demo'], $argv['min'], $argv['max'], $argv['libraries']);

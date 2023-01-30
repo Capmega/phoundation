@@ -167,6 +167,55 @@ class Strings
      */
     public static function random(int $length = 8, bool $unique = false, string $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'): string
     {
+        // Predefined character sets
+        switch ($characters) {
+            case 'alnum':
+                // no break
+            case 'alphanumeric':
+                $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                break;
+
+            case 'alnumup':
+                // no break
+            case 'alphanumericup':
+                $characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                break;
+
+            case 'alnumdown':
+                // no break
+            case 'alphanumericdown':
+                $characters = '0123456789abcdefghijklmnopqrstuvwxyz';
+                break;
+
+            case 'alpha':
+                // no break
+            case 'letters':
+                $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                break;
+
+            case 'lowercase':
+                // no break
+            case 'alphalow':
+                // no break
+            case 'letterslow':
+                $characters = 'abcdefghijklmnopqrstuvwxyz';
+                break;
+
+            case 'uppercase':
+                // no break
+            case 'alphaup':
+                // no break
+            case 'lettersup':
+                $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                break;
+
+            case 'numeric':
+                // no break
+            case 'numbers':
+                $characters = '0123456789';
+                break;
+        }
+
         $string     = '';
         $charlen    = mb_strlen($characters);
 

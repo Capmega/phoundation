@@ -359,9 +359,9 @@ function not_null(): mixed
 /**
  * Return a randomly picked argument
  *
- * @return string
+ * @return mixed
  */
-function pick_random(): string
+function pick_random(): mixed
 {
     $args = func_get_args();
     $key = array_rand($args, count($args));

@@ -42,12 +42,14 @@ class Import extends \Phoundation\Developer\Project\Import
             return 0;
         }
 
-        $table->truncate();
-        $count = 0;
+        sql()->query('DELETE FROM `languages`');
+
+        $count  = 0;
+        $buffer = $file->getBufferSize();
 
         Log::action(tr('Importing languages, this may take a few seconds...'));
 
-        while($line = fgets($h, $file->getBufferSize())) {
+        while($line = fgets($h, $buffer)) {
             $count++;
 
             // Parse the line

@@ -62,7 +62,7 @@ class Updates extends \Phoundation\Developer\Libraries\Updates
                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` bigint NOT NULL,
+                    `created_by` bigint NULL,
                     `meta_id` bigint DEFAULT NULL,
                     `status` varchar(16) DEFAULT NULL,
                     `name` varchar(64) DEFAULT NULL,
@@ -113,17 +113,26 @@ class Updates extends \Phoundation\Developer\Libraries\Updates
                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` bigint NOT NULL,
+                    `created_by` bigint NULL,
                     `meta_id` bigint DEFAULT NULL,
                     `status` varchar(16) DEFAULT NULL,
-                    `categories_id` bigint DEFAULT NULL,
-                    `name` varchar(32) NOT NULL,
-                    `seo_name` varchar(32) NOT NULL,
-                    `email` varchar(128) DEFAULT NULL,
-                    `phones` varchar(36) DEFAULT NULL,
+                    `name` varchar(64) DEFAULT NULL,
+                    `seo_name` varchar(64) DEFAULT NULL,
                     `code` varchar(64) DEFAULT NULL,
-                    `url` varchar(255) DEFAULT NULL,
-                    `description` varchar(2040) DEFAULT NULL
+                    `email` varchar(96) DEFAULT NULL,
+                    `phones` varchar(36) DEFAULT NULL,
+                    `url` varchar(512) DEFAULT NULL,
+                    `address` varchar(64) DEFAULT NULL,
+                    `address2` varchar(64) DEFAULT NULL,
+                    `address3` varchar(64) DEFAULT NULL,
+                    `zipcode` varchar(8) DEFAULT NULL,
+                    `categories_id` bigint DEFAULT NULL,
+                    `companies_id` bigint DEFAULT NULL,
+                    `languages_id` bigint DEFAULT NULL,
+                    `countries_id` bigint DEFAULT NULL,
+                    `states_id` bigint DEFAULT NULL,
+                    `cities_id` bigint DEFAULT NULL,
+                    `description` TEXT DEFAULT NULL
                 ')
                 ->setIndices('
                     PRIMARY KEY (`id`),
@@ -287,7 +296,7 @@ class Updates extends \Phoundation\Developer\Libraries\Updates
                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` bigint NOT NULL,
+                    `created_by` bigint NULL,
                     `meta_id` bigint DEFAULT NULL,
                     `status` varchar(16) DEFAULT NULL,
                     `accounts_id` bigint DEFAULT NULL,
@@ -325,7 +334,7 @@ class Updates extends \Phoundation\Developer\Libraries\Updates
                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` bigint NOT NULL,
+                    `created_by` bigint NULL,
                     `meta_id` bigint DEFAULT NULL,
                     `status` varchar(16) DEFAULT NULL,
                     `invoices_id` bigint DEFAULT NULL,
