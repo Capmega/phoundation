@@ -26,7 +26,7 @@ class TestDataGenerator
      * @param int $max
      * @return string
      */
-    public static function code(int $min = 3, int $max = 12, bool $unique = true): string
+    public static function getCode(int $min = 3, int $max = 12, bool $unique = true): string
     {
         return Strings::random(mt_rand($min, $max), $unique, 'alpha');
     }
@@ -40,7 +40,7 @@ class TestDataGenerator
      * @param int $max
      * @return string
      */
-    public static function date(int $min = 0, int $max = 0): string
+    public static function getDate(int $min = 0, int $max = 0): string
     {
         $date = mt_rand($min, $max);
         return date("Y-m-d H:i:s", $date);
@@ -53,7 +53,7 @@ class TestDataGenerator
      *
      * @return string|null
      */
-    public static function status(): ?string
+    public static function getStatus(): ?string
     {
         return Arrays::getRandomValue([
             NULL,
@@ -78,7 +78,7 @@ class TestDataGenerator
      * @param int $max
      * @return int
      */
-    public static function number(int $min = 0, int $max = 1000000): int
+    public static function getNumber(int $min = 0, int $max = 1000000): int
     {
         return (int) Strings::random(mt_rand($min, $max));
     }
@@ -92,7 +92,7 @@ class TestDataGenerator
      * @param int $max
      * @return int
      */
-    public static function percentage(int $min = 0, int $max = 100): int
+    public static function getPercentage(int $min = 0, int $max = 100): int
     {
         return (int) Strings::random(mt_rand($min, $max));
     }
@@ -104,7 +104,7 @@ class TestDataGenerator
      *
      * @return string
      */
-    public static function name(): string
+    public static function getName(): string
     {
         return Strings::random(mt_rand(3, 10));
     }
@@ -116,7 +116,7 @@ class TestDataGenerator
      *
      * @return string
      */
-    public static function domain(): string
+    public static function getDomain(): string
     {
         return Strings::random(mt_rand(3, 24) . pick_random('.com', '.org', '.net', '.ca', '.nl', '.mx', '.com.mx', '.info', '.local'));
     }
@@ -128,9 +128,9 @@ class TestDataGenerator
      *
      * @return string
      */
-    public static function email(): string
+    public static function getEmail(): string
     {
-        return static::name() . '@' . static::domain();
+        return static::getName() . '@' . static::getDomain();
     }
 
 
@@ -140,7 +140,7 @@ class TestDataGenerator
      *
      * @return int
      */
-    public static function provider(): int
+    public static function getProvidersId(): int
     {
         return sql()->getColumn('SELECT `id` FROM `business_providers` ORDER BY RAND() LIMIT 1;');
     }
@@ -152,7 +152,7 @@ class TestDataGenerator
      *
      * @return int
      */
-    public static function customer(): int
+    public static function getCustomersId(): int
     {
         return sql()->getColumn('SELECT `id` FROM `business_customers` ORDER BY RAND() LIMIT 1;');
     }
@@ -164,7 +164,7 @@ class TestDataGenerator
      *
      * @return int
      */
-    public static function category(): int
+    public static function getCategoriesId(): int
     {
         return sql()->getColumn('SELECT `id` FROM `business_categories` ORDER BY RAND() LIMIT 1;');
     }
@@ -178,7 +178,7 @@ class TestDataGenerator
      * @param int $max_paragraphs
      * @return string
      */
-    public static function description(int $min_paragraphs = 0, int $max_paragraphs = 6): string
+    public static function getDescription(int $min_paragraphs = 0, int $max_paragraphs = 6): string
     {
         $amount = mt_rand($min_paragraphs, $max_paragraphs);
         $return = '';

@@ -42,9 +42,9 @@ class Import extends \Phoundation\Developer\Project\Import
             for ($count = 1; $count <= $this->count; $count++) {
                 // Add customer
                 Provider::new()
-                    ->setCode(TestDataGenerator::code())
-                    ->setName(TestDataGenerator::name())
-                    ->setDescription(TestDataGenerator::description())
+                    ->setCode(TestDataGenerator::getCode())
+                    ->setName(TestDataGenerator::getName())
+                    ->setDescription(TestDataGenerator::getDescription())
                     ->save();
             }
         }
