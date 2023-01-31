@@ -75,9 +75,9 @@ class Session
     /**
      * Session level flash messages
      *
-     * @var FlashMessages $flash_messages
+     * @var FlashMessages|null $flash_messages
      */
-    protected static FlashMessages $flash_messages;
+    protected static ?FlashMessages $flash_messages = null;
 
 
 
@@ -116,14 +116,11 @@ class Session
     public static function shutdown(): void
     {
         if (PLATFORM_HTTP) {
-            // Store the flash messages in the $_SESSION array
-            if (Page::getFlashMessages()?->getCount()) {
-                // This page has flash messages that have not yet been displayed. Store them in the session variable so they
-                // can be stored with the next page load
-                static::getFlashMessages()->pullMessagesFrom(Page::getFlashMessages());
-            }
+            // If this page has flash messages that have not yet been displayed then store them in the session variable
+            // so that they can be displayed on the next page load
+            static::getFlashMessages()->pullMessagesFrom(Page::getFlashMessages());
 
-            if (isset(static::$flash_messages) and static::$flash_messages->getCount()) {
+            if (static::$flash_messages->getCount()) {
                 // There are flash messages in this session static object, export them to $_SESSIONS for the next page load
                 $_SESSION['flash_messages'] = static::$flash_messages->export();
             }
@@ -199,7 +196,7 @@ class Session
      */
     public static function getFlashMessages(): FlashMessages
     {
-        if (!isset(static::$flash_messages)) {
+        if (!static::$flash_messages) {
             static::$flash_messages = FlashMessages::new();
         }
 
@@ -414,7 +411,8 @@ class Session
             $_SESSION = [
                 'init'         => $_SESSION['init'],
                 'domain'       => static::$domain,
-                'first_domain' => $_SESSION['first_domain']
+                'first_ip'     => $_SESSION['first_ip'],
+                'first_domain' => $_SESSION['first_domain'],
             ];
         } else {
             $_SESSION = [];
@@ -558,6 +556,13 @@ Log::warning('RESTART SESSION');
 
         if ($_SESSION['domain'] !== static::$domain) {
             // Domain mismatch? Okay if this is sub domain, but what if its a different domain? Check whitelist domains?
+            // TODO Implement
+        }
+
+        $_SESSION['ip'] = isset_get($_SERVER['REMOTE_ADDR']);
+
+        if ($_SESSION['ip'] !== $_SESSION['first_ip']) {
+            // IP mismatch? What to do here? configurable actions!
             // TODO Implement
         }
 
@@ -871,6 +876,7 @@ Log::warning('RESTART SESSION');
         $_SESSION['init']         = microtime(true);
         $_SESSION['first_domain'] = static::$domain;
         $_SESSION['domain']       = static::$domain;
+        $_SESSION['first_ip']     = isset_get($_SERVER['REMOTE_ADDR']);
 
 //                        $_SESSION['client']       = Core::readRegister('system', 'session', 'client');
 //                        $_SESSION['mobile']       = Core::readRegister('system', 'session', 'mobile');
