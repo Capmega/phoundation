@@ -392,4 +392,35 @@ class Exception extends RuntimeException
 
         return $return;
     }
+
+
+
+    /**
+     * Returns the exception stack trace limited to everything after the execute_page() call
+     *
+     * This limited trace is useful to show a more relevant stack trace. Once script processing has begun, everything
+     * before execute_page() is typically less relevant and only a distraction. This trace will clear that up
+     *
+     * @return array
+     */
+    public function getLimitedTrace(): array
+    {
+        $trace = parent::getTrace();
+        $next  = false;
+
+        foreach ($trace as $key => $value) {
+            if ($next) {
+                unset($trace[$key]);
+                return $trace;
+            }
+
+            if (isset_get($value['function']) === 'execute_page') {
+                $next = true;
+            }
+
+            unset($trace[$key]);
+        }
+
+        return $trace;
+    }
 }
