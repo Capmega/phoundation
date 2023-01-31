@@ -153,12 +153,19 @@ abstract class Template
             $class = get_class($class);
         }
 
-        $component = Strings::from($class, 'Html\\');
+        $component = Strings::from($class, 'Html\\', 0, true);
 
         if (!$component) {
-            throw new OutOfBoundsException(tr('Specified class ":class" does not appear to be an Html\\ component. An HTML component should contain "Html\\" like (for example) "Plugins\\Phoundation\\Html\\Layout\\Grid""', [
-                ':class' => $class
-            ]));
+            // Check the parent class
+            $parent = get_parent_class($class);
+
+            if (!$parent) {
+                throw new OutOfBoundsException(tr('Specified class ":class" does not appear to be an Html\\ component. An HTML component should contain "Html\\" like (for example) "Plugins\\Phoundation\\Html\\Layout\\Grid""', [
+                    ':class' => $class
+                ]));
+            }
+
+            return $this->getRendererClass($parent);
         }
 
         $file   = str_replace('\\', '/', $component);
