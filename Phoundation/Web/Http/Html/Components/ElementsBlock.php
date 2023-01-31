@@ -183,7 +183,7 @@ abstract class ElementsBlock implements Iterator
      */
     public function render(): ?string
     {
-        $renderer_class  = Page::getTemplate()->getRendererClass($this);
+        $renderer_class = Page::getTemplate()->getRendererClass($this);
 
         $render_function = function (?string $render = null) {
             if ($this->form) {

@@ -36,7 +36,7 @@ class FilterForm extends DataEntryForm
             ],
         ];
 
-        $this->form_keys = [
+        $this->keys_display = [
             'type[]'   => 6,
             'filter[]' => 6,
         ];

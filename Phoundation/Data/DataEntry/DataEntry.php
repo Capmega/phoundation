@@ -73,9 +73,9 @@ abstract class DataEntry
     /**
      * Meta information about how the keys will be displayed on forms
      *
-     * @var array $form_keys
+     * @var array $keys_display
      */
-    protected array $form_keys = [];
+    protected array $keys_display = [];
 
     /**
      * Columns that will NOT be inserted
@@ -759,7 +759,7 @@ abstract class DataEntry
         return DataEntryForm::new()
             ->setSource($this->data)
             ->setKeys($this->keys)
-            ->setFormKeys($this->form_keys);
+            ->setKeysDisplay($this->keys_display);
     }
 
 

@@ -258,7 +258,7 @@ class Incident extends DataEntry
             ]
         ];
 
-        $this->form_keys = [
+        $this->keys_display = [
             'id'         => 12,
             'created_by' => 6,
             'created_on' => 6,

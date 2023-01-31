@@ -97,10 +97,6 @@ class GridRow extends Layout
                 // This is not a GridColumn object, try to render the object to HTML string
                 static::canRenderHtml($column);
 
-                if ($size === null) {
-                    $size = $column->getSize();
-                }
-
                 // Render the HTML string
                 $column = $column->render();
             }
