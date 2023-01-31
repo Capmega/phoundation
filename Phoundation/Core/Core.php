@@ -138,6 +138,13 @@ class Core {
      */
     protected static bool $failed = false;
 
+    /**
+     * If true, script processing has started
+     *
+     * @var bool $script
+     */
+    protected static bool $script = false;
+
 
 
     /**
@@ -298,7 +305,8 @@ class Core {
         }
 
         // We're done, transfer control to script
-        static::$state = 'script';
+        static::$state  = 'script';
+        static::$script = true;
     }
 
 
@@ -993,6 +1001,18 @@ class Core {
     public static function getState(): string
     {
         return static::$state;
+    }
+
+
+
+    /**
+     * Returns true once script processing has started
+     *
+     * @return bool
+     */
+    public static function scriptStarted(): bool
+    {
+        return self::$script;
     }
 
 
