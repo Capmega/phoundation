@@ -136,10 +136,6 @@ class Plugins extends DataList
             'phoundation' => [
                 'file'  => PATH_ROOT . '/Plugins/Phoundation/Plugin.php',
                 'class' => 'Plugins\Phoundation\Plugin'
-            ],
-            'aerostream' => [
-                'file'  => PATH_ROOT . '/Plugins/Aerostream/Plugin.php',
-                'class' => 'Plugins\Aerostream\Plugin'
             ]
         ];
 
