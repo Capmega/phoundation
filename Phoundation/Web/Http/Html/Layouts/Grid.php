@@ -133,7 +133,7 @@ class Grid extends Container
      * @param int|null $size
      * @return static
      */
-    public function setColumns(array $columns, ?int $size = 12): static
+    public function setColumns(array $columns, ?int $size = null): static
     {
         $this->getCurrentRow()->clearColumns();
         return $this->addColumns($columns, $size);
@@ -148,7 +148,7 @@ class Grid extends Container
      * @param int|null $size
      * @return static
      */
-    public function addColumns(array $columns, ?int $size = 12): static
+    public function addColumns(array $columns, ?int $size = null): static
     {
         foreach ($columns as $column) {
             $this->addColumn($column, $size);
@@ -166,7 +166,7 @@ class Grid extends Container
      * @param int|null $size
      * @return static
      */
-    public function addColumn(object|string|null $column, ?int $size = 12): static
+    public function addColumn(object|string|null $column, ?int $size = null): static
     {
         // Get a row
         if ($this->source) {
@@ -179,7 +179,11 @@ class Grid extends Container
 
         if (is_object($column) and !($column instanceof GridColumn)) {
             // This is not a GridColumn object, try to render the object to HTML string
-            static::ensureElementAttributesTrait($column);
+            static::canRenderHtml($column);
+
+            if ($size === null) {
+                $size = $column->getSize();
+            }
 
             // Render the HTML string
             $column = $column->render();

@@ -101,6 +101,42 @@ class GridColumn extends Layout
 
 
     /**
+     * Sets the content of the grid
+     *
+     * @param object|string|null $content
+     * @param int|null $size
+     * @return static
+     */
+    public function setContent(object|string|null $content, ?int $size = null): static
+    {
+        if ($size !== null) {
+            $this->setSize($size);
+        }
+
+        return parent::setContent($content);
+    }
+
+
+
+    /**
+     * Adds the specified content to the content of the grid
+     *
+     * @param object|string|null $content
+     * @param int|null $size
+     * @return static
+     */
+    public function addContent(object|string|null $content, ?int $size = null): static
+    {
+        if ($size !== null) {
+            $this->setSize($size);
+        }
+
+        return parent::addContent($content);
+    }
+
+
+
+    /**
      * Render this grid column
      *
      * @return string|null

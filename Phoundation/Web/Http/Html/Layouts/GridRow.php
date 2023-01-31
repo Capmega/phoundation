@@ -50,7 +50,7 @@ class GridRow extends Layout
      * @param int|null $size
      * @return static
      */
-    public function setColumns(array $source, ?int $size = 12): static
+    public function setColumns(array $source, ?int $size = null): static
     {
         $this->source = [];
         return $this->addColumns($source, $size);
@@ -65,7 +65,7 @@ class GridRow extends Layout
      * @param int|null $size
      * @return static
      */
-    public function addColumns(array $source, ?int $size = 12): static
+    public function addColumns(array $source, ?int $size = null): static
     {
         // Validate source
         foreach ($source as $column) {
@@ -90,12 +90,16 @@ class GridRow extends Layout
      * @param int|null $size
      * @return static
      */
-    public function addColumn(object|string|null $column, ?int $size = 12): static
+    public function addColumn(object|string|null $column, ?int $size = null): static
     {
         if ($column) {
             if (is_object($column) and !($column instanceof GridColumn)) {
                 // This is not a GridColumn object, try to render the object to HTML string
-                static::ensureElementAttributesTrait($column);
+                static::canRenderHtml($column);
+
+                if ($size === null) {
+                    $size = $column->getSize();
+                }
 
                 // Render the HTML string
                 $column = $column->render();
