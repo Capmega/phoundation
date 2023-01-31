@@ -1061,7 +1061,7 @@ abstract class Validator
                 }
 
             } else {
-                $this->isString();
+                $this->isScalar();
 
                 if ($this->process_value_failed) {
                     // Validation already failed, don't test anything more
