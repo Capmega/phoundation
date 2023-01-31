@@ -417,7 +417,7 @@ function pick_random_multiple(?int $count = null): string|array
  */
 function show(mixed $source = null, int $trace_offset = 1, bool $quiet = false): mixed
 {
-    if (Core::stateIs('script')) {
+    if (Core::scriptStarted()) {
         return Debug::show($source, $trace_offset, $quiet);
     }
 
@@ -436,7 +436,7 @@ function show(mixed $source = null, int $trace_offset = 1, bool $quiet = false):
  */
 #[NoReturn] function showdie(mixed $source = null, int $trace_offset = 2, bool $quiet = false): void
 {
-    if (Core::stateIs('script')) {
+    if (Core::scriptStarted()) {
         Debug::showdie($source, $trace_offset, $quiet);
     }
 
