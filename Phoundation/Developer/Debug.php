@@ -353,6 +353,7 @@ class Debug {
                 }
 
                 echo $output;
+
                 ob_flush();
                 flush();
 
@@ -489,10 +490,11 @@ class Debug {
             $return = '';
         }
 
-        return $return . '<table class="debug">
-                    <thead class="debug-header"><td colspan="4">'.static::currentFile(1 + $trace_offset) . '@'.static::currentLine(1 + $trace_offset) . '</td></thead>
-                    <thead class="debug-columns"><td>'.tr('Key') . '</td><td>'.tr('Type') . '</td><td>'.tr('Size') . '</td><td>'.tr('Value') . '</td></thead>'.static::showHtmlRow($value, $key) . '
-                </table>';
+        return $return . '  <table class="debug">
+                              <thead class="debug-header"><td colspan="4">'.static::currentFile(1 + $trace_offset) . '@'.static::currentLine(1 + $trace_offset) . '</td></thead>
+                              <thead class="debug-columns"><td>'.tr('Key') . '</td><td>'.tr('Type') . '</td><td>'.tr('Size') . '</td><td>'.tr('Value') . '</td></thead>
+                              '.static::showHtmlRow($value, $key) . '
+                            </table>';
     }
 
 
@@ -608,11 +610,30 @@ class Debug {
                 $return = '<pre>' . $value.'</pre>';
 
                 return '<tr>
-                    <td>' . $key . '</td>
-                    <td>' . $type.'</td>
-                    <td>?</td>
-                    <td>' . $return.'</td>
-                </tr>';
+                            <td>' . $key . '</td>
+                            <td>' . $type.'</td>
+                            <td>(' . tr('Dump size') . ')<br> ' . strlen($return) . '</td>
+                            <td>' . $return . '</td>
+                        </tr>';
+
+//                if ($value instanceof \Exception) {
+//
+//                } elseif ($value instanceof \Exception) {
+//
+//                } else {
+//                    // Clean contents!
+//                    $value  = print_r($value, true);
+//                    $value  = preg_replace('/-----BEGIN RSA PRIVATE KEY.+?END RSA PRIVATE KEY-----/imus', '*** HIDDEN ***', $value);
+//                    $value  = preg_replace('/(\[.*?pass.*?\]\s+=>\s+).+/', '$1*** HIDDEN ***', $value);
+//                    $return = '<pre>' . $value.'</pre>';
+//
+//                    return '<tr>
+//                                <td>' . $key . '</td>
+//                                <td>' . $type.'</td>
+//                                <td>(' . tr('Dump size') . ')<br> ' . strlen($return) . '</td>
+//                                <td>' . $return.'</td>
+//                            </tr>';
+//                }
 
             default:
                 return '<tr>
@@ -621,93 +642,6 @@ class Debug {
                     <td>???</td>
                     <td class="value">'.htmlentities($value) . '</td>
                 </tr>';
-        }
-    }
-
-
-
-    /**
-     * Return semi random values to automatically fill in values in HTML forms (very useful for debugging and testing)
-     *
-     * In environments where debug is enabled, this function can pre-fill large HTML forms with test data
-     *
-     * @param string $format
-     * @param int|null $size
-     * @return string The value to be inserted.
-     * @note This function will NOT return any values when not running in debug mode
-     * @see Debug::enabled()
-     * @example
-     * code
-     * echo '<input type="text" name="username" value="'.value('username').'">';
-     * /code
-     *
-     * This will show something like
-
-     * code
-     * <input type="text" name="username" value="YtiukrtyeG">
-     * /code
-     *
-     */
-    function value(string $format, ?int $size = null): string
-    {
-        if (!static::enabled()) return '';
-        if (!Debug::enabled()) return '';
-
-
-        // Generate debug value
-        switch ($format) {
-            case 'username':
-                // no-break
-            case 'word':
-                return synonym_random(1, true);
-
-            case 'name':
-                return not_empty(Strings::force(synonym_random(not_empty($size, mt_rand(1, 4))), ' '), Strings::random(not_empty($size, 32), false, '0123456789abcdefghijklmnopqrstuvwxyz     '));
-
-            case 'text':
-                // no-break
-            case 'words':
-                return not_empty(Strings::force(synonym_random(not_empty($size, mt_rand(5, 15))), ' '), Strings::random(not_empty($size, 150), false, '0123456789abcdefghijklmnopqrstuvwxyz     '));
-
-            case 'email':
-                return str_replace('-', '', str_replace(' ', '', not_empty(Strings::force(synonym_random(mt_rand(1, 2), true), Strings::random(mt_rand(0, 1), false, '._-')), Strings::random())).'@'.str_replace(' ', '', not_empty(Strings::force(synonym_random(mt_rand(1, 2), true), Strings::random(mt_rand(0, 1), false, '_-')), Strings::random()).'.com'));
-
-            case 'url':
-                return str_replace(' ', '', 'http://'.not_empty(Strings::force(synonym_random(mt_rand(1, 2), true), Strings::random(mt_rand(0, 1), false, '._-')), Strings::random()).'.'.pick_random(1, 'com', 'co', 'mx', 'org', 'net', 'guru'));
-
-            case 'random':
-                return Strings::random(not_empty($size, 150), false, '0123456789abcdefghijklmnopqrstuvwxyz     ');
-
-            case 'zip':
-                // no-break
-            case 'zipcode':
-                return Strings::random(not_empty($size, 5), false, '0123456789');
-
-            case 'number':
-                return Strings::random(not_empty($size, 8), false, '0123456789');
-
-            case 'address':
-                return Strings::random().' '.Strings::random(not_empty($size, 8), false, '0123456789');
-
-            case 'password':
-                return 'aaaaaaaa';
-
-            case 'money':
-                if (!$size) {
-                    $size = 5000;
-                }
-
-                return mt_rand(1, $size) / 100;
-
-            case 'checked':
-                if ($size) {
-                    return ' checked ';
-                }
-
-                return '';
-
-            default:
-                return $format;
         }
     }
 
