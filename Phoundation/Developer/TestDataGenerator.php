@@ -3,6 +3,7 @@
 namespace Phoundation\Developer;
 
 use Phoundation\Core\Arrays;
+use Phoundation\Core\Numbers;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 
@@ -78,9 +79,23 @@ class TestDataGenerator
      * @param int $max
      * @return int
      */
-    public static function getNumber(int $min = 0, int $max = 1000000): int
+    public static function getInteger(int $min = 0, int $max = 1000000): int
     {
-        return (int) Strings::random(mt_rand($min, $max));
+        return (int) mt_rand($min, $max);
+    }
+
+
+
+    /**
+     * Returns a random number
+     *
+     * @param int $min
+     * @param int $max
+     * @return float
+     */
+    public static function getFloat(int $min = 0, int $max = 1000000): float
+    {
+        return mt_rand($min, $max - 1) + Numbers::getRandomFloat();
     }
 
 
@@ -94,7 +109,21 @@ class TestDataGenerator
      */
     public static function getPercentage(int $min = 0, int $max = 100): int
     {
-        return (int) Strings::random(mt_rand($min, $max));
+        return (int) mt_rand($min, $max);
+    }
+
+
+
+    /**
+     * Returns a random percentage
+     *
+     * @param int $min
+     * @param int $max
+     * @return float
+     */
+    public static function getPercentageFloat(int $min = 0, int $max = 100): float
+    {
+        return mt_rand($min, $max - 1) + Numbers::getRandomFloat();
     }
 
 

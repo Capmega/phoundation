@@ -122,16 +122,4 @@ abstract class Panel extends ElementsBlock
 
         return $this->modals;
     }
-
-
-
-    /**
-     * Renders and returns the HTML for this object
-     *
-     * @return string|null
-     */
-    public function render(): ?string
-    {
-        return parent::render();
-    }
 }

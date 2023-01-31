@@ -6,6 +6,7 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Http\Html\Components\Input\InputMultiButtonText;
 use Phoundation\Web\Http\Html\Components\Input\Select;
 use Phoundation\Web\Http\Html\Components\Input\TextArea;
 
@@ -274,7 +275,7 @@ class DataEntryForm extends ElementsBlock
                     }
 
                     // Build the element class path and load the required class file
-                    $element = '\Phoundation\Web\Http\Html\Components\Input\Input' . Strings::capitalize($data['type']);
+                    $element = '\\Phoundation\\Web\\Http\\Html\\Components\\Input\\Input' . Strings::capitalize($data['type']);
                     $file    = Library::getClassFile($element);
                     include_once($file);
 
@@ -307,13 +308,13 @@ class DataEntryForm extends ElementsBlock
                 case 'text':
                     // no-break
                 case 'textarea':
-                // If we have a source query specified, then get the actual value from the query
-                if (isset_get($data['source'])) {
-                    $this->source[$key] = sql()->getColumn($data['source'], $execute);
-                }
+                    // If we have a source query specified, then get the actual value from the query
+                    if (isset_get($data['source'])) {
+                        $this->source[$key] = sql()->getColumn($data['source'], $execute);
+                    }
 
-                // Build the element class path and load the required class file
-                    $element = '\Phoundation\Web\Http\Html\Components\Input\TextArea';
+                    // Build the element class path and load the required class file
+                    $element = '\\Phoundation\\Web\\Http\\Html\\Components\\Input\\TextArea';
                     $file    = Library::getClassFile($element);
                     include_once($file);
 
@@ -330,7 +331,7 @@ class DataEntryForm extends ElementsBlock
 
                 case 'select':
                     // Build the element class path and load the required class file
-                    $element = '\Phoundation\Web\Http\Html\Components\Input\Select';
+                    $element = '\\Phoundation\\Web\\Http\\Html\\Components\\Input\\Select';
                     $file    = Library::getClassFile($element);
                     include_once($file);
 
@@ -343,6 +344,25 @@ class DataEntryForm extends ElementsBlock
                         ->render();
 
                     $this->render .= $this->renderItem($key, $html, $data);
+                    break;
+
+                case 'inputmultibuttontext':
+                    // Build the element class path and load the required class file
+                    $element = '\\Phoundation\\Web\\Http\\Html\\Components\\Input\\InputMultiButtonText';
+                    $file    = Library::getClassFile($element);
+                    include_once($file);
+
+                    $input = InputMultiButtonText::new()
+                        ->setSource($data['source']);
+
+                    $input->getInput()
+                        ->setDisabled((bool) $data['disabled'])
+                        ->setReadOnly((bool) $data['readonly'])
+                        ->setName($key)
+                        ->setValue($this->source[$key])
+                        ->setContent(isset_get($this->source[$key]));
+
+                    $this->render .= $this->renderItem($key, $input->render(), $data);
                     break;
 
                 case '':

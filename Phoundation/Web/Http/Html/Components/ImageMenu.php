@@ -61,6 +61,18 @@ abstract class ImageMenu extends ElementsBlock
 
 
     /**
+     * Returns the menu items
+     *
+     * @return Menu|null
+     */
+    public function getMenu(): ?Menu
+    {
+        return $this->menu;
+    }
+
+
+
+    /**
      * Sets the menu items
      *
      * @param Menu|null $menu
@@ -79,13 +91,13 @@ abstract class ImageMenu extends ElementsBlock
 
 
     /**
-     * Returns the menu items
+     * Returns the URL
      *
-     * @return Menu|null
+     * @return string|null
      */
-    public function getMenu(): ?Menu
+    public function getUrl(): ?string
     {
-        return $this->menu;
+        return $this->url;
     }
 
 
@@ -134,17 +146,5 @@ abstract class ImageMenu extends ElementsBlock
 
         $this->modal_selector = $modal_selector;
         return $this;
-    }
-
-
-
-    /**
-     * Returns the URL
-     *
-     * @return string|null
-     */
-    public function getUrl(): ?string
-    {
-        return $this->url;
     }
 }

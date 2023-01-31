@@ -3,8 +3,13 @@
 namespace Phoundation\Web\Http\Html\Components;
 
 use Phoundation\Core\Arrays;
+use Phoundation\Core\Libraries\Library;
+use Phoundation\Core\Log\Log;
+use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
-
+use Phoundation\Web\Http\Html\Renderer;
+use Phoundation\Web\Http\Html\Template\Template;
+use Phoundation\Web\Page;
 
 
 /**
@@ -66,9 +71,16 @@ abstract class Element
 
 
     /**
-     * Generates and returns the HTML string
+     * Renders and returns the HTML for this object using the template renderer if avaialable
+     *
+     * @note Templates work as follows: Any component that renders HTML must be in a Html/ directory, either in a
+     *       Phoundation library, or in a Plugins library. The path of the component, starting from Html/ is the path
+     *       that this method will search for in the Template. If the same path section is found then that file will
+     *       render the HTML for the component. For example: Plugins\Example\Section\Html\Components\Input\InputText
+     *       with Template AdminLte will be rendered by Templates\AdminLte\Html\Components\Input\InputText
      *
      * @return string|null
+     * @see ElementsBlock::render()
      */
     public function render(): ?string
     {
@@ -76,22 +88,44 @@ abstract class Element
             throw new OutOfBoundsException(tr('Cannot render HTML element, no element type specified'));
         }
 
-        $attributes  = $this->buildAttributes();
-        $attributes  = Arrays::implodeWithKeys($attributes, ' ', '=', '"', Arrays::FILTER_NULL | Arrays::QUOTE_ALWAYS | Arrays::HIDE_EMPTY_VALUES);
-        $attributes .= $this->extra;
+        $renderer_class  = Page::getTemplate()->getRendererClass($this);
 
-        if ($attributes) {
-            $attributes = ' ' . $attributes;
+        $render_function = function () {
+            $attributes  = $this->buildAttributes();
+            $attributes  = Arrays::implodeWithKeys($attributes, ' ', '=', '"', Arrays::FILTER_NULL | Arrays::QUOTE_ALWAYS | Arrays::HIDE_EMPTY_VALUES);
+            $attributes .= $this->extra;
+
+            if ($attributes) {
+                $attributes = ' ' . $attributes;
+            }
+
+            $this->render = '<' . $this->element . $attributes;
+
+            if ($this->requires_closing_tag) {
+                return $this->render . '>' . $this->content . '</' . $this->element . '>';
+
+            }
+
+            $render       = $this->render . ' />';
+            $this->render = null;
+
+            return $render;
+        };
+
+        if ($renderer_class) {
+            Renderer::ensureClass($renderer_class, $this);
+
+            return $renderer_class::new($this)
+                ->setParentRenderFunction($render_function)
+                ->render();
         }
 
-        $this->render = '<' . $this->element . $attributes;
+        // The template component does not exist, return the basic Phoundation version
+        Log::warning(tr('No template render class found for element component ":component", rendering basic HTML', [
+            ':component' => get_class($this)
+        ]));
 
-        if ($this->requires_closing_tag) {
-            return $this->render . '>' . $this->content . '</' . $this->element . '>';
-
-        }
-
-        return $this->render . ' />';
+        return $render_function();
     }
 
 
@@ -140,6 +174,16 @@ abstract class Element
                 unset($return[$key]);
                 continue;
             }
+        }
+
+        // Add data-* entries
+        foreach ($this->data as $key=> $value) {
+            $return['data-' . $key] = $value;
+        }
+
+        // Add aria-* entries
+        foreach ($this->aria as $key=> $value) {
+            $return['aria-' . $key] = $value;
         }
 
         // Merge the system values over the set attributes

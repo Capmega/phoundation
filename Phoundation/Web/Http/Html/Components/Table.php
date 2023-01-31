@@ -11,7 +11,6 @@ use Phoundation\Web\Http\Html\Exception\HtmlException;
 use Phoundation\Web\Http\UrlBuilder;
 
 
-
 /**
  * Class Table
  *
@@ -80,6 +79,34 @@ class Table extends ResourceElement
      */
     protected bool $checkbox_selectors = false;
 
+    /**
+     * Sets whether the table is responsive or not
+     *
+     * @var bool $responsive
+     */
+    protected bool $responsive = true;
+
+    /**
+     * Sets whether the table is full width or not
+     *
+     * @var bool $full_width
+     */
+    protected bool $full_width = true;
+
+    /**
+     * Table title
+     *
+     * @var string|null $title
+     */
+    protected ?string $title = null;
+
+    /**
+     * Table header text
+     *
+     * @var string|null $header_text
+     */
+    protected ?string $header_text = null;
+
 
 
     /**
@@ -89,6 +116,110 @@ class Table extends ResourceElement
     {
         parent::__construct();
         parent::setElement('table');
+    }
+
+
+
+    /**
+     * Returns if the table is title or not
+     *
+     * @return string|null
+     */
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+
+
+    /**
+     * Sets if the table is title or not
+     *
+     * @param string|null $title
+     * @return static
+     */
+    public function setTitle(?string $title): static
+    {
+        $this->title = $title;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns if the table is header_text or not
+     *
+     * @return string|null
+     */
+    public function getHeaderText(): ?string
+    {
+        return $this->header_text;
+    }
+
+
+
+    /**
+     * Sets if the table is header_text or not
+     *
+     * @param string|null $header_text
+     * @return static
+     */
+    public function setHeaderText(?string $header_text): static
+    {
+        $this->header_text = $header_text;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns if the table is responsive or not
+     *
+     * @return bool
+     */
+    public function getResponsive(): bool
+    {
+        return $this->responsive;
+    }
+
+
+
+    /**
+     * Sets if the table is responsive or not
+     *
+     * @param bool $responsive
+     * @return static
+     */
+    public function setResponsive(bool $responsive): static
+    {
+        $this->responsive = $responsive;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns if the table is full width or not
+     *
+     * @return bool
+     */
+    public function getFullWidth(): bool
+    {
+        return $this->full_width;
+    }
+
+
+
+    /**
+     * Sets if the table is full width or not
+     *
+     * @param bool $full_width
+     * @return static
+     */
+    public function setFullWidth(bool $full_width): static
+    {
+        $this->full_width = $full_width;
+        return $this;
     }
 
 
@@ -511,11 +642,11 @@ class Table extends ResourceElement
      *
      * This will return all HTML FROM the <tbody> tags around it
      *
-     * @see Element::render()
-     * @see Table::render()
-     * @see Table::renderHeaders()
-     * @see ResourceElement::renderBody()
      * @return string|null The body HTML (all <option> tags) for a <select> tag
+     *@see \Templates\AdminLte\Html\Components\Table::render()
+     * @see \Templates\AdminLte\Html\Components\Table::renderHeaders()
+     * @see ResourceElement::renderBody()
+     * @see Element::render()
      */
     protected function renderBodyArray(): ?string
     {
@@ -572,11 +703,11 @@ class Table extends ResourceElement
      *
      * This will return all HTML FROM the <tbody> tags around it
      *
-     * @see Element::render()
-     * @see Table::render()
-     * @see Table::renderHeaders()
-     * @see ResourceElement::renderBody()
      * @return string|null The body HTML (all <option> tags) for a <select> tag
+     *@see \Templates\AdminLte\Html\Components\Table::render()
+     * @see \Templates\AdminLte\Html\Components\Table::renderHeaders()
+     * @see ResourceElement::renderBody()
+     * @see Element::render()
      */
     protected function renderBodyQuery(): ?string
     {

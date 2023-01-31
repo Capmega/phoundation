@@ -21,7 +21,7 @@ use Phoundation\Web\Http\UrlBuilder;
 class SignInForm extends Form
 {
     /**
-     * The signin URL
+     * The sign in URL
      *
      * @var string|null
      */

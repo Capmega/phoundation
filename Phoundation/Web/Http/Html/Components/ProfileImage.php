@@ -4,7 +4,7 @@ namespace Phoundation\Web\Http\Html\Components;
 
 use Phoundation\Content\Images\Image;
 use Phoundation\Core\Session;
-use Plugins\Phoundation\Components\Menu;
+use Phoundation\Web\Page;
 
 
 /**
@@ -32,7 +32,7 @@ class ProfileImage extends ImageMenu
             // This is a guest user, make sure that the profile image shows the sign in modal
             $this->setModalSelector('#signinModal');
         } else {
-            $this->setMenu(Menu::getProfileImageMenu());
+            $this->setMenu(Page::getMenus()->getMenu('profile_image'));
         }
 
         parent::__construct();
@@ -77,7 +77,7 @@ class ProfileImage extends ImageMenu
         } else {
             // Default image menu
             if (!$menu) {
-                $menu = DropDownMenu::new([
+                $menu = Menu::new()->setSource([
                     tr('Profile')  => '/profile.html',
                     tr('Sign out') => '/sign-out.html'
                 ]);

@@ -206,7 +206,6 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
             ->setMessages(null)
             ->setMessagesUrl('/admin/messages/all.html');
 
-
         return $panel->render();
     }
 
@@ -220,13 +219,15 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     protected function buildSidePanel(): ?string
     {
         $sign_in = new SignInModal();
-        $sign_in->getForm()
-            ->setId('form-signin')
-            ->setMethod('post')
-            ->setAction(UrlBuilder::getAjax(Config::get('web.pages.signin', '/system/sign-in.html')));
+        $sign_in
+            ->useForm(true)
+            ->getForm()
+                ->setId('form-signin')
+                ->setMethod('post')
+                ->setAction(UrlBuilder::getAjax(Config::get('web.pages.signin', '/system/sign-in.html')));
 
         $panel = SidePanel::new();
-        $panel->setMenu(Page::getMenus()->getPrimary());
+        $panel->setMenu(Page::getMenus()->getPrimaryMenu());
         $panel->getModals()
             ->add('sign-in', $sign_in);
 

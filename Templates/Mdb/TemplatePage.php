@@ -4,13 +4,12 @@ namespace Templates\Mdb;
 
 use Phoundation\Core\Config;
 use Phoundation\Core\Session;
+use Phoundation\Web\Http\Html\Components\BreadCrumbs;
+use Phoundation\Web\Http\Html\Components\Footer;
+use Phoundation\Web\Http\Html\Components\ProfileImage;
+use Phoundation\Web\Http\Html\Components\TopPanel;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
-use Templates\Mdb\Components\BreadCrumbs;
-use Templates\Mdb\Components\Footer;
-use Templates\Mdb\Components\ProfileImage;
-use Templates\Mdb\Components\TopPanel;
-
 
 
 /**
@@ -96,7 +95,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     {
         return '<body class="mdb-skin-custom" data-mdb-spy="scroll" data-mdb-target="#scrollspy" data-mdb-offset="250">   
                     <header>
-                        ' . $this->buildTopPanel($this->secondary_menu) . '
+                        ' . $this->buildTopPanel() . '
                     </header>
                     <main class="pt-5 mdb-docs-layout">
                         <div class="container mt-5  mt-5  px-lg-5">
@@ -189,7 +188,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
         // Set up the navigation bar
         $navigation_bar = TopPanel::new();
         $navigation_bar
-            ->setMenu(Page::getMenus()->getPrimary())
+            ->setMenu(Page::getMenus()->getPrimaryMenu())
             ->setProfileImage($image)
             ->getModals()
                 ->get('sign-in')

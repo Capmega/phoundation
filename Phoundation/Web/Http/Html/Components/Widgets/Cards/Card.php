@@ -239,7 +239,7 @@ class Card extends Widget
      *
      * @return bool
      */
-    public function getHasCollapseSwitch(): bool
+    public function hasCollapseSwitch(): bool
     {
         return $this->has_collapse_switch;
     }
@@ -265,7 +265,7 @@ class Card extends Widget
      *
      * @return bool
      */
-    public function getHasCloseSwitch(): bool
+    public function hasCloseSwitch(): bool
     {
         return $this->has_close_switch;
     }
@@ -291,7 +291,7 @@ class Card extends Widget
      *
      * @return bool
      */
-    public function getHasReloadSwitch(): bool
+    public function hasReloadSwitch(): bool
     {
         return $this->has_reload_switch;
     }
@@ -317,7 +317,7 @@ class Card extends Widget
      *
      * @return bool
      */
-    public function getHasMaximizeSwitch(): bool
+    public function hasMaximizeSwitch(): bool
     {
         return $this->has_maximize_switch;
     }

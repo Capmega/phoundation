@@ -1,9 +1,9 @@
 <?php
 
- namespace Templates\Mdb;
+namespace Templates\Mdb;
 
 use Phoundation\Web\Http\Html\Template\Template;
-
+use Templates\Mdb\Html\Components\Menu;
 
 
 /**

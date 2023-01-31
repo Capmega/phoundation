@@ -3,6 +3,12 @@
 namespace Phoundation\Web\Http\Html\Components;
 
 use Iterator;
+use Phoundation\Core\Arrays;
+use Phoundation\Core\Log\Log;
+use Phoundation\Developer\Debug;
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Http\Html\Renderer;
+use Phoundation\Web\Page;
 use ReturnTypeWillChange;
 
 
@@ -30,8 +36,6 @@ abstract class ElementsBlock implements Iterator
      */
     protected bool $has_rendered = false;
 
-
-
     /**
      * A form around this element block
      *
@@ -40,7 +44,7 @@ abstract class ElementsBlock implements Iterator
     protected ?Form $form = null;
 
     /**
-     * The data source for this element
+     * The data source of this object
      *
      * @var array $source
      */
@@ -82,23 +86,33 @@ abstract class ElementsBlock implements Iterator
 
 
     /**
-     * Returns the form for this elements block
+     * Returns the form of this objects block
      *
-     * @return Form
+     * @return Form|null
      */
-    public function getForm(): Form
+    public function getForm(): ?Form
     {
-        if (!$this->form) {
-            $this->form = Form::new();
-        }
-
         return $this->form;
     }
 
 
 
     /**
-     * Returns the source for this element
+     * Returns the form of this objects block
+     *
+     * @param Form|null $form
+     * @return static
+     */
+    public function setForm(?Form $form): static
+    {
+        $this->form = $form;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the source of this object
      *
      * @return array|null
      */
@@ -110,32 +124,92 @@ abstract class ElementsBlock implements Iterator
 
 
     /**
-     * Sets the data source for this element
+     * Sets the data source of this object
      *
      * @param array|null $source
      * @return $this
      */
     public function setSource(?array $source): static
     {
-        $this->source = $source;
+        $this->source = [];
+        return $this->addSource($source);
+    }
+
+
+
+    /**
+     * Sets the data source of this object
+     *
+     * @param array|null $source
+     * @return $this
+     */
+    public function addSource(?array $source): static
+    {
+        foreach ($source as $key => $value) {
+            $this->addSourceEntry($key, $value);
+        }
+
         return $this;
     }
 
 
 
     /**
-     * Render the ElementsBlock
+     * Adds a single entry to the source of this object
+     *
+     * @param string $key
+     * @param mixed $value
+     * @return $this
+     */
+    public function addSourceEntry(string $key, mixed $value): static
+    {
+        $this->source[$key] = $value;
+        return $this;
+    }
+
+
+
+    /**
+     * Renders and returns the HTML for this object using the template renderer if avaialable
+     *
+     * @note Templates work as follows: Any component that renders HTML must be in a Html/ directory, either in a
+     *       Phoundation library, or in a Plugins library. The path of the component, starting from Html/ is the path
+     *       that this method will search for in the Template. If the same path section is found then that file will
+     *       render the HTML for the component. For example: Plugins\Example\Section\Html\Components\Input\InputText
+     *       with Template AdminLte will be rendered by Templates\AdminLte\Html\Components\Input\InputText
      *
      * @return string|null
+     * @see Element::render()
      */
     public function render(): ?string
     {
-        if ($this->form) {
-            $this->form->setContent($this->render);
-            return $this->form->render();
+        $renderer_class  = Page::getTemplate()->getRendererClass($this);
+
+        $render_function = function (?string $render = null) {
+            if ($this->form) {
+                $this->form->setContent($render);
+                return $this->form->render();
+            }
+
+            $this->render = null;
+
+            return $render;
+        };
+
+        if ($renderer_class) {
+            Renderer::ensureClass($renderer_class, $this);
+
+            return $renderer_class::new($this)
+                ->setParentRenderFunction($render_function)
+                ->render();
         }
 
-        return $this->render;
+        // The template component does not exist, return the basic Phoundation version
+        Log::warning(tr('No template render class found for block component ":component", rendering basic HTML', [
+            ':component' => get_class($this)
+        ]));
+
+        return $render_function($this->render);
     }
 
 

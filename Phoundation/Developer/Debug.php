@@ -422,6 +422,8 @@ class Debug {
     {
         if (static::enabled()) {
             static::show($value, $trace_offset, $quiet);
+            Log::debug('Reached showdie() call');
+            Log::printr($value);
             die();
         }
     }

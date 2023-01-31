@@ -25,7 +25,7 @@ class GridColumn extends Layout
      * @var int|null
      */
     #[ExpectedValues(values: [null, 1, 2, 3, 4, 5, 6, 7 ,8, 9, 10, 11, 12])]
-    protected ?int $size = null;
+    protected ?int $size = 12;
 
     /**
      * The tier class for this column

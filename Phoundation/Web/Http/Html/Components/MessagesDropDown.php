@@ -2,6 +2,8 @@
 
 namespace Phoundation\Web\Http\Html\Components;
 
+use Phoundation\Messages\Messages;
+use Phoundation\Web\Http\UrlBuilder;
 
 
 /**
@@ -14,6 +16,71 @@ namespace Phoundation\Web\Http\Html\Components;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-abstract class MessagesDropDown extends ElementsBlock
+class MessagesDropDown extends ElementsBlock
 {
+    /**
+     * The list of messages
+     *
+     * @var Messages|null $messages
+     */
+    protected ?Messages $messages = null;
+
+    /**
+     * Contains the URL for the messages page
+     *
+     * @var string|null $messages_url
+     */
+    protected ?string $messages_url = null;
+
+
+
+    /**
+     * Returns the messages object
+     *
+     * @return Messages|null
+     */
+    public function getMessages(): ?Messages
+    {
+        return $this->messages;
+    }
+
+
+
+    /**
+     * Sets the messages object
+     *
+     * @param Messages|null $messages
+     * @return static
+     */
+    public function setMessages(?Messages $messages): static
+    {
+        $this->messages = $messages;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the messages page URL
+     *
+     * @return string|null
+     */
+    public function getMessagesUrl(): ?string
+    {
+        return $this->messages_url;
+    }
+
+
+
+    /**
+     * Sets the messages page URL
+     *
+     * @param string|null $messages_url
+     * @return static
+     */
+    public function setMessagesUrl(?string $messages_url): static
+    {
+        $this->messages_url = UrlBuilder::getWww($messages_url);
+        return $this;
+    }
 }

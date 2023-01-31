@@ -57,9 +57,17 @@ class Button extends Element
      * @param string $kind
      * @return Button
      */
-    public function setKind(#[ExpectedValues(values: ['success', 'info', 'warning', 'danger', 'primary', 'secondary', 'tertiary', 'link', 'light', 'dark'])] string $kind): static
+    public function setKind(#[ExpectedValues(values: ['success', 'green', 'info', 'information', 'blue', 'warning', 'yellow', 'danger', 'red', 'error', 'exception', 'primary', 'secondary', 'tertiary', 'link', 'light', 'dark'])] string $kind): static
     {
-        $this->kind = strtolower(trim($kind));
+        $kind = match (strtolower(trim($kind))) {
+            'blue', 'info', 'information'                               => 'info',
+            'green', 'success'                                          => 'success',
+            'yellow', 'warning',                                        => 'warning',
+            'red', 'error', 'exception', 'danger',                      => 'danger',
+            'primary', 'secondary', 'tertiary', 'link', 'light', 'dark' => $kind
+        };
+
+        $this->kind = $kind;
 
         $this->setButtonClasses();
 

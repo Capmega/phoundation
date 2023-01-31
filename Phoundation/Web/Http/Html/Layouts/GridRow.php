@@ -19,56 +19,59 @@ use Phoundation\Exception\OutOfBoundsException;
 class GridRow extends Layout
 {
     /**
-     * The columns for this row
-     *
-     * @var array $columns
-     */
-    protected array $columns;
-
-
-
-    /**
-     * Clear the columns in this row
+     * Clear the source in this row
      *
      * @return static
      */
     public function clearColumns(): static
     {
-        $this->columns = [];
+        $this->source = [];
         return $this;
     }
 
 
 
     /**
-     * Set the columns for this row
+     * Returns the source for this row
      *
-     * @param array $columns
-     * @param int|null $size
-     * @return static
+     * @return array
      */
-    public function setColumns(array $columns, ?int $size = null): static
+    public function getColumns(): array
     {
-        $this->columns = [];
-        return $this->addColumns($columns, $size);
+        return $this->source;
     }
 
 
 
     /**
-     * Add the specified columns to this row
+     * Set the source for this row
      *
-     * @param array $columns
+     * @param array $source
      * @param int|null $size
      * @return static
      */
-    public function addColumns(array $columns, ?int $size = null): static
+    public function setColumns(array $source, ?int $size = 12): static
     {
-        // Validate columns
-        foreach ($columns as $column) {
-            if (!is_object($column) or !($column instanceof GridColumn)) {
-                throw new OutOfBoundsException(tr('Invalid datatype for specified column. The column should be a GridColumn object, but is a ":datatype"', [
-                    ':datatype' => (is_object($column) ? get_class($column) : gettype($column))
+        $this->source = [];
+        return $this->addColumns($source, $size);
+    }
+
+
+
+    /**
+     * Add the specified source to this row
+     *
+     * @param array $source
+     * @param int|null $size
+     * @return static
+     */
+    public function addColumns(array $source, ?int $size = 12): static
+    {
+        // Validate source
+        foreach ($source as $column) {
+            if (!is_object($column) and !is_string($column)) {
+                throw new OutOfBoundsException(tr('Invalid datatype for specified column. The column should be an object or a string, but is a ":datatype"', [
+                    ':datatype' => gettype($column)
                 ]));
             }
 
@@ -83,19 +86,33 @@ class GridRow extends Layout
     /**
      * Add the specified column to this row
      *
-     * @param GridColumn|null $column
+     * @param object|string|null $column
      * @param int|null $size
      * @return static
      */
-    public function addColumn(?GridColumn $column, ?int $size = null): static
+    public function addColumn(object|string|null $column, ?int $size = 12): static
     {
         if ($column) {
+            if (is_object($column) and !($column instanceof GridColumn)) {
+                // This is not a GridColumn object, try to render the object to HTML string
+                static::ensureElementAttributesTrait($column);
+
+                // Render the HTML string
+                $column = $column->render();
+            }
+
+            if (is_string($column)) {
+                // This is not a column, it is content (should be an HTML string). Place the content in a column and add
+                // that column instead
+                $column = GridColumn::new()->setContent($column);
+            }
+
             // Shortcut to set column size
             if ($size !== null) {
                 $column->setSize($size);
             }
 
-            $this->columns[] = $column;
+            $this->source[] = $column;
         }
 
         return $this;

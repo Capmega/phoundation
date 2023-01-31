@@ -26,11 +26,24 @@ class Menus implements Iterator
 
 
     /**
+     * Returns the specified menu
+     *
+     * @param string $menu
+     * @return Menu|null
+     */
+    public function getMenu(string $menu): ?Menu
+    {
+        return isset_get($this->menus[$menu]);
+    }
+
+
+
+    /**
      * Returns the primary menu
      *
      * @return Menu|null
      */
-    public function getPrimary(): ?Menu
+    public function getPrimaryMenu(): ?Menu
     {
         return isset_get($this->menus['primary']);
     }
@@ -43,7 +56,7 @@ class Menus implements Iterator
      * @param Menu|null $menu
      * @return static
      */
-    public function setPrimary(?Menu $menu): static
+    public function setPrimaryMenu(?Menu $menu): static
     {
         $this->menus['primary'] = $menu;
         return $this;
@@ -56,7 +69,7 @@ class Menus implements Iterator
      *
      * @return Menu|null
      */
-    public function getSecondary(): ?Menu
+    public function getSecondaryMenu(): ?Menu
     {
         return isset_get($this->menus['secondary']);
     }
@@ -69,7 +82,7 @@ class Menus implements Iterator
      * @param Menu|null $menu
      * @return static
      */
-    public function setSecondary(?Menu $menu): static
+    public function setSecondaryMenu(?Menu $menu): static
     {
         $this->menus['secondary'] = $menu;
         return $this;

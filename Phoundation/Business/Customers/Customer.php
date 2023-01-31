@@ -18,6 +18,7 @@ use Phoundation\Data\DataEntry\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\DataEntryPhones;
 use Phoundation\Data\DataEntry\DataEntryPicture;
 use Phoundation\Data\DataEntry\DataEntryUrl;
+use Phoundation\Data\Validator\Validator;
 use Phoundation\Geo\Countries\Countries;
 use Phoundation\Geo\Countries\Country;
 use Phoundation\Geo\States\State;
@@ -48,6 +49,36 @@ class Customer extends DataEntry
     use DataEntryCategory;
     use DataEntryLanguage;
     use DataEntryNameDescription;
+
+
+
+    /**
+     * Validates the customer record with the specified validator object
+     *
+     * @param Validator $validator
+     * @return void
+     */
+    public static function validate(Validator $validator): void
+    {
+        $validator->hasMaxCharacters()
+            ->select('name')->isOptional()->isName()
+            ->select('code')->isOptional()->isDomain()
+            ->select('email')->isOptional()->isEmail()
+            ->select('zipcode')->isOptional()->isString()->hasMinCharacters(4)->hasMaxCharacters(7)
+            ->select('phones')->isOptional()->sanitizeForceArray(',')->each()->isPhone()->sanitizeForceString()
+            ->select('address')->isOptional()->isPrintable()->hasMaxCharacters(64)
+            ->select('address2')->isOptional()->isPrintable()->hasMaxCharacters(64)
+            ->select('address3')->isOptional()->isPrintable()->hasMaxCharacters(64)
+            ->select('categories_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `categories` WHERE `id` = :id AND `status` IS NULL', [':id' => '$categories_id'])
+            ->select('languages_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `languages` WHERE `id` = :id AND `status` IS NULL', [':id' => '$languages_id'])
+            ->select('companies_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `business_companies` WHERE `id` = :id AND `status` IS NULL', [':id' => '$companies_id'])
+            ->select('countries_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':id' => '$countries_id'])
+            ->select('states_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_states` WHERE `id` = :id AND `countries_id` = :countries_id AND `status` IS NULL', [':id' => 'states_id', ':countries_id' => '$countries_id'])
+            ->select('cities_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_cities` WHERE `id` = :id AND `states_id`    = :states_id    AND `status` IS NULL', [':id' => 'cities_id', ':states_id'    => '$states_id'])
+            ->select('description')->isOptional()->isPrintable()->hasMaxCharacters(65_530)
+            ->select('url')->isOptional()->isUrl()
+            ->validate();
+    }
 
 
 

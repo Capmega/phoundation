@@ -2,6 +2,9 @@
 
 namespace Phoundation\Web\Http\Html\Components;
 
+use Phoundation\Notifications\Notifications;
+use Phoundation\Web\Http\UrlBuilder;
+
 
 
 /**
@@ -14,6 +17,71 @@ namespace Phoundation\Web\Http\Html\Components;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-abstract class NotificationsDropDown extends ElementsBlock
+class NotificationsDropDown extends ElementsBlock
 {
+    /**
+     * The list of notifications
+     *
+     * @var Notifications|null $notifications
+     */
+    protected ?Notifications $notifications = null;
+
+    /**
+     * Contains the URL for the notifications page
+     *
+     * @var string|null $notifications_url
+     */
+    protected ?string $notifications_url = null;
+
+
+
+    /**
+     * Returns the notifications object
+     *
+     * @return Notifications|null
+     */
+    public function getNotifications(): ?Notifications
+    {
+        return $this->notifications;
+    }
+
+
+
+    /**
+     * Sets the notifications object
+     *
+     * @param Notifications|null $notifications
+     * @return static
+     */
+    public function setNotifications(?Notifications $notifications): static
+    {
+        $this->notifications = $notifications;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the notifications page URL
+     *
+     * @return string|null
+     */
+    public function getNotificationsUrl(): ?string
+    {
+        return $this->notifications_url;
+    }
+
+
+
+    /**
+     * Sets the notifications page URL
+     *
+     * @param string|null $notifications_url
+     * @return static
+     */
+    public function setNotificationsUrl(?string $notifications_url): static
+    {
+        $this->notifications_url = UrlBuilder::getWww($notifications_url);
+        return $this;
+    }
 }

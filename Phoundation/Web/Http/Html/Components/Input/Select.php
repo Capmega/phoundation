@@ -118,8 +118,8 @@ class Select extends ResourceElement
     /**
      * Enables auto select
      *
-     * @see Select::setAutoSelect()
      * @return static
+     * @see \Templates\AdminLte\Html\Components\Input\Select::setAutoSelect()
      */
     public function enableAutoSelect(): static
     {
@@ -132,8 +132,8 @@ class Select extends ResourceElement
     /**
      * Disables auto select
      *
-     * @see Select::setAutoSelect()
      * @return static
+     * @see \Templates\AdminLte\Html\Components\Input\Select::setAutoSelect()
      */
     public function disableAutoSelect(): static
     {
@@ -303,11 +303,11 @@ class Select extends ResourceElement
      *
      * Return the body HTML for a <select> list
      *
-     * @see Element::render()
-     * @see Select::render()
-     * @see Select::renderHeaders()
-     * @see ResourceElement::renderBody()
      * @return string|null The body HTML (all <option> tags) for a <select> tag
+     * @see \Templates\AdminLte\Html\Components\Input\Select::render()
+     * @see \Templates\AdminLte\Html\Components\Input\Select::renderHeaders()
+     * @see ResourceElement::renderBody()
+     * @see Element::render()
      */
     public function renderBody(): ?string
     {
@@ -344,11 +344,11 @@ class Select extends ResourceElement
      *
      * Return the body HTML for a <select> list
      *
-     * @see Element::render()
-     * @see Select::render()
-     * @see Select::renderHeaders()
-     * @see ResourceElement::renderBody()
      * @return string|null The body HTML (all <option> tags) for a <select> tag
+     *@see \Templates\AdminLte\Html\Components\Input\Select::render()
+     * @see \Templates\AdminLte\Html\Components\Input\Select::renderHeaders()
+     * @see ResourceElement::renderBody()
+     * @see Element::render()
      */
     protected function renderBodyArray(): ?string
     {
@@ -394,11 +394,11 @@ class Select extends ResourceElement
      *
      * Return the body HTML for a <select> list
      *
-     * @see Element::render()
-     * @see Select::render()
-     * @see Select::renderHeaders()
-     * @see ResourceElement::renderBody()
      * @return string|null The body HTML (all <option> tags) for a <select> tag
+     * @see \Templates\AdminLte\Html\Components\Input\Select::render()
+     * @see \Templates\AdminLte\Html\Components\Input\Select::renderHeaders()
+     * @see ResourceElement::renderBody()
+     * @see Element::render()
      */
     protected function renderBodyQuery(): ?string
     {

@@ -7,6 +7,7 @@ use Phoundation\Cli\Cli;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Json;
+use Phoundation\Web\Http\Html\Components\DataTable;
 use Phoundation\Web\Http\Html\Components\Table;
 use ReturnTypeWillChange;
 
@@ -565,6 +566,25 @@ abstract class DataList implements Iterator
 
         // Create and return the table
         return Table::new()->setSourceQuery($this->html_query);
+    }
+
+
+
+    /**
+     * Creates and returns an fancy HTML data table for the data in this list
+     *
+     * @return DataTable
+     */
+    public function getHtmlDataTable(): DataTable
+    {
+        if (!isset($this->html_query)) {
+            throw new OutOfBoundsException(tr('Cannot generate HMTL data table for ":class", no html query specified', [
+                ':class' => get_class($this)
+            ]));
+        }
+
+        // Create and return the table
+        return DataTable::new()->setSourceQuery($this->html_query);
     }
 
 

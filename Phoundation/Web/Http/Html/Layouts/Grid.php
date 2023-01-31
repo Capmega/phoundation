@@ -19,22 +19,13 @@ use Phoundation\Web\Http\Html\Components\ElementsBlock;
 class Grid extends Container
 {
     /**
-     * The rows for this grid
-     *
-     * @var array $rows
-     */
-    protected array $rows = [];
-
-
-
-    /**
      * Clear the rows in this grid
      *
      * @return static
      */
     public function clearRows(): static
     {
-        $this->rows = [];
+        $this->source = [];
         return $this;
     }
 
@@ -48,7 +39,7 @@ class Grid extends Container
      */
     public function setRows(array $rows): static
     {
-        $this->rows = [];
+        $this->source = [];
         return $this->addRows($rows);
     }
 
@@ -103,7 +94,7 @@ class Grid extends Container
         }
 
         // We have a row
-        $this->rows[] = $row;
+        $this->source[] = $row;
 
         return $this;
     }
@@ -117,7 +108,7 @@ class Grid extends Container
      */
     public function getRows(): array
     {
-        return $this->rows;
+        return $this->source;
     }
 
 
@@ -142,7 +133,7 @@ class Grid extends Container
      * @param int|null $size
      * @return static
      */
-    public function setColumns(array $columns, ?int $size = null): static
+    public function setColumns(array $columns, ?int $size = 12): static
     {
         $this->getCurrentRow()->clearColumns();
         return $this->addColumns($columns, $size);
@@ -157,7 +148,7 @@ class Grid extends Container
      * @param int|null $size
      * @return static
      */
-    public function addColumns(array $columns, ?int $size = null): static
+    public function addColumns(array $columns, ?int $size = 12): static
     {
         foreach ($columns as $column) {
             $this->addColumn($column, $size);
@@ -175,11 +166,11 @@ class Grid extends Container
      * @param int|null $size
      * @return static
      */
-    public function addColumn(object|string|null $column, ?int $size = null): static
+    public function addColumn(object|string|null $column, ?int $size = 12): static
     {
         // Get a row
-        if ($this->rows) {
-            $row = current($this->rows);
+        if ($this->source) {
+            $row = current($this->source);
         } else {
             // Make sure we have a row
             $row = GridRow::new();
@@ -188,7 +179,7 @@ class Grid extends Container
 
         if (is_object($column) and !($column instanceof GridColumn)) {
             // This is not a GridColumn object, try to render the object to HTML string
-            static::hasElementAttributesTrait($column);
+            static::ensureElementAttributesTrait($column);
 
             // Render the HTML string
             $column = $column->render();
@@ -213,11 +204,11 @@ class Grid extends Container
      */
     protected function getCurrentRow(): GridRow
     {
-        if (!$this->rows) {
+        if (!$this->source) {
             $row = GridRow::new();
             $this->addRow($row);
         } else {
-            $row = $this->rows[array_key_last($this->rows)];
+            $row = $this->source[array_key_last($this->source)];
         }
 
         return $row;
