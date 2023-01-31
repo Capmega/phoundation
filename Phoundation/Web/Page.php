@@ -1735,7 +1735,7 @@ class Page
 
         $headers[] = 'Content-Type: ' . static::$content_type . '; charset=' . Config::get('languages.encoding.charset', 'UTF-8');
         $headers[] = 'Content-Language: ' . LANGUAGE;
-        $headers[] = 'Content-Length: ' . strlen($output);
+        $headers[] = 'Content-Length: ' . (ob_get_length() + strlen($output));
 
         if (static::$http_code == 200) {
             if (empty($params['last_modified'])) {
