@@ -785,6 +785,7 @@ trait ElementAttributes
      *
      * @param string $attribute
      * @param string|null $value
+     * @param bool $skip_on_null
      * @return static
      */
     public function addAttribute(string $attribute, ?string $value, bool $skip_on_null = false): static
@@ -814,7 +815,7 @@ trait ElementAttributes
 
 
     /**
-     * Sets the content of the element to display
+     * Sets the content of the element
      *
      * @param object|string|null $content
      * @return static
@@ -828,7 +829,7 @@ trait ElementAttributes
 
 
     /**
-     * Adds the specified content to the content of the element to display
+     * Adds the specified content to the content of the element
      *
      * @param object|string|null $content
      * @return static
@@ -837,7 +838,7 @@ trait ElementAttributes
     {
         if (is_object($content)) {
             // This object must be able to render HTML. Check this and then render.
-            static::ensureElementAttributesTrait($content);
+            static::canRenderHtml($content);
             $content = $content->render();
         }
 
@@ -955,14 +956,34 @@ trait ElementAttributes
     /**
      * Ensures that the specified object has ElementAttributes
      *
+     * @note This is just a wrapper around ElementAttributes::ensureElementAttributesTrait(). While that function
+     *       explains more clearly what it does, this one says more clearly WHY and as such is the public one.
+     * @param object|string $class
+     * @return void
+     * @see ElementAttributes::ensureElementAttributesTrait()
+     */
+    public static function canRenderHtml(object|string $class): void
+    {
+        static::ensureElementAttributesTrait($class);
+    }
+
+
+
+    /**
+     * Ensures that the specified object has ElementAttributes
+     *
      * @param object|string $class
      * @return void
      */
-    public static function ensureElementAttributesTrait(object|string $class): void
+    protected static function ensureElementAttributesTrait(object|string $class): void
     {
         if (!has_trait(ElementAttributes::class, $class)) {
-            throw new OutOfBoundsException(tr('Specified object is not using ElementAttributes trait', [
-                ':content' => $class
+            if (is_object($class)) {
+                $class = get_class($class);
+            }
+
+            throw new OutOfBoundsException(tr('Specified object or class ":class" is not using ElementAttributes trait and thus cannot render HTML', [
+                ':class' => $class
             ]));
         }
     }
