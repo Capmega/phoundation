@@ -146,7 +146,7 @@ abstract class DataList implements Iterator
      *
      * @return int
      */
-    public function count(): int
+    public function getCount(): int
     {
         return count($this->list);
     }
