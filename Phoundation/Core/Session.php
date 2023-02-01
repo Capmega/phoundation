@@ -245,8 +245,8 @@ class Session
             Incident::new()
                 ->setType('User sign in')
                 ->setSeverity(Severity::notice)
-                ->setTitle(tr('The user ":user" signed in', [':user' => $user]))
-                ->setDetails([':user' => $user])
+                ->setTitle(tr('The user ":user" signed in', [':user' => static::$user]))
+                ->setDetails([':user' => static::$user])
                 ->save();
 
             $_SESSION['user']['id'] = static::$user->getId();
@@ -584,6 +584,13 @@ Log::warning('RESTART SESSION');
      */
     public static function signOut(): void
     {
+        Incident::new()
+            ->setType('User sign out')
+            ->setSeverity(Severity::notice)
+            ->setTitle(tr('The user ":user" signed out', [':user' => static::getUser()]))
+            ->setDetails([':user' => static::getUser()])
+            ->save();
+
         session_destroy();
     }
 
