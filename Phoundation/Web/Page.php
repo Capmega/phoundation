@@ -1055,21 +1055,21 @@ class Page
 
         } catch (ValidationFailedException $e) {
             // TODO Improve this uncaught validation failure handling
-            Log::warning('Page did not catch the following ValidationFailedException warning, showing "system/400"');
+            Log::warning('Page did not catch the following "ValidationFailedException" warning, showing "system/400"');
             Log::warning($e);
 
             static::getFlashMessages()->add($e);
             Route::executeSystem(400);
 
         } catch (AuthenticationException $e) {
-            Log::warning('Page did not catch the following AuthenticationException warning, showing "system/401"');
+            Log::warning('Page did not catch the following "AuthenticationException" warning, showing "system/401"');
             Log::warning($e);
 
             static::getFlashMessages()->add($e);
             Route::executeSystem(401);
 
         } catch (DataEntryNotExistsException $e) {
-            Log::warning('Page did not catch the following DataEntryNotExistsException warning, showing "system/404"');
+            Log::warning('Page did not catch the following "DataEntryNotExistsException" warning, showing "system/404"');
             Log::warning($e);
 
             // Show a 404 page instead
@@ -1107,7 +1107,7 @@ class Page
         }
 
         if (!$target) {
-            // If target wasn't specified we can safely assume its the same as the real target.
+            // If target wasn't specified we can safely assume it's the same as the real target.
             $target = self::$target;
         }
 
@@ -1161,7 +1161,7 @@ class Page
                     ':rights'      => Strings::force(Rights::getNotExist($rights), ', '),
                     ':target'      => Strings::from(static::$target, PATH_ROOT),
                     ':real_target' => Strings::from($target, PATH_ROOT),
-                    ':redirect'    => $guest_redirect
+                    ':redirect'    => $rights_redirect
                 ]))
                 ->setDetails([
                     'user'           => Session::getUser()->getLogId(),
@@ -1173,7 +1173,7 @@ class Page
                 ])
                 ->save();
 
-            Page::redirect($guest_redirect);
+            Page::redirect($rights_redirect);
         }
 
         // Registered user does not have the required rights
@@ -1185,7 +1185,7 @@ class Page
                 ':rights'      => $rights,
                 ':target'      => Strings::from(static::$target, PATH_ROOT),
                 ':real_target' => Strings::from($target, PATH_ROOT),
-                ':redirect'    => $guest_redirect
+                ':redirect'    => $rights_redirect
             ]))
             ->setDetails([
                 'user'         => Session::getUser()->getLogId(),
