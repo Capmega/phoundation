@@ -14,6 +14,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Date\Time;
+use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\ScriptException;
 use Phoundation\Exception\UnderConstructionException;
@@ -496,7 +497,7 @@ class Script
         }
 
         if (isset($e)) {
-            if ($e->isWarning()) {
+            if (($e instanceof Exception) and $e->isWarning()) {
                 $exit_code = $exit_code ?? 1;
 
                 Log::warning($e->getMessage());
