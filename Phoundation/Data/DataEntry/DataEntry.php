@@ -85,13 +85,6 @@ abstract class DataEntry
     protected array $remove_columns_on_insert = ['id'];
 
     /**
-     * Columns that will NOT be updated
-     *
-     * @var array $remove_columns_on_update
-     */
-    protected array $remove_columns_on_update = ['meta_id', 'created_by', 'created_on'];
-
-    /**
      * A list with optional linked other DataEntry objects
      *
      * @var DataList|null
@@ -704,10 +697,7 @@ abstract class DataEntry
      */
     protected function getUpdateColumns(): array
     {
-        $return = Arrays::remove($this->data, $this->remove_columns_on_update);
-        $return = Arrays::keep($return, array_keys($this->keys));
-
-        return $return;
+        return Arrays::keep($this->data, array_keys($this->keys));
     }
 
 

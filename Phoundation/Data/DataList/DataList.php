@@ -573,7 +573,7 @@ abstract class DataList implements Iterator
 
 
     /**
-     * Creates and returns an fancy HTML data table for the data in this list
+     * Creates and returns a fancy HTML data table for the data in this list
      *
      * @return DataTable
      */
