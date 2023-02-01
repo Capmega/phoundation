@@ -1337,6 +1337,46 @@ class User extends DataEntry
 
 
     /**
+     * Returns true if the current session user can impersonate this user
+     *
+     * @return bool
+     */
+    public function canBeImpersonated(): bool
+    {
+        if (Session::getUser()->hasAllRights('impersonate')) {
+            // We must have the right and we cannot impersonate ourselves
+            if ($this->getId() !== Session::getUser()->getId()) {
+                if (!$this->hasAllRights('god')) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+
+
+    /**
+     * Returns true if the current session user can change the status of this user
+     *
+     * @return bool
+     */
+    public function canBeStatusChanged(): bool
+    {
+        // We must have the right and we cannot impersonate ourselves
+        if ($this->getId() !== Session::getUser()->getId()) {
+            if (!$this->hasAllRights('god')) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
+
+    /**
      * Save the password for this user
      *
      * @return static
