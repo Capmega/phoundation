@@ -166,32 +166,6 @@ class Notification extends DataEntry
 
 
     /**
-     * Sets the status for this notification
-     *
-     * @param string|null $status
-     * @return static
-     */
-    public function setStatus(?string $status): static
-    {
-        $this->setDataValue('status', $status);
-        return $this;
-    }
-
-
-
-    /**
-     * Returns the status for this notification
-     *
-     * @return string|null
-     */
-    public function getStatus(): ?string
-    {
-        return $this->getDataValue('status');
-    }
-
-
-
-    /**
      * Sets the priority level for this notification
      *
      * @param int $priority
