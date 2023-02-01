@@ -5,7 +5,6 @@ namespace Phoundation\Core;
 use DateTimeZone;
 use Exception;
 use GeoIP;
-use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\GuestUser;
 use Phoundation\Accounts\Users\User;
@@ -28,6 +27,7 @@ use Phoundation\Security\Incidents\Severity;
 use Phoundation\Web\Client;
 use Phoundation\Web\Http\Html\Components\FlashMessages\FlashMessages;
 use Phoundation\Web\Http\Http;
+use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 use Throwable;
 
@@ -139,9 +139,16 @@ class Session
         if (static::$user === null) {
             // User object does not yet exist
             if (isset_get($_SESSION['user']['id'])) {
+                if (isset($_SESSION['user']['impersonate_id'])) {
+                    // Impersonated user!
+                    $users_id = $_SESSION['user']['impersonate_id'];
+                } else {
+                    $users_id = $_SESSION['user']['id'];
+                }
+
                 // Create new user object and ensure it's still good to go
                 try {
-                    $user = User::get($_SESSION['user']['id']);
+                    $user = User::get($users_id);
 
                     if ($user->getStatus()) {
                         // Only status NULL is allowed
@@ -584,6 +591,31 @@ Log::warning('RESTART SESSION');
      */
     public static function signOut(): void
     {
+        if (isset($_SESSION['user']['impersonate_id'])) {
+            Incident::new()
+                ->setType('User impersonation')
+                ->setSeverity(Severity::low)
+                ->setTitle(tr('The user ":user" stopped impersonating user ":impersonate"', [
+                    ':user'        => User::get($_SESSION['user']['id']),
+                    ':impersonate' => User::get($_SESSION['user']['impersonate_id'])
+                ]))
+                ->setDetails([
+                    ':user'        => User::get($_SESSION['user']['id']),
+                    ':impersonate' => User::get($_SESSION['user']['impersonate_id'])
+                ])
+                ->save();
+
+            // We're impersonating a user, return to the original user.
+            $url      = $_SESSION['user']['impersonate_url'];
+            $users_id = $_SESSION['user']['impersonate_id'];
+
+            unset($_SESSION['user']['impersonate_id']);
+            unset($_SESSION['user']['impersonate_url']);
+
+            Page::getFlashMessages()->add(tr('Success'), tr('You have stopped impersonating user ":user"', [':user' => User::get($users_id)]), 'success');
+            Page::redirect($url);
+        }
+
         Incident::new()
             ->setType('User sign out')
             ->setSeverity(Severity::notice)
@@ -623,6 +655,62 @@ Log::warning('RESTART SESSION');
                     ':method' => $method
                 ]));
         }
+    }
+
+
+
+    /**
+     * Update this session so that it impersonates this person
+     *
+     * @param User $user
+     * @return void
+     */
+    public static function impersonate(User $user): void
+    {
+        if (isset($_SESSION['user']['impersonate_id'])) {
+            // We are already impersonating a user!
+            Incident::new()
+                ->setType('User impersonation')
+                ->setSeverity(Severity::high)
+                ->setTitle(tr('Cannot impersonate user, we are already impersonating'))
+                ->setDetails([
+                    'user'                => static::getUser(),
+                    'impersonating'       => User::get('impersonate_id'),
+                    'want_to_impersonate' => $user
+                ])
+                ->save()
+                ->throw();
+        }
+
+        if ($user->getId() === static::getUser()->getId()) {
+            // We are already impersonating a user!
+            Incident::new()
+                ->setType('User impersonation')
+                ->setSeverity(Severity::high)
+                ->setTitle(tr('Cannot impersonate user, the user to impersonate is this user itself'))
+                ->setDetails([
+                    'user'                => static::getUser(),
+                    'want_to_impersonate' => $user
+                ])
+                ->save()
+                ->throw();
+        }
+
+        $_SESSION['user']['impersonate_id']  = $user->getId();
+        $_SESSION['user']['impersonate_url'] = (string) UrlBuilder::getCurrent();
+
+        Incident::new()
+            ->setType('User impersonation')
+            ->setSeverity(Severity::medium)
+            ->setTitle(tr('The user ":user" started impersonating user ":impersonate"', [
+                ':user'        => static::getUser(),
+                ':impersonate' => $user
+            ]))
+            ->setDetails([
+                ':user'        => static::getUser(),
+                ':impersonate' => $user
+            ])
+            ->save();
     }
 
 

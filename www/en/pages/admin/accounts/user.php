@@ -1,11 +1,13 @@
 <?php
 
 use Phoundation\Accounts\Users\User;
-use Phoundation\Core\Log\Log;
+use Phoundation\Core\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Security\Incidents\Exception\IncidentsException;
 use Phoundation\Web\Http\Html\Components\BreadCrumbs;
+use Phoundation\Web\Http\Html\Components\Button;
 use Phoundation\Web\Http\Html\Components\Buttons;
 use Phoundation\Web\Http\Html\Components\Img;
 use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
@@ -27,72 +29,97 @@ $user = User::get($_GET['id']);
 
 // Validate POST and submit
 if (Page::isPostRequestMethod()) {
-    try {
-        PostValidator::new()
-            ->select('username')->isOptional()->isName()
-            ->select('domain')->isOptional()->isDomain()
-            ->select('title')->isOptional()->isName()
-            ->select('first_names')->isOptional()->isName()
-            ->select('last_names')->isOptional()->isName()
-            ->select('nickname')->isOptional()->isName()
-            ->select('email')->isEmail()
-            ->select('type')->isOptional()->isName()
-            ->select('keywords')->isOptional()->sanitizeForceArray(' ')->each()->isWord()
-            ->select('phones')->isOptional()->sanitizeForceArray(',')->each()->isPhone()->sanitizeForceString()
-            ->select('address')->isOptional()->isPrintable()
-            ->select('priority')->isOptional()->isNatural()->isBetween(1, 10)
-            ->select('is_leader')->isOptional()->isBoolean()
-            ->select('leaders_id')->isOptional()->isId()
-            ->select('latitude')->isOptional()->isLatitude()
-            ->select('longitude')->isOptional()->isLongitude()
-            ->select('accuracy')->isOptional()->isFloat()->isBetween(0, 10)
-            ->select('countries_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':id' => '$countries_id'])
-            ->select('states_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_states` WHERE `id` = :id AND `countries_id` = :countries_id AND `status` IS NULL', [':id' => 'states_id', ':countries_id' => '$countries_id'])
-            ->select('cities_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_cities` WHERE `id` = :id AND `states_id`    = :states_id    AND `status` IS NULL', [':id' => 'cities_id', ':states_id'    => '$states_id'])
-            ->select('languages_id')->isId()->isQueryColumn('SELECT `id` FROM `languages` WHERE `id` = :id AND `status` IS NULL', [':id' => '$languages_id'])
-            ->select('redirect')->isOptional()->isUrl()
-            ->select('gender')->isOptional()->inArray(['unknown', 'male', 'female', 'other'])
-            ->select('birthday')->isOptional()->isDate()
-            ->select('description')->isOptional()->isPrintable()->hasMaxCharacters(65_530)
-            ->select('comments')->isOptional()->isPrintable()->hasMaxCharacters(16_777_200)
-            ->select('website')->isOptional()->isUrl()
-            ->select('timezone')->isOptional()->isTimezone()
-        ->validate();
+    switch (PostValidator::getSubmitButton()) {
+        case tr('Submit'):
+            try {
+                PostValidator::new()
+                    ->select('username')->isOptional()->isName()
+                    ->select('domain')->isOptional()->isDomain()
+                    ->select('title')->isOptional()->isName()
+                    ->select('first_names')->isOptional()->isName()
+                    ->select('last_names')->isOptional()->isName()
+                    ->select('nickname')->isOptional()->isName()
+                    ->select('email')->isEmail()
+                    ->select('type')->isOptional()->isName()
+                    ->select('keywords')->isOptional()->sanitizeForceArray(' ')->each()->isWord()
+                    ->select('phones')->isOptional()->sanitizeForceArray(',')->each()->isPhone()->sanitizeForceString()
+                    ->select('address')->isOptional()->isPrintable()
+                    ->select('priority')->isOptional()->isNatural()->isBetween(1, 10)
+                    ->select('is_leader')->isOptional()->isBoolean()
+                    ->select('leaders_id')->isOptional()->isId()
+                    ->select('latitude')->isOptional()->isLatitude()
+                    ->select('longitude')->isOptional()->isLongitude()
+                    ->select('accuracy')->isOptional()->isFloat()->isBetween(0, 10)
+                    ->select('countries_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':id' => '$countries_id'])
+                    ->select('states_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_states` WHERE `id` = :id AND `countries_id` = :countries_id AND `status` IS NULL', [':id' => 'states_id', ':countries_id' => '$countries_id'])
+                    ->select('cities_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_cities` WHERE `id` = :id AND `states_id`    = :states_id    AND `status` IS NULL', [':id' => 'cities_id', ':states_id'    => '$states_id'])
+                    ->select('languages_id')->isId()->isQueryColumn('SELECT `id` FROM `languages` WHERE `id` = :id AND `status` IS NULL', [':id' => '$languages_id'])
+                    ->select('redirect')->isOptional()->isUrl()
+                    ->select('gender')->isOptional()->inArray(['unknown', 'male', 'female', 'other'])
+                    ->select('birthday')->isOptional()->isDate()
+                    ->select('description')->isOptional()->isPrintable()->hasMaxCharacters(65_530)
+                    ->select('comments')->isOptional()->isPrintable()->hasMaxCharacters(16_777_200)
+                    ->select('website')->isOptional()->isUrl()
+                    ->select('timezone')->isOptional()->isTimezone()
+                    ->validate();
 
-        // Update user
-        $user = User::get($_GET['id']);
-        $user->modify($_POST);
-        $user->save();
+                // Update user
+                $user = User::get($_GET['id']);
+                $user->modify($_POST);
+                $user->save();
 
-        // Go back to where we came from
+                // Go back to where we came from
 // TODO Implement timers
 //showdie(Timers::get('query'));
 
-        Page::getFlashMessages()->add(tr('Success'), tr('User ":user" has been updated', [':user' => $user->getDisplayName()]), 'success');
-        Page::redirect('referer');
+                Page::getFlashMessages()->add(tr('Success'), tr('User ":user" has been updated', [':user' => $user->getDisplayName()]), 'success');
+                Page::redirect('referer');
 
-    } catch (ValidationFailedException $e) {
-        // Oops! Show validation errors and remain on page
-        Page::getFlashMessages()->add($e);
-        $user->modify($_POST);
+            } catch (ValidationFailedException $e) {
+                // Oops! Show validation errors and remain on page
+                Page::getFlashMessages()->add($e);
+                $user->modify($_POST);
+            }
+
+            break;
+
+        case tr('Impersonate'):
+            try {
+                $user->impersonate();
+                Page::getFlashMessages()->add(tr('Success'), tr('You are now impersonating ":user"', [':user' => $user->getDisplayName()]), 'success');
+                Page::redirect('root');
+
+            } catch (IncidentsException $e) {
+                Page::getFlashMessages()->add(tr('Error'), $e->getMessage(), 'error');
+            }
+
+            break;
     }
 }
 
 
 
-// Build the buttons
-$buttons = Buttons::new()
-    ->addButton(tr('Submit'))
-    ->addButton(tr('Cancel'), 'secondary', '/accounts/users.html', true);
-
-
+// Impersonate button
+if (Session::getUser()->hasAllRights('impersonate')) {
+    // We must have the right and we cannot impersonate ourselves
+    if ($user->getId() !== Session::getUser()->getId()) {
+        $impersonate = Button::new()
+            ->setRight(true)
+            ->setMode('danger')
+            ->setContent(tr('Impersonate'));
+    }
+}
 
 // Build the user form
 $user_card = Card::new()
     ->setHasCollapseSwitch(true)
     ->setTitle(tr('Edit data for user :name', [':name' => $user->getDisplayName()]))
     ->setContent($user->getHtmlForm()->render())
-    ->setButtons($buttons);
+    ->setButtons(Buttons::new()
+        ->addButton(tr('Submit'))
+        ->addButton(tr('Cancel'), 'secondary', '/accounts/users.html', true)
+        ->addButton(tr('Audit'), 'green', '/audit/meta-' . $user->getMeta() . '.html', false, true)
+        ->addButton(isset_get($impersonate)));
 
 
 
@@ -104,7 +131,9 @@ if ($user->getId()) {
             ->setAction('#')
             ->setMethod('POST')
             ->render())
-        ->setButtons($buttons);
+        ->setButtons(Buttons::new()
+            ->addButton(tr('Submit'))
+            ->addButton(tr('Cancel'), 'secondary', '/accounts/users.html', true));
 }
 
 

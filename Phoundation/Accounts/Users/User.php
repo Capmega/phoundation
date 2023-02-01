@@ -13,6 +13,7 @@ use Phoundation\Business\Companies\Company;
 use Phoundation\Business\Companies\Departments\Department;
 use Phoundation\Core\Locale\Language\Languages;
 use Phoundation\Core\Log\Log;
+use Phoundation\Core\Session;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\DataEntryAddress;
 use Phoundation\Data\DataEntry\DataEntryCode;
@@ -1324,6 +1325,18 @@ class User extends DataEntry
 
 
     /**
+     * Update this session so that it impersonates this person
+     *
+     * @return void
+     */
+    public function impersonate(): void
+    {
+        Session::impersonate($this);
+    }
+
+
+
+    /**
      * Save the password for this user
      *
      * @return static
@@ -1352,7 +1365,7 @@ class User extends DataEntry
      * @param bool $test
      * @return static
      */
-    public static function doAuthenticate(string|int $identifier, string $password, ?string $domain = null, bool $test = false): static
+    protected static function doAuthenticate(string|int $identifier, string $password, ?string $domain = null, bool $test = false): static
     {
         $user = User::get($identifier);
 
@@ -1630,46 +1643,46 @@ class User extends DataEntry
 
         $this->keys_display = [
             'id'                      => 12,
-            'created_by'              => 6,
-            'created_on'              => 6,
-            'meta_id'                 => 6,
-            'status'                  => 6,
-            'last_sign_in'            => 6,
-            'sign_in_count'           => 6,
-            'authentication_failures' => 6,
-            'locked_until'            => 6,
-            'email'                   => 6,
-            'domain'                  => 6,
-            'username'                => 6,
-            'nickname'                => 6,
-            'first_names'             => 6,
-            'last_names'              => 6,
-            'gender'                  => 6,
-            'birthday'                => 6,
-            'title'                   => 6,
-            'phones'                  => 6,
-            'address'                 => 12,
-            'type'                    => 12,
-            'keywords'                => 12,
-            'code'                    => 12,
-            'url'                     => 12,
-            'leaders_id'              => 6,
-            'is_leader'               => 6,
-            'latitude'                => 6,
-            'longitude'               => 6,
-            'offset_latitude'         => 6,
-            'offset_longitude'        => 6,
-            'accuracy'                => 6,
-            'priority'                => 6,
-            'languages_id'            => 6,
-            'countries_id'            => 6,
-            'states_id'               => 6,
-            'cities_id'               => 6,
-            'timezone'                => 6,
-            'verified_on'             => 6,
+            'created_by'              => 3,
+            'created_on'              => 3,
+            'meta_id'                 => 3,
+            'status'                  => 3,
+            'last_sign_in'            => 3,
+            'sign_in_count'           => 3,
+            'authentication_failures' => 3,
+            'locked_until'            => 3,
+            'email'                   => 3,
+            'domain'                  => 3,
+            'username'                => 3,
+            'nickname'                => 3,
+            'first_names'             => 3,
+            'last_names'              => 3,
+            'gender'                  => 3,
+            'birthday'                => 3,
+            'title'                   => 3,
+            'phones'                  => 3,
+            'address'                 => 6,
+            'type'                    => 3,
+            'code'                    => 3,
+            'keywords'                => 6,
+            'url'                     => 6,
+            'leaders_id'              => 3,
+            'is_leader'               => 3,
+            'latitude'                => 3,
+            'longitude'               => 3,
+            'offset_latitude'         => 3,
+            'offset_longitude'        => 3,
+            'accuracy'                => 3,
+            'priority'                => 3,
+            'verified_on'             => 3,
+            'languages_id'            => 3,
+            'timezone'                => 3,
+            'countries_id'            => 3,
+            'states_id'               => 3,
+            'cities_id'               => 3,
             'redirect'                => 12,
-            'description'             => 12,
-            'comments'                => 12
+            'description'             => 6,
+            'comments'                => 6
         ] ;
     }
 }
