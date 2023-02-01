@@ -1,14 +1,15 @@
 <?php
 
-namespace Phoundation\Core;
+namespace Phoundation\Core\Meta;
 
 use Phoundation\Cli\Script;
+use Phoundation\Core\Session;
 use Phoundation\Data\Exception\DataEntryNotExistsException;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Components\Table;
 use Phoundation\Web\Http\UrlBuilder;
-
+use const Phoundation\Core\PLATFORM_HTTP;
 
 
 /**
@@ -151,7 +152,7 @@ class Meta
     public function action(string $action, ?string $comments = null, ?array $data = null): static
     {
         // Insert the action in the meta_history table
-        sql()->query(' INSERT INTO `meta_history` (`meta_id`, `created_by`, `action`, `source`, `comments`, `data`) 
+        sql()->query('INSERT INTO `meta_history` (`meta_id`, `created_by`, `action`, `source`, `comments`, `data`) 
                             VALUES                     (:meta_id , :created_by , :action , :source , :comments , :data )', [
             ':meta_id'    => $this->id,
             ':created_by' => Session::getUser()->getId(),

@@ -6,7 +6,7 @@ use DateTime;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\Cli;
 use Phoundation\Core\Arrays;
-use Phoundation\Core\Meta;
+use Phoundation\Core\Meta\Meta;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataList\DataList;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
