@@ -3,6 +3,9 @@
 namespace Phoundation\Core;
 
 
+use Phoundation\Accounts\Rights\Right;
+use Phoundation\Accounts\Roles\Role;
+
 /**
  * Updates class
  *
@@ -23,7 +26,7 @@ class Updates extends Libraries\Updates
      */
     public function version(): string
     {
-        return '0.0.10';
+        return '0.0.11';
     }
 
 
@@ -282,6 +285,46 @@ class Updates extends Libraries\Updates
                         CONSTRAINT `fk_core_templates_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                     ')
                     ->create();
+        })->addUpdate('0.0.11', function () {
+            // Create some default roles and rights
+            $rights = [
+                'god',
+                'logs',
+                'admin',
+                'audit',
+                'accounts',
+                'security',
+                'impersonate',
+            ];
+
+            // Add default rights
+            foreach ($rights as $right) {
+                if (!Right::exists($right)) {
+                    Right::new()
+                        ->setName($right)
+                        ->save();
+                }
+
+            }
+
+            // Add default roles and assign the default rights to them
+            foreach ($rights as $role) {
+                if (!Role::exists($role)) {
+                    Role::new()
+                        ->setName($role)
+                        ->save();
+                }
+
+                Role::get($role)->rights()->add($role);
+            }
+
+            // Various rights go together...
+            Role::get('audit')->rights()->add('admin');
+
+            Role::get('security')->rights()->add('admin');
+
+            Role::get('impersonate')->rights()->add('admin');
+            Role::get('impersonate')->rights()->add('accounts');
         });
     }
 }
