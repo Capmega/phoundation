@@ -2,8 +2,7 @@
 
 namespace Phoundation\Web\Http\Html\Components;
 
-use JetBrains\PhpStorm\ExpectedValues;
-use Phoundation\Core\Config;
+use Phoundation\Web\Http\Html\Components\Input\Input;
 
 
 
@@ -17,7 +16,7 @@ use Phoundation\Core\Config;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class Button extends Element
+class Button extends Input
 {
     use ButtonProperties;
 
@@ -39,7 +38,8 @@ class Button extends Element
     public function __construct()
     {
         parent::__construct();
-        $this->setElement('button');
+
+        $this->setType('submit');
         $this->setClasses('btn');
     }
 
@@ -80,6 +80,10 @@ class Button extends Element
      */
     public function setContent(object|string|null $content): static
     {
+        if ($this->type === 'submit') {
+            return $this->setValue($content);
+        }
+
         if ($this->floating) {
             // What does this do?????????????
             $this->addClass('btn-floating');
@@ -88,6 +92,31 @@ class Button extends Element
         }
 
         return parent::setContent($content);
+    }
+
+
+
+    /**
+     * Set the content for this button
+     *
+     * @param object|string|null $value
+     * @return static
+     *@todo add documentation for when button is floating as it is unclear what is happening there
+     */
+    public function setValue(object|string|null $value): static
+    {
+        if ($this->type !== 'submit') {
+            return $this->setContent($value);
+        }
+
+        if ($this->floating) {
+            // What does this do?????????????
+            $this->addClass('btn-floating');
+            Icons::new()->setContent($this->content)->render();
+            return $this;
+        }
+
+        return parent::setValue($value);
     }
 
 

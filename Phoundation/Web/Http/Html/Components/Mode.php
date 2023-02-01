@@ -47,8 +47,28 @@ trait Mode
      * @param string|null $mode
      * @return static
      */
-    public function setMode(#[ExpectedValues(values: ['success', 'green', 'info', 'information', 'blue', 'warning', 'yellow', 'danger', 'red', 'error', 'exception', 'primary', 'secondary', 'tertiary', 'link', 'light', 'dark', null])] ?string $mode = null): static
-    {
+    public function setMode(
+        #[ExpectedValues(values: [
+            'success',
+            'green',
+            'info',
+            'information',
+            'blue',
+            'warning',
+            'yellow',
+            'danger',
+            'red',
+            'error',
+            'exception',
+            'primary',
+            'secondary',
+            'tertiary',
+            'link',
+            'light',
+            'dark',
+            null
+        ])] ?string $mode = null
+    ): static {
         $mode = match (strtolower(trim((string) $mode))) {
             'blue', 'info', 'information'                               => 'info',
             'green', 'success'                                          => 'success',

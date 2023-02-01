@@ -7,6 +7,7 @@ use Phoundation\Content\Images\Image;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\ElementsBlock;
+use Phoundation\Web\Http\Html\Components\Mode;
 use Phoundation\Web\Http\Html\Components\Script;
 use Phoundation\Web\Page;
 
@@ -24,13 +25,9 @@ use Phoundation\Web\Page;
  */
 class FlashMessage extends ElementsBlock
 {
-    /**
-     * The type of flash message
-     *
-     * @var string
-     */
-    #[ExpectedValues(values: ['info', 'success', 'warning', 'danger'])]
-    protected string $type;
+    use Mode;
+
+
 
     /**
      * Title of the flash message
@@ -87,71 +84,6 @@ class FlashMessage extends ElementsBlock
      * @var bool $left
      */
     protected bool $left = false;
-
-
-
-    /**
-     * Returns the flash message type
-     *
-     * @return string
-     */
-    #[ExpectedValues(values: ['info', 'success', 'warning', 'danger'])]
-    public function getType(): string
-    {
-        return $this->type;
-    }
-
-
-
-    /**
-     * Sets the flash message type
-     *
-     * @param string $type
-     * @return $this
-     */
-    public function setType(#[ExpectedValues(values: ['info', 'information', 'success', 'warning', 'danger', 'error', 'exception', 'blue', 'green', 'yellow', 'red'])] string $type): static
-    {
-        switch ($type) {
-            case 'blue':
-                // no break
-            case 'info':
-                // no break
-            case 'information':
-                $type = 'info';
-                break;
-
-            case 'green':
-                // no break
-            case 'success':
-                $type = 'success';
-                break;
-
-            case 'yellow':
-                // no break
-            case 'warning':
-                $type = 'warning';
-                break;
-
-            case 'red':
-                // no break
-            case 'error':
-                // no break
-            case 'exception':
-                // no break
-            case 'danger':
-                $type = 'danger';
-                break;
-
-            default:
-                throw new OutOfBoundsException(tr('Unknown flash message type ":type" specified', [
-                    ':type' => $type
-                ]));
-        }
-
-        $this->type = $type;
-
-        return $this;
-    }
 
 
 
@@ -447,7 +379,7 @@ class FlashMessage extends ElementsBlock
 
         return '
             $(document).Toasts("create", {
-                class: "bg-' . $this->type . '",
+                class: "bg-' . $this->mode . '",
                 title: "' . Strings::escape($this->title) . '",
                 subtitle: "' . Strings::escape($this->sub_title) . '",
                 position: "' . $position . '",
@@ -472,7 +404,7 @@ class FlashMessage extends ElementsBlock
             match ($key) {
                 'top'        => $this->top        = $value,
                 'left'       => $this->left       = $value,
-                'type'       => $this->type       = $value,
+                'mode'       => $this->mode       = $value,
                 'icon'       => $this->icon       = $value,
                 'image'      => $this->image      = $value,
                 'title'      => $this->title      = $value,
@@ -497,7 +429,7 @@ class FlashMessage extends ElementsBlock
         return [
             'top'        => $this->top,
             'left'       => $this->left,
-            'type'       => $this->type,
+            'mode'       => $this->mode,
             'icon'       => $this->icon,
             'image'      => $this->image,
             'title'      => $this->title,

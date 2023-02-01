@@ -52,6 +52,11 @@ abstract class Element
      */
     public function setElement(string $element): static
     {
+        $this->requires_closing_tag = match ($element) {
+            'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'source', 'track', 'wbr' => false,
+            default => true,
+        };
+
         $this->element = $element;
         return $this;
     }

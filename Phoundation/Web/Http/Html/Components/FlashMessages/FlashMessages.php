@@ -3,6 +3,9 @@
 namespace Phoundation\Web\Http\Html\Components\FlashMessages;
 
 use Iterator;
+use JetBrains\PhpStorm\ExpectedValues;
+use Phoundation\Core\Exception\CoreException;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
@@ -49,13 +52,39 @@ class FlashMessages extends ElementsBlock implements Iterator
      *
      * @param FlashMessage|Exception|string|null $title
      * @param string|null $message
-     * @param string $type
+     * @param string|null $mode
      * @param string|null $icon
      * @param int|null $auto_close
      * @return $this
      */
-    public function add(FlashMessage|Exception|string|null $title, ?string $message = null, string $type = 'info', string $icon = null, ?int $auto_close = null): static
-    {
+    public function add(
+        FlashMessage|Exception|string|null $title,
+        ?string $message = null,
+
+        #[ExpectedValues(values: [
+            'success',
+            'green',
+            'info',
+            'information',
+            'blue',
+            'warning',
+            'yellow',
+            'danger',
+            'red',
+            'error',
+            'exception',
+            'primary',
+            'secondary',
+            'tertiary',
+            'link',
+            'light',
+            'dark',
+            null
+        ])] ?string $mode = null,
+
+        string $icon = null, ?
+        int $auto_close = null
+    ): static {
         if ($title) {
             // a title was specified
             if (is_string($title)) {
@@ -68,14 +97,27 @@ class FlashMessages extends ElementsBlock implements Iterator
                     ->setAutoClose($auto_close)
                     ->setMessage($message)
                     ->setTitle($title)
-                    ->setType($type)
+                    ->setMode($mode)
                     ->setIcon($icon);
+
             } elseif ($title instanceof ValidationFailedException) {
-                // Title was specified as an exception, add each validation failure as a separate flash
-                // message
+                // Title was specified as an exception, add each validation failure as a separate flash message
                 if ($title->getData()) {
+                    $count = 0;
+
                     foreach ($title->getData() as $message) {
+                        if (!trim($message)) {
+                            continue;
+                        }
+
+                        $count++;
                         $this->add(tr('Information validation failure'), $message, 'warning', null, 5000);
+                    }
+
+                    if (!$count) {
+                        throw new OutOfBoundsException(tr('The specified Validation exception ":e" has no or empty messages in the exception data', [
+                            ':e' => $title
+                        ]));
                     }
                 }
 

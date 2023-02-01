@@ -2,11 +2,10 @@
 
 namespace Phoundation\Web\Http\Html\Components;
 
-
-
 use JetBrains\PhpStorm\ExpectedValues;
-use Phoundation\Web\Http\Url;
 use Phoundation\Web\Http\UrlBuilder;
+
+
 
 /**
  * ButtonProperties trait
@@ -23,14 +22,6 @@ trait ButtonProperties
     use Mode;
 
 
-
-    /**
-     * The type of button to render
-     *
-     * @var string $type
-     */
-    #[ExpectedValues(values: ['submit', 'reset', 'button'])]
-    protected string $type = 'submit';
 
     /**
      * Sets if this is an anchor button or not
@@ -132,12 +123,31 @@ trait ButtonProperties
     /**
      * Set the button type
      *
-     * @param string $type
+     * @param string|null $type
      * @return Button
      */
-    public function setType(#[ExpectedValues(values: ['submit', 'reset', 'button'])] string $type): static
+    public function setType(#[ExpectedValues(values: ['submit', 'reset', 'button', null])] ?string $type = 'button'): static
     {
-        $this->type = $type;
+        switch ($type) {
+            case 'submit':
+                // Make this an input submit button
+                $this->setElement('input');
+                $this->setName('submit');
+
+                $this->value   = $this->content;
+                $this->content = null;
+                $this->type    = $type;
+                break;
+
+            default:
+                // Make this a normal button
+                $this->setElement('button');
+
+                $this->content = $this->value;
+                $this->value   = null;
+                $this->type    = $type;
+        }
+
         return $this;
     }
 
@@ -146,9 +156,9 @@ trait ButtonProperties
     /**
      * Returns the button type
      *
-     * @return string
+     * @return string|null
      */
-    #[ExpectedValues(values: ['submit', 'reset', 'button'])] public function getType(): string
+    #[ExpectedValues(values: ['submit', 'reset', 'button'])] public function getType(): ?string
     {
         return $this->type;
     }
@@ -175,12 +185,22 @@ trait ButtonProperties
      */
     public function setAnchorUrl(?string $anchor_url): static
     {
-        $this->anchor_url = UrlBuilder::getWww($anchor_url);
-
         if ($anchor_url) {
             $this->setElement('a');
+            $this->anchor_url = UrlBuilder::getWww($anchor_url);
+            $this->type       = null;
+            $this->content    = $this->value;
+            $this->value      = null;
         } else {
             $this->setElement('button');
+            $this->anchor_url = null;
+            $this->value      = $this->content;
+            $this->content    = null;
+
+            if (!$this->type) {
+                // Default to button
+                $this->setType();
+            }
         }
 
         return $this;
