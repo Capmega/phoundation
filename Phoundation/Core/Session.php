@@ -696,6 +696,20 @@ Log::warning('RESTART SESSION');
                 ->throw();
         }
 
+        if ($user->hasAllRights('god')) {
+            // Can't impersonate a god level user!
+            Incident::new()
+                ->setType('User impersonation')
+                ->setSeverity(Severity::severe)
+                ->setTitle(tr('Cannot impersonate user, the user to impersonate has the "god" role'))
+                ->setDetails([
+                    'user'                => static::getUser(),
+                    'want_to_impersonate' => $user
+                ])
+                ->save()
+                ->throw();
+        }
+
         $_SESSION['user']['impersonate_id']  = $user->getId();
         $_SESSION['user']['impersonate_url'] = (string) UrlBuilder::getCurrent();
 
