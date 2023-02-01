@@ -2,9 +2,9 @@
 
 namespace Phoundation\Data\Validator;
 
-
-
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
+
+
 
 /**
  * PostValidator class
@@ -125,6 +125,33 @@ class PostValidator extends Validator
     public function select(int|string $field): static
     {
         return $this->standardSelect($field);
+    }
+
+
+
+    /**
+     * Return the submit method
+     *
+     * @param string $submit
+     * @return string|null
+     */
+    public static function getSubmitButton(string $submit = 'submit'): ?string
+    {
+        $button = trim((string) isset_get(self::$post[$submit]));
+
+        unset(self::$post[$submit]);
+
+        if (!$button) {
+            return null;
+        }
+
+        if ((strlen($button) > 32) or !ctype_print($button)) {
+            throw new ValidationFailedException(tr('Invalid submit button specified'), [
+                'submit' => tr('The specified submit button is invalid'),
+            ]);
+        }
+
+        return $button;
     }
 
 
