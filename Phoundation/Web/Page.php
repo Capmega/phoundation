@@ -1632,7 +1632,7 @@ class Page
         }
 
         foreach (static::$headers['meta'] as $key => $value) {
-            $return .= '<meta ' . $key . '=' . $value . ' />' . PHP_EOL;
+            $return .= '<meta name="' . $key . '" content="' . $value . '" />' . PHP_EOL;
         }
 
         foreach (static::$headers['link'] as $header) {
