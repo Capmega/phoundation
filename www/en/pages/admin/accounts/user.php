@@ -29,9 +29,9 @@ $user = User::get($_GET['id']);
 
 // Validate POST and submit
 if (Page::isPostRequestMethod()) {
-    switch (PostValidator::getSubmitButton()) {
-        case tr('Submit'):
-            try {
+    try {
+        switch (PostValidator::getSubmitButton()) {
+            case tr('Submit'):
                 PostValidator::new()
                     ->select('username')->isOptional()->isName()
                     ->select('domain')->isOptional()->isDomain()
@@ -75,40 +75,50 @@ if (Page::isPostRequestMethod()) {
                 Page::getFlashMessages()->add(tr('Success'), tr('User ":user" has been updated', [':user' => $user->getDisplayName()]), 'success');
                 Page::redirect('referer');
 
-            } catch (ValidationFailedException $e) {
-                // Oops! Show validation errors and remain on page
-                Page::getFlashMessages()->add($e);
-                $user->modify($_POST);
-            }
-
-            break;
-
-        case tr('Impersonate'):
-            try {
+            case tr('Impersonate'):
                 $user->impersonate();
                 Page::getFlashMessages()->add(tr('Success'), tr('You are now impersonating ":user"', [':user' => $user->getDisplayName()]), 'success');
                 Page::redirect('root');
 
-            } catch (IncidentsException $e) {
-                Page::getFlashMessages()->add(tr('Error'), $e->getMessage(), 'error');
-            }
+            case tr('Delete'):
+                $user->delete();
+                Page::getFlashMessages()->add(tr('Success'), tr('The user ":user" has been deleted', [':user' => $user->getDisplayName()]), 'success');
+                Page::redirect();
 
-            break;
+            case tr('Undelete'):
+                $user->undelete();
+                Page::getFlashMessages()->add(tr('Success'), tr('The user ":user" has been undeleted', [':user' => $user->getDisplayName()]), 'success');
+                Page::redirect();
+        }
+    } catch (ValidationFailedException $e) {
+        // Oops! Show validation errors and remain on page
+        Page::getFlashMessages()->add($e);
+        $user->modify($_POST);
     }
 }
 
 
 
-// Impersonate button
-if (Session::getUser()->hasAllRights('impersonate')) {
-    // We must have the right and we cannot impersonate ourselves
-    if ($user->getId() !== Session::getUser()->getId()) {
-        $impersonate = Button::new()
-            ->setRight(true)
-            ->setMode('danger')
-            ->setContent(tr('Impersonate'));
-    }
+// Impersonate button. We must have the right to impersonate, we cannot impersonate ourselves, and we cannot impersonate
+// god users
+if ($user->canBeImpersonated()) {
+    $impersonate = Button::new()
+        ->setRight(true)
+        ->setMode('danger')
+        ->setContent(tr('Impersonate'));
 }
+
+
+
+// Delete button. We cannot delete god users
+if (!$user->canBeStatusChanged()) {
+    $delete = Button::new()
+        ->setRight(true)
+        ->setMode('warning')
+        ->setContent(tr('Delete'));
+}
+
+
 
 // Build the user form
 $user_card = Card::new()
@@ -119,6 +129,7 @@ $user_card = Card::new()
         ->addButton(tr('Submit'))
         ->addButton(tr('Cancel'), 'secondary', '/accounts/users.html', true)
         ->addButton(tr('Audit'), 'green', '/audit/meta-' . $user->getMeta() . '.html', false, true)
+        ->addButton(isset_get($delete))
         ->addButton(isset_get($impersonate)));
 
 
