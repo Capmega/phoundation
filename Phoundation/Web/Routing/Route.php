@@ -315,9 +315,8 @@ class Route
      *     'over-ons'     => 'about'
      *  ]);
      * /code
-     *
      */
-    public static function try(string $url_regex, string $target, string $flags = ''): bool
+    public static function try(string $url_regex, string $target, string $flags = ''): void
     {
         static $count = 1;
 
@@ -419,7 +418,7 @@ class Route
 
             if (!$match) {
                 $count++;
-                return false;
+                return;
             }
 
             if (Debug::enabled()) {
@@ -545,7 +544,7 @@ class Route
                             Log::warning(tr('Specified cloaked URL ":cloak" does not exist, cancelling match', [':cloak' => $route]));
 
                             $count++;
-                            return false;
+                            return;
                         }
 
                         $_SERVER['REQUEST_URI'] = Strings::from($_SERVER['REQUEST_URI'], '://');
@@ -566,7 +565,7 @@ class Route
                             Log::notice(tr('Matched route ":route" allows only GET requests, cancelling match', [':route' => $route]));
 
                             $count++;
-                            return false;
+                            return;
                         }
 
                         break;
@@ -596,7 +595,7 @@ class Route
                             Log::notice(tr('Matched route ":route" allows only POST requests, cancelling match', [':route' => $route]));
 
                             $count++;
-                            return false;
+                            return;
                         }
 
                         break;
@@ -706,7 +705,7 @@ class Route
 //                    Log::vardump($_GET);
 
                     $count++;
-                    return false;
+                    return;
                 }
 
             } elseif ($get !== true) {
@@ -729,7 +728,7 @@ class Route
                         ]));
 
                         $count++;
-                        return false;
+                        return;
                     }
 
                     // Okay, the key is allowed, yay! What action are we going to take?
@@ -838,7 +837,7 @@ class Route
                 if (isset($dynamic_pagematch)) {
                     Log::warning(tr('Pattern matched page ":page" does not exist', [':page' => $page]));
                     $count++;
-                    return false;
+                    return;
 
                 } else {
                     // The hardcoded file for the regex does not exist, oops!
@@ -912,8 +911,6 @@ class Route
                 Page::die();
             }
 
-            return static::execute($page, $attachment);
-
         } catch (Exception $e) {
             if (str_starts_with($e->getMessage(), 'PHP ERROR [2] "preg_match_all():')) {
                 // A user defined regex failed, give pretty error
@@ -935,6 +932,8 @@ class Route
 
             throw $e;
         }
+
+        static::execute($page, $attachment);
     }
 
 
