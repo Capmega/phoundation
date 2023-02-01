@@ -25,17 +25,20 @@ class FlashMessages extends ElementsBlock implements Iterator
     /**
      * This method will move all messages from the specified FlashMessages object here.
      *
-     * @param FlashMessages $messages
+     * @param FlashMessages|null $messages
      * @return static
      */
-    public function pullMessagesFrom(FlashMessages $messages): static
+    public function pullMessagesFrom(?FlashMessages $messages): static
     {
-        foreach ($messages as $message) {
-            $this->add($message);
+        if ($messages) {
+            foreach ($messages as $message) {
+                $this->add($message);
+            }
+
+            // Clear the messages from the specified FlashMessages object
+            $messages->clear();
         }
 
-        // Clear the messages from the specified FlashMessages object
-        $messages->clear();
         return $this;
     }
 

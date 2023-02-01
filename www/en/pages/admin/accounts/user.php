@@ -1,6 +1,7 @@
 <?php
 
 use Phoundation\Accounts\Users\User;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;

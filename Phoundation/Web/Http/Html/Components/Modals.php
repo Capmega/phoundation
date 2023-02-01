@@ -2,9 +2,7 @@
 
 namespace Phoundation\Web\Http\Html\Components;
 
-use Iterator;
 use Phoundation\Core\Arrays;
-use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 
 
@@ -55,38 +53,6 @@ class Modals extends ElementsBlock
     {
         unset($this->source[$identifier]);
         return $this;
-    }
-
-
-
-    /**
-     * Returns true if the specified modal exists
-     *
-     * @param string $identifier
-     * @return bool
-     */
-    public function exists(string $identifier): bool
-    {
-        return array_key_exists($identifier, $this->source);
-    }
-
-
-
-    /**
-     * Returns true if the specified modal exists
-     *
-     * @param string $identifier
-     * @return Modal
-     */
-    public function get(string $identifier): Modal
-    {
-        if (!$this->exists($identifier)) {
-            throw new NotExistsException(tr('The specified modal ":identifier" does not exist', [
-                ':identifier' => $identifier
-            ]));
-        }
-        
-        return $this->source[$identifier];
     }
 
 

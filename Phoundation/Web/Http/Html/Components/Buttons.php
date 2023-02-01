@@ -67,13 +67,13 @@ class Buttons extends ElementsBlock implements Iterator
      * Adds a single button to button list
      *
      * @param Button|string|null $button
-     * @param string $kind
+     * @param string $mode
      * @param string|null $type_or_anchor_url
      * @param bool $outline
      * @param bool $right
      * @return static
      */
-    public function addButton(Button|string|null $button, #[ExpectedValues(values: ['success', 'info', 'warning', 'danger', 'primary', 'secondary', 'tertiary', 'link', 'light', 'dark'])] string $kind = 'primary', ?string $type_or_anchor_url = null, bool $outline = false, bool $right = false): static
+    public function addButton(Button|string|null $button, #[ExpectedValues(values: ['success', 'info', 'warning', 'danger', 'primary', 'secondary', 'tertiary', 'link', 'light', 'dark'])] string $mode = 'primary', ?string $type_or_anchor_url = null, bool $outline = false, bool $right = false): static
     {
         if (is_string($button)) {
             // Button was specified as string, create a button first
@@ -85,7 +85,7 @@ class Buttons extends ElementsBlock implements Iterator
                 ->setOutlined($outline)
                 ->setContent($button)
                 ->setRight($right)
-                ->setKind($kind);
+                ->setMode($mode);
 
             switch ($type_or_anchor_url) {
                 case null:

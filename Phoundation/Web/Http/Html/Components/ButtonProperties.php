@@ -20,6 +20,10 @@ use Phoundation\Web\Http\UrlBuilder;
  */
 trait ButtonProperties
 {
+    use Mode;
+
+
+
     /**
      * The type of button to render
      *

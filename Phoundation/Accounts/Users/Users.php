@@ -37,7 +37,7 @@ class Users extends DataList
         $this->entry_class = User::class;
         $this->table_name  = 'accounts_users';
 
-        $this->setHtmlQuery('SELECT   `id`, CONCAT(`first_names`, `last_names`) AS `name`, `nickname`, `email`, `status`, `created_on` 
+        $this->setHtmlQuery('SELECT   `id`, TRIM(CONCAT(`first_names`, " ", `last_names`)) AS `name`, `nickname`, `email`, `status`, `created_on`
                                    FROM     `accounts_users` 
                                    WHERE    `status` IS NULL 
                                    ORDER BY `name`');

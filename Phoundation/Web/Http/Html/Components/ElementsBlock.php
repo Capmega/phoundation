@@ -252,6 +252,38 @@ abstract class ElementsBlock implements Iterator
 
 
     /**
+     * Returns the specified item
+     *
+     * @param string|int $key
+     * @return mixed
+     */
+    #[ReturnTypeWillChange] public function get(string|int $key): mixed
+    {
+        if (array_key_exists($key, $this->source)) {
+            return $this->source[$key];
+        }
+
+        throw new OutOfBoundsException(tr('The specified source key ":key" does not exist', [
+            ':key' => $key
+        ]));
+    }
+
+
+
+    /**
+     * Returns if the specified key exists or not
+     *
+     * @param string|int $key
+     * @return bool
+     */
+    public function exists(string|int $key): bool
+    {
+        return array_key_exists($key, $this->source);
+    }
+
+
+
+    /**
      * Returns the current item
      *
      * @return mixed

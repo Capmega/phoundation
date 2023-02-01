@@ -41,7 +41,7 @@ class InputMultiButtonText extends ElementsBlock
     public function __construct()
     {
         $this->setButton(Button::new()
-            ->setKind('info')
+            ->setMode('info')
             ->setContent(tr('Action')));
         return parent::__construct();
     }
@@ -69,7 +69,7 @@ class InputMultiButtonText extends ElementsBlock
     public function setButton(Button $button): static
     {
         $button
-            ->addClasses(['btn', 'btn-warning', 'dropdown-toggle'])
+            ->addClasses(['btn', 'dropdown-toggle'])
             ->addData('toggle', 'dropdown')
             ->addAria('expanded', 'false');
 

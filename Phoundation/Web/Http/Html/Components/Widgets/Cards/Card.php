@@ -80,6 +80,17 @@ class Card extends Widget
 
 
     /**
+     * Card class constructor
+     */
+    public function __construct()
+    {
+        $this->setMode();
+        parent::__construct();
+    }
+
+
+
+    /**
      * Returns the title for this card
      *
      * @return string|null

@@ -235,6 +235,10 @@ class DataEntryForm extends Renderer
                     $input = InputMultiButtonText::new()
                         ->setSource($data['source']);
 
+                    $input->getButton()
+                        ->setMode(isset_get($data['mode']))
+                        ->setContent(isset_get($data['label']));
+
                     $input->getInput()
                         ->setDisabled((bool) $data['disabled'])
                         ->setReadOnly((bool) $data['readonly'])

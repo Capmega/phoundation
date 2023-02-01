@@ -23,8 +23,8 @@ trait Mode
      *
      * @var string|null $mode
      */
-    #[ExpectedValues([null, 'primary', 'info', 'warning', 'danger', 'success'])]
-    protected ?string $mode = null;
+    #[ExpectedValues(values: ['success', 'info', 'warning', 'danger', 'primary', 'secondary', 'tertiary', 'link', 'light', 'dark', null])]
+    protected ?string $mode = 'primary';
 
 
 
@@ -33,7 +33,7 @@ trait Mode
      *
      * @return string|null
      */
-    #[ExpectedValues([null, 'primary', 'info', 'warning', 'danger', 'success'])]
+    #[ExpectedValues(values: ['success', 'info', 'warning', 'danger', 'primary', 'secondary', 'tertiary', 'link', 'light', 'dark', null])]
     public function getMode(): ?string
     {
         return $this->mode;
@@ -42,14 +42,24 @@ trait Mode
 
 
     /**
-     * Returns the type of infobox to show
+     * Set the mode
      *
      * @param string|null $mode
      * @return static
      */
-    public function setMode(#[ExpectedValues([null, 'primary', 'info', 'warning', 'danger', 'success'])] ?string $mode): static
+    public function setMode(#[ExpectedValues(values: ['success', 'green', 'info', 'information', 'blue', 'warning', 'yellow', 'danger', 'red', 'error', 'exception', 'primary', 'secondary', 'tertiary', 'link', 'light', 'dark', null])] ?string $mode = null): static
     {
+        $mode = match (strtolower(trim((string) $mode))) {
+            'blue', 'info', 'information'                               => 'info',
+            'green', 'success'                                          => 'success',
+            'yellow', 'warning',                                        => 'warning',
+            'red', 'error', 'exception', 'danger',                      => 'danger',
+            'primary', 'secondary', 'tertiary', 'link', 'light', 'dark' => $mode,
+            ''                                                          => null,
+        };
+
         $this->mode = $mode;
+
         return $this;
     }
 }

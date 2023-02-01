@@ -24,12 +24,6 @@ class Button extends Element
 
 
     /**
-     * @var string $kind
-     */
-    #[ExpectedValues(values: ['success', 'info', 'warning', 'danger', 'primary', 'secondary', 'tertiary', 'link', 'light', 'dark'])]
-    protected string $kind = 'primary';
-
-    /**
      * Floating buttons
      *
      * @var bool $floating
@@ -45,45 +39,8 @@ class Button extends Element
     public function __construct()
     {
         parent::__construct();
-        parent::setElement('button');
-        parent::setClasses(Config::getString('web.defaults.elements.classes.button', 'btn'));
-    }
-
-
-
-    /**
-     * Set the button type
-     *
-     * @param string $kind
-     * @return Button
-     */
-    public function setKind(#[ExpectedValues(values: ['success', 'green', 'info', 'information', 'blue', 'warning', 'yellow', 'danger', 'red', 'error', 'exception', 'primary', 'secondary', 'tertiary', 'link', 'light', 'dark'])] string $kind): static
-    {
-        $kind = match (strtolower(trim($kind))) {
-            'blue', 'info', 'information'                               => 'info',
-            'green', 'success'                                          => 'success',
-            'yellow', 'warning',                                        => 'warning',
-            'red', 'error', 'exception', 'danger',                      => 'danger',
-            'primary', 'secondary', 'tertiary', 'link', 'light', 'dark' => $kind
-        };
-
-        $this->kind = $kind;
-
-        $this->setButtonClasses();
-
-        return $this;
-    }
-
-
-
-    /**
-     * Returns the button type
-     *
-     * @return string
-     */
-    #[ExpectedValues(values: ['success', 'info', 'warning', 'danger', 'primary', 'secondary', 'tertiary', 'link', 'light', 'dark'])] public function getKind(): string
-    {
-        return $this->kind;
+        $this->setElement('button');
+        $this->setClasses('btn');
     }
 
 
@@ -140,16 +97,22 @@ class Button extends Element
      *
      * @return void
      */
-    protected function setButtonClasses(): void
+    protected function resetButtonClasses(): void
     {
-        // Remove the current button kind
+        // Remove the current button mode
         foreach ($this->classes as $id => $class) {
-            if (str_starts_with($class, 'btn-')) {
+            if (str_starts_with($id, 'btn-')) {
                 unset($this->classes[$id]);
             }
         }
 
-        $this->addClass('btn-' . ($this->outlined ? 'outline-' : '') . $this->kind);
+        if ($this->mode) {
+            $this->addClass('btn-' . ($this->outlined ? 'outline-' : '') . $this->mode);
+        } else {
+            if ($this->outlined) {
+                $this->addClass('btn-outline');
+            }
+        }
 
         if ($this->flat) {
             $this->addClass('btn-flat');
@@ -181,9 +144,12 @@ class Button extends Element
      */
     public function render(): ?string
     {
+        $this->resetButtonClasses();
+
         $this->attributes['type'] = $this->type;
 
         if ($this->anchor_url) {
+            unset($this->attributes['type']);
             $this->attributes['href'] = $this->anchor_url;
         }
 

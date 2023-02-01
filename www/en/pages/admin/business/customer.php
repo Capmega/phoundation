@@ -109,7 +109,7 @@ echo $grid->render();
 Page::setHeaderTitle(tr('Customer'));
 Page::setHeaderSubTitle($customer->getName());
 Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'                    => tr('Home'),
-    '/customers/customers.html' => tr('Customers'),
-    ''                     => $customer->getName()
+    '/'                        => tr('Home'),
+    '/business/customers.html' => tr('Customers'),
+    ''                         => $customer->getName()
 ]));
