@@ -2,9 +2,11 @@
 
 namespace Phoundation\Business\Providers;
 
+use Phoundation\Business\Companies\Company;
 use Phoundation\Data\DataList\DataList;
 use Phoundation\Web\Http\Html\Components\Input\Select;
 use Phoundation\Web\Http\Html\Components\Table;
+
 
 
 /**
@@ -23,10 +25,10 @@ class Providers extends DataList
     /**
      * Providers class constructor
      *
-     * @param Provider|null $parent
+     * @param Company|null $parent
      * @param string|null $id_column
      */
-    public function __construct(?Provider $parent = null, ?string $id_column = null)
+    public function __construct(?Company $parent = null, ?string $id_column = null)
     {
         $this->entry_class = Provider::class;
         $this->table_name  = 'business_providers';
@@ -93,11 +95,6 @@ class Providers extends DataList
         // TODO: Implement save() method.
     }
 
-
-
-    /**
-     * @inheritDoc
-     */
     protected function loadDetails(array|string|null $columns, array $filters = []): array
     {
         // TODO: Implement loadDetails() method.

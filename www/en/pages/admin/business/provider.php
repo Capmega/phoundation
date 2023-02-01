@@ -1,6 +1,6 @@
 <?php
 
-use Phoundation\Business\Customers\Customer;
+use Phoundation\Business\Providers\Provider;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
@@ -20,26 +20,26 @@ GetValidator::new()
     ->select('id')->isOptional()->isId()
     ->validate();
 
-$customer = Customer::get($_GET['id']);
+$provider = Provider::get($_GET['id']);
 
 // Validate POST and submit
 if (Page::isPostRequestMethod()) {
     try {
-//        Customer::validate(PostValidator::new());
+//        Provider::validate(PostValidator::new());
 //
-//        // Update customer
-//        $customer = Customer::get($_GET['id']);
-//        $customer->modify($_POST);
-//        $customer->save();
+//        // Update provider
+//        $provider = Provider::get($_GET['id']);
+//        $provider->modify($_POST);
+//        $provider->save();
 //
 //        // Go back to where we came from
-//        Page::getFlashMessages()->add(tr('Success'), tr('Customer ":customer" has been updated', [':customer' => $customer->getName()]), 'success');
+//        Page::getFlashMessages()->add(tr('Success'), tr('Provider ":provider" has been updated', [':provider' => $provider->getName()]), 'success');
 //        Page::redirect('referer');
 
     } catch (ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
         Page::getFlashMessages()->add($e);
-        $customer->modify($_POST);
+        $provider->modify($_POST);
     }
 }
 
@@ -48,22 +48,22 @@ if (Page::isPostRequestMethod()) {
 // Build the buttons
 $buttons = Buttons::new()
     ->addButton('Submit')
-    ->addButton('Cancel', 'secondary', '/business/customers.html', true);
+    ->addButton('Cancel', 'secondary', '/business/providers.html', true);
 
 
 
-// Build the customer form
-$customer_card = Card::new()
+// Build the provider form
+$provider_card = Card::new()
     ->setHasCollapseSwitch(true)
-    ->setTitle(tr('Edit data for customer :name', [':name' => $customer->getName()]))
-    ->setContent($customer->getHtmlForm()->render())
+    ->setTitle(tr('Edit data for provider :name', [':name' => $provider->getName()]))
+    ->setContent($provider->getHtmlForm()->render())
     ->setButtons($buttons);
 
 
 
-// Build the grid column with a form containing the customer and roles cards
+// Build the grid column with a form containing the provider and roles cards
 $column = GridColumn::new()
-    ->addContent($customer_card->render())
+    ->addContent($provider_card->render())
     ->setSize(9)
     ->useForm(true);
 
@@ -71,10 +71,10 @@ $column = GridColumn::new()
 
 // Build profile picture card
 $picture = Card::new()
-    ->setTitle(tr('Customer profile picture'))
+    ->setTitle(tr('Provider profile picture'))
     ->setContent(Img::new()
-        ->setSrc($customer->getPicture())
-        ->setAlt(tr('Profile picture for :customer', [':customer' => $customer->getName()])));
+        ->setSrc($provider->getPicture())
+        ->setAlt(tr('Profile picture for :provider', [':provider' => $provider->getName()])));
 
 
 
@@ -82,7 +82,7 @@ $picture = Card::new()
 $relevant = Card::new()
     ->setMode('info')
     ->setTitle(tr('Relevant links'))
-    ->setContent('<a href="' . UrlBuilder::getWww('/business/providers.html') . '">' . tr('Providers management') . '</a><br>
+    ->setContent('<a href="' . UrlBuilder::getWww('/business/customers.html') . '">' . tr('Customers management') . '</a><br>
                          <a href="' . UrlBuilder::getWww('/business/companies.html') . '">' . tr('Companies management') . '</a>');
 
 
@@ -106,10 +106,10 @@ echo $grid->render();
 
 
 // Set page meta data
-Page::setHeaderTitle(tr('Customer'));
-Page::setHeaderSubTitle($customer->getName());
+Page::setHeaderTitle(tr('Provider'));
+Page::setHeaderSubTitle($provider->getName());
 Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                        => tr('Home'),
-    '/business/customers.html' => tr('Customers'),
-    ''                         => $customer->getName()
+    '/business/providers.html' => tr('Providers'),
+    ''                         => $provider->getName()
 ]));

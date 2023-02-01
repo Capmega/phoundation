@@ -7,15 +7,22 @@ use Phoundation\Business\Companies\Companies;
 use Phoundation\Core\Locale\Language\Languages;
 use Phoundation\Data\Categories\Categories;
 use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntry\DataEntryAddress;
 use Phoundation\Data\DataEntry\DataEntryCategory;
 use Phoundation\Data\DataEntry\DataEntryCode;
+use Phoundation\Data\DataEntry\DataEntryCompany;
 use Phoundation\Data\DataEntry\DataEntryEmail;
+use Phoundation\Data\DataEntry\DataEntryGeo;
+use Phoundation\Data\DataEntry\DataEntryLanguage;
 use Phoundation\Data\DataEntry\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\DataEntryPhones;
+use Phoundation\Data\DataEntry\DataEntryPicture;
 use Phoundation\Data\DataEntry\DataEntryUrl;
+use Phoundation\Data\Validator\Validator;
 use Phoundation\Geo\Countries\Countries;
 use Phoundation\Geo\Countries\Country;
 use Phoundation\Geo\States\State;
+
 
 
 /**
@@ -31,24 +38,109 @@ use Phoundation\Geo\States\State;
  */
 class Provider extends DataEntry
 {
-    use DataEntryNameDescription;
-    use DataEntryCategory;
+    use DataEntryGeo;
+    use DataEntryUrl;
+    use DataEntryCode;
     use DataEntryEmail;
     use DataEntryPhones;
-    use DataEntryCode;
-    use DataEntryUrl;
+    use DataEntryAddress;
+    use DataEntryCompany;
+    use DataEntryPicture;
+    use DataEntryCategory;
+    use DataEntryLanguage;
+    use DataEntryNameDescription;
 
 
 
     /**
-     * Providers class constructor
+     * Validates the provider record with the specified validator object
+     *
+     * @param Validator $validator
+     * @return void
+     */
+    public static function validate(Validator $validator): void
+    {
+        $validator->hasMaxCharacters()
+            ->select('name')->isOptional()->isName()
+            ->select('code')->isOptional()->isDomain()
+            ->select('email')->isOptional()->isEmail()
+            ->select('zipcode')->isOptional()->isString()->hasMinCharacters(4)->hasMaxCharacters(7)
+            ->select('phones')->isOptional()->sanitizeForceArray(',')->each()->isPhone()->sanitizeForceString()
+            ->select('address')->isOptional()->isPrintable()->hasMaxCharacters(64)
+            ->select('address2')->isOptional()->isPrintable()->hasMaxCharacters(64)
+            ->select('address3')->isOptional()->isPrintable()->hasMaxCharacters(64)
+            ->select('categories_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `categories` WHERE `id` = :id AND `status` IS NULL', [':id' => '$categories_id'])
+            ->select('languages_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `languages` WHERE `id` = :id AND `status` IS NULL', [':id' => '$languages_id'])
+            ->select('companies_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `business_companies` WHERE `id` = :id AND `status` IS NULL', [':id' => '$companies_id'])
+            ->select('countries_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':id' => '$countries_id'])
+            ->select('states_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_states` WHERE `id` = :id AND `countries_id` = :countries_id AND `status` IS NULL', [':id' => 'states_id', ':countries_id' => '$countries_id'])
+            ->select('cities_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_cities` WHERE `id` = :id AND `states_id`    = :states_id    AND `status` IS NULL', [':id' => 'cities_id', ':states_id'    => '$states_id'])
+            ->select('description')->isOptional()->isPrintable()->hasMaxCharacters(65_530)
+            ->select('url')->isOptional()->isUrl()
+            ->validate();
+    }
+
+
+
+    /**
+     * Returns the address2 for this object
+     *
+     * @return string|null
+     */
+    public function getAddress2(): ?string
+    {
+        return $this->getDataValue('address2');
+    }
+
+
+
+    /**
+     * Sets the address2 for this object
+     *
+     * @param string|null $address2
+     * @return static
+     */
+    public function setAddress2(?string $address2): static
+    {
+        return $this->setDataValue('address2', $address2);
+    }
+
+
+
+    /**
+     * Returns the address3 for this object
+     *
+     * @return string|null
+     */
+    public function getAddress3(): ?string
+    {
+        return $this->getDataValue('address3');
+    }
+
+
+
+    /**
+     * Sets the address3 for this object
+     *
+     * @param string|null $address3
+     * @return static
+     */
+    public function setAddress3(?string $address3): static
+    {
+        return $this->setDataValue('address3', $address3);
+    }
+
+
+
+    /**
+     * Provider class constructor
      *
      * @param int|string|null $identifier
      */
     public function __construct(int|string|null $identifier = null)
     {
-        static::$entry_name = 'providers';
-        $this->table        = 'business_providers';
+        static::$entry_name = 'provider';
+        $this->table      = 'business_providers';
 
         parent::__construct($identifier);
     }
@@ -56,7 +148,9 @@ class Provider extends DataEntry
 
 
     /**
-     * @inheritDoc
+     * Sets the available data keys for the User class
+     *
+     * @return void
      */
     protected function setKeys(): void
     {
