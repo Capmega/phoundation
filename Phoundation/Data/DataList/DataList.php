@@ -620,6 +620,7 @@ abstract class DataList implements Iterator
      */
     public function setStatus(?string $status, array $entries, ?string $comments = null): int
     {
+showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY FOR A SINGLE ROW!');
         return sql()->setStatus($status, $this->table_name, $entries, $comments);
     }
 
@@ -634,6 +635,7 @@ abstract class DataList implements Iterator
      */
     public function delete(array $entries, ?string $comments = null): int
     {
+showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY FOR A SINGLE ROW!');
         return $this->setStatus('deleted', $entries, $comments);
     }
 
@@ -648,21 +650,22 @@ abstract class DataList implements Iterator
      */
     public function undelete(array $entries, ?string $comments = null): int
     {
+showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY FOR A SINGLE ROW!');
         return $this->setStatus(null, $entries, $comments);
     }
 
 
 
-    /**
-     * Erase the specified entries
-     *
-     * @param array $entries
-     * @return int
-     */
-    public function erase(array $entries): int
-    {
-        return sql()->erase($this->table_name, $entries);
-    }
+//    /**
+//     * Erase the specified entries
+//     *
+//     * @param array $entries
+//     * @return int
+//     */
+//    public function erase(array $entries): int
+//    {
+//        return sql()->erase($this->table_name, $entries);
+//    }
 
 
 
