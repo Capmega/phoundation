@@ -100,7 +100,7 @@ class Updates extends Libraries\Updates
                     KEY `meta_id` (`meta_id`),
                 ')
                 ->setForeignKeys('
-                    CONSTRAINT `fk_meta_history_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
+                    CONSTRAINT `fk_meta_history_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                 ')
                 ->create();
 
@@ -108,7 +108,7 @@ class Updates extends Libraries\Updates
             sql()->schema()->table('sessions_extended')->drop();
 
             // Modify the meta_history table to have a foreign key to the (now existing) accounts_users table
-            sql()->schema()->table('meta_history')->alter()->addForeignKey('CONSTRAINT `fk_meta_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT');
+            sql()->schema()->table('meta_history')->alter()->addForeignKey('CONSTRAINT `fk_meta_history_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT');
 
             // Add tables for the sessions management
             sql()->schema()->table('sessions_extended')->define()
