@@ -314,11 +314,40 @@ abstract class DataEntry
      * Set the status for this database entry
      *
      * @param string|null $status
+     * @param string|null $comments
      * @return static
      */
-    public function setStatus(?String $status): static
+    public function setStatus(?String $status, ?string $comments = null): static
     {
         return $this->setDataValue('status', $status);
+    }
+
+
+
+    /**
+     * Delete the specified entries
+     *
+     * @param string|null $comments
+     * @return static
+     */
+    public function delete(?string $comments = null): static
+    {
+        showdie('FIX SET STATUS!');
+        return $this->setStatus('deleted', $comments);
+    }
+
+
+
+    /**
+     * Undelete the specified entries
+     *
+     * @param string|null $comments
+     * @return static
+     */
+    public function undelete(?string $comments = null): static
+    {
+        showdie('FIX SET STATUS!');
+        return $this->setStatus(null, $comments);
     }
 
 
