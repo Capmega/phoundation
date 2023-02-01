@@ -27,7 +27,7 @@ $filters = Card::new()
 
 
 // Build providers table
-$table = Providers::new()->getHtmlTable()
+$table = Providers::new()->getHtmlDataTable()
     ->setRowUrl('/business/provider-:ROW.html');
 
 $providers = Card::new()

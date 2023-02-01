@@ -756,9 +756,20 @@ class Table extends ResourceElement
     protected function renderHeaders(): string
     {
         $return = '<thead><tr>';
+        $first  = true;
 
-        foreach ($this->column_headers as $header) {
-            $return .= '<th>' . $header . '</th>';
+        foreach ($this->column_headers as $column => $header) {
+            if ($first and $this->checkbox_selectors) {
+                $first   = false;
+                $return .= '<th>' .
+                                InputCheckbox::new()
+                                    ->setName($column . '[]')
+                                    ->setValue(1)
+                                    ->render()
+                         . '</th>';
+            } else {
+                $return .= '<th>' . $header . '</th>';
+            }
         }
 
         return $return . '</tr></thead>';

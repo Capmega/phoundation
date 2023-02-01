@@ -10,7 +10,6 @@ use Phoundation\Core\Strings;
 use Phoundation\Data\DataList\DataList;
 use Phoundation\Databases\Sql\QueryBuilder;
 use Phoundation\Web\Http\Html\Components\Input\Select;
-use Phoundation\Web\Http\Html\Components\Table;
 
 
 /**
@@ -42,21 +41,6 @@ class Users extends DataList
                                    WHERE    `status` IS NULL 
                                    ORDER BY `name`');
         parent::__construct($parent, $id_column);
-    }
-
-
-
-    /**
-     * Creates and returns an HTML table for the data in this list
-     *
-     * @return Table
-     */
-    public function getHtmlTable(): Table
-    {
-        $table = parent::getHtmlTable();
-        $table->setCheckboxSelectors(true);
-
-        return $table;
     }
 
 

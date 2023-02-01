@@ -66,10 +66,12 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
         Page::setViewport('width=device-width, initial-scale=1');
 
         // Load basic MDB and fonts CSS
-        Page::loadCss('https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback');
-        Page::loadCss('adminlte/plugins/fontawesome-free/css/all');
-        Page::loadCss('adminlte/css/adminlte');
-        Page::loadCss('adminlte/plugins/overlayScrollbars/css/OverlayScrollbars');
+        Page::loadCss([
+            'https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback',
+            'adminlte/plugins/fontawesome-free/css/all',
+            'adminlte/css/adminlte',
+            'adminlte/plugins/overlayScrollbars/css/OverlayScrollbars'
+        ], true);
 
         // Load basic MDB amd jQuery javascript libraries
         Page::loadJavascript([
@@ -78,7 +80,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
             'adminlte/plugins/bootstrap/js/bootstrap.bundle',
             'adminlte/plugins/overlayScrollbars/js/jquery.overlayScrollbars',
             'adminlte/js/adminlte'
-        ]);
+        ], null, true);
 
         // Set basic page details
         Page::setPageTitle(tr('Phoundation platform'));

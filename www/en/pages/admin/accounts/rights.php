@@ -14,7 +14,7 @@ use Phoundation\Web\Page;
 
 
 // Build rights table
-$table = Rights::new()->getHtmlTable()
+$table = Rights::new()->getHtmlDataTable()
     ->setRowUrl('/accounts/right-:ROW.html');
 
 $rights = Card::new()

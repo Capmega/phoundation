@@ -27,7 +27,7 @@ $filters = Card::new()
 
 
 // Build customers table
-$table = Customers::new()->getHtmlTable()
+$table = Customers::new()->getHtmlDataTable()
     ->setRowUrl('/business/customer-:ROW.html');
 
 $customers = Card::new()

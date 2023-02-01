@@ -27,7 +27,7 @@ $filters = Card::new()
 
 
 // Build users table
-$table = Incidents::new()->getHtmlTable()
+$table = Incidents::new()->getHtmlDataTable()
     ->setRowUrl('/security/incident-:ROW.html');
 
 $users = Card::new()

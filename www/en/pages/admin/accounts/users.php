@@ -58,7 +58,7 @@ $buttons = Buttons::new()
     ->addButton(tr('Create'), 'primary', '/accounts/user.html')
     ->addButton(tr('Delete'), 'warning');
 
-$table = $users->getHtmlTable()
+$table = $users->getHtmlDataTable()
     ->setRowUrl('/accounts/user-:ROW.html');
 // TODO Automatically re-select items if possible
 //    ->select($_POST['id']);

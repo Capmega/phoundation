@@ -2,6 +2,7 @@
 
 namespace Phoundation\Web\Http\Html\Components;
 
+use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
@@ -33,6 +34,7 @@ class Script extends Element
      *
      * @var string|null $event_wrapper
      */
+    #[ExpectedValues('dom_content', 'window', 'function', null)]
     protected ?string $event_wrapper = 'dom_content';
 
 
@@ -42,6 +44,7 @@ class Script extends Element
      *
      * @return string|null
      */
+    #[ExpectedValues('dom_content', 'window', 'function', null)]
     public function getEventWrapper(): ?string
     {
         return $this->event_wrapper;
@@ -55,7 +58,7 @@ class Script extends Element
      * @param string|null $event_wrapper
      * @return static
      */
-    public function setEventWrapper(?string $event_wrapper): static
+    public function setEventWrapper(#[ExpectedValues('dom_content', 'window', 'function', null)] ?string $event_wrapper): static
     {
         switch ($event_wrapper) {
             case 'dom_content':

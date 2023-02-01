@@ -26,7 +26,7 @@ $filters = Card::new()
 
 
 // Build incidents table
-$table = Incidents::new()->getHtmlTable()
+$table = Incidents::new()->getHtmlDataTable()
     ->setRowUrl('/development/incident-:ROW.html');
 
 $incidents = Card::new()

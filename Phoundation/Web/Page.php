@@ -1547,9 +1547,10 @@ class Page
      *
      * @param string|array $urls
      * @param bool|null $header
+     * @param bool $prefix If true, the scripts will be added at the beginning of the scripts list
      * @return void
      */
-    public static function loadJavascript(string|array $urls, ?bool $header = null): void
+    public static function loadJavascript(string|array $urls, ?bool $header = null, bool $prefix = false): void
     {
         if ($header === null) {
             $header = !Config::getBoolean('web.javascript.delay', true);
@@ -1561,18 +1562,28 @@ class Page
             ]));
         }
 
-        foreach (Arrays::force($urls, ',') as $url) {
-            if ($header) {
-                static::$headers['javascript'][$url] = [
-                    'type' => 'text/javascript',
-                    'src'  => UrlBuilder::getJs($url)
-                ];
+        $scripts = [];
 
+        foreach (Arrays::force($urls, ',') as $url) {
+            $scripts[$url] = [
+                'type' => 'text/javascript',
+                'src'  => UrlBuilder::getJs($url)
+            ];
+        }
+
+        // Add scripts to header or footer
+        if ($header) {
+            if ($prefix) {
+                static::$headers['javascript'] = array_merge($scripts, static::$headers['javascript']);
             } else {
-                static::$footers['javascript'][$url] = [
-                    'type' => 'text/javascript',
-                    'src'  => UrlBuilder::getJs($url)
-                ];
+                static::$headers['javascript'] = array_merge(static::$headers['javascript'], $scripts);
+            }
+
+        } else {
+            if ($prefix) {
+                static::$footers['javascript'] = array_merge($scripts, static::$footers['javascript']);
+            } else {
+                static::$footers['javascript'] = array_merge(static::$footers['javascript'], $scripts);
             }
         }
     }
@@ -1583,15 +1594,24 @@ class Page
      * Load the specified CSS file(s)
      *
      * @param UrlBuilder|array|string $urls
+     * @param bool $prefix If true, the scripts will be added at the beginning of the scripts list
      * @return void
      */
-    public static function loadCss(UrlBuilder|array|string $urls): void
+    public static function loadCss(UrlBuilder|array|string $urls, bool $prefix = false): void
     {
+        $scripts = [];
+
         foreach (Arrays::force($urls, '') as $url) {
-            static::$headers['link'][$url] = [
+            $scripts[$url] = [
                 'rel'  => 'stylesheet',
                 'href' => UrlBuilder::getCss($url),
             ];
+        }
+
+        if ($prefix) {
+            static::$headers['link'] = array_merge($scripts, static::$headers['link']);
+        } else {
+            static::$headers['link'] = array_merge(static::$headers['link'], $scripts);
         }
     }
 

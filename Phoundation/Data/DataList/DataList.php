@@ -565,7 +565,9 @@ abstract class DataList implements Iterator
         }
 
         // Create and return the table
-        return Table::new()->setSourceQuery($this->html_query);
+        return Table::new()
+            ->setSourceQuery($this->html_query)
+            ->setCheckboxSelectors(true);
     }
 
 
@@ -584,7 +586,10 @@ abstract class DataList implements Iterator
         }
 
         // Create and return the table
-        return DataTable::new()->setSourceQuery($this->html_query);
+        return DataTable::new()
+            ->setId($this->table_name)
+            ->setSourceQuery($this->html_query)
+            ->setCheckboxSelectors(true);
     }
 
 
