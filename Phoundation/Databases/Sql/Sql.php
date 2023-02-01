@@ -678,7 +678,7 @@ class Sql
         // Set meta fields
         if (array_key_exists('meta_id', $row)) {
             // Update the meta data
-            Meta::get($row['meta_id'])->action('deleted', $comments);
+            Meta::get($row['meta_id'])->action(tr('Changed status to :status', [':status' => $status]), $comments);
 
             // Create the update filters
             $update = $this->filterColumns($row, ' AND ');

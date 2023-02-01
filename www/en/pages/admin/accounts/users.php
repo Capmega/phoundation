@@ -17,18 +17,32 @@ $users = Users::new();
 
 
 
-// Validate POST and submit
+// Button clicked?
 if (Page::isPostRequestMethod()) {
+    // Validate POST
+    PostValidator::new()
+        ->select('id')->isOptional()->isArray()->each()->isId()
+        ->validate();
+
     try {
-        PostValidator::new()
-            ->select('id')->isOptional()->isArray()->each()->isId()
-            ->validate();
+        // Process buttons
+        switch (PostValidator::getSubmitButton()) {
+            case tr('Delete'):
+                // Delete selected users
+                $count = $users->delete($_POST['id']);
 
-        // Delete selected users
-        $count = $users->delete($_POST['id']);
+                Page::getFlashMessages()->add(tr('Success'), tr('Deleted ":count" users', [':count' => $count]), 'success');
+                Page::redirect('this');
+                break;
 
-        Page::getFlashMessages()->add(tr('Success'), tr('Deleted ":count" users', [':count' => $count]), 'success');
-        Page::redirect('this');
+            case tr('Undelete'):
+                // Undelete selected users
+                $count = $users->undelete($_POST['id']);
+
+                Page::getFlashMessages()->add(tr('Success'), tr('Undeleted ":count" users', [':count' => $count]), 'success');
+                Page::redirect('this');
+                break;
+        }
 
     } catch (ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page

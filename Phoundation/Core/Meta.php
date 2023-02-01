@@ -3,6 +3,7 @@
 namespace Phoundation\Core;
 
 use Phoundation\Cli\Script;
+use Phoundation\Data\Exception\DataEntryNotExistsException;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Components\Table;
@@ -42,13 +43,14 @@ class Meta
      * Meta constructor
      *
      * @param int|null $id
-     * @param bool $load
      */
-    public function __construct(?int $id = null, bool $load = false)
+    public function __construct(?int $id = null)
     {
-        if ($id and $load) {
+        if ($id) {
+            // Load the specified metadata
             $this->load($id);
         } else {
+            // create a new metadata entry
             $retry = 0;
 
             while ($retry++ < 5) {
@@ -73,6 +75,18 @@ class Meta
 
 
     /**
+     * Returns the Meta id
+     *
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return (string) $this->id;
+    }
+
+
+
+    /**
      * Returns a new Meta object
      *
      * @return static
@@ -85,21 +99,20 @@ class Meta
 
 
     /**
-     * Returns a meta-object for the specified id
+     * Returns a metadata object for the specified id
      *
      * @param int|null $id
-     * @param bool $load
      * @return Meta
      */
-    public static function get(?int $id = null, bool $load = false): Meta
+    public static function get(?int $id = null): Meta
     {
-        return new Meta($id, $load);
+        return new Meta($id);
     }
 
 
 
     /**
-     * Returns the id for this meta-object
+     * Returns the id for this metadata object
      *
      * @return int
      */
@@ -117,7 +130,7 @@ class Meta
      * @param array|null $data
      * @return Meta
      */
-    public static function init( ?string $comments = null, ?array $data = null): Meta
+    public static function init(?string $comments = null, ?array $data = null): Meta
     {
         $meta = new Meta();
         $meta->action('created', $comments, $data);
@@ -133,12 +146,12 @@ class Meta
      * @param string $action
      * @param string|null $comments
      * @param array|null $data
-     * @return void
+     * @return static
      */
-    public function action(string $action, ?string $comments = null, ?array $data = null): void
+    public function action(string $action, ?string $comments = null, ?array $data = null): static
     {
         // Insert the action in the meta_history table
-        sql()->query('INSERT INTO `meta_history` (`meta_id`, `created_by`, `action`, `source`, `comments`, `data`) 
+        sql()->query(' INSERT INTO `meta_history` (`meta_id`, `created_by`, `action`, `source`, `comments`, `data`) 
                             VALUES                     (:meta_id , :created_by , :action , :source , :comments , :data )', [
             ':meta_id'    => $this->id,
             ':created_by' => Session::getUser()->getId(),
@@ -147,6 +160,8 @@ class Meta
             ':comments'   => $comments,
             ':data'       => Json::encode($data)
         ]);
+
+        return $this;
     }
 
 
@@ -172,9 +187,12 @@ class Meta
      */
     protected function load(int $id): void
     {
-        $this->id = $id;
-        $this->history = sql()->list('SELECT * FROM `meta_history` WHERE `meta_id` = :meta_id', [
-            ':meta_id' => $id
-        ]);
+        $this->id = sql()->getColumn('SELECT `id` FROM `meta` WHERE `id` = :id', [':id' => $id]);
+
+        if (!$this->id) {
+            throw new DataEntryNotExistsException(tr('The specified meta id ":id" does not exist', [
+                ':id' => $id
+            ]));
+        }
     }
 }
