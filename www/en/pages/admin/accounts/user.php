@@ -90,7 +90,7 @@ if (Page::isPostRequestMethod()) {
                 Page::getFlashMessages()->add(tr('Success'), tr('The user ":user" has been undeleted', [':user' => $user->getDisplayName()]), 'success');
                 Page::redirect();
         }
-    } catch (ValidationFailedException $e) {
+    } catch (IncidentsException|ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
         Page::getFlashMessages()->add($e);
         $user->modify($_POST);

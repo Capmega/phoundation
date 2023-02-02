@@ -660,6 +660,18 @@ Log::warning('RESTART SESSION');
 
 
     /**
+     * Returns true if this session is impersonated
+     *
+     * @return bool
+     */
+    public static function isImpersonated():  bool
+    {
+        return isset($_SESSION['user']['impersonate_id']);
+    }
+
+
+
+    /**
      * Update this session so that it impersonates this person
      *
      * @param User $user

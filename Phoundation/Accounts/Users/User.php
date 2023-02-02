@@ -1339,15 +1339,23 @@ class User extends DataEntry
     /**
      * Returns true if the current session user can impersonate this user
      *
+     * A user can be impersonated if:
+     * - The current session user has the right to impersonate users
+     * - The target user does NOT have the "god" right
+     * - The target user is not the same as the current user
+     * - The current session user is not impersonated itself
+     *
      * @return bool
      */
     public function canBeImpersonated(): bool
     {
-        if (Session::getUser()->hasAllRights('impersonate')) {
-            // We must have the right and we cannot impersonate ourselves
-            if ($this->getId() !== Session::getUser()->getId()) {
-                if (!$this->hasAllRights('god')) {
-                    return true;
+        if (!Session::isImpersonated()) {
+            if (Session::getUser()->hasAllRights('impersonate')) {
+                // We must have the right and we cannot impersonate ourselves
+                if ($this->getId() !== Session::getUser()->getId()) {
+                    if (!$this->hasAllRights('god')) {
+                        return true;
+                    }
                 }
             }
         }

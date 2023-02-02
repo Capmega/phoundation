@@ -25,6 +25,7 @@ use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Notifications\Notification;
+use Phoundation\Security\Incidents\Exception\IncidentsException;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Security\Incidents\Severity;
 use Phoundation\Servers\Server;
@@ -1067,6 +1068,14 @@ class Page
 
             static::getFlashMessages()->add($e);
             Route::executeSystem(401);
+
+        } catch (IncidentsException $e) {
+            // TODO Should we also catch AccessDenied exception here?
+            Log::warning('Page did not catch the following "IncidentsException" warning, showing "system/401"');
+            Log::warning($e);
+
+            static::getFlashMessages()->add($e);
+            Route::executeSystem(403);
 
         } catch (DataEntryNotExistsException $e) {
             Log::warning('Page did not catch the following "DataEntryNotExistsException" warning, showing "system/404"');
