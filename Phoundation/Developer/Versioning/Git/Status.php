@@ -2,9 +2,9 @@
 
 namespace Phoundation\Developer\Versioning\Git;
 
-
-
 use Phoundation\Exception\OutOfBoundsException;
+
+
 
 /**
  * Class Status
@@ -102,13 +102,37 @@ class Status
 
 
     /**
+     * Returns the status as a string
+     *
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return $this->status;
+    }
+
+
+
+    /**
      * Returns the status string
      *
      * @return string
      */
-    public function getStatusString(): string
+    public function getStatus(): string
     {
         return $this->status;
+    }
+
+
+
+    /**
+     * Returns a readable status string
+     *
+     * @return string
+     */
+    public function getReadable(): string
+    {
+        return $this->readable;
     }
 
 
@@ -193,27 +217,35 @@ class Status
      */
     protected function parseStatus(string $status): void
     {
+        $this->status = $status;
+
         switch ($status) {
             case 'D ':
                 $this->flag_deleted = true;
-                $this->readable     = tr('Deleted');
+                $this->readable     = tr('Deleted indexed');
                 break;
 
             case ' D':
                 $this->flag_deleted = true;
-                $this->readable     = tr('Added to index but deleted');
+                $this->readable     = tr('Deleted');
                 break;
 
             case 'AD':
                 $this->flag_deleted = true;
                 $this->flag_indexed = true;
-                $this->readable     = tr('Added to index but deleted');
+                $this->readable     = tr('New file indexed but deleted');
                 break;
 
             case 'AM':
                 $this->flag_new      = true;
                 $this->flag_modified = true;
-                $this->readable      = tr('New file');
+                $this->readable      = tr('New file indexed and modified');
+                break;
+
+            case 'A ':
+                $this->flag_new      = true;
+                $this->flag_modified = true;
+                $this->readable      = tr('New file indexed');
                 break;
 
             case ' M':
@@ -221,16 +253,22 @@ class Status
                 $this->readable      = tr('Modified');
                 break;
 
-            case 'RM':
-                $this->flag_renamed  = true;
-                $this->flag_modified = true;
-                $this->readable      = tr('Renamed and modified');
-                break;
-
             case 'M ':
                 $this->flag_indexed  = true;
                 $this->flag_modified = true;
                 $this->readable      = tr('Modified and indexed');
+                break;
+
+            case 'R ':
+                $this->flag_renamed  = true;
+                $this->flag_modified = true;
+                $this->readable      = tr('Renamed indexed');
+                break;
+
+            case 'RM':
+                $this->flag_renamed  = true;
+                $this->flag_modified = true;
+                $this->readable      = tr('Renamed indexed and modified');
                 break;
 
             case '??':

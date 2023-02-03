@@ -137,9 +137,13 @@ Class Process
      */
     public function executeReturnArray(): array
     {
-        Log::action(tr('Executing command ":command" using exec() to return an array', [
-            ':command' => $this->getFullCommandLine()
-        ]), 2);
+        if ($this->debug) {
+            Log::printr($this->getFullCommandLine());
+        } else {
+            Log::action(tr('Executing command ":command" using exec() to return an array', [
+                ':command' => $this->getFullCommandLine()
+            ]), 2);
+        }
 
         exec($this->getFullCommandLine(), $output, $exit_code);
         $this->setExitCode($exit_code, $output);
@@ -187,9 +191,12 @@ Class Process
         $commands = $this->getFullCommandLine();
         $commands = Strings::endsNotWith($commands, ';');
 
-        if (Debug::enabled()) {
+        if ($this->debug) {
+            Log::printr($this->getFullCommandLine());
+        } elseif (Debug::enabled()) {
             Log::action(tr('Executing command ":commands" using passthru()', [':commands' => $commands]), 2);
         }
+
 
         $result = passthru($this->getFullCommandLine(), $exit_code);
 
@@ -219,12 +226,17 @@ Class Process
      *
      * @return int The PID (Process ID) of the process running in the background
      */
-    public function executeBackground(bool $log = true): int
+    public function executeBackground(): int
     {
         // Ensure that this background command uses a terminal,
         $this->setTerm('xterm', true);
 
-        Log::notice(tr('Executing background command ":command" using exec()', [':command' => $this->getFullCommandLine(true)]));
+        if ($this->debug) {
+            Log::printr($this->getFullCommandLine());
+        } else {
+            Log::notice(tr('Executing background command ":command" using exec()', [':command' => $this->getFullCommandLine(true)]), 3);
+        }
+
         exec($this->getFullCommandLine(true), $output, $exit_code);
 
         if ($exit_code) {

@@ -200,6 +200,14 @@ trait ProcessVariables
      */
     protected ?string $execution_path = null;
 
+    /**
+     * If true, commands will be printed and logged
+     *
+     * @var bool $debug
+     */
+    protected bool $debug = false;
+
+
 
     /**
      * Process class contructor
@@ -779,22 +787,24 @@ throw new ProcessesException(tr('Specified process command ":command" does not e
      * Adds an argument to the existing list of arguments for the command that will be executed
      *
      * @note All arguments will be automatically escaped, but variable arguments ($variablename$) will NOT be escaped!
-     * @param array|string $argument
+     * @param array|string|null $argument
      * @return static This process so that multiple methods can be chained
      */
-    public function addArgument(array|string $argument): static
+    public function addArgument(array|string|null $argument): static
     {
-        if (is_array($argument)) {
-            return $this->addArguments($argument);
-        }
+        if ($argument !== null) {
+            if (is_array($argument)) {
+                return $this->addArguments($argument);
+            }
 
-        // Do not escape variables!
-        if (!preg_match('/^\$.+?\$$/', $argument)) {
-            $arguments = escapeshellarg($argument);
-        }
+            // Do not escape variables!
+            if (!preg_match('/^\$.+?\$$/', $argument)) {
+                $argument = escapeshellarg($argument);
+            }
 
-        $this->cached_command_line = null;
-        $this->arguments[]         = $argument;
+            $this->cached_command_line = null;
+            $this->arguments[]         = $argument;
+        }
 
         return $this;
     }
@@ -805,10 +815,10 @@ throw new ProcessesException(tr('Specified process command ":command" does not e
      * Sets a single argument for the command that will be executed
      *
      * @note All arguments will be automatically escaped, but variable arguments ($variablename$) will NOT be escaped!
-     * @param string $argument
+     * @param string|null $argument
      * @return static This process so that multiple methods can be chained
      */
-    public function setArgument(string $argument): static
+    public function setArgument(string|null $argument): static
     {
         return $this->setArguments([$argument]);
     }
@@ -995,29 +1005,6 @@ throw new ProcessesException(tr('Specified process command ":command" does not e
 
 
     /**
-     * Sets the timeout value for this process.
-     *
-     * If the process requires more time than the specified timeout value, it will be terminated automatically. Set to
-     * 0 seconds  to disable, defaults to 30 seconds
-     *
-     * @param int $timeout
-     * @return static
-     */
-    public function setTimeout(int $timeout): static
-    {
-        if (!is_natural($timeout,  0)) {
-            throw new OutOfBoundsException(tr('The specified timeout ":timeout" is invalid, it must be a natural number 0 or higher', [':timeout' => $timeout]));
-        }
-
-        $this->cached_command_line = null;
-        $this->timeout             = $timeout;
-
-        return $this;
-    }
-
-
-
-    /**
      * Returns the time in seconds that a process will wait before executing
      *
      * Defaults to 0, the process will NOT wait and start immediately
@@ -1097,6 +1084,29 @@ throw new ProcessesException(tr('Specified process command ":command" does not e
 
 
     /**
+     * Sets the timeout value for this process.
+     *
+     * If the process requires more time than the specified timeout value, it will be terminated automatically. Set to
+     * 0 seconds  to disable, defaults to 30 seconds
+     *
+     * @param int $timeout
+     * @return static
+     */
+    public function setTimeout(int $timeout): static
+    {
+        if (!is_natural($timeout,  0)) {
+            throw new OutOfBoundsException(tr('The specified timeout ":timeout" is invalid, it must be a natural number 0 or higher', [':timeout' => $timeout]));
+        }
+
+        $this->cached_command_line = null;
+        $this->timeout             = $timeout;
+
+        return $this;
+    }
+
+
+
+    /**
      * Get the process PID file from the run_file and remove the file
      *
      * @return void
@@ -1147,5 +1157,31 @@ throw new ProcessesException(tr('Specified process command ":command" does not e
     public function getPid(): ?int
     {
         return $this->pid;
+    }
+
+
+
+    /**
+     * Returns if debug is enabled or not
+     *
+     * @return bool
+     */
+    public function getDebug(): bool
+    {
+        return $this->debug;
+    }
+
+
+
+    /**
+     * Sets debug mode on or off
+     *
+     * @param bool $debug
+     * @return static
+     */
+    public function setDebug(bool $debug): static
+    {
+        $this->debug = $debug;
+        return $this;
     }
 }

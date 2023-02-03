@@ -3,10 +3,10 @@
 namespace Phoundation\Developer\Versioning\Git;
 
 use Phoundation\Cli\Cli;
+use Phoundation\Cli\Color;
 use Phoundation\Core\Classes\Iterator;
 use Phoundation\Core\Strings;
 use Phoundation\Developer\Versioning\Git\Traits\Path;
-use Phoundation\Processes\Process;
 
 
 /**
@@ -39,24 +39,6 @@ class StatusFiles extends Iterator
 
 
     /**
-     * Display the files status on the CLI
-     *
-     * @return void
-     */
-    public function CliDisplayTable(): void
-    {
-        $list = [];
-
-        foreach ($this->getList() as $file => $status) {
-            $list[$file] = ['status' => $status->];
-        }
-
-        Cli::displayTable($list, ['file' => tr('File'), 'status' => tr('Status')], 'file');
-    }
-
-
-
-    /**
      * Scans for changes
      *
      * @return static
@@ -66,6 +48,7 @@ class StatusFiles extends Iterator
         $this->list = [];
 
         $files = $this->git
+            ->clearArguments()
             ->addArgument('status')
             ->addArgument($this->path)
             ->addArgument('--porcelain')
@@ -86,5 +69,28 @@ class StatusFiles extends Iterator
         }
 
         return $this;
+    }
+
+
+
+    /**
+     * Display the files status on the CLI
+     *
+     * @return void
+     */
+    public function CliDisplayTable(): void
+    {
+        $list = [];
+
+        foreach ($this->getList() as $file => $status) {
+            if (trim(substr($status->getStatus(), 0, 1))) {
+                $status = Color::apply($status->getStatus()->getReadable(), 'green');
+            } else {
+                $status = Color::apply($status->getStatus()->getReadable(), 'red');
+            }
+            $list[$file] = ['status' => $status];
+        }
+
+        Cli::displayTable($list, ['file' => tr('File'), 'status' => tr('Status')], 'file');
     }
 }

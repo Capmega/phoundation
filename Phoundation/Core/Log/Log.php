@@ -526,9 +526,9 @@ Class Log {
      * @param int $threshold
      * @return bool
      */
-    public static function success(mixed $messages = null, int $threshold = 5): bool
+    public static function success(mixed $messages = null, int $threshold = 5, bool $clean = true, bool $newline = true): bool
     {
-        return static::write($messages, 'success', $threshold);
+        return static::write($messages, 'success', $threshold, $clean, $newline);
     }
 
 
@@ -568,9 +568,9 @@ Class Log {
      * @param int $threshold
      * @return bool
      */
-    public static function warning(mixed $messages = null, int $threshold = 9): bool
+    public static function warning(mixed $messages = null, int $threshold = 9, bool $clean = true, bool $newline = true): bool
     {
-        return static::write($messages, 'warning', $threshold);
+        return static::write($messages, 'warning', $threshold, $clean, $newline);
     }
 
 
@@ -582,9 +582,9 @@ Class Log {
      * @param int $threshold
      * @return bool
      */
-    public static function notice(mixed $messages = null, int $threshold = 3): bool
+    public static function notice(mixed $messages = null, int $threshold = 3, bool $clean = true, bool $newline = true): bool
     {
-        return static::write($messages, 'notice', $threshold);
+        return static::write($messages, 'notice', $threshold, $clean, $newline);
     }
 
 
@@ -596,9 +596,9 @@ Class Log {
      * @param int $threshold
      * @return bool
      */
-    public static function action(mixed $messages = null, int $threshold = 5): bool
+    public static function action(mixed $messages = null, int $threshold = 5, bool $clean = true, bool $newline = true): bool
     {
-        return static::write($messages, 'action', $threshold);
+        return static::write($messages, 'action', $threshold, $clean, $newline);
     }
 
 
@@ -625,9 +625,9 @@ Class Log {
      * @param int $threshold
      * @return bool
      */
-    public static function information(mixed $messages = null, int $threshold = 7): bool
+    public static function information(mixed $messages = null, int $threshold = 7, bool $clean = true, bool $newline = true): bool
     {
-        return static::write($messages, 'information', $threshold);
+        return static::write($messages, 'information', $threshold, $clean, $newline);
     }
 
 
@@ -706,9 +706,9 @@ Class Log {
      * @param int $threshold
      * @return bool
      */
-    public static function deprecated(int $threshold = 8): bool
+    public static function deprecated(int $threshold = 8, bool $clean = true, bool $newline = true): bool
     {
-        return static::logDebugHeader('DEPRECATED', 1, $threshold);
+        return static::logDebugHeader('DEPRECATED', 1, $threshold, $clean, $newline);
     }
 
 
@@ -721,10 +721,10 @@ Class Log {
      * @param int $threshold
      * @return bool
      */
-    public static function hex(mixed $messages = null, int $threshold = 3): bool
+    public static function hex(mixed $messages = null, int $threshold = 3, bool $clean = true, bool $newline = true): bool
     {
         static::logDebugHeader('HEX', 1, $threshold);
-        return static::write(Strings::interleave(bin2hex(Strings::force($messages)), 10), 'debug', $threshold);
+        return static::write(Strings::interleave(bin2hex(Strings::force($messages)), 10), 'debug', $threshold, $clean, $newline);
     }
 
 
@@ -738,9 +738,9 @@ Class Log {
      * @param int $threshold
      * @return bool
      */
-    public static function checkpoint(?string $message = null, int $threshold = 10): bool
+    public static function checkpoint(?string $message = null, int $threshold = 10, bool $clean = true, bool $newline = true): bool
     {
-        return static::logDebugHeader('CHECKPOINT ' . $message, 1, $threshold);
+        return static::logDebugHeader('CHECKPOINT ' . $message, 1, $threshold, $clean, $newline);
     }
 
 
@@ -782,12 +782,12 @@ Class Log {
      * @param int $threshold
      * @return bool
      */
-    public static function backtrace(?int $display = null, int $threshold = 10): bool
+    public static function backtrace(?int $display = null, int $threshold = 10, bool $clean = true, bool $newline = true): bool
     {
         $backtrace = Debug::backtrace(1);
         static::logDebugHeader('BACKTRACE', 1, $threshold);
         static::dumpTrace($backtrace, $threshold, $display);
-        return static::debug(basename($_SERVER['SCRIPT_FILENAME']), $threshold);
+        return static::debug(basename($_SERVER['SCRIPT_FILENAME']), $threshold. $clean, $newline);
     }
 
 
@@ -800,6 +800,7 @@ Class Log {
      */
     public static function statistics(int $threshold = 10): bool
     {
+        // WTH IS THIS? LIBRARY::GETJSON() ???
         return Log::printr(Library::getJson(), $threshold);
     }
 
@@ -813,11 +814,11 @@ Class Log {
      * @param int $threshold
      * @return bool
      */
-    public static function sql(string|PDOStatement $query, ?array $execute = null, int $threshold = 10): bool
+    public static function sql(string|PDOStatement $query, ?array $execute = null, int $threshold = 10, bool $clean = true, bool $newline = true): bool
     {
         $query = sql()->buildQueryString($query, $execute, false);
         $query = Strings::endsWith($query, ';');
-        return static::write('SQL QUERY: ' . $query, 'debug', $threshold);
+        return static::write('SQL QUERY: ' . $query, 'debug', $threshold, $clean, $newline);
     }
 
 

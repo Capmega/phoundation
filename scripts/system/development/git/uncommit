@@ -18,8 +18,8 @@ use Phoundation\Developer\Versioning\Git\Git;
  * @category Function reference
  * @package Phoundation\Development
  */
-Documentation::usage('./cli system development git merge BRANCH
-./cli system dev git merge BRANCH');
+Documentation::usage('./cli system development git uncommit
+./cli system dev git uncommit');
 Documentation::help('This script is an interface to the git command through Phoundation. Its not really needed -nor 
 useful- beyond testing the git library');
 
@@ -27,10 +27,8 @@ useful- beyond testing the git library');
 
 // Get command line arguments
 ArgvValidator::new()
-    ->select('-b,--branch', true)->isFile()
     ->noArgumentsLeft()
     ->validate();
 
 
-
-Git::new(PATH_ROOT)->merge($argv['branch']);
+Git::new(PATH_ROOT)->reset('HEAD^');

@@ -104,6 +104,7 @@ class ArgvValidator extends Validator
         unset($this->selected_value);
 
         $this->process_value_failed = false;
+
         $clean_field = null;
         $field       = null;
 
@@ -146,7 +147,8 @@ class ArgvValidator extends Validator
         try {
             $value = static::argument($fields, $next);
         } catch (OutOfBoundsException) {
-
+            // ???
+            $value = null;
         }
 
         if (!$field and str_starts_with((string) $value, '-')) {

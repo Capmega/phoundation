@@ -2,11 +2,9 @@
 
 namespace Phoundation\Developer\Versioning\Git;
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Versioning\Git\Traits\Path;
 use Phoundation\Developer\Versioning\Versioning;
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\Filesystem;
-use Phoundation\Processes\Process;
 
 
 /**
@@ -82,12 +80,15 @@ class Git extends Versioning
      */
     public function clone(string $url): static
     {
-        $this->git
+        $output = $this->git
             ->clearArguments()
             ->addArgument('clone')
             ->addArgument($this->url)
             ->addArgument($url)
-            ->executeNoReturn();
+            ->executeReturnArray();
+
+        Log::notice($output, 5, false);
+        return $this;
     }
 
 
@@ -140,12 +141,13 @@ class Git extends Versioning
      */
     public function checkout(string $branch): static
     {
-        $this->git
+        $output = $this->git
             ->clearArguments()
             ->addArgument('checkout')
             ->addArgument($branch)
-            ->executeNoReturn();
+            ->executeReturnArray();
 
+        Log::notice($output, 5, false);
         return $this;
     }
 
@@ -155,18 +157,39 @@ class Git extends Versioning
      * Resets the current branch to the specified revision
      *
      * @param string $revision
-     * @param string|null $file
+     * @param array|string|null $files
      * @return static
      */
-    public function reset(string $revision, ?string $file = null): static
+    public function reset(string $revision, array|string|null $files = null): static
     {
-        $this->git
+        $output = $this->git
             ->clearArguments()
             ->addArgument('reset')
             ->addArgument($revision)
-            ->addArgument($file)
-            ->executeNoReturn();
+            ->addArgument($files)
+            ->executeReturnArray();
 
+        Log::notice($output, 5, false);
+        return $this;
+    }
+
+
+
+    /**
+     * Apply the specified patch to the specified target file
+     *
+     * @param array|string $files
+     * @return static
+     */
+    public function add(array|string $files): static
+    {
+        $output = $this->git
+            ->clearArguments()
+            ->addArgument('add')
+            ->addArgument($files)
+            ->executeReturnArray();
+
+        Log::notice($output, 5, false);
         return $this;
     }
 
@@ -181,14 +204,15 @@ class Git extends Versioning
      */
     public function commit(string $message, bool $signed = false): static
     {
-        $this->git
+        $output = $this->git
             ->clearArguments()
             ->addArgument('commit')
             ->addArgument('-m')
             ->addArgument($message)
             ->addArgument($signed ? '-s' : null)
-            ->executeNoReturn();
+            ->executeReturnArray();
 
+        Log::notice($output, 5, false);
         return $this;
     }
 
@@ -263,14 +287,79 @@ class Git extends Versioning
      * Apply the specified patch to the specified target file
      *
      * @param string $patch_file
-     * @return void
+     * @return static
      */
-    public function apply(string $patch_file): void
+    public function apply(string $patch_file): static
     {
-        $this->git
+        $output = $this->git
             ->clearArguments()
             ->addArgument('apply')
             ->addArgument($patch_file)
-            ->executeReturnString();
+            ->executeReturnArray();
+
+        Log::notice($output, 5, false);
+        return $this;
+    }
+
+
+
+    /**
+     * Push the local changes to the remote repository / branch
+     *
+     * @param string $repository
+     * @param string $branch
+     * @return static
+     */
+    public function push(string $repository, string $branch): static
+    {
+        $output = $this->git
+            ->clearArguments()
+            ->addArgument('push')
+            ->addArgument($repository)
+            ->addArgument($branch)
+            ->executeReturnArray();
+
+        Log::notice($output, 5, false);
+        return $this;
+    }
+
+
+
+    /**
+     * Merge the specified branch into this one
+     *
+     * @param string $branch
+     * @return static
+     */
+    public function merge(string $branch): static
+    {
+        $output = $this->git
+            ->clearArguments()
+            ->addArgument('merge')
+            ->addArgument($branch)
+            ->executeReturnArray();
+
+        Log::notice($output, 5, false);
+        return $this;
+    }
+
+
+
+    /**
+     * Rebase the specified branch into this one
+     *
+     * @param string $branch
+     * @return static
+     */
+    public function rebase(string $branch): static
+    {
+        $output = $this->git
+            ->clearArguments()
+            ->addArgument('rebase')
+            ->addArgument($branch)
+            ->executeReturnArray();
+
+        Log::notice($output, 5, false);
+        return $this;
     }
 }
