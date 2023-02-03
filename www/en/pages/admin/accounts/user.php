@@ -1,7 +1,6 @@
 <?php
 
 use Phoundation\Accounts\Users\User;
-use Phoundation\Core\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
@@ -41,8 +40,10 @@ if (Page::isPostRequestMethod()) {
                     ->select('nickname')->isOptional()->isName()
                     ->select('email')->isEmail()
                     ->select('type')->isOptional()->isName()
-                    ->select('keywords')->isOptional()->sanitizeForceArray(' ')->each()->isWord()
-                    ->select('phones')->isOptional()->sanitizeForceArray(',')->each()->isPhone()->sanitizeForceString()
+                    ->select('keywords')->isOptional()->hasMaxCharacters(255)
+                    ->select('phones')->isOptional()->hasMinCharacters(10)->hasMaxCharacters(64)
+//                    ->select('keywords')->isOptional()->hasMaxCharacters(255)->sanitizeForceArray(' ')->each()->isWord()->sanitizeForceString()
+//                    ->select('phones')->isOptional()->hasMinCharacters(10)->hasMaxCharacters(64)->sanitizeForceArray(',')->each()->isPhone()->sanitizeForceString()
                     ->select('address')->isOptional()->isPrintable()
                     ->select('priority')->isOptional()->isNatural()->isBetween(1, 10)
                     ->select('is_leader')->isOptional()->isBoolean()
