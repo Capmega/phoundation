@@ -478,8 +478,11 @@ abstract class Validator
                 return;
             }
 
-            if (($value <= $minimum) or ($value >= $maximum)) {
-                $this->addFailure(tr('must be between ":amount" and ":maximum"', [':minimum' => $minimum, ':maximum' => $maximum]));
+            if (($value < $minimum) or ($value > $maximum)) {
+                $this->addFailure(tr('must be between ":minimum" and ":maximum"', [
+                    ':minimum' => $minimum,
+                    ':maximum' => $maximum
+                ]));
             }
         });
     }
@@ -1464,10 +1467,6 @@ abstract class Validator
                 // Validation already failed, don't test anything more
                 return;
             }
-
-            if (!str_starts_with($value, '/')) {
-                $this->addFailure(tr('must be a file path'));
-            }
         });
     }
 
@@ -2138,6 +2137,7 @@ abstract class Validator
     /**
      * Sanitize the selected value by making it a string
      *
+     * @todo KNOWN BUG: THIS DOESNT WORK
      * @param string $characters
      * @return static
      * @see static::sanitizeDecodeBase58()
