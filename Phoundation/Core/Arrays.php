@@ -1699,10 +1699,37 @@ class Arrays {
      */
     public static function prepend(array $source, string|float|int $key, mixed $value): array
     {
-        $source = array_reverse($source, true);
+        $source       = array_reverse($source, true);
         $source[$key] = $value;
-        $source = array_reverse($source, true);
+        $source       = array_reverse($source, true);
 
+        return $source;
+    }
+
+
+
+    /**
+     * Truncates an array by cutting entries to the specified size
+     *
+     * @param array $source
+     * @param int $max_size
+     * @param string $fill
+     * @param string $method
+     * @param bool $on_word
+     * @return array
+     */
+    public static function truncate(array $source, int $max_size, string $fill = ' ... ', string $method = 'right', bool $on_word = false): array
+    {
+        foreach ($source as $key => &$value) {
+            if (is_string($value)) {
+                $value = Strings::truncate($value, $max_size, $fill, $method, $on_word);
+            } elseif (!is_scalar($value)) {
+                // No support (yet) for non scalars, just drop it completely
+                unset($source[$key]);
+            }
+        }
+
+        unset($value);
         return $source;
     }
 }

@@ -227,9 +227,7 @@ class Strings
             $char = $characters[mt_rand(0, $charlen - 1)];
 
             if ($unique and (mb_strpos($string, $char) !== false)) {
-                /*
-                 * We want all characters to be unique, do not readd this character again
-                 */
+                // We want all characters to be unique, do not read this character again
                 $i--;
                 continue;
             }
