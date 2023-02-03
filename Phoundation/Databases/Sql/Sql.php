@@ -517,10 +517,10 @@ class Sql
      * @param array $insert_row
      * @param array $update_row
      * @param string|null $comments
+     * @param string|null $diff
      * @return int|null
-     * @throws Throwable
      */
-    public function write(string $table, array $insert_row, array $update_row, ?string $comments = null): ?int
+    public function write(string $table, array $insert_row, array $update_row, ?string $comments, ?string $diff): ?int
     {
         if (empty($update_row['id'])) {
             // New entry, insert
@@ -530,7 +530,7 @@ class Sql
                 try {
                     // Set a random ID and insert the row
                     $insert_row = Arrays::prepend($insert_row, 'id', mt_rand(1, PHP_INT_MAX));
-                    return $this->insert($table, $insert_row, $comments);
+                    return $this->insert($table, $insert_row, $comments, $diff);
                 } catch (SqlException $e) {
                     if ($e->getCode() !== 1062) {
                         // Some different error, keep throwing
@@ -548,10 +548,9 @@ class Sql
         }
 
         // This is an existing entry, update!
-        $this->update($table, $update_row, $comments);
+        $this->update($table, $update_row, 'update', $comments, $diff);
         return $update_row['id'];
     }
-
 
 
     /**
@@ -564,14 +563,16 @@ class Sql
      * @param string $table
      * @param array $row
      * @param string|null $comments
+     * @param string|null $diff
      * @return int
      */
-    public function insert(string $table, array $row,  ?string $comments = null): int
+    public function insert(string $table, array $row,  ?string $comments = null, ?string $diff = null): int
     {
         // Set meta fields
         if (array_key_exists('meta_id', $row)) {
-            $row['meta_id']    = Meta::init($comments)->getId();
-            $row['created_by'] = Session::getUser()->getId();
+            $row['meta_id']     = Meta::init($comments, $diff)->getId();
+            $row['created_by']  = Session::getUser()->getId();
+            $row['meta_state'] = Strings::random(16);
 
             unset($row['created_on']);
         }
@@ -595,16 +596,18 @@ class Sql
      *       to this table are in the $row value, the query will automatically fail with an exception!
      * @param string $table
      * @param array $row
+     * @param string $action
      * @param string|null $comments
-     * @param string|null $action
+     * @param string|null $diff
      * @return int
      */
-    public function update(string $table, array $row, ?string $comments = null, ?string $action = 'update'): int
+    public function update(string $table, array $row, string $action = 'update', ?string $comments = null, ?string $diff = null): int
     {
         // Set meta fields
         if (array_key_exists('meta_id', $row)) {
             // Log meta_id action
-            Meta::get($row['meta_id'])->action($action, $comments);
+            Meta::get($row['meta_id'])->action($action, $comments, $diff);
+            $row['meta_state'] = Strings::random(16);
 
             // Never update meta information
             unset($row['status']);

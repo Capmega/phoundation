@@ -3,16 +3,21 @@
 namespace Phoundation\Data\DataEntry;
 
 use DateTime;
+use Exception;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\Cli;
 use Phoundation\Core\Arrays;
+use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Meta;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
+use Phoundation\Data\DataEntry\Exception\DataEntryStateMismatchException;
 use Phoundation\Data\DataList\DataList;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Components\DataEntryForm;
+use Throwable;
 
 
 /**
@@ -91,6 +96,19 @@ abstract class DataEntry
      */
     protected ?DataList $list = null;
 
+    /**
+     * What to do when a record state mismatch was detected
+     *
+     * @var StateMismatchHandling $state_mismatch_handling
+     */
+    protected StateMismatchHandling $state_mismatch_handling = StateMismatchHandling::ignore;
+
+    /**
+     * $diff information showing what changed
+     *
+     * @var string|null $diff
+     */
+    protected ?string $diff = null;
 
 
     /**
@@ -325,6 +343,31 @@ abstract class DataEntry
 
 
     /**
+     * Returns the meta state for this database entry
+     *
+     * @return ?String
+     */
+    public function getMetaState(): ?string
+    {
+        return $this->getDataValue('meta_state');
+    }
+
+
+
+    /**
+     * Set the meta state for this database entry
+     *
+     * @param string|null $state
+     * @return static
+     */
+    protected function setMetaState(?String $state): static
+    {
+        return $this->setDataValue('meta_state', $state);
+    }
+
+
+
+    /**
      * Delete the specified entries
      *
      * @param string|null $comments
@@ -411,15 +454,102 @@ abstract class DataEntry
 
 
     /**
+     * Returns an array containing all diff data
+     *
+     * @return array|null
+     */
+    public function getDiff(): ?array
+    {
+        return $this->diff;
+    }
+
+
+
+    /**
      * Modify the data for this object with the new specified data
      *
      * @param array|null $data
      * @return static
      * @throws OutOfBoundsException
      */
-    public function modify(?array $data): static
+    public function modify(?array &$data): static
     {
-        return $this->setData($data, true);
+        if ($this->getMetaState()) {
+            if (isset_get($data['meta_state']) !== $this->getMetaState()) {
+                // State mismatch! This means that somebody else updated this record while we were modifying it.
+                switch ($this->state_mismatch_handling) {
+                    case StateMismatchHandling::ignore:
+                        Log::warning(tr('Ignoring database and user meta state mismatch for ":type" type record with ID ":id"', [
+                            ':id'   => $this->getId(),
+                            ':type' => static::$entry_name
+                        ]));
+                        break;
+
+                    case StateMismatchHandling::allow_override:
+                        // Okay, so the state did NOT match, and we WILL throw the state mismatch exception, BUT we WILL
+                        // update the state data so that a second attempt can succeed
+                        $data['meta_state'] = $this->getMetaState();
+                        break;
+
+                    case StateMismatchHandling::restrict:
+                        throw new DataEntryStateMismatchException(tr('Database and user meta state for ":type" type record with ID ":id" do not match', [
+                            ':id'   => $this->getId(),
+                            ':type' => static::$entry_name
+                        ]));
+                }
+            }
+        }
+
+        return $this
+            ->setDiff($data)
+            ->setData($data, true);
+    }
+
+
+
+    /**
+     * Generate diff data that can be used by the meta system
+     *
+     * @param array|null $data
+     * @return static
+     */
+    protected function setDiff(?array $data): static
+    {
+        if ($data === null) {
+            $diff = [
+                'from' => [],
+                'to'   => $this->data
+            ];
+        } else {
+            $diff = [
+                'from' => [],
+                'to'   => []
+            ];
+
+            // Check all keys and register changes
+            foreach ($this->keys as $key => $definition) {
+                if (isset_get($this->data[$key]) != isset_get($data[$key])) {
+                    // If both records were empty (from NULL to 0 for example) then don't register
+                    if ($this->data[$key] and $data[$key]) {
+                        $diff['from'][$key] = $this->data[$key];
+                        $diff['to'][$key] = $data[$key];
+                    }
+                }
+            }
+        }
+
+        try {
+            $this->diff = Json::encodeTruncateToMaxSize($diff, 65530);
+
+        } catch (Exception|Throwable $e) {
+            // Just in case the truncated JSON encoding somehow failed, make sure we can continue!
+            Notification::new($e)
+                ->log()->send();
+
+            $this->diff = tr('FAILED TO ENCODE DATA DIFF, SEE SYSTEM LOGS');
+        }
+
+        return $this;
     }
 
 
@@ -562,6 +692,7 @@ abstract class DataEntry
         $this->data['created_by'] = null;
         $this->data['created_on'] = null;
         $this->data['meta_id']    = null;
+        $this->data['meta_state'] = null;
         $this->data['status']     = null;
 
         if ($data === null) {
@@ -587,6 +718,8 @@ abstract class DataEntry
                 case 'status':
                     // no-break
                 case 'meta_id':
+                    // no-break
+                case 'meta_state':
                     // Store the meta data
                     $this->data[$key] = $value;
 
@@ -734,16 +867,21 @@ abstract class DataEntry
     /**
      * Will save the data from this data entry to database
      *
-     * @todo BUG: After the first insert, this object will be missing the meta information like created_by, created_on, meta_id. Reload?
+     * @param string|null $comments
      * @return static
      */
-    public function save(): static
+    public function save(?string $comments = null): static
     {
         // Validate keys
         $this->validateData();
 
+        // Build diff if inserting
+        if (!$this->getId()) {
+            $this->setDiff(null);
+        }
+
         // Write the entry
-        $this->data['id'] = sql()->write($this->table, $this->getInsertColumns(), $this->getUpdateColumns());
+        $this->data['id'] = sql()->write($this->table, $this->getInsertColumns(), $this->getUpdateColumns(), $comments, $this->diff);
 
         // Write the list, if set
         $this->list?->save();
