@@ -1377,7 +1377,9 @@ class Arrays {
      * Returns the longest value string for each column from each row in the specified source array
      *
      * @note Any non-string keys will be treated as displayed strings
-     * @note The required format for the source is as follows: []
+     * @note The required format for the source is as follows:
+     *       $source[$id] = [$column1 => $value1, $column2 => $value2, ...];
+     *
      * @param array $source
      * @param int $add_extra
      * @param string|null $add_key

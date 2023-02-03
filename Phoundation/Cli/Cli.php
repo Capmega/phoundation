@@ -99,6 +99,9 @@ class Cli
     /**
      * Display the data in the specified source array in a neat looking table
      *
+     * @note The required format for the source is as follows:
+     *       $source[$id] = [$column1 => $value1, $column2 => $value2, ...];
+     *
      * @param array $source
      * @param array|string|null $headers
      * @param string|null $id_column
