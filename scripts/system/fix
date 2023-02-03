@@ -1,6 +1,6 @@
 #!/usr/bin/php
 <?php
 
-cd /var/www/; sudo chmod ug+r,g-w,o-rwx . -R; cd /var/www/html/aerostream/aerostream.phoundation.org; sudo rm data/log -rf; sudo mkdir data/log; sudo touch data/log/syslog; sudo chmod 770 data/log; sudo chown www-data:www-data /var/www -R; cd /var/www/html/aerostream/aerostream.phoundation.org; sudo find . -type d -exec chmod ug+x {} \;;
+cd /var/www/; sudo chmod ug+r,g-w,o-rwx . -R; cd /var/www/html/phoundation.org; sudo rm data/log -rf; sudo mkdir data/log; sudo touch data/log/syslog; sudo chmod 770 data/log; sudo chown www-data:www-data /var/www -R; cd /var/www/html/phoundation.org; sudo find . -type d -exec chmod ug+x {} \;;
 
 sudo -u www-data ./cli system project database init --drop --import --demo -E production
