@@ -1,12 +1,13 @@
 <?php
 
-namespace Phoundation\Versioning\Git;
+namespace Phoundation\Developer\Versioning\Git;
 
 use Iterator;
 use Phoundation\Core\Strings;
 use Phoundation\Processes\Process;
 use Phoundation\Utils\Json;
-
+use function Phoundation\Versioning\Git\count;
+use function Phoundation\Versioning\Git\str_contains;
 
 
 /**

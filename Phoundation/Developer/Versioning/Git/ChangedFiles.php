@@ -1,10 +1,10 @@
 <?php
 
-namespace Phoundation\Versioning\Git;
+namespace Phoundation\Developer\Versioning\Git;
 
 use Iterator;
 use Phoundation\Processes\Process;
-
+use function Phoundation\Versioning\Git\count;
 
 
 /**

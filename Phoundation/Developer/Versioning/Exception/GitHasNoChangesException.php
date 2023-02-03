@@ -1,13 +1,11 @@
 <?php
 
-namespace Phoundation\Versioning\Exception;
-
-use Phoundation\Exception\Exception;
+namespace Phoundation\Developer\Versioning\Exception;
 
 
 
 /**
- * Class VersioningException
+ * Class GitHasNoChangesException
  *
  *
  *
@@ -16,6 +14,6 @@ use Phoundation\Exception\Exception;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Versioning
  */
-class VersioningException extends Exception
+class GitHasNoChangesException extends GitException
 {
 }

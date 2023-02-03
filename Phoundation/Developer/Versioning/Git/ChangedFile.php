@@ -1,9 +1,8 @@
 <?php
 
-namespace Phoundation\Versioning\Git;
+namespace Phoundation\Developer\Versioning\Git;
 
 use Phoundation\Processes\Process;
-
 
 
 /**

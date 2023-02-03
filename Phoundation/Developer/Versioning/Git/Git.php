@@ -1,14 +1,12 @@
 <?php
 
-namespace Phoundation\Versioning\Git;
+namespace Phoundation\Developer\Versioning\Git;
 
-use Phoundation\Core\Strings;
+use Phoundation\Developer\Versioning\Versioning;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Path;
 use Phoundation\Processes\Process;
-use Phoundation\Versioning\Versioning;
-
 
 
 /**
@@ -137,6 +135,18 @@ class Git extends Versioning
             ->addArgument('branch')
             ->addArgument($this->path)
             ->executeReturnString();
+    }
+
+
+
+    /**
+     * Returns a list of available git branches
+     *
+     * @return Branches
+     */
+    public function getBranches(): Branches
+    {
+        return Branches::new($this->path);
     }
 
 

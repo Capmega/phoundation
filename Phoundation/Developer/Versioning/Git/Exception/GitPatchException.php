@@ -1,6 +1,6 @@
 <?php
 
-namespace Phoundation\Versioning\Git\Exception;
+namespace Phoundation\Developer\Versioning\Git\Exception;
 
 
 

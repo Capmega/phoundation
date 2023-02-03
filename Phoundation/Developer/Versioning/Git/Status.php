@@ -1,6 +1,6 @@
 <?php
 
-namespace Phoundation\Versioning\Git;
+namespace Phoundation\Developer\Versioning\Git;
 
 
 
