@@ -59,7 +59,8 @@ class Updates extends Libraries\Updates
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
-                    `meta_id` bigint DEFAULT NULL,
+                    `meta_id` bigint NOT NULL,
+                    `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `library` VARCHAR(64) NOT NULL,
                     `version` bigint NOT NULL,
@@ -67,7 +68,10 @@ class Updates extends Libraries\Updates
                 ')
                 ->setIndices('
                     PRIMARY KEY (`id`),
-                    INDEX `created_on` (`created_on`),
+                    KEY `created_on` (`created_on`),
+                    KEY `created_by` (`created_by`),
+                    KEY `status` (`status`),
+                    KEY `meta_id` (`meta_id`),
                     INDEX `library` (`library`),
                     INDEX `version` (`version`),
                     UNIQUE `library_version` (`library`, `version`),
@@ -89,7 +93,7 @@ class Updates extends Libraries\Updates
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
-                    `meta_id` bigint DEFAULT NULL,
+                    `meta_id` bigint NOT NULL,
                     `action` varchar(16) DEFAULT NULL,
                     `source` varchar(512) DEFAULT NULL,
                     `comments` varchar(255) DEFAULT NULL,
@@ -99,8 +103,8 @@ class Updates extends Libraries\Updates
                     PRIMARY KEY (`id`),
                     KEY `created_on` (`created_on`),
                     KEY `created_by` (`created_by`),
-                    KEY `action` (`action`),
                     KEY `meta_id` (`meta_id`),
+                    KEY `action` (`action`),
                 ')
                 ->setForeignKeys('
                     CONSTRAINT `fk_meta_history_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
@@ -110,8 +114,14 @@ class Updates extends Libraries\Updates
         })->addUpdate('0.0.5', function () {
             sql()->schema()->table('sessions_extended')->drop();
 
-            // Modify the meta_history table to have a foreign key to the (now existing) accounts_users table
-            sql()->schema()->table('meta_history')->alter()->addForeignKey('CONSTRAINT `fk_meta_history_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT');
+            // Modify the core_versions and meta_history tables to have a foreign key to the (now existing) accounts_users table
+            sql()->schema()->table('meta_history')->alter()->addForeignKey('
+                CONSTRAINT `fk_meta_history_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
+            ');
+
+            sql()->schema()->table('core_versions')->alter()->addForeignKey('
+                CONSTRAINT `fk_core_versions_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
+            ');
 
             // Add tables for the sessions management
             sql()->schema()->table('sessions_extended')->define()
@@ -125,13 +135,14 @@ class Updates extends Libraries\Updates
                 ')
                 ->setIndices('
                     PRIMARY KEY (`id`),
-                    UNIQUE KEY `session_key` (`session_key`),
                     KEY `created_on` (`created_on`),
                     KEY `created_by` (`created_by`),
+                    KEY `status` (`status`),
+                    UNIQUE KEY `session_key` (`session_key`),
                     KEY `ip` (`ip`),
                 ')
                 ->setForeignKeys('
-                    CONSTRAINT `fk_sessions_extended_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE CASCADE,
+                    CONSTRAINT `fk_sessions_extended_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                 ')
                 ->create();
 
@@ -144,18 +155,20 @@ class Updates extends Libraries\Updates
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
+                    `status` VARCHAR(16) DEFAULT NULL,
                     `url` varchar(140) NOT NULL,
                     `cloak` varchar(32) NOT NULL,
                 ')
                 ->setIndices('
                     PRIMARY KEY (`id`),
-                    UNIQUE KEY `cloak` (`cloak`),
-                    UNIQUE KEY `url_created_by` (`url`,`created_by`),
                     KEY `created_on` (`created_on`),
                     KEY `created_by` (`created_by`),
+                    KEY `status` (`status`),
+                    UNIQUE KEY `cloak` (`cloak`),
+                    UNIQUE KEY `url_created_by` (`url`,`created_by`),
                 ')
                 ->setForeignKeys('
-                    CONSTRAINT `fk_url_cloaks_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`)
+                    CONSTRAINT `fk_url_cloaks_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
                 ')
                 ->create();
 
@@ -168,18 +181,19 @@ class Updates extends Libraries\Updates
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
-                    `meta_id` bigint DEFAULT NULL,
+                    `meta_id` bigint NOT NULL,
+                    `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `key` varchar(64) NOT NULL,
                     `value` varchar(4096) NOT NULL,
                 ')
                 ->setIndices('
                     PRIMARY KEY (`id`),
-                    UNIQUE KEY `key` (`key`),
                     KEY `created_on` (`created_on`),
                     KEY `created_by` (`created_by`),
                     KEY `status` (`status`),
                     KEY `meta_id` (`meta_id`),
+                    UNIQUE KEY `key` (`key`),
                 ')
                 ->setForeignKeys('
                     CONSTRAINT `fk_key_value_store_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
@@ -195,7 +209,8 @@ class Updates extends Libraries\Updates
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
-                    `meta_id` bigint DEFAULT NULL,
+                    `meta_id` bigint NOT NULL,
+                    `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `name` varchar(32) DEFAULT NULL,
                     `seo_name` varchar(32) DEFAULT NULL,
@@ -204,7 +219,7 @@ class Updates extends Libraries\Updates
                     `code_639_2_b` varchar(3) DEFAULT NULL,
                     `code_639_3` varchar(3) DEFAULT NULL,
                     `description` text DEFAULT NULL,
-                    ')
+                ')
                 ->setIndices('
                     PRIMARY KEY (`id`),
                     KEY `created_on` (`created_on`),
@@ -229,62 +244,67 @@ class Updates extends Libraries\Updates
             // Add table for plugins registration
             sql()->schema()->table('core_plugins')->define()
                 ->setColumns('
-                        `id` bigint NOT NULL AUTO_INCREMENT,
-                        `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                        `created_by` bigint DEFAULT NULL,
-                        `meta_id` bigint DEFAULT NULL,
-                        `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
-                        `priority` bigint DEFAULT NULL,
-                        `name` varchar(32) CHARACTER SET latin1 DEFAULT NULL,
-                        `seo_name` varchar(32) CHARACTER SET latin1 DEFAULT NULL,
-                        `file` varchar(64) NOT NULL,
-                        `class` varchar(255) NOT NULL,
-                        `description` text NULL,
-                    ')
+                    `id` bigint NOT NULL AUTO_INCREMENT,
+                    `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `created_by` bigint DEFAULT NULL,
+                    `meta_id` bigint NOT NULL,
+                    `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `priority` bigint DEFAULT NULL,
+                    `name` varchar(32) CHARACTER SET latin1 DEFAULT NULL,
+                    `seo_name` varchar(32) CHARACTER SET latin1 DEFAULT NULL,
+                    `file` varchar(64) NOT NULL,
+                    `class` varchar(255) NOT NULL,
+                    `description` text NULL,
+                ')
                 ->setIndices('
-                        PRIMARY KEY (`id`),
-                        INDEX `created_on` (`created_on`),
-                        INDEX `status` (`status`),
-                        UNIQUE KEY `class` (`class`),
-                        UNIQUE KEY `name` (`name`),
-                        UNIQUE KEY `seo_name` (`seo_name`),
-                        INDEX `priority` (`priority`),
-                    ')
+                    PRIMARY KEY (`id`),
+                    KEY `created_by` (`created_by`),
+                    KEY `created_on` (`created_on`),
+                    KEY `meta_id` (`meta_id`),
+                    KEY `status` (`status`),
+                    UNIQUE KEY `class` (`class`),
+                    UNIQUE KEY `name` (`name`),
+                    UNIQUE KEY `seo_name` (`seo_name`),
+                    INDEX `priority` (`priority`),
+                ')
                 ->setForeignKeys('
                     CONSTRAINT `fk_core_plugins_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_core_plugins_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                 ')
                 ->create();
 
-                // Add table for teplates registration
-                sql()->schema()->table('core_templates')->define()
-                    ->setColumns('
-                        `id` bigint NOT NULL AUTO_INCREMENT,
-                        `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                        `created_by` bigint DEFAULT NULL,
-                        `meta_id` bigint DEFAULT NULL,
-                        `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
-                        `name` varchar(32) DEFAULT NULL,
-                        `seo_name` varchar(32) DEFAULT NULL,
-                        `file` varchar(64) NOT NULL,
-                        `class` varchar(32) DEFAULT NULL,
-                        `description` text DEFAULT NULL,
-                        ')
-                    ->setIndices('
-                        PRIMARY KEY (`id`),
-                        KEY `created_on` (`created_on`),
-                        KEY `created_by` (`created_by`),
-                        KEY `status` (`status`),
-                        KEY `meta_id` (`meta_id`),
-                        UNIQUE KEY `class` (`class`),
-                        UNIQUE KEY `name` (`name`),
-                        UNIQUE KEY `seo_name` (`seo_name`),
+            // Add table for teplates registration
+            sql()->schema()->table('core_templates')->define()
+                ->setColumns('
+                    `id` bigint NOT NULL AUTO_INCREMENT,
+                    `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `created_by` bigint DEFAULT NULL,
+                    `meta_id` bigint NOT NULL,
+                    `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `name` varchar(32) DEFAULT NULL,
+                    `seo_name` varchar(32) DEFAULT NULL,
+                    `file` varchar(64) NOT NULL,
+                    `class` varchar(32) DEFAULT NULL,
+                    `description` text DEFAULT NULL,
                     ')
-                    ->setForeignKeys('
-                        CONSTRAINT `fk_core_templates_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
-                        CONSTRAINT `fk_core_templates_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
-                    ')
-                    ->create();
+                ->setIndices('
+                    PRIMARY KEY (`id`),
+                    KEY `created_on` (`created_on`),
+                    KEY `created_by` (`created_by`),
+                    KEY `status` (`status`),
+                    KEY `meta_id` (`meta_id`),
+                    UNIQUE KEY `class` (`class`),
+                    UNIQUE KEY `name` (`name`),
+                    UNIQUE KEY `seo_name` (`seo_name`),
+                ')
+                ->setForeignKeys('
+                    CONSTRAINT `fk_core_templates_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_core_templates_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
+                ')
+                ->create();
+
         })->addUpdate('0.0.11', function () {
             // Create some default roles and rights
             $rights = [

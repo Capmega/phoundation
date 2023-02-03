@@ -56,7 +56,8 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
                     `meta_id` bigint NOT NULL,
-                    `status` varchar(16) DEFAULT NULL,
+                    `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `code` varchar(16) DEFAULT NULL,
                     `type` varchar(16) DEFAULT NULL,
                     `priority` int NOT NULL,
@@ -65,19 +66,22 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `file` varchar(255) NOT NULL,
                     `line` int(11) NOT NULL,
                     `trace` text NOT NULL,
-                    `details` text DEFAULT NULL,')
+                    `details` text DEFAULT NULL,
+                ')
                 ->setIndices('
                     PRIMARY KEY (`id`),
-                    KEY `created_by` (`created_by`),
                     KEY `created_on` (`created_on`),
-                    KEY `meta_id` (`meta_id`),
+                    KEY `created_by` (`created_by`),
                     KEY `status` (`status`),
+                    KEY `meta_id` (`meta_id`),
                     KEY `code` (`code`),
                     KEY `type` (`type`),
-                    KEY `priority` (`priority`),')
+                    KEY `priority` (`priority`),
+                ')
                 ->setForeignKeys('
-                    CONSTRAINT `fk_notifications_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`),
-                    CONSTRAINT `fk_notifications_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`),')
+                    CONSTRAINT `fk_notifications_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_notifications_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
+                ')
                 ->create();
 
             sql()->schema()->table('notifications_groups')->define()
@@ -85,18 +89,27 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
+                    `meta_id` bigint NOT NULL,
+                    `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `notifications_id` bigint(11) NOT NULL,
-                    `groups_id` bigint(11) DEFAULT NULL,')
+                    `groups_id` bigint(11) DEFAULT NULL,
+                ')
                 ->setIndices('
                     PRIMARY KEY (`id`),
                     KEY `created_by` (`created_by`),
                     KEY `created_on` (`created_on`),
+                    KEY `meta_id` (`meta_id`),
+                    KEY `status` (`status`),
                     KEY `notifications_id` (`notifications_id`),
-                    KEY `groups_id` (`groups_id`),')
+                    KEY `groups_id` (`groups_id`),
+                ')
                 ->setForeignKeys('
-                    CONSTRAINT `fk_notifications_groups_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`),
-                    CONSTRAINT `fk_notifications_groups_notifications_id` FOREIGN KEY (`notifications_id`) REFERENCES `notifications` (`id`),
-                    CONSTRAINT `fk_notifications_groups_groups_id` FOREIGN KEY (`groups_id`) REFERENCES `accounts_groups` (`id`),')
+                    CONSTRAINT `fk_notifications_groups_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_notifications_groups_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
+                    CONSTRAINT `fk_notifications_groups_notifications_id` FOREIGN KEY (`notifications_id`) REFERENCES `notifications` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_notifications_groups_groups_id` FOREIGN KEY (`groups_id`) REFERENCES `accounts_groups` (`id`) ON DELETE RESTRICT,
+                ')
                 ->create();
         });
     }

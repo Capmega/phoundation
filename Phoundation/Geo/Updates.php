@@ -49,10 +49,23 @@ class Updates extends \Phoundation\Core\Libraries\Updates
     public function updates(): void
     {
         $this->addUpdate('0.0.3', function () {
+            // Cleanup all
+            sql()->schema()->table('geo_timezones')->drop();
+            sql()->schema()->table('geo_continents')->drop();
+            sql()->schema()->table('geo_countries')->drop();
+            sql()->schema()->table('geo_states')->drop();
+            sql()->schema()->table('geo_counties')->drop();
+            sql()->schema()->table('geo_features')->drop();
+            sql()->schema()->table('geo_cities')->drop();
+
             // Create the geo_timezones table.
             sql()->schema()->table('geo_timezones')->define()
                 ->setColumns('  
-                    `id` bigint NOT NULL AUTO_INCREMENT,                   
+                    `id` bigint NOT NULL AUTO_INCREMENT,
+                    `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `created_by` bigint DEFAULT NULL,
+                    `meta_id` bigint NOT NULL,
+                    `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `code` varchar(2) DEFAULT NULL,
                     `coordinates` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
@@ -61,22 +74,34 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `name` varchar(64) NOT NULL,
                     `seo_name` varchar(64) NOT NULL,
                     `comments` varchar(255) DEFAULT NULL,
-                    `notes` varchar(255) DEFAULT NULL,')
+                    `notes` varchar(255) DEFAULT NULL,
+                ')
                 ->setIndices('  
                     PRIMARY KEY (`id`),
+                    KEY `created_by` (`created_by`),
+                    KEY `created_on` (`created_on`),
+                    KEY `meta_id` (`meta_id`),
+                    KEY `status` (`status`),
                     UNIQUE KEY `name` (`name`),
                     UNIQUE KEY `seo_name` (`seo_name`),
                     KEY `coordinates` (`coordinates`),
                     KEY `utc_offset` (`utc_offset`),
                     KEY `utc_dst_offset` (`utc_dst_offset`),
                     KEY `code` (`code`),
-                    KEY `status` (`status`)')
+                ')
+                ->setForeignKeys('
+                    CONSTRAINT `fk_geo_timezones_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
+                ')
                 ->create();
 
             // Create the geo_continents table.
             sql()->schema()->table('geo_continents')->define()
                 ->setColumns('
-                    `id` bigint NOT NULL AUTO_INCREMENT,                   
+                    `id` bigint NOT NULL AUTO_INCREMENT,
+                    `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `created_by` bigint DEFAULT NULL,
+                    `meta_id` bigint NOT NULL,
+                    `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `geonames_id` bigint NOT NULL,
                     `code` varchar(2) NOT NULL,
@@ -85,8 +110,14 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `alternate_names` varchar(4000) NOT NULL,
                     `latitude` decimal(10,7) NOT NULL,
                     `longitude` decimal(10,7) NOT NULL,
-                    `timezones_id` bigint DEFAULT NULL,')
-                ->setIndices('  PRIMARY KEY (`id`),
+                    `timezones_id` bigint DEFAULT NULL,
+                ')
+                ->setIndices('  
+                    PRIMARY KEY (`id`),
+                    KEY `created_by` (`created_by`),
+                    KEY `created_on` (`created_on`),
+                    KEY `meta_id` (`meta_id`),
+                    KEY `status` (`status`),
                     UNIQUE KEY `name` (`name`),
                     UNIQUE KEY `seo_name` (`seo_name`),
                     KEY `geonames_id` (`geonames_id`),
@@ -94,15 +125,21 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     KEY `latitude` (`latitude`),
                     KEY `longitude` (`longitude`),
                     KEY `timezones_id` (`timezones_id`),
-                    KEY `status` (`status`),')
+                ')
                 ->setForeignKeys('
-                    CONSTRAINT `fk_geo_continents_timezones_id` FOREIGN KEY (`timezones_id`) REFERENCES `geo_timezones` (`id`) ON DELETE CASCADE')
+                    CONSTRAINT `fk_geo_continents_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
+                    CONSTRAINT `fk_geo_continents_timezones_id` FOREIGN KEY (`timezones_id`) REFERENCES `geo_timezones` (`id`) ON DELETE RESTRICT
+                ')
                 ->create();
 
             // Create the geo_countries table.
             sql()->schema()->table('geo_countries')->define()
                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
+                    `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `created_by` bigint DEFAULT NULL,
+                    `meta_id` bigint NOT NULL,
+                    `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `geonames_id` bigint DEFAULT NULL,
                     `continents_id` bigint DEFAULT NULL,
@@ -128,9 +165,14 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `seo_name` varchar(200) NOT NULL,
                     `capital` varchar(200) DEFAULT NULL,
                     `areainsqkm` double DEFAULT NULL,
-                    `population` int DEFAULT NULL,')
+                    `population` int DEFAULT NULL,
+                ')
                 ->setIndices('
                     PRIMARY KEY (`id`),
+                    KEY `created_by` (`created_by`),
+                    KEY `created_on` (`created_on`),
+                    KEY `meta_id` (`meta_id`),
+                    KEY `status` (`status`),
                     UNIQUE KEY `name` (`name`),
                     UNIQUE KEY `seo_name` (`seo_name`),
                     KEY `code` (`code`),
@@ -155,16 +197,22 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     KEY `equivalent_fips_code` (`equivalent_fips_code`),
                     KEY `latitude` (`latitude`),
                     KEY `longitude` (`longitude`),
-                    KEY `status` (`status`),')
+                ')
                 ->setForeignKeys('
-                    CONSTRAINT `fk_geo_countries_continents_id` FOREIGN KEY (`continents_id`) REFERENCES `geo_continents` (`id`) ON DELETE CASCADE,
-                    CONSTRAINT `fk_geo_countries_timezones_id` FOREIGN KEY (`timezones_id`) REFERENCES `geo_timezones` (`id`) ON DELETE CASCADE')
+                    CONSTRAINT `fk_geo_countries_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
+                    CONSTRAINT `fk_geo_countries_continents_id` FOREIGN KEY (`continents_id`) REFERENCES `geo_continents` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_geo_countries_timezones_id` FOREIGN KEY (`timezones_id`) REFERENCES `geo_timezones` (`id`) ON DELETE RESTRICT
+                ')
                 ->create();
 
             // Create the geo_states table.
             sql()->schema()->table('geo_states')->define()
                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
+                    `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `created_by` bigint DEFAULT NULL,
+                    `meta_id` bigint NOT NULL,
+                    `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `geonames_id` bigint DEFAULT NULL,
                     `timezones_id` bigint DEFAULT NULL,
@@ -181,9 +229,14 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `elevation` int DEFAULT NULL,
                     `admin1` varchar(20) DEFAULT NULL,
                     `admin2` varchar(20) DEFAULT NULL,
-                    `filter` enum("default", "selective") CHARACTER SET latin1 NOT NULL DEFAULT "default",')
+                    `filter` enum("default", "selective") CHARACTER SET latin1 NOT NULL DEFAULT "default",
+                ')
                 ->setIndices('
                     PRIMARY KEY (`id`),
+                    KEY `created_by` (`created_by`),
+                    KEY `created_on` (`created_on`),
+                    KEY `meta_id` (`meta_id`),
+                    KEY `status` (`status`),
                     UNIQUE KEY `seo_name` (`seo_name`),
                     UNIQUE KEY `name_2` (`name`,`latitude`,`longitude`),
                     KEY `timezones_id` (`timezones_id`),
@@ -198,18 +251,24 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     KEY `admin2` (`admin2`),
                     KEY `name` (`name`),
                     KEY `country_code` (`country_code`),
-                    KEY `status` (`status`),')
+                ')
                 ->setForeignKeys('
-                    CONSTRAINT `fk_geo_states_timezones_id` FOREIGN KEY (`timezones_id`) REFERENCES `geo_timezones` (`id`) ON DELETE CASCADE,
-                    CONSTRAINT `fk_geo_states_continents_id` FOREIGN KEY (`continents_id`) REFERENCES `geo_continents` (`id`) ON DELETE CASCADE,
-                    CONSTRAINT `fk_geo_states_countries_id` FOREIGN KEY (`countries_id`) REFERENCES `geo_countries` (`id`) ON DELETE CASCADE,
-                    CONSTRAINT `fk_geo_states_country_code` FOREIGN KEY (`country_code`) REFERENCES `geo_countries` (`code`) ON DELETE CASCADE,')
+                    CONSTRAINT `fk_geo_states_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
+                    CONSTRAINT `fk_geo_states_timezones_id` FOREIGN KEY (`timezones_id`) REFERENCES `geo_timezones` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_geo_states_continents_id` FOREIGN KEY (`continents_id`) REFERENCES `geo_continents` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_geo_states_countries_id` FOREIGN KEY (`countries_id`) REFERENCES `geo_countries` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_geo_states_country_code` FOREIGN KEY (`country_code`) REFERENCES `geo_countries` (`code`) ON DELETE RESTRICT,
+                ')
                 ->create();
 
             // Create the geo_counties table.
             sql()->schema()->table('geo_counties')->define()
                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
+                    `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `created_by` bigint DEFAULT NULL,
+                    `meta_id` bigint NOT NULL,
+                    `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `geonames_id` bigint DEFAULT NULL,
                     `timezones_id` bigint DEFAULT NULL,
@@ -225,12 +284,16 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `population` int DEFAULT NULL,
                     `elevation` int DEFAULT NULL,
                     `admin1` varchar(20) DEFAULT NULL,
-                    `admin2` varchar(20) DEFAULT NULL')
+                    `admin2` varchar(20) DEFAULT NULL
+                ')
                 ->setIndices('
                     PRIMARY KEY (`id`),
+                    KEY `created_by` (`created_by`),
+                    KEY `created_on` (`created_on`),
+                    KEY `meta_id` (`meta_id`),
+                    KEY `status` (`status`),
                     UNIQUE KEY `seo_name` (`seo_name`),
                     UNIQUE KEY `name_2` (`name`,`latitude`,`longitude`,`countries_id`),
-                    KEY `status` (`status`),
                     KEY `timezones_id` (`timezones_id`),
                     KEY `continents_id` (`continents_id`),
                     KEY `countries_id` (`countries_id`),
@@ -240,33 +303,52 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     KEY `elevation` (`elevation`),
                     KEY `admin1` (`admin1`),
                     KEY `admin2` (`admin2`),
-                    KEY `name` (`name`),')
+                    KEY `name` (`name`),
+                ')
                 ->setForeignKeys('
-                    CONSTRAINT `fk_geo_counties_timezones_id` FOREIGN KEY (`timezones_id`) REFERENCES `geo_timezones` (`id`) ON DELETE CASCADE,
-                    CONSTRAINT `fk_geo_counties_continents_id` FOREIGN KEY (`continents_id`) REFERENCES `geo_continents` (`id`) ON DELETE CASCADE,
-                    CONSTRAINT `fk_geo_counties_countries_id` FOREIGN KEY (`countries_id`) REFERENCES `geo_countries` (`id`) ON DELETE CASCADE,
-                    CONSTRAINT `fk_geo_counties_states_id` FOREIGN KEY (`states_id`) REFERENCES `geo_states` (`id`) ON DELETE CASCADE,')
+                    CONSTRAINT `fk_geo_counties_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
+                    CONSTRAINT `fk_geo_counties_timezones_id` FOREIGN KEY (`timezones_id`) REFERENCES `geo_timezones` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_geo_counties_continents_id` FOREIGN KEY (`continents_id`) REFERENCES `geo_continents` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_geo_counties_countries_id` FOREIGN KEY (`countries_id`) REFERENCES `geo_countries` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_geo_counties_states_id` FOREIGN KEY (`states_id`) REFERENCES `geo_states` (`id`) ON DELETE RESTRICT,
+                ')
                 ->create();
 
             // Create the geo_features table.
             sql()->schema()->table('geo_features')->define()
                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
+                    `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `created_by` bigint DEFAULT NULL,
+                    `meta_id` bigint NOT NULL,
+                    `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `code` varchar(10) NOT NULL,
                     `name` varchar(32) NOT NULL,
-                    `description` varchar(4096) DEFAULT NULL,')
+                    `description` varchar(4096) DEFAULT NULL,
+                ')
                 ->setIndices('
                     PRIMARY KEY (`id`),
-                    UNIQUE KEY `code` (`code`),
+                    KEY `created_by` (`created_by`),
+                    KEY `created_on` (`created_on`),
+                    KEY `meta_id` (`meta_id`),
                     KEY `status` (`status`),
-                    KEY `name` (`name`)')
+                    UNIQUE KEY `code` (`code`),
+                    KEY `name` (`name`)
+                ')
+                ->setForeignKeys('
+                    CONSTRAINT `fk_geo_features_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
+                ')
                 ->create();
 
             // Create the geo_cities table.
             sql()->schema()->table('geo_cities')->define()
                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
+                    `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `created_by` bigint DEFAULT NULL,
+                    `meta_id` bigint NOT NULL,
+                    `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `is_city` int DEFAULT NULL,
                     `geonames_id` bigint DEFAULT NULL,
@@ -287,9 +369,14 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `admin2` varchar(20) DEFAULT NULL,
                     `population` int DEFAULT NULL,
                     `timezone` varchar(64) DEFAULT NULL,
-                    `feature_code` varchar(10) DEFAULT NULL,')
+                    `feature_code` varchar(10) DEFAULT NULL,
+                ')
                 ->setIndices('
                     PRIMARY KEY (`id`),
+                    KEY `created_by` (`created_by`),
+                    KEY `created_on` (`created_on`),
+                    KEY `meta_id` (`meta_id`),
+                    KEY `status` (`status`),
                     UNIQUE KEY `seo_name` (`states_id`,`seo_name`),
                     UNIQUE KEY `name_2` (`name`,`latitude`,`longitude`,`countries_id`),
                     KEY `geonames_id` (`geonames_id`),
@@ -309,16 +396,36 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     KEY `admin1` (`admin1`),
                     KEY `admin2` (`admin2`),
                     KEY `name` (`name`),
-                    KEY `status` (`status`),')
+                ')
                 ->setForeignKeys('
-                    CONSTRAINT `fk_geo_cities_timezones_id` FOREIGN KEY (`timezones_id`) REFERENCES `geo_timezones` (`id`) ON DELETE CASCADE,
-                    CONSTRAINT `fk_geo_cities_continents_id` FOREIGN KEY (`continents_id`) REFERENCES `geo_continents` (`id`) ON DELETE CASCADE,
-                    CONSTRAINT `fk_geo_cities_countries_id` FOREIGN KEY (`countries_id`) REFERENCES `geo_countries` (`id`) ON DELETE CASCADE,
-                    CONSTRAINT `fk_geo_cities_states_id` FOREIGN KEY (`states_id`) REFERENCES `geo_states` (`id`) ON DELETE CASCADE,
-                    CONSTRAINT `fk_geo_cities_counties_id` FOREIGN KEY (`counties_id`) REFERENCES `geo_counties` (`id`) ON DELETE CASCADE,
-                    CONSTRAINT `fk_geo_cities_country_code` FOREIGN KEY (`country_code`) REFERENCES `geo_countries` (`code`) ON DELETE CASCADE,
-                    CONSTRAINT `fk_geo_cities_feature_code` FOREIGN KEY (`feature_code`) REFERENCES `geo_features` (`code`) ON DELETE SET NULL,')
+                    CONSTRAINT `fk_geo_cities_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
+                    CONSTRAINT `fk_geo_cities_timezones_id` FOREIGN KEY (`timezones_id`) REFERENCES `geo_timezones` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_geo_cities_continents_id` FOREIGN KEY (`continents_id`) REFERENCES `geo_continents` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_geo_cities_countries_id` FOREIGN KEY (`countries_id`) REFERENCES `geo_countries` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_geo_cities_states_id` FOREIGN KEY (`states_id`) REFERENCES `geo_states` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_geo_cities_counties_id` FOREIGN KEY (`counties_id`) REFERENCES `geo_counties` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_geo_cities_country_code` FOREIGN KEY (`country_code`) REFERENCES `geo_countries` (`code`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_geo_cities_feature_code` FOREIGN KEY (`feature_code`) REFERENCES `geo_features` (`code`) ON DELETE RESTRICT,
+                ')
                 ->create();
+
+        })->addUpdate('0.0.6', function () {
+            // Add missing "created_by" columns with indices and FKS
+            $tables = [
+                'geo_timezones',
+                'geo_continents',
+                'geo_countries',
+                'geo_states',
+                'geo_counties',
+                'geo_features',
+                'geo_cities',
+            ];
+
+            foreach ($tables as $table) {
+                sql()->schema()->table($table)->alter()->addForeignKey('
+                    CONSTRAINT `fk_' . $table . '_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
+                ');
+            }
         });
     }
 }

@@ -55,7 +55,8 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
-                    `meta_id` bigint DEFAULT NULL,
+                    `meta_id` bigint NOT NULL,
+                    `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `type` varchar(64) NOT NULL,
                     `severity` ENUM("notice", "low", "medium", "high", "severe") NOT NULL,
@@ -64,6 +65,10 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')
                 ->setIndices('                
                     PRIMARY KEY (`id`),
+                    KEY `created_by` (`created_by`),
+                    KEY `created_on` (`created_on`),
+                    KEY `meta_id` (`meta_id`),
+                    KEY `status` (`status`),
                     KEY `type` (`type`),
                     KEY `severity` (`severity`)
                 ')

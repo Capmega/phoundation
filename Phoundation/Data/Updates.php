@@ -55,7 +55,8 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `meta_id` bigint NOT NULL,
-                    `status` varchar(16) DEFAULT NULL,
+                    `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `parents_id` bigint DEFAULT NULL,
                     `name` varchar(64) DEFAULT NULL,
                     `seo_name` varchar(64) DEFAULT NULL,
@@ -63,16 +64,16 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')
                 ->setIndices(' 
                     PRIMARY KEY (`id`),
+                    KEY `created_on` (`created_on`),
+                    KEY `meta_id` (`meta_id`),
+                    KEY `status` (`status`),
                     UNIQUE KEY `seo_name` (`seo_name`),
                     UNIQUE KEY `parent_name` (`parents_id`,`name`),
-                    KEY `meta_id` (`meta_id`),
                     KEY `parents_id` (`parents_id`),
-                    KEY `created_on` (`created_on`),
-                    KEY `status` (`status`)
                 ')
                 ->setForeignKeys(' 
-                    CONSTRAINT `fk_categories_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`),
-                    CONSTRAINT `fk_categories_parents_id` FOREIGN KEY (`parents_id`) REFERENCES `categories` (`id`)
+                    CONSTRAINT `fk_categories_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
+                    CONSTRAINT `fk_categories_parents_id` FOREIGN KEY (`parents_id`) REFERENCES `categories` (`id`) ON DELETE RESTRICT
                 ')
                 ->create();
         })->addUpdate('0.0.5', function () {
@@ -85,7 +86,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     KEY `created_by` (`created_by`)
                 ')
                 ->addForeignKeys('
-                    CONSTRAINT `fk_categories_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`)
+                    CONSTRAINT `fk_categories_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
                 ');
         });
     }

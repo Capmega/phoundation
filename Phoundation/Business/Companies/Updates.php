@@ -54,9 +54,10 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` bigint NULL,
-                    `meta_id` bigint DEFAULT NULL,
-                    `status` varchar(16) DEFAULT NULL,
+                    `created_by` bigint DEFAULT NULL,
+                    `meta_id` bigint NOT NULL,
+                    `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `categories_id` bigint DEFAULT NULL,
                     `name` varchar(32) NOT NULL,
                     `seo_name` varchar(32) NOT NULL,
@@ -68,18 +69,18 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')
                 ->setIndices(' 
                     PRIMARY KEY (`id`),
-                    UNIQUE KEY `seo_name` (`seo_name`),
                     KEY `created_on` (`created_on`),
                     KEY `created_by` (`created_by`),
                     KEY `status` (`status`),
-                    KEY `name` (`name`),
                     KEY `meta_id` (`meta_id`),
+                    UNIQUE KEY `seo_name` (`seo_name`),
+                    KEY `name` (`name`),
                     KEY `categories_id` (`categories_id`)
                 ')
                 ->setForeignKeys(' 
-                    CONSTRAINT `fk_providers_categories_id` FOREIGN KEY (`categories_id`) REFERENCES `categories` (`id`),
-                    CONSTRAINT `fk_providers_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`),
-                    CONSTRAINT `fk_providers_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`)
+                    CONSTRAINT `fk_providers_categories_id` FOREIGN KEY (`categories_id`) REFERENCES `categories` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_providers_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_providers_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE
                 ')
                 ->create();
 
@@ -88,9 +89,10 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` bigint NULL,
-                    `meta_id` bigint DEFAULT NULL,
-                    `status` varchar(16) DEFAULT NULL,
+                    `created_by` bigint DEFAULT NULL,
+                    `meta_id` bigint NOT NULL,
+                    `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `name` varchar(64) DEFAULT NULL,
                     `code` varchar(64) DEFAULT NULL,
                     `company` varchar(64) DEFAULT NULL,
@@ -111,28 +113,28 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')
                 ->setIndices(' 
                     PRIMARY KEY (`id`),
-                    UNIQUE KEY `seo_name` (`seo_name`),
                     KEY `created_on` (`created_on`),
                     KEY `created_by` (`created_by`),
                     KEY `status` (`status`),
+                    KEY `meta_id` (`meta_id`),
+                    UNIQUE KEY `seo_name` (`seo_name`),
                     KEY `name` (`name`),
                     KEY `countries_id` (`countries_id`),
                     KEY `states_id` (`states_id`),
                     KEY `cities_id` (`cities_id`),
-                    KEY `meta_id` (`meta_id`),
                     KEY `email` (`email`),
                     KEY `phones` (`phones`),
                     KEY `documents_id` (`documents_id`),
                     KEY `categories_id` (`categories_id`)
                 ')
                 ->setForeignKeys(' 
-                    CONSTRAINT `fk_customers_categories_id` FOREIGN KEY (`categories_id`) REFERENCES `categories` (`id`),
-                    CONSTRAINT `fk_customers_cities_id` FOREIGN KEY (`cities_id`) REFERENCES `geo_cities` (`id`),
-                    CONSTRAINT `fk_customers_countries_id` FOREIGN KEY (`countries_id`) REFERENCES `geo_countries` (`id`),
-                    CONSTRAINT `fk_customers_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`),
-                    CONSTRAINT `fk_customers_documents_id` FOREIGN KEY (`documents_id`) REFERENCES `categories` (`id`),
-                    CONSTRAINT `fk_customers_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`),
-                    CONSTRAINT `fk_customers_states_id` FOREIGN KEY (`states_id`) REFERENCES `geo_states` (`id`)
+                    CONSTRAINT `fk_customers_categories_id` FOREIGN KEY (`categories_id`) REFERENCES `categories` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_customers_cities_id` FOREIGN KEY (`cities_id`) REFERENCES `geo_cities` (`id`) ON DELETE RESTRICT,,
+                    CONSTRAINT `fk_customers_countries_id` FOREIGN KEY (`countries_id`) REFERENCES `geo_countries` (`id`) ON DELETE RESTRICT,,
+                    CONSTRAINT `fk_customers_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_customers_documents_id` FOREIGN KEY (`documents_id`) REFERENCES `categories` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_customers_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
+                    CONSTRAINT `fk_customers_states_id` FOREIGN KEY (`states_id`) REFERENCES `geo_states` (`id`) ON DELETE RESTRICT,
                 ')
                 ->create();
 
@@ -143,7 +145,8 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
                     `meta_id` bigint NOT NULL,
-                    `status` varchar(16) DEFAULT NULL,
+                    `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `categories_id` bigint DEFAULT NULL,
                     `customers_id` bigint DEFAULT NULL,
                     `providers_id` bigint DEFAULT NULL,
@@ -153,22 +156,22 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')
                 ->setIndices(' 
                     PRIMARY KEY (`id`),
-                    UNIQUE KEY `seo_name` (`seo_name`),
-                    UNIQUE KEY `categories_name` (`categories_id`,`name`),
-                    KEY `meta_id` (`meta_id`),
-                    KEY `categories_id` (`categories_id`),
                     KEY `created_on` (`created_on`),
                     KEY `created_by` (`created_by`),
                     KEY `status` (`status`),
+                    KEY `meta_id` (`meta_id`),
+                    UNIQUE KEY `seo_name` (`seo_name`),
+                    UNIQUE KEY `categories_name` (`categories_id`,`name`),
+                    KEY `categories_id` (`categories_id`),
                     KEY `customers_id` (`customers_id`),
                     KEY `providers_id` (`providers_id`)
                 ')
                 ->setForeignKeys(' 
-                    CONSTRAINT `fk_companies_categories_id` FOREIGN KEY (`categories_id`) REFERENCES `categories` (`id`),
-                    CONSTRAINT `fk_companies_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`),
-                    CONSTRAINT `fk_companies_customers_id` FOREIGN KEY (`customers_id`) REFERENCES `customers` (`id`),
-                    CONSTRAINT `fk_companies_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`),
-                    CONSTRAINT `fk_companies_providers_id` FOREIGN KEY (`providers_id`) REFERENCES `providers` (`id`)
+                    CONSTRAINT `fk_companies_categories_id` FOREIGN KEY (`categories_id`) REFERENCES `categories` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_companies_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_companies_customers_id` FOREIGN KEY (`customers_id`) REFERENCES `customers` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_companies_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
+                    CONSTRAINT `fk_companies_providers_id` FOREIGN KEY (`providers_id`) REFERENCES `providers` (`id`) ON DELETE RESTRICT
                 ')
                 ->create();
 
@@ -179,26 +182,22 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
                     `meta_id` bigint NOT NULL,
-                    `status` varchar(16) DEFAULT NULL,
+                    `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `companies_id` bigint NOT NULL,
                     `name` varchar(64) DEFAULT NULL,
                     `seo_name` varchar(64) DEFAULT NULL,
                     `description` varchar(2047) DEFAULT NULL
                 ')
                 ->setIndices(' 
-                    PRIMARY KEY (`id`),
                     UNIQUE KEY `seo_name` (`seo_name`),
                     UNIQUE KEY `company_name` (`companies_id`,`name`),
-                    KEY `meta_id` (`meta_id`),
                     KEY `companies_id` (`companies_id`),
-                    KEY `created_on` (`created_on`),
-                    KEY `created_by` (`created_by`),
-                    KEY `status` (`status`)
                 ')
                 ->setForeignKeys(' 
-                    CONSTRAINT `fk_branches_companies_id` FOREIGN KEY (`companies_id`) REFERENCES `companies` (`id`),
-                    CONSTRAINT `fk_branches_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`),
-                    CONSTRAINT `fk_branches_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`)
+                    CONSTRAINT `fk_branches_companies_id` FOREIGN KEY (`companies_id`) REFERENCES `companies` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_branches_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_branches_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE
                 ')
                 ->create();
 
@@ -209,7 +208,8 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
                     `meta_id` bigint NOT NULL,
-                    `status` varchar(16) DEFAULT NULL,
+                    `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `companies_id` bigint NOT NULL,
                     `branches_id` bigint DEFAULT NULL,
                     `name` varchar(64) DEFAULT NULL,
@@ -218,20 +218,20 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')
                 ->setIndices(' 
                     PRIMARY KEY (`id`),
-                    UNIQUE KEY `seo_name` (`seo_name`),
-                    UNIQUE KEY `company_branch_name` (`companies_id`,`branches_id`,`name`),
-                    KEY `meta_id` (`meta_id`),
-                    KEY `companies_id` (`companies_id`),
                     KEY `created_on` (`created_on`),
                     KEY `created_by` (`created_by`),
                     KEY `status` (`status`),
+                    KEY `meta_id` (`meta_id`),
+                    UNIQUE KEY `seo_name` (`seo_name`),
+                    UNIQUE KEY `company_branch_name` (`companies_id`,`branches_id`,`name`),
+                    KEY `companies_id` (`companies_id`),
                     KEY `fk_departments_branches_id` (`branches_id`)
                 ')
                 ->setForeignKeys(' 
-                    CONSTRAINT `fk_departments_branches_id` FOREIGN KEY (`branches_id`) REFERENCES `branches` (`id`),
-                    CONSTRAINT `fk_departments_companies_id` FOREIGN KEY (`companies_id`) REFERENCES `companies` (`id`),
-                    CONSTRAINT `fk_departments_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`),
-                    CONSTRAINT `fk_departments_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`)
+                    CONSTRAINT `fk_departments_branches_id` FOREIGN KEY (`branches_id`) REFERENCES `branches` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_departments_companies_id` FOREIGN KEY (`companies_id`) REFERENCES `companies` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_departments_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_departments_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE
                 ')
                 ->create();
 
@@ -242,7 +242,8 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
                     `meta_id` bigint NOT NULL,
-                    `status` varchar(16) DEFAULT NULL,
+                    `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `companies_id` bigint NOT NULL,
                     `branches_id` bigint DEFAULT NULL,
                     `departments_id` bigint DEFAULT NULL,
@@ -253,21 +254,21 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')
                 ->setIndices(' 
                     PRIMARY KEY (`id`),
-                    UNIQUE KEY `seo_name` (`seo_name`),
+                    KEY `created_on` (`created_on`),
+                    KEY `created_by` (`created_by`),
+                    KEY `status` (`status`),
                     KEY `meta_id` (`meta_id`),
+                    UNIQUE KEY `seo_name` (`seo_name`),
                     KEY `companies_id` (`companies_id`),
                     KEY `branches_id` (`branches_id`),
                     KEY `departments_id` (`departments_id`),
-                    KEY `created_on` (`created_on`),
-                    KEY `created_by` (`created_by`),
-                    KEY `status` (`status`)
                 ')
                 ->setForeignKeys(' 
                     CONSTRAINT `fk_employees_branches_id` FOREIGN KEY (`branches_id`) REFERENCES `branches` (`id`),
                     CONSTRAINT `fk_employees_companies_id` FOREIGN KEY (`companies_id`) REFERENCES `companies` (`id`),
-                    CONSTRAINT `fk_employees_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`),
+                    CONSTRAINT `fk_employees_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_employees_departments_id` FOREIGN KEY (`departments_id`) REFERENCES `departments` (`id`),
-                    CONSTRAINT `fk_employees_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`)
+                    CONSTRAINT `fk_employees_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE
                 ')
                 ->create();
         });

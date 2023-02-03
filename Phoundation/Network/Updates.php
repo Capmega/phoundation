@@ -52,20 +52,21 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             // Add network_curl_cache table
             sql()->schema()->table('network_curl_cache')->define()
                 ->setColumns('
-                  `id` bigint NOT NULL AUTO_INCREMENT,
-                  `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                  `created_by` bigint DEFAULT NULL,
-                  `url` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-                  `headers` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-                  `data` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL')
+                    `id` bigint NOT NULL AUTO_INCREMENT,
+                    `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `created_by` bigint DEFAULT NULL,
+                    `url` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+                    `headers` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+                    `data` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL')
                 ->setIndices('
-                  PRIMARY KEY (`id`),
-                  KEY `created_on` (`created_on`),
-                  KEY `created_by` (`created_by`),
-                  KEY `url` (`url`),')
-                ->setForeignKeys('
-                  CONSTRAINT `fk_network_curl_cache_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE CASCADE')
-                ->create();
+                    PRIMARY KEY (`id`),
+                    KEY `created_on` (`created_on`),
+                    KEY `created_by` (`created_by`),
+                    KEY `url` (`url`),')
+              ->setForeignKeys('
+                    CONSTRAINT `fk_network_curl_cache_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
+              ')
+              ->create();
         });
     }
 }
