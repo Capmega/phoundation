@@ -161,7 +161,7 @@ class Git extends Versioning
         $this->git
             ->clearArguments()
             ->addArgument('stash')
-            ->executeNoReturn();
+            ->executePassthru();
 
         return $this;
     }
@@ -179,7 +179,7 @@ class Git extends Versioning
             ->clearArguments()
             ->addArgument('stash')
             ->addArgument('pop')
-            ->executeNoReturn();
+            ->executePassthru();
 
         return $this;
     }
