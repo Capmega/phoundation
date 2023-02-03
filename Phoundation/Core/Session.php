@@ -136,61 +136,19 @@ class Session
      */
     public static function getUser(): User
     {
-        if (static::$user === null) {
-            // User object does not yet exist
-            if (isset_get($_SESSION['user']['id'])) {
-                if (isset($_SESSION['user']['impersonate_id'])) {
-                    // Impersonated user!
-                    $users_id = $_SESSION['user']['impersonate_id'];
-                } else {
-                    $users_id = $_SESSION['user']['id'];
-                }
+        return self::returnUser(false);
+    }
 
-                // Create new user object and ensure it's still good to go
-                try {
-                    $user = User::get($users_id);
 
-                    if ($user->getStatus()) {
-                        // Only status NULL is allowed
-                        throw new DataEntryStatusException(tr('The user ":user" has the status ":status" which is not allowed, removing session entry and dropping to guest user', [
-                            ':user'   => $user->getLogId(),
-                            ':status' => $user->getStatus()
-                        ]));
-                    }
 
-                    return $user;
-
-                } catch (DataEntryNotExistsException) {
-                    Log::warning(tr('The session user ":id" does not exist, removing session entry and dropping to guest user', [
-                        ':id' => $_SESSION['user']['id']
-                    ]));
-
-                    // Remove entry and try again
-                    unset($_SESSION['user']['id']);
-
-                } catch (DataEntryStatusException $e) {
-                    Log::warning($e->getMessage());
-
-                    // Remove entry and try again
-                    unset($_SESSION['user']['id']);
-
-                } catch (Throwable $e) {
-                    Log::warning(tr('Failed to fetch user ":user" for session with ":e", removing session entry and dropping to guest user', [
-                        ':e'    => $e->getMessage(),
-                        ':user' => $_SESSION['user']['id']
-                    ]));
-
-                    // Remove entry and try again
-                    unset($_SESSION['user']['id']);
-                }
-            }
-
-            // There is no user, this is a guest session
-            return new GuestUser();
-        }
-
-        // Return the user object
-        return static::$user;
+    /**
+     * Returns the user for this session
+     *
+     * @return User
+     */
+    public static function getRealUser(): User
+    {
+        return self::returnUser(true);
     }
 
 
@@ -1026,5 +984,77 @@ Log::warning('RESTART SESSION');
         }
 
         return true;
+    }
+
+
+
+    /**
+     * Returns the user for this session
+     *
+     * @param bool $real_user
+     * @return User
+     */
+    protected static function returnUser(bool $real_user): User
+    {
+        if (static::$user === null) {
+            // User object does not yet exist
+            if (isset_get($_SESSION['user']['id'])) {
+                if (isset($_SESSION['user']['impersonate_id'])) {
+                    if ($real_user) {
+                        // The session user is impersonated, but the real user was requested
+                        return User::get($_SESSION['user']['id']);
+                    }
+
+                    // Impersonated user!
+                    $users_id = $_SESSION['user']['impersonate_id'];
+                } else {
+                    $users_id = $_SESSION['user']['id'];
+                }
+
+                // Create new user object and ensure it's still good to go
+                try {
+                    $user = User::get($users_id);
+
+                    if ($user->getStatus()) {
+                        // Only status NULL is allowed
+                        throw new DataEntryStatusException(tr('The user ":user" has the status ":status" which is not allowed, removing session entry and dropping to guest user', [
+                            ':user'   => $user->getLogId(),
+                            ':status' => $user->getStatus()
+                        ]));
+                    }
+
+                    return $user;
+
+                } catch (DataEntryNotExistsException) {
+                    Log::warning(tr('The session user ":id" does not exist, removing session entry and dropping to guest user', [
+                        ':id' => $_SESSION['user']['id']
+                    ]));
+
+                    // Remove entry and try again
+                    unset($_SESSION['user']['id']);
+
+                } catch (DataEntryStatusException $e) {
+                    Log::warning($e->getMessage());
+
+                    // Remove entry and try again
+                    unset($_SESSION['user']['id']);
+
+                } catch (Throwable $e) {
+                    Log::warning(tr('Failed to fetch user ":user" for session with ":e", removing session entry and dropping to guest user', [
+                        ':e'    => $e->getMessage(),
+                        ':user' => $_SESSION['user']['id']
+                    ]));
+
+                    // Remove entry and try again
+                    unset($_SESSION['user']['id']);
+                }
+            }
+
+            // There is no user, this is a guest session
+            return new GuestUser();
+        }
+
+        // Return the user object
+        return static::$user;
     }
 }
