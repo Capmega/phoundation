@@ -10,6 +10,7 @@ use Phoundation\Core\Numbers;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Debug;
+use Phoundation\Utils\Json;
 
 
 /**
@@ -25,7 +26,11 @@ use Phoundation\Developer\Debug;
 Documentation::usage('./cli system info');
 Documentation::help('The info script will show detailed information about the current framework, project, database and more');
 
+
+
 ArgvValidator::new()->noArgumentsLeft();
+
+
 
 try {
     Sql()->query('SELECT 1');
