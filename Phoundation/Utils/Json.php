@@ -429,4 +429,55 @@ class Json
 
         return $return;
     }
+
+
+
+    /**
+     * Returns the specified source, but limiting its maximum size to the specified $max_size.
+     *
+     * If it crosses this threshold, it will truncate entries in the $source array
+     *
+     * @param array|string $source
+     * @param int $max_size
+     * @param int $options
+     * @param int $depth
+     * @return string
+     */
+    public static function encodeTruncateToMaxSize(array|string $source, int $max_size, string $fill = ' ... [TRUNCATED] ... ', string $method = 'right', bool $on_word = false, int $options = 0, int $depth = 512): string
+    {
+        if (is_string($source)) {
+            if (strlen($source) <= $max_size) {
+                // We're already done, no need for more!
+                return $source;
+            }
+
+            $string = $source;
+            $array = static::decode($source, $options, $depth);
+        } else {
+            $array  = $source;
+            $string = static::encode($source, $options, $depth);
+        }
+
+        if ($max_size < 64) {
+            throw new OutOfBoundsException(tr('Cannot truncate JSON string to ":size" characters, the minimum is 64 characters', [
+                ':size' => $max_size
+            ]));
+        }
+
+        while (strlen($string) > $max_size) {
+            // Okay, we're over max size
+            $keys    = count($source);
+            $average = floor((strlen($string) / $keys) - ($keys * 8));
+
+            if ($average < 1) {
+                $average = 10;
+            }
+
+            // Truncate and re-encode the truncated array and check size again
+            $array  = Arrays::truncate($array, $average, $fill, $method, $on_word);
+            $string = Json::encode($array);
+        }
+
+        return $string;
+    }
 }
