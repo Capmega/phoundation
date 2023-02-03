@@ -14,6 +14,7 @@ use Phoundation\Business\Companies\Departments\Department;
 use Phoundation\Core\Locale\Language\Languages;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Session;
+use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\DataEntryAddress;
 use Phoundation\Data\DataEntry\DataEntryCode;
@@ -106,7 +107,7 @@ class User extends DataEntry
      */
     public function __construct(int|string|null $identifier = null)
     {
-        static::$entry_name    = 'user';
+        static::$entry_name  = 'user';
         $this->table         = 'accounts_users';
         $this->unique_column = 'email';
 
@@ -528,12 +529,12 @@ class User extends DataEntry
     /**
      * Sets the keywords for this user
      *
-     * @param string|null $keywords
+     * @param array|string|null $keywords
      * @return static
      */
-    public function setKeywords(?string $keywords): static
+    public function setKeywords(array|string|null $keywords): static
     {
-        return $this->setDataValue('keywords', $keywords);
+        return $this->setDataValue('keywords', Strings::force($keywords, ', '));
     }
 
 
@@ -568,7 +569,7 @@ class User extends DataEntry
      *
      * @return string|null
      */
-    public function getverifiedOn(): ?string
+    public function getVerifiedOn(): ?string
     {
         return $this->getDataValue('verified_on');
     }
@@ -581,7 +582,7 @@ class User extends DataEntry
      * @param string|null $verified_on
      * @return static
      */
-    public function setverifiedOn(?string $verified_on): static
+    public function setVerifiedOn(?string $verified_on): static
     {
         return $this->setDataValue('verified_on', $verified_on);
     }
@@ -1316,7 +1317,7 @@ class User extends DataEntry
      *
      * @return static
      */
-    public function save(): static
+    public function save(?string $comments = null): static
     {
         Log::action(tr('Saving user ":user"', [':user' => $this->getDisplayName()]));
         return parent::save();
@@ -1500,6 +1501,9 @@ class User extends DataEntry
                 'disabled' => true,
                 'default'  => tr('Ok'),
                 'label'    => tr('Status')
+            ],
+            'meta_state' => [
+                'visible' => false,
             ],
             'last_sign_in' => [
                 'disabled'  => true,

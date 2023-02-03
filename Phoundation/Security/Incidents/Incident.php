@@ -158,7 +158,7 @@ class Incident extends DataEntry
      *
      * @return $this
      */
-    public function save(): static
+    public function save(?string $comments = null): static
     {
         if ($this->log) {
             $severity = strtoupper($this->getSeverity());
@@ -228,6 +228,9 @@ class Incident extends DataEntry
                 'disabled' => true,
                 'default'  => tr('Ok'),
                 'label'    => tr('Status')
+            ],
+            'meta_state' => [
+                'visible' => false,
             ],
             'severity' => [
                 'disabled'  => true,

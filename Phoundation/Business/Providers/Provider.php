@@ -184,6 +184,9 @@ class Provider extends DataEntry
                 'default'  => tr('Ok'),
                 'label'    => tr('Status')
             ],
+            'meta_state' => [
+                'visible' => false,
+            ],
             'name' => [
                 'label'    => tr('Name')
             ],

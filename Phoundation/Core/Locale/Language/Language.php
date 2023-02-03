@@ -170,6 +170,9 @@ class Language extends DataEntry
                 'default'  => tr('Ok'),
                 'label'    => tr('Status')
             ],
+            'meta_state' => [
+                'visible' => false,
+            ],
             'name' => [
                 'disabled'  => true,
                 'label'     => tr('Name')

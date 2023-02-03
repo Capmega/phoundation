@@ -562,7 +562,7 @@ return $this;
      *
      * @return static
      */
-    public function save(): static
+    public function save(?string $comments = null): static
     {
         sql()->write('notifications', $this->getInsertColumns(), $this->getUpdateColumns());
         return $this;

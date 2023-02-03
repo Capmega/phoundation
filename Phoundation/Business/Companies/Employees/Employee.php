@@ -41,7 +41,7 @@ class Employee extends DataEntry
     /**
      * @inheritDoc
      */
-    public function save(): static
+    public function save(?string $comments = null): static
     {
         return $this;
     }
