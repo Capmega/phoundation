@@ -88,8 +88,8 @@ class Branches extends Iterator
     {
         $list = [];
 
-        foreach ($this->getList() as $branch => $status) {
-            $list[$branch] = ['selected' => $status ? '*' : ''];
+        foreach ($this->getList() as $branch => $selected) {
+            $list[$branch] = ['selected' => $selected ? '*' : ''];
         }
 
         Cli::displayTable($list, ['branch' => tr('Branch'), 'selected' => tr('Selected')], 'branch');

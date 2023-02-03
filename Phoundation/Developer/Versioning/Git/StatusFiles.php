@@ -2,12 +2,11 @@
 
 namespace Phoundation\Developer\Versioning\Git;
 
-use Iterator;
+use Phoundation\Cli\Cli;
+use Phoundation\Core\Classes\Iterator;
 use Phoundation\Core\Strings;
+use Phoundation\Developer\Versioning\Git\Traits\Path;
 use Phoundation\Processes\Process;
-use Phoundation\Utils\Json;
-use function Phoundation\Versioning\Git\count;
-use function Phoundation\Versioning\Git\str_contains;
 
 
 /**
@@ -20,28 +19,9 @@ use function Phoundation\Versioning\Git\str_contains;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Versioning
  */
-class StatusFiles implements Iterator
+class StatusFiles extends Iterator
 {
-    /**
-     * The path that will be checked
-     *
-     * @var string $path
-     */
-    protected string $path;
-
-    /**
-     * The files with their status found in the path
-     *
-     * @var array
-     */
-    protected array $status;
-
-    /**
-     * The git process
-     *
-     * @var Process $git
-     */
-    protected Process $git;
+    use Path;
 
 
 
@@ -52,22 +32,26 @@ class StatusFiles implements Iterator
      */
     public function __construct(string $path)
     {
-        $this->path = $path;
-        $this->git  = Process::new('git')->setExecutionPath($this->path);
-
+        $this->setPath($path);
         $this->scanChanges();
     }
 
 
 
     /**
-     * Export this object to a string
+     * Display the files status on the CLI
      *
-     * @return string
+     * @return void
      */
-    public function __toString(): string
+    public function CliDisplayTable(): void
     {
-        return Json::encode($this->status);
+        $list = [];
+
+        foreach ($this->getList() as $file => $status) {
+            $list[$file] = ['status' => $status->];
+        }
+
+        Cli::displayTable($list, ['file' => tr('File'), 'status' => tr('Status')], 'file');
     }
 
 
@@ -79,7 +63,7 @@ class StatusFiles implements Iterator
      */
     public function scanChanges(): static
     {
-        $this->status = [];
+        $this->list = [];
 
         $files = $this->git
             ->addArgument('status')
@@ -98,107 +82,9 @@ class StatusFiles implements Iterator
                 $file   = Strings::until($file, ' -> ');
             }
 
-            $this->status[$file] = StatusFile::new($status, $file, $target);
+            $this->list[$file] = StatusFile::new($status, $file, $target);
         }
 
         return $this;
-    }
-
-
-
-    /**
-     * Returns the path for this ChangedFiles object
-     *
-     * @return string
-     */
-    public function getPath(): string
-    {
-        return $this->path;
-    }
-
-
-
-    /**
-     * Returns the amount of files that have changes
-     *
-     * @return int
-     */
-    public function getCount(): int
-    {
-        return count($this->status);
-    }
-
-
-
-    /**
-     * Removes the specified file from this list
-     *
-     * @return static
-     */
-    public function remove(string $file): static
-    {
-        unset($this->status[$file]);
-        return $this;
-    }
-
-
-
-    /**
-     * Returns the current file
-     *
-     * @return StatusFile
-     */
-    public function current(): StatusFile
-    {
-        return current($this->status);
-    }
-
-
-
-    /**
-     * Progresses the internal pointer to the next file
-     *
-     * @return void
-     */
-    public function next(): void
-    {
-        next($this->status);
-    }
-
-
-
-    /**
-     * Returns the current key for the current file
-     *
-     * @return string
-     */
-    public function key(): string
-    {
-        return key($this->status);
-    }
-
-
-
-    /**
-     * Returns if the current pointer is valid or not
-     *
-     * @todo Is this really really required? Since we're using internal array pointers anyway, it always SHOULD be valid
-     * @return bool
-     */
-    public function valid(): bool
-    {
-        return isset($this->status[key($this->status)]);
-    }
-
-
-
-    /**
-     * Rewinds the internal pointer
-     *
-     * @return void
-     */
-    public function rewind(): void
-    {
-        reset($this->status);
     }
 }

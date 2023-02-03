@@ -27,9 +27,9 @@ useful- beyond testing the git library');
 
 // Get command line arguments
 ArgvValidator::new()
-    ->select('path')->isOptional()->isFile()
+    ->select('path', true)->isOptional()->isFile()
     ->noArgumentsLeft()
     ->validate();
 
 
-Git::new(PATH_ROOT)->getStatus($argv['path']);
+Git::new(PATH_ROOT)->getStatus($argv['path'])->CliDisplayTable();

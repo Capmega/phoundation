@@ -27,7 +27,7 @@ useful- beyond testing the git library');
 
 // Get command line arguments
 ArgvValidator::new()
-    ->select('message')->isOptional()->isFile()
+    ->select('message', true)->isOptional()->isFile()
     ->select('-s,--signed')->isOptional()->isBoolean()
     ->noArgumentsLeft()
     ->validate();

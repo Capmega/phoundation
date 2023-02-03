@@ -27,7 +27,7 @@ useful- beyond testing the git library');
 
 // Get command line arguments
 ArgvValidator::new()
-    ->select('branch_or_file')->isFile()
+    ->select('branch_or_file', true)->isFile()
     ->noArgumentsLeft()
     ->validate();
 

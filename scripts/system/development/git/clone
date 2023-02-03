@@ -27,8 +27,8 @@ useful- beyond testing the git library');
 
 // Get command line arguments
 ArgvValidator::new()
-    ->select('url')->isUrl()
-    ->select('-p,--path')->isUrl()
+    ->select('url', true)->isUrl()
+    ->select('-p,--path', true)->isUrl()
     ->noArgumentsLeft()
     ->validate();
 

@@ -27,9 +27,9 @@ useful- beyond testing the git library');
 
 // Get command line arguments
 ArgvValidator::new()
-    ->select('files')->sanitizeForceArray()->each()->isFile()
+    ->select('files', true)->sanitizeForceArray()->each()->isFile()
     ->noArgumentsLeft()
     ->validate();
 
 
-Git::new(PATH_ROOT)->commit($argv['files']);
+Git::new(PATH_ROOT)->add($argv['files']);
