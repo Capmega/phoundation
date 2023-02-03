@@ -275,7 +275,7 @@ class Filesystem
             }
         } else {
             if ($must_exist) {
-                throw new FileNotExistException(tr('The specified path ":path" does not exist', [
+                throw new FileNotExistException(tr('The specified file or path ":path" does not exist', [
                     ':path' => $path
                 ]));
             }
