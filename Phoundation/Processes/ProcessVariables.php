@@ -650,23 +650,36 @@ trait ProcessVariables
                 // The specified command was not found, we'll have to look for it anyway!
                 try {
                     $real_command = SystemCommands::new($this->server_restrictions)->which($command);
+
                 } catch (CommandsException) {
-                    // The command does not exist, but we have installation packages available!
-                    if (!$this->failed and $this->packages and !Command::new()->sudoAvailable('apt-get')) {
-                        throw new ProcessesException(tr('Specified process command ":command" does not exist', [
-                            ':command' => $command
-                        ]));
+                    // The command does not exist, but maybe we can auto install?
+                    if (!$this->failed) {
+                        if ($this->packages and !in_array($command, $this->packages)) {
+                            throw new ProcessesException(tr('Specified process command ":command" does not exist, and auto install is denied by the package filter list', [
+                                ':command' => $command
+                            ]));
+                        }
+
+                        if (!Command::new()->sudoAvailable('apt-get')) {
+                            throw new ProcessesException(tr('Specified process command ":command" does not exist and this process does not have sudo access to apt-get', [
+                                ':command' => $command
+                            ]));
+                        }
                     }
 
                     $this->failed = true;
 
+throw new ProcessesException(tr('Specified process command ":command" does not exist', [
+    ':command' => $command
+]));
                     // Proceed to install the packages and retry
                     Log::warning(tr('Failed to find the command ":command", installing required packages', [
                         ':command' => $command
                     ]));
 
-                    SystemCommands::new()->aptGetInstall($this->packages);
-                    return $this->setCommand($command, $which_command);
+// TODO Implement this! Have apt-file actually search for the command, match /s?bin/COMMAND or /usr/s?bin/COMMAND
+//                    SystemCommands::new()->aptGetInstall($this->packages);
+//                    return $this->setCommand($command, $which_command);
                 }
             }
         }
