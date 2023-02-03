@@ -1,9 +1,9 @@
 #!/usr/bin/php
 <?php
 
+use Phoundation\Cli\Documentation;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Developer\Phoundation\Phoundation;
-
+use Phoundation\Developer\Versioning\Git\Git;
 
 
 /**
@@ -18,6 +18,10 @@ use Phoundation\Developer\Phoundation\Phoundation;
  * @category Function reference
  * @package Phoundation\Development
  */
+Documentation::usage('./cli system development git stash
+./cli system dev git stash');
+Documentation::help('This script is an interface to the git command through Phoundation. Its not really needed -nor 
+useful- beyond testing the git library');
 
 
 
@@ -27,8 +31,5 @@ ArgvValidator::new()
     ->validate();
 
 
-Log::information(tr('Copying Phoundation updates in ":project" project back to your Phoundation installation', [
-        ':project' => PROJECT
-]));
 
-Phoundation::new()->patch();
+Git::new(PATH_ROOT)->stash();
