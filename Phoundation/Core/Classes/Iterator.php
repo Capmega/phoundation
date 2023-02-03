@@ -56,20 +56,7 @@ class Iterator implements \Phoundation\Core\Interfaces\Iterator
      */
     public function __toArray(): array
     {
-die('aaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
         return $this->list;
-    }
-
-
-
-    /**
-     * Returns a new Iterator object
-     *
-     * @return static
-     */
-    public static function new(): static
-    {
-        return new static();
     }
 
 

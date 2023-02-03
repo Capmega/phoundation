@@ -30,7 +30,7 @@ namespace Phoundation\Core\Interfaces;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
-interface Iterator extends \Iterator, NewObject
+interface Iterator extends \Iterator
 {
     /**
      * Returns the contents of this iterator object as a JSON string
