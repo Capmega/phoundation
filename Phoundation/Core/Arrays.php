@@ -1377,6 +1377,7 @@ class Arrays {
      * Returns the longest value string for each column from each row in the specified source array
      *
      * @note Any non-string keys will be treated as displayed strings
+     * @note The required format for the source is as follows: []
      * @param array $source
      * @param int $add_extra
      * @param string|null $add_key
@@ -1389,7 +1390,7 @@ class Arrays {
 
         foreach ($source as $key => $row) {
             if (!is_array($row)) {
-                throw new OutOfBoundsException(tr('Invalid table source specified; row ":key" has datatype ":required" should be array but is ":type" instead', [
+                throw new OutOfBoundsException(tr('Invalid table source specified; row ":key" should have datatype ":required" but is ":type" instead', [
                     ':key'      => $key,
                     ':required' => 'array',
                     ':type'     => gettype($row)
