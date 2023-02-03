@@ -4,6 +4,7 @@ namespace Phoundation\Web\Http\Html\Components;
 
 use PDO;
 use Phoundation\Core\Arrays;
+use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Input\InputCheckbox;
@@ -888,6 +889,7 @@ class Table extends ResourceElement
         } else {
             if ($entities) {
                 $value = htmlentities($value);
+                $value = str_replace(PHP_EOL, '<br>', $value);
             }
         }
 

@@ -18,6 +18,10 @@ use Phoundation\Content\Images\Image;
  */
 abstract class Panel extends ElementsBlock
 {
+    use Mode;
+
+
+
     /**
      * Modals for this panel
      *

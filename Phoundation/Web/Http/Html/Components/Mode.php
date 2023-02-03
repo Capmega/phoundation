@@ -3,7 +3,7 @@
 namespace Phoundation\Web\Http\Html\Components;
 
 use JetBrains\PhpStorm\ExpectedValues;
-
+use Phoundation\Exception\OutOfBoundsException;
 
 
 /**
@@ -23,7 +23,7 @@ trait Mode
      *
      * @var string|null $mode
      */
-    #[ExpectedValues(values: ['success', 'info', 'warning', 'danger', 'primary', 'secondary', 'tertiary', 'link', 'light', 'dark', null])]
+    #[ExpectedValues(values: ['white', 'success', 'info', 'warning', 'danger', 'primary', 'secondary', 'tertiary', 'link', 'light', 'dark', null])]
     protected ?string $mode = 'primary';
 
 
@@ -33,7 +33,7 @@ trait Mode
      *
      * @return string|null
      */
-    #[ExpectedValues(values: ['success', 'info', 'warning', 'danger', 'primary', 'secondary', 'tertiary', 'link', 'light', 'dark', null])]
+    #[ExpectedValues(values: ['white', 'success', 'info', 'warning', 'danger', 'primary', 'secondary', 'tertiary', 'link', 'light', 'dark', null])]
     public function getMode(): ?string
     {
         return $this->mode;
@@ -49,6 +49,7 @@ trait Mode
      */
     public function setMode(
         #[ExpectedValues(values: [
+            'white',
             'success',
             'green',
             'info',
@@ -70,12 +71,14 @@ trait Mode
         ])] ?string $mode = null
     ): static {
         $mode = match (strtolower(trim((string) $mode))) {
+            'white'                                                     => 'white',
             'blue', 'info', 'information'                               => 'info',
             'green', 'success'                                          => 'success',
             'yellow', 'warning',                                        => 'warning',
             'red', 'error', 'exception', 'danger',                      => 'danger',
             'primary', 'secondary', 'tertiary', 'link', 'light', 'dark' => $mode,
             ''                                                          => null,
+            default => throw new OutOfBoundsException(tr('Unknown mode ":mode" specified', [':mode' => $mode]))
         };
 
         $this->mode = $mode;
