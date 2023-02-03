@@ -2,10 +2,12 @@
 
 namespace Phoundation\Core\Meta;
 
-
-
+use Phoundation\Core\Arrays;
 use Phoundation\Databases\Sql\Sql;
+use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Components\DataTable;
+
+
 
 /**
  * Class MetaList
@@ -59,14 +61,12 @@ class MetaList
     public function getHtmlDataTable(): DataTable
     {
         // Create and return the table
-        $in = Sql::in($this->meta_list);
-
-        return DataTable::new()
-            ->setId('meta')
-            ->setSourceQuery(' SELECT    DATE_FORMAT(`meta_history`.`created_on`, "%d-%m-%Y") AS `date`,
+        $in     = Sql::in($this->meta_list);
+        $source = sql()->list('SELECT         `meta_history`.`id`,
+                                                    DATE_FORMAT(`meta_history`.`created_on`, "%d-%m-%Y") AS `date`,
                                                     COALESCE(NULLIF(TRIM(CONCAT_WS(" ", `first_names`, `last_names`)), ""), `nickname`, `username`, `email`) AS `user`,
                                                     `meta_history`.`action`,  
-                                                    `meta_history`.`source`,
+                                                    `meta_history`.`source`,  
                                                     `meta_history`.`comments`,
                                                     `meta_history`.`data`
                                           FROM      `meta_history`          
@@ -74,6 +74,36 @@ class MetaList
                                           ON        `accounts_users`.`id` = `meta_history`.`created_by`
                                           WHERE     `meta_history`.`meta_id` IN (' . implode(', ', array_keys($in)) . ')
                                           ORDER BY  `meta_history`.`created_on`', $in);
+
+        foreach ($source as &$row) {
+            $row['data'] = Json::decode($row['data']);
+
+            foreach (['to', 'from'] as $section) {
+                unset($row['data'][$section]['id']);
+                unset($row['data'][$section]['created_by']);
+                unset($row['data'][$section]['created_on']);
+                unset($row['data'][$section]['meta_id']);
+                unset($row['data'][$section]['meta_state']);
+                unset($row['data'][$section]['status']);
+            }
+
+            $row['data'] = 'From: ' . PHP_EOL . Arrays::implodeWithKeys($row['data']['from'], PHP_EOL, ': ') . PHP_EOL . 'To: ' . PHP_EOL . Arrays::implodeWithKeys($row['data']['to'], PHP_EOL, ': ');
+            $row['data'] = 'From: ' . PHP_EOL . Arrays::implodeWithKeys($row['data']['from'], PHP_EOL, ': ') . PHP_EOL . 'To: ' . PHP_EOL . Arrays::implodeWithKeys($row['data']['to'], PHP_EOL, ': ');
+        }
+
+        unset($row);
+
+        return DataTable::new()
+            ->setId('meta')
+            ->setColumnHeaders([
+                tr('Date'),
+                tr('User'),
+                tr('Action'),
+                tr('Source'),
+                tr('Comments'),
+                tr('Data'),
+            ])
+            ->setSourceArray($source);
 
     }
 }
