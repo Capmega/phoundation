@@ -67,6 +67,9 @@ class Incident extends DataEntry
                 'default'  => tr('Ok'),
                 'label'    => tr('Status')
             ],
+            'meta_state' => [
+                'visible' => false,
+            ],
             'url' => [
                 'disabled' => true,
                 'label'    => tr('URL'),
