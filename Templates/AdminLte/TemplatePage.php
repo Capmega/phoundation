@@ -70,6 +70,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
             'https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback',
             'adminlte/plugins/fontawesome-free/css/all',
             'adminlte/css/adminlte',
+            'adminlte/css/phoundation',
             'adminlte/plugins/overlayScrollbars/css/OverlayScrollbars'
         ], true);
 

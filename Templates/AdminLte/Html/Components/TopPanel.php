@@ -2,8 +2,7 @@
 
 namespace Templates\AdminLte\Html\Components;
 
-use Phoundation\Web\Http\Html\Components\MessagesDropDown;
-use Phoundation\Web\Http\Html\Components\NotificationsDropDown;
+use Phoundation\Core\Session;
 use Phoundation\Web\Http\Html\Renderer;
 use Phoundation\Web\Http\UrlBuilder;
 
@@ -40,6 +39,22 @@ class TopPanel extends Renderer
         // TODO Change this hard coded menu below for a flexible one
 //        $left_menu = $this->element->getMenu()?->render();
 
+        // If impersonated, change top panel color and add impersonation message
+        if (Session::isImpersonated()) {
+            $this->element->setMode('danger');
+            $message = tr('(Impersonated by ":user")', [':user' => Session::getRealUser()->getDisplayName()]);
+        } else {
+            $this->element->setMode('white');
+        }
+
+        // Top level message?
+        if (isset($message)) {
+            $message = '    <li class="nav-item d-none d-sm-inline-block">
+                              <a href="#" class="nav-link">' . $message . '</a>
+                            </li>';
+        }
+
+        // Build the left menu
         $left_menu    = ' <ul class="navbar-nav">
                             <li class="nav-item">
                               <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
@@ -47,9 +62,11 @@ class TopPanel extends Renderer
                             <li class="nav-item d-none d-sm-inline-block">
                               <a href="' . UrlBuilder::getCurrent() . '" class="nav-link">' . tr('Home') . '</a>
                             </li>
+                            ' . isset_get($message) . '
                           </ul>';
 
-        $this->render = ' <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+        // Build the panel
+        $this->render = ' <nav class="main-header navbar navbar-expand navbar-' . $this->element->getMode() . ' navbar-light">
                             <!-- Left navbar links -->
                             ' . $left_menu . '                    
                             <!-- Right navbar links -->

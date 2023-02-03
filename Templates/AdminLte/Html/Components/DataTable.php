@@ -3,7 +3,6 @@
 namespace Templates\AdminLte\Html\Components;
 
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Http\Html\Components\Pager;
 use Phoundation\Web\Http\Html\Components\Script;
 use Phoundation\Web\Http\Html\Layouts\GridRow;
 use Phoundation\Web\Http\Html\Renderer;
