@@ -6,8 +6,10 @@ use Exception;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Exception\FileExistsException;
 use Phoundation\Filesystem\Exception\FileNotWritableException;
 use Phoundation\Filesystem\Exception\FilesystemException;
+use Phoundation\Filesystem\Exception\PathNotExistsException;
 use Phoundation\Processes\Exception\ProcessesException;
 use Phoundation\Processes\Process;
 use Phoundation\Servers\Server;
@@ -543,6 +545,46 @@ class FileBasics
             Path::new(dirname($this->file))->clear($sudo);
         }
 
+        return $this;
+    }
+
+
+
+    /**
+     * Moves this file to the specified target, will try to ensure target path exists
+     *
+     * @param string $target
+     * @param bool $ensure_path
+     * @return $this
+     */
+    public function move(string $target, bool $ensure_path = false): static
+    {
+        // Ensure the target parent directory exists
+        if (file_exists($target)) {
+            // Target exists. It has to be a directory or fail!
+            if (!is_dir($target)) {
+                throw FileExistsException::new(tr('The specified target ":target" already exists', [
+                    ':target' => $target
+                ]));
+            }
+
+            // Rename target to file in the target directory
+            $target = Strings::slash($target) . basename($this->file);
+
+        } elseif (!file_exists(dirname($target))) {
+            // Target does not exist, and parent of target does not exist either.
+            if (!$ensure_path) {
+                throw new PathNotExistsException(tr('The specified target parent directory does not exist', [
+                    ':path' => dirname($target)
+                ]));
+            }
+
+            // Ensure the parent exist
+            Path::new(dirname($target))->ensure();
+        }
+
+        rename($this->file, $target);
+        $this->file = $target;
         return $this;
     }
 

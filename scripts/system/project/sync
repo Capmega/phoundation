@@ -28,7 +28,8 @@ With this, a production environment can easily be tested locally, for example';
 ArgvValidator::new()
     ->select('-l,--lock')->isOptional(false)->isBoolean()
     ->select('-i,--init')->isOptional(true)->isBoolean()
-    ->select('-t,--to')->isOptional(true)->isBoolean()
+    ->select('-t,--to', true)->isOptional()->isVariable()
+    ->select('-f,--from', true)->isOptional()->isVariable()
     ->select('-e,--environment')->isOptional(null)->isName()
     ->noArgumentsLeft()
     ->validate();

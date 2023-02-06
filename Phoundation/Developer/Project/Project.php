@@ -9,6 +9,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Developer\Debug;
+use Phoundation\Developer\Phoundation\Phoundation;
 use Phoundation\Developer\Project\Exception\EnvironmentExists;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
@@ -440,8 +441,18 @@ class Project
     /**
      * Updates your Phoundation installation
      */
-    public static function update(): void
+    public static function updateLocal(): void
     {
-        throw new UnderConstructionException();
+        Phoundation::new()->updateFromRepository();
+    }
+
+
+
+    /**
+     * Updates your Phoundation installation
+     */
+    public static function updateLocal(): void
+    {
+        Phoundation::new()->updateFromLocalRepository();
     }
 }

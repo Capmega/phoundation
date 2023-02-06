@@ -2,9 +2,6 @@
 
 namespace Phoundation\Developer\Versioning\Git\Traits;
 
-use Phoundation\Cli\Cli;
-use Phoundation\Core\Classes\Iterator;
-use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Processes\Process;

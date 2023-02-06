@@ -1,11 +1,13 @@
 <?php
 
-namespace Phoundation\Core\Classes;
+namespace Phoundation\Data\Classes;
 
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Utils\Json;
 use ReturnTypeWillChange;
-
+use function Phoundation\Core\Classes\array_key_first;
+use function Phoundation\Core\Classes\array_key_last;
+use function Phoundation\Core\Classes\count;
 
 
 /**
@@ -31,7 +33,7 @@ use ReturnTypeWillChange;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
-class Iterator implements \Phoundation\Core\Interfaces\Iterator
+class Iterator implements \Phoundation\Data\Interfaces\Iterator
 {
     protected array $list = [];
 

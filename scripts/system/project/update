@@ -42,10 +42,13 @@ ArgvValidator::new()
 
 
 
-if ($argv['check']) {
-    Log::information(tr('Checking for Phoudation updates...'));
+if ($argv['local']) {
+    Log::information(tr('Pulling updates from local Phoundation installation...'));
+    Project::updateLocal();
+} elseif ($argv['check']) {
+    Log::information(tr('Checking for Phoundation updates...'));
     Project::checkUpdates();
 } else {
-    Log::information(tr('Updating Phoudation...'));
+    Log::information(tr('Updating Phoundation...'));
     Project::update();
 }

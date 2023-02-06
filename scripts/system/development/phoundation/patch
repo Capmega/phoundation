@@ -1,7 +1,7 @@
 #!/usr/bin/php
 <?php
 
-use Phoundation\Core\Log;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Phoundation\Phoundation;
 
@@ -24,12 +24,15 @@ use Phoundation\Developer\Phoundation\Phoundation;
 
 // Get command line arguments
 ArgvValidator::new()
+    ->select('branch')->isOptional()->isPrintable()
+    ->select('message', true)->isOptional()->isPrintable()->hasMinCharacters(10)->hasMaxCharacters(1024)
+    ->select('-s,--signed')->isOptional()->isBoolean()
     ->noArgumentsLeft()
     ->validate();
 
 
-Log::information(tr('Copying Phoundation updates in ":project" project back to your Phoundation installation', [
+Log::information(tr('Copying local changes in ":project" project back to your Phoundation installation', [
         ':project' => PROJECT
 ]));
 
-Phoundation::new()->patch();
+Phoundation::new()->patch($argv['branch'], $argv['message'], $argv['signed']);

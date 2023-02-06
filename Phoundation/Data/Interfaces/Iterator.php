@@ -1,6 +1,6 @@
 <?php
 
-namespace Phoundation\Core\Interfaces;
+namespace Phoundation\Data\Interfaces;
 
 
 /**

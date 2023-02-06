@@ -15,6 +15,7 @@ use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Path;
+use Phoundation\Processes\Commands\Rsync;
 use Phoundation\Servers\Server;
 
 
@@ -61,9 +62,9 @@ class Phoundation
     /**
      * The branch the phoundation project currently is on
      *
-     * @var string $phoundation_branch
+     * @var string|null $phoundation_branch
      */
-    protected string $phoundation_branch;
+    protected ?string $phoundation_branch = null;
 
     protected array $phoundation_directories = [
         'Phoundation/',
@@ -189,9 +190,12 @@ class Phoundation
     /**
      * Copies all phoundation updates from your current project back to Phoundation
      *
-     * @return int The amount of patches that were copied to Phoundation
+     * @param string|null $branch
+     * @param string|null $message
+     * @param bool|null $sign
+     * @return void
      */
-    public function patch(string $branch, string $message, ?bool $sign = null): int
+    public function patch(?string $branch, ?string $message, ?bool $sign = null): void
     {
         try {
             if ($sign === null) {
@@ -201,9 +205,9 @@ class Phoundation
             $this->initializeGit();
             $this->ensurePhoudationNoChanges();
             $this->selectPhoundationBranch($branch);
-            $this->updateLocalProject($message, $sign);
+            $this->updateFromLocalRepository($message, $sign);
             $this->resetHeadLocalProject();
-            $this->applyPatchesToPhoundation();
+            $this->updateTo();
 
             if ($this->phoundation_branch) {
                 $this->selectPhoundationBranch($this->phoundation_branch);
@@ -276,44 +280,26 @@ class Phoundation
 
 
     /**
-     * Returns true if the specified filesystem location contains a valid Phoundation installation
+     * Updates the Phoundation core files for this project
      *
-     * @param StatusFiles $changed_files
-     * @return StatusFiles
-     */
-    public function filterPhoundationChanges(StatusFiles $changed_files): StatusFiles
-    {
-        if (!$changed_files->getCount()) {
-            throw GitHasNoChangesException::new(tr('Cannot copy changes, your project ":project" has no changes', [
-                ':project' => PROJECT,
-                ':path'    => PATH_ROOT
-            ]))->makeWarning();
-        }
-
-        foreach ($changed_files as $file => $change) {
-            if ($this->isPhoundationFile($file)) {
-                continue;
-            }
-
-            $changed_files->remove($file);
-        }
-
-        return $changed_files;
-    }
-
-
-
-    /**
      * Stashes current changes, updates the project with Phoundation updates, commits those, and unstashes local changes
      *
      * @return $this
      */
-    public function updateLocalProject(string $message, bool $signed = false): static
+    public function updateFromLocalRepository(string $message, bool $signed = false): static
     {
+        // Add all files to index to ensure everything will be stashed
+        $this->local_git->add(PATH_ROOT);
         $this->local_git->stash();
+
+        // Copy Phoundation core files and add and commit
         $this->copyPhoundationFilesLocal();
+        $this->local_git->add([PATH_ROOT . 'Phoundation/', PATH_ROOT . 'scripts/']);
         $this->local_git->commit($message, $signed);
-        $this->local_git->stashPop();
+
+        // Stash pop the previous changes and reset HEAD to ensure index is empty
+        $this->local_git->stash()->pop();
+        $this->local_git->reset('HEAD');
 
         return $this;
     }
@@ -350,15 +336,18 @@ class Phoundation
     }
 
 
-
     /**
      * Ensure that Phoundation is on the specified branch
      *
-     * @param string $branch
+     * @param string|null $branch
      * @return void
      */
-    protected function selectPhoundationBranch(string $branch): void
+    protected function selectPhoundationBranch(?string $branch): void
     {
+        if (!$branch) {
+            return;
+        }
+
         // Ensure phoundation is on the right branch
         $this->phoundation_branch = $this->phoundation_git->getBranch();
 
@@ -395,7 +384,7 @@ class Phoundation
      *
      * @return int
      */
-    protected function applyPatchesToPhoundation(): int
+    protected function updateTo(): int
     {
         $count = 0;
 
@@ -426,7 +415,7 @@ class Phoundation
     /**
      * @return void
      */
-    protected function copyPhoundationFilesLocal(): void
+    protected function updateFrom(): void
     {
 
     }
@@ -448,5 +437,38 @@ class Phoundation
         }
 
         return false;
+    }
+
+
+
+    /**
+     * Copy all files from the local phoundation installation.
+     *
+     * @return void
+     */
+    protected function copyPhoundationFilesLocal(): void
+    {
+        $rsync = Rsync::new();
+        $local = static::detectPhoundationLocation();
+
+        // Move /Phoundation and /scripts out of the way
+        $phoundation = File::new(PATH_ROOT . 'Phoundation/')->move(PATH_ROOT . 'data/garbage');
+        $scripts     = File::new(PATH_ROOT . 'scripts/')->move(PATH_ROOT . 'data/garbage');
+
+        // Copy new versions
+        $rsync
+            ->setSource($local . 'Phoundation/')
+            ->setTarget(PATH_ROOT . 'Phoundation/')
+            ->execute();
+
+        // Copy new versions
+        $rsync
+            ->setSource($local . 'scripts/')
+            ->setTarget(PATH_ROOT . 'scripts/')
+            ->execute();
+
+        // All is well? Get rid of the garbage
+        $phoundation->delete();
+        $scripts->delete();
     }
 }

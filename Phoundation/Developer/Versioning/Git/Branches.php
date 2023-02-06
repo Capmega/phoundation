@@ -3,8 +3,7 @@
 namespace Phoundation\Developer\Versioning\Git;
 
 use Phoundation\Cli\Cli;
-use Phoundation\Core\Classes\Iterator;
-use Phoundation\Core\Strings;
+use Phoundation\Data\Classes\Iterator;
 use Phoundation\Processes\Process;
 
 

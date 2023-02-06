@@ -32,6 +32,23 @@ class Stash extends Versioning
      *
      * @return static
      */
+    public function stash(): static
+    {
+        $this->git
+            ->clearArguments()
+            ->addArgument('stash')
+            ->executePassthru();
+
+        return $this;
+    }
+
+
+
+    /**
+     * Unstashes the git changes
+     *
+     * @return static
+     */
     public function pop(): static
     {
         $this->git

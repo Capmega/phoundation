@@ -4,8 +4,8 @@ namespace Phoundation\Developer\Versioning\Git;
 
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\Color;
-use Phoundation\Core\Classes\Iterator;
 use Phoundation\Core\Strings;
+use Phoundation\Data\Classes\Iterator;
 use Phoundation\Developer\Versioning\Git\Traits\Path;
 
 
