@@ -106,6 +106,15 @@ class Phoundation
      */
     public function detectPhoundationLocation(?string $location = null): string
     {
+        // Paths (in order) which will be scanned for Phoundation installations
+        $paths = [
+            '~/projects',
+            '~/PhpstormProjects',
+            '..',
+            '../..',
+            '/var/www/html/'
+        ];
+
         if ($location) {
             $path = realpath($location);
             $this->server_restrictions = Server::new(dirname($path));
@@ -137,7 +146,7 @@ class Phoundation
         }
 
         // Scan for phoundation installation location.
-        foreach (['~/projects', '~/PhpstormProjects', '..', '../..', '/var/www/html/'] as $path) {
+        foreach ($paths as $path) {
             $path = Filesystem::absolute($path);
 
             // The main phoundation directory should be called either phoundation or Phoundation.
@@ -292,10 +301,14 @@ class Phoundation
         $this->local_git->add(PATH_ROOT);
         $this->local_git->stash();
 
-        // Copy Phoundation core files and add and commit
+        // Copy Phoundation core files
         $this->copyPhoundationFilesLocal();
-        $this->local_git->add([PATH_ROOT . 'Phoundation/', PATH_ROOT . 'scripts/']);
-        $this->local_git->commit($message, $signed);
+
+        // If there are changes then add and commit
+        if ($this->local_git->getStatus()->getCount()) {
+            $this->local_git->add([PATH_ROOT . 'Phoundation/', PATH_ROOT . 'scripts/']);
+            $this->local_git->commit($message, $signed);
+        }
 
         // Stash pop the previous changes and reset HEAD to ensure index is empty
         $this->local_git->stash()->pop();

@@ -35,12 +35,11 @@ ArgvValidator::new()
     ->validate();
 
 $sync = Sync::new()
-    ->setEnvironment($argv['environment'])
     ->setLock($argv['lock'])
     ->setInit($argv['init']);
 
 if ($argv['to']) {
-    $sync->toEnvironment();
+    $sync->toEnvironment($argv['environment']);
 } else {
-    $sync->fromEnvironment();
+    $sync->fromEnvironment($argv['environment']);
 }

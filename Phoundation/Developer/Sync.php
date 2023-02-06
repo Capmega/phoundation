@@ -31,13 +31,6 @@ class Sync
      */
     protected bool $lock = true;
 
-    /**
-     * Sets the target (or source) environment where to sync to/from
-     *
-     * @var string|null $environment
-     */
-    protected ?string $environment = null;
-
 
 
     /**
@@ -48,32 +41,6 @@ class Sync
     public static function new(): static
     {
         return new static();
-    }
-
-
-
-    /**
-     * Returns the environment to work with
-     *
-     * @return string
-     */
-    public function getEnvironment(): string
-    {
-        return $this->environment;
-    }
-
-
-
-    /**
-     * Sets the environment to work with
-     *
-     * @param string $environment
-     * @return Sync
-     */
-    public function setEnvironment(string $environment): Sync
-    {
-        $this->environment = $environment;
-        return $this;
     }
 
 

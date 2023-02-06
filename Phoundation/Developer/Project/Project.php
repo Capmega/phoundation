@@ -443,16 +443,6 @@ class Project
      */
     public static function updateLocal(): void
     {
-        Phoundation::new()->updateFromRepository();
-    }
-
-
-
-    /**
-     * Updates your Phoundation installation
-     */
-    public static function updateLocal(): void
-    {
         Phoundation::new()->updateFromLocalRepository();
     }
 }
