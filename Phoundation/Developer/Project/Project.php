@@ -11,7 +11,7 @@ use Phoundation\Data\Validator\Validator;
 use Phoundation\Developer\Phoundation\Phoundation;
 use Phoundation\Developer\Project\Exception\EnvironmentExists;
 use Phoundation\Developer\Versioning\Git\Git;
-use Phoundation\Developer\Versioning\Git\Traits\GitPath;
+use Phoundation\Developer\Versioning\Git\Traits\Git;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\File;
@@ -36,7 +36,7 @@ use Throwable;
  */
 class Project
 {
-    use GitPath;
+    use Git;
     use ServerRestrictions;
 
 
@@ -411,6 +411,8 @@ class Project
 
             // Execute all Import objects if they are valid
             foreach ($files as $file) {
+                $library = null;
+
                 try {
                     include_once($file);
                     $class   = Library::getClassPath($file);
@@ -472,6 +474,7 @@ class Project
     }
 
 
+
     /**
      * Updates your Phoundation installation
      *
@@ -483,9 +486,12 @@ class Project
     public function updateLocal(?string $phoundation_path = null, ?string $message = null, bool $signed = false): static
     {
         // Add all files to index to ensure everything will be stashed
-        $this->git->add(PATH_ROOT);
-        $this->git->stash();
-
+        if ($this->git->getStatus()->getCount()) {
+            $this->git->add(PATH_ROOT);
+            $this->git->stash();
+            $stash = true;
+        }
+showdie('ok');
         // Copy Phoundation core files
         $this->copyPhoundationFilesLocal($phoundation_path);
 
@@ -500,8 +506,10 @@ class Project
         }
 
         // Stash pop the previous changes and reset HEAD to ensure index is empty
-        $this->git->stash()->pop();
-        $this->git->reset('HEAD');
+        if (isset($stash)) {
+            $this->git->stash()->pop();
+            $this->git->reset('HEAD');
+        }
 
         return $this;
     }
@@ -513,7 +521,7 @@ class Project
      */
     public static function update(): void
     {
-        Phoundation::new()->updateFromPRoductionRepository();
+        throw new UnderConstructionException();
     }
 
 

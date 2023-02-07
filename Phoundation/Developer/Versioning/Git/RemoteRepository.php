@@ -5,7 +5,7 @@ namespace Phoundation\Developer\Versioning\Git;
 use Phoundation\Cli\Cli;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Classes\Iterator;
-use Phoundation\Developer\Versioning\Git\Traits\GitPath;
+use Phoundation\Developer\Versioning\Git\Traits\GitProcess;
 use Phoundation\Exception\OutOfBoundsException;
 
 
@@ -21,7 +21,7 @@ use Phoundation\Exception\OutOfBoundsException;
  */
 class RemoteRepository extends Iterator
 {
-    use GitPath {
+    use GitProcess {
         __construct as protected construct;
     }
 

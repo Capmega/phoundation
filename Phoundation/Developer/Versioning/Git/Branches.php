@@ -4,7 +4,7 @@ namespace Phoundation\Developer\Versioning\Git;
 
 use Phoundation\Cli\Cli;
 use Phoundation\Data\Classes\Iterator;
-use Phoundation\Developer\Versioning\Git\Traits\GitPath;
+use Phoundation\Developer\Versioning\Git\Traits\GitProcess;
 use Phoundation\Processes\Process;
 
 
@@ -20,7 +20,7 @@ use Phoundation\Processes\Process;
  */
 class Branches extends Iterator
 {
-    use GitPath;
+    use GitProcess;
 
 
 

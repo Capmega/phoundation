@@ -2,11 +2,8 @@
 
 namespace Phoundation\Developer\Versioning\Git;
 
-use Phoundation\Developer\Versioning\Git\Traits\GitPath;
+use Phoundation\Developer\Versioning\Git\Traits\GitProcess;
 use Phoundation\Developer\Versioning\Versioning;
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\Filesystem;
-use Phoundation\Processes\Process;
 
 
 /**
@@ -21,7 +18,7 @@ use Phoundation\Processes\Process;
  */
 class Stash extends Versioning
 {
-    use GitPath {
+    use GitProcess {
         setPath as protected setTraitPath;
     }
 
@@ -76,6 +73,11 @@ class Stash extends Versioning
             ->addArgument('list')
             ->executeReturnArray();
 
+        foreach ($results as $result) {
+            preg_match_all('/stash@\{(\d+)\}:\s(.+)/', $result, $matches);
+            $return[$matches[0][0]] = $matches[0][1];
+        }
+        
         return $return;
     }
 
