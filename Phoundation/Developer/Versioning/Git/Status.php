@@ -259,6 +259,12 @@ class Status
                 $this->readable      = tr('Modified and indexed');
                 break;
 
+            case 'MM':
+                $this->flag_indexed  = true;
+                $this->flag_modified = true;
+                $this->readable      = tr('Modified and indexed and modified');
+                break;
+
             case 'R ':
                 $this->flag_renamed  = true;
                 $this->flag_modified = true;

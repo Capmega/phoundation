@@ -2,6 +2,7 @@
 
 namespace Phoundation\Data\Classes;
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Utils\Json;
 use ReturnTypeWillChange;

@@ -35,13 +35,6 @@ class Git extends Versioning
      */
     protected Process $git;
 
-    /**
-     * A cache for the changed files
-     *
-     * @var StatusFiles|null $changed_files
-     */
-    protected ?StatusFiles $changed_files = null;
-
 
 
     /**
@@ -270,11 +263,7 @@ class Git extends Versioning
      */
     public function getStatus(?string $path = null): StatusFiles
     {
-        if (!$this->changed_files) {
-            $this->changed_files = new StatusFiles($path ?? $this->path);
-        }
-
-        return $this->changed_files;
+        return new StatusFiles($path ?? $this->path);
     }
 
 

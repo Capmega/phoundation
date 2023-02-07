@@ -10,7 +10,6 @@ use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Developer\Phoundation\Phoundation;
 use Phoundation\Developer\Project\Exception\EnvironmentExists;
-use Phoundation\Developer\Versioning\Git\Git;
 use Phoundation\Developer\Versioning\Git\Traits\Git;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
@@ -36,8 +35,10 @@ use Throwable;
  */
 class Project
 {
-    use Git;
     use ServerRestrictions;
+    use Git {
+        __construct as protected construct;
+    }
 
 
 
@@ -86,8 +87,7 @@ class Project
             $path = PATH_ROOT;
         }
 
-        $this->path = $path;
-        $this->initializeGit();
+        $this->construct($path);
     }
 
 
@@ -131,9 +131,9 @@ class Project
     /**
      * Returns the git object for this project
      *
-     * @return Git
+     * @return \Phoundation\Developer\Versioning\Git\Git
      */
-    protected function getGit(): Git
+    protected function getGit(): \Phoundation\Developer\Versioning\Git\Git
     {
         return $this->git;
     }
@@ -488,12 +488,13 @@ class Project
         // Add all files to index to ensure everything will be stashed
         if ($this->git->getStatus()->getCount()) {
             $this->git->add(PATH_ROOT);
-            $this->git->stash();
+            $this->git->stash()->stash();
             $stash = true;
         }
-showdie('ok');
+
         // Copy Phoundation core files
         $this->copyPhoundationFilesLocal($phoundation_path);
+        showdie('ok');
 
         // If there are changes then add and commit
         if ($this->git->getStatus()->getCount()) {
@@ -596,18 +597,6 @@ showdie('ok');
 
 
 
-    /**
-     * Initialize the git instances
-     *
-     * @return void
-     */
-    protected function initializeGit(): void
-    {
-        // Get git objects for this project and the phoundation project
-        $this->git = Git::new($this->path);
-    }
-
-
 
     /**
      * Copy all files from the local phoundation installation.
@@ -621,23 +610,38 @@ showdie('ok');
         $phoundation = Phoundation::new($path);
 
         // Move /Phoundation and /scripts out of the way
-        $phoundation = Path::new(PATH_ROOT . 'Phoundation/', Restrictions::new([PATH_ROOT . 'Phoundation/', PATH_DATA], true))->move(PATH_ROOT . 'data/garbage/Phoundation/', true);
-        $scripts     = Path::new(PATH_ROOT . 'scripts/', Restrictions::new([PATH_ROOT . 'scripts/', PATH_DATA], true))->move(PATH_ROOT . 'data/garbage/scripts/', true);
+        try {
+            $phoundation = Path::new(PATH_ROOT . 'Phoundation/', Restrictions::new([PATH_ROOT . 'Phoundation/', PATH_DATA], true))->move(PATH_ROOT . 'data/garbage/Phoundation/', true);
+            $scripts     = Path::new(PATH_ROOT . 'scripts/', Restrictions::new([PATH_ROOT . 'scripts/', PATH_DATA], true))->move(PATH_ROOT . 'data/garbage/scripts/', true);
+showdie('ok');
 
-        // Copy new versions
-        $rsync
-            ->setSource($phoundation->getPath() . 'Phoundation/')
-            ->setTarget(PATH_ROOT . 'Phoundation/')
-            ->execute();
+            // Copy new versions
+            $rsync
+                ->setSource($phoundation->getPath() . 'Phoundation/')
+                ->setTarget(PATH_ROOT . 'Phoundation/')
+                ->execute();
 
-        // Copy new versions
-        $rsync
-            ->setSource($local . 'scripts/')
-            ->setTarget(PATH_ROOT . 'scripts/')
-            ->execute();
+            // Copy new versions
+            $rsync
+                ->setSource($local . 'scripts/')
+                ->setTarget(PATH_ROOT . 'scripts/')
+                ->execute();
 
-        // All is well? Get rid of the garbage
-        $phoundation->delete();
-        $scripts->delete();
+            // All is well? Get rid of the garbage
+            $phoundation->delete();
+            $scripts->delete();
+
+        } catch (Throwable $e) {
+            //  Move Phoundation files back again
+            if (isset($phoundation)) {
+                $phoundation->move(PATH_ROOT . 'Phoundation/');
+            }
+
+            if (isset($scripts)) {
+                $scripts->move(PATH_ROOT . 'scripts/');
+            }
+
+            throw $e;
+        }
     }
 }
