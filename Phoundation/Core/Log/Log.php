@@ -72,7 +72,7 @@ Class Log {
      *
      * @var int $threshold
      */
-    protected static int $threshold = 10;
+    protected static int $threshold;
 
     /**
      * The current file where the log class will write to.
@@ -282,7 +282,7 @@ Class Log {
 
         $return            = $threshold;
         static::$threshold = $threshold;
-        
+
         return $return;
     }
 
