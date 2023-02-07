@@ -15,6 +15,7 @@ use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Commands\Rsync;
 use Phoundation\Servers\Server;
 
@@ -467,8 +468,8 @@ class Phoundation
         $local = static::detectPhoundationLocation();
 
         // Move /Phoundation and /scripts out of the way
-        $phoundation = File::new(PATH_ROOT . 'Phoundation/')->move(PATH_ROOT . 'data/garbage');
-        $scripts     = File::new(PATH_ROOT . 'scripts/')->move(PATH_ROOT . 'data/garbage');
+        $phoundation = Path::new(PATH_ROOT . 'Phoundation/', Restrictions::new([PATH_ROOT . 'Phoundation/', PATH_DATA], true))->move(PATH_ROOT . 'data/garbage/Phoundation/', true);
+        $scripts     = Path::new(PATH_ROOT . 'scripts/', Restrictions::new([PATH_ROOT . 'scripts/', PATH_DATA], true))->move(PATH_ROOT . 'data/garbage/scripts/', true);
 
         // Copy new versions
         $rsync

@@ -221,6 +221,7 @@ class RemoteRepository extends Iterator
      */
     protected function parseData(array $data): void
     {
+        $section    = 'top';
         $this->data = [
             'remote'          => null,
             'fetch_url'       => null,
@@ -232,16 +233,37 @@ class RemoteRepository extends Iterator
         ];
 
         foreach ($data as $line) {
-            $parse   = trim(Strings::from($line, '*'));
-            $keyword = Strings::until($parse, ' ');
-            $value   = Strings::from($parse, ' ');
-            $section = 'top';
+            $parse   = trim(Strings::from ($line , '*'));
+            $keyword = trim(Strings::until($parse, ' '));
+            $value   = trim(Strings::from ($parse, ' '));
+
+            if (str_ends_with($parse, ':')) {
+                $parse = strtolower(trim($parse));
+
+                // Detect section
+                if (str_contains($parse, 'local refs configured for')) {
+                    $section = 'local_refs';
+                    continue;
+                }
+
+                if (str_contains($parse, 'local branches configured for')) {
+                    $section = 'local_branches';
+                    continue;
+                }
+
+                if (str_starts_with($parse, 'remote branches')) {
+                    $section = 'remote_branches';
+                    continue;
+                }
+
+                throw OutOfBoundsException::new(tr('Unknown git output ":line" encountered', [':line' => $line]));
+            }
 
             switch ($section) {
                 case 'top':
                     switch (strtolower($keyword)) {
                         case 'remote':
-                            $this->data['remote'] = trim(Strings::from($parse, ':'));
+                            $this->data['remote'] = $value;
                             continue 3;
 
                         case 'fetch':
@@ -261,24 +283,19 @@ class RemoteRepository extends Iterator
                     break;
 
                 case 'remote_branches':
-                    if (str_contains(strtolower($parse), 'local branches configured for')) {
-                        $section = 'local_branches';
-                    } else {
-                        $this->data['remote_branches'][$keyword] = $value;
-                    }
-
+                    $this->data['remote_branches'][$keyword] = $value;
                     break;
 
                 case 'local_branches';
-                    if (str_contains(strtolower($parse), 'local refs configured for')) {
-                        $section = 'local_refs';
-                    } else {
-                        $value = Strings::from($value, 'merges with remote');
-                        $value = trim($value);
-
-                        $this->data['local_branches'][$keyword] = $value;
+                    if (str_contains(strtolower($parse), ':')) {
+                        $section = ' ' . $parse;
+                        break;
                     }
 
+                    $value = Strings::from($value, 'merges with remote');
+                    $value = trim($value);
+
+                    $this->data['local_branches'][$keyword] = $value;
                     break;
 
                 case 'local_refs':
@@ -290,7 +307,7 @@ class RemoteRepository extends Iterator
                     $status = Strings::until($status, ')');
                     $status = trim($status);
 
-                    $this->data['local_branches'][$keyword] = [
+                    $this->data['local_refs'][$keyword] = [
                         'target' => $target,
                         'status' => $status
                     ];
@@ -304,39 +321,5 @@ class RemoteRepository extends Iterator
 
             }
         }
-
-//* remote origin
-//  Fetch URL: git@github.com:Capmega/phoundation.git
-//  Push  URL: git@github.com:Capmega/phoundation.git
-//  HEAD branch: master
-//  Remote branches:
-//    2.2        tracked
-//    2.3        tracked
-//    2.4        tracked
-//    2.5        tracked
-//    2.6        tracked
-//    2.7        tracked
-//    2.8        tracked
-//    3.0        tracked
-//    4.0        tracked
-//    4.1        tracked
-//    freeze     tracked
-//    master     tracked
-//    production tracked
-//  Local branches configured for 'git pull':
-//    2.7        merges with remote 2.7
-//    2.8        merges with remote 2.8
-//    4.0        merges with remote 4.0
-//    4.1        merges with remote 4.1
-//    master     merges with remote master
-//    production merges with remote production
-//  Local refs configured for 'git push':
-//    2.7        pushes to 2.7        (up to date)
-//    2.8        pushes to 2.8        (up to date)
-//    3.0        pushes to 3.0        (up to date)
-//    4.0        pushes to 4.0        (up to date)
-//    4.1        pushes to 4.1        (fast-forwardable)
-//    master     pushes to master     (up to date)
-//    production pushes to production (up to date)
     }
 }
