@@ -1379,17 +1379,20 @@ class Core {
                         if (($e instanceof Exception) and $e->isWarning()) {
                             // This is just a simple general warning, no backtrace and such needed, only show the
                             // principal message
-                            Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
 
-                            if (($e instanceof MethodNotFoundException) and ($data = $e->getData())) {
-                                Log::information('Available sub commands:', 10);
+                            Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]), 10);
 
-                                foreach ($data as $file) {
-                                    if (str_starts_with($file, '.')) {
-                                        continue;
+                            if ($e instanceof MethodNotFoundException) {
+                                if ($data = $e->getData()) {
+                                    Log::information('Available sub commands:', 10);
+
+                                    foreach ($data as $file) {
+                                        if (str_starts_with($file, '.')) {
+                                            continue;
+                                        }
+
+                                        Log::notice($file, 10);
                                     }
-
-                                    Log::notice($file, 10);
                                 }
                             }
 
