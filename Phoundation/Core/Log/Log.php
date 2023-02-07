@@ -154,27 +154,30 @@ Class Log {
 
         static::$init = true;
 
-        // Determine log threshold
-        if (defined('QUIET') and QUIET) {
-            // Ssshhhhhhhh..
-            $threshold = 9;
-        } elseif (defined('VERBOSE') and VERBOSE) {
-            // Be loud!
-            $threshold = 1;
-        } else {
-            // Be... normal, I guess
-            if (Debug::enabled()) {
-                // Debug shows a bit more
-                $threshold = Config::get('log.threshold', Core::errorState() ? 10 : 5);
-            } else {
-                $threshold = Config::get('log.threshold', Core::errorState() ? 10 : 3);
-            }
-        }
-
         // Apply configuration
         try {
+            // Determine log threshold
+            if (!isset(self::$threshold)) {
+                if (defined('QUIET') and QUIET) {
+                    // Ssshhhhhhhh..
+                    $threshold = 9;
+                } elseif (defined('VERBOSE') and VERBOSE) {
+                    // Be loud!
+                    $threshold = 1;
+                } else {
+                    // Be... normal, I guess
+                    if (Debug::enabled()) {
+                        // Debug shows a bit more
+                        $threshold = Config::get('log.threshold', Core::errorState() ? 10 : 5);
+                    } else {
+                        $threshold = Config::get('log.threshold', Core::errorState() ? 10 : 3);
+                    }
+                }
+
+                static::setThreshold($threshold);
+            }
+
             static::$server_restrictions = new Server(new Restrictions(PATH_DATA . 'log/', true, 'Log'));
-            static::setThreshold($threshold);
             static::setFile(Config::get('log.file', PATH_ROOT . 'data/log/syslog'));
             static::setBacktraceDisplay(Config::get('log.backtrace-display', self::BACKTRACE_DISPLAY_BOTH));
             static::setLocalId(substr(uniqid(true), -8, 8));

@@ -424,16 +424,17 @@ class Core {
             ->select('-D,--debug')->isOptional(false)->isBoolean()
             ->select('-F,--force')->isOptional(false)->isBoolean()
             ->select('-H,--help')->isOptional(false)->isBoolean()
+            ->select('-L,--log-level', true)->isOptional()->isInteger()->isBetween(1, 10)
             ->select('-Q,--quiet')->isOptional(false)->isBoolean()
             ->select('-T,--test')->isOptional(false)->isBoolean()
             ->select('-U,--usage')->isOptional(false)->isBoolean()
             ->select('-V,--verbose')->isOptional(false)->isBoolean()
             ->select('-W,--no-warnings')->isOptional(false)->isBoolean()
-            ->select('-L,--system-language', true)->isOptional(null)->isCode()
-            ->select('-E,--environment', true)->isOptional(null)->hasMinCharacters(1)->hasMaxCharacters(64)
-            ->select('-O,--order-by', true)->isOptional(null)->hasMinCharacters(1)->hasMaxCharacters(128)
+            ->select('-E,--environment', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(64)
+            ->select('-O,--order-by', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(128)
             ->select('-P,--page', true)->isOptional(1)->isId()
-            ->select('-S,--status', true)->isOptional(null)->hasMinCharacters(1)->hasMaxCharacters(16)
+            ->select('-S,--status', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(16)
+            ->select('--language', true)->isOptional()->isCode()
             ->select('--deleted')->isOptional(false)->isBoolean()
             ->select('--version')->isOptional(false)->isBoolean()
             ->select('--limit', true)->isOptional(0)->isNatural(true)
@@ -504,7 +505,11 @@ class Core {
             Debug::enabled();
         }
 
-        if ($argv['system_language']) {
+        if ($argv['log_level']) {
+            Log::setThreshold($argv['log_level']);
+        }
+
+        if ($argv['language']) {
             // Set language to be used
             if (isset($language)) {
                 $e = new CoreException(tr('Language has been specified twice'));
@@ -613,7 +618,7 @@ class Core {
 
         // Get required language.
         try {
-            $language = not_empty($argv['system_language'], Config::get('language.default', 'en'));
+            $language = not_empty($argv['language'], Config::get('language.default', 'en'));
 
             if (Config::get('language.default', ['en']) and Config::exists('language.supported.' . $language)) {
                 throw new CoreException(tr('Unknown language ":language" specified', array(':language' => $language)), 'unknown');

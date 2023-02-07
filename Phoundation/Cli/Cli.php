@@ -220,7 +220,7 @@ class Cli
 
                 if (is_array($value)) {
                     Log::cli(Color::apply(Strings::size(' ', $offset) . Strings::size($key , $key_size), 'white') );
-                    static::displayArray($value, '', '', $key_size + 1);
+                    static::displayForm($value, '', '', $key_size + 1);
                     continue;
                 }
 
