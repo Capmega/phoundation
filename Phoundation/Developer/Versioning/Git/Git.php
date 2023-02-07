@@ -3,7 +3,7 @@
 namespace Phoundation\Developer\Versioning\Git;
 
 use Phoundation\Core\Log\Log;
-use Phoundation\Developer\Versioning\Git\Traits\Path;
+use Phoundation\Developer\Versioning\Git\Traits\GitPath;
 use Phoundation\Developer\Versioning\Versioning;
 
 
@@ -15,11 +15,11 @@ use Phoundation\Developer\Versioning\Versioning;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Versioning
+ * @package Phoundation\Developer
  */
 class Git extends Versioning
 {
-    use Path {
+    use GitPath {
         setPath as protected setTraitPath;
     }
 
@@ -105,6 +105,18 @@ class Git extends Versioning
             ->addArgument('branch')
             ->addArgument($this->path)
             ->executeReturnString();
+    }
+
+
+
+    /**
+     * Returns all available git repositories
+     *
+     * @return RemoteRepositories
+     */
+    public function getRepositories(): RemoteRepositories
+    {
+        return RemoteRepositories::new($this->path);
     }
 
 

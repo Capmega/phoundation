@@ -4,6 +4,7 @@ namespace Phoundation\Developer\Versioning\Git;
 
 use Phoundation\Cli\Cli;
 use Phoundation\Data\Classes\Iterator;
+use Phoundation\Developer\Versioning\Git\Traits\GitPath;
 use Phoundation\Processes\Process;
 
 
@@ -15,37 +16,11 @@ use Phoundation\Processes\Process;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Versioning
+ * @package Phoundation\Developer
  */
 class Branches extends Iterator
 {
-    protected ?string $path = null;
-
-
-
-    /**
-     * Returns the path for this object
-     *
-     * @return string
-     */
-    public function getPath(): string
-    {
-        return $this->path;
-    }
-
-
-
-    /**
-     * Set the path for this object
-     *
-     * @param string $path
-     * @return static
-     */
-    public function setPath(string $path): static
-    {
-        $this->path = $path;
-        return $this;
-    }
+    use GitPath;
 
 
 

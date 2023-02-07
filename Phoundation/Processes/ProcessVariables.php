@@ -396,7 +396,7 @@ trait ProcessVariables
         $this->log_file            = PATH_ROOT . 'data/log/' . $identifier;
         $this->run_file            = PATH_ROOT . 'data/run/' . $identifier;
 
-        Log::notice(tr('Set identifier ":identifier"', [':identifier' => $identifier]), 2);
+        Log::notice(tr('Set process identifier ":identifier"', [':identifier' => $identifier]), 2);
 
         return $this;
     }

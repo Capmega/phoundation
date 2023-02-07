@@ -32,4 +32,4 @@ ArgvValidator::new()
 
 
 
-Git::new(PATH_ROOT)->stashPop();
+Git::new(PATH_ROOT)->stash()->pop();

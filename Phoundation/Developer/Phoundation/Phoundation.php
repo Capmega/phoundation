@@ -239,6 +239,7 @@ class Phoundation
     /**
      * Returns true if the specified filesystem location contains a valid Phoundation installation
      *
+     * @todo TODO Update to use git remote show origin!
      * @param string $path
      * @return bool
      */
@@ -247,6 +248,7 @@ class Phoundation
         $file    = File::new($path . 'config/project', $this->server_restrictions)->checkReadable()->getFile();
         $project = file_get_contents($file);
 
+// TODO Update to use git remote show origin!
         return strtolower($project) === 'phoundation';
     }
 

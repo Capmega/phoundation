@@ -18,8 +18,8 @@ use Phoundation\Developer\Versioning\Git\Git;
  * @category Function reference
  * @package Phoundation\Development
  */
-Documentation::usage('./cli system development git stash
-./cli system dev git stash');
+Documentation::usage('./cli system development git remote
+./cli system dev git remote');
 Documentation::help('This script is an interface to the git command through Phoundation. Its not really needed -nor 
 useful- beyond testing the git library');
 
@@ -27,9 +27,9 @@ useful- beyond testing the git library');
 
 // Get command line arguments
 ArgvValidator::new()
+    ->select('repository')->isVariable()
     ->noArgumentsLeft()
     ->validate();
 
 
-
-Git::new(PATH_ROOT)->stash()->stash();
+Git::new(PATH_ROOT)->getRepositories()->get($argv['repository'])->CliDisplayForm();

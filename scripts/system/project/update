@@ -30,13 +30,17 @@ Documentation::help('This script will update your Phoundation libraries and list
 ARGUMENTS
 
 
-[-c / --check]                          If specified will only check for available updates');
+
+[-c / --check]                          If specified will only check for available updates
+
+[-l / --local]                          If specified update from a local Phoundation core repository');
 
 
 
 // Get command line arguments
 ArgvValidator::new()
     ->select('-c,--check')->isOptional()->isBoolean()
+    ->select('-l,--local')->isOptional()->isBoolean()
     ->noArgumentsLeft()
     ->validate();
 

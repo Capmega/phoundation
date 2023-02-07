@@ -6,7 +6,7 @@ use Phoundation\Cli\Cli;
 use Phoundation\Cli\Color;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Classes\Iterator;
-use Phoundation\Developer\Versioning\Git\Traits\Path;
+use Phoundation\Developer\Versioning\Git\Traits\GitPath;
 
 
 /**
@@ -17,16 +17,16 @@ use Phoundation\Developer\Versioning\Git\Traits\Path;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Versioning
+ * @package Phoundation\Developer
  */
 class StatusFiles extends Iterator
 {
-    use Path;
+    use GitPath;
 
 
 
     /**
-     * Changes class constructor
+     * StatusFiles class constructor
      *
      * @param string $path
      */
