@@ -8,13 +8,17 @@ use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Validator;
-use Phoundation\Developer\Debug;
 use Phoundation\Developer\Phoundation\Phoundation;
 use Phoundation\Developer\Project\Exception\EnvironmentExists;
+use Phoundation\Developer\Versioning\Git\Git;
+use Phoundation\Developer\Versioning\Git\Traits\GitPath;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\File;
+use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\Traits\ServerRestrictions;
+use Phoundation\Processes\Commands\Rsync;
 use Phoundation\Processes\Process;
 use Throwable;
 
@@ -32,6 +36,11 @@ use Throwable;
  */
 class Project
 {
+    use GitPath;
+    use ServerRestrictions;
+
+
+
     /**
      * The project name
      *
@@ -46,6 +55,54 @@ class Project
      */
     protected static ?Environment $environment = null;
 
+    /**
+     * The branch the phoundation project currently is on
+     *
+     * @var string|null $phoundation_branch
+     */
+    protected ?string $phoundation_branch = null;
+
+    /**
+     * The Phoundation directories
+     *
+     * @var array|string[] $phoundation_directories
+     */
+    protected array $phoundation_directories = [
+        'Phoundation/',
+        'scripts/system/'
+    ];
+
+
+
+    /**
+     * Phoundation constructor
+     *
+     * @param string|null $path
+     */
+    public function __construct(?string $path = null)
+    {
+        if (!$path) {
+            // Default to this project
+            $path = PATH_ROOT;
+        }
+
+        $this->path = $path;
+        $this->initializeGit();
+    }
+
+
+
+    /**
+     * Returns a new Phoundation object
+     *
+     * @param string|null $path
+     * @return static
+     */
+    public static function new(?string $path = null): static
+    {
+        return new static($path);
+    }
+
 
 
     /**
@@ -57,7 +114,7 @@ class Project
      */
     public static function create(string $project, bool $force = false): void
     {
-        if (static::exists()) {
+        if (static::projectFileExists()) {
             if (!$force) {
                 throw new OutOfBoundsException(tr('Project file "config/project" already exist'));
             }
@@ -67,6 +124,18 @@ class Project
 
         static::$name = $project;
         static::save();
+    }
+
+
+
+    /**
+     * Returns the git object for this project
+     *
+     * @return Git
+     */
+    protected function getGit(): Git
+    {
+        return $this->git;
     }
 
 
@@ -147,6 +216,42 @@ class Project
 
 
     /**
+     * Returns true if the specified filesystem location contains a valid Phoundation project installation
+     *
+     * @param string $path
+     * @return bool
+     */
+    public function isPhoundationProject(string $path): bool
+    {
+        // Is the path readable?
+        $path = Path::new($path, $this->restrictions)->checkReadable()->getFile();
+
+        // All these files and directories must be available.
+        $files = [
+            'config',
+            'data',
+            'Phoundation',
+            'Plugins',
+            'scripts',
+            'Templates',
+            'tests',
+            'vendor',
+            'www',
+            'cli',
+        ];
+
+        foreach ($files as $file) {
+            if (!file_exists($path . $file)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+
+    /**
      * Remove this project
      *
      * This will remove all databases and configuration files for this project
@@ -169,7 +274,7 @@ class Project
 
 
     /**
-     * Create this project
+     * Setup this project
      *
      * @return void
      */
@@ -222,7 +327,7 @@ class Project
      *
      * @return bool
      */
-    public static function exists(): bool
+    public static function projectFileExists(): bool
     {
         return file_exists(PATH_ROOT . 'config/project');
     }
@@ -230,7 +335,7 @@ class Project
 
 
     /**
-     * Validate the specified information
+     * Validate the specified project information
      *
      * @param Validator $validator
      * @return void
@@ -268,76 +373,6 @@ class Project
         static::$name = $project;
 
         return $project;
-    }
-
-
-
-    /**
-     * Saves the project name
-     *
-     * @return void
-     */
-    protected static function save(): void
-    {
-        file_put_contents(PATH_ROOT . 'config/project', static::$name);
-    }
-
-
-
-    /**
-     * Returns if the specified project name is valid or not
-     *
-     * @param string $project
-     * @return string
-     */
-    protected static function sanitize(string $project): string
-    {
-        if (!$project) {
-            throw OutOfBoundsException::new(tr('No project name specified in the project file ":file"', [':file' => 'config/project']))->makeWarning();
-        }
-
-        if (strlen($project) > 32) {
-            throw OutOfBoundsException::new(tr('Specified project name is ":size" characters long, please specify a project name equal or less than 32 characters', [
-                ':size' => strlen($project)
-            ]))->makeWarning();
-        }
-
-        $project = strtoupper($project);
-
-        if (!preg_match('/[A-Z0-9_]+/', $project)) {
-            throw OutOfBoundsException::new(tr('Specified project ":project" contains invalid characters, please ensure it has only A-Z, 0-9 or _', [
-                ':project' => $project
-            ]))->makeWarning();
-        }
-
-        return $project;
-    }
-
-
-
-    /**
-     * Remove the specified environment
-     *
-     * @param string $environment
-     * @return bool
-     */
-    protected static function removeEnvironment(string $environment): bool
-    {
-        if (!Environment::exists($environment)) {
-            return false;
-        }
-
-        Log::warning(tr('Removing environment ":environment"', [
-            ':environment' => $environment
-        ]));
-
-        // If we're removing the environment that is currently used then remove it from memory too
-        if (static::$environment->getName() === $environment) {
-            static::$environment = null;
-        }
-
-        // Get the environment and remove all environment specific data
-        return Environment::get(static::$name, $environment)->remove();
     }
 
 
@@ -437,13 +472,38 @@ class Project
     }
 
 
-
     /**
      * Updates your Phoundation installation
+     *
+     * @param string|null $phoundation_path
+     * @param string|null $message
+     * @param bool $signed
+     * @return static
      */
-    public static function updateLocal(string $message, bool $signed = false): void
+    public function updateLocal(?string $phoundation_path = null, ?string $message = null, bool $signed = false): static
     {
-        Phoundation::new()->updateFromLocalRepository($message, $signed);
+        // Add all files to index to ensure everything will be stashed
+        $this->git->add(PATH_ROOT);
+        $this->git->stash();
+
+        // Copy Phoundation core files
+        $this->copyPhoundationFilesLocal($phoundation_path);
+
+        // If there are changes then add and commit
+        if ($this->git->getStatus()->getCount()) {
+            if (!$message) {
+                $message = tr('Phoundation update');
+            }
+
+            $this->git->add([PATH_ROOT . 'Phoundation/', PATH_ROOT . 'scripts/']);
+            $this->git->commit($message, $signed);
+        }
+
+        // Stash pop the previous changes and reset HEAD to ensure index is empty
+        $this->git->stash()->pop();
+        $this->git->reset('HEAD');
+
+        return $this;
     }
 
 
@@ -454,5 +514,122 @@ class Project
     public static function update(): void
     {
         Phoundation::new()->updateFromPRoductionRepository();
+    }
+
+
+
+    /**
+     * Saves the project name
+     *
+     * @return void
+     */
+    protected static function save(): void
+    {
+        file_put_contents(PATH_ROOT . 'config/project', static::$name);
+    }
+
+
+
+    /**
+     * Returns if the specified project name is valid or not
+     *
+     * @param string $project
+     * @return string
+     */
+    protected static function sanitize(string $project): string
+    {
+        if (!$project) {
+            throw OutOfBoundsException::new(tr('No project name specified in the project file ":file"', [':file' => 'config/project']))->makeWarning();
+        }
+
+        if (strlen($project) > 32) {
+            throw OutOfBoundsException::new(tr('Specified project name is ":size" characters long, please specify a project name equal or less than 32 characters', [
+                ':size' => strlen($project)
+            ]))->makeWarning();
+        }
+
+        $project = strtoupper($project);
+
+        if (!preg_match('/[A-Z0-9_]+/', $project)) {
+            throw OutOfBoundsException::new(tr('Specified project ":project" contains invalid characters, please ensure it has only A-Z, 0-9 or _', [
+                ':project' => $project
+            ]))->makeWarning();
+        }
+
+        return $project;
+    }
+
+
+
+    /**
+     * Remove the specified environment
+     *
+     * @param string $environment
+     * @return bool
+     */
+    protected static function removeEnvironment(string $environment): bool
+    {
+        if (!Environment::exists($environment)) {
+            return false;
+        }
+
+        Log::warning(tr('Removing environment ":environment"', [
+            ':environment' => $environment
+        ]));
+
+        // If we're removing the environment that is currently used then remove it from memory too
+        if (static::$environment->getName() === $environment) {
+            static::$environment = null;
+        }
+
+        // Get the environment and remove all environment specific data
+        return Environment::get(static::$name, $environment)->remove();
+    }
+
+
+
+    /**
+     * Initialize the git instances
+     *
+     * @return void
+     */
+    protected function initializeGit(): void
+    {
+        // Get git objects for this project and the phoundation project
+        $this->git = Git::new($this->path);
+    }
+
+
+
+    /**
+     * Copy all files from the local phoundation installation.
+     *
+     * @param string|null $path
+     * @return void
+     */
+    protected function copyPhoundationFilesLocal(?string $path = null): void
+    {
+        $rsync       = Rsync::new();
+        $phoundation = Phoundation::new($path);
+
+        // Move /Phoundation and /scripts out of the way
+        $phoundation = Path::new(PATH_ROOT . 'Phoundation/', Restrictions::new([PATH_ROOT . 'Phoundation/', PATH_DATA], true))->move(PATH_ROOT . 'data/garbage/Phoundation/', true);
+        $scripts     = Path::new(PATH_ROOT . 'scripts/', Restrictions::new([PATH_ROOT . 'scripts/', PATH_DATA], true))->move(PATH_ROOT . 'data/garbage/scripts/', true);
+
+        // Copy new versions
+        $rsync
+            ->setSource($phoundation->getPath() . 'Phoundation/')
+            ->setTarget(PATH_ROOT . 'Phoundation/')
+            ->execute();
+
+        // Copy new versions
+        $rsync
+            ->setSource($local . 'scripts/')
+            ->setTarget(PATH_ROOT . 'scripts/')
+            ->execute();
+
+        // All is well? Get rid of the garbage
+        $phoundation->delete();
+        $scripts->delete();
     }
 }

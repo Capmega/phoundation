@@ -58,7 +58,7 @@ ArgvValidator::new()
 
 if ($argv['local']) {
     Log::information(tr('Pulling updates from local Phoundation installation...'));
-    Project::updateLocal($argv['message'], $argv['signed']);
+    Project::new()->updateLocal($argv['message'], $argv['signed']);
 } elseif ($argv['check']) {
     Log::information(tr('Checking for Phoundation updates...'));
     Project::checkUpdates();

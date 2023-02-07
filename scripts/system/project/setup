@@ -63,7 +63,7 @@ ArgvValidator::new()
 
 
 // Validate and create project
-if (!Project::exists()) {
+if (!Project::projectFileExists()) {
     $create = true;
  } elseif ($argv['project']) {
     if (!FORCE) {

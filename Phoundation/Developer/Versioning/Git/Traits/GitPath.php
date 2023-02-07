@@ -2,9 +2,10 @@
 
 namespace Phoundation\Developer\Versioning\Git\Traits;
 
+use Phoundation\Developer\Versioning\Git\Git;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Filesystem;
-use Phoundation\Processes\Process;
+
 
 
 /**
@@ -19,16 +20,19 @@ use Phoundation\Processes\Process;
  */
 trait GitPath
 {
-    use Git;
-
-
-
     /**
      * The path that will be checked
      *
      * @var string $path
      */
     protected string $path;
+
+    /**
+     * The git process
+     *
+     * @var Git $git
+     */
+    protected Git $git;
 
 
 
@@ -58,6 +62,18 @@ trait GitPath
 
 
     /**
+     * Returns the GIT process
+     *
+     * @return Git
+     */
+    public function getGit(): Git
+    {
+        return $this->git;
+    }
+
+
+
+    /**
      * Returns the path for this ChangedFiles object
      *
      * @param string $path
@@ -66,7 +82,7 @@ trait GitPath
     public function setPath(string $path): static
     {
         $this->path = Filesystem::absolute($path);
-        $this->git  = Process::new('git')->setExecutionPath($this->path);
+        $this->git  = Git::new($this->path);
 
         if (!$this->path) {
             if (!file_exists($path)) {

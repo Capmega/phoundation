@@ -375,7 +375,7 @@ class Execute extends Path
             }
 
             Log::action(tr('Executing callback function on path ":path"', [
-                ':file' => $this->file
+                ':path' => $this->file
             ]), 2);
 
             $callback($this->file);
@@ -532,3 +532,4 @@ class Execute extends Path
         return false;
     }
 }
+

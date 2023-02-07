@@ -3,8 +3,10 @@
 namespace Phoundation\Developer\Versioning\Git;
 
 use Phoundation\Core\Log\Log;
-use Phoundation\Developer\Versioning\Git\Traits\GitPath;
 use Phoundation\Developer\Versioning\Versioning;
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Filesystem;
+use Phoundation\Processes\Process;
 
 
 /**
@@ -19,11 +21,19 @@ use Phoundation\Developer\Versioning\Versioning;
  */
 class Git extends Versioning
 {
-    use GitPath {
-        setPath as protected setTraitPath;
-    }
+    /**
+     * The path that will be checked
+     *
+     * @var string $path
+     */
+    protected string $path;
 
-
+    /**
+     * The git process
+     *
+     * @var Process $git
+     */
+    protected Process $git;
 
     /**
      * A cache for the changed files
@@ -35,7 +45,7 @@ class Git extends Versioning
 
 
     /**
-     * Git constructor
+     * Git class constructor
      *
      * @param string $path
      */
@@ -60,15 +70,37 @@ class Git extends Versioning
 
 
     /**
-     * Set the git path of this object to the specified path
+     * Returns the path for this ChangedFiles object
+     *
+     * @return string
+     */
+    public function getPath(): string
+    {
+        return $this->path;
+    }
+
+
+
+    /**
+     * Returns the path for this ChangedFiles object
      *
      * @param string $path
-     * @return $this
+     * @return static
      */
     public function setPath(string $path): static
     {
-        $this->changed_files = null;
-        return $this->setTraitPath($path);
+        $this->path = Filesystem::absolute($path);
+        $this->git  = Process::new('git')->setExecutionPath($this->path);
+
+        if (!$this->path) {
+            if (!file_exists($path)) {
+                throw new OutOfBoundsException(tr('The specified path ":path" does not exist', [
+                    ':path' => $path
+                ]));
+            }
+        }
+
+        return $this;
     }
 
 
