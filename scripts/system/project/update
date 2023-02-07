@@ -20,8 +20,9 @@ use Phoundation\Developer\Project\Project;
  */
 
 Documentation::usage('./cli system project update [OPTIONS]
-./cli system project update --check
-./cli system project update
+./cli system project update BRANCH --check
+./cli system project update BRANCH -l 
+./cli system project update 
 ');
 
 Documentation::help('This script will update your Phoundation libraries and list
@@ -31,9 +32,15 @@ ARGUMENTS
 
 
 
+[BRANCH]                                If specified update from a local Phoundation core repository
+
+[MESSAGE]                               If specified update from a local Phoundation core repository
+
 [-c / --check]                          If specified will only check for available updates
 
-[-l / --local]                          If specified update from a local Phoundation core repository');
+[-l / --local]                          If specified update from a local Phoundation core repository
+
+[-s / --signed]                         If specified will only check for available updates');
 
 
 
@@ -41,6 +48,9 @@ ARGUMENTS
 ArgvValidator::new()
     ->select('-c,--check')->isOptional()->isBoolean()
     ->select('-l,--local')->isOptional()->isBoolean()
+    ->select('-s,--signed')->isOptional()->isBoolean()
+    ->select('branch')->isOptional()->isPrintable()
+    ->select('message', true)->isOptional()->isPrintable()->hasMinCharacters(10)->hasMaxCharacters(1024)
     ->noArgumentsLeft()
     ->validate();
 
@@ -48,7 +58,7 @@ ArgvValidator::new()
 
 if ($argv['local']) {
     Log::information(tr('Pulling updates from local Phoundation installation...'));
-    Project::updateLocal();
+    Project::updateLocal($argv['message'], $argv['signed']);
 } elseif ($argv['check']) {
     Log::information(tr('Checking for Phoundation updates...'));
     Project::checkUpdates();

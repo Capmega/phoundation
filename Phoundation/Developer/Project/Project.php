@@ -441,8 +441,18 @@ class Project
     /**
      * Updates your Phoundation installation
      */
-    public static function updateLocal(): void
+    public static function updateLocal(string $message, bool $signed = false): void
     {
-        Phoundation::new()->updateFromLocalRepository();
+        Phoundation::new()->updateFromLocalRepository($message, $signed);
+    }
+
+
+
+    /**
+     * Updates your Phoundation installation from Phoundation g
+     */
+    public static function update(): void
+    {
+        Phoundation::new()->updateFromPRoductionRepository();
     }
 }
