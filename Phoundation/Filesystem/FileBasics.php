@@ -557,33 +557,54 @@ class FileBasics
      * @param bool $ensure_path
      * @return $this
      */
-    public function move(string $target, bool $ensure_path = false): static
+    public function move(string $target, bool $ensure_path = true): static
     {
-        // Ensure the target parent directory exists
+        // Ensure target is absolute
+        $target = Filesystem::absolute($target, must_exist: false);
+
+        // Ensure the target directory exists
         if (file_exists($target)) {
-            // Target exists. It has to be a directory or fail!
+            // Target exists. It has to be a directory where we can move into, or fail!
             if (!is_dir($target)) {
                 throw FileExistsException::new(tr('The specified target ":target" already exists', [
                     ':target' => $target
                 ]));
             }
 
-            // Rename target to file in the target directory
+            // Target exists and is directory. Rename target to "this file in the target directory"
             $target = Strings::slash($target) . basename($this->file);
 
-        } elseif (!file_exists(dirname($target))) {
-            // Target does not exist, and parent of target does not exist either.
-            if (!$ensure_path) {
-                throw new PathNotExistsException(tr('The specified target parent directory does not exist', [
-                    ':path' => dirname($target)
-                ]));
+        } else {
+            // Target does not exist
+            if (str_ends_with($target, '/')) {
+                // If the target is indicated to be a directory (because it ends with a slash) then it should be created
+                $create = $target;
+                $target = Strings::slash($target) . basename($this->file);
+
+            } elseif (!file_exists(dirname($target))) {
+                // The target parent directory does not exist. It must be created or fail
+                $create = dirname($target);
+                $target = Strings::slash(dirname($target)) . basename($this->file);
             }
 
-            // Ensure the parent exist
-            Path::new(dirname($target))->ensure();
+            if (isset($create)) {
+                // Target directory does not exist can we create it?
+                if (!$ensure_path) {
+                    throw new PathNotExistsException(tr('The specified target parent directory does not exist', [
+                        ':path' => $create
+                    ]));
+                }
+
+                // Ensure the target directory exist
+                Path::new(dirname($target), $this->server_restrictions)->ensure();
+            }
         }
 
+        // Check restrictions and execute move
+        $this->checkRestrictions($target, true);
         rename($this->file, $target);
+
+        // Update this file to the new location, and done
         $this->file = $target;
         return $this;
     }
