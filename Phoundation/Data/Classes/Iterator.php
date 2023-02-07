@@ -5,9 +5,6 @@ namespace Phoundation\Data\Classes;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Utils\Json;
 use ReturnTypeWillChange;
-use function Phoundation\Core\Classes\array_key_first;
-use function Phoundation\Core\Classes\array_key_last;
-use function Phoundation\Core\Classes\count;
 
 
 /**
