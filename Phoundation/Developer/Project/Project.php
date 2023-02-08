@@ -624,9 +624,9 @@ die('GODDOMME');
 
         // Move /Phoundation and /scripts out of the way
         try {
-            $files['phoundation'] = Path::new(PATH_ROOT . 'Phoundation/', Restrictions::new([PATH_ROOT . 'Phoundation/', PATH_DATA], true))->move(PATH_ROOT . 'data/garbage/');
-            $files['scripts']     = Path::new(PATH_ROOT . 'scripts/'    , Restrictions::new([PATH_ROOT . 'scripts/'    , PATH_DATA], true))->move(PATH_ROOT . 'data/garbage/');
-showdie('ok');
+//            $files['phoundation'] = Path::new(PATH_ROOT . 'Phoundation/', Restrictions::new([PATH_ROOT . 'Phoundation/', PATH_DATA], true))->move(PATH_ROOT . 'data/garbage/');
+//            $files['scripts']     = Path::new(PATH_ROOT . 'scripts/'    , Restrictions::new([PATH_ROOT . 'scripts/'    , PATH_DATA], true))->move(PATH_ROOT . 'data/garbage/');
+
             // Copy new versions
             $rsync
                 ->setSource($phoundation->getPath() . 'Phoundation/')
@@ -635,10 +635,10 @@ showdie('ok');
 
             // Copy new versions
             $rsync
-                ->setSource($local . 'scripts/')
+                ->setSource($phoundation->getPath() . 'scripts/')
                 ->setTarget(PATH_ROOT . 'scripts/')
                 ->execute();
-
+showdie('ok');
             // All is well? Get rid of the garbage
             $files['phoundation']->delete();
             $files['scripts']->delete();
