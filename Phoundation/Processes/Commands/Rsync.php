@@ -98,7 +98,7 @@ class Rsync
      *
      * @var string|null $rsh
      */
-    protected ?string $rsh = 'ssh';
+    protected ?string $rsh = null;
 
     /**
      * The SSH key
@@ -275,20 +275,20 @@ class Rsync
     {
         // Build the process parameters, then execute
         $process = Process::new('rsync')
-            ->setArgument($this->progress ?: '--progress')
-            ->setArgument($this->archive ?: '-a')
-            ->setArgument($this->quiet ?: '-q')
-            ->setArgument($this->verbose ?: '-v')
-            ->setArgument($this->compress ?: '-z')
-            ->setArgument($this->safe_links ?: '--safe-links')
-            ->setArgument($this->rsh ?: '-e')
-            ->setArgument($this->rsh)
-            ->setArgument($this->ssh_key ?: '-i')
-            ->setArgument($this->ssh_key)
-            ->setArgument($this->rsync_path ?: '--rsync-path')
-            ->setArgument($this->rsync_path)
-            ->setArgument($this->source)
-            ->setArgument($this->target);
+            ->addArgument($this->progress ? '--progress' : null)
+            ->addArgument($this->archive ? '-a' : null)
+            ->addArgument($this->quiet ? '-q' : null)
+            ->addArgument($this->verbose ? '-v' : null)
+            ->addArgument($this->compress ? '-z' : null)
+            ->addArgument($this->safe_links ? '--safe-links' : null)
+            ->addArgument($this->rsh ? '-e' : null)
+            ->addArgument($this->rsh)
+            ->addArgument($this->ssh_key ? '-i' : null)
+            ->addArgument($this->ssh_key)
+            ->addArgument($this->rsync_path ? '--rsync-path' : null)
+            ->addArgument($this->rsync_path)
+            ->addArgument($this->source)
+            ->addArgument($this->target);
 
         if ($background) {
             $pid = $process->executeBackground();
@@ -301,9 +301,9 @@ class Rsync
 
         }
 
-        $results = $process->executeReturnArray();
+        $results = $process->executePassthru();
 
-        Log::notice($results, 4);
+//        Log::notice($results, 4);
         return null;
     }
 }
