@@ -790,7 +790,7 @@ Class Log {
         $backtrace = Debug::backtrace(1);
         static::logDebugHeader('BACKTRACE', 1, $threshold);
         static::dumpTrace($backtrace, $threshold, $display);
-        return static::debug(basename($_SERVER['SCRIPT_FILENAME']), $threshold. $clean, $newline);
+        return static::debug(basename($_SERVER['SCRIPT_FILENAME']), $threshold);
     }
 
 
