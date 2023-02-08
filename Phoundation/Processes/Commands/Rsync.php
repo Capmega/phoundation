@@ -301,9 +301,9 @@ class Rsync
 
         }
 
-        $results = $process->executePassthru();
+        $results = $process->executeReturnArray();
 
-//        Log::notice($results, 4);
+        Log::notice($results, 4);
         return null;
     }
 }
