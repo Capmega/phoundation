@@ -6,6 +6,7 @@ use JetBrains\PhpStorm\ExpectedValues;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\Exception\MethodNotFoundException;
+use Phoundation\Cli\Exception\NoMethodSpecifiedException;
 use Phoundation\Cli\Script;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Exception\NoProjectException;
@@ -1382,9 +1383,21 @@ class Core {
 
                             Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]), 10);
 
-                            if ($e instanceof MethodNotFoundException) {
+                            if ($e instanceof NoMethodSpecifiedException) {
                                 if ($data = $e->getData()) {
-                                    Log::information('Available sub commands:', 10);
+                                    Log::information('Available methods:', 10);
+
+                                    foreach ($data as $file) {
+                                        if (str_starts_with($file, '.')) {
+                                            continue;
+                                        }
+
+                                        Log::notice($file, 10);
+                                    }
+                                }
+                            } elseif ($e instanceof MethodNotFoundException) {
+                                if ($data = $e->getData()) {
+                                    Log::information('Available sub methods:', 10);
 
                                     foreach ($data as $file) {
                                         if (str_starts_with($file, '.')) {

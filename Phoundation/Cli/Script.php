@@ -5,6 +5,7 @@ namespace Phoundation\Cli;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Cli\Exception\CliException;
 use Phoundation\Cli\Exception\MethodNotFoundException;
+use Phoundation\Cli\Exception\NoMethodSpecifiedException;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\NoProjectException;
@@ -145,7 +146,9 @@ class Script
     protected static function findScript(): string
     {
         if (ArgvValidator::count() <= 1) {
-            throw OutOfBoundsException::new('No method specified!')->makeWarning();
+            throw NoMethodSpecifiedException::new('No method specified!')
+                ->setData(Arrays::filterValues(scandir(PATH_ROOT . 'scripts/'), '.,..'))
+                ->makeWarning();
         }
 
         $file    = PATH_ROOT . 'scripts/';
