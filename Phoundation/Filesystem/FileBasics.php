@@ -615,14 +615,50 @@ class FileBasics
      * Switches file mode to the new value and returns the previous value
      *
      * @param string|int $mode
-     * @return string
+     * @return string|int
      */
-    public function switchMode(string|int $mode): string
+    public function switchMode(string|int $mode): string|int
     {
         $old_mode = $this->getMode();
+
         $this->chmod($mode);
 
         return $old_mode;
+    }
+
+
+
+    /**
+     * Returns the file mode for the object file
+     *
+     * @return int
+     */
+    public function getMode(): int
+    {
+        return $this->getStat()['mode'];
+    }
+
+
+
+    /**
+     * Returns the stat data for the object file
+     *
+     * @return array
+     */
+    public function getStat(): array
+    {
+        // Check filesystem restrictions
+        $this->checkRestrictions($this->file, false);
+
+        try {
+            $stat = stat($this->file);
+
+            if ($stat) {
+                return $stat;
+            }
+        } catch (Throwable $e) {
+            $this->checkReadable(null, $e);
+        }
     }
 
 
@@ -694,7 +730,7 @@ class FileBasics
         Process::new('chmod', $this->server_restrictions)
             ->setSudo($sudo)
             ->addArgument($recursive ? '-R' : null)
-            ->addArgument($mode)
+            ->addArgument('0' . decoct($mode))
             ->addArguments($this->file)
             ->executeReturnArray();
 

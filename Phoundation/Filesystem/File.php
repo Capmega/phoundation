@@ -87,41 +87,6 @@ class File extends FileBasics
 
 
     /**
-     * Returns the file mode for the object file
-     *
-     * @return int
-     */
-    public function getMode(): int
-    {
-        return $this->getStat()['mode'];
-    }
-
-
-
-    /**
-     * Returns the stat data for the object file
-     *
-     * @return array
-     */
-    public function getStat(): array
-    {
-        // Check filesystem restrictions
-        $this->checkRestrictions($this->file, false);
-
-        try {
-            $stat = stat($this->file);
-
-            if ($stat) {
-                return $stat;
-            }
-        } catch (Throwable $e) {
-            $this->checkReadable(null, $e);
-        }
-    }
-
-
-
-    /**
      * Append specified data string to the end of the object file
      *
      * @param string $data

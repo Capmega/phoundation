@@ -143,9 +143,9 @@ class Execute extends Path
     /**
      * Returns the path mode that will be set for each path
      *
-     * @return int
+     * @return string|int|null
      */
-    public function getMode(): int
+    public function getMode(): string|int|null
     {
         return $this->mode;
     }

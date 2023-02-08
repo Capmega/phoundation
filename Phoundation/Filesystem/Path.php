@@ -179,11 +179,13 @@ class Path extends FileBasics
                             mkdir($this->file, $mode);
                         });
 
-                }catch(Exception $e) {
+                } catch(Throwable $e) {
                     // It sometimes happens that the specified path was created just in between the file_exists and
                     // mkdir
                     if (!file_exists($this->file)) {
-                        throw $e;
+                        throw FilesystemException::new(tr('Failed to create directory ":path"', [
+                            ':path' => $this->file
+                        ]), ['path' => $this->file], $e);
                     }
                 }
             }
