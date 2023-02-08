@@ -2,6 +2,7 @@
 
 namespace Phoundation\Developer\Project;
 
+use http\Exception\UnexpectedValueException;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Libraries\Library;
@@ -485,34 +486,46 @@ class Project
      */
     public function updateLocal(?string $phoundation_path = null, ?string $message = null, bool $signed = false): static
     {
-        // Add all files to index to ensure everything will be stashed
-        if ($this->git->getStatus()->getCount()) {
-            $this->git->add(PATH_ROOT);
-            $this->git->stash()->stash();
-            $stash = true;
-        }
+        try {
+            // Add all files to index to ensure everything will be stashed
+//            if ($this->git->getStatus()->getCount()) {
+//                $this->git->add(PATH_ROOT);
+//                $this->git->stash()->stash();
+//                $stash = true;
+//            }
 
-        // Copy Phoundation core files
-        $this->copyPhoundationFilesLocal($phoundation_path);
-        showdie('ok');
+            // Copy Phoundation core files
+            $this->copyPhoundationFilesLocal($phoundation_path);
+showdie('ok');
 
-        // If there are changes then add and commit
-        if ($this->git->getStatus()->getCount()) {
-            if (!$message) {
-                $message = tr('Phoundation update');
+            // If there are changes then add and commit
+            if ($this->git->getStatus()->getCount()) {
+                if (!$message) {
+                    $message = tr('Phoundation update');
+                }
+
+                $this->git->add([PATH_ROOT . 'Phoundation/', PATH_ROOT . 'scripts/']);
+                $this->git->commit($message, $signed);
             }
 
-            $this->git->add([PATH_ROOT . 'Phoundation/', PATH_ROOT . 'scripts/']);
-            $this->git->commit($message, $signed);
-        }
+            // Stash pop the previous changes and reset HEAD to ensure index is empty
+            if (isset($stash)) {
+                $this->git->stash()->pop();
+                $this->git->reset('HEAD');
+            }
 
-        // Stash pop the previous changes and reset HEAD to ensure index is empty
-        if (isset($stash)) {
-            $this->git->stash()->pop();
-            $this->git->reset('HEAD');
-        }
+            return $this;
 
-        return $this;
+        } catch (Throwable $e) {
+die('GODDOMME');
+            if (isset($stash)) {
+                Log::warning(tr('Moving stashed files back'));
+                $this->git->stash()->pop();
+                $this->git->reset('HEAD');
+            }
+
+            throw $e;
+        }
     }
 
 
@@ -611,10 +624,9 @@ class Project
 
         // Move /Phoundation and /scripts out of the way
         try {
-            $phoundation = Path::new(PATH_ROOT . 'Phoundation/', Restrictions::new([PATH_ROOT . 'Phoundation/', PATH_DATA], true))->move(PATH_ROOT . 'data/garbage/Phoundation/', true);
-            $scripts     = Path::new(PATH_ROOT . 'scripts/', Restrictions::new([PATH_ROOT . 'scripts/', PATH_DATA], true))->move(PATH_ROOT . 'data/garbage/scripts/', true);
+            $files['phoundation'] = Path::new(PATH_ROOT . 'Phoundation/', Restrictions::new([PATH_ROOT . 'Phoundation/', PATH_DATA], true))->move(PATH_ROOT . 'data/garbage/');
+            $files['scripts']     = Path::new(PATH_ROOT . 'scripts/'    , Restrictions::new([PATH_ROOT . 'scripts/'    , PATH_DATA], true))->move(PATH_ROOT . 'data/garbage/');
 showdie('ok');
-
             // Copy new versions
             $rsync
                 ->setSource($phoundation->getPath() . 'Phoundation/')
@@ -628,17 +640,19 @@ showdie('ok');
                 ->execute();
 
             // All is well? Get rid of the garbage
-            $phoundation->delete();
-            $scripts->delete();
+            $files['phoundation']->delete();
+            $files['scripts']->delete();
 
         } catch (Throwable $e) {
             //  Move Phoundation files back again
-            if (isset($phoundation)) {
-                $phoundation->move(PATH_ROOT . 'Phoundation/');
+            if (isset($files['phoundation'])) {
+                Log::warning(tr('Moving Phoundation core libraries back from garbage'));
+                $files['phoundation']->move(PATH_ROOT . 'Phoundation/');
             }
 
-            if (isset($scripts)) {
-                $scripts->move(PATH_ROOT . 'scripts/');
+            if (isset($files['scripts'])) {
+                Log::warning(tr('Moving Phoundation core scripts back from garbage'));
+                $files['scripts']->move(PATH_ROOT . 'scripts/');
             }
 
             throw $e;

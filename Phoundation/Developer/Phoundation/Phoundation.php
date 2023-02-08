@@ -124,7 +124,7 @@ class Phoundation extends Project
                         ':file' => $location
                     ]));
                 }
-Log::backtrace();
+
                 Log::success(tr('Found Phoundation installation in ":path"', [':path' => $path]));
 
                 $this->path = $path;
