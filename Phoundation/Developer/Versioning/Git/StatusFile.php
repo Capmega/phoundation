@@ -132,7 +132,7 @@ class StatusFile
      * @param string $target_path
      * @return static
      */
-    public function applyPatch(string $target_path): static
+    public function patch(string $target_path): static
     {
         try {
             // Create the patch file, apply it, delete it, done

@@ -9,6 +9,7 @@ use Phoundation\Developer\Phoundation\Exception\NotPhoundationException;
 use Phoundation\Developer\Phoundation\Exception\PhoundationNotFoundException;
 use Phoundation\Developer\Project\Project;
 use Phoundation\Developer\Versioning\Git\Exception\GitHasChangesException;
+use Phoundation\Developer\Versioning\Git\StatusFiles;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\File;
@@ -200,7 +201,9 @@ class Phoundation extends Project
             $this->selectBranch($branch);
 
             // Execute the patching
-
+            foreach (['Phoundation', 'scripts'] as $section) {
+                StatusFiles::new(PATH_ROOT . 'Phoundation')->patch($this->getPath() . $section);
+            }
 
             if ($this->phoundation_branch) {
                 $this->selectBranch($this->phoundation_branch);
@@ -274,7 +277,7 @@ class Phoundation extends Project
                 ':requested' => $branch,
                 ':current'   => $this->phoundation_branch,
             ]), 4);
-            Log::action(tr('witching Phoundation branch to requested branch ":requested"', [
+            Log::action(tr('Switching Phoundation branch to requested branch ":requested"', [
                 ':requested' => $branch,
                 ':current'   => $this->phoundation_branch,
             ]), 5);

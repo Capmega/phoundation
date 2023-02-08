@@ -6,6 +6,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Versioning\Versioning;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Filesystem;
+use Phoundation\Filesystem\Path;
 use Phoundation\Processes\Process;
 
 
@@ -328,7 +329,7 @@ class Git extends Versioning
     public function saveDiff(string $file): string
     {
         $diff = $this->getDiff($file);
-        $file = \Phoundation\Filesystem\Path::getTemporary() . $file . '-' . sha1($file) . '.patch';
+        $file = Path::getTemporary() . $file . '-' . sha1($file) . '.patch';
 
         file_put_contents($file, $diff);
         return $file;

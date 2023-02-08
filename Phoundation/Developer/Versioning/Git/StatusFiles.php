@@ -6,7 +6,11 @@ use Phoundation\Cli\Cli;
 use Phoundation\Cli\Color;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Classes\Iterator;
+use Phoundation\Developer\Versioning\Git\Exception\GitPatchException;
 use Phoundation\Developer\Versioning\Git\Traits\GitProcess;
+use Phoundation\Filesystem\File;
+use Phoundation\Filesystem\Restrictions;
+use Phoundation\Processes\Exception\ProcessFailedException;
 
 
 /**
@@ -92,5 +96,56 @@ class StatusFiles extends Iterator
         }
 
         Cli::displayTable($list, ['file' => tr('File'), 'status' => tr('Status')], 'file');
+    }
+
+
+
+    /**
+     * Applies the patch for this file on the specified target file
+     *
+     * @param string $target_path
+     * @return static
+     */
+    public function patch(string $target_path): static
+    {
+        try {
+            // Create the patch file, apply it, delete it, done
+            $patch_file = $this->getPatchFile();
+
+            Git::new($target_path)->apply($patch_file);
+            File::new($patch_file, Restrictions::new(PATH_TMP, true))->delete();
+
+            return $this;
+
+        } catch(ProcessFailedException $e) {
+            if (isset($patch_file)) {
+                // Delete the temporary patch file
+                File::new($patch_file, Restrictions::new(PATH_TMP, true))->delete();
+            }
+
+            $data = $e->getData();
+            $data = array_pop($data);
+
+            if (str_contains($data, 'patch does not apply')) {
+                throw new GitPatchException(tr('Failed to apply patch ":patch" to file ":file"', [
+                    ':patch' => isset_get($patch_file),
+                    ':file'  => $this->file
+                ]));
+            }
+
+            throw $e;
+        }
+    }
+
+
+
+    /**
+     * Generates a diff patch file for this path and returns the file name for the patch file
+     *
+     * @return string
+     */
+    public function getPatchFile(): string
+    {
+        return Git::new(dirname($this->path))->saveDiff(basename($this->path));
     }
 }
