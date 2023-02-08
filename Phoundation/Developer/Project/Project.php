@@ -488,15 +488,14 @@ class Project
     {
         try {
             // Add all files to index to ensure everything will be stashed
-//            if ($this->git->getStatus()->getCount()) {
-//                $this->git->add(PATH_ROOT);
-//                $this->git->stash()->stash();
-//                $stash = true;
-//            }
+            if ($this->git->getStatus()->getCount()) {
+                $this->git->add(PATH_ROOT);
+                $this->git->stash()->stash();
+                $stash = true;
+            }
 
             // Copy Phoundation core files
             $this->copyPhoundationFilesLocal($phoundation_path);
-showdie('ok');
 
             // If there are changes then add and commit
             if ($this->git->getStatus()->getCount()) {
@@ -506,6 +505,8 @@ showdie('ok');
 
                 $this->git->add([PATH_ROOT . 'Phoundation/', PATH_ROOT . 'scripts/']);
                 $this->git->commit($message, $signed);
+            } else {
+                Log::warning(tr('No updates found in local Phoundation update'));
             }
 
             // Stash pop the previous changes and reset HEAD to ensure index is empty
@@ -517,7 +518,6 @@ showdie('ok');
             return $this;
 
         } catch (Throwable $e) {
-die('GODDOMME');
             if (isset($stash)) {
                 Log::warning(tr('Moving stashed files back'));
                 $this->git->stash()->pop();
@@ -624,8 +624,8 @@ die('GODDOMME');
 
         // Move /Phoundation and /scripts out of the way
         try {
-//            $files['phoundation'] = Path::new(PATH_ROOT . 'Phoundation/', Restrictions::new([PATH_ROOT . 'Phoundation/', PATH_DATA], true))->move(PATH_ROOT . 'data/garbage/');
-//            $files['scripts']     = Path::new(PATH_ROOT . 'scripts/'    , Restrictions::new([PATH_ROOT . 'scripts/'    , PATH_DATA], true))->move(PATH_ROOT . 'data/garbage/');
+            $files['phoundation'] = Path::new(PATH_ROOT . 'Phoundation/', Restrictions::new([PATH_ROOT . 'Phoundation/', PATH_DATA], true))->move(PATH_ROOT . 'data/garbage/');
+            $files['scripts']     = Path::new(PATH_ROOT . 'scripts/'    , Restrictions::new([PATH_ROOT . 'scripts/'    , PATH_DATA], true))->move(PATH_ROOT . 'data/garbage/');
 
             // Copy new versions
             $rsync
@@ -638,7 +638,7 @@ die('GODDOMME');
                 ->setSource($phoundation->getPath() . 'scripts/')
                 ->setTarget(PATH_ROOT . 'scripts/')
                 ->execute();
-showdie('ok');
+
             // All is well? Get rid of the garbage
             $files['phoundation']->delete();
             $files['scripts']->delete();
