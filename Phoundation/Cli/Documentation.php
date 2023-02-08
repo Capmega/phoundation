@@ -34,7 +34,7 @@ class Documentation
 
         if (isset_get($argv['help'])) {
             Log::information(tr('Command help:'), 8);
-            Log::notice(trim($help), 10);
+            Log::notice(trim($help) . PHP_EOL, 10, false);
             Script::die();
         }
     }
@@ -53,7 +53,7 @@ class Documentation
 
         if (isset_get($argv['usage'])) {
             Log::information(tr('Command usage:'), 8);
-            Log::notice(trim($usage), 10);
+            Log::notice(trim($usage) . PHP_EOL, 10, false);
             Script::die();
         }
     }
