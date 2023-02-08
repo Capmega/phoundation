@@ -479,14 +479,17 @@ class Project
     /**
      * Updates your Phoundation installation
      *
-     * @param string|null $phoundation_path
+     * @param string|null $branch
      * @param string|null $message
      * @param bool $signed
+     * @param string|null $phoundation_path
      * @return static
      */
-    public function updateLocal(?string $phoundation_path = null, ?string $message = null, bool $signed = false): static
+    public function updateLocal(?string $branch, ?string $message = null, bool $signed = false, ?string $phoundation_path = null): static
     {
         try {
+            Log::information('Updating your project from a local Phoundation repository');
+
             // Add all files to index to ensure everything will be stashed
             if ($this->git->getStatus()->getCount()) {
                 $this->git->add(PATH_ROOT);
@@ -495,7 +498,7 @@ class Project
             }
 
             // Copy Phoundation core files
-            $this->copyPhoundationFilesLocal($phoundation_path);
+            $this->copyPhoundationFilesLocal($phoundation_path, $branch);
 
             // If there are changes then add and commit
             if ($this->git->getStatus()->getCount()) {
@@ -612,17 +615,17 @@ class Project
 
 
 
-
     /**
      * Copy all files from the local phoundation installation.
      *
      * @param string|null $path
+     * @param string $branch
      * @return void
      */
-    protected function copyPhoundationFilesLocal(?string $path = null): void
+    protected function copyPhoundationFilesLocal(?string $path, string $branch): void
     {
         $rsync       = Rsync::new();
-        $phoundation = Phoundation::new($path);
+        $phoundation = Phoundation::new($path)->switchBranch($branch);
 
         // Move /Phoundation and /scripts out of the way
         try {
@@ -644,6 +647,9 @@ class Project
             // All is well? Get rid of the garbage
             $files['phoundation']->delete();
             $files['scripts']->delete();
+
+            // Switch phoundation back to its previous branch
+            $phoundation->switchBranch();
 
         } catch (Throwable $e) {
             //  Move Phoundation files back again

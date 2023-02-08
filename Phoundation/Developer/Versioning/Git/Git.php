@@ -112,7 +112,7 @@ class Git extends Versioning
             ->addArgument($url)
             ->executeReturnArray();
 
-        Log::notice($output, 5, false);
+        Log::notice($output, 4, false);
         return $this;
     }
 
@@ -130,6 +130,26 @@ class Git extends Versioning
             ->addArgument('branch')
             ->addArgument($this->path)
             ->executeReturnString();
+    }
+
+
+
+    /**
+     * Returns the current git branch for this path
+     *
+     * @param string $branch
+     * @return static
+     */
+    public function setBranch(string $branch): static
+    {
+        $output = $this->git
+            ->clearArguments()
+            ->addArgument('checkout')
+            ->addArgument($branch)
+            ->executeReturnString();
+
+        Log::notice($output, 4, false);
+        return $this;
     }
 
 
@@ -184,7 +204,7 @@ class Git extends Versioning
             ->addArgument($branch)
             ->executeReturnArray();
 
-        Log::notice($output, 5, false);
+        Log::notice($output, 4, false);
         return $this;
     }
 
@@ -206,7 +226,7 @@ class Git extends Versioning
             ->addArgument($files)
             ->executeReturnArray();
 
-        Log::notice($output, 5, false);
+        Log::notice($output, 4, false);
         return $this;
     }
 
@@ -226,7 +246,7 @@ class Git extends Versioning
             ->addArgument($files)
             ->executeReturnArray();
 
-        Log::notice($output, 5, false);
+        Log::notice($output, 4, false);
         return $this;
     }
 
@@ -249,7 +269,7 @@ class Git extends Versioning
             ->addArgument($signed ? '-s' : null)
             ->executeReturnArray();
 
-        Log::notice($output, 5, false);
+        Log::notice($output, 4, false);
         return $this;
     }
 
@@ -330,7 +350,7 @@ class Git extends Versioning
             ->addArgument($patch_file)
             ->executeReturnArray();
 
-        Log::notice($output, 5, false);
+        Log::notice($output, 4, false);
         return $this;
     }
 
@@ -352,7 +372,7 @@ class Git extends Versioning
             ->addArgument($branch)
             ->executeReturnArray();
 
-        Log::notice($output, 5, false);
+        Log::notice($output, 4, false);
         return $this;
     }
 
@@ -372,7 +392,7 @@ class Git extends Versioning
             ->addArgument($branch)
             ->executeReturnArray();
 
-        Log::notice($output, 5, false);
+        Log::notice($output, 4, false);
         return $this;
     }
 
@@ -392,7 +412,7 @@ class Git extends Versioning
             ->addArgument($branch)
             ->executeReturnArray();
 
-        Log::notice($output, 5, false);
+        Log::notice($output, 4, false);
         return $this;
     }
 }

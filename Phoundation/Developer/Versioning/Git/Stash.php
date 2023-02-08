@@ -2,6 +2,7 @@
 
 namespace Phoundation\Developer\Versioning\Git;
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Versioning\Git\Traits\GitProcess;
 use Phoundation\Developer\Versioning\Versioning;
 
@@ -31,10 +32,12 @@ class Stash extends Versioning
      */
     public function stash(): static
     {
-        $this->git
+        $output = $this->git
             ->clearArguments()
             ->addArgument('stash')
-            ->executePassthru();
+            ->executeReturnArray();
+
+        Log::notice($output, 4, false);
 
         return $this;
     }
@@ -48,11 +51,13 @@ class Stash extends Versioning
      */
     public function pop(): static
     {
-        $this->git
+        $output = $this->git
             ->clearArguments()
             ->addArgument('stash')
             ->addArgument('pop')
-            ->executePassthru();
+            ->executeReturnArray();
+
+        Log::notice($output, 4, false);
 
         return $this;
     }

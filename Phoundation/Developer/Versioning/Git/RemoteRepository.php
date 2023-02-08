@@ -3,6 +3,7 @@
 namespace Phoundation\Developer\Versioning\Git;
 
 use Phoundation\Cli\Cli;
+use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Classes\Iterator;
 use Phoundation\Developer\Versioning\Git\Traits\GitProcess;
@@ -92,13 +93,15 @@ class RemoteRepository extends Iterator
      */
     public function setName(string $repository): static
     {
-        $this->git
+        $output = $this->git
             ->clearArguments()
             ->addArgument('remote')
             ->addArgument('rename')
             ->addArgument($this->repository)
             ->addArgument($repository)
-            ->executePassthru();
+            ->executeReturnArray();
+
+        Log::notice($output, 4, false);
 
         $this->repository = $repository;
         return $this;
@@ -126,13 +129,15 @@ class RemoteRepository extends Iterator
      */
     public function setFetchUrl(string $url): static
     {
-        $this->git
+        $output = $this->git
             ->clearArguments()
             ->addArgument('remote')
             ->addArgument('set-url')
             ->addArgument($this->repository)
             ->addArgument($url)
-            ->executePassthru();
+            ->executeReturnArray();
+
+        Log::notice($output, 4, false);
 
         $this->data['push_url']  = $url;
         $this->data['fetch_url'] = $url;

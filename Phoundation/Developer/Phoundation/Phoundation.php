@@ -9,6 +9,7 @@ use Phoundation\Developer\Phoundation\Exception\NotPhoundationException;
 use Phoundation\Developer\Phoundation\Exception\PhoundationNotFoundException;
 use Phoundation\Developer\Project\Project;
 use Phoundation\Developer\Versioning\Git\Exception\GitHasChangesException;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
@@ -28,6 +29,14 @@ use Phoundation\Servers\Server;
 class Phoundation extends Project
 {
     /**
+     * The branch on which the Phoundation project is
+     *
+     * @var string|null $branch
+     */
+    protected ?string $branch = null;
+
+
+    /**
      * Phoundation constructor
      *
      * @param string|null $path
@@ -36,7 +45,6 @@ class Phoundation extends Project
     {
         parent::__construct($this->detectLocation($path));
     }
-
 
 
     /**
@@ -138,6 +146,33 @@ class Phoundation extends Project
 
 
     /**
+     * @param string $branch
+     * @return $this
+     */
+    public function switchBranch(?string $branch = null): static
+    {
+        if ($branch === null) {
+            // This will cause a switch back to the previous branch, selected in this same process
+            if (!$this->branch) {
+                throw new OutOfBoundsException(tr('Cannot switch back to previous branch, no previous branch available'));
+            }
+
+            // Select the previous branch and reset it
+            $this->git->setBranch($this->branch);
+            $this->branch = null;
+
+        } else {
+            // Select the new branch and store the previous
+            $this->branch = $this->git->getBranch();
+            $this->git->setBranch($branch);
+        }
+
+        return $this;
+    }
+
+
+
+    /**
      * Copies all phoundation updates from your current project back to Phoundation
      *
      * @param string|null $branch
@@ -152,14 +187,23 @@ class Phoundation extends Project
                 $sign = Config::getBoolean('developer.phoundation.patch');
             }
 
+            Log::information(tr('Patching branch ":branch" on your local Phoundation repository from this project', [
+                ':branch' => $branch
+            ]));
+
+            // Update the local project
+            $project = Project::new();
+            $project->updateLocal($message, $sign);
+
+            // Detect Phoundation installation and ensure its clean and on the right branch
             $this->ensureNoChanges();
-            $this->selectPhoundationBranch($branch);
-            $this->updateFromLocalRepository($message, $sign);
-            $this->resetHeadLocalProject();
-            $this->updateTo();
+            $this->selectBranch($branch);
+
+            // Execute the patching
+
 
             if ($this->phoundation_branch) {
-                $this->selectPhoundationBranch($this->phoundation_branch);
+                $this->selectBranch($this->phoundation_branch);
             }
 
         } catch (GitHasChangesException $e) {
@@ -216,7 +260,7 @@ class Phoundation extends Project
      * @param string|null $branch
      * @return void
      */
-    protected function selectPhoundationBranch(?string $branch): void
+    protected function selectBranch(?string $branch): void
     {
         if (!$branch) {
             return;
