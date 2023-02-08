@@ -505,6 +505,8 @@ class Project
 
                 $this->git->add([PATH_ROOT . 'Phoundation/', PATH_ROOT . 'scripts/']);
                 $this->git->commit($message, $signed);
+
+                Log::warning(tr('Committed local Phoundation update to git'));
             } else {
                 Log::warning(tr('No updates found in local Phoundation update'));
             }
