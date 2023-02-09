@@ -1,10 +1,10 @@
 #!/usr/bin/php
 <?php
 
+use Phoundation\Cli\Documentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Phoundation\Phoundation;
-
 
 
 /**
@@ -20,12 +20,37 @@ use Phoundation\Developer\Phoundation\Phoundation;
  * @package Phoundation\Development
  */
 
+Documentation::usage('./cli system project update [OPTIONS]
+./cli system development phoundation patch -b BRANCH
+./cli system development phoundation patch -b  BRANCH --check
+./cli system development phoundation patch -l --branch BRANCH -p /home/USER/projects/phoundation  
+');
+
+Documentation::help('This script will update your Phoundation libraries and list
+
+
+
+ARGUMENTS
+
+
+
+-b / --branch                           The branch from which to update
+
+[-m / --message]                        The git commit message for this update. If not specified, a default will be used  
+
+[-s / --signed]                         If specified will make a signed commit. This requires your git setup to be 
+                                        configured correctly for this
+                                        
+[-p / --phoundation]                    If specified should contain the path to your local Phoundation installation');
+
 
 
 // Get command line arguments
 ArgvValidator::new()
-    ->select('-s,--signed')->isOptional()->isBoolean()
     ->select('-b,--branch', true)->isOptional()->isPrintable()
+    ->select('-m,--message', true)->isOptional()->isPrintable()->hasMinCharacters(10)->hasMaxCharacters(1024)
+    ->select('-p,--phoundation', true)->isOptional()->isPrintable()
+    ->select('-s,--signed')->isOptional()->isBoolean()
     ->select('message', true)->isOptional()->isPrintable()->hasMinCharacters(10)->hasMaxCharacters(1024)
     ->noArgumentsLeft()
     ->validate();
@@ -35,4 +60,4 @@ Log::information(tr('Copying local changes in ":project" project back to your Ph
         ':project' => PROJECT
 ]));
 
-Phoundation::new()->patch($argv['branch'], $argv['message'], $argv['signed']);
+Phoundation::new($argv['phoundation'])->patch($argv['branch'], $argv['message'], $argv['signed']);

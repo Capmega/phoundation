@@ -93,7 +93,7 @@ class RemoteRepository extends Iterator
      */
     public function setName(string $repository): static
     {
-        $output = $this->git
+        $output = $this->git_process
             ->clearArguments()
             ->addArgument('remote')
             ->addArgument('rename')
@@ -129,7 +129,7 @@ class RemoteRepository extends Iterator
      */
     public function setFetchUrl(string $url): static
     {
-        $output = $this->git
+        $output = $this->git_process
             ->clearArguments()
             ->addArgument('remote')
             ->addArgument('set-url')
@@ -207,7 +207,7 @@ class RemoteRepository extends Iterator
             return;
         }
 
-        $data = $this->git
+        $data = $this->git_process
             ->addArgument('remote')
             ->addArgument('show')
             ->addArgument($this->repository)

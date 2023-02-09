@@ -32,7 +32,7 @@ class Stash extends Versioning
      */
     public function stash(): static
     {
-        $output = $this->git
+        $output = $this->git_process
             ->clearArguments()
             ->addArgument('stash')
             ->executeReturnArray();
@@ -51,7 +51,7 @@ class Stash extends Versioning
      */
     public function pop(): static
     {
-        $output = $this->git
+        $output = $this->git_process
             ->clearArguments()
             ->addArgument('stash')
             ->addArgument('pop')
@@ -72,7 +72,7 @@ class Stash extends Versioning
     public function getList(): array
     {
         $return  = [];
-        $results = $this->git
+        $results = $this->git_process
             ->clearArguments()
             ->addArgument('stash')
             ->addArgument('list')
@@ -95,7 +95,7 @@ class Stash extends Versioning
      */
     public function getShow(): array
     {
-        return $this->git
+        return $this->git_process
             ->clearArguments()
             ->addArgument('stash')
             ->addArgument('show')

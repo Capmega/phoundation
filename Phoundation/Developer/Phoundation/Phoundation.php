@@ -202,7 +202,11 @@ class Phoundation extends Project
 
             // Execute the patching
             foreach (['Phoundation', 'scripts'] as $section) {
-                StatusFiles::new(PATH_ROOT . 'Phoundation')->patch($this->getPath() . $section);
+                // Patch target and remove the changes locally
+                StatusFiles::new(PATH_ROOT . 'Phoundation')
+                    ->patch($this->getPath() . $section);
+//                    ->getGit()
+//                        ->checkout();
             }
 
             if ($this->phoundation_branch) {
@@ -274,12 +278,10 @@ class Phoundation extends Project
 
         if ($branch !== $this->phoundation_branch) {
             Log::warning(tr('Phoundation is currently on different branch ":current"', [
-                ':requested' => $branch,
                 ':current'   => $this->phoundation_branch,
             ]), 4);
             Log::action(tr('Switching Phoundation branch to requested branch ":requested"', [
-                ':requested' => $branch,
-                ':current'   => $this->phoundation_branch,
+                ':requested' => $branch
             ]), 5);
 
             $this->git->checkout($branch);

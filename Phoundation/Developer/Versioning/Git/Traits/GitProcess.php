@@ -30,9 +30,9 @@ trait GitProcess
     /**
      * The git process
      *
-     * @var Process $git
+     * @var Process $git_process
      */
-    protected Process $git;
+    protected Process $git_process;
 
 
 
@@ -81,8 +81,8 @@ trait GitProcess
      */
     public function setPath(string $path): static
     {
-        $this->path = Filesystem::absolute($path);
-        $this->git  = Process::new('git')->setExecutionPath($this->path);
+        $this->path        = Filesystem::absolute($path);
+        $this->git_process = Process::new('git')->setExecutionPath($this->path);
 
         if (!$this->path) {
             if (!file_exists($path)) {

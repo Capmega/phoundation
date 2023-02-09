@@ -27,6 +27,13 @@ class StatusFiles extends Iterator
 {
     use GitProcess;
 
+    /**
+     * A git object specifically for this path
+     *
+     * @var Git $git
+     */
+    protected Git $git;
+
 
 
     /**
@@ -51,7 +58,7 @@ class StatusFiles extends Iterator
     {
         $this->list = [];
 
-        $files = $this->git
+        $files = $this->git_process
             ->clearArguments()
             ->addArgument('status')
             ->addArgument($this->path)
@@ -113,6 +120,8 @@ class StatusFiles extends Iterator
             $patch_file = $this->getPatchFile();
 
             Git::new($target_path)->apply($patch_file);
+            show($target_path);
+            showdie($patch_file);
             File::new($patch_file, Restrictions::new(PATH_TMP, true))->delete();
 
             return $this;
@@ -147,5 +156,21 @@ class StatusFiles extends Iterator
     public function getPatchFile(): string
     {
         return Git::new(dirname($this->path))->saveDiff(basename($this->path));
+    }
+
+
+
+    /**
+     * Returns a git object for this path
+     *
+     * @return Git
+     */
+    public function getGit(): Git
+    {
+        if (!isset($this->git)) {
+            $this->git = Git::new($this->path);
+        }
+
+        return $this->git;
     }
 }

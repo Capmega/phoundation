@@ -3,6 +3,7 @@
 namespace Phoundation\Developer\Versioning\Git;
 
 use Phoundation\Core\Log\Log;
+use Phoundation\Core\Strings;
 use Phoundation\Developer\Versioning\Git\Exception\GitException;
 use Phoundation\Developer\Versioning\Versioning;
 use Phoundation\Exception\OutOfBoundsException;
@@ -127,10 +128,9 @@ class Git extends Versioning
      */
     public function getBranch(): string
     {
-        return $this->git
+        $output = $this->git
             ->clearArguments()
             ->addArgument('branch')
-            ->addArgument($this->path)
             ->executeReturnString();
 
         foreach ($output as $line) {
@@ -206,15 +206,15 @@ showdie(trim(Strings::from($line, '*')));
     /**
      * Checks out the specified branch for this git path
      *
-     * @param string $branch
+     * @param string $branch_or_path
      * @return static
      */
-    public function checkout(string $branch): static
+    public function checkout(string $branch_or_path): static
     {
         $output = $this->git
             ->clearArguments()
             ->addArgument('checkout')
-            ->addArgument($branch)
+            ->addArgument($branch_or_path)
             ->executeReturnArray();
 
         Log::notice($output, 4, false);
