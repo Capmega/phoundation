@@ -391,6 +391,9 @@ trait ValidatorBasics
             return false;
         }
 
+// DEBUG CODE: In case of errors with validation, its very useful to have these debugged here
+//        show($this->selected_field);
+//        show($value);
         if (!$value) {
             if (!$this->reflection_selected_optional->isInitialized($this)){
                 // At this point we know we MUST have a value, so we're bad here

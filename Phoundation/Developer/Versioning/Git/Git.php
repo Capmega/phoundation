@@ -3,6 +3,7 @@
 namespace Phoundation\Developer\Versioning\Git;
 
 use Phoundation\Core\Log\Log;
+use Phoundation\Developer\Versioning\Git\Exception\GitException;
 use Phoundation\Developer\Versioning\Versioning;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Filesystem;
@@ -131,6 +132,17 @@ class Git extends Versioning
             ->addArgument('branch')
             ->addArgument($this->path)
             ->executeReturnString();
+
+        foreach ($output as $line) {
+            if (str_starts_with(trim($line), '*')) {
+showdie(trim(Strings::from($line, '*')));
+                return trim(Strings::from($line, '*'));
+            }
+        }
+
+        throw new GitException(tr('No brach selected for path ":path"', [
+            ':path' => $this->path
+        ]));
     }
 
 

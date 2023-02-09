@@ -24,9 +24,9 @@ use Phoundation\Developer\Phoundation\Phoundation;
 
 // Get command line arguments
 ArgvValidator::new()
-    ->select('branch')->isOptional()->isPrintable()
-    ->select('message', true)->isOptional()->isPrintable()->hasMinCharacters(10)->hasMaxCharacters(1024)
     ->select('-s,--signed')->isOptional()->isBoolean()
+    ->select('-b,--branch', true)->isOptional()->isPrintable()
+    ->select('message', true)->isOptional()->isPrintable()->hasMinCharacters(10)->hasMaxCharacters(1024)
     ->noArgumentsLeft()
     ->validate();
 
