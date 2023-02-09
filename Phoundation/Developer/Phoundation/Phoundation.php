@@ -204,9 +204,9 @@ class Phoundation extends Project
             foreach (['Phoundation', 'scripts'] as $section) {
                 // Patch target and remove the changes locally
                 StatusFiles::new(PATH_ROOT . $section)
-                    ->patch($this->getPath() . $section);
-//                    ->getGit()
-//                        ->checkout();
+                    ->patch($this->getPath() . $section)
+                    ->getGit()
+                        ->checkout(PATH_ROOT . $section);
             }
 
             if ($this->phoundation_branch) {
