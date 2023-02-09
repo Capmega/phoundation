@@ -194,7 +194,7 @@ class Restrictions
                         throw RestrictionsException::new(tr('Write access to path ":path" denied by ":label" restrictions', [
                             ':path'  => $pattern,
                             ':label' => $this->label
-                        ]))->makeWarning();
+                        ]));
                     }
 
                     // Access ok!
