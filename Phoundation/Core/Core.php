@@ -423,18 +423,18 @@ class Core {
             ->select('-A,--all')->isOptional(false)->isBoolean()
             ->select('-C,--no-color')->isOptional(false)->isBoolean()
             ->select('-D,--debug')->isOptional(false)->isBoolean()
+            ->select('-E,--environment', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(64)
             ->select('-F,--force')->isOptional(false)->isBoolean()
             ->select('-H,--help')->isOptional(false)->isBoolean()
             ->select('-L,--log-level', true)->isOptional()->isInteger()->isBetween(1, 10)
+            ->select('-O,--order-by', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(128)
+            ->select('-P,--page', true)->isOptional(1)->isId()
             ->select('-Q,--quiet')->isOptional(false)->isBoolean()
+            ->select('-S,--status', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(16)
             ->select('-T,--test')->isOptional(false)->isBoolean()
             ->select('-U,--usage')->isOptional(false)->isBoolean()
             ->select('-V,--verbose')->isOptional(false)->isBoolean()
             ->select('-W,--no-warnings')->isOptional(false)->isBoolean()
-            ->select('-E,--environment', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(64)
-            ->select('-O,--order-by', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(128)
-            ->select('-P,--page', true)->isOptional(1)->isId()
-            ->select('-S,--status', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(16)
             ->select('--language', true)->isOptional()->isCode()
             ->select('--deleted')->isOptional(false)->isBoolean()
             ->select('--version')->isOptional(false)->isBoolean()
@@ -1474,9 +1474,10 @@ class Core {
 //                                    die(Script::getExitCode());
 //                            }
 
-                        Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" WITH ENVIRONMENT ":environment" ***', [
+                        Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" WITH ENVIRONMENT ":environment" DURING STATE ":state" ***', [
                             ':code'        => $e->getCode(),
                             ':type'        => static::getRequestType(),
+                            ':state'       => static::$state,
                             ':script'      => static::readRegister('system', 'script'),
                             ':environment' => (defined('ENVIRONMENT') ? ENVIRONMENT : null)
                         ]));
@@ -1497,9 +1498,10 @@ class Core {
                             Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
                         } else {
                             // Log exception data
-                            Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" WITH ENVIRONMENT ":environment" ***', [
+                            Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" WITH ENVIRONMENT ":environment" DURING STATE ":state" ***', [
                                 ':code'        => $e->getCode(),
                                 ':type'        => static::getRequestType(),
+                                ':state'       => static::$state,
                                 ':script'      => static::readRegister('system', 'script'),
                                 ':environment' => (defined('ENVIRONMENT') ? ENVIRONMENT : null)
                             ]));
@@ -2045,91 +2047,95 @@ class Core {
      */
     public static function shutdown(?int $error_code = null): void
     {
-        static::$state = 'shutdown';
+        try {
+            static::$state = 'shutdown';
 
-        // Do we need to run other shutdown functions?
-        if (static::startupState()) {
-            if (!$error_code) {
-                Log::error(tr('Shutdown procedure started before static::$register[script] was ready, possibly on script ":script"', [
-                    ':script' => $_SERVER['PHP_SELF']
-                ]));
+            // Do we need to run other shutdown functions?
+            if (static::startupState()) {
+                if (!$error_code) {
+                    Log::error(tr('Shutdown procedure started before static::$register[script] was ready, possibly on script ":script"', [
+                        ':script' => $_SERVER['PHP_SELF']
+                    ]));
+                    return;
+                }
+
+                // We're in error mode and already know it, don't do normal shutdown
                 return;
             }
 
-            // We're in error mode and already know it, don't do normal shutdown
-            return;
-        }
+            Log::action(tr('Starting shutdown procedure for script ":script"', [
+                ':script' => static::readRegister('system', 'script')
+            ]), 2);
 
-        Log::action(tr('Starting shutdown procedure for script ":script"', [
-            ':script' => static::readRegister('system', 'script')
-        ]), 2);
+            Session::shutdown();
+            Path::removeTemporary();
 
-        Session::shutdown();
-        Path::removeTemporary();
+            if (!is_array(static::readRegister('system', 'shutdown'))) {
+                // Libraries shutdown list
+                static::$register['system']['shutdown'] = [];
+            }
 
-        if (!is_array(static::readRegister('system', 'shutdown'))) {
-            // Libraries shutdown list
-            static::$register['system']['shutdown'] = [];
-        }
+            // Reverse the shutdown calls to execute them last added first, first added last
+            static::$register['system']['shutdown'] = array_reverse(static::$register['system']['shutdown']);
 
-        // Reverse the shutdown calls to execute them last added first, first added last
-        static::$register['system']['shutdown'] = array_reverse(static::$register['system']['shutdown']);
+            foreach (static::$register['system']['shutdown'] as $identifier => $data) {
+                try {
+                    $function = $data['function'];
+                    $data     = Arrays::force($data['data'], null);
 
-        foreach (static::$register['system']['shutdown'] as $identifier => $data) {
-            try {
-                $function = $data['function'];
-                $data     = Arrays::force($data['data'], null);
-
-                // If no data was specified at all, then ensure at least one NULL value
-                if (!$data) {
-                    $data = [null];
-                }
-
-                // Execute this shutdown function for each data value
-                foreach ($data as $value) {
-                    Log::action(tr('Executing shutdown function ":identifier" with data value ":value"', [
-                        ':identifier' => $identifier,
-                        ':value'      => $value
-                    ]), 1);
-
-                    if (is_callable($function)) {
-                        // Execute this call directly
-                        $function($value);
-                        continue;
+                    // If no data was specified at all, then ensure at least one NULL value
+                    if (!$data) {
+                        $data = [null];
                     }
 
-                    if (is_string($function)) {
-                        if (str_contains($function, ',')) {
-                            // This is an array containing components. Explode and treat as array
-                            $function = explode(',', $function);
-                        } else {
-                            $function[0]::{$function[1]}($value);
+                    // Execute this shutdown function for each data value
+                    foreach ($data as $value) {
+                        Log::action(tr('Executing shutdown function ":identifier" with data value ":value"', [
+                            ':identifier' => $identifier,
+                            ':value'      => $value
+                        ]), 1);
+
+                        if (is_callable($function)) {
+                            // Execute this call directly
+                            $function($value);
                             continue;
                         }
-                    }
 
-                    // Execute this shutdown function with the specified value
-                    if (is_array($function)) {
-                        // Decode the array contents. If anything is not correct, it will no-break fall through to the
-                        // warning log
-                        if (count($function) === 2) {
-                            // The first entry can either be a class name string or an object
-                            if (is_object($function[0])) {
-                                if (is_string($function[1])) {
-                                    // Execute the method in the specified object
-                                    $function[0]->$function[1]($value);
-                                    continue;
-                                }
+                        if (is_string($function)) {
+                            if (str_contains($function, ',')) {
+                                // This is an array containing components. Explode and treat as array
+                                $function = explode(',', $function);
+                            } else {
+                                $function[0]::{$function[1]}($value);
+                                continue;
+                            }
+                        }
 
-                                // no-break
-                            } elseif (is_string($function[0])) {
-                                if (is_string($function[1])) {
-                                    // Ensure the class file is loaded
-                                    Debug::loadClassFile($function[0]);
+                        // Execute this shutdown function with the specified value
+                        if (is_array($function)) {
+                            // Decode the array contents. If anything is not correct, it will no-break fall through to the
+                            // warning log
+                            if (count($function) === 2) {
+                                // The first entry can either be a class name string or an object
+                                if (is_object($function[0])) {
+                                    if (is_string($function[1])) {
+                                        // Execute the method in the specified object
+                                        $function[0]->$function[1]($value);
+                                        continue;
+                                    }
 
-                                    // Execute this shutdown function with the specified value
-                                    $function[0]::{$function[1]}($value);
-                                    continue;
+                                    // no-break
+                                } elseif (is_string($function[0])) {
+                                    if (is_string($function[1])) {
+                                        // Ensure the class file is loaded
+                                        Debug::loadClassFile($function[0]);
+
+                                        // Execute this shutdown function with the specified value
+                                        $function[0]::{$function[1]}($value);
+                                        continue;
+                                    }
+
+                                    // no-break
                                 }
 
                                 // no-break
@@ -2138,40 +2144,42 @@ class Core {
                             // no-break
                         }
 
-                        // no-break
-                    }
-
-                    Log::warning(tr('Unknown function information ":function" encountered, quietly skipping', [
-                        ':function' => $function
-                    ]));
-                }
-
-            } catch (Throwable $e) {
-                Notification::new()
-                    ->setException($e)
-                    ->send(true);
-            }
-        }
-
-        // Periodically execute the following functions
-        if (!$error_code) {
-            $level = mt_rand(0, 100);
-
-            if (Config::get('system.shutdown', false)) {
-                if (!is_array(Config::get('system.shutdown', false))) {
-                    throw new OutOfBoundsException(tr('Invalid system.shutdown configuration, it should be an array'));
-                }
-
-                foreach (Config::get('system.shutdown', false) as $name => $parameters) {
-                    if ($parameters['interval'] and ($level < $parameters['interval'])) {
-                        Log::notice(tr('Executing periodical shutdown function ":function()"', [
-                            ':function' => $name
+                        Log::warning(tr('Unknown function information ":function" encountered, quietly skipping', [
+                            ':function' => $function
                         ]));
+                    }
 
-                        $parameters['function']();
+                } catch (Throwable $e) {
+                    Notification::new()
+                        ->setException($e)
+                        ->send(true);
+                }
+            }
+
+            // Periodically execute the following functions
+            if (!$error_code) {
+                $level = mt_rand(0, 100);
+
+                if (Config::get('system.shutdown', false)) {
+                    if (!is_array(Config::get('system.shutdown', false))) {
+                        throw new OutOfBoundsException(tr('Invalid system.shutdown configuration, it should be an array'));
+                    }
+
+                    foreach (Config::get('system.shutdown', false) as $name => $parameters) {
+                        if ($parameters['interval'] and ($level < $parameters['interval'])) {
+                            Log::notice(tr('Executing periodical shutdown function ":function()"', [
+                                ':function' => $name
+                            ]));
+
+                            $parameters['function']();
+                        }
                     }
                 }
             }
+
+        } catch (Throwable $e) {
+            // Uncaught exception handler for shutdown
+            Core::uncaughtException($e);
         }
     }
 
