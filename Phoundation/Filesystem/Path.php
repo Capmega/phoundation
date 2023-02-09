@@ -12,7 +12,7 @@ use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\PathNotDirectoryException;
 use Phoundation\Filesystem\Exception\RestrictionsException;
 use Throwable;
-
+use const PhpConsole\Test\PATH_TMP_DIR;
 
 
 /**
@@ -658,6 +658,11 @@ class Path extends FileBasics
         $mode = Config::get('filesystem.mode.default.directory', 0750, $mode);
 
         if (!$this->ensureFileWritable($mode)) {
+            Log::action(tr('Creating non existing path ":file" with file mode ":mode"', [
+                ':mode' => Strings::fromOctal($mode),
+                ':file' => $this->file
+            ]), 3);
+
             mkdir($this->file, $mode);
         }
 
@@ -700,7 +705,14 @@ class Path extends FileBasics
     public static function removeTemporary(): void
     {
         if (static::$temp_path) {
-            File::new(static::$temp_path)->delete();
+            if (TEST) {
+                Log::warning(tr('No cleaning up temporary directory ":path" due to TEST mode', [
+                    ':path' => Strings::from(static::$temp_path, PATH_ROOT)
+                ]));
+            } else {
+                // Remove temporary directories
+                File::new(static::$temp_path, Restrictions::new(static::$temp_path, true))->delete();
+            }
         }
     }
 }

@@ -835,11 +835,6 @@ class FileBasics
         // As of here we know the file doesn't exist. Attempt to create it. First ensure the parent path exists.
         Path::new(dirname($this->file), $this->server_restrictions)->ensure();
 
-        Log::action(tr('Creating non existing file ":file" with file mode ":mode"', [
-            ':mode' => Strings::fromOctal($mode),
-            ':file' => $this->file
-        ]));
-
         return false;
     }
 }

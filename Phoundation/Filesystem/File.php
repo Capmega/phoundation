@@ -1281,6 +1281,11 @@ class File extends FileBasics
         $mode = Config::get('filesystem.mode.default.file', 0640, $mode);
 
         if (!$this->ensureFileWritable($mode)) {
+            Log::action(tr('Creating non existing file ":file" with file mode ":mode"', [
+                ':mode' => Strings::fromOctal($mode),
+                ':file' => $this->file
+            ]), 3);
+
             touch($this->file);
             $this->chmod($mode);
         }
