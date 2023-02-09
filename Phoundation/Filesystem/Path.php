@@ -706,7 +706,7 @@ class Path extends FileBasics
     {
         if (static::$temp_path) {
             if (TEST) {
-                Log::warning(tr('No cleaning up temporary directory ":path" due to TEST mode', [
+                Log::warning(tr('Not cleaning up temporary directory ":path" due to TEST mode', [
                     ':path' => Strings::from(static::$temp_path, PATH_ROOT)
                 ]));
             } else {

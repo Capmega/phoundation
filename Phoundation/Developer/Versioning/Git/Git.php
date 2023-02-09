@@ -131,11 +131,10 @@ class Git extends Versioning
         $output = $this->git
             ->clearArguments()
             ->addArgument('branch')
-            ->executeReturnString();
+            ->executeReturnArray();
 
         foreach ($output as $line) {
             if (str_starts_with(trim($line), '*')) {
-showdie(trim(Strings::from($line, '*')));
                 return trim(Strings::from($line, '*'));
             }
         }
@@ -340,7 +339,7 @@ showdie(trim(Strings::from($line, '*')));
      */
     public function saveDiff(string $file): string
     {
-        $diff = $this->getDiff($file);
+        $diff = $this->getDiff($file) . PHP_EOL;
         $file = Path::getTemporary() . $file . '-' . sha1($file) . '.patch';
 
         file_put_contents($file, $diff);

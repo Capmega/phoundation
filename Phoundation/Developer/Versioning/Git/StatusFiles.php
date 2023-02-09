@@ -120,8 +120,6 @@ class StatusFiles extends Iterator
             $patch_file = $this->getPatchFile();
 
             Git::new($target_path)->apply($patch_file);
-            show($target_path);
-            showdie($patch_file);
             File::new($patch_file, Restrictions::new(PATH_TMP, true))->delete();
 
             return $this;
