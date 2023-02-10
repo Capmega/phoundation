@@ -9,7 +9,6 @@ use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Commands\Exception\CommandsException;
 use Phoundation\Processes\Exception\ProcessFailedException;
 use Phoundation\Processes\Process;
-use Phoundation\Servers\Server;
 
 
 
@@ -28,20 +27,20 @@ class Command
     /**
      * Where will this be executed? Locally or on the specified server
      *
-     * @var Server $server_restrictions
+     * @var Restrictions $restrictions
      */
-    protected Server $server_restrictions;
+    protected Restrictions $restrictions;
 
 
 
     /**
      * Command class constructor
      *
-     * @param Server|Restrictions|array|string|null $server_restrictions
+     * @param Restrictions|array|string|null $restrictions
      */
-    public function __construct(Server|Restrictions|array|string|null $server_restrictions = null)
+    public function __construct(Restrictions|array|string|null $restrictions = null)
     {
-        $this->setServerRestrictions($server_restrictions);
+        $this->setRestrictions($restrictions);
     }
 
 
@@ -49,12 +48,12 @@ class Command
     /**
      * Returns a new Images object
      *
-     * @param Server|Restrictions|array|string|null $server_restrictions
+     * @param Restrictions|array|string|null $restrictions
      * @return static
      */
-    public static function new(Server|Restrictions|array|string|null $server_restrictions = null): static
+    public static function new(Restrictions|array|string|null $restrictions = null): static
     {
-        return new static($server_restrictions);
+        return new static($restrictions);
     }
 
 
@@ -64,12 +63,12 @@ class Command
      *
      * Sets the server by name or object, NULL for localhost
      *
-     * @param Server|Restrictions|array|string|null $server_restrictions
+     * @param Restrictions|array|string|null $restrictions
      * @return static
      */
-    public function setServerRestrictions(Server|Restrictions|array|string|null $server_restrictions = null): static
+    public function setRestrictions(Restrictions|array|string|null $restrictions = null): static
     {
-        $this->server_restrictions = Core::ensureServer($server_restrictions);
+        $this->restrictions = Core::ensureRestrictions($restrictions);
         return $this;
     }
 
@@ -78,11 +77,11 @@ class Command
     /**
      * Returns the server object for this commands object
      *
-     * @return Server
+     * @return Restrictions
      */
-    public function getServerRestrictions(): Server
+    public function getRestrictions(): Restrictions
     {
-        return $this->server_restrictions;
+        return $this->restrictions;
     }
 
 
@@ -103,12 +102,14 @@ class Command
      * Returns true if the process can execute the specified command with sudo privileges
      *
      * @param string $command
+     * @param bool $exception
      * @return bool
+     * @todo Find a better option than "--version" which may not be available for everything. What about shell commands like "true", or "which", etc?
      */
-    public function sudoAvailable(string $command): bool
+    public function sudoAvailable(string $command, bool $exception = false): bool
     {
         try {
-            Process::new($command, $this->server_restrictions)
+            Process::new($command, $this->restrictions)
                 ->setSudo(true)
                 ->setCommand($command)
                 ->addArgument('--version')
@@ -116,6 +117,10 @@ class Command
 
             return true;
         } catch (ProcessFailedException $e) {
+            if ($exception) {
+                throw $e;
+            }
+
             return false;
         }
     }

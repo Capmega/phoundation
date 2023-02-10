@@ -1,11 +1,10 @@
 <?php
 
-namespace Phoundation\Data\DataEntry;
+namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Geo\Cities\City;
 use Phoundation\Geo\Countries\Country;
 use Phoundation\Geo\States\State;
-
 
 
 /**

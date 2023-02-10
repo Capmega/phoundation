@@ -99,6 +99,32 @@ class TextArea extends Input
 
 
     /**
+     * Returns the maximum length this text area
+     *
+     * @return int|null
+     */
+    public function getMaxLength(): ?int
+    {
+        return isset_get($this->attributes['maxlength']);
+    }
+
+
+
+    /**
+     * Sets the maximum length this text area
+     *
+     * @param int|null $maxlength
+     * @return $this
+     */
+    public function setMaxLength(?int $maxlength): static
+    {
+        $this->attributes['maxlength'] = $maxlength;
+        return $this;
+    }
+
+
+
+    /**
      * Add the system arguments to the arguments list
      *
      * @note The system attributes (id, name, class, autofocus, readonly, disabled) will overwrite those same

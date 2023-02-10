@@ -24,4 +24,30 @@ class InputText extends Input
         $this->type = 'text';
         parent::__construct();
     }
+
+
+
+    /**
+     * Returns the maximum length this text input
+     *
+     * @return int|null
+     */
+    public function getMaxLength(): ?int
+    {
+        return isset_get($this->attributes['maxlength']);
+    }
+
+
+
+    /**
+     * Returns the maximum length this text input
+     *
+     * @param int|null $maxlength
+     * @return $this
+     */
+    public function setMaxLength(?int $maxlength): static
+    {
+        $this->attributes['maxlength'] = $maxlength;
+        return $this;
+    }
 }

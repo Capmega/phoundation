@@ -6,7 +6,6 @@ use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\Exception\FilesystemException;
-use Phoundation\Servers\Server;
 use Throwable;
 
 
@@ -362,7 +361,7 @@ class Filesystem
 
         touch($file);
 
-        return new File($file, Server::new(Restrictions::new($tmp_path, true)));
+        return new File($file, Restrictions::new($tmp_path, true));
     }
 
 

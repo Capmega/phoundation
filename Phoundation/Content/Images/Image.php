@@ -44,7 +44,7 @@ class Image extends Content
      */
     public function convert(): Convert
     {
-        $convert = new Convert($this->getServerRestrictions());
+        $convert = new Convert($this->getRestrictions());
         $convert->setSource($this);
 
         return $convert;
@@ -95,7 +95,7 @@ class Image extends Content
         }
 
         if ($return['size']) {
-            $return['mimetype'] = File::new($this->file, $this->server_restrictions)->mimetype();
+            $return['mimetype'] = File::new($this->file, $this->restrictions)->mimetype();
         }
 
         if (Strings::until($return['mimetype'], '/') === 'image') {

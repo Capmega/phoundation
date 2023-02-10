@@ -1112,7 +1112,7 @@ class Route
             // Upload the file to the client as an attachment
             Log::action(tr('Sending file ":target" as attachment', [':target' => $target]));
 
-            File::new(static::$server_restrictions)
+            File::new(static::$restrictions)
                 ->setAttachment(true)
                 ->setFile($target)
                 ->send();

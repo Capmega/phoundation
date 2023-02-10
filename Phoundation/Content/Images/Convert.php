@@ -188,7 +188,7 @@ class Convert extends Command
      */
     public function resize(bool $background = false): Resize
     {
-        $resize = new Resize($this->source, $this->server_restrictions);
+        $resize = new Resize($this->source, $this->restrictions);
         $resize->setBackground($background);
 
         return $resize;
@@ -216,6 +216,6 @@ class Convert extends Command
      */
     protected function path(string $path): Path
     {
-        return new Path($path, $this->server_restrictions);
+        return new Path($path, $this->restrictions);
     }
 }

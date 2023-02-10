@@ -2,7 +2,7 @@
 
 namespace Phoundation\Core\Hooks;
 
-class Hooks extends \Phoundation\Data\DataList\DataList
+class Hooks extends \Phoundation\Data\DataEntry\DataList
 {
 
     /**

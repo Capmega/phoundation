@@ -12,7 +12,6 @@ use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\PathNotExistsException;
 use Phoundation\Processes\Exception\ProcessesException;
 use Phoundation\Processes\Process;
-use Phoundation\Servers\Server;
 use Phoundation\Servers\UsesServer;
 use Throwable;
 
@@ -64,18 +63,18 @@ class FileBasics
      * File class constructor
      *
      * @param FileBasics|string|null $file
-     * @param Server|Restrictions|array|string|null $server_restrictions_restrictions
+     * @param Restrictions|array|string|null $restrictions_restrictions
      */
-    public function __construct(FileBasics|string|null $file = null, Server|Restrictions|array|string|null $server_restrictions_restrictions = null)
+    public function __construct(FileBasics|string|null $file = null, Restrictions|array|string|null $restrictions_restrictions = null)
     {
         // Specified file was actually a File or Path object, get the file from there
         if (is_object($file)) {
             $this->setFile($file->getFile());
             $this->setTarget($file->getTarget());
-            $this->setServerRestrictions($server_restrictions_restrictions ?? $file->getServerRestrictions());
+            $this->setRestrictions($restrictions_restrictions ?? $file->getRestrictions());
         } else {
             $this->setFile($file);
-            $this->setServerRestrictions($server_restrictions_restrictions);
+            $this->setRestrictions($restrictions_restrictions);
         }
     }
 
@@ -96,12 +95,12 @@ class FileBasics
      * Returns a new File object with the specified restrictions
      *
      * @param FileBasics|string|null $file
-     * @param Server|Restrictions|array|string|null $server_restrictions_restrictions
+     * @param Restrictions|array|string|null $restrictions_restrictions
      * @return static
      */
-    public static function new(FileBasics|string|null $file = null, Server|Restrictions|array|string|null $server_restrictions_restrictions = null): static
+    public static function new(FileBasics|string|null $file = null, Restrictions|array|string|null $restrictions_restrictions = null): static
     {
-        return new static($file, $server_restrictions_restrictions);
+        return new static($file, $restrictions_restrictions);
     }
 
 
@@ -174,7 +173,7 @@ class FileBasics
      */
     protected function checkRestrictions(string|null &$file, bool $write): void
     {
-        $this->server_restrictions->checkRestrictions($file, $write);
+        $this->restrictions->check($file, $write);
     }
 
 
@@ -516,10 +515,52 @@ class FileBasics
 
 
     /**
+     * Securely delete a file weather it exists or not, without error, using the "shred" command
+     *
+     * Since shred doesn't have a recursive option, this function will use "find" to find all files matching the
+     * specified pattern, and will delete them all
+     *
+     * @param bool $clean_path
+     * @param bool $sudo
+     * @return $this
+     */
+    public function secureDelete(bool $clean_path = true, bool $sudo = false): static
+    {
+        // Check filesystem restrictions
+        $this->checkRestrictions($this->file, true);
+
+        // Delete all specified patterns
+        // Execute the rm command
+        Process::new('find', $this->restrictions)
+            ->setSudo($sudo)
+            ->setTimeout(60)
+            ->addArgument($this->file)
+            ->addArgument('-exec')
+            ->addArgument('shred')
+            ->addArgument('--remove=wipe')
+            ->addArgument('-f')
+            ->addArgument('-n')
+            ->addArgument('3')
+            ->addArgument('-z')
+            ->addArgument('{}')
+            ->addArgument('\;')
+            ->executeReturnArray();
+
+        // If specified to do so, clear the path upwards from the specified pattern
+        if ($clean_path) {
+            Path::new(dirname($this->file))->clear($sudo);
+        }
+
+        return $this;
+    }
+
+
+
+    /**
      * Delete a file weather it exists or not, without error, using the "rm" command
      *
      * @param boolean $clean_path If specified true, all directories above each specified pattern will be deleted as
-     *                              well as long as they are empty. This way, no empty directories will be left laying
+     *                              well as long as they are empty. This way, no empty directories will be left lying
      *                              around
      * @param boolean $sudo If specified true, the rm command will be executed using sudo
      * @return static
@@ -533,7 +574,7 @@ class FileBasics
 
         // Delete all specified patterns
         // Execute the rm command
-        Process::new('rm', $this->server_restrictions)
+        Process::new('rm', $this->restrictions)
             ->setSudo($sudo)
             ->setTimeout(10)
             ->addArgument($this->file)
@@ -596,7 +637,7 @@ class FileBasics
                 }
 
                 // Ensure the target directory exist
-                Path::new(dirname($target), $this->server_restrictions)->ensure();
+                Path::new(dirname($target), $this->restrictions)->ensure();
             }
         }
 
@@ -690,7 +731,7 @@ class FileBasics
         }
 
         foreach ($this->file as $pattern) {
-            Process::new('chown', $this->server_restrictions)
+            Process::new('chown', $this->restrictions)
                 ->setSudo(true)
                 ->addArgument($recursive ? '-R' : null)
                 ->addArgument($user . ':' . $group)
@@ -727,7 +768,7 @@ class FileBasics
         // Check filesystem restrictions
         $this->checkRestrictions($this->file, true);
 
-        Process::new('chmod', $this->server_restrictions)
+        Process::new('chmod', $this->restrictions)
             ->setSudo($sudo)
             ->addArgument($recursive ? '-R' : null)
             ->addArgument('0' . decoct($mode))
@@ -780,7 +821,7 @@ class FileBasics
         }
 
         // As of here we know the file doesn't exist. Attempt to create it. First ensure the parent path exists.
-        Path::new(dirname($this->file), $this->server_restrictions)->ensure();
+        Path::new(dirname($this->file), $this->restrictions)->ensure();
 
         Log::action(tr('Creating non existing file ":file" with file mode ":mode"', [
             ':mode' => Strings::fromOctal($mode),
@@ -833,7 +874,7 @@ class FileBasics
         }
 
         // As of here we know the file doesn't exist. Attempt to create it. First ensure the parent path exists.
-        Path::new(dirname($this->file), $this->server_restrictions)->ensure();
+        Path::new(dirname($this->file), $this->restrictions)->ensure();
 
         return false;
     }

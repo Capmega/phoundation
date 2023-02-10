@@ -11,7 +11,6 @@ use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Restrictions;
-use Phoundation\Servers\Server;
 use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\Html\Template\Template;
 use Templates\AdminLte\AdminLte;
@@ -46,9 +45,9 @@ class RoutingParameters
     /**
      * Server restrictions indicating what the router can access
      *
-     * @var Server|Restrictions|array|string $server_restrictions
+     * @var Restrictions|array|string $restrictions
      */
-    protected Server|Restrictions|array|string $server_restrictions;
+    protected Restrictions|array|string $restrictions;
 
     /**
      * Sets the default base URL for all links generated
@@ -389,16 +388,16 @@ class RoutingParameters
     /**
      * Returns the server restrictions
      *
-     * @return Server|Restrictions|array|string|null
+     * @return Restrictions|array|string|null
      */
-    public function getServerRestrictions(): Server|Restrictions|array|string|null
+    public function getRestrictions(): Restrictions|array|string|null
     {
-        if (!isset($this->server_restrictions)) {
+        if (!isset($this->restrictions)) {
             // Set default server restrictions
-            $this->server_restrictions = Core::ensureServer(PATH_WWW, null, 'Route');
+            $this->restrictions = Core::ensureRestrictions(PATH_WWW, null, 'Route');
         }
 
-        return $this->server_restrictions;
+        return $this->restrictions;
     }
 
 
@@ -406,12 +405,12 @@ class RoutingParameters
     /**
      * Sets the server restrictions
      *
-     * @param Server|Restrictions|array|string|null $server_restrictions
+     * @param Restrictions|array|string|null $restrictions
      * @return static
      */
-    public function setServerRestrictions(Server|Restrictions|array|string|null $server_restrictions): static
+    public function setRestrictions(Restrictions|array|string|null $restrictions): static
     {
-        $this->server_restrictions = Core::ensureServer($server_restrictions, PATH_WWW, 'Route');
+        $this->restrictions = Core::ensureRestrictions($restrictions, PATH_WWW, 'Route');
         return $this;
     }
 

@@ -33,7 +33,6 @@ use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Processes\Commands\Command;
-use Phoundation\Servers\Server;
 use Phoundation\Servers\Servers;
 use Throwable;
 
@@ -967,15 +966,15 @@ class Sql
      * Import data from specified file
      *
      * @param string $file
-     * @param Server|Restrictions|array|string|null $server_restrictions
+     * @param Restrictions|array|string|null $restrictions
      * @return void
      */
-    public function import(string $file, Server|Restrictions|array|string|null $server_restrictions): void
+    public function import(string $file, Restrictions|array|string|null $restrictions): void
     {
         throw new UnderConstructionException();
 
         $tel = 0;
-        $handle = File::new($file, $server_restrictions)->open('r');
+        $handle = File::new($file, $restrictions)->open('r');
 
         while (($buffer = fgets($handle)) !== false) {
             $buffer = trim($buffer);
@@ -1439,37 +1438,6 @@ class Sql
 
 
     /**
-     * Test SQL functions over SSH tunnel for the specified server
-     *
-     * @param string|Server $server_restrictions The server that is to be tested
-     * @return void
-     */
-    public function testTunnel(string|Server $server_restrictions): void
-    {
-        $this->instance = 'test';
-        $port = 6000;
-        $server_restrictions = servers_get($server_restrictions, true);
-
-        if (!$server_restrictions['database_accounts_id']) {
-            throw new SqlException(tr('Cannot test SQL over SSH tunnel, server ":server" has no database account linked', [':server' => $server_restrictions['domain']]));
-        }
-
-        $this->makeConnector($this->instance, [
-            'port' => $port,
-            'user' => $server_restrictions['db_username'],
-            'pass' => $server_restrictions['db_password'],
-            'ssh_tunnel' => [
-                'source_port' => $port,
-                'domain' => $server_restrictions['domain']
-            ]
-        ]);
-
-        $this->get('SELECT TRUE', true, null, $this->instance);
-    }
-
-
-
-    /**
      * Ensure that the specified limit is below or equal to the maximum configured limit
      *
      * @param int $limit
@@ -1893,8 +1861,8 @@ class Sql
 
                     // This connection requires an SSH tunnel. Check if the tunnel process still exists
                     if (!Cli::PidGrep($tunnel['pid'])) {
-                        $server_restrictions = servers_get($this->configuration['ssh_tunnel']['domain']);
-                        $registered = ssh_host_is_known($server_restrictions['hostname'], $server_restrictions['port']);
+                        $restrictions = servers_get($this->configuration['ssh_tunnel']['domain']);
+                        $registered = ssh_host_is_known($restrictions['hostname'], $restrictions['port']);
 
                         if ($registered === false) {
                             throw new SqlException(tr('sql_connect(): Connection refused for host ":hostname" because the tunnel process was canceled due to missing server fingerprints in the PATH_ROOT/data/ssh/known_hosts file and `ssh_fingerprints` table. Please register the server first', array(':hostname' => $this->configuration['ssh_tunnel']['domain'])), $e);
@@ -1928,15 +1896,15 @@ class Sql
                         throw $e;
                     }
 
-                    $server_restrictions  = Servers::get($this->configuration['ssh_tunnel']['domain']);
-                    $allowed = Cli::getSshTcpForwarding($server_restrictions);
+                    $restrictions  = Servers::get($this->configuration['ssh_tunnel']['domain']);
+                    $allowed = Cli::getSshTcpForwarding($restrictions);
 
                     if (!$allowed) {
                         /*
                          * SSH tunnel is required for this connector, but tcp fowarding
                          * is not allowed. Allow it and retry
                          */
-                        if (!$server_restrictions['allow_sshd_modification']) {
+                        if (!$restrictions['allow_sshd_modification']) {
                             throw new SqlException(tr('Connector ":connector" requires SSH tunnel to server, but that server does not allow TCP fowarding, nor does it allow auto modification of its SSH server configuration', [':connector' => $this->configuration]));
                         }
 
@@ -1945,7 +1913,7 @@ class Sql
                         /*
                          * Now enable TCP forwarding on the server, and retry connection
                          */
-                        linux_set_ssh_tcp_forwarding($server_restrictions, true);
+                        linux_set_ssh_tcp_forwarding($restrictions, true);
                         Log::warning(tr('(' . $this->uniqueid . ') Enabled TCP fowarding for server ":server", trying to reconnect to MySQL database', [':server' => $this->configuration['ssh_tunnel']['domain']]));
 
                         if ($this->configuration['ssh_tunnel']['pid']) {
@@ -2374,7 +2342,7 @@ class Sql
     // *
     // * @return array
     // */
-    //public function exec_get($server_restrictions, $query, $root = false, $simple_quotes = false) {
+    //public function exec_get($restrictions, $query, $root = false, $simple_quotes = false) {
     //    try {
     //
     //    } catch (Exception $e) {

@@ -1,10 +1,9 @@
 <?php
 
-namespace Phoundation\Data\DataEntry;
+namespace Phoundation\Data\DataEntry\Traits;
 
 
 
-use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 
 /**

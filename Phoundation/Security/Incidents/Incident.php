@@ -5,7 +5,7 @@ namespace Phoundation\Security\Incidents;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\DataEntryType;
+use Phoundation\Data\DataEntry\Traits\DataEntryType;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
 use Phoundation\Utils\Json;
 

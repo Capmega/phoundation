@@ -166,9 +166,9 @@ class Cdn
             // * We have a CDN server in session? If not, get one.
             // */
             //if (isset_get($_SESSION['cdn']) === null) {
-            //    $server_restrictions = sql_get('SELECT `baseurl` FROM `cdn_servers` WHERE `status` IS NULL ORDER BY RAND() LIMIT 1', true);
+            //    $restrictions = sql_get('SELECT `baseurl` FROM `cdn_servers` WHERE `status` IS NULL ORDER BY RAND() LIMIT 1', true);
             //
-            //    if (!$server_restrictions) {
+            //    if (!$restrictions) {
             //        /*
             //         * Err we have no CDN servers, though CDN is configured.. Just
             //         * continue locally?
@@ -178,7 +178,7 @@ class Cdn
             //        return domain($url, $query, $prefix);
             //    }
             //
-            //    $_SESSION['cdn'] = Strings::slash($server_restrictions).strtolower(str_replace('_', '-', PROJECT));
+            //    $_SESSION['cdn'] = Strings::slash($restrictions).strtolower(str_replace('_', '-', PROJECT));
             //}
             //
             //return $_SESSION['cdn'] . $url;

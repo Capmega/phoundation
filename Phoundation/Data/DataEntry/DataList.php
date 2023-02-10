@@ -1,16 +1,15 @@
 <?php
 
-namespace Phoundation\Data\DataList;
+namespace Phoundation\Data\DataEntry;
 
 use Iterator;
 use Phoundation\Cli\Cli;
-use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Components\DataTable;
 use Phoundation\Web\Http\Html\Components\Table;
 use ReturnTypeWillChange;
-
+use function Phoundation\Data\DataList\count;
 
 
 /**

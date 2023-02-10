@@ -3,10 +3,9 @@
 namespace Phoundation\Business\Customers;
 
 use Phoundation\Business\Companies\Company;
-use Phoundation\Data\DataList\DataList;
+use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Web\Http\Html\Components\Input\Select;
 use Phoundation\Web\Http\Html\Components\Table;
-
 
 
 /**
@@ -14,7 +13,7 @@ use Phoundation\Web\Http\Html\Components\Table;
  *
  *
  *
- * @see \Phoundation\Data\DataList\DataList
+ * @see \Phoundation\Data\DataEntry\DataList
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>

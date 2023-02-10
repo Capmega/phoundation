@@ -5,8 +5,8 @@ namespace Phoundation\Business\Companies;
 use Phoundation\Business\Companies\Branches\Branches;
 use Phoundation\Business\Companies\Departments\Departments;
 use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\DataEntryNameDescription;
-use Phoundation\Data\DataList\DataList;
+use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 
 
 /**

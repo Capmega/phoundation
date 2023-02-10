@@ -37,7 +37,7 @@ class SystemCommands extends Command
             return $cache[$command];
         }
 
-        $process = Process::new('which', $this->server_restrictions)
+        $process = Process::new('which', $this->restrictions)
             ->addArgument($command)
             ->setRegisterRunfile(false)
             ->setTimeout(1);
@@ -89,7 +89,7 @@ class SystemCommands extends Command
             ]));
         }
 
-        $process = Process::new('id', $this->server_restrictions)
+        $process = Process::new('id', $this->restrictions)
             ->addArgument('-' . $section)
             ->setTimeout(1);
 
@@ -122,7 +122,7 @@ class SystemCommands extends Command
     {
         Log::action(tr('Installing packages ":packages"', [':packages' => $packages]));
 
-        Process::new('apt-get', $this->server_restrictions)
+        Process::new('apt-get', $this->restrictions)
             ->setSudo(true)
             ->addArguments(['-y', 'install'])
             ->addArguments($packages)

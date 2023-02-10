@@ -3,7 +3,7 @@
 namespace Phoundation\Geo\Cities;
 
 use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\DataEntryNameDescription;
+use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Geo\Continents\Continent;
 use Phoundation\Geo\Counties\County;
 use Phoundation\Geo\Countries\Country;

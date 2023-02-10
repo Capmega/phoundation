@@ -153,9 +153,16 @@ trait ProcessVariables
     /**
      * Keeps track on which server this command should be executed. NULL means this local server
      *
-     * @var Server $server_restrictions
+     * @var Restrictions $restrictions
      */
-    protected Server $server_restrictions;
+    protected Restrictions $restrictions;
+
+    /**
+     * If specified, the process will be executed on this server
+     *
+     * @var Server $server
+     */
+    protected Server $server;
 
     /**
      * Registers where the exit code for this process will be stored
@@ -212,12 +219,12 @@ trait ProcessVariables
     /**
      * Process class contructor
      *
-     * @param Server|Restrictions|array|string|null $server_restrictions
+     * @param Restrictions|array|string|null $restrictions
      */
-    public function __construct(Server|Restrictions|array|string|null $server_restrictions)
+    public function __construct(Restrictions|array|string|null $restrictions)
     {
         // Set server filesystem restrictions
-        $this->setServerRestrictions($server_restrictions);
+        $this->setRestrictions($restrictions);
     }
 
 
@@ -600,11 +607,11 @@ trait ProcessVariables
      * Returns the server on which the command should be executed for this process
      *
      * @note NULL means this local server
-     * @return Server
+     * @return Restrictions
      */
-    public function getServerRestrictions(): Server
+    public function getRestrictions(): Restrictions
     {
-        return $this->server_restrictions;
+        return $this->restrictions;
     }
 
 
@@ -613,13 +620,13 @@ trait ProcessVariables
      * Set the server on which the command should be executed for this process
      *
      * @note NULL means this local server
-     * @param Server|Restrictions|array|string|null $server_restrictions
+     * @param Restrictions|array|string|null $restrictions
      * @return static
      */
-    public function setServerRestrictions(Server|Restrictions|array|string|null $server_restrictions = null): static
+    public function setRestrictions(Restrictions|array|string|null $restrictions = null): static
     {
         $this->cached_command_line = null;
-        $this->server_restrictions = Core::ensureServer($server_restrictions);
+        $this->restrictions        = Core::ensureRestrictions($restrictions);
         return $this;
     }
 
@@ -651,13 +658,13 @@ trait ProcessVariables
         }
 
         if ($which_command) {
-            $real_command = SystemCommands::new($this->server_restrictions)->which($command);
+            $real_command = SystemCommands::new($this->restrictions)->which($command);
         } else {
             // Check if the command exist on disk
             if (($command !== 'which') and !file_exists($command)) {
                 // The specified command was not found, we'll have to look for it anyway!
                 try {
-                    $real_command = SystemCommands::new($this->server_restrictions)->which($command);
+                    $real_command = SystemCommands::new($this->restrictions)->which($command);
 
                 } catch (CommandsException) {
                     // The command does not exist, but maybe we can auto install?
@@ -923,7 +930,7 @@ throw new ProcessesException(tr('Specified process command ":command" does not e
                 }
             } else {
                 // Redirect output to a file
-                File::new($redirect, $this->server_restrictions)->checkWritable('output redirect file', true);
+                File::new($redirect, $this->restrictions)->checkWritable('output redirect file', true);
                 $this->output_redirect[$channel] = ($append ? '*' : '') . $redirect;
             }
 
@@ -971,7 +978,7 @@ throw new ProcessesException(tr('Specified process command ":command" does not e
      */
     public function setInputRedirect(?string $redirect, int $channel = 1): static
     {
-        File::new($redirect, $this->server_restrictions)->checkReadable();
+        File::new($redirect, $this->restrictions)->checkReadable();
 
         $this->cached_command_line      = null;
         $this->input_redirect[$channel] = get_null($redirect);

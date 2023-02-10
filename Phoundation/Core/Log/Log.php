@@ -134,9 +134,9 @@ Class Log {
     /**
      * File access restrictions
      *
-     * @var Server $server_restrictions
+     * @var Restrictions $restrictions
      */
-    protected static Server $server_restrictions;
+    protected static Restrictions $restrictions;
 
 
 
@@ -177,14 +177,14 @@ Class Log {
                 static::setThreshold($threshold);
             }
 
-            static::$server_restrictions = new Server(new Restrictions(PATH_DATA . 'log/', true, 'Log'));
+            static::$restrictions = Restrictions::new(PATH_DATA . 'log/', true, 'Log');
             static::setFile(Config::get('log.file', PATH_ROOT . 'data/log/syslog'));
             static::setBacktraceDisplay(Config::get('log.backtrace-display', self::BACKTRACE_DISPLAY_BOTH));
             static::setLocalId(substr(uniqid(true), -8, 8));
             static::setGlobalId($global_id);
         } catch (\Throwable) {
             // Likely configuration read failed. Just set defaults
-            static::$server_restrictions = new Server(new Restrictions(PATH_DATA . 'log/', true, 'Log'));
+            static::$restrictions = Restrictions::new(PATH_DATA . 'log/', true, 'Log');
             static::setThreshold(10);
             static::setFile(PATH_ROOT . 'data/log/syslog');
             static::setBacktraceDisplay(self::BACKTRACE_DISPLAY_BOTH);
@@ -344,8 +344,8 @@ Class Log {
 
             // Open the specified log file
             if (empty(static::$handles[$file])) {
-                File::new($file, static::$server_restrictions)->ensureWritable(0640);
-                static::$handles[$file] = File::new($file, static::$server_restrictions)->open('a+');
+                File::new($file, static::$restrictions)->ensureWritable(0640);
+                static::$handles[$file] = File::new($file, static::$restrictions)->open('a+');
             }
 
             // Set the class file to the specified file and return the old value and

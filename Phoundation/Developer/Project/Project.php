@@ -2,7 +2,6 @@
 
 namespace Phoundation\Developer\Project;
 
-use http\Exception\UnexpectedValueException;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Libraries\Library;
@@ -17,7 +16,7 @@ use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
-use Phoundation\Filesystem\Traits\ServerRestrictions;
+use Phoundation\Processes\Commands\Command;
 use Phoundation\Processes\Commands\Rsync;
 use Phoundation\Processes\Process;
 use Throwable;
@@ -36,7 +35,7 @@ use Throwable;
  */
 class Project
 {
-    use ServerRestrictions;
+    use \Phoundation\Filesystem\Traits\Restrictions;
     use Git {
         __construct as protected construct;
     }
@@ -459,9 +458,41 @@ class Project
     /**
      * Checks your Phoundation project installation
      */
-    public static function check(bool $repair): void
+    public static function fix(bool $repair): void
     {
-        throw new UnderConstructionException();
+        // Don't check for root user, check if we have sudo access to these commands individually, perhaps the user has
+        // it?
+        Command::new()->sudoAvailable('chown', true);
+        Command::new()->sudoAvailable('chmod', true);
+        Command::new()->sudoAvailable('mkdir', true);
+        Command::new()->sudoAvailable('touch', true);
+        Command::new()->sudoAvailable('rm'   , true);
+
+        // Fix file modes
+        Process::new('chmod')
+            ->setExecutionPath(PATH_ROOT)
+            ->setSudo(true)
+            ->addArguments(['-x,ug+r,g-w,o-rwx', '.', '-R'])
+            ->executePassthru();
+
+        Process::new('find')
+            ->setExecutionPath(PATH_ROOT)
+            ->setSudo(true)
+            ->addArguments(['.' , '-type' , 'd', '-exec', 'chmod', 'ug+x', '{}', '\\;'])
+            ->executePassthru();
+
+        Process::new('chmod')
+            ->setExecutionPath(PATH_ROOT)
+            ->setSudo(true)
+            ->addArguments(['ug+w', './cli'])
+            ->executePassthru();
+
+        // Fix file ownership
+        Process::new('chown')
+            ->setExecutionPath(PATH_ROOT)
+            ->setSudo(true)
+            ->addArguments(['www-data:www-data', '.', '-R'])
+            ->executePassthru();
     }
 
 

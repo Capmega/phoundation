@@ -5,7 +5,7 @@ namespace Phoundation\Web\Http\Html\Components;
 use Phoundation\Core\Config;
 use Phoundation\Core\Strings;
 use Phoundation\Filesystem\File;
-use Phoundation\Servers\Server;
+use Phoundation\Filesystem\Restrictions;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
@@ -27,9 +27,9 @@ class Img extends Element
     /**
      * Server object where the image conversion commands will be executed
      *
-     * @var Server $server_restrictions
+     * @var Restrictions $restrictions
      */
-    protected Server $server_restrictions;
+    protected Restrictions $restrictions;
 
     /**
      * Sets whether the image will be lazily loaded as-needed or directly
@@ -170,7 +170,7 @@ class Img extends Element
 //
 //        if ($this->external) {
 //            // Download external images local so that we can perform tests, changes, upgrades, etc.
-//            $file_src = \Phoundation\Web\Http\File::new($this->server_restrictions)->download($src);
+//            $file_src = \Phoundation\Web\Http\File::new($this->restrictions)->download($src);
 //        } else {
 //            // This is a local image (either with or without domain specified) Locate the file
 //            $file_src = Strings::from($src     , $domain . '/');

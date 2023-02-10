@@ -5,11 +5,11 @@ namespace Phoundation\Developer\Incidents;
 use Phoundation\Accounts\Users\Users;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\DataEntryData;
-use Phoundation\Data\DataEntry\DataEntryDetails;
-use Phoundation\Data\DataEntry\DataEntryException;
-use Phoundation\Data\DataEntry\DataEntryTitleDescription;
-use Phoundation\Data\DataEntry\DataEntryType;
-use Phoundation\Data\DataEntry\DataEntryUrl;
+use Phoundation\Data\DataEntry\Traits\DataEntryDetails;
+use Phoundation\Data\DataEntry\Traits\DataEntryException;
+use Phoundation\Data\DataEntry\Traits\DataEntryTitleDescription;
+use Phoundation\Data\DataEntry\Traits\DataEntryType;
+use Phoundation\Data\DataEntry\Traits\DataEntryUrl;
 
 
 /**

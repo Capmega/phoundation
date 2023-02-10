@@ -13,7 +13,6 @@ use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
-use Phoundation\Servers\Server;
 use Phoundation\Web\Page;
 use Throwable;
 
@@ -61,9 +60,9 @@ class Bundler
     /**
      * Filesystem access restrictions
      *
-     * @var Server $server_restrictions
+     * @var Restrictions $restrictions
      */
-    protected Server $server_restrictions;
+    protected Restrictions $restrictions;
 
 
 
@@ -72,7 +71,7 @@ class Bundler
      */
     public function __construct()
     {
-        $this->setServerRestrictions(Server::localhost([PATH_CDN . 'js', PATH_CDN . 'css'], true, 'Bundler'));
+        $this->setRestrictions(Restrictions::new([PATH_CDN . 'js', PATH_CDN . 'css'], true, 'Bundler'));
     }
 
 
@@ -92,11 +91,11 @@ class Bundler
     /**
      * Returns the server and filesystem restrictions for this File object
      *
-     * @return Server
+     * @return Restrictions
      */
-    public function getServerRestrictions(): Server
+    public function getRestrictions(): Restrictions
     {
-        return $this->server_restrictions;
+        return $this->restrictions;
     }
 
 
@@ -104,12 +103,12 @@ class Bundler
     /**
      * Sets the server and filesystem restrictions for this File object
      *
-     * @param Server|Restrictions|array|string|null $server_restrictions
+     * @param Restrictions|array|string|null $restrictions
      * @return static
      */
-    public function setServerRestrictions(Server|Restrictions|array|string|null $server_restrictions = null): static
+    public function setRestrictions(Restrictions|array|string|null $restrictions = null): static
     {
-        $this->server_restrictions = Core::ensureServer($server_restrictions);
+        $this->restrictions = Core::ensureRestrictions($restrictions);
         return $this;
     }
 
@@ -235,14 +234,14 @@ class Bundler
         if (!filesize($bundle_file)) {
             Log::warning(tr('Encountered empty bundle file ":file"', [':file' => $bundle_file]));
             Log::warning(tr('Deleting empty bundle file ":file"', [':file' => $bundle_file]));
-            File::new($bundle_file, $this->server_restrictions)->delete();
+            File::new($bundle_file, $this->restrictions)->delete();
             return false;
         }
 
         // Bundle files are essentially cached files. Ensure the cache is not too old
         if (Config::get('cache.bundler.max-age', 3600) and (filemtime($bundle_file) + Config::get('cache.bundler.max-age', 3600)) < time()) {
             Log::warning(tr('Deleting expired cached bundle file ":file"', [':file' => $bundle_file]));
-            File::new($bundle_file, $this->server_restrictions)->delete();
+            File::new($bundle_file, $this->restrictions)->delete();
             return false;
         }
 
@@ -368,7 +367,7 @@ class Bundler
     protected function bundleFiles(array $files): void
     {
         // Generate new bundle file. This requires the pub/$files path to be writable
-        Path::new(dirname($this->bundle_file), $this->server_restrictions)->execute()
+        Path::new(dirname($this->bundle_file), $this->restrictions)->execute()
             ->setMode(0770)
             ->onPathOnly(function() use ($files) {
                 foreach ($files as $file => $data) {
@@ -403,10 +402,10 @@ class Bundler
                     }
     
                     if (Debug::enabled()) {
-                        File::new($this->bundle_file, $this->server_restrictions)->appendData("\n/* *** BUNDLER FILE \"" . $org_file . "\" *** */\n" . $data . (Config::get('web.minify', true) ? '' : "\n"));
+                        File::new($this->bundle_file, $this->restrictions)->appendData("\n/* *** BUNDLER FILE \"" . $org_file . "\" *** */\n" . $data . (Config::get('web.minify', true) ? '' : "\n"));
     
                     } else {
-                        File::new($this->bundle_file, $this->server_restrictions)->appendData($data . (Config::get('web.minify', true) ? '' : "\n"));
+                        File::new($this->bundle_file, $this->restrictions)->appendData($data . (Config::get('web.minify', true) ? '' : "\n"));
                     }
     
                     if ($this->count) {

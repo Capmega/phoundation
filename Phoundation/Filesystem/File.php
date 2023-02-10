@@ -99,7 +99,7 @@ class File extends FileBasics
         $this->checkRestrictions($this->file, true);
 
         // Make sure the file path exists
-        Path::new(dirname($this->file), $this->server_restrictions)->ensure();
+        Path::new(dirname($this->file), $this->restrictions)->ensure();
 
         $h = $this->open('a');
         fwrite($h, $data);
@@ -121,7 +121,7 @@ class File extends FileBasics
         $this->checkRestrictions($this->file, true);
 
         // Ensure the target path exists
-        Path::new(dirname($this->file), $this->server_restrictions)->ensure();
+        Path::new(dirname($this->file), $this->restrictions)->ensure();
 
         // Open target file
         try {
@@ -134,7 +134,7 @@ class File extends FileBasics
         // Open each source file
         foreach (Arrays::force($sources, null) as $source) {
             try {
-                $source_h = File::new($source, $this->server_restrictions)->open('r');
+                $source_h = File::new($source, $this->restrictions)->open('r');
 
                 while (!feof($source_h)) {
                     $data = fread($source_h, 8192);
@@ -223,11 +223,11 @@ class File extends FileBasics
 
         $this->checkRestrictions($path, true);
 
-        Path::new(dirname($this->file), $this->server_restrictions)->ensure($pattern_mode);
+        Path::new(dirname($this->file), $this->restrictions)->ensure($pattern_mode);
 
         if (!file_exists($this->file)) {
             // Create the file
-            Path::new(dirname($this->file), $this->server_restrictions)->execute()
+            Path::new(dirname($this->file), $this->restrictions)->execute()
                 ->setMode(0770)
                 ->onPathOnly(function () use ($mode) {
                     Log::warning(tr('File ":file" did not exist and was created empty to ensure system stability, but information may be missing', [
@@ -314,7 +314,7 @@ class File extends FileBasics
         ]);
 
         copy($this->file, $target, $context);
-        return new static($target, $this->server_restrictions);
+        return new static($target, $this->restrictions);
     }
 
 
@@ -479,7 +479,7 @@ class File extends FileBasics
 
         // Source file and target path exist?
         $this->exists();
-        File::new(dirname($target), $this->server_restrictions)->exists();
+        File::new(dirname($target), $this->restrictions)->exists();
 
         // Copy & replace
         $data = file_get_contents($this->file);
@@ -495,7 +495,7 @@ class File extends FileBasics
 
         file_put_contents($this->file, $data);
 
-        return File::new($target, $this->server_restrictions);
+        return File::new($target, $this->restrictions);
     }
 
 
@@ -740,7 +740,7 @@ class File extends FileBasics
             throw new FilesystemException(tr('Copy option has been set, but object file ":file" is an uploaded file, and uploaded files cannot be copied, only moved', [':file' => $this->file]));
         }
 
-        $path     = Path::new($path, $this->server_restrictions)->ensure();
+        $path     = Path::new($path, $this->restrictions)->ensure();
         $this->filename = basename($this->file);
 
         if (!$this->filename) {
@@ -750,7 +750,7 @@ class File extends FileBasics
 
         // Ensure we have a local copy of the file to work with
         if ($this->file) {
-            $this->file = \Phoundation\Web\Http\File::new($this->server_restrictions)->download($is_downloaded, $context);
+            $this->file = \Phoundation\Web\Http\File::new($this->restrictions)->download($is_downloaded, $context);
         }
 
         if (!$extension) {
@@ -921,7 +921,7 @@ class File extends FileBasics
                     // Source is a file
                     if (!is_dir($destination)) {
                         // Remove destination file since it would be overwritten
-                        file_delete($destination, $server_restrictions);
+                        file_delete($destination, $restrictions);
                     }
                 }
             }
@@ -955,7 +955,7 @@ class File extends FileBasics
                         // clean
                         if (!is_dir($destination . $this->file)) {
                             // Were overwriting here!
-                            file_delete($destination . $this->file, $this->server_restrictions);
+                            file_delete($destination . $this->file, $this->restrictions);
                         }
                     }
 
@@ -1100,7 +1100,7 @@ class File extends FileBasics
             copy($this->file, $target);
         }
 
-        return new static($target, $this->server_restrictions);
+        return new static($target, $this->restrictions);
     }
 
 

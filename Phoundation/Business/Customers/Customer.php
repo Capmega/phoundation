@@ -7,22 +7,21 @@ use Phoundation\Business\Companies\Companies;
 use Phoundation\Core\Locale\Language\Languages;
 use Phoundation\Data\Categories\Categories;
 use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\DataEntryAddress;
-use Phoundation\Data\DataEntry\DataEntryCategory;
-use Phoundation\Data\DataEntry\DataEntryCode;
-use Phoundation\Data\DataEntry\DataEntryCompany;
-use Phoundation\Data\DataEntry\DataEntryEmail;
-use Phoundation\Data\DataEntry\DataEntryGeo;
-use Phoundation\Data\DataEntry\DataEntryLanguage;
-use Phoundation\Data\DataEntry\DataEntryNameDescription;
-use Phoundation\Data\DataEntry\DataEntryPhones;
-use Phoundation\Data\DataEntry\DataEntryPicture;
-use Phoundation\Data\DataEntry\DataEntryUrl;
+use Phoundation\Data\DataEntry\Traits\DataEntryAddress;
+use Phoundation\Data\DataEntry\Traits\DataEntryCategory;
+use Phoundation\Data\DataEntry\Traits\DataEntryCode;
+use Phoundation\Data\DataEntry\Traits\DataEntryCompany;
+use Phoundation\Data\DataEntry\Traits\DataEntryEmail;
+use Phoundation\Data\DataEntry\Traits\DataEntryGeo;
+use Phoundation\Data\DataEntry\Traits\DataEntryLanguage;
+use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
+use Phoundation\Data\DataEntry\Traits\DataEntryPhones;
+use Phoundation\Data\DataEntry\Traits\DataEntryPicture;
+use Phoundation\Data\DataEntry\Traits\DataEntryUrl;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Geo\Countries\Countries;
 use Phoundation\Geo\Countries\Country;
 use Phoundation\Geo\States\State;
-
 
 
 /**

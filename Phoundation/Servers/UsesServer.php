@@ -22,20 +22,20 @@ trait UsesServer
     /**
      * The file access permissions
      *
-     * @var Server $server_restrictions
+     * @var Restrictions $restrictions
      */
-    protected Server $server_restrictions;
+    protected Restrictions $restrictions;
 
 
 
     /**
      * Returns the server and filesystem restrictions for this File object
      *
-     * @return Server
+     * @return Restrictions
      */
-    public function getServerRestrictions(): Server
+    public function getRestrictions(): Restrictions
     {
-        return $this->server_restrictions;
+        return $this->restrictions;
     }
 
 
@@ -43,12 +43,12 @@ trait UsesServer
     /**
      * Sets the server and filesystem restrictions for this File object
      *
-     * @param Server|Restrictions|array|string|null $server_restrictions
+     * @param Restrictions|array|string|null $restrictions
      * @return static
      */
-    public function setServerRestrictions(Server|Restrictions|array|string|null $server_restrictions = null): static
+    public function setRestrictions(Restrictions|array|string|null $restrictions = null): static
     {
-        $this->server_restrictions = Core::ensureServer($server_restrictions);
+        $this->restrictions = Core::ensureRestrictions($restrictions);
         return $this;
     }
 }

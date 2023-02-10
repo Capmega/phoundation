@@ -2,12 +2,10 @@
 
 namespace Phoundation\Filesystem\Traits;
 
-use Phoundation\Servers\Server;
-
 
 
 /**
- * Trait ServerRestrictions
+ * Trait Restrictions
  *
  *
  *
@@ -16,23 +14,23 @@ use Phoundation\Servers\Server;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package \Phoundation\Developer
  */
-trait ServerRestrictions
+trait Restrictions
 {
     /**
      * Server object where the image conversion commands will be executed
      *
-     * @var Server $restrictions
+     * @var \Phoundation\Filesystem\Restrictions $restrictions
      */
-    protected Server $restrictions;
+    protected \Phoundation\Filesystem\Restrictions $restrictions;
 
 
 
     /**
      * Returns the server restrictions
      *
-     * @return Server
+     * @return \Phoundation\Filesystem\Restrictions
      */
-    public function getServerRestrictions(): Server
+    public function getRestrictions(): \Phoundation\Filesystem\Restrictions
     {
         return $this->restrictions;
     }
@@ -42,10 +40,10 @@ trait ServerRestrictions
     /**
      * Returns the server restrictions
      *
-     * @param Server $restrictions
+     * @param \Phoundation\Filesystem\Restrictions $restrictions
      * @return static
      */
-    public function setServerRestrictions(Server $restrictions): static
+    public function setRestrictions(\Phoundation\Filesystem\Restrictions $restrictions): static
     {
         $this->restrictions = $restrictions;
         return $this;

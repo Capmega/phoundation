@@ -36,13 +36,13 @@ Class Process
      * Create a new process factory
      *
      * @param string|null $command
-     * @param Server|Restrictions|array|string|null $server_restrictions
+     * @param Restrictions|array|string|null $restrictions
      * @param string|null $packages
      * @return static
      */
-    public static function new(?string $command = null, Server|Restrictions|array|string|null $server_restrictions = null, ?string $packages = null): static
+    public static function new(?string $command = null, Restrictions|array|string|null $restrictions = null, ?string $packages = null): static
     {
-        return new static($command, $server_restrictions, $packages);
+        return new static($command, $restrictions, $packages);
     }
 
 
@@ -51,13 +51,13 @@ Class Process
      * Create a new CLI script process factory
      *
      * @param string|null $command
-     * @param Server|Restrictions|array|string|null $server_restrictions
+     * @param Restrictions|array|string|null $restrictions
      * @param string|null $packages
      * @return static
      */
-    public static function newCliScript(?string $command = null, Server|Restrictions|array|string|null $server_restrictions = null, ?string $packages = null): static
+    public static function newCliScript(?string $command = null, Restrictions|array|string|null $restrictions = null, ?string $packages = null): static
     {
-        $process = static::new('cli', $server_restrictions, $packages);
+        $process = static::new('cli', $restrictions, $packages);
         $process->addArguments(Arrays::force($command, ' '));
 
         return $process;
@@ -69,15 +69,15 @@ Class Process
      * Processes constructor.
      *
      * @param string|null $command
-     * @param Server|Restrictions|array|string|null $server_restrictions
+     * @param Restrictions|array|string|null $restrictions
      * @param string|null $packages
      */
-    public function __construct(?string $command = null, Server|Restrictions|array|string|null $server_restrictions = null, ?string $packages = null)
+    public function __construct(?string $command = null, Restrictions|array|string|null $restrictions = null, ?string $packages = null)
     {
         // Ensure that the run files directory is available
-        Path::new(PATH_ROOT . 'data/run/', $server_restrictions)->ensure();
+        Path::new(PATH_ROOT . 'data/run/', $restrictions)->ensure();
 
-        $this->setServerRestrictions($server_restrictions);
+        $this->setRestrictions($restrictions);
 
         if ($packages) {
             $this->setPackages($packages);
@@ -86,6 +86,32 @@ Class Process
         if ($command) {
             $this->setCommand($command);
         }
+    }
+
+
+
+    /**
+     * Sets the server on which this command should be executed
+     *
+     * @return Server
+     */
+    public function getServer(): Server
+    {
+        return $this->server;
+    }
+
+
+
+    /**
+     * Sets the server on which this command should be executed
+     *
+     * @param Server|string $server
+     * @return $this
+     */
+    public function setServer(Server|string $server): static
+    {
+        $this->server = Server::get($server);
+        return $this;
     }
 
 
@@ -286,7 +312,7 @@ Class Process
     public function kill(int $signal = 15): void
     {
         if ($this->pid) {
-            Command::new($this->server_restrictions)->killPid($signal, $this->pid);
+            Command::new($this->restrictions)->killPid($signal, $this->pid);
         }
     }
 
@@ -383,6 +409,11 @@ Class Process
             }
 
             $this->cached_command_line .= $redirect;
+        }
+
+        // Execute on a server?
+        if (isset($this->server)) {
+            $this->cached_command_line = $this->server->getSshCommandLine($this->cached_command_line);
         }
 
         // Background commands get some extra options around

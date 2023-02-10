@@ -14,7 +14,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
-use Phoundation\Servers\Server;
+use Phoundation\Filesystem\Restrictions;
 
 
 /**
@@ -67,7 +67,7 @@ class Phoundation extends Project
 
         if ($location) {
             $path = realpath($location);
-            $this->restrictions = Server::new(dirname($path));
+            $this->restrictions = Restrictions::new(dirname($path));
 
             if (!$path) {
                 throw new FileNotExistException(tr('The specified Phoundation location ":file" does not exist', [
@@ -102,7 +102,7 @@ class Phoundation extends Project
             // The main phoundation directory should be called either phoundation or Phoundation.
             foreach (['phoundation', 'Phoundation'] as $name) {
                 $path = $path . $name . '/';
-                $this->restrictions = Server::new(dirname($path));
+                $this->restrictions = Restrictions::new(dirname($path));
 
                 if (!file_exists($path)) {
                     continue;

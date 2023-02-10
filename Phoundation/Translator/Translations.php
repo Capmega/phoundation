@@ -2,8 +2,7 @@
 
 namespace Phoundation\Translator;
 
-use Phoundation\Data\DataList\DataList;
-
+use Phoundation\Data\DataEntry\DataList;
 
 
 /**

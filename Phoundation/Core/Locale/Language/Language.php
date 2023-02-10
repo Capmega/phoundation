@@ -3,7 +3,7 @@
 namespace Phoundation\Core\Locale\Language;
 
 use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\DataEntryNameDescription;
+use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 
 
 /**

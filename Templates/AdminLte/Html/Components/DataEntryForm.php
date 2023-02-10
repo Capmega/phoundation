@@ -172,8 +172,34 @@ class DataEntryForm extends Renderer
                                 ->render();
                             break;
 
+                        case 'numeric':
+                            // Render the HTML for this number element
+                            $html = $element::new()
+                                ->setMin(isset_get($data['min']))
+                                ->setMax(isset_get($data['max']))
+                                ->setStep(isset_get($data['step']))
+                                ->setDisabled((bool) $data['disabled'])
+                                ->setReadOnly((bool) $data['readonly'])
+                                ->setName($key)
+                                ->setValue('1')
+                                ->setChecked((bool) $source[$key])
+                                ->render();
+                            break;
+
+                        case 'text':
+                            // Render the HTML for this text element
+                            $html = $element::new()
+                                ->setMaxLength(isset_get($data['max_length']))
+                                ->setDisabled((bool) $data['disabled'])
+                                ->setReadOnly((bool) $data['readonly'])
+                                ->setName($key)
+                                ->setValue('1')
+                                ->setChecked((bool) $source[$key])
+                                ->render();
+                            break;
+
                         default:
-                            // Render the HTML for this element
+                            // Render the HTML for this input element
                             $html = $element::new()
                                 ->setDisabled((bool) $data['disabled'])
                                 ->setReadOnly((bool) $data['readonly'])
@@ -199,6 +225,7 @@ class DataEntryForm extends Renderer
                     include_once($file);
 
                     $html = TextArea::new()
+                        ->setMaxLength($data['max_length'])
                         ->setDisabled((bool) $data['disabled'])
                         ->setReadOnly((bool) $data['readonly'])
                         ->setRows((int) isset_get($data['rows'], 5))

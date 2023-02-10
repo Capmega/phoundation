@@ -1,6 +1,6 @@
 <?php
 
-namespace Phoundation\Data\DataEntry;
+namespace Phoundation\Data\DataEntry\Enums;
 
 
 

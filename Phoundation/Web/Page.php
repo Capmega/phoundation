@@ -24,11 +24,11 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
+use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Security\Incidents\Severity;
-use Phoundation\Servers\Server;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Exception\WebException;
 use Phoundation\Web\Http\Domains;
@@ -69,9 +69,9 @@ class Page
     /**
      * The server filesystem restrictions
      *
-     * @var Server $server_restrictions
+     * @var Restrictions $restrictions
      */
-    protected static Server $server_restrictions;
+    protected static Restrictions $restrictions;
 
     /**
      * The TemplatePage class that builds the UI
@@ -311,11 +311,11 @@ class Page
     /**
      * Returns the current tab index and automatically increments it
      *
-     * @return Server
+     * @return Restrictions
      */
-    public static function getServerRestrictions(): Server
+    public static function getRestrictions(): Restrictions
     {
-        return static::$server_restrictions;
+        return static::$restrictions;
     }
 
 
@@ -323,12 +323,12 @@ class Page
     /**
      * Sets the current tab index and automatically increments it
      *
-     * @param Server $server_restrictions
+     * @param Restrictions $restrictions
      * @return void
      */
-    public static function setServerRestrictions(Server $server_restrictions): void
+    public static function setRestrictions(Restrictions $restrictions): void
     {
-        static::$server_restrictions = $server_restrictions;
+        static::$restrictions = $restrictions;
     }
 
 
@@ -386,7 +386,7 @@ class Page
         static::$parameters = $parameters;
 
         // Set the server filesystem restrictions and template for this page
-        Page::setServerRestrictions($parameters->getServerRestrictions());
+        Page::setRestrictions($parameters->getRestrictions());
 
         // Initialize the template
         if (!$parameters->getTemplate()) {
@@ -2123,7 +2123,7 @@ class Page
         // Set the page hash and check if we have access to this page?
         static::$hash   = sha1($_SERVER['REQUEST_URI']);
         static::$target = $target;
-        static::$server_restrictions->checkRestrictions($target, false);
+        static::$restrictions->checkRestrictions($target, false);
 
         // Check user access rights. Routing parameters should be able to tell us what rights are required now
         if (Core::stateIs('script')) {
@@ -2249,7 +2249,7 @@ class Page
     {
         if ($attachment) {
             // Send download headers and send the $html payload
-            \Phoundation\Web\Http\File::new(static::$server_restrictions)
+            \Phoundation\Web\Http\File::new(static::$restrictions)
                 ->setAttachment(true)
                 ->setData($output)
                 ->setFilename(basename($target))

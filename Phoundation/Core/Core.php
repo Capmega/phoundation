@@ -61,9 +61,9 @@ class Core {
     /**
      * The Core default server object
      *
-     * @var Server $server_restrictions
+     * @var Restrictions $restrictions
      */
-    protected static Server $server_restrictions;
+    protected static Restrictions $restrictions;
 
     /**
      * The generic system register to store data
@@ -196,7 +196,7 @@ class Core {
             // Set timeout and request type, ensure safe PHP configuration, apply general server restrictions, set the
             // project name, platform and request type
             static::securePhpSettings();
-            static::setServerRestrictions();
+            static::setRestrictions();
             static::setProject();
             static::setPlatform();
             static::selectStartup();
@@ -754,10 +754,10 @@ class Core {
      *
      * @return void
      */
-    protected static function setServerRestrictions(): void
+    protected static function setRestrictions(): void
     {
         // Set up the Core restrictions object with default file access restrictions
-        static::$server_restrictions = new Server(new Restrictions(PATH_DATA, false, 'Core'));
+        static::$restrictions = Restrictions::new(PATH_DATA, false, 'Core');
     }
 
 
@@ -2266,49 +2266,7 @@ class Core {
             return $restrictions;
         }
 
-        return static::$server_restrictions->getRestrictions();
-    }
-
-
-
-    /**
-     * Returns either the specified restrictions object or the Core restrictions object
-     *
-     * With this, availability of restrictions is guaranteed, even if a function did not receive restrictions. If Core
-     * restrictions are returned, these core restrictions are the ones that apply
-     *
-     * @param Server|Restrictions|array|string|null $server_restrictions
-     * @param Server|Restrictions|array|string|null $default
-     * @return Server
-     */
-    public static function ensureServer(Server|Restrictions|array|string|null $server_restrictions = null, Server|Restrictions|array|string|null $default = null, ?string $label = null): Server
-    {
-        if ($server_restrictions) {
-            if (!is_object($server_restrictions)) {
-                // Restrictions were specified by simple path string or array of paths. Convert to restrictions object
-                $server_restrictions = new Server($server_restrictions, 'localhost', $label);
-            } elseif ($server_restrictions instanceof Restrictions) {
-                    // Server was specified by Restrictions object
-                    $server_restrictions = new Server($server_restrictions, 'localhost', $label);
-            } else {
-                $server_restrictions->setLabel($label);
-            }
-
-            return $server_restrictions;
-        }
-
-        // Server was not specified. Try the default, if specified?
-        if ($default) {
-            if (!is_object($default)) {
-                // Restrictions were specified by simple path string or array of paths. Convert to restrictions object
-                return new Server($default, 'localhost', $label);
-            }
-
-            return $default->setLabel($label);
-        }
-
-        // Nope, fall back to the default restrictions
-        return static::$server_restrictions;
+        return static::$restrictions;
     }
 
 

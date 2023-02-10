@@ -35,6 +35,7 @@ class LogManager
      */
     public function clear()
     {
+        // Cleanup log sudo rm data/log -rf; sudo mkdir data/log; sudo touch data/log/syslog; sudo chmod 770 data/log;
 
     }
 }

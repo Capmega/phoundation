@@ -1,9 +1,6 @@
 <?php
 
-namespace Phoundation\Data\DataEntry;
-
-use Phoundation\Seo\Seo;
-
+namespace Phoundation\Data\DataEntry\Traits;
 
 
 /**

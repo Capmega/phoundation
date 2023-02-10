@@ -4,7 +4,7 @@ namespace Phoundation\Core\Plugins;
 
 use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\DataList\DataList;
+use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Path;
 use Throwable;

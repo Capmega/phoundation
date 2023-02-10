@@ -31,7 +31,7 @@ class ProcessCommands extends Command
     public function pgrep(string $process): ?int
     {
         try {
-            $output = Process::new('pgrep', $this->server_restrictions)
+            $output = Process::new('pgrep', $this->restrictions)
                 ->addArgument($process)
                 ->setTimeout(1)
                 ->executeReturnArray();
@@ -64,7 +64,7 @@ class ProcessCommands extends Command
                 throw new OutOfBoundsException(tr('The specified process id ":pid" is invalid. Please specify a positive integer', [':pid' => $pid]));
             }
 
-            $children = Process::new('pgrep', $this->server_restrictions)
+            $children = Process::new('pgrep', $this->restrictions)
                 ->addArguments(['-P', $pid])
                 ->setTimeout(1)
                 ->executeReturnArray();
@@ -107,7 +107,7 @@ class ProcessCommands extends Command
                 }
             }
 
-            Process::new('kill', $this->server_restrictions)
+            Process::new('kill', $this->restrictions)
                 ->addArgument('-' . $signal)
                 ->addArguments($pids)
                 ->setTimeout(10)
@@ -146,7 +146,7 @@ class ProcessCommands extends Command
                 }
             }
 
-            Process::new('pkill', $this->server_restrictions)
+            Process::new('pkill', $this->restrictions)
                 ->addArgument('-' . $signal)
                 ->addArguments($processes)
                 ->setTimeout(10)
@@ -173,7 +173,7 @@ class ProcessCommands extends Command
                 throw new OutOfBoundsException(tr('Specified pid ":pid" is invalid, it should be an integer number 1 or higher', [':pid' => $pid]));
             }
 
-            $data = Process::new('ps', $this->server_restrictions)
+            $data = Process::new('ps', $this->restrictions)
                 ->addArguments(['-p', $pid, '--no-headers', '-o', 'pid,ppid,comm,cmd,args'])
                 ->setTimeout(1)
                 ->executeReturnArray();
@@ -218,7 +218,7 @@ class ProcessCommands extends Command
                 throw new OutOfBoundsException(tr('Specified pid ":pid" is invalid, it should be an integer number 1 or higher', [':pid' => $pid]));
             }
 
-            $data = Process::new('ps', $this->server_restrictions)
+            $data = Process::new('ps', $this->restrictions)
                 ->addArguments(['-p', $pid, '--no-headers', '-o', 'pid:1,ppid:1,uid:1,gid:1,nice:1,fuid:1,%cpu:1,%mem:1,size:1,cputime:1,cputimes:1,drs:1,etime:1,etimes:1,euid:1,egid:1,egroup:1,start_time:1,bsdtime:1,state:1,stat:1,time:1,vsize:1,rss:1,args'])
                 ->setTimeout(1)
                 ->executeReturnArray();

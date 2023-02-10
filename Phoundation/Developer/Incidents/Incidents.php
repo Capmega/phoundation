@@ -4,9 +4,8 @@ namespace Phoundation\Developer\Incidents;
 
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\User;
-use Phoundation\Data\DataList\DataList;
+use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Web\Http\Html\Components\Table;
-
 
 
 /**
