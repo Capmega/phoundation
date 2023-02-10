@@ -21,6 +21,7 @@ use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
@@ -2267,6 +2268,26 @@ class Core {
         }
 
         return static::$restrictions;
+    }
+
+
+
+    /**
+     * Will execute the specified callback only when not running in TEST mode
+     *
+     * @param callable $function
+     * @param string $task
+     * @return void
+     */
+    public static function ExecuteNotInTestMode(callable $function, string $task): void
+    {
+        if (TEST) {
+            Log::warning(tr('Not executing ":task" while running in test mode', [
+                ':task' => $task
+            ]));
+        } else {
+            $function();
+        }
     }
 
 

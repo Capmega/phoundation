@@ -4,6 +4,7 @@ namespace Phoundation\Filesystem;
 
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
+use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\Exception;
@@ -705,14 +706,11 @@ class Path extends FileBasics
     public static function removeTemporary(): void
     {
         if (static::$temp_path) {
-            if (TEST) {
-                Log::warning(tr('Not cleaning up temporary directory ":path" due to TEST mode', [
-                    ':path' => Strings::from(static::$temp_path, PATH_ROOT)
-                ]));
-            } else {
-                // Remove temporary directories
+            Core::ExecuteNotInTestMode(function() {
                 File::new(static::$temp_path, Restrictions::new(static::$temp_path, true))->delete();
-            }
+            }, tr('Cleaning up temporary directory ":path"', [
+                ':path' => Strings::from(static::$temp_path, PATH_ROOT)
+            ]));
         }
     }
 }
