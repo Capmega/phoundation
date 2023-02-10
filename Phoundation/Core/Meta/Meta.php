@@ -6,7 +6,6 @@ use Phoundation\Cli\Script;
 use Phoundation\Core\Session;
 use Phoundation\Data\Exception\DataEntryNotExistsException;
 use Phoundation\Databases\Sql\Exception\SqlException;
-use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Components\Table;
 use Phoundation\Web\Http\UrlBuilder;
 
@@ -128,10 +127,10 @@ class Meta
      * Creates a new meta entry and returns the database id for it
      *
      * @param string|null $comments
-     * @param array|null $data
+     * @param string|null $data
      * @return Meta
      */
-    public static function init(?string $comments = null, ?array $data = null): Meta
+    public static function init(?string $comments = null, ?string $data = null): Meta
     {
         $meta = new Meta();
         $meta->action('created', $comments, $data);
@@ -159,7 +158,7 @@ class Meta
             ':source'     => (string) (PLATFORM_HTTP ? UrlBuilder::getCurrent() : Script::getCurrent()),
             ':action'     => $action,
             ':comments'   => $comments,
-            ':data'       => Json::encode($data)
+            ':data'       => $data
         ]);
 
         return $this;
