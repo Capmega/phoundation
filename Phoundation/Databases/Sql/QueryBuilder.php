@@ -91,23 +91,14 @@ class QueryBuilder
     protected array $execute = [];
 
 
-
-    /**
-     * queryBuilder class constructor
-     */
-    public function __construct()
-    {
-    }
-
-
-
     /**
      * Make this a SELECT query by adding the select clause here
      *
      * @param string $select
+     * @param array|null $execute
      * @return static
      */
-    public function addSelect(string $select): static
+    public function addSelect(string $select, ?array $execute = null): static
     {
         if ($this->delete) {
             throw new OutOfBoundsException(tr('DELETE part of query has already been added, cannot add SELECT'));
@@ -118,7 +109,7 @@ class QueryBuilder
         }
 
         $this->select .= $select;
-        return $this;
+        return $this->addExecuteArray($execute);
     }
 
 
@@ -127,9 +118,10 @@ class QueryBuilder
      * Make this a DELETE query by adding the select clause here
      *
      * @param string $delete
+     * @param array|null $execute
      * @return static
      */
-    public function addDelete(string $delete): static
+    public function addDelete(string $delete, ?array $execute = null): static
     {
         if ($this->select) {
             throw new OutOfBoundsException(tr('SELECT part of query has already been added, cannot add DELETE'));
@@ -140,7 +132,7 @@ class QueryBuilder
         }
 
         $this->delete .= $delete;
-        return $this;
+        return $this->addExecuteArray($execute);
     }
 
 
@@ -149,9 +141,10 @@ class QueryBuilder
      * Make this a UPDATE query by adding the select clause here
      *
      * @param string $update
+     * @param array|null $execute
      * @return static
      */
-    public function addUpdate(string $update): static
+    public function addUpdate(string $update, ?array $execute = null): static
     {
         if ($this->select) {
             throw new OutOfBoundsException(tr('SELECT part of query has already been added, cannot add UPDATE'));
@@ -162,7 +155,7 @@ class QueryBuilder
         }
 
         $this->update .= $update;
-        return $this;
+        return $this->addExecuteArray($execute);
     }
 
 
@@ -171,16 +164,18 @@ class QueryBuilder
      * Add the FROM part of the query
      *
      * @param string $from
+     * @param array|null $execute
      * @return static
      */
-    public function addFrom(string $from): static
+    public function addFrom(string $from, ?array $execute = null): static
     {
         if ($this->update) {
             throw new OutOfBoundsException(tr('This is an UPDATE query, cannot add FROM'));
         }
 
         $this->from .= $from;
-        return $this;
+
+        return $this->addExecuteArray($execute);
     }
 
 
@@ -189,15 +184,16 @@ class QueryBuilder
      * Add a JOIN part of the query
      *
      * @param string $join
+     * @param array|null $execute
      * @return static
      */
-    public function addJoin(string $join): static
+    public function addJoin(string $join, ?array $execute = null): static
     {
         if ($join) {
             $this->joins[] = $join;
         }
 
-        return $this;
+        return $this->addExecuteArray($execute);
     }
 
 
@@ -206,15 +202,16 @@ class QueryBuilder
      * Add a WHERE part of the query
      *
      * @param string $where
+     * @param array|null $execute
      * @return static
      */
-    public function addWhere(string $where): static
+    public function addWhere(string $where, ?array $execute = null): static
     {
         if ($where) {
             $this->wheres[] = $where;
         }
 
-        return $this;
+        return $this->addExecuteArray($execute);
     }
 
 
@@ -223,15 +220,16 @@ class QueryBuilder
      * Add a GROUP BY part of the query
      *
      * @param string $group_by
+     * @param array|null $execute
      * @return static
      */
-    public function addGroupBy(string $group_by): static
+    public function addGroupBy(string $group_by, ?array $execute = null): static
     {
         if ($group_by) {
             $this->group_by[] = $group_by;
         }
 
-        return $this;
+        return $this->addExecuteArray($execute);
     }
 
 
@@ -240,15 +238,16 @@ class QueryBuilder
      * Add a HAVING part of the query
      *
      * @param string $having
+     * @param array|null $execute
      * @return static
      */
-    public function addHaving(string $having): static
+    public function addHaving(string $having, ?array $execute = null): static
     {
         if ($having) {
             $this->having[] = $having;
         }
 
-        return $this;
+        return $this->addExecuteArray($execute);
     }
 
 
@@ -257,15 +256,16 @@ class QueryBuilder
      * Add a ORDER BY part of the query
      *
      * @param string $order_by
+     * @param array|null $execute
      * @return static
      */
-    public function addOrderBy(string $order_by): static
+    public function addOrderBy(string $order_by, ?array $execute = null): static
     {
         if ($order_by) {
             $this->order_by[] = $order_by;
         }
 
-        return $this;
+        return $this->addExecuteArray($execute);
     }
 
 
@@ -334,6 +334,7 @@ class QueryBuilder
     /**
      * Returns the complete query that can be executed
      *
+     * @param bool $debug
      * @return string
      */
     public function getQuery(bool $debug = false): string
@@ -386,4 +387,26 @@ class QueryBuilder
     {
         return $this->execute;
     }
+
+
+
+    /**
+     * Add the specified execute array to the internal execute array
+     *
+     * @param array|null $execute
+     * @return static
+     */
+    public function addExecuteArray(?array $execute): static
+    {
+        if ($execute) {
+            foreach ($execute as $key => $value) {
+                $this->addExecute($key, $value);
+            }
+        }
+
+        return $this;
+    }
+
+
+
 }
