@@ -47,7 +47,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function updates(): void
     {
-        $this->addUpdate('0.0.12', function () {
+        $this->addUpdate('0.0.11', function () {
             // Drop the tables to be sure we have a clean slate
             sql()->schema()->table('ssh_accounts')->drop();
             sql()->schema()->table('servers')->drop();
@@ -97,9 +97,9 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `cost` double(15,5) DEFAULT NULL,
                     `bill_due_date` datetime DEFAULT NULL,
                     `interval` enum("hourly","daily","weekly","monthly","bimonthly","quarterly","semiannual","anually") DEFAULT NULL,
-                    `providers_id` int DEFAULT NULL,
-                    `customers_id` int DEFAULT NULL,
-                    `ssh_accounts_id` int DEFAULT NULL,
+                    `providers_id` bigint DEFAULT NULL,
+                    `customers_id` bigint DEFAULT NULL,
+                    `ssh_accounts_id` bigint DEFAULT NULL,
                     `description` varchar(2047) NOT NULL,
                     `os_name` enum("debian","ubuntu","redhat","gentoo","slackware","linux","windows","freebsd","macos","other") DEFAULT NULL,
                     `os_version` varchar(16) DEFAULT NULL,
@@ -125,7 +125,6 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     KEY `mail_services` (`mail_services`),
                     KEY `database_services` (`database_services`),
                     KEY `ssh_accounts_id` (`ssh_accounts_id`),
-                    KEY `fk_servers_tasks_id` (`tasks_id`),
                 ')->setForeignKeys('
                     CONSTRAINT `fk_servers_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_servers_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,

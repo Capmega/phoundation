@@ -2,8 +2,11 @@
 
 namespace Phoundation\Servers;
 
+use Phoundation\Core\Arrays;
+use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Databases\Sql\QueryBuilder;
 use Phoundation\Web\Http\Html\Components\Input\Select;
 use Phoundation\Web\Http\Html\Components\Table;
 
@@ -94,8 +97,53 @@ class SshAccounts extends DataList
         // TODO: Implement save() method.
     }
 
-    protected function loadDetails(array|string|null $columns, array $filters = []): array
+
+
+    /**
+     * Load the data for this right list
+     *
+     * @param array|string|null $columns
+     * @param array $filters
+     * @return array
+     */
+    protected function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
     {
-        // TODO: Implement loadDetails() method.
+        // Default columns
+        if (!$columns) {
+            $columns = 'id,name,code,hostname,createdon';
+        }
+
+        // Default ordering
+        if (!$order_by) {
+            $order_by = ['name' => false];
+        }
+
+        // Get column information
+        $columns = Arrays::force($columns);
+        $columns = Strings::force($columns);
+
+        // Build query
+        $builder = new QueryBuilder();
+        $builder->addSelect(' SELECT ' . $columns);
+        $builder->addFrom('FROM `ssh_accounts`');
+
+        // Add ordering
+        foreach ($order_by as $column => $direction) {
+            $builder->addOrderBy('ORDER BY `' . $column . '` ' . ($direction ? 'DESC' : 'ASC'));
+        }
+
+        // Build filters
+        foreach ($filters as $key => $value){
+            switch ($key) {
+                case 'deleted':
+                    $no_delete = true;
+            }
+        }
+
+        if (isset($no_delete)) {
+            $builder->addWhere('`status` IS NULL');
+        }
+
+        return sql()->list($builder->getQuery(), $builder->getExecute());
     }
 }
