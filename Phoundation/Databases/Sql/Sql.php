@@ -199,12 +199,13 @@ class Sql
     /**
      * Returns an SQL schema object for this instance
      *
+     * @param bool $use_database
      * @return Schema
      */
-    public function schema(): Schema
+    public function schema(bool $use_database = true): Schema
     {
         if (empty($this->schema)) {
-            $this->schema = new Schema($this->instance);
+            $this->schema = new Schema($this->instance, $use_database);
         }
 
         return $this->schema;
@@ -213,16 +214,30 @@ class Sql
 
 
     /**
+     * Clears schema cache and returns a new SQL schema object for this instance
+     *
+     * @param bool $use_database
+     * @return Schema
+     */
+    public function resetSchema(bool $use_database = true): Schema
+    {
+        unset($this->schema);
+        return $this->schema($use_database);
+    }
+
+
+
+    /**
      * Use the specified database
      *
-     * @param string|null $database The database to use. If none was specifed, the configured system database will be
+     * @param string|null $database The database to use. If none was specified, the configured system database will be
      *                              used
      * @return void
      * @throws Throwable
      */
     public function use(?string $database = null): void
     {
-        $database = $this->getDatabaseName($database);
+        $database             = $this->getDatabaseName($database);
         $this->using_database = $database;
 
         Log::action(tr('(:id) Using database ":database"', [':id' => $this->uniqueid, ':database' => $database]));
@@ -495,9 +510,10 @@ class Sql
                 ->log()
                 ->send();
 
-            throw SqlException::new(tr('Query ":query" failed with ":messages"', [
+            throw SqlException::new(tr('(:id) Query ":query" failed with ":messages"', [
                 ':query'    => $this->buildQueryString($query, $execute),
-                ':messages' => $e->getMessage()
+                ':messages' => $e->getMessage(),
+                ':id'       => $this->uniqueid
             ]), $e)->setCode(isset_get($error[1]));
         }
     }
@@ -1730,6 +1746,7 @@ class Sql
                         ':instance' => $this->instance,
                         ':string'   => $connect_string
                     ]), 3);
+
                     break;
 
                 } catch (Exception $e) {

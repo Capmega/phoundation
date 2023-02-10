@@ -9,7 +9,6 @@ use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\Sql;
 
 
-
 /**
  * TableDefine class
  *
@@ -273,7 +272,7 @@ class TableDefine extends SchemaAbstract
             throw new SqlException(tr('Cannot create table ":name", it already exists', [':name' => $this->name]));
         }
 
-        // Prepare incides and FKs
+        // Prepare indices and FKs
         $indices      = implode(",\n", $this->indices) . "\n";
         $foreign_keys = implode(",\n", $this->foreign_keys) . "\n";
 
@@ -291,7 +290,7 @@ class TableDefine extends SchemaAbstract
 
         $query .= ') ENGINE=InnoDB AUTO_INCREMENT = ' . Config::get('databases.sql.instances.system.auto-increment', 1) . ' DEFAULT CHARSET="' . Config::get('databases.sql.instances.system.charset', 'utf8mb4') . '" COLLATE="' . Config::get('databases.sql.instances.system.collate', 'utf8mb4_general_ci') . '";';
 
-        sql()->query($query);
+        $this->sql->query($query);
         $this->parent->reload();
     }
 }

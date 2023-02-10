@@ -90,6 +90,7 @@ class Table extends SchemaAbstract
     }
 
 
+
     /**
      * Returns if the table exists in the database or not
      *
