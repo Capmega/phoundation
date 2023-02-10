@@ -158,7 +158,7 @@ class Git extends Versioning
             ->clearArguments()
             ->addArgument('checkout')
             ->addArgument($branch)
-            ->executeReturnString();
+            ->executeReturnArray();
 
         Log::notice($output, 4, false);
         return $this;

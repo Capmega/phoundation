@@ -145,9 +145,8 @@ class Phoundation extends Project
     }
 
 
-
     /**
-     * @param string $branch
+     * @param string|null $branch
      * @return $this
      */
     public function switchBranch(?string $branch = null): static
@@ -172,16 +171,16 @@ class Phoundation extends Project
     }
 
 
-
     /**
      * Copies all phoundation updates from your current project back to Phoundation
      *
      * @param string|null $branch
      * @param string|null $message
      * @param bool|null $sign
+     * @param bool $checkout
      * @return void
      */
-    public function patch(?string $branch, ?string $message, ?bool $sign = null): void
+    public function patch(?string $branch, ?string $message, ?bool $sign = null, bool $checkout = true): void
     {
         try {
             if ($sign === null) {
@@ -194,7 +193,7 @@ class Phoundation extends Project
 
             // Update the local project
             $project = Project::new();
-            $project->updateLocal($message, $sign);
+            $project->updateLocal($branch, $message, $sign);
 
             // Detect Phoundation installation and ensure its clean and on the right branch
             $this->ensureNoChanges();
@@ -203,10 +202,12 @@ class Phoundation extends Project
             // Execute the patching
             foreach (['Phoundation', 'scripts'] as $section) {
                 // Patch target and remove the changes locally
-                StatusFiles::new(PATH_ROOT . $section)
-                    ->patch($this->getPath() . $section)
-                    ->getGit()
-                        ->checkout(PATH_ROOT . $section);
+                $files = StatusFiles::new(PATH_ROOT . $section)->patch($this->getPath() . $section);
+
+                if ($checkout) {
+                    // Checkout files locally so that these changes are removed from the local project
+                    $files->getGit()->checkout(PATH_ROOT . $section);
+                }
             }
 
             if ($this->phoundation_branch) {

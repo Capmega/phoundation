@@ -655,6 +655,10 @@ class Project
      */
     protected function copyPhoundationFilesLocal(?string $path, string $branch): void
     {
+        if (!$branch) {
+            throw new OutOfBoundsException(tr('Cannot copy local Phoundation files, no Phoundation branch specified'));
+        }
+
         $rsync       = Rsync::new();
         $phoundation = Phoundation::new($path)->switchBranch($branch);
 

@@ -4,6 +4,8 @@ namespace Phoundation\Developer\Versioning\Git;
 
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\Color;
+use Phoundation\Core\Core;
+use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Classes\Iterator;
 use Phoundation\Developer\Versioning\Git\Exception\GitPatchException;
@@ -125,18 +127,27 @@ class StatusFiles extends Iterator
             return $this;
 
         } catch(ProcessFailedException $e) {
+            Log::warning(tr('Patch failed to apply for target path ":path" with following exception', [
+                ':path' => $target_path
+            ]));
+
+            Log::exception($e);
+
             if (isset($patch_file)) {
                 // Delete the temporary patch file
-                File::new($patch_file, Restrictions::new(PATH_TMP, true))->delete();
+                Core::ExecuteNotInTestMode(function() use ($patch_file) {
+                    File::new($patch_file, Restrictions::new(PATH_TMP, true))->delete();
+                }, tr('Removing git patch files'));
             }
 
             $data = $e->getData();
+            $data = $data['output'];
             $data = array_pop($data);
 
             if (str_contains($data, 'patch does not apply')) {
-                throw new GitPatchException(tr('Failed to apply patch ":patch" to file ":file"', [
+                throw new GitPatchException(tr('Failed to apply patch ":patch" to path ":path"', [
                     ':patch' => isset_get($patch_file),
-                    ':file'  => $this->file
+                    ':path'  => $target_path
                 ]));
             }
 
