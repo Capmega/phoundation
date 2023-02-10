@@ -21,11 +21,12 @@ class Version
     /**
      * Returns a string version of the integer version
      *
-     * @param int $version
+     * @param ?int $version
      * @return string
      */
-    public static function getString(int $version): string
+    public static function getString(?int $version): string
     {
+        $version  = (int) $version;
         $major    = floor($version / 1000000);
         $minor    = floor(($version - ($major * 1000000)) / 1000);
         $revision = fmod($version, 1000);

@@ -158,7 +158,7 @@ abstract class Updates
         // Get the current version for the database
         $version = $this->getDatabaseVersion();
 
-        if ($version === null) {
+        if (($version === null) or ($version === '0.0.0')) {
             // There is no version registered in the database at all, so the first available init is it!
             return array_key_first($this->updates);
         }
@@ -174,7 +174,7 @@ abstract class Updates
 
             return $version;
 
-        } catch (OutOfBoundsException) {
+        } catch (OutOfBoundsException $e) {
             // There is no next available!
             return null;
         }

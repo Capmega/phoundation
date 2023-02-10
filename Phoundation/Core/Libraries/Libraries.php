@@ -343,7 +343,9 @@ class Libraries
             sql('system', false)->schema()->database()->create();
         }
 
-        sql('system', false)->use();
+        // Use the new database, and reset the schema object
+        sql('system')->use();
+        sql('system', false)->resetSchema();
     }
 
 
