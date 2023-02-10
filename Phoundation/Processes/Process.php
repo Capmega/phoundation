@@ -172,6 +172,7 @@ Class Process
         }
 
         exec($this->getFullCommandLine(), $output, $exit_code);
+
         $this->setExitCode($exit_code, $output);
         return $output;
     }
@@ -223,7 +224,6 @@ Class Process
             Log::action(tr('Executing command ":commands" using passthru()', [':commands' => $commands]), 2);
         }
 
-
         $result = passthru($this->getFullCommandLine(), $exit_code);
 
         // Output available in output file?
@@ -260,20 +260,31 @@ Class Process
         if ($this->debug) {
             Log::printr($this->getFullCommandLine());
         } else {
-            Log::notice(tr('Executing background command ":command" using exec()', [':command' => $this->getFullCommandLine(true)]), 3);
+            Log::notice(tr('Executing background command ":command" using exec()', [
+                ':command' => $this->getFullCommandLine(true)
+            ]), 3);
         }
 
         exec($this->getFullCommandLine(true), $output, $exit_code);
 
         if ($exit_code) {
             // Something went wrong immediately while executing the command?
-            throw new ProcessException(tr('Failed to start process ":command" (Full command ":fullcommand") in background. It caused exit code ":code" with output ":output"', [':command' => $this->getCommand(), ':fullcommand' => $command, ':code' => $exit_code, ':output' => $output]));
+            throw new ProcessException(tr('Failed to start process ":command" (Full command ":full_command") in background. It caused exit code ":code" with output ":output"', [
+                ':command'      => $this->getCommand(),
+                ':full_command' => $this->getFullCommandLine(true),
+                ':code'         => $exit_code,
+                ':output'       => $output
+            ]));
         }
 
         // Set the process id and exit code for the nohup command
         $this->setPid();
         $exit_code = $this->setExitCode($exit_code, $output);
-        Log::success(tr('Executed background command ":command" with PID ":pid"', [':command' => $this->real_command, ':pid' => $this->pid]), 4);
+
+        Log::success(tr('Executed background command ":command" with PID ":pid"', [
+            ':command' => $this->real_command,
+            ':pid'     => $this->pid
+        ]), 4);
 
         return $this->pid;
     }
@@ -346,7 +357,9 @@ Class Process
             if (preg_match('/^\$.+?\$$/', $argument)) {
                 if (!array_key_exists($argument, $this->variables)) {
                     // This variable was not defined, cannot apply it.
-                    throw new ProcessException(tr('Specified variable ":variable" in the argument list was not defined', [':variable' => $argument]));
+                    throw new ProcessException(tr('Specified variable ":variable" in the argument list was not defined', [
+                        ':variable' => $argument
+                    ]));
                 }
 
                 // Update and escape the argument
@@ -377,6 +390,11 @@ Class Process
         // Add sudo
         if ($this->sudo) {
             $this->cached_command_line = 'sudo -u ' . escapeshellarg($this->sudo) . ' ' . $this->cached_command_line;
+        }
+
+        // Execute on a server?
+        if (isset($this->server)) {
+            $this->cached_command_line = $this->server->getSshCommandLine($this->cached_command_line);
         }
 
         // Execute the command in the specified terminal
@@ -411,17 +429,12 @@ Class Process
             $this->cached_command_line .= $redirect;
         }
 
-        // Execute on a server?
-        if (isset($this->server)) {
-            $this->cached_command_line = $this->server->getSshCommandLine($this->cached_command_line);
-        }
-
         // Background commands get some extra options around
         if ($background) {
-            $this->cached_command_line = '(nohup bash -c "set -o pipefail; ' . $this->cached_command_line . ' ; echo $$" > ' . $this->log_file . ' 2>&1 & echo $! >&3) 3> ' . $this->run_file;
+            $this->cached_command_line = "(nohup bash -c 'set -o pipefail; " . str_replace("'", '"', $this->cached_command_line) . " ; EXIT=\$?; echo \$\$; exit \$EXIT' > " . $this->log_file . " 2>&1 & echo \$! >&3) 3> " . $this->run_file;
         } elseif ($this->register_run_file) {
             // Make sure the PID will be registered in the run file
-            $this->cached_command_line = 'bash -c "set -o pipefail; ' . $this->cached_command_line . '"; echo $$ > ' . $this->run_file;
+            $this->cached_command_line = "bash -c 'set -o pipefail; " . str_replace("'", '"', $this->cached_command_line) . "; exit \$?'; EXIT=\$?; echo \$\$ > " . $this->run_file . "; exit \$EXIT;";
         }
 
         return $this->cached_command_line;
