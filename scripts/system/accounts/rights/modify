@@ -44,16 +44,12 @@ ArgvValidator::new()
 
 
 
-try {
-    // Get right and modify it
-    $right = Right::get($argv['right'])
-        ->setName($argv['name'])
-        ->setDescription($argv['description'])
-        ->save();
+// Get right, ensure new name doesn't exist yet, and modify it
+$right = Right::get($argv['right']);
 
-}catch (DataEntryNotExistsException $e) {
-    throw $e->makeWarning();
-}
+Right::exists($argv['name'], $right['id'], true);
+
+$right->modify($argv)->save();
 
 
 

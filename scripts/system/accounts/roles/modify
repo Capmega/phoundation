@@ -48,27 +48,28 @@ ArgvValidator::new()
 
 
 
-try {
-    // Ensure that specified roles exist
-    if ($argv['rights']) {
-        foreach ($argv['rights'] as &$right) {
-            $right = Right::get($right);
-        }
-
-        unset($right);
+// Ensure that specified roles exist
+if ($argv['rights']) {
+    foreach ($argv['rights'] as &$right) {
+        $right = Right::get($right);
     }
 
-    // Load role, then modify it, save it, and update the rights
-    $role = Role::get($argv['role'])
-        ->setData($argv)
-        ->save();
-
-    // Set the rights for this role
-    $role->rights()->set($argv['rights']);
-
-}catch (DataEntryNotExistsException $e) {
-    throw $e->makeWarning();
+    unset($right);
 }
+
+
+
+// Load role, ensure the new name doesn't exist yet, then modify it, save it
+$role = Role::get($argv['role']);
+
+Role::exists($argv['name'], $role['id'], true);
+
+$role->modify($argv)->save();
+
+
+
+// Set the rights for this role
+$role->rights()->set($argv['rights']);
 
 
 

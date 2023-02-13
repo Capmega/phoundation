@@ -6,6 +6,7 @@ use Phoundation\Cli\Documentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Servers\SshAccount;
 
 
 /**
@@ -18,10 +19,11 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./cli system servers accounts delete USER_EMAIL');
+Documentation::usage('./cli system servers accounts delete NAME');
 
-Documentation::help('This script will delete the specified account. Note that deleted accounts will not be removed from the database, 
-the status for the account will be updated to "deleted"
+Documentation::help('This script will delete the specified SSH account. Note that deleted accounts will not be 
+removed from the database, the status for the account will be updated to "deleted". The SSH key, however, will be 
+cleared
 
 
 
@@ -29,17 +31,20 @@ ARGUMENTS
 
 
 
-USER_EMAIL                              The email address for the account to delete');
+NAME                                    The name of the account to delete');
 
 
 
 // Validate arguments
 ArgvValidator::new()
-    ->select('account')->isEmail()
+    ->select('name')->isEmail()
     ->noArgumentsLeft()
     ->validate();
 
 
 
-// Display account data
-Account::get($argv['account'])->delete();
+// Delete the account
+SshAccount::get($argv['name'])
+    ->setSshKey('')
+    ->save()
+    ->delete();

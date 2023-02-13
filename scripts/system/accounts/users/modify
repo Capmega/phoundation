@@ -88,7 +88,7 @@ ArgvValidator::new()
     ->select('-p,--phones', true)->isOptional()->isPhones()
     ->select('-t,--title', true)->isOptional()->isName()
     ->select('-u,--username', true)->isOptional()->isDescription()->isName()
-    ->select('-w,--website', true)->isOptional()->isUrl()
+    ->select('--url', true)->isOptional()->isUrl()
     ->select('--first-names')->isOptional()->isName()
     ->select('--last-names')->isOptional()->isName()
     ->select('--domain', true)->isOptional()->isDomain()
@@ -107,48 +107,28 @@ ArgvValidator::new()
 
 
 
-try {
-    // Ensure that specified roles exist
-    if ($argv['roles']) {
-        foreach ($argv['roles'] as &$role) {
-            $role = Role::get($role);
-        }
-
-        unset($role);
+// Ensure that specified roles exist
+if ($argv['roles']) {
+    foreach ($argv['roles'] as &$role) {
+        $role = Role::get($role);
     }
 
-    // Modify user and save
-    $user = User::get($argv['user'])
-        ->setEmail($argv['email'])
-        ->setFirstNames($argv['first_names'])
-        ->setLastNames($argv['last_names'])
-        ->setTitle($argv['title'])
-        ->setGender($argv['gender'])
-        ->setLanguage($argv['language'])
-        ->setDescription($argv['description'])
-        ->setComments($argv['comments'])
-        ->setUsername($argv['username'])
-        ->setAddress($argv['address'])
-        ->setWebsite($argv['website'])
-        ->setPhones($argv['phones'])
-        ->setBirthday($argv['birthday'])
-        ->setTimezone($argv['timezone'])
-        ->setLeader($argv['lead_by'])
-        ->setIsLeader($argv['is_leader'])
-        ->setCountry($argv['country'])
-        ->setState($argv['state'])
-        ->setCity($argv['city'])
-        ->setCompany($argv['company'])
-        ->setBranch($argv['branch'])
-        ->setDepartment($argv['department'])
-        ->save();
-
-    // Set users roles
-    $user->roles()->set($argv['roles']);
-
-}catch (DataEntryNotExistsException $e) {
-    throw $e->makeWarning();
+    unset($role);
 }
+
+
+
+// Modify user and save
+$user = User::get($argv['user']);
+
+User::exists($argv['name'], $user['id'], true);
+
+$user->modfiy($argv)->save();
+
+
+
+// Set users roles
+$user->roles()->set($argv['roles']);
 
 
 
