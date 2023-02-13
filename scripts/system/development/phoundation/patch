@@ -22,7 +22,7 @@ use Phoundation\Developer\Phoundation\Phoundation;
 
 Documentation::usage('./cli system project update [OPTIONS]
 ./cli system development phoundation patch -b BRANCH
-./cli system development phoundation patch -b  BRANCH --check
+./cli system development phoundation patch -b  BRANCH --no-checkout -s
 ./cli system development phoundation patch -l --branch BRANCH -p /home/USER/projects/phoundation  
 ');
 
@@ -36,6 +36,8 @@ ARGUMENTS
 
 -b / --branch                           The branch from which to update
 
+[-c / --no-checkout]                    If specified will not automatically checkout (and thus remove) the local changes  
+
 [-m / --message]                        The git commit message for this update. If not specified, a default will be used  
 
 [-s / --signed]                         If specified will make a signed commit. This requires your git setup to be 
@@ -48,15 +50,15 @@ ARGUMENTS
 // Get command line arguments
 ArgvValidator::new()
     ->select('-b,--branch', true)->isOptional()->isPrintable()
+    ->select('-c,--no-checkout')->isOptional()->isBoolean()
     ->select('-m,--message', true)->isOptional()->isPrintable()->hasMinCharacters(10)->hasMaxCharacters(1024)
     ->select('-p,--phoundation', true)->isOptional()->isPrintable()
     ->select('-s,--signed')->isOptional()->isBoolean()
     ->noArgumentsLeft()
     ->validate();
 
-
 Log::information(tr('Copying local changes in ":project" project back to your Phoundation installation', [
         ':project' => PROJECT
 ]));
 
-Phoundation::new($argv['phoundation'])->patch($argv['branch'], $argv['message'], $argv['signed']);
+Phoundation::new($argv['phoundation'])->patch($argv['branch'], $argv['message'], $argv['signed'], !$argv['no_checkout']);

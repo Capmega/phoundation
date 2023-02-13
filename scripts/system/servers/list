@@ -1,0 +1,53 @@
+#!/usr/bin/php
+<?php
+
+use Phoundation\Accounts\Servers\Servers;
+use Phoundation\Data\Validator\ArgvValidator;
+
+
+
+/**
+ * Script system/servers/list
+ *
+ * This script will list the available servers on this system
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Scripts
+ */
+$usage = './cli system servers list [OPTIONS]
+./cli system servers list -d -r god';
+
+$help  = 'This script will list the available servers on this system
+
+
+
+ARGUMENTS
+
+
+--hostnames HOSTNAME[,HOSTNAME,HOSTNAME,...]    Will only display servers for the specified hostnames
+
+--deleted                               Will also show deleted servers
+
+--roles ROLE[,ROLE,ROLE,...]           Will only display servers with the specified role
+
+--rights RIGHT[RIGHT,RIGHT,...]        Will only display servers with the specified right';
+
+
+
+// Validate arguments
+ArgvValidator::new()
+    ->select('--hostnames,--hostname')->isOptional(null)->sanitizeForceArray()->each()->isDomain()
+    ->select('-r,--roles,--role', true)->isOptional(null)->sanitizeForceArray()->each()->isName()
+    ->select('-r,--rights,--right', true)->isOptional(null)->sanitizeForceArray()->each()->isName()
+    ->noArgumentsLeft()
+    ->validate();
+
+
+Servers::new()
+    ->addFilter('roles', $argv['roles'])
+    ->addFilter('rights', $argv['rights'])
+    ->addFilter('hostnames', $argv['hostnames'])
+    ->addFilter('status', (DELETED ? 'deleted' : null))
+    ->CliDisplayTable();

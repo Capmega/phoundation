@@ -1,0 +1,45 @@
+#!/usr/bin/php
+<?php
+
+use Phoundation\Accounts\Accounts\Account;
+use Phoundation\Cli\Documentation;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
+use Phoundation\Data\Validator\ArgvValidator;
+
+
+/**
+ * Script system/servers/accounts/delete
+ *
+ * This script can delete accounts
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Scripts
+ */
+Documentation::usage('./cli system servers accounts delete USER_EMAIL');
+
+Documentation::help('This script will delete the specified account. Note that deleted accounts will not be removed from the database, 
+the status for the account will be updated to "deleted"
+
+
+
+ARGUMENTS
+
+
+
+USER_EMAIL                              The email address for the account to delete');
+
+
+
+// Validate arguments
+ArgvValidator::new()
+    ->select('account')->isEmail()
+    ->noArgumentsLeft()
+    ->validate();
+
+
+
+// Display account data
+Account::get($argv['account'])->delete();

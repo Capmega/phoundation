@@ -1,0 +1,56 @@
+#!/usr/bin/php
+<?php
+
+use Phoundation\Accounts\Accounts\Account;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
+use Phoundation\Data\Validator\ArgvValidator;
+
+
+/**
+ * Script system/servers/accounts/info
+ *
+ * This script displays information about the specified account.
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Scripts
+ */
+$usage = './cli system servers accounts info USER';
+
+$help  = 'This script displays information about the specified account.  
+
+
+
+ARGUMENTS
+
+
+
+USER                                    The account to display information about. Specify either by account id or email 
+                                        address';
+
+
+
+// Validate arguments
+ArgvValidator::new()
+    ->select('account')->hasMinCharacters(2)->hasMaxCharacters(255)
+    ->noArgumentsLeft()
+    ->validate();
+
+
+
+try {
+    // Display account data
+    Account::get($argv['account'])->getCliForm();
+
+    Log::information('Roles assigned to this account:');
+    Account::get($argv['account'])->roles()->CliDisplayTable();
+
+    Log::information('Roles assigned to this account through its roles:');
+    Account::get($argv['account'])->rights()->CliDisplayTable();
+
+
+}catch (DataEntryNotExistsException $e) {
+    throw $e->makeWarning();
+}

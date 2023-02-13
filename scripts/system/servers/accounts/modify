@@ -1,0 +1,156 @@
+#!/usr/bin/php
+<?php
+
+use Phoundation\Accounts\Roles\Role;
+use Phoundation\Accounts\Accounts\Account;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
+use Phoundation\Data\Validator\ArgvValidator;
+
+
+/**
+ * Script system/servers/accounts/modify
+ *
+ * This script will modify a account with the specified properties
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Scripts
+ */
+$usage = './cli system servers accounts modify USER [OPTIONS]
+./cli system accounts modify USER -l -i --to ENVIRONMENT';
+
+$help  = 'This script allows you to modify accounts
+
+
+
+ARGUMENTS
+
+
+USER                                    The account to modify. Always specify accounts by their email addresses
+
+-e / --email                            The email address for the account
+
+-n / --name                             The name for the account
+
+-r / --roles ROLE[,ROLE,ROLE]           A comma separated list of the roles that this account has on this system. The roles 
+                                        must already exist. These roles will grant the account rights which will give him 
+                                        or her access to the various parts of the system
+
+[-g / --gender]
+
+[-t / --title]
+
+[-l / --language]
+
+[-d / --description]
+
+[-c / --comments]
+
+[-u / --accountname]
+
+[-a / --address]
+
+[-w / --website]
+
+[-p / --phones]
+
+[-b / --birthday]
+
+[-t / --timezone]
+
+[--hostname]                              The hostname where this account is valid
+
+[--lead-by]
+
+[--country]                             The country where the account resides
+
+[--state]                               The state where the account resides
+
+[--city]                                The city where the account resides
+
+[--is-leader]                           If specified, this account will be registered as having a leadership position';
+
+
+
+// Validate arguments
+ArgvValidator::new()
+    ->select('account', true)->isEmail()
+    ->select('-a,--address', true)->isOptional()->hasMaxCharacters(255)->isPrintable()
+    ->select('-b,--birthday', true)->isOptional()->isDate()
+    ->select('-c,--comments', true)->isOptional()->isDescription()
+    ->select('-d,--description', true)->isOptional()->isDescription()
+    ->select('-e,--email', true)->isOptional()->isEmail()
+    ->select('-g,--gender', true)->isOptional()->isGender()
+    ->select('-l,--language', true)->isOptional()->isName()
+    ->select('-n,--name', true)->isOptional()->isName()
+    ->select('-p,--phones', true)->isOptional()->isPhones()
+    ->select('-t,--title', true)->isOptional()->isName()
+    ->select('-u,--accountname', true)->isOptional()->isDescription()->isName()
+    ->select('-w,--website', true)->isOptional()->isUrl()
+    ->select('--first-names')->isOptional()->isName()
+    ->select('--last-names')->isOptional()->isName()
+    ->select('--hostname', true)->isOptional()->isDomain()
+    ->select('--is-leader')->isOptional(false)->isBoolean()
+    ->select('--lead-by', true)->isOptional()->isEmail()
+    ->select('--timezone', true)->isOptional()->isTimezone()
+    ->select('--country', true)->isOptional()->isName()
+    ->select('--state', true)->isOptional()->isName()
+    ->select('--city', true)->isOptional()->isName()
+    ->select('--company', true)->isOptional()->isName()
+    ->select('--department', true)->isOptional()->isName()
+    ->select('--branch', true)->isOptional()->isName()
+    ->select('-r,--roles,--role', true)->isOptional()->sanitizeForceArray()->each()->isName()
+    ->noArgumentsLeft()
+    ->validate();
+
+
+
+try {
+    // Ensure that specified roles exist
+    if ($argv['roles']) {
+        foreach ($argv['roles'] as &$role) {
+            $role = Role::get($role);
+        }
+
+        unset($role);
+    }
+
+    // Modify account and save
+    $account = Account::get($argv['account'])
+        ->setEmail($argv['email'])
+        ->setFirstNames($argv['first_names'])
+        ->setLastNames($argv['last_names'])
+        ->setTitle($argv['title'])
+        ->setGender($argv['gender'])
+        ->setLanguage($argv['language'])
+        ->setDescription($argv['description'])
+        ->setComments($argv['comments'])
+        ->setAccountname($argv['accountname'])
+        ->setAddress($argv['address'])
+        ->setWebsite($argv['website'])
+        ->setPhones($argv['phones'])
+        ->setBirthday($argv['birthday'])
+        ->setTimezone($argv['timezone'])
+        ->setLeader($argv['lead_by'])
+        ->setIsLeader($argv['is_leader'])
+        ->setCountry($argv['country'])
+        ->setState($argv['state'])
+        ->setCity($argv['city'])
+        ->setCompany($argv['company'])
+        ->setBranch($argv['branch'])
+        ->setDepartment($argv['department'])
+        ->save();
+
+    // Set accounts roles
+    $account->roles()->set($argv['roles']);
+
+}catch (DataEntryNotExistsException $e) {
+    throw $e->makeWarning();
+}
+
+
+
+// Done!
+Log::success(tr('Modified account ":account"', [':account' => $account->getDisplayName()]));

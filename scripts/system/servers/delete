@@ -1,0 +1,45 @@
+#!/usr/bin/php
+<?php
+
+use Phoundation\Accounts\Servers\Server;
+use Phoundation\Cli\Documentation;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
+use Phoundation\Data\Validator\ArgvValidator;
+
+
+/**
+ * Script system/servers/delete
+ *
+ * This script can delete servers
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Scripts
+ */
+Documentation::usage('./cli system servers delete USER_EMAIL');
+
+Documentation::help('This script will delete the specified server. Note that deleted servers will not be removed from the database, 
+the status for the server will be updated to "deleted"
+
+
+
+ARGUMENTS
+
+
+
+USER_EMAIL                              The email address for the server to delete');
+
+
+
+// Validate arguments
+ArgvValidator::new()
+    ->select('server')->isEmail()
+    ->noArgumentsLeft()
+    ->validate();
+
+
+
+// Display server data
+Server::get($argv['server'])->delete();

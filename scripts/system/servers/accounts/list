@@ -1,0 +1,43 @@
+#!/usr/bin/php
+<?php
+
+use Phoundation\Cli\Documentation;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Servers\SshAccounts;
+
+
+/**
+ * Script system/servers/accounts/list
+ *
+ * This script will list the available accounts on this system
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Scripts
+ */
+Documentation::usage('./cli system servers accounts list [OPTIONS]
+./cli system servers accounts list -d -r god');
+
+Documentation::help('This script will list the available accounts on this system
+
+
+
+ARGUMENTS
+
+
+[-d / --deleted]                       Will also show deleted accounts');
+
+
+
+// Validate arguments
+ArgvValidator::new()
+    ->noArgumentsLeft()
+    ->validate();
+
+
+
+// Display the available SSH accounts
+SshAccounts::new()
+    ->addFilter('status', (DELETED ? 'deleted' : null))
+    ->CliDisplayTable();
