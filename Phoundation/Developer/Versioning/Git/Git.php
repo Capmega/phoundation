@@ -366,7 +366,7 @@ class Git extends Versioning
             ->clearArguments()
                 ->addArgument('apply')
                 ->addArgument('--ignore-whitespace')
-                ->addArgument('--ignore-whitespace')
+                ->addArgument('--ignore-space-change')
                 ->addArgument('--whitespace=nowarn')
             ->addArgument($patch_file)
             ->executeReturnArray();
