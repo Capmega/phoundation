@@ -113,9 +113,9 @@ class StatusFile
     /**
      * Generates a diff patch file for this file and returns the file name for the patch file
      *
-     * @return string
+     * @return string|null
      */
-    public function getPatchFile(): string
+    public function getPatchFile(): ?string
     {
         if ($this->target) {
             return Git::new(dirname($this->target))->saveDiff(basename($this->target));
@@ -138,8 +138,10 @@ class StatusFile
             // Create the patch file, apply it, delete it, done
             $patch_file = $this->getPatchFile();
 
-            Git::new($target_path)->apply($patch_file);
+            if ($patch_file) {
+                Git::new($target_path)->apply($patch_file);
 //            File::new($patch_file, Restrictions::new(PATH_TMP, true))->delete();
+            }
 
             return $this;
 

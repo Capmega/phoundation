@@ -160,9 +160,9 @@ class StatusFiles extends Iterator
     /**
      * Generates a diff patch file for this path and returns the file name for the patch file
      *
-     * @return string
+     * @return string|null
      */
-    public function getPatchFile(): string
+    public function getPatchFile(): ?string
     {
         return Git::new(dirname($this->path))->saveDiff(basename($this->path));
     }

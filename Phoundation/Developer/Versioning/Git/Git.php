@@ -334,16 +334,22 @@ class Git extends Versioning
     /**
      * Save the diff for the specified file to the specified target
      *
+     * @note Returns NULL if the specified file has no diff
      * @param string $file
-     * @return string
+     * @return string|null
      */
-    public function saveDiff(string $file): string
+    public function saveDiff(string $file): ?string
     {
-        $diff = $this->getDiff($file) . PHP_EOL;
-        $file = Path::getTemporary() . $file . '-' . sha1($file) . '.patch';
+        $diff = $this->getDiff($file);
 
-        file_put_contents($file, $diff);
-        return $file;
+        if ($diff) {
+            $file = Path::getTemporary() . $file . '-' . sha1($file) . '.patch';
+            file_put_contents($file, $diff . PHP_EOL);
+            return $file;
+        }
+
+        Log::warning(tr('File ":file" has no diff', [':file' => $file]));
+        return null;
     }
 
 
