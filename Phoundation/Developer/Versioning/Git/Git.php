@@ -364,7 +364,10 @@ class Git extends Versioning
     {
         $output = $this->git
             ->clearArguments()
-            ->addArgument('apply')
+                ->addArgument('apply')
+                ->addArgument('--ignore-whitespace')
+                ->addArgument('--ignore-whitespace')
+                ->addArgument('--whitespace=nowarn')
             ->addArgument($patch_file)
             ->executeReturnArray();
 
