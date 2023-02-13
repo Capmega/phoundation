@@ -145,10 +145,10 @@ class Meta
      *
      * @param string $action
      * @param string|null $comments
-     * @param array|null $data
+     * @param string|null $data
      * @return static
      */
-    public function action(string $action, ?string $comments = null, ?array $data = null): static
+    public function action(string $action, ?string $comments = null, ?string $data = null): static
     {
         // Insert the action in the meta_history table
         sql()->query('INSERT INTO `meta_history` (`meta_id`, `created_by`, `action`, `source`, `comments`, `data`) 
