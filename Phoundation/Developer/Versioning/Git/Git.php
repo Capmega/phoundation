@@ -357,17 +357,22 @@ class Git extends Versioning
     /**
      * Apply the specified patch to the specified target file
      *
-     * @param string $patch_file
+     * @param string|null $patch_file
      * @return static
      */
-    public function apply(string $patch_file): static
+    public function apply(?string $patch_file): static
     {
+        if (!$patch_file) {
+            Log::warning(tr('Ignoring empty patch filename'));
+        }
+
         $output = $this->git
             ->clearArguments()
-                ->addArgument('apply')
-                ->addArgument('--ignore-whitespace')
-                ->addArgument('--ignore-space-change')
-                ->addArgument('--whitespace=nowarn')
+            ->addArgument('apply')
+            ->addArgument('-v')
+            ->addArgument('--ignore-whitespace')
+            ->addArgument('--ignore-space-change')
+            ->addArgument('--whitespace=nowarn')
             ->addArgument($patch_file)
             ->executeReturnArray();
 
