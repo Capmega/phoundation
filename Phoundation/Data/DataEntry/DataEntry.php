@@ -118,6 +118,24 @@ abstract class DataEntry
      */
     public function __construct(DataEntry|string|int|null $identifier = null)
     {
+        if (empty(static::$entry_name)) {
+            throw new OutOfBoundsException(tr('No entry_name specified for class ":class"', [
+                ':class' => get_class($this)
+            ]));
+        }
+
+        if (empty($this->table)) {
+            throw new OutOfBoundsException(tr('No table specified for class ":class"', [
+                ':class' => get_class($this)
+            ]));
+        }
+
+        if (empty($this->unique_column)) {
+            throw new OutOfBoundsException(tr('No unique_column specified for class ":class"', [
+                ':class' => get_class($this)
+            ]));
+        }
+
         $this->setKeys();
 
         if ($identifier) {
