@@ -35,7 +35,7 @@ class SshAccounts extends DataList
         $this->entry_class = SshAccount::class;
         $this->table_name  = 'ssh_accounts';
 
-        $this->setHtmlQuery('SELECT   `id`, `name`, `code`, `hostname`, `port`, `created_on` 
+        $this->setHtmlQuery('SELECT   `id`, `name`, `created_on` 
                                    FROM     `ssh_accounts` 
                                    WHERE    `status` IS NULL 
                                    ORDER BY `name`');
@@ -110,7 +110,7 @@ class SshAccounts extends DataList
     {
         // Default columns
         if (!$columns) {
-            $columns = 'id,name,code,hostname,createdon';
+            $columns = 'id,name,created_on';
         }
 
         // Default ordering

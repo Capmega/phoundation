@@ -17,16 +17,16 @@ use Phoundation\Servers\SshAccounts;
  * @package Phoundation\Scripts
  */
 Documentation::usage('./cli system servers accounts list [OPTIONS]
-./cli system servers accounts list -d -r god');
+./cli system servers accounts list -D');
 
-Documentation::help('This script will list the available accounts on this system
+Documentation::help('This script will list the configured SSH accounts on this system
 
 
 
 ARGUMENTS
 
 
-[-d / --deleted]                       Will also show deleted accounts');
+[-D / --deleted]                       Will also show deleted accounts');
 
 
 

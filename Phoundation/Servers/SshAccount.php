@@ -27,6 +27,22 @@ class SshAccount extends DataEntry
 
 
     /**
+     * User class constructor
+     *
+     * @param int|string|null $identifier
+     */
+    public function __construct(int|string|null $identifier = null)
+    {
+        static::$entry_name  = 'SSH account';
+        $this->table         = 'ssh_accounts';
+        $this->unique_column = 'seo_name';
+
+        parent::__construct($identifier);
+    }
+
+
+
+    /**
      * Returns the ssh_key for this object
      *
      * @return string|null

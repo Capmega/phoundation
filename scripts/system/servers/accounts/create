@@ -2,13 +2,12 @@
 <?php
 
 use Phoundation\Accounts\Exception\AccountsException;
-use Phoundation\Accounts\Roles\Role;
-use Phoundation\Accounts\Accounts\Account;
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\Documentation;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Filesystem\File;
+use Phoundation\Servers\SshAccount;
 
 
 /**
@@ -21,10 +20,10 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./cli system servers accounts create EMAIL [OPTIONS]
-./cli system servers accounts create account@example.com -d "This is a test account"');
+Documentation::usage('./cli system servers accounts create [OPTIONS]
+./cli system servers accounts create -u phoundation -k KEYFILE -d "This is a test account"');
 
-Documentation::help('This script allows you to create SSH accounts
+Documentation::help('This script allows you to create SSH accounts.
 
 
 
@@ -32,155 +31,56 @@ ARGUMENTS
 
 
 
-EMAIL                                   The email address for the account
-
 -n / --name                             The name for the account
 
--r / --roles ROLE[,ROLE,ROLE]           A comma separated list of the roles that this account has on this system. The roles 
-                                        must already exist. These roles will grant the account rights which will give him 
-                                        or her access to the various parts of the system
+-u / --username USERNAME                The username for this SSH account
 
-[-g / --gender]
+[-i / --ssh-key-file FILENAME]          The SSH private key file. If not specified, the script will turn interactive and 
+                                        request you paste the contents of the private key file 
 
-[-t / --title]
-
-[-l / --language]
-
-[-d / --description]
-
-[-c / --comments]
-
-[-u / --accountname]
-
-[-a / --address]
-
-[-w / --website]
-
-[-p / --phones]
-
-[-b / --birthday]
-
-[-t / --timezone]
-
-[--hostname]
-
-[--lead-by]
-
-[--country]
-
-[--state]
-
-[--city]
-
-[--is-leader]                           If specified, this account will be registered as having a leadership position');
+[-d / --description]                    A description for this SSH account');
 
 
 
 // Validate arguments
 ArgvValidator::new()
-    ->select('email', true)->isEmail()
-    ->select('-a,--address', true)->isOptional()->hasMaxCharacters(255)->isPrintable()
-    ->select('-b,--birthday', true)->isOptional()->isDate()
-    ->select('-c,--comments', true)->isOptional()->isDescription()
-    ->select('-d,--description', true)->isOptional()->isDescription()
-    ->select('-g,--gender', true)->isOptional()->isGender()
-    ->select('-l,--language', true)->isName()
     ->select('-n,--name', true)->isName()
-    ->select('-p,--phones', true)->isOptional()->isPhones()
-    ->select('-t,--title', true)->isOptional()->isName()
-    ->select('-u,--accountname', true)->isOptional()->isDescription()->isName()
-    ->select('-w,--website', true)->isOptional()->isUrl()
-    ->select('--no-password')->isOptional(false)->isBoolean()
-    ->select('--first-names')->isOptional()->isName()
-    ->select('--last-names')->isOptional()->isName()
-    ->select('--timezone', true)->isOptional()->isTimezone()
-    ->select('--hostname', true)->isOptional()->isDomain()
-    ->select('--is-leader')->isOptional(false)->isBoolean()
-    ->select('--lead-by', true)->isOptional()->isEmail()
-    ->select('--country', true)->isOptional()->isName()
-    ->select('--state', true)->isOptional()->isName()
-    ->select('--city', true)->isOptional()->isName()
-    ->select('--company', true)->isOptional()->isName()
-    ->select('--department', true)->isOptional()->isName()
-    ->select('--branch', true)->isOptional()->isName()
-    ->select('-r,--roles,--role', true)->sanitizeForceArray()->each()->isName()
+    ->select('-u,--username', true)->isVariable()
+    ->select('-i,--ssh_key_file', true)->isOptional()->isFile()
+    ->select('-d,--description', true)->isOptional()->isDescription()
     ->noArgumentsLeft()
     ->validate();
 
 
 
 // Check if the account already exists
-if (Account::exists($argv['email'])) {
-    throw AccountsException::new(tr('Cannot create account with email ":email", it already exists', [
-        ':email' => $argv['email']
+if (SshAccount::exists($argv['name'])) {
+    throw AccountsException::new(tr('Cannot create SSH account with name ":name", it already exists', [
+        ':name' => $argv['name']
     ]))->makeWarning();
 }
 
 
 
-try {
-    // Ensure that specified roles exist
-    if ($argv['roles']) {
-        foreach ($argv['roles'] as &$role) {
-            $role = Role::get($role);
-        }
-
-        unset($role);
-    }
-
-}catch (DataEntryNotExistsException $e) {
-    throw $e->makeWarning();
-}
-
-
-
 // Add password for this account
-if (!$argv['no_password']) {
-    $argv['password']          = Cli::readPassword(tr('Please type the accounts password:'));
-    $argv['password_validate'] = Cli::readPassword(tr('Please re-type the accounts password:'));
+if ($argv['ssh_key_file']) {
+    File::new($argv['ssh_key_file'], $argv['ssh_key_file'])->ensureReadable();
+    $argv['ssh_key'] = file_get_contents($argv['ssh_key_file']);
+} else {
+    $argv['ssh_key'] = Cli::readPassword(tr('Please paste the private key here:'));
 }
 
 
 
 // Create account
-$account = Account::new()
-    ->setEmail($argv['email'])
-    ->setFirstNames($argv['first_names'])
-    ->setLastNames($argv['last_names'])
-    ->setTitle($argv['title'])
-    ->setGender($argv['gender'])
-    ->setLanguage($argv['language'])
+$account = SshAccount::new()
+    ->setName($argv['name'])
+    ->setUsername($argv['username'])
     ->setDescription($argv['description'])
-    ->setComments($argv['comments'])
-    ->setAccountname($argv['accountname'])
-    ->setAddress($argv['address'])
-    ->setUrl($argv['website'])
-    ->setPhones($argv['phones'])
-    ->setBirthday($argv['birthday'])
-    ->setTimezone($argv['timezone'])
-    ->setLeader($argv['lead_by'])
-    ->setIsLeader($argv['is_leader'])
-    ->setCountry($argv['country'])
-    ->setState($argv['state'])
-    ->setCity($argv['city'])
-    ->setCompany($argv['company'])
-    ->setBranch($argv['branch'])
-    ->setDepartment($argv['department'])
+    ->setSshKey($argv['ssh_key'])
     ->save();
 
 
 
-// Update the accounts password
-if (!$argv['no_password']) {
-    $account->setPassword($argv['password'], $argv['password_validate']);
-}
-
-
-
-// Set accounts roles
-$account->roles()->add($argv['roles']);
-
-
-
 // Done!
-Log::success(tr('Created new account ":account"', [':account' => $account->getDisplayName()]));
+Log::success(tr('Created new SSH account ":account"', [':account' => $account->getName()]));
