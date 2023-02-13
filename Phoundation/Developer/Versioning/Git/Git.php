@@ -364,19 +364,20 @@ class Git extends Versioning
     {
         if (!$patch_file) {
             Log::warning(tr('Ignoring empty patch filename'));
+        } else {
+            $output = $this->git
+                ->clearArguments()
+                ->addArgument('apply')
+                ->addArgument('-v')
+                ->addArgument('--ignore-whitespace')
+                ->addArgument('--ignore-space-change')
+                ->addArgument('--whitespace=nowarn')
+                ->addArgument($patch_file)
+                ->executeReturnArray();
+
+            Log::notice($output, 4, false);
         }
 
-        $output = $this->git
-            ->clearArguments()
-            ->addArgument('apply')
-            ->addArgument('-v')
-            ->addArgument('--ignore-whitespace')
-            ->addArgument('--ignore-space-change')
-            ->addArgument('--whitespace=nowarn')
-            ->addArgument($patch_file)
-            ->executeReturnArray();
-
-        Log::notice($output, 4, false);
         return $this;
     }
 
