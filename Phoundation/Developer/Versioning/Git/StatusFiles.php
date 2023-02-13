@@ -121,8 +121,10 @@ class StatusFiles extends Iterator
             // Create the patch file, apply it, delete it, done
             $patch_file = $this->getPatchFile();
 
-            Git::new($target_path)->apply($patch_file);
-            File::new($patch_file, Restrictions::new(PATH_TMP, true))->delete();
+            if ($patch_file) {
+                Git::new($target_path)->apply($patch_file);
+                File::new($patch_file, Restrictions::new(PATH_TMP, true))->delete();
+            }
 
             return $this;
 
