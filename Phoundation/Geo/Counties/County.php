@@ -27,6 +27,22 @@ class County extends DataEntry
 
 
     /**
+     * County class constructor
+     *
+     * @param int|string|null $identifier
+     */
+    public function __construct(int|string|null $identifier = null)
+    {
+        static::$entry_name  = 'geo county';
+        $this->table         = 'geo_counties';
+        $this->unique_column = 'seo_name';
+
+        parent::__construct($identifier);
+    }
+
+
+
+    /**
      * Returns the general timezone for this county
      *
      * @return Timezone

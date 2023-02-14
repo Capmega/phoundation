@@ -30,8 +30,9 @@ class Continent extends DataEntry
      */
     public function __construct(int|string|null $identifier = null)
     {
-        static::$entry_name = 'geo continent';
-        $this->table      = 'geo_continents';
+        static::$entry_name  = 'geo continent';
+        $this->table         = 'geo_continents';
+        $this->unique_column = 'seo_name';
 
         parent::__construct($identifier);
     }

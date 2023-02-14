@@ -22,6 +22,25 @@ class Feature extends DataEntry
 
 
 
+    /**
+     * Features class constructor
+     *
+     * @param int|string|null $identifier
+     */
+    public function __construct(int|string|null $identifier = null)
+    {
+        static::$entry_name  = 'geo feature';
+        $this->table         = 'geo_features';
+        $this->unique_column = 'seo_name';
+
+        parent::__construct($identifier);
+    }
+
+
+
+    /**
+     * @inheritDoc
+     */
     protected function setKeys(): void
     {
         // TODO: Implement setKeys() method.

@@ -28,6 +28,22 @@ class City extends DataEntry
 
 
     /**
+     * City class constructor
+     *
+     * @param int|string|null $identifier
+     */
+    public function __construct(int|string|null $identifier = null)
+    {
+        static::$entry_name  = 'city';
+        $this->table         = 'geo_cities';
+        $this->unique_column = 'seo_name';
+
+        parent::__construct($identifier);
+    }
+
+
+
+    /**
      * Returns the general timezone for this city
      *
      * @return Timezone
