@@ -521,6 +521,9 @@ class Project
         try {
             Log::information('Updating your project from a local Phoundation repository');
 
+            // Ensure that the local Phoundation has no changes
+            Phoundation::new()->ensureNoChanges();
+
             // Add all files to index to ensure everything will be stashed
             if ($this->git->getStatus()->getCount()) {
                 $this->git->add(PATH_ROOT);

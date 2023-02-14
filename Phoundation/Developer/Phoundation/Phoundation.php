@@ -197,7 +197,6 @@ class Phoundation extends Project
         $project->updateLocal($branch, $message, $sign);
 
         // Detect Phoundation installation and ensure its clean and on the right branch
-        $this->ensureNoChanges();
         $this->selectBranch($branch);
 
         try {
