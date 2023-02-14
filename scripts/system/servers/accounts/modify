@@ -27,7 +27,7 @@ Documentation::help('This script allows you to modify existing SSH accounts.
 
 
 
-ARGUMENTS
+ARGUMENTS (All arguments in square brackets are optional)
 
 
 
@@ -59,7 +59,7 @@ ArgvValidator::new()
 // Load account, ensure the new account name doesn't exist yet
 $account = SshAccount::get($argv['identifier']);
 
-SshAccount::exists($argv['name'], $account['id'], true);
+SshAccount::notExists($argv['name'], $account['id'], true);
 
 
 

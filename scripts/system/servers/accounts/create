@@ -27,7 +27,7 @@ Documentation::help('This script allows you to create SSH accounts.
 
 
 
-ARGUMENTS
+ARGUMENTS (All arguments in square brackets are optional)
 
 
 
@@ -46,7 +46,7 @@ ARGUMENTS
 ArgvValidator::new()
     ->select('-n,--name', true)->isName()
     ->select('-u,--username', true)->isVariable()
-    ->select('-i,--ssh_key_file', true)->isOptional()->isFile()
+    ->select('-i,--ssh-key-file', true)->isOptional()->isFile()
     ->select('-d,--description', true)->isOptional()->isDescription()
     ->noArgumentsLeft()
     ->validate();
@@ -54,11 +54,7 @@ ArgvValidator::new()
 
 
 // Check if the account already exists
-if (SshAccount::exists($argv['name'])) {
-    throw AccountsException::new(tr('Cannot create SSH account with name ":name", it already exists', [
-        ':name' => $argv['name']
-    ]))->makeWarning();
-}
+SshAccount::notExists($argv['name'], null, true);
 
 
 

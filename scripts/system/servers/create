@@ -2,8 +2,7 @@
 <?php
 
 use Phoundation\Accounts\Exception\AccountsException;
-use Phoundation\Accounts\Roles\Role;
-use Phoundation\Accounts\Servers\Server;
+use Phoundation\Servers\Server;
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\Documentation;
 use Phoundation\Core\Log\Log;
@@ -21,166 +20,100 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./cli system servers create EMAIL [OPTIONS]
-./cli system servers create server@example.com -d "This is a test server"');
+Documentation::usage('./cli system servers create [OPTIONS]
+./cli system servers create --name phoundation --hostname www.phoundation.org -d "This is a phoundation server" --port 22');
 
 Documentation::help('This script allows you to create servers
 
 
 
-ARGUMENTS
+ARGUMENTS (All arguments in square brackets are optional)
 
 
 
-EMAIL                                   The email address for the server
+-h / --hostname                         The hostname for this server
 
--n / --name                             The name for the server
+-p / --port                             The SSH port for this server
 
--r / --roles ROLE[,ROLE,ROLE]           A comma separated list of the roles that this server has on this system. The roles 
-                                        must already exist. These roles will grant the server rights which will give him 
-                                        or her access to the various parts of the system
+[-a / --account SSH_ACCOUNT_NAME]       The default SSH account for this server
 
-[-g / --gender]
+[-b / --bill-due-date DATE]             The next date when the bill for this server will be due
 
-[-t / --title]
+[-c / --code CODE]                      The identifying code for this server
 
-[-l / --language]
+[-d / --description DESCRIPTION]        The description for this server
 
-[-d / --description]
+[-e / --database-services]              If specified, this server will have database services available 
 
-[-c / --comments]
+[-i / --interval INTERVAL]              The payment interval for this server. Must be one of "hourly", "daily", 
+                                        "weekly", "monthly", "bimonthly", "quarterly", "semiannual", "annually", "none" 
+                                        ("none" is for servers that do not require regular payments, like an office 
+                                        server)
 
-[-u / --servername]
+[-m / --mail-services]                  If specified, this server will have email services available 
 
-[-a / --address]
+[-o / --os-name NAME]                   The name of the operating system running on this server. Must be one of  
+                                        "debian", "ubuntu", "redhat", "gentoo", "slackware", "linux", "windows", 
+                                        "freebsd", "macos", "other" (DEFAULT)
 
-[-w / --website]
+-r / --hostname HOSTNAME                The hostname for this server
 
-[-p / --phones]
+[-v / --os-version VERSION]             The version of the operating system running on this server
 
-[-b / --birthday]
+[-w / --web-services]                   If specified, this server will have HTTP web services available
 
-[-t / --timezone]
+[--cost COST]                           The cost, per interval, for this server
 
-[--hostname]
+[--category]                            The category for this server
 
-[--lead-by]
+[--provider]                            The provider for this server
 
-[--country]
+[--customer]                            The customer who uses this server
 
-[--state]
+[--country]                             The country where this server is located
 
-[--city]
+[--state]                               The state in the country where this server is located
 
-[--is-leader]                           If specified, this server will be registered as having a leadership position');
+[--city]                                The city in the state where this server is located');
 
 
 
 // Validate arguments
 ArgvValidator::new()
-    ->select('email', true)->isEmail()
-    ->select('-a,--address', true)->isOptional()->hasMaxCharacters(255)->isPrintable()
-    ->select('-b,--birthday', true)->isOptional()->isDate()
-    ->select('-c,--comments', true)->isOptional()->isDescription()
-    ->select('-d,--description', true)->isOptional()->isDescription()
-    ->select('-g,--gender', true)->isOptional()->isGender()
-    ->select('-l,--language', true)->isName()
-    ->select('-n,--name', true)->isName()
-    ->select('-p,--phones', true)->isOptional()->isPhones()
-    ->select('-t,--title', true)->isOptional()->isName()
-    ->select('-u,--servername', true)->isOptional()->isDescription()->isName()
-    ->select('-w,--website', true)->isOptional()->isUrl()
-    ->select('--no-password')->isOptional(false)->isBoolean()
-    ->select('--first-names')->isOptional()->isName()
-    ->select('--last-names')->isOptional()->isName()
-    ->select('--timezone', true)->isOptional()->isTimezone()
-    ->select('--hostname', true)->isOptional()->isDomain()
-    ->select('--is-leader')->isOptional(false)->isBoolean()
-    ->select('--lead-by', true)->isOptional()->isEmail()
-    ->select('--country', true)->isOptional()->isName()
-    ->select('--state', true)->isOptional()->isName()
-    ->select('--city', true)->isOptional()->isName()
-    ->select('--company', true)->isOptional()->isName()
-    ->select('--department', true)->isOptional()->isName()
-    ->select('--branch', true)->isOptional()->isName()
-    ->select('-r,--roles,--role', true)->sanitizeForceArray()->each()->isName()
+    ->select('-h,--hostname', true)->isDomain()
+    ->select('-p,--port', true)->isBetween(1, 65_535)
+    ->select('-a,--account', true)->isName()->isQueryColumn('SELECT `seo_name` FROM `ssh_accounts` WHERE `seo_name` = :seo_name AND `status` IS NULL', [':seo_name' => '$account'])
+    ->select('-b,--bill-due-date', true)->isOptional()->isDate()
+    ->select('-c,--code', true)->isOptional()->isAlphaNumeric()
+    ->select('-d,--description', true)->isOptional()->isPrintable()->hasMaxCharacters(65_530)
+    ->select('-e,--database-services')->isOptional()->isBoolean()
+    ->select('-i,--interval', true)->isOptional()->inArray(['hourly','daily','weekly','monthly','bimonthly','quarterly','semiannual','annually','none'])
+    ->select('-m,--mail-services')->isOptional()->isBoolean()
+    ->select('-o,--os-name', true)->isOptional()->inArray(['debian','ubuntu','redhat','gentoo','slackware','linux','windows','freebsd','macos','other'])
+    ->select('-s,--allow-sshd-modification')->isOptional()->isBoolean()
+    ->select('-v,--os-version', true)->isOptional()->isPrintable()
+    ->select('-w,--web-services')->isOptional()->isBoolean()
+    ->select('--categories-id', true)->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `categories` WHERE `id` = :id AND `status` IS NULL', [':id' => '$categories_id'])
+    ->select('--providers-id', true)->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `providers` WHERE `id` = :id AND `status` IS NULL', [':id' => '$providers_id'])
+    ->select('--customers-id', true)->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `customers` WHERE `id` = :id AND `status` IS NULL', [':id' => '$customers_id'])
+    ->select('--countries-id', true)->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':id' => '$countries_id'])
+    ->select('--states-id', true)->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_states` WHERE `id` = :id AND `countries_id` = :countries_id AND `status` IS NULL', [':id' => 'states_id', ':countries_id' => '$countries_id'])
+    ->select('--cities-id', true)->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_cities` WHERE `id` = :id AND `states_id`    = :states_id    AND `status` IS NULL', [':id' => 'cities_id', ':states_id'    => '$states_id'])
+    ->select('--cost', true)->isOptional()->isCurrency()
     ->noArgumentsLeft()
     ->validate();
 
 
 
 // Check if the server already exists
-if (Server::exists($argv['email'])) {
-    throw AccountsException::new(tr('Cannot create server with email ":email", it already exists', [
-        ':email' => $argv['email']
-    ]))->makeWarning();
-}
-
-
-
-try {
-    // Ensure that specified roles exist
-    if ($argv['roles']) {
-        foreach ($argv['roles'] as &$role) {
-            $role = Role::get($role);
-        }
-
-        unset($role);
-    }
-
-}catch (DataEntryNotExistsException $e) {
-    throw $e->makeWarning();
-}
-
-
-
-// Add password for this server
-if (!$argv['no_password']) {
-    $argv['password']          = Cli::readPassword(tr('Please type the servers password:'));
-    $argv['password_validate'] = Cli::readPassword(tr('Please re-type the servers password:'));
-}
+Server::notExists($argv['hostname'], null, true);
 
 
 
 // Create server
-$server = Server::new()
-    ->setEmail($argv['email'])
-    ->setFirstNames($argv['first_names'])
-    ->setLastNames($argv['last_names'])
-    ->setTitle($argv['title'])
-    ->setGender($argv['gender'])
-    ->setLanguage($argv['language'])
-    ->setDescription($argv['description'])
-    ->setComments($argv['comments'])
-    ->setServername($argv['servername'])
-    ->setAddress($argv['address'])
-    ->setUrl($argv['website'])
-    ->setPhones($argv['phones'])
-    ->setBirthday($argv['birthday'])
-    ->setTimezone($argv['timezone'])
-    ->setLeader($argv['lead_by'])
-    ->setIsLeader($argv['is_leader'])
-    ->setCountry($argv['country'])
-    ->setState($argv['state'])
-    ->setCity($argv['city'])
-    ->setCompany($argv['company'])
-    ->setBranch($argv['branch'])
-    ->setDepartment($argv['department'])
-    ->save();
-
-
-
-// Update the servers password
-if (!$argv['no_password']) {
-    $server->setPassword($argv['password'], $argv['password_validate']);
-}
-
-
-
-// Set servers roles
-$server->roles()->add($argv['roles']);
+$server = Server::new()->modify($argv)->save();
 
 
 
 // Done!
-Log::success(tr('Created new server ":server"', [':server' => $server->getDisplayName()]));
+Log::success(tr('Created new server ":server"', [':server' => $server->getHostName()]));

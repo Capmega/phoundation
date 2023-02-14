@@ -23,7 +23,7 @@ Documentation::help('This script will list the configured servers on this system
 
 
 
-ARGUMENTS
+ARGUMENTS (All arguments in square brackets are optional)
 
 
 [-D / --deleted]                       Will also show deleted servers');
