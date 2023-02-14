@@ -518,6 +518,33 @@ abstract class Validator
     /**
      * Validates the datatype for the selected field
      *
+     * This method ensures that the specified array key contains a currency value
+     *
+     * @return static
+     */
+    public function isCurrency(): static
+    {
+        return $this->validateValues(function(&$value) {
+            $this->isFloat();
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return;
+            }
+
+            if (!preg_match('^[\$£¤€₠₱]?(((\d{1,3})(,?\d{1,3})*)|(\d+))(\.\d{2})?$', $value)) {
+                if (!preg_match('^[\$£¤€₠₱]?(((\d{1,3})(\.?\d{1,3})*)|(\d+))(,\d{2})?$', $value)) {
+                    $this->addFailure(tr('must have a currency value'));
+                }
+            }
+        });
+    }
+
+
+
+    /**
+     * Validates the datatype for the selected field
+     *
      * This method ensures that the specified array key is a scalar value
      *
      * @return static
@@ -1087,23 +1114,112 @@ abstract class Validator
     /**
      * Validates that the selected field is a date
      *
+     * @note Regex taken from https://code.oursky.com/regex-date-currency-and-time-accurate-data-extraction/
      * @return static
      */
     public function isDate(): static
     {
         return $this->validateValues(function(&$value) {
-            $this->isString();
-            $this->hasMaxCharacters(64); // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+            $this->isString()->hasMaxCharacters(32); // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
 
-// TODO Implement
-//            if (!preg_match($regex, $value)) {
-//                $this->addFailure(tr('must match ":regex"', [':regex' => $regex]));
-//            }
+            // Must match regex
+            if (preg_match('/(?=((?:(?:(?:0[1-9]|1[0-2]|[1-9])(?:3[0-1]|0[1-9]|[1-2]d|[1-9])|(?:3[0-1]|0[1-9]|[1-2]d|[1-9])(?:0[1-9]|1[0-2]|[1-9]))(?:19|20)?d{2}(?!:)|(?:19|20)?d{2}(?:0[1-9]|1d|[1-9])(?:3[0-1]|0[1-9]|[1-2]d|[1-9](?!d)))))/', $value)) {
+                // Must be able to create date object without failure
+                try {
+                    if (strtotime($value) !== false) {
+                        return;
+                    }
+                    // Yeah, this is not a valid date
+
+                } catch (Throwable) {
+                    // Yeah, this is not a valid date
+                }
+            }
+
+            $this->addFailure(tr('must be a valid date'));
+        });
+    }
+
+
+
+    /**
+     * Validates that the selected field is a date
+     *
+     * @note Regex taken from https://code.oursky.com/regex-date-currency-and-time-accurate-data-extraction/
+     * @return static
+     */
+    public function isTime(): static
+    {
+        return $this->validateValues(function(&$value) {
+            $this->isString()->hasMaxCharacters(32); // Sort-of arbitrary max size, just to ensure regex won't receive a 2MB string
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return;
+            }
+
+            if (preg_match('(?=((?: |^)[0-2]?d[:. ]?[0-5]d(?:[:. ]?[0-5]d)?(?:[ ]?.?m?.?)?(?: |$))', $value)){
+                return;
+            }
+
+            $this->addFailure(tr('must be a valid time'));
+        });
+    }
+
+
+
+    /**
+     * Validates that the selected field is a credit card
+     *
+     *
+     * @note Card regexes taken from https://code.oursky.com/regex-date-currency-and-time-accurate-data-extraction/
+     * @note From the site: A huge disclaimer: Never depend your code on card regex. The reason behind is simple. Card
+     *       issuers carry on adding new card number patterns or removing old ones. You are likely to end up with
+     *       maintaining/debugging the regular expressions that way. It’s still fine to use them for visual effects,
+     *       like for identifying the card type on the screen.
+     * @return static
+     */
+    public function isCreditCard(): static
+    {
+        return $this->validateValues(function(&$value) {
+            $this->isString()->hasMaxCharacters(32); // Sort-of arbitrary max size, just to ensure regex won't receive a 2MB string
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return;
+            }
+
+            $cards = [
+                'Amex Card' => '^3[47][0-9]{13}$',
+                'BCGlobal' => '^(6541|6556)[0-9]{12}$',
+                'Carte Blanche Card' => '^389[0-9]{11}$',
+                'Diners Club Card' => '^3(?:0[0-5]|[68][0-9])[0-9]{11}$',
+                'Discover Card' => '^65[4-9][0-9]{13}|64[4-9][0-9]{13}|6011[0-9]{12}|(622(?:12[6-9]|1[3-9][0-9]|[2-8][0-9][0-9]|9[01][0-9]|92[0-5])[0-9]{10})$',
+                'Insta Payment Card' => '^63[7-9][0-9]{13}$',
+                'JCB Card' => '^(?:2131|1800|35d{3})d{11}$',
+                'KoreanLocalCard' => '^9[0-9]{15}$',
+                'Laser Card' => '^(6304|6706|6709|6771)[0-9]{12,15}$',
+                'Maestro Card' => '^(5018|5020|5038|6304|6759|6761|6763)[0-9]{8,15}$',
+                'Mastercard' => '^(5[1-5][0-9]{14}|2(22[1-9][0-9]{12}|2[3-9][0-9]{13}|[3-6][0-9]{14}|7[0-1][0-9]{13}|720[0-9]{12}))$',
+                'Solo Card' => '^(6334|6767)[0-9]{12}|(6334|6767)[0-9]{14}|(6334|6767)[0-9]{15}$',
+                'Switch Card' => '^(4903|4905|4911|4936|6333|6759)[0-9]{12}|(4903|4905|4911|4936|6333|6759)[0-9]{14}|(4903|4905|4911|4936|6333|6759)[0-9]{15}|564182[0-9]{10}|564182[0-9]{12}|564182[0-9]{13}|633110[0-9]{10}|633110[0-9]{12}|633110[0-9]{13}$',
+                'Union Pay Card' => '^(62[0-9]{14,17})$',
+                'Visa Card' => '^4[0-9]{12}(?:[0-9]{3})?$',
+                'Visa Master Card' => '^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14})$'
+            ];
+
+            foreach ($cards as $regex) {
+                if (preg_match($regex, $value)) {
+                    return;
+                }
+            }
+
+            $this->addFailure(tr('must be a valid credit card'));
         });
     }
 
@@ -1117,8 +1233,7 @@ abstract class Validator
     public function isTimezone(): static
     {
         return $this->validateValues(function(&$value) {
-            $this->isString();
-            $this->hasMaxCharacters(32); // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+            $this->isString()->hasMaxCharacters(32); // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
