@@ -1,10 +1,8 @@
 #!/usr/bin/php
 <?php
 
-use Phoundation\Accounts\Accounts\Account;
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Servers\SshAccount;
 
 
 /**
@@ -17,9 +15,9 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-$usage = './cli system servers accounts info USER';
+$usage = './cli system servers accounts info IDENTIFIER';
 
-$help  = 'This script displays information about the specified account.  
+$help  = 'This script displays information about the specified SSH account.  
 
 
 
@@ -27,30 +25,18 @@ ARGUMENTS
 
 
 
-USER                                    The account to display information about. Specify either by account id or email 
-                                        address';
+IDENTIFIER                              The SSH account to display information about. Specify either by account id or  
+                                        name';
 
 
 
 // Validate arguments
 ArgvValidator::new()
-    ->select('account')->hasMinCharacters(2)->hasMaxCharacters(255)
+    ->select('identifier')->hasMinCharacters(2)->hasMaxCharacters(255)
     ->noArgumentsLeft()
     ->validate();
 
 
 
-try {
-    // Display account data
-    Account::get($argv['account'])->getCliForm();
-
-    Log::information('Roles assigned to this account:');
-    Account::get($argv['account'])->roles()->CliDisplayTable();
-
-    Log::information('Roles assigned to this account through its roles:');
-    Account::get($argv['account'])->rights()->CliDisplayTable();
-
-
-}catch (DataEntryNotExistsException $e) {
-    throw $e->makeWarning();
-}
+// Display SSH account data
+SshAccount::get($argv['account'])->getCliForm();
