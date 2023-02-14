@@ -28,7 +28,7 @@ Documentation::help('This script allows you to create users
 
 
 
-ARGUMENTS
+ARGUMENTS (All arguments in square brackets are optional)
 
 
 
@@ -110,26 +110,17 @@ ArgvValidator::new()
 
 
 // Check if the user already exists
-if (User::exists($argv['email'])) {
-    throw AccountsException::new(tr('Cannot create user with email ":email", it already exists', [
-        ':email' => $argv['email']
-    ]))->makeWarning();
-}
+User::notExists($argv['email'], null, true);
 
 
 
-try {
-    // Ensure that specified roles exist
-    if ($argv['roles']) {
-        foreach ($argv['roles'] as &$role) {
-            $role = Role::get($role);
-        }
-
-        unset($role);
+// Ensure that specified roles exist
+if ($argv['roles']) {
+    foreach ($argv['roles'] as &$role) {
+        $role = Role::get($role);
     }
 
-}catch (DataEntryNotExistsException $e) {
-    throw $e->makeWarning();
+    unset($role);
 }
 
 

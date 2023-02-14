@@ -23,7 +23,7 @@ $help  = 'This script will list the available users on this system
 
 
 
-ARGUMENTS
+ARGUMENTS (All arguments in square brackets are optional)
 
 
 --domains DOMAIN[,DOMAIN,DOMAIN,...]    Will only display users for the specified domains

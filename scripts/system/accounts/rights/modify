@@ -24,7 +24,7 @@ $help  = 'This script allows you to create rights
 
 
 
-ARGUMENTS
+ARGUMENTS (All arguments in square brackets are optional)
 
 
 
@@ -47,7 +47,7 @@ ArgvValidator::new()
 // Get right, ensure new name doesn't exist yet, and modify it
 $right = Right::get($argv['right']);
 
-Right::exists($argv['name'], $right['id'], true);
+Right::notExists($argv['name'], $right['id'], true);
 
 $right->modify($argv)->save();
 

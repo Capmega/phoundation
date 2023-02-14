@@ -25,7 +25,7 @@ $help  = 'This script allows you to create roles
 
 
 
-ARGUMENTS
+ARGUMENTS (All arguments in square brackets are optional)
 
 
 
@@ -62,7 +62,7 @@ if ($argv['rights']) {
 // Load role, ensure the new name doesn't exist yet, then modify it, save it
 $role = Role::get($argv['role']);
 
-Role::exists($argv['name'], $role['id'], true);
+Role::notExists($argv['name'], $role['id'], true);
 
 $role->modify($argv)->save();
 

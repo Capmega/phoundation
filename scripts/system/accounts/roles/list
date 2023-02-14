@@ -23,7 +23,7 @@ $help  = 'This script will list the available roles on this system
 
 
 
-ARGUMENTS
+ARGUMENTS (All arguments in square brackets are optional)
 
 
 --deleted                               Will also show deleted roles

@@ -26,7 +26,7 @@ Documentation::help('This script allows you to create roles
 
 
 
-ARGUMENTS
+ARGUMENTS (All arguments in square brackets are optional)
 
 
 
@@ -47,26 +47,17 @@ ArgvValidator::new()
 
 
 // Check if the role already exists
-if (Role::exists($argv['name'])) {
-    throw AccountsException::new(tr('Cannot create role with name ":name", it already exists', [
-        ':name' => $argv['name']
-    ]))->makeWarning();
-}
+Role::notExists($argv['name'], null, true);
 
 
 
-try {
-    // Ensure that specified roles exist
-    if ($argv['rights']) {
-        foreach ($argv['rights'] as &$right) {
-            $right = Role::get($right);
-        }
-
-        unset($right);
+// Ensure that specified roles exist
+if ($argv['rights']) {
+    foreach ($argv['rights'] as &$right) {
+        $right = Role::get($right);
     }
 
-}catch (DataEntryNotExistsException $e) {
-    throw $e->makeWarning();
+    unset($right);
 }
 
 

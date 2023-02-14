@@ -25,7 +25,7 @@ $help  = 'This script allows you to modify users
 
 
 
-ARGUMENTS
+ARGUMENTS (All arguments in square brackets are optional)
 
 
 USER                                    The user to modify. Always specify users by their email addresses
@@ -121,7 +121,7 @@ if ($argv['roles']) {
 // Modify user and save
 $user = User::get($argv['user']);
 
-User::exists($argv['name'], $user['id'], true);
+User::notExists($argv['name'], $user['id'], true);
 
 $user->modfiy($argv)->save();
 

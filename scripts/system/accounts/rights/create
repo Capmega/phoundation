@@ -24,7 +24,7 @@ $help  = 'This script allows you to create rights
 
 
 
-ARGUMENTS
+ARGUMENTS (All arguments in square brackets are optional)
 
 
 NAME                                    The name for the right
@@ -43,11 +43,7 @@ ArgvValidator::new()
 
 
 // Check if the right already exists
-if (Right::exists($argv['name'])) {
-    throw AccountsException::new(tr('Cannot create right with name ":name", it already exists', [
-        ':name' => $argv['name']
-    ]))->makeWarning();
-}
+Right::notExists($argv['name'], null, true);
 
 
 
