@@ -436,7 +436,7 @@ class Core {
             ->select('-U,--usage')->isOptional(false)->isBoolean()
             ->select('-V,--verbose')->isOptional(false)->isBoolean()
             ->select('-W,--no-warnings')->isOptional(false)->isBoolean()
-            ->select('--language', true)->isOptional()->isCode()
+            ->select('--system-language', true)->isOptional()->isCode()
             ->select('--deleted')->isOptional(false)->isBoolean()
             ->select('--version')->isOptional(false)->isBoolean()
             ->select('--limit', true)->isOptional(0)->isNatural(true)
@@ -511,7 +511,7 @@ class Core {
             Log::setThreshold($argv['log_level']);
         }
 
-        if ($argv['language']) {
+        if ($argv['system_language']) {
             // Set language to be used
             if (isset($language)) {
                 $e = new CoreException(tr('Language has been specified twice'));
