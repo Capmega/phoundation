@@ -52,6 +52,22 @@ class Customer extends DataEntry
 
 
     /**
+     * Customer class constructor
+     *
+     * @param int|string|null $identifier
+     */
+    public function __construct(int|string|null $identifier = null)
+    {
+        static::$entry_name  = 'customer';
+        $this->table         = 'business_customers';
+        $this->unique_column = 'seo_name';
+
+        parent::__construct($identifier);
+    }
+
+
+
+    /**
      * Validates the customer record with the specified validator object
      *
      * @param Validator $validator
@@ -127,21 +143,6 @@ class Customer extends DataEntry
     public function setAddress3(?string $address3): static
     {
         return $this->setDataValue('address3', $address3);
-    }
-
-
-
-    /**
-     * Customer class constructor
-     *
-     * @param int|string|null $identifier
-     */
-    public function __construct(int|string|null $identifier = null)
-    {
-        static::$entry_name = 'customer';
-        $this->table      = 'business_customers';
-
-        parent::__construct($identifier);
     }
 
 

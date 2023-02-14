@@ -52,6 +52,22 @@ class Provider extends DataEntry
 
 
     /**
+     * Provider class constructor
+     *
+     * @param int|string|null $identifier
+     */
+    public function __construct(int|string|null $identifier = null)
+    {
+        static::$entry_name  = 'provider';
+        $this->table         = 'business_providers';
+        $this->unique_column = 'seo_name';
+
+        parent::__construct($identifier);
+    }
+
+
+
+    /**
      * Validates the provider record with the specified validator object
      *
      * @param Validator $validator
@@ -127,21 +143,6 @@ class Provider extends DataEntry
     public function setAddress3(?string $address3): static
     {
         return $this->setDataValue('address3', $address3);
-    }
-
-
-
-    /**
-     * Provider class constructor
-     *
-     * @param int|string|null $identifier
-     */
-    public function __construct(int|string|null $identifier = null)
-    {
-        static::$entry_name = 'provider';
-        $this->table      = 'business_providers';
-
-        parent::__construct($identifier);
     }
 
 

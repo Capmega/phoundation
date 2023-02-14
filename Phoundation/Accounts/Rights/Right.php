@@ -29,8 +29,9 @@ class Right extends DataEntry
      */
     public function __construct(int|string|null $identifier = null)
     {
-        static::$entry_name = 'right';
-        $this->table      = 'accounts_rights';
+        static::$entry_name  = 'right';
+        $this->table         = 'accounts_rights';
+        $this->unique_column = 'seo_name';
 
         parent::__construct($identifier);
     }
