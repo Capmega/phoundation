@@ -263,12 +263,46 @@ abstract class DataEntry
      *
      * @param string|int|null $identifier The unique identifier, but typically not the database id, usually the
      *                                    seo_email, or seo_name
-     * @param int|null $id                If specified, will ignore the found entry if it has this ID as it will be THIS
-     *                                    object
-     * @param bool $throw_exception       If true, instead of returning false will throw a DataEntryNotExistsException
+     * @param bool $throw_exception       If the entry does not exist, instead of returning false will throw a
+     *                                    DataEntryNotExistsException
      * @return bool
      */
-    public static function exists(string|int $identifier = null, ?int $id = null, bool $throw_exception = false): bool
+    public static function exists(string|int $identifier = null, bool $throw_exception = false): bool
+    {
+        if (!$identifier) {
+            throw new OutOfBoundsException(tr('Cannot check for ":type" type DataEntry, no identifier specified', [
+                ':type' => self::$entry_name
+            ]));
+        }
+
+        $exists = static::new($identifier)->getId();
+
+        if (!$exists) {
+            if ($throw_exception) {
+                throw new DataEntryAlreadyExistsException(tr('The ":type" type data entry with identifier ":id" already exists', [
+                    ':type' => self::$entry_name,
+                    ':id'   => $identifier
+                ]));
+            }
+        }
+
+        return (bool) $exists;
+    }
+
+
+
+    /**
+     * Returns true if an entry with the specified identifier does not exists
+     *
+     * @param string|int|null $identifier The unique identifier, but typically not the database id, usually the
+     *                                    seo_email, or seo_name
+     * @param int|null $id                If specified, will ignore the found entry if it has this ID as it will be THIS
+     *                                    object
+     * @param bool $throw_exception       If the entry exists (and does not match id, if specified), instead of
+     *                                    returning false will throw a DataEntryNotExistsException
+     * @return bool
+     */
+    public static function notExists(string|int $identifier = null, ?int $id = null, bool $throw_exception = false): bool
     {
         if (!$identifier) {
             throw new OutOfBoundsException(tr('Cannot check for ":type" type DataEntry, no identifier specified', [
@@ -279,27 +313,17 @@ abstract class DataEntry
         $exists = static::new($identifier)->getId();
 
         if ($exists) {
-            if ($id === $exists) {
-                // We're asking if the entry with the current ID exists, of course it does, so ignore.
-                return false;
+            if ($id !== $exists) {
+                if ($throw_exception) {
+                    throw new DataEntryAlreadyExistsException(tr('The ":type" type data entry with identifier ":id" already exists', [
+                        ':type' => self::$entry_name,
+                        ':id'   => $identifier
+                    ]));
+                }
             }
-
-            if ($throw_exception) {
-                throw new DataEntryAlreadyExistsException(tr('The ":type" type data entry with identifier ":id" already exists', [
-                    ':type' => self::$entry_name,
-                    ':id'   => $identifier
-                ]));
-            }
-
-        } elseif ($throw_exception) {
-            throw new DataEntryNotExistsException(tr('The ":type" type data entry with identifier ":id" does not exist', [
-                ':type' => self::$entry_name,
-                ':id'   => $identifier
-            ]));
         }
 
-
-        return $exists;
+        return !$exists;
     }
 
 
