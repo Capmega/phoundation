@@ -17,6 +17,10 @@ use Phoundation\Seo\Seo;
  */
 trait DataEntryNameDescription
 {
+    use DataEntryDescription;
+
+
+
     /**
      * Returns the SEO name for this object
      *
@@ -55,30 +59,5 @@ trait DataEntryNameDescription
         }
 
         return $this->setDataValue('name', $name);
-    }
-
-
-
-    /**
-     * Returns the description for this object
-     *
-     * @return string|null
-     */
-    public function getDescription(): ?string
-    {
-        return $this->getDataValue('description');
-    }
-
-
-
-    /**
-     * Sets the description for this object
-     *
-     * @param string|null $description
-     * @return static
-     */
-    public function setDescription(?string $description): static
-    {
-        return $this->setDataValue('description', $description);
     }
 }
