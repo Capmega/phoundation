@@ -9,6 +9,7 @@ use Phoundation\Developer\Phoundation\Exception\NotPhoundationException;
 use Phoundation\Developer\Phoundation\Exception\PhoundationNotFoundException;
 use Phoundation\Developer\Project\Project;
 use Phoundation\Developer\Versioning\Git\Exception\GitHasChangesException;
+use Phoundation\Developer\Versioning\Git\Git;
 use Phoundation\Developer\Versioning\Git\StatusFiles;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FileNotExistException;
@@ -182,32 +183,33 @@ class Phoundation extends Project
      */
     public function patch(?string $branch, ?string $message, ?bool $sign = null, bool $checkout = true): void
     {
+        if ($sign === null) {
+            $sign = Config::getBoolean('developer.phoundation.patch');
+        }
+
+        Log::information(tr('Patching branch ":branch" on your local Phoundation repository from this project', [
+            ':branch' => $branch
+        ]));
+
+        // Update the local project
+        $sections = ['Phoundation', 'scripts'];
+        $project  = Project::new();
+        $project->updateLocal($branch, $message, $sign);
+
+        // Detect Phoundation installation and ensure its clean and on the right branch
+        $this->ensureNoChanges();
+        $this->selectBranch($branch);
+
         try {
-            if ($sign === null) {
-                $sign = Config::getBoolean('developer.phoundation.patch');
+            // Execute the patching
+            foreach ($sections as $section) {
+                // Patch phoundation target section and remove the changes locally
+                StatusFiles::new(PATH_ROOT . $section)->patch($this->getPath() . $section);
             }
 
-            Log::information(tr('Patching branch ":branch" on your local Phoundation repository from this project', [
-                ':branch' => $branch
-            ]));
-
-            // Update the local project
-            $project = Project::new();
-            $project->updateLocal($branch, $message, $sign);
-
-            // Detect Phoundation installation and ensure its clean and on the right branch
-            $this->ensureNoChanges();
-            $this->selectBranch($branch);
-
-            // Execute the patching
-            foreach (['Phoundation', 'scripts'] as $section) {
-                // Patch target and remove the changes locally
-                $files = StatusFiles::new(PATH_ROOT . $section)->patch($this->getPath() . $section);
-
-                if ($checkout) {
-                    // Checkout files locally so that these changes are removed from the local project
-                    $files->getGit()->checkout(PATH_ROOT . $section);
-                }
+            if ($checkout) {
+                // Checkout files locally so that these changes are removed from the local project
+                Git::new(PATH_ROOT)->checkout($sections);
             }
 
             if ($this->phoundation_branch) {

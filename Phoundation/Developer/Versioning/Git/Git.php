@@ -203,17 +203,17 @@ class Git extends Versioning
 
 
     /**
-     * Checks out the specified branch for this git path
+     * Checks out the specified branches or paths for this git path
      *
-     * @param string $branch_or_path
+     * @param array|string $branches_or_paths
      * @return static
      */
-    public function checkout(string $branch_or_path): static
+    public function checkout(array|string $branches_or_paths): static
     {
         $output = $this->git
             ->clearArguments()
             ->addArgument('checkout')
-            ->addArgument($branch_or_path)
+            ->addArguments($branches_or_paths)
             ->executeReturnArray();
 
         Log::notice($output, 4, false);
@@ -315,17 +315,17 @@ class Git extends Versioning
     /**
      * Get a diff for the specified file
      *
-     * @param string|null $file
+     * @param array|string|null $files
      * @return string
      */
-    public function getDiff(?string $file = null): string
+    public function getDiff(array|string|null $files = null): string
     {
         return $this->git
             ->clearArguments()
             ->addArgument('diff')
             ->addArgument('--no-color')
             ->addArgument('--')
-            ->addArgument($file ? $this->path . $file : null)
+            ->addArguments($files)
             ->executeReturnString();
     }
 
@@ -335,20 +335,20 @@ class Git extends Versioning
      * Save the diff for the specified file to the specified target
      *
      * @note Returns NULL if the specified file has no diff
-     * @param string $file
+     * @param array|string $files
      * @return string|null
      */
-    public function saveDiff(string $file): ?string
+    public function saveDiff(array|string $files): ?string
     {
-        $diff = $this->getDiff($file);
+        $diff = $this->getDiff($files);
 
         if ($diff) {
-            $file = Path::getTemporary() . $file . '-' . sha1($file) . '.patch';
+            $file = Path::getTemporary() . sha1(Strings::force($files, '-')) . '.patch';
             file_put_contents($file, $diff . PHP_EOL);
             return $file;
         }
 
-        Log::warning(tr('File ":file" has no diff', [':file' => $file]));
+        Log::warning(tr('Files ":files" has / have no diff', [':files' => $files]));
         return null;
     }
 
