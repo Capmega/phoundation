@@ -200,7 +200,7 @@ showdie($plugin_name);
             ],
             'status' => [
                 'disabled' => true,
-                'default' => tr('Ok'),
+                'display_default' => tr('Ok'),
                 'label' => tr('Status')
             ],
             'name' => [

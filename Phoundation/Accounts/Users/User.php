@@ -375,7 +375,7 @@ class User extends DataEntry
      */
     public function setAuthenticationFailures(?int $authentication_failures): static
     {
-        return $this->setDataValue('authentication_failures', $authentication_failures);
+        return $this->setDataValue('authentication_failures', (int) $authentication_failures);
     }
 
 
@@ -1007,7 +1007,7 @@ class User extends DataEntry
         }
 
         if (empty($this->data['email'])) {
-            throw new OutOfBoundsException(tr('Cannot set password for this user, it has no password'));
+            throw new OutOfBoundsException(tr('Cannot set password for this user, it has no email address'));
         }
 
         // Is the password secure?
@@ -1315,6 +1315,7 @@ class User extends DataEntry
     /**
      * Save the user to database
      *
+     * @param string|null $comments
      * @return static
      */
     public function save(?string $comments = null): static
@@ -1498,37 +1499,40 @@ class User extends DataEntry
                 'label'    => tr('Meta information')
             ],
             'status' => [
-                'disabled' => true,
-                'default'  => tr('Ok'),
-                'label'    => tr('Status')
+                'disabled'        => true,
+                'display_default' => tr('Ok'),
+                'label'           => tr('Status')
             ],
             'meta_state' => [
                 'visible' => false,
             ],
             'last_sign_in' => [
-                'disabled'  => true,
-                'type'      => 'date',
-                'null_type' => 'text',
-                'default'   => '-',
-                'label'     => tr('Last sign in')
+                'disabled'        => true,
+                'type'            => 'date',
+                'null_type'       => 'text',
+                'display_default' => '-',
+                'label'           => tr('Last sign in')
             ],
             'authentication_failures' => [
-                'disabled' => true,
-                'db_null'  => false,
-                'type'     => 'numeric',
-                'label'    => tr('Authentication failures')
+                'disabled'        => true,
+                'db_null'         => false,
+                'type'            => 'numeric',
+                'default'         => 0,
+                'display_default' => 0,
+                'label'           => tr('Authentication failures')
             ],
             'locked_until' => [
                 'disabled'  => true,
                 'type'      => 'date',
                 'null_type' => 'text',
-                'default'   => '-',
+                'display_default'   => '-',
                 'label'     => tr('Locked until')
             ],
             'sign_in_count' => [
                 'disabled' => true,
                 'db_null'  => false,
                 'type'     => 'numeric',
+                'default'  => 0,
                 'label'    => tr('Sign in count')
             ],
             'username' => [
@@ -1586,7 +1590,7 @@ class User extends DataEntry
                 'disabled'  => true,
                 'type'      => 'date',
                 'null_type' => 'text',
-                'default'   => tr('Not verified'),
+                'display_default'   => tr('Not verified'),
                 'label'     => tr('Account verified on'),
             ],
             'priority' => [

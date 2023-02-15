@@ -111,6 +111,20 @@ abstract class DataEntry
      */
     protected ?string $diff = null;
 
+    /**
+     * These keys should not be processed
+     *
+     * @var array $no_process_keys
+     */
+    protected array $no_process_keys = [
+        'id',
+        'created_by',
+        'created_on',
+        'status',
+        'meta_id',
+    ];
+
+
 
     /**
      * DataEntry class constructor
@@ -651,19 +665,11 @@ abstract class DataEntry
 
         foreach ($data as $key => $value) {
             // These keys cannot be set through setData()
-            switch ($key) {
-                case 'id':
-                    // no-break
-                case 'created_by':
-                    // no-break
-                case 'created_on':
-                    // no-break
-                case 'status':
-                    // no-break
-                case 'meta_id':
-                    // Go to next key
-                    continue 2;
+            if (in_array($key, $this->no_process_keys)) {
+                continue;
+            }
 
+            switch ($key) {
                 case 'password':
                     if ($modify) {
                         continue 2;
@@ -955,6 +961,9 @@ abstract class DataEntry
             $this->setDiff(null);
         }
 
+        // Apply defaults
+        $this->applyDefaults();
+
         // Write the entry
         $this->data['id'] = sql()->write($this->table, $this->getInsertColumns(), $this->getUpdateColumns(), $comments, $this->diff);
 
@@ -1065,6 +1074,28 @@ abstract class DataEntry
 
             // TODO Add more validations
         }
+    }
+
+
+
+    /**
+     * Apply defaults to this objects according to the key configuration
+     *
+     * @return $this
+     */
+    protected function applyDefaults(): static
+    {
+        foreach ($this->keys as $key => $configuration) {
+            if (in_array($key, $this->no_process_keys)) {
+                continue;
+            }
+
+            if (!isset($this->data[$key])) {
+                $this->data[$key] = isset_get($configuration['default']);
+            }
+        }
+
+        return $this;
     }
 
 

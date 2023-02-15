@@ -125,7 +125,7 @@ class Role extends DataEntry
             ],
             'status' => [
                 'disabled' => true,
-                'default'  => tr('Ok'),
+                'display_default' => tr('Ok'),
                 'label'    => tr('Status')
             ],
             'meta_state' => [

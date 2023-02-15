@@ -226,7 +226,7 @@ class Incident extends DataEntry
             ],
             'status' => [
                 'disabled' => true,
-                'default'  => tr('Ok'),
+                'display_default' => tr('Ok'),
                 'label'    => tr('Status')
             ],
             'meta_state' => [
@@ -248,7 +248,7 @@ class Incident extends DataEntry
             'type' => [
                 'disabled'  => true,
                 'null_type' => 'text',
-                'default'   => tr('Unknown'),
+                'display_default' => tr('Unknown'),
                 'label'     => tr('Incident type')
             ],
             'title' => [

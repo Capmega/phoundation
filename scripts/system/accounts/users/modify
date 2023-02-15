@@ -82,15 +82,16 @@ ArgvValidator::new()
     ->select('-c,--comments', true)->isOptional()->isDescription()
     ->select('-d,--description', true)->isOptional()->isDescription()
     ->select('-e,--email', true)->isOptional()->isEmail()
+    ->select('-f,--first-names')->isOptional()->isName()
+    ->select('-n,--last-names')->isOptional()->isName()
     ->select('-g,--gender', true)->isOptional()->isGender()
     ->select('-l,--language', true)->isOptional()->isName()
-    ->select('-n,--name', true)->isOptional()->isName()
     ->select('-p,--phones', true)->isOptional()->isPhones()
     ->select('-t,--title', true)->isOptional()->isName()
     ->select('-u,--username', true)->isOptional()->isDescription()->isName()
     ->select('--url', true)->isOptional()->isUrl()
-    ->select('--first-names')->isOptional()->isName()
-    ->select('--last-names')->isOptional()->isName()
+    ->select('--first-names', true)->isOptional()->isName()
+    ->select('--last-names', true)->isOptional()->isName()
     ->select('--domain', true)->isOptional()->isDomain()
     ->select('--is-leader')->isOptional(false)->isBoolean()
     ->select('--lead-by', true)->isOptional()->isEmail()
@@ -121,7 +122,7 @@ if ($argv['roles']) {
 // Modify user and save
 $user = User::get($argv['user']);
 
-User::notExists($argv['name'], $user['id'], true);
+User::notExists($argv['email'], $user->getId(), true);
 
 $user->modfiy($argv)->save();
 
