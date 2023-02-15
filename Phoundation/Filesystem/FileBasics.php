@@ -12,7 +12,7 @@ use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\PathNotExistsException;
 use Phoundation\Processes\Exception\ProcessesException;
 use Phoundation\Processes\Process;
-use Phoundation\Servers\UsesServer;
+use Phoundation\Servers\Traits\UsesServer;
 use Throwable;
 
 

@@ -338,7 +338,7 @@ class Rights extends DataList
 
         // Build query
         $builder = new QueryBuilder();
-        $builder->addSelect(' SELECT ' . $columns);
+        $builder->addSelect('SELECT ' . $columns);
         $builder->addFrom('FROM `accounts_rights`');
 
         // Add ordering

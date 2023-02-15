@@ -2,8 +2,7 @@
 
 namespace Phoundation\Content\Images;
 
-use Phoundation\Servers\UsesServer;
-
+use Phoundation\Servers\Traits\UsesServer;
 
 
 /**
