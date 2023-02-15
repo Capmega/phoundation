@@ -526,6 +526,20 @@ abstract class DataEntry
 
 
     /**
+     * Create the data for this object with the new specified data
+     *
+     * @param array|null $data
+     * @return static
+     * @throws OutOfBoundsException
+     */
+    public function create(?array &$data): static
+    {
+        return $this->setDiff($data)->setData($data);
+    }
+
+
+
+    /**
      * Modify the data for this object with the new specified data
      *
      * @param array|null $data
@@ -534,6 +548,7 @@ abstract class DataEntry
      */
     public function modify(?array &$data): static
     {
+        // Check meta state
         if ($this->getMetaState()) {
             if (isset_get($data['meta_state']) !== $this->getMetaState()) {
                 // State mismatch! This means that somebody else updated this record while we were modifying it.
@@ -617,8 +632,8 @@ abstract class DataEntry
     /**
      * Sets all data for this data entry at once with an array of information
      *
-     * @param array|null $data
-     * @param bool $modify
+     * @param array|null $data The data for this DataEntry object
+     * @param bool $modify     If true, then
      * @return static
      */
     protected function setData(?array $data, bool $modify = false): static
