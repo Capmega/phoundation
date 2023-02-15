@@ -1568,6 +1568,7 @@ class User extends DataEntry
                 'label'    => tr('Type')
             ],
             'email' => [
+                'required' => true,
                 'type'     => 'email',
                 'label'    => tr('Email address')
             ],

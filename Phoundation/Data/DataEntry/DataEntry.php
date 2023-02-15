@@ -1091,6 +1091,12 @@ abstract class DataEntry
             }
 
             if (!isset($this->data[$key])) {
+                if (isset_get($configuration['required'])) {
+                    throw new OutOfBoundsException(tr('Required field ":field" has not been set', [
+                        ':field' => $key
+                    ]));
+                }
+
                 $this->data[$key] = isset_get($configuration['default']);
             }
         }
