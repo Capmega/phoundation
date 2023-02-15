@@ -120,7 +120,10 @@ class StatusFiles extends Iterator
         try {
             // Add all paths to index, create the patch file, apply it, delete it, done
             $this->getGit()->add();
+
             $patch_file = $this->getPatchFile(true);
+
+            $this->getGit()->reset('HEAD');
 
             if ($patch_file) {
                 Git::new($target_path)->apply($patch_file);
