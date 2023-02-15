@@ -4,7 +4,6 @@ namespace Phoundation\Developer\Incidents;
 
 use Phoundation\Accounts\Users\Users;
 use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\DataEntryData;
 use Phoundation\Data\DataEntry\Traits\DataEntryDetails;
 use Phoundation\Data\DataEntry\Traits\DataEntryException;
 use Phoundation\Data\DataEntry\Traits\DataEntryTitleDescription;
