@@ -118,8 +118,9 @@ class StatusFiles extends Iterator
     public function patch(string $target_path): static
     {
         try {
-            // Create the patch file, apply it, delete it, done
-            $patch_file = $this->getPatchFile();
+            // Add all paths to index, create the patch file, apply it, delete it, done
+            $this->getGit()->add();
+            $patch_file = $this->getPatchFile(true);
 
             if ($patch_file) {
                 Git::new($target_path)->apply($patch_file);
@@ -162,11 +163,12 @@ class StatusFiles extends Iterator
     /**
      * Generates a diff patch file for this path and returns the file name for the patch file
      *
+     * @param bool $cached
      * @return string|null
      */
-    public function getPatchFile(): ?string
+    public function getPatchFile(bool $cached = false): ?string
     {
-        return Git::new(dirname($this->path))->saveDiff(basename($this->path));
+        return Git::new(dirname($this->path))->saveDiff(basename($this->path), $cached);
     }
 
 

@@ -247,11 +247,15 @@ class Git extends Versioning
     /**
      * Apply the specified patch to the specified target file
      *
-     * @param array|string $files
+     * @param array|string|null $files
      * @return static
      */
-    public function add(array|string $files): static
+    public function add(array|string|null $files = null): static
     {
+        if (!$files) {
+            $files = '.';
+        }
+
         $output = $this->git
             ->clearArguments()
             ->addArgument('add')
@@ -316,14 +320,16 @@ class Git extends Versioning
      * Get a diff for the specified file
      *
      * @param array|string|null $files
+     * @param bool $cached
      * @return string
      */
-    public function getDiff(array|string|null $files = null): string
+    public function getDiff(array|string|null $files = null, bool $cached = false): string
     {
         return $this->git
             ->clearArguments()
             ->addArgument('diff')
             ->addArgument('--no-color')
+            ->addArgument($cached ? '--cached' : null)
             ->addArgument('--')
             ->addArguments($files)
             ->executeReturnString();
@@ -335,12 +341,15 @@ class Git extends Versioning
      * Save the diff for the specified file to the specified target
      *
      * @note Returns NULL if the specified file has no diff
+     *
+     *
      * @param array|string $files
+     * @param bool $cached
      * @return string|null
      */
-    public function saveDiff(array|string $files): ?string
+    public function saveDiff(array|string $files, bool $cached = false): ?string
     {
-        $diff = $this->getDiff($files);
+        $diff = $this->getDiff($files, $cached);
 
         if ($diff) {
             $file = Path::getTemporary() . sha1(Strings::force($files, '-')) . '.patch';
