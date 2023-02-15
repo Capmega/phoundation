@@ -134,30 +134,7 @@ if (!$argv['no_password']) {
 
 
 // Create user
-$user = User::new()
-    ->setEmail($argv['email'])
-    ->setFirstNames($argv['first_names'])
-    ->setLastNames($argv['last_names'])
-    ->setTitle($argv['title'])
-    ->setGender($argv['gender'])
-    ->setLanguage($argv['language'])
-    ->setDescription($argv['description'])
-    ->setComments($argv['comments'])
-    ->setUsername($argv['username'])
-    ->setAddress($argv['address'])
-    ->setUrl($argv['website'])
-    ->setPhones($argv['phones'])
-    ->setBirthday($argv['birthday'])
-    ->setTimezone($argv['timezone'])
-    ->setLeader($argv['lead_by'])
-    ->setIsLeader($argv['is_leader'])
-    ->setCountry($argv['country'])
-    ->setState($argv['state'])
-    ->setCity($argv['city'])
-    ->setCompany($argv['company'])
-    ->setBranch($argv['branch'])
-    ->setDepartment($argv['department'])
-    ->save();
+$user = User::new()->create($argv)->save();
 
 
 

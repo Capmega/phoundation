@@ -111,7 +111,7 @@ Server::notExists($argv['hostname'], null, true);
 
 
 // Create server
-$server = Server::new()->modify($argv)->save();
+$server = Server::new()->create($argv)->save();
 
 
 

@@ -1,11 +1,9 @@
 #!/usr/bin/php
 <?php
 
-use Phoundation\Accounts\Exception\AccountsException;
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Cli\Documentation;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
 
 
@@ -63,10 +61,7 @@ if ($argv['rights']) {
 
 
 // Create role and save it
-$role = Role::new()
-    ->setName($argv['name'])
-    ->setDescription($argv['description'])
-    ->save();
+$role = Role::new()->create($argv)->save();
 
 
 

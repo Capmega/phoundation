@@ -110,12 +110,12 @@ class Servers extends DataList
     {
         // Default columns
         if (!$columns) {
-            $columns = 'id,name,hostname,port,created_on';
+            $columns = 'id,hostname,port,created_on';
         }
 
         // Default ordering
         if (!$order_by) {
-            $order_by = ['name' => false];
+            $order_by = ['hostname' => false];
         }
 
         // Get column information
@@ -124,7 +124,7 @@ class Servers extends DataList
 
         // Build query
         $builder = new QueryBuilder();
-        $builder->addSelect(' SELECT ' . $columns);
+        $builder->addSelect('SELECT ' . $columns);
         $builder->addFrom('FROM `servers`');
 
         // Add ordering

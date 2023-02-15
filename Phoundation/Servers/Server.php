@@ -48,7 +48,7 @@ class Server extends DataEntry
     {
         static::$entry_name  = 'server';
         $this->table         = 'servers';
-        $this->unique_column = 'hostname';
+        $this->unique_column = 'seo_hostname';
 
         parent::__construct($identifier);
     }
@@ -383,13 +383,6 @@ class Server extends DataEntry
             'meta_state' => [
                 'visible' => false,
             ],
-            'name' => [
-                'maxlength' => 64,
-                'label'     => tr('Name')
-            ],
-            'seo_name' => [
-                'visible' => false,
-            ],
             'hostname' => [
                 'maxlength' => 128,
                 'type'      => 'domain',
@@ -530,7 +523,6 @@ class Server extends DataEntry
             'created_on'              => 3,
             'status'                  => 3,
             'code'                    => 4,
-            'name'                    => 4,
             'accounts_id'             => 4,
             'hostname'                => 8,
             'port'                    => 4,

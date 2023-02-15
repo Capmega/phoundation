@@ -124,7 +124,7 @@ class SshAccounts extends DataList
 
         // Build query
         $builder = new QueryBuilder();
-        $builder->addSelect(' SELECT ' . $columns);
+        $builder->addSelect('SELECT ' . $columns);
         $builder->addFrom('FROM `ssh_accounts`');
 
         // Add ordering

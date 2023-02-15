@@ -523,7 +523,7 @@ function s_get_tables($tables, $databases) {
                  */
                 $tables = sql_in($tables, ':table');
                 $in     = array_merge($databases, $tables);
-                $tables = sql_query(' SELECT CONCAT(`TABLE_SCHEMA`, `TABLE_NAME`) AS `id`, `TABLE_SCHEMA`, `TABLE_NAME` FROM `information_schema`.`TABLES` WHERE `TABLE_SCHEMA` IN ('.implode(',', array_keys($databases)).') AND `TABLE_NAME` IN ('.implode(',', array_keys($tables)).')  GROUP BY `TABLE_SCHEMA`, `TABLE_NAME` ORDER BY `TABLE_SCHEMA` ASC, `TABLE_NAME` ASC', $in, null, $connector);
+                $tables = sql_query('SELECT CONCAT(`TABLE_SCHEMA`, `TABLE_NAME`) AS `id`, `TABLE_SCHEMA`, `TABLE_NAME` FROM `information_schema`.`TABLES` WHERE `TABLE_SCHEMA` IN ('.implode(',', array_keys($databases)).') AND `TABLE_NAME` IN ('.implode(',', array_keys($tables)).')  GROUP BY `TABLE_SCHEMA`, `TABLE_NAME` ORDER BY `TABLE_SCHEMA` ASC, `TABLE_NAME` ASC', $in, null, $connector);
 
             } else {
                 /*
