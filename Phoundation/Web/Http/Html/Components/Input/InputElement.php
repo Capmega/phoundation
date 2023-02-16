@@ -83,7 +83,7 @@ trait InputElement
      */
     public function setValue(string|null $value): static
     {
-        $this->value = $value;
+        $this->value = htmlspecialchars((string) $value);
         return $this;
     }
 

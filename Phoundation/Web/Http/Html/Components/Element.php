@@ -97,7 +97,7 @@ abstract class Element
 
         $render_function = function () {
             $attributes  = $this->buildAttributes();
-            $attributes  = Arrays::implodeWithKeys($attributes, ' ', '=', '"', Arrays::FILTER_NULL | Arrays::QUOTE_ALWAYS | Arrays::HIDE_EMPTY_VALUES);
+            $attributes  = Arrays::implodeWithKeys($attributes, ' ', '=', '"', Arrays::FILTER_NULL | Arrays::QUOTE_ALWAYS | Arrays::FILTER_NULL);
             $attributes .= $this->extra;
 
             if ($attributes) {

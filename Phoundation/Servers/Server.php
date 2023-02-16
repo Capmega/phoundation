@@ -353,36 +353,6 @@ class Server extends DataEntry
     protected function setKeys(): void
     {
         $this->keys = [
-            'id' => [
-                'disabled' => true,
-                'type'     => 'numeric',
-                'label'    => tr('Database ID')
-            ],
-            'created_on' => [
-                'disabled'  => true,
-                'type'      => 'text',
-                'label'     => tr('Created on')
-            ],
-            'created_by' => [
-                'element'  => function (string $key, array $data, array $source) {
-                    return Users::getHtmlSelect($key)
-                        ->setSelected(isset_get($source['created_by']))
-                        ->setDisabled(true)
-                        ->render();
-                },
-                'label'    => tr('Created by')
-            ],
-            'meta_id' => [
-                'visible' => false,
-            ],
-            'status' => [
-                'disabled' => true,
-                'display_default' => tr('Ok'),
-                'label'    => tr('Status')
-            ],
-            'meta_state' => [
-                'visible' => false,
-            ],
             'hostname' => [
                 'maxlength' => 128,
                 'type'      => 'domain',
@@ -522,10 +492,6 @@ class Server extends DataEntry
         ];
 
         $this->keys_display = [
-            'id'                      => 3,
-            'created_by'              => 3,
-            'created_on'              => 3,
-            'status'                  => 3,
             'code'                    => 4,
             'accounts_id'             => 4,
             'hostname'                => 8,
@@ -547,5 +513,7 @@ class Server extends DataEntry
             'allow_sshd_modification' => 3,
             'description'             => 12,
         ] ;
+
+        parent::setKeys();
     }
 }

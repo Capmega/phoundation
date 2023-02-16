@@ -1,7 +1,8 @@
 <?php
 
-use Phoundation\Accounts\Rights\Right;
 use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Security\Incidents\Incident;
+use Phoundation\Web\Http\Html\Components\Buttons;
 use Phoundation\Web\Http\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
@@ -18,11 +19,12 @@ GetValidator::new()
 
 
 // Build the page content
-$right = Right::get($_GET['id']);
-$form  = $right->getHtmlForm();
-$card  = Card::new()
-    ->setTitle(tr('Edit data for right :name', [':name' => $right->getName()]))
-    ->setContent($form->render());
+$incident = Incident::get($_GET['id']);
+$form     = $incident->getHtmlForm();
+$card     = Card::new()
+    ->setTitle(tr('Edit data for incident :name', [':name' => $incident->getTitle()]))
+    ->setContent($form->render())
+    ->setButtons(Buttons::new()->addButton(tr('Back'), 'secondary', '/security/incidents.html', true));
 
 
 
@@ -31,7 +33,7 @@ $relevant = Card::new()
     ->setMode('info')
     ->setTitle(tr('Relevant links'))
     ->setContent('<a href="' . UrlBuilder::getWww('/accounts/users.html') . '">' . tr('Users management') . '</a><br>
-                         <a href="' . UrlBuilder::getWww('/accounts/roles.html') . '">' . tr('Roles management') . '</a>');
+                         <a href="' . UrlBuilder::getWww('/accounts/rights.html') . '">' . tr('Rights management') . '</a>');
 
 
 
@@ -51,11 +53,12 @@ $grid = Grid::new()
 echo $grid->render();
 
 
+
 // Set page meta data
-Page::setHeaderTitle(tr('Right'));
-Page::setHeaderSubTitle($right->getName());
+Page::setHeaderTitle(tr('Incident'));
+Page::setHeaderSubTitle($incident->getTitle());
 Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'                     => tr('Home'),
-    '/accounts/rights.html' => tr('Rights'),
-    ''                      => $right->getName()
+    '/'                        => tr('Home'),
+    '/security/incidents.html' => tr('Incidents'),
+    ''                         => $incident->getTitle()
 ]));

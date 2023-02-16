@@ -54,7 +54,7 @@ class Users extends DataList
     public static function getHtmlSelect(string $name = 'users_id'): Select
     {
         return Select::new()
-            ->setSourceQuery('SELECT COALESCE(NULLIF(TRIM(CONCAT_WS(" ", `first_names`, `last_names`)), ""), `nickname`, `username`, `email`) AS `name` 
+            ->setSourceQuery('SELECT COALESCE(NULLIF(TRIM(CONCAT_WS(" ", `first_names`, `last_names`)), ""), `nickname`, `username`, `email`, "' . tr('System') . '") AS `name` 
                                           FROM  `accounts_users`
                                           WHERE `status` IS NULL ORDER BY `name`')
             ->setName($name)

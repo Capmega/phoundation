@@ -3,7 +3,6 @@
 use Phoundation\Business\Providers\Provider;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
-use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Web\Http\Html\Components\BreadCrumbs;
 use Phoundation\Web\Http\Html\Components\Buttons;
 use Phoundation\Web\Http\Html\Components\Img;
@@ -48,8 +47,8 @@ if (Page::isPostRequestMethod()) {
 // Build the buttons
 $buttons = Buttons::new()
     ->addButton('Submit')
-    ->addButton('Cancel', 'secondary', '/business/providers.html', true);
-
+    ->addButton('Cancel', 'secondary', '/business/providers.html', true)
+    ->addButton(tr('Audit'), 'green', '/audit/meta-' . $provider->getMeta() . '.html', false, true);
 
 
 // Build the provider form

@@ -203,11 +203,11 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
 
         $panel->getNotificationsDropDown()
             ->setNotifications(null)
-            ->setNotificationsUrl('/admin/notifications/all.html');
+            ->setNotificationsUrl('/notifications/all.html');
 
         $panel->getMessagesDropDown()
             ->setMessages(null)
-            ->setMessagesUrl('/admin/messages/all.html');
+            ->setMessagesUrl('/messages/all.html');
 
         return $panel->render();
     }

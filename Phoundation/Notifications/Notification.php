@@ -465,35 +465,32 @@ class Notification extends DataEntry
             // Automatically log this notification
             static::log();
         }
+showdie($this);
+//        if (!$this->getCode()) {
+//            throw new OutOfBoundsException('Cannot send notification, no notification code specified');
+//        }
 
-        Log::warning('Notifications::send() not yet implemented! Not sending subsequent message');
-        Log::warning($this->getTitle());
-        Log::warning($this->getMessage());
-return $this;
-
-        if (!$this->code) {
-            throw new OutOfBoundsException('Cannot send notification, no notification code specified');
-        }
-
-        if (!$this->title) {
+        if (!$this->getTitle()) {
             throw new OutOfBoundsException('Cannot send notification, no notification title specified');
         }
 
-        if (!$this->message) {
+        if (!$this->getMessage()) {
             throw new OutOfBoundsException('Cannot send notification, no notification message specified');
         }
 
-        if (!$this->groups) {
+        if (!$this->getGroups()) {
             throw new OutOfBoundsException('Cannot send notification, no notification groups specified');
         }
 
-        // TODO IMPLEMENT
-
         if ($this->e) {
-            $this->file = $this->e->getFile();
-            $this->line = $this->e->getLine();
+            $this->file  = $this->e->getFile();
+            $this->line  = $this->e->getLine();
             $this->trace = $this->e->getTrace();
         }
+
+        $this->save();
+
+        // TODO Implement sending notifications by email / SMS / etc
 
         return $this;
     }
@@ -558,19 +555,6 @@ return $this;
 
 
     /**
-     * Save this notification to the database
-     *
-     * @return static
-     */
-    public function save(?string $comments = null): static
-    {
-        sql()->write('notifications', $this->getInsertColumns(), $this->getUpdateColumns());
-        return $this;
-    }
-
-
-
-    /**
      * Sets the available data keys for the Notification class
      *
      * @return void
@@ -583,13 +567,6 @@ return $this;
         ];
 
         $this->keys = [
-            'id',
-            'created_by',
-            'created_on',
-            'modified_by',
-            'modified_on',
-            'meta_id',
-            'status',
             'code',
             'type',
             'priority',
@@ -600,5 +577,7 @@ return $this;
             'trace',
             'details'
        ];
+
+        parent::setKeys();
     }
 }

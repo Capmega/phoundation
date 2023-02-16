@@ -5,6 +5,8 @@ namespace Phoundation\Security\Incidents;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntry\Traits\DataEntryDetails;
+use Phoundation\Data\DataEntry\Traits\DataEntryTitle;
 use Phoundation\Data\DataEntry\Traits\DataEntryType;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
 use Phoundation\Utils\Json;
@@ -24,6 +26,8 @@ use Phoundation\Utils\Json;
 class Incident extends DataEntry
 {
     use DataEntryType;
+    use DataEntryTitle;
+    use DataEntryDetails;
 
 
 
@@ -43,7 +47,7 @@ class Incident extends DataEntry
      */
     public function __construct(int|string|null $identifier = null)
     {
-        static::$entry_name    = 'incident';
+        static::$entry_name  = 'incident';
         $this->table         = 'security_incidents';
         $this->unique_column = 'id';
 
@@ -93,62 +97,16 @@ class Incident extends DataEntry
     /**
      * Sets the severity for this object
      *
-     * @param Severity $severity
+     * @param Severity|string $severity
      * @return static
      */
-    public function setSeverity(Severity $severity): static
+    public function setSeverity(Severity|string $severity): static
     {
+        if (is_string($severity)) {
+            $severity = Severity::from($severity);
+        }
+
         return $this->setDataValue('severity', $severity->value);
-    }
-
-
-
-    /**
-     * Returns the title for this object
-     *
-     * @return string|null
-     */
-    public function getTitle(): ?string
-    {
-        return $this->getDataValue('title');
-    }
-
-
-
-    /**
-     * Sets the title for this object
-     *
-     * @param string|null $title
-     * @return static
-     */
-    public function setTitle(?string $title): static
-    {
-        return $this->setDataValue('title', $title);
-    }
-
-
-
-    /**
-     * Returns the details for this object
-     *
-     * @return string|null
-     */
-    public function getDetails(): ?string
-    {
-        return Json::decode($this->getDataValue('details'));
-    }
-
-
-
-    /**
-     * Sets the details for this object
-     *
-     * @param array|null $details
-     * @return static
-     */
-    public function setDetails(?array $details): static
-    {
-        return $this->setDataValue('details', Json::encode($details));
     }
 
 
@@ -202,36 +160,6 @@ class Incident extends DataEntry
     protected function setKeys(): void
     {
         $this->keys = [
-            'id' => [
-                'disabled' => true,
-                'type'     => 'numeric',
-                'label'    => tr('Database ID')
-            ],
-            'created_on' => [
-                'disabled' => true,
-                'type'     => 'date',
-                'label'    => tr('Created on')
-            ],
-            'created_by' => [
-                'element'  => 'input',
-                'disabled' => true,
-                'source'   => 'SELECT IFNULL(`username`, `email`) AS `username` FROM `accounts_users` WHERE `id` = :id',
-                'execute'  => 'id',
-                'label'    => tr('Created by')
-            ],
-            'meta_id' => [
-                'disabled' => true,
-                'element'  => null, //Meta::new()->getHtmlTable(), // TODO implement
-                'label'    => tr('Meta information')
-            ],
-            'status' => [
-                'disabled' => true,
-                'display_default' => tr('Ok'),
-                'label'    => tr('Status')
-            ],
-            'meta_state' => [
-                'visible' => false,
-            ],
             'severity' => [
                 'disabled'  => true,
                 'type'      => 'text',
@@ -264,16 +192,13 @@ class Incident extends DataEntry
         ];
 
         $this->keys_display = [
-            'id'         => 12,
-            'created_by' => 6,
-            'created_on' => 6,
-            'meta_id'    => 6,
-            'status'     => 6,
             'type'       => 6,
             'severity'   => 6,
             'title'      => 12,
             'details'    => 12,
         ] ;
+
+        parent::setKeys();
     }
 
 

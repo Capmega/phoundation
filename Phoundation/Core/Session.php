@@ -207,6 +207,9 @@ class Session
                 static::start();
             }
 
+            // Update the users sign-in and last sign-in information
+            sql()->query('UPDATE `accounts_users` SET `last_sign_in` = NOW(), `sign_in_count` = `sign_in_count` + 1');
+
             Incident::new()
                 ->setType('User sign in')
                 ->setSeverity(Severity::notice)
@@ -687,6 +690,9 @@ Log::warning('RESTART SESSION');
                 ->throw();
         }
 
+        // Impersonate the user
+        $original_user = self::getUser();
+
         $_SESSION['user']['impersonate_id']  = $user->getId();
         $_SESSION['user']['impersonate_url'] = (string) UrlBuilder::getCurrent();
 
@@ -694,11 +700,11 @@ Log::warning('RESTART SESSION');
             ->setType('User impersonation')
             ->setSeverity(Severity::medium)
             ->setTitle(tr('The user ":user" started impersonating user ":impersonate"', [
-                ':user'        => static::getUser(),
+                ':user'        => $original_user,
                 ':impersonate' => $user
             ]))
             ->setDetails([
-                ':user'        => static::getUser(),
+                ':user'        => $original_user,
                 ':impersonate' => $user
             ])
             ->save();

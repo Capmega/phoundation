@@ -1321,6 +1321,39 @@ class User extends DataEntry
     public function save(?string $comments = null): static
     {
         Log::action(tr('Saving user ":user"', [':user' => $this->getDisplayName()]));
+
+        // Can this information be changed? If this user has god right, the executing user MUST have god right as well!
+        if ($this->hasAllRights('god')) {
+            if (!Session::getUser()->hasAllRights('god')) {
+                // Oops...
+                Incident::new()
+                    ->setType('Blocked user update')
+                    ->setSeverity(Severity::severe)
+                    ->setTitle(tr('The user ":user" attempted to modify god level user ":modify" without having the "god" right itself.', [
+                        ':modify' => $this,
+                        ':user'   => Session::getUser(),
+                    ]))
+                    ->setDetails([
+                        ':modify' => $this,
+                        ':user'   => Session::getUser(),
+                    ])
+                    ->save()
+                    ->throw();
+            }
+        }
+
+        Incident::new()
+            ->setType('User information changed')
+            ->setSeverity(Severity::low)
+            ->setTitle(tr('The user ":user" was saved, see audit ":meta_id" for more information', [
+                ':user'    => $this,
+                ':meta_id' => $this->getMeta()->getId()
+            ]))
+            ->setDetails([
+                ':user' => $this,
+            ])
+            ->save();
+
         return parent::save();
     }
 
@@ -1474,38 +1507,6 @@ class User extends DataEntry
     protected function setKeys(): void
     {
         $this->keys = [
-            'id' => [
-                'disabled' => true,
-                'type'     => 'numeric',
-                'label'    => tr('Database ID')
-            ],
-            'created_on' => [
-                'disabled'  => true,
-                'type'      => 'text',
-                'label'     => tr('Created on')
-            ],
-            'created_by' => [
-                'element'  => function (string $key, array $data, array $source) {
-                    return Users::getHtmlSelect($key)
-                        ->setSelected(isset_get($source['created_by']))
-                        ->setDisabled(true)
-                        ->render();
-                },
-                'label'    => tr('Created by')
-            ],
-            'meta_id' => [
-                'disabled' => true,
-                'element'  => null, //Meta::new()->getHtmlTable(), // TODO implement
-                'label'    => tr('Meta information')
-            ],
-            'status' => [
-                'disabled'        => true,
-                'display_default' => tr('Ok'),
-                'label'           => tr('Status')
-            ],
-            'meta_state' => [
-                'visible' => false,
-            ],
             'last_sign_in' => [
                 'disabled'        => true,
                 'type'            => 'date',
@@ -1522,18 +1523,19 @@ class User extends DataEntry
                 'label'           => tr('Authentication failures')
             ],
             'locked_until' => [
-                'disabled'  => true,
-                'type'      => 'date',
-                'null_type' => 'text',
-                'display_default'   => '-',
-                'label'     => tr('Locked until')
+                'disabled'        => true,
+                'type'            => 'date',
+                'null_type'       => 'text',
+                'display_default' => tr('Not locked'),
+                'label'           => tr('Locked until')
             ],
             'sign_in_count' => [
-                'disabled' => true,
-                'db_null'  => false,
-                'type'     => 'numeric',
-                'default'  => 0,
-                'label'    => tr('Sign in count')
+                'disabled'        => true,
+                'db_null'         => false,
+                'type'            => 'numeric',
+                'default'         => 0,
+                'display_default' => 0,
+                'label'           => tr('Sign in count')
             ],
             'username' => [
                 'label'    => tr('Username')
@@ -1699,11 +1701,6 @@ class User extends DataEntry
         ];
 
         $this->keys_display = [
-            'id'                      => 12,
-            'created_by'              => 3,
-            'created_on'              => 3,
-            'meta_id'                 => 3,
-            'status'                  => 3,
             'last_sign_in'            => 3,
             'sign_in_count'           => 3,
             'authentication_failures' => 3,
@@ -1741,5 +1738,7 @@ class User extends DataEntry
             'description'             => 6,
             'comments'                => 6
         ] ;
+
+        parent::setKeys();
     }
 }

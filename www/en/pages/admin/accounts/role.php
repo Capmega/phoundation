@@ -19,7 +19,7 @@ GetValidator::new()
 
 // Build the page content
 $role = Role::get($_GET['id']);
-$form = Role::get($_GET['id'])->getHtmlForm();
+$form = $role->getHtmlForm();
 $card = Card::new()
     ->setTitle(tr('Edit data for role :name', [':name' => $role->getName()]))
     ->setContent($form->render());

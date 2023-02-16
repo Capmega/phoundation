@@ -63,8 +63,8 @@ class MetaList
         // Create and return the table
         $in     = Sql::in($this->meta_list);
         $source = sql()->list('SELECT         `meta_history`.`id`,
-                                                    DATE_FORMAT(`meta_history`.`created_on`, "%d-%m-%Y") AS `date`,
-                                                    COALESCE(NULLIF(TRIM(CONCAT_WS(" ", `first_names`, `last_names`)), ""), `nickname`, `username`, `email`) AS `user`,
+                                                    DATE_FORMAT(`meta_history`.`created_on`, "%d-%m-%Y %h:%m:%s") AS `date_time`,
+                                                    COALESCE(NULLIF(TRIM(CONCAT_WS(" ", `first_names`, `last_names`)), ""), `nickname`, `username`, `email`, "' . tr('System') . '") AS `user`,
                                                     `meta_history`.`action`,  
                                                     `meta_history`.`source`,  
                                                     `meta_history`.`comments`,
@@ -78,17 +78,25 @@ class MetaList
         foreach ($source as &$row) {
             $row['data'] = Json::decode($row['data']);
 
-            foreach (['to', 'from'] as $section) {
-                unset($row['data'][$section]['id']);
-                unset($row['data'][$section]['created_by']);
-                unset($row['data'][$section]['created_on']);
-                unset($row['data'][$section]['meta_id']);
-                unset($row['data'][$section]['meta_state']);
-                unset($row['data'][$section]['status']);
-            }
+            if (isset_get($row['data']['to'])) {
+                foreach (['to', 'from'] as $section) {
+                    unset($row['data'][$section]['id']);
+                    unset($row['data'][$section]['created_by']);
+                    unset($row['data'][$section]['created_on']);
+                    unset($row['data'][$section]['meta_id']);
+                    unset($row['data'][$section]['meta_state']);
+                    unset($row['data'][$section]['status']);
+                }
 
-            $row['data'] = 'From: ' . PHP_EOL . Arrays::implodeWithKeys($row['data']['from'], PHP_EOL, ': ') . PHP_EOL . 'To: ' . PHP_EOL . Arrays::implodeWithKeys($row['data']['to'], PHP_EOL, ': ');
-            $row['data'] = 'From: ' . PHP_EOL . Arrays::implodeWithKeys($row['data']['from'], PHP_EOL, ': ') . PHP_EOL . 'To: ' . PHP_EOL . Arrays::implodeWithKeys($row['data']['to'], PHP_EOL, ': ');
+                if (isset_get($row['data']['from'])) {
+                    $row['data'] = tr('From: ') . PHP_EOL . Arrays::implodeWithKeys($row['data']['from'], PHP_EOL, ': ') . PHP_EOL . tr('To: ') . PHP_EOL . Arrays::implodeWithKeys($row['data']['to'], PHP_EOL, ': ');
+
+                } else {
+                    $row['data'] = tr('Created with: ') . PHP_EOL . Arrays::implodeWithKeys($row['data']['to'], PHP_EOL, ': ');
+                }
+            } else {
+                $row['data'] = tr('No changes');
+            }
         }
 
         unset($row);

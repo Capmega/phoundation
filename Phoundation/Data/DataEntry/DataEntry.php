@@ -5,6 +5,7 @@ namespace Phoundation\Data\DataEntry;
 use DateTime;
 use Exception;
 use Phoundation\Accounts\Users\User;
+use Phoundation\Accounts\Users\Users;
 use Phoundation\Cli\Cli;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
@@ -18,6 +19,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Components\DataEntryForm;
+use Phoundation\Web\Http\Html\Components\Input\InputText;
 use Throwable;
 
 
@@ -124,6 +126,12 @@ abstract class DataEntry
         'meta_id',
     ];
 
+    /**
+     * If true, set configuration to display meta data
+     *
+     * @var bool $display_meta
+     */
+    protected bool $display_meta = true;
 
 
     /**
@@ -1115,5 +1123,56 @@ abstract class DataEntry
      *
      * @return void
      */
-    abstract protected function setKeys(): void;
+    protected function setKeys(): void
+    {
+        $this->keys = array_merge([
+            'id' => [
+                'label'    => tr('Database ID'),
+                'disabled' => true,
+                'type'     => 'numeric',
+            ],
+            'created_on' => [
+                'label'    => tr('Created on'),
+                'disabled' => true,
+                'type'     => 'datetime-local',
+            ],
+            'created_by' => [
+                'label'    => tr('Created by'),
+                'element'  => function (string $key, array $data, array $source) {
+                    if ($source['created_by']) {
+                        return Users::getHtmlSelect($key)
+                            ->setSelected(isset_get($source['created_by']))
+                            ->setDisabled(true)
+                            ->render();
+                    } else {
+                        return InputText::new()
+                            ->setName($key)
+                            ->setDisabled(true)
+                            ->setValue(tr('System'))
+                            ->render();
+                    }
+                },
+            ],
+            'meta_id' => [
+                'visible' => false,
+            ],
+            'meta_state' => [
+                'visible' => false,
+            ],
+            'status' => [
+                'label'           => tr('Status'),
+                'disabled'        => true,
+                'display_default' => tr('Ok'),
+            ],
+        ], $this->keys);
+
+        if ($this->display_meta) {
+            $this->keys_display = array_merge([
+                'id'         => 12,
+                'created_by' => 4,
+                'created_on' => 4,
+                'status'     => 4,
+            ], $this->keys_display);
+        }
+    }
 }

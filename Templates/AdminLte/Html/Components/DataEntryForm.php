@@ -128,7 +128,7 @@ class DataEntryForm extends Renderer
                     $data['readonly'] = $data['null_readonly'];
                 }
 
-                $source[$key] = isset_get($data['default']);
+                $source[$key] = isset_get($data['display_default']);
             }
 
             // Build the form elements
@@ -155,7 +155,12 @@ class DataEntryForm extends Renderer
                     }
 
                     // Build the element class path and load the required class file
-                    $element = '\\Phoundation\\Web\\Http\\Html\\Components\\Input\\Input' . Strings::capitalize($data['type']);
+                    $type    = match ($data['type']) {
+                        'datetime-local' => 'DateTimeLocal',
+                        default          => Strings::capitalize($data['type']),
+                    };
+
+                    $element = '\\Phoundation\\Web\\Http\\Html\\Components\\Input\\Input' . $type;
                     $file    = Library::getClassFile($element);
                     include_once($file);
 
@@ -172,34 +177,8 @@ class DataEntryForm extends Renderer
                                 ->render();
                             break;
 
-                        case 'numeric':
-                            // Render the HTML for this number element
-                            $html = $element::new()
-                                ->setMin(isset_get($data['min']))
-                                ->setMax(isset_get($data['max']))
-                                ->setStep(isset_get($data['step']))
-                                ->setDisabled((bool) $data['disabled'])
-                                ->setReadOnly((bool) $data['readonly'])
-                                ->setName($key)
-                                ->setValue('1')
-                                ->setChecked((bool) $source[$key])
-                                ->render();
-                            break;
-
-                        case 'text':
-                            // Render the HTML for this text element
-                            $html = $element::new()
-                                ->setMaxLength(isset_get($data['max_length']))
-                                ->setDisabled((bool) $data['disabled'])
-                                ->setReadOnly((bool) $data['readonly'])
-                                ->setName($key)
-                                ->setValue('1')
-                                ->setChecked((bool) $source[$key])
-                                ->render();
-                            break;
-
                         default:
-                            // Render the HTML for this input element
+                            // Render the HTML for this element
                             $html = $element::new()
                                 ->setDisabled((bool) $data['disabled'])
                                 ->setReadOnly((bool) $data['readonly'])
@@ -225,12 +204,11 @@ class DataEntryForm extends Renderer
                     include_once($file);
 
                     $html = TextArea::new()
-                        ->setMaxLength($data['max_length'])
                         ->setDisabled((bool) $data['disabled'])
                         ->setReadOnly((bool) $data['readonly'])
                         ->setRows((int) isset_get($data['rows'], 5))
                         ->setName($key)
-                        ->setValue(isset_get($source[$key]))
+                        ->setContent(isset_get($source[$key]))
                         ->render();
 
                     $this->render .= $this->renderItem($key, $html, $data);

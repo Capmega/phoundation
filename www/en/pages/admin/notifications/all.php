@@ -1,28 +1,31 @@
 <?php
 
-use Phoundation\Accounts\Rights\Right;
-use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Notifications\Notifications;
+use Phoundation\Web\Http\Html\Components\BreadCrumbs;
+use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Http\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
-use Phoundation\Web\Http\Html\Components\BreadCrumbs;
-use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
-
-
-
-// Validate
-GetValidator::new()
-    ->select('id')->isId()
-    ->validate();
 
 
 
 // Build the page content
-$right = Right::get($_GET['id']);
-$form  = $right->getHtmlForm();
-$card  = Card::new()
-    ->setTitle(tr('Edit data for right :name', [':name' => $right->getName()]))
-    ->setContent($form->render());
+
+
+
+// Build notifications table
+$table = Notifications::new()->getHtmlDataTable()
+    ->setRowUrl('/accounts/notification-:ROW.html');
+
+$notifications = Card::new()
+    ->setTitle('Active notifications')
+    ->setSwitches('reload')
+    ->setContent($table->render())
+    ->useForm(true);
+
+$notifications->getForm()
+        ->setAction(UrlBuilder::getCurrent())
+        ->setMethod('POST');
 
 
 
@@ -30,8 +33,7 @@ $card  = Card::new()
 $relevant = Card::new()
     ->setMode('info')
     ->setTitle(tr('Relevant links'))
-    ->setContent('<a href="' . UrlBuilder::getWww('/accounts/users.html') . '">' . tr('Users management') . '</a><br>
-                         <a href="' . UrlBuilder::getWww('/accounts/roles.html') . '">' . tr('Roles management') . '</a>');
+    ->setContent('<a href="' . UrlBuilder::getWww('/notifications/test.html') . '">' . tr('Send me a test notification') . '</a>');
 
 
 
@@ -45,17 +47,16 @@ $documentation = Card::new()
 
 // Build and render the grid
 $grid = Grid::new()
-    ->addColumn($card, 9)
+    ->addColumn($notifications, 9)
     ->addColumn($relevant->render() . $documentation->render(), 3);
 
 echo $grid->render();
 
 
+
 // Set page meta data
-Page::setHeaderTitle(tr('Right'));
-Page::setHeaderSubTitle($right->getName());
+Page::setHeaderTitle(tr('Notifications'));
 Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'                     => tr('Home'),
-    '/accounts/rights.html' => tr('Rights'),
-    ''                      => $right->getName()
+    '/' => tr('Home'),
+    ''  => tr('Notifications')
 ]));

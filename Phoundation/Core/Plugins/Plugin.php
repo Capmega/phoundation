@@ -174,35 +174,6 @@ showdie($plugin_name);
     protected function setKeys(): void
     {
         $this->keys = [
-            'id' => [
-                'disabled' => true,
-                'type' => 'numeric',
-                'label' => tr('Database ID')
-            ],
-            'created_on' => [
-                'disabled' => true,
-                'type' => 'date',
-                'label' => tr('Created on')
-            ],
-            'created_by' => [
-                'disabled' => true,
-                'element' => function (string $key, array $data, array $source) {
-                    return Users::getHtmlSelect($key)
-                        ->setSelected(isset_get($source['created_by']))
-                        ->render();
-                },
-                'label' => tr('Created by')
-            ],
-            'meta_id' => [
-                'disabled' => true,
-                'element' => null, //Meta::new()->getHtmlTable(), // TODO implement
-                'label' => tr('Meta information')
-            ],
-            'status' => [
-                'disabled' => true,
-                'display_default' => tr('Ok'),
-                'label' => tr('Status')
-            ],
             'name' => [
                 'disabled' => true,
                 'label' => tr('Name')
@@ -219,15 +190,12 @@ showdie($plugin_name);
         ];
 
         $this->keys_display = [
-            'id' => 12,
-            'created_by' => 6,
-            'created_on' => 6,
-            'meta_id' => 6,
-            'status' => 6,
-            'name' => 6,
-            'path' => 6,
-            'class' => 6,
+            'name'        => 6,
+            'path'        => 6,
+            'class'       => 6,
             'description' => 6,
         ];
+
+        parent::setKeys();
     }
 }
