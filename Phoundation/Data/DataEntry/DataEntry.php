@@ -1042,7 +1042,11 @@ abstract class DataEntry
         }
 
         foreach ($settings as $key => $value) {
-            $this->keys[$form_key][$key] = $value;
+            if ($key === 'size') {
+                $this->keys_display[$form_key] = $value;
+            } else {
+                $this->keys[$form_key][$key] = $value;
+            }
         }
 
         return $this;
