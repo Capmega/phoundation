@@ -176,7 +176,7 @@ class Core {
             define('PATH_DATA'   , PATH_ROOT . 'data/');
             define('PATH_CDN'    , PATH_DATA . 'cdn/');
             define('PATH_TMP'    , PATH_DATA . 'tmp/');
-            define('PATH_PUBTMP' , PATH_DATA . 'cdn/tmp/');
+            define('PATH_PUBTMP' , PATH_DATA . 'content/cdn/tmp/');
             define('PATH_SCRIPTS', PATH_ROOT . 'scripts/');
 
             // Setup error handling, report ALL errors, setup shutdown functions
