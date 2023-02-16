@@ -264,7 +264,7 @@ class RoutingParameters
      */
     public function setRightsExceptions(array|string $exceptions): static
     {
-        $this->rights_exceptions = Arrays::force($exceptions, null);
+        $this->rights_exceptions = Arrays::force($exceptions);
         return $this;
     }
 
