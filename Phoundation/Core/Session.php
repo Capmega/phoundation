@@ -637,6 +637,13 @@ Log::warning('RESTART SESSION');
      */
     public static function impersonate(User $user): void
     {
+        // Just an extra check, this SHOULD never happen
+        if (!$user->getEmail()) {
+            throw new OutOfBoundsException(tr('Cannot impersonate user ":user", it has no email address', [
+                ':user' => $user->getLogId()
+            ]));
+        }
+
         if (isset($_SESSION['user']['impersonate_id'])) {
             // We are already impersonating a user!
             Incident::new()
