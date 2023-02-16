@@ -2,6 +2,7 @@
 
 namespace Templates\AdminLte\Html\Components;
 
+use Phoundation\Core\Strings;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Http\Html\Renderer;
 
@@ -42,6 +43,8 @@ class BreadCrumbs extends Renderer
             $count = count($this->element->getSource());
 
             foreach ($this->element->getSource() as $url => $label) {
+                $label = Strings::truncate($label, 48);
+
                 if (!--$count) {
                     // The last item is the active item
                     $this->render .= '<li class="breadcrumb-item active">' . $label . '</li>';
