@@ -41,6 +41,7 @@ class Rights extends DataList
                                    FROM     `accounts_rights` 
                                    WHERE    `status` IS NULL 
                                    ORDER BY `name`');
+
         parent::__construct($parent, $id_column);
     }
 

@@ -1,0 +1,46 @@
+#!/usr/bin/php
+<?php
+
+use Phoundation\Cli\Documentation;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Developer\Project\Project;
+
+
+
+/**
+ * Script system/project/fix
+ *
+ * This script will fix project issues.
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Scripts
+ */
+Documentation::usage('./cli system project fix');
+
+Documentation::help('This script will fix project issues. For the moment it can only fix filesystem mode and 
+ownership issues.
+
+NOTE: This script requires root access to the "chown" command
+
+
+
+ARGUMENTS (All arguments in square brackets are optional)
+
+
+
+-');
+
+
+
+// Validate arguments
+ArgvValidator::new()
+    ->noArgumentsLeft()
+    ->validate();
+
+
+
+Log::information('Fixing your system. Please wait, this may take a few seconds...');
+Project::fix();

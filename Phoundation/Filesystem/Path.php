@@ -258,7 +258,7 @@ class Path extends FileBasics
         try {
             while ($this->file) {
                 // Restrict location access
-                $this->checkRestrictions($this->file, true);
+                $this->restrictions->check($this->file, true);
 
                 if (!file_exists($this->file)) {
                     // This section does not exist, jump up to the next section above
@@ -318,7 +318,7 @@ class Path extends FileBasics
     {
         // Check filesystem restrictions 
         $this->file = Strings::slash($this->file);
-        $this->checkRestrictions($this->file, true);
+        $this->restrictions->check($this->file, true);
         $this->exists();
 
         // Check configuration
@@ -360,7 +360,7 @@ class Path extends FileBasics
     {
         // Check filesystem restrictions 
         $this->file = Strings::slash($this->file);
-        $this->checkRestrictions($this->file, false);
+        $this->restrictions->check($this->file, false);
         $this->exists();
 
         $return = [];
@@ -415,7 +415,7 @@ class Path extends FileBasics
     {
         // Check filesystem restrictions 
         $this->file = Strings::slash($this->file);
-        $this->checkRestrictions($this->file, false);
+        $this->restrictions->check($this->file, false);
         $this->exists();
 
         $this->file = Arrays::getRandomValue($this->file);
@@ -448,7 +448,7 @@ class Path extends FileBasics
     {
         // Check filesystem restrictions 
         $this->file = Strings::slash($this->file);
-        $this->checkRestrictions($this->file, false);
+        $this->restrictions->check($this->file, false);
         $this->exists();
 
         while (strlen($this->file) > 1) {
@@ -476,7 +476,7 @@ class Path extends FileBasics
     {
         // Check filesystem restrictions 
         $this->file = Strings::slash($this->file);
-        $this->checkRestrictions($this->file, false);
+        $this->restrictions->check($this->file, false);
         $this->exists();
 
         $return = 0;
@@ -507,7 +507,7 @@ class Path extends FileBasics
     {
         // Check filesystem restrictions 
         $this->file = Strings::slash($this->file);
-        $this->checkRestrictions($this->file, false);
+        $this->restrictions->check($this->file, false);
         $this->exists();
 
         $return = 0;

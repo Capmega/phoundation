@@ -165,20 +165,6 @@ class FileBasics
 
 
     /**
-     * Check the specified $path against these objects' restrictions
-     *
-     * @param string|null $file
-     * @param bool $write
-     * @return void
-     */
-    protected function checkRestrictions(string|null &$file, bool $write): void
-    {
-        $this->restrictions->check($file, $write);
-    }
-
-
-
-    /**
      * Checks if the specified file exists
      *
      * @return static
@@ -212,7 +198,7 @@ class FileBasics
     public function checkReadable(?string $type = null, ?Throwable $previous_e = null) : static
     {
         // Check filesystem restrictions
-        $this->checkRestrictions($this->file, false);
+        $this->restrictions->check($this->file, false);
 
         if (!file_exists($this->file)) {
             if (!file_exists(dirname($this->file))) {
@@ -270,7 +256,7 @@ class FileBasics
     public function checkWritable(?string $type = null, ?Throwable $previous_e = null) : static
     {
         // Check filesystem restrictions
-        $this->checkRestrictions($this->file, true);
+        $this->restrictions->check($this->file, true);
 
         if (!file_exists($this->file)) {
             if (!file_exists(dirname($this->file))) {
@@ -310,7 +296,7 @@ class FileBasics
     public function getHumanReadableFileType(): array
     {
         // Check filesystem restrictions
-        $this->checkRestrictions($this->file, true);
+        $this->restrictions->check($this->file, true);
         $this->exists();
 
         $return = [];
@@ -371,7 +357,7 @@ class FileBasics
     public function getHumanReadableFileMode(): array
     {
         // Check filesystem restrictions
-        $this->checkRestrictions($this->file, false);
+        $this->restrictions->check($this->file, false);
         $this->exists();
 
         $perms  = fileperms($this->file);
@@ -491,7 +477,7 @@ class FileBasics
         static $finfo = null;
 
         // Check filesystem restrictions
-        $this->checkRestrictions($this->file, false);
+        $this->restrictions->check($this->file, false);
 
         try {
             if (is_dir($this->file)) {
@@ -527,7 +513,7 @@ class FileBasics
     public function secureDelete(bool $clean_path = true, bool $sudo = false): static
     {
         // Check filesystem restrictions
-        $this->checkRestrictions($this->file, true);
+        $this->restrictions->check($this->file, true);
 
         // Delete all specified patterns
         // Execute the rm command
@@ -570,7 +556,7 @@ class FileBasics
     public function delete(bool $clean_path = true, bool $sudo = false): static
     {
         // Check filesystem restrictions
-        $this->checkRestrictions($this->file, true);
+        $this->restrictions->check($this->file, true);
 
         // Delete all specified patterns
         // Execute the rm command
@@ -642,7 +628,7 @@ class FileBasics
         }
 
         // Check restrictions and execute move
-        $this->checkRestrictions($target, true);
+        $this->restrictions->check($target, true);
         rename($this->file, $target);
 
         // Update this file to the new location, and done
@@ -689,7 +675,7 @@ class FileBasics
     public function getStat(): array
     {
         // Check filesystem restrictions
-        $this->checkRestrictions($this->file, false);
+        $this->restrictions->check($this->file, false);
 
         try {
             $stat = stat($this->file);
@@ -718,7 +704,7 @@ class FileBasics
     public function chown(?string $user = null, ?string $group = null, bool $recursive = false): static
     {
         // Check filesystem restrictions
-        $this->checkRestrictions($this->file, true);
+        $this->restrictions->check($this->file, true);
 
         if (!$user) {
             $user = posix_getpwuid(posix_getuid());
@@ -766,7 +752,7 @@ class FileBasics
         }
 
         // Check filesystem restrictions
-        $this->checkRestrictions($this->file, true);
+        $this->restrictions->check($this->file, true);
 
         Process::new('chmod', $this->restrictions)
             ->setSudo($sudo)
@@ -792,7 +778,7 @@ class FileBasics
     public function ensureFileReadable(?int $mode = null): bool
     {
         // Check filesystem restrictions
-        $this->checkRestrictions($this->file, true);
+        $this->restrictions->check($this->file, true);
 
         // If the object file exists and is writable, then we're done.
         if (is_writable($this->file)) {
@@ -845,7 +831,7 @@ class FileBasics
     public function ensureFileWritable(?int $mode = null): bool
     {
         // Check filesystem restrictions
-        $this->checkRestrictions($this->file, true);
+        $this->restrictions->check($this->file, true);
 
         // If the object file exists and is writable, then we're done.
         if (is_writable($this->file)) {

@@ -3,7 +3,7 @@
 namespace Phoundation\Templates;
 
 use Phoundation\Core\Session;
-
+use Phoundation\Web\Http\UrlBuilder;
 
 
 /**
@@ -144,7 +144,8 @@ class Template
                                         <div class="error-content">
                                             <h3><i class="fas fa-exclamation-triangle text-:type"></i> :h3</h3>
                                     
-                                            <p>:p</p>';
+                                            <p>:p</p>
+                                            <p>' . tr('Click :here to sign out', [':here' => '<a href="' . UrlBuilder::getWww('sign-out.html') . '">here</a>']) . '</p>';
 
                 if (!Session::getUser()->isGuest()) {
                     $html .= '              <form class="search-form" method="post" action=":action">
@@ -155,7 +156,6 @@ class Template
                                                         </button>
                                                     </div>
                                                 </div>
-                                                <!-- /.input-group -->
                                             </form>';
                 }
 

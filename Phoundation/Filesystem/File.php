@@ -96,7 +96,7 @@ class File extends FileBasics
     public function appendData(string $data): File
     {
         // Check filesystem restrictions
-        $this->checkRestrictions($this->file, true);
+        $this->restrictions->check($this->file, true);
 
         // Make sure the file path exists
         Path::new(dirname($this->file), $this->restrictions)->ensure();
@@ -118,7 +118,7 @@ class File extends FileBasics
     public function appendFiles(string|array $sources): File
     {
         // Check filesystem restrictions
-        $this->checkRestrictions($this->file, true);
+        $this->restrictions->check($this->file, true);
 
         // Ensure the target path exists
         Path::new(dirname($this->file), $this->restrictions)->ensure();
@@ -168,8 +168,8 @@ class File extends FileBasics
         throw new UnderConstructionException();
         $destination = PATH_ROOT . 'data/uploads/';
 
-        $this->checkRestrictions($source, true);
-        $this->checkRestrictions($destination, true);
+        $this->restrictions->check($source, true);
+        $this->restrictions->check($destination, true);
 
         if (is_array($source)) {
             // Assume this is a PHP file upload array entry
@@ -221,7 +221,7 @@ class File extends FileBasics
         $path = dirname($this->file);
         $mode = Config::get('filesystem.modes.defaults.file', 0640, $mode);
 
-        $this->checkRestrictions($path, true);
+        $this->restrictions->check($path, true);
 
         Path::new(dirname($this->file), $this->restrictions)->ensure($pattern_mode);
 
@@ -304,8 +304,8 @@ class File extends FileBasics
      */
     public function copyProgress(string $target, callable $callback): static
     {
-        $this->checkRestrictions($this->file, true);
-        $this->checkRestrictions($target, false);
+        $this->restrictions->check($this->file, true);
+        $this->restrictions->check($target, false);
 
         $context = stream_context_create();
 
@@ -332,7 +332,7 @@ class File extends FileBasics
             throw new OutOfBoundsException(tr('No file open mode specified'));
         }
 
-        $this->checkRestrictions($this->file, ($mode[0] !== 'r'));
+        $this->restrictions->check($this->file, ($mode[0] !== 'r'));
 
         // Check filesystem restrictions
         $handle = fopen($this->file, $mode, false, $context);
@@ -474,8 +474,8 @@ class File extends FileBasics
     public function replace(string $target, array $replaces, bool $regex = false): static
     {
         // Check filesystem restrictions and if file exists
-        $this->checkRestrictions($this->file, true);
-        $this->checkRestrictions($target, true);
+        $this->restrictions->check($this->file, true);
+        $this->restrictions->check($target, true);
 
         // Source file and target path exist?
         $this->exists();
@@ -537,7 +537,7 @@ class File extends FileBasics
     public function pathContainsSymlink(?string $prefix = null): bool
     {
         // Check filesystem restrictions and if file exists
-        $this->checkRestrictions($this->file, true);
+        $this->restrictions->check($this->file, true);
 
         // Build up the path
         if (str_starts_with($this->file, '/')) {
@@ -565,7 +565,7 @@ class File extends FileBasics
         $this->file = Strings::endsNotWith(Strings::startsNotWith($this->file, '/'), '/');
 
         // Check filesystem restrictions
-        $this->checkRestrictions($this->file, false);
+        $this->restrictions->check($this->file, false);
 
         foreach (explode('/', $this->file) as $section) {
             $location .= $section;
@@ -727,8 +727,8 @@ class File extends FileBasics
     public function moveToTarget(string $path, bool $extension = false, bool $singledir = false, int $length = 4, bool $copy = false, mixed $context = null): string
     {
         throw new UnderConstructionException();
-        $this->checkRestrictions($this->file, false);
-        $this->checkRestrictions($path, true);
+        $this->restrictions->check($this->file, false);
+        $this->restrictions->check($path, true);
 
         if (is_array($this->file)) {
             // Assume this is a PHP $_FILES array entry
@@ -829,8 +829,8 @@ class File extends FileBasics
         throw new UnderConstructionException('$this->copyTree() is under construction');
 
         // Check filesystem restrictions
-        $this->checkRestrictions($source, false);
-        $this->checkRestrictions($destination, true);
+        $this->restrictions->check($source, false);
+        $this->restrictions->check($destination, true);
 
         // Choose between copy filemode (mode is null), set filemode ($mode is a string or octal number) or preset
         // filemode (take from config, TRUE)

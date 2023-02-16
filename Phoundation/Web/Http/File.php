@@ -246,7 +246,7 @@ class File
 
         // Ensure the specified file is valid and readable
         \Phoundation\Filesystem\File::new($file, $this->restrictions)->checkReadable();
-        $this->restrictions->checkRestrictions($file, false);
+        $this->restrictions->check($file, false);
 
         $this->file     = $file;
         $this->size     = filesize($file);

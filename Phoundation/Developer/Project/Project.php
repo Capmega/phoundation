@@ -457,8 +457,10 @@ class Project
 
     /**
      * Checks your Phoundation project installation
+     *
+     * @todo Change hard coded www-data to configurable option
      */
-    public static function fix(bool $repair): void
+    public static function fix(): void
     {
         // Don't check for root user, check if we have sudo access to these commands individually, perhaps the user has
         // it?
@@ -468,23 +470,39 @@ class Project
         Command::new()->sudoAvailable('touch', true);
         Command::new()->sudoAvailable('rm'   , true);
 
-        // Fix file modes
+        // Fix file modes, first make everything readonly
         Process::new('chmod')
             ->setExecutionPath(PATH_ROOT)
             ->setSudo(true)
             ->addArguments(['-x,ug+r,g-w,o-rwx', '.', '-R'])
             ->executePassthru();
 
+        // All directories must have execute bit for users and groups
         Process::new('find')
             ->setExecutionPath(PATH_ROOT)
             ->setSudo(true)
             ->addArguments(['.' , '-type' , 'd', '-exec', 'chmod', 'ug+x', '{}', '\\;'])
             ->executePassthru();
 
+        // No file should be executable
+        Process::new('find')
+            ->setExecutionPath(PATH_ROOT)
+            ->setSudo(true)
+            ->addArguments(['.' , '-type' , 'f', '-exec', 'chmod', 'ug-x', '{}', '\\;'])
+            ->executePassthru();
+
+        // ./cli is the only file that can be executed
         Process::new('chmod')
             ->setExecutionPath(PATH_ROOT)
             ->setSudo(true)
             ->addArguments(['ug+w', './cli'])
+            ->executePassthru();
+
+        // Writable directories: data/tmp, data/log, data/run, data/cookies, data/content,
+        Process::new('chmod')
+            ->setExecutionPath(PATH_ROOT)
+            ->setSudo(true)
+            ->addArguments(['-x,ug+r,g-w,o-rwx', PATH_DATA . 'tmp', PATH_DATA . 'log', PATH_DATA . 'run', PATH_DATA . 'cookies', PATH_DATA . 'cookies', '-R'])
             ->executePassthru();
 
         // Fix file ownership

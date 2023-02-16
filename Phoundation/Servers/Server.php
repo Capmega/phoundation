@@ -500,20 +500,24 @@ class Server extends DataEntry
                 'label'   => tr('OSOperating system version')
             ],
             'web_services' => [
-                'type'  => 'checkbox',
-                'label' => tr('Web services'),
+                'default' => false,
+                'type'    => 'checkbox',
+                'label'   => tr('Web services'),
             ],
             'mail_services' => [
-                'type'  => 'checkbox',
-                'label' => tr('Email services'),
+                'default' => false,
+                'type'    => 'checkbox',
+                'label'   => tr('Email services'),
             ],
             'database_services' => [
-                'type'  => 'checkbox',
-                'label' => tr('Database services'),
+                'default' => false,
+                'type'    => 'checkbox',
+                'label'   => tr('Database services'),
             ],
             'allow_sshd_modification' => [
-                'type'  => 'checkbox',
-                'label' => tr('Allow SSHD modification'),
+                'default' => false,
+                'type'    => 'checkbox',
+                'label'   => tr('Allow SSHD modification'),
             ],
         ];
 

@@ -358,7 +358,7 @@ class Execute extends Path
      */
     public function onPathOnly(callable $callback): void
     {
-        $this->restrictions->checkRestrictions($this->file, true);
+        $this->restrictions->check($this->file, true);
 
         foreach (Arrays::force($this->file, '') as $this->file) {
             // Get al files in this directory

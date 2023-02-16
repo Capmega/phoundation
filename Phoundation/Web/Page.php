@@ -2123,7 +2123,7 @@ class Page
         // Set the page hash and check if we have access to this page?
         static::$hash   = sha1($_SERVER['REQUEST_URI']);
         static::$target = $target;
-        static::$restrictions->checkRestrictions($target, false);
+        static::$restrictions->check($target, false);
 
         // Check user access rights. Routing parameters should be able to tell us what rights are required now
         if (Core::stateIs('script')) {
