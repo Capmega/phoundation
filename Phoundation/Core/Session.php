@@ -211,8 +211,7 @@ class Session
             sql()->query('UPDATE `accounts_users` SET `last_sign_in` = NOW(), `sign_in_count` = `sign_in_count` + 1');
 
             Incident::new()
-                ->setType('User sign in')
-                ->setSeverity(Severity::notice)
+                ->setType('User sign in')->setSeverity(Severity::notice)
                 ->setTitle(tr('The user ":user" signed in', [':user' => static::$user]))
                 ->setDetails([':user' => static::$user])
                 ->save();
@@ -222,8 +221,7 @@ class Session
 
         } catch (DataEntryNotExistsException) {
             Incident::new()
-                ->setType('User does not exist')
-                ->setSeverity(Severity::low)
+                ->setType('User does not exist')->setSeverity(Severity::low)
                 ->setTitle(tr('The specified user ":user" does not exist', [':user' => $user]))
                 ->setDetails([':user' => $user])
                 ->save();
@@ -554,8 +552,7 @@ Log::warning('RESTART SESSION');
     {
         if (isset($_SESSION['user']['impersonate_id'])) {
             Incident::new()
-                ->setType('User impersonation')
-                ->setSeverity(Severity::low)
+                ->setType('User impersonation')->setSeverity(Severity::low)
                 ->setTitle(tr('The user ":user" stopped impersonating user ":impersonate"', [
                     ':user'        => User::get($_SESSION['user']['id']),
                     ':impersonate' => User::get($_SESSION['user']['impersonate_id'])
@@ -650,8 +647,7 @@ Log::warning('RESTART SESSION');
         if (isset($_SESSION['user']['impersonate_id'])) {
             // We are already impersonating a user!
             Incident::new()
-                ->setType('User impersonation')
-                ->setSeverity(Severity::high)
+                ->setType('User impersonation')->setSeverity(Severity::high)
                 ->setTitle(tr('Cannot impersonate user, we are already impersonating'))
                 ->setDetails([
                     'user'                => static::getUser(),
@@ -665,8 +661,7 @@ Log::warning('RESTART SESSION');
         if ($user->getId() === static::getUser()->getId()) {
             // We are already impersonating a user!
             Incident::new()
-                ->setType('User impersonation')
-                ->setSeverity(Severity::high)
+                ->setType('User impersonation')->setSeverity(Severity::high)
                 ->setTitle(tr('Cannot impersonate user, the user to impersonate is this user itself'))
                 ->setDetails([
                     'user'                => static::getUser(),
@@ -679,8 +674,7 @@ Log::warning('RESTART SESSION');
         if ($user->hasAllRights('god')) {
             // Can't impersonate a god level user!
             Incident::new()
-                ->setType('User impersonation')
-                ->setSeverity(Severity::severe)
+                ->setType('User impersonation')->setSeverity(Severity::severe)
                 ->setTitle(tr('Cannot impersonate user, the user to impersonate has the "god" role'))
                 ->setDetails([
                     'user'                => static::getUser(),

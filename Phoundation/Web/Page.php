@@ -1136,8 +1136,7 @@ class Page
             }
 
             Incident::new()
-                ->setType('401 - unauthorized')
-                ->setSeverity(Severity::low)
+                ->setType('401 - unauthorized')->setSeverity(Severity::low)
                 ->setTitle(tr('Guest user has no access to target page ":target" (real target ":real_target"), redirecting to ":redirect"', [
                     ':target'      => Strings::from(static::$target, PATH_ROOT),
                     ':real_target' => Strings::from($target, PATH_ROOT),
@@ -1164,8 +1163,7 @@ class Page
         if (Rights::getNotExist($rights)) {
             // One or more of the rights do not exist
             Incident::new()
-                ->setType('Non existing rights')
-                ->setSeverity(in_array('admin', Session::getUser()->getMissingRights($rights)) ? Severity::high : Severity::medium)
+                ->setType('Non existing rights')->setSeverity(in_array('admin', Session::getUser()->getMissingRights($rights)) ? Severity::high : Severity::medium)
                 ->setTitle(tr('The requested rights ":rights" for target page ":target" (real target ":real_target") do not exist on this system! Redirecting to ":redirect"', [
                     ':rights'      => Strings::force(Rights::getNotExist($rights), ', '),
                     ':target'      => Strings::from(static::$target, PATH_ROOT),

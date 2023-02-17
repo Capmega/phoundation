@@ -367,7 +367,7 @@ class Json
             default:
                 Notification::new()
                     ->setCode('unknown')
-                    ->setGroups('developers')
+                    ->setRoles('developer')
                     ->setTitle('Unknown message specified')
                     ->setMessage(tr('Json::message(): Unknown code ":code" specified', [':code' => $code]));
 

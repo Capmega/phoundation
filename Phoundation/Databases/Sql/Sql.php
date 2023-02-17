@@ -490,10 +490,7 @@ class Sql
             global $argv;
 
             Notification::new()
-                ->setCode('SQL_QUERY_ERROR')
-                ->setGroups('developers')
-                ->setTitle('SQL Query error')
-                ->setMessage('
+                ->setCode('SQL_QUERY_ERROR')->setRoles('developer')->setTitle('SQL Query error')->setMessage('
                 SQL STATE ERROR : "' . $error[0] . '"
                 DRIVER ERROR    : "' . $error[1] . '"
                 ERROR MESSAGE   : "' . $error[2] . '"

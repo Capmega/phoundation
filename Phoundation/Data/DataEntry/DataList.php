@@ -4,6 +4,7 @@ namespace Phoundation\Data\DataEntry;
 
 use Iterator;
 use Phoundation\Cli\Cli;
+use Phoundation\Databases\Sql\Sql;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Components\DataTable;
@@ -72,6 +73,14 @@ abstract class DataList implements Iterator
      * @var string
      */
     protected string $table_name;
+
+    /**
+     * The unique column identifier, next to id
+     *
+     * @var string $unique_column
+     */
+    protected string $unique_column = 'seo_name';
+
 
 
     /**
@@ -651,6 +660,23 @@ showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY F
     {
 showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY FOR A SINGLE ROW!');
         return $this->setStatus(null, $entries, $comments);
+    }
+
+
+
+    /**
+     * Returns an array with all id's for the specified entry identifiers
+     *
+     * @param array $identifiers
+     * @return array
+     */
+    public function listIds(array $identifiers): array
+    {
+        $in = Sql::in($identifiers);
+
+        return sql()->list(' SELECT `id` 
+                                  FROM   `' . $this->table_name . '` 
+                                  WHERE  `' . $this->unique_column . '` IN (' . implode(', ', array_keys($in)) . ')', $in);
     }
 
 

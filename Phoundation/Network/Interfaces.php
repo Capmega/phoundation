@@ -33,8 +33,7 @@ class Interfaces
     public static function listIps(bool $ipv4 = true, bool $ipv6 = false, bool $localhost = true): array
     {
         try {
-            $results = Process::new('ifconfig')
-                ->setPipe(Process::new('egrep')
+            $results = Process::new('ifconfig')->setPipe(Process::new('egrep')
                     ->addArgument('-i')
                     ->addArgument('addr|inet'))
                 ->executeReturnArray();

@@ -62,8 +62,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `severity` ENUM("notice", "low", "medium", "high", "severe") NOT NULL,
                     `title` VARCHAR(255) NOT NULL,
                     `details` TEXT NULL,
-                ')
-                ->setIndices('                
+                ')->setIndices('                
                     PRIMARY KEY (`id`),
                     KEY `created_by` (`created_by`),
                     KEY `created_on` (`created_on`),
@@ -71,8 +70,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     KEY `status` (`status`),
                     KEY `type` (`type`),
                     KEY `severity` (`severity`)
-                ')
-                ->setForeignKeys('
+                ')->setForeignKeys('
                     CONSTRAINT `fk_security_incidents_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                 ')
                 ->create();

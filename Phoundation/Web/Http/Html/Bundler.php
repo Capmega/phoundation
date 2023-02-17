@@ -275,7 +275,7 @@ class Bundler
                     if (!file_exists($this->path . $import)) {
                         Notification::new()
                             ->setCode('not-exists')
-                            ->setGroups('developers')
+                            ->setRoles('developer')
                             ->setTitle(tr('Bundler file does not exist'))
                             ->setMessage(tr('The bundler ":extension" file ":import" @imported by file ":file" does not exist', [
                                 ':file'      => $file,
@@ -298,7 +298,7 @@ class Bundler
                     if (!file_exists($import)) {
                         Notification::new()
                             ->setCode('not-exists')
-                            ->setGroups('developers')
+                            ->setRoles('developer')
                             ->setTitle(tr('Bundler file does not exist'))
                             ->setMessage(tr('The bundler ":extension" file ":import" @imported by file ":file" does not exist', [
                                 ':file'      => $file,
@@ -382,7 +382,7 @@ class Bundler
                     if (!file_exists($file)) {
                         Notification::new()
                             ->setCode('not-exists')
-                            ->setGroups('developers')
+                            ->setRoles('developer')
                             ->setTitle(tr('Bundler file does not exist'))
                             ->setMessage(tr('The requested ":extension" type file ":file" is stated to be bundled but it does not exist', [
                                 ':file'      => $file,

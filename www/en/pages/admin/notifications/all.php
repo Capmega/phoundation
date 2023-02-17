@@ -15,7 +15,7 @@ use Phoundation\Web\Page;
 
 // Build notifications table
 $table = Notifications::new()->getHtmlDataTable()
-    ->setRowUrl('/accounts/notification-:ROW.html');
+    ->setRowUrl('/notifications/notification-:ROW.html');
 
 $notifications = Card::new()
     ->setTitle('Active notifications')

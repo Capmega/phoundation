@@ -49,6 +49,8 @@ class Updates extends \Phoundation\Core\Libraries\Updates
     public function updates(): void
     {
         $this->addUpdate('0.0.6', function () {
+            sql()->schema()->table('notifications')->drop();
+
             // Add initial tables for the Notification library
             sql()->schema()->table('notifications')->define()
                 ->setColumns('
@@ -58,57 +60,30 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `meta_id` bigint NOT NULL,
                     `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `users_id` bigint NOT NULL,
                     `code` varchar(16) DEFAULT NULL,
-                    `type` varchar(16) DEFAULT NULL,
+                    `mode` varchar(16) DEFAULT NULL,
                     `priority` int NOT NULL,
                     `title` varchar(255) NOT NULL,
                     `message` text NOT NULL,
-                    `file` varchar(255) NOT NULL,
-                    `line` int(11) NOT NULL,
-                    `trace` text NOT NULL,
+                    `file` varchar(255) DEFAULT NULL,
+                    `line` int(11) DEFAULT NULL,
+                    `trace` text DEFAULT  NULL,
                     `details` text DEFAULT NULL,
-                ')
-                ->setIndices('
+                ')->setIndices('
                     PRIMARY KEY (`id`),
                     KEY `created_on` (`created_on`),
                     KEY `created_by` (`created_by`),
                     KEY `status` (`status`),
                     KEY `meta_id` (`meta_id`),
                     KEY `code` (`code`),
-                    KEY `type` (`type`),
+                    KEY `mode` (`mode`),
                     KEY `priority` (`priority`),
-                ')
-                ->setForeignKeys('
+                    KEY `users_id` (`users_id`),
+                ')->setForeignKeys('
                     CONSTRAINT `fk_notifications_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_notifications_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
-                ')
-                ->create();
-
-            sql()->schema()->table('notifications_groups')->define()
-                ->setColumns('
-                    `id` bigint NOT NULL AUTO_INCREMENT,
-                    `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` bigint DEFAULT NULL,
-                    `meta_id` bigint NOT NULL,
-                    `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
-                    `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
-                    `notifications_id` bigint(11) NOT NULL,
-                    `groups_id` bigint(11) DEFAULT NULL,
-                ')
-                ->setIndices('
-                    PRIMARY KEY (`id`),
-                    KEY `created_by` (`created_by`),
-                    KEY `created_on` (`created_on`),
-                    KEY `meta_id` (`meta_id`),
-                    KEY `status` (`status`),
-                    KEY `notifications_id` (`notifications_id`),
-                    KEY `groups_id` (`groups_id`),
-                ')
-                ->setForeignKeys('
-                    CONSTRAINT `fk_notifications_groups_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
-                    CONSTRAINT `fk_notifications_groups_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
-                    CONSTRAINT `fk_notifications_groups_notifications_id` FOREIGN KEY (`notifications_id`) REFERENCES `notifications` (`id`) ON DELETE RESTRICT,
-                    CONSTRAINT `fk_notifications_groups_groups_id` FOREIGN KEY (`groups_id`) REFERENCES `accounts_groups` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_notifications_users_id` FOREIGN KEY (`users_id`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                 ')
                 ->create();
         });

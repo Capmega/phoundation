@@ -67,16 +67,14 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `description` mediumtext DEFAULT NULL,
                     `exception` mediumtext DEFAULT NULL,
                     `details` mediumtext DEFAULT NULL
-                ')
-                ->setIndices('                
+                ')->setIndices('                
                     PRIMARY KEY (`id`),
                     KEY `created_by` (`created_by`),
                     KEY `created_on` (`created_on`),
                     KEY `meta_id` (`meta_id`),
                     KEY `status` (`status`),
                     KEY `type` (`type`)
-                ')
-                ->setForeignKeys('
+                ')->setForeignKeys('
                     CONSTRAINT `fk_developer_incidents_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_developer_incidents_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                 ')

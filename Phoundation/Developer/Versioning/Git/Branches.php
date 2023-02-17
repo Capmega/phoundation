@@ -3,7 +3,7 @@
 namespace Phoundation\Developer\Versioning\Git;
 
 use Phoundation\Cli\Cli;
-use Phoundation\Data\Classes\Iterator;
+use Phoundation\Data\Iterator;
 use Phoundation\Developer\Versioning\Git\Traits\GitProcess;
 use Phoundation\Processes\Process;
 
@@ -32,8 +32,7 @@ class Branches extends Iterator
     public function getList(): array
     {
         if (!$this->list) {
-            $results = Process::new('git')
-                ->setExecutionPath($this->path)
+            $results = Process::new('git')->setExecutionPath($this->path)
                 ->addArgument('branch')
                 ->addArgument('--quiet')
                 ->addArgument('--no-color')

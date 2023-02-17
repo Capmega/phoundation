@@ -62,7 +62,7 @@ class Js
 
                     Notification::new()
                         ->setCode('not-exists')
-                        ->setGroups('developers')
+                        ->setRoles('developer')
                         ->setTitle(tr('html_load_js() issue detected'))
                         ->setMessage(tr('File ":file" was specified with ".js"', [':file' => $file]))
                         ->send();
@@ -72,7 +72,7 @@ class Js
 
                     Notification::new()
                         ->setCode('not-exists')
-                        ->setGroups('developers')
+                        ->setRoles('developer')
                         ->setTitle(tr('html_load_js() issue detected'))
                         ->setMessage(tr('File ":file" was specified with ".min.js', [':file' => $file]))
                         ->send();

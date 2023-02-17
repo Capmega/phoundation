@@ -690,14 +690,12 @@ class Project
 
             // Copy new versions
             $rsync
-                ->setSource($phoundation->getPath() . 'Phoundation/')
-                ->setTarget(PATH_ROOT . 'Phoundation/')
+                ->setSource($phoundation->getPath() . 'Phoundation/')->setTarget(PATH_ROOT . 'Phoundation/')
                 ->execute();
 
             // Copy new versions
             $rsync
-                ->setSource($phoundation->getPath() . 'scripts/')
-                ->setTarget(PATH_ROOT . 'scripts/')
+                ->setSource($phoundation->getPath() . 'scripts/')->setTarget(PATH_ROOT . 'scripts/')
                 ->execute();
 
             // All is well? Get rid of the garbage

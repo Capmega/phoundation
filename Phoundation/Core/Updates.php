@@ -65,8 +65,7 @@ class Updates extends Libraries\Updates
                     `library` VARCHAR(64) NOT NULL,
                     `version` bigint NOT NULL,
                     `comments` VARCHAR(2048) NULL,
-                ')
-                ->setIndices('
+                ')->setIndices('
                     PRIMARY KEY (`id`),
                     KEY `created_on` (`created_on`),
                     KEY `created_by` (`created_by`),
@@ -84,8 +83,7 @@ class Updates extends Libraries\Updates
 
             // Add tables for the meta library
             sql()->schema()->table('meta')->define()
-                ->setColumns('`id` bigint NOT NULL AUTO_INCREMENT')
-                ->setIndices('PRIMARY KEY (`id`)')
+                ->setColumns('`id` bigint NOT NULL AUTO_INCREMENT')->setIndices('PRIMARY KEY (`id`)')
                 ->create();
 
             sql()->schema()->table('meta_history')->define()
@@ -98,15 +96,13 @@ class Updates extends Libraries\Updates
                     `source` varchar(512) DEFAULT NULL,
                     `comments` varchar(255) DEFAULT NULL,
                     `data` text DEFAULT NULL
-                ')
-                ->setIndices('
+                ')->setIndices('
                     PRIMARY KEY (`id`),
                     KEY `created_on` (`created_on`),
                     KEY `created_by` (`created_by`),
                     KEY `meta_id` (`meta_id`),
                     KEY `action` (`action`),
-                ')
-                ->setForeignKeys('
+                ')->setForeignKeys('
                     CONSTRAINT `fk_meta_history_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                 ')
                 ->create();
@@ -132,16 +128,14 @@ class Updates extends Libraries\Updates
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `session_key` varchar(64) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
                     `ip` int NOT NULL,
-                ')
-                ->setIndices('
+                ')->setIndices('
                     PRIMARY KEY (`id`),
                     KEY `created_on` (`created_on`),
                     KEY `created_by` (`created_by`),
                     KEY `status` (`status`),
                     UNIQUE KEY `session_key` (`session_key`),
                     KEY `ip` (`ip`),
-                ')
-                ->setForeignKeys('
+                ')->setForeignKeys('
                     CONSTRAINT `fk_sessions_extended_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                 ')
                 ->create();
@@ -158,16 +152,14 @@ class Updates extends Libraries\Updates
                     `status` VARCHAR(16) DEFAULT NULL,
                     `url` varchar(140) NOT NULL,
                     `cloak` varchar(32) NOT NULL,
-                ')
-                ->setIndices('
+                ')->setIndices('
                     PRIMARY KEY (`id`),
                     KEY `created_on` (`created_on`),
                     KEY `created_by` (`created_by`),
                     KEY `status` (`status`),
                     UNIQUE KEY `cloak` (`cloak`),
                     UNIQUE KEY `url_created_by` (`url`,`created_by`),
-                ')
-                ->setForeignKeys('
+                ')->setForeignKeys('
                     CONSTRAINT `fk_url_cloaks_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
                 ')
                 ->create();
@@ -186,16 +178,14 @@ class Updates extends Libraries\Updates
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `key` varchar(64) NOT NULL,
                     `value` varchar(4096) NOT NULL,
-                ')
-                ->setIndices('
+                ')->setIndices('
                     PRIMARY KEY (`id`),
                     KEY `created_on` (`created_on`),
                     KEY `created_by` (`created_by`),
                     KEY `status` (`status`),
                     KEY `meta_id` (`meta_id`),
                     UNIQUE KEY `key` (`key`),
-                ')
-                ->setForeignKeys('
+                ')->setForeignKeys('
                     CONSTRAINT `fk_key_value_store_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_key_value_store_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                 ')
@@ -219,8 +209,7 @@ class Updates extends Libraries\Updates
                     `code_639_2_b` varchar(3) DEFAULT NULL,
                     `code_639_3` varchar(3) DEFAULT NULL,
                     `description` text DEFAULT NULL,
-                ')
-                ->setIndices('
+                ')->setIndices('
                     PRIMARY KEY (`id`),
                     KEY `created_on` (`created_on`),
                     KEY `created_by` (`created_by`),
@@ -230,8 +219,7 @@ class Updates extends Libraries\Updates
                     UNIQUE KEY `code_639_2_t` (`code_639_2_t`),
                     UNIQUE KEY `code_639_2_b` (`code_639_2_b`),
                     UNIQUE KEY `code_639_3` (`code_639_3`),
-                ')
-                ->setForeignKeys('
+                ')->setForeignKeys('
                     CONSTRAINT `fk_languages_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_languages_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                 ')
@@ -256,8 +244,7 @@ class Updates extends Libraries\Updates
                     `file` varchar(64) NOT NULL,
                     `class` varchar(255) NOT NULL,
                     `description` text NULL,
-                ')
-                ->setIndices('
+                ')->setIndices('
                     PRIMARY KEY (`id`),
                     KEY `created_by` (`created_by`),
                     KEY `created_on` (`created_on`),
@@ -267,8 +254,7 @@ class Updates extends Libraries\Updates
                     UNIQUE KEY `name` (`name`),
                     UNIQUE KEY `seo_name` (`seo_name`),
                     INDEX `priority` (`priority`),
-                ')
-                ->setForeignKeys('
+                ')->setForeignKeys('
                     CONSTRAINT `fk_core_plugins_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_core_plugins_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                 ')
@@ -288,8 +274,7 @@ class Updates extends Libraries\Updates
                     `file` varchar(64) NOT NULL,
                     `class` varchar(32) DEFAULT NULL,
                     `description` text DEFAULT NULL,
-                    ')
-                ->setIndices('
+                ')->setIndices('
                     PRIMARY KEY (`id`),
                     KEY `created_on` (`created_on`),
                     KEY `created_by` (`created_by`),
@@ -298,8 +283,7 @@ class Updates extends Libraries\Updates
                     UNIQUE KEY `class` (`class`),
                     UNIQUE KEY `name` (`name`),
                     UNIQUE KEY `seo_name` (`seo_name`),
-                ')
-                ->setForeignKeys('
+                ')->setForeignKeys('
                     CONSTRAINT `fk_core_templates_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_core_templates_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                 ')

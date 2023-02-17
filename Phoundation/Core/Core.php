@@ -2344,8 +2344,7 @@ class Core {
             }
 
             // Execute the process
-            Process::new(PATH_ROOT . '/cli')
-                ->setWait(1)
+            Process::new(PATH_ROOT . '/cli')->setWait(1)
                 ->setTimeout(static::readRegister('system', 'timeout'))
                 ->setArguments($arguments)
                 ->executePassthru();

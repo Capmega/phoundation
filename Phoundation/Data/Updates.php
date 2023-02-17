@@ -61,8 +61,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `name` varchar(64) DEFAULT NULL,
                     `seo_name` varchar(64) DEFAULT NULL,
                     `description` varchar(2047) DEFAULT NULL
-                ')
-                ->setIndices(' 
+                ')->setIndices(' 
                     PRIMARY KEY (`id`),
                     KEY `created_on` (`created_on`),
                     KEY `meta_id` (`meta_id`),
@@ -70,8 +69,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     UNIQUE KEY `seo_name` (`seo_name`),
                     UNIQUE KEY `parent_name` (`parents_id`,`name`),
                     KEY `parents_id` (`parents_id`),
-                ')
-                ->setForeignKeys(' 
+                ')->setForeignKeys(' 
                     CONSTRAINT `fk_categories_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_categories_parents_id` FOREIGN KEY (`parents_id`) REFERENCES `categories` (`id`) ON DELETE RESTRICT
                 ')

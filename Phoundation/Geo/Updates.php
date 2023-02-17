@@ -75,8 +75,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `seo_name` varchar(64) NOT NULL,
                     `comments` varchar(255) DEFAULT NULL,
                     `notes` varchar(255) DEFAULT NULL,
-                ')
-                ->setIndices('  
+                ')->setIndices('  
                     PRIMARY KEY (`id`),
                     KEY `created_by` (`created_by`),
                     KEY `created_on` (`created_on`),
@@ -88,8 +87,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     KEY `utc_offset` (`utc_offset`),
                     KEY `utc_dst_offset` (`utc_dst_offset`),
                     KEY `code` (`code`),
-                ')
-                ->setForeignKeys('
+                ')->setForeignKeys('
                     CONSTRAINT `fk_geo_timezones_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                 ')
                 ->create();
@@ -111,8 +109,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `latitude` decimal(10,7) NOT NULL,
                     `longitude` decimal(10,7) NOT NULL,
                     `timezones_id` bigint DEFAULT NULL,
-                ')
-                ->setIndices('  
+                ')->setIndices('  
                     PRIMARY KEY (`id`),
                     KEY `created_by` (`created_by`),
                     KEY `created_on` (`created_on`),
@@ -125,8 +122,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     KEY `latitude` (`latitude`),
                     KEY `longitude` (`longitude`),
                     KEY `timezones_id` (`timezones_id`),
-                ')
-                ->setForeignKeys('
+                ')->setForeignKeys('
                     CONSTRAINT `fk_geo_continents_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_geo_continents_timezones_id` FOREIGN KEY (`timezones_id`) REFERENCES `geo_timezones` (`id`) ON DELETE RESTRICT
                 ')
@@ -166,8 +162,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `capital` varchar(200) DEFAULT NULL,
                     `areainsqkm` double DEFAULT NULL,
                     `population` int DEFAULT NULL,
-                ')
-                ->setIndices('
+                ')->setIndices('
                     PRIMARY KEY (`id`),
                     KEY `created_by` (`created_by`),
                     KEY `created_on` (`created_on`),
@@ -197,8 +192,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     KEY `equivalent_fips_code` (`equivalent_fips_code`),
                     KEY `latitude` (`latitude`),
                     KEY `longitude` (`longitude`),
-                ')
-                ->setForeignKeys('
+                ')->setForeignKeys('
                     CONSTRAINT `fk_geo_countries_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_geo_countries_continents_id` FOREIGN KEY (`continents_id`) REFERENCES `geo_continents` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_geo_countries_timezones_id` FOREIGN KEY (`timezones_id`) REFERENCES `geo_timezones` (`id`) ON DELETE RESTRICT
@@ -230,8 +224,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `admin1` varchar(20) DEFAULT NULL,
                     `admin2` varchar(20) DEFAULT NULL,
                     `filter` enum("default", "selective") CHARACTER SET latin1 NOT NULL DEFAULT "default",
-                ')
-                ->setIndices('
+                ')->setIndices('
                     PRIMARY KEY (`id`),
                     KEY `created_by` (`created_by`),
                     KEY `created_on` (`created_on`),
@@ -251,8 +244,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     KEY `admin2` (`admin2`),
                     KEY `name` (`name`),
                     KEY `country_code` (`country_code`),
-                ')
-                ->setForeignKeys('
+                ')->setForeignKeys('
                     CONSTRAINT `fk_geo_states_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_geo_states_timezones_id` FOREIGN KEY (`timezones_id`) REFERENCES `geo_timezones` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_geo_states_continents_id` FOREIGN KEY (`continents_id`) REFERENCES `geo_continents` (`id`) ON DELETE RESTRICT,
@@ -285,8 +277,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `elevation` int DEFAULT NULL,
                     `admin1` varchar(20) DEFAULT NULL,
                     `admin2` varchar(20) DEFAULT NULL
-                ')
-                ->setIndices('
+                ')->setIndices('
                     PRIMARY KEY (`id`),
                     KEY `created_by` (`created_by`),
                     KEY `created_on` (`created_on`),
@@ -304,8 +295,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     KEY `admin1` (`admin1`),
                     KEY `admin2` (`admin2`),
                     KEY `name` (`name`),
-                ')
-                ->setForeignKeys('
+                ')->setForeignKeys('
                     CONSTRAINT `fk_geo_counties_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_geo_counties_timezones_id` FOREIGN KEY (`timezones_id`) REFERENCES `geo_timezones` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_geo_counties_continents_id` FOREIGN KEY (`continents_id`) REFERENCES `geo_continents` (`id`) ON DELETE RESTRICT,
@@ -326,8 +316,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `code` varchar(10) NOT NULL,
                     `name` varchar(32) NOT NULL,
                     `description` varchar(4096) DEFAULT NULL,
-                ')
-                ->setIndices('
+                ')->setIndices('
                     PRIMARY KEY (`id`),
                     KEY `created_by` (`created_by`),
                     KEY `created_on` (`created_on`),
@@ -335,8 +324,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     KEY `status` (`status`),
                     UNIQUE KEY `code` (`code`),
                     KEY `name` (`name`)
-                ')
-                ->setForeignKeys('
+                ')->setForeignKeys('
                     CONSTRAINT `fk_geo_features_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                 ')
                 ->create();
@@ -370,8 +358,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `population` int DEFAULT NULL,
                     `timezone` varchar(64) DEFAULT NULL,
                     `feature_code` varchar(10) DEFAULT NULL,
-                ')
-                ->setIndices('
+                ')->setIndices('
                     PRIMARY KEY (`id`),
                     KEY `created_by` (`created_by`),
                     KEY `created_on` (`created_on`),
@@ -396,8 +383,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     KEY `admin1` (`admin1`),
                     KEY `admin2` (`admin2`),
                     KEY `name` (`name`),
-                ')
-                ->setForeignKeys('
+                ')->setForeignKeys('
                     CONSTRAINT `fk_geo_cities_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_geo_cities_timezones_id` FOREIGN KEY (`timezones_id`) REFERENCES `geo_timezones` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_geo_cities_continents_id` FOREIGN KEY (`continents_id`) REFERENCES `geo_continents` (`id`) ON DELETE RESTRICT,

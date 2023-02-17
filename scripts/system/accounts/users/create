@@ -124,7 +124,7 @@ if ($argv['roles']) {
 
 
 
-// Add password for this user
+// Get and validate password for this user
 if (!$argv['no_password']) {
     $argv['password']          = Cli::readPassword(tr('Please type the users password:'));
     $argv['password_validate'] = Cli::readPassword(tr('Please re-type the users password:'));

@@ -301,10 +301,10 @@ abstract class DataEntry
 
         if (!$exists) {
             if ($throw_exception) {
-                throw new DataEntryAlreadyExistsException(tr('The ":type" type data entry with identifier ":id" already exists', [
+                throw DataEntryAlreadyExistsException::new(tr('The ":type" type data entry with identifier ":id" already exists', [
                     ':type' => self::$entry_name,
                     ':id'   => $identifier
-                ]));
+                ]))->makeWarning();
             }
         }
 
@@ -337,10 +337,10 @@ abstract class DataEntry
         if ($exists) {
             if ($id !== $exists) {
                 if ($throw_exception) {
-                    throw new DataEntryAlreadyExistsException(tr('The ":type" type data entry with identifier ":id" already exists', [
+                    throw DataEntryAlreadyExistsException::new(tr('The ":type" type data entry with identifier ":id" already exists', [
                         ':type' => self::$entry_name,
                         ':id'   => $identifier
-                    ]));
+                    ]))->makeWarning();
                 }
             }
         }
@@ -867,7 +867,7 @@ abstract class DataEntry
         }
 
         if (!is_array($this->data[$key])) {
-            throw new OutOfBoundsException(tr('Cannot *add* data value to key ":key", the key is not an array', [
+            throw new OutOfBoundsException(tr('Cannot *add* data value to key ":key", the value datatype is not "array"', [
                 ':key' => $key
             ]));
         }

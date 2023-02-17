@@ -3,12 +3,20 @@
 namespace Phoundation\Notifications;
 
 use JetBrains\PhpStorm\ExpectedValues;
+use Phoundation\Accounts\Roles\Role;
+use Phoundation\Accounts\Roles\Roles;
+use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntry\Traits\DataEntryCode;
+use Phoundation\Data\DataEntry\Traits\DataEntryDetails;
+use Phoundation\Data\DataEntry\Traits\DataEntryException;
+use Phoundation\Data\DataEntry\Traits\DataEntryTitle;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Notifications\Exception\NotificationBusyException;
 use Throwable;
 
 
@@ -24,6 +32,11 @@ use Throwable;
  */
 class Notification extends DataEntry
 {
+    use DataEntryCode;
+    use DataEntryTitle;
+    use DataEntryDetails;
+
+
     /**
      * Keeps track of if this noticication was logged or not
      *
@@ -38,21 +51,28 @@ class Notification extends DataEntry
      */
     protected static bool $auto_log = false;
 
+    /**
+     * The roles where this notification should be sent to
+     *
+     * @var array|null $roles
+     */
+    protected ?array $roles = null;
+
 
 
 //    /**
-//     * The group that will receive  this notification
+//     * The role that will receive  this notification
 //     *
-//     * @var array $groups
+//     * @var array $roles
 //     */
-//    protected array $groups = [];
+//    protected array $roles = [];
 //
 //    /**
-//     * The type of notification, either "INFORMATION", "NOTICE", "WARNING", or "ERROR"
+//     * The mode of notification, either "INFORMATION", "NOTICE", "WARNING", or "ERROR"
 //     *
-//     * @var string $type
+//     * @var string $mode
 //     */
-//    #[ExpectedValues(values: ["INFORMATION", "NOTICE", "WARNING", "ERROR"])]  protected string $type = 'ERROR';
+//    #[ExpectedValues(values: ["INFORMATION", "NOTICE", "WARNING", "ERROR"])]  protected string $mode = 'ERROR';
 //
 //    /**
 //     * The code for this notification
@@ -128,39 +148,12 @@ class Notification extends DataEntry
     {
         static::$auto_log   = Config::get('notifications.auto-log', true);
         static::$entry_name = 'notification';
-        $this->table      = 'notifications';
+        $this->table        = 'notifications';
+
+        $this->setMode('unknown');
+        $this->setPriority(1);
 
         parent::__construct($identifier);
-    }
-
-
-
-    /**
-     * Sets the code for this notification
-     *
-     * @param string|null $code
-     * @return static
-     */
-    public function setCode(?string $code): static
-    {
-        if (strlen((string) $code) > 16) {
-            throw new OutOfBoundsException('Invalid code specified for this notification, it should be less than or equal to 16 characters');
-        }
-
-        $this->setDataValue('code', $code);
-        return $this;
-    }
-
-
-
-    /**
-     * Returns the code for this notification
-     *
-     * @return string|null
-     */
-    public function getCode(): ?string
-    {
-        return $this->getDataValue('code');
     }
 
 
@@ -198,77 +191,79 @@ class Notification extends DataEntry
 
 
     /**
-     * Sets the type for this notification
+     * Sets the mode for this notification
      *
-     * @param string $type
+     * @param string $mode
      * @return static
      */
-    public function setType(#[ExpectedValues(values: ["INFORMATION", "NOTICE", "WARNING", "ERROR"])] string $type): static
+    public function setMode(#[ExpectedValues(values: ["INFORMATION", "NOTICE", "WARNING", "ERROR", "UNKNOWN"])] string $mode): static
     {
-        $clean_type = strtoupper(trim($type));
+        $clean_mode = strtoupper(trim($mode));
 
-        switch ($clean_type) {
+        switch ($clean_mode) {
             case 'INFORMATION':
                 // no-break
             case 'NOTICE':
                 // no-break
             case 'WARNING':
-                // no-break
+            // no-break
             case 'ERROR':
+                // no-break
+            case 'UNKNOWN':
                 break;
 
             case '':
-                throw new OutOfBoundsException(tr('No type specified for this notification'));
+                throw new OutOfBoundsException(tr('No mode specified for this notification'));
 
             default:
-                throw new OutOfBoundsException(tr('Unknown type ":type" specified for this notification, please ensure it is one of "WARNING", "ERROR", "NOTICE", or "INFORMATION"', [
-                    ':type' => $type
+                throw new OutOfBoundsException(tr('Unknown mode ":mode" specified for this notification, please ensure it is one of "WARNING", "ERROR", "NOTICE", or "INFORMATION"', [
+                    ':mode' => $mode
                 ]));
         }
 
-        $this->setDataValue('type', $clean_type);
+        $this->setDataValue('mode', $clean_mode);
         return $this;
     }
 
 
 
     /**
-     * Returns the type for this notification
+     * Returns the mode for this notification
      *
      * @return string|null
      */
-    public function getType(): ?string
+    public function getMode(): ?string
     {
-        return $this->getDataValue('type');
+        return $this->getDataValue('mode');
     }
 
 
 
     /**
-     * Returns the title for this notification
+     * Returns the users_id for this notification
      *
-     * @return string|null
+     * @return int|null
      */
-    public function getTitle(): ?string
+    public function getUsersId(): ?int
     {
-        return $this->getDataValue('title');
+        return $this->getDataValue('users_id');
     }
 
 
 
     /**
-     * Sets the title for this notification
+     * Sets the users_id for this notification
      *
-     * @param string $title
+     * @param int $users_id
      * @return static
      */
-    public function setTitle(string $title): static
+    public function setUsersId(int $users_id): static
     {
-        if (!$title) {
-            throw new OutOfBoundsException('No title specified for this notification');
+        if (!$users_id) {
+            throw new OutOfBoundsException('No users_id specified for this notification');
         }
 
-        $this->setDataValue('title', $title);
+        $this->setDataValue('users_id', $users_id);
         return $this;
     }
 
@@ -305,6 +300,96 @@ class Notification extends DataEntry
 
 
     /**
+     * Returns the file for this notification
+     *
+     * @return string|null
+     */
+    public function getFile(): ?string
+    {
+        return $this->getDataValue('file');
+    }
+
+
+
+    /**
+     * Sets the file for this notification
+     *
+     * @param string $file
+     * @return static
+     */
+    public function setFile(string $file): static
+    {
+        if (!$file) {
+            throw new OutOfBoundsException('No file specified for this notification');
+        }
+
+        $this->setDataValue('file', $file);
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the line for this notification
+     *
+     * @return string|null
+     */
+    public function getLine(): ?string
+    {
+        return $this->getDataValue('line');
+    }
+
+
+
+    /**
+     * Sets the line for this notification
+     *
+     * @param string $line
+     * @return static
+     */
+    public function setLine(string $line): static
+    {
+        if (!$line) {
+            throw new OutOfBoundsException('No line specified for this notification');
+        }
+
+        $this->setDataValue('line', $line);
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the trace for this notification
+     *
+     * @return string|null
+     */
+    public function getTrace(): ?string
+    {
+        return $this->getDataValue('trace');
+    }
+
+
+
+    /**
+     * Sets the trace for this notification
+     *
+     * @param string $trace
+     * @return static
+     */
+    public function setTrace(string $trace): static
+    {
+        if (!$trace) {
+            throw new OutOfBoundsException('No trace specified for this notification');
+        }
+
+        $this->setDataValue('trace', $trace);
+        return $this;
+    }
+
+
+
+    /**
      * Sets the exception for this notification
      *
      * @param Throwable $e
@@ -312,8 +397,13 @@ class Notification extends DataEntry
      */
     public function setException(Throwable $e): static
     {
-        $this->setCode($e->getCode());
+        $this->setFile($e->getFile());
+        $this->setLine($e->getLine());
+        $this->setTrace($e->getTraceAsString());
+        $this->setCode('E-' . $e->getCode());
+        $this->setTitle(tr('Phoundation encountered an exception'));
         $this->setMessage($e->getMessage());
+        $this->addRole('developer');
         $this->setDetails([
             'trace' => $e->getTrace(),
             'data' => (($e instanceof Exception) ? $e->getData() : 'No a Phoundation exception, no data available')
@@ -338,39 +428,13 @@ class Notification extends DataEntry
 
 
     /**
-     * Sets the details for this notification
+     * Returns the roles for this notification
      *
-     * @param mixed $details
-     * @return static
+     * @return array|null
      */
-    public function setDetails(mixed $details): static
+    public function getRoles(): ?array
     {
-        $this->setDataValue('details', $details);
-        return $this;
-    }
-
-
-
-    /**
-     * Returns the details for this notification
-     *
-     * @return mixed
-     */
-    public function getDetails(): mixed
-    {
-        return $this->getDataValue('details');
-    }
-
-
-
-    /**
-     * Returns the groups for this notification
-     *
-     * @return array
-     */
-    public function getGroups(): array
-    {
-        return $this->getDataValue('groups');
+        return $this->roles;
     }
 
 
@@ -380,9 +444,9 @@ class Notification extends DataEntry
      *
      * @return static
      */
-    public function clearGroups(): static
+    public function clearRoles(): static
     {
-        $this->setDataValue('groups', []);
+        $this->roles = [];
         return $this;
     }
 
@@ -391,18 +455,39 @@ class Notification extends DataEntry
     /**
      * Sets the message for this notification
      *
-     * @note: This will reset the current already registered groups
-     * @param array|string $groups
+     * @note: This will reset the current already registered roles
+     * @param array|string $roles
      * @return static
      */
-    public function setGroups(array|string $groups): static
+    public function setRoles(array|string $roles): static
     {
-        if (!$groups) {
-            throw new OutOfBoundsException('No groups specified for this notification');
+        if (!$roles) {
+            throw new OutOfBoundsException('No roles specified for this notification');
         }
 
-        $this->setDataValue('groups', []);
-        $this->addGroups($groups);
+        return $this
+            ->clearRoles()
+            ->addRoles($roles);
+    }
+
+
+
+    /**
+     * Sets the message for this notification
+     *
+     * @param array|string $roles
+     * @return static
+     */
+    public function addRoles(array|string $roles): static
+    {
+        if (!$roles) {
+            throw new OutOfBoundsException('No roles specified for this notification');
+        }
+
+        foreach (Arrays::force($roles) as $role) {
+            $this->addRole($role);
+        }
+
         return $this;
     }
 
@@ -411,39 +496,17 @@ class Notification extends DataEntry
     /**
      * Sets the message for this notification
      *
-     * @param array|string $groups
+     * @param string|null $role
      * @return static
      */
-    public function addGroups(array|string $groups): static
+    public function addRole(?string $role): static
     {
-        if (!$groups) {
-            throw new OutOfBoundsException('No groups specified for this notification');
+        $role = trim((string) $role);
+
+        if ($role) {
+            $this->roles[] = $role;
         }
 
-        foreach (Arrays::force($groups) as $group) {
-            $this->addGroup($group);
-        }
-
-        return $this;
-    }
-
-
-
-    /**
-     * Sets the message for this notification
-     *
-     * @param string $group
-     * @return static
-     */
-    public function addGroup(string $group): static
-    {
-        $group = trim($group);
-
-        if (!$group) {
-            throw new OutOfBoundsException('Empty or no group specified for this notification');
-        }
-
-        $this->addDataValue('groups', $group);
         return $this;
     }
 
@@ -457,6 +520,17 @@ class Notification extends DataEntry
      */
     public function send(?bool $log = null): static
     {
+        static $sending = false;
+
+        if ($sending) {
+            throw new NotificationBusyException(tr('The notifications system is already busy sending another notification and cannot send the new ":title" notification with message ":message"', [
+                ':title'   => $this->getTitle(),
+                ':message' => $this->getMessage()
+            ]), $this->data);
+        }
+
+        $sending = true;
+
         if ($log === null) {
             $log = static::$auto_log;
         }
@@ -465,33 +539,41 @@ class Notification extends DataEntry
             // Automatically log this notification
             static::log();
         }
-showdie($this);
-//        if (!$this->getCode()) {
-//            throw new OutOfBoundsException('Cannot send notification, no notification code specified');
-//        }
 
         if (!$this->getTitle()) {
-            throw new OutOfBoundsException('Cannot send notification, no notification title specified');
+            $sending = false;
+            throw new OutOfBoundsException(tr('Cannot send notification, no notification title specified'));
         }
 
         if (!$this->getMessage()) {
-            throw new OutOfBoundsException('Cannot send notification, no notification message specified');
+            $sending = false;
+            throw new OutOfBoundsException(tr('Cannot send notification, no notification message specified'));
         }
 
-        if (!$this->getGroups()) {
-            throw new OutOfBoundsException('Cannot send notification, no notification groups specified');
+        if (!$this->getRoles()) {
+            $sending = false;
+            throw new OutOfBoundsException(tr('Cannot send notification, no notification roles specified'));
         }
 
-        if ($this->e) {
-            $this->file  = $this->e->getFile();
-            $this->line  = $this->e->getLine();
-            $this->trace = $this->e->getTrace();
+        // Save and send this notification to the assigned user
+        $this
+            ->saveFor($this->getUsersId())
+            ->sendTo($this->getUsersId());
+
+        // Save and send this notification to all users that are members of the specified roles
+        $roles = Roles::new()->listIds($this->getRoles());
+Log::backtrace();
+        foreach ($roles as $role) {
+            $users = Role::get($role)->users();
+
+            foreach ($users as $user) {
+                $this
+                    ->saveFor($user->getId())
+                    ->sendTo($user->getId());
+            }
         }
 
-        $this->save();
-
-        // TODO Implement sending notifications by email / SMS / etc
-
+        $sending = false;
         return $this;
     }
 
@@ -504,7 +586,7 @@ showdie($this);
      */
     public function log(): static
     {
-        switch ($this->getType()) {
+        switch ($this->getMode()) {
             case 'ERROR':
                 Log::error($this->getTitle());
                 Log::error($this->getMessage());
@@ -553,6 +635,63 @@ showdie($this);
     }
 
 
+    /**
+     * Save this notification for the specified user
+     *
+     * @param User|int|null $user
+     * @return $this
+     */
+    protected function saveFor(User|int|null $user): static
+    {
+        if (!$user) {
+            // No user specified, save nothing
+            return $this;
+        }
+
+        if (is_object($user)) {
+            $user = $user->getId();
+
+            if (!$user) {
+                throw new OutOfBoundsException(tr('Cannot save notification for specified user because the user has no users_id'));
+            }
+        }
+
+        // Set the id to NULL so that the DataEntry will save a new record
+        $this
+            ->setDataValue('id', null)
+            ->setUsersId($user);
+
+        return parent::save();
+    }
+
+
+
+    /**
+     * Send this notification to the specified user
+     *
+     * @param User|int|null $user
+     * @return $this
+     */
+    protected function sendTo(User|int|null $user): static
+    {
+        if (!$user) {
+            // No user specified, save nothing
+            return $this;
+        }
+
+        if (is_object($user)) {
+            $user = $user->getLogId();
+        }
+
+        Log::warning(tr('Not sending notification ":title" to user ":user", sending notifications has not yet been implemented', [
+            ':title' => $this->getTitle(),
+            ':user'  => $user
+        ]));
+
+        return $this;
+    }
+
+
 
     /**
      * Sets the available data keys for the Notification class
@@ -561,21 +700,69 @@ showdie($this);
      */
     protected function setKeys(): void
     {
-        $this->data = [
-            'groups' => [],
-            'priority' => 10
+        $this->keys = [
+            'users_id' => [
+                'visible' => false
+            ],
+            'code' => [
+                'label'           => tr('Code'),
+                'disabled'        => true,
+                'display_default' => '-',
+            ],
+            'mode' => [
+                'label'    => tr('Class'),
+                'disabled' => true,
+            ],
+            'priority' => [
+                'label'           => tr('Priority'),
+                'disabled'        => true,
+                'mode'            => 'numeric',
+                'default'         => 0,
+                'display_default' => 0,
+            ],
+            'title' => [
+                'label'     => tr('Title'),
+                'disabled'  => true,
+            ],
+            'message' => [
+                'label'    => tr('Message'),
+                'disabled' => true,
+                'element'  => 'text',
+            ],
+            'file' => [
+                'label'    => tr('File'),
+                'disabled' => true,
+            ],
+            'line' => [
+                'label'    => tr('Line'),
+                'disabled' => true,
+            ],
+            'trace' => [
+                'label'           => tr('Trace'),
+                'disabled'        => true,
+                'mode'            => 'datetime-local',
+                'null_mode'       => 'text',
+                'display_default' => tr('Not locked'),
+            ],
+            'details' => [
+                'label'           => tr('Details'),
+                'disabled'        => true,
+                'mode'            => 'datetime-local',
+                'null_mode'       => 'text',
+                'display_default' => tr('Not locked'),
+            ],
         ];
 
-        $this->keys = [
-            'code',
-            'type',
-            'priority',
-            'title',
-            'message',
-            'file',
-            'line',
-            'trace',
-            'details'
+        $this->keys_display = [
+            'code'     => 4,
+            'mode'     => 4,
+            'priority' => 4,
+            'title'    => 12,
+            'message'  => 12,
+            'file'     => 8,
+            'line'     => 4,
+            'trace'    => 12,
+            'details'  => 12,
        ];
 
         parent::setKeys();

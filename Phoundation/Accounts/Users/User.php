@@ -985,7 +985,7 @@ class User extends DataEntry
      * @param string $validation
      * @return static
      */
-    protected function validatePassword(string $password, string $validation): static
+    public function validatePassword(string $password, string $validation): static
     {
         $password   = trim($password);
         $validation = trim($validation);
@@ -1342,19 +1342,37 @@ class User extends DataEntry
             }
         }
 
-        Incident::new()
-            ->setType('User information changed')
-            ->setSeverity(Severity::low)
-            ->setTitle(tr('The user ":user" was saved, see audit ":meta_id" for more information', [
-                ':user'    => $this,
-                ':meta_id' => $this->getMeta()->getId()
-            ]))
-            ->setDetails([
-                ':user' => $this,
-            ])
-            ->save();
+        parent::save();
 
-        return parent::save();
+        $meta_id = $this->getMeta()?->getId();
+
+        if ($meta_id) {
+            Incident::new()
+                ->setType('User information changed')
+                ->setSeverity(Severity::low)
+                ->setTitle(tr('The user ":user" was modified, see audit ":meta_id" for more information', [
+                    ':user'    => $this,
+                    ':meta_id' => $meta_id
+                ]))
+                ->setDetails([
+                    ':user' => $this,
+                ])
+                ->save();
+
+        } else {
+            Incident::new()
+                ->setType('User information changed')
+                ->setSeverity(Severity::low)
+                ->setTitle(tr('The user ":user" was created', [
+                    ':user'    => $this
+                ]))
+                ->setDetails([
+                    ':user' => $this,
+                ])
+                ->save();
+        }
+
+        return $this;
     }
 
 
@@ -1485,8 +1503,7 @@ class User extends DataEntry
 
         if (!$test) {
             Incident::new()
-                ->setType('Incorrect password')
-                ->setSeverity(Severity::low)
+                ->setType('Incorrect password')->setSeverity(Severity::low)
                 ->setTitle(tr('The specified password for user ":user" is incorrect', [':user' => $user]))
                 ->setDetails([':user' => $user])
                 ->save();
@@ -1509,7 +1526,7 @@ class User extends DataEntry
         $this->keys = [
             'last_sign_in' => [
                 'disabled'        => true,
-                'type'            => 'date',
+                'type'            => 'datetime-local',
                 'null_type'       => 'text',
                 'display_default' => '-',
                 'label'           => tr('Last sign in')
@@ -1524,7 +1541,7 @@ class User extends DataEntry
             ],
             'locked_until' => [
                 'disabled'        => true,
-                'type'            => 'date',
+                'type'            => 'datetime-local',
                 'null_type'       => 'text',
                 'display_default' => tr('Not locked'),
                 'label'           => tr('Locked until')
@@ -1590,19 +1607,19 @@ class User extends DataEntry
                 'display'  => false
             ],
             'verified_on' => [
-                'disabled'  => true,
-                'type'      => 'date',
-                'null_type' => 'text',
-                'display_default'   => tr('Not verified'),
-                'label'     => tr('Account verified on'),
+                'disabled'        => true,
+                'type'            => 'datetime-local',
+                'null_type'       => 'text',
+                'display_default' => tr('Not verified'),
+                'label'           => tr('Account verified on'),
             ],
             'priority' => [
-                'type'     => 'numeric',
-                'label'    => tr('Priority'),
+                'type'  => 'numeric',
+                'label' => tr('Priority'),
             ],
             'is_leader' => [
-                'type'     => 'checkbox',
-                'label'    => tr('Is leader'),
+                'type'  => 'checkbox',
+                'label' => tr('Is leader'),
             ],
             'leaders_id' => [
                 'element'  => function (string $key, array $data, array $source) {

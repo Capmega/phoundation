@@ -574,7 +574,7 @@ class Route
                         Log::notice(tr('*POSSIBLE HACK ATTEMPT DETECTED*'));
                         Notification::new()
                             ->setCode('hack')
-                            ->setGroups('security')
+                            ->setRoles('security')
                             ->setTitle(tr('*Possible hack attempt detected*'))
                             ->setMessage(tr('The IP address ":ip" made the request ":request" which was matched by regex ":regex" with flags ":flags" and caused this notification', [
                                 ':ip'      => static::$ip,

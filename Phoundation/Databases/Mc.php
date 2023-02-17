@@ -482,7 +482,7 @@ class Mc
 
                         Notification::new()
                             ->setCode('not-available')
-                            ->addGroup('developers')
+                            ->addRole('developers')
                             ->setTitle(tr('Memcached server not available'))
                             ->setMessage(tr('Failed to connect to all ":count" memcached servers', [':server' => count($this->configuration['connections'])]))
                             ->send();

@@ -146,8 +146,7 @@ class Script
     protected static function findScript(): string
     {
         if (ArgvValidator::count() <= 1) {
-            throw NoMethodSpecifiedException::new('No method specified!')
-                ->setData(Arrays::filterValues(scandir(PATH_ROOT . 'scripts/'), '.,..'))
+            throw NoMethodSpecifiedException::new('No method specified!')->setData(Arrays::filterValues(scandir(PATH_ROOT . 'scripts/'), '.,..'))
                 ->makeWarning();
         }
 

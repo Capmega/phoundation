@@ -110,8 +110,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `timezone` varchar(32) DEFAULT NULL,
                     `description` text DEFAULT NULL,
                     `comments` mediumtext DEFAULT NULL
-                ')
-                ->setIndices('                
+                ')->setIndices('                
                     PRIMARY KEY (`id`),
                     KEY `created_on` (`created_on`),
                     KEY `created_by` (`created_by`),
@@ -136,8 +135,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     KEY `cities_id` (`cities_id`),
                     KEY `states_id` (`states_id`),
                     KEY `countries_id` (`countries_id`),
-                ')
-                ->setForeignKeys('
+                ')->setForeignKeys('
                     CONSTRAINT `fk_accounts_users_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_accounts_users_leaders_id` FOREIGN KEY (`leaders_id`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_accounts_users_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
@@ -158,9 +156,8 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `name` varchar(32) NOT NULL,
                     `seo_name` varchar(32) NOT NULL,
-                    `description` varchar(2047) NOT NULL
-                ')
-                ->setIndices('                
+                    `description` varchar(2047) DEFAULT NULL
+                ')->setIndices('                
                     PRIMARY KEY (`id`),
                     KEY `created_on` (`created_on`),
                     KEY `created_by` (`created_by`),
@@ -168,8 +165,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     KEY `meta_id` (`meta_id`),
                     UNIQUE KEY `seo_name` (`seo_name`),
                     KEY `name` (`name`),
-                ')
-                ->setForeignKeys('
+                ')->setForeignKeys('
                     CONSTRAINT `fk_accounts_rights_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_accounts_rights_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
                 ')
@@ -187,8 +183,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `name` varchar(32) DEFAULT NULL,
                     `seo_name` varchar(32) DEFAULT NULL,
                     `description` varchar(2047) DEFAULT NULL,
-                ')
-                ->setIndices('                
+                ')->setIndices('                
                     PRIMARY KEY (`id`),
                     KEY `created_on` (`created_on`),
                     KEY `created_by` (`created_by`),
@@ -196,8 +191,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     KEY `meta_id` (`meta_id`),
                     UNIQUE KEY `seo_name` (`seo_name`),
                     KEY `name` (`name`),
-                ')
-                ->setForeignKeys('
+                ')->setForeignKeys('
                     CONSTRAINT `fk_accounts_roles_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_accounts_roles_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
                 ')
@@ -215,8 +209,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `name` varchar(32) DEFAULT NULL,
                     `seo_name` varchar(32) DEFAULT NULL,
                     `description` varchar(2047) DEFAULT NULL,
-                ')
-                ->setIndices('                
+                ')->setIndices('                
                     PRIMARY KEY (`id`),
                     KEY `created_on` (`created_on`),
                     KEY `created_by` (`created_by`),
@@ -224,8 +217,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     KEY `meta_id` (`meta_id`),
                     UNIQUE KEY `seo_name` (`seo_name`),
                     KEY `name` (`name`)
-                ')
-                ->setForeignKeys('
+                ')->setForeignKeys('
                     CONSTRAINT `fk_accounts_groups_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_accounts_groups_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
                 ')
@@ -241,8 +233,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `rights_id` bigint NOT NULL,
                     `name` varchar(32) NOT NULL,
                     `seo_name` varchar(32) DEFAULT NULL
-                ')
-                ->setIndices('                
+                ')->setIndices('                
                     PRIMARY KEY (`id`),
                     UNIQUE KEY `users_rights` (`users_id`,`rights_id`),
                     KEY `created_by` (`created_by`),
@@ -251,8 +242,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     KEY `rights_id` (`rights_id`),
                     KEY `name` (`name`),
                     KEY `seo_name` (`seo_name`)
-                ')
-                ->setForeignKeys('
+                ')->setForeignKeys('
                     CONSTRAINT `fk_accounts_users_rights_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_accounts_users_rights_users_id` FOREIGN KEY (`users_id`) REFERENCES `accounts_users` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_accounts_users_rights_rights_id` FOREIGN KEY (`rights_id`) REFERENCES `accounts_rights` (`id`) ON DELETE CASCADE,
@@ -267,16 +257,14 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `created_by` bigint DEFAULT NULL,
                     `users_id` bigint NOT NULL,
                     `roles_id` bigint NOT NULL,
-                ')
-                ->setIndices('                
+                ')->setIndices('                
                     PRIMARY KEY (`id`),
                     UNIQUE KEY `users_roles` (`users_id`,`roles_id`),
                     KEY `created_by` (`created_by`),
                     KEY `created_on` (`created_on`),
                     KEY `roles_id` (`roles_id`),
                     KEY `users_id` (`users_id`),
-                ')
-                ->setForeignKeys('
+                ')->setForeignKeys('
                     CONSTRAINT `fk_accounts_users_roles_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_accounts_users_roles_users_id` FOREIGN KEY (`users_id`) REFERENCES `accounts_users` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_accounts_users_roles_roles_id` FOREIGN KEY (`roles_id`) REFERENCES `accounts_roles` (`id`) ON DELETE CASCADE
@@ -291,16 +279,14 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `created_by` bigint DEFAULT NULL,
                     `roles_id` bigint NOT NULL,
                     `rights_id` bigint NOT NULL,
-                ')
-                ->setIndices('                
+                ')->setIndices('                
                     PRIMARY KEY (`id`),
                     UNIQUE KEY `roles_rights` (`roles_id`,`rights_id`),
                     KEY `created_by` (`created_by`),
                     KEY `created_on` (`created_on`),
                     KEY `roles_id` (`roles_id`),
                     KEY `rights_id` (`rights_id`),
-                ')
-                ->setForeignKeys('
+                ')->setForeignKeys('
                     CONSTRAINT `fk_accounts_roles_rights_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_accounts_roles_rights_rights_id` FOREIGN KEY (`rights_id`) REFERENCES `accounts_rights` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_accounts_roles_rights_roles_id` FOREIGN KEY (`roles_id`) REFERENCES `accounts_roles` (`id`) ON DELETE CASCADE
@@ -329,8 +315,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `ip` varchar(46) DEFAULT NULL,
                     `action` enum("authentication", "signin") CHARACTER SET latin1 NOT NULL DEFAULT "authentication",
                     `method` enum("password", "google", "facebook") CHARACTER SET latin1 NOT NULL DEFAULT "password",
-                ')
-                ->setIndices('
+                ')->setIndices('
                     PRIMARY KEY (`id`),
                     KEY `created_on` (`created_on`),
                     KEY `created_by` (`created_by`),
@@ -340,8 +325,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     KEY `ip` (`ip`),
                     KEY `action` (`action`),
                     KEY `method` (`method`),
-                ')
-                ->setForeignKeys('
+                ')->setForeignKeys('
                     CONSTRAINT `fk_accounts_authentications_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_accounts_authentications_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_accounts_authentications_users_id` FOREIGN KEY (`users_id`) REFERENCES `accounts_users` (`id`) ON DELETE CASCADE,
@@ -357,13 +341,11 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `date_requested` int DEFAULT "0",
                     `date_used` int DEFAULT "0",
                     `ip` varchar(32) CHARACTER SET latin1 DEFAULT NULL,
-                ')
-                ->setIndices('
+                ')->setIndices('
                     PRIMARY KEY (`id`),
                     KEY `created_on` (`created_on`),
                     KEY `created_by` (`created_by`),
-                ')
-                ->setForeignKeys('
+                ')->setForeignKeys('
                     CONSTRAINT `fk_users_password_resets_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
                 ')
                 ->create();
@@ -374,13 +356,11 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
                     `password` varchar(255) NOT NULL,
-                ')
-                ->setIndices('
+                ')->setIndices('
                     PRIMARY KEY (`id`),
                     KEY `created_by` (`created_by`),
                     KEY `password` (`password`),
-                ')
-                ->setForeignKeys('
+                ')->setForeignKeys('
                     CONSTRAINT `fk_accounts_old_passwords_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
                 ')
                 ->create();
@@ -391,53 +371,48 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
                     `password` varchar(255) NOT NULL,
-                ')
-                ->setIndices('
+                ')->setIndices('
                     PRIMARY KEY (`id`),
                     KEY `created_by` (`created_by`),
                     KEY `password` (`password`),
-                ')
-                ->setForeignKeys('
+                ')->setForeignKeys('
                     CONSTRAINT `fk_accounts_banned_passwords_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
                 ')
                 ->create();
 
             // Create default rights and roles
             $god = Right::new()
-                ->setName('God')
-                ->setDescription('This right will give the user access to everything, everywhere')
+                ->setName('God')->setDescription('This right will give the user access to everything, everywhere')
                 ->save();
 
             $admin = Right::new()
-                ->setName('Admin')
-                ->setDescription('This right will give the user access to the administrative area of the site, but no specific pages yet')
+                ->setName('Admin')->setDescription('This right will give the user access to the administrative area of the site, but no specific pages yet')
+                ->save();
+
+            $developer = Right::new()
+                ->setName('Developer')->setDescription('This right will give the user access to the developer area of the site')
                 ->save();
 
             $accounts = Right::new()
-                ->setName('Accounts')
-                ->setDescription('This right will give the user access to the administrative user accounts management section of the site')
+                ->setName('Accounts')->setDescription('This right will give the user access to the administrative user accounts management section of the site')
                 ->save();
 
             $security = Right::new()
-                ->setName('Security')
-                ->setDescription('This right will give the user access to the administrative security pages of the site')
+                ->setName('Security')->setDescription('This right will give the user access to the administrative security pages of the site')
                 ->save();
 
             $phoundation = Right::new()
-                ->setName('Phoundation')
-                ->setDescription('This right will give the user access to the administrative phoundation system management section of the site')
+                ->setName('Phoundation')->setDescription('This right will give the user access to the administrative phoundation system management section of the site')
                 ->save();
 
             // Define basic roles
             Role::new()
-                ->setName('God')
-                ->setDescription('This role will give the user the "God" right which will give it access to everything, everywhere')
+                ->setName('God')->setDescription('This role will give the user the "God" right which will give it access to everything, everywhere')
                 ->save()
                 ->rights()->add($god);
 
             Role::new()
-                ->setName('Administrator')
-                ->setDescription('This role gives access to all the administrative pages except user account management')
+                ->setName('Administrator')->setDescription('This role gives access to all the administrative pages except user account management')
                 ->save()
                 ->rights()
                 ->add($admin)
@@ -445,16 +420,20 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ->add($phoundation);
 
             Role::new()
-                ->setName('Accounts administrator')
-                ->setDescription('This role gives access to only the administrative user account pages')
+                ->setName('Accounts administrator')->setDescription('This role gives access to only the administrative user account pages')
                 ->save()
                 ->rights()
                 ->add($admin)
                 ->add($accounts);
 
             Role::new()
-                ->setName('Moderator')
-                ->setDescription('This role will give the user basic access to the administrative pages of the site')
+                ->setName('Developer')->setDescription('This role will give the user access to the developer pages of the site')
+                ->save()
+                ->rights()
+                ->add($developer);
+
+            Role::new()
+                ->setName('Moderator')->setDescription('This role will give the user basic access to the administrative pages of the site')
                 ->save()
                 ->rights()
                 ->add($admin);
