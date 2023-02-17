@@ -1,6 +1,7 @@
 <?php
 
 use JetBrains\PhpStorm\NoReturn;
+use Phoundation\Core\Arrays;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Session;
@@ -363,9 +364,7 @@ function not_null(): mixed
  */
 function pick_random(): mixed
 {
-    $args = func_get_args();
-    $key = array_rand($args, count($args));
-    return $args[$key];
+    return Arrays::getRandomValue(func_get_args());
 }
 
 

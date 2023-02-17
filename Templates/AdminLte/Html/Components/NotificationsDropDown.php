@@ -2,6 +2,8 @@
 
 namespace Templates\AdminLte\Html\Components;
 
+use Phoundation\Core\Strings;
+use Phoundation\Date\Date;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Renderer;
 
@@ -35,35 +37,49 @@ class NotificationsDropDown extends Renderer
      */
     public function render(): ?string
     {
+        if (!$this->element->getAllNotificationsUrl()) {
+            throw new OutOfBoundsException(tr('No all notifications page URL specified'));
+        }
+
         if (!$this->element->getNotificationsUrl()) {
             throw new OutOfBoundsException(tr('No notifications page URL specified'));
         }
 
-        if ($this->element->getNotifications()) {
-            $count = $this->element->getNotifications()->count();
+        $notifications = $this->element->getNotifications(null);
+
+        if ($notifications) {
+            $count = $notifications->getCount();
+            $mode  = $notifications->getMostImportantMode();
+            $mode  = strtolower($mode);
         } else {
             $count = 0;
         }
 
         $this->render = '   <a class="nav-link" data-toggle="dropdown" href="#">
                               <i class="far fa-bell"></i>
-                              ' . ($count ? '<span class="badge badge-warning navbar-badge">' . $count . '</span>' : null) . '                              
+                              ' . ($count ? '<span class="badge badge-' . $mode . ' navbar-badge">' . $count . '</span>' : null) . '                              
                             </a>
                             <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
                                   <span class="dropdown-item dropdown-header">' . tr(':count Notifications', [':count' => $count]) . '</span>
                                   <div class="dropdown-divider"></div>';
 
         if ($count) {
-            foreach ($this->element->getNotifications() as $notification) {
-                $this->render .= '<a href="' . $notification->getUrl() . '" class="dropdown-item">
-                                    <i class="fas fa-' . $notification->getIcon() . ' mr-2"></i> ' . $notification->getShortMessage() . '
-                                    <span class="float-right text-muted text-sm"> ' . $notification->getAge() . '</span>
+            $current = 0;
+
+            foreach ($notifications as $notification) {
+                if (++$current > 12) {
+                    break;
+                }
+
+                $this->render .= '<a href="' . str_replace(':ID', $notification->getId(), $this->element->getNotificationsUrl()) . '" class="dropdown-item">
+                                    <i class="fas fa-' . $notification->getIcon() . ' mr-2"></i> ' . Strings::truncate($notification->getTitle(), 24) . '
+                                    <span class="float-right text-muted text-sm"> ' . Date::getAge($notification->getCreatedOn()) . '</span>
                                   </a>
                                   <div class="dropdown-divider"></div>';
             }
         }
 
-        $this->render .= '        <a href="' . $this->element->getNotificationsUrl() . '" class="dropdown-item dropdown-footer">' . tr('See All Notifications') . '</a>
+        $this->render .= '        <a href="' . $this->element->getAllNotificationsUrl() . '" class="dropdown-item dropdown-footer">' . tr('See All Notifications') . '</a>
                                 </div>';
 
         return parent::render();

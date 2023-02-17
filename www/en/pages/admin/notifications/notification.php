@@ -19,13 +19,13 @@ GetValidator::new()
     ->validate();
 
 $notification = Notification::get($_GET['id']);
-
+$notification->setStatus('READ');
 
 
 // Build the notification form
 $notification_card = Card::new()
     ->setHasCollapseSwitch(true)
-    ->setTitle(tr('Edit data for notification :name', [':name' => $notification->getDisplayName()]))
+    ->setTitle(tr('Edit data for notification :name', [':name' => $notification->getTitle()]))
     ->setContent($notification->getHtmlForm()->render())
     ->setButtons(Buttons::new()
         ->addButton(tr('Submit'))
@@ -33,38 +33,6 @@ $notification_card = Card::new()
         ->addButton(tr('Audit'), 'green', '/audit/meta-' . $notification->getMeta() . '.html', false, true)
         ->addButton(isset_get($delete))
         ->addButton(isset_get($impersonate)));
-
-
-
-// Build the roles list management section
-if ($notification->getId()) {
-    $roles_card = Card::new()
-        ->setTitle(tr('Roles for this notification'))
-        ->setContent($notification->getHtmlForm()
-            ->setAction('#')
-            ->setMethod('POST')
-            ->render())
-        ->setButtons(Buttons::new()
-            ->addButton(tr('Submit'))
-            ->addButton(tr('Cancel'), 'secondary', '/accounts/notifications.html', true));
-}
-
-
-
-// Build the grid column with a form containing the notification and roles cards
-$column = GridColumn::new()
-    ->addContent($notification_card->render() . (isset($roles_card) ? $roles_card->render() : ''))
-    ->setSize(9)
-    ->useForm(true);
-
-
-
-// Build profile picture card
-$picture = Card::new()
-    ->setTitle(tr('Notification profile picture'))
-    ->setContent(Img::new()
-        ->setSrc($notification->getPicture())
-        ->setAlt(tr('Profile picture for :notification', [':notification' => $notification->getDisplayName()])));
 
 
 
@@ -90,17 +58,17 @@ $documentation = Card::new()
 
 // Build and render the grid
 $grid = Grid::new()
-    ->addColumn($column)
-    ->addColumn($picture->render() . $relevant->render() . $documentation->render(), 3);
+    ->addColumn($notification_card, 9)
+    ->addColumn($relevant->render() . $documentation->render(), 3);
 
 echo $grid->render();
 
 
 // Set page meta data
 Page::setHeaderTitle(tr('Notification'));
-Page::setHeaderSubTitle($notification->getName());
+Page::setHeaderSubTitle($notification->getTitle());
 Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                       => tr('Home'),
     '/notifications/all.html' => tr('Notifications'),
-    ''                        => $notification->getDisplayName()
+    ''                        => $notification->getTitle()
 ]));

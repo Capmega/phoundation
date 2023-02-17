@@ -63,6 +63,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `users_id` bigint NOT NULL,
                     `code` varchar(16) DEFAULT NULL,
                     `mode` varchar(16) DEFAULT NULL,
+                    `icon` varchar(32) DEFAULT NULL,
                     `priority` int NOT NULL,
                     `title` varchar(255) NOT NULL,
                     `message` text NOT NULL,

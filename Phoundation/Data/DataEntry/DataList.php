@@ -10,7 +10,6 @@ use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Components\DataTable;
 use Phoundation\Web\Http\Html\Components\Table;
 use ReturnTypeWillChange;
-use function Phoundation\Data\DataList\count;
 
 
 /**
@@ -66,6 +65,13 @@ abstract class DataList implements Iterator
      * @var string $html_query
      */
     protected string $html_query;
+
+    /**
+     * The execute array for the HTML query
+     *
+     * @var array|null $html_execute
+     */
+    protected ?array $html_execute;
 
     /**
      * The name of the source table for this DataList
@@ -332,11 +338,14 @@ abstract class DataList implements Iterator
      * Set the query for this object when shown as HTML table
      *
      * @param string $query
+     * @param array|null $execute
      * @return static
      */
-    public function setHtmlQuery(string $query): static
+    public function setHtmlQuery(string $query, ?array $execute = null): static
     {
-        $this->html_query = $query;
+        $this->html_query   = $query;
+        $this->html_execute = $execute;
+
         return $this;
     }
 
@@ -574,7 +583,7 @@ abstract class DataList implements Iterator
 
         // Create and return the table
         return Table::new()
-            ->setSourceQuery($this->html_query)
+            ->setSourceQuery($this->html_query, $this->html_execute)
             ->setCheckboxSelectors(true);
     }
 
@@ -596,7 +605,7 @@ abstract class DataList implements Iterator
         // Create and return the table
         return DataTable::new()
             ->setId($this->table_name)
-            ->setSourceQuery($this->html_query)
+            ->setSourceQuery($this->html_query, $this->html_execute)
             ->setCheckboxSelectors(true);
     }
 

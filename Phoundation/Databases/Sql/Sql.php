@@ -690,24 +690,17 @@ class Sql
      */
     public function setStatus(?string $status, string $table, array $row, ?string $comments = null): int
     {
-        // Set meta fields
-        if (array_key_exists('meta_id', $row)) {
-            // Update the meta data
-            Meta::get($row['meta_id'])->action(tr('Changed status to :status', [':status' => $status]), $comments);
-
-            // Create the update filters
-            $update = $this->filterColumns($row, ' AND ');
-
-            // Update the row to status "deleted"
-            return $this->query('UPDATE `' . $table . '` 
-                                       SET `status` = ":status"
-                                       WHERE ' . $update, [
-               ':status' => $status
-            ])->rowCount();
+        if (empty($row['id'])) {
+            throw new OutOfBoundsException(tr('Cannot set status, no row id specified'));
         }
 
-        // This table is not a DataEntry table, just delete the entry
-        return $this->erase($table, $row);
+        // Update the meta data
+        Meta::get($row['meta_id'])->action(tr('Changed status to :status', [':status' => $status]), $comments);
+
+        // Update the row status
+        return $this->query('UPDATE `' . $table . '` 
+                                   SET `status` = :status
+                                   WHERE   `id` = :id', [':status' => $status, ':id' => $row['id']])->rowCount();
     }
 
 

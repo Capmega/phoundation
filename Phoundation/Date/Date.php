@@ -9,6 +9,7 @@ use Exception;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Exception\CoreException;
+use Phoundation\Core\Log\Log;
 use Phoundation\Date\Exception\DateException;
 use Phoundation\Exception\OutOfBoundsException;
 use Throwable;
@@ -390,5 +391,19 @@ class Date
         }
 
         return $date;
+    }
+
+
+
+    /**
+     * Returns a string representation of how long ago the specified date was, from now
+     *
+     * @param Date|DateTime|string|int $date
+     * @return string
+     */
+    public static function getAge(Date|DateTime|string|int $date): string
+    {
+        Log::warning(tr('Date::getAge() USED WHILE UNDER CONSTRUCTION!'));
+        return 'unknown';
     }
 }

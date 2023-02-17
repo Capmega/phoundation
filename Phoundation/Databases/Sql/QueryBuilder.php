@@ -409,4 +409,13 @@ class QueryBuilder
 
 
 
+    /**
+     * Execute the built query and return the results as an array
+     *
+     * @return array
+     */
+    public function list(): array
+    {
+        return sql()->list($this->getQuery(), $this->getExecute());
+    }
 }

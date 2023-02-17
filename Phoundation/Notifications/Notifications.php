@@ -2,7 +2,11 @@
 
 namespace Phoundation\Notifications;
 
+use Phoundation\Core\Arrays;
+use Phoundation\Core\Session;
+use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Databases\Sql\QueryBuilder;
 
 
 /**
@@ -29,13 +33,57 @@ class Notifications extends DataList
         $this->entry_class = Notification::class;
         $this->table_name  = 'notifications';
 
-        $this->setHtmlQuery('SELECT   `id`, `title`, `status`, `created_on` 
+        $this->setHtmlQuery('SELECT   `id`, `title`, `mode` AS `severity`, `priority`, `created_on` 
                                    FROM     `notifications` 
-                                   WHERE    `status` IS NULL 
-                                   ORDER BY `title`');
+                                   WHERE    `users_id` = :users_id 
+                                     AND    `status` IS NULL 
+                                   ORDER BY `title`', [':users_id' => Session::getUser()->getId()]);
+
         parent::__construct($parent, $id_column);
     }
 
+
+
+    /**
+     * Returns the query builder for this object
+     *
+     * @note This is an expirimental function
+     * @return void
+     */
+    public function loadList(array|string|null $columns = null, array $filters = [], array $order_by = []): void
+    {
+        $this->list = $this->loadDetails($columns, $filters, $order_by);
+    }
+
+
+
+    /**
+     * Returns the most important notification mode
+     *
+     * @return string
+     */
+    public function getMostImportantMode(): string
+    {
+        $list = [
+            'UNKNOWN'     => 1,
+            'INFORMATION' => 2,
+            'SUCCESS'     => 3,
+            'WARNING'     => 4,
+            'DANGER'      => 5,
+        ];
+
+        $return = 1;
+
+        foreach ($this->list as $entry) {
+            $priority = isset_get($list[isset_get($entry['mode'])]);
+
+            if ($priority > $return) {
+                $return = $priority;
+            }
+        }
+
+        return array_search($return, $list);
+    }
 
 
     /**
@@ -46,13 +94,50 @@ class Notifications extends DataList
         // TODO: Implement load() method.
     }
 
+
+
     /**
      * @inheritDoc
      */
-    protected function loadDetails(array|string|null $columns, array $filters = []): array
+    protected function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
     {
-        // TODO: Implement loadDetails() method.
+        // Default columns
+        if (!$columns) {
+            $columns = '`id`, `title`, `mode`, `priority`, `created_on`';
+        }
+
+        // Default ordering
+        if (!$order_by) {
+            $order_by = ['created_on' => false];
+        }
+
+        // Get column information
+        $columns = Strings::force($columns);
+
+        // Build query
+        $builder = new QueryBuilder();
+        $builder->addSelect('SELECT ' . $columns);
+        $builder->addFrom('FROM `notifications`');
+
+        // Add ordering
+        foreach ($order_by as $column => $direction) {
+            $builder->addOrderBy('ORDER BY `' . $column . '` ' . ($direction ? 'DESC' : 'ASC'));
+        }
+
+        // Build filters
+//        foreach ($filters as $key => $value){
+//            switch ($key) {
+//                case 'email':
+//                    $builder->addJoin(' JOIN `notifications`
+//                                            ON   `notifications`.`users_id` = `accounts_users`.`id` ');
+//                    break;
+//            }
+//        }
+
+        return sql()->list($builder->getQuery(), $builder->getExecute());
     }
+
+
 
     /**
      * @inheritDoc

@@ -182,7 +182,7 @@ class Grid extends Container
             static::canRenderHtml($column);
 
             if ($size === null) {
-                $size = $column->getSize();
+                throw new OutOfBoundsException(tr('No column size specified'));
             }
 
             // Render the HTML string

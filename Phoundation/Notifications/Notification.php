@@ -9,6 +9,7 @@ use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Log\Log;
+use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Traits\DataEntryCode;
 use Phoundation\Data\DataEntry\Traits\DataEntryDetails;
@@ -57,6 +58,13 @@ class Notification extends DataEntry
      * @var array|null $roles
      */
     protected ?array $roles = null;
+
+    /**
+     * Optional exception source for this notification
+     *
+     * @var Throwable|null $e
+     */
+    protected ?Throwable $e = null;
 
 
 
@@ -196,18 +204,30 @@ class Notification extends DataEntry
      * @param string $mode
      * @return static
      */
-    public function setMode(#[ExpectedValues(values: ["INFORMATION", "NOTICE", "WARNING", "ERROR", "UNKNOWN"])] string $mode): static
+    public function setMode(#[ExpectedValues(values: ["INFORMATION", "INFO", "SUCCESS", "NOTICE", "WARNING", "DANGER", "ERROR", "EXCEPTION", "UNKNOWN"])] string $mode): static
     {
         $clean_mode = strtoupper(trim($mode));
 
         switch ($clean_mode) {
-            case 'INFORMATION':
+            case 'INFO':
                 // no-break
+            case 'INFORMATION':
+                $clean_mode = 'INFORMATION';
+                break;
+
             case 'NOTICE':
                 // no-break
             case 'WARNING':
             // no-break
             case 'ERROR':
+                // no-break
+            case 'EXCEPTION':
+                // no-break
+            case 'DANGER':
+                $clean_mode = 'DANGER';
+                break;
+
+            case 'SUCCESS':
                 // no-break
             case 'UNKNOWN':
                 break;
@@ -300,6 +320,32 @@ class Notification extends DataEntry
 
 
     /**
+     * Returns the icon for this notification
+     *
+     * @return string|null
+     */
+    public function getIcon(): ?string
+    {
+        return $this->getDataValue('icon');
+    }
+
+
+
+    /**
+     * Sets the icon for this notification
+     *
+     * @param string|null $icon
+     * @return static
+     */
+    public function setIcon(?string $icon): static
+    {
+        $this->setDataValue('icon', $icon);
+        return $this;
+    }
+
+
+
+    /**
      * Returns the file for this notification
      *
      * @return string|null
@@ -314,15 +360,11 @@ class Notification extends DataEntry
     /**
      * Sets the file for this notification
      *
-     * @param string $file
+     * @param string|null $file
      * @return static
      */
-    public function setFile(string $file): static
+    public function setFile(?string $file): static
     {
-        if (!$file) {
-            throw new OutOfBoundsException('No file specified for this notification');
-        }
-
         $this->setDataValue('file', $file);
         return $this;
     }
@@ -344,15 +386,11 @@ class Notification extends DataEntry
     /**
      * Sets the line for this notification
      *
-     * @param string $line
+     * @param string|null $line
      * @return static
      */
-    public function setLine(string $line): static
+    public function setLine(?string $line): static
     {
-        if (!$line) {
-            throw new OutOfBoundsException('No line specified for this notification');
-        }
-
         $this->setDataValue('line', $line);
         return $this;
     }
@@ -374,15 +412,11 @@ class Notification extends DataEntry
     /**
      * Sets the trace for this notification
      *
-     * @param string $trace
+     * @param string|null $trace
      * @return static
      */
-    public function setTrace(string $trace): static
+    public function setTrace(?string $trace): static
     {
-        if (!$trace) {
-            throw new OutOfBoundsException('No trace specified for this notification');
-        }
-
         $this->setDataValue('trace', $trace);
         return $this;
     }
@@ -409,7 +443,7 @@ class Notification extends DataEntry
             'data' => (($e instanceof Exception) ? $e->getData() : 'No a Phoundation exception, no data available')
         ]);
 
-        $this->setDataValue('e', $e);
+        $this->e = $e;
         return $this;
     }
 
@@ -422,7 +456,7 @@ class Notification extends DataEntry
      */
     public function getException(): ?Throwable
     {
-        return $this->getDataValue('e');
+        return $this->e;
     }
 
 
@@ -562,7 +596,7 @@ class Notification extends DataEntry
 
         // Save and send this notification to all users that are members of the specified roles
         $roles = Roles::new()->listIds($this->getRoles());
-Log::backtrace();
+
         foreach ($roles as $role) {
             $users = Role::get($role)->users();
 
@@ -617,22 +651,6 @@ Log::backtrace();
         return $this;
     }
 
-
-
-    /**
-     * Load the specified notification from the database
-     *
-     * @param string|int $identifier
-     * @return void
-     */
-    protected function load(string|int $identifier): void
-    {
-        $data = sql()->get('SELECT * FROM `notifications` WHERE `id` = :id', [
-            ':id' => $identifier
-        ]);
-
-        $this->setData($data);
-    }
 
 
     /**
@@ -713,6 +731,9 @@ Log::backtrace();
                 'label'    => tr('Class'),
                 'disabled' => true,
             ],
+            'icon' => [
+                'visible' => false,
+            ],
             'priority' => [
                 'label'           => tr('Priority'),
                 'disabled'        => true,
@@ -738,18 +759,16 @@ Log::backtrace();
                 'disabled' => true,
             ],
             'trace' => [
-                'label'           => tr('Trace'),
-                'disabled'        => true,
-                'mode'            => 'datetime-local',
-                'null_mode'       => 'text',
-                'display_default' => tr('Not locked'),
+                'label'    => tr('Trace'),
+                'disabled' => true,
+                'element'  => 'text',
+                'rows'     => 10,
             ],
             'details' => [
-                'label'           => tr('Details'),
-                'disabled'        => true,
-                'mode'            => 'datetime-local',
-                'null_mode'       => 'text',
-                'display_default' => tr('Not locked'),
+                'label'    => tr('Details'),
+                'disabled' => true,
+                'element'  => 'text',
+                'rows'     => 10,
             ],
         ];
 

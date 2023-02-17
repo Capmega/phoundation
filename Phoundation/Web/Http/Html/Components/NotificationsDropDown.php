@@ -27,11 +27,18 @@ class NotificationsDropDown extends ElementsBlock
     protected ?Notifications $notifications = null;
 
     /**
-     * Contains the URL for the notifications page
+     * Contains the URL for the specific notifications
      *
      * @var string|null $notifications_url
      */
     protected ?string $notifications_url = null;
+
+    /**
+     * Contains the URL for the notifications page
+     *
+     * @var string|null $notifications_all_url
+     */
+    protected ?string $notifications_all_url = null;
 
 
 
@@ -40,8 +47,13 @@ class NotificationsDropDown extends ElementsBlock
      *
      * @return Notifications|null
      */
-    public function getNotifications(): ?Notifications
+    public function getNotifications(?string $status): ?Notifications
     {
+        if (!$this->notifications) {
+            $this->notifications = new Notifications();
+            $this->notifications->loadList(null, ['status' => $status]);
+        }
+
         return $this->notifications;
     }
 
@@ -82,6 +94,32 @@ class NotificationsDropDown extends ElementsBlock
     public function setNotificationsUrl(?string $notifications_url): static
     {
         $this->notifications_url = UrlBuilder::getWww($notifications_url);
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the notifications page URL
+     *
+     * @return string|null
+     */
+    public function getAllNotificationsUrl(): ?string
+    {
+        return $this->notifications_all_url;
+    }
+
+
+
+    /**
+     * Sets the notifications page URL
+     *
+     * @param string|null $notifications_url
+     * @return static
+     */
+    public function setAllNotificationsUrl(?string $notifications_url): static
+    {
+        $this->notifications_all_url = UrlBuilder::getWww($notifications_url);
         return $this;
     }
 }

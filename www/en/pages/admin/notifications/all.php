@@ -1,5 +1,6 @@
 <?php
 
+use Phoundation\Notifications\FilterForm;
 use Phoundation\Notifications\Notifications;
 use Phoundation\Web\Http\Html\Components\BreadCrumbs;
 use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
@@ -10,6 +11,17 @@ use Phoundation\Web\Page;
 
 
 // Build the page content
+
+
+
+// Build incidents filter card
+$filters_content = FilterForm::new();
+
+$filters = Card::new()
+    ->setHasCollapseSwitch(true)
+    ->setTitle('Notificactions filters')
+    ->setContent($filters_content->render())
+    ->useForm(true);
 
 
 
@@ -47,7 +59,7 @@ $documentation = Card::new()
 
 // Build and render the grid
 $grid = Grid::new()
-    ->addColumn($notifications, 9)
+    ->addColumn($filters->render() . $notifications->render(), 9)
     ->addColumn($relevant->render() . $documentation->render(), 3);
 
 echo $grid->render();

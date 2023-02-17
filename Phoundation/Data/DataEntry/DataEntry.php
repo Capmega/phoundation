@@ -15,6 +15,7 @@ use Phoundation\Data\DataEntry\Exception\DataEntryAlreadyExistsException;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntry\Exception\DataEntryStateMismatchException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Databases\Sql\Sql;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Json;
@@ -419,6 +420,7 @@ abstract class DataEntry
      */
     public function setStatus(?String $status, ?string $comments = null): static
     {
+        sql()->setStatus($status, $this->table, ['id' => $this->getId(), 'meta_id' => $this->getMetaId()], $comments);
         return $this->setDataValue('status', $status);
     }
 
@@ -504,7 +506,7 @@ abstract class DataEntry
      */
     public function getCreatedOn(): ?DateTime
     {
-        $created_on = $this->getDataValue('created_by');
+        $created_on = $this->getDataValue('created_on');
 
         if ($created_on === null) {
             return null;
@@ -516,7 +518,7 @@ abstract class DataEntry
 
 
     /**
-     * Returns the meta information for this class
+     * Returns the meta information for this entry
      *
      * @note Returns NULL if this class has no support for meta information available, or hasn't been written to disk
      *       yet
@@ -531,6 +533,18 @@ abstract class DataEntry
         }
 
         return new Meta($meta_id);
+    }
+
+
+
+    /**
+     * Returns the meta id for this entry
+     *
+     * @return int|null
+     */
+    public function getMetaId(): ?int
+    {
+        return $this->getDataValue('meta_id');
     }
 
 
@@ -1022,9 +1036,9 @@ abstract class DataEntry
     protected function load(string|int $identifier): void
     {
         if (is_numeric($identifier)) {
-            $data = sql()->get('SELECT * FROM `' . $this->table . '` WHERE `id`                           = :id'                     , [':id'                     => $identifier]);
+            $data = sql()->get(' SELECT * FROM `' . $this->table . '` WHERE `id`                           = :id'                     , [':id'                     => $identifier]);
         } else {
-            $data = sql()->get('SELECT * FROM `' . $this->table . '` WHERE `' . $this->unique_column . '` = :' . $this->unique_column, [':'. $this->unique_column => $identifier]);
+            $data = sql()->get(' SELECT * FROM `' . $this->table . '` WHERE `' . $this->unique_column . '` = :' . $this->unique_column, [':'. $this->unique_column => $identifier]);
         }
 
         // Store all data in the object
