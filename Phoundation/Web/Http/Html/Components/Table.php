@@ -108,6 +108,12 @@ class Table extends ResourceElement
      */
     protected ?string $header_text = null;
 
+    /**
+     * If true, will process all cell contents with htmlentities()
+     *
+     * @var bool $process_entities
+     */
+    protected bool $process_entities = true;
 
 
     /**
@@ -181,6 +187,32 @@ class Table extends ResourceElement
     public function getResponsive(): bool
     {
         return $this->responsive;
+    }
+
+
+
+    /**
+     * Sets if the table will process entities in the source data or not
+     *
+     * @param bool $process_entities
+     * @return static
+     */
+    public function setProcessEntities(bool $process_entities): static
+    {
+        $this->process_entities = $process_entities;
+        return $this;
+    }
+
+
+
+    /**
+     * Sets if the table will process entities in the source data or not
+     *
+     * @return bool
+     */
+    public function getProcessEntities(): bool
+    {
+        return $this->process_entities;
     }
 
 
@@ -687,7 +719,7 @@ class Table extends ResourceElement
                     $row  .= $this->renderCell($key, $column, $value, false);
                     $first = false;
                 } else {
-                    $row .= $this->renderCell($key, $column, $value);
+                    $row .= $this->renderCell($key, $column, $value, $this->process_entities);
                 }
             }
 
@@ -837,7 +869,7 @@ class Table extends ResourceElement
                 $return .= $this->renderCell($row_id, $column, $value, false);
                 $first = false;
             } else {
-                $return .= $this->renderCell($row_id, $column, $value);
+                $return .= $this->renderCell($row_id, $column, $value, $this->process_entities);
             }
         }
 
@@ -855,7 +887,7 @@ class Table extends ResourceElement
      * @param bool $entities
      * @return string
      */
-    protected function renderCell(string $row_id, string|int $column, ?string $value, bool $entities = true): string
+    protected function renderCell(string $row_id, string|int $column, ?string $value, bool $entities): string
     {
         $value = (string) $value;
 
