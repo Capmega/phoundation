@@ -274,10 +274,10 @@ class QueryBuilder
      * Add a JOIN part of the query
      *
      * @param string $column
-     * @param string|int $value
+     * @param string|int|null $value
      * @return static
      */
-    public function addExecute(string $column, string|int $value): static
+    public function addExecute(string $column, string|int|null $value): static
     {
         $this->execute[Strings::startsWith($column, ':')] = $value;
         return $this;
@@ -357,8 +357,12 @@ class QueryBuilder
             $query .= $join . ' ';
         }
 
-        foreach ($this->wheres as $where) {
-            $query .= $where . ' ';
+        if ($this->wheres) {
+            $query .= ' WHERE ';
+
+            foreach ($this->wheres as $where) {
+                $query .= $where . ' ';
+            }
         }
 
         foreach ($this->group_by as $group_by) {
