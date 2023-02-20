@@ -12,6 +12,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\PathNotDirectoryException;
 use Phoundation\Filesystem\Exception\RestrictionsException;
+use Phoundation\Processes\Commands\FilesystemCommands;
 use Throwable;
 use const PhpConsole\Test\PATH_TMP_DIR;
 
@@ -35,6 +36,20 @@ class Path extends FileBasics
      * @var string|null
      */
     protected static ?string $temp_path = null;
+
+
+
+    /**
+     * Path class constructor
+     *
+     * @param FileBasics|string|null $file
+     * @param array|string|Restrictions|null $restrictions_restrictions
+     */
+    public function __construct(FileBasics|string|null $file = null, array|string|Restrictions|null $restrictions_restrictions = null)
+    {
+        parent::__construct($file, $restrictions_restrictions);
+        $this->file = Strings::slash($this->file);
+    }
 
 
 
@@ -676,9 +691,9 @@ class Path extends FileBasics
      * Returns a temporary path specific for this process
      *
      * @param bool $public
-     * @return string
+     * @return Path
      */
-    public static function getTemporary(bool $public = false): string
+    public static function getTemporary(bool $public = false): Path
     {
         if (!static::$temp_path) {
             static::$temp_path = PATH_TMP . 'process-' . posix_getpid() . '/';
@@ -693,7 +708,23 @@ class Path extends FileBasics
             link(PATH_PUBTMP . 'p-' . posix_getpid() . '/', static::$temp_path);
         }
 
-        return static::$temp_path;
+        return Path::new(static::$temp_path);
+    }
+
+
+
+    /**
+     * Returns a temporary sub path specific for this process
+     *
+     * @param bool $public
+     * @return Path
+     */
+    public static function getTemporarySub(bool $public = false): Path
+    {
+        $path = self::getTemporary($public);
+        $path = $path . Strings::random(8, characters: 'alphanumeric') . '/';
+
+        return Path::new($path);
     }
 
 
@@ -712,5 +743,114 @@ class Path extends FileBasics
                 ':path' => Strings::from(static::$temp_path, PATH_ROOT)
             ]));
         }
+    }
+
+
+
+    /**
+     * Tars this path and returns a file object for the tar file
+     *
+     * @return File
+     */
+    public function tar(): File
+    {
+        return File::new(FilesystemCommands::new()->tar($this->file), $this->restrictions);
+    }
+
+
+    /**
+     * Returns the single one file in this path IF there is only one file
+     *
+     * @param string|null $regex
+     * @return File
+     */
+    public function getSingleFile(?string $regex = null): File
+    {
+        return File::new($this->file . $this->getSingle($regex, false), $this->restrictions);
+    }
+
+
+    /**
+     * Returns the single one directory in this path IF there is only one file
+     *
+     * @param string|null $regex
+     * @return Path
+     */
+    public function getSingleDirectory(?string $regex = null): Path
+    {
+        return Path::new($this->file . $this->getSingle($regex, true), $this->restrictions);
+    }
+
+
+    /**
+     * Returns the single one file in this path IF there is only one file
+     *
+     * @param string|null $regex
+     * @param bool|null $directory
+     * @return string
+     */
+    protected function getSingle(?string $regex = null, ?bool $directory = null): string
+    {
+        $files = scandir($this->file);
+
+        if (!$files) {
+            throw new FilesystemException(tr('Cannot get single file from path ":path", scandir failed', [
+                ':path' => $this->file
+            ]));
+        }
+
+        // Get rid of . and ..
+        array_shift($files);
+        array_shift($files);
+
+        foreach ($files as $id => $file) {
+            if (is_bool($directory)) {
+                // Filter on directories or non directories
+                if (is_dir($this->file . $file)) {
+                    // This is a directory
+                    if (!$directory) {
+                        // But we're looking for non directories
+                        unset($files[$id]);
+                        continue;
+                    }
+                } else {
+                    // This is a non directory file
+                    if ($directory) {
+                        // But we're looking for directories
+                        unset($files[$id]);
+                        continue;
+                    }
+                }
+            }
+
+            if ($regex) {
+                // Filter on regex too
+                if (!preg_match($regex, $file)) {
+                    // This file doesn't match the regex
+                    unset($files[$id]);
+                    continue;
+                }
+            }
+        }
+
+        // Ensure we have only 1 file. zero is less than one and shall not be accepted, as is two, which is more than
+        // one and as such not equal an the same as one and therefor shall not be accepted.
+        switch (count($files)) {
+            case 0:
+                throw new FilesystemException(tr('Cannot return a single file, the path ":path" matches no files', [
+                    ':path'  => $this->file
+                ]));
+
+            case 1:
+                break;
+
+            default:
+                throw new FilesystemException(tr('Cannot return a single file, the path ":path" matches ":count" files', [
+                    ':path'  => $this->file,
+                    ':count' => count($files)
+                ]));
+        }
+
+        return array_shift($files);
     }
 }

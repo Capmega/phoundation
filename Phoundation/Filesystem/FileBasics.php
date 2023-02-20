@@ -541,19 +541,19 @@ class FileBasics
     }
 
 
-
     /**
      * Delete a file weather it exists or not, without error, using the "rm" command
      *
      * @param boolean $clean_path If specified true, all directories above each specified pattern will be deleted as
-     *                              well as long as they are empty. This way, no empty directories will be left lying
-     *                              around
-     * @param boolean $sudo If specified true, the rm command will be executed using sudo
+     *                            well as long as they are empty. This way, no empty directories will be left lying
+     *                            around
+     * @param boolean $sudo       If specified true, the rm command will be executed using sudo
+     * @param bool $escape        If true, will escape the filename. This may cause issues when using wildcards, for
+     *                            example
      * @return static
      * @see Restrictions::check() This function uses file location restrictions
-     *
      */
-    public function delete(bool $clean_path = true, bool $sudo = false): static
+    public function delete(bool $clean_path = true, bool $sudo = false, bool $escape = true): static
     {
         // Check filesystem restrictions
         $this->restrictions->check($this->file, true);
@@ -563,9 +563,9 @@ class FileBasics
         Process::new('rm', $this->restrictions)
             ->setSudo($sudo)
             ->setTimeout(10)
-            ->addArgument($this->file)
+            ->addArgument($this->file, $escape)
             ->addArgument('-rf')
-            ->executeReturnArray();
+            ->executeNoReturn();
 
         // If specified to do so, clear the path upwards from the specified pattern
         if ($clean_path) {
@@ -658,9 +658,9 @@ class FileBasics
     /**
      * Returns the file mode for the object file
      *
-     * @return int
+     * @return string|int|null
      */
-    public function getMode(): int
+    public function getMode(): string|int|null
     {
         return $this->getStat()['mode'];
     }

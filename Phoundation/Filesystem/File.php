@@ -13,6 +13,8 @@ use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Exception\FilesystemException;
+use Phoundation\Filesystem\Exception\Sha256MismatchException;
+use Phoundation\Processes\Commands\FilesystemCommands;
 use Throwable;
 
 
@@ -1303,5 +1305,121 @@ class File extends FileBasics
     public function getExtension(): string
     {
         return Strings::fromReverse($this->file, '.');
+    }
+
+
+
+    /**
+     * Ensure that this file has the specified sha256 hash
+     *
+     * @param string $sha256
+     * @param bool $ignore_sha_fail
+     * @return $this
+     */
+    public function checkSha256(string $sha256, bool $ignore_sha_fail = false): static
+    {
+        $file_sha = FilesystemCommands::new($this->restrictions)->sha256($this->file);
+
+        if ($sha256 !== $file_sha) {
+            if (!$ignore_sha_fail) {
+                throw new Sha256MismatchException(tr('The SHA256 for file ":file" does not match with the required SHA256', [
+                    ':file' => $this->file
+                ]));
+            }
+
+            Log::warning(tr('WARNING: SHA256 hash for file ":file" does NOT match the required SHA256 hash! Continuing because SHA256 failures are ignored!', [
+                ':file' => $this->file
+            ]));
+        }
+
+        return $this;
+    }
+
+
+
+    /**
+     * Tars this file and returns a file object for the tar file
+     *
+     * @return File
+     */
+    public function tar(): File
+    {
+        return File::new(FilesystemCommands::new($this->restrictions)->tar($this->file), $this->restrictions);
+    }
+
+
+
+    /**
+     * Untars the file
+     *
+     * @return Path
+     */
+    public function untar(): Path
+    {
+        FilesystemCommands::new($this->restrictions)->untar($this->file);
+        return Path::new(dirname($this->file), $this->restrictions);
+    }
+
+
+
+    /**
+     * Gzips the file
+     *
+     * @return $this
+     */
+    public function gzip(): static
+    {
+        $file = FilesystemCommands::new($this->restrictions)->gzip($this->file);
+        return File::new($file, $this->restrictions);
+    }
+
+
+
+    /**
+     * Ungzips the file
+     *
+     * @return $this
+     */
+    public function gunzip(): static
+    {
+        $file = FilesystemCommands::new($this->restrictions)->gunzip($this->file);
+        return File::new($file, $this->restrictions);
+    }
+
+
+
+    /**
+     * Returns the contents of this file as a string
+     *
+     * @return string
+     */
+    public function getContentsAsString(): string
+    {
+        return file_get_contents($this->file);
+    }
+
+
+
+    /**
+     * Returns the contents of this file as an array
+     *
+     * @return array
+     */
+    public function getContentsAsArray(): array
+    {
+        return file($this->file);
+    }
+
+
+
+    /**
+     * Will unzip this file
+     *
+     * @return static
+     */
+    public function unzip(): static
+    {
+        FilesystemCommands::new($this->restrictions)->unzip($this->file);
+        return $this;
     }
 }
