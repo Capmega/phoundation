@@ -31,6 +31,13 @@ abstract class Import
      */
     protected int $count;
 
+    /**
+     * The name for this importers object
+     *
+     * @var string|null $name
+     */
+    protected ?string $name = null;
+
 
 
     /**
@@ -39,13 +46,13 @@ abstract class Import
      * This constructor must define the $this->table variable
      *
      * @param bool $demo
-     * @param int $min
-     * @param int $max
+     * @param int|null $min
+     * @param int|null $max
      */
-    public function __construct(bool $demo, int $min, int $max)
+    public function __construct(bool $demo = false, ?int $min = null, ?int $max = null)
     {
         $this->demo  = $demo;
-        $this->count = mt_rand($min, $max);
+        $this->count = mt_rand((int) $min, (int) $max);
     }
 
 
@@ -74,6 +81,16 @@ abstract class Import
      */
     abstract public function execute(): int;
 
+
+    /**
+     * Returns the name for this importers object
+     *
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->name;
+    }
 
 
 //    /**

@@ -20,6 +20,20 @@ use Phoundation\Developer\TestDataGenerator;
 class Import extends \Phoundation\Developer\Project\Import
 {
     /**
+     * Import class constructor
+     *
+     * @param bool $demo
+     * @param int|null $min
+     * @param int|null $max
+     */
+    public function __construct(bool $demo = false, ?int $min = null, ?int $max = null)
+    {
+        parent::__construct($demo, $min, $max);
+        $this->name = 'Providers';
+    }
+
+
+    /**
      * Import the content for the business_providers table
      *
      * @return int
