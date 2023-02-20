@@ -3,12 +3,14 @@
 namespace Phoundation\Geo\GeoIp;
 
 use Phoundation\Core\Config;
+use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 
 
+
 /**
- * Importer class
+ * GeoIp class
  *
  *
  *
@@ -17,36 +19,30 @@ use Phoundation\Exception\UnderConstructionException;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation/Geo
  */
-class Import extends \Phoundation\Developer\Project\Import
+class GeoIp extends DataEntry
 {
     /**
-     * Import class constructor
+     * The IP for this GeoIp entry
      *
-     * @param bool $demo
-     * @param int|null $min
-     * @param int|null $max
+     * @var ?string $ip
      */
-    public function __construct(bool $demo = false, ?int $min = null, ?int $max = null)
-    {
-        parent::__construct($demo, $min, $max);
-        $this->name = 'GeoIP';
-    }
+    protected ?string $ip_address = null;
+
 
 
     /**
-     * Import the content for the languages table from a data-source file
+     * Returns a GeoIp object for the specified IP address
      *
-     * @return int
+     * @param string|null $ip
+     * @return static
      */
-    public function execute(): int
+    public static function detect(?string $ip): static
     {
-        $provider = self::getProvider();
-        $path     = $provider->download();
+        $return = self::getProvider();
+        $return->setIpAddress($ip);
 
-        $provider->process($path);
-        return 0;
+        return $return;
     }
-
 
 
     /**
@@ -61,7 +57,7 @@ class Import extends \Phoundation\Developer\Project\Import
 
         switch ($provider) {
             case 'maxmind':
-                return new MaxMindImport();
+                return new MaxMind();
 
             case 'ip2location':
                 throw new UnderConstructionException();
@@ -71,5 +67,42 @@ class Import extends \Phoundation\Developer\Project\Import
                     ':provider' => $provider
                 ]));
         }
+    }
+
+
+
+    /**
+     * Returns the ip address for this user
+     *
+     * @return string|null
+     */
+    public function getIpAddress(): ?string
+    {
+        return $this->getDataValue('ip_address');
+    }
+
+
+
+    /**
+     * Sets the ip address for this user
+     *
+     * @param string|null $ip_address
+     * @return static
+     */
+    public function setIpAddress(string|null $ip_address): static
+    {
+        return $this->setDataValue('ip_address', $ip_address);
+    }
+
+
+
+    /**
+     * Returns true if the IP is European
+     *
+     * @return bool
+     */
+    public function isEuropean(): bool
+    {
+
     }
 }
