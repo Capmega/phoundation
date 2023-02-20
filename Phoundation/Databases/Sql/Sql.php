@@ -34,6 +34,7 @@ use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Processes\Commands\Command;
 use Phoundation\Servers\Servers;
+use Phoundation\Utils\Json;
 use Throwable;
 
 
@@ -50,11 +51,11 @@ use Throwable;
 class Sql
 {
     /**
-     * True if the SQL static data has been initialized
+     * Dynamic database configurations
      *
-     * @var bool $init
+     * @var array $configurations
      */
-    protected static bool $init = false;
+    protected static array $configurations;
 
     /**
      * Identifier of this instance
@@ -124,7 +125,7 @@ class Sql
         $this->uniqueid = Strings::random();
 
         // Read configuration and connect
-        static::readConfiguration($instance);
+        $this->configuration = static::readConfiguration($instance);
         $this->connect($use_database);
     }
 
@@ -299,10 +300,7 @@ class Sql
                 $query = ' ' . $query;
             }
 
-            if ($query[0] == ' ') {
-                Log::sql('(' . $this->uniqueid . ') ' . $query, $execute);
-            }
-
+            Log::sql('(' . $this->uniqueid . ') ' . $query, $execute, ($query[0] == ' ') ? 10 : 1);
             Timers::get('query')->startLap();
 
             if (!$execute) {
@@ -422,32 +420,32 @@ class Sql
                         case 1052:
                             // Integrity constraint violation
                             throw new SqlException(tr('Query ":query" contains an abiguous column', [
-                                ':query' => $this->buildQueryString($query, $execute, true)
+                                ':query' => self::buildQueryString($query, $execute, true)
                             ]), $e);
 
                         case 1054:
                             // Column not found
                             throw new SqlException(tr('Query ":query" refers to a column that does not exist', [
-                                ':query' => $this->buildQueryString($query, $execute, true)
+                                ':query' => self::buildQueryString($query, $execute, true)
                             ]), $e);
 
                         case 1064:
                             // Syntax error or access violation
                             if (str_contains(strtoupper($query), 'DELIMITER')) {
                                 throw new SqlException(tr('Query ":query" contains the "DELIMITER" keyword. This keyword ONLY works in the MySQL console, and can NOT be used over MySQL drivers in PHP. Please remove this keword from the query', [
-                                    ':query' => $this->buildQueryString($query, $execute, true)
+                                    ':query' => self::buildQueryString($query, $execute, true)
                                 ]), $e);
                             }
 
                             throw new SqlException(tr('Query ":query" has a syntax error: ":error"', [
-                                ':query' => $this->buildQueryString($query, $execute),
+                                ':query' => self::buildQueryString($query, $execute),
                                 ':error' => Strings::from($error[2], 'syntax; ')
                             ], false), $e);
 
                         case 1072:
                             // Adding index error, index probably does not exist
                             throw new SqlException(tr('Query ":query" failed with error 1072 with the message ":message"', [
-                                ':query'   => $this->buildQueryString($query, $execute, true),
+                                ':query'   => self::buildQueryString($query, $execute, true),
                                 ':message' => isset_get($error[2])
                             ]), $e);
 
@@ -469,19 +467,19 @@ class Sql
 
                             }catch(Exception $e) {
                                 throw new SqlException(tr('Query ":query" failed with error 1005, but another error was encountered while trying to obtain FK error data', [
-                                    ':query' => $this->buildQueryString($query, $execute, true)
+                                    ':query' => self::buildQueryString($query, $execute, true)
                                 ]), $e);
                             }
 
                             throw new SqlException(tr('Query ":query" failed with error 1005 with the message "Foreign key error on :message"', [
-                                ':query'   => $this->buildQueryString($query, $execute, true),
+                                ':query'   => self::buildQueryString($query, $execute, true),
                                 ':message' => $fk
                             ]), $e);
 
                         case 1146:
                             // Base table or view not found
                             throw new SqlException(tr('Query ":query" refers to a base table or view that does not exist', [
-                                ':query' => $this->buildQueryString($query, $execute, true)
+                                ':query' => self::buildQueryString($query, $execute, true)
                             ]), $e);
                     }
             }
@@ -494,7 +492,7 @@ class Sql
                 SQL STATE ERROR : "' . $error[0] . '"
                 DRIVER ERROR    : "' . $error[1] . '"
                 ERROR MESSAGE   : "' . $error[2] . '"
-                query           : "' . Strings::Log($this->buildQueryString($query, $execute, true)) . '"
+                query           : "' . Strings::Log(self::buildQueryString($query, $execute, true)) . '"
                 date            : "' . date('d m y h:i:s'))
                 ->setDetails([
                     '$argv'     => $argv,
@@ -508,7 +506,7 @@ class Sql
                 ->send();
 
             throw SqlException::new(tr('(:id) Query ":query" failed with ":messages"', [
-                ':query'    => $this->buildQueryString($query, $execute),
+                ':query'    => self::buildQueryString($query, $execute),
                 ':messages' => $e->getMessage(),
                 ':id'       => $this->uniqueid
             ]), $e)->setCode(isset_get($error[1]));
@@ -695,7 +693,7 @@ class Sql
         }
 
         // Update the meta data
-        Meta::get($row['meta_id'])->action(tr('Changed status to :status', [':status' => $status]), $comments);
+        Meta::get($row['meta_id'])->action(tr('Changed status'), $comments, Json::encode(['status' => $status]));
 
         // Update the row status
         return $this->query('UPDATE `' . $table . '` 
@@ -736,7 +734,7 @@ class Sql
      * @param bool $clean
      * @return string
      */
-    public function buildQueryString(string|PDOStatement $query, ?array $execute = null, bool $clean = false): string
+    public static function buildQueryString(string|PDOStatement $query, ?array $execute = null, bool $clean = false): string
     {
         if (is_object($query)) {
             if (!($query instanceof PDOStatement)) {
@@ -854,7 +852,7 @@ class Sql
             default:
                 // Multiple results, this is always bad for a function that should only return one result!
                 $this->ensureShowSelect($query, $execute);
-                throw new SqlMultipleResultsException(tr('Failed for query ":query" to fetch single row, specified query result contains not 1 but ":count" results', [':count' => $result->rowCount(), ':query' => $this->buildQueryString($result->queryString, $execute)]));
+                throw new SqlMultipleResultsException(tr('Failed for query ":query" to fetch single row, specified query result contains not 1 but ":count" results', [':count' => $result->rowCount(), ':query' => self::buildQueryString($result->queryString, $execute)]));
         }
     }
 
@@ -963,7 +961,7 @@ class Sql
      */
     public function close(): void
     {
-        unset($this->pdo);
+        $this->pdo = null;
     }
 
 
@@ -1563,11 +1561,11 @@ class Sql
     }
 
 
-
     /**
      * Ensure that the specified query is either a select query or a show query
      *
      * @param string|PDOStatement $query
+     * @param array|null $execute
      * @return void
      */
     protected function ensureShowSelect(string|PDOStatement $query, ?array $execute): void
@@ -1586,93 +1584,109 @@ class Sql
 
 
     /**
+     * Add the configuration for the specified instance name
+     *
+     * @param string $instance
+     * @param array $configuration
+     * @return void
+     */
+    public static function addConfiguration(string $instance, array $configuration): void
+    {
+        self::$configurations[$instance] = $configuration;
+    }
+
+
+
+    /**
      * Reads, validates structure and returns the configuration for the specified instance
      *
      * @param string $instance
-     * @return void
+     * @return array
      */
-    protected function readConfiguration(string $instance): void
+    public function readConfiguration(string $instance): array
     {
         // Read in the entire SQL configuration for the specified instance
         $this->instance = $instance;
 
         try {
-            $configuration = Config::get('databases.sql.instances.' . $instance);
-        } catch (ConfigurationDoesNotExistsException $e) {
-            throw new SqlException(tr('The specified SQL instance ":instance" is not configured', [
-                ':instance' => $instance
-            ]));
+            $configuration = Config::getArray('databases.sql.instances.' . $instance);
+        } catch (ConfigurationDoesNotExistsException) {
+            // Configuration not available in Config. Check if its stored in SQL database
+            $configuration = $this->readSqlConfiguration($instance);
+
+            if (!$configuration) {
+                // Okay, this instance doesn't exist in Config, nor SQL, maybe it's a dynamically configured instance?
+                if (!array_key_exists($instance, self::$configurations)) {
+                    // Yeah, its not found
+                    throw new SqlException(tr('The specified SQL instance ":instance" is not configured', [
+                        ':instance' => $instance
+                    ]));
+                }
+
+                // This is a dynamically configured instance
+                $configuration = self::$configurations[$instance];
+            }
         }
-
-        // Validate configuration
-        if (!is_array($configuration)) {
-            throw new ConfigException(tr('The configuration for the specified SQL database instance ":instance" is invalid, it should be an array', [
-                ':instance' => $instance
-            ]));
-        }
-
-        $this->configuration = $configuration;
-
-// TODO Add support for instace configuration stored in database
-//        $this->configuration = $this->get('SELECT `id`,
-//                                     `created_on`,
-//                                     `created_by`,
-//                                     `meta_id`,
-//                                     `status`,
-//                                     `name`,
-//                                     `seo_name`,
-//                                     `servers_id`,
-//                                     `hostname`,
-//                                     `driver`,
-//                                     `database`,
-//                                     `user`,
-//                                     `password`,
-//                                     `autoincrement`,
-//                                     `buffered`,
-//                                     `charset`,
-//                                     `collate`,
-//                                     `limit_max`,
-//                                     `mode`,
-//                                     `ssh_tunnel_required`,
-//                                     `ssh_tunnel_source_port`,
-//                                     `ssh_tunnel_hostname`,
-//                                     `usleep`,
-//                                     `pdo_attributes`,
-//                                     `timezone`
-//
-//                              FROM   `$this->connectors`
-//
-//                              WHERE  ' . $where,
-//
-//            null, $execute, 'core');
-
-        $template = [
-            'driver'           => 'mysql',
-            'host'             => '127.0.0.1',
-            'port'             => null,
-            'name'             => '',
-            'user'             => '',
-            'pass'             => '',
-            'autoincrement'    => 1,
-            'init'             => false,
-            'buffered'         => false,
-            'charset'          => 'utf8mb4',
-            'collate'          => 'utf8mb4_general_ci',
-            'limit_max'        => 10000,
-            'mode'             => 'PIPES_AS_CONCAT,IGNORE_SPACE',
-            'ssh_tunnel'       => [
-                'required'    => false,
-                'source_port' => null,
-                'hostname'    => '',
-                'usleep'      => 1200000
-            ],
-            'pdo_attributes'   => [],
-            'version'          => '0.0.0',
-            'timezone'         => 'UTC'
-        ];
 
         // Copy the configuration options over the template
-        $configuration = Arrays::mergeFull($template, $configuration);
+        return $this->applyConfigurationTemplate($configuration);
+    }
+
+
+
+    /**
+     * Load SQL configuration from database
+     *
+     * @param string $instance
+     * @return array|null
+     */
+    protected function readSqlConfiguration(string $instance): ?array
+    {
+        // TODO Implement an Updates.php file that creates this table first
+        return null;
+
+        return $this->get('SELECT `id`,
+                                         `created_on`,
+                                         `created_by`,
+                                         `meta_id`,
+                                         `status`,
+                                         `name`,
+                                         `seo_name`,
+                                         `servers_id`,
+                                         `hostname`,
+                                         `driver`,
+                                         `database`,
+                                         `user`,
+                                         `password`,
+                                         `autoincrement`,
+                                         `buffered`,
+                                         `charset`,
+                                         `collate`,
+                                         `limit_max`,
+                                         `mode`,
+                                         `ssh_tunnel_required`,
+                                         `ssh_tunnel_source_port`,
+                                         `ssh_tunnel_hostname`,
+                                         `usleep`,
+                                         `pdo_attributes`,
+                                         `timezone`
+    
+                                  FROM   `sql_configurations`
+    
+                                  WHERE  `seo_name` = :seo_name', [':seo_name' => $seo_name]);
+    }
+
+
+    /**
+     * Apply configuration template over the specified configuration array
+     *
+     * @param array $configuration
+     * @return array
+     */
+    public function applyConfigurationTemplate(array $configuration): array
+    {
+        // Copy the configuration options over the template
+        $configuration = Arrays::mergeFull(self::getConfigurationTemplate(), $configuration);
 
         switch ($configuration['driver']) {
             case 'mysql':
@@ -1696,7 +1710,42 @@ class Sql
                 ]));
         }
 
-        $this->configuration = $configuration;
+        return $configuration;
+    }
+
+
+
+    /**
+     * Returns an SQL connection configuration template
+     *
+     * @return array
+     */
+    protected static function getConfigurationTemplate(): array
+    {
+        return [
+            'driver'           => 'mysql',
+            'host'             => '127.0.0.1',
+            'port'             => null,
+            'name'             => '',
+            'user'             => '',
+            'pass'             => '',
+            'autoincrement'    => 1,
+            'init'             => false,
+            'buffered'         => false,
+            'charset'          => 'utf8mb4',
+            'collate'          => 'utf8mb4_general_ci',
+            'limit_max'        => 10000,
+            'mode'             => 'PIPES_AS_CONCAT,IGNORE_SPACE',
+            'ssh_tunnel'       => [
+                'required'    => false,
+                'source_port' => null,
+                'hostname'    => '',
+                'usleep'      => 1200000
+            ],
+            'pdo_attributes'   => [],
+            'version'          => '0.0.0',
+            'timezone'         => 'UTC'
+        ];
     }
 
 
@@ -1966,7 +2015,7 @@ class Sql
             return $database;
         }
 
-        return Config::get('databases.sql.instances.system.name');
+        return $this->configuration['name'];
     }
 
 

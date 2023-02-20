@@ -10,6 +10,7 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Exception\LogException;
 use Phoundation\Core\Strings;
+use Phoundation\Databases\Sql\Sql;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
@@ -819,7 +820,7 @@ Class Log {
      */
     public static function sql(string|PDOStatement $query, ?array $execute = null, int $threshold = 10, bool $clean = true, bool $newline = true): bool
     {
-        $query = sql()->buildQueryString($query, $execute, false);
+        $query = Sql::buildQueryString($query, $execute, false);
         $query = Strings::endsWith($query, ';');
         return static::write('SQL QUERY: ' . $query, 'debug', $threshold, $clean, $newline);
     }
