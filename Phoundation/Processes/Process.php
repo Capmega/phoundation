@@ -6,10 +6,12 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Developer\Debug;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Commands\Command;
+use Phoundation\Processes\Enum\ExecuteMethod;
 use Phoundation\Processes\Exception\ProcessException;
 use Phoundation\Processes\Exception\ProcessFailedException;
 use Phoundation\Servers\Server;
@@ -202,6 +204,41 @@ Class Process
     public function executeNoReturn(): void
     {
         $this->executeReturnArray();
+    }
+
+
+
+    /**
+     * Execute the command and depending on specified method, return or log output
+     *
+     * @param ExecuteMethod $method
+     * @return string|int|bool|array|null
+     */
+    public function execute(ExecuteMethod $method): string|int|bool|array|null
+    {
+        switch ($method) {
+            case ExecuteMethod::log:
+                $results = $this->process->executeReturnArray();
+                Log::notice($results, 4);
+                return null;
+
+            case ExecuteMethod::background:
+                return $this->executeBackground();
+
+            case ExecuteMethod::passthru:
+                return $this->executePassthru();
+
+            case ExecuteMethod::returnString:
+                return $this->executeReturnString();
+
+            case ExecuteMethod::returnArray:
+                return $this->executeReturnArray();
+
+            default:
+                throw new OutOfBoundsException(tr('Unknown execute method ":method" specified', [
+                    ':method' => $method
+                ]));
+        }
     }
 
 

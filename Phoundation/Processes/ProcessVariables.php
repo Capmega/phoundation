@@ -8,6 +8,8 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
+use Phoundation\Filesystem\Filesystem;
+use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Commands\Command;
 use Phoundation\Processes\Commands\Exception\CommandsException;
@@ -317,6 +319,20 @@ trait ProcessVariables
         $this->cached_command_line = null;
         $this->execution_path      = $execution_path;
 
+        return $this;
+    }
+
+
+
+    /**
+     * Sets the execution path to private temp dir
+     *
+     * @param bool $public
+     * @return static This process so that multiple methods can be chained
+     */
+    public function setExecutionPathToTemp(bool $public = false): static
+    {
+        $this->setExecutionPath(Path::getTemporary($public));
         return $this;
     }
 
@@ -748,29 +764,29 @@ throw new ProcessesException(tr('Specified process command ":command" does not e
     }
 
 
-
     /**
      * Sets the arguments for the command that will be executed
      *
      * @note This will reset the currently existing list of arguments.
      * @param array $arguments
+     * @param bool $escape
      * @return static This process so that multiple methods can be chained
      */
-    public function setArguments(array $arguments): static
+    public function setArguments(array $arguments, bool $escape = true): static
     {
         $this->arguments = [];
-        return $this->addArguments($arguments);
+        return $this->addArguments($arguments, $escape);
     }
-
 
 
     /**
      * Adds multiple arguments to the existing list of arguments for the command that will be executed
      *
      * @param array|string $arguments
+     * @param bool $escape
      * @return static This process so that multiple methods can be chained
      */
-    public function addArguments(array|string $arguments): static
+    public function addArguments(array|string $arguments, bool $escape = true): static
     {
         $this->cached_command_line = null;
 
@@ -782,12 +798,11 @@ throw new ProcessesException(tr('Specified process command ":command" does not e
                 }
             }
 
-            $this->addArgument($argument);
+            $this->addArgument($argument, $escape);
         }
 
         return $this;
     }
-
 
 
     /**
@@ -795,9 +810,10 @@ throw new ProcessesException(tr('Specified process command ":command" does not e
      *
      * @note All arguments will be automatically escaped, but variable arguments ($variablename$) will NOT be escaped!
      * @param array|string|null $argument
+     * @param bool $escape
      * @return static This process so that multiple methods can be chained
      */
-    public function addArgument(array|string|null $argument): static
+    public function addArgument(array|string|null $argument, bool $escape = true): static
     {
         if ($argument !== null) {
             if (is_array($argument)) {
@@ -805,7 +821,7 @@ throw new ProcessesException(tr('Specified process command ":command" does not e
             }
 
             // Do not escape variables!
-            if (!preg_match('/^\$.+?\$$/', $argument)) {
+            if (!preg_match('/^\$.+?\$$/', $argument) and $escape) {
                 $argument = escapeshellarg($argument);
             }
 
@@ -1102,7 +1118,9 @@ throw new ProcessesException(tr('Specified process command ":command" does not e
     public function setTimeout(int $timeout): static
     {
         if (!is_natural($timeout,  0)) {
-            throw new OutOfBoundsException(tr('The specified timeout ":timeout" is invalid, it must be a natural number 0 or higher', [':timeout' => $timeout]));
+            throw new OutOfBoundsException(tr('The specified timeout ":timeout" is invalid, it must be a natural number 0 or higher', [
+                ':timeout' => $timeout
+            ]));
         }
 
         $this->cached_command_line = null;
