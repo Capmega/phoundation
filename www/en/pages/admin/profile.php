@@ -77,10 +77,9 @@ $buttons = Buttons::new()
 
 // Alter the default user form
 $user
-    ->modifyKeys('comments'   , ['display'  => false])
-    ->modifyKeys('description', ['size'     => 12])
-    ->modifyKeys('is_leader'  , ['disabled' => true])
-    ->modifyKeys('leaders_id' , ['disabled' => true]);
+    ->modifyKeys('comments'  , ['display'  => false])
+    ->modifyKeys('is_leader' , ['disabled' => true])
+    ->modifyKeys('leaders_id', ['disabled' => true]);
 
 
 
@@ -115,7 +114,8 @@ $relevant = Card::new()
     ->setMode('info')
     ->setTitle(tr('Relevant links'))
     ->setContent('<a href="' . UrlBuilder::getWww('/settings.html') . '">' . tr('Your settings') . '</a><br>
-                         <a href="' . UrlBuilder::getWww('/api-access.html') . '">' . tr('Your API access') . '</a>');
+                         <a href="' . UrlBuilder::getWww('/api-access.html') . '">' . tr('Your API access') . '</a><br>
+                         <a href="' . UrlBuilder::getWww('/sign-in-history.html') . '">' . tr('Your sign in history') . '</a>');
 
 
 
