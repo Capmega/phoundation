@@ -4,6 +4,8 @@ namespace Phoundation\Processes\Commands;
 
 use Phoundation\Core\Config;
 use Phoundation\Core\Strings;
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Path;
 use Phoundation\Processes\Commands\Exception\CommandsException;
 use Phoundation\Processes\Exception\ProcessFailedException;
@@ -37,7 +39,8 @@ class FilesystemCommands extends Command
         try {
             $mode = Strings::fromOctal($mode);
 
-            Process::new('chmod', $this->restrictions)
+            $this->process
+                ->setCommand('chmod')
                 ->addArguments([$mode, $file, ($recurse ? '-R' : '')])
                 ->setTimeout(2)
                 ->executeReturnArray();
@@ -74,7 +77,8 @@ class FilesystemCommands extends Command
     public function delete(string $file, bool $recurse_down = true, bool $recurse_up = false, int $timeout = 10): void
     {
         try {
-            Process::new('rm', $this->restrictions)
+            $this->process
+                ->setCommand('rm')
                 ->addArguments([$file, '-f', ($recurse_down ? '-r' : '')])
                 ->setTimeout($timeout)
                 ->setRegisterRunfile(false)
@@ -126,7 +130,8 @@ class FilesystemCommands extends Command
             $mode = Config::get('filesystem.mode.default.directory', 0750, $mode);
             $mode = Strings::fromOctal($mode);
 
-            Process::new('mkdir', $this->restrictions)
+            $this->process
+                ->setCommand('mkdir')
                 ->addArguments([$file, '-p', '-m', $mode])
                 ->setTimeout(1)
                 ->executeReturnArray();
@@ -154,34 +159,186 @@ class FilesystemCommands extends Command
 
 
     /**
-     * Execute a sync using the rsync command
+     * Returns a SHA256 hash for the specified file
      *
-     * @param string $source
-     * @param string $target
-     * @param array|null $options
-     * @return void
+     * @param string $file The file to get the sha256 hash from
+     * @return string
      */
-    public function rsync(string $source, string $target, ?array $options = null): void
+    public function sha256(string $file): string
     {
         try {
-            if (!$options) {
-                $options = ['-a', '-v', '-z', '--progress'];
-            }
+            $output = $this->process
+                ->setCommand('sha256sum')
+                ->addArguments($file)
+                ->setTimeout(120)
+                ->executeReturnString();
 
-            Process::new('rsync', $this->restrictions)
-                ->addArguments($options)
-                ->addArgument($source)
-                ->addArgument($target)
-                ->setTimeout(1)
-                ->executePassthru();
+            return Strings::until($output, ' ');
 
         } catch (ProcessFailedException $e) {
-            // The command rsync failed, most of the time either $file doesn't exist, or we don't have access to change the mode
-            Command::handleException('rsync', $e, function($first_line, $last_line, $e) use ($source, $target) {
-                throw new CommandsException(tr('Failed to rsync ":source" to ":target', [
-                    ':source' => $source,
-                    ':target' => $target
-                ]));
+            // The command sha256sum failed, most of the time either $file doesn't exist, or we don't have access
+            Command::handleException('sha256sum', $e, function() use ($file) {
+                File::new($file)->checkReadable();
+            });
+        }
+    }
+
+
+
+    /**
+     * Untars the specified file
+     *
+     * @param string $file The file to be untarred. Must be a tar file (doh)
+     * @return string
+     */
+    public function untar(string $file, ?string $target_path = null): string
+    {
+        try {
+            if (!$target_path) {
+                $target_path = dirname($file);
+            }
+
+            $this->process
+                ->setExecutionPath($target_path)
+                ->setCommand('tar')
+                ->addArguments(['-x', '-f'])
+                ->addArguments($file)
+                ->setTimeout(120)
+                ->executeNoReturn();
+
+            return $target_path;
+
+        } catch (ProcessFailedException $e) {
+            // The command tar failed, most of the time either $file doesn't exist, or we don't have access
+            Command::handleException('tar', $e, function() use ($file) {
+                File::new($file)->checkReadable();
+            });
+        }
+    }
+
+
+    /**
+     * Tars the specified path
+     *
+     * @param string $path
+     * @param string|null $target_file
+     * @param bool $compression
+     * @return string
+     */
+    public function tar(string $path, ?string $target_file = null, bool $compression = true): string
+    {
+        try {
+            if (!$target_file) {
+                $target_file = $path . '.tar.gz';
+            }
+
+            $this->process
+                ->setExecutionPath(dirname($path))
+                ->setCommand('tar')
+                ->addArguments(['-c', ($compression ? 'j' : null), '-f'])
+                ->addArguments($target_file)
+                ->addArguments($path)
+                ->setTimeout(120)
+                ->executeNoReturn();
+
+            return $target_file;
+
+        } catch (ProcessFailedException $e) {
+            // The command tar failed, most of the time either $file doesn't exist, or we don't have access
+            Command::handleException('tar', $e, function() use ($path) {
+                File::new($path)->checkReadable();
+            });
+        }
+    }
+
+
+
+    /**
+     * Gzips the specified file
+     *
+     * @param string $file The file to be gzipped.
+     * @return string
+     */
+    public function gzip(string $file): string
+    {
+        try {
+            if (!str_ends_with($this->file, '.gz')) {
+                if (!str_ends_with($this->file, '.tgz')) {
+                    throw new OutOfBoundsException(tr('Cannot gunzip file ":file", the filename must end with ".gz"', [
+                        ':file' => $this->file
+                    ]));
+                }
+            }
+
+            $this->process
+                ->setCommand('gzip')
+                ->addArguments($file)
+                ->setTimeout(120)
+                ->executeNoReturn();
+
+            return $file . '.gz';
+
+        } catch (ProcessFailedException $e) {
+            // The gzip tar failed, most of the time either $file doesn't exist, or we don't have access
+            Command::handleException('gzip', $e, function() use ($file) {
+                File::new($file)->checkReadable();
+            });
+        }
+    }
+
+
+
+    /**
+     * Gunzips the specified file
+     *
+     * @param string $file The file to be gunzipped.
+     * @return string
+     */
+    public function gunzip(string $file): string
+    {
+        try {
+            $this->process
+                ->setCommand('gunzip')
+                ->addArguments($file)
+                ->setTimeout(120)
+                ->executeNoReturn();
+
+            return Strings::until(Strings::until($file, '.tgz'), '.gz');
+
+        } catch (ProcessFailedException $e) {
+            // The command gunzip failed, most of the time either $file doesn't exist, or we don't have access
+            Command::handleException('gunzip', $e, function() use ($file) {
+                File::new($file)->checkReadable();
+            });
+        }
+    }
+
+
+    /**
+     * Gunzips the specified file
+     *
+     * @param string $file The file to be unzipped.
+     * @param string|null $target_path
+     * @return void
+     */
+    public function unzip(string $file, ?string $target_path = null): void
+    {
+        try {
+            if (!$target_path) {
+                $target_path = dirname($file);
+            }
+
+            $this->process
+                ->setExecutionPath($target_path)
+                ->setCommand('unzip')
+                ->addArguments($file)
+                ->setTimeout(120)
+                ->executeNoReturn();
+
+        } catch (ProcessFailedException $e) {
+            // The command gunzip failed, most of the time either $file doesn't exist, or we don't have access
+            Command::handleException('unzip', $e, function() use ($file) {
+                File::new($file)->checkReadable();
             });
         }
     }

@@ -25,11 +25,11 @@ use Phoundation\Processes\Process;
 class Command
 {
     /**
-     * Where will this be executed? Locally or on the specified server
+     * The process object
      *
-     * @var Restrictions $restrictions
+     * @var Process $process
      */
-    protected Restrictions $restrictions;
+    protected Process $process;
 
 
 
@@ -40,7 +40,19 @@ class Command
      */
     public function __construct(Restrictions|array|string|null $restrictions = null)
     {
-        $this->setRestrictions($restrictions);
+        $this->process = Process::new()->setRestrictions($restrictions);
+    }
+
+
+
+    /**
+     * Returns the internal process
+     *
+     * @return Process
+     */
+    public function getProcess(): Process
+    {
+        return $this->process;
     }
 
 
@@ -59,46 +71,6 @@ class Command
 
 
     /**
-     * Sets the server for this commands object
-     *
-     * Sets the server by name or object, NULL for localhost
-     *
-     * @param Restrictions|array|string|null $restrictions
-     * @return static
-     */
-    public function setRestrictions(Restrictions|array|string|null $restrictions = null): static
-    {
-        $this->restrictions = Core::ensureRestrictions($restrictions);
-        return $this;
-    }
-
-
-
-    /**
-     * Returns the server object for this commands object
-     *
-     * @return Restrictions
-     */
-    public function getRestrictions(): Restrictions
-    {
-        return $this->restrictions;
-    }
-
-
-
-    /**
-     * Returns a commands object for this local machine
-     *
-     * @return static
-     */
-    public static function local(): static
-    {
-        return new static();
-    }
-
-
-
-    /**
      * Returns true if the process can execute the specified command with sudo privileges
      *
      * @param string $command
@@ -109,7 +81,7 @@ class Command
     public function sudoAvailable(string $command, bool $exception = false): bool
     {
         try {
-            Process::new($command, $this->restrictions)
+            Process::new($command, $this->process->getRestrictions())
                 ->setSudo(true)
                 ->setCommand($command)
                 ->addArgument('--version')
@@ -127,7 +99,7 @@ class Command
 
 
 
-   /**
+    /**
      * Command exception handler
      *
      * @param string $command

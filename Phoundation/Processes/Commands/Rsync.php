@@ -4,10 +4,8 @@ namespace Phoundation\Processes\Commands;
 
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\NetworkConnection;
-use Phoundation\Data\Traits\NewObject;
 use Phoundation\Data\Traits\Source;
 use Phoundation\Data\Traits\Target;
-use Phoundation\Processes\Process;
 
 
 
@@ -21,9 +19,8 @@ use Phoundation\Processes\Process;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Processes
  */
-class Rsync
+class Rsync extends Command
 {
-    use NewObject;
     use Source;
     use Target;
     use NetworkConnection;
@@ -274,7 +271,9 @@ class Rsync
     public function execute(bool $background = false): ?int
     {
         // Build the process parameters, then execute
-        $process = Process::new('rsync')
+        $this->process
+            ->clearArguments()
+            ->setCommand('rsync')
             ->addArgument($this->progress ? '--progress' : null)
             ->addArgument($this->archive ? '-a' : null)
             ->addArgument($this->quiet ? '-q' : null)
@@ -291,7 +290,7 @@ class Rsync
             ->addArgument($this->target);
 
         if ($background) {
-            $pid = $process->executeBackground();
+            $pid = $this->process->executeBackground();
 
             Log::success(tr('Executed rsync as a background process with PID ":pid"', [
                 ':pid' => $pid
@@ -301,7 +300,7 @@ class Rsync
 
         }
 
-        $results = $process->executeReturnArray();
+        $results = $this->process->executeReturnArray();
 
         Log::notice($results, 4);
         return null;

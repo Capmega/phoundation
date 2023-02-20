@@ -3,7 +3,7 @@
 namespace Phoundation\Processes\Commands;
 
 use Phoundation\Processes\Exception\ProcessFailedException;
-
+use Phoundation\Processes\Process;
 
 
 /**
@@ -28,7 +28,8 @@ class NetworkCommands extends Command
     public function ping(string $restrictions): ?float
     {
         try {
-            $output = Process::new('pgrep', $this->restrictions, true)
+            $output = $this->process
+                ->setCommand('pgrep')
                 ->addArguments(['-c', 1, $restrictions])
                 ->setTimeout(1)
                 ->executeReturnArray();

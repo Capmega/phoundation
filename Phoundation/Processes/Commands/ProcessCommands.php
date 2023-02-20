@@ -31,10 +31,12 @@ class ProcessCommands extends Command
     public function pgrep(string $process): ?int
     {
         try {
-            $output = Process::new('pgrep', $this->restrictions)
+            $output = $this->process
+                ->setCommand('pgrep')
                 ->addArgument($process)
                 ->setTimeout(1)
                 ->executeReturnArray();
+
             $output = array_pop($output);
 
             if (!$output or !is_numeric($output)) {
@@ -44,6 +46,7 @@ class ProcessCommands extends Command
             return (integer) $output;
 
         } catch (ProcessFailedException $e) {
+            // TODO Check what error happened! What about read permission denied?
             return null;
         }
     }
@@ -64,15 +67,16 @@ class ProcessCommands extends Command
                 throw new OutOfBoundsException(tr('The specified process id ":pid" is invalid. Please specify a positive integer', [':pid' => $pid]));
             }
 
-            $children = Process::new('pgrep', $this->restrictions)
+            $output = $this->process
+                ->setCommand('pgrep')
                 ->addArguments(['-P', $pid])
                 ->setTimeout(1)
                 ->executeReturnArray();
 
             // Remove the pgrep command PID
-            unset($children[0]);
+            unset($output[0]);
 
-            return $children;
+            return $output;
 
         } catch (ProcessFailedException $e) {
             // The command id failed
@@ -107,7 +111,8 @@ class ProcessCommands extends Command
                 }
             }
 
-            Process::new('kill', $this->restrictions)
+            $this->process
+                ->setCommand('kill')
                 ->addArgument('-' . $signal)
                 ->addArguments($pids)
                 ->setTimeout(10)
@@ -146,7 +151,8 @@ class ProcessCommands extends Command
                 }
             }
 
-            Process::new('pkill', $this->restrictions)
+            $this->process
+                ->setCommand('pkill')
                 ->addArgument('-' . $signal)
                 ->addArguments($processes)
                 ->setTimeout(10)
@@ -173,24 +179,25 @@ class ProcessCommands extends Command
                 throw new OutOfBoundsException(tr('Specified pid ":pid" is invalid, it should be an integer number 1 or higher', [':pid' => $pid]));
             }
 
-            $data = Process::new('ps', $this->restrictions)
+            $output = $this->process
+                ->setCommand('ps')
                 ->addArguments(['-p', $pid, '--no-headers', '-o', 'pid,ppid,comm,cmd,args'])
                 ->setTimeout(1)
                 ->executeReturnArray();
 
-            if (count($data) < 1) {
+            if (count($output) < 1) {
                 //only the top line was returned, so the specified PID was not found
                 return null;
             }
 
-            $data = array_pop($data);
+            $output = array_pop($output);
 
             return [
-                'pid'  => (int) trim(substr($data, 0,8)),
-                'ppid' => (int) trim(substr($data, 8, 8)),
-                'comm' =>       trim(substr($data, 16, 16)),
-                'cmd'  =>       trim(substr($data, 28, 32)),
-                'args' =>       trim(substr($data, 60))
+                'pid'  => (int) trim(substr($output, 0,8)),
+                'ppid' => (int) trim(substr($output, 8, 8)),
+                'comm' =>       trim(substr($output, 16, 16)),
+                'cmd'  =>       trim(substr($output, 28, 32)),
+                'args' =>       trim(substr($output, 60))
             ];
 
         } catch (ProcessFailedException $e) {
@@ -218,43 +225,45 @@ class ProcessCommands extends Command
                 throw new OutOfBoundsException(tr('Specified pid ":pid" is invalid, it should be an integer number 1 or higher', [':pid' => $pid]));
             }
 
-            $data = Process::new('ps', $this->restrictions)
+            $output = $this->process
+                ->setCommand('ps')
                 ->addArguments(['-p', $pid, '--no-headers', '-o', 'pid:1,ppid:1,uid:1,gid:1,nice:1,fuid:1,%cpu:1,%mem:1,size:1,cputime:1,cputimes:1,drs:1,etime:1,etimes:1,euid:1,egid:1,egroup:1,start_time:1,bsdtime:1,state:1,stat:1,time:1,vsize:1,rss:1,args'])
                 ->setTimeout(1)
                 ->executeReturnArray();
 
-            if (count($data) < 1) {
+            if (count($output) < 1) {
                 //only the top line was returned, so the specified PID was not found
                 return null;
             }
 
-            $data = array_pop($data);
+            $output = array_pop($output);
             $return = [];
-            $return['pid']         = trim(Strings::until($data, ' '));
-            $return['ppid']        = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
-            $return['uid']         = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
-            $return['gid']         = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
-            $return['nice']        = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
-            $return['fuid']        = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
-            $return['%cpu']        = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
-            $return['%mem']        = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
-            $return['size']        = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
-            $return['cputime']     = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
-            $return['cputimes']    = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
-            $return['drs']         = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
-            $return['etime']       = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
-            $return['etimes']      = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
-            $return['euid']        = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
-            $return['egid']        = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
-            $return['egroup']      = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
-            $return['start_time']  = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
-            $return['bsdtime']     = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
-            $return['state']       = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
-            $return['stat']        = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
-            $return['time']        = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
-            $return['vsize']       = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
-            $return['rss']         = trim(Strings::until($data = trim(Strings::from($data, ' ')), ' '));
-            $return['args']        = trim(Strings::from ($data = trim(Strings::from($data, ' ')), ' '));
+            
+            $return['pid']         = trim(Strings::until($output, ' '));
+            $return['ppid']        = trim(Strings::until($output = trim(Strings::from($output, ' ')), ' '));
+            $return['uid']         = trim(Strings::until($output = trim(Strings::from($output, ' ')), ' '));
+            $return['gid']         = trim(Strings::until($output = trim(Strings::from($output, ' ')), ' '));
+            $return['nice']        = trim(Strings::until($output = trim(Strings::from($output, ' ')), ' '));
+            $return['fuid']        = trim(Strings::until($output = trim(Strings::from($output, ' ')), ' '));
+            $return['%cpu']        = trim(Strings::until($output = trim(Strings::from($output, ' ')), ' '));
+            $return['%mem']        = trim(Strings::until($output = trim(Strings::from($output, ' ')), ' '));
+            $return['size']        = trim(Strings::until($output = trim(Strings::from($output, ' ')), ' '));
+            $return['cputime']     = trim(Strings::until($output = trim(Strings::from($output, ' ')), ' '));
+            $return['cputimes']    = trim(Strings::until($output = trim(Strings::from($output, ' ')), ' '));
+            $return['drs']         = trim(Strings::until($output = trim(Strings::from($output, ' ')), ' '));
+            $return['etime']       = trim(Strings::until($output = trim(Strings::from($output, ' ')), ' '));
+            $return['etimes']      = trim(Strings::until($output = trim(Strings::from($output, ' ')), ' '));
+            $return['euid']        = trim(Strings::until($output = trim(Strings::from($output, ' ')), ' '));
+            $return['egid']        = trim(Strings::until($output = trim(Strings::from($output, ' ')), ' '));
+            $return['egroup']      = trim(Strings::until($output = trim(Strings::from($output, ' ')), ' '));
+            $return['start_time']  = trim(Strings::until($output = trim(Strings::from($output, ' ')), ' '));
+            $return['bsdtime']     = trim(Strings::until($output = trim(Strings::from($output, ' ')), ' '));
+            $return['state']       = trim(Strings::until($output = trim(Strings::from($output, ' ')), ' '));
+            $return['stat']        = trim(Strings::until($output = trim(Strings::from($output, ' ')), ' '));
+            $return['time']        = trim(Strings::until($output = trim(Strings::from($output, ' ')), ' '));
+            $return['vsize']       = trim(Strings::until($output = trim(Strings::from($output, ' ')), ' '));
+            $return['rss']         = trim(Strings::until($output = trim(Strings::from($output, ' ')), ' '));
+            $return['args']        = trim(Strings::from ($output = trim(Strings::from($output, ' ')), ' '));
 
             // Fix datatypes
             $return['pid']    = (int)   $return['pid'];
@@ -285,6 +294,8 @@ class ProcessCommands extends Command
                 'Z' => tr('defunct ("zombie") process, terminated but not reaped by its parent'),
                 default => tr('Unknown process state ":state" encountered', [':state' => $return['state']])
             };
+
+            return $return;
 
         } catch (ProcessFailedException $e) {
             // The command pkill failed

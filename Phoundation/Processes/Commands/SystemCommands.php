@@ -37,14 +37,15 @@ class SystemCommands extends Command
             return $cache[$command];
         }
 
-        $process = Process::new('which', $this->restrictions)
+        $this->process
+            ->setCommand('which')
             ->addArgument($command)
             ->setRegisterRunfile(false)
             ->setTimeout(1);
 
         try {
-            $output = $process->executeReturnArray();
-            $result = reset($output);
+            $output   = $this->process->executeReturnArray();
+            $result   = reset($output);
             $realpath = realpath($result);
 
             if (!$realpath) {
@@ -89,12 +90,13 @@ class SystemCommands extends Command
             ]));
         }
 
-        $process = Process::new('id', $this->restrictions)
+        $this->process
+            ->setCommand('id')
             ->addArgument('-' . $section)
             ->setTimeout(1);
 
         try {
-            $output = $process->executeReturnArray();
+            $output = $this->process->executeReturnArray();
             $result = reset($output);
 
             if (!$result or !is_numeric($result)) {
@@ -122,7 +124,8 @@ class SystemCommands extends Command
     {
         Log::action(tr('Installing packages ":packages"', [':packages' => $packages]));
 
-        Process::new('apt-get', $this->restrictions)
+        $this->process
+            ->setCommand('apt-get')
             ->setSudo(true)
             ->addArguments(['-y', 'install'])
             ->addArguments($packages)
@@ -139,7 +142,8 @@ class SystemCommands extends Command
      */
     public function free(): array
     {
-        $free = Process::new('free')
+        $output = $this->process
+            ->setCommand('free')
             ->setTimeout(1)
             ->executeReturnArray();
 
@@ -149,7 +153,7 @@ class SystemCommands extends Command
             'swap'   => [],
         ];
 
-        foreach ($free as $line_number => $line) {
+        foreach ($output as $line_number => $line) {
             if (!$line_number) {
                 continue;
             }
