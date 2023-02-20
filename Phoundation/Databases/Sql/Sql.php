@@ -106,6 +106,12 @@ class Sql
      */
     protected int $maxretries = 5;
 
+    /**
+     * Sets if debug is enabled or disabled
+     *
+     * @var bool $debug
+     */
+    protected static bool $debug = false;
 
 
     /**
@@ -195,6 +201,32 @@ class Sql
         return $this->instance;
     }
 
+
+    /**
+     * Sets or returns debug for SQL
+     *
+     * If setting the debug value, the previous value will be returned for easy switching
+     *
+     * @param bool|null $debug
+     * @return bool
+     */
+    public static function debug(?bool $debug = null): bool
+    {
+        if ($debug === null) {
+            // Set debug
+            return self::$debug;
+        }
+
+        if (self::$debug === null) {
+            // Default debug
+            self::$debug = Config::get('databases.sql.debug', false);
+        }
+
+        // Return the previous value
+        $previous    = self::$debug;
+        self::$debug = $debug;
+        return $previous;
+    }
 
 
     /**
@@ -296,7 +328,7 @@ class Sql
             }
 
             // Log all queries?
-            if (Config::get('databases.sql.debug', false)) {
+            if (self::debug()) {
                 $query = ' ' . $query;
             }
 
@@ -488,6 +520,7 @@ class Sql
             global $argv;
 
             Notification::new()
+                ->setMode('EXCEPTION')
                 ->setCode('SQL_QUERY_ERROR')->setRoles('developer')->setTitle('SQL Query error')->setMessage('
                 SQL STATE ERROR : "' . $error[0] . '"
                 DRIVER ERROR    : "' . $error[1] . '"
@@ -1272,25 +1305,25 @@ class Sql
      *
      * @todo Find a good usecase for this method or get rid of it
      * @param ?string $value
-     * @param string $label
+     * @param string $column
      * @param bool $not
      * @return string
      */
-    public function is(?string $value, string $label, bool $not = false): string
+    public static function is(?string $value, string $column, bool $not = false): string
     {
         if ($not) {
             if ($value === null) {
-                return ' IS NOT ' . $label . ' ';
+                return ' IS NOT ' . $column . ' ';
             }
 
-            return ' != ' . $label . ' ';
+            return ' != ' . $column . ' ';
         }
 
         if ($value === null) {
-            return ' IS ' . $label . ' ';
+            return ' IS ' . $column . ' ';
         }
 
-        return ' = ' . $label . ' ';
+        return ' = ' . $column . ' ';
     }
 
 
