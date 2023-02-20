@@ -62,18 +62,18 @@ class MetaList
     {
         // Create and return the table
         $in     = Sql::in($this->meta_list);
-        $source = sql()->list('SELECT         `meta_history`.`id`,
-                                                    DATE_FORMAT(`meta_history`.`created_on`, "%d-%m-%Y %h:%m:%s") AS `date_time`,
-                                                    COALESCE(NULLIF(TRIM(CONCAT_WS(" ", `first_names`, `last_names`)), ""), `nickname`, `username`, `email`, "' . tr('System') . '") AS `user`,
-                                                    `meta_history`.`action`,  
-                                                    `meta_history`.`source`,  
-                                                    `meta_history`.`comments`,
-                                                    `meta_history`.`data`
-                                          FROM      `meta_history`          
-                                          LEFT JOIN `accounts_users`
-                                          ON        `accounts_users`.`id` = `meta_history`.`created_by`
-                                          WHERE     `meta_history`.`meta_id` IN (' . implode(', ', array_keys($in)) . ')
-                                          ORDER BY  `meta_history`.`created_on` DESC', $in);
+        $source = sql()->list('SELECT    `meta_history`.`id`,
+                                               DATE_FORMAT(`meta_history`.`created_on`, "%d-%m-%Y %h:%m:%s") AS `date_time`,
+                                               COALESCE(NULLIF(TRIM(CONCAT_WS(" ", `first_names`, `last_names`)), ""), `nickname`, `username`, `email`, "' . tr('System') . '") AS `user`,
+                                               `meta_history`.`action`,  
+                                               `meta_history`.`source`,  
+                                               `meta_history`.`comments`,
+                                               `meta_history`.`data`
+                                     FROM      `meta_history`          
+                                     LEFT JOIN `accounts_users`
+                                     ON        `accounts_users`.`id` = `meta_history`.`created_by`
+                                     WHERE     `meta_history`.`meta_id` IN (' . implode(', ', array_keys($in)) . ')
+                                     ORDER BY  `meta_history`.`created_on` DESC', $in);
 
         foreach ($source as &$row) {
             $row['data'] = Json::decode($row['data']);

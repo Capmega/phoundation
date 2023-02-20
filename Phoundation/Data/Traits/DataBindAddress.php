@@ -5,7 +5,7 @@ namespace Phoundation\Data\Traits;
 
 
 /**
- * Class BindAddress
+ * Class DataBindAddress
  *
  *
  *
@@ -14,7 +14,7 @@ namespace Phoundation\Data\Traits;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-trait BindAddress
+trait DataBindAddress
 {
     /**
      * The IP address to which wget should bind

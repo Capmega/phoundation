@@ -59,7 +59,10 @@ ArgvValidator::new()
 // Load account, ensure the new account name doesn't exist yet
 $account = SshAccount::get($argv['identifier']);
 
-SshAccount::notExists($argv['name'], $account['id'], true);
+if ($argv['name']) {
+    // If changing name, ensure it doesn't exist yet as its a unique identifier
+    SshAccount::notExists($argv['name'], $account->getId(), true);
+}
 
 
 

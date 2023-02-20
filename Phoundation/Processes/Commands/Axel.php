@@ -3,9 +3,9 @@
 namespace Phoundation\Processes\Commands;
 
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\Traits\BindAddress;
-use Phoundation\Data\Traits\Source;
-use Phoundation\Data\Traits\Target;
+use Phoundation\Data\Traits\DataBindAddress;
+use Phoundation\Data\Traits\DataSource;
+use Phoundation\Data\Traits\DataTarget;
 
 
 
@@ -21,9 +21,9 @@ use Phoundation\Data\Traits\Target;
  */
 class Axel extends Command
 {
-    use Source;
-    use Target;
-    use BindAddress;
+    use DataSource;
+    use DataTarget;
+    use DataBindAddress;
 
 
 

@@ -1324,7 +1324,7 @@ class User extends DataEntry
 
         // Can this information be changed? If this user has god right, the executing user MUST have god right as well!
         if ($this->hasAllRights('god')) {
-            if (!Session::getUser()->hasAllRights('god')) {
+            if (PLATFORM_HTTP and !Session::getUser()->hasAllRights('god')) {
                 // Oops...
                 Incident::new()
                     ->setType('Blocked user update')

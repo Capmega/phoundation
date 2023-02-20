@@ -14,7 +14,7 @@ namespace Phoundation\Data\Traits;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-trait NetworkConnection
+trait DataNetworkConnection
 {
     /**
      * The host for this connection

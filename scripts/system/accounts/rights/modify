@@ -47,7 +47,10 @@ ArgvValidator::new()
 // Get right, ensure new name doesn't exist yet, and modify it
 $right = Right::get($argv['right']);
 
-Right::notExists($argv['name'], $right['id'], true);
+if ($argv['name']) {
+    // If changing name, ensure it doesn't exist yet as its a unique identifier
+    Right::notExists($argv['name'], $right->getId(), true);
+}
 
 $right->modify($argv)->save();
 

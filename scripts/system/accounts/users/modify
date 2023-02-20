@@ -3,8 +3,8 @@
 
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\User;
+use Phoundation\Cli\Documentation;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
 
 
@@ -18,10 +18,10 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-$usage = './cli system accounts users modify USER [OPTIONS]
-./cli system users modify USER -l -i --to ENVIRONMENT';
+Documentation::usage('./cli system accounts users modify USER [OPTIONS]
+./cli system users modify USER -l -i --to ENVIRONMENT');
 
-$help  = 'This script allows you to modify users
+Documentation::help('This script allows you to modify users
 
 
 
@@ -70,7 +70,7 @@ USER                                    The user to modify. Always specify users
 
 [--city]                                The city where the user resides
 
-[--is-leader]                           If specified, this user will be registered as having a leadership position';
+[--is-leader]                           If specified, this user will be registered as having a leadership position');
 
 
 
@@ -82,16 +82,14 @@ ArgvValidator::new()
     ->select('-c,--comments', true)->isOptional()->isDescription()
     ->select('-d,--description', true)->isOptional()->isDescription()
     ->select('-e,--email', true)->isOptional()->isEmail()
-    ->select('-f,--first-names')->isOptional()->isName()
-    ->select('-n,--last-names')->isOptional()->isName()
+    ->select('-f,--first-names', true)->isOptional()->isName()
+    ->select('-n,--last-names', true)->isOptional()->isName()
     ->select('-g,--gender', true)->isOptional()->isGender()
     ->select('-l,--language', true)->isOptional()->isName()
     ->select('-p,--phones', true)->isOptional()->isPhones()
     ->select('-t,--title', true)->isOptional()->isName()
     ->select('-u,--username', true)->isOptional()->isDescription()->isName()
     ->select('--url', true)->isOptional()->isUrl()
-    ->select('--first-names', true)->isOptional()->isName()
-    ->select('--last-names', true)->isOptional()->isName()
     ->select('--domain', true)->isOptional()->isDomain()
     ->select('--is-leader')->isOptional(false)->isBoolean()
     ->select('--lead-by', true)->isOptional()->isEmail()
@@ -118,13 +116,15 @@ if ($argv['roles']) {
 }
 
 
-
 // Modify user and save
 $user = User::get($argv['user']);
 
-User::notExists($argv['email'], $user->getId(), true);
+if ($argv['email']) {
+    // If changing email, ensure it doesn't exist yet as it is a unique identifier
+    User::notExists($argv['email'], $user->getId(), true);
+}
 
-$user->modfiy($argv)->save();
+$user->modify($argv)->save();
 
 
 

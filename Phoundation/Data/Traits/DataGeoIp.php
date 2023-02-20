@@ -1,7 +1,9 @@
 <?php
 
-namespace Phoundation\Data\DataEntry\Traits;
+namespace Phoundation\Data\Traits;
 
+use Phoundation\Data\DataEntry\Traits\DataEntryGeo;
+use Phoundation\Data\DataEntry\Traits\DataEntryLongLat;
 use Phoundation\Geo\GeoIp\GeoIp;
 
 
@@ -15,7 +17,7 @@ use Phoundation\Geo\GeoIp\GeoIp;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-trait DataEntryGeoIp
+trait DataGeoIp
 {
     use DataEntryGeo;
     use DataEntryLongLat;
@@ -34,11 +36,16 @@ trait DataEntryGeoIp
     /**
      * Set a
      *
-     * @param GeoIp $geo_ip
+     * @param GeoIp|null $geo_ip
      * @return $this
      */
-    public function setGeoIp(GeoIp $geo_ip): static
+    public function setGeoIp(?GeoIp $geo_ip): static
     {
         $this->geo_ip = $geo_ip;
+
+        $this->setLatitude($geo_ip->getLocation()->location->latitude);
+        $this->setLongitude($geo_ip->getLocation()->location->longitude);
+
+        return $this;
     }
 }

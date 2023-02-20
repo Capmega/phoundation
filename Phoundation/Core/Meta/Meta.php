@@ -193,7 +193,7 @@ class Meta
         if (self::$enbabled and $this->id) {
             // Insert the action in the meta_history table
             sql()->query('INSERT INTO `meta_history` (`meta_id`, `created_by`, `action`, `source`, `comments`, `data`) 
-                            VALUES                     (:meta_id , :created_by , :action , :source , :comments , :data )', [
+                                VALUES                     (:meta_id , :created_by , :action , :source , :comments , :data )', [
                 ':meta_id'    => $this->id,
                 ':created_by' => Session::getUser()->getId(),
                 ':source'     => (string) (PLATFORM_HTTP ? UrlBuilder::getCurrent() : Script::getCurrent()),

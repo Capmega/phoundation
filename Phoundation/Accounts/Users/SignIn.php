@@ -3,11 +3,10 @@
 namespace Phoundation\Accounts\Users;
 
 use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\Traits\DataEntryGeo;
-use Phoundation\Data\DataEntry\Traits\DataEntryGeoIp;
 use Phoundation\Data\DataEntry\Traits\DataEntryIpAddress;
 use Phoundation\Data\DataEntry\Traits\DataEntryTimezone;
 use Phoundation\Data\DataEntry\Traits\DataEntryUserAgent;
+use Phoundation\Data\Traits\DataGeoIp;
 use Phoundation\Geo\Countries\Countries;
 use Phoundation\Geo\GeoIp\GeoIp;
 use Phoundation\Geo\Timezones\Timezones;
@@ -29,7 +28,7 @@ class SignIn extends DataEntry
     use DataEntryUserAgent;
     use DataEntryIpAddress;
     use DataEntryTimezone;
-    use DataEntryGeoIp;
+    use DataGeoIp;
 
 
 
@@ -40,9 +39,9 @@ class SignIn extends DataEntry
      */
     public function __construct(int|string|null $identifier = null)
     {
-        static::$entry_name  = 'customer';
-        $this->table         = 'business_customers';
-        $this->unique_column = 'seo_name';
+        static::$entry_name  = 'signin';
+        $this->table         = 'accounts_signins';
+        $this->unique_column = 'id';
 
         parent::__construct($identifier);
     }
@@ -56,14 +55,10 @@ class SignIn extends DataEntry
      */
     public static function detect(): static
     {
-        $return = new SignIn();
-
-        $return
+        return SignIn::new()
             ->setIpAddress($_SERVER['REMOTE_ADDR'])
             ->setUserAgent($_SERVER['HTTP_USER_AGENT'])
             ->setGeoIp(GeoIp::detect($_SERVER['REMOTE_ADDR']));
-
-        return $return;
     }
 
 
@@ -76,14 +71,17 @@ class SignIn extends DataEntry
     protected function setKeys(): void
     {
        $this->keys = [
-            'ip_address' => [
-                'disabled' => true,
-                'label'    => tr('IP Address')
-            ],
+           'ip_address' => [
+               'disabled' => true,
+               'label'    => tr('IP Address')
+           ],
+           'ip_address_human' => [
+               'visible' => false,
+           ],
             'net_len' => [
                 'display'  => false
             ],
-            'useragent' => [
+            'user_agent' => [
                 'disabled' => true,
                 'label' => tr('User agent')
             ],
@@ -117,7 +115,7 @@ class SignIn extends DataEntry
 
         $this->keys_display = [
             'ip_address'   => 6,
-            'useragent'    => 6,
+            'user_agent'   => 6,
             'latitude'     => 4,
             'longitude'    => 4,
             'countries_id' => 4,

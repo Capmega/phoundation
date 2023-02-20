@@ -34,13 +34,16 @@ class SignIns extends DataList
 
         $this->setHtmlQuery('SELECT    `accounts_signins`.`id`,
                                              `accounts_signins`.`created_on`,
-                                             `accounts_signins`.`ip`, 
+                                             `accounts_signins`.`ip_address`, 
                                              `accounts_signins`.`longitude`, 
                                              `accounts_signins`.`latitude`, 
-                                             `geo_countries`.`country`  
+                                             `geo_countries`.`name` AS `country`,  
+                                             `geo_cities`.`name`    AS `city`  
                                    FROM      `accounts_signins` 
                                    LEFT JOIN `geo_countries`
                                    ON        `accounts_signins`.`countries_id` = `geo_countries`.`id` 
+                                   LEFT JOIN `geo_cities`
+                                   ON        `accounts_signins`.`cities_id`    = `geo_cities`.`id` 
                                    WHERE     `accounts_signins`.`created_by`   = :created_by 
                                    ORDER BY  `created_on`', [':created_by' => Session::getUser()->getId()]);
 

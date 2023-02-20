@@ -264,7 +264,7 @@ class Users extends DataList
 
         if ($this->parent) {
             if ($this->parent instanceof Role) {
-                $this->list = sql()->list('SELECT `accounts_users_roles`.`users_id` 
+                $this->list = sql()->list(' SELECT `accounts_users_roles`.`users_id` 
                                            FROM   `accounts_users_roles` 
                                            WHERE  `accounts_users_roles`.`roles_id` = :roles_id', [
                     ':roles_id' => $this->parent->getId()

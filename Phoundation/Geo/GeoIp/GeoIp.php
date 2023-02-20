@@ -3,7 +3,6 @@
 namespace Phoundation\Geo\GeoIp;
 
 use Phoundation\Core\Config;
-use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 
@@ -13,13 +12,13 @@ use Phoundation\Exception\UnderConstructionException;
  * GeoIp class
  *
  *
- *
+ * @note See https://linklyhq.com/blog/list-of-5-free-geoip-databases-2020
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation/Geo
  */
-class GeoIp extends DataEntry
+class GeoIp
 {
     /**
      * The IP for this GeoIp entry
@@ -38,10 +37,7 @@ class GeoIp extends DataEntry
      */
     public static function detect(?string $ip): static
     {
-        $return = self::getProvider();
-        $return->setIpAddress($ip);
-
-        return $return;
+        return self::getProvider()->detect($ip);
     }
 
 
@@ -78,7 +74,7 @@ class GeoIp extends DataEntry
      */
     public function getIpAddress(): ?string
     {
-        return $this->getDataValue('ip_address');
+        return $this->ip_address;
     }
 
 
@@ -91,7 +87,8 @@ class GeoIp extends DataEntry
      */
     public function setIpAddress(string|null $ip_address): static
     {
-        return $this->setDataValue('ip_address', $ip_address);
+        $this->ip_address = $ip_address;
+        return $this;
     }
 
 

@@ -5,7 +5,7 @@ namespace Phoundation\Data\Traits;
 
 
 /**
- * Class NetworkUrl
+ * Class DataNetworkUrl
  *
  *
  *
@@ -14,7 +14,7 @@ namespace Phoundation\Data\Traits;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-trait NetworkUrl
+trait DataNetworkUrl
 {
     /**
      * @var string|null

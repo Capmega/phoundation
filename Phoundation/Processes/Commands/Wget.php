@@ -2,9 +2,9 @@
 
 namespace Phoundation\Processes\Commands;
 
-use Phoundation\Data\Traits\BindAddress;
-use Phoundation\Data\Traits\Source;
-use Phoundation\Data\Traits\Target;
+use Phoundation\Data\Traits\DataBindAddress;
+use Phoundation\Data\Traits\DataSource;
+use Phoundation\Data\Traits\DataTarget;
 use Phoundation\Processes\Enum\ExecuteMethod;
 
 
@@ -20,9 +20,9 @@ use Phoundation\Processes\Enum\ExecuteMethod;
  */
 class Wget extends Command
 {
-    use Source;
-    use Target;
-    use BindAddress;
+    use DataSource;
+    use DataTarget;
+    use DataBindAddress;
 
 
 

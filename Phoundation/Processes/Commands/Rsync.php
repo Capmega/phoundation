@@ -3,9 +3,9 @@
 namespace Phoundation\Processes\Commands;
 
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\Traits\NetworkConnection;
-use Phoundation\Data\Traits\Source;
-use Phoundation\Data\Traits\Target;
+use Phoundation\Data\Traits\DataNetworkConnection;
+use Phoundation\Data\Traits\DataSource;
+use Phoundation\Data\Traits\DataTarget;
 
 
 
@@ -21,9 +21,9 @@ use Phoundation\Data\Traits\Target;
  */
 class Rsync extends Command
 {
-    use Source;
-    use Target;
-    use NetworkConnection;
+    use DataSource;
+    use DataTarget;
+    use DataNetworkConnection;
 
 
 

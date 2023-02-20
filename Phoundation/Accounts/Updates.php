@@ -440,6 +440,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `ip_address` binary(16) NOT NULL,
+                    `ip_address_human` varchar(16) NOT NULL,
                     `net_len` int(11) NOT NULL,
                     `user_agent` varchar(2040) NULL,
                     `latitude` decimal(10,7) NOT NULL,
@@ -454,7 +455,8 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     KEY `created_by` (`created_by`),
                     KEY `status` (`status`),
                     KEY `meta_id` (`meta_id`),
-                    KEY `ip` (`ip_address`),
+                    KEY `ip_address` (`ip_address`),
+                    KEY `ip_address_human` (`ip_address_human`),
                     KEY `user_agent` (`user_agent`),
                 ')->setForeignKeys('
                     CONSTRAINT `fk_accounts_signins_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,

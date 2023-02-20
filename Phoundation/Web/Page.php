@@ -1285,7 +1285,7 @@ class Page
 
         // Redirect with time delay
         if ($time_delay) {
-            Log::action(tr('Redirecting with ":time" seconds delay to url ":url"', [
+            Log::information(tr('Redirecting with ":time" seconds delay to url ":url"', [
                 ':time' => $time_delay,
                 ':url' => $redirect
             ]));
