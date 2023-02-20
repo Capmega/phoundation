@@ -15,6 +15,7 @@ use Phoundation\Data\DataEntry\Traits\DataEntryCode;
 use Phoundation\Data\DataEntry\Traits\DataEntryDetails;
 use Phoundation\Data\DataEntry\Traits\DataEntryException;
 use Phoundation\Data\DataEntry\Traits\DataEntryTitle;
+use Phoundation\Data\DataEntry\Traits\DataEntryUrl;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Exception\NotificationBusyException;
@@ -33,6 +34,7 @@ use Throwable;
  */
 class Notification extends DataEntry
 {
+    use DataEntryUrl;
     use DataEntryCode;
     use DataEntryTitle;
     use DataEntryDetails;
@@ -752,6 +754,10 @@ class Notification extends DataEntry
             ],
             'file' => [
                 'label'    => tr('File'),
+                'disabled' => true,
+            ],
+            'url' => [
+                'label'    => tr('Url'),
                 'disabled' => true,
             ],
             'line' => [
