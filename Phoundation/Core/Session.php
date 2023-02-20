@@ -7,6 +7,7 @@ use Exception;
 use GeoIP;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\GuestUser;
+use Phoundation\Accounts\Users\SignIn;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Exception\ConfigException;
 use Phoundation\Core\Exception\SessionException;
@@ -210,6 +211,9 @@ class Session
             // Update the users sign-in and last sign-in information
             sql()->query('UPDATE `accounts_users` SET `last_sign_in` = NOW(), `sign_in_count` = `sign_in_count` + 1');
 
+            // Store this sign in
+            Signin::detect()->save();
+
             Incident::new()
                 ->setType('User sign in')->setSeverity(Severity::notice)
                 ->setTitle(tr('The user ":user" signed in', [':user' => static::$user]))
@@ -217,6 +221,7 @@ class Session
                 ->save();
 
             $_SESSION['user']['id'] = static::$user->getId();
+
             return static::$user;
 
         } catch (DataEntryNotExistsException) {
@@ -690,6 +695,7 @@ Log::warning('RESTART SESSION');
         $_SESSION['user']['impersonate_id']  = $user->getId();
         $_SESSION['user']['impersonate_url'] = (string) UrlBuilder::getCurrent();
 
+        // Register an incident
         Incident::new()
             ->setType('User impersonation')
             ->setSeverity(Severity::medium)
@@ -702,6 +708,16 @@ Log::warning('RESTART SESSION');
                 ':impersonate' => $user
             ])
             ->save();
+
+        // Notify the target user
+        Notification::new()
+            ->setMode('WARNING')
+            ->setUsersId($_SESSION['user']['impersonate_id'])
+            ->setTitle(tr('Your account was impersonated'))
+            ->setMessage(tr('Your account was impersonated by the user ":user". For questions or more information about this, please contact the user', [
+                ':user' => $original_user->getLogId()
+            ]))
+            ->send();
     }
 
 
