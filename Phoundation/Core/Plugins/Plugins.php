@@ -23,6 +23,33 @@ use Throwable;
 class Plugins extends DataList
 {
     /**
+     * A cached list of enabled plugins
+     *
+     * @var array|null $enabled
+     */
+    protected ?array $enabled = null;
+
+
+    /**
+     * Providers class constructor
+     *
+     * @param Plugin|null $parent
+     * @param string|null $id_column
+     */
+    public function __construct(?Plugin $parent = null, ?string $id_column = null)
+    {
+        $this->entry_class = Plugin::class;
+        $this->table_name  = 'core_plugins';
+
+        $this->setHtmlQuery('SELECT   `id`, `name`, COALESCE(`status`, "' . tr('Enabled') . '") AS `status`, IF(`start`, "' . tr('Yes') . '", "' . tr('No') . '") AS `start`, `priority`, `description` 
+                                   FROM     `core_plugins` 
+                                   ORDER BY `name`');
+        parent::__construct($parent, $id_column);
+    }
+
+
+
+    /**
      * @return void
      */
     public static function setup(): void
@@ -39,27 +66,30 @@ class Plugins extends DataList
      * This method ensures all available plugins are registered in the database and that any plugin registration
      * that no longer exists is removed from the database
      *
-     * @return array
+     * @return int
      */
-    public static function scan(): array
+    public static function scan(): int
     {
-        $files      = self::getPluginPaths();
-        $registered = self::getAvailable();
+        $count = 0;
 
-        foreach ($files as $file => $class) {
+        foreach (self::getPlugins() as $name => $class) {
             try {
-                $plugin = $class::read($file);
-            } catch (Throwable $e) {
-                Log::warning('Failed to read plugin ":plugin" because of the following exception. Ignoring it.', [
-                    ':plugin' => $file
-                ]);
-                Log::error($file);
+                $plugin = $class::new($name);
 
-                // TODO Delete the plugin from database
-                //static::delete($file);
+                if (!$plugin->getId()) {
+                    $plugin->register();
+                    $count++;
+                }
+            } catch (Throwable $e) {
+                Log::warning(tr('Failed to read plugin ":plugin" because of the following exception. Ignoring it.', [
+                    ':plugin' => $name
+                ]));
+
+                Log::error($e);
             }
         }
 
+        return $count;
     }
 
 
@@ -72,41 +102,43 @@ class Plugins extends DataList
     public static function start(): void
     {
         foreach (self::getEnabled() as $name => $plugin) {
-            Log::action(tr('Starting plugin ":plugin"', [':plugin' => $name]));
-            include_once($plugin['file']);
-            $plugin['class']::start();
+            if ($plugin['start']) {
+                Log::action(tr('Starting plugin ":plugin"', [':plugin' => $name]), 3);
+                include_once($plugin['path'] . 'Plugin.php');
+                $plugin['class']::start();
+            }
         }
     }
 
 
 
-    /**
-     * Starts CLI all enabled plugins
-     *
-     * @return void
-     */
-    public static function startCli(): void
-    {
-        foreach (self::getEnabled() as $name => $plugin) {
-            Log::action(tr('Starting CLI on plugin ":plugin"', [':plugin' => $name]));
-            $plugin['class']::startCli();
-        }
-    }
-
-
-
-    /**
-     * Starts HTTP for all enabled plugins
-     *
-     * @return void
-     */
-    public static function startHttp(): void
-    {
-        foreach (self::getEnabled() as $name => $plugin) {
-            Log::action(tr('Starting HTTP on plugin ":plugin"', [':plugin' => $name]));
-            $plugin['class']::startHttp();
-        }
-    }
+//    /**
+//     * Starts CLI all enabled plugins
+//     *
+//     * @return void
+//     */
+//    public static function startCli(): void
+//    {
+//        foreach (self::getEnabled() as $name => $plugin) {
+//            Log::action(tr('Starting CLI on plugin ":plugin"', [':plugin' => $name]), 3);
+//            $plugin['class']::startCli();
+//        }
+//    }
+//
+//
+//
+//    /**
+//     * Starts HTTP for all enabled plugins
+//     *
+//     * @return void
+//     */
+//    public static function startHttp(): void
+//    {
+//        foreach (self::getEnabled() as $name => $plugin) {
+//            Log::action(tr('Starting HTTP on plugin ":plugin"', [':plugin' => $name]));
+//            $plugin['class']::startHttp();
+//        }
+//    }
 
 
 
@@ -117,7 +149,7 @@ class Plugins extends DataList
      */
     public static function getAvailable(): array
     {
-        return sql()->list('SELECT   `name`, `status`, `priority`, `file`, `class` 
+        return sql()->list('SELECT   `name`, `status`, `priority`, `path`, `class` 
                                   FROM     `core_plugins` 
                                   ORDER BY `priority`');
     }
@@ -125,25 +157,29 @@ class Plugins extends DataList
 
 
     /**
-     * Loads all plugins from the database and returns them in an array
+     * Returns an array with all enabled plugins from the database
      *
      * @return array
      */
     public static function getEnabled(): array
     {
-        // TODO THIS IS HARD CODED, MAKE DYNAMIC
-        return [
-            'phoundation' => [
-                'file'  => PATH_ROOT . '/Plugins/Phoundation/Plugin.php',
-                'class' => 'Plugins\Phoundation\Plugin'
-            ]
-        ];
+        $return = sql()->list('SELECT   `name` AS `id`, `name`, `path`, `class`, `start` 
+                                     FROM     `core_plugins` 
+                                     WHERE    `status` IS NULL 
+                                     ORDER BY `priority` ASC');
 
-        // TODO AS THIS ALWAYS GETS CALLED TWICE, CACHE RESULTS IN ARRAY!
-        return sql()->list('SELECT   `name`, `file`, `class` 
-                                  FROM     `core_plugins` 
-                                  WHERE    `status` IS NULL 
-                                  ORDER BY `priority`');
+        if (!$return) {
+            // Phoundation plugin is ALWAYS enabled
+            return [
+                'phoundation' => [
+                    'path'  => PATH_ROOT . '/Plugins/Phoundation/',
+                    'class' => 'Plugins\Phoundation\Plugin',
+                    'start' => true
+                ]
+            ];
+        }
+
+        return $return;
     }
 
 
@@ -181,7 +217,7 @@ class Plugins extends DataList
      *
      * @return array
      */
-    protected static function getPluginPaths(): array
+    protected static function getPlugins(): array
     {
         $path    = PATH_ROOT . 'Plugins/';
         $return  = [];
@@ -225,7 +261,7 @@ class Plugins extends DataList
                 continue;
             }
 
-            $return[$file] = $class;
+            $return[$plugin] = $class;
         }
 
         return $return;
