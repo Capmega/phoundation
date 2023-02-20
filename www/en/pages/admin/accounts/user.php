@@ -60,7 +60,7 @@ if (Page::isPostRequestMethod()) {
                     ->select('birthday')->isOptional()->isDate()
                     ->select('description')->isOptional()->isPrintable()->hasMaxCharacters(65_530)
                     ->select('comments')->isOptional()->isPrintable()->hasMaxCharacters(16_777_200)
-                    ->select('website')->isOptional()->isUrl()
+                    ->select('url')->isOptional()->isUrl()
                     ->select('timezone')->isOptional()->isTimezone()
                     ->validate();
 
