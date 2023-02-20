@@ -47,7 +47,7 @@ if (Page::isPostRequestMethod()) {
 // Build the buttons
 $buttons = Buttons::new()
     ->addButton('Submit')
-    ->addButton('Back', 'secondary', '/business/customers.html', true)
+    ->addButton(tr('Back'), 'secondary', '/business/customers.html', true)
     ->addButton(tr('Audit'), 'green', '/audit/meta-' . $customer->getMeta() . '.html', false, true);
 
 

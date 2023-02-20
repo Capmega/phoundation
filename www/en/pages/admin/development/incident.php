@@ -22,7 +22,7 @@ $incident = Incident::get($_GET['id']);
 // Build the buttons
 $buttons = Buttons::new()
     ->addButton('Submit')
-    ->addButton('Back', 'secondary', '/development/incidents.html', true);
+    ->addButton(tr('Back'), 'secondary', '/development/incidents.html', true);
 
 
 
