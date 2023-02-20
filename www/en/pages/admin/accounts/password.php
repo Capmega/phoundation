@@ -49,7 +49,7 @@ if (Page::isPostRequestMethod()) {
 // Build the buttons
 $buttons = Buttons::new()
     ->addButton('Submit')
-    ->addButton('Cancel', 'secondary', '/accounts/users.html', true);
+    ->addButton('Back', 'secondary', '/accounts/users.html', true);
 
 
 

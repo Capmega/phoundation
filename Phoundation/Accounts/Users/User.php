@@ -490,31 +490,6 @@ class User extends DataEntry
 
 
     /**
-     * Returns the avatar for this user
-     *
-     * @return string|null
-     */
-    public function getAvatar(): ?string
-    {
-        return $this->getDataValue('avatar');
-    }
-
-
-
-    /**
-     * Sets the avatar for this user
-     *
-     * @param string|null $avatar
-     * @return static
-     */
-    public function setAvatar(?string $avatar): static
-    {
-        return $this->setDataValue('avatar', $avatar);
-    }
-
-
-
-    /**
      * Returns the keywords for this user
      *
      * @return string|null
@@ -1580,7 +1555,7 @@ class User extends DataEntry
             'nickname' => [
                 'label'   => tr('Nickname')
             ],
-            'avatar' => [
+            'picture' => [
                 'display' => false
             ],
             'type' => [

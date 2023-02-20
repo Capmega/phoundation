@@ -22,14 +22,14 @@ $incident = Incident::get($_GET['id']);
 // Build the buttons
 $buttons = Buttons::new()
     ->addButton('Submit')
-    ->addButton('Cancel', 'secondary', '/accounts/incidents.html', true);
+    ->addButton('Back', 'secondary', '/development/incidents.html', true);
 
 
 
 // Build the incident form
 $incident_card = Card::new()
     ->setHasCollapseSwitch(true)
-    ->setTitle(tr('Edit data for Incident :name', [':name' => $incident->getDisplayName()]))
+    ->setTitle(tr('Edit data for Incident :name', [':name' => $incident->getTitle()]))
     ->setContent($incident->getHtmlForm()->render())
     ->setButtons($buttons);
 
@@ -72,9 +72,9 @@ echo $grid->render();
 
 // Set page meta data
 Page::setHeaderTitle(tr('Incident'));
-Page::setHeaderSubTitle($incident->getName());
+Page::setHeaderSubTitle($incident->getTitle());
 Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'                    => tr('Home'),
-    '/accounts/incidents.html' => tr('Incidents'),
-    ''                     => $incident->getDisplayName()
+    '/'                           => tr('Home'),
+    '/development/incidents.html' => tr('Incidents'),
+    ''                            => $incident->getTitle()
 ]));

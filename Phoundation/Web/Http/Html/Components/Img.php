@@ -197,7 +197,7 @@ class Img extends Element
 //            if (Url::getDomainType($src) === 'www') {
 //                // Here, mistakenly, the main domain was used for CDN data
 //                Notification::new()
-//                    ->setGroups('developers')
+//                    ->setRoles('developers')
 //                    ->setTitle(tr('Minor issue with CDN data'))
 //                    ->setMessage(tr('The main domain ":domain" was specified for CDN data, please correct this issue', [
 //                        ':domain' => $domain

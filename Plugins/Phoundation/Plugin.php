@@ -20,12 +20,13 @@ use Plugins\Phoundation\Components\ProfileImageMenu;
 class Plugin extends \Phoundation\Core\Plugins\Plugin
 {
     /**
-     * @inheritDoc
+     * Returns the plugin description
+     *
+     * @return string
      */
-    public function install(): void
+    public function getDescription(): string
     {
-        $this->setDescription(tr('This is the default Phoundation plugin'));
-        $this->save();
+        return tr('This is the default Phoundation plugin');
     }
 
 
@@ -40,35 +41,5 @@ class Plugin extends \Phoundation\Core\Plugins\Plugin
             'primary'       => Menu::new()->appendMenu(Components\Menu::new()),
             'profile_image' => Menu::new()->appendMenu(ProfileImageMenu::new())
         ]);
-    }
-
-
-
-    /**
-     * @inheritDoc
-     */
-    public function uninstall(): void
-    {
-        // TODO: Implement uninstall() method.
-    }
-
-
-
-    /**
-     * @inheritDoc
-     */
-    public function disable(): void
-    {
-        // TODO: Implement disable() method.
-    }
-
-
-
-    /**
-     * @inheritDoc
-     */
-    public function enable(): void
-    {
-        // TODO: Implement enable() method.
     }
 }

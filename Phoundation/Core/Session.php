@@ -762,8 +762,9 @@ Log::warning('RESTART SESSION');
 
                 if (!str_contains(static::$domain, $test)) {
                     Notification::new()
+                        ->setMode('WARNING')
                         ->setCode('configuration')
-                        ->setGroups('developers')
+                        ->setRoles('developers')
                         ->setTitle(tr('Invalid cookie domain'))
                         ->setMessage(tr('Specified cookie domain ":cookie_domain" is invalid for current domain ":current_domain". Please fix $_CONFIG[cookie][domain]! Redirecting to ":domain"', [
                             ':domain'         => Strings::startsNotWith(Config::get('web.sessions.cookies.domain'), '.'),
@@ -1001,7 +1002,7 @@ Log::warning('RESTART SESSION');
                     ->setException(SessionException::new(tr('Reset timezone for user ":user" to ":timezone"', [
                         ':user'     => static::getUser()->getLogId(),
                         ':timezone' => $_SESSION['user']['timezone']
-                    ]), $e)->makeWarning(true))
+                    ]), $e)->makeWarning())
                     ->send();
             }
         }

@@ -20,9 +20,9 @@ trait DataEntryDetails
     /**
      * Returns the details for this object
      *
-     * @return array
+     * @return array|null
      */
-    public function getDetails(): array
+    public function getDetails(): ?array
     {
         return Json::decode($this->getDataValue('details'));
     }

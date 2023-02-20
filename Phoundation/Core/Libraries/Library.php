@@ -375,21 +375,28 @@ class Library
     /**
      * Get the .php file for the specified class path
      *
-     * @param string $class_path
+     * @param object|string $class_path
+     * @param bool $check_php
      * @return string
      */
-    public static function getClassFile(string $class_path): string
+    public static function getClassFile(object|string $class_path, bool $check_php = true): string
     {
         if (!$class_path) {
             throw new OutOfBoundsException(tr('No class path specified'));
+        }
+
+        if (is_object($class_path)) {
+            $class_path = get_class($class_path);
         }
 
         $file = str_replace('\\', '/', $class_path);
         $file = Strings::startsNotWith($file, '/');
         $file = PATH_ROOT . $file . '.php';
 
-        if (!File::new($file, [PATH_ROOT . 'Phoundation', PATH_ROOT . 'Plugins', PATH_ROOT . 'Templates', ])->isPhp()) {
-            throw new OutOfBoundsException(tr('The specified file ":file" is not a PHP file', [':file' => $file]));
+        if ($check_php) {
+            if (!File::new($file, [PATH_ROOT . 'Phoundation', PATH_ROOT . 'Plugins', PATH_ROOT . 'Templates', ])->isPhp()) {
+                throw new OutOfBoundsException(tr('The specified file ":file" is not a PHP file', [':file' => $file]));
+            }
         }
 
         return $file;

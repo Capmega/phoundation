@@ -1229,8 +1229,9 @@ class Core {
                 $language = Config::get('language.default', 'en');
 
                 Notification::new()
+                    ->setMode('WARNING')
                     ->setCode('unknown-language')
-                    ->setGroups('developers')
+                    ->setRoles('developers')
                     ->setTitle(tr('Unknown language specified'))
                     ->setMessage(tr('The specified language ":language" is not known', [':language' => $language]))
                     ->send();

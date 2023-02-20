@@ -61,6 +61,7 @@ class Js
                     $file = substr($file, 0, -3);
 
                     Notification::new()
+                        ->setMode('EXCEPTION')
                         ->setCode('not-exists')
                         ->setRoles('developer')
                         ->setTitle(tr('html_load_js() issue detected'))
@@ -71,6 +72,7 @@ class Js
                     $file = substr($file, 0, -7);
 
                     Notification::new()
+                        ->setMode('EXCEPTION')
                         ->setCode('not-exists')
                         ->setRoles('developer')
                         ->setTitle(tr('html_load_js() issue detected'))

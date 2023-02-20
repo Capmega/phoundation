@@ -72,7 +72,7 @@ class NotificationsDropDown extends Renderer
                 }
 
                 $this->render .= '<a href="' . str_replace(':ID', $notification->getId(), $this->element->getNotificationsUrl()) . '" class="dropdown-item">
-                                    <i class="fas fa-' . $notification->getIcon() . ' mr-2"></i> ' . Strings::truncate($notification->getTitle(), 24) . '
+                                    ' . ($notification->getIcon() ? '<i class="text-' . strtolower($notification->getMode()) . ' fas fa-' . $notification->getIcon() . ' mr-2"></i> ' : null) . Strings::truncate($notification->getTitle(), 24) . '
                                     <span class="float-right text-muted text-sm"> ' . Date::getAge($notification->getCreatedOn()) . '</span>
                                   </a>
                                   <div class="dropdown-divider"></div>';

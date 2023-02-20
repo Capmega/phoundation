@@ -81,7 +81,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `first_names` varchar(127) DEFAULT NULL,
                     `last_names` varchar(127) DEFAULT NULL,
                     `nickname` varchar(64) DEFAULT NULL,
-                    `avatar` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
+                    `picture` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
                     `email` varchar(128) DEFAULT NULL,
                     `code` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `type` varchar(16) DEFAULT NULL,

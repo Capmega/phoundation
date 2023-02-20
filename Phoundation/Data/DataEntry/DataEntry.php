@@ -14,6 +14,7 @@ use Phoundation\Data\DataEntry\Enums\StateMismatchHandling;
 use Phoundation\Data\DataEntry\Exception\DataEntryAlreadyExistsException;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntry\Exception\DataEntryStateMismatchException;
+use Phoundation\Data\Traits\DataDebug;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Exception\OutOfBoundsException;
@@ -36,6 +37,9 @@ use Throwable;
  */
 abstract class DataEntry
 {
+    use DataDebug;
+
+
     /**
      * The label name for this data entry, used in errors, etc
      *
@@ -125,6 +129,7 @@ abstract class DataEntry
         'created_on',
         'status',
         'meta_id',
+        'meta_state',
     ];
 
     /**
@@ -133,6 +138,14 @@ abstract class DataEntry
      * @var bool $display_meta
      */
     protected bool $display_meta = true;
+
+    /**
+     * Flag to indicate that user is modifying data. In this case, all keys that are readonly and disabled cannot be
+     * changed
+     *
+     * @var bool $user_modifying
+     */
+    protected bool $user_modifying = false;
 
 
     /**
@@ -570,7 +583,14 @@ abstract class DataEntry
      */
     public function create(?array &$data): static
     {
-        return $this->setDiff($data)->setData($data);
+        $this->user_modifying = true;
+
+        $this
+            ->setDiff($data)
+            ->setData($data)
+            ->user_modifying = false;
+
+        return $this;
     }
 
 
@@ -584,6 +604,8 @@ abstract class DataEntry
      */
     public function modify(?array &$data): static
     {
+        $this->user_modifying = true;
+
         // Check meta state
         if ($this->getMetaState()) {
             if (isset_get($data['meta_state']) !== $this->getMetaState()) {
@@ -611,9 +633,12 @@ abstract class DataEntry
             }
         }
 
-        return $this
+        $this
             ->setDiff($data)
-            ->setData($data, true);
+            ->setData($data, true)
+            ->user_modifying = false;
+
+        return $this;
     }
 
 
@@ -639,11 +664,23 @@ abstract class DataEntry
 
             // Check all keys and register changes
             foreach ($this->keys as $key => $definition) {
+                if (isset_get($this->keys[$key]['readonly']) or isset_get($this->keys[$key]['disabled'])) {
+                    continue;
+                }
+
+                if (in_array($key, $this->no_process_keys)) {
+                    continue;
+                }
+
+                if (isset_get($data[$key]) === null) {
+                    continue;
+                }
+
                 if (isset_get($this->data[$key]) != isset_get($data[$key])) {
                     // If both records were empty (from NULL to 0 for example) then don't register
-                    if ($this->data[$key] and $data[$key]) {
-                        $diff['from'][$key] = $this->data[$key];
-                        $diff['to'][$key] = $data[$key];
+                    if ($this->data[$key] or $data[$key]) {
+                        $diff['from'][$key] = (string) $this->data[$key];
+                        $diff['to'][$key]   = (string) $data[$key];
                     }
                 }
             }
@@ -837,30 +874,37 @@ abstract class DataEntry
     }
 
 
-
     /**
      * Sets the value for the specified data key
      *
      * @param string $key
      * @param mixed $value
+     * @param bool $force
      * @return static
      */
-    protected function setDataValue(string $key, mixed $value): static
+    protected function setDataValue(string $key, mixed $value, bool $force = false): static
     {
-        if ($key === 'meta_id') {
-            throw new OutOfBoundsException(tr('The "meta_id" key cannot be changed'));
-        }
+        // Only save values that are defined for this object
+        if (array_key_exists($key, $this->keys)) {
+            // Skip any non-processable keys like id, created_on, meta_id, etc etc etc..
+            if (!in_array($key, $this->no_process_keys)) {
+                // If the key is defined as readonly or disabled, it cannot be updated!
+                if ($force or (!$this->user_modifying or (empty($this->keys[$key]['readonly']) and empty($this->keys[$key]['disabled'])))) {
+                    // Don't update keys with NULL values
+                    if ($value !== null) {
+                        // If the value is considered empty, however, it might be forced to NULL
+                        if (!$value) {
+                            //  By default, all columns with empty values will be pushed to NULL unless specified otherwise
+                            if (!array_key_exists('db_null', $this->keys[$key]) or $this->keys[$key]['db_null'] !== false) {
+                                // Force the data value to NULL
+                                $value = null;
+                            }
+                        }
 
-        if ($value !== null) {
-            if (!$value) {
-                if (array_key_exists($key, $this->keys)) {
-                    if (!array_key_exists('db_null', $this->keys[$key]) or $this->keys[$key]['db_null'] !== false) {
-                        $value = null;
+                        $this->data[$key] = $value;
                     }
                 }
             }
-
-            $this->data[$key] = $value;
         }
 
         return $this;
@@ -987,8 +1031,18 @@ abstract class DataEntry
         // Apply defaults
         $this->applyDefaults();
 
+        // Debug this specific entry?
+        if ($this->debug) {
+            $debug = Sql::debug(true);
+        }
+
         // Write the entry
         $this->data['id'] = sql()->write($this->table, $this->getInsertColumns(), $this->getUpdateColumns(), $comments, $this->diff);
+
+        // Return debug mode if required
+        if (isset($debug)) {
+            Sql::debug($debug);
+        }
 
         // Write the list, if set
         $this->list?->save();

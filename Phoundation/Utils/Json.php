@@ -366,6 +366,7 @@ class Json
 
             default:
                 Notification::new()
+                    ->setMode('EXCEPTION')
                     ->setCode('unknown')
                     ->setRoles('developer')
                     ->setTitle('Unknown message specified')

@@ -1,13 +1,28 @@
 <?php
 
+use Phoundation\Core\Session;
+use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Notifications\FilterForm;
 use Phoundation\Notifications\Notifications;
 use Phoundation\Web\Http\Html\Components\BreadCrumbs;
+use Phoundation\Web\Http\Html\Components\Buttons;
 use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Http\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
+
+
+$notifications = Notifications::new();
+
+if (Page::isPostRequestMethod()) {
+    if (PostValidator::getSubmitButton() === tr('Mark all as read')) {
+//        $notifications->setStatus('READ');
+        sql()->query('UPDATE `notifications` SET `status` = "READ" WHERE `users_id` = :users_id', [':users_id' => Session::getUser()->getId()]);
+        Page::getFlashMessages()->add(tr('Success'), tr('All your notifications have been marked as read'), 'success');
+        Page::redirect();
+    }
+}
 
 
 // Build the page content
@@ -26,14 +41,16 @@ $filters = Card::new()
 
 
 // Build notifications table
-$table = Notifications::new()->getHtmlDataTable()
+$table = $notifications->getHtmlDataTable()
     ->setRowUrl('/notifications/notification-:ROW.html');
 
 $notifications = Card::new()
     ->setTitle('Active notifications')
     ->setSwitches('reload')
     ->setContent($table->render())
-    ->useForm(true);
+    ->useForm(true)
+    ->setButtons(Buttons::new()
+        ->addButton(tr('Mark all as read'), 'primary'));
 
 $notifications->getForm()
         ->setAction(UrlBuilder::getCurrent())

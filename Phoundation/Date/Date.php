@@ -10,6 +10,7 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Log\Log;
+use Phoundation\Core\Strings;
 use Phoundation\Date\Exception\DateException;
 use Phoundation\Exception\OutOfBoundsException;
 use Throwable;
@@ -403,7 +404,37 @@ class Date
      */
     public static function getAge(Date|DateTime|string|int $date): string
     {
-        Log::warning(tr('Date::getAge() USED WHILE UNDER CONSTRUCTION!'));
-        return 'unknown';
+        if (!is_object($date)) {
+            $date = new DateTime(strtotime($date));
+        }
+
+        $now = new DateTime();
+        $diff = $now->diff($date);
+
+        if ($diff->y) {
+            return Strings::plural($diff->y, tr(':count year', [':count' => $diff->y]), tr(':count years', [':count' => $diff->y]));
+        }
+
+        if ($diff->m) {
+            return Strings::plural($diff->m, tr(':count month', [':count' => $diff->m]), tr(':count months', [':count' => $diff->m]));
+        }
+
+        if ($diff->d) {
+            return Strings::plural($diff->d, tr(':count day', [':count' => $diff->d]), tr(':count days', [':count' => $diff->d]));
+        }
+
+        if ($diff->h) {
+            return Strings::plural($diff->h, tr(':count hour', [':count' => $diff->h]), tr(':count hours', [':count' => $diff->h]));
+        }
+
+        if ($diff->i) {
+            return Strings::plural($diff->i, tr(':count min', [':count' => $diff->i]), tr(':count mins', [':count' => $diff->i]));
+        }
+
+        if ($diff->s) {
+            return Strings::plural($diff->s, tr(':count sec', [':count' => $diff->s]), tr(':count secs', [':count' => $diff->s]));
+        }
+
+        return tr('Right now');
     }
 }

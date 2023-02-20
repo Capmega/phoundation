@@ -637,7 +637,6 @@ abstract class DataList implements Iterator
      */
     public function setStatus(?string $status, array $entries, ?string $comments = null): int
     {
-showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY FOR A SINGLE ROW!');
         return sql()->setStatus($status, $this->table_name, $entries, $comments);
     }
 

@@ -19,14 +19,14 @@ use Phoundation\Core\Strings;
 trait DataEntryPicture
 {
     /**
-     * Returns the picture for this customer
+     * Returns the picture for this entry
      *
      * @return Image
      */
     public function getPicture(): Image
     {
         if (!$this->getDataValue('picture')) {
-            $this->setDataValue('picture', 'img/profiles/default.png');
+            $this->setDataValue('picture', 'img/profiles/default.png', true);
         }
 
         return Image::new($this->getDataValue('picture'))
@@ -36,16 +36,13 @@ trait DataEntryPicture
 
 
     /**
-     * Sets the picture for this customer
+     * Sets the picture for this entry
      *
      * @param Image|string|null $picture
      * @return static
      */
     public function setPicture(Image|string|null $picture): static
     {
-        return $this->setDataValue('picture', Strings::from(PATH_CDN, $picture->getFile()));
+        return $this->setDataValue('picture', Strings::from($picture?->getFile(), PATH_CDN));
     }
-
-
-
 }

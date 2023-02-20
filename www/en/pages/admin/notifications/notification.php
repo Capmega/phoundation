@@ -28,9 +28,7 @@ $notification_card = Card::new()
     ->setTitle(tr('Edit data for notification :name', [':name' => $notification->getTitle()]))
     ->setContent($notification->getHtmlForm()->render())
     ->setButtons(Buttons::new()
-        ->addButton(tr('Submit'))
-        ->addButton(tr('Cancel'), 'secondary', '/accounts/notifications.html', true)
-        ->addButton(tr('Audit'), 'green', '/audit/meta-' . $notification->getMeta() . '.html', false, true)
+        ->addButton(tr('Back'), 'secondary', '/notifications/all.html', true)
         ->addButton(isset_get($delete))
         ->addButton(isset_get($impersonate)));
 

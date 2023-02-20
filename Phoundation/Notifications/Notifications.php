@@ -7,6 +7,7 @@ use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Databases\Sql\QueryBuilder;
+use Phoundation\Databases\Sql\Sql;
 
 
 /**
@@ -65,11 +66,11 @@ class Notifications extends DataList
     public function getMostImportantMode(): string
     {
         $list = [
-            'UNKNOWN'     => 1,
-            'INFORMATION' => 2,
-            'SUCCESS'     => 3,
-            'WARNING'     => 4,
-            'DANGER'      => 5,
+            'UNKNOWN' => 1,
+            'INFO'    => 2,
+            'SUCCESS' => 3,
+            'WARNING' => 4,
+            'DANGER'  => 5,
         ];
 
         $return = 1;
@@ -125,14 +126,13 @@ class Notifications extends DataList
         }
 
         // Build filters
-//        foreach ($filters as $key => $value){
-//            switch ($key) {
-//                case 'email':
-//                    $builder->addJoin(' JOIN `notifications`
-//                                            ON   `notifications`.`users_id` = `accounts_users`.`id` ');
-//                    break;
-//            }
-//        }
+        foreach ($filters as $key => $value){
+            switch ($key) {
+                case 'status':
+                    $builder->addWhere('`status`' . Sql::is($value, ':status'), [':status' => $value]);
+                    break;
+            }
+        }
 
         return sql()->list($builder->getQuery(), $builder->getExecute());
     }

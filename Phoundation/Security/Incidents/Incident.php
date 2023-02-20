@@ -119,10 +119,10 @@ class Incident extends DataEntry
     public function save(?string $comments = null): static
     {
         if ($this->log) {
-            $severity = strtoupper($this->getSeverity());
+            $severity = strtolower($this->getSeverity());
 
             switch ($severity){
-                case 'NOTICE':
+                case 'notice':
                     Log::warning(tr('Security notice: :message', [
                         ':message'  => $this->getTitle()
                     ]));

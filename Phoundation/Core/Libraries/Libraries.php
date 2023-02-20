@@ -145,7 +145,8 @@ class Libraries
         if (Debug::production()) {
             // Notification developers
             Notification::new()
-                ->setGroups('developers')->setTitle(tr('System initialization'))
+                ->setMode('INFO')
+                ->setRoles('developers')->setTitle(tr('System initialization'))
                 ->setMessage(tr('The system ran an initialization'))
                 ->setDetails([
                     'system'    => $system,

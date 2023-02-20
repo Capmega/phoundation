@@ -160,8 +160,8 @@ class Notification extends DataEntry
         static::$entry_name = 'notification';
         $this->table        = 'notifications';
 
-        $this->setMode('unknown');
-        $this->setPriority(1);
+        $this->data['mode']     = 'unknown';
+        $this->data['priority'] = 1;
 
         parent::__construct($identifier);
     }
@@ -182,8 +182,7 @@ class Notification extends DataEntry
             ]);
         }
 
-        $this->setDataValue('priority', $priority);
-        return $this;
+        return $this->setDataValue('priority', $priority);
     }
 
 
@@ -214,13 +213,9 @@ class Notification extends DataEntry
             case 'INFO':
                 // no-break
             case 'INFORMATION':
-                $clean_mode = 'INFORMATION';
+                $clean_mode = 'INFO';
                 break;
 
-            case 'NOTICE':
-                // no-break
-            case 'WARNING':
-            // no-break
             case 'ERROR':
                 // no-break
             case 'EXCEPTION':
@@ -229,6 +224,10 @@ class Notification extends DataEntry
                 $clean_mode = 'DANGER';
                 break;
 
+            case 'NOTICE':
+                // no-break
+            case 'WARNING':
+                // no-break
             case 'SUCCESS':
                 // no-break
             case 'UNKNOWN':
@@ -238,7 +237,7 @@ class Notification extends DataEntry
                 throw new OutOfBoundsException(tr('No mode specified for this notification'));
 
             default:
-                throw new OutOfBoundsException(tr('Unknown mode ":mode" specified for this notification, please ensure it is one of "WARNING", "ERROR", "NOTICE", or "INFORMATION"', [
+                throw new OutOfBoundsException(tr('Unknown mode ":mode" specified for this notification, please ensure it is one of "WARNING", "ERROR", "NOTICE", or "INFO"', [
                     ':mode' => $mode
                 ]));
         }
@@ -328,7 +327,19 @@ class Notification extends DataEntry
      */
     public function getIcon(): ?string
     {
-        return $this->getDataValue('icon');
+        $return = $this->getDataValue('icon');
+
+        if (!$return) {
+            // Assign default icon
+            return match ($this->getMode()) {
+                'WARNING', 'DANGER' => 'exclamation-circle',
+                'SUCCESS'           => 'check-circle',
+                'INFO'              => 'info-circle',
+                default             => 'question-circle',
+            };
+        }
+
+        return $return;
     }
 
 
@@ -556,60 +567,72 @@ class Notification extends DataEntry
      */
     public function send(?bool $log = null): static
     {
-        static $sending = false;
+        try {
+            static $sending = false;
 
-        if ($sending) {
-            throw new NotificationBusyException(tr('The notifications system is already busy sending another notification and cannot send the new ":title" notification with message ":message"', [
-                ':title'   => $this->getTitle(),
-                ':message' => $this->getMessage()
-            ]), $this->data);
-        }
-
-        $sending = true;
-
-        if ($log === null) {
-            $log = static::$auto_log;
-        }
-
-        if (!static::$logged and $log) {
-            // Automatically log this notification
-            static::log();
-        }
-
-        if (!$this->getTitle()) {
-            $sending = false;
-            throw new OutOfBoundsException(tr('Cannot send notification, no notification title specified'));
-        }
-
-        if (!$this->getMessage()) {
-            $sending = false;
-            throw new OutOfBoundsException(tr('Cannot send notification, no notification message specified'));
-        }
-
-        if (!$this->getRoles()) {
-            $sending = false;
-            throw new OutOfBoundsException(tr('Cannot send notification, no notification roles specified'));
-        }
-
-        // Save and send this notification to the assigned user
-        $this
-            ->saveFor($this->getUsersId())
-            ->sendTo($this->getUsersId());
-
-        // Save and send this notification to all users that are members of the specified roles
-        $roles = Roles::new()->listIds($this->getRoles());
-
-        foreach ($roles as $role) {
-            $users = Role::get($role)->users();
-
-            foreach ($users as $user) {
-                $this
-                    ->saveFor($user->getId())
-                    ->sendTo($user->getId());
+            if ($sending) {
+                throw new NotificationBusyException(tr('The notifications system is already busy sending another notification and cannot send the new ":title" notification with message ":message"', [
+                    ':title'   => $this->getTitle(),
+                    ':message' => $this->getMessage()
+                ]), $this->data);
             }
+
+            $sending = true;
+
+            if ($log === null) {
+                $log = static::$auto_log;
+            }
+
+            if (!static::$logged and $log) {
+                // Automatically log this notification
+                static::log();
+            }
+
+            if (!$this->getTitle()) {
+                $sending = false;
+                throw new OutOfBoundsException(tr('Cannot send notification, no notification title specified'));
+            }
+
+            if (!$this->getMessage()) {
+                $sending = false;
+                throw new OutOfBoundsException(tr('Cannot send notification, no notification message specified'));
+            }
+
+            if (!$this->getRoles()) {
+                $sending = false;
+                throw new OutOfBoundsException(tr('Cannot send notification, no notification roles specified'));
+            }
+
+            // Save and send this notification to the assigned user
+            $this
+                ->saveFor($this->getUsersId())
+                ->sendTo($this->getUsersId());
+
+            // Save and send this notification to all users that are members of the specified roles
+            $roles = Roles::new()->listIds($this->getRoles());
+
+            foreach ($roles as $role) {
+                $users = Role::get($role)->users();
+
+                foreach ($users as $user) {
+                    $this
+                        ->saveFor($user->getId())
+                        ->sendTo($user->getId());
+                }
+            }
+
+            $sending = false;
+
+        } catch (Throwable $e) {
+            Log::error(tr('Failed to send the following notification with the following exception'));
+            Log::write(tr('Code : ":code"', [':code' => $this->getCode()]), 'debug', 10, false);
+            Log::write(tr('Title : ":title"', [':title' => $this->getTitle()]), 'debug', 10, false);
+            Log::write(tr('Message : ":message"', [':message' => $this->getMessage()]), 'debug', 10, false);
+            Log::write(tr('Details :'), 'debug', 10, false);
+            Log::write(print_r($this->getDetails(), true), 'debug', 10, false);
+            Log::error($e);
         }
 
-        $sending = false;
         return $this;
     }
 
@@ -641,7 +664,7 @@ class Notification extends DataEntry
                 Log::notice($this->getDetails());
                 break;
 
-            case 'INFORMATION':
+            case 'INFO':
                 Log::information($this->getTitle());
                 Log::information($this->getMessage());
                 Log::information($this->getDetails());

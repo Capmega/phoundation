@@ -4,6 +4,8 @@ namespace Plugins\Phoundation\Components;
 
 
 
+use Phoundation\Core\Log\Log;
+
 /**
  * TemplateMenus class
  *
@@ -81,6 +83,11 @@ class Menu extends \Phoundation\Web\Http\Html\Components\Menu
                 'rights' => 'admin,development',
                 'icon' => 'fa-lock',
                 'menu' => [
+                    tr('Plugins') => [
+                        'rights' => 'plugins',
+                        'url'    => '/development/plugins.html',
+                        'icon'   => 'fa-key'
+                    ],
                     tr('Developer incidents') => [
                         'rights' => 'incidents',
                         'url'    => '/development/incidents.html',

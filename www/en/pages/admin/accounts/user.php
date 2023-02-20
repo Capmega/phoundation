@@ -128,7 +128,7 @@ $user_card = Card::new()
     ->setContent($user->getHtmlForm()->render())
     ->setButtons(Buttons::new()
         ->addButton(tr('Submit'))
-        ->addButton(tr('Cancel'), 'secondary', '/accounts/users.html', true)
+        ->addButton(tr('Back'), 'secondary', '/accounts/users.html', true)
         ->addButton(tr('Audit'), 'green', '/audit/meta-' . $user->getMeta() . '.html', false, true)
         ->addButton(isset_get($delete))
         ->addButton(isset_get($impersonate)));
@@ -145,7 +145,7 @@ if ($user->getId()) {
             ->render())
         ->setButtons(Buttons::new()
             ->addButton(tr('Submit'))
-            ->addButton(tr('Cancel'), 'secondary', '/accounts/users.html', true));
+            ->addButton(tr('Back'), 'secondary', '/accounts/users.html', true));
 }
 
 
