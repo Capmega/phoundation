@@ -231,10 +231,11 @@ class Updates extends Libraries\Updates
                     `meta_id` bigint NOT NULL,
                     `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
-                    `priority` bigint DEFAULT NULL,
+                    `start` tinyint NOT NULL,
+                    `priority` int NOT NULL,
                     `name` varchar(32) CHARACTER SET latin1 DEFAULT NULL,
                     `seo_name` varchar(32) CHARACTER SET latin1 DEFAULT NULL,
-                    `file` varchar(64) NOT NULL,
+                    `path` varchar(128) NOT NULL,
                     `class` varchar(255) NOT NULL,
                     `description` text NULL,
                 ')->setIndices('
@@ -290,6 +291,7 @@ class Updates extends Libraries\Updates
                 'accounts',
                 'security',
                 'impersonate',
+                'notifications',
             ];
 
             // Add default rights
