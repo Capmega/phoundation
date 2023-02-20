@@ -598,9 +598,9 @@ class Notification extends DataEntry
                 throw new OutOfBoundsException(tr('Cannot send notification, no notification message specified'));
             }
 
-            if (!$this->getRoles()) {
+            if (!$this->getRoles() and !$this->getUsersId()) {
                 $sending = false;
-                throw new OutOfBoundsException(tr('Cannot send notification, no notification roles specified'));
+                throw new OutOfBoundsException(tr('Cannot send notification, no notification roles or target users id specified'));
             }
 
             // Save and send this notification to the assigned user

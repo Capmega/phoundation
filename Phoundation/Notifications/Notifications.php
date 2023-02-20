@@ -131,6 +131,10 @@ class Notifications extends DataList
                 case 'status':
                     $builder->addWhere('`status`' . Sql::is($value, ':status'), [':status' => $value]);
                     break;
+
+                case 'users_id':
+                    $builder->addWhere('`users_id`' . Sql::is($value, ':users_id'), [':users_id' => $value]);
+                    break;
             }
         }
 
