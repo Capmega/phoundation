@@ -768,7 +768,7 @@ class Strings
         $return = '';
 
         for ($i = 0, $len = mb_strlen($diff); $i != $len; ++$i) {
-            $return[$i] === "\0" ? ' ' : '#';
+            ($return[$i] === "\0") ? ' ' : '#';
         }
 
         return $return;
@@ -796,11 +796,11 @@ class Strings
      *
      * @param array $source
      * @param bool $recurse
-     * @return string
+     * @return array
      */
-    public static function trimArray(array $source, bool $recurse = true): string
+    public static function trimArray(array $source, bool $recurse = true): array
     {
-        foreach ($source as $key => &$value) {
+        foreach ($source as &$value) {
             if (is_string($value)) {
                 $value = trim($value);
 
@@ -812,6 +812,7 @@ class Strings
             }
         }
 
+        unset($value);
         return $source;
     }
 
@@ -820,26 +821,22 @@ class Strings
     /**
      * Returns a "*** HIDDEN ***" string if the specified string has content.
      *
-     * If the string is empty, an "-" emtpy string will be retuned instead
+     * If the string is empty, then the empty string value will be returned instead
      *
-     * @param string $string The string to "hide"
+     * @param string|null $string The string to "hide"
      * @param string $hide The string to return if the specified source string contains data
-     * @param string $empty The string to "hide" empty strings with
+     * @param string|null $empty The string to "hide" empty strings with
      * @return string
      */
-    public static function hide(string $string, string $hide = '*** HIDDEN ***', string $empty = '-'): string
+    public static function hide(?string $string, string $hide = '*** HIDDEN ***', ?string $empty = '*** HIDDEN ***'): string
     {
         if ($string) {
+            // Hide the string with this value
             return $hide;
         }
 
-        // The string is empty
-        if ($empty) {
-            return $empty;
-        }
-
-        // Always show the hidden message string
-        return $hide;
+        // The source string is empty
+        return $empty;
     }
 
 
