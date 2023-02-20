@@ -102,6 +102,9 @@ class TopPanel extends Renderer
                               <li class="nav-item dropdown">
                                 ' . $this->element->getNotificationsDropDown()?->render() . '
                               </li>
+                              <li class="nav-item dropdown">                                  
+                                  ' . $this->element->getLanguagesDropDown()?->render() . '
+                              </li>
                               <li class="nav-item">
                                 <a class="nav-link" data-widget="fullscreen" href="#" role="button">
                                   <i class="fas fa-expand-arrows-alt"></i>

@@ -210,6 +210,10 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
             ->setMessages(null)
             ->setMessagesUrl('/messages/all.html');
 
+        $panel->getLanguagesDropDown()
+            ->setLanguages(null)
+            ->setSettingsUrl('/settings.html');
+
         return $panel->render();
     }
 
