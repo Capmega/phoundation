@@ -31,6 +31,13 @@ class Meta
     protected ?int $id = null;
 
     /**
+     * If true will store and process meta data. If false, it won't
+     *
+     * @var bool $enbabled
+     */
+    protected static bool $enbabled = true;
+
+    /**
      * The history of this meta entry
      *
      * @var array $history
@@ -50,23 +57,28 @@ class Meta
             // Load the specified metadata
             $this->load($id);
         } else {
-            // create a new metadata entry
-            $retry = 0;
+            if ($id === 0) {
+                // if specified $id is 0 then just return an empty object
+                $this->id = 0;
+            } else {
+                // create a new metadata entry
+                $retry = 0;
 
-            while ($retry++ < 5) {
-                try {
-                    $this->id = mt_rand(0, PHP_INT_MAX);
+                while ($retry++ < 5) {
+                    try {
+                        $this->id = mt_rand(0, PHP_INT_MAX);
 
-                    sql()->query('INSERT INTO `meta` (`id`)
-                                        VALUES             (' . $this->id . ')');
+                        sql()->query('INSERT INTO `meta` (`id`)
+                                            VALUES             (' . $this->id . ')');
 
-                } catch (SqlException $e) {
-                    if ($e->getCode() !== 1062) {
-                        // Some different error, keep throwing
-                        throw $e;
+                    } catch (SqlException $e) {
+                        if ($e->getCode() !== 1062) {
+                            // Some different error occurred, keep throwing
+                            throw $e;
+                        }
+
+                        // If we got here we have a duplicate entry, try with a different random number
                     }
-
-                    // Duplicate entry, try with a different random number
                 }
             }
         }
@@ -94,6 +106,29 @@ class Meta
     public static function new(): static
     {
         return new static();
+    }
+
+
+    /**
+     * Enable meta data processing
+     *
+     * @return void
+     */
+    public static function enable(): void
+    {
+        self::$enbabled = true;
+    }
+
+
+
+    /**
+     * Disable meta data processing
+     *
+     * @return void
+     */
+    public static function disable(): void
+    {
+        self::$enbabled = false;
     }
 
 
@@ -132,10 +167,15 @@ class Meta
      */
     public static function init(?string $comments = null, ?string $data = null): Meta
     {
-        $meta = new Meta();
-        $meta->action('created', $comments, $data);
+        if (self::$enbabled) {
+            $meta = new Meta();
+            $meta->action('created', $comments, $data);
 
-        return $meta;
+            return $meta;
+        }
+
+        // Return an empty meta-object that won't store any actions
+        return new Meta(0);
     }
 
 
@@ -150,16 +190,18 @@ class Meta
      */
     public function action(string $action, ?string $comments = null, ?string $data = null): static
     {
-        // Insert the action in the meta_history table
-        sql()->query('INSERT INTO `meta_history` (`meta_id`, `created_by`, `action`, `source`, `comments`, `data`) 
+        if (self::$enbabled and $this->id) {
+            // Insert the action in the meta_history table
+            sql()->query('INSERT INTO `meta_history` (`meta_id`, `created_by`, `action`, `source`, `comments`, `data`) 
                             VALUES                     (:meta_id , :created_by , :action , :source , :comments , :data )', [
-            ':meta_id'    => $this->id,
-            ':created_by' => Session::getUser()->getId(),
-            ':source'     => (string) (PLATFORM_HTTP ? UrlBuilder::getCurrent() : Script::getCurrent()),
-            ':action'     => $action,
-            ':comments'   => $comments,
-            ':data'       => $data
-        ]);
+                ':meta_id'    => $this->id,
+                ':created_by' => Session::getUser()->getId(),
+                ':source'     => (string) (PLATFORM_HTTP ? UrlBuilder::getCurrent() : Script::getCurrent()),
+                ':action'     => $action,
+                ':comments'   => $comments,
+                ':data'       => $data
+            ]);
+        }
 
         return $this;
     }
