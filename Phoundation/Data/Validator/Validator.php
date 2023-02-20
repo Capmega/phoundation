@@ -3,14 +3,17 @@
 namespace Phoundation\Data\Validator;
 
 use DateTime;
+use JsonSchema\Exception\ValidationException;
 use PDOStatement;
 use Phoundation\Accounts\Passwords;
 use Phoundation\Core\Arrays;
+use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Exception\KeyAlreadySelectedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Restrictions;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Url;
@@ -1568,19 +1571,34 @@ abstract class Validator
 
 
     /**
-     * Validates if the selected field is a valid name
+     * Validates if the selected field is a valid file
      *
-     * @param string|null $prefix
+     * @param string|null $exists_in_path
+     * @param Restrictions|array|string|null $restrictions
      * @return static
      */
-    public function isFile(?string $prefix = null): static
+    public function isFile(?string $exists_in_path = null, Restrictions|array|string|null $restrictions = null): static
     {
-        return $this->validateValues(function(&$value) use($prefix) {
+        return $this->validateValues(function(&$value) use($exists_in_path, $restrictions) {
             $this->hasMinCharacters(1)->hasMaxCharacters(2048);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
+            }
+
+            if ($exists_in_path !== null) {
+                if (!$restrictions) {
+                    throw new ValidationException(tr('Cannot validate the specified file, no restrictions specified'));
+                }
+
+                $path = ($exists_in_path ? Strings::slash($exists_in_path) : null) . $value;
+
+                Core::ensureRestrictions($restrictions)->check($path, false);
+
+                if (!file_exists($path)) {
+                    $this->addFailure(tr('must be an existing file'));
+                }
             }
         });
     }
@@ -1588,22 +1606,23 @@ abstract class Validator
 
 
     /**
-     * Validates if the selected field is a valid name
+     * Validates if the selected field is a valid directory
      *
+     * @param Restrictions|array|string $restrictions
      * @return static
      */
-    public function isExistingFile(): static
+    public function isDirectory(Restrictions|array|string $restrictions): static
     {
-        return $this->validateValues(function(&$value) {
-            $this->hasMinCharacters(1)->hasMaxCharacters(2048);
+        return $this->validateValues(function(&$value) use($restrictions) {
+            $this->isFile('', $restrictions);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
 
-            if (file_exists($value)) {
-                $this->addFailure(tr('must be an existing file'));
+            if (!is_dir($value)) {
+                $this->addFailure(tr('must be an existing directory'));
             }
         });
     }
