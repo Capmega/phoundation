@@ -358,11 +358,7 @@ class QueryBuilder
         }
 
         if ($this->wheres) {
-            $query .= ' WHERE ';
-
-            foreach ($this->wheres as $where) {
-                $query .= $where . ' ';
-            }
+            $query .= ' WHERE ' . implode(' AND ', $this->wheres);
         }
 
         foreach ($this->group_by as $group_by) {
