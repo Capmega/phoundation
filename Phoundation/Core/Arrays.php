@@ -1113,22 +1113,26 @@ class Arrays {
 
         foreach ($source as $source_key => &$source_value) {
             foreach ($keys as $key) {
-                if (str_contains($key, '%')) {
-                    // These keys can match partial source keys, so "%pass" will also match the source key "password"
-                    // for example
-                    if (str_contains($source_key, str_replace('%', '', $key))) {
+                if (is_array($source_value)) {
+                    if ($recurse) {
+                        $source_value = Arrays::hide($source_value, $keys, $hide, $empty, $recurse);
+                    } else {
+                        // If we don't recurse, we'll hide the entire sub array
                         $source_value = Strings::hide($source_value, $hide, $empty);
                     }
 
                 } else {
-                    if ($source_key === $key) {
-                        $source_value = Strings::hide($source_value, $hide, $empty);
-                    }
-                }
+                    if (str_contains($key, '%')) {
+                        // These keys can match partial source keys, so "%pass" will also match the source key "password"
+                        // for example
+                        if (str_contains($source_key, str_replace('%', '', $key))) {
+                            $source_value = Strings::hide($source_value, $hide, $empty);
+                        }
 
-                if (is_array($source_value)) {
-                    if ($recurse) {
-                        $source_value = Arrays::hide($source_value, $keys, $hide, $empty, $recurse);
+                    } else {
+                        if ($source_key === $key) {
+                            $source_value = Strings::hide($source_value, $hide, $empty);
+                        }
                     }
                 }
             }
