@@ -72,8 +72,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->setForeignKeys(' 
                     CONSTRAINT `fk_categories_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_categories_parents_id` FOREIGN KEY (`parents_id`) REFERENCES `categories` (`id`) ON DELETE RESTRICT
-                ')
-                ->create();
+                ')->create();
         })->addUpdate('0.0.5', function () {
             // Modify the categories table.
             sql()->schema()->table('categories')->alter()

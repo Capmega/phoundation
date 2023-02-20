@@ -67,6 +67,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `priority` int NOT NULL,
                     `title` varchar(255) NOT NULL,
                     `message` text NOT NULL,
+                    `url` varchar(512) NULL,
                     `file` varchar(255) DEFAULT NULL,
                     `line` int(11) DEFAULT NULL,
                     `trace` text DEFAULT  NULL,
@@ -85,8 +86,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_notifications_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_notifications_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_notifications_users_id` FOREIGN KEY (`users_id`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
-                ')
-                ->create();
+                ')->create();
         });
     }
 }

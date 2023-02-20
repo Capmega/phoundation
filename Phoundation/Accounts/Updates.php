@@ -26,7 +26,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.0.5';
+        return '0.0.6';
     }
 
 
@@ -142,8 +142,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_accounts_users_countries_id` FOREIGN KEY (`countries_id`) REFERENCES `geo_countries` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_accounts_users_states_id` FOREIGN KEY (`states_id`) REFERENCES `geo_states` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_accounts_users_cities_id` FOREIGN KEY (`cities_id`) REFERENCES `geo_cities` (`id`) ON DELETE RESTRICT
-                ')
-                ->create();
+                ')->create();
 
             // Create the users_rights table.
             sql()->schema()->table('accounts_rights')->define()
@@ -168,8 +167,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->setForeignKeys('
                     CONSTRAINT `fk_accounts_rights_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_accounts_rights_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
-                ')
-                ->create();
+                ')->create();
 
             // Create the users_roles table.
             sql()->schema()->table('accounts_roles')->define()
@@ -194,8 +192,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->setForeignKeys('
                     CONSTRAINT `fk_accounts_roles_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_accounts_roles_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
-                ')
-                ->create();
+                ')->create();
 
             // Create the users_groups table.
             sql()->schema()->table('accounts_groups')->define()
@@ -220,8 +217,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->setForeignKeys('
                     CONSTRAINT `fk_accounts_groups_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_accounts_groups_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
-                ')
-                ->create();
+                ')->create();
 
             // Create the users_rights_links table.
             sql()->schema()->table('accounts_users_rights')->define()
@@ -246,8 +242,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_accounts_users_rights_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_accounts_users_rights_users_id` FOREIGN KEY (`users_id`) REFERENCES `accounts_users` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_accounts_users_rights_rights_id` FOREIGN KEY (`rights_id`) REFERENCES `accounts_rights` (`id`) ON DELETE CASCADE,
-                ')
-                ->create();
+                ')->create();
 
             // Create the users_roles_links table.
             sql()->schema()->table('accounts_users_roles')->define()
@@ -268,8 +263,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_accounts_users_roles_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_accounts_users_roles_users_id` FOREIGN KEY (`users_id`) REFERENCES `accounts_users` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_accounts_users_roles_roles_id` FOREIGN KEY (`roles_id`) REFERENCES `accounts_roles` (`id`) ON DELETE CASCADE
-                ')
-                ->create();
+                ')->create();
 
             // Create the users_roles_rights_links table.
             sql()->schema()->table('accounts_roles_rights')->define()
@@ -290,8 +284,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_accounts_roles_rights_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_accounts_roles_rights_rights_id` FOREIGN KEY (`rights_id`) REFERENCES `accounts_rights` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_accounts_roles_rights_roles_id` FOREIGN KEY (`roles_id`) REFERENCES `accounts_roles` (`id`) ON DELETE CASCADE
-                ')
-                ->create();
+                ')->create();
         })->addUpdate('0.0.5', function () {
             // Drop the tables to be sure we have a clean slate
             sql()->schema()->table('accounts_compromised_passwords')->drop();
@@ -329,8 +322,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_accounts_authentications_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_accounts_authentications_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_accounts_authentications_users_id` FOREIGN KEY (`users_id`) REFERENCES `accounts_users` (`id`) ON DELETE CASCADE,
-                ')
-                ->create();
+                ')->create();
 
             sql()->schema()->table('accounts_password_resets')->define()
                 ->setColumns('
@@ -347,8 +339,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     KEY `created_by` (`created_by`),
                 ')->setForeignKeys('
                     CONSTRAINT `fk_users_password_resets_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
-                ')
-                ->create();
+                ')->create();
 
             sql()->schema()->table('accounts_old_passwords')->define()
                 ->setColumns('
@@ -362,8 +353,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     KEY `password` (`password`),
                 ')->setForeignKeys('
                     CONSTRAINT `fk_accounts_old_passwords_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
-                ')
-                ->create();
+                ')->create();
 
             sql()->schema()->table('accounts_compromised_passwords')->define()
                 ->setColumns('
@@ -377,8 +367,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     KEY `password` (`password`),
                 ')->setForeignKeys('
                     CONSTRAINT `fk_accounts_banned_passwords_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
-                ')
-                ->create();
+                ')->create();
 
             // Create default rights and roles
             $god = Right::new()
@@ -437,6 +426,44 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ->save()
                 ->rights()
                 ->add($admin);
+
+        })->addUpdate('0.0.6', function () {
+            // Drop the tables to be sure we have a clean slate
+            sql()->schema()->table('accounts_signins')->drop();
+
+            sql()->schema()->table('accounts_signins')->define()
+                ->setColumns('
+                    `id` bigint NOT NULL AUTO_INCREMENT,
+                    `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `created_by` bigint DEFAULT NULL,
+                    `meta_id` bigint NOT NULL,
+                    `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `ip_address` binary(16) NOT NULL,
+                    `net_len` int(11) NOT NULL,
+                    `user_agent` varchar(2040) NULL,
+                    `latitude` decimal(10,7) NOT NULL,
+                    `longitude` decimal(10,7) NOT NULL,
+                    `timezones_id` bigint DEFAULT NULL,
+                    `countries_id` bigint DEFAULT NULL,
+                    `states_id` bigint DEFAULT NULL,
+                    `cities_id` bigint DEFAULT NULL,
+                ')->setIndices('
+                    PRIMARY KEY (`id`),
+                    KEY `created_on` (`created_on`),
+                    KEY `created_by` (`created_by`),
+                    KEY `status` (`status`),
+                    KEY `meta_id` (`meta_id`),
+                    KEY `ip` (`ip_address`),
+                    KEY `user_agent` (`user_agent`),
+                ')->setForeignKeys('
+                    CONSTRAINT `fk_accounts_signins_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
+                    CONSTRAINT `fk_accounts_signins_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_accounts_signins_timezones_id` FOREIGN KEY (`timezones_id`) REFERENCES `geo_timezones` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_accounts_signins_countries_id` FOREIGN KEY (`countries_id`) REFERENCES `geo_countries` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_accounts_signins_states_id` FOREIGN KEY (`states_id`) REFERENCES `geo_states` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_accounts_signins_cities_id` FOREIGN KEY (`cities_id`) REFERENCES `geo_cities` (`id`) ON DELETE RESTRICT,
+                ')->create();
         });
     }
 }

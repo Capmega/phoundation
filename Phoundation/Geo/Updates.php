@@ -89,8 +89,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     KEY `code` (`code`),
                 ')->setForeignKeys('
                     CONSTRAINT `fk_geo_timezones_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
-                ')
-                ->create();
+                ')->create();
 
             // Create the geo_continents table.
             sql()->schema()->table('geo_continents')->define()
@@ -125,8 +124,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->setForeignKeys('
                     CONSTRAINT `fk_geo_continents_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_geo_continents_timezones_id` FOREIGN KEY (`timezones_id`) REFERENCES `geo_timezones` (`id`) ON DELETE RESTRICT
-                ')
-                ->create();
+                ')->create();
 
             // Create the geo_countries table.
             sql()->schema()->table('geo_countries')->define()
@@ -196,8 +194,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_geo_countries_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_geo_countries_continents_id` FOREIGN KEY (`continents_id`) REFERENCES `geo_continents` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_geo_countries_timezones_id` FOREIGN KEY (`timezones_id`) REFERENCES `geo_timezones` (`id`) ON DELETE RESTRICT
-                ')
-                ->create();
+                ')->create();
 
             // Create the geo_states table.
             sql()->schema()->table('geo_states')->define()
@@ -250,8 +247,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_geo_states_continents_id` FOREIGN KEY (`continents_id`) REFERENCES `geo_continents` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_geo_states_countries_id` FOREIGN KEY (`countries_id`) REFERENCES `geo_countries` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_geo_states_country_code` FOREIGN KEY (`country_code`) REFERENCES `geo_countries` (`code`) ON DELETE RESTRICT,
-                ')
-                ->create();
+                ')->create();
 
             // Create the geo_counties table.
             sql()->schema()->table('geo_counties')->define()
@@ -301,8 +297,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_geo_counties_continents_id` FOREIGN KEY (`continents_id`) REFERENCES `geo_continents` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_geo_counties_countries_id` FOREIGN KEY (`countries_id`) REFERENCES `geo_countries` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_geo_counties_states_id` FOREIGN KEY (`states_id`) REFERENCES `geo_states` (`id`) ON DELETE RESTRICT,
-                ')
-                ->create();
+                ')->create();
 
             // Create the geo_features table.
             sql()->schema()->table('geo_features')->define()
@@ -326,8 +321,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     KEY `name` (`name`)
                 ')->setForeignKeys('
                     CONSTRAINT `fk_geo_features_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
-                ')
-                ->create();
+                ')->create();
 
             // Create the geo_cities table.
             sql()->schema()->table('geo_cities')->define()
@@ -392,8 +386,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_geo_cities_counties_id` FOREIGN KEY (`counties_id`) REFERENCES `geo_counties` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_geo_cities_country_code` FOREIGN KEY (`country_code`) REFERENCES `geo_countries` (`code`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_geo_cities_feature_code` FOREIGN KEY (`feature_code`) REFERENCES `geo_features` (`code`) ON DELETE RESTRICT,
-                ')
-                ->create();
+                ')->create();
 
         })->addUpdate('0.0.6', function () {
             // Add missing "created_by" columns with indices and FKS

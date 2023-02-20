@@ -72,8 +72,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     KEY `severity` (`severity`)
                 ')->setForeignKeys('
                     CONSTRAINT `fk_security_incidents_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
-                ')
-                ->create();
+                ')->create();
         });
     }
 }

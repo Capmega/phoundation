@@ -104,8 +104,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_business_customers_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_business_customers_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_business_customers_states_id` FOREIGN KEY (`states_id`) REFERENCES `geo_states` (`id`) ON DELETE RESTRICT
-                ')
-                ->create();
+                ')->create();
 
             // Add table for providers
             sql()->schema()->table('business_providers')->define()
@@ -146,8 +145,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_business_providers_categories_id` FOREIGN KEY (`categories_id`) REFERENCES `categories` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_business_providers_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_business_providers_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE
-                ')
-                ->create();
+                ')->create();
 
             // Add table for companies
             sql()->schema()->table('business_companies')->define()
@@ -181,8 +179,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_business_companies_customers_id` FOREIGN KEY (`customers_id`) REFERENCES `business_customers` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_business_companies_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_business_companies_providers_id` FOREIGN KEY (`providers_id`) REFERENCES `business_providers` (`id`) ON DELETE RESTRICT
-                ')
-                ->create();
+                ')->create();
 
             // Add table for branches
             sql()->schema()->table('business_branches')->define()
@@ -210,8 +207,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_business_branches_companies_id` FOREIGN KEY (`companies_id`) REFERENCES `business_companies` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_business_branches_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_business_branches_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE               
-                ')
-                ->create();
+                ')->create();
 
             // Add table for departments
             sql()->schema()->table('business_departments')->define()
@@ -242,8 +238,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_business_departments_companies_id` FOREIGN KEY (`companies_id`) REFERENCES `business_companies` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_business_departments_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_business_departments_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE               
-                ')
-                ->create();
+                ')->create();
 
             // Add table for employees
             sql()->schema()->table('business_employees')->define()
@@ -277,8 +272,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_business_employees_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_business_employees_departments_id` FOREIGN KEY (`departments_id`) REFERENCES `business_departments` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_business_employees_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE                
-                ')
-                ->create();
+                ')->create();
         })->addUpdate('0.0.9', function () {
             // Drop the tables to be sure we have a clean slate
             sql()->schema()->table('business_invoices_items')->drop();
@@ -321,8 +315,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_business_invoices_categories_id` FOREIGN KEY (`categories_id`) REFERENCES `categories` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_business_invoices_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_business_invoices_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
-                ')
-                ->create();
+                ')->create();
             // Add table for invoices
             sql()->schema()->table('business_invoices_items')->define()
                 ->setColumns('
@@ -349,8 +342,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_business_invoices_items_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_business_invoices_items_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_business_invoices_items_invoices_id` FOREIGN KEY (`invoices_id`) REFERENCES `business_invoices` (`id`)
-                ')
-                ->create();
+                ')->create();
         });
     }
 }

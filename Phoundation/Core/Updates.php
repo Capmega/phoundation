@@ -74,8 +74,7 @@ class Updates extends Libraries\Updates
                     INDEX `library` (`library`),
                     INDEX `version` (`version`),
                     UNIQUE `library_version` (`library`, `version`),
-                ')
-                ->create();
+                ')->create();
 
         })->addUpdate('0.0.2', function () {
             sql()->schema()->table('meta_history')->drop();
@@ -83,8 +82,7 @@ class Updates extends Libraries\Updates
 
             // Add tables for the meta library
             sql()->schema()->table('meta')->define()
-                ->setColumns('`id` bigint NOT NULL AUTO_INCREMENT')->setIndices('PRIMARY KEY (`id`)')
-                ->create();
+                ->setColumns('`id` bigint NOT NULL AUTO_INCREMENT')->setIndices('PRIMARY KEY (`id`)')->create();
 
             sql()->schema()->table('meta_history')->define()
                 ->setColumns('
@@ -104,8 +102,7 @@ class Updates extends Libraries\Updates
                     KEY `action` (`action`),
                 ')->setForeignKeys('
                     CONSTRAINT `fk_meta_history_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
-                ')
-                ->create();
+                ')->create();
 
         })->addUpdate('0.0.5', function () {
             sql()->schema()->table('sessions_extended')->drop();
@@ -137,8 +134,7 @@ class Updates extends Libraries\Updates
                     KEY `ip` (`ip`),
                 ')->setForeignKeys('
                     CONSTRAINT `fk_sessions_extended_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
-                ')
-                ->create();
+                ')->create();
 
         })->addUpdate('0.0.6', function () {
             sql()->schema()->table('url_cloaks')->drop();
@@ -161,8 +157,7 @@ class Updates extends Libraries\Updates
                     UNIQUE KEY `url_created_by` (`url`,`created_by`),
                 ')->setForeignKeys('
                     CONSTRAINT `fk_url_cloaks_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
-                ')
-                ->create();
+                ')->create();
 
         })->addUpdate('0.0.7', function () {
             sql()->schema()->table('key_value_store')->drop();
@@ -188,8 +183,7 @@ class Updates extends Libraries\Updates
                 ')->setForeignKeys('
                     CONSTRAINT `fk_key_value_store_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_key_value_store_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
-                ')
-                ->create();
+                ')->create();
 
         })->addUpdate('0.0.8', function () {
             sql()->schema()->table('languages')->drop();
@@ -222,8 +216,7 @@ class Updates extends Libraries\Updates
                 ')->setForeignKeys('
                     CONSTRAINT `fk_languages_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_languages_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
-                ')
-                ->create();
+                ')->create();
 
         })->addUpdate('0.0.10', function () {
             sql()->schema()->table('core_templates')->drop();
@@ -257,8 +250,7 @@ class Updates extends Libraries\Updates
                 ')->setForeignKeys('
                     CONSTRAINT `fk_core_plugins_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_core_plugins_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
-                ')
-                ->create();
+                ')->create();
 
             // Add table for teplates registration
             sql()->schema()->table('core_templates')->define()
@@ -274,7 +266,7 @@ class Updates extends Libraries\Updates
                     `file` varchar(64) NOT NULL,
                     `class` varchar(32) DEFAULT NULL,
                     `description` text DEFAULT NULL,
-                ')->setIndices('
+                    ')->setIndices('
                     PRIMARY KEY (`id`),
                     KEY `created_on` (`created_on`),
                     KEY `created_by` (`created_by`),
@@ -286,8 +278,7 @@ class Updates extends Libraries\Updates
                 ')->setForeignKeys('
                     CONSTRAINT `fk_core_templates_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_core_templates_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
-                ')
-                ->create();
+                ')->create();
 
         })->addUpdate('0.0.11', function () {
             // Create some default roles and rights
