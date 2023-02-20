@@ -683,7 +683,7 @@ showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY F
     {
         $in = Sql::in($identifiers);
 
-        return sql()->list(' SELECT `id` 
+        return sql()->list('SELECT `id` 
                                   FROM   `' . $this->table_name . '` 
                                   WHERE  `' . $this->unique_column . '` IN (' . implode(', ', array_keys($in)) . ')', $in);
     }

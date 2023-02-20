@@ -650,6 +650,7 @@ abstract class DataEntry
         }
 
         try {
+            // Truncate the diff to 64K for storage
             $this->diff = Json::encodeTruncateToMaxSize($diff, 65530);
 
         } catch (Exception|Throwable $e) {
@@ -1036,9 +1037,9 @@ abstract class DataEntry
     protected function load(string|int $identifier): void
     {
         if (is_numeric($identifier)) {
-            $data = sql()->get(' SELECT * FROM `' . $this->table . '` WHERE `id`                           = :id'                     , [':id'                     => $identifier]);
+            $data = sql()->get('SELECT * FROM `' . $this->table . '` WHERE `id`                           = :id'                     , [':id'                     => $identifier]);
         } else {
-            $data = sql()->get(' SELECT * FROM `' . $this->table . '` WHERE `' . $this->unique_column . '` = :' . $this->unique_column, [':'. $this->unique_column => $identifier]);
+            $data = sql()->get('SELECT * FROM `' . $this->table . '` WHERE `' . $this->unique_column . '` = :' . $this->unique_column, [':'. $this->unique_column => $identifier]);
         }
 
         // Store all data in the object
