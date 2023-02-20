@@ -6,7 +6,7 @@ use Phoundation\Core\Arrays;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Components\DataTable;
-
+use Phoundation\Web\Http\Url;
 
 
 /**
@@ -73,10 +73,14 @@ class MetaList
                                           LEFT JOIN `accounts_users`
                                           ON        `accounts_users`.`id` = `meta_history`.`created_by`
                                           WHERE     `meta_history`.`meta_id` IN (' . implode(', ', array_keys($in)) . ')
-                                          ORDER BY  `meta_history`.`created_on`', $in);
+                                          ORDER BY  `meta_history`.`created_on` DESC', $in);
 
         foreach ($source as &$row) {
             $row['data'] = Json::decode($row['data']);
+
+            if (Url::isValid($row['source'])) {
+                $row['source'] = '<a href = "' . $row['source'] . '">' . $row['source'] . '</a>';
+            }
 
             if (isset_get($row['data']['to'])) {
                 foreach (['to', 'from'] as $section) {
@@ -89,11 +93,14 @@ class MetaList
                 }
 
                 if (isset_get($row['data']['from'])) {
-                    $row['data'] = tr('From: ') . PHP_EOL . Arrays::implodeWithKeys($row['data']['from'], PHP_EOL, ': ') . PHP_EOL . tr('To: ') . PHP_EOL . Arrays::implodeWithKeys($row['data']['to'], PHP_EOL, ': ');
+                    $row['data'] = '<b>' . tr('From: ') . '</b><br>' . htmlentities(Arrays::implodeWithKeys($row['data']['from'], PHP_EOL, ': ')) . '<br><b>' . tr('To: ') . '</b><br>' . htmlentities(Arrays::implodeWithKeys($row['data']['to'], PHP_EOL, ': '));
 
                 } else {
-                    $row['data'] = tr('Created with: ') . PHP_EOL . Arrays::implodeWithKeys($row['data']['to'], PHP_EOL, ': ');
+                    $row['data'] = '<b>' . tr('Created with: ') . '</b><br>' . htmlentities(Arrays::implodeWithKeys($row['data']['to'], PHP_EOL, ': '));
                 }
+
+                $row['data'] = str_replace(PHP_EOL, '<br>', $row['data']);
+
             } else {
                 $row['data'] = tr('No changes');
             }
@@ -103,6 +110,7 @@ class MetaList
 
         return DataTable::new()
             ->setId('meta')
+            ->setProcessEntities(false)
             ->setColumnHeaders([
                 tr('Date'),
                 tr('User'),
@@ -112,6 +120,5 @@ class MetaList
                 tr('Data'),
             ])
             ->setSourceArray($source);
-
     }
 }
