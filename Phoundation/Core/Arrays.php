@@ -1108,13 +1108,15 @@ class Arrays {
     {
         static::requireArrayOrNull($source);
 
+        // Ensure that the keys we need to hide are in array format
         $keys = Arrays::force($keys);
 
         foreach ($source as $source_key => &$source_value) {
             foreach ($keys as $key) {
-                //
                 if (str_contains($key, '%')) {
-                    if (strstr($source_key, str_replace('%', '', $key))) {
+                    // These keys can match partial source keys, so "%pass" will also match the source key "password"
+                    // for example
+                    if (str_contains($source_key, str_replace('%', '', $key))) {
                         $source_value = Strings::hide($source_value, $hide, $empty);
                     }
 
