@@ -2,6 +2,7 @@
 
 namespace Phoundation\Web\Http\Html\Components;
 
+use Phoundation\Core\Session;
 use Phoundation\Notifications\Notifications;
 use Phoundation\Web\Http\UrlBuilder;
 
@@ -51,7 +52,10 @@ class NotificationsDropDown extends ElementsBlock
     {
         if (!$this->notifications) {
             $this->notifications = new Notifications();
-            $this->notifications->loadList(null, ['status' => $status]);
+            $this->notifications->loadList(null, [
+                'users_id' => Session::getUser()->getId(),
+                'status'   => $status
+            ]);
         }
 
         return $this->notifications;

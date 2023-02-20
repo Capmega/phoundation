@@ -30,6 +30,13 @@ class TopPanel extends Panel
      */
     protected MessagesDropDown $messages;
 
+    /**
+     * The top languages drop down
+     *
+     * @var LanguagesDropDown $languages
+     */
+    protected LanguagesDropDown $languages;
+
 
 
     /**
@@ -86,6 +93,35 @@ class TopPanel extends Panel
     public function setMessagesDropDown(MessagesDropDown $messages): static
     {
         $this->messages = $messages;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns the notifications drop down object
+     *
+     * @return LanguagesDropDown
+     */
+    public function getLanguagesDropDown(): LanguagesDropDown
+    {
+        if (!isset($this->languages)) {
+            $this->languages = LanguagesDropDown::new();
+        }
+        return $this->languages;
+    }
+
+
+
+    /**
+     * Sets the notifications drop down object
+     *
+     * @param LanguagesDropDown $languages
+     * @return static
+     */
+    public function setLanguagesDropDown(LanguagesDropDown $languages): static
+    {
+        $this->languages = $languages;
         return $this;
     }
 }
