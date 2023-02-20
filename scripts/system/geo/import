@@ -1,0 +1,92 @@
+#!/usr/bin/php
+<?php
+
+use Phoundation\Cli\Documentation;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Filesystem\Restrictions;
+use Phoundation\Geo\Import;
+
+
+/**
+ * Script system/geo/ip/import
+ *
+ *
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Scripts
+ */
+Documentation::usage('./cli system geo import');
+
+Documentation::help('This script will download and import the geonames data files
+
+The entire import consists of the following steps (which may be skipped using the specified arguments)
+
+* Download the geonames datafiles (~400MB in download, ~2GB in storage in ROOT/data/sources/geo/geonames, takes about 
+  1-5 minutes)
+* Load the geonames datafiles into the separate geonames database (Adds ~2GB to your mysql databases storage, takes 
+  about 3-15 minutes)
+* Cleanup the geonames database and import them into your projects database (Adds ~2GB to your mysql databases storage,  
+  takes about 5-60 minutes)
+
+
+
+ARGUMENTS
+
+
+
+[-d / --database DATABASE]              If defined, will not use the geonames database but the specified database 
+                                        instead
+
+[-i / --import]                         Start the entire import from the geonames loaded database (so do not download 
+                                        any data files and do not load any datafiles into a geonames database)
+
+[-l / --load]                           Start the entire import from the source files path (defaults to 
+                                        ROOT/data/sources/geo/geonames/) so do not download anything
+
+[-s / --source-path PATH]               If specified, this script will not download the files but use the files 
+                                        available in the specified PATH instead
+
+[-t / --target-path PATH]               If specified, this script will move the Geo IP files to the specified target 
+                                        path instead of the default of ROOT/data/sources/geo/geonames/');
+
+
+
+ArgvValidator::new()
+    ->select('-s,--source_path', true)->isOptional()->isDirectory(PATH_DATA)
+    ->select('-t,--target_path', true)->isOptional()
+    ->select('-l,--load')->isOptional()->isBoolean()
+    ->select('-i,--import')->isOptional()->isBoolean()
+    ->select('-d,--database')->isOptional()->isVariable()
+    ->noArgumentsLeft()
+    ->validate();
+
+
+
+// Go!
+if (!$argv['load'] and !$argv['import']) {
+    Log::information(tr('Downloading, processing, and importing max mind Geo IP data'));
+
+    if ($argv['source_path']) {
+        // Use files that are available in the specified source path
+        $path = $argv['source_path'];
+    } else {
+        // Download the files
+        $path = Import::download();
+    }
+
+    // Process the files
+    Import::process($path, $argv['ignore_sha_fail'], $argv['target_path'], Restrictions::new(PATH_DATA, true));
+
+} elseif ($argv['load']) {
+    // Load the datafiles into a geonames database
+    Import::load($argv['source_path'], $argv['database']);
+
+} else {
+    // Import the geonames data from the specified geonames database
+    Import::import($argv['database']);
+}
+
+Log::success(tr('Finished importing all Geo data'));
