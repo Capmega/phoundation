@@ -1,8 +1,0 @@
-#!/usr/bin/php
-<?php
-
-use Phoundation\Cli\Script;
-
-require('./vendor/autoload.php');
-
-Script::execute();
