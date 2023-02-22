@@ -43,7 +43,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
     /**
      * The list of version updates available for this library
-     *
+     *f
      * @return void
      */
     public function updates(): void
@@ -71,6 +71,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `code` varchar(64) DEFAULT NULL,
                     `email` varchar(96) DEFAULT NULL,
                     `phones` varchar(36) DEFAULT NULL,
+                    `picture` varchar(512) DEFAULT NULL,
                     `url` varchar(512) DEFAULT NULL,
                     `address` varchar(64) DEFAULT NULL,
                     `address2` varchar(64) DEFAULT NULL,
@@ -120,6 +121,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `code` varchar(64) DEFAULT NULL,
                     `email` varchar(96) DEFAULT NULL,
                     `phones` varchar(36) DEFAULT NULL,
+                    `picture` varchar(512) DEFAULT NULL,
                     `url` varchar(512) DEFAULT NULL,
                     `address` varchar(64) DEFAULT NULL,
                     `address2` varchar(64) DEFAULT NULL,

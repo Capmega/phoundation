@@ -171,6 +171,9 @@ class Customer extends DataEntry
             'phones' => [
                 'label'    => tr('Phones')
             ],
+            'picture' => [
+                'display'  => false
+            ],
             'url' => [
                 'label'    => tr('Url'),
                 'type'     => 'url',
