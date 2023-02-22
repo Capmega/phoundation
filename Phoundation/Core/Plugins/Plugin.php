@@ -32,7 +32,7 @@ abstract class Plugin extends DataEntry
 
 
     /**
-     * Customer class constructor
+     * Plugin class constructor
      *
      * @param int|string|null $identifier
      */

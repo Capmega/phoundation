@@ -98,7 +98,13 @@ class Phoundation extends Project
 
         // Scan for phoundation installation location.
         foreach ($paths as $path) {
-            $path = Filesystem::absolute($path);
+            try {
+                $path = Filesystem::absolute($path);
+
+            } catch (FileNotExistException) {
+                // Okay, that was easy, doesn't exist. NEXT!
+                continue;
+            }
 
             // The main phoundation directory should be called either phoundation or Phoundation.
             foreach (['phoundation', 'Phoundation'] as $name) {

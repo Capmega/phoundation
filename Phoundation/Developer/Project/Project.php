@@ -237,7 +237,7 @@ class Project
             'tests',
             'vendor',
             'www',
-            'cli',
+            'pho',
         ];
 
         foreach ($files as $file) {
