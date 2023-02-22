@@ -1180,7 +1180,7 @@ class File extends FileBasics
             // Interfaces
             if (str_starts_with($line, 'interface')) {
                 $return['code_lines']++;
-                $return['interface']++;
+                $return['interfaces']++;
                 continue;
             }
 
