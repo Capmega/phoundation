@@ -394,17 +394,20 @@ trait ValidatorBasics
 // DEBUG CODE: In case of errors with validation, its very useful to have these debugged here
 //        show($this->selected_field);
 //        show($value);
+
         if (!$value) {
-            if (!$this->reflection_selected_optional->isInitialized($this)){
-                // At this point we know we MUST have a value, so we're bad here
-                $this->addFailure(tr('is required'));
+            if (($value !== 0) and ($value !== "0")) {
+                if (!$this->reflection_selected_optional->isInitialized($this)){
+                    // At this point we know we MUST have a value, so we're bad here
+                    $this->addFailure(tr('is required'));
+                    return false;
+                }
+
+                // If value is set or not doesn't matter, it's okay
+                $value = $this->selected_optional;
+                $this->process_value_failed = true;
                 return false;
             }
-
-            // If value is set or not doesn't matter, it's okay
-            $value = $this->selected_optional;
-            $this->process_value_failed = true;
-            return false;
         }
 
         // Field has a value, we're okay

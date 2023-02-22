@@ -1952,6 +1952,7 @@ abstract class Validator
     /**
      * Sanitize the selected value by trimming whitespace
      *
+     * @todo CURRENTLY NOT WORKING, FIX!
      * @param string $characters
      * @return static
      * @see trim()
