@@ -31,7 +31,7 @@ class ArgvValidator extends Validator
      *
      * @var array $argv
      */
-    protected static array $argv;
+    public static array $argv;
 
 
 
@@ -72,9 +72,18 @@ class ArgvValidator extends Validator
      * @param array $argv
      * @return void
      */
-    public static function hideData(array $argv): void
+    public static function hideData(array &$argv): void
     {
-        global $argv;
+        // Remove any "php" or "./pho"
+        foreach (['php', $_SERVER['PHP_SELF']] as $value) {
+            if (empty($argv)) {
+                break;
+            }
+
+            if (isset_get($argv[0]) === $value) {
+                array_shift($argv);
+            }
+        }
 
         // Copy $argv data and reset the global $argv
         static::$argv = $argv;
@@ -224,6 +233,41 @@ class ArgvValidator extends Validator
 
 
     /**
+     * Returns the amount of command line method arguments still available.
+     *
+     * @note Modifier arguments start with - or --. - only allows a letter whereas -- allows one or multiple words
+     *       separated by a -. Modifier arguments may have or not have values accompanying them.
+     * @note Methods are arguments NOT starting with - or --
+     * @note As soon as non method arguments start we can no longer discern if a value like "system" is actually a
+     *       method or a value linked to an argument. Because of this, as soon as modifier arguments start, methods may
+     *       no longer be specified. An exception to this are system modifier arguments because system modifier
+     *       arguments are filtered out BEFORE methods are processed.
+     *
+     * @return int
+     */
+    public static function getMethodCount(): int
+    {
+        $count = 0;
+
+        foreach (static::$argv as $argument) {
+            if (!trim($argument)) {
+                // Ignore empty items
+                continue;
+            }
+
+            if (str_starts_with($argument, '-')) {
+                break;
+            }
+
+            $count++;
+        }
+
+        return $count;
+    }
+
+
+
+    /**
      * Returns an array of command line methods
      *
      * @return array
@@ -234,6 +278,11 @@ class ArgvValidator extends Validator
 
         // Scan all arguments until named parameters start
         foreach (static::$argv as $argument) {
+            if (!trim($argument)) {
+                // Ignore empty items
+                continue;
+            }
+
             if (str_starts_with($argument, '-')) {
                 break;
             }

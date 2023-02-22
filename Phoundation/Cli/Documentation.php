@@ -20,6 +20,12 @@ class Documentation
      */
     protected static bool $usage = false;
 
+    /**
+     * The auto complete processor
+     *
+     * @var AutoComplete $auto_complete
+     */
+    protected static AutoComplete $auto_complete;
 
 
     /**
@@ -56,5 +62,38 @@ class Documentation
             Log::notice(trim($usage) . PHP_EOL, 10, false);
             Script::die();
         }
+    }
+
+
+
+    /**
+     * Process auto complete requests specific for this method
+     *
+     * @param array $definitions
+     * @return void
+     */
+    public function autoComplete(array $definitions): void
+    {
+        if (!isset(self::$auto_complete)) {
+            return;
+        }
+
+        // Process the auto complete definitions
+        foreach ($definitions as $word => $data) {
+
+        }
+    }
+
+
+
+    /**
+     * Enable the auto complete mode
+     *
+     * @param AutoComplete $auto_complete
+     * @return void
+     */
+    public static function enableAutoComplete(AutoComplete $auto_complete): void
+    {
+        self::$auto_complete = $auto_complete;
     }
 }

@@ -4,6 +4,7 @@ namespace Phoundation\Cli;
 
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Cli\Exception\CliException;
+use Phoundation\Cli\Exception\MethodNotExistsException;
 use Phoundation\Cli\Exception\MethodNotFoundException;
 use Phoundation\Cli\Exception\NoMethodSpecifiedException;
 use Phoundation\Core\Arrays;
@@ -19,8 +20,10 @@ use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\ScriptException;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Path;
 use Phoundation\Processes\Commands\Command;
+use Phoundation\Processes\Process;
 use Throwable;
 
 
@@ -28,6 +31,14 @@ use Throwable;
  * Class Scripts
  *
  * This is the default Scripts object
+ *
+ * @note Modifier arguments start with - or --. - only allows a letter whereas -- allows one or multiple words separated
+ *       by a -. Modifier arguments may have or not have values accompanying them.
+ * @note Methods are arguments NOT starting with - or --
+ * @note As soon as non method arguments start we can no longer discern if a value like "system" is actually a method or
+ *       a value linked to an argument. Because of this, as soon as modifier arguments start, methods may no longer be
+ *       specified. An exception to this are system modifier arguments because system modifier arguments are filtered
+ *       out BEFORE methods are processed.
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -50,6 +61,35 @@ class Script
      */
     protected static ?string $script = null;
 
+    /**
+     * The original set of methods
+     *
+     * @var array|null $methods
+     */
+    protected static ?array $methods = null;
+
+    /**
+     * If set, we're in auto complete mode
+     *
+     * @var AutoComplete $auto_complete
+     */
+    protected static AutoComplete $auto_complete;
+
+
+
+    /**
+     * @param int $location
+     * @return AutoComplete
+     */
+    public static function enableAutoComplete(int $location): AutoComplete
+    {
+        if (!isset(self::$auto_complete)) {
+            self::$auto_complete = new AutoComplete($location);
+        }
+
+        return self::$auto_complete;
+    }
+
 
 
     /**
@@ -63,30 +103,48 @@ class Script
         // All scripts will execute the cli_done() call, register basic script information
         try {
             Core::startup();
+
         } catch (SqlException $e) {
             $reason = tr('Core database not found, please execute "./cli system project setup"');
             $limit  = 'system/project/init';
+
         } catch (NoProjectException $e) {
             $reason = tr('Project file not found, please execute "./cli system project setup"');
             $limit  = 'system/project/setup';
         }
 
+        // Define the readline completion function
+        readline_completion_function(['\Phoundation\Cli\Script', 'completeReadline']);
+
         // Only allow this to be run by the cli script
         // TODO This should be done before Core::startup() but then the PLATFORM_CLI define would not exist yet. Fix this!
         static::only();
 
-        // Get the script file to execute
-        $script = static::findScript();
-        $script = static::limitScript($script, isset_get($limit), isset_get($reason));
+        if (isset(self::$auto_complete)) {
+            // We're doing auto complete mode!
+            try {
+                // Get the script file to execute and execute auto complete for within this script, if available
+                $script = static::findScript();
+                Documentation::enableAutoComplete(self::$auto_complete);
 
-        static::$script = $script;
+            } catch (NoMethodSpecifiedException|MethodNotFoundException|MethodNotExistsException $e) {
+                // Auto complete the method
+                self::$auto_complete->processMethods(self::$methods, $e->getData());
+            }
+
+        } else {
+            // Get the script file to execute
+            $script = static::findScript();
+        }
+
+        static::$script = static::limitScript($script, isset_get($limit), isset_get($reason));
 
         Log::action(tr('Executing script ":script"', [
             ':script' => static::getCurrent()
         ]), 1);
 
         // Execute the script
-        execute_script($script);
+        execute_script(static::$script);
         self::die();
     }
 
@@ -145,13 +203,18 @@ class Script
      */
     protected static function findScript(): string
     {
-        if (ArgvValidator::count() <= 1) {
-            throw NoMethodSpecifiedException::new('No method specified!')->setData(Arrays::filterValues(scandir(PATH_ROOT . 'scripts/'), '.,..'))
-                ->makeWarning();
+        if (!ArgvValidator::getMethodCount()) {
+            throw NoMethodSpecifiedException::new('No method specified!')
+                ->makeWarning()
+                ->setData([
+                    'position' => 0,
+                    'methods'  => Arrays::filterValues(scandir(PATH_ROOT . 'scripts/'), '.,..')
+                ]);
         }
 
-        $file    = PATH_ROOT . 'scripts/';
-        $methods = ArgvValidator::getMethods();
+        $file          = PATH_ROOT . 'scripts/';
+        $methods       = ArgvValidator::getMethods();
+        self::$methods = $methods;
 
         foreach ($methods as $position => $method) {
             if (str_ends_with($method, '/cli')) {
@@ -180,9 +243,14 @@ class Script
 
             if (!file_exists($file)) {
                 // The specified path doesn't exist
-                throw MethodNotFoundException::new(tr('The specified method file ":file" was not found', [
+                throw MethodNotExistsException::new(tr('The specified method file ":file" does not exist', [
                     ':file' => $file
-                ]))->makeWarning();
+                ]))
+                    ->makeWarning()
+                    ->setData([
+                        'position' => $position,
+                        'methods'  => Arrays::filterValues(scandir(dirname($file)), '.,..')
+                    ]);
             }
 
             if (!is_dir($file)) {
@@ -223,8 +291,11 @@ class Script
         throw MethodNotFoundException::new(tr('The specified method file ":file" was not found', [
             ':file' => $file
         ]))
-            ->setData(Arrays::filterValues(scandir($file), '.,..'))
-            ->makeWarning();
+            ->makeWarning()
+            ->setData([
+                'position' => $position + 1,
+                'methods'  => Arrays::filterValues(scandir($file), '.,..')
+            ]);
     }
 
 
@@ -563,5 +634,33 @@ class Script
         }
 
         die($exit_code);
+    }
+
+
+
+    /**
+     * Returns all options for readline <TAB> autocomplete
+     *
+     * @param string $input
+     * @param int $index
+     * @return array
+     */
+    protected static function completeReadline(string $input, int $index): array
+    {
+ showdie($input);
+//        // Get info about the current buffer
+//        // Figure out what the entire input is
+//        $matches    = [];
+//        $rl_info    = readline_info();
+//        $full_input = substr($rl_info['line_buffer'], 0, $rl_info['end']);
+//
+//        // Get all matches based on the entire input buffer
+//        foreach (phrases_that_begin_with($full_input) as $phrase) {
+//            // Only add the end of the input (where this word begins)
+//            // to the matches array
+//            $matches[] = substr($phrase, $index);
+//        }
+//
+//        return $matches;
     }
 }

@@ -5,15 +5,15 @@ namespace Phoundation\Cli\Exception;
 
 
 /**
- * Class MethodNotExistException
+ * Class MethodNotExistsException
  *
- * This exception is thrown when the specified script method does not lead to an executable script
+ * This exception is thrown when the specified script method does not exist
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Cli
  */
-class MethodNotFoundException extends CliException
+class MethodNotExistsException extends CliException
 {
 }

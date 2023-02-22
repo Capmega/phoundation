@@ -21,13 +21,11 @@ use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Processes\Commands\SystemCommands;
 use Phoundation\Processes\Process;
-use Phoundation\Servers\Server;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Page;
@@ -49,7 +47,7 @@ class Core {
     /**
      * Framework version and minimum required PHP version
      */
-    public const FRAMEWORKCODEVERSION = '4.0.0';
+    public const FRAMEWORKCODEVERSION = '4.1.0';
     public const PHP_MINIMUM_VERSION  = '8.1.0';
 
     /**
@@ -154,84 +152,54 @@ class Core {
      */
     protected function __construct()
     {
-        try {
-            static::$state = 'startup';
-            static::$register['system']['startup'] = microtime(true);
-            static::$register['system']['script']  = Strings::until(Strings::fromReverse($_SERVER['PHP_SELF'], '/'), '.');
+        static::$state = 'startup';
+        static::$register['system']['startup'] = microtime(true);
+        static::$register['system']['script']  = Strings::until(Strings::fromReverse($_SERVER['PHP_SELF'], '/'), '.');
 
-            // Register the process start
-            define('STARTTIME', Timer::create('process')->getStart());
+        // Register the process start
+        define('STARTTIME', Timer::create('process')->getStart());
 
-            /*
-             * Define a unique process request ID
-             * Define project paths.
-             *
-             * PATH_ROOT   is the root directory of this project and should be used as the root for all other paths
-             * PATH_TMP    is a private temporary directory
-             * PATH_PUBTMP is a public (accessible by web server) temporary directory
-             */
-            define('REQUEST'     , substr(uniqid(), 7));
-            define('PATH_ROOT'   , realpath(__DIR__ . '/../..') . '/');
-            define('PATH_WWW'    , PATH_ROOT . 'www/');
-            define('PATH_DATA'   , PATH_ROOT . 'data/');
-            define('PATH_CDN'    , PATH_DATA . 'cdn/');
-            define('PATH_TMP'    , PATH_DATA . 'tmp/');
-            define('PATH_PUBTMP' , PATH_DATA . 'content/cdn/tmp/');
-            define('PATH_SCRIPTS', PATH_ROOT . 'scripts/');
+        /*
+         * Define a unique process request ID
+         * Define project paths.
+         *
+         * PATH_ROOT   is the root directory of this project and should be used as the root for all other paths
+         * PATH_TMP    is a private temporary directory
+         * PATH_PUBTMP is a public (accessible by web server) temporary directory
+         */
+        define('REQUEST'     , substr(uniqid(), 7));
+        define('PATH_ROOT'   , realpath(__DIR__ . '/../..') . '/');
+        define('PATH_WWW'    , PATH_ROOT . 'www/');
+        define('PATH_DATA'   , PATH_ROOT . 'data/');
+        define('PATH_CDN'    , PATH_DATA . 'cdn/');
+        define('PATH_TMP'    , PATH_DATA . 'tmp/');
+        define('PATH_PUBTMP' , PATH_DATA . 'content/cdn/tmp/');
+        define('PATH_SCRIPTS', PATH_ROOT . 'scripts/');
 
-            // Setup error handling, report ALL errors, setup shutdown functions
-            error_reporting(E_ALL);
-            set_error_handler(['\Phoundation\Core\Core'         , 'phpErrorHandler']);
-            set_exception_handler(['\Phoundation\Core\Core'     , 'uncaughtException']);
-            register_shutdown_function(['\Phoundation\Core\Core', 'shutdown']);
+        // Setup error handling, report ALL errors, setup shutdown functions
+        error_reporting(E_ALL);
+        set_error_handler(['\Phoundation\Core\Core'         , 'phpErrorHandler']);
+        set_exception_handler(['\Phoundation\Core\Core'     , 'uncaughtException']);
+        register_shutdown_function(['\Phoundation\Core\Core', 'shutdown']);
 
 // TODO Implement PCNTL functions
 //            pcntl_signal(SIGTERM, ['\Phoundation\Core\Core', 'shutdown']);
 //            pcntl_signal(SIGINT , ['\Phoundation\Core\Core', 'shutdown']);
 //            pcntl_signal(SIGHUP , ['\Phoundation\Core\Core', 'shutdown']);
 
-            // Load the functions and mb files
-            require(PATH_ROOT . 'Phoundation/functions.php');
-            require(PATH_ROOT . 'Phoundation/mb.php');
+        // Load the functions and mb files
+        require(PATH_ROOT . 'Phoundation/functions.php');
+        require(PATH_ROOT . 'Phoundation/mb.php');
 
-            // Set timeout and request type, ensure safe PHP configuration, apply general server restrictions, set the
-            // project name, platform and request type
-            static::securePhpSettings();
-            static::setRestrictions();
-            static::setProject();
-            static::setPlatform();
-            static::selectStartup();
-            static::setRequestType();
-            static::setTimeout();
-
-        } catch (SqlException|NoProjectException $e) {
-            throw $e;
-
-        } catch (Throwable $e) {
-            try {
-                // Startup failed miserably. Don't use anything fancy here, we're dying!
-                if (defined('PLATFORM_HTTP')) {
-                    if (PLATFORM_HTTP) {
-                        // Died in browser
-                        Log::error('startup: Failed with following exception');
-                        Log::error($e);
-                        Page::die('startup: Failed, see web server error log');
-                    }
-
-                    // Died in CLI
-                    Script::die($e);
-                }
-
-            } catch (Throwable $e) {
-                // Even a semi proper shutdown went to crap, wut?
-                @error_log($e);
-            }
-
-            // Wowza things went to @#*$@( really fast! The standard defines aren't even available yet
-            @error_log('Startup failed with "' . $e->getMessage() . '", see exception below');
-            @error_log($e);
-            die('Startup: Failed, see error log');
-        }
+        // Set timeout and request type, ensure safe PHP configuration, apply general server restrictions, set the
+        // project name, platform and request type
+        static::securePhpSettings();
+        static::setRestrictions();
+        static::setProject();
+        static::setPlatform();
+        static::selectStartup();
+        static::setRequestType();
+        static::setTimeout();
     }
 
 
@@ -439,13 +407,27 @@ class Core {
             ->select('--system-language', true)->isOptional()->isCode()
             ->select('--deleted')->isOptional(false)->isBoolean()
             ->select('--version')->isOptional(false)->isBoolean()
-            ->select('--limit', true)->isOptional(0)->isNatural(true)
+            ->select('--limit', true)->isOptional(0)->isNatural()
             ->select('--timezone', true)->isOptional(false)->isBoolean()
+            ->select('--auto-complete', true)->isOptional()->hasMaxCharacters(1024)
             ->select('--show-passwords')->isOptional(false)->isBoolean()
             ->select('--no-validation')->isOptional(false)->isBoolean()
             ->select('--no-password-validation')->isOptional(false)->isBoolean()
             ->validate()
             ->getArgv();
+
+        if ($argv['auto_complete'] !== '') {
+            // We're in auto complete mode. Show only direct output, don't use any color
+            $argv['log_level']     = 10;
+            $argv['no_color']      = true;
+            $argv['auto_complete'] = explode(' ', trim($argv['auto_complete']));
+
+            $location = (int) array_shift($argv['auto_complete']);
+
+            // Reset the $argv array to the auto complete data
+            ArgvValidator::hideData($argv['auto_complete']);
+            Script::enableAutoComplete($location - 1);
+        }
 
         // Check what environment we're in
         if ($argv['environment']) {
@@ -1374,8 +1356,8 @@ class Core {
                         // If not using Debug::enabled() mode, then try to give nice error messages for known issues
                         if (($e instanceof ValidationFailedException) and $e->isWarning()) {
                             // This is just a simple validation warning, show warning messages in the exception data
-                            Log::warning($e->getMessage());
-                            Log::warning($e->getData());
+                            Log::warning($e->getMessage(), 10);
+                            Log::warning($e->getData(), 10);
                             Script::die(255);
                         }
 
@@ -1383,30 +1365,22 @@ class Core {
                             // This is just a simple general warning, no backtrace and such needed, only show the
                             // principal message
 
-                            Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]), 10);
+                            Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]), 9);
 
                             if ($e instanceof NoMethodSpecifiedException) {
                                 if ($data = $e->getData()) {
-                                    Log::information('Available methods:', 10);
+                                    Log::information('Available methods:', 9);
 
-                                    foreach ($data as $file) {
-                                        if (str_starts_with($file, '.')) {
-                                            continue;
-                                        }
-
+                                    foreach ($data['methods'] as $file) {
                                         Log::notice($file, 10);
                                     }
                                 }
                             } elseif ($e instanceof MethodNotFoundException) {
                                 if ($data = $e->getData()) {
-                                    Log::information('Available sub methods:', 10);
+                                    Log::information('Available sub methods:', 9);
 
-                                    foreach ($data as $file) {
-                                        if (str_starts_with($file, '.')) {
-                                            continue;
-                                        }
-
-                                        Log::notice($file, 10);
+                                    foreach ($data['methods'] as $method) {
+                                        Log::notice($method, 10);
                                     }
                                 }
                             }
