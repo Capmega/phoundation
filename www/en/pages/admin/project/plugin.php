@@ -22,7 +22,7 @@ $plugin = Plugin::get($_GET['id']);
 // Build the buttons
 $buttons = Buttons::new()
     ->addButton('Submit')
-    ->addButton('Back', 'secondary', '/development/plugins.html', true);
+    ->addButton('Back', 'secondary', '/project/plugins.html', true);
 
 
 
@@ -74,7 +74,7 @@ echo $grid->render();
 Page::setHeaderTitle(tr('Plugin'));
 Page::setHeaderSubTitle($plugin->getName());
 Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'                         => tr('Home'),
-    '/development/plugins.html' => tr('Plugins'),
-    ''                          => $plugin->getDisplayName()
+    '/'                     => tr('Home'),
+    '/project/plugins.html' => tr('Plugins'),
+    ''                      => $plugin->getName()
 ]));
