@@ -6,7 +6,7 @@ use Phoundation\Core\Strings;
 
 
 /**
- * Trait DataPath
+ * Trait DataValue
  *
  *
  *
@@ -15,38 +15,38 @@ use Phoundation\Core\Strings;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-trait DataPath
+trait DataValue
 {
     /**
-     * The path for this object
+     * The value for this object
      *
-     * @var string $path
+     * @var string $value
      */
-    protected string $path;
+    protected string $value;
 
 
 
     /**
-     * Returns the path
+     * Returns the value
      *
      * @return string
      */
-    public function getPath(): string
+    public function getValue(): string
     {
-        return $this->path;
+        return $this->value;
     }
 
 
 
     /**
-     * Sets the path
+     * Sets the value
      *
-     * @param string $path
+     * @param string $value
      * @return static
      */
-    public function setPath(string $path): static
+    public function setValue(string $value): static
     {
-        $this->path = Strings::slash($path);
+        $this->value = Strings::slash($value);
         return $this;
     }
 }

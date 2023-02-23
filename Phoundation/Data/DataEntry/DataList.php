@@ -109,10 +109,7 @@ abstract class DataList implements Iterator
         }
 
         $this->parent = $parent;
-
-        if ($parent) {
-            $this->load($id_column);
-        }
+        $this->load($id_column);
     }
 
 
@@ -305,7 +302,29 @@ abstract class DataList implements Iterator
      */
     public function list(): array
     {
-        return $this->list;
+        return array_flip($this->list);
+    }
+
+
+
+    /**
+     * Returns the internal list filtered by the specified keyword
+     *
+     * @param string|null $keyword
+     * @return array
+     */
+    public function filteredList(?string $keyword): array
+    {
+        $return = [];
+        $keyword = strtolower((string) $keyword);
+
+        foreach ($this->list() as $value) {
+            if (!$keyword or str_contains(strtolower(trim($value)), $keyword)) {
+                $return[] = $value;
+            }
+        }
+
+        return $return;
     }
 
 

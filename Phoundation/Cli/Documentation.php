@@ -4,6 +4,16 @@ namespace Phoundation\Cli;
 
 use Phoundation\Core\Log\Log;
 
+
+/**
+ * Class Documentation
+ *
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Cli
+ */
 class Documentation
 {
     /**
@@ -19,13 +29,6 @@ class Documentation
      * @var bool $usage
      */
     protected static bool $usage = false;
-
-    /**
-     * The auto complete processor
-     *
-     * @var AutoComplete $auto_complete
-     */
-    protected static AutoComplete $auto_complete;
 
 
     /**
@@ -72,28 +75,10 @@ class Documentation
      * @param array $definitions
      * @return void
      */
-    public function autoComplete(array $definitions): void
+    public static function autoComplete(array $definitions): void
     {
-        if (!isset(self::$auto_complete)) {
-            return;
+        if (AutoComplete::isActive()) {
+            AutoComplete::processScript($definitions);
         }
-
-        // Process the auto complete definitions
-        foreach ($definitions as $word => $data) {
-
-        }
-    }
-
-
-
-    /**
-     * Enable the auto complete mode
-     *
-     * @param AutoComplete $auto_complete
-     * @return void
-     */
-    public static function enableAutoComplete(AutoComplete $auto_complete): void
-    {
-        self::$auto_complete = $auto_complete;
     }
 }

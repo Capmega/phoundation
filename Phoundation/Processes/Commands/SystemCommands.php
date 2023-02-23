@@ -5,6 +5,7 @@ namespace Phoundation\Processes\Commands;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Processes\Commands\Exception\CommandNotFoundException;
 use Phoundation\Processes\Commands\Exception\CommandsException;
 use Phoundation\Processes\Exception\ProcessFailedException;
 use Phoundation\Processes\Process;
@@ -65,7 +66,7 @@ class SystemCommands extends Command
             Command::handleException('which', $e, function($first_line, $last_line, $e) use ($command) {
                 if ($e->getCode() == 1) {
                     if (!$e->getData()['output']) {
-                        throw new CommandsException(tr('The which could not find the specified command ":command"', [
+                        throw new CommandNotFoundException(tr('Could not find command ":command"', [
                             ':command' => $command
                         ]));
                     }

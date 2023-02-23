@@ -12,6 +12,7 @@ use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Commands\Command;
+use Phoundation\Processes\Commands\Exception\CommandNotFoundException;
 use Phoundation\Processes\Commands\Exception\CommandsException;
 use Phoundation\Processes\Commands\SystemCommands;
 use Phoundation\Processes\Exception\ProcessesException;
@@ -674,43 +675,48 @@ trait ProcessVariables
         }
 
         if ($which_command) {
-            $real_command = SystemCommands::new($this->restrictions)->which($command);
-        } else {
-            // Check if the command exist on disk
-            if (($command !== 'which') and !file_exists($command)) {
-                // The specified command was not found, we'll have to look for it anyway!
-                try {
-                    $real_command = SystemCommands::new($this->restrictions)->which($command);
+            // Get the real location for the command to ensure it exists. Do NOT use this for shell internal commands!
+            try {
+                $real_command = SystemCommands::new($this->restrictions)->which($command);
 
-                } catch (CommandsException) {
-                    // The command does not exist, but maybe we can auto install?
-                    if (!$this->failed) {
-                        if ($this->packages and !in_array($command, $this->packages)) {
-                            throw new ProcessesException(tr('Specified process command ":command" does not exist, and auto install is denied by the package filter list', [
-                                ':command' => $command
-                            ]));
+            } catch (CommandNotFoundException) {
+                // Check if the command exist on disk
+                if (($command !== 'which') and !file_exists($command)) {
+                    // The specified command was not found, we'll have to look for it anyway!
+                    try {
+                        $real_command = SystemCommands::new($this->restrictions)->which($command);
+
+                    } catch (CommandsException) {
+                        // The command does not exist, but maybe we can auto install?
+                        if (!$this->failed) {
+                            if ($this->packages and !in_array($command, $this->packages)) {
+                                throw new ProcessesException(tr('Specified process command ":command" does not exist, and auto install is denied by the package filter list', [
+                                    ':command' => $command
+                                ]));
+                            }
+
+                            if (!Command::new()->sudoAvailable('apt-get')) {
+                                throw new ProcessesException(tr('Specified process command ":command" does not exist and this process does not have sudo access to apt-get', [
+                                    ':command' => $command
+                                ]));
+                            }
                         }
 
-                        if (!Command::new()->sudoAvailable('apt-get')) {
-                            throw new ProcessesException(tr('Specified process command ":command" does not exist and this process does not have sudo access to apt-get', [
-                                ':command' => $command
-                            ]));
-                        }
-                    }
+                        $this->failed = true;
 
-                    $this->failed = true;
+                        throw new ProcessesException(tr('Specified process command ":command" does not exist', [
+                            ':command' => $command
+                        ]));
 
-throw new ProcessesException(tr('Specified process command ":command" does not exist', [
-    ':command' => $command
-]));
-                    // Proceed to install the packages and retry
-                    Log::warning(tr('Failed to find the command ":command", installing required packages', [
-                        ':command' => $command
-                    ]));
+                        // Proceed to install the packages and retry
+                        Log::warning(tr('Failed to find the command ":command", installing required packages', [
+                            ':command' => $command
+                        ]));
 
 // TODO Implement this! Have apt-file actually search for the command, match /s?bin/COMMAND or /usr/s?bin/COMMAND
 //                    SystemCommands::new()->aptGetInstall($this->packages);
 //                    return $this->setCommand($command, $which_command);
+                    }
                 }
             }
         }

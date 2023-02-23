@@ -6,9 +6,12 @@ use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\Documentation;
+use Phoundation\Core\Locale\Language\Languages;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Geo\Countries\Countries;
+use Phoundation\Geo\Timezones\Timezones;
 
 
 /**
@@ -21,6 +24,42 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
+Documentation::autoComplete([
+    'arguments' => [
+        '-e,--email'       => true,
+        '-n,--name'        => true,
+        '-r,--roles'       => true,
+        '-g,--gender'      => [tr('Male'), tr('Female'), tr('Other'), ],
+        '-t,--title'       => true,
+        '-l,--language'    => [
+            'word'   => function($word) { return Languages::new()->list(); },
+            'noword' => function() { return Languages::new()->list(); },
+        ],
+        '-d,--description' => true,
+        '-c,--comments'    => true,
+        '-u,--username'    => true,
+        '-a,--address'     => true,
+        '-w,--website'     => true,
+        '-p,--phones'      => true,
+        '-b,--birthdate'   => true,
+        '-t,--timezone'    => [
+            'word'   => function($word) { return Timezones::new()->list(); },
+            'noword' => function() { return Timezones::new()->list(); },
+        ],
+        '--domain'         => true,
+        '--lead-by'        => [
+            'word' => 'SELECT `email` FROM `accounts_users` WHERE `email` LIKE :word AND `status` IS NULL'
+        ],
+        '--country'        => [
+            'word'   => function() { return Countries::new()->list(); },
+            'noword' => function() { return Countries::new()->list(); },
+        ],
+        '--state'          => true,
+        '--city'           => true,
+        '--is-leader'      => false,
+    ]
+]);
+
 Documentation::usage('./cli system accounts users create EMAIL [OPTIONS]
 ./cli system users create user@example.com -d "This is a test user"');
 
@@ -40,37 +79,37 @@ EMAIL                                   The email address for the user
                                         must already exist. These roles will grant the user rights which will give him 
                                         or her access to the various parts of the system
 
-[-g / --gender]
+[-g / --gender GENDER]                  The gender for this user
 
-[-t / --title]
+[-t / --title TITLE]                    The title for this user
 
-[-l / --language]
+[-l / --language LANGUAGE]              The system language for this user
 
-[-d / --description]
+[-d / --description DESCRIPTION]        A description about this user
 
-[-c / --comments]
+[-c / --comments COMMENTS]              Comments about this user (These are not visible to the user)
 
-[-u / --username]
+[-u / --username USERNAME]              The system username
 
-[-a / --address]
+[-a / --address ADDRESS]                The address for this user
+   
+[-u / --url URL]                        The URL for this user where the user has information about themselves
 
-[-w / --website]
+[-p / --phones PHONES]                  The phone(s) for this user
 
-[-p / --phones]
+[-b / --birthdate BIRTHDATE]            The birthdate for this user 
 
-[-b / --birthday]
+[-t / --timezone TIMEZONE]              The timezone for this user
 
-[-t / --timezone]
+[--domain DOMAIN]                       The domain where this user is valid
 
-[--domain]
+[--lead-by USER]                        The email or id of the user that is the leader for this user
 
-[--lead-by]
+[--country COUNTRY]                     The country code or name where the user resides
 
-[--country]
+[--state STATE]                         The state where the user resides
 
-[--state]
-
-[--city]
+[--city CITY]                           The city where the user resides
 
 [--is-leader]                           If specified, this user will be registered as having a leadership position');
 

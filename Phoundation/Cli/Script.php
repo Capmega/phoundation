@@ -20,10 +20,8 @@ use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\ScriptException;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Path;
 use Phoundation\Processes\Commands\Command;
-use Phoundation\Processes\Process;
 use Throwable;
 
 
@@ -68,29 +66,6 @@ class Script
      */
     protected static ?array $methods = null;
 
-    /**
-     * If set, we're in auto complete mode
-     *
-     * @var AutoComplete $auto_complete
-     */
-    protected static AutoComplete $auto_complete;
-
-
-
-    /**
-     * @param int $location
-     * @return AutoComplete
-     */
-    public static function enableAutoComplete(int $location): AutoComplete
-    {
-        if (!isset(self::$auto_complete)) {
-            self::$auto_complete = new AutoComplete($location);
-        }
-
-        return self::$auto_complete;
-    }
-
-
 
     /**
      * Execute a command by the "cli" script
@@ -118,18 +93,23 @@ class Script
 
         // Only allow this to be run by the cli script
         // TODO This should be done before Core::startup() but then the PLATFORM_CLI define would not exist yet. Fix this!
-        static::only();
+        static::onlyCommandLine();
 
-        if (isset(self::$auto_complete)) {
+        if (AutoComplete::isActive()) {
             // We're doing auto complete mode!
             try {
                 // Get the script file to execute and execute auto complete for within this script, if available
                 $script = static::findScript();
-                Documentation::enableAutoComplete(self::$auto_complete);
+
+                // Check if this script has support for auto complete. If not
+                if (!AutoComplete::hasSupport($script)) {
+                    // This script has no auto complete support, so we're done here.
+                    self::die();
+                }
 
             } catch (NoMethodSpecifiedException|MethodNotFoundException|MethodNotExistsException $e) {
                 // Auto complete the method
-                self::$auto_complete->processMethods(self::$methods, $e->getData());
+                AutoComplete::processMethods(self::$methods, $e->getData());
             }
 
         } else {
@@ -145,6 +125,7 @@ class Script
 
         // Execute the script
         execute_script(static::$script);
+        AutoComplete::ensureAvailable();
         self::die();
     }
 
@@ -363,7 +344,7 @@ class Script
      * @param bool $exclusive
      * @throws CliException
      */
-    public static function only(bool $exclusive = false): void
+    public static function onlyCommandLine(bool $exclusive = false): void
     {
         if (!PLATFORM_CLI) {
             throw new CliException(tr('This can only be done from command line'));

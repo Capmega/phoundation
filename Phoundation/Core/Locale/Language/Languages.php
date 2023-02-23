@@ -35,6 +35,7 @@ class Languages extends DataList
                              WHERE    `status` IS NULL 
                              ORDER BY `name`');
         parent::__construct($parent, $id_column);
+        $this->load($id_column);
     }
 
 
@@ -62,7 +63,14 @@ class Languages extends DataList
      */
     protected function load(?string $id_column = null): static
     {
-        // TODO: Implement load() method.
+        $this->list = sql()->list('SELECT `languages`.`id`, substring_index(substring_index(`languages`.`name`, "(", 1), ",", 1) AS `name` 
+                                   FROM     `languages` 
+                                   WHERE    `languages`.`status` IS NULL
+                                   ORDER BY `name`');
+
+        // The keys contain the ids...
+        $this->list = array_flip($this->list);
+        return $this;
     }
 
     protected function loadDetails(array|string|null $columns, array $filters = []): array

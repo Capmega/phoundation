@@ -75,13 +75,15 @@ class ArgvValidator extends Validator
     public static function hideData(array &$argv): void
     {
         // Remove any "php" or "./pho"
-        foreach (['php', $_SERVER['PHP_SELF']] as $value) {
-            if (empty($argv)) {
-                break;
+        if (!empty($argv)) {
+            if (isset_get($argv[0]) === 'php') {
+                array_shift($argv);
             }
 
-            if (isset_get($argv[0]) === $value) {
-                array_shift($argv);
+            if (!empty($argv)) {
+                if (str_ends_with(isset_get($argv[0]),  '/' . Strings::from($_SERVER['PHP_SELF'], '/'))) {
+                    array_shift($argv);
+                }
             }
         }
 
@@ -300,6 +302,18 @@ class ArgvValidator extends Validator
         }
 
         return $methods;
+    }
+
+
+
+    /**
+     * Returns an array of all UNVALIDATED command line arguments that are left
+     *
+     * @return array
+     */
+    public static function getArguments(): array
+    {
+        return array_values(static::$argv);
     }
 
 

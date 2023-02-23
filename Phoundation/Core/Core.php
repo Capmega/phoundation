@@ -4,6 +4,7 @@ namespace Phoundation\Core;
 
 use JetBrains\PhpStorm\ExpectedValues;
 use JetBrains\PhpStorm\NoReturn;
+use Phoundation\Cli\AutoComplete;
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\Exception\MethodNotFoundException;
 use Phoundation\Cli\Exception\NoMethodSpecifiedException;
@@ -14,7 +15,6 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Validator;
-use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Date\Date;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\AccessDeniedException;
@@ -426,7 +426,7 @@ class Core {
 
             // Reset the $argv array to the auto complete data
             ArgvValidator::hideData($argv['auto_complete']);
-            Script::enableAutoComplete($location - 1);
+            AutoComplete::setPosition($location - 1);
         }
 
         // Check what environment we're in
