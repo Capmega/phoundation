@@ -81,7 +81,7 @@ class ArgvValidator extends Validator
             }
 
             if (!empty($argv)) {
-                if (str_ends_with(isset_get($argv[0]),  '/' . Strings::from($_SERVER['PHP_SELF'], '/'))) {
+                if (str_ends_with(isset_get($argv[0]),  '/' . Strings::fromReverse($_SERVER['PHP_SELF'], '/'))) {
                     array_shift($argv);
                 }
             }
