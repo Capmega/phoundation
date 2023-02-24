@@ -165,6 +165,8 @@ class Script
 
     /**
      * Returns the UID for the current process
+     *
+     * @return int The user id for this process
      */
     public static function getProcessUid(): int
     {
@@ -173,6 +175,22 @@ class Script
         }
 
         return Command::new()->id('u');
+    }
+
+
+
+    /**
+     * Returns the UID for the current process
+     *
+     * @return string|null The username for this process, or NULL if POSIX libraries are not available to PHP
+     */
+    public static function getProcessUser(): ?string
+    {
+        if (function_exists('posix_getpwuid')) {
+            return posix_getpwuid(posix_getuid())['name'];
+        }
+
+        return null;
     }
 
 

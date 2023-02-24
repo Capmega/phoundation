@@ -386,8 +386,10 @@ class Core {
     {
         static::$request_type = 'cli';
 
+        // Hide all command line arguments
         ArgvValidator::hideData($GLOBALS['argv']);
 
+        // Validate system modifier arguments
         $argv = ArgvValidator::new()
             ->select('-A,--all')->isOptional(false)->isBoolean()
             ->select('-C,--no-color')->isOptional(false)->isBoolean()
@@ -481,6 +483,7 @@ class Core {
             Log::information(tr('Phoundation framework code version ":fv"', [
                 ':fv' => static::FRAMEWORKCODEVERSION
             ]));
+
             $die = 0;
         }
 
@@ -493,21 +496,8 @@ class Core {
             Log::setThreshold($argv['log_level']);
         }
 
-        if ($argv['system_language']) {
-            // Set language to be used
-            if (isset($language)) {
-                $e = new CoreException(tr('Language has been specified twice'));
-            }
-
-            if (!isset($GLOBALS['argv'][$argid + 1])) {
-                $e = new CoreException(tr('The "language" argument requires a two letter language core right after it'));
-            }
-
-            $language = $GLOBALS['argv'][$argid + 1];
-
-            unset($GLOBALS['argv'][$argid]);
-            unset($GLOBALS['argv'][$argid + 1]);
-        }
+        // Check if the owner of this process is the same as the owner of this script (Required to avoid issues)
+        static::processFileUidMatches(true);
 
         if ($argv['order_by']) {
             define('ORDERBY', ' ORDER BY `' . Strings::until($argv['order_by'], ' ') . '` ' . Strings::from($argv['order_by'], ' ') . ' ');
@@ -518,26 +508,6 @@ class Core {
                 // The specified column ordering is NOT valid
                 $e = new CoreException(tr('The specified orderby argument ":argument" is invalid', [':argument' => ORDERBY]));
             }
-
-            unset($GLOBALS['argv'][$argid]);
-            unset($GLOBALS['argv'][$argid + 1]);
-        }
-
-        if ($argv['timezone']) {
-            // Set timezone
-            if (isset($timezone)) {
-                $e = new CoreException(tr('Timezone has been specified twice'), 'exists');
-            }
-
-            if (!isset($GLOBALS['argv'][$argid + 1])) {
-                $e = new CoreException(tr('The "timezone" argument requires a valid and existing timezone name right after it'));
-
-            }
-
-            $timezone = $GLOBALS['argv'][$argid + 1];
-
-            unset($GLOBALS['argv'][$argid]);
-            unset($GLOBALS['argv'][$argid + 1]);
         }
 
         if ($argv['no_warnings']) {
@@ -597,9 +567,6 @@ class Core {
         // Set security umask
         umask(Config::get('filesystem.umask', 0007));
 
-        // Ensure that the process UID matches the file UID
-        static::processFileUidMatches(true);
-
         // Get required language.
         try {
             $language = not_empty($argv['language'], Config::get('language.default', 'en'));
@@ -637,7 +604,7 @@ class Core {
             }
         }
 
-        static::setTimeZone();
+        static::setTimeZone($argv['timezone']);
 
         //
         static::$register['ready'] = true;
@@ -2289,39 +2256,39 @@ class Core {
 
         if (Script::getProcessUid() !== getmyuid()) {
             if (!Script::getProcessUid() and $permit_root) {
-                // Root is authorized!
+                // This script is ran as root and root is authorized!
                 return;
             }
 
             if (!$auto_switch) {
                 throw new CoreException(tr('The user ":puser" is not allowed to execute these scripts, only user ":fuser" can do this. use "sudo -u :fuser COMMANDS instead.', [
-                    ':puser' => get_current_user(),
-                    ':fuser' => cli_get_process_user()
+                    ':puser' => Script::getProcessUser(),
+                    ':fuser' => get_current_user()
                 ]));
             }
 
             // Re-execute this command as the specified user
             Log::warning(tr('Current user ":user" is not authorized to execute this script, re-executing script as user ":reuser"', [
-                ':user' => Script::getProcessUid(),
-                ':reuser' => getmyuid()
+                ':user'   => Script::getProcessUser(),
+                ':reuser' => get_current_user()
             ]));
 
-            $argv = $GLOBALS['argv'];
-            array_shift($argv);
+            // Get the arguments to send to the re-execute script
+            $argv = ArgvValidator::getArguments();
 
-            $arguments   = ['sudo' => 'sudo -Eu \''.get_current_user().'\''];
-            $arguments   = array_merge($arguments, $argv);
-
-            // Ensure --timeout is added to the script
-            if (!in_array('--timeout', $arguments)) {
-                $arguments[] = '--timeout';
-                $arguments[] = static::$register['timeout'];
+            if (AutoComplete::isActive()) {
+                // For auto complete mode, add required arguments and reformat $argv correctly
+                $argv = array_merge([AutoComplete::getPosition() + 1, './pho'], $argv);
+                $argv = implode(' ', $argv);
+                $argv = ['--auto-complete', $argv];
             }
 
             // Execute the process
-            Process::new(PATH_ROOT . '/cli')->setWait(1)
-                ->setTimeout(static::readRegister('system', 'timeout'))
-                ->setArguments($arguments)
+            Process::new(PATH_ROOT . 'pho')
+                ->setWait(100)
+                ->setSudo(get_current_user())
+                ->setAcceptedExitCodes([0, 255])
+                ->setArguments($argv)
                 ->executePassthru();
 
             Log::success(tr('Finished re-executed script ":script"', [':script' => static::$register['system']['script']]));
@@ -2334,9 +2301,10 @@ class Core {
     /**
      * Sets timezone, see http://www.php.net/manual/en/timezones.php for more info
      *
+     * @param string|null $timezone
      * @return void
      */
-    protected static function setTimeZone(): void
+    protected static function setTimeZone(?string $timezone = null): void
     {
         // Set system timezone
         $timezone = isset_get($_SESSION['user']['timezone'], Config::get('system.timezone.system', 'UTC'));

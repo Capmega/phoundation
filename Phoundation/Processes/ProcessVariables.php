@@ -1034,7 +1034,7 @@ trait ProcessVariables
 
 
     /**
-     * Returns the time in seconds that a process will wait before executing
+     * Returns the time in milliseconds that a process will wait before executing
      *
      * Defaults to 0, the process will NOT wait and start immediately
      *
@@ -1048,7 +1048,7 @@ trait ProcessVariables
 
 
     /**
-     * Sets the time in seconds that a process will wait before executing
+     * Sets the time in milliseconds that a process will wait before executing
      *
      * Defaults to 0, the process will NOT wait and start immediately
      *
@@ -1058,7 +1058,9 @@ trait ProcessVariables
     public function setWait(int $wait): static
     {
         if (!is_natural($wait,  0)) {
-            throw new OutOfBoundsException(tr('The specified wait time ":wait" is invalid, it must be a natural number 0 or higher', [':wait' => $wait]));
+            throw new OutOfBoundsException(tr('The specified wait time ":wait" is invalid, it must be a natural number 0 or higher', [
+                ':wait' => $wait
+            ]));
         }
 
         $this->cached_command_line = null;

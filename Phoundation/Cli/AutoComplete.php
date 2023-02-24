@@ -65,6 +65,39 @@ class AutoComplete
      */
     protected static string $script;
 
+    /**
+     * List of available system arguments
+     *
+     * @var array $system_arguments
+     */
+    protected static array $system_arguments = [
+            '-A,--all',
+            '-C,--no-color',
+            '-D,--debug',
+            '-E,--environment',
+            '-F,--force',
+            '-H,--help',
+            '-L,--log-level',
+            '-O,--order-by',
+            '-P,--page',
+            '-Q,--quiet',
+            '-S,--status',
+            '-T,--test',
+            '-U,--usage',
+            '-V,--verbose',
+            '-W,--no-warnings',
+            '--system-language',
+            '--deleted',
+            '--version',
+            '--limit',
+            '--timezone',
+            '--auto-complete',
+            '--show-passwords',
+            '--no-validation',
+            '--no-password-validation',
+    ];
+
+
 
     /**
      * Returns true if auto complete mode is active
@@ -91,6 +124,18 @@ class AutoComplete
 
 
     /**
+     * Get the word location for auto complete
+     *
+     * @return int|null
+     */
+    public static function getPosition(): ?int
+    {
+        return self::$position;
+    }
+
+
+
+    /**
      * Process the auto complete for command line methods
      *
      * @see https://iridakos.com/programming/2018/03/01/bash-programmable-completion-tutorial
@@ -108,8 +153,24 @@ class AutoComplete
                 die('Invalid auto complete arguments' . PHP_EOL);
             }
 
-            foreach ($data['methods'] as $method) {
-                echo $method . PHP_EOL;
+            $words = ArgvValidator::getArguments();
+            $word  = array_shift($words);
+
+            if (str_starts_with((string) $word, '-')) {
+                foreach (self::$system_arguments as $arguments) {
+                    $arguments = explode(',', $arguments);
+
+                    foreach ($arguments as $argument) {
+                        if (str_contains($argument, $word)) {
+                            echo $argument . PHP_EOL;
+                        }
+                    }
+                }
+
+            } else {
+                foreach ($data['methods'] as $method) {
+                    echo $method . PHP_EOL;
+                }
             }
 
         } elseif (self::$position > count($cli_methods)) {
@@ -121,38 +182,38 @@ class AutoComplete
             echo $cli_methods[self::$position];
 
         } else {
-            $starts   = [];
-            $contains = [];
-
+            $contains        = [];
             $argument_method = isset_get($cli_methods[self::$position], '');
 
-            if ($argument_method) {
-                foreach ($data['methods'] as $method) {
-                    if (str_starts_with($method, $argument_method)) {
-                        // A method starts with the word we try to auto complete
-                        $starts[] = $method;
-                        continue;
-                    }
+            if (!$argument_method) {
+                // There are no methods, are there modifier arguments, perhaps?
+                $arguments = ArgvValidator::getArguments();
 
+                if ($arguments) {
+                    // Get the argument from the modifier arguments list
+                    $argument_method = array_shift($arguments);
+                }
+            }
+
+            if ($argument_method) {
+                if (str_starts_with($argument_method, '-')) {
+                    // This is a system modifier argument, show the system modifier arguments instead.
+                    $data['methods'] = [];
+
+                    foreach (self::$system_arguments as $arguments) {
+                        $arguments = explode(',', $arguments);
+
+                        foreach ($arguments as $argument) {
+                            $data['methods'][] = $argument;
+                        }
+                    }
+                }
+
+                foreach ($data['methods'] as $method) {
                     if (str_contains($method, $argument_method)) {
                         // A method contains the word we try to auto complete
                         $contains[] = $method;
                     }
-                }
-
-                switch (count($starts)) {
-                    case 0:
-                        break;
-
-                    case 1:
-                        // We found a single method that starts with the word we have, we'll use that and ignore other
-                        // methods that contain the word
-                        echo array_shift($starts);
-                        $contains = [];
-                        break;
-
-                    default:
-                        $contains = array_merge($starts, $contains);
                 }
 
                 switch (count($contains)) {

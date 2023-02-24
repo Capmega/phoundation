@@ -166,7 +166,7 @@ Class Process
     public function executeReturnArray(): array
     {
         if ($this->debug) {
-            Log::printr($this->getFullCommandLine());
+            Log::printr(Strings::untilReverse($this->getFullCommandLine(), 'exit '));
         } else {
             Log::action(tr('Executing command ":command" using exec() to return an array', [
                 ':command' => $this->getFullCommandLine()
@@ -256,7 +256,7 @@ Class Process
         $commands = Strings::endsNotWith($commands, ';');
 
         if ($this->debug) {
-            Log::printr($this->getFullCommandLine());
+            Log::printr(Strings::untilReverse($this->getFullCommandLine(), 'exit '));
         } elseif (Debug::enabled()) {
             Log::action(tr('Executing command ":commands" using passthru()', [':commands' => $commands]), 2);
         }
@@ -409,9 +409,9 @@ Class Process
         // Add arguments to the command
         $this->cached_command_line = $this->command . ' ' . implode(' ', $this->arguments);
 
-        // Add wait
-        if ($this->wait) {
-            $this->cached_command_line = 'sleep ' . $this->wait . '; ' . $this->cached_command_line;
+        // Add sudo
+        if ($this->sudo) {
+            $this->cached_command_line = 'sudo -Esu ' . escapeshellarg($this->sudo) . ' ' . $this->cached_command_line;
         }
 
         // Add timeout
@@ -419,14 +419,14 @@ Class Process
             $this->cached_command_line = 'timeout --foreground ' . escapeshellarg($this->timeout) . ' ' . $this->cached_command_line;
         }
 
+        // Add wait
+        if ($this->wait) {
+            $this->cached_command_line = 'sleep ' . ($this->wait / 1000) . '; ' . $this->cached_command_line;
+        }
+
         // Execute the command in this directory
         if ($this->execution_path) {
             $this->cached_command_line = 'cd ' . escapeshellarg($this->execution_path) . '; ' . $this->cached_command_line;
-        }
-
-        // Add sudo
-        if ($this->sudo) {
-            $this->cached_command_line = 'sudo -u ' . escapeshellarg($this->sudo) . ' ' . $this->cached_command_line;
         }
 
         // Execute on a server?
