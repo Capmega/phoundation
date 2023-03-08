@@ -110,6 +110,18 @@ class Meta
 
 
     /**
+     * Returns if meta system is enabled or not
+     *
+     * @return bool
+     */
+    public static function isEnabled(): bool
+    {
+        return self::$enbabled;
+    }
+
+
+
+    /**
      * Enable meta data processing
      *
      * @return void

@@ -446,13 +446,19 @@ Class Process
 
         // Redirect command output to the specified files for the specified channels
         foreach ($this->output_redirect as $channel => $file) {
-            switch ($file[0]) {
-                case '&':
+            switch (substr($file, 0, 2)) {
+                case '>&':
+                    if ((strlen($file) !== 3) or !is_numeric($file[2])) {
+                        throw new ProcessException(tr('Invalid output redirect ":redirect" specified', [
+                            ':redirect' => $file
+                        ]));
+                    }
+
                     // Redirect to different channel
-                    $redirect = ' ' . $channel . '>&' . $file[1] . ' ';
+                    $redirect = ' ' . $channel . '>&' . $file[2] . ' ';
                     break;
 
-                case '*':
+                case '>>':
                     // Redirect to file and append
                     $file = substr($file, 1);;
                     $redirect = ' ' . $channel . '>> ' . $file;
@@ -464,6 +470,11 @@ Class Process
             }
 
             $this->cached_command_line .= $redirect;
+        }
+
+        // Redirect command input from the specified files for the specified channels
+        foreach ($this->input_redirect as $channel => $file) {
+            $this->cached_command_line .= ' <'. $channel . ' ' . $file;
         }
 
         // Background commands get some extra options around

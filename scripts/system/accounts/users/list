@@ -2,6 +2,7 @@
 <?php
 
 use Phoundation\Accounts\Users\Users;
+use Phoundation\Cli\Documentation;
 use Phoundation\Data\Validator\ArgvValidator;
 
 
@@ -16,14 +17,14 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-$usage = './cli system accounts users list [OPTIONS]
-./cli system accounts users list -d -r god';
+Documentation::usage('./cli system accounts users list [OPTIONS]
+./cli system accounts users list -d -r god');
 
 $help  = 'This script will list the available users on this system
 
 
 
-ARGUMENTS (All arguments in square brackets are optional)
+ARGUMENTS
 
 
 --domains DOMAIN[,DOMAIN,DOMAIN,...]    Will only display users for the specified domains
@@ -37,7 +38,7 @@ ARGUMENTS (All arguments in square brackets are optional)
 
 
 // Validate arguments
-ArgvValidator::new()
+$argv = ArgvValidator::new()
     ->select('--domains,--domain')->isOptional(null)->sanitizeForceArray()->each()->isDomain()
     ->select('-r,--roles,--role', true)->isOptional(null)->sanitizeForceArray()->each()->isName()
     ->select('-r,--rights,--right', true)->isOptional(null)->sanitizeForceArray()->each()->isName()

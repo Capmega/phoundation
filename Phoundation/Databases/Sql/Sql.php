@@ -3,7 +3,6 @@
 namespace Phoundation\Databases\Sql;
 
 use Exception;
-use Paging;
 use PDO;
 use PDOException;
 use PDOStatement;
@@ -12,7 +11,6 @@ use Phoundation\Cli\Script;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
-use Phoundation\Core\Exception\ConfigException;
 use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
 use Phoundation\Core\Log\Exception\LogException;
 use Phoundation\Core\Log\Log;
@@ -1500,18 +1498,16 @@ class Sql
      * @param int|null $page
      * @return string The SQL " LIMIT X, Y " string
      */
-    protected function limit(?int $limit = null, ?int $page = null): string
+    public function getLimit(?int $limit = null, ?int $page = null): string
     {
-        $limit = Paging::limit($limit);
+        $limit = Paging::getLimit($limit);
 
         if (!$limit) {
-            /*
-             * No limits, so show all
-             */
+            // No limits, so show all
             return '';
         }
 
-        return ' LIMIT ' . ((Paging::page($page) - 1) * $limit) . ', ' . $limit;
+        return ' LIMIT ' . ((Paging::getPage($page) - 1) * $limit) . ', ' . $limit;
     }
 
 

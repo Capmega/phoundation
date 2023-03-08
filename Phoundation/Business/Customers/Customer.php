@@ -18,10 +18,15 @@ use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryPhones;
 use Phoundation\Data\DataEntry\Traits\DataEntryPicture;
 use Phoundation\Data\DataEntry\Traits\DataEntryUrl;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Data\Validator\Validator;
+use Phoundation\Geo\Cities\Cities;
 use Phoundation\Geo\Countries\Countries;
 use Phoundation\Geo\Countries\Country;
 use Phoundation\Geo\States\State;
+use Phoundation\Geo\States\States;
 
 
 /**
@@ -60,7 +65,7 @@ class Customer extends DataEntry
     {
         static::$entry_name  = 'customer';
         $this->table         = 'business_customers';
-        $this->unique_column = 'seo_name';
+        $this->unique_field = 'seo_name';
 
         parent::__construct($identifier);
     }
@@ -68,12 +73,14 @@ class Customer extends DataEntry
 
 
     /**
-     * Validates the customer record with the specified validator object
+     * Validates the provider record with the specified validator object
      *
-     * @param Validator $validator
-     * @return void
+     * @param ArgvValidator|PostValidator|GetValidator $validator
+     * @param bool $no_arguments_left
+     * @param bool $modify
+     * @return array
      */
-    public static function validate(Validator $validator): void
+    protected function validate(ArgvValidator|PostValidator|GetValidator $validator, bool $no_arguments_left = false, bool $modify = false): array
     {
         $validator->hasMaxCharacters()
             ->select('name')->isOptional()->isName()
@@ -150,69 +157,154 @@ class Customer extends DataEntry
     /**
      * Sets the available data keys for the User class
      *
-     * @return void
+     * @return array
      */
-    protected function setKeys(): void
+    public static function getFieldDefinitions(): array
     {
-        $this->keys = [
+        return [
+            'country' => [
+                'complete' => [
+                    'word'   => function($word) { return Countries::new()->filteredList($word); },
+                    'noword' => function()      { return Countries::new()->list(); },
+                ],
+                'virtual'    => true,
+                'cli'        => '--country COUNTRY-NAME',
+                'help_group' => tr('Location information'),
+                'help'       => tr('The country where this customer is located'),
+            ],
+            'state' => [
+                'complete' => [
+                    'word'   => function($word) { return States::new()->filteredList($word); },
+                    'noword' => function()      { return States::new()->list(); },
+                ],
+                'virtual'    => true,
+                'cli'        => '--state STATE-NAME',
+                'help_group' => tr('Location information'),
+                'help'       => tr('The state where this customer is located'),
+            ],
+            'city' => [
+                'complete' => [
+                    'word'   => function($word) { return Cities::new()->filteredList($word); },
+                    'noword' => function()      { return Cities::new()->list(); },
+                ],
+                'virtual'    => true,
+                'cli'        => '--city CITY-NAME',
+                'help_group' => tr('Location information'),
+                'help'       => tr('The city where this customer is located'),
+            ],
+            'category' => [
+                'complete' => [
+                    'word'   => function($word) { return Categories::new()->filteredList($word); },
+                    'noword' => function()      { return Categories::new()->list(); },
+                ],
+                'virtual'    => true,
+                'cli'        => '--category CATEGORY-NAME',
+                'help_group' => tr('Organisation information'),
+                'help'       => tr('The category under which this customer is organized'),
+            ],
+            'company' => [
+                'complete' => [
+                    'word'   => function($word) { return Companies::new()->filteredList($word); },
+                    'noword' => function()      { return Companies::new()->list(); },
+                ],
+                'virtual'    => true,
+                'cli'        => '--company COMPANY-NAME',
+                'help_group' => tr('Organisation information'),
+                'help'       => tr('The language in which the site will be displayed to the user'),
+            ],
+            'language' => [
+                'complete' => [
+                    'word'   => function($word) { return Languages::new()->filteredList($word); },
+                    'noword' => function()      { return Languages::new()->list(); },
+                ],
+                'virtual'    => true,
+                'cli'        => '-l,--language LANGUAGE-NAME',
+                'help_group' => tr('Location information'),
+                'help'       => tr('The language in which the site will be displayed to the user'),
+            ],
             'name' => [
-                'label'    => tr('Name')
+                'required'   => true,
+                'complete'   => true,
+                'cli'        => '-n,--name NAME',
+                'size'       => 6,
+                'maxlength'  => 64,
+                'label'      => tr('Name'),
+                'help_group' => tr('Identification'),
+                'help'       => tr('The name for this customer'),
             ],
             'seo_name' => [
                 'display'  => false
             ],
             'code' => [
-                'label'    => tr('Code')
+                'complete'   => true,
+                'cli'        => '-c,--code CODE',
+                'size'       => 6,
+                'maxlength'  => 64,
+                'label'      => tr('Code'),
+                'help_group' => tr('Identification'),
+                'help'       => tr('The unique code for this customer'),
             ],
             'email' => [
-                'label'    => tr('Email'),
-                'type'     => 'email'
+                'complete'   => true,
+                'type'       => 'email',
+                'cli'        => '-e,--email CODE',
+                'size'       => 6,
+                'maxlength'  => 128,
+                'label'      => tr('Email'),
+                'help_group' => tr('Contact'),
+                'help'       => tr('The contact email for this customer'),
             ],
             'phones' => [
-                'label'    => tr('Phones')
+                'complete'   => true,
+                'cli'        => '-p,--phones PHONE,PHONE',
+                'size'       => 6,
+                'maxlength'  => 64,
+                'label'      => tr('Phones'),
+                'help_group' => tr('Contact'),
+                'help'       => tr('The customer phone number(s)'),
             ],
             'picture' => [
                 'display'  => false
             ],
             'url' => [
-                'label'    => tr('Url'),
-                'type'     => 'url',
+                'complete'   => true,
+                'cli'        => '-u,--url URL',
+                'size'       => 6,
+                'maxlength'  => 2048,
+                'label'      => tr('URL'),
+                'help'       => tr('A URL with more information about this customer'),
             ],
-            'address' => [
-                'label'     => tr('Address 1')
+            'address1' => [
+                'complete'  => true,
+                'cli'       => '--address1 URL',
+                'size'      => 12,
+                'maxlength' => 64,
+                'label'     => tr('Address 1'),
+                'help'      => tr('Address information for this customer'),
             ],
             'address2' => [
-                'label'     => tr('Address 2')
+                'complete'  => true,
+                'cli'       => '--address2 URL',
+                'size'      => 12,
+                'maxlength' => 64,
+                'label'     => tr('Address 2'),
+                'help'      => tr('Address information for this customer'),
             ],
             'address3' => [
-                'label'     => tr('Address 3')
+                'complete'  => true,
+                'cli'       => '--address3 URL',
+                'size'      => 6,
+                'maxlength' => 64,
+                'label'     => tr('Address 3'),
+                'help'      => tr('Address information for this customer'),
             ],
             'zipcode' => [
-                'label'     => tr('Postal code')
-            ],
-            'categories_id' => [
-                'element'  => function (string $key, array $data, array $source) {
-                    return Categories::getHtmlSelect($key)
-                        ->setSelected(isset_get($source['categories_id']))
-                        ->render();
-                },
-                'label'    => tr('Category'),
-            ],
-            'companies_id' => [
-                'element'  => function (string $key, array $data, array $source) {
-                    return Companies::getHtmlSelect($key)
-                        ->setSelected(isset_get($source['companies_id']))
-                        ->render();
-                },
-                'label'    => tr('Company'),
-            ],
-            'languages_id' => [
-                'element'  => function (string $key, array $data, array $source) {
-                    return Languages::getHtmlSelect($key)
-                        ->setSelected(isset_get($source['languages_id']))
-                        ->render();
-                },
-                'label'    => tr('Language'),
+                'complete'  => true,
+                'cli'       => '--address3 URL',
+                'size'      => 6,
+                'maxlength' => 8,
+                'label'     => tr('Postal code'),
+                'help'      => tr('Postal code (zipcode) information for this customer'),
             ],
             'countries_id' => [
                 'element'  => function (string $key, array $data, array $source) {
@@ -220,7 +312,12 @@ class Customer extends DataEntry
                         ->setSelected(isset_get($source['countries_id']))
                         ->render();
                 },
-                'label'    => tr('Country')
+                'cli'        => '--countries-id',
+                'complete'   => true,
+                'label'      => tr('Country'),
+                'size'       => 4,
+                'help_group' => tr('Location information'),
+                'help'       => tr('The database id of the country where this customer is located'),
             ],
             'states_id' => [
                 'element'  => function (string $key, array $data, array $source) {
@@ -228,7 +325,12 @@ class Customer extends DataEntry
                         ->setSelected(isset_get($source['states_id']))
                         ->render();
                 },
-                'label'    => tr('State'),
+                'cli'        => '--states-id',
+                'complete'   => true,
+                'label'      => tr('State'),
+                'size'       => 4,
+                'help_group' => tr('Location information'),
+                'help'       => tr('The database id of the state where this customer is located'),
             ],
             'cities_id' => [
                 'element'  => function (string $key, array $data, array $source) {
@@ -236,33 +338,62 @@ class Customer extends DataEntry
                         ->setSelected(isset_get($source['cities_id']))
                         ->render();
                 },
-                'label'    => tr('City'),
+                'cli'        => '--companies-id',
+                'complete'   => true,
+                'label'      => tr('City'),
+                'size'       => 4,
+                'help_group' => tr('Location information'),
+                'help'       => tr('The database id of the country where this customer is located'),
+            ],
+            'categories_id' => [
+                'element'  => function (string $key, array $data, array $source) {
+                    return Categories::getHtmlSelect($key)
+                        ->setSelected(isset_get($source['categories_id']))
+                        ->render();
+                },
+                'cli'        => '--categories-id',
+                'complete'   => true,
+                'label'      => tr('Category'),
+                'size'       => 4,
+                'help_group' => tr('Location information'),
+                'help'       => tr('The database id of the category under which this customer is organized'),
+            ],
+            'companies_id' => [
+                'element'  => function (string $key, array $data, array $source) {
+                    return Companies::getHtmlSelect($key)
+                        ->setSelected(isset_get($source['companies_id']))
+                        ->render();
+                },
+                'cli'        => '--companies-id',
+                'complete'   => true,
+                'label'      => tr('Company'),
+                'size'       => 4,
+                'help_group' => tr('Organisation information'),
+                'help'       => tr('The database id of the company that is linked to this organization'),
+            ],
+            'languages_id' => [
+                'element'  => function (string $key, array $data, array $source) {
+                    return Languages::getHtmlSelect($key)
+                        ->setSelected(isset_get($source['languages_id']))
+                        ->render();
+                },
+                'cli'        => '--languages-id',
+                'complete'   => true,
+                'label'      => tr('Language'),
+                'size'       => 4,
+                'help_group' => tr('Location information'),
+                'help'       => tr('The language in which the site will be displayed to the user'),
             ],
             'description' => [
-                'element'  => 'text',
-                'label'    => tr('Description'),
+                'element'    => 'text',
+                'cli'        => '-d,--description',
+                'complete'   => true,
+                'label'      => tr('Description'),
+                'maxlength'  => 65_535,
+                'size'       => 12,
+                'help_group' => tr('Account information'),
+                'help'       => tr('A description about this user'),
             ],
         ];
-
-        $this->keys_display = [
-            'name'          => 6,
-            'code'          => 6,
-            'email'         => 6,
-            'phones'        => 6,
-            'url'           => 12,
-            'address'       => 12,
-            'address2'      => 12,
-            'address3'      => 6,
-            'zipcode'       => 6,
-            'categories_id' => 6,
-            'companies_id'  => 6,
-            'languages_id'  => 6,
-            'countries_id'  => 6,
-            'states_id'     => 6,
-            'cities_id'     => 6,
-            'description'   => 12,
-        ] ;
-
-        parent::setKeys();
     }
 }

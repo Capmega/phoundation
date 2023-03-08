@@ -31,43 +31,8 @@ if (Page::isPostRequestMethod()) {
     try {
         switch (PostValidator::getSubmitButton()) {
             case tr('Submit'):
-                PostValidator::new()
-                    ->select('username')->isOptional()->isName()
-                    ->select('domain')->isOptional()->isDomain()
-                    ->select('title')->isOptional()->isName()
-                    ->select('first_names')->isOptional()->isName()
-                    ->select('last_names')->isOptional()->isName()
-                    ->select('nickname')->isOptional()->isName()
-                    ->select('email')->isEmail()
-                    ->select('type')->isOptional()->isName()
-                    ->select('keywords')->isOptional()->hasMaxCharacters(255)
-                    ->select('phones')->isOptional()->hasMinCharacters(10)->hasMaxCharacters(64)
-//                    ->select('keywords')->isOptional()->hasMaxCharacters(255)->sanitizeForceArray(' ')->each()->isWord()->sanitizeForceString()
-//                    ->select('phones')->isOptional()->hasMinCharacters(10)->hasMaxCharacters(64)->sanitizeForceArray(',')->each()->isPhone()->sanitizeForceString()
-                    ->select('address')->isOptional()->isPrintable()
-                    ->select('priority')->isOptional()->isNatural()->isBetween(1, 10)
-                    ->select('is_leader')->isOptional()->isBoolean()
-                    ->select('leaders_id')->isOptional()->isId()
-                    ->select('latitude')->isOptional()->isLatitude()
-                    ->select('longitude')->isOptional()->isLongitude()
-                    ->select('accuracy')->isOptional()->isFloat()->isBetween(0, 10)
-                    ->select('countries_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':id' => '$countries_id'])
-                    ->select('states_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_states` WHERE `id` = :id AND `countries_id` = :countries_id AND `status` IS NULL', [':id' => 'states_id', ':countries_id' => '$countries_id'])
-                    ->select('cities_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_cities` WHERE `id` = :id AND `states_id`    = :states_id    AND `status` IS NULL', [':id' => 'cities_id', ':states_id'    => '$states_id'])
-                    ->select('languages_id')->isId()->isQueryColumn('SELECT `id` FROM `languages` WHERE `id` = :id AND `status` IS NULL', [':id' => '$languages_id'])
-                    ->select('redirect')->isOptional()->isUrl()
-                    ->select('gender')->isOptional()->inArray(['unknown', 'male', 'female', 'other'])
-                    ->select('birthday')->isOptional()->isDate()
-                    ->select('description')->isOptional()->isPrintable()->hasMaxCharacters(65_530)
-                    ->select('comments')->isOptional()->isPrintable()->hasMaxCharacters(16_777_200)
-                    ->select('url')->isOptional()->isUrl()
-                    ->select('timezone')->isOptional()->isTimezone()
-                    ->validate();
-
                 // Update user
-                $user = User::get($_GET['id']);
-                $user->modify($_POST);
-                $user->save();
+                $user->modify();
 
                 // Go back to where we came from
 // TODO Implement timers
@@ -91,6 +56,7 @@ if (Page::isPostRequestMethod()) {
                 Page::getFlashMessages()->add(tr('Success'), tr('The user ":user" has been undeleted', [':user' => $user->getDisplayName()]), 'success');
                 Page::redirect();
         }
+
     } catch (IncidentsException|ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
         Page::getFlashMessages()->add($e);

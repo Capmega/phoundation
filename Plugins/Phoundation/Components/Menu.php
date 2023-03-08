@@ -85,7 +85,7 @@ class Menu extends \Phoundation\Web\Http\Html\Components\Menu
                 'menu' => [
                     tr('Plugins') => [
                         'rights' => 'plugins',
-                        'url'    => '/project/plugins.html',
+                        'url'    => '/development/plugins.html',
                         'icon'   => 'fa-key'
                     ],
                     tr('Developer incidents') => [

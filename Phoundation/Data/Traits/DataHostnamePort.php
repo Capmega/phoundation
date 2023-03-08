@@ -1,32 +1,33 @@
 <?php
 
-namespace Phoundation\Data\DataEntry\Traits;
+namespace Phoundation\Data\Traits;
 
-
-
-use Phoundation\Seo\Seo;
 
 /**
- * Trait DataEntryHostnamePort
+ * Trait DataHostnamePort
  *
- * This trait contains methods for DataEntry objects that requires a url
+ *
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-trait DataEntryHostnamePort
+trait DataHostnamePort
 {
     /**
-     * Returns the SEO hostname for this object
+     * The hostname for this object
      *
-     * @return string|null
+     * @var string|null $hostname
      */
-    public function getSeoHostname(): ?string
-    {
-        return $this->getDataValue('seo_hostname');
-    }
+    protected ?string $hostname = null;
+
+    /**
+     * The port for this hostname
+     *
+     * @var int|null $port
+     */
+    protected ?int $port = null;
 
 
 
@@ -37,7 +38,7 @@ trait DataEntryHostnamePort
      */
     public function getHostname(): ?string
     {
-        return $this->getDataValue('hostname');
+        return $this->hostname;
     }
 
 
@@ -50,14 +51,8 @@ trait DataEntryHostnamePort
      */
     public function setHostname(?string $hostname): static
     {
-        if ($hostname === null) {
-            $this->setDataValue('seo_hostname', null);
-        } else {
-            $seo_hostname = Seo::unique($hostname, $this->table, $this->getDataValue('id'), $this->unique_field);
-            $this->setDataValue('seo_hostname', $seo_hostname);
-        }
-
-        return $this->setDataValue('hostname', $hostname);
+        $this->hostname = $hostname;
+        return $this;
     }
 
 
@@ -69,7 +64,7 @@ trait DataEntryHostnamePort
      */
     public function getPort(): ?string
     {
-        return $this->getDataValue('port');
+        return $this->port;
     }
 
 
@@ -82,6 +77,7 @@ trait DataEntryHostnamePort
      */
     public function setPort(?string $port): static
     {
-        return $this->setDataValue('port', $port);
+        $this->port = $port;
+        return $this;
     }
 }

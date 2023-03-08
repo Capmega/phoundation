@@ -7,17 +7,24 @@ use Exception;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Accounts\Users\Users;
 use Phoundation\Cli\Cli;
+use Phoundation\Cli\Color;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Meta;
+use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\Enums\StateMismatchHandling;
 use Phoundation\Data\DataEntry\Exception\DataEntryAlreadyExistsException;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntry\Exception\DataEntryStateMismatchException;
 use Phoundation\Data\Traits\DataDebug;
+use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Data\Validator\Validator;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Network\Curl\Post;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Components\DataEntryForm;
@@ -40,6 +47,7 @@ abstract class DataEntry
     use DataDebug;
 
 
+
     /**
      * The label name for this data entry, used in errors, etc
      *
@@ -56,20 +64,6 @@ abstract class DataEntry
     protected string $table;
 
     /**
-     * The unique column identifier, next to id
-     *
-     * @var string $unique_column
-     */
-    protected string $unique_column = 'seo_name';
-
-    /**
-     * Default protected keys, keys that may not leave this object
-     *
-     * @var array|string[]
-     */
-    protected array $protected_keys = ['password', 'key'];
-
-    /**
      * Contains the data for all information of this data entry
      *
      * @var array $data
@@ -79,23 +73,58 @@ abstract class DataEntry
     /**
      * Meta information about the keys in this DataEntry
      *
-     * @var array $keys
+     * @var array $fields
      */
-    protected array $keys = [];
+    protected array $fields = [];
+
+    /**
+     * If specified, will define alternative field names, mostly used for command line field name definitions
+     *
+     * @var array|null
+     */
+    protected ?array $cli_fields = null;
+
+    /**
+     * The unique column identifier, next to id
+     *
+     * @var string $unique_field
+     */
+    protected string $unique_field = 'seo_name';
+
+    /**
+     * Default protected keys, keys that may not leave this object
+     *
+     * @var array|string[]
+     */
+    protected array $protected_fields = ['password', 'key'];
 
     /**
      * Meta information about how the keys will be displayed on forms
      *
-     * @var array $keys_display
+     * @var array $field_display
      */
-    protected array $keys_display = [];
+    protected array $field_display = [];
+
+    /**
+     * These keys should not ever be processed
+     *
+     * @var array $meta_fields
+     */
+    protected array $meta_fields = [
+        'id',
+        'created_by',
+        'created_on',
+        'status',
+        'meta_id',
+        'meta_state',
+    ];
 
     /**
      * Columns that will NOT be inserted
      *
-     * @var array $remove_columns_on_insert
+     * @var array $fields_filter_on_insert
      */
-    protected array $remove_columns_on_insert = ['id'];
+    protected array $fields_filter_on_insert = ['id'];
 
     /**
      * A list with optional linked other DataEntry objects
@@ -119,20 +148,6 @@ abstract class DataEntry
     protected ?string $diff = null;
 
     /**
-     * These keys should not be processed
-     *
-     * @var array $no_process_keys
-     */
-    protected array $no_process_keys = [
-        'id',
-        'created_by',
-        'created_on',
-        'status',
-        'meta_id',
-        'meta_state',
-    ];
-
-    /**
      * If true, set configuration to display meta data
      *
      * @var bool $display_meta
@@ -146,6 +161,7 @@ abstract class DataEntry
      * @var bool $user_modifying
      */
     protected bool $user_modifying = false;
+
 
 
     /**
@@ -167,13 +183,13 @@ abstract class DataEntry
             ]));
         }
 
-        if (empty($this->unique_column)) {
+        if (empty($this->unique_field)) {
             throw new OutOfBoundsException(tr('No unique_column specified for class ":class"', [
                 ':class' => get_class($this)
             ]));
         }
 
-        $this->setKeys();
+        $this->fields = static::getAllFieldDefinitions();
 
         if ($identifier) {
             if (is_numeric($identifier)) {
@@ -183,7 +199,7 @@ abstract class DataEntry
                 $this->data['id'] = $identifier->getId();
 
             } else {
-                $this->data[$this->unique_column] = $identifier;
+                $this->data[$this->unique_field] = $identifier;
             }
 
             $this->load($identifier);
@@ -217,10 +233,10 @@ abstract class DataEntry
     }
 
 
-
     /**
      * Returns a new DataEntry object
      *
+     * @param DataEntry|string|int|null $identifier
      * @return static
      */
     public static function new(DataEntry|string|int|null $identifier = null): static
@@ -228,6 +244,118 @@ abstract class DataEntry
         return new static($identifier);
     }
 
+
+    /**
+     * Returns a help file generated from the DataEntry keys
+     *
+     * @param array $auto_complete
+     * @return array
+     */
+    public static function getAutoComplete(array $auto_complete = []): array
+    {
+        $arguments = [];
+
+        // Extract auto complete for cli parameters from field definitions
+        foreach (static::getFieldDefinitions() as $definitions) {
+            if (isset($definitions['cli']) and isset($definitions['complete'])) {
+                $arguments[$definitions['cli']] = $definitions['complete'];
+            }
+        }
+
+        // Merge and return found auto complete parameters with specified auto complete parameters
+        return array_merge_recursive($auto_complete, [
+            'arguments' => $arguments
+        ]);
+    }
+
+
+    /**
+     * Returns a translation table between CLI arguments and internal fields
+     *
+     * @note This methods uses internal caching, the second request will be a cached result
+     * @return array
+     */
+    public function getCliFields(): array
+    {
+        static $return = null;
+
+        if (!$return) {
+            $return = [];
+
+            foreach ($this->fields as $field => $definitions) {
+                if (isset_get($definitions['cli'])) {
+                    $return[$field] = $definitions['cli'];
+                }
+            }
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Returns a help text generated from this DataEntry's field information
+     *
+     * The help text will contain help information for each field as defined in DataEntry::fields. Since this help text
+     * is for the command line, field names will be translated to their command line argument counterparts (so instead
+     * of "name" it would show "-n,--name")
+     *
+     * @param string|null $help
+     * @return string
+     */
+    public static function getHelp(?string $help = null): string
+    {
+        if ($help) {
+            $help = trim($help);
+            $help = preg_replace('/ARGUMENTS/', Color::apply(strtoupper(tr('ARGUMENTS')), 'white'), $help);
+        }
+
+        $groups     = [];
+        $entry      = static::new();
+        $fields     = $entry->getFields();
+        $alternates = $entry->getCliFields();
+        $return     = PHP_EOL . PHP_EOL . PHP_EOL . PHP_EOL . Color::apply(strtoupper(tr('REQUIRED ARGUMENTS')), 'white');
+
+        // Get the required fields and gather a list of available help groups
+        foreach ($fields as $key => $data) {
+            if (isset_get($data['required'])) {
+                unset($fields[$key]);
+                $return .= PHP_EOL . PHP_EOL . Strings::size(trim(isset_get($alternates[$key], $key)), 39) . ' ' . trim(isset_get($data['help']));
+            }
+
+            $groups[isset_get($data['help_group'])] = true;
+        }
+
+        // Get the fields and group them by help_group
+        foreach ($groups as $group => $nothing) {
+            $body = '';
+
+            if ($group) {
+                $header = PHP_EOL . PHP_EOL . PHP_EOL . PHP_EOL . Color::apply(strtoupper(trim($group)), 'white');
+            } else {
+                $header = PHP_EOL . PHP_EOL . PHP_EOL . PHP_EOL . Color::apply(strtoupper(tr('Miscellaneous information')), 'white');
+            }
+
+            foreach ($fields as $key => $data) {
+                if (isset_get($data['help_group']) === $group) {
+                    unset($fields[$key]);
+                    $body .=  PHP_EOL . PHP_EOL . Strings::size(isset_get($alternates[$key], $key), 39) . ' ' . isset_get($data['help']);
+                }
+            }
+
+            if ($group) {
+                if ($body) {
+                    // There is body text, add the header and body to the return text
+                    $return .= $header . $body;
+                }
+            } else {
+                $miscellaneous = $header . $body;
+            }
+        }
+
+        // Get the fields that have no group
+        return $help . $return . isset_get($miscellaneous) . PHP_EOL;
+    }
 
 
     /**
@@ -407,7 +535,7 @@ abstract class DataEntry
      */
     public function getLogId(): string
     {
-        return $this->getDataValue('id') . ' / ' . $this->getDataValue($this->unique_column);
+        return $this->getDataValue('id') . ' / ' . $this->getDataValue($this->unique_field);
     }
 
 
@@ -472,7 +600,6 @@ abstract class DataEntry
      */
     public function delete(?string $comments = null): static
     {
-        showdie('FIX SET STATUS!');
         return $this->setStatus('deleted', $comments);
     }
 
@@ -486,8 +613,20 @@ abstract class DataEntry
      */
     public function undelete(?string $comments = null): static
     {
-        showdie('FIX SET STATUS!');
         return $this->setStatus(null, $comments);
+    }
+
+
+
+    /**
+     * Erase this DataEntry from the database
+     *
+     * @return static
+     */
+    public function erase(): static
+    {
+        sql()->erase('users', ['id' => $this->getId()]);
+        return $this;
     }
 
 
@@ -573,38 +712,58 @@ abstract class DataEntry
     }
 
 
-
     /**
      * Create the data for this object with the new specified data
      *
      * @param array|null $data
+     * @param bool $no_arguments_left
      * @return static
-     * @throws OutOfBoundsException
      */
-    public function create(?array &$data): static
+    public function create(?array $data = null, bool $no_arguments_left = false): static
     {
         $this->user_modifying = true;
+
+        if (!is_object($data)) {
+            if (PLATFORM_HTTP) {
+                // Validator was specified,
+                $data = $this->validate(PostValidator::new(), $no_arguments_left);
+            } else {
+                // Validator was specified,
+                $this->setCliFields();
+                $data = $this->validate(ArgvValidator::new(), $no_arguments_left);
+            }
+        }
 
         $this
             ->setDiff($data)
             ->setData($data)
             ->user_modifying = false;
 
-        return $this;
+        return $this->save();
     }
-
 
 
     /**
      * Modify the data for this object with the new specified data
      *
      * @param array|null $data
+     * @param bool $no_arguments_left
      * @return static
-     * @throws OutOfBoundsException
      */
-    public function modify(?array &$data): static
+    public function modify(?array $data = null, bool $no_arguments_left = false): static
     {
         $this->user_modifying = true;
+
+        if (!is_object($data)) {
+            if (PLATFORM_HTTP) {
+                // Validator was specified,
+                $data = $this->validate(PostValidator::new(), $no_arguments_left);
+            } else {
+                // Validator was specified,
+                $this->setCliFields();
+                $data = $this->validate(ArgvValidator::new(), $no_arguments_left);
+            }
+        }
 
         // Check meta state
         if ($this->getMetaState()) {
@@ -638,64 +797,68 @@ abstract class DataEntry
             ->setData($data, true)
             ->user_modifying = false;
 
-        return $this;
+        return $this->save();
     }
 
 
 
     /**
-     * Generate diff data that can be used by the meta system
+     * Generate diff data that will be stored and used by the meta system
      *
      * @param array|null $data
      * @return static
      */
     protected function setDiff(?array $data): static
     {
-        if ($data === null) {
-            $diff = [
-                'from' => [],
-                'to'   => $this->data
-            ];
-        } else {
-            $diff = [
-                'from' => [],
-                'to'   => []
-            ];
+        if (Meta::isEnabled()) {
+            if ($data === null) {
+                $diff = [
+                    'from' => [],
+                    'to'   => $this->data
+                ];
+            } else {
+                $diff = [
+                    'from' => [],
+                    'to'   => []
+                ];
 
-            // Check all keys and register changes
-            foreach ($this->keys as $key => $definition) {
-                if (isset_get($this->keys[$key]['readonly']) or isset_get($this->keys[$key]['disabled'])) {
-                    continue;
-                }
+                // Check all keys and register changes
+                foreach ($this->fields as $key => $definition) {
+                    if (isset_get($this->fields[$key]['readonly']) or isset_get($this->fields[$key]['disabled'])) {
+                        continue;
+                    }
 
-                if (in_array($key, $this->no_process_keys)) {
-                    continue;
-                }
+                    if (in_array($key, $this->meta_fields)) {
+                        continue;
+                    }
 
-                if (isset_get($data[$key]) === null) {
-                    continue;
-                }
+                    if (isset_get($data[$key]) === null) {
+                        continue;
+                    }
 
-                if (isset_get($this->data[$key]) != isset_get($data[$key])) {
-                    // If both records were empty (from NULL to 0 for example) then don't register
-                    if ($this->data[$key] or $data[$key]) {
-                        $diff['from'][$key] = (string) $this->data[$key];
-                        $diff['to'][$key]   = (string) $data[$key];
+                    if (isset_get($this->data[$key]) != isset_get($data[$key])) {
+                        // If both records were empty (from NULL to 0 for example) then don't register
+                        if ($this->data[$key] or $data[$key]) {
+                            $diff['from'][$key] = (string) $this->data[$key];
+                            $diff['to'][$key]   = (string) $data[$key];
+                        }
                     }
                 }
             }
-        }
 
-        try {
-            // Truncate the diff to 64K for storage
-            $this->diff = Json::encodeTruncateToMaxSize($diff, 65530);
+            try {
+                // Truncate the diff to 64K for storage
+                $this->diff = Json::encodeTruncateToMaxSize($diff, 65530);
 
-        } catch (Exception|Throwable $e) {
-            // Just in case the truncated JSON encoding somehow failed, make sure we can continue!
-            Notification::new($e)
-                ->log()->send();
+            } catch (Exception|Throwable $e) {
+                // Just in case the truncated JSON encoding somehow failed, make sure we can continue!
+                Notification::new($e)
+                    ->log()->send();
 
-            $this->diff = tr('FAILED TO ENCODE DATA DIFF, SEE SYSTEM LOGS');
+                $this->diff = tr('FAILED TO ENCODE DATA DIFF, SEE SYSTEM LOGS');
+            }
+        } else {
+            $this->diff = null;
         }
 
         return $this;
@@ -717,15 +880,15 @@ abstract class DataEntry
             return $this;
         }
 
-        if (empty($this->keys)) {
+        if (empty($this->fields)) {
             throw new OutOfBoundsException(tr('Data keys were not defined for this ":class" class', [
                 ':class' => gettype($this)
             ]));
         }
 
         foreach ($data as $key => $value) {
-            // These keys cannot be set through setData()
-            if (in_array($key, $this->no_process_keys)) {
+            // Meta keys cannot be set through DataEntry::setData()
+            if (in_array($key, $this->meta_fields)) {
                 continue;
             }
 
@@ -739,13 +902,13 @@ abstract class DataEntry
                     $this->setPasswordDirectly($value);
                     continue 2;
 
-                case $this->unique_column:
+                case $this->unique_field:
                     // Store this data directly
                     if ($modify) {
                         continue 2;
                     }
 
-                    $this->setDataValue($this->unique_column, $value);
+                    $this->setDataValue($this->unique_field, $value);
                     continue 2;
             }
 
@@ -768,9 +931,9 @@ abstract class DataEntry
      *
      * @return array
      */
-    public function getProtectedKeys(): array
+    public function getProtectedFields(): array
     {
-        return $this->protected_keys;
+        return $this->protected_fields;
     }
 
 
@@ -800,7 +963,7 @@ abstract class DataEntry
      */
     protected function addProtectedKey(string $key): static
     {
-        $this->protected_keys[] = $key;
+        $this->protected_fields[] = $key;
         return $this;
     }
 
@@ -815,7 +978,7 @@ abstract class DataEntry
      */
     public function getData(): array
     {
-        return Arrays::remove($this->data, $this->protected_keys);
+        return Arrays::remove($this->data, $this->protected_fields);
     }
 
 
@@ -829,19 +992,17 @@ abstract class DataEntry
      */
     protected function setMetaData(?array $data = null): static
     {
-        $this->data['id']         = null;
-        $this->data['created_by'] = null;
-        $this->data['created_on'] = null;
-        $this->data['meta_id']    = null;
-        $this->data['meta_state'] = null;
-        $this->data['status']     = null;
+        // Reset meta fields
+        foreach ($this->meta_fields as $field) {
+            $this->data[$field] = null;
+        }
 
         if ($data === null) {
             // No data set
             return $this;
         }
 
-        if (empty($this->keys)) {
+        if (empty($this->fields)) {
             throw new OutOfBoundsException(tr('Data keys were not defined for this ":class" class', [
                 ':class' => gettype($this)
             ]));
@@ -849,25 +1010,12 @@ abstract class DataEntry
 
         foreach ($data as $key => $value) {
             // Only these keys will be set through setMetaData()
-            switch ($key) {
-                case 'id':
-                    // no-break
-                case 'created_by':
-                    // no-break
-                case 'created_on':
-                    // no-break
-                case 'status':
-                    // no-break
-                case 'meta_id':
-                    // no-break
-                case 'meta_state':
-                    // Store the meta data
-                    $this->data[$key] = $value;
-
-                default:
-                    // Go to next key
-                    continue 2;
+            if (!in_array($key, $this->meta_fields)) {
+                continue;
             }
+
+            // Store the meta data
+            $this->data[$key] = $value;
         }
 
         return $this;
@@ -885,17 +1033,17 @@ abstract class DataEntry
     protected function setDataValue(string $key, mixed $value, bool $force = false): static
     {
         // Only save values that are defined for this object
-        if (array_key_exists($key, $this->keys)) {
-            // Skip any non-processable keys like id, created_on, meta_id, etc etc etc..
-            if (!in_array($key, $this->no_process_keys)) {
+        if (array_key_exists($key, $this->fields)) {
+            // Skip all meta fields like id, created_on, meta_id, etc etc etc..
+            if (!in_array($key, $this->meta_fields)) {
                 // If the key is defined as readonly or disabled, it cannot be updated!
-                if ($force or (!$this->user_modifying or (empty($this->keys[$key]['readonly']) and empty($this->keys[$key]['disabled'])))) {
+                if ($force or (!$this->user_modifying or (empty($this->fields[$key]['readonly']) and empty($this->fields[$key]['disabled'])))) {
                     // Don't update keys with NULL values
                     if ($value !== null) {
                         // If the value is considered empty, however, it might be forced to NULL
                         if (!$value) {
                             //  By default, all columns with empty values will be pushed to NULL unless specified otherwise
-                            if (!array_key_exists('db_null', $this->keys[$key]) or $this->keys[$key]['db_null'] !== false) {
+                            if (!array_key_exists('db_null', $this->fields[$key]) or $this->fields[$key]['db_null'] !== false) {
                                 // Force the data value to NULL
                                 $value = null;
                             }
@@ -959,7 +1107,7 @@ abstract class DataEntry
      */
     protected function checkProtected(string $key): void
     {
-        if (in_array($key, $this->protected_keys)) {
+        if (in_array($key, $this->protected_fields)) {
             throw new OutOfBoundsException(tr('Specified DataValue key ":key" is protected and cannot be accessed', [
                 ':key' => $key
             ]));
@@ -986,14 +1134,37 @@ abstract class DataEntry
 
 
     /**
+     * Only return columns that actually contain data
+     *
+     * @return array
+     */
+    protected function getDataColumns(): array
+    {
+        $return = [];
+
+        foreach ($this->fields as $field => $definitions) {
+            if (isset_get($definitions['virtual'])) {
+                // This is a virtual column, ignore it.
+                continue;
+            }
+
+            $return[$field] = isset_get($this->data[$field]);
+        }
+
+        return $return;
+    }
+
+
+
+    /**
      * Returns the data to add for an SQL insert
      *
      * @return array
      */
     protected function getInsertColumns(): array
     {
-        $return = Arrays::remove($this->data, $this->remove_columns_on_insert);
-        $return = Arrays::keep($return, array_keys($this->keys));
+        $return = $this->getDataColumns();
+        $return = Arrays::remove($return, $this->fields_filter_on_insert);
 
         return $return;
     }
@@ -1007,7 +1178,7 @@ abstract class DataEntry
      */
     protected function getUpdateColumns(): array
     {
-        return Arrays::keep($this->data, array_keys($this->keys));
+        return $this->getDataColumns();
     }
 
 
@@ -1020,16 +1191,13 @@ abstract class DataEntry
      */
     public function save(?string $comments = null): static
     {
-        // Validate keys
-        $this->validateData();
+        // Apply defaults
+        $this->applyDefaults();
 
         // Build diff if inserting
         if (!$this->getId()) {
             $this->setDiff(null);
         }
-
-        // Apply defaults
-        $this->applyDefaults();
 
         // Debug this specific entry?
         if ($this->debug) {
@@ -1076,31 +1244,20 @@ abstract class DataEntry
     {
         return DataEntryForm::new()
             ->setSource($this->data)
-            ->setKeys($this->keys)
-            ->setKeysDisplay($this->keys_display);
+            ->setKeys($this->fields)
+            ->setKeysDisplay($this->field_display);
     }
-
 
 
     /**
-     * Load all object data from database
+     * Returns the key definitions for this DataEntry object
      *
-     * @param string|int $identifier
-     * @return void
+     * @return array
      */
-    protected function load(string|int $identifier): void
+    protected function getFields(): array
     {
-        if (is_numeric($identifier)) {
-            $data = sql()->get('SELECT * FROM `' . $this->table . '` WHERE `id`                           = :id'                     , [':id'                     => $identifier]);
-        } else {
-            $data = sql()->get('SELECT * FROM `' . $this->table . '` WHERE `' . $this->unique_column . '` = :' . $this->unique_column, [':'. $this->unique_column => $identifier]);
-        }
-
-        // Store all data in the object
-        $this->setMetaData($data);
-        $this->setData($data);
+        return $this->fields;
     }
-
 
 
     /**
@@ -1112,7 +1269,7 @@ abstract class DataEntry
      */
     public function modifyKeys(string $form_key, array $settings): static
     {
-        if (!array_key_exists($form_key, $this->keys)) {
+        if (!array_key_exists($form_key, $this->fields)) {
             throw new OutOfBoundsException(tr('Specified form key ":key" does not exist', [
                 ':key' => $form_key
             ]));
@@ -1120,9 +1277,9 @@ abstract class DataEntry
 
         foreach ($settings as $key => $value) {
             if ($key === 'size') {
-                $this->keys_display[$form_key] = $value;
+                $this->field_display[$form_key] = $value;
             } else {
-                $this->keys[$form_key][$key] = $value;
+                $this->fields[$form_key][$key] = $value;
             }
         }
 
@@ -1130,33 +1287,33 @@ abstract class DataEntry
     }
 
 
+    /**
+     * Validate the data using the specified validator
+     *
+     * @param ArgvValidator|PostValidator|GetValidator $validator
+     * @param bool $no_arguments_left
+     * @param bool $modify
+     * @return array
+     */
+    abstract protected function validate(ArgvValidator|PostValidator|GetValidator $validator, bool $no_arguments_left = false, bool $modify = true): array;
+
 
     /**
-     * Validate the data according to the key definitions
+     * Returns either the specified field, or if $translate has content, the alternate field name
      *
-     * @return void
+     * @param string $field
+     * @return string
      */
-    protected function validateData(): void
+    protected function getAlternateValidationField(string $field): string
     {
-        foreach ($this->data as $key => $value) {
-            if (!array_key_exists($key, $this->keys)) {
-                throw new OutOfBoundsException(tr('Source key ":key" was not defined in the form keys', [
-                    ':key' => $key
-                ]));
-            }
-
-            if (isset_get($this->keys[$key]['required'])) {
-                if (!$value) {
-                    throw new ValidationFailedException(tr('The ":field" field is required', [
-                        ':field' => $key
-                    ]));
-                }
-            }
-
-            // TODO Add more validations
+        if (!array_key_exists($field, $this->fields)) {
+            throw new OutOfBoundsException(tr('Specified field name ":field" has no alternate field available', [
+                ':field' => $field
+            ]));
         }
-    }
 
+        return Strings::until(isset_get($this->cli_fields[$field]['cli']), ' ');
+    }
 
 
     /**
@@ -1166,8 +1323,8 @@ abstract class DataEntry
      */
     protected function applyDefaults(): static
     {
-        foreach ($this->keys as $key => $configuration) {
-            if (in_array($key, $this->no_process_keys)) {
+        foreach ($this->fields as $key => $configuration) {
+            if (in_array($key, $this->meta_fields)) {
                 continue;
             }
 
@@ -1188,26 +1345,50 @@ abstract class DataEntry
 
 
     /**
-     * Will set the available data keys for this data entry
+     * Load all object data from database
      *
+     * @param string|int $identifier
      * @return void
      */
-    protected function setKeys(): void
+    protected function load(string|int $identifier): void
     {
-        $this->keys = array_merge([
+        if (is_numeric($identifier)) {
+            $data = sql()->get('SELECT * FROM `' . $this->table . '` WHERE `id`                           = :id'                     , [':id'                     => $identifier]);
+        } else {
+            $data = sql()->get('SELECT * FROM `' . $this->table . '` WHERE `' . $this->unique_field . '` = :' . $this->unique_field, [':'. $this->unique_field => $identifier]);
+        }
+
+        // Store all data in the object
+        $this->setMetaData($data);
+        $this->setData($data);
+    }
+
+
+    /**
+     * Returns the field definitions for this DataEntry class
+     *
+     * @return array
+     */
+    public static function getAllFieldDefinitions(): array
+    {
+         return array_merge([
             'id' => [
-                'label'    => tr('Database ID'),
-                'disabled' => true,
+                'meta'     => true,
                 'type'     => 'numeric',
+                'readonly' => true,
+                'size'     => 3,
+                'label'    => tr('Database ID'),
             ],
             'created_on' => [
-                'label'    => tr('Created on'),
-                'disabled' => true,
+                'meta'     => true,
+                'readonly' => true,
                 'type'     => 'datetime-local',
+                'size'     => 3,
+                'label'    => tr('Created on'),
             ],
             'created_by' => [
-                'label'    => tr('Created by'),
-                'element'  => function (string $key, array $data, array $source) {
+                'meta'    => true,
+                'element' => function (string $key, array $data, array $source) {
                     if ($source['created_by']) {
                         return Users::getHtmlSelect($key)
                             ->setSelected(isset_get($source['created_by']))
@@ -1221,27 +1402,35 @@ abstract class DataEntry
                             ->render();
                     }
                 },
+                'readonly' => true,
+                'size'     => 3,
+                'label'    => tr('Created by'),
             ],
             'meta_id' => [
-                'visible' => false,
+                'meta'     => true,
+                'visible'  => false,
+                'readonly' => true,
             ],
             'meta_state' => [
-                'visible' => false,
+                'meta'     => true,
+                'visible'  => false,
+                'readonly' => true,
             ],
             'status' => [
-                'label'           => tr('Status'),
-                'disabled'        => true,
-                'display_default' => tr('Ok'),
+                'meta'     => true,
+                'readonly' => true,
+                'label'    => tr('Status'),
+                'size'     => 3,
+                'default'  => tr('Ok'),
             ],
-        ], $this->keys);
-
-        if ($this->display_meta) {
-            $this->keys_display = array_merge([
-                'id'         => 12,
-                'created_by' => 4,
-                'created_on' => 4,
-                'status'     => 4,
-            ], $this->keys_display);
-        }
+        ], static::getFieldDefinitions());
     }
+
+
+    /**
+     * Returns the field definitions for the data fields in this DataEntry object
+     *
+     * @return array
+     */
+    abstract protected static function getFieldDefinitions(): array;
 }

@@ -4,11 +4,9 @@
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\Documentation;
-use Phoundation\Core\Locale\Language\Languages;
+use Phoundation\Core\Config;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Geo\Countries\Countries;
-use Phoundation\Geo\Timezones\Timezones;
 
 
 /**
@@ -21,137 +19,42 @@ use Phoundation\Geo\Timezones\Timezones;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::autoComplete([
+Documentation::autoComplete(User::getAutoComplete([
     'positions' => [
         0 => [
-            'word' => 'SELECT `email` FROM `accounts_users` WHERE `email` LIKE :word AND `status` IS NULL'
+            'word'   => 'SELECT `email` FROM `accounts_users` WHERE `email` LIKE :word AND `status` IS NULL',
+            'noword' => 'SELECT `email` FROM `accounts_users` WHERE `status` IS NULL LIMIT ' . Config::getInteger('shell.autocomplete.limit', 50)
         ]
     ],
-    'arguments' => [
-        '-e,--email'       => true,
-        '-n,--name'        => true,
-        '-r,--roles'       => true,
-        '-g,--gender'      => [tr('Male'), tr('Female'), tr('Other'), ],
-        '-t,--title'       => true,
-        '-l,--language'    => [
-            'word'   => function($word) { return Languages::new()->filteredList($word); },
-            'noword' => function() { return Languages::new()->list(); },
-        ],
-        '-d,--description' => true,
-        '-c,--comments'    => true,
-        '-u,--username'    => true,
-        '-a,--address'     => true,
-        '-w,--website'     => true,
-        '-p,--phones'      => true,
-        '-b,--birthdate'   => true,
-        '-t,--timezone'    => [
-            'word'   => function($word) { return Timezones::new()->filteredList($word); },
-            'noword' => function() { return Timezones::new()->list(); },
-        ],
-        '--domain'         => true,
-        '--lead-by'        => [
-            'word' => 'SELECT `email` FROM `accounts_users` WHERE `email` LIKE :word AND `status` IS NULL'
-        ],
-        '--country'        => [
-            'word'   => function($word) { return Countries::new()->filteredList($word); },
-            'noword' => function() { return Countries::new()->list(); },
-        ],
-        '--state'          => true,
-        '--city'           => true,
-        '--is-leader'      => false,
-    ]
-]);
+]));
 
 Documentation::usage('./cli system accounts users modify USER [OPTIONS]
 ./cli system users modify USER -l -i --to ENVIRONMENT');
 
-Documentation::help('This script allows you to modify users
+Documentation::help(User::getHelp('This script allows you to modify users
+
+This script allows you to modify all user data, with the exception of the password or status. If you wish to change the 
+status, please use the "delete", "undelete" or "status" commands. To change the users password please use the "password" 
+command.') . '
+
+
+EXTRA INFORMATION
 
 
 
-ARGUMENTS (All arguments in square brackets are optional)
+[--roles / --role / -r ROLE[,ROLE,ROLE]] A comma separated list of the roles that this user has on this system. The 
+                                         roles must already exist. These roles will grant the user rights which will 
+                                         give him or her access to the various parts of the system');
 
 
-
-USER                                    The user to modify. Always specify users by their email addresses
-
--e / --email                            The email address for the user
-
--n / --name                             The name for the user
-
--r / --roles ROLE[,ROLE,ROLE]           A comma separated list of the roles that this user has on this system. The roles 
-                                        must already exist. These roles will grant the user rights which will give him 
-                                        or her access to the various parts of the system
-
-[-g / --gender GENDER]                  The gender for this user
-
-[-t / --title TITLE]                    The title for this user
-
-[-l / --language LANGUAGE]              The system language for this user
-
-[-d / --description DESCRIPTION]        A description about this user
-
-[-c / --comments COMMENTS]              Comments about this user (These are not visible to the user)
-
-[-u / --username USERNAME]              The system username
-
-[-a / --address ADDRESS]                The address for this user
-   
-[-u / --url URL]                        The URL for this user where the user has information about themselves
-
-[-p / --phones PHONES]                  The phone(s) for this user
-
-[-b / --birthdate BIRTHDATE]            The birthdate for this user 
-
-[-t / --timezone TIMEZONE]              The timezone for this user
-
-[--domain DOMAIN]                       The domain where this user is valid
-
-[--lead-by USER]                        The email or id of the user that is the leader for this user
-
-[--country COUNTRY]                     The country code or name where the user resides
-
-[--state STATE]                         The state where the user resides
-
-[--city CITY]                           The city where the user resides
-
-[--is-leader]                           If specified, this user will be registered as having a leadership position');
-
-
-
-// Validate arguments
-ArgvValidator::new()
-    ->select('user', true)->isEmail()
-    ->select('-a,--address', true)->isOptional()->hasMaxCharacters(255)->isPrintable()
-    ->select('-b,--birthdate', true)->isOptional()->isDate()
-    ->select('-c,--comments', true)->isOptional()->isDescription()
-    ->select('-d,--description', true)->isOptional()->isDescription()
-    ->select('-e,--email', true)->isOptional()->isEmail()
-    ->select('-f,--first-names', true)->isOptional()->isName()
-    ->select('-n,--last-names', true)->isOptional()->isName()
-    ->select('-g,--gender', true)->isOptional()->isGender()
-    ->select('-l,--language', true)->isOptional()->isName()
-    ->select('-p,--phones', true)->isOptional()->isPhones()
-    ->select('-t,--title', true)->isOptional()->isName()
-    ->select('-u,--username', true)->isOptional()->isDescription()->isName()
-    ->select('--url', true)->isOptional()->isUrl()
-    ->select('--domain', true)->isOptional()->isDomain()
-    ->select('--is-leader')->isOptional(false)->isBoolean()
-    ->select('--lead-by', true)->isOptional()->isEmail()
-    ->select('--timezone', true)->isOptional()->isTimezone()
-    ->select('--country', true)->isOptional()->isName()
-    ->select('--state', true)->isOptional()->isName()
-    ->select('--city', true)->isOptional()->isName()
-    ->select('--company', true)->isOptional()->isName()
-    ->select('--department', true)->isOptional()->isName()
-    ->select('--branch', true)->isOptional()->isName()
-    ->select('-r,--roles,--role', true)->isOptional()->sanitizeForceArray()->each()->isName()
-    ->noArgumentsLeft()
+// Validate user
+$argv = ArgvValidator::new()
+    ->select('user', true)->hasMaxCharacters(128)->isEmail()
+    ->select('roles', true)->isOptional()->sanitizeForceArray()->each()->isName()
     ->validate();
 
 
-
-// Ensure that specified roles exist
+// Ensure that the specified roles exist
 if ($argv['roles']) {
     foreach ($argv['roles'] as &$role) {
         $role = Role::get($role);
@@ -161,21 +64,9 @@ if ($argv['roles']) {
 }
 
 
-// Modify user and save
-$user = User::get($argv['user']);
-
-if ($argv['email']) {
-    // If changing email, ensure it doesn't exist yet as it is a unique identifier
-    User::notExists($argv['email'], $user->getId(), true);
-}
-
-$user->modify($argv)->save();
-
-
-
-// Set users roles
+// Get the user and modify, then update roles
+$user = User::get($argv['user'])->modify();
 $user->roles()->set($argv['roles']);
-
 
 
 // Done!

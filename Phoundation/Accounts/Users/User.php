@@ -8,9 +8,6 @@ use Phoundation\Accounts\Roles\Roles;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\Exception\PasswordNotChangedException;
 use Phoundation\Accounts\Users\Exception\UsersException;
-use Phoundation\Business\Companies\Branches\Branch;
-use Phoundation\Business\Companies\Company;
-use Phoundation\Business\Companies\Departments\Department;
 use Phoundation\Core\Locale\Language\Languages;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Session;
@@ -28,14 +25,20 @@ use Phoundation\Data\DataEntry\Traits\DataEntryPhones;
 use Phoundation\Data\DataEntry\Traits\DataEntryPicture;
 use Phoundation\Data\DataEntry\Traits\DataEntryType;
 use Phoundation\Data\DataEntry\Traits\DataEntryUrl;
+use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Date\DateTime;
 use Phoundation\Exception\NotSupportedException;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Geo\Cities\Cities;
 use Phoundation\Geo\Countries\Countries;
 use Phoundation\Geo\Countries\Country;
 use Phoundation\Geo\States\State;
+use Phoundation\Geo\States\States;
 use Phoundation\Geo\Timezones\Timezone;
+use Phoundation\Geo\Timezones\Timezones;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Security\Incidents\Severity;
 use Phoundation\Web\Http\Domains;
@@ -87,16 +90,9 @@ class User extends DataEntry
     /**
      * Columns that will NOT be inserted
      *
-     * @var array $remove_columns_on_insert
+     * @var array $fields_filter_on_insert
      */
-    protected array $remove_columns_on_insert = ['id', 'password'];
-
-    /**
-     * Columns that will NOT be updated
-     *
-     * @var array $remove_columns_on_update
-     */
-    protected array $remove_columns_on_update = ['meta_id', 'created_by', 'created_on', 'password'];
+    protected array $fields_filter_on_insert = ['id', 'password'];
 
 
 
@@ -107,23 +103,11 @@ class User extends DataEntry
      */
     public function __construct(int|string|null $identifier = null)
     {
-        static::$entry_name  = 'user';
-        $this->table         = 'accounts_users';
-        $this->unique_column = 'email';
+        static::$entry_name = 'user';
+        $this->unique_field = 'email';
+        $this->table        = 'accounts_users';
 
         parent::__construct($identifier);
-    }
-
-
-
-    /**
-     * Returns this user as a string
-     *
-     * @return string
-     */
-    public function __toString(): string
-    {
-        return $this->getLogId();
     }
 
 
@@ -142,7 +126,7 @@ class User extends DataEntry
             return tr('Guest');
         }
 
-        return $id . ' / ' . $this->getDataValue($this->unique_column);
+        return $id . ' / ' . $this->getDataValue($this->unique_field);
     }
 
 
@@ -859,16 +843,16 @@ class User extends DataEntry
 
 
     /**
-     * Returns the birthday for this user
+     * Returns the birthdate for this user
      *
      * @return DateTime|null
      */
     public function getBirthday(): ?DateTime
     {
-        $birthday = $this->getDataValue('birthday');
+        $birthdate = $this->getDataValue('birthdate');
 
-        if ($birthday ) {
-            return new DateTime($birthday);
+        if ($birthdate ) {
+            return new DateTime($birthdate);
         }
 
         return null;
@@ -877,14 +861,14 @@ class User extends DataEntry
 
 
     /**
-     * Sets the birthday for this user
+     * Sets the birthdate for this user
      *
-     * @param string|null $birthday
+     * @param string|null $birthdate
      * @return static
      */
-    public function setBirthday(?string $birthday): static
+    public function setBirthday(?string $birthdate): static
     {
-        return $this->setDataValue('birthday', $birthday);
+        return $this->setDataValue('birthdate', $birthdate);
     }
 
 
@@ -1048,128 +1032,6 @@ class User extends DataEntry
     function getDisplayId(): string
     {
         return $this->getDataValue('id') . ' / ' . $this->getDisplayName();
-    }
-
-
-
-    /**
-     * Returns the company for this user
-     *
-     * @return Company|null
-     */
-    public function getCompany(): ?Company
-    {
-        return $this->company;
-    }
-
-
-
-    /**
-     * Sets the company for this user
-     *
-     * @param  Company|string|int|null $company
-     * @return static
-     */
-    public function setCompany(Company|string|int|null $company): static
-    {
-        if ($company) {
-            if (!is_object($company)) {
-                $company = Company::get($company);
-            }
-        }
-
-        $this->company = $company;
-        return $this;
-    }
-
-
-
-    /**
-     * Returns the department for this user
-     *
-     * @return Department|null
-     */
-    public function getDepartment(): ?Department
-    {
-        return $this->department;
-    }
-
-
-
-    /**
-     * Sets the department for this user
-     *
-     * @param Department|string|int|null $department
-     * @return static
-     */
-    public function setDepartment(Department|string|int|null $department): static
-    {
-        if ($department) {
-            if (!is_object($department)) {
-                $department = Department::get($department);
-            }
-
-            // This branch must be part of the specified company!
-            if (!$this->company) {
-                throw new ValidationFailedException(tr('Cannot specify a department, this user is not linked to a company yet'));
-            }
-
-            // This branch must be part of the specified company!
-            if (!$this->company->departments()->exists($department)) {
-                throw new ValidationFailedException(tr('The department ":department" is not part of company ":company"', [
-                    ':branch' => $department->getName(),
-                    ':company' => $this->company->getName()
-                ]));
-            }
-        }
-
-        $this->department = $department;
-        return $this;
-    }
-
-
-
-    /**
-     * Returns the branch for this user
-     *
-     * @return Branch|null
-     */
-    public function getBranch(): ?Branch
-    {
-        return $this->branch;
-    }
-
-
-
-    /**
-     * Sets the branch for this user
-     *
-     * @param  Branch|string|int|null $branch
-     * @return static
-     */
-    public function setBranch(Branch|string|int|null $branch): static
-    {
-        if ($branch) {
-            if (!is_object($branch)) {
-                $branch = Branch::get($branch);
-            }
-
-            // This branch must be part of the specified company!
-            if (!$this->company) {
-                throw new ValidationFailedException(tr('Cannot specify a branch, this user is not linked to a company yet'));
-            }
-
-            // This branch must be part of the specified company!
-            if (!$this->company->branches()->exists($branch)) {
-                throw new ValidationFailedException(tr('The branch ":branch" is not part of company ":company"', [
-                    ':branch' => $branch->getName(),
-                    ':company' => $this->company->getName()
-                ]));
-            }
-        }
-
-        $this->branch = $branch;
-        return $this;
     }
 
 
@@ -1411,6 +1273,65 @@ class User extends DataEntry
     }
 
 
+    /**
+     * Validates the DataEntry record with the specified validator object
+     *
+     * @param ArgvValidator|PostValidator|GetValidator $validator
+     * @param bool $no_arguments_left
+     * @param bool $modify
+     * @return array
+     */
+    protected function validate(ArgvValidator|PostValidator|GetValidator $validator, bool $no_arguments_left = false, bool $modify = false): array
+    {
+        $data = $validator
+            ->select($this->getAlternateValidationField('username'), true)->isOptional()->hasMaxCharacters(64)->isName()
+            ->select($this->getAlternateValidationField('domain'), true)->isOptional()->hasMaxCharacters(128)->isDomain()
+            ->select($this->getAlternateValidationField('title'), true)->isOptional()->hasMaxCharacters(24)->isName()
+            ->select($this->getAlternateValidationField('first_names'), true)->isOptional()->hasMaxCharacters(127)->isName()
+            ->select($this->getAlternateValidationField('last_names'), true)->isOptional()->hasMaxCharacters(127)->isName()
+            ->select($this->getAlternateValidationField('nickname'), true)->isOptional()->hasMaxCharacters(64)->isName()
+            ->select($this->getAlternateValidationField('email'), true)->hasMaxCharacters(128)->isEmail()
+            ->select($this->getAlternateValidationField('type'), true)->isOptional()->hasMaxCharacters(16)->isName()
+            ->select($this->getAlternateValidationField('code'), true)->isOptional()->hasMaxCharacters(16)->isCode()
+            ->select($this->getAlternateValidationField('keywords'), true)->isOptional()->hasMaxCharacters(255)->isPrintable()
+            ->select($this->getAlternateValidationField('phones'), true)->isOptional()->hasMinCharacters(10)->hasMaxCharacters(64)
+//                    ->select('keywords')->isOptional()->hasMaxCharacters(255)->sanitizeForceArray(' ')->each()->isWord()->sanitizeForceString()
+//                    ->select('phones')->isOptional()->hasMinCharacters(10)->hasMaxCharacters(64)->sanitizeForceArray(',')->each()->isPhone()->sanitizeForceString()
+            ->select($this->getAlternateValidationField('address'), true)->isOptional()->hasMaxCharacters(255)->isPrintable()
+            ->select($this->getAlternateValidationField('zipcode'), true)->isOptional()->hasMinCharacters(4)->hasMaxCharacters(8)->isPrintable()
+            ->select($this->getAlternateValidationField('priority'), true)->isOptional()->isNatural()->isBetween(1, 10)
+            ->select($this->getAlternateValidationField('is_leader'))->isOptional()->isBoolean()
+            ->select($this->getAlternateValidationField('latitude'), true)->isOptional()->isLatitude()
+            ->select($this->getAlternateValidationField('longitude'), true)->isOptional()->isLongitude()
+            ->select($this->getAlternateValidationField('accuracy'), true)->isOptional()->isFloat()->isBetween(0, 10)
+            ->select($this->getAlternateValidationField('gender'), true)->isOptional()->inArray(['unknown', 'male', 'female', 'other'])
+            ->select($this->getAlternateValidationField('birthdate'), true)->isOptional()->isDate()
+            ->select($this->getAlternateValidationField('description'), true)->isOptional()->hasMaxCharacters(65_530)->isPrintable()
+            ->select($this->getAlternateValidationField('comments'), true)->isOptional()->hasMaxCharacters(16_777_200)->isPrintable()
+            ->select($this->getAlternateValidationField('url'), true)->isOptional()->hasMaxCharacters(2048)->isUrl()
+            ->select($this->getAlternateValidationField('redirect'), true)->isOptional()->hasMaxCharacters(255)->isUrl()
+            ->select($this->getAlternateValidationField('timezone'), true)->isOptional()->isTimezone()
+            ->select($this->getAlternateValidationField('leader'), true)->or('leaders_id')->hasMaxCharacters(255)->isName()->isQueryColumn    ('SELECT `email` FROM `accounts_users` WHERE `email` = :email AND `status` IS NULL', [':email' => '$leader'])
+            ->select($this->getAlternateValidationField('language'), true)->or('languages_id')->hasMaxCharacters(32)->isName()->isQueryColumn ('SELECT `code_639_1` FROM `languages` WHERE `code_639_1` = :code AND `status` IS NULL', [':code' => '$language'])
+            ->select($this->getAlternateValidationField('country'), true)->or('countries_id')->hasMaxCharacters(200)->isName()->isQueryColumn ('SELECT `name` FROM `geo_countries` WHERE `name` = :name AND `status` IS NULL', [':name' => '$country'])
+            ->select($this->getAlternateValidationField('state'), true)->or('states_id')->hasMaxCharacters(200)->isName()->isQueryColumn      ('SELECT `name` FROM `geo_states`    WHERE `name` = :name AND `countries_id` = :countries_id AND `status` IS NULL', [':name' => '$state'    , ':countries_id' => '$countries_id'])
+            ->select($this->getAlternateValidationField('city'), true)->or('cities_id')->hasMaxCharacters(200)->isName()->isQueryColumn       ('SELECT `name` FROM `geo_cities`    WHERE `name` = :name AND `states_name`  = :states_id    AND `status` IS NULL', [':name' => '$city'     , ':states_id'    => '$states_id'])
+            ->select($this->getAlternateValidationField('leaders_id'), true)->or('leader')->isId()->isQueryColumn      ('SELECT `id` FROM `languages`     WHERE `id` = :id AND `status` IS NULL', [':id'   => '$language'])
+            ->select($this->getAlternateValidationField('languages_id'), true)->or('language')->isId()->isQueryColumn  ('SELECT `id` FROM `languages`     WHERE `id` = :id AND `status` IS NULL', [':id' => '$languages_id'])
+            ->select($this->getAlternateValidationField('countries_id'), true)->or('country')->isId()->isQueryColumn   ('SELECT `id` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':id' => '$countries_id'])
+            ->select($this->getAlternateValidationField('states_id'), true)->or('state')->isId()->isQueryColumn        ('SELECT `id` FROM `geo_states`    WHERE `id` = :id AND `countries_id` = :countries_id AND `status` IS NULL', [':id'   => '$states_id', ':countries_id' => '$countries_id'])
+            ->select($this->getAlternateValidationField('cities_id'), true)->or('city')->isId()->isQueryColumn         ('SELECT `id` FROM `geo_cities`    WHERE `id` = :id AND `states_name`  = :states_id    AND `status` IS NULL', [':id'   => '$cities_id', ':states_id'    => '$states_id'])
+            ->noArgumentsLeft($no_arguments_left)
+            ->validate();
+
+        // Ensure the email doesn't exist yet as it is a unique identifier
+        if ($data['email']) {
+            static::notExists($data['email'], $this->getId(), true);
+        }
+
+        return $data;
+    }
+
 
     /**
      * Save the password for this user
@@ -1494,149 +1415,281 @@ class User extends DataEntry
     /**
      * Sets the available data keys for the User class
      *
-     * @return void
+     * @return array
      */
-    protected function setKeys(): void
+    protected static function getFieldDefinitions(): array
     {
-        $this->keys = [
-            'last_sign_in' => [
-                'disabled'        => true,
-                'type'            => 'datetime-local',
-                'null_type'       => 'text',
-                'display_default' => '-',
-                'label'           => tr('Last sign in')
+        return [
+            'country' => [
+                'virtual'  => true,
+                'complete' => [
+                    'word'   => function($word) { return Countries::new()->filteredList($word); },
+                    'noword' => function()      { return Countries::new()->list(); },
+                ],
+                'cli'      => '--country COUNTRY NAME',
             ],
-            'authentication_failures' => [
-                'disabled'        => true,
-                'db_null'         => false,
-                'type'            => 'numeric',
-                'default'         => 0,
-                'display_default' => 0,
-                'label'           => tr('Authentication failures')
+            'state' => [
+                'virtual'  => true,
+                'complete' => [
+                    'word'   => function($word) { return States::new()->filteredList($word); },
+                    'noword' => function()      { return States::new()->list(); },
+                ],
+                'cli'      => '--state STATE-NAME',
             ],
-            'locked_until' => [
-                'disabled'        => true,
-                'type'            => 'datetime-local',
-                'null_type'       => 'text',
-                'display_default' => tr('Not locked'),
-                'label'           => tr('Locked until')
+            'city' => [
+                'virtual'  => true,
+                [
+                    'word'   => function($word) { return Cities::new()->filteredList($word); },
+                    'noword' => function()      { return Cities::new()->list(); },
+                ],
+                'cli'      => '--city CITY-NAME',
             ],
-            'sign_in_count' => [
-                'disabled'        => true,
-                'db_null'         => false,
-                'type'            => 'numeric',
-                'default'         => 0,
-                'display_default' => 0,
-                'label'           => tr('Sign in count')
+            'language' => [
+                'virtual'  => true,
+                'complete' => [
+                    'word'   => function($word) { return Languages::new()->filteredList($word); },
+                    'noword' => function()      { return Languages::new()->list(); },
+                ],
+                'cli'      => '-l,--language LANGUAGE-NAME',
             ],
-            'username' => [
-                'label'    => tr('Username')
+            'leader' => [
+                'virtual'  => true,
+                'complete' => [
+                    'word'   => function($word) { return Users::new()->filterby('is_leader', true)->filteredList($word); },
+                    'noword' => function()      { return Users::new()->filterby('is_leader', true)->list(); },
+                ],
+                'cli'      => '--leader LEADER-EMAIL',
             ],
-            'password' => [
-                'type'    => 'password',
-                'db_null' => false,
-                'label'   => tr('Password')
-            ],
-            'fingerprint' => [
-                'element' => null  // TODO Implement
-            ],
-            'domain' => [
-                'label'   => tr('Restrict to domain')
-            ],
-            'title' => [
-                'label'   => tr('Title')
-            ],
-            'first_names' => [
-                'label'   => tr('First names')
-            ],
-            'last_names' => [
-                'label'   => tr('Last names')
-            ],
-            'nickname' => [
-                'label'   => tr('Nickname')
+            'timezone' => [
+                'virtual'  => true,
+                'complete' => [
+                    'word'   => function($word) { return Timezones::new()->filteredList($word); },
+                    'noword' => function()      { return Timezones::new()->list(); },
+                ],
+                'cli'      => '--timezone TIMEZONE-NAME',
             ],
             'picture' => [
-                'display' => false
-            ],
-            'type' => [
-                'label'    => tr('Type')
-            ],
-            'email' => [
-                'required' => true,
-                'type'     => 'email',
-                'label'    => tr('Email address')
-            ],
-            'code' => [
-                'label'    => tr('Code')
-            ],
-            'keywords' => [
-                'label'    => tr('Keywords')
-            ],
-            'phones'  => [
-                'label'    => tr('Phones')
-            ],
-            'address' => [
-                'label'    => tr('Address')
+                'display'  => false,
+                'complete' => true,
+                'readonly' => true
             ],
             'verification_code' => [
-                'display'  => false
+                'display'  => false,
+                'readonly' => true
             ],
-            'verified_on' => [
-                'disabled'        => true,
-                'type'            => 'datetime-local',
-                'null_type'       => 'text',
-                'display_default' => tr('Not verified'),
-                'label'           => tr('Account verified on'),
+            'fingerprint' => [
+                // TODO Implement
+                'display'  => false,
+                'readonly' => true
+            ],
+            'password' => [
+                'display'    => false,
+                'complete'   => true,
+                'readonly'   => true,
+                'type'       => 'password',
+                'maxlength'  => 64,
+                'db_null'    => false,
+                'help_group' => tr(''),
+                'help'       => tr('The password for this user'),
+            ],
+            'last_sign_in' => [
+                'type'      => 'datetime-local',
+                'readonly'  => true,
+                'null_type' => 'text',
+                'size'      => 3,
+                'default'   => '-',
+                'cli'       => '--type',
+                'label'     => tr('Last sign in')
+            ],
+            'sign_in_count' => [
+                'type'       => 'numeric',
+                'readonly'   => true,
+                'db_null'    => false,
+                'db_default' => 0,
+                'size'       => 3,
+                'default'    => 0,
+                'label'      => tr('Sign in count')
+            ],
+            'authentication_failures' => [
+                'type'       => 'numeric',
+                'readonly'   => true,
+                'db_null'    => false,
+                'db_default' => 0,
+                'size'       => 3,
+                'default'    => 0,
+                'label'      => tr('Authentication failures')
+            ],
+            'locked_until' => [
+                'type'      => 'datetime-local',
+                'readonly'  => true,
+                'null_type' => 'text',
+                'size'      => 3,
+                'default'   => tr('Not locked'),
+                'label'     => tr('Locked until')
+            ],
+            'email' => [
+                'required'   => true,
+                'maxlength'  => 128,
+                'type'       => 'email',
+                'cli'        => '-e,--email',
+                'complete'   => true,
+                'label'      => tr('Email address'),
+                'help_group' => tr('Personal information'),
+                'help'       => tr('The email address for this user. This is also the unique identifier for the user'),
+            ],
+            'domain' => [
+                'maxlength'  => 128,
+                'cli'        => '--domain',
+                'complete'   => true,
+                'label'      => tr('Restrict to domain'),
+                'help_group' => tr(''),
+                'help'       => tr('The domain where this user will be able to sign in'),
+            ],
+            'username' => [
+                'maxlength'  => 64,
+                'cli'        => '-u,--username',
+                'complete'   => true,
+                'label'      => tr('Username'),
+                'help_group' => tr('Personal information'),
+                'help'       => tr('The unique username for this user.'),
+            ],
+            'nickname' => [
+                'maxlength'  => 64,
+                'cli'        => '--nickname',
+                'complete'   => true,
+                'label'      => tr('Nickname'),
+                'help_group' => tr('Personal information'),
+                'help'       => tr('The nickname for this user'),
+            ],
+            'first_names' => [
+                'maxlength'  => 127,
+                'cli'        => '-f,--first-names',
+                'complete'   => true,
+                'label'      => tr('First names'),
+                'size'       => 3,
+                'help_group' => tr('Personal information'),
+                'help'       => tr('The firstnames for this user'),
+            ],
+            'last_names' => [
+                'maxlength'  => 127,
+                'cli'        => '-n,--last-names',
+                'complete'   => true,
+                'label'      => tr('Last names'),
+                'size'       => 3,
+                'help_group' => tr('Personal information'),
+                'help'       => tr('The lastnames / surnames for this user'),
+            ],
+            'title' => [
+                'maxlength'  => 24,
+                'cli'        => '-t,--title',
+                'complete'   => true,
+                'label'      => tr('Title'),
+                'size'       => 3,
+                'help_group' => tr('Personal information'),
+                'help'       => tr('The title added to this users name'),
+            ],
+            'gender' => [
+                'element' => 'select',
+                'source'  => [
+                    ''       => tr('Select a gender'),
+                    'male'   => tr('Male'),
+                    'female' => tr('Female'),
+                    'other'  => tr('Other')
+                ],
+                'size'       => 3,
+                'cli'        => '-g,--gender',
+                'complete'   => [tr('Male'), tr('Female'), tr('Other')],
+                'label'      => tr('Gender'),
+                'help_group' => tr('Personal information'),
+                'help'       => tr('The gender for this user'),
+            ],
+            'phones'  => [
+                'maxlength'  => 64,
+                'size'       => 6,
+                'cli'        => '-p,--phones',
+                'complete'   => true,
+                'label'      => tr('Phones'),
+                'help_group' => tr('Personal information'),
+                'help'       => tr('Phone numbers where this user can be reached'),
+            ],
+            'code' => [
+                'display'    => false,
+                'cli'        => '--code',
+                'complete'   => true,
+                'label'      => tr('Code'),
+                'maxlength'  => 16,
+                'size'       => 6,
+                'help_group' => tr('Personal information'),
+                'help'       => tr(''),
+            ],
+            'type' => [
+                'maxlength'  => 16,
+                'cli'        => '--type',
+                'complete'   => true,
+                'label'      => tr('Type'),
+                'size'       => 6,
+                'help_group' => tr('Personal information'),
+                'help'       => tr('The type of user'),
+            ],
+            'birthdate' => [
+                'type'       => 'date',
+                'cli'        => '-b,--birthdate',
+                'complete'   => true,
+                'label'      => tr('Birthday'),
+                'size'       => 3,
+                'help_group' => tr('Personal information'),
+                'help'       => tr('The birthdate for this user'),
             ],
             'priority' => [
-                'type'  => 'numeric',
-                'label' => tr('Priority'),
+                'type'       => 'numeric',
+                'cli'        => '--priority',
+                'label'      => tr('Priority'),
+                'complete'   => true,
+                'size'       => 3,
+                'min'        => 1,
+                'max'        => 10,
+                'step'       => 1,
+                'help_group' => tr(''),
+                'help'       => tr('The priority for this user, between 1 and 10'),
             ],
-            'is_leader' => [
-                'type'  => 'checkbox',
-                'label' => tr('Is leader'),
-            ],
-            'leaders_id' => [
-                'element'  => function (string $key, array $data, array $source) {
-                    return Users::getHtmlSelect($key)
-                        ->setSelected(isset_get($source['created_by']))
+            'timezones_id' => [
+                'element' => function (string $key, array $data, array $source) {
+                    return Timezones::getHtmlSelect($key)
+                        ->setSelected(isset_get($source['timezones_id']))
                         ->render();
                 },
-                'label'    => tr('Leader'),
-            ],
-            'latitude' => [
-                'label'    => tr('Latitude'),
-            ],
-            'longitude' => [
-                'label'    => tr('Longitude'),
-            ],
-            'accuracy' => [
-                'label'    => tr('Accuracy'),
-            ],
-            'offset_latitude' => [
-                'readonly' => true,
-                'label'    => tr('Offset latitude'),
-            ],
-            'offset_longitude' => [
-                'readonly' => true,
-                'label'    => tr('Offset longitude'),
+                'cli'        => '--timezones-id',
+                'complete'   => true,
+                'size'       => 3,
+                'label'      => tr('Timezone'),
+                'help_group' => tr('Location information'),
+                'help'       => tr('The timezone where this user resides'),
             ],
             'countries_id' => [
-                'element'  => function (string $key, array $data, array $source) {
+                'element' => function (string $key, array $data, array $source) {
                     return Countries::getHtmlCountriesSelect($key)
                         ->setSelected(isset_get($source['countries_id']))
                         ->render();
                 },
-                'label'    => tr('Country')
+                'cli'        => '--countries-id',
+                'complete'   => true,
+                'label'      => tr('Country'),
+                'size'       => 3,
+                'help_group' => tr('Location information'),
+                'help'       => tr('The country where this user resides'),
             ],
             'states_id' => [
-                'element'  => function (string $key, array $data, array $source) {
+                'element' => function (string $key, array $data, array $source) {
                     return Country::get($source['countries_id'])->getHtmlStatesSelect($key)
                         ->setSelected(isset_get($source['states_id']))
                         ->render();
                 },
-                'execute'  => 'countries_id',
-                'label'    => tr('State'),
+                'execute'    => 'countries_id',
+                'cli'        => '--states-id',
+                'label'      => tr('State'),
+                'size'       => 3,
+                'help_group' => tr('Location information'),
+                'help'       => tr('The state where this user resides'),
             ],
             'cities_id' => [
                 'element'  => function (string $key, array $data, array $source) {
@@ -1644,93 +1697,162 @@ class User extends DataEntry
                         ->setSelected(isset_get($source['cities_id']))
                         ->render();
                 },
-                'execute'  => 'states_id',
-                'label'    => tr('City'),
+                'execute'    => 'states_id',
+                'cli'        => '--cities-id',
+                'complete'   => true,
+                'label'      => tr('City'),
+                'size'       => 3,
+                'help_group' => tr('Location information'),
+                'help'       => tr('The city where this user resides'),
             ],
-            'redirect' => [
-                'type'     => 'url',
-                'label'    => tr('Redirect'),
+            'address' => [
+                'maxlength'  => 255,
+                'cli'        => '-a,--address',
+                'complete'   => true,
+                'label'      => tr('Address'),
+                'size'       => 6,
+                'help_group' => tr('Location information'),
+                'help'       => tr('The address where this user resides'),
+            ],
+            'zipcode' => [
+                'maxlength'  => 255,
+                'cli'        => '-z,--zipcode',
+                'complete'   => true,
+                'label'      => tr('Zip code'),
+                'size'       => 2,
+                'help_group' => tr('Location information'),
+                'help'       => tr('The zip code (postal code) where this user resides'),
             ],
             'languages_id' => [
                 'element'  => function (string $key, array $data, array $source) {
                     return Languages::getHtmlSelect($key)
-                      ->setSelected(isset_get($source['languages_id']))
-                      ->render();
+                        ->setSelected(isset_get($source['languages_id']))
+                        ->render();
                 },
-                'source'   => [],
-                'label'    => tr('Language'),
+                'cli'        => '--languages-id',
+                'complete'   => true,
+                'label'      => tr('Language'),
+                'size'       => 4,
+                'help_group' => tr('Location information'),
+                'help'       => tr('The language in which the site will be displayed to the user'),
             ],
-            'gender' => [
-                'element'  => 'select',
-                'source'   => [
-                    ''       => tr('Select a gender'),
-                    'male'   => tr('Male'),
-                    'female' => tr('Female'),
-                    'other'  => tr('Other')
-                ],
-                'label'    => tr('Gender'),
+            'latitude' => [
+                'cli'        => '--latitude',
+                'complete'   => true,
+                'label'      => tr('Latitude'),
+                'size'       => 2,
+                'help_group' => tr('Location information'),
+                'help'       => tr('The latitude location for this user'),
             ],
-            'birthday' => [
-                'type'     => 'date',
-                'label'    => tr('Birthday'),
+            'longitude' => [
+                'cli'        => '--longitude',
+                'complete'   => true,
+                'label'      => tr('Longitude'),
+                'size'       => 2,
+                'help_group' => tr('Location information'),
+                'help'       => tr('The longitude location for this user'),
+            ],
+            'accuracy' => [
+                'readonly'   => true,
+                'label'      => tr('Accuracy'),
+                'size'       => 2,
+                'help_group' => tr('Location information'),
+                'help'       => tr('The accuracy of this users location'),
+            ],
+            'offset_latitude' => [
+                'readonly'   => true,
+                'label'      => tr('Offset latitude'),
+                'size'       => 2,
+                'help_group' => tr('Location information'),
+                'help'       => tr('The latitude location for this user with a random offset within the configured range'),
+            ],
+            'offset_longitude' => [
+                'readonly'   => true,
+                'label'      => tr('Offset longitude'),
+                'size'       => 2,
+                'help_group' => tr('Location information'),
+                'help'       => tr('The longitude location for this user with a random offset within the configured range'),
+            ],
+            'is_leader' => [
+                'type'       => 'checkbox',
+                'cli'        => '--is-leader',
+                'label'      => tr('Is leader'),
+                'size'       => 2,
+                'help_group' => tr('Hiarchical information'),
+                'help'       => tr('Sets if this user is a leader itself'),
+            ],
+            'leaders_id' => [
+                'element'  => function (string $key, array $data, array $source) {
+                    return Users::getHtmlSelect($key)
+                        ->setSelected(isset_get($source['created_by']))
+                        ->render();
+                },
+                'cli'        => '--leaders-id',
+                'complete'   => true,
+                'label'      => tr('Leader'),
+                'size'       => 2,
+                'help_group' => tr('Hiarchical information'),
+                'help'       => tr('The user that is the leader for this user'),
+            ],
+            'verified_on' => [
+                'readonly'   => true,
+                'type'       => 'datetime-local',
+                'null_type'  => 'text',
+                'default'    => tr('Not verified'),
+                'label'      => tr('Account verified on'),
+                'size'       => 2,
+                'help_group' => tr('Account information'),
+                'help'       => tr('The date when this user was email verified. Empty if not yet verified'),
+            ],
+            'redirect' => [
+                'maxlength'  => '255',
+                'type'       => 'url',
+                'cli'        => '--redirect',
+                'complete'   => true,
+                'label'      => tr('Redirect'),
+                'size'       => 6,
+                'help_group' => tr('Account information'),
+                'help'       => tr('The URL where this user will be redirected to upon sign in'),
             ],
             'url' => [
-                'type'     => 'url',
-                'label'    => tr('Website'),
+                'type'       => 'url',
+                'maxlength'  => 2048,
+                'cli'        => '--url',
+                'complete'   => true,
+                'label'      => tr('Website'),
+                'size'       => 6,
+                'help_group' => tr('Account information'),
+                'help'       => tr('A URL specified by the user, usually containing more information about the user'),
             ],
-            'timezone' => [
-                'source'   => 'SELECT `seo_name`, `name` FROM `geo_timezones`',
-                'label'    => tr('Timezone'),
+            'keywords' => [
+                'maxlength'  => 255,
+                'cli'        => '-k,--keywords',
+                'complete'   => true,
+                'label'      => tr('Keywords'),
+                'size'       => 12,
+                'help_group' => tr('Account information'),
+                'help'       => tr('The keywords for this user'),
             ],
             'description' => [
-                'element'  => 'text',
-                'label'    => tr('Description'),
+                'element'    => 'text',
+                'cli'        => '-d,--description',
+                'complete'   => true,
+                'label'      => tr('Description'),
+                'maxlength'  => 65_535,
+                'size'       => 6,
+                'help_group' => tr('Account information'),
+                'help'       => tr('A description about this user'),
             ],
             'comments' => [
-                'element'  => 'text',
-                'label'    => tr('Comments'),
+                'element'    => 'text',
+                'cli'        => '-c,--comments',
+                'complete'   => true,
+                'label'      => tr('Comments'),
+                'maxlength'  => 16_777_200,
+                'size'       => 6,
+                'help_group' => tr('Account information'),
+                'help'       => tr('Comments about this user by leaders or administrators that are not visible to the user'),
             ],
         ];
-
-        $this->keys_display = [
-            'last_sign_in'            => 3,
-            'sign_in_count'           => 3,
-            'authentication_failures' => 3,
-            'locked_until'            => 3,
-            'email'                   => 3,
-            'domain'                  => 3,
-            'username'                => 3,
-            'nickname'                => 3,
-            'first_names'             => 3,
-            'last_names'              => 3,
-            'gender'                  => 3,
-            'birthday'                => 3,
-            'title'                   => 3,
-            'phones'                  => 3,
-            'address'                 => 6,
-            'type'                    => 3,
-            'code'                    => 3,
-            'keywords'                => 6,
-            'url'                     => 6,
-            'leaders_id'              => 3,
-            'is_leader'               => 3,
-            'latitude'                => 3,
-            'longitude'               => 3,
-            'offset_latitude'         => 3,
-            'offset_longitude'        => 3,
-            'accuracy'                => 3,
-            'priority'                => 3,
-            'verified_on'             => 3,
-            'languages_id'            => 3,
-            'timezone'                => 3,
-            'countries_id'            => 3,
-            'states_id'               => 3,
-            'cities_id'               => 3,
-            'redirect'                => 12,
-            'description'             => 6,
-            'comments'                => 6
-        ] ;
-
-        parent::setKeys();
     }
 }

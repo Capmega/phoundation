@@ -23,7 +23,7 @@ $help  = 'This script will list the available rights on this system
 
 
 
-ARGUMENTS (All arguments in square brackets are optional)
+ARGUMENTS
 
 
 --deleted                               Will also show deleted rights

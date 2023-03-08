@@ -1,11 +1,9 @@
 #!/usr/bin/php
 <?php
 
-use Phoundation\Accounts\Exception\AccountsException;
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\Documentation;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Filesystem\File;
 use Phoundation\Servers\SshAccount;
 
@@ -20,42 +18,17 @@ use Phoundation\Servers\SshAccount;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
+Documentation::autoComplete(SshAccount::getAutoComplete());
+
 Documentation::usage('./cli system servers accounts create [OPTIONS]
 ./cli system servers accounts create -u phoundation -k KEYFILE -d "This is a test account"');
 
 Documentation::help('This script allows you to create SSH accounts.
-
-
-
-ARGUMENTS (All arguments in square brackets are optional)
-
-
-
--n / --name                             The name for the account
-
--u / --username USERNAME                The username for this SSH account
-
-[-i / --ssh-key-file FILENAME]          The SSH private key file. If not specified, the script will turn interactive and 
-                                        request you paste the contents of the private key file 
-
-[-d / --description]                    A description for this SSH account');
-
-
-
-// Validate arguments
-ArgvValidator::new()
-    ->select('-n,--name', true)->isName()
-    ->select('-u,--username', true)->isVariable()
-    ->select('-i,--ssh-key-file', true)->isOptional()->isFile()
-    ->select('-d,--description', true)->isOptional()->isDescription()
-    ->noArgumentsLeft()
-    ->validate();
-
+' . SshAccount::getHelp());
 
 
 // Check if the account already exists
 SshAccount::notExists($argv['name'], null, true);
-
 
 
 // Add password for this account
@@ -67,15 +40,9 @@ if ($argv['ssh_key_file']) {
 }
 
 
-
 // Create account
-$account = SshAccount::new()
-    ->setName($argv['name'])
-    ->setUsername($argv['username'])
-    ->setDescription($argv['description'])
-    ->setSshKey($argv['ssh_key'])
-    ->save();
-
+$account = SshAccount::new()->create();
+$account->setSshKey($argv['ssh_key']);
 
 
 // Done!

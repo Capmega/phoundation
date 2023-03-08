@@ -43,7 +43,7 @@ class Documentation
 
         if (isset_get($argv['help'])) {
             Log::information(tr('Command help:'), 8);
-            Log::notice(trim($help) . PHP_EOL, 10, false);
+            Log::notice(trim($help), 10, false);
             Script::die();
         }
     }
@@ -78,7 +78,9 @@ class Documentation
     public static function autoComplete(array $definitions): void
     {
         if (AutoComplete::isActive()) {
-            AutoComplete::processScript($definitions);
+            AutoComplete::processScriptPositions(isset_get($definitions['positions']));
+            AutoComplete::processScriptArguments(isset_get($definitions['arguments']));
+            Script::die();
         }
     }
 }

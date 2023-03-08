@@ -3,7 +3,6 @@
 namespace Phoundation\Servers;
 
 use JetBrains\PhpStorm\ExpectedValues;
-use Phoundation\Accounts\Users\Users;
 use Phoundation\Business\Customers\Customers;
 use Phoundation\Business\Providers\Providers;
 use Phoundation\Data\Categories\Categories;
@@ -12,10 +11,14 @@ use Phoundation\Data\DataEntry\Traits\DataEntryCustomer;
 use Phoundation\Data\DataEntry\Traits\DataEntryDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryHostnamePort;
 use Phoundation\Data\DataEntry\Traits\DataEntryProvider;
-use Phoundation\Data\Validator\Validator;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Geo\Cities\Cities;
 use Phoundation\Geo\Countries\Countries;
 use Phoundation\Geo\Countries\Country;
 use Phoundation\Geo\States\State;
+use Phoundation\Geo\States\States;
 use Phoundation\Processes\Process;
 use Phoundation\Servers\Traits\DataEntrySshAccount;
 
@@ -48,11 +51,10 @@ class Server extends DataEntry
     {
         static::$entry_name  = 'server';
         $this->table         = 'servers';
-        $this->unique_column = 'seo_hostname';
+        $this->unique_field = 'seo_hostname';
 
         parent::__construct($identifier);
     }
-
 
 
     /**
@@ -312,37 +314,53 @@ class Server extends DataEntry
     }
 
 
-
     /**
      * Validates the provider record with the specified validator object
      *
-     * @param Validator $validator
-     * @return void
+     * @param ArgvValidator|PostValidator|GetValidator $validator
+     * @param bool $no_arguments_left
+     * @param bool $modify
+     * @return array
      */
-    public static function validate(Validator $validator): void
+    protected function validate(ArgvValidator|PostValidator|GetValidator $validator, bool $no_arguments_left = false, bool $modify = false): array
     {
-        $validator
-            ->select('hostname')->isOptional()->isDomain()
-            ->select('code')->isOptional()->isAlphaNumeric()
-            ->select('os_name')->isOptional()->inArray('debian','ubuntu','redhat','gentoo','slackware','linux','windows','freebsd','macos','other')
-            ->select('os_version')->isOptional()->isPrintable()
-            ->select('interval')->isOptional()->inArray(['hourly','daily','weekly','monthly','bimonthly','quarterly','semiannual','annually','none'])
-            ->select('bill_due_date')->isOptional()->isDate()
-            ->select('port')->isOptional()->isBetween(1, 65_535)
-            ->select('cost')->isOptional()->isCurrency()
-            ->select('accounts_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `ssh_accounts` WHERE `id` = :id AND `status` IS NULL', [':id' => '$accounts_id'])
-            ->select('categories_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `categories` WHERE `id` = :id AND `status` IS NULL', [':id' => '$categories_id'])
-            ->select('providers_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `providers` WHERE `id` = :id AND `status` IS NULL', [':id' => '$providers_id'])
-            ->select('customers_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `customers` WHERE `id` = :id AND `status` IS NULL', [':id' => '$customers_id'])
-            ->select('countries_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':id' => '$countries_id'])
-            ->select('states_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_states` WHERE `id` = :id AND `countries_id` = :countries_id AND `status` IS NULL', [':id' => 'states_id', ':countries_id' => '$countries_id'])
-            ->select('cities_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_cities` WHERE `id` = :id AND `states_id`    = :states_id    AND `status` IS NULL', [':id' => 'cities_id', ':states_id'    => '$states_id'])
-            ->select('description')->isOptional()->isPrintable()->hasMaxCharacters(65_530)
-            ->select('allow_sshd_modification')->isOptional()->isBoolean()
-            ->select('database_services')->isOptional()->isBoolean()
-            ->select('mail_services')->isOptional()->isBoolean()
-            ->select('web_services')->isOptional()->isBoolean()
+        $data = $validator
+            ->select($this->getAlternateValidationField('hostname'), true)->isOptional()->hasMaxCharacters(128)->isDomain()
+            ->select($this->getAlternateValidationField('code'), true)->isOptional()->hasMaxCharacters(16)->isAlphaNumeric()
+            ->select($this->getAlternateValidationField('os_name'), true)->isOptional()->hasMaxCharacters(12)->inArray('debian','ubuntu','redhat','gentoo','slackware','linux','windows','freebsd','macos','other')
+            ->select($this->getAlternateValidationField('os_version'), true)->isOptional()->hasMaxCharacters(16)->isPrintable()
+            ->select($this->getAlternateValidationField('interval'), true)->isOptional()->hasMaxCharacters(12)->inArray(['hourly','daily','weekly','monthly','bimonthly','quarterly','semiannual','annually','none'])
+            ->select($this->getAlternateValidationField('bill_due_date'), true)->isOptional()->isDate()
+            ->select($this->getAlternateValidationField('port'), true)->isOptional()->isBetween(1, 65_535)
+            ->select($this->getAlternateValidationField('cost'), true)->isOptional()->isCurrency()
+            ->select($this->getAlternateValidationField('account'), true)->xor('accounts_id')->isName()->isQueryColumn   ('SELECT `name` FROM `ssh_accounts`  WHERE `name` = :name AND `status` IS NULL', [':name' => '$account'])
+            ->select($this->getAlternateValidationField('accounts_id'), true)->xor('account')->isId()->isQueryColumn     ('SELECT `id`   FROM `ssh_accounts`  WHERE `id`   = :id   AND `status` IS NULL', [':id'   => '$accounts_id'])
+            ->select($this->getAlternateValidationField('category'), true)->xor('categories_id')->isName()->isQueryColumn('SELECT `name` FROM `categories`    WHERE `name` = :name AND `status` IS NULL', [':name' => '$category'])
+            ->select($this->getAlternateValidationField('categories_id'), true)->xor('category')->isId()->isQueryColumn  ('SELECT `id`   FROM `categories`    WHERE `id`   = :id   AND `status` IS NULL', [':id'   => '$categories_id'])
+            ->select($this->getAlternateValidationField('provider'), true)->xor('providers_id')->isName()->isQueryColumn ('SELECT `name` FROM `providers`     WHERE `name` = :name AND `status` IS NULL', [':name' => '$provider'])
+            ->select($this->getAlternateValidationField('providers_id'), true)->xor('provider')->isId()->isQueryColumn   ('SELECT `id`   FROM `providers`     WHERE `id`   = :id   AND `status` IS NULL', [':id'   => '$providers_id'])
+            ->select($this->getAlternateValidationField('customer'), true)->xor('customers_id')->isName()->isQueryColumn ('SELECT `name` FROM `customers`     WHERE `name` = :name AND `status` IS NULL', [':name' => '$customer'])
+            ->select($this->getAlternateValidationField('customers_id'), true)->xor('customer')->isId()->isQueryColumn   ('SELECT `id`   FROM `customers`     WHERE `id`   = :id   AND `status` IS NULL', [':id'   => '$customers_id'])
+            ->select($this->getAlternateValidationField('country'), true)->xor('countries_id')->isName()->isQueryColumn  ('SELECT `name` FROM `geo_countries` WHERE `name` = :name AND `status` IS NULL', [':name' => '$country'])
+            ->select($this->getAlternateValidationField('countries_id'), true)->xor('country')->isId()->isQueryColumn    ('SELECT `id`   FROM `geo_countries` WHERE `id`   = :id   AND `status` IS NULL', [':id'   => '$countries_id'])
+            ->select($this->getAlternateValidationField('state'), true)->xor('states_id')->isName()->isQueryColumn       ('SELECT `name` FROM `geo_states`    WHERE `name` = :name AND `countries_id` = :countries_id AND `status` IS NULL', [':name' => '$state'    , ':countries_id' => '$countries_id'])
+            ->select($this->getAlternateValidationField('states_id'), true)->xor('state')->isId()->isQueryColumn         ('SELECT `id`   FROM `geo_states`    WHERE `id`   = :id   AND `countries_id` = :countries_id AND `status` IS NULL', [':id'   => '$states_id', ':countries_id' => '$countries_id'])
+            ->select($this->getAlternateValidationField('city'), true)->xor('cities_id')->isName()->isQueryColumn        ('SELECT `name` FROM `geo_cities`    WHERE `name` = :name AND `states_id`    = :states_id    AND `status` IS NULL', [':name' => '$city'     , ':states_id'    => '$states_id'])
+            ->select($this->getAlternateValidationField('cities_id'), true)->xor('city')->isId()->isQueryColumn          ('SELECT `id`   FROM `geo_cities`    WHERE `id`   = :id   AND `states_id`    = :states_id    AND `status` IS NULL', [':id'   => '$cities_id', ':states_id'    => '$states_id'])
+            ->select($this->getAlternateValidationField('description'), true)->isOptional()->hasMaxCharacters(65_530)->isPrintable()
+            ->select($this->getAlternateValidationField('allow_sshd_modification'))->isOptional()->isBoolean()
+            ->select($this->getAlternateValidationField('database_services'))->isOptional()->isBoolean()
+            ->select($this->getAlternateValidationField('mail_services'))->isOptional()->isBoolean()
+            ->select($this->getAlternateValidationField('web_services'))->isOptional()->isBoolean()
+            ->noArgumentsLeft($no_arguments_left)
             ->validate();
+
+        // Ensure the hostname doesn't exist yet as it is a unique identifier
+        if ($data['hostname']) {
+            Server::notExists($data['hostname'], $this->getId(), true);
+        }
+
+        return $data;
     }
 
 
@@ -350,33 +368,141 @@ class Server extends DataEntry
     /**
      * @inheritDoc
      */
-    protected function setKeys(): void
+    public static function getFieldDefinitions(): array
     {
-        $this->keys = [
-            'hostname' => [
-                'maxlength' => 128,
-                'type'      => 'domain',
-                'label'     => tr('Hostname')
-            ],
+        return [
             'seo_hostname' => [
-                'visible' => false,
+                'visible'  => false,
+                'readonly' => true,
+            ],
+            'ssh_account' => [
+                'virtual'  => true,
+                'cli'      => '-a,--account ACCOUNT-NAME',
+                'complete' => [
+                    'word'   => function($word) { return SshAccounts::new()->filteredList($word); },
+                    'noword' => function()      { return SshAccounts::new()->list(); },
+                ],
+            ],
+            'category' => [
+                'virtual'  => true,
+                'cli'      => '--category CATEGORY-NAME',
+                'complete' => [
+                    'word'   => function($word) { return Categories::new()->filteredList($word); },
+                    'noword' => function()      { return Categories::new()->list(); },
+                ],
+            ],
+            'provider' => [
+                'virtual'  => true,
+                'cli'      => '--provider PROVIDER-NAME',
+                'complete' => [
+                    'word'   => function($word) { return Providers::new()->filteredList($word); },
+                    'noword' => function()      { return Providers::new()->list(); },
+                ],
+            ],
+            'customer' => [
+                'virtual'  => true,
+                'cli'      => '--customer CUSTOMER NAME',
+                'complete' => [
+                    'word'   => function($word) { return Customers::new()->filteredList($word); },
+                    'noword' => function()      { return Customers::new()->list(); },
+                ],
+            ],
+            'country' => [
+                'virtual'  => true,
+                'cli'      => '--country COUNTRY NAME',
+                'complete' => [
+                    'word'   => function($word) { return Countries::new()->filteredList($word); },
+                    'noword' => function()      { return Countries::new()->list(); },
+                ],
+            ],
+            'state' => [
+                'virtual'  => true,
+                'cli'      => '--state STATE-NAME',
+                'complete' => [
+                    'word'   => function($word) { return States::new()->filteredList($word); },
+                    'noword' => function()      { return States::new()->list(); },
+                ],
+            ],
+            'city' => [
+                'virtual'  => true,
+                'cli'      => '--city CITY-NAME',
+                'complete' => [
+                    'word'   => function($word) { return Cities::new()->filteredList($word); },
+                    'noword' => function()      { return Cities::new()->list(); },
+                ],
+            ],
+            'hostname' => [
+                'required'   => true,
+                'complete'   => true,
+                'size'       => 4,
+                'maxlength'  => 128,
+                'type'       => 'domain',
+                'cli'        => '-h,--hostname HOSTNAME',
+                'label'      => tr('Hostname'),
+                'help_group' => tr('Identification and network'),
+                'help'       => tr('The unique hostname for this server'),
+            ],
+            'ssh_accounts_id' => [
+                'required' => true,
+                'element'  => function (string $key, array $data, array $source) {
+                    return SshAccounts::getHtmlSelect($key)
+                        ->setSelected(isset_get($source['accounts_id']))
+                        ->render();
+                },
+                'complete'   => [
+                    'word'   => function($word) { return SshAccounts::new()->filteredList($word); },
+                    'noword' => function()      { return SshAccounts::new()->list(); },
+                ],
+                'cli'        => '--accounts-id DATABASE-ID',
+                'label'      => tr('SSH account'),
+                'size'       => 4,
+                'help_group' => tr(''),
+                'help'       => tr('The default SSH account used to communicat with this server'),
             ],
             'port' => [
-                'type'    => 'number',
-                'min'     => 1,
-                'max'     => 65535,
-                'label'   => tr('SSH port')
+                'required'   => true,
+                'complete'   => true,
+                'type'       => 'number',
+                'min'        => 1,
+                'max'        => 65535,
+                'size'       => 2,
+                'cli'        => '-p,--port PORT (1 - 65535)',
+                'label'      => tr('SSH port'),
+                'help_group' => tr('Identification and network'),
+                'help'       => tr('The port where one can connect to the servers SSH service'),
             ],
+            'code' => [
+                'size'       => 2,
+                'maxlength'  => 16,
+                'complete'   => true,
+                'cli'        => '-c,--code CODE',
+                'label'      => tr('Code'),
+                'help_group' => tr('Identification and network'),
+                'help'       => tr('A unique identifying code for this server'),
+            ],
+
             'cost' => [
-                'type'    => 'number',
-                'label'   => tr('Cost')
+                'type'       => 'number',
+                'min'        => 0,
+                'step'       => 'any',
+                'size'       => 4,
+                'complete'   => true,
+                'cli'        => '--cost CURRENCY',
+                'label'      => tr('Cost'),
+                'help_group' => tr('Payment'),
+                'help'       => tr('The cost per interval for this server'),
             ],
             'bill_due_date' => [
-                'type'    => 'date',
-                'label'   => tr('Bill due date')
+                'type'       => 'date',
+                'size'       => 4,
+                'complete'   => true,
+                'cli'        => '-b,--bill-due-date DATE',
+                'label'      => tr('Bill due date'),
+                'help_group' => tr('Payment'),
+                'help'       => tr('The next date when payment for this server is due'),
             ],
             'interval' => [
-                'label'   => tr('Payment interval'),
+                'element' => 'select',
                 'source'  => [
                     'hourly'     => tr('Hourly'),
                     'daily'      => tr('Daily'),
@@ -387,14 +513,26 @@ class Server extends DataEntry
                     'semiannual' => tr('Semiannual'),
                     'annually'   => tr('Annually'),
                 ],
+                'size'       => 4,
+                'complete'   => true,
+                'cli'        => '-i,--interval POSITIVE-INTEGER',
+                'label'      => tr('Payment interval'),
+                'help_group' => tr('Payment'),
+                'help'       => tr('The interval for when this server must be paid'),
             ],
+
             'categories_id' => [
                 'element'  => function (string $key, array $data, array $source) {
                     return Categories::getHtmlSelect($key)
                         ->setSelected(isset_get($source['categories_id']))
                         ->render();
                 },
-                'label'    => tr('Category'),
+                'complete'   => true,
+                'cli'        => '--categories-id DATABASE-ID',
+                'label'      => tr('Category'),
+                'size'       => 4,
+                'help_group' => tr(''),
+                'help'       => tr('The category under which this server is organised'),
             ],
             'providers_id' => [
                 'element'  => function (string $key, array $data, array $source) {
@@ -402,7 +540,12 @@ class Server extends DataEntry
                         ->setSelected(isset_get($source['providers_id']))
                         ->render();
                 },
-                'label'    => tr('Provider'),
+                'complete'   => true,
+                'cli'        => '--providers-id DATABASE-ID',
+                'label'      => tr('Provider'),
+                'size'       => 4,
+                'help_group' => tr(''),
+                'help'       => tr('The hosting provider that rents this server'),
             ],
             'customers_id' => [
                 'element'  => function (string $key, array $data, array $source) {
@@ -410,23 +553,26 @@ class Server extends DataEntry
                         ->setSelected(isset_get($source['customers_id']))
                         ->render();
                 },
-                'label'    => tr('Customer'),
+                'complete'   => true,
+                'cli'        => '--customers-id DATABASE-ID',
+                'label'      => tr('Customer'),
+                'size'       => 4,
+                'help_group' => tr(''),
+                'help'       => tr('The customer to which this server is assigned'),
             ],
-            'ssh_accounts_id' => [
-                'element'  => function (string $key, array $data, array $source) {
-                    return SshAccounts::getHtmlSelect($key)
-                        ->setSelected(isset_get($source['accounts_id']))
-                        ->render();
-                },
-                'label'    => tr('SSH account'),
-            ],
+
             'countries_id' => [
                 'element'  => function (string $key, array $data, array $source) {
                     return Countries::getHtmlCountriesSelect($key)
                         ->setSelected(isset_get($source['countries_id']))
                         ->render();
                 },
-                'label'    => tr('Country')
+                'complete'   => true,
+                'cli'        => '--countries-id DATABASE-ID',
+                'label'      => tr('Country'),
+                'size'       => 4,
+                'help_group' => tr(''),
+                'help'       => tr('The country where this server is located'),
             ],
             'states_id' => [
                 'element'  => function (string $key, array $data, array $source) {
@@ -434,8 +580,12 @@ class Server extends DataEntry
                         ->setSelected(isset_get($source['states_id']))
                         ->render();
                 },
-                'execute'  => 'countries_id',
-                'label'    => tr('State'),
+                'cli'        => '--states-id DATABASE-ID',
+                'execute'    => 'countries_id',
+                'label'      => tr('State'),
+                'size'       => 4,
+                'help_group' => tr(''),
+                'help'       => tr('The state where this server is located'),
             ],
             'cities_id' => [
                 'element'  => function (string $key, array $data, array $source) {
@@ -443,15 +593,16 @@ class Server extends DataEntry
                         ->setSelected(isset_get($source['cities_id']))
                         ->render();
                 },
-                'execute'  => 'states_id',
-                'label'    => tr('City'),
+                'complete'   => true,
+                'execute'    => 'states_id',
+                'cli'        => '--cities-id DATABASE-ID',
+                'label'      => tr('City'),
+                'size'       => 4,
+                'help_group' => tr(''),
+                'help'       => tr('The city where this server is located'),
             ],
-            'description' => [
-                'maxlength' => 2047,
-                'label'   => tr('Description')
-            ],
+
             'os_name' => [
-                'label'   => tr('Operating system'),
                 'source'  => [
                     'debian'    => tr('Debian'),
                     'ubuntu'    => tr('Ubuntu'),
@@ -464,56 +615,73 @@ class Server extends DataEntry
                     'macos'     => tr('Mac OS'),
                     'other'     => tr('Other')
                 ],
+                'complete'   => true,
+                'cli'        => '-o,--os-name OPERATING-SYSTEM-NAME',
+                'label'      => tr('Operating system'),
+                'size'       => 9,
+                'help_group' => tr(''),
+                'help'       => tr('The name of the operating system installed on this server'),
             ],
             'os_version' => [
-                'maxlength' => 16,
-                'label'   => tr('OSOperating system version')
+                'maxlength'  => 16,
+                'complete'   => true,
+                'cli'        => '-v,--os-version VERSION',
+                'label'      => tr('Operating System version'),
+                'size'       => 3,
+                'help_group' => tr(''),
+                'help'       => tr('The current version of the installed operating system'),
             ],
+
             'web_services' => [
-                'default' => false,
-                'type'    => 'checkbox',
-                'label'   => tr('Web services'),
+                'default'    => false,
+                'type'       => 'checkbox',
+                'complete'   => false,
+                'cli'        => '-w,--web-services',
+                'label'      => tr('Web services'),
+                'size'       => 3,
+                'help_group' => tr(''),
+                'help'       => tr('Sets if this server manages web services'),
             ],
             'mail_services' => [
-                'default' => false,
-                'type'    => 'checkbox',
-                'label'   => tr('Email services'),
+                'default'    => false,
+                'type'       => 'checkbox',
+                'complete'   => false,
+                'cli'        => '-m,--mail-services',
+                'label'      => tr('Email services'),
+                'size'       => 3,
+                'help_group' => tr(''),
+                'help'       => tr('Sets if this server manages mail services'),
             ],
             'database_services' => [
-                'default' => false,
-                'type'    => 'checkbox',
-                'label'   => tr('Database services'),
+                'default'    => false,
+                'type'       => 'checkbox',
+                'complete'   => false,
+                'cli'        => '-e,--database-services SERVICE-NAME [SERVICE-NAME]',
+                'label'      => tr('Database services'),
+                'size'       => 3,
+                'help_group' => tr(''),
+                'help'       => tr('Sets if this server manages database services'),
             ],
             'allow_sshd_modification' => [
-                'default' => false,
-                'type'    => 'checkbox',
-                'label'   => tr('Allow SSHD modification'),
+                'default'    => false,
+                'type'       => 'checkbox',
+                'complete'   => false,
+                'cli'        => '-s,--allow-sshd-modification',
+                'label'      => tr('Allow SSHD modification'),
+                'size'       => 3,
+                'help_group' => tr(''),
+                'help'       => tr('Sets if this server allows modification of SSH configuration'),
+            ],
+
+            'description' => [
+                'maxlength'  => 2047,
+                'complete'   => true,
+                'cli'        => '-d,--description DESCRIPTION',
+                'label'      => tr('Description'),
+                'size'       => 12,
+                'help_group' => tr(''),
+                'help'       => tr('A description for this server'),
             ],
         ];
-
-        $this->keys_display = [
-            'code'                    => 4,
-            'accounts_id'             => 4,
-            'hostname'                => 8,
-            'port'                    => 4,
-            'categories_id'           => 4,
-            'providers_id'            => 4,
-            'customers_id'            => 4,
-            'countries_id'            => 4,
-            'states_id'               => 4,
-            'cities_id'               => 4,
-            'cost'                    => 4,
-            'bill_due_date'           => 4,
-            'interval'                => 4,
-            'os_name'                 => 6,
-            'os_version'              => 6,
-            'web_services'            => 3,
-            'mail_services'           => 3,
-            'database_services'       => 3,
-            'allow_sshd_modification' => 3,
-            'description'             => 12,
-        ] ;
-
-        parent::setKeys();
     }
 }

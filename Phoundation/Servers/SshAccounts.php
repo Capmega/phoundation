@@ -82,7 +82,7 @@ class SshAccounts extends DataList
     /**
      * @inheritDoc
      */
-    protected function load(bool|string|null $id_column = false): static
+    protected function load(string|int|null $id_column = null): static
     {
         // TODO: Implement load() method.
     }

@@ -1,155 +1,53 @@
 #!/usr/bin/php
 <?php
 
-use Phoundation\Accounts\Exception\AccountsException;
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\Documentation;
-use Phoundation\Core\Locale\Language\Languages;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Geo\Countries\Countries;
-use Phoundation\Geo\Timezones\Timezones;
 
 
 /**
  * Script system/accounts/users/create
  *
- * This script will create a new user with the specified properties
+ * This command will create a new user with the specified properties
  *
+ * @todo Add support for receiving the user password over STDIN so that interactive mode is no longer required
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::autoComplete([
-    'arguments' => [
-        '-e,--email'       => true,
-        '-n,--name'        => true,
-        '-r,--roles'       => true,
-        '-g,--gender'      => [tr('Male'), tr('Female'), tr('Other'), ],
-        '-t,--title'       => true,
-        '-l,--language'    => [
-            'word'   => function($word) { return Languages::new()->list(); },
-            'noword' => function() { return Languages::new()->list(); },
-        ],
-        '-d,--description' => true,
-        '-c,--comments'    => true,
-        '-u,--username'    => true,
-        '-a,--address'     => true,
-        '-w,--website'     => true,
-        '-p,--phones'      => true,
-        '-b,--birthdate'   => true,
-        '-t,--timezone'    => [
-            'word'   => function($word) { return Timezones::new()->list(); },
-            'noword' => function() { return Timezones::new()->list(); },
-        ],
-        '--domain'         => true,
-        '--lead-by'        => [
-            'word' => 'SELECT `email` FROM `accounts_users` WHERE `email` LIKE :word AND `status` IS NULL'
-        ],
-        '--country'        => [
-            'word'   => function() { return Countries::new()->list(); },
-            'noword' => function() { return Countries::new()->list(); },
-        ],
-        '--state'          => true,
-        '--city'           => true,
-        '--is-leader'      => false,
-    ]
-]);
 
-Documentation::usage('./cli system accounts users create EMAIL [OPTIONS]
-./cli system users create user@example.com -d "This is a test user"');
+// Documentation
+Documentation::autoComplete(User::getAutoComplete());
 
-Documentation::help('This script allows you to create users
+Documentation::usage(tr('./pho system accounts users create -e EMAIL [OPTIONS]
+./pho system users create user@example.com -d "This is a test user"'));
+
+Documentation::help(User::getHelp('This command allows you to create new users.
+
+NOTE: This script is interactive as it asks the password for the user on the command line! ') . '
+
+
+EXTRA INFORMATION
 
 
 
-ARGUMENTS (All arguments in square brackets are optional)
+[--roles ROLE[,ROLE,ROLE]               A comma separated list of the roles that this user has on this system. The roles 
+[--role  ROLE[,ROLE,ROLE]               must already exist. These roles will grant the user rights which will give him 
+[-r      ROLE[,ROLE,ROLE]               or her access to the various parts of the system
+
+--no-password                           If this flag has been specified, the user password will not be set.');
 
 
-
-EMAIL                                   The email address for the user
-
--n / --name                             The name for the user
-
--r / --roles ROLE[,ROLE,ROLE]           A comma separated list of the roles that this user has on this system. The roles 
-                                        must already exist. These roles will grant the user rights which will give him 
-                                        or her access to the various parts of the system
-
-[-g / --gender GENDER]                  The gender for this user
-
-[-t / --title TITLE]                    The title for this user
-
-[-l / --language LANGUAGE]              The system language for this user
-
-[-d / --description DESCRIPTION]        A description about this user
-
-[-c / --comments COMMENTS]              Comments about this user (These are not visible to the user)
-
-[-u / --username USERNAME]              The system username
-
-[-a / --address ADDRESS]                The address for this user
-   
-[-u / --url URL]                        The URL for this user where the user has information about themselves
-
-[-p / --phones PHONES]                  The phone(s) for this user
-
-[-b / --birthdate BIRTHDATE]            The birthdate for this user 
-
-[-t / --timezone TIMEZONE]              The timezone for this user
-
-[--domain DOMAIN]                       The domain where this user is valid
-
-[--lead-by USER]                        The email or id of the user that is the leader for this user
-
-[--country COUNTRY]                     The country code or name where the user resides
-
-[--state STATE]                         The state where the user resides
-
-[--city CITY]                           The city where the user resides
-
-[--is-leader]                           If specified, this user will be registered as having a leadership position');
-
-
-
-// Validate arguments
-ArgvValidator::new()
-    ->select('email', true)->isEmail()
-    ->select('-a,--address', true)->isOptional()->hasMaxCharacters(255)->isPrintable()
-    ->select('-b,--birthday', true)->isOptional()->isDate()
-    ->select('-c,--comments', true)->isOptional()->isDescription()
-    ->select('-d,--description', true)->isOptional()->isDescription()
-    ->select('-g,--gender', true)->isOptional()->isGender()
-    ->select('-l,--language', true)->isName()
-    ->select('-p,--phones', true)->isOptional()->isPhones()
-    ->select('-t,--title', true)->isOptional()->isName()
-    ->select('-u,--username', true)->isOptional()->isDescription()->isName()
-    ->select('-w,--website', true)->isOptional()->isUrl()
+// Validate user roles
+$argv = ArgvValidator::new()
     ->select('--no-password')->isOptional(false)->isBoolean()
-    ->select('--first-names', true)->isOptional()->isName()
-    ->select('--last-names', true)->isOptional()->isName()
-    ->select('--timezone', true)->isOptional()->isTimezone()
-    ->select('--domain', true)->isOptional()->isDomain()
-    ->select('--is-leader')->isOptional(false)->isBoolean()
-    ->select('--lead-by', true)->isOptional()->isEmail()
-    ->select('--country', true)->isOptional()->isName()
-    ->select('--state', true)->isOptional()->isName()
-    ->select('--city', true)->isOptional()->isName()
-    ->select('--company', true)->isOptional()->isName()
-    ->select('--department', true)->isOptional()->isName()
-    ->select('--branch', true)->isOptional()->isName()
-    ->select('-r,--roles,--role', true)->sanitizeForceArray()->each()->isName()
-    ->noArgumentsLeft()
+    ->select('--roles', true)->isOptional()->sanitizeForceArray()->each()->isName()
     ->validate();
-
-
-
-// Check if the user already exists
-User::notExists($argv['email'], null, true);
-
 
 
 // Ensure that specified roles exist
@@ -161,31 +59,25 @@ if ($argv['roles']) {
     unset($role);
 }
 
-
-
-// Get and validate password for this user
-if (!$argv['no_password']) {
-    $argv['password']          = Cli::readPassword(tr('Please type the users password:'));
-    $argv['password_validate'] = Cli::readPassword(tr('Please re-type the users password:'));
-}
-
-
-
-// Create user
-$user = User::new()->create($argv)->save();
-
-
-
-// Update the users password
-if (!$argv['no_password']) {
-    $user->setPassword($argv['password'], $argv['password_validate']);
-}
-
-
-
-// Set users roles
+// Create user and set users roles
+$user = User::new()->create();
 $user->roles()->add($argv['roles']);
 
+
+// Get update the users password
+if (!$argv['no_password']) {
+    try {
+        $password          = Cli::readPassword(tr('Please type the users password:'));
+        $password_validate = Cli::readPassword(tr('Please re-type the users password:'));
+
+        $user->setPassword($password, $password_validate);
+
+    } catch (Throwable $e) {
+        // Password update failed, remove the user and continue so we can retry later
+        $user->erase();
+        throw $e;
+    }
+}
 
 
 // Done!

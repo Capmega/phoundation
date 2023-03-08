@@ -66,6 +66,13 @@ class Script
      */
     protected static ?array $methods = null;
 
+    /**
+     * The methods that were found in the ROOT/scripts path
+     *
+     * @var array $found_methods
+     */
+    protected static array $found_methods = [];
+
 
     /**
      * Execute a command by the "cli" script
@@ -101,9 +108,23 @@ class Script
                 // Get the script file to execute and execute auto complete for within this script, if available
                 $script = static::findScript();
 
+                // AutoComplete::getPosition() might become -1 if one were to <TAB> right at the end of the last method.
+                // If this is the case we actually have to expand the method, NOT yet the script parameters!
+                if ((AutoComplete::getPosition() - count(self::$found_methods)) === 0) {
+                    throw MethodNotExistsException::new(tr('The specified method file ":file" does exist but requires auto complete extension', [
+                        ':file' => $script
+                    ]))
+                        ->makeWarning()
+                        ->setData([
+                            'position' => AutoComplete::getPosition(),
+                            'methods'  => [basename($script)]
+                        ]);
+                }
+
                 // Check if this script has support for auto complete. If not
                 if (!AutoComplete::hasSupport($script)) {
-                    // This script has no auto complete support, so we're done here.
+                    // This script has no auto complete support, so if we execute the script it won't go for auto
+                    // complete but execute normally which is not what we want. we're done here.
                     self::die();
                 }
 
@@ -113,8 +134,108 @@ class Script
             }
 
         } else {
-            // Get the script file to execute
-            $script = static::findScript();
+            try {
+                // Get the script file to execute
+                $script = static::findScript();
+
+            } catch (NoMethodSpecifiedException) {
+                Documentation::usage('./pho METHODS [ARGUMENTS]
+./pho system info
+./pho system accounts users create --help
+./pho system <TAB>');
+
+                Documentation::help(tr('This is the Phoundation CLI interface "pho"
+
+With this Command Line Interface script you can manage your Phoundation installation. Almost all web interface 
+functionalities are also available on the command line and certain maintenance and development options are ONLY 
+available on the CLI
+
+The pho script command line has bash command line auto complete support so with the <TAB> button you can very easily see 
+what methods are available to you. Auto complete support is also already enabled for some of the methods so (for 
+example) user creation with "pho system accounts user create" can show all available options with <TAB>
+
+The system arguments are ALWAYS available no matter what method is being executed. Some arguments always apply, others 
+only apply for the commands that implement and or use them. If a system modifier argument was specified with a command 
+that does not support it, it will simply be ignored. See the --help output for each method for more information. 
+           
+                
+                
+SYSTEM ARGUMENTS
+
+
+
+-A,--all                                If set, the system will run in ALL mode, which typically will display normally 
+                                        hidden information like deleted entries. Only used by specific commands, check 
+                                        --help on commands to see if and how this flag is used. 
+
+-C,--no-color                           If set, your log and console output will no longer have color
+
+-D,--debug                              If set will run your system in debug mode. Debug commands will now generate and 
+                                        display output
+
+-E,--environment ENVIRONMENT            Sets or overrides the environment with which your pho command will be running. 
+                                        If no environment was set in the shell environment using the  
+                                        ":environment" variable, your pho command will refuse to   
+                                        run unless you specify the environment manually using these flags. The   
+                                        environment has to exist as a ROOT/config/ENVIRONMENT.yaml file
+
+-F,--force                              If specified will run the CLI command in FORCE mode, which will override certain 
+                                        restrictions. See --help for information on how specific commands deal with this 
+                                        flag 
+
+-H,--help                               If specified will display the help page for this command
+
+-L,--log-level LEVEL                    If specified will set the minimum threshold level for log messages to appear. 
+                                        Any message with a threshold level below the indicated amount will not appear in 
+                                        the logs. Defaults to 5.
+
+-O,--order-by "COLUMN ASC|DESC"         If specified and used by the script (only scripts that display tables) will  
+                                        order the table contents on the specified column in the specified direction. 
+                                        Defaults to nothing
+
+-P,--page PAGE                          If specified and used by the script (only scripts that display tables) will show 
+                                        the table on the specified page. Defaults to 1
+
+-Q,--quiet                              Will have the system run in quiet mode, suppressing log startup and shutdown 
+                                        messages  
+
+-S,--status STATUS                      If specified will only display DataEntry entries with the specified status                                        
+
+-T,--test                               Will run the system in test mode. Different scripts may change their behaviour 
+                                        depending on this flag, see their --help output for more information. 
+                                        
+                                        NOTE: In this mode, temporary directories will NOT be removed upon shutdown so  
+                                        that their contents can be used for debugging and testing.
+
+-U,--usage                              Prints various command usage examples
+
+-V,--verbose                            Will print more output during log startup and shutdown
+
+-W,--no-warnings                        Will only use "error" type exceptions with backtrace and extra information, 
+                                        instead of displaying only the main exception message for warnings
+
+--system-language                       Sets the system language for all output
+
+--deleted                               Will show deleted DataEntry records 
+
+--version                               Will display the current version for your Phoundation installation
+
+--limit NUMBER                          Will limit table output to the amount of specified fields
+
+--timezone STRING                       Sets the specified timezone for the command you are executing
+
+--show-passwords                        Will display passwords visibly on the command line. Both typed passwords and 
+                                        data output will show passwords in the clear!
+
+--no-validation                         Will not validate any of the data input. 
+
+                                        WARNING: This may result in invalid data in your database!
+
+--no-password-validation                Will not validate passwords.
+
+                                        WARNING: This may result in weak and or compromised passwords in your database
+                ', [':environment' => 'PHOUNDATION_' . PROJECT . '_ENVIRONMENT']));
+            }
         }
 
         static::$script = static::limitScript($script, isset_get($limit), isset_get($reason));
@@ -141,6 +262,16 @@ class Script
         return static::$exit_code;
     }
 
+
+    /**
+     * Returns the list of methods that came to the script that executed
+     *
+     * @return array
+     */
+    public static function getMethods(): array
+    {
+        return self::$methods;
+    }
 
 
     /**
@@ -211,6 +342,7 @@ class Script
                 ]);
         }
 
+        $position      = 0;
         $file          = PATH_ROOT . 'scripts/';
         $methods       = ArgvValidator::getMethods();
         self::$methods = $methods;
@@ -273,6 +405,7 @@ class Script
             }
 
             // Continue scanning
+            self::$found_methods[] = $method;
         }
 
         // Here we're still in a directory. If a file exists in that directory with the same name as the directory

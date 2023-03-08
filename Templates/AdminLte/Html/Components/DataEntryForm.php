@@ -128,7 +128,7 @@ class DataEntryForm extends Renderer
                     $data['readonly'] = $data['null_readonly'];
                 }
 
-                $source[$key] = isset_get($data['display_default']);
+                $source[$key] = isset_get($data['default']);
             }
 
             // Build the form elements

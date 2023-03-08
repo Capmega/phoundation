@@ -205,17 +205,22 @@ class ArgvValidator extends Validator
 
 
     /**
-     * Throws an exception if there are still arguments left in the Arguments validator object
+     * Throws an exception if there are still arguments left in the argv source
      *
+     * @param bool $apply
      * @return static
      */
-    public function noArgumentsLeft(): static
+    public function noArgumentsLeft(bool $apply = true): static
     {
+        if (!$apply) {
+             return $this;
+        }
+
         if (empty(static::$argv)) {
             return $this;
         }
 
-        throw CliInvalidArgumentsException::new(tr('Invalid arguments ":arguments" encountered', [
+        throw CliInvalidArgumentsException::new(tr('Invalid command line arguments ":arguments" encountered', [
             ':arguments' => Strings::force(static::$argv, ', ')
         ]))->makeWarning();
     }

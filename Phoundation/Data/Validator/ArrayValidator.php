@@ -4,6 +4,9 @@ namespace Phoundation\Data\Validator;
 
 
 
+use Phoundation\Core\Strings;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
+
 /**
  * ArrayValidator class
  *

@@ -59,12 +59,12 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `categories_id` bigint DEFAULT NULL,
-                    `name` varchar(32) NOT NULL,
-                    `seo_name` varchar(32) NOT NULL,
+                    `name` varchar(64) NOT NULL,
+                    `seo_name` varchar(64) NOT NULL,
                     `email` varchar(128) DEFAULT NULL,
-                    `phones` varchar(36) DEFAULT NULL,
+                    `phones` varchar(64) CHARACTER SET latin1 DEFAULT NULL,
                     `code` varchar(64) DEFAULT NULL,
-                    `url` varchar(255) DEFAULT NULL,
+                    `url` varchar(2048) DEFAULT NULL,
                     `description` varchar(2040) DEFAULT NULL
                 ')->setIndices(' 
                     PRIMARY KEY (`id`),
@@ -93,8 +93,8 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `name` varchar(64) DEFAULT NULL,
                     `code` varchar(64) DEFAULT NULL,
                     `company` varchar(64) DEFAULT NULL,
-                    `email` varchar(96) DEFAULT NULL,
-                    `phones` varchar(36) DEFAULT NULL,
+                    `email` varchar(128) DEFAULT NULL,
+                    `phones` varchar(64) CHARACTER SET latin1 DEFAULT NULL,
                     `documents_id` bigint DEFAULT NULL,
                     `categories_id` bigint DEFAULT NULL,
                     `address1` varchar(64) DEFAULT NULL,
@@ -105,7 +105,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `states_id` bigint DEFAULT NULL,
                     `cities_id` bigint DEFAULT NULL,
                     `seo_name` varchar(64) DEFAULT NULL,
-                    `url` varchar(255) DEFAULT NULL,
+                    `url` varchar(2048) DEFAULT NULL,
                     `description` varchar(2040) DEFAULT NULL
                 ')->setIndices(' 
                     PRIMARY KEY (`id`),

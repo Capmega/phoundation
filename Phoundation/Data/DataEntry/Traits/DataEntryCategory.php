@@ -45,14 +45,14 @@ trait DataEntryCategory
     /**
      * Returns the categories_id for this user
      *
-     * @return Category|null
+     * @return static|null
      */
-    public function getCategory(): ?Category
+    public function getCategory(): ?static
     {
         $categories_id = $this->getDataValue('categories_id');
 
         if ($categories_id) {
-            return new Category($categories_id);
+            return new static($categories_id);
         }
 
         return null;
@@ -69,7 +69,7 @@ trait DataEntryCategory
     public function setCategory(Category|string|int|null $categories_id): static
     {
         if (!is_numeric($categories_id)) {
-            $categories_id = Category::get($categories_id);
+            $categories_id = static::get($categories_id);
         }
 
         if (is_object($categories_id)) {

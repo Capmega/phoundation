@@ -3,16 +3,22 @@
 namespace Phoundation\Servers;
 
 use Phoundation\Accounts\Users\Users;
+use Phoundation\Core\Locale\Language\Languages;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryUsername;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Filesystem\Traits\Restrictions;
+use Phoundation\Geo\Countries\Countries;
+use Phoundation\Geo\Timezones\Timezones;
 
 
 /**
  * SshAccount class
  *
- * This class manages the localhost server
+ *
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -33,13 +39,11 @@ class SshAccount extends DataEntry
      */
     public function __construct(int|string|null $identifier = null)
     {
-        static::$entry_name  = 'SSH account';
-        $this->table         = 'ssh_accounts';
-        $this->unique_column = 'seo_name';
+        static::$entry_name = 'SSH account';
+        $this->table        = 'ssh_accounts';
 
         parent::__construct($identifier);
     }
-
 
 
     /**
@@ -68,41 +72,85 @@ class SshAccount extends DataEntry
 
 
     /**
+     * Validates the provider record with the specified validator object
+     *
+     * @param ArgvValidator|PostValidator|GetValidator $validator
+     * @param bool $no_arguments_left
+     * @param bool $modify
+     * @return array
+     */
+    protected function validate(ArgvValidator|PostValidator|GetValidator $validator, bool $no_arguments_left = false, bool $modify = false): array
+    {
+        $data = $validator
+            ->select('name', true)->hasMaxCharacters(64)->isName()
+            ->select('username', true)->hasMaxCharacters(64)->isVariable()
+            ->select('ssh_key', true)->xor('ssh_key_file')->hasMaxCharacters(255)->isFile()
+            ->select('ssh_key_file', true)->xor('ssh_key')->hasMaxCharacters(65_535)->matchesRegex('-----BEGIN .+? PRIVATE KEY-----.+?-----END .+? PRIVATE KEY-----')
+            ->select('description', true)->isOptional()->hasMaxCharacters(65_535)->isDescription()
+            ->noArgumentsLeft()
+            ->validate();
+
+        // Ensure the hostname doesn't exist yet as it is a unique identifier
+        if ($data['name']) {
+            Server::notExists($data['name'], $this->getId(), true);
+        }
+
+        return $data;
+    }
+
+
+
+    /**
      * @inheritDoc
      */
-    protected function setKeys(): void
+    public static function getFieldDefinitions(): array
     {
-        $this->keys = [
+        return [
             'name' => [
-                'maxlength' => 64,
-                'label'     => tr('Name')
+                'required'   => true,
+                'complete'   => true,
+                'cli'        => '-n,--name NAME',
+                'size'       => 6,
+                'maxlength'  => 64,
+                'label'      => tr('Name'),
+                'help_group' => tr('Identification'),
+                'help'       => tr('The name for this account'),
             ],
             'seo_name' => [
-                'visible' => false,
+                'visible'  => false,
+                'readonly' => false,
             ],
             'username' => [
-                'maxlength' => 64,
-                'label'     => tr('Username')
+                'required'   => true,
+                'complete'   => true,
+                'cli'        => '-u,--username NAME',
+                'size'       => 6,
+                'maxlength'  => 64,
+                'label'      => tr('Username'),
+                'help_group' => tr(''),
+                'help'       => tr('The username on the server for this account'),
             ],
             'description' => [
-                'element'   => 'text',
-                'maxlength' => 2047,
-                'label'     => tr('Description')
+                'element'    => 'text',
+                'complete'   => true,
+                'cli'        => '-d,--description DESCRIPTION',
+                'size'       => 12,
+                'maxlength'  => 65_535,
+                'label'      => tr('Description'),
+                'help_group' => tr(''),
+                'help'       => tr('The description for this account'),
             ],
             'ssh_key' => [
-                'element'   => 'text',
-                'maxlength' => 65535,
-                'label'     => tr('SSH Key')
+                'required'   => true,
+                'complete'   => true,
+                'cli'        => '-i,--ssh-key-file FILE',
+                'element'    => 'text',
+                'size'       => 12,
+                'maxlength'  => 65_535,
+                'label'      => tr('SSH Key'),
+                'help_group' => tr(''),
+                'help'       => tr('The SSH private key associated with this username'),
             ],
        ];
-
-        $this->keys_display = [
-            'name'        => 6,
-            'username'    => 6,
-            'description' => 12,
-            'ssh_key'     => 12,
-        ] ;
-
-        parent::setKeys();
     }
 }

@@ -8,8 +8,8 @@ class Hook extends \Phoundation\Data\DataEntry\DataEntry
     /**
      * @inheritDoc
      */
-    protected function setKeys(): void
+    public static function getFieldDefinitions(): array
     {
-        // TODO: Implement setKeys() method.
+        // TODO: Implement getFieldDefinitions() method.
     }
 }

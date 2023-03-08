@@ -58,7 +58,7 @@ class States extends DataList
     /**
      * @inheritDoc
      */
-    protected function load(?string $id_column = null): static
+    protected function load(string|int|null $id_column = null): static
     {
         // TODO: Implement load() method.
     }

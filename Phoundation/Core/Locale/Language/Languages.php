@@ -61,7 +61,7 @@ class Languages extends DataList
      * @param string|null $id_column
      * @return $this
      */
-    protected function load(?string $id_column = null): static
+    protected function load(string|int|null $id_column = null): static
     {
         $this->list = sql()->list('SELECT `languages`.`id`, substring_index(substring_index(`languages`.`name`, "(", 1), ",", 1) AS `name` 
                                    FROM     `languages` 

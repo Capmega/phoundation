@@ -151,7 +151,7 @@ trait ProcessVariables
      *
      * @var array $output_redirect
      */
-    protected array $output_redirect = [2 => '&1'];
+    protected array $output_redirect = [2 => '>&1'];
 
     /**
      * Keeps track on which server this command should be executed. NULL means this local server
@@ -220,7 +220,7 @@ trait ProcessVariables
 
 
     /**
-     * Process class contructor
+     * Process class constructor
      *
      * @param Restrictions|array|string|null $restrictions
      */
@@ -903,6 +903,18 @@ trait ProcessVariables
 
 
     /**
+     * Returns the process where the output of this command will be piped to, IF specified
+     *
+     * @return Process|null
+     */
+    public function getPipe(): ?Process
+    {
+        return $this->pipe;
+    }
+
+
+
+    /**
      * Sets the process where the output of this command will be piped to, IF specified
      *
      * @param Process|null $pipe
@@ -919,19 +931,6 @@ trait ProcessVariables
     }
 
 
-
-    /**
-     * Returns the process where the output of this command will be piped to, IF specified
-     *
-     * @return Process|null
-     */
-    public function getPipe(): ?Process
-    {
-        return $this->pipe;
-    }
-
-
-
     /**
      * Sets the output redirection for this process
      *
@@ -942,6 +941,8 @@ trait ProcessVariables
      */
     public function setOutputRedirect(?string $redirect, int $channel = 1, bool $append = false): static
     {
+        $this->validateStream($channel, 'output');
+
         if ($redirect) {
             if ($redirect[0] === '&') {
                 // Redirect output to other channel
@@ -950,6 +951,7 @@ trait ProcessVariables
                         ':redirect' => $redirect
                     ]);
                 }
+
             } else {
                 // Redirect output to a file
                 File::new($redirect, $this->restrictions)->checkWritable('output redirect file', true);
@@ -1216,5 +1218,23 @@ trait ProcessVariables
     {
         $this->debug = $debug;
         return $this;
+    }
+
+
+    /**
+     * Validates the specified stream
+     *
+     * @param int $stream
+     * @param string $type
+     * @return $this
+     */
+    protected function validateStream(int $stream, string $type): static
+    {
+        if (($stream < 1) or ($stream > 10)) {
+            throw new OutOfBoundsException(tr('Invalid ":type" stream ":stream" specified', [
+                ':type'   => $type,
+                ':stream' => $stream
+            ]));
+        }
     }
 }

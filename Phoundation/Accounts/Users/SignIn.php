@@ -41,7 +41,7 @@ class SignIn extends DataEntry
     {
         static::$entry_name  = 'signin';
         $this->table         = 'accounts_signins';
-        $this->unique_column = 'id';
+        $this->unique_field = 'id';
 
         parent::__construct($identifier);
     }
@@ -64,15 +64,15 @@ class SignIn extends DataEntry
 
 
     /**
-     * Sets the available data keys for the SignIn class
+     * Sets the available data keys for the User class
      *
-     * @return void
+     * @return array
      */
-    protected function setKeys(): void
+    public static function getFieldDefinitions(): array
     {
-       $this->keys = [
+       return [
            'ip_address' => [
-               'disabled' => true,
+               'readonly' => true,
                'label'    => tr('IP Address')
            ],
            'ip_address_human' => [
@@ -82,15 +82,15 @@ class SignIn extends DataEntry
                 'display'  => false
             ],
             'user_agent' => [
-                'disabled' => true,
+                'readonly' => true,
                 'label' => tr('User agent')
             ],
             'latitude' => [
-                'disabled' => true,
+                'readonly' => true,
                 'label'    => tr('Latitude'),
             ],
             'longitude' => [
-                'disabled' => true,
+                'readonly' => true,
                 'label'    => tr('Longitude')
             ],
            'countries_id' => [
@@ -113,7 +113,7 @@ class SignIn extends DataEntry
            ],
         ];
 
-        $this->keys_display = [
+        $this->field_display = [
             'ip_address'   => 6,
             'user_agent'   => 6,
             'latitude'     => 4,
@@ -122,6 +122,6 @@ class SignIn extends DataEntry
             'timezones_id' => 4,
         ] ;
 
-        parent::setKeys();
+        parent::setFields();
     }
 }

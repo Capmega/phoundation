@@ -213,9 +213,11 @@ trait ValidatorBasics
      *
      * This means that either it may not exist, or it's contents may be NULL
      *
-     * @see Validator::xor()
      * @param array|string|float|int|bool|null $default
      * @return static
+     *
+     * @see Validator::xor()
+     * @see Validator::or()
      */
     public function isOptional(array|string|float|int|bool|null $default = null): static
     {
@@ -224,13 +226,14 @@ trait ValidatorBasics
     }
 
 
-
     /**
      * This method will make sure that either this field OR the other specified field will have a value
      *
-     * @see Validator::isOptional()
      * @param string $field
      * @return static
+     *
+     * @see Validator::isOptional()
+     * @see Validator::or()
      */
     public function xor(string $field): static
     {
@@ -248,6 +251,37 @@ trait ValidatorBasics
             if (!isset_get($this->source[$field])) {
                 $this->addFailure(tr('Neither fields ":field" and ":selected_field" were set, where either one of them must be set', [':field' => $field, ':selected_field' => $this->selected_field]));
             }
+        }
+
+        return $this;
+    }
+
+
+
+    /**
+     * This method will make sure that either this field OR the other specified field optionally will have a value
+     *
+     * @param string $field
+     * @param mixed $default
+     * @return static
+     *
+     * @see Validator::isOptional()
+     * @see Validator::xor()
+     */
+    public function or(string $field, mixed $default = null): static
+    {
+        if ($this->selected_field === $field) {
+            throw new ValidatorException(tr('Cannot validate OR field ":field" with itself', [':field' => $field]));
+        }
+
+        if (isset_get($this->source[$this->selected_field])) {
+            // The currently selected field exists, the specified field cannot exist
+            if (isset_get($this->source[$field])) {
+                $this->addFailure(tr('Both fields ":field" and ":selected_field" were set, where only either one of them are allowed', [':field' => $field, ':selected_field' => $this->selected_field]));
+            }
+        } else {
+            // The currently selected field does not exist, so we default
+            $this->isOptional($default);
         }
 
         return $this;
@@ -319,9 +353,9 @@ trait ValidatorBasics
      *
      * This method will check the failures array and if any failures were registered, it will throw an exception
      *
-     * @return static
+     * @return array
      */
-    public function validate(): static
+    public function validate(): array
     {
         // Remove all unselected and all failed fields
         foreach ($this->source as $field => $value) {
@@ -352,7 +386,7 @@ trait ValidatorBasics
             throw ValidationFailedException::new(tr('Data validation failed with the following issues:'), $this->failures)->makeWarning();
         }
 
-        return $this;
+        return $this->source;
     }
 
 

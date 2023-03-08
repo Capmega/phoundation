@@ -2,32 +2,19 @@
 
 namespace Phoundation\Cli;
 
+use Exception;
 use JetBrains\PhpStorm\NoReturn;
-use Phoundation\Cli\Exception\CliException;
-use Phoundation\Cli\Exception\MethodNotExistsException;
-use Phoundation\Cli\Exception\MethodNotFoundException;
-use Phoundation\Cli\Exception\NoMethodSpecifiedException;
-use Phoundation\Core\Arrays;
-use Phoundation\Core\Core;
-use Phoundation\Core\Exception\NoProjectException;
+use Phoundation\Cli\Exception\AutoCompleteException;
+use Phoundation\Core\Locale\Language\Languages;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Numbers;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Databases\Sql\Exception\SqlException;
-use Phoundation\Date\Time;
-use Phoundation\Exception\Exception;
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Exception\ScriptException;
-use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
-use Phoundation\Processes\Commands\Command;
+use Phoundation\Geo\Timezones\Timezones;
 use Phoundation\Processes\Commands\Grep;
-use Phoundation\Processes\Process;
 use Throwable;
-use function Symfony\Component\String\s;
+use TypeError;
 
 
 /**
@@ -70,32 +57,7 @@ class AutoComplete
      *
      * @var array $system_arguments
      */
-    protected static array $system_arguments = [
-            '-A,--all',
-            '-C,--no-color',
-            '-D,--debug',
-            '-E,--environment',
-            '-F,--force',
-            '-H,--help',
-            '-L,--log-level',
-            '-O,--order-by',
-            '-P,--page',
-            '-Q,--quiet',
-            '-S,--status',
-            '-T,--test',
-            '-U,--usage',
-            '-V,--verbose',
-            '-W,--no-warnings',
-            '--system-language',
-            '--deleted',
-            '--version',
-            '--limit',
-            '--timezone',
-            '--auto-complete',
-            '--show-passwords',
-            '--no-validation',
-            '--no-password-validation',
-    ];
+    protected static array $system_arguments;
 
 
 
@@ -118,7 +80,38 @@ class AutoComplete
      */
     public static function setPosition(int $position): void
     {
-        self::$position = $position;
+        self::$position         = $position;
+        self::$system_arguments = [
+            '-A,--all'                 => false,
+            '-C,--no-color'            => false,
+            '-D,--debug'               => false,
+            '-E,--environment'         => true,
+            '-F,--force'               => false,
+            '-H,--help'                => false,
+            '-L,--log-level'           => true,
+            '-O,--order-by'            => true,
+            '-P,--page'                => true,
+            '-Q,--quiet'               => false,
+            '-S,--status'              => true,
+            '-T,--test'                => false,
+            '-U,--usage'               => false,
+            '-V,--verbose'             => false,
+            '-W,--no-warnings'         => false,
+            '--system-language'        => [
+                'word'   => function($word) { return Languages::new()->filteredList($word); },
+                'noword' => function()      { return Languages::new()->list(); },
+            ],
+            '--deleted'                => false,
+            '--version'                => false,
+            '--limit'                  => true,
+            '--timezone'               => [
+                'word'   => function($word) { return Timezones::new()->filteredList($word); },
+                'noword' => function()      { return Timezones::new()->list(); },
+            ],
+            '--show-passwords'         => false,
+            '--no-validation'          => false,
+            '--no-password-validation' => false,
+        ];
     }
 
 
@@ -157,15 +150,7 @@ class AutoComplete
             $word  = array_shift($words);
 
             if (str_starts_with((string) $word, '-')) {
-                foreach (self::$system_arguments as $arguments) {
-                    $arguments = explode(',', $arguments);
-
-                    foreach ($arguments as $argument) {
-                        if (str_contains($argument, $word)) {
-                            echo $argument . PHP_EOL;
-                        }
-                    }
-                }
+                self::processArguments(self::$system_arguments);
 
             } else {
                 foreach ($data['methods'] as $method) {
@@ -196,11 +181,12 @@ class AutoComplete
             }
 
             if ($argument_method) {
+                // We have an argument method specified, likely it doesn't exist
                 if (str_starts_with($argument_method, '-')) {
                     // This is a system modifier argument, show the system modifier arguments instead.
                     $data['methods'] = [];
 
-                    foreach (self::$system_arguments as $arguments) {
+                    foreach (self::$system_arguments as $arguments => $definitions) {
                         $arguments = explode(',', $arguments);
 
                         foreach ($arguments as $argument) {
@@ -245,86 +231,36 @@ class AutoComplete
 
 
 
+
     /**
      * Process auto complete for this script from the definitions specified by the script
      *
-     * @param array $definitions
+     * @param array|null $definitions
      * @return void
      */
-    #[NoReturn] public static function processScript(array $definitions) {
-        // Get the word where we're <TAB>bing on
-        $previous_word = isset_get(ArgvValidator::getArguments()[self::$position - 1]);
-        $word          = isset_get(ArgvValidator::getArguments()[self::$position]);
-        $word          = strtolower(trim((string) $word));
-
-        // First check positions!
-        if (array_key_exists('positions', $definitions)) {
-            if (array_key_exists(self::$position, isset_get($definitions['positions']))) {
-                // Get position specific data
-                $position_data = $definitions['positions'][self::$position];
-
-                // We may have a word or not, check if position_data allows word (or not) and process
-                if ($word) {
-                    if (array_key_exists('word', $position_data)) {
-                        $results = self::processDefinition($position_data['word'], $word);
-                    }
-                } else {
-                    if (array_key_exists('noword', $position_data)) {
-                        $results = self::processDefinition($position_data['noword'], null);
-                    }
-                }
-
-                // Process results only if we have any
-                if (isset($results)) {
-                    foreach ($results as $result) {
-                        echo $result . PHP_EOL;
-                    }
-
-                    // Die here as we have echoed results!
-                    Script::die();
-                }
-            }
+    public static function processScriptPositions(?array $definitions) {
+        if (!$definitions) {
+            return;
         }
 
-        // Check for modifier arguments
-        if (array_key_exists('arguments', $definitions)) {
-            // Check if the previous key was a modifier argument that requires a value
-            foreach ($definitions['arguments'] as $key => $value) {
-                // Values may contain multiple arguments!
-                $keys = explode(',', $key);
+        // Get the word where we're <TAB>bing on
+        $word = isset_get(ArgvValidator::getArguments()[self::$position]);
+        $word = strtolower(trim((string) $word));
 
-                foreach ($keys as $key) {
-                    if ($key === $previous_word) {
-                        $requires_value = $value;
-                    }
-                }
-            }
+        // First check positions!
+        if (array_key_exists(self::$position, isset_get($definitions))) {
+            // Get position specific data
+            $position_data = $definitions[self::$position];
 
-            if (isset($requires_value)) {
-                if ($requires_value === true) {
-                    // non-suggestible value, the user will have to type this themselves...
-                } else {
-                    if ($word) {
-                        if (array_key_exists('word', $requires_value)) {
-                            $results = self::processDefinition($requires_value['word'], $word);
-                        }
-                    } else {
-                        if (array_key_exists('noword', $requires_value)) {
-                            $results = self::processDefinition($requires_value['noword'], null);
-                        }
-                    }
+            // We may have a word or not, check if position_data allows word (or not) and process
+            if ($word) {
+                if (array_key_exists('word', $position_data)) {
+                    $results = self::processDefinition($position_data['word'], $word);
                 }
+
             } else {
-                // Check if we can suggest modifier arguments
-                foreach ($definitions['arguments'] as $key => $value) {
-                    // Values may contain multiple arguments!
-                    $keys = explode(',', $key);
-
-                    foreach ($keys as $key) {
-                        if (!$word or str_contains(strtolower(trim($key)), $word)) {
-                            $results[] = $key;
-                        }
-                    }
+                if (array_key_exists('noword', $position_data)) {
+                    $results = self::processDefinition($position_data['noword'], null);
                 }
             }
 
@@ -338,9 +274,23 @@ class AutoComplete
                 Script::die();
             }
         }
+    }
 
-        // Die here so that the script doesn't get executed
-        Script::die();
+
+
+    /**
+     * Process script arguments
+     *
+     * @param array|null $definitions
+     * @return void
+     */
+    public static function processScriptArguments(?array $definitions): void
+    {
+        if ($definitions) {
+            self::processArguments(array_merge($definitions, self::$system_arguments));
+        } else {
+            self::processArguments(self::$system_arguments);
+        }
     }
 
 
@@ -348,6 +298,7 @@ class AutoComplete
     /**
      * Returns true if the specified script has auto complete support available
      *
+     * @todo Add caching for this
      * @param string $script
      * @return bool
      */
@@ -405,6 +356,76 @@ complete -F _phoundation pho
 
 
     /**
+     * Process auto complete for this script from the definitions specified by the script
+     *
+     * @param array $argument_definitions
+     * @return void
+     */
+    #[NoReturn] public static function processArguments(array $argument_definitions) {
+        // Get the word where we're <TAB>bing on
+        if (self::$position) {
+            $previous_word = isset_get(ArgvValidator::getArguments()[self::$position - 1]);
+            $word          = isset_get(ArgvValidator::getArguments()[self::$position]);
+            $word          = strtolower(trim((string) $word));
+
+            // Check if the previous key was a modifier argument that requires a value
+            foreach ($argument_definitions as $key => $value) {
+                // Values may contain multiple arguments!
+                $keys = explode(',', Strings::until($key, ' '));
+
+                foreach ($keys as $key) {
+                    if ($key === $previous_word) {
+                        $requires_value = $value;
+                    }
+                }
+            }
+
+        } else {
+            $word = '';
+        }
+
+        if (isset($requires_value)) {
+            if ($requires_value === true) {
+                // non-suggestible value, the user will have to type this themselves...
+            } else {
+                if ($word) {
+                    if (array_key_exists('word', $requires_value)) {
+                        $results = self::processDefinition($requires_value['word'], $word);
+                    }
+                } else {
+                    if (array_key_exists('noword', $requires_value)) {
+                        $results = self::processDefinition($requires_value['noword'], null);
+                    }
+                }
+            }
+        } else {
+            // Check if we can suggest modifier arguments
+            foreach ($argument_definitions as $key => $value) {
+                // Values may contain multiple arguments!
+                $keys = explode(',', Strings::until($key, ' '));
+
+                foreach ($keys as $key) {
+                    if (!$word or str_contains(strtolower(trim($key)), $word)) {
+                        $results[] = $key;
+                    }
+                }
+            }
+        }
+
+        // Process results only if we have any
+        if (isset($results)) {
+            foreach ($results as $result) {
+                echo $result . PHP_EOL;
+            }
+
+            // Die here as we have echoed results!
+            Script::die();
+        }
+    }
+
+
+
+    /**
      * Process the specified definition
      *
      * @param string|null $word
@@ -422,6 +443,8 @@ complete -F _phoundation pho
         }
 
         if (is_string($definition)) {
+            $definition = trim($definition);
+
             if (str_starts_with($definition, 'SELECT ')) {
                 if ($word) {
                     return sql()->list($definition, [':word' => '%' . $word . '%']);
@@ -445,5 +468,10 @@ complete -F _phoundation pho
 
             return $results;
         }
+
+        throw new AutoCompleteException(tr('Failed to process auto complete definition ":definition" for script ":script"', [
+            ':script'     => self::$script,
+            ':definition' => $definition
+        ]));
     }
 }

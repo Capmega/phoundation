@@ -4,6 +4,9 @@ namespace Phoundation\Core\Locale\Language;
 
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Data\Validator\PostValidator;
 
 
 /**
@@ -29,9 +32,9 @@ class Language extends DataEntry
      */
     public function __construct(int|string|null $identifier = null)
     {
-        static::$entry_name    = 'language';
-        $this->table         = 'languages';
-        $this->unique_column = 'code_639_1';
+        static::$entry_name = 'language';
+        $this->table        = 'languages';
+        $this->unique_field = 'code_639_1';
 
         parent::__construct($identifier);
     }
@@ -139,53 +142,91 @@ class Language extends DataEntry
 
 
     /**
+     * Validates the provider record with the specified validator object
+     *
+     * @param ArgvValidator|PostValidator|GetValidator $validator
+     * @param bool $no_arguments_left
+     * @param bool $modify
+     * @return array
+     */
+    protected function validate(ArgvValidator|PostValidator|GetValidator $validator, bool $no_arguments_left = false, bool $modify = false): array
+    {
+        $data = $validator
+            ->select($this->getAlternateValidationField('name'), true)->isOptional()->hasMaxCharacters(32)->isName()
+            ->select($this->getAlternateValidationField('code_639_1'), true)->isOptional()->hasCharacters(2)->isCode()
+            ->select($this->getAlternateValidationField('code_639_2_t'), true)->isOptional()->hasCharacters(3)->isCode()
+            ->select($this->getAlternateValidationField('code_639_2_b'), true)->isOptional()->hasCharacters(3)->isCode()
+            ->select($this->getAlternateValidationField('code_639_3'), true)->isOptional()->hasCharacters(3)->isCode()
+            ->select($this->getAlternateValidationField('description'), true)->isOptional()->isPrintable()->hasMaxCharacters(65_530)
+            ->noArgumentsLeft($no_arguments_left)
+            ->validate();
+
+        // Ensure the name doesn't exist yet as it is a unique identifier
+        if ($data['name']) {
+            static::notExists($data['name'], $this->getId(), true);
+        }
+
+        return $data;
+    }
+
+
+    /**
      * @inheritDoc
      */
-    protected function setKeys(): void
+    public static function getFieldDefinitions(): array
     {
-        $this->keys = [
+        return [
             'name' => [
                 'disabled'  => true,
-                'label'     => tr('Name')
+                'label'     => tr('Name'),
+                'size'      => 12,
+                'maxlength' => 32,
+                'help'      => tr('The name for this language'),
             ],
             'seo_name' => [
                 'display'  => false,
             ],
             'code_639_1' => [
-                'disabled' => true,
-                'type'     => 'text',
-                'label'    => tr('ISO 639-1 code')
+                'disabled'  => true,
+                'type'      => 'text',
+                'label'     => tr('ISO 639-1 code'),
+                'size'      => 3,
+                'maxlength' => 2,
+                'help'      => tr('The code_639_1 code for this language'),
             ],
             'code_639_2_t' => [
-                'disabled' => true,
-                'type'     => 'text',
-                'label'    => tr('ISO 639-2/T code')
+                'disabled'  => true,
+                'type'      => 'text',
+                'label'     => tr('ISO 639-2/T code'),
+                'size'      => 3,
+                'maxlength' => 3,
+                'help'      => tr('The code_639_2_t code for this language'),
             ],
             'code_639_2_b' => [
-                'disabled' => true,
-                'type'     => 'text',
-                'label'    => tr('ISO 639-2/B code')
+                'disabled'  => true,
+                'type'      => 'text',
+                'label'     => tr('ISO 639-2/B code'),
+                'size'      => 3,
+                'maxlength' => 3,
+                'help'      => tr('The code_639_2_b code for this language'),
             ],
             'code_639_3' => [
-                'disabled' => true,
-                'type'     => 'text',
-                'label'    => tr('ISO 639-3 code')
+                'disabled'  => true,
+                'type'      => 'text',
+                'label'     => tr('ISO 639-3 code'),
+                'size'      => 3,
+                'maxlength' => 3,
+                'help'      => tr('The name for this language'),
             ],
             'description' => [
-                'label'   => tr('Description'),
-                'element' => 'text'
+                'element'   => 'text',
+                'label'     => tr('Description'),
+                'size'      => 3,
+                'maxlength' => 65535,
+                'help'      => tr('The description for this language'),
             ]
         ];
 
-        $this->keys_display = [
-            'name'          => 12,
-            'code_639_1'    => 6,
-            'code_639_2_t'  => 6,
-            'code_639_2_b'  => 6,
-            'code_639_3'    => 6,
-            'description'   => 12
-        ];
-
-        parent::setKeys();
+        parent::setFields();
     }
 }

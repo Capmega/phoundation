@@ -23,7 +23,7 @@ Documentation::help('This script will list the configured SSH accounts on this s
 
 
 
-ARGUMENTS (All arguments in square brackets are optional)
+ARGUMENTS
 
 
 [-D / --deleted]                       Will also show deleted accounts');

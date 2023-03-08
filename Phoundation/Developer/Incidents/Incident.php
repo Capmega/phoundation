@@ -10,6 +10,9 @@ use Phoundation\Data\DataEntry\Traits\DataEntryException;
 use Phoundation\Data\DataEntry\Traits\DataEntryTitle;
 use Phoundation\Data\DataEntry\Traits\DataEntryType;
 use Phoundation\Data\DataEntry\Traits\DataEntryUrl;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Data\Validator\PostValidator;
 
 
 /**
@@ -34,42 +37,76 @@ class Incident extends DataEntry
 
 
     /**
+     * Validates the provider record with the specified validator object
+     *
+     * @param ArgvValidator|PostValidator|GetValidator $validator
+     * @param bool $no_arguments_left
+     * @param bool $modify
+     * @return array
+     */
+    protected function validate(ArgvValidator|PostValidator|GetValidator $validator, bool $no_arguments_left = false, bool $modify = false): array
+    {
+        $data = $validator
+            ->select($this->getAlternateValidationField('type'), true)->hasMaxCharacters(16)->isName()
+            ->select($this->getAlternateValidationField('url'), true)->hasMaxCharacters(2048)->isUrl()
+            ->select($this->getAlternateValidationField('title'), true)->hasMaxCharacters(255)->isPrintable()
+            ->select($this->getAlternateValidationField('description'), true)->isOptional()->hasMaxCharacters(16_777_200)->isPrintable()
+            ->select($this->getAlternateValidationField('exception'), true)->isOptional()->hasMaxCharacters(16_777_200)->isPrintable()
+            ->select($this->getAlternateValidationField('details'), true)->isOptional()->hasMaxCharacters(16_777_200)->isPrintable()
+            ->noArgumentsLeft($no_arguments_left)
+            ->validate();
+
+        return $data;
+    }
+
+
+    /**
      * @inheritDoc
      */
-    protected function setKeys(): void
+    public static function getFieldDefinitions(): array
     {
-        $this->keys = [
-            'url' => [
-                'disabled' => true,
+        return [
+            'type' => [
+                'readonly' => true,
                 'label'    => tr('URL'),
+                'size'     => 6,
+                'maxlength'=> 255,
             ],
             'title' => [
-                'disabled' => true,
+                'readonly' => true,
                 'label'    => tr('Title'),
+                'size'     => 6,
+                'maxlength'=> 255,
+            ],
+            'url' => [
+                'readonly' => true,
+                'label'    => tr('URL'),
+                'size'     => 12,
+                'maxlength'=> 2048,
             ],
             'description' => [
-                'disabled' => true,
+                'readonly' => true,
                 'element'  => 'text',
+                'size'     => 12,
+                'maxlength'=> 16_777_200,
                 'label'    => tr('Description'),
             ],
             'exception' => [
-                'disabled' => true,
+                'readonly' => true,
                 'element'  => 'text',
+                'size'     => 12,
+                'maxlength'=> 16_777_200,
                 'label'    => tr('Exception'),
             ],
             'data' => [
-                'disabled' => true,
+                'readonly' => true,
                 'element'  => 'text',
+                'size'     => 12,
+                'maxlength'=> 16_777_200,
                 'label'    => tr('Data'),
             ],
         ];
 
-        $this->keys_display = [
-            'title'       => 12,
-            'description' => 12,
-            'data'        => 12
-        ] ;
-
-        parent::setKeys();
+        parent::setFields();
     }
 }

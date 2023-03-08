@@ -64,7 +64,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `name` varchar(64) DEFAULT NULL,
                     `seo_name` varchar(64) DEFAULT NULL,
                     `username` varchar(64) DEFAULT NULL,
-                    `description` varchar(2047) DEFAULT NULL,
+                    `description` text DEFAULT NULL,
                     `ssh_key` text DEFAULT NULL,
                 ')->setIndices('                
                     PRIMARY KEY (`id`),

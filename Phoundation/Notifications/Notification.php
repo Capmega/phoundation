@@ -737,82 +737,86 @@ class Notification extends DataEntry
 
 
     /**
-     * Sets the available data keys for the Notification class
+     * Sets the available data keys for the User class
      *
-     * @return void
+     * @return array
      */
-    protected function setKeys(): void
+    public static function getFieldDefinitions(): array
     {
-        $this->keys = [
+        return [
             'users_id' => [
                 'visible' => false
             ],
             'code' => [
-                'label'           => tr('Code'),
-                'disabled'        => true,
-                'display_default' => '-',
+                'readonly'   => true,
+                'size'       => 4,
+                'maxlength'  => 16,
+                'label'      => tr('Code'),
+                'default'    => '-',
             ],
             'mode' => [
-                'label'    => tr('Class'),
-                'disabled' => true,
+                'readonly'  => true,
+                'size'      => 4,
+                'maxlength' => 16,
+                'label'     => tr('Mode'),
             ],
             'icon' => [
                 'visible' => false,
             ],
             'priority' => [
-                'label'           => tr('Priority'),
-                'disabled'        => true,
-                'mode'            => 'numeric',
-                'default'         => 0,
-                'display_default' => 0,
+                'readonly'   => true,
+                'type'       => 'numeric',
+                'size'       => 4,
+                'label'      => tr('Priority'),
+                'default'    => 0,
             ],
             'title' => [
+                'readonly'  => true,
+                'size'      => 4,
                 'label'     => tr('Title'),
-                'disabled'  => true,
+                'maxlength' => 255,
             ],
             'message' => [
-                'label'    => tr('Message'),
-                'disabled' => true,
-                'element'  => 'text',
+                'readonly'  => true,
+                'element'   => 'text',
+                'size'      => 12,
+                'label'     => tr('Message'),
+                'maxlength' => 65535,
             ],
             'file' => [
-                'label'    => tr('File'),
-                'disabled' => true,
-            ],
-            'url' => [
-                'label'    => tr('Url'),
-                'disabled' => true,
+                'readonly'  => true,
+                'size'      => 8,
+                'label'     => tr('File'),
+                'maxlength' => 255,
             ],
             'line' => [
+                'readonly' => true,
+                'type'     => 'numeric',
+                'size'     => 4,
                 'label'    => tr('Line'),
-                'disabled' => true,
+            ],
+            'url' => [
+                'readonly'  => true,
+                'size'      => 12,
+                'label'     => tr('Url'),
+                'maxlength' => 2048,
             ],
             'trace' => [
-                'label'    => tr('Trace'),
-                'disabled' => true,
-                'element'  => 'text',
-                'rows'     => 10,
+                'readonly'  => true,
+                'element'   => 'text',
+                'size'      => 12,
+                'label'     => tr('Trace'),
+                'rows'      => 10,
+                'maxlength' => 65535,
             ],
             'details' => [
-                'label'    => tr('Details'),
-                'disabled' => true,
-                'element'  => 'text',
-                'rows'     => 10,
+                'readonly'  => true,
+                'element'   => 'text',
+                'size'      => 12,
+                'label'     => tr('Details'),
+                'rows'      => 10,
+                'maxlength' => 65535,
             ],
         ];
-
-        $this->keys_display = [
-            'code'     => 4,
-            'mode'     => 4,
-            'priority' => 4,
-            'title'    => 12,
-            'message'  => 12,
-            'file'     => 8,
-            'line'     => 4,
-            'trace'    => 12,
-            'details'  => 12,
-       ];
-
-        parent::setKeys();
     }
 }

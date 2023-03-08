@@ -82,9 +82,16 @@ class Servers extends DataList
     /**
      * @inheritDoc
      */
-    protected function load(bool|string|null $id_column = false): static
+    protected function load(string|int|null $id_column = null): static
     {
-        // TODO: Implement load() method.
+        $this->list = sql()->list('SELECT `servers`.`id`, `servers`.`hostname`, `servers`.`created_on`, `servers`.`status` 
+                                   FROM     `servers` 
+                                   WHERE    `servers`.`status` IS NULL
+                                   ORDER BY `servers`.`hostname`' . sql()->getLimit());
+
+        // The keys contain the ids...
+        $this->list = array_flip($this->list);
+        return $this;
     }
 
 

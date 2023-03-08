@@ -415,8 +415,7 @@ class Core {
             ->select('--show-passwords')->isOptional(false)->isBoolean()
             ->select('--no-validation')->isOptional(false)->isBoolean()
             ->select('--no-password-validation')->isOptional(false)->isBoolean()
-            ->validate()
-            ->getArgv();
+            ->validate();
 
         if ($argv['auto_complete'] !== '') {
             // We're in auto complete mode. Show only direct output, don't use any color
@@ -1417,7 +1416,7 @@ class Core {
 //                                    die(Script::getExitCode());
 //                            }
 
-                        Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" WITH ENVIRONMENT ":environment" DURING STATE ":state" ***', [
+                        Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE CLI SCRIPT ":script" WITH ENVIRONMENT ":environment" DURING CORE STATE ":state" ***', [
                             ':code'        => $e->getCode(),
                             ':type'        => static::getRequestType(),
                             ':state'       => static::$state,
@@ -1427,6 +1426,8 @@ class Core {
 
                         Log::error(tr('Exception data:'));
                         Log::error($e);
+                        Log::printr($e->getTrace());
+                        Log::printr(debug_backtrace());
                         Script::die(1);
 
                     case 'http':
@@ -1441,7 +1442,7 @@ class Core {
                             Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
                         } else {
                             // Log exception data
-                            Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" WITH ENVIRONMENT ":environment" DURING STATE ":state" ***', [
+                            Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE WEB SCRIPT ":script" WITH ENVIRONMENT ":environment" DURING CORE STATE ":state" ***', [
                                 ':code'        => $e->getCode(),
                                 ':type'        => static::getRequestType(),
                                 ':state'       => static::$state,

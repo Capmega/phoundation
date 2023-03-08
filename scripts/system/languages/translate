@@ -23,7 +23,7 @@ Documentation::help('This script will translate your project into the various co
 
 
 
-ARGUMENTS (All arguments in square brackets are optional)
+ARGUMENTS
 
 
 -');

@@ -4,6 +4,7 @@ namespace Phoundation\Data\Validator;
 
 
 
+use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 
 /**
@@ -80,6 +81,29 @@ class GetValidator extends Validator
 
 
     /**
+     * Throws an exception if there are still arguments left in the GET source
+     *
+     * @param bool $apply
+     * @return static
+     */
+    public function noArgumentsLeft(bool $apply = true): static
+    {
+        if (!$apply) {
+            return $this;
+        }
+
+        if (empty(static::$get)) {
+            return $this;
+        }
+
+        throw ValidationFailedException::new(tr('Invalid GET fields ":arguments" encountered', [
+            ':arguments' => Strings::force(static::$get, ', ')
+        ]))->makeWarning();
+    }
+
+
+
+    /**
      * Add the specified value for key to the internal GET array
      *
      * @param string $key
@@ -96,20 +120,19 @@ class GetValidator extends Validator
     /**
      * Validate GET data and liberate GET data if all went well.
      *
-     * @return static
+     * @return array
      */
-    public function validate(): static
+    public function validate(): array
     {
         try {
             parent::validate();
-            $this->liberateData();
+            return $this->liberateData();
+
         } catch (ValidationFailedException $e) {
             // Failed data will have been filtered, liberate data!
             $this->liberateData();
             throw $e;
         }
-
-        return $this;
     }
 
 
@@ -130,12 +153,15 @@ class GetValidator extends Validator
     /**
      * Gives free and full access to $_GET data, now that it has been validated
      *
-     * @return void
+     * @return array
      */
-    protected function liberateData(): void
+    protected function liberateData(): array
     {
         global $_GET;
+
         $_GET = static::$get;
         static::$get = null;
+
+        return $_GET;
     }
 }

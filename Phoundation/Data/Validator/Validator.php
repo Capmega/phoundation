@@ -623,7 +623,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Validates the datatype for the selected field
      *
@@ -631,11 +630,12 @@ abstract class Validator
      *
      * @param PDOStatement|string $query
      * @param array|null $execute
+     * @param bool $ignore_case
      * @return static
      */
-    public function isQueryColumn(PDOStatement|string $query, ?array $execute = null) : Validator
+    public function isQueryColumn(PDOStatement|string $query, ?array $execute = null, bool $ignore_case = false) : Validator
     {
-        return $this->validateValues(function(&$value) use ($query, $execute) {
+        return $this->validateValues(function(&$value) use ($query, $execute, $ignore_case) {
             // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
             $this->isScalar();
 
@@ -647,7 +647,7 @@ abstract class Validator
             $execute = $this->applyExecuteVariables($execute);
             $column  = sql()->getColumn($query, $execute);
 
-            $this->isValue($column);
+            $this->isValue($column, $ignore_case);
         });
     }
 
@@ -1071,18 +1071,19 @@ abstract class Validator
     }
 
 
-
     /**
      * Validates that the selected field is the specified value
      *
      * @param mixed $validate_value
      * @param bool $strict If true, will perform a strict check
      * @param bool $secret If specified the $validate_value will not be shown
+     * @param bool $ignore_case
      * @return static
+     * @todo Change these individual flag parameters to one bit flag parameter
      */
-    public function isValue(mixed $validate_value, bool $strict = false, bool $secret = false): static
+    public function isValue(mixed $validate_value, bool $strict = false, bool $secret = false, bool $ignore_case = true): static
     {
-        return $this->validateValues(function(&$value) use ($validate_value, $strict, $secret) {
+        return $this->validateValues(function(&$value) use ($validate_value, $strict, $secret, $ignore_case) {
             if ($strict) {
                 // Strict validation
                 if ($value !== $validate_value) {
@@ -1099,6 +1100,11 @@ abstract class Validator
                 if ($this->process_value_failed) {
                     // Validation already failed, don't test anything more
                     return;
+                }
+
+                if ($ignore_case) {
+                    $value          = strtolower((string) $value);
+                    $validate_value = strtolower((string) $validate_value);
                 }
 
                 if ($value != $validate_value) {
@@ -1506,16 +1512,16 @@ abstract class Validator
     }
 
 
-
     /**
      * Validates if the selected field is a valid name
      *
+     * @param int $characters
      * @return static
      */
-    public function isName(): static
+    public function isName(int $characters = 64): static
     {
-        return $this->validateValues(function(&$value) {
-            $this->hasMinCharacters(2)->hasMaxCharacters(128);
+        return $this->validateValues(function(&$value) use ($characters) {
+            $this->hasMinCharacters(2)->hasMaxCharacters($characters);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -1700,16 +1706,16 @@ abstract class Validator
     }
 
 
-
     /**
      * Validates if the selected field is a valid email address
      *
+     * @param int $characters
      * @return static
      */
-    public function isEmail(): static
+    public function isEmail(int $characters = 2048): static
     {
-        return $this->validateValues(function(&$value) {
-            $this->hasMinCharacters(3)->hasMaxCharacters(128);
+        return $this->validateValues(function(&$value) use ($characters) {
+            $this->hasMinCharacters(3)->hasMaxCharacters($characters);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more

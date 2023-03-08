@@ -2,6 +2,7 @@
 
 namespace Phoundation\Core\Plugins;
 
+use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Libraries\Library;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
@@ -40,7 +41,7 @@ abstract class Plugin extends DataEntry
     {
         static::$entry_name  = 'plugin';
         $this->table         = 'core_plugins';
-        $this->unique_column = 'name';
+        $this->unique_field = 'name';
 
         parent::__construct($identifier);
     }
@@ -56,30 +57,57 @@ abstract class Plugin extends DataEntry
 
 
     /**
-     * Returns if this plugin should autostart or not
+     * Returns if this plugin is enabled or not
      *
      * @return bool
      */
-    public function getStart(): bool
+    public function getEnabled(): bool
     {
-        return (bool) $this->getDataValue('start');
+        return (bool) $this->getDataValue('enabled');
     }
 
 
 
     /**
-     * Sets if this plugin should autostart or not
+     * Sets if this plugin is enabled or not
      *
-     * @param bool $start
+     * @param bool $enabled
      * @return static
      */
-    public function setStart(bool $start): static
+    public function setEnabled(bool $enabled): static
     {
         if ($this->getName() === 'Phoundation') {
-            $start = true;
+            if (!$enabled) {
+                throw new CoreException(tr('Cannot disable the "Phoundation" plugin, it is always enabled'));
+            }
         }
 
-        return $this->setDataValue('start', $start);
+        return $this->setDataValue('enabled', $enabled);
+    }
+
+
+
+    /**
+     * Returns if this plugin is disabled or not
+     *
+     * @return bool
+     */
+    public function getDisabled(): bool
+    {
+        return !$this->getEnabled();
+    }
+
+
+
+    /**
+     * Sets if this plugin is disabled or not
+     *
+     * @param bool $disabled
+     * @return static
+     */
+    public function setDisabled(bool $disabled): static
+    {
+        return $this->setEnabled(!$disabled);
     }
 
 
@@ -259,55 +287,64 @@ abstract class Plugin extends DataEntry
 
 
     /**
-     * Defines the form keys for this object
+     * Sets the available data keys for the User class
      *
-     * @return void
+     * @return array
      */
-    protected function setKeys(): void
+    public static function getFieldDefinitions(): array
     {
-       $this->keys = [
-           'start' => [
-               'default' => true,
-               'type'    => 'checkbox',
-               'label'   => tr('Start')
-           ],
-           'priority' => [
-               'type'    => 'numeric',
-               'db_null' => false,
-               'min'     => 1,
-               'max'     => 100,
-               'label'   => tr('Priority')
-           ],
-           'name' => [
-               'disabled' => true,
-               'label' => tr('Name')
-           ],
+       return [
+            'disabled' => [
+                'virtual' => true,
+                'cli'     => '-d,--disable',
+            ],
            'seo_name' => [
                'visible' => false,
            ],
+            'name' => [
+                'required'  => true,
+                'readonly'  => true,
+                'complete'  => false,
+                'label'     => tr('Name'),
+                'size'      => 4,
+                'maxlength' => 64,
+                'help'      => tr('The name of this plugin'),
+            ],
+            'priority' => [
+                'type'     => 'numeric',
+                'cli'      => '-p,--priority PRIORITY (1 - 10)',
+                'db_null'  => false,
+                'min'     => 1,
+                'default' => 5,
+                'max'     => 100,
+                'size'     => 4,
+                'label'    => tr('Priority'),
+                'help'     => tr('Sets the priority'),
+            ],
+           'enabled' => [
+               'complete' => false,
+               'type'     => 'checkbox',
+               'cli'      => '-e,--enable',
+               'size'     => 4,
+               'label'    => tr('Start'),
+               'help'     => tr('If specified, this plugin is enabled and will automatically start upon each page load or script execution'),
+               'default'  => true,
+           ],
             'path' => [
-                'disabled' => true,
-                'label' => tr('Path')
+                'readonly' => true,
+                'size'     => 6,
+                'label'    => tr('Path'),
             ],
             'class' => [
-                'disabled' => true,
-                'label' => tr('Class')
+                'readonly' => true,
+                'size'     => 6,
+                'label'    => tr('Class'),
             ],
             'description' => [
-                'disabled' => true,
-                'label' => tr('Description')
+                'readonly' => true,
+                'size'     => 12,
+                'label'    => tr('Description')
             ],
         ];
-
-        $this->keys_display = [
-            'name'        => 4,
-            'priority'    => 4,
-            'start'       => 4,
-            'path'        => 6,
-            'class'       => 6,
-            'description' => 12,
-        ];
-
-        parent::setKeys();
     }
 }

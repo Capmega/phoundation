@@ -102,7 +102,7 @@ class Plugins extends DataList
     public static function start(): void
     {
         foreach (self::getEnabled() as $name => $plugin) {
-            if ($plugin['start']) {
+            if ($plugin['enabled']) {
                 Log::action(tr('Starting plugin ":plugin"', [':plugin' => $name]), 3);
                 include_once($plugin['path'] . 'Plugin.php');
                 $plugin['class']::start();
@@ -172,9 +172,9 @@ class Plugins extends DataList
             // Phoundation plugin is ALWAYS enabled
             return [
                 'phoundation' => [
-                    'path'  => PATH_ROOT . '/Plugins/Phoundation/',
-                    'class' => 'Plugins\Phoundation\Plugin',
-                    'start' => true
+                    'path'    => PATH_ROOT . '/Plugins/Phoundation/',
+                    'class'   => 'Plugins\Phoundation\Plugin',
+                    'enabled' => true
                 ]
             ];
         }
@@ -272,7 +272,7 @@ class Plugins extends DataList
     /**
      * @inheritDoc
      */
-    protected function load(?string $id_column = null): static
+    protected function load(string|int|null $id_column = null): static
     {
         // TODO: Implement load() method.
     }

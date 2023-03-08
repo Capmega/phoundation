@@ -1,13 +1,9 @@
 #!/usr/bin/php
 <?php
 
-use Phoundation\Accounts\Exception\AccountsException;
 use Phoundation\Servers\Server;
-use Phoundation\Cli\Cli;
 use Phoundation\Cli\Documentation;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
-use Phoundation\Data\Validator\ArgvValidator;
 
 
 /**
@@ -20,99 +16,20 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
+Documentation::autoComplete(Server::getAutoComplete());
+
 Documentation::usage('./cli system servers create [OPTIONS]
 ./cli system servers create --name phoundation --hostname www.phoundation.org -d "This is a phoundation server" --port 22');
 
-Documentation::help('This script allows you to create servers
+Documentation::help(Server::getHelp('This script allows you to create servers
 
 
 
-ARGUMENTS (All arguments in square brackets are optional)
+ARGUMENTS'));
 
 
-
--h / --hostname                         The hostname for this server
-
--p / --port                             The SSH port for this server
-
-[-a / --account SSH_ACCOUNT_NAME]       The default SSH account for this server
-
-[-b / --bill-due-date DATE]             The next date when the bill for this server will be due
-
-[-c / --code CODE]                      The identifying code for this server
-
-[-d / --description DESCRIPTION]        The description for this server
-
-[-e / --database-services]              If specified, this server will have database services available 
-
-[-i / --interval INTERVAL]              The payment interval for this server. Must be one of "hourly", "daily", 
-                                        "weekly", "monthly", "bimonthly", "quarterly", "semiannual", "annually", "none" 
-                                        ("none" is for servers that do not require regular payments, like an office 
-                                        server)
-
-[-m / --mail-services]                  If specified, this server will have email services available 
-
-[-o / --os-name NAME]                   The name of the operating system running on this server. Must be one of  
-                                        "debian", "ubuntu", "redhat", "gentoo", "slackware", "linux", "windows", 
-                                        "freebsd", "macos", "other" (DEFAULT)
-
--r / --hostname HOSTNAME                The hostname for this server
-
-[-v / --os-version VERSION]             The version of the operating system running on this server
-
-[-w / --web-services]                   If specified, this server will have HTTP web services available
-
-[--cost COST]                           The cost, per interval, for this server
-
-[--category]                            The category for this server
-
-[--provider]                            The provider for this server
-
-[--customer]                            The customer who uses this server
-
-[--country]                             The country where this server is located
-
-[--state]                               The state in the country where this server is located
-
-[--city]                                The city in the state where this server is located');
-
-
-
-// Validate arguments
-ArgvValidator::new()
-    ->select('-h,--hostname', true)->isDomain()
-    ->select('-p,--port', true)->isBetween(1, 65_535)
-    ->select('-a,--account', true)->isName()->isQueryColumn('SELECT `seo_name` FROM `ssh_accounts` WHERE `seo_name` = :seo_name AND `status` IS NULL', [':seo_name' => '$account'])
-    ->select('-b,--bill-due-date', true)->isOptional()->isDate()
-    ->select('-c,--code', true)->isOptional()->isAlphaNumeric()
-    ->select('-d,--description', true)->isOptional()->isPrintable()->hasMaxCharacters(65_530)
-    ->select('-e,--database-services')->isOptional()->isBoolean()
-    ->select('-i,--interval', true)->isOptional()->inArray(['hourly','daily','weekly','monthly','bimonthly','quarterly','semiannual','annually','none'])
-    ->select('-m,--mail-services')->isOptional()->isBoolean()
-    ->select('-o,--os-name', true)->isOptional()->inArray(['debian','ubuntu','redhat','gentoo','slackware','linux','windows','freebsd','macos','other'])
-    ->select('-s,--allow-sshd-modification')->isOptional()->isBoolean()
-    ->select('-v,--os-version', true)->isOptional()->isPrintable()
-    ->select('-w,--web-services')->isOptional()->isBoolean()
-    ->select('--categories-id', true)->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `categories` WHERE `id` = :id AND `status` IS NULL', [':id' => '$categories_id'])
-    ->select('--providers-id', true)->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `providers` WHERE `id` = :id AND `status` IS NULL', [':id' => '$providers_id'])
-    ->select('--customers-id', true)->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `customers` WHERE `id` = :id AND `status` IS NULL', [':id' => '$customers_id'])
-    ->select('--countries-id', true)->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':id' => '$countries_id'])
-    ->select('--states-id', true)->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_states` WHERE `id` = :id AND `countries_id` = :countries_id AND `status` IS NULL', [':id' => 'states_id', ':countries_id' => '$countries_id'])
-    ->select('--cities-id', true)->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_cities` WHERE `id` = :id AND `states_id`    = :states_id    AND `status` IS NULL', [':id' => 'cities_id', ':states_id'    => '$states_id'])
-    ->select('--cost', true)->isOptional()->isCurrency()
-    ->noArgumentsLeft()
-    ->validate();
-
-
-
-// Check if the server already exists
-Server::notExists($argv['hostname'], null, true);
-
-
-
-// Create server
-$server = Server::new()->create($argv)->save();
-
+// Create server.
+$server = Server::new()->create();
 
 
 // Done!
