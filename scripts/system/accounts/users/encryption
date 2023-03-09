@@ -33,7 +33,7 @@ ARGUMENTS
 
 
 // Validate no arguments
-ArgvValidator::new()->noArgumentsLeft();
+$argv = ArgvValidator::new()->noArgumentsLeft();
 
 
 

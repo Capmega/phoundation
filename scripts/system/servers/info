@@ -33,7 +33,7 @@ USER                                    The server to display information about.
 
 
 // Validate arguments
-ArgvValidator::new()
+$argv = ArgvValidator::new()
     ->select('server')->hasMinCharacters(2)->hasMaxCharacters(255)
     ->noArgumentsLeft()
     ->validate();

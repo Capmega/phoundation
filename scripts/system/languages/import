@@ -38,7 +38,7 @@ ARGUMENTS
 
 
 // Validate arguments
-ArgvValidator::new()
+$argv = ArgvValidator::new()
     ->select('--min', true)->isOptional(10)->isNatural()
     ->select('--max', true)->isOptional(1000)->isNatural()
     ->select('-d,--demo')->isOptional()->isBoolean()

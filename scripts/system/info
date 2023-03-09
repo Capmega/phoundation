@@ -28,7 +28,7 @@ Documentation::help('The info script will show detailed information about the cu
 
 
 
-ArgvValidator::new()->noArgumentsLeft();
+$argv = ArgvValidator::new()->noArgumentsLeft();
 
 
 

@@ -34,7 +34,7 @@ USER_EMAIL                              The email address for the server to dele
 
 
 // Validate arguments
-ArgvValidator::new()
+$argv = ArgvValidator::new()
     ->select('server')->isEmail()
     ->noArgumentsLeft()
     ->validate();

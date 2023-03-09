@@ -86,7 +86,7 @@ TARGET                                  - The target name to which to deploy
 
 
 // Validate arguments
-ArgvValidator::new()
+$argv = ArgvValidator::new()
     ->select('-r,--repair')->isOptional()->isBoolean()
     ->noArgumentsLeft()
     ->validate();

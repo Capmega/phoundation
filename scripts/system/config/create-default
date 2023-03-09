@@ -24,7 +24,7 @@ $help  = 'This script will create a default configuration file ROOT/config/defau
 
 
 // Validate no arguments
-ArgvValidator::new()->noArgumentsLeft();
+$argv = ArgvValidator::new()->noArgumentsLeft();
 
 
 

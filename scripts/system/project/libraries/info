@@ -29,7 +29,7 @@ $help    = 'The libraries info script will show detailed information about the s
 
 
 // Validate arguments
-ArgvValidator::new()
+$argv = ArgvValidator::new()
     ->select('-t,--type,--types', true)->isOptional(null)->isName()
     ->select('library')->isOptional(null)->hasMaxCharacters(64)->sanitizeForceArray()->each()->isName()
     ->noArgumentsLeft()

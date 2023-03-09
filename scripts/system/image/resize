@@ -34,7 +34,7 @@ ARGUMENTS
 
 
 // Validate command line arguments
-ArgvValidator::new()
+$argv = ArgvValidator::new()
     ->select('-m,--method', true)->isOptional('scale')->isName()
     ->select('-x,--width', true)->isInteger()
     ->select('-y,--height', true)->isInteger()

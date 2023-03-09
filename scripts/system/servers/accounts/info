@@ -31,7 +31,7 @@ IDENTIFIER                              The SSH account to display information a
 
 
 // Validate arguments
-ArgvValidator::new()
+$argv = ArgvValidator::new()
     ->select('identifier')->hasMinCharacters(2)->hasMaxCharacters(255)
     ->noArgumentsLeft()
     ->validate();

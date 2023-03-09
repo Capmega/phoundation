@@ -34,7 +34,7 @@ USER_EMAIL                              The email address for the user to delete
 
 
 // Validate arguments
-ArgvValidator::new()
+$argv = ArgvValidator::new()
     ->select('user')->isEmail()
     ->noArgumentsLeft()
     ->validate();

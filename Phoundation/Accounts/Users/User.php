@@ -1715,7 +1715,7 @@ class User extends DataEntry
                 'help'       => tr('The address where this user resides'),
             ],
             'zipcode' => [
-                'maxlength'  => 255,
+                'maxlength'  => 8,
                 'cli'        => '-z,--zipcode',
                 'complete'   => true,
                 'label'      => tr('Zip code'),

@@ -21,7 +21,7 @@ $usage = './cli system mysql timezones import';
 
 $help  = '';
 
-ArgvValidator::new()->noArgumentsLeft();
+$argv = ArgvValidator::new()->noArgumentsLeft();
 
 Log::cli(Color::apply(tr('Importing timezone data files in MySQL, this may take a couple of seconds'), 'white'));
 Log::cli(tr('You may ignore any "Warning: Unable to load \'/usr/share/zoneinfo/........\' as time zone. Skipping it." messages'));

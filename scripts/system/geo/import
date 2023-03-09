@@ -54,7 +54,7 @@ ARGUMENTS
 
 
 
-ArgvValidator::new()
+$argv = ArgvValidator::new()
     ->select('-s,--source_path', true)->isOptional()->isDirectory(PATH_DATA)
     ->select('-t,--target_path', true)->isOptional()
     ->select('-l,--load')->isOptional()->isBoolean()

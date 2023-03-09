@@ -24,7 +24,7 @@ $help  = 'This script can apply various conversions to the specified image';
 
 
 // Validate arguments
-ArgvValidator::new()
+$argv = ArgvValidator::new()
     ->select('method')->isName()
     ->select('file')->isExistingFile()
     ->validate();

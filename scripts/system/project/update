@@ -49,7 +49,7 @@ ARGUMENTS
 
 
 // Get command line arguments
-ArgvValidator::new()
+$argv = ArgvValidator::new()
     ->select('-b,--branch', true)->isPrintable()
     ->select('-c,--check')->isOptional()->isBoolean()
     ->select('-l,--local')->isOptional()->isBoolean()

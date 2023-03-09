@@ -62,7 +62,7 @@ ARGUMENTS
 
 
 // Get command line arguments
-ArgvValidator::new()
+$argv = ArgvValidator::new()
     ->select('--drop')->isOptional(false)->isBoolean()
     ->select('--import')->isOptional(false)->isBoolean()
     ->select('-l,--libraries', true)->isOptional()->isString()->sanitizeForceArray()

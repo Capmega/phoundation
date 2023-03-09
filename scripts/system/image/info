@@ -24,7 +24,7 @@ $help  = 'This script will display basic information about the specified image';
 
 
 // Validate arguments
-ArgvValidator::new()
+$argv = ArgvValidator::new()
     ->select('file', true)->isExistingFile()
     ->noArgumentsLeft()
     ->validate();

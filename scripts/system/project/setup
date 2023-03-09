@@ -53,7 +53,7 @@ ARGUMENTS
 
 
 // Get command line arguments
-ArgvValidator::new()
+$argv = ArgvValidator::new()
     ->select('--no-password-validation')->isOptional(false)->isBoolean()
     ->select('--project')->isOptional(false)->isBoolean()
     ->select('--import')->isOptional(false)->isBoolean()
