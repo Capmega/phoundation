@@ -72,26 +72,42 @@ class SignIn extends DataEntry
     {
        return [
            'ip_address' => [
-               'readonly' => true,
-               'label'    => tr('IP Address')
+               'display'  => false
+           ],
+           'net_len' => [
+               'display'  => false
            ],
            'ip_address_human' => [
-               'visible' => false,
+               'readonly'  => true,
+               'size'      => 6,
+               'maxlength' => 48,
+               'label'     => tr('IP Address')
            ],
-            'net_len' => [
-                'display'  => false
-            ],
             'user_agent' => [
-                'readonly' => true,
-                'label' => tr('User agent')
+                'readonly'  => true,
+                'size'      => 6,
+                'maxlength' => 2040,
+                'label'     => tr('User agent')
             ],
             'latitude' => [
-                'readonly' => true,
-                'label'    => tr('Latitude'),
+                'readonly'  => true,
+                'size'      => 6,
+                'type'      => 'numeric',
+                'min'       => -90,
+                'max'       => 90,
+                'step'      => 'any',
+                'maxlength' => 16,
+                'label'     => tr('Latitude'),
             ],
             'longitude' => [
-                'readonly' => true,
-                'label'    => tr('Longitude')
+                'readonly'  => true,
+                'size'      => 6,
+                'type'      => 'numeric',
+                'min'       => -180,
+                'max'       => 180,
+                'maxlength' => 16,
+                'step'      => 'any',
+                'label'     => tr('Longitude')
             ],
            'countries_id' => [
                'element'  => function (string $key, array $data, array $source) {
@@ -100,7 +116,8 @@ class SignIn extends DataEntry
                        ->setSelected(isset_get($source['countries_id']))
                        ->render();
                },
-               'label'    => tr('Country')
+               'label' => tr('Country'),
+               'size'  => 6,
            ],
            'timezones_id' => [
                'element'  => function (string $key, array $data, array $source) {
@@ -109,19 +126,9 @@ class SignIn extends DataEntry
                        ->setSelected(isset_get($source['timezones_id']))
                        ->render();
                },
-               'label'    => tr('Timezone')
+               'label' => tr('Timezone'),
+               'size'  => 6,
            ],
         ];
-
-        $this->field_display = [
-            'ip_address'   => 6,
-            'user_agent'   => 6,
-            'latitude'     => 4,
-            'longitude'    => 4,
-            'countries_id' => 4,
-            'timezones_id' => 4,
-        ] ;
-
-        parent::setFields();
     }
 }
