@@ -1805,7 +1805,7 @@ class User extends DataEntry
                 'help'       => tr('The date when this user was email verified. Empty if not yet verified'),
             ],
             'redirect' => [
-                'maxlength'  => '255',
+                'maxlength'  => 255,
                 'type'       => 'url',
                 'cli'        => '--redirect',
                 'complete'   => true,
