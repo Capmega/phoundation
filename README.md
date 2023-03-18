@@ -2,7 +2,7 @@ PHOUNDATION
 
 This project is a PHP website development framework.
 
-The 4.1 version is a new class based version that has been written from the ground up and is currently in heavy development.
+The 4.2 version is a new class based version that has been written from the ground up and is currently in heavy development.
 
 This project will be intended for production use, but right now is not ready for that.
 
