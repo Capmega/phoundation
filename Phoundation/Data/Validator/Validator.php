@@ -409,18 +409,18 @@ abstract class Validator
     }
 
 
-
     /**
      * Validates the datatype for the selected field
      *
      * This method ensures that the specified array key is positive
      *
      * @param int|float $amount
+     * @param bool $equal        If true, it is more than or equal to, instead of only more than
      * @return static
      */
-    public function isMoreThan(int|float $amount): static
+    public function isMoreThan(int|float $amount, bool $equal = false): static
     {
-        return $this->validateValues(function(&$value) use ($amount) {
+        return $this->validateValues(function(&$value) use ($amount, $equal) {
             $this->isNumeric();
 
             if ($this->process_value_failed) {
@@ -428,25 +428,32 @@ abstract class Validator
                 return;
             }
 
-            if ($value <= $amount) {
-                $this->addFailure(tr('must be more than than ":amount"', [':amount' => $amount]));
+            if ($equal) {
+                if ($value < $amount) {
+                    $this->addFailure(tr('must be more or equal than ":amount"', [':amount' => $amount]));
+                }
+            } else {
+                if ($value <= $amount) {
+                    $this->addFailure(tr('must be more than ":amount"', [':amount' => $amount]));
+                }
             }
+
         });
     }
 
 
-
     /**
      * Validates the datatype for the selected field
      *
      * This method ensures that the specified array key is positive
      *
      * @param int|float $amount
+     * @param bool $equal        If true, it is less than or equal to, instead of only less than
      * @return static
      */
-    public function isLessThan(int|float $amount): static
+    public function isLessThan(int|float $amount, bool $equal = false): static
     {
-        return $this->validateValues(function(&$value) use ($amount) {
+        return $this->validateValues(function(&$value) use ($amount, $equal) {
             $this->isNumeric();
 
             if ($this->process_value_failed) {
@@ -454,8 +461,14 @@ abstract class Validator
                 return;
             }
 
-            if ($value >= $amount) {
-                $this->addFailure(tr('must be less than ":amount"', [':amount' => $amount]));
+            if ($equal) {
+                if ($value > $amount) {
+                    $this->addFailure(tr('must be less or equal than ":amount"', [':amount' => $amount]));
+                }
+            } else {
+                if ($value >= $amount) {
+                    $this->addFailure(tr('must be less than ":amount"', [':amount' => $amount]));
+                }
             }
         });
     }
