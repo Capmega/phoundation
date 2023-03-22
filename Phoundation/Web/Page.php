@@ -1543,6 +1543,7 @@ class Page
                 'type' => File::new(Filesystem::absolute($url, 'img'), PATH_CDN . LANGUAGE . '/img')->mimetype()
             ];
         } catch (FilesystemException $e) {
+            Log::warning('Failed to find favicon, see next message for more information');
             Log::warning($e->makeWarning());
         }
     }
