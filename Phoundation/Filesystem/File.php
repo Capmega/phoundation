@@ -95,19 +95,22 @@ class File extends FileBasics
      * @return File
      * @throws FilesystemException
      */
-    public function appendData(string $data): File
+    public function append(string $data): File
     {
-        // Check filesystem restrictions
-        $this->restrictions->check($this->file, true);
+        return $this->write($data, 'a');
+    }
 
-        // Make sure the file path exists
-        Path::new(dirname($this->file), $this->restrictions)->ensure();
 
-        $h = $this->open('a');
-        fwrite($h, $data);
-        fclose($h);
-
-        return $this;
+    /**
+     * Append specified data string to the end of the object file
+     *
+     * @param string $data
+     * @return File
+     * @throws FilesystemException
+     */
+    public function create(string $data): File
+    {
+        return $this->write($data, 'w');
     }
 
 
@@ -1420,6 +1423,59 @@ class File extends FileBasics
     public function unzip(): static
     {
         FilesystemCommands::new($this->restrictions)->unzip($this->file);
+        return $this;
+    }
+
+
+    /**
+     * Write the specified data to this file with the requested file mode
+     *
+     * @param string $data
+     * @param string $filemode
+     * @return $this
+     */
+    protected function write(string $data, string $filemode): static
+    {
+        // Validate the specified filemode
+        switch (substr($filemode, 0, 1)) {
+            case 'w':
+                // no break
+            case 'a':
+                // no break
+            case 'x':
+                // no break
+            case 'c':
+                break;
+
+            default:
+                throw new FilesystemException(tr('Invalid file mode ":mode" specified, please use one of "w", "w+", "a", "a+", "c", "c+", , "x", or "x+"', [
+                    ':mode' => $filemode
+                ]));
+        }
+
+        switch (substr($filemode, 1, 1)) {
+            case '+':
+                // no break
+            case null:
+                // All fine
+                break;
+
+            default:
+                throw new FilesystemException(tr('Invalid file mode ":mode" specified, please use one of "w", "w+", "a", "a+", "c", "c+", , "x", or "x+"', [
+                    ':mode' => $filemode
+                ]));
+        }
+
+        // Check filesystem restrictions
+        $this->restrictions->check($this->file, true);
+
+        // Make sure the file path exists
+        Path::new(dirname($this->file), $this->restrictions)->ensure();
+
+        $h = $this->open($filemode);
+        fwrite($h, $data);
+        fclose($h);
+
         return $this;
     }
 }

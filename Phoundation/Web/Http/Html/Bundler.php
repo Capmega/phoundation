@@ -405,10 +405,10 @@ class Bundler
                     }
     
                     if (Debug::enabled()) {
-                        File::new($this->bundle_file, $this->restrictions)->appendData("\n/* *** BUNDLER FILE \"" . $org_file . "\" *** */\n" . $data . (Config::get('web.minify', true) ? '' : "\n"));
+                        File::new($this->bundle_file, $this->restrictions)->append("\n/* *** BUNDLER FILE \"" . $org_file . "\" *** */\n" . $data . (Config::get('web.minify', true) ? '' : "\n"));
     
                     } else {
-                        File::new($this->bundle_file, $this->restrictions)->appendData($data . (Config::get('web.minify', true) ? '' : "\n"));
+                        File::new($this->bundle_file, $this->restrictions)->append($data . (Config::get('web.minify', true) ? '' : "\n"));
                     }
     
                     if ($this->count) {
@@ -428,7 +428,7 @@ class Bundler
     protected function purgeCss(): string
     {
         try {
-            $html_file_object = Filesystem::createTempFile(false,'html')->appendData(Page::getHtml());
+            $html_file_object = Filesystem::createTempFile(false,'html')->append(Page::getHtml());
 
             $bundle_file = Css::purge($this->bundle_file, $html_file_object->getFile());
 

@@ -2,7 +2,6 @@
 
 namespace Phoundation\Cli;
 
-use Exception;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Cli\Exception\AutoCompleteException;
 use Phoundation\Core\Locale\Language\Languages;
@@ -13,8 +12,6 @@ use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Geo\Timezones\Timezones;
 use Phoundation\Processes\Commands\Grep;
-use Throwable;
-use TypeError;
 
 
 /**
@@ -29,7 +26,9 @@ use TypeError;
  * @see https://github.com/scop/bash-completion/blob/master/README.md
  * @see https://www.thegeekstuff.com/2013/12/bash-completion-complete/
  * @see https://dev.to/iridakos/adding-bash-completion-to-your-scripts-50da
+ * @see https://iridakos.com/programming/2018/03/01/bash-programmable-completion-tutorial
  * @see https://serverfault.com/questions/506612/standard-place-for-user-defined-bash-completion-d-scripts
+
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -339,7 +338,7 @@ class AutoComplete
         }
 
         // Phoundation command line auto complete has not yet been set up, do so now.
-        File::new(PATH_ROOT . 'bash_completion')->appendData('
+        File::new(PATH_ROOT . 'bash_completion')->append('
 #/usr/bin/env bash
 _phoundation()
 {
