@@ -26,7 +26,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.0.6';
+        return '0.0.7';
     }
 
 
@@ -440,6 +440,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `meta_id` bigint NOT NULL,
                     `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `method` varchar(32) NOT NULL,
                     `ip_address_human` varchar(48) NOT NULL,
                     `ip_address` binary(16) NOT NULL,
                     `net_len` int(11) NOT NULL,
@@ -456,6 +457,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     KEY `created_by` (`created_by`),
                     KEY `status` (`status`),
                     KEY `meta_id` (`meta_id`),
+                    KEY `method` (`method`),
                     KEY `ip_address` (`ip_address`),
                     KEY `ip_address_human` (`ip_address_human`),
                     KEY `user_agent` (`user_agent`),
@@ -466,6 +468,47 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_accounts_signins_countries_id` FOREIGN KEY (`countries_id`) REFERENCES `geo_countries` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_accounts_signins_states_id` FOREIGN KEY (`states_id`) REFERENCES `geo_states` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_accounts_signins_cities_id` FOREIGN KEY (`cities_id`) REFERENCES `geo_cities` (`id`) ON DELETE RESTRICT,
+                ')->create();
+        })->addUpdate('0.0.7', function () {
+            // Drop the tables to be sure we have a clean slate
+            sql()->schema()->table('accounts_authentication_failures')->drop();
+
+            sql()->schema()->table('accounts_authentication_failures')->define()
+                ->setColumns('
+                    `id` bigint NOT NULL AUTO_INCREMENT,
+                    `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `created_by` bigint DEFAULT NULL,
+                    `meta_id` bigint NOT NULL,
+                    `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `method` varchar(32) NOT NULL,
+                    `ip_address_human` varchar(48) NOT NULL,
+                    `ip_address` binary(16) NOT NULL,
+                    `net_len` int(11) NOT NULL,
+                    `user_agent` varchar(2040) NULL,
+                    `latitude` decimal(10,7) NOT NULL,
+                    `longitude` decimal(10,7) NOT NULL,
+                    `timezones_id` bigint DEFAULT NULL,
+                    `countries_id` bigint DEFAULT NULL,
+                    `states_id` bigint DEFAULT NULL,
+                    `cities_id` bigint DEFAULT NULL,
+                ')->setIndices('
+                    PRIMARY KEY (`id`),
+                    KEY `created_on` (`created_on`),
+                    KEY `created_by` (`created_by`),
+                    KEY `status` (`status`),
+                    KEY `meta_id` (`meta_id`),
+                    KEY `method` (`method`),
+                    KEY `ip_address` (`ip_address`),
+                    KEY `ip_address_human` (`ip_address_human`),
+                    KEY `user_agent` (`user_agent`),
+                ')->setForeignKeys('
+                    CONSTRAINT `fk_accounts_authentication_failures_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
+                    CONSTRAINT `fk_accounts_authentication_failures_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_accounts_authentication_failures_timezones_id` FOREIGN KEY (`timezones_id`) REFERENCES `geo_timezones` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_accounts_authentication_failures_countries_id` FOREIGN KEY (`countries_id`) REFERENCES `geo_countries` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_accounts_authentication_failures_states_id` FOREIGN KEY (`states_id`) REFERENCES `geo_states` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_accounts_authentication_failures_cities_id` FOREIGN KEY (`cities_id`) REFERENCES `geo_cities` (`id`) ON DELETE RESTRICT,
                 ')->create();
         });
     }
