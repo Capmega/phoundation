@@ -3,21 +3,19 @@
 
 use Phoundation\Cli\Script;
 
+
+/**
+ * Pho
+ *
+ * This is the standard phoundation command execution script.
+ *
+ * With this script you can execute all Phoundation scripts. It supports auto complete so please try and use <TAB>
+ *
+ * @author Sven Oostenbrink <support@capmega.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @category Scripts
+ * @package Phoundation\Cli
+ */
 require('./vendor/autoload.php');
-
 Script::execute();
-
-
-// https://iridakos.com/programming/2018/03/01/bash-programmable-completion-tutorial
-
-//#/usr/bin/env bash
-//_dothis_completions()
-//{
-//  if [ "${#COMP_WORDS[@]}" != "2" ]; then
-//    return
-//  fi
-//
-//  COMPREPLY=($(compgen -W "$(fc -l -50 | sed 's/\t//')" -- "${COMP_WORDS[1]}"))
-//}
-//
-//complete -F _dothis_completions dothis
