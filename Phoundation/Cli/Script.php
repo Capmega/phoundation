@@ -338,7 +338,7 @@ SYSTEM ARGUMENTS
                 ->makeWarning()
                 ->setData([
                     'position' => 0,
-                    'methods'  => Arrays::filterValues(scandir(PATH_ROOT . 'scripts/'), '.,..')
+                    'methods'  => Arrays::filterValues(scandir(PATH_ROOT . 'scripts/'), '/^\./', true)
                 ]);
         }
 
@@ -380,7 +380,7 @@ SYSTEM ARGUMENTS
                     ->makeWarning()
                     ->setData([
                         'position' => $position,
-                        'methods'  => Arrays::filterValues(scandir(dirname($file)), '.,..')
+                        'methods'  => Arrays::filterValues(scandir(dirname($file)), '/^\./', true)
                     ]);
             }
 
@@ -426,7 +426,7 @@ SYSTEM ARGUMENTS
             ->makeWarning()
             ->setData([
                 'position' => $position + 1,
-                'methods'  => Arrays::filterValues(scandir($file), '.,..')
+                'methods'  => Arrays::filterValues(scandir($file), '/^\./', true)
             ]);
     }
 

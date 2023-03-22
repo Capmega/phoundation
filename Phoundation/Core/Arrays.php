@@ -455,19 +455,30 @@ class Arrays {
     }
 
 
-
     /**
      * Filter the specified values out of the source array
      *
      * @param array $source
      * @param array|string $values
+     * @param bool $regex
      * @return array
      */
-    public static function filterValues(array $source, array|string $values): array
+    public static function filterValues(array $source, array|string $values, bool $regex = false): array
     {
-        foreach (Arrays::force($values) as $value) {
-            if (($key = array_search($value, $source)) !== false) {
-                unset($source[$key]);
+        if ($regex) {
+            // The specified values list contains regexes
+            foreach ($source as $key => $value) {
+                foreach (Arrays::force($values, null) as $filter_value) {
+                    if (preg_match($filter_value, $value)) {
+                        unset($source[$key]);
+                    }
+                }
+            }
+        } else {
+            foreach (Arrays::force($values, null) as $filter_value) {
+                if (($key = array_search($filter_value, $source)) !== false) {
+                    unset($source[$key]);
+                }
             }
         }
 
