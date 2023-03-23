@@ -18,7 +18,7 @@ use Phoundation\Developer\Project\Project;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./cli system project check
+Documentation::usage('./pho system project check
 ./cli system project check --repair
 ');
 

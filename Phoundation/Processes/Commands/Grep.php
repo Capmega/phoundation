@@ -4,10 +4,12 @@ namespace Phoundation\Processes\Commands;
 
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\DataBindAddress;
+use Phoundation\Data\Traits\DataFile;
 use Phoundation\Data\Traits\DataPath;
 use Phoundation\Data\Traits\DataSource;
 use Phoundation\Data\Traits\DataTarget;
 use Phoundation\Data\Traits\DataValue;
+use Phoundation\Processes\Commands\Exception\CommandsException;
 
 
 /**
@@ -22,6 +24,7 @@ use Phoundation\Data\Traits\DataValue;
  */
 class Grep extends Command
 {
+    use DataFile;
     use DataPath;
     use DataValue;
 
@@ -34,12 +37,21 @@ class Grep extends Command
      */
     public function execute(): array
     {
+        if (!$this->path and !$this->file) {
+            throw new CommandsException(tr('Cannot execute grep, no file or path specified'));
+        }
+
+        if (!$this->value) {
+            throw new CommandsException(tr('Cannot execute grep, no filter value specified'));
+        }
+
         // Return results
         return $this->process
             ->clearArguments()
             ->setCommand('grep')
             ->addArgument($this->value)
-            ->addArguments($this->path)
+            ->addArgument($this->path ?? $this->file)
+            ->addArgument($this->path ? '-R' : null)
             ->executeReturnArray();
    }
 }

@@ -19,7 +19,7 @@ use Phoundation\Developer\Project\Project;
  * @package Phoundation\Scripts
  */
 
-Documentation::usage('./cli system project update [OPTIONS]
+Documentation::usage('./pho system project update [OPTIONS]
 ./cli system project update -b BRANCH
 ./cli system project update -b  BRANCH --check
 ./cli system project update -l --branch BRANCH  

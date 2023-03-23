@@ -18,7 +18,7 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./cli system servers delete USER_EMAIL');
+Documentation::usage('./pho system servers delete USER_EMAIL');
 
 Documentation::help('This script will delete the specified server. Note that deleted servers will not be removed from the database, 
 the status for the server will be updated to "deleted"

@@ -495,7 +495,7 @@ class Project
         Process::new('chmod')
             ->setExecutionPath(PATH_ROOT)
             ->setSudo(true)
-            ->addArguments(['ug+w', './cli'])
+            ->addArguments(['ug+w', './pho'])
             ->executePassthru();
 
         // Writable directories: data/tmp, data/log, data/run, data/cookies, data/content,

@@ -17,7 +17,7 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-$usage = './cli system config create-default';
+$usage = './pho system config create-default';
 
 $help  = 'This script will create a default configuration file ROOT/config/default.yaml containing ALL possible configuration paths and their default values';
 

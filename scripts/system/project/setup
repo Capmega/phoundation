@@ -22,7 +22,7 @@ use Phoundation\Exception\OutOfBoundsException;
  * @package Phoundation\Core
  */
 
-Documentation::usage('./cli system project setup [OPTIONS]
+Documentation::usage('./pho system project setup [OPTIONS]
 ./cli system project setup --no-password-validation
 ./cli system project setup --force');
 

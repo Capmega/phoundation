@@ -22,7 +22,7 @@ use Phoundation\Exception\OutOfBoundsException;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-$usage   = './cli system libraries info LIBRARY_NAME';
+$usage   = './pho system libraries info LIBRARY_NAME';
 
 $help    = 'The libraries info script will show detailed information about the specified library';
 

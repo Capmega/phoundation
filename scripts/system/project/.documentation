@@ -16,7 +16,7 @@ use Phoundation\Cli\Documentation;
  * @category Function reference
  * @package Phoundation\Core
  */
-Documentation::usage('./cli system project/...');
+Documentation::usage('./pho system project/...');
 
 Documentation::help('The system projects scripts contain a variety of scripts to help you with the system administration of your project');
 

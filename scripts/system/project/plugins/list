@@ -19,7 +19,7 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @category Function reference
  * @package Phoundation\Core
  */
-Documentation::usage('./cli system plugins list [OPTIONS]
+Documentation::usage('./pho system plugins list [OPTIONS]
 ./cli system plugins init --all');
 
 Documentation::help('This script allows you to view your registered plugins

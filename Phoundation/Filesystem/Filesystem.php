@@ -25,6 +25,8 @@ class Filesystem
 {
     const DIRECTORY_SEPARATOR = '/';
 
+
+
     /**
      * Ensures that the object file name is valid
      *
@@ -216,6 +218,8 @@ class Filesystem
      */
     public static function absolute(?string $path = null, string $prefix = null, bool $must_exist = true): string
     {
+        Filesystem::validateFilename($path);
+
         if (!$path) {
             return PATH_ROOT;
         }
@@ -225,9 +229,11 @@ class Filesystem
         if (str_starts_with($path, '/')) {
         // This is already an absolute path
             $return = $path;
+
         } elseif (str_starts_with($path, '~')) {
             // This is a user home directory
-            $return = realpath($_SERVER['HOME'] . substr($path, 1));
+            $return = Strings::unslash($_SERVER['HOME']) . Strings::startsWith(substr($path, 1), '/');
+
         } else {
             // This is not an absolute path, make it an absolute path
             $prefix = trim((string) $prefix);

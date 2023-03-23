@@ -18,7 +18,7 @@ use Phoundation\Core\Log\Log;
  */
 Documentation::autoComplete(Server::getAutoComplete());
 
-Documentation::usage('./cli system servers create [OPTIONS]
+Documentation::usage('./pho system servers create [OPTIONS]
 ./cli system servers create --name phoundation --hostname www.phoundation.org -d "This is a phoundation server" --port 22');
 
 Documentation::help(Server::getHelp('This script allows you to create servers

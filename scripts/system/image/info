@@ -17,7 +17,7 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-$usage = './cli system image info IMAGE_FILE_NAME';
+$usage = './pho system image info IMAGE_FILE_NAME';
 
 $help  = 'This script will display basic information about the specified image';
 

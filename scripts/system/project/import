@@ -22,7 +22,7 @@ use Phoundation\Developer\Project\Project;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./cli system project import');
+Documentation::usage('./pho system project import');
 
 Documentation::help('This script allows you to import all project data with one command 
 

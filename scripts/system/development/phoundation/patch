@@ -20,7 +20,7 @@ use Phoundation\Developer\Phoundation\Phoundation;
  * @package Phoundation\Development
  */
 
-Documentation::usage('./cli system project update [OPTIONS]
+Documentation::usage('./pho system project update [OPTIONS]
 ./cli system development phoundation patch -b BRANCH
 ./cli system development phoundation patch -b  BRANCH --no-checkout -s
 ./cli system development phoundation patch -l --branch BRANCH -p /home/USER/projects/phoundation  

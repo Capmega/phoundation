@@ -28,7 +28,7 @@ Documentation::autoComplete(SshAccount::getAutoComplete([
     ]
 ]));
 
-Documentation::usage('./cli system servers accounts modify IDENTIFIER [OPTIONS]
+Documentation::usage('./pho system servers accounts modify IDENTIFIER [OPTIONS]
 ./cli system servers accounts modify NAME -u phoundation -k KEYFILE -d "This is a test account"');
 
 Documentation::help(SshAccount::getHelp('This script allows you to modify existing SSH accounts.

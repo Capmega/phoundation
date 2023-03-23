@@ -17,7 +17,7 @@ use Phoundation\Databases\Mysql;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-$usage = './cli system mysql timezones import';
+$usage = './pho system mysql timezones import';
 
 $help  = '';
 

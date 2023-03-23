@@ -17,7 +17,7 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./cli system business customers create NAME [OPTIONS]
+Documentation::usage('./pho system business customers create NAME [OPTIONS]
 ./cli system business customers create test -d "This is a test customer!"');
 
 Documentation::help('This script allows you to create customers

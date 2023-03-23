@@ -43,7 +43,7 @@ class Restrictions
      * @param bool $write
      * @param string|null $label
      */
-    public function __construct(string|array|null $paths, bool $write = false, ?string $label = null)
+    public function __construct(string|array|null $paths = null, bool $write = false, ?string $label = null)
     {
         if ($label) {
             $this->label = $label;
@@ -64,9 +64,29 @@ class Restrictions
      * @param string|null $label
      * @return static
      */
-    public static function new(string|array|null $paths, bool $write = false, ?string $label = null): static
+    public static function new(string|array|null $paths = null, bool $write = false, ?string $label = null): static
     {
         return new static($paths, $write, $label);
+    }
+
+
+    /**
+     * Returns a restrictions object with parent paths for all paths in this restrictions object
+     *
+     * This is useful for the Path object where one will want to be able to access or create the parent path of the file
+     * that needs to be accessed
+     *
+     * @return Restrictions
+     */
+    public function getParents(): Restrictions
+    {
+        $restrictions = Restrictions::new()->setLabel($this->label);
+
+        foreach ($this->paths as $path => $write) {
+            $restrictions->addPath(dirname($path), $write);
+        }
+
+        return $restrictions;
     }
 
 
@@ -126,7 +146,7 @@ class Restrictions
      */
     public function addPath(string $path, bool $write = false): static
     {
-        $this->paths[$path] = $write;
+        $this->paths[Filesystem::absolute($path, null, false)] = $write;
         return $this;
     }
 
@@ -191,10 +211,16 @@ class Restrictions
 
                 if (str_starts_with($pattern, $path)) {
                     if ($write and !$restrict_write) {
-                        throw RestrictionsException::new(tr('Write access to path ":path" denied by ":label" restrictions', [
-                            ':path'  => $pattern,
-                            ':label' => $this->label
-                        ]));
+var_dump($this->paths);
+showdie($this->paths);
+                        throw RestrictionsException::new(tr('Write access to path patterns ":patterns" denied by ":label" restrictions', [
+                            ':patterns' => $pattern,
+                            ':label'    => $this->label
+                        ]), [
+                            'label'    => $this->label,
+                            'patterns' => $patterns,
+                            'paths'    => $this->paths
+                        ]);
                     }
 
                     // Access ok!

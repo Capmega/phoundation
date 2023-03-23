@@ -18,7 +18,7 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-$usage = './cli system accounts roles add-right NAME "RIGHT[,RIGHT,RIGHT,...]"
+$usage = './pho system accounts roles add-right NAME "RIGHT[,RIGHT,RIGHT,...]"
 ./cli system accounts roles add-right -n test -d "This is a test role!"';
 
 $help  = 'This script allows you to add rights to the specified role

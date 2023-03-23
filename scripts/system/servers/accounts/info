@@ -15,7 +15,7 @@ use Phoundation\Servers\SshAccount;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-$usage = './cli system servers accounts info IDENTIFIER';
+$usage = './pho system servers accounts info IDENTIFIER';
 
 $help  = 'This script displays information about the specified SSH account.  
 

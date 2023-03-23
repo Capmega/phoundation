@@ -19,7 +19,7 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @category Function reference
  * @package Phoundation\Core
  */
-Documentation::usage('./cli system plugins scan');
+Documentation::usage('./pho system plugins scan');
 
 Documentation::help('This script allows you to scan the plugins directory PATH_ROOT/Plugins/ for new plugins and 
 update the core_plugins database table accordingly

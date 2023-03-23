@@ -18,7 +18,7 @@ use Phoundation\Developer\Versioning\Git\Git;
  * @category Function reference
  * @package Phoundation\Development
  */
-Documentation::usage('./cli system development git add [FILES]
+Documentation::usage('./pho system development git add [FILES]
 ./cli system dev git add [FILES]');
 Documentation::help('This script is an interface to the git command through Phoundation. Its not really needed -nor 
 useful- beyond testing the git library');

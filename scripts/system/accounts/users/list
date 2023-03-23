@@ -17,7 +17,7 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./cli system accounts users list [OPTIONS]
+Documentation::usage('./pho system accounts users list [OPTIONS]
 ./cli system accounts users list -d -r god');
 
 $help  = 'This script will list the available users on this system

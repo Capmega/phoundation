@@ -17,7 +17,7 @@ use Phoundation\Filesystem\Restrictions;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-$usage = './cli system image convert IMAGE';
+$usage = './pho system image convert IMAGE';
 
 $help  = 'This script can apply various conversions to the specified image';
 

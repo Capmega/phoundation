@@ -12,7 +12,7 @@ use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\PathNotExistsException;
 use Phoundation\Processes\Exception\ProcessesException;
 use Phoundation\Processes\Process;
-use Phoundation\Servers\Traits\UsesServer;
+use Phoundation\Servers\Traits\UsesRestrictions;
 use Throwable;
 
 
@@ -29,7 +29,7 @@ use Throwable;
  */
 class FileBasics
 {
-    use UsesServer;
+    use UsesRestrictions;
 
 
 
@@ -104,18 +104,17 @@ class FileBasics
     }
 
 
-
     /**
      * Returns the file for this File object
      *
      * @param string|null $file
+     * @param string|null $prefix
+     * @param bool $must_exist
      * @return static
      */
-    public function setFile(?string $file): static
+    public function setFile(?string $file, string $prefix = null, bool $must_exist = false): static
     {
-        Filesystem::validateFilename($file);
-
-        $this->file = $file;
+        $this->file = Filesystem::absolute($file, $prefix, $must_exist);
         return $this;
     }
 

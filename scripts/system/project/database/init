@@ -17,7 +17,7 @@ use Phoundation\Developer\Project\Project;
  * @category Function reference
  * @package Phoundation\Core
  */
-Documentation::usage('./cli system project init [OPTIONS]
+Documentation::usage('./pho system project init [OPTIONS]
 ./cli system project init --drop
 ./cli system project init --import');
 

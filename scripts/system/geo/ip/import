@@ -18,7 +18,7 @@ use Phoundation\Geo\GeoIp\Import;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./cli system geo ip import');
+Documentation::usage('./pho system geo ip import');
 
 Documentation::help('This script will download and import the MaxMind geoip data files
 

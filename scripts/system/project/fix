@@ -18,7 +18,7 @@ use Phoundation\Developer\Project\Project;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./cli system project fix');
+Documentation::usage('./pho system project fix');
 
 Documentation::help('This script will fix project issues. For the moment it can only fix filesystem mode and 
 ownership issues.

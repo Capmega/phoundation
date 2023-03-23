@@ -111,7 +111,7 @@ class MaxMind extends GeoIp
             Notification::new()
                 ->setTitle(tr('Failed to do GeoIP lookup'))
                 ->setMessage(tr('Failed to do GeoIP lookup with the following error. Most likely, the MaxMind GeoIP data files have not yet been imported. Please refer to ":command"', [
-                    ':command' => './cli system geo ip import -H'
+                    ':command' => './pho system geo ip import -H'
                 ]))
                 ->setException($e)
                 ->send();

@@ -6,7 +6,7 @@ use Phoundation\Core\Strings;
 
 
 /**
- * Trait DataPath
+ * Trait DataFile
  *
  *
  *
@@ -15,43 +15,38 @@ use Phoundation\Core\Strings;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-trait DataPath
+trait DataFile
 {
     /**
-     * The path for this object
+     * The file for this object
      *
-     * @var string|null $path
+     * @var string|null $file
      */
-    protected ?string $path = null;
+    protected ?string $file = null;
 
 
 
     /**
-     * Returns the path
+     * Returns the file
      *
      * @return string|null
      */
-    public function getPath(): ?string
+    public function getFile(): ?string
     {
-        return $this->path;
+        return $this->file;
     }
 
 
 
     /**
-     * Sets the path
+     * Sets the file
      *
-     * @param string|null $path
+     * @param string|null $file
      * @return static
      */
-    public function setPath(?string $path): static
+    public function setFile(?string $file): static
     {
-        if ($path) {
-            $this->path = Strings::slash($path);
-        } else {
-            $this->path = null;
-        }
-
+        $this->file = get_null($file);
         return $this;
     }
 }

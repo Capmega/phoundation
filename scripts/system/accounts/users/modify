@@ -28,7 +28,7 @@ Documentation::autoComplete(User::getAutoComplete([
     ],
 ]));
 
-Documentation::usage('./cli system accounts users modify USER [OPTIONS]
+Documentation::usage('./pho system accounts users modify USER [OPTIONS]
 ./cli system users modify USER -l -i --to ENVIRONMENT');
 
 Documentation::help(User::getHelp('This script allows you to modify users

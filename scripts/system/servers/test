@@ -18,7 +18,7 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-$usage = './cli system servers authenticate USER';
+$usage = './pho system servers authenticate USER';
 
 $help  = 'This script can be used to test the authentication for the specified server
 

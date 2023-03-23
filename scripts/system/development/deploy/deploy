@@ -20,7 +20,7 @@ use Phoundation\Developer\Project\Project;
  * @package Phoundation\Development
  */
 
-Documentation::usage('./cli system development deploy [OPTIONS] TARGET_ENVIRONMENT
+Documentation::usage('./pho system development deploy [OPTIONS] TARGET_ENVIRONMENT
 ./cli system development deploy TARGET_ENVIRONMENT
 ');
 

@@ -2189,22 +2189,33 @@ class Core {
     }
 
 
-
     /**
      * Returns either the specified restrictions object or the Core restrictions object
      *
      * With this, availability of restrictions is guaranteed, even if a function did not receive restrictions. If Core
      * restrictions are returned, these core restrictions are the ones that apply
      *
-     * @param Restrictions|array|string|null $restrictions
-     * @return Restrictions
+     * @param Restrictions|array|string|null $restrictions  The restriction data that must be ensured to be a
+     *                                                      Restrictions object
+     * @param bool $write                                   If $restrictions is not specified as a Restrictions class,
+     *                                                      but as a path string, or array of path strings, then this
+     *                                                      method will convert that into a Restrictions object and this
+     *                                                      is the $write modifier for that object
+     * @param string|null $label                            If $restrictions is not specified as a Restrictions class,
+     *                                                      but as a path string, or array of path strings, then this
+     *                                                      method will convert that into a Restrictions object and this
+     *                                                      is the $label modifier for that object
+     * @return Restrictions                                 A Restrictions object. If possible, the specified
+     *                                                      restrictions will be returned but if no $restictions were
+     *                                                      specified ($restrictions was null or an empty string), the
+     *                                                      Core restrictions will be returned instead
      */
-    public static function ensureRestrictions(Restrictions|array|string|null $restrictions = null): Restrictions
+    public static function ensureRestrictions(Restrictions|array|string|null $restrictions = null, bool $write = false, ?string $label = null): Restrictions
     {
         if ($restrictions) {
             if (!is_object($restrictions)) {
                 // Restrictions were specified by simple path string or array of paths. Convert to restrictions object
-                $restrictions = new Restrictions($restrictions);
+                $restrictions = new Restrictions($restrictions, $write, $label);
             }
 
             return $restrictions;

@@ -16,7 +16,7 @@ use Phoundation\Servers\Servers;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./cli system servers list [OPTIONS]
+Documentation::usage('./pho system servers list [OPTIONS]
 ./cli system servers list -D');
 
 Documentation::help('This script will list the configured servers on this system

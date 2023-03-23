@@ -18,7 +18,7 @@ use Phoundation\Developer\Versioning\Git\Git;
  * @category Function reference
  * @package Phoundation\Development
  */
-Documentation::usage('./cli system development git checkout [BRANCH / FILE]
+Documentation::usage('./pho system development git checkout [BRANCH / FILE]
 ./cli system dev git checkout [BRANCH / FILE]');
 Documentation::help('This script is an interface to the git command through Phoundation. Its not really needed -nor 
 useful- beyond testing the git library');

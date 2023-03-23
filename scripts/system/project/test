@@ -17,7 +17,7 @@ use Phoundation\Processes\ProcessCommands;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-$usage = './cli system info';
+$usage = './pho system info';
 
 $help  = 'The info script will show detailed information about the current framework, project, database and more';
 

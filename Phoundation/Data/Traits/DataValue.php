@@ -46,7 +46,7 @@ trait DataValue
      */
     public function setValue(string $value): static
     {
-        $this->value = Strings::slash($value);
+        $this->value = $value;
         return $this;
     }
 }

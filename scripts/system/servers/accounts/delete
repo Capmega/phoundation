@@ -19,7 +19,7 @@ use Phoundation\Servers\SshAccount;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./cli system servers accounts delete NAME');
+Documentation::usage('./pho system servers accounts delete NAME');
 
 Documentation::help('This script will delete the specified SSH account. Note that deleted accounts will not be 
 removed from the database, the status for the account will be updated to "deleted". The SSH key, however, will be 

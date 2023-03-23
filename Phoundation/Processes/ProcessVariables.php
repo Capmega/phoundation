@@ -632,18 +632,19 @@ trait ProcessVariables
     }
 
 
-
     /**
      * Set the server on which the command should be executed for this process
      *
      * @note NULL means this local server
      * @param Restrictions|array|string|null $restrictions
+     * @param bool $write
+     * @param string|null $label
      * @return static
      */
-    public function setRestrictions(Restrictions|array|string|null $restrictions = null): static
+    public function setRestrictions(Restrictions|array|string|null $restrictions = null, bool $write = false, ?string $label = null): static
     {
         $this->cached_command_line = null;
-        $this->restrictions        = Core::ensureRestrictions($restrictions);
+        $this->restrictions        = Core::ensureRestrictions($restrictions, $write, $label);
         return $this;
     }
 

@@ -23,7 +23,7 @@ use Phoundation\Utils\Json;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./cli system info');
+Documentation::usage('./pho system info');
 Documentation::help('The info script will show detailed information about the current framework, project, database and more');
 
 

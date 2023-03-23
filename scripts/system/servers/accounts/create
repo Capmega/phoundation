@@ -20,7 +20,7 @@ use Phoundation\Servers\SshAccount;
  */
 Documentation::autoComplete(SshAccount::getAutoComplete());
 
-Documentation::usage('./cli system servers accounts create [OPTIONS]
+Documentation::usage('./pho system servers accounts create [OPTIONS]
 ./cli system servers accounts create -u phoundation -k KEYFILE -d "This is a test account"');
 
 Documentation::help('This script allows you to create SSH accounts.

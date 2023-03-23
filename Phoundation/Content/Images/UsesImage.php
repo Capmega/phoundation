@@ -2,7 +2,7 @@
 
 namespace Phoundation\Content\Images;
 
-use Phoundation\Servers\Traits\UsesServer;
+use Phoundation\Servers\Traits\UsesRestrictions;
 
 
 /**
@@ -18,7 +18,7 @@ use Phoundation\Servers\Traits\UsesServer;
  */
 trait UsesImage
 {
-    use UsesServer;
+    use UsesRestrictions;
 
 
 

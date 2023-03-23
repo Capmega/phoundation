@@ -18,7 +18,7 @@ use Phoundation\Developer\Versioning\Git\Git;
  * @category Function reference
  * @package Phoundation\Development
  */
-Documentation::usage('./cli system development git merge BRANCH
+Documentation::usage('./pho system development git merge BRANCH
 ./cli system dev git merge BRANCH');
 Documentation::help('This script is an interface to the git command through Phoundation. Its not really needed -nor 
 useful- beyond testing the git library');

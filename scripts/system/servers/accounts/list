@@ -16,7 +16,7 @@ use Phoundation\Servers\SshAccounts;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./cli system servers accounts list [OPTIONS]
+Documentation::usage('./pho system servers accounts list [OPTIONS]
 ./cli system servers accounts list -D');
 
 Documentation::help('This script will list the configured SSH accounts on this system

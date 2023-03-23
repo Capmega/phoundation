@@ -16,7 +16,7 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-$usage = './cli system image resize IMAGE_FILE_NAME -x 500 -y 500 -m scale';
+$usage = './pho system image resize IMAGE_FILE_NAME -x 500 -y 500 -m scale';
 
 $help  = 'This script can apply various conversions to the specified image
 

@@ -20,7 +20,7 @@ use Phoundation\Developer\Sync;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./cli system sync ENVIRONMENT
+Documentation::usage('./pho system sync ENVIRONMENT
 ./cli system sync -l -i --to ENVIRONMENT');
 
 Documentation::help('This script will synchronize either the specified environment to your local environment or vice versa.

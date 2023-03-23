@@ -27,7 +27,7 @@ Documentation::autoComplete(Server::getAutoComplete([
     ]
 ]));
 
-Documentation::usage('./cli system servers modify HOSTNAME [OPTIONS]
+Documentation::usage('./pho system servers modify HOSTNAME [OPTIONS]
 ./cli system servers modify HOSTNAME -l -i --to ENVIRONMENT');
 
 Documentation::help(Server::getHelp('This script allows you to modify servers

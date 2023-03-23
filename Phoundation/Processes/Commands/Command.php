@@ -32,15 +32,16 @@ class Command
     protected Process $process;
 
 
-
     /**
      * Command class constructor
      *
      * @param Restrictions|array|string|null $restrictions
+     * @param bool $write
+     * @param string|null $label
      */
-    public function __construct(Restrictions|array|string|null $restrictions = null)
+    public function __construct(Restrictions|array|string|null $restrictions = null, bool $write = false, ?string $label = null)
     {
-        $this->process = Process::new()->setRestrictions($restrictions);
+        $this->process = Process::new()->setRestrictions($restrictions, $write, $label);
     }
 
 
@@ -56,16 +57,17 @@ class Command
     }
 
 
-
     /**
      * Returns a new Images object
      *
      * @param Restrictions|array|string|null $restrictions
+     * @param bool $write
+     * @param string|null $label
      * @return static
      */
-    public static function new(Restrictions|array|string|null $restrictions = null): static
+    public static function new(Restrictions|array|string|null $restrictions = null, bool $write = false, ?string $label = null): static
     {
-        return new static($restrictions);
+        return new static($restrictions, $write, $label);
     }
 
 

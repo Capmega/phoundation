@@ -95,7 +95,7 @@ class File extends FileBasics
      * @return File
      * @throws FilesystemException
      */
-    public function append(string $data): File
+    public function append(string $data): static
     {
         return $this->write($data, 'a');
     }
@@ -108,7 +108,7 @@ class File extends FileBasics
      * @return File
      * @throws FilesystemException
      */
-    public function create(string $data): File
+    public function create(string $data): static
     {
         return $this->write($data, 'w');
     }
@@ -120,7 +120,7 @@ class File extends FileBasics
      * @param string|array $sources The source files
      * @return File
      */
-    public function appendFiles(string|array $sources): File
+    public function appendFiles(string|array $sources): static
     {
         // Check filesystem restrictions
         $this->restrictions->check($this->file, true);
@@ -1345,7 +1345,7 @@ class File extends FileBasics
      *
      * @return File
      */
-    public function tar(): File
+    public function tar(): static
     {
         return File::new(FilesystemCommands::new($this->restrictions)->tar($this->file), $this->restrictions);
     }
@@ -1470,7 +1470,7 @@ class File extends FileBasics
         $this->restrictions->check($this->file, true);
 
         // Make sure the file path exists
-        Path::new(dirname($this->file), $this->restrictions)->ensure();
+        Path::new(dirname($this->file), $this->restrictions->getParents())->ensure();
 
         $h = $this->open($filemode);
         fwrite($h, $data);
