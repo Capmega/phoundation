@@ -8,7 +8,9 @@ use Phoundation\Core\Locale\Language\Languages;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\File;
+use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Geo\Timezones\Timezones;
 use Phoundation\Processes\Commands\Grep;
@@ -323,12 +325,14 @@ class AutoComplete
      */
     public static function ensureAvailable(): void
     {
-        if (file_exists('~/.bash_completion')) {
+        $file = Filesystem::absolute('~/.bash_completion');
+
+        if (file_exists($file)) {
             // Check if it contains the setup for Phoundation
             // TODO Check if this is an issue with huge bash_completion files, are there huge files out there?
-            $results = Grep::new(Restrictions::new('~/.bash_completion'))
+            $results = Grep::new(Restrictions::new($file, true))
                 ->setValue('complete -F _phoundation pho')
-                ->setPath('~/.bash_completion')
+                ->setFile($file)
                 ->execute();
 
             if ($results) {
@@ -338,16 +342,16 @@ class AutoComplete
         }
 
         // Phoundation command line auto complete has not yet been set up, do so now.
-        File::new(PATH_ROOT . 'bash_completion')->append('
-#/usr/bin/env bash
+        File::new('~/.bash_completion')
+            ->setRestrictions('~/.bash_completion', true)
+            ->append('#/usr/bin/env bash
 _phoundation()
 {
 PHO=$(./pho --auto-complete "${COMP_CWORD} ${COMP_LINE}");
 COMPREPLY+=($(compgen -W "$PHO"));
 }
 
-complete -F _phoundation pho
-');
+complete -F _phoundation pho');
 
         Log::information('Setup auto complete for Phoundation in ~/.bash_completion');
     }
