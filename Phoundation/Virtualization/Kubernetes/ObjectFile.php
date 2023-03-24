@@ -82,6 +82,13 @@ abstract class ObjectFile
             ]
         ], $configuration);
 
+        // Add namespace to meta data, if available
+        $namespace = $this->object->getNamespace();
+
+        if ($namespace) {
+            $return['metadata']['namespace'] = $namespace;
+        }
+
         // Add annotations to meta data, if available
         $annotations = $this->object->getAnnotations();
 

@@ -1,0 +1,31 @@
+#!/usr/bin/php
+<?php
+
+use Phoundation\Cli\Documentation;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Virtualization\Kubernetes\Ingresses\Ingress;
+
+
+/**
+ * Script devops/kubernetes/delete/ingress
+ *
+ *
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Scripts
+ */
+Documentation::usage('./pho devops kubernetes delete ingress');
+Documentation::help('This script deletes the specified Kubernetes ingress');
+
+
+// Validate arguments
+$argv = ArgvValidator::new()
+    ->select('name', true)->matchesRegex('/^[a-z0-9-]+$/')
+    ->noArgumentsLeft()
+    ->validate();
+
+
+// Create new ingress and apply it
+$ingress = Ingress::new($argv['name'])->delete();

@@ -12,6 +12,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Processes\Process;
 use Phoundation\Virtualization\Kubernetes\Traits\DataAnnotations;
 use Phoundation\Virtualization\Kubernetes\Traits\DataLabels;
+use Phoundation\Virtualization\Kubernetes\Traits\DataNamespace;
 use Phoundation\Virtualization\Kubernetes\Traits\UsesKubeCtl;
 
 
@@ -32,6 +33,7 @@ class KubernetesObject
     use DataArrayData;
     use DataLabels;
     use DataName;
+    use DataNamespace;
     use UsesKubeCtl;
     use UsesNewName;
 
