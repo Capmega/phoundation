@@ -24,13 +24,13 @@ Documentation::help('This script returns the available kubernetes services');
 
 // Validate arguments
 $argv = ArgvValidator::new()
-    ->select('-n,--name', true)->isOptional()->matchesRegex('/^[a-z0-9-]+$/')
+    ->select('name')->isOptional()->matchesRegex('/^[a-z0-9-]+$/')
     ->noArgumentsLeft()
     ->validate();
 
 if ($argv['name']) {
     // Display the specified name only
-    Service::new($argv['name'])->getCliForm();
+    echo Service::new($argv['name'])->getYaml();
 } else {
     // Display all deployments
     $output = Services::new();

@@ -2,13 +2,10 @@
 
 namespace Phoundation\Virtualization\Kubernetes;
 
-use Phoundation\Core\Strings;
 use Phoundation\Data\Traits\DataFile;
 use Phoundation\Data\Traits\DataStringData;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
-use Phoundation\Processes\Process;
-use Phoundation\Virtualization\Kubernetes\Secrets\Secret;
 
 
 /**
@@ -52,6 +49,12 @@ abstract class ObjectFile
      */
     public function save(): static
     {
+        if (!$this->object->getName()) {
+            throw new OutOfBoundsException(tr('Cannot save ":kind" kind kubernetes object, no name specified', [
+                ':kind' => $this->object->getKind()
+            ]));
+        }
+
         $data = $this->buildConfiguration();
         $data = yaml_emit($data);
 
@@ -71,9 +74,28 @@ abstract class ObjectFile
      */
     protected function buildConfiguration(array $configuration = null): array
     {
-        return array_merge([
-            'apiVersion' => 'apps/v1',
-            'kind'       => $this->object->getKind()
+        $return = array_merge([
+            'apiVersion' => $this->object->getApiVersion(),
+            'kind'       => $this->object->getKind(),
+            'metadata'   => [
+                'name' => $this->object->getName()
+            ]
         ], $configuration);
+
+        // Add annotations to meta data, if available
+        $annotations = $this->object->getAnnotations();
+
+        if ($annotations) {
+            $return['metadata']['annotations'] = $annotations;
+        }
+
+        // Add labels to meta data, if available
+        $labels = $this->object->getLabels();
+
+        if ($labels) {
+            $return['metadata']['labels'] = $labels;
+        }
+
+        return $return;
     }
 }

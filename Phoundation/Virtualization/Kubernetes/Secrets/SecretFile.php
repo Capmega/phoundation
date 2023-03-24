@@ -2,6 +2,8 @@
 
 namespace Phoundation\Virtualization\Kubernetes\Secrets;
 
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\File;
 use Phoundation\Virtualization\Kubernetes\ObjectFile;
 
 
@@ -58,23 +60,20 @@ class SecretFile extends ObjectFile
     protected function buildConfiguration(?array $configuration = null): array
     {
         // Encode all data values in base64
-        $data = [];
+        $data        = [];
+        $object_data = $this->object->getData();
 
-        foreach ($this->data as $key => &$value) {
-            $data[$key] = base64_encode($value);
+        if ($object_data) {
+            foreach ($object_data as $key => &$value) {
+                $data[$key] = base64_encode($value);
+            }
+
+            unset($value);
         }
 
-        unset($value);
-
         return parent::buildConfiguration([
-            'metadata' => [
-                'name' => $this->object->getName(),
-                'labels' => [
-                    'app' => 'web'
-                ]
-            ],
             'type' => 'Opaque',
-            'data' => $this->data
+            'data' => $data
         ]);
     }
 }

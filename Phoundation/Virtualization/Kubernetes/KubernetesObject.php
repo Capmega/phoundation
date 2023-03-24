@@ -2,15 +2,17 @@
 
 namespace Phoundation\Virtualization\Kubernetes;
 
-use Phoundation\Cli\Cli;
+use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Traits\DataArrayData;
 use Phoundation\Data\Traits\DataName;
+use Phoundation\Data\Traits\DataArrayOutput;
 use Phoundation\Data\Traits\UsesNewName;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Processes\Enum\ExecuteMethod;
 use Phoundation\Processes\Process;
-use Phoundation\Virtualization\Traits\KubeCtl;
+use Phoundation\Virtualization\Kubernetes\Traits\DataAnnotations;
+use Phoundation\Virtualization\Kubernetes\Traits\DataLabels;
+use Phoundation\Virtualization\Kubernetes\Traits\UsesKubeCtl;
 
 
 /**
@@ -25,10 +27,13 @@ use Phoundation\Virtualization\Traits\KubeCtl;
  */
 class KubernetesObject
 {
-    use KubeCtl;
+    use UsesKubeCtl;
     use UsesNewName;
+    use DataAnnotations;
     use DataArrayData;
+    use DataLabels;
     use DataName;
+    use DataArrayOutput;
 
 
     /**
@@ -90,6 +95,13 @@ class KubernetesObject
     public function save(): static
     {
         $this->getObjectFile()->save();
+
+        Log::success(tr('Saved ":kind" object ":name" in file ":file"', [
+            ':kind' => $this->getKind(),
+            ':name' => $this->getName(),
+            ':file' => $this->getObjectFile()->getFile()
+        ]));
+
         return $this;
     }
 
@@ -125,29 +137,28 @@ class KubernetesObject
     /**
      * Creates a Kubernetes deployment from the deployment file
      *
-     * @param ExecuteMethod $method
      * @return static
      */
-    public function apply(ExecuteMethod $method = ExecuteMethod::passthru): static
+    public function apply(): static
     {
-        Process::new('kubectl')
+        $this->output = Process::new('kubectl')
             ->addArguments(['apply', '-f', $this->getObjectFile()->getFile()])
-            ->execute($method);
+            ->executeReturnArray();
+
+        Log::success($this->output);
 
         return $this;
     }
 
 
     /**
-     * Creates and returns a CLI table for the data in this entry
+     * Returns the data in Yaml format
      *
-     * @param string|null $key_header
-     * @param string|null $value_header
-     * @return void
+     * @return string
      */
-    public function getCliForm(?string $key_header = null, ?string $value_header = null): void
+    public function getYaml(): string
     {
-        Cli::displayForm($this->data, $key_header, $value_header);
+        return yaml_emit($this->data);
     }
 
 

@@ -92,12 +92,6 @@ class DeploymentFile extends ObjectFile
     protected function buildConfiguration(?array $configuration = null): array
     {
         return parent::buildConfiguration([
-            'metadata' => [
-                'name' => $this->object->getName(),
-                'labels' => [
-                    'app' => 'web'
-                ]
-            ],
             'spec' => [
                 'selector' => [
                     'matchLabels' => [

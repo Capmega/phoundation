@@ -1,6 +1,6 @@
 <?php
 
-namespace Phoundation\Virtualization\Traits;
+namespace Phoundation\Virtualization\Kubernetes\Traits;
 
 
 /**
@@ -13,7 +13,7 @@ namespace Phoundation\Virtualization\Traits;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Virtualization
  */
-trait KubeCtl
+trait UsesKubeCtl
 {
     /**
      * The kubernetes API version used

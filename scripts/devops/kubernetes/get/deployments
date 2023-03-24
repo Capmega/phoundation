@@ -24,13 +24,13 @@ Documentation::help('This script returns the available kubernetes deployments');
 
 // Validate arguments
 $argv = ArgvValidator::new()
-    ->select('-d,--deployment', true)->isOptional()->matchesRegex('/^[a-z0-9-]+$/')
+    ->select('name')->isOptional()->matchesRegex('/^[a-z0-9-]+$/')
     ->noArgumentsLeft()
     ->validate();
 
-if ($argv['deployment']) {
+if ($argv['name']) {
     // Display the specified deployment only
-    Deployment::new($argv['deployment'])->getCliForm();
+    echo Deployment::new($argv['name'])->getYaml();
 } else {
     // Display all deployments
     $output = Deployments::new();

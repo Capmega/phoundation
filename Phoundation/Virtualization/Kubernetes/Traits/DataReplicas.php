@@ -1,6 +1,6 @@
 <?php
 
-namespace Phoundation\Virtualization\Traits;
+namespace Phoundation\Virtualization\Kubernetes\Traits;
 
 
 

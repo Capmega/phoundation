@@ -6,7 +6,7 @@ use Phoundation\Core\Arrays;
 use Phoundation\Data\Classes\Iterator;
 use Phoundation\Data\Traits\UsesNew;
 use Phoundation\Processes\Process;
-use Phoundation\Virtualization\Traits\KubeCtl;
+use Phoundation\Virtualization\Kubernetes\Traits\UsesKubeCtl;
 
 
 /**
@@ -21,7 +21,7 @@ use Phoundation\Virtualization\Traits\KubeCtl;
  */
 class KubernetesObjects extends Iterator
 {
-    use KubeCtl;
+    use UsesKubeCtl;
     use UsesNew;
 
 
