@@ -3,6 +3,7 @@
 namespace Phoundation\Data\Traits;
 
 use Phoundation\Core\Strings;
+use Phoundation\Filesystem\Filesystem;
 
 
 /**
@@ -37,17 +38,18 @@ trait DataPath
     }
 
 
-
     /**
      * Sets the path
      *
      * @param string|null $path
+     * @param string|null $prefix
+     * @param bool $must_exist
      * @return static
      */
-    public function setPath(?string $path): static
+    public function setPath(?string $path, string $prefix = null, bool $must_exist = true): static
     {
         if ($path) {
-            $this->path = Strings::slash($path);
+            $this->path = Strings::slash(Filesystem::absolute($path, $prefix, $must_exist));
         } else {
             $this->path = null;
         }
