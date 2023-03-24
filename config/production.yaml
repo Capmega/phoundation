@@ -42,3 +42,8 @@ databases:
   memcached:
     instances:
       system:
+geo:
+  ip:
+    provider: maxmind
+    max-mind:
+      api-key: 
