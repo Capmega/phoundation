@@ -19,3 +19,6 @@ www/en/admin/pub/css/bundle-*
 phoundation.komodoproject
 vendor
 nohup.out
+.docker
+docker-compose.y*
+
