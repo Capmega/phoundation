@@ -111,7 +111,7 @@ class Script
                 // AutoComplete::getPosition() might become -1 if one were to <TAB> right at the end of the last method.
                 // If this is the case we actually have to expand the method, NOT yet the script parameters!
                 if ((AutoComplete::getPosition() - count(self::$found_methods)) === 0) {
-                    throw MethodNotExistsException::new(tr('The specified method file ":file" does exist but requires auto complete extension', [
+                    throw MethodNotExistsException::new(tr('The specified command file ":file" does exist but requires auto complete extension', [
                         ':file' => $script
                     ]))
                         ->makeWarning()
@@ -374,7 +374,7 @@ SYSTEM ARGUMENTS
 
             if (!file_exists($file)) {
                 // The specified path doesn't exist
-                throw MethodNotExistsException::new(tr('The specified method file ":file" does not exist', [
+                throw MethodNotExistsException::new(tr('The specified command file ":file" does not exist', [
                     ':file' => $file
                 ]))
                     ->makeWarning()
@@ -420,7 +420,7 @@ SYSTEM ARGUMENTS
 
         // We're stuck in a directory still, no script to execute.
         // Add the available files to display to help the user
-        throw MethodNotFoundException::new(tr('The specified method file ":file" was not found', [
+        throw MethodNotFoundException::new(tr('The specified command file ":file" was not found', [
             ':file' => $file
         ]))
             ->makeWarning()
