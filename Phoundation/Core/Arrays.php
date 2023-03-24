@@ -1752,4 +1752,113 @@ class Arrays {
         unset($value);
         return $source;
     }
+
+
+    /**
+     * Splits up the specified source string into an array according to the specified format and returns it
+     *
+     * Format is specified like this: [$keyname => $size, $keyname => $size, ...]
+     *
+     * @param string $source
+     * @param array $format
+     * @return array
+     */
+    public static function format(string $source, array $format): array
+    {
+        $return = [];
+        $pos    = 0;
+
+        foreach ($format as $key => $size) {
+            $return[$key] = substr($source, $pos, $size);
+            $pos         += $size;
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Detects and returns a format to parse table strings using Arrays::format()
+     *
+     * @param string $source
+     * @param string $separator
+     * @param bool $lower_keys
+     * @return array
+     */
+    public static function detectFormat(string $source, string $separator = ' ', bool $lower_keys = true): array
+    {
+        if (strlen($separator) !== 1) {
+            throw new OutOfBoundsException(tr('Invalid separator ":separator" specified, it should be a single byte character', [
+                ':separator' => $separator
+            ]));
+        }
+
+        $return = [];
+        $start  = true;
+        $last   = 0;
+        $key    = 'a';
+
+        for ($pos = 0; $pos < strlen($source); $pos++) {
+            if (!$pos) {
+                // First row. Do we start with a separator? If so, we're in end mode
+                if ($source[$pos] === $separator) {
+                    $start = false;
+                    $key   = null;
+                    continue;
+                }
+            }
+
+            if ($start) {
+                // Column headers are at the start of the column
+                if ($source[$pos] !== $separator) {
+                    if (!$key) {
+                        // When the key ends, we have a column, which just happened
+                        $key = trim(substr($source, $last, $pos - $last));
+
+                        if ($lower_keys) {
+                            $key = strtolower($key);
+                        }
+
+                        $return[$key] = $pos - $last;
+                        $last = $pos;
+                    }
+                } else {
+                    // We have a separator character, reset the key
+                    $key = null;
+                }
+
+            } else {
+                // Column headers are at the end of the column
+                if ($source[$pos] === $separator) {
+                    if ($key) {
+                        // We passed the key and now have a separator
+                        $key = trim(substr($source, $last, $pos - $last));
+
+                        if ($lower_keys) {
+                            $key = strtolower($key);
+                        }
+
+                        $return[$key] = $pos - $last;
+                        $last = $pos;
+                        $key = null;
+                    }
+
+                } else {
+                    // Give key a character, doesn't matter which, so that we know that we've encountered a non
+                    // separator character
+                    $key = 'a';
+                }
+            }
+        }
+
+        // Add the last key
+        $key = trim(substr($source, $last, $pos - $last));
+
+        if ($lower_keys) {
+            $key = strtolower($key);
+        }
+
+        $return[$key] = $pos;
+        return $return;
+    }
 }
