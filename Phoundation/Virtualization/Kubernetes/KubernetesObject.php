@@ -27,13 +27,13 @@ use Phoundation\Virtualization\Kubernetes\Traits\UsesKubeCtl;
  */
 class KubernetesObject
 {
-    use UsesKubeCtl;
-    use UsesNewName;
+    use DataArrayOutput;
     use DataAnnotations;
     use DataArrayData;
     use DataLabels;
     use DataName;
-    use DataArrayOutput;
+    use UsesKubeCtl;
+    use UsesNewName;
 
 
     /**

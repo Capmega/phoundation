@@ -62,9 +62,7 @@ class ServiceFile extends ObjectFile
     {
         return parent::buildConfiguration([
             'spec' => [
-                'selector' => [
-                    'app.kubernetes.io/name' => 'MyApp'
-                ],
+                'selector' => $this->object->getSelectors(),
                 'ports' => [
                     [
                         'protocol'   => 'TCP',

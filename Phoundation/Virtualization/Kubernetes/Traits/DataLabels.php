@@ -76,7 +76,7 @@ trait DataLabels
 
 
     /**
-     * Adds the specified annotation
+     * Adds the specified label
      *
      * @param string $key
      * @param int|string $value
