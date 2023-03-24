@@ -1,12 +1,12 @@
 <?php
 
-namespace Phoundation\Virtualization\Kubernetes\Deployments;
+namespace Phoundation\Virtualization\Kubernetes\ConfigMaps;
 
 use Phoundation\Virtualization\Kubernetes\KubernetesObjects;
 
 
 /**
- * Class Deployments
+ * Class ConfigMaps
  *
  *
  *
@@ -15,6 +15,6 @@ use Phoundation\Virtualization\Kubernetes\KubernetesObjects;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Virtualization
  */
-class Deployments extends KubernetesObjects
+class ConfigMaps extends KubernetesObjects
 {
 }

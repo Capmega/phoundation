@@ -3,7 +3,7 @@
 
 use Phoundation\Cli\Documentation;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Virtualization\Kubernetes\Deployments\Deployment;
+use Phoundation\Virtualization\Kubernetes\ConfigMaps\ConfigMap;
 
 
 /**
@@ -28,4 +28,4 @@ $argv = ArgvValidator::new()
 
 
 // Create new deployment and apply it
-$deployment = Deployment::new($argv['name'])->delete();
+$deployment = ConfigMap::new($argv['name'])->delete();

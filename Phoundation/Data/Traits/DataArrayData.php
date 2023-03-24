@@ -39,6 +39,18 @@ trait DataArrayData
 
 
     /**
+     * Clears the data
+     *
+     * @return static
+     */
+    public function clearData(): static
+    {
+        $this->data = [];
+        return $this;
+    }
+
+
+    /**
      * Sets the data
      *
      * @param array|null $data
@@ -46,7 +58,37 @@ trait DataArrayData
      */
     public function setData(?array $data): static
     {
-        $this->data = $data;
+        $this->data = [];
+        return $this->addData($data);
+    }
+
+
+    /**
+     * Adds the specified data
+     *
+     * @param array|string|null $key
+     * @param int|string|null $value
+     * @return static
+     */
+    public function addData(array|string|null $key, int|string|null $value = null): static
+    {
+        if (is_array($key)) {
+            $data = $key;
+
+            foreach ($data as $key => $value) {
+                if (is_numeric($key)) {
+                    $value = explode('=', $value);
+                    $this->addData(isset_get($value[0]), isset_get($value[1]));
+
+                } else {
+                    $this->addData($key, $value);
+                }
+            }
+
+        } else {
+            $this->data[$key] = $value;
+        }
+
         return $this;
     }
 }

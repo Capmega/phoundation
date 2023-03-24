@@ -3,6 +3,7 @@
 namespace Phoundation\Virtualization\Kubernetes;
 
 use Phoundation\Core\Arrays;
+use Phoundation\Core\Strings;
 use Phoundation\Data\Classes\Iterator;
 use Phoundation\Data\Traits\UsesNew;
 use Phoundation\Processes\Process;
@@ -32,8 +33,10 @@ class KubernetesObjects extends Iterator
      */
     public function __construct()
     {
-        $this->list = [];
-        $format     = [];
+        $format            = [];
+        $this->list        = [];
+        $this->kind        = Strings::fromReverse(get_class($this), '\\');
+        $this->get_command = strtolower($this->kind);
 
         $output = Process::new('kubectl')
             ->addArguments(['get', $this->get_command])

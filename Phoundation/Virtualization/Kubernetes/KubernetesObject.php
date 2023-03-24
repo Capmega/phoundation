@@ -114,7 +114,12 @@ class KubernetesObject
     public function delete(): static
     {
         Process::new('kubectl')
-            ->addArguments(['delete', 'deployment', $this->id]);
+            ->addArguments(['delete', 'deployment', $this->name]);
+
+        Log::success(tr('Deleted ":kind" kind object ":secret"', [
+            ':kind'   => $this->kind,
+            ':secret' => $this->name
+        ]));
 
         return $this;
     }

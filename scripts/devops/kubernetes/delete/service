@@ -3,11 +3,11 @@
 
 use Phoundation\Cli\Documentation;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Virtualization\Kubernetes\Deployments\Deployment;
+use Phoundation\Virtualization\Kubernetes\Services\Service;
 
 
 /**
- * Script devops/kubernetes/delete/deployment
+ * Script devops/kubernetes/delete/service
  *
  *
  *
@@ -16,8 +16,8 @@ use Phoundation\Virtualization\Kubernetes\Deployments\Deployment;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho devops kubernetes delete deployment');
-Documentation::help('This script deletes the specified Kubernetes deployments');
+Documentation::usage('./pho devops kubernetes delete service');
+Documentation::help('This script deletes the specified Kubernetes service');
 
 
 // Validate arguments
@@ -27,5 +27,5 @@ $argv = ArgvValidator::new()
     ->validate();
 
 
-// Create new deployment and apply it
-$deployment = Deployment::new($argv['name'])->delete();
+// Create new service and apply it
+$service = Service::new($argv['name'])->delete();

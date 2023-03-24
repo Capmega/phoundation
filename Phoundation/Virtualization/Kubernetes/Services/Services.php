@@ -17,13 +17,4 @@ use Phoundation\Virtualization\Kubernetes\KubernetesObjects;
  */
 class Services extends KubernetesObjects
 {
-    /**
-     * Secrets class constructor
-     */
-    public function __construct()
-    {
-        $this->kind        = 'Services';
-        $this->get_command = 'services';
-        parent::__construct();
-    }
 }
