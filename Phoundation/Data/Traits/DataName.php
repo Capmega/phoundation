@@ -5,7 +5,7 @@ namespace Phoundation\Data\Traits;
 
 
 /**
- * Trait Name
+ * Trait DataName
  *
  *
  *
@@ -16,29 +16,27 @@ namespace Phoundation\Data\Traits;
  */
 trait DataName
 {
-    protected string $name;
-
+    protected ?string $name;
 
 
     /**
      * Returns the name
      *
-     * @return string
+     * @return string|null
      */
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
 
-
     /**
      * Sets the name
      *
-     * @param string $name
+     * @param string|null $name
      * @return static
      */
-    public function setName(string $name): static
+    public function setName(?string $name): static
     {
         $this->name = $name;
         return $this;

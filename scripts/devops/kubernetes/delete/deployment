@@ -23,7 +23,7 @@ Documentation::help('This script creates Kubernetes deployments');
 
 // Validate arguments
 $argv = ArgvValidator::new()
-    ->select('-d,--deployment', true)->matchesRegex('/^[a-z-]+$/')
+    ->select('-d,--deployment', true)->matchesRegex('/^[a-z0-9-]+$/')
     ->noArgumentsLeft()
     ->validate();
 

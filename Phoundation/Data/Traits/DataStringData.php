@@ -2,9 +2,12 @@
 
 namespace Phoundation\Data\Traits;
 
+use Phoundation\Core\Strings;
+use Phoundation\Filesystem\Filesystem;
+
 
 /**
- * Trait DataFile
+ * Trait DataStringData
  *
  *
  *
@@ -13,36 +16,37 @@ namespace Phoundation\Data\Traits;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-trait DataFile
+trait DataStringData
 {
     /**
-     * The file for this object
+     * The data for this object
      *
-     * @var string|null $file
+     * @var string|null $data
      */
-    protected ?string $file = null;
+    protected ?string $data = null;
+
 
 
     /**
-     * Returns the file
+     * Returns the data
      *
      * @return string|null
      */
-    public function getFile(): ?string
+    public function getData(): ?string
     {
-        return $this->file;
+        return $this->data;
     }
 
 
     /**
-     * Sets the file
+     * Sets the data
      *
-     * @param string|null $file
+     * @param string|null $data
      * @return static
      */
-    public function setFile(?string $file): static
+    public function setData(?string $data): static
     {
-        $this->file = get_null($file);
+        $this->data = get_null($data);
         return $this;
     }
 }

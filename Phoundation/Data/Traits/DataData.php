@@ -2,9 +2,6 @@
 
 namespace Phoundation\Data\Traits;
 
-use Phoundation\Core\Strings;
-use Phoundation\Filesystem\Filesystem;
-
 
 /**
  * Trait DataData
@@ -18,35 +15,5 @@ use Phoundation\Filesystem\Filesystem;
  */
 trait DataData
 {
-    /**
-     * The data for this object
-     *
-     * @var string|null $data
-     */
-    protected ?string $data = null;
-
-
-
-    /**
-     * Returns the data
-     *
-     * @return string|null
-     */
-    public function getData(): ?string
-    {
-        return $this->data;
-    }
-
-
-    /**
-     * Sets the data
-     *
-     * @param string|null $data
-     * @return static
-     */
-    public function setData(?string $data): static
-    {
-        $this->data = get_null($data);
-        return $this;
-    }
+    use DataStringData;
 }
