@@ -2,12 +2,11 @@
 
 namespace Phoundation\Virtualization\Kubernetes\Pods;
 
-use Phoundation\Data\Classes\Iterator;
-use Phoundation\Processes\Process;
+use Phoundation\Virtualization\Kubernetes\KubernetesObjects;
 
 
 /**
- * Class Pod
+ * Class Pods
  *
  *
  *
@@ -16,37 +15,15 @@ use Phoundation\Processes\Process;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Virtualization
  */
-class Pods extends Iterator
+class Pods extends KubernetesObjects
 {
     /**
      * Pods class constructor
      */
     public function __construct()
     {
-        $this->list = [];
-
-        $output = Process::new('kubectl')
-            ->addArguments(['get', 'pods'])
-            ->executeReturnArray();
-
-        foreach ($output as $id => $line) {
-            if (!$id) {
-                // This is the header line
-                continue;
-            }
-
-            $this->list[] = explode(' ', $line);
-        }
-    }
-
-
-    /**
-     * Pod class constructor
-     *
-     * @return static
-     */
-    public static function new(): static
-    {
-        return new static();
+        $this->kind        = 'Pod';
+        $this->get_command = 'pods';
+        parent::__construct();
     }
 }

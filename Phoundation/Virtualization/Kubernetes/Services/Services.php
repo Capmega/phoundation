@@ -1,12 +1,12 @@
 <?php
 
-namespace Phoundation\Virtualization\Kubernetes\Deployments;
+namespace Phoundation\Virtualization\Kubernetes\Services;
 
 use Phoundation\Virtualization\Kubernetes\KubernetesObjects;
 
 
 /**
- * Class Deployments
+ * Class Services
  *
  *
  *
@@ -15,15 +15,15 @@ use Phoundation\Virtualization\Kubernetes\KubernetesObjects;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Virtualization
  */
-class Deployments extends KubernetesObjects
+class Services extends KubernetesObjects
 {
     /**
-     * Deployments class constructor
+     * Secrets class constructor
      */
     public function __construct()
     {
-        $this->kind        = 'Deployment';
-        $this->get_command = 'deployment';
+        $this->kind        = 'Services';
+        $this->get_command = 'services';
         parent::__construct();
     }
 }

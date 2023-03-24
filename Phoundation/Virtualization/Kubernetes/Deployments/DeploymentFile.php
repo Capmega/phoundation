@@ -2,7 +2,7 @@
 
 namespace Phoundation\Virtualization\Kubernetes\Deployments;
 
-use Phoundation\Virtualization\Kubernetes\KubernetesFile;
+use Phoundation\Virtualization\Kubernetes\ObjectFile;
 
 
 /**
@@ -61,40 +61,25 @@ use Phoundation\Virtualization\Kubernetes\KubernetesFile;
           terminationGracePeriodSeconds: 30
  *
  */
-
-class DeploymentFile extends KubernetesFile
+class DeploymentFile extends ObjectFile
 {
-    /**
-     * The deployment data object for this deployment file
-     *
-     * @var Deployment $deployment
-     */
-    protected Deployment $deployment;
-
-
     /**
      * DeploymentFile class constructor
      */
     public function __construct(Deployment $deployment)
     {
-        $this->kind       = 'Deployment';
-        $this->deployment = $deployment;
-
-        parent::__construct();
-
-        $this->file .= $this->deployment->getName() . '.yml';
-        $this->load();
+        parent::__construct($deployment);
     }
 
 
     /**
-     * Returns the deployment data object for this deployment file
+     * Returns the kubernetes deployment data object for this deployment file
      *
      * @return Deployment
      */
     public function getDeployment(): Deployment
     {
-        return $this->deployment;
+        return $this->object;
     }
 
 
@@ -106,12 +91,9 @@ class DeploymentFile extends KubernetesFile
      */
     protected function buildConfiguration(?array $configuration = null): array
     {
-//        'ports' => '—containerPort: 80'
-//        '—name' => 'nginx',
-
         return parent::buildConfiguration([
             'metadata' => [
-                'name' => $this->deployment->getName(),
+                'name' => $this->object->getName(),
                 'labels' => [
                     'app' => 'web'
                 ]
@@ -122,7 +104,7 @@ class DeploymentFile extends KubernetesFile
                         'app' => 'web'
                     ]
                 ],
-                'replicas' => $this->deployment->getReplicas(),
+                'replicas' => $this->object->getReplicas(),
                 'strategy' => [
                     'type' => 'RollingUpdate'
                 ],
@@ -136,7 +118,7 @@ class DeploymentFile extends KubernetesFile
                         'containers' => [
                             [
                                 'name' => 'nginx',
-                                'image' => $this->deployment->getImage(),
+                                'image' => $this->object->getImage(),
                                 'resources' => [
                                     'limits' => [
                                         'memory' => '200Mi',
@@ -157,18 +139,5 @@ class DeploymentFile extends KubernetesFile
                 ]
             ]
         ]);
-    }
-
-
-    /**
-     * Loads the deployment file data into the Deployment object
-     *
-     * @return void
-     */
-    protected function load(): void
-    {
-        if (file_exists($this->file)) {
-            // Load and parse the file?
-        }
     }
 }

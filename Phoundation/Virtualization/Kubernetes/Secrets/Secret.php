@@ -1,13 +1,12 @@
 <?php
 
-namespace Phoundation\Virtualization\Kubernetes\Pods;
+namespace Phoundation\Virtualization\Kubernetes\Secrets;
 
-use Phoundation\Data\Traits\DataName;
 use Phoundation\Virtualization\Kubernetes\KubernetesObject;
 
 
 /**
- * Class Pod
+ * Class Secret
  *
  *
  *
@@ -16,7 +15,14 @@ use Phoundation\Virtualization\Kubernetes\KubernetesObject;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Virtualization
  */
-class Pod extends KubernetesObject
+class Secret extends KubernetesObject
 {
-    use DataName;
+    /**
+     * Secret class constructor
+     */
+    public function __construct(?string $name = null)
+    {
+        $this->object_file_class = SecretFile::class;
+        parent::__construct($name);
+    }
 }

@@ -4,12 +4,12 @@
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\Documentation;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Virtualization\Kubernetes\Deployments\Deployment;
-use Phoundation\Virtualization\Kubernetes\Deployments\Deployments;
+use Phoundation\Virtualization\Kubernetes\Pods\Pod;
+use Phoundation\Virtualization\Kubernetes\Pods\Pods;
 
 
 /**
- * Script devops/kubernetes/deployments/get
+ * Script devops/kubernetes/get/pods
  *
  *
  *
@@ -18,21 +18,21 @@ use Phoundation\Virtualization\Kubernetes\Deployments\Deployments;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho devops kubernetes deployments get');
-Documentation::help('This script returns the available kubernetes deployments');
+Documentation::usage('./pho devops kubernetes get pods');
+Documentation::help('This script returns the available kubernetes pods');
 
 
 // Validate arguments
 $argv = ArgvValidator::new()
-    ->select('-d,--deployment', true)->isOptional()->matchesRegex('/^[a-z0-9-]+$/')
+    ->select('-n,--name', true)->isOptional()->matchesRegex('/^[a-z0-9-]+$/')
     ->noArgumentsLeft()
     ->validate();
 
-if ($argv['deployment']) {
-    // Display the specified deployment only
-    Deployment::new($argv['deployment'])->getCliForm();
+if ($argv['name']) {
+    // Display the specified name only
+    Pod::new($argv['name'])->getCliForm();
 } else {
     // Display all deployments
-    $output = Deployments::new();
+    $output = Pods::new();
     Cli::displayTable($output);
 }

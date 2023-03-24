@@ -4,8 +4,11 @@ namespace Phoundation\Virtualization\Kubernetes;
 
 use Phoundation\Core\Strings;
 use Phoundation\Data\Traits\DataFile;
+use Phoundation\Data\Traits\DataStringData;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
+use Phoundation\Processes\Process;
+use Phoundation\Virtualization\Kubernetes\Secrets\Secret;
 
 
 /**
@@ -18,42 +21,42 @@ use Phoundation\Filesystem\File;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Virtualization
  */
-abstract class KubernetesFile
+abstract class ObjectFile
 {
     use DataFile;
+    use DataStringData;
 
 
     /**
-     * The file where to store this Kubernetes configuration
+     * The kubernetes object for this configuration file
      *
-     * @var string $kind
+     * @var KubernetesObject $object
      */
-    protected string $kind;
+    protected KubernetesObject $object;
 
 
     /**
      * KubernetesFile class constructor
      */
-    public function __construct()
+    public function __construct(KubernetesObject $object)
     {
-        $this->file = PATH_ROOT . 'config/kubernetes/' . $this->kind . '/';
+        $this->object = $object;
+        $this->file   = PATH_ROOT . 'config/kubernetes/' . strtolower($object->getKind()) . '/' . $this->object->getName() . '.yml';
     }
 
 
     /**
      * Save the data from this deployment to the yaml configuration file
      *
-     * @return $this
+     * @return static
      */
     public function save(): static
     {
         $data = $this->buildConfiguration();
         $data = yaml_emit($data);
-//        $data = Strings::from($data, PHP_EOL);
-//        $data = Strings::untilReverse($data, PHP_EOL);
 
         File::new($this->file)
-            ->setRestrictions(PATH_ROOT . 'config/kubernetes/' . $this->kind . '/', true, 'kubernetes')
+            ->setRestrictions(PATH_ROOT . 'config/kubernetes/' . strtolower($this->object->getKind()) . '/', true, 'kubernetes')
             ->create($data);
 
         return $this;
@@ -68,13 +71,9 @@ abstract class KubernetesFile
      */
     protected function buildConfiguration(array $configuration = null): array
     {
-        if (!isset($this->kind)) {
-            throw new OutOfBoundsException(tr('No Kubernetes file kind specified'));
-        }
-
         return array_merge([
             'apiVersion' => 'apps/v1',
-            'kind'       => $this->kind
+            'kind'       => $this->object->getKind()
         ], $configuration);
     }
 }

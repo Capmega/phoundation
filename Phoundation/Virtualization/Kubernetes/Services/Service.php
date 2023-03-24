@@ -1,13 +1,12 @@
 <?php
 
-namespace Phoundation\Virtualization\Kubernetes\Pods;
+namespace Phoundation\Virtualization\Kubernetes\Services;
 
-use Phoundation\Data\Traits\DataName;
 use Phoundation\Virtualization\Kubernetes\KubernetesObject;
 
 
 /**
- * Class Pod
+ * Class Service
  *
  *
  *
@@ -16,7 +15,14 @@ use Phoundation\Virtualization\Kubernetes\KubernetesObject;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Virtualization
  */
-class Pod extends KubernetesObject
+class Service extends KubernetesObject
 {
-    use DataName;
+    /**
+     * Service class constructor
+     */
+    public function __construct(?string $name = null)
+    {
+        $this->object_file_class = ServiceFile::class;
+        parent::__construct($name);
+    }
 }
