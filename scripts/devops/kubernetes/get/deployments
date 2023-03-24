@@ -1,0 +1,38 @@
+#!/usr/bin/php
+<?php
+
+use Phoundation\Cli\Cli;
+use Phoundation\Cli\Documentation;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Virtualization\Kubernetes\Deployments\Deployment;
+use Phoundation\Virtualization\Kubernetes\Deployments\Deployments;
+
+
+/**
+ * Script devops/kubernetes/deployments/get
+ *
+ *
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Scripts
+ */
+Documentation::usage('./pho devops kubernetes deployments get');
+Documentation::help('This script returns the available kubernetes deployments');
+
+
+// Validate arguments
+$argv = ArgvValidator::new()
+    ->select('-d,--deployment', true)->isOptional()->matchesRegex('/^[a-z-]+$/')
+    ->noArgumentsLeft()
+    ->validate();
+
+if ($argv['deployment']) {
+    // Display the specified deployment only
+    Deployment::new($argv['deployment'])->getCliForm();
+} else {
+    // Display all deployments
+    $output = Deployments::new();
+    Cli::displayTable($output);
+}

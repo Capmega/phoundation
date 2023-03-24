@@ -1,0 +1,34 @@
+#!/usr/bin/php
+<?php
+
+use Phoundation\Cli\Documentation;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Virtualization\Kubernetes\Deployments\Deployment;
+
+
+/**
+ * Script devops/kubernetes/deployments/create
+ *
+ *
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Scripts
+ */
+Documentation::usage('./pho devops kubernetes delete deployment');
+Documentation::help('This script creates Kubernetes deployments');
+
+
+// Validate arguments
+$argv = ArgvValidator::new()
+    ->select('-d,--deployment', true)->matchesRegex('/^[a-z-]+$/')
+    ->noArgumentsLeft()
+    ->validate();
+
+
+// Create new deployment and apply it
+$deployment = Deployment::new($argv['deployment'])->delete();
+
+Log::success(tr('Deleted deployment ":deployment"', [':deployment' => $deployment->getName()]));
