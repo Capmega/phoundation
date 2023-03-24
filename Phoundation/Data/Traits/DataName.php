@@ -5,7 +5,7 @@ namespace Phoundation\Data\Traits;
 
 
 /**
- * Trait Name
+ * Trait DataName
  *
  *
  *
@@ -19,7 +19,6 @@ trait DataName
     protected ?string $name;
 
 
-
     /**
      * Returns the name
      *
@@ -29,7 +28,6 @@ trait DataName
     {
         return $this->name;
     }
-
 
 
     /**
