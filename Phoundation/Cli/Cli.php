@@ -5,6 +5,7 @@ namespace Phoundation\Cli;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
+use Phoundation\Data\Classes\Iterator;
 use Phoundation\Exception\OutOfBoundsException;
 
 
@@ -102,14 +103,19 @@ class Cli
      * @note The required format for the source is as follows:
      *       $source[$id] = [$column1 => $value1, $column2 => $value2, ...];
      *
-     * @param array $source
+     * @param Iterator|array $source
      * @param array|string|null $headers
      * @param string|null $id_column
      * @param int $column_spacing
      * @return void
      */
-    public static function displayTable(array $source, array|string|null $headers = null, ?string $id_column = 'id', int $column_spacing = 2): void
+    public static function displayTable(Iterator|array $source, array|string|null $headers = null, ?string $id_column = 'id', int $column_spacing = 2): void
     {
+        if (is_object($source)) {
+            // This is an Iterator object, get the array source
+            $source = $source->getList();
+        }
+
         if (!is_natural($column_spacing)) {
             throw new OutOfBoundsException(tr('Invalid column spacing ":spacing" specified, please ensure it is a natural number, 1 or higher', [
                 ':spacing' => $column_spacing
