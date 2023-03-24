@@ -22,7 +22,6 @@ use Phoundation\Processes\Process;
 use Throwable;
 
 
-
 /**
  * Project class
  *
@@ -35,7 +34,7 @@ use Throwable;
  */
 class Project
 {
-    use \Phoundation\Filesystem\Traits\Restrictions;
+    use \Phoundation\Data\Traits\DataRestrictions;
     use Git {
         __construct as protected construct;
     }
