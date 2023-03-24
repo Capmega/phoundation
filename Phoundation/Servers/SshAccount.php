@@ -5,10 +5,10 @@ namespace Phoundation\Servers;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryUsername;
-use Phoundation\Data\Traits\DataRestrictions;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Filesystem\Traits\DataRestrictions;
 
 
 /**

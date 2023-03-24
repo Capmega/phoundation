@@ -4,9 +4,9 @@ namespace Phoundation\Virtualization\Docker;
 
 use Phoundation\Data\Traits\DataPath;
 use Phoundation\Data\Traits\DataPort;
-use Phoundation\Data\Traits\DataRestrictions;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
+use Phoundation\Filesystem\Traits\DataRestrictions;
 use Phoundation\Processes\Process;
 use Phoundation\Virtualization\Traits\DataImage;
 

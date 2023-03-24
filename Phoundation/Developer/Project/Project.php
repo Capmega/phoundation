@@ -34,7 +34,7 @@ use Throwable;
  */
 class Project
 {
-    use \Phoundation\Data\Traits\DataRestrictions;
+    use \Phoundation\Filesystem\Traits\DataRestrictions;
     use Git {
         __construct as protected construct;
     }
