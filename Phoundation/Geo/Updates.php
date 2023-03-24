@@ -73,7 +73,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `utc_dst_offset` varchar(6) CHARACTER SET latin1 NOT NULL,
                     `name` varchar(64) NOT NULL,
                     `seo_name` varchar(64) NOT NULL,
-                    `comments` varchar(255) DEFAULT NULL,
+                    `comments` TEXT DEFAULT NULL,
                     `notes` varchar(255) DEFAULT NULL,
                 ')->setIndices('  
                     PRIMARY KEY (`id`),

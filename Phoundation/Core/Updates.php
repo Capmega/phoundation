@@ -64,7 +64,7 @@ class Updates extends Libraries\Updates
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `library` VARCHAR(64) NOT NULL,
                     `version` bigint NOT NULL,
-                    `comments` VARCHAR(2048) NULL,
+                    `comments` TEXT DEFAULT NULL,
                 ')->setIndices('
                     PRIMARY KEY (`id`),
                     KEY `created_on` (`created_on`),
