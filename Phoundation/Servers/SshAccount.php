@@ -2,17 +2,13 @@
 
 namespace Phoundation\Servers;
 
-use Phoundation\Accounts\Users\Users;
-use Phoundation\Core\Locale\Language\Languages;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryUsername;
+use Phoundation\Data\Traits\DataRestrictions;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
-use Phoundation\Filesystem\Traits\Restrictions;
-use Phoundation\Geo\Countries\Countries;
-use Phoundation\Geo\Timezones\Timezones;
 
 
 /**
@@ -27,7 +23,7 @@ use Phoundation\Geo\Timezones\Timezones;
  */
 class SshAccount extends DataEntry
 {
-    use Restrictions;
+    use DataRestrictions;
     use DataEntryNameDescription;
     use DataEntryUsername;
 

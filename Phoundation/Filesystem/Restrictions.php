@@ -3,6 +3,7 @@
 namespace Phoundation\Filesystem;
 
 use Phoundation\Core\Arrays;
+use Phoundation\Core\Strings;
 use Phoundation\Filesystem\Exception\RestrictionsException;
 
 
@@ -35,7 +36,6 @@ class Restrictions
     protected string $label = 'system';
 
 
-
     /**
      * Restrictions constructor
      *
@@ -53,7 +53,6 @@ class Restrictions
             $this->setPaths($paths, $write);
         }
     }
-
 
 
     /**
@@ -78,7 +77,7 @@ class Restrictions
      *
      * @return Restrictions
      */
-    public function getParents(): Restrictions
+    public function getParent(): Restrictions
     {
         $restrictions = Restrictions::new()->setLabel($this->label);
 
@@ -89,6 +88,29 @@ class Restrictions
         return $restrictions;
     }
 
+
+    /**
+     * Returns a restrictions object with the current path and the specified child path attached
+     *
+     * This is useful when we want more strict restrictions
+     *
+     * @param string|array $child_paths
+     * @param bool|null $write
+     * @return Restrictions
+     */
+    public function getChild(string|array $child_paths, ?bool $write = null): Restrictions
+    {
+        $restrictions = Restrictions::new()->setLabel($this->label);
+        $child_paths  = Arrays::force($child_paths);
+
+        foreach ($this->paths as $path => $original_write) {
+            foreach ($child_paths as $child) {
+                $restrictions->addPath(Strings::slash($path) . Strings::startsNotWith($child, '/'), $write ?? $original_write);
+            }
+        }
+
+        return $restrictions;
+    }
 
 
     /**
@@ -103,7 +125,6 @@ class Restrictions
     }
 
 
-
     /**
      * Set all paths for this restriction
      *
@@ -116,7 +137,6 @@ class Restrictions
         $this->paths = [];
         return $this->addPaths($paths, $write);
     }
-
 
 
     /**
@@ -136,7 +156,6 @@ class Restrictions
     }
 
 
-
     /**
      * Add new path for this restriction
      *
@@ -151,7 +170,6 @@ class Restrictions
     }
 
 
-
     /**
      * Returns all paths for this restriction
      *
@@ -161,7 +179,6 @@ class Restrictions
     {
         return $this->paths;
     }
-
 
 
     /**
@@ -177,7 +194,6 @@ class Restrictions
     }
 
 
-
     /**
      * Returns the label for this restriction
      *
@@ -187,7 +203,6 @@ class Restrictions
     {
         return $this->label;
     }
-
 
 
     /**
@@ -211,12 +226,10 @@ class Restrictions
 
                 if (str_starts_with($pattern, $path)) {
                     if ($write and !$restrict_write) {
-var_dump($this->paths);
-showdie($this->paths);
                         throw RestrictionsException::new(tr('Write access to path patterns ":patterns" denied by ":label" restrictions', [
                             ':patterns' => $pattern,
                             ':label'    => $this->label
-                        ]), [
+                        ]))->setData([
                             'label'    => $this->label,
                             'patterns' => $patterns,
                             'paths'    => $this->paths
@@ -228,11 +241,15 @@ showdie($this->paths);
                 }
             }
 
-            // The specified pattern(s) are not allwed by the specified restrictions
-            throw RestrictionsException::new(tr('Access to path ":path" denied by ":label" restrictions', [
-                ':path'  => $pattern,
-                ':label' => $this->label
-            ]))->makeWarning();
+            // The specified pattern(s) are not allowed by the specified restrictions
+            throw RestrictionsException::new(tr('Access to path patterns ":patterns" denied by ":label" restrictions', [
+                ':patterns' => $pattern,
+                ':label'    => $this->label
+            ]))->setData([
+                'label'    => $this->label,
+                'patterns' => $patterns,
+                'paths'    => $this->paths
+            ])->makeWarning();
         }
     }
 }
