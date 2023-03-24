@@ -37,8 +37,3 @@ $deployment = Deployment::new()
     ->setReplicas($argv['replicas'])
     ->save()
     ->apply();
-
-Log::success(tr('Created deployment ":name" with file ":file"', [
-    ':name' => $deployment,
-    ':file' => $deployment->getObjectFile()->getFile()
-]));

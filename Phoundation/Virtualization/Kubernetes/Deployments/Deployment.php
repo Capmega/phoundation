@@ -35,4 +35,15 @@ class Deployment extends KubernetesObject
         $this->object_file_class = DeploymentFile::class;
         parent::__construct($name);
     }
+
+
+    /**
+     * Returns the API version for this object
+     *
+     * @return string
+     */
+    public function getApiVersion(): string
+    {
+        return 'apps/' . $this->api_version;
+    }
 }
