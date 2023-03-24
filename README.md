@@ -1,4 +1,4 @@
-PHOUNDATION
+# PHOUNDATION
 
 This project is a PHP website development framework.
 
@@ -14,6 +14,8 @@ https://technical-qa.com/can-i-use-mit-licensed-code-in-my-gpl-licensed-project/
 =========================================================================
 
 Current features planned for v4.* tree:
+
+* (WIP)  Kubernetes / Docker interface libraries with management through CLI (partially available already) and Web 
 
 * (100%) Web, API & CLI interfaces. The system will have a web interface, multiple API interfaces (REST and GraphQL) and CLI interface through which basic system tasks can be mananged. At the same time, these system interfaces serve as a basis for expansion
 
@@ -45,13 +47,13 @@ Current features planned for v4.* tree:
 
 * (100%) Servers management
 
-* (80%) Support for MySQL, Mongo, Redis, Memcached, and Elastic search databases is built in
-
 * (90%) All file access requires restrictions to ensure files can only be accessed safely
 
 * (90%) Built in and fully customizable routing with automated scanning for malicious requests
 
 * (90%) Support for user managed plugins
+
+* (80%) Support for MySQL, Mongo, Redis, Memcached, and Elastic search databases is built in
 
 * (50%) Auto CSS & JS minification, including code generated on the fly
 
@@ -77,9 +79,22 @@ Current features planned for v4.* tree:
 
 * (30%) Full data synchronization between different environments.
 
+### Example CLI commands
+./pho system info # Displays general system information   
+./pho system project libraries info # Displays information about all available libraries and plugins   
+./pho system project update # Updates the core libraries of this project   
+./pho devops docker build # Builds a docker image of this project   
+./pho devops kubernetes create deployment # Creates a new deployment in Kubernetes
+./pho system geo ip import # Imports the GeoIP data
 
 
-Most important static objects:
+
+
+
+
+
+
+### Most important static objects:
 
 Route:: The Route class object which routes HTTP requests to your pages.
 
