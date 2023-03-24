@@ -1469,8 +1469,9 @@ class File extends FileBasics
         // Check filesystem restrictions
         $this->restrictions->check($this->file, true);
 
-        // Make sure the file path exists
-        Path::new(dirname($this->file), $this->restrictions->getParents())->ensure();
+        // Make sure the file path exists. NOTE: Restrictions MUST be at least 2 levels above to be able to generate the
+        // PARENT directory IN the PARENT directory OF the PARENT!
+        Path::new(dirname($this->file), $this->restrictions->getParent()->getParent())->ensure();
 
         $h = $this->open($filemode);
         fwrite($h, $data);

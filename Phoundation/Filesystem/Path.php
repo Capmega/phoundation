@@ -195,6 +195,9 @@ class Path extends FileBasics
                             mkdir($this->file, $mode);
                         });
 
+                } catch(RestrictionsException $e) {
+                    throw $e;
+
                 } catch(Throwable $e) {
                     // It sometimes happens that the specified path was created just in between the file_exists and
                     // mkdir
