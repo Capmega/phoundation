@@ -33,7 +33,7 @@ Current features planned for v4.* tree:
 
 * (100%) DataEntry objects track changes using meta_id, allowing for change auditing
 
-* (100%) Users / Roles / Rights management. Users can have multiple roles assigned. Each role will give the user certain rights which will give the user access to the different pages
+* (100%) RBAC Role Based Access Control system, with users / roles / rights management. Users can have multiple roles assigned. Each role will give the user certain rights which will give the user access to the different pages
 
 * (100%) Safe process & commands handling
 
