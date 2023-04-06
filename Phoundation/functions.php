@@ -368,12 +368,12 @@ function pick_random(): mixed
 }
 
 
-
 /**
  * Return randomly picked arguments
  *
  * @param int|null $count
  * @return string|array
+ * @throws \Exception
  */
 function pick_random_multiple(?int $count = null): string|array
 {
@@ -384,7 +384,7 @@ function pick_random_multiple(?int $count = null): string|array
 
     if (!$count) {
         // Get a random count
-        $count = mt_rand(1, count($args));
+        $count = random_int(1, count($args));
     }
 
     if (($count < 1) or ($count > count($args))) {
@@ -709,9 +709,9 @@ function has_trait(string $trait, object|string $class): bool
 }
 
 
-
 /**
  * Show command that requires no configuration and can be used at startup times. USE WITH CARE!
+ * @throws \Exception
  */
 #[NoReturn] function show_system(mixed $source = null, bool $die = true): mixed
 {
@@ -720,12 +720,12 @@ function has_trait(string $trait, object|string $class): bool
         echo '<pre>' . PHP_EOL . '"';
     }
 
-    echo 'message-' . mt_rand(1,10000) . PHP_EOL . '"';
+    echo 'message-' . random_int(1,10000) . PHP_EOL . '"';
     print_r($source);
     echo '"' . PHP_EOL;
 
     if ($die) {
-        die('die-'.mt_rand(1,10000) . PHP_EOL);
+        die('die-'.random_int(1,10000) . PHP_EOL);
     }
 
     return $source;

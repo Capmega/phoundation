@@ -4,6 +4,8 @@ namespace Phoundation\Developer\Project;
 
 
 
+use Exception;
+
 /**
  * Import class
  *
@@ -39,7 +41,6 @@ abstract class Import
     protected ?string $name = null;
 
 
-
     /**
      * Import class constructor
      *
@@ -48,13 +49,13 @@ abstract class Import
      * @param bool $demo
      * @param int|null $min
      * @param int|null $max
+     * @throws Exception
      */
     public function __construct(bool $demo = false, ?int $min = null, ?int $max = null)
     {
         $this->demo  = $demo;
-        $this->count = mt_rand((int) $min, (int) $max);
+        $this->count = random_int((int) $min, (int) $max);
     }
-
 
 
     /**
@@ -66,6 +67,7 @@ abstract class Import
      * @param int $min
      * @param int $max
      * @return static
+     * @throws Exception
      */
     public static function new(bool $demo, int $min, int $max): static
     {

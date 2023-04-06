@@ -2095,12 +2095,12 @@ class Page
     }
 
 
-
     /**
      * Starts up this page object
      *
      * @param string $target
      * @return void
+     * @throws Exception
      */
     protected static function startup(string $target): void
     {
@@ -2116,7 +2116,7 @@ class Page
 
         if (Strings::fromReverse(dirname($target), '/') === 'system') {
             // Wait a small random time to avoid timing attacks on system pages
-            usleep(mt_rand(1, 500));
+            usleep(random_int(1, 500));
         }
 
         // Set the page hash and check if we have access to this page?

@@ -155,7 +155,6 @@ class Strings
     }
 
 
-
     /**
      * Return a random string
      *
@@ -164,6 +163,7 @@ class Strings
      * @param string $characters
      * @return string
      * @throws OutOfBoundsException
+     * @throws Exception
      */
     public static function random(int $length = 8, bool $unique = false, string $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'): string
     {
@@ -224,7 +224,7 @@ class Strings
         }
 
         for ($i = 0; $i < $length; $i++) {
-            $char = $characters[mt_rand(0, $charlen - 1)];
+            $char = $characters[random_int(0, $charlen - 1)];
 
             if ($unique and (mb_strpos($string, $char) !== false)) {
                 // We want all characters to be unique, do not read this character again
