@@ -440,7 +440,10 @@ class Core {
 
             if (empty($env)) {
                 if (PROJECT !== 'UNKNOWN') {
-                    Script::die(2, 'startup: No required environment specified for project "' . PROJECT . '"');
+                    // If we're in auto complete mode, then we don't need an environment
+                    if (!AutoComplete::isActive()) {
+                        Script::die(2, 'startup: No required environment specified for project "' . PROJECT . '"');
+                    }
                 }
 
                 $env = '';
