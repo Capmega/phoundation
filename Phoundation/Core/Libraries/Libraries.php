@@ -339,8 +339,8 @@ class Libraries
      */
     protected static function ensureSystemsDatabase(): void
     {
-        if (!sql('system', false)->schema()->database()->exists()) {
-            sql('system', false)->schema()->database()->create();
+        if (!sql('system', false)->schema(false)->database()->exists()) {
+            sql('system', false)->schema(false)->database()->create();
         }
 
         // Use the new database, and reset the schema object
@@ -418,7 +418,9 @@ class Libraries
             foreach ($libraries as $path => $library) {
                 // Execute the update inits for this library and update the library information and start over
                 if ($library->init($comments)) {
+                    // Library has been initialized. Break so that we can check which library should be updated next.
                     $update_count++;
+                    break;
                 } else {
                     // This library has nothing more to initialize, remove it from the list
                     Log::success(tr('Finished updates for library ":library"', [
@@ -435,7 +437,7 @@ class Libraries
             Log::success(tr('Finished initialization, no libraries were updated'));
         } else {
             Log::success(tr('Finished initialization, executed ":count" updates in ":libraries" libraries', [
-                ':count' => $update_count,
+                ':count'     => $update_count,
                 ':libraries' => $library_count
             ]));
         }
