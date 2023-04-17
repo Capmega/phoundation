@@ -127,7 +127,6 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     KEY `code` (`code`),
                     KEY `type` (`type`),
                     KEY `phones` (`phones`),
-                    KEY `birthdate` (`birthdate`),
                     KEY `is_leader` (`is_leader`),
                     KEY `leaders_id` (`leaders_id`),
                     KEY `nickname` (`nickname`),
