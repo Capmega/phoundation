@@ -30,6 +30,7 @@ use Phoundation\Security\Incidents\Exception\IncidentsException;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Security\Incidents\Severity;
 use Phoundation\Utils\Json;
+use Phoundation\Web\Exception\PageNotFoundException;
 use Phoundation\Web\Exception\WebException;
 use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\Exception\HttpException;
@@ -1077,7 +1078,7 @@ class Page
             static::getFlashMessages()->add($e);
             Route::executeSystem(403);
 
-        } catch (DataEntryNotExistsException $e) {
+        } catch (PageNotFoundException|DataEntryNotExistsException $e) {
             Log::warning('Page did not catch the following "DataEntryNotExistsException" warning, showing "system/404"');
             Log::warning($e);
 
