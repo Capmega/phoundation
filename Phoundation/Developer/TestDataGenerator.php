@@ -2,6 +2,7 @@
 
 namespace Phoundation\Developer;
 
+use Exception;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Numbers;
 use Phoundation\Core\Strings;
@@ -25,13 +26,14 @@ class TestDataGenerator
      *
      * @param int $min
      * @param int $max
+     * @param bool $unique
      * @return string
+     * @throws Exception
      */
     public static function getCode(int $min = 3, int $max = 12, bool $unique = true): string
     {
-        return Strings::random(mt_rand($min, $max), $unique, 'alpha');
+        return Strings::random(random_int($min, $max), $unique, 'alpha');
     }
-
 
 
     /**
@@ -40,13 +42,13 @@ class TestDataGenerator
      * @param int $min
      * @param int $max
      * @return string
+     * @throws Exception
      */
     public static function getDate(int $min = 0, int $max = 2147483648): string
     {
-        $date = mt_rand($min, $max);
+        $date = random_int($min, $max);
         return date("Y-m-d H:i:s", $date);
     }
-
 
 
     /**
@@ -71,19 +73,18 @@ class TestDataGenerator
     }
 
 
-
     /**
      * Returns a random number
      *
      * @param int $min
      * @param int $max
      * @return int
+     * @throws Exception
      */
     public static function getInteger(int $min = 0, int $max = 1000000): int
     {
-        return (int) mt_rand($min, $max);
+        return (int) random_int($min, $max);
     }
-
 
 
     /**
@@ -92,12 +93,12 @@ class TestDataGenerator
      * @param int $min
      * @param int $max
      * @return float
+     * @throws Exception
      */
     public static function getFloat(int $min = 0, int $max = 1000000): float
     {
-        return mt_rand($min, $max - 1) + Numbers::getRandomFloat();
+        return random_int($min, $max - 1) + Numbers::getRandomFloat();
     }
-
 
 
     /**
@@ -106,12 +107,12 @@ class TestDataGenerator
      * @param int $min
      * @param int $max
      * @return int
+     * @throws Exception
      */
     public static function getPercentage(int $min = 0, int $max = 100): int
     {
-        return (int) mt_rand($min, $max);
+        return (int) random_int($min, $max);
     }
-
 
 
     /**
@@ -120,42 +121,43 @@ class TestDataGenerator
      * @param int $min
      * @param int $max
      * @return float
+     * @throws Exception
      */
     public static function getPercentageFloat(int $min = 0, int $max = 100): float
     {
-        return mt_rand($min, $max - 1) + Numbers::getRandomFloat();
+        return random_int($min, $max - 1) + Numbers::getRandomFloat();
     }
-
 
 
     /**
      * Returns a random name
      *
      * @return string
+     * @throws Exception
      */
     public static function getName(): string
     {
-        return Strings::random(mt_rand(3, 10));
+        return Strings::random(random_int(3, 10));
     }
-
 
 
     /**
      * Returns a random domain
      *
      * @return string
+     * @throws Exception
      */
     public static function getDomain(): string
     {
-        return Strings::random(mt_rand(3, 24) . pick_random('.com', '.org', '.net', '.ca', '.nl', '.mx', '.com.mx', '.info', '.local'));
+        return Strings::random(random_int(3, 24) . pick_random('.com', '.org', '.net', '.ca', '.nl', '.mx', '.com.mx', '.info', '.local'));
     }
-
 
 
     /**
      * Returns a random email address
      *
      * @return string
+     * @throws Exception
      */
     public static function getEmail(): string
     {
@@ -199,17 +201,17 @@ class TestDataGenerator
     }
 
 
-
     /**
      * Returns a random amount of lorem ipsum paragraps
      *
      * @param int $min_paragraphs
      * @param int $max_paragraphs
      * @return string
+     * @throws Exception
      */
     public static function getDescription(int $min_paragraphs = 0, int $max_paragraphs = 6): string
     {
-        $amount = mt_rand($min_paragraphs, $max_paragraphs);
+        $amount = random_int($min_paragraphs, $max_paragraphs);
         $return = '';
 
         while ($amount > 0) {

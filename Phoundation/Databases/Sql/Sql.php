@@ -545,7 +545,6 @@ class Sql
     }
 
 
-
     /**
      * Write the specified data row in the specified table
      *
@@ -560,6 +559,7 @@ class Sql
      * @param string|null $comments
      * @param string|null $diff
      * @return int|null
+     * @throws Exception
      */
     public function write(string $table, array $insert_row, array $update_row, ?string $comments, ?string $diff): ?int
     {
@@ -570,7 +570,7 @@ class Sql
             while ($retry++ < $this->maxretries) {
                 try {
                     // Set a random ID and insert the row
-                    $insert_row = Arrays::prepend($insert_row, 'id', mt_rand(1, PHP_INT_MAX));
+                    $insert_row = Arrays::prepend($insert_row, 'id', random_int(1, PHP_INT_MAX));
                     return $this->insert($table, $insert_row, $comments, $diff);
                 } catch (SqlException $e) {
                     if ($e->getCode() !== 1062) {
@@ -1260,7 +1260,6 @@ class Sql
     }
 
 
-
     /**
      * Return a unique, non-existing ID for the specified table.column
      *
@@ -1268,6 +1267,7 @@ class Sql
      * @param array $data
      * @param string|null $comments
      * @return int
+     * @throws Exception
      * @todo This is sort of the same as Sql::randomId(), merge these two!
      */
     public function reserveRandomId(string $table, array $data, ?string $comments = null): int
@@ -1275,7 +1275,7 @@ class Sql
         $retries = 0;
 
         while (++$retries < $this->maxretries) {
-            $id = mt_rand(1, PHP_INT_MAX);
+            $id = random_int(1, PHP_INT_MAX);
 
             // Try a random number and see if its used. If not, use it.
             if (!$this->get('SELECT `id` FROM `' . $table . '` WHERE `id` = :id', [':id' => $id])) {

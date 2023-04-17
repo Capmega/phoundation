@@ -2,6 +2,7 @@
 
 namespace Phoundation\Core;
 
+use Exception;
 use Phoundation\Core\Exception\ConfigException;
 use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
 use Phoundation\Core\Log\Log;
@@ -655,12 +656,12 @@ class Config
     }
 
 
-
     /**
      * Import data from the specified setup configuration and save it in a yaml config file for the current environment
      *
      * @param Configuration $configuration
      * @return void
+     * @throws Exception
      */
     public static function import(Configuration $configuration): void
     {

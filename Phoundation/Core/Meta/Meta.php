@@ -2,6 +2,7 @@
 
 namespace Phoundation\Core\Meta;
 
+use Exception;
 use Phoundation\Cli\Script;
 use Phoundation\Core\Session;
 use Phoundation\Data\Exception\DataEntryNotExistsException;
@@ -45,11 +46,11 @@ class Meta
     protected array $history = [];
 
 
-
     /**
      * Meta constructor
      *
      * @param int|null $id
+     * @throws Exception
      */
     public function __construct(?int $id = null)
     {
@@ -66,7 +67,7 @@ class Meta
 
                 while ($retry++ < 5) {
                     try {
-                        $this->id = mt_rand(0, PHP_INT_MAX);
+                        $this->id = random_int(0, PHP_INT_MAX);
 
                         sql()->query('INSERT INTO `meta` (`id`)
                                             VALUES             (' . $this->id . ')');
@@ -85,7 +86,6 @@ class Meta
     }
 
 
-
     /**
      * Returns the Meta id
      *
@@ -97,11 +97,11 @@ class Meta
     }
 
 
-
     /**
      * Returns a new Meta object
      *
      * @return static
+     * @throws Exception
      */
     public static function new(): static
     {

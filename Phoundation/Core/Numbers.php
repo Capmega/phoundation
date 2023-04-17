@@ -2,6 +2,7 @@
 
 namespace Phoundation\Core;
 
+use Exception;
 use Phoundation\Core\Exception\NumbersException;
 use Phoundation\Exception\OutOfBoundsException;
 
@@ -367,14 +368,14 @@ class Numbers
     }
 
 
-
     /**
      * Returns a random float number between 0 and 1
      *
      * @return float
+     * @throws Exception
      */
     public static function getRandomFloat(): float
     {
-        return (mt_rand() / mt_getrandmax());
+        return (random_int(0, PHP_INT_MAX) / PHP_INT_MAX);
     }
 }

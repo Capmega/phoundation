@@ -209,7 +209,7 @@ class Date
             $max = 2147483647;
         }
 
-        $timestamp  = mt_rand($min, $max);
+        $timestamp  = random_int($min, $max);
         return date("Y-m-d", $timestamp);
     }
 

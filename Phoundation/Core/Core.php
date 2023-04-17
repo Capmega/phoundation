@@ -1979,7 +1979,6 @@ class Core {
     }
 
 
-
     /**
      * THIS METHOD SHOULD NOT BE RUN BY ANYBODY! IT IS EXECUTED AUTOMATICALLY ON SHUTDOWN
      *
@@ -2102,7 +2101,7 @@ class Core {
 
             // Periodically execute the following functions
             if (!$error_code) {
-                $level = mt_rand(0, 100);
+                $level = random_int(0, 100);
 
                 if (Config::get('system.shutdown', false)) {
                     if (!is_array(Config::get('system.shutdown', false))) {
