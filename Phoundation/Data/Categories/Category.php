@@ -155,7 +155,7 @@ class Category extends DataEntry
             ],
             'name' => [
                 'label'     => tr('Name'),
-                'maxlength' => ,
+                'maxlength' => 64,
                 'size'      => 12,
                 'help'      => tr('The name for this category'),
             ],
