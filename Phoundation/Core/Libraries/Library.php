@@ -134,15 +134,18 @@ class Library
      * Initialize this library
      *
      * @param string|null $comments
-     * @return string|null The next version available for this init, or NULL if none are available
+     * @return bool True if the library had updates applied
      */
-    public function init(?string $comments = null): ?string
+    public function init(?string $comments): bool
     {
+        // Execute a structural check on the library
+        $this->checkStructure($comments);
+
         // TODO Check later if we should be able to let init initialize itself
         if ($this->library === 'libraries') {
             // Never initialize the Init library itself!
             Log::warning(tr('Not initializing library "library", it has no versioning control available'));
-            return null;
+            return false;
         }
 
         if ($this->updates === null) {
@@ -150,10 +153,11 @@ class Library
             Log::warning(tr('Not processing library ":library", it has no versioning control available', [
                 ':library' => $this->library
             ]));
-            return null;
+            return false;
         }
 
-        return $this->updates->init($comments);
+        $this->updates->init($comments);
+        return true;
     }
 
 
@@ -460,5 +464,17 @@ class Library
 
             $this->updates = null;
         }
+    }
+
+
+    /**
+     * This method will check the structure of the library and make sure everything is in working order
+     *
+     * @param string|null $comments
+     * @return void
+     */
+    protected function checkStructure(?string $comments)
+    {
+
     }
 }

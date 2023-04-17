@@ -119,7 +119,7 @@ class Libraries
         if ($library) {
             // Init only the specified library
             $library = static::findLibrary($library);
-            $library->init();
+            $library->init($comments);
 
         } else {
             // Wipe all temporary data
@@ -416,19 +416,17 @@ class Libraries
 
             // Go over the libraries list and try to update each one
             foreach ($libraries as $path => $library) {
-                if (!$library->getNextInitVersion()) {
+                // Execute the update inits for this library and update the library information and start over
+                if ($library->init($comments)) {
+                    $update_count++;
+                } else {
                     // This library has nothing more to initialize, remove it from the list
                     Log::success(tr('Finished updates for library ":library"', [
                         ':library' => $library->getName()
                     ]));
-                    unset($libraries[$path]);
-                    break;
-                }
 
-                // Execute the update inits for this library and update the library information and start over
-                $library->init($comments);
-                $update_count++;
-                break;
+                    unset($libraries[$path]);
+                }
             }
         }
 
