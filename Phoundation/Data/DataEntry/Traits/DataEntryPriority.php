@@ -2,6 +2,7 @@
 
 namespace Phoundation\Data\DataEntry\Traits;
 
+use Phoundation\Exception\OutOfBoundsException;
 
 
 /**
@@ -27,7 +28,6 @@ trait DataEntryPriority
     }
 
 
-
     /**
      * Sets the priority for this object
      *
@@ -36,6 +36,12 @@ trait DataEntryPriority
      */
     public function setPriority(?int $priority): static
     {
+        if (is_numeric($priority) and (($priority < 1) or ($priority > 9))) {
+            throw new OutOfBoundsException(tr('Specified priority ":priority" is invalid, it should be a number from 1 to 9', [
+                ':priority' => $priority
+            ]));
+        }
+
         return $this->setDataValue('priority', $priority);
     }
 }

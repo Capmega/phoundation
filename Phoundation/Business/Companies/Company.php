@@ -7,6 +7,9 @@ use Phoundation\Business\Companies\Departments\Departments;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Data\Validator\PostValidator;
 
 
 /**
@@ -56,7 +59,6 @@ class Company extends DataEntry
     }
 
 
-
     /**
      * Access company branches
      *
@@ -71,7 +73,6 @@ class Company extends DataEntry
         return $this->branches;
 
     }
-
 
 
     /**
@@ -89,7 +90,6 @@ class Company extends DataEntry
     }
 
 
-
     /**
      * @inheritDoc
      */
@@ -99,6 +99,14 @@ class Company extends DataEntry
     }
 
 
+    /**
+     * @inheritDoc
+     */
+    protected function validate(GetValidator|PostValidator|ArgvValidator $validator, bool $no_arguments_left = false, bool $modify = true): array
+    {
+        // TODO: Implement validate() method.
+    }
+
 
     /**
      * @inheritDoc
@@ -106,15 +114,5 @@ class Company extends DataEntry
     public static function getFieldDefinitions(): array
     {
         // TODO: Implement getFieldDefinitions() method.
-    }
-
-
-
-    /**
-     * @inheritDoc
-     */
-    protected function load(int|string $identifier): void
-    {
-        // TODO: Implement load() method.
     }
 }

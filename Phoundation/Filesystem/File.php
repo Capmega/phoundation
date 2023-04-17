@@ -1330,7 +1330,7 @@ class File extends FileBasics
                 ]));
             }
 
-            Log::warning(tr('WARNING: SHA256 hash for file ":file" does NOT match the required SHA256 hash! Continuing because SHA256 failures are ignored!', [
+            Log::warning(tr('WARNING: SHA256 hash for file ":file" does NOT match the required SHA256 hash! Continuing because SHA256 failures are ignored', [
                 ':file' => $this->file
             ]));
         }

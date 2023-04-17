@@ -2,20 +2,28 @@
 
 namespace Phoundation\Notifications;
 
-use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Roles\Roles;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Traits\DataEntryCode;
 use Phoundation\Data\DataEntry\Traits\DataEntryDetails;
-use Phoundation\Data\DataEntry\Traits\DataEntryException;
+use Phoundation\Data\DataEntry\Traits\DataEntryFile;
+use Phoundation\Data\DataEntry\Traits\DataEntryIcon;
+use Phoundation\Data\DataEntry\Traits\DataEntryLine;
+use Phoundation\Data\DataEntry\Traits\DataEntryMessage;
+use Phoundation\Data\DataEntry\Traits\DataEntryMode;
+use Phoundation\Data\DataEntry\Traits\DataEntryPriority;
 use Phoundation\Data\DataEntry\Traits\DataEntryTitle;
+use Phoundation\Data\DataEntry\Traits\DataEntryTrace;
 use Phoundation\Data\DataEntry\Traits\DataEntryUrl;
+use Phoundation\Data\DataEntry\Traits\DataEntryUsersId;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Exception\NotificationBusyException;
@@ -27,6 +35,7 @@ use Throwable;
  *
  *
  *
+ * @see \Phoundation\Data\DataEntry\DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -36,8 +45,16 @@ class Notification extends DataEntry
 {
     use DataEntryUrl;
     use DataEntryCode;
+    use DataEntryIcon;
+    use DataEntryMode;
+    use DataEntryFile;
+    use DataEntryLine;
+    use DataEntryPriority;
+    use DataEntryUsersId;
     use DataEntryTitle;
+    use DataEntryMessage;
     use DataEntryDetails;
+    use DataEntryTrace;
 
 
     /**
@@ -70,85 +87,6 @@ class Notification extends DataEntry
 
 
 
-//    /**
-//     * The role that will receive  this notification
-//     *
-//     * @var array $roles
-//     */
-//    protected array $roles = [];
-//
-//    /**
-//     * The mode of notification, either "INFORMATION", "NOTICE", "WARNING", or "ERROR"
-//     *
-//     * @var string $mode
-//     */
-//    #[ExpectedValues(values: ["INFORMATION", "NOTICE", "WARNING", "ERROR"])]  protected string $mode = 'ERROR';
-//
-//    /**
-//     * The code for this notification
-//     *
-//     * @var string|null $code
-//     */
-//    protected ?string $code = null;
-//
-//    /**
-//     * The priority level, lowest 10, highest 1
-//     *
-//     * @var int $priority
-//     */
-//    protected int $priority = 10;
-//
-//    /**
-//     * The title for this notification
-//     *
-//     * @var string|null $title
-//     */
-//    protected ?string $title = null;
-//
-//    /**
-//     * The message for this notification
-//     *
-//     * @var string|null $message
-//     */
-//    protected ?string $message = null;
-//
-//    /**
-//     * The file that generated this notification
-//     *
-//     * @var string|null $file
-//     */
-//    protected ?string $file = null;
-//
-//    /**
-//     * The line that generated this notification
-//     *
-//     * @var int|null $line
-//     */
-//    protected ?int $line = null;
-//
-//    /**
-//     * The trace for this notification
-//     *
-//     * @var array|null $trace
-//     */
-//    protected ?array $trace = null;
-//
-//    /**
-//     * The details for this notification
-//     *
-//     * @var mixed $details
-//     */
-//    protected mixed $details = null;
-//
-//    /**
-//     * The exception for this notification
-//     *
-//     * @var Throwable|null $e
-//     */
-//    protected ?Throwable $e = null;
-
-
-
     /**
      * Notification class constructor
      *
@@ -165,275 +103,6 @@ class Notification extends DataEntry
 
         parent::__construct($identifier);
     }
-
-
-
-    /**
-     * Sets the priority level for this notification
-     *
-     * @param int $priority
-     * @return static
-     */
-    public function setPriority(int $priority): static
-    {
-        if (($priority < 1) or ($priority > 10)) {
-            throw new OutOfBoundsException('Invalid priority level ":priority" specified. It should be an integer between 1 and 10', [
-                ':priority' => $priority
-            ]);
-        }
-
-        return $this->setDataValue('priority', $priority);
-    }
-
-
-
-    /**
-     * Returns the priority level for this notification
-     *
-     * @return int
-     */
-    public function getPriority(): int
-    {
-        return (int) $this->getDataValue('priority');
-    }
-
-
-
-    /**
-     * Sets the mode for this notification
-     *
-     * @param string $mode
-     * @return static
-     */
-    public function setMode(#[ExpectedValues(values: ["INFORMATION", "INFO", "SUCCESS", "NOTICE", "WARNING", "DANGER", "ERROR", "EXCEPTION", "UNKNOWN"])] string $mode): static
-    {
-        $clean_mode = strtoupper(trim($mode));
-
-        switch ($clean_mode) {
-            case 'INFO':
-                // no-break
-            case 'INFORMATION':
-                $clean_mode = 'INFO';
-                break;
-
-            case 'ERROR':
-                // no-break
-            case 'EXCEPTION':
-                // no-break
-            case 'DANGER':
-                $clean_mode = 'DANGER';
-                break;
-
-            case 'NOTICE':
-                // no-break
-            case 'WARNING':
-                // no-break
-            case 'SUCCESS':
-                // no-break
-            case 'UNKNOWN':
-                break;
-
-            case '':
-                throw new OutOfBoundsException(tr('No mode specified for this notification'));
-
-            default:
-                throw new OutOfBoundsException(tr('Unknown mode ":mode" specified for this notification, please ensure it is one of "WARNING", "ERROR", "NOTICE", or "INFO"', [
-                    ':mode' => $mode
-                ]));
-        }
-
-        $this->setDataValue('mode', $clean_mode);
-        return $this;
-    }
-
-
-
-    /**
-     * Returns the mode for this notification
-     *
-     * @return string|null
-     */
-    public function getMode(): ?string
-    {
-        return $this->getDataValue('mode');
-    }
-
-
-
-    /**
-     * Returns the users_id for this notification
-     *
-     * @return int|null
-     */
-    public function getUsersId(): ?int
-    {
-        return $this->getDataValue('users_id');
-    }
-
-
-
-    /**
-     * Sets the users_id for this notification
-     *
-     * @param int $users_id
-     * @return static
-     */
-    public function setUsersId(int $users_id): static
-    {
-        if (!$users_id) {
-            throw new OutOfBoundsException('No users_id specified for this notification');
-        }
-
-        $this->setDataValue('users_id', $users_id);
-        return $this;
-    }
-
-
-
-    /**
-     * Returns the message for this notification
-     *
-     * @return string|null
-     */
-    public function getMessage(): ?string
-    {
-        return $this->getDataValue('message');
-    }
-
-
-
-    /**
-     * Sets the message for this notification
-     *
-     * @param string $message
-     * @return static
-     */
-    public function setMessage(string $message): static
-    {
-        if (!$message) {
-            throw new OutOfBoundsException('No message specified for this notification');
-        }
-
-        $this->setDataValue('message', $message);
-        return $this;
-    }
-
-
-
-    /**
-     * Returns the icon for this notification
-     *
-     * @return string|null
-     */
-    public function getIcon(): ?string
-    {
-        $return = $this->getDataValue('icon');
-
-        if (!$return) {
-            // Assign default icon
-            return match ($this->getMode()) {
-                'WARNING', 'DANGER' => 'exclamation-circle',
-                'SUCCESS'           => 'check-circle',
-                'INFO'              => 'info-circle',
-                default             => 'question-circle',
-            };
-        }
-
-        return $return;
-    }
-
-
-
-    /**
-     * Sets the icon for this notification
-     *
-     * @param string|null $icon
-     * @return static
-     */
-    public function setIcon(?string $icon): static
-    {
-        $this->setDataValue('icon', $icon);
-        return $this;
-    }
-
-
-
-    /**
-     * Returns the file for this notification
-     *
-     * @return string|null
-     */
-    public function getFile(): ?string
-    {
-        return $this->getDataValue('file');
-    }
-
-
-
-    /**
-     * Sets the file for this notification
-     *
-     * @param string|null $file
-     * @return static
-     */
-    public function setFile(?string $file): static
-    {
-        $this->setDataValue('file', $file);
-        return $this;
-    }
-
-
-
-    /**
-     * Returns the line for this notification
-     *
-     * @return string|null
-     */
-    public function getLine(): ?string
-    {
-        return $this->getDataValue('line');
-    }
-
-
-
-    /**
-     * Sets the line for this notification
-     *
-     * @param string|null $line
-     * @return static
-     */
-    public function setLine(?string $line): static
-    {
-        $this->setDataValue('line', $line);
-        return $this;
-    }
-
-
-
-    /**
-     * Returns the trace for this notification
-     *
-     * @return string|null
-     */
-    public function getTrace(): ?string
-    {
-        return $this->getDataValue('trace');
-    }
-
-
-
-    /**
-     * Sets the trace for this notification
-     *
-     * @param string|null $trace
-     * @return static
-     */
-    public function setTrace(?string $trace): static
-    {
-        $this->setDataValue('trace', $trace);
-        return $this;
-    }
-
 
 
     /**
@@ -735,6 +404,40 @@ class Notification extends DataEntry
     }
 
 
+    /**
+     * Validates the provider record with the specified validator object
+     *
+     * @param ArgvValidator|PostValidator|GetValidator $validator
+     * @param bool $no_arguments_left
+     * @param bool $modify
+     * @return array
+     */
+    protected function validate(ArgvValidator|PostValidator|GetValidator $validator, bool $no_arguments_left = false, bool $modify = false): array
+    {
+        $data = $validator
+            ->select($this->getAlternateValidationField('users_id'), true)->isId()->isQueryColumn('SELECT `id` FROM `accounts_users` WHERE `id` = :id', [':id' => '$id'])
+            ->select($this->getAlternateValidationField('code'), true)->isOptional('-')->hasMaxCharacters(16)->isPrintable()
+            ->select($this->getAlternateValidationField('mode'), true)->isMode()
+            ->select($this->getAlternateValidationField('icon'), true)->isUrl()
+            ->select($this->getAlternateValidationField('title'), true)->hasMaxCharacters(255)->isPrintable()
+            ->select($this->getAlternateValidationField('message'), true)->isOptional()->hasMaxCharacters(65_530)->isPrintable()
+            ->select($this->getAlternateValidationField('details'), true)->isOptional()->hasMaxCharacters(65_530)
+            ->select($this->getAlternateValidationField('priority'), true)->isOptional(0)->isMoreThan(1, true)->isLessThan(9, true)
+            ->select($this->getAlternateValidationField('url'), true)->isOptional()->isUrl()
+            ->select($this->getAlternateValidationField('file'), true)->isOptional()->isFile()
+            ->select($this->getAlternateValidationField('line'), true)->isOptional()->isPositive()
+            ->select($this->getAlternateValidationField('trace'), true)->isOptional()->hasMaxCharacters(65_530)->isJson()
+            ->noArgumentsLeft($no_arguments_left)
+            ->validate();
+
+        // Ensure the name doesn't exist yet as it is a unique identifier
+        if ($data['name']) {
+            static::notExists($data['name'], $this->getId(), true);
+        }
+
+        return $data;
+    }
+
 
     /**
      * Sets the available data keys for the User class
@@ -769,6 +472,8 @@ class Notification extends DataEntry
                 'size'       => 4,
                 'label'      => tr('Priority'),
                 'default'    => 0,
+                'min'        => 1,
+                'max'        => 9,
             ],
             'title' => [
                 'readonly'  => true,

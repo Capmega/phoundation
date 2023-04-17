@@ -68,7 +68,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `title` varchar(255) NOT NULL,
                     `message` text NOT NULL,
                     `url` varchar(2048) NULL,
-                    `file` varchar(255) DEFAULT NULL,
+                    `file` varchar(2048) DEFAULT NULL,
                     `line` int(11) DEFAULT NULL,
                     `trace` text DEFAULT  NULL,
                     `details` text DEFAULT NULL,

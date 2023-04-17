@@ -4,6 +4,9 @@ namespace Phoundation\Business\Companies\Employees;
 
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Data\Validator\PostValidator;
 
 
 /**
@@ -22,7 +25,6 @@ class Employee extends DataEntry
     use DataEntryNameDescription;
 
 
-
     /**
      * Employee class constructor
      *
@@ -37,25 +39,13 @@ class Employee extends DataEntry
     }
 
 
-
     /**
      * @inheritDoc
      */
-    public function save(?string $comments = null): static
+    protected function validate(GetValidator|PostValidator|ArgvValidator $validator, bool $no_arguments_left = false, bool $modify = true): array
     {
-        return $this;
+        // TODO: Implement validate() method.
     }
-
-
-
-    /**
-     * @inheritDoc
-     */
-    protected function load(int|string $identifier): void
-    {
-        // TODO: Implement load() method.
-    }
-
 
 
     /**

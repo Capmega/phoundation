@@ -43,7 +43,7 @@ trait DataEntryCode
     {
         // Ensure that "code" is never seen as numeric!
         if (is_numeric($code)) {
-            throw new OutOfBoundsException(tr('Specified code ":code" is numeric, code column must be non numeric!', [
+            throw new OutOfBoundsException(tr('Specified code ":code" is numeric, code column must be non numeric', [
                 ':code' => $code
             ]));
         }

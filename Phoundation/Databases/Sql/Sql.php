@@ -1733,7 +1733,7 @@ class Sql
 
             default:
                 // Here be dragons!
-                Log::warning(tr('(:id) WARNING: ":driver" DRIVER MAY WORK BUT IS NOT SUPPORTED!', [
+                Log::warning(tr('(:id) WARNING: ":driver" DRIVER MAY WORK BUT IS NOT SUPPORTED', [
                     ':id'     => $this->uniqueid,
                     ':driver' => $configuration['driver']
                 ]));

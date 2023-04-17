@@ -4,6 +4,9 @@ namespace Phoundation\Business\Companies\Departments;
 
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Data\Validator\PostValidator;
 
 
 /**
@@ -22,7 +25,6 @@ class Department extends DataEntry
     use DataEntryNameDescription;
 
 
-
     /**
      * Department class constructor
      *
@@ -37,15 +39,13 @@ class Department extends DataEntry
     }
 
 
-
     /**
      * @inheritDoc
      */
-    public function save(?string $comments = null): static
+    protected function validate(GetValidator|PostValidator|ArgvValidator $validator, bool $no_arguments_left = false, bool $modify = true): array
     {
-        // TODO: Implement save() method.
+        // TODO: Implement validate() method.
     }
-
 
 
     /**
@@ -54,15 +54,5 @@ class Department extends DataEntry
     public static function getFieldDefinitions(): array
     {
         // TODO: Implement getFieldDefinitions() method.
-    }
-
-
-
-    /**
-     * @inheritDoc
-     */
-    protected function load(int|string $identifier): void
-    {
-        // TODO: Implement load() method.
     }
 }

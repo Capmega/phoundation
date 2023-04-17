@@ -4,6 +4,9 @@ namespace Phoundation\Business\Companies\Branches;
 
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Data\Validator\PostValidator;
 
 
 /**
@@ -31,7 +34,7 @@ class Branch extends DataEntry
     public function __construct(int|string|null $identifier = null)
     {
         static::$entry_name = 'company branch';
-        $this->table      = 'business_branches';
+        $this->table        = 'business_branches';
 
         parent::__construct($identifier);
     }
@@ -47,6 +50,14 @@ class Branch extends DataEntry
     }
 
 
+    /**
+     * @inheritDoc
+     */
+    protected function validate(GetValidator|PostValidator|ArgvValidator $validator, bool $no_arguments_left = false, bool $modify = true): array
+    {
+        // TODO: Implement validate() method.
+    }
+
 
     /**
      * @inheritDoc
@@ -54,15 +65,5 @@ class Branch extends DataEntry
     public static function getFieldDefinitions(): array
     {
         // TODO: Implement getFieldDefinitions() method.
-    }
-
-
-
-    /**
-     * @inheritDoc
-     */
-    protected function load(int|string $identifier): void
-    {
-        // TODO: Implement load() method.
     }
 }
