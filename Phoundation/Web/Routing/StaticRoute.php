@@ -31,9 +31,11 @@ class StaticRoute extends DataEntry
 
 
     /**
-     * @inheritDoc
+     * Sets the available data keys for this entry
+     *
+     * @return array
      */
-    public static function getFieldDefinitions(): array
+    protected static function getFieldDefinitions(): array
     {
         // TODO: Implement getFieldDefinitions() method.
     }

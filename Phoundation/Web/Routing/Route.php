@@ -23,6 +23,7 @@ use Phoundation\Filesystem\Filesystem;
 use Phoundation\Notifications\Notification;
 use Phoundation\Web\Exception\RouteException;
 use Phoundation\Web\Http\File;
+use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
@@ -90,6 +91,12 @@ class Route
      */
     protected static RoutingParametersList $parameters;
 
+    /**
+     * If true, then the found page was matched dynamically (with a regex)
+     *
+     * @var bool $dynamic_pagematch
+     */
+    protected static bool $dynamic_pagematch = false;
 
 
     /**
@@ -329,10 +336,10 @@ class Route
             }
 
             // Apply pre-matching flags. Depending on individual flags we may do different things
-            $uri    = static::$uri;
-            $flags  = explode(',', $flags);
-            $until  = false; // By default, do not store this rule
-            $block  = false; // By default, do not block this request
+            $uri = static::$uri;
+            $flags = explode(',', $flags);
+            $until = false; // By default, do not store this rule
+            $block = false; // By default, do not block this request
             $static = true;  // By default, do check for rules, if configured so
 
             foreach ($flags as $flag) {
@@ -377,17 +384,17 @@ class Route
                     if ($exists) {
                         // Apply semi-permanent routing for this IP
                         Log::warning(tr('Found active routing for IP ":ip", continuing routing as if request is URI ":uri" with regex ":regex", target ":target", and flags ":flags" instead', [
-                            ':ip'     => static::$ip,
-                            ':uri'    => $exists['uri'],
-                            ':regex'  => $exists['regex'],
+                            ':ip' => static::$ip,
+                            ':uri' => $exists['uri'],
+                            ':regex' => $exists['regex'],
                             ':target' => $exists['target'],
-                            ':flags'  => $exists['flags']
+                            ':flags' => $exists['flags']
                         ]));
 
-                        $uri       = $exists['uri'];
+                        $uri = $exists['uri'];
                         $url_regex = $exists['regex'];
-                        $target    = $exists['target'];
-                        $flags     = explode(',', $exists['flags']);
+                        $target = $exists['target'];
+                        $flags = explode(',', $exists['flags']);
 
                         sql()->query('UPDATE `routes_static` SET `applied` = `applied` + 1 WHERE `id` = :id', [':id' => $exists['id']]);
 
@@ -403,15 +410,15 @@ class Route
             Log::action(tr('Testing rule ":count" ":regex" on ":type" ":url"', [
                 ':count' => $count,
                 ':regex' => $url_regex,
-                ':type'  => static::$method,
-                ':url'   => $uri
+                ':type' => static::$method,
+                ':url' => $uri
             ]), 4);
 
             try {
                 $match = preg_match_all($url_regex, $uri, $matches);
             } catch (Exception $e) {
                 throw new RouteException(tr('Failed to parse route ":route" with ":message"', [
-                    ':route'   => $url_regex,
+                    ':route' => $url_regex,
                     ':message' => Strings::until(Strings::from($e->getMessage(), 'preg_match_all(): '), ' in ')
                 ]));
             }
@@ -423,14 +430,14 @@ class Route
 
             if (Debug::enabled()) {
                 Log::success(tr('Regex ":count" ":regex" matched with matches ":matches" and flags ":flags"', [
-                    ':count'   => $count,
-                    ':regex'   => $url_regex,
+                    ':count' => $count,
+                    ':regex' => $url_regex,
                     ':matches' => $matches,
-                    ':flags'   => $flags
+                    ':flags' => $flags
                 ]));
             }
 
-            $route      = $target;
+            $route = $target;
             $attachment = false;
 
             // Regex matched. Do variable substitution on the target.
@@ -441,7 +448,7 @@ class Route
                     switch ($variable) {
                         case 'PROTOCOL':
                             // The protocol used in the current request
-                            $route = str_replace(':PROTOCOL', $_SERVER['REQUEST_SCHEME'].'://', $route);
+                            $route = str_replace(':PROTOCOL', $_SERVER['REQUEST_SCHEME'] . '://', $route);
                             break;
 
                         case 'DOMAIN':
@@ -460,7 +467,7 @@ class Route
                             // TODO Implement
 //                            $requested = Arrays::firstValue(Arrays::force(Core::readRegister('http', 'accepts_languages')));
 //                            $route     = str_replace(':REQUESTED_LANGUAGE', $requested['language'], $route);
-                            $route     = str_replace(':REQUESTED_LANGUAGE', 'en', $route);
+                            $route = str_replace(':REQUESTED_LANGUAGE', 'en', $route);
                             break;
 
                         case 'PORT':
@@ -478,7 +485,7 @@ class Route
                         default:
                             throw new OutOfBoundsException(tr('Unknown variable ":variable" found in target ":target"', [
                                 ':variable' => ':' . $variable,
-                                ':target' => ':' . $target
+                                ':target'   => ':' . $target
                             ]));
                     }
                 }
@@ -487,7 +494,7 @@ class Route
             // Apply regex variables replacements
             if (preg_match_all('/\$(\d+)/', $route, $replacements)) {
                 if (preg_match('/\$\d+\.php/', $route)) {
-                    $dynamic_pagematch = true;
+                    self::$dynamic_pagematch = true;
                 }
 
                 foreach ($replacements[1] as $replacement) {
@@ -502,10 +509,10 @@ class Route
                         $route = str_replace('$' . $replacement[0], $matches[$replacement[0]][0], $route);
 
                     } catch (Exception $e) {
-                        Log::warning(tr('Ignoring regex ":regex" because route ":route" has error ":e"', [
+                        Log::warning(tr('Ignoring route ":route" because regex ":regex" has the error ":e"', [
                             ':regex' => $url_regex,
                             ':route' => $route,
-                            ':e'     => $e->getMessage()
+                            ':e' => $e->getMessage()
                         ]));
                     }
                 }
@@ -573,15 +580,15 @@ class Route
                     case 'H':
                         Log::notice(tr('*POSSIBLE HACK ATTEMPT DETECTED*'));
                         Notification::new()
-                            ->setMode('EXCEPTION')
+                            ->setMode(DisplayMode::exception)
                             ->setCode('hack')
                             ->setRoles('security')
                             ->setTitle(tr('*Possible hack attempt detected*'))
                             ->setMessage(tr('The IP address ":ip" made the request ":request" which was matched by regex ":regex" with flags ":flags" and caused this notification', [
-                                ':ip'      => static::$ip,
+                                ':ip' => static::$ip,
                                 ':request' => $uri,
-                                ':regex'   => $url_regex,
-                                ':flags'   => implode(',', $flags)
+                                ':regex' => $url_regex,
+                                ':flags' => implode(',', $flags)
                             ]))->send();
                         break;
 
@@ -629,7 +636,7 @@ class Route
 
                             default:
                                 throw new RouteException(tr('Invalid R flag HTTP CODE ":code" specified for target ":target"', [
-                                    ':code'   => ':' . $http_code,
+                                    ':code' => ':' . $http_code,
                                     ':target' => ':' . $target
                                 ]));
                         }
@@ -677,7 +684,7 @@ class Route
                         }
 
                         $right = get_null(isset_get($matches[1][0]));
-                        $page  = get_null(isset_get($matches[2][0]));
+                        $page = get_null(isset_get($matches[2][0]));
 
                         if (Session::getUser()->isGuest()) {
                             Log::warning(tr('Denied guest user access to resource because signed in user is required'));
@@ -686,8 +693,8 @@ class Route
 
                         if (!Session::getUser()->hasAllRights($right)) {
                             Log::warning(tr('Denied user ":user" access to resource because of missing right ":right"', [
-                                ':user'     => Session::getUser()->getLogId(),
-                                ':right'    => $right
+                                ':user' => Session::getUser()->getLogId(),
+                                ':right' => $right
                             ]));
 
                             static::executeSystem(403);
@@ -714,7 +721,7 @@ class Route
                 foreach ($get as $key => $value) {
                     if (str_contains('=', $key)) {
                         // Regenerate the key as a $key => $value instead of $key=$value => null
-                        $get[Strings::until($key, '=')] = Strings::from ($key, '=');
+                        $get[Strings::until($key, '=')] = Strings::from($key, '=');
                         unset($get[$key]);
                     }
                 }
@@ -725,7 +732,7 @@ class Route
                     if (empty($get[$key])) {
                         Log::warning(tr('Matched route ":route" contains GET key ":key" which is not specifically allowed, cancelling match', [
                             ':route' => $route,
-                            ':key'   => $key
+                            ':key' => $key
                         ]));
 
                         $count++;
@@ -747,7 +754,7 @@ class Route
 
                             Log::warning(tr('Matched route ":route" allows GET key ":key" as redirect to URL without query', [
                                 ':route' => $route,
-                                ':key'   => $key
+                                ':key' => $key
                             ]));
 
                             Core::unregisterShutdown('route[postprocess]');
@@ -759,7 +766,7 @@ class Route
 
             // Split the route into the page name and GET requests
             $page = Strings::until($route, '?');
-            $get  = Strings::from ($route , '?', 0, true);
+            $get = Strings::from($route, '?', 0, true);
 
             // Translate the route?
             if (isset($core->register['Route::map']) and empty($disable_language)) {
@@ -795,7 +802,7 @@ class Route
                         foreach ($core->register['Route::map'][$language] as $unknown => $remap) {
                             if (str_contains($page, $unknown)) {
                                 $translated = true;
-                                $page       = str_replace($unknown, $remap, $page);
+                                $page = str_replace($unknown, $remap, $page);
                             }
                         }
 
@@ -825,54 +832,31 @@ class Route
                 }
             }
 
-            // Check if configured page exists
-            if ($page === 'index.php') {
-                throw new RouteException(tr('Route regex ":url_regex" resolved to main index.php page which would cause an endless loop', [
-                    ':url_regex' => $url_regex
-                ]));
-            }
+            if (!$block) {
+                // If we have GET parameters, add them to the $_GET array
+                if ($get) {
+                    $get = explode('&', $get);
 
-            $page = Strings::startsNotWith($page, '/');
-
-            if (!file_exists($page) and !$block) {
-                if (isset($dynamic_pagematch)) {
-                    Log::warning(tr('Pattern matched page ":page" does not exist', [':page' => $page]));
-                    $count++;
-                    return;
-
-                } else {
-                    // The hardcoded file for the regex does not exist, oops!
-                    Log::warning(tr('Matched hard coded page ":page" does not exist', [':page' => $page]));
-                    // TODO route_postprocess() This should be a class method!
-                    Core::unregisterShutdown('route[postprocess]');
-                    // TODO Check if this should be 404 or maybe some other HTTP code?
-                    Route::executeSystem(404);
+                    foreach ($get as $entry) {
+                        GetValidator::addData(Strings::until($entry, '='), Strings::from($entry, '=', 0, true));
+                    }
                 }
+
+                // We are going to show the matched page so we no longer need to default to 404
+                // TODO route_postprocess() This should be a class method!
+                Core::unregisterShutdown('route[postprocess]');
+
+                /*
+                 * Execute the page specified in $target (from here, $route)
+                 * Update the current running script name
+                 *
+                 * Flip the routemap keys <=> values foreach language so that its
+                 * now english keys. This way, the routemap can be easily used to
+                 * generate foreign language URLs
+                 */
+                Core::writeRegister($page, 'system', 'script_path');
+                Core::writeRegister(Strings::fromReverse($page, '/'), 'system', 'script');
             }
-
-            // If we have GET parameters, add them to the $_GET array
-            if ($get) {
-                $get = explode('&', $get);
-
-                foreach ($get as $entry) {
-                    GetValidator::addData(Strings::until($entry, '='), Strings::from($entry, '=', 0, true));
-                }
-            }
-
-            // We are going to show the matched page so we no longer need to default to 404
-            // TODO route_postprocess() This should be a class method!
-            Core::unregisterShutdown('route[postprocess]');
-
-            /*
-             * Execute the page specified in $target (from here, $route)
-             * Update the current running script name
-             *
-             * Flip the routemap keys <=> values foreach language so that its
-             * now english keys. This way, the routemap can be easily used to
-             * generate foreign language URLs
-             */
-            Core::writeRegister($page                                  , 'system', 'script_path') ;
-            Core::writeRegister(Strings::fromReverse($page, '/'), 'system', 'script') ;
 
             if ($until) {
                 /*
@@ -1099,6 +1083,29 @@ class Route
         }
 
         $target = Filesystem::absolute($parameters->getRootPath() . Strings::unslash($target));
+
+        // Check if configured page exists
+        if ($target === 'index.php') {
+            throw new RouteException(tr('Route resolved to main index.php page which would cause an endless loop'));
+        }
+
+        if (!file_exists($target)) {
+            if (self::$dynamic_pagematch) {
+                Log::warning(tr('Pattern matched file ":file" does not exist', [':page' => $target]));
+
+            } else {
+                // The hardcoded file for the regex does not exist, oops!
+                Log::warning(tr('Matched hard coded file ":file" does not exist', [':page' => $target]));
+            }
+
+            // TODO route_postprocess() This should be a class method!
+            Core::unregisterShutdown('route[postprocess]');
+
+            // TODO Check if this should be 404 or maybe some other HTTP code?
+            Route::executeSystem(404);
+        }
+
+        // Target exists, we can start executing it
         Page::setRoutingParameters($parameters);
 
         if (str_ends_with($target, 'php')) {
@@ -1113,7 +1120,7 @@ class Route
             // Upload the file to the client as an attachment
             Log::action(tr('Sending file ":target" as attachment', [':target' => $target]));
 
-            File::new(static::$restrictions)
+            File::new($parameters->getRestrictions())
                 ->setAttachment(true)
                 ->setFile($target)
                 ->send();
@@ -1126,14 +1133,12 @@ class Route
 
             Log::action(tr('Sending contents of file ":target" with mime-type ":type" directly to client', [
                 ':target' => $target,
-                ':type' => $mimetype
+                ':type'   => $mimetype
             ]));
 
             header('Content-Type: ' . $mimetype);
             header('Content-length: ' . $bytes);
 
-            showdie(Debug::backtrace());
-            showdie($target);
             include($target);
         }
 

@@ -394,7 +394,7 @@ class RoutingParameters
     {
         if (!isset($this->restrictions)) {
             // Set default server restrictions
-            $this->restrictions = Core::ensureRestrictions(PATH_WWW, null, 'Route');
+            $this->restrictions = Core::ensureRestrictions(PATH_WWW, false, 'Route');
         }
 
         return $this->restrictions;
