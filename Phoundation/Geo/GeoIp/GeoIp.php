@@ -23,7 +23,7 @@ class GeoIp
     /**
      * The IP for this GeoIp entry
      *
-     * @var ?string $ip
+     * @var ?string $ip_address
      */
     protected ?string $ip_address = null;
 
@@ -32,12 +32,12 @@ class GeoIp
     /**
      * Returns a GeoIp object for the specified IP address
      *
-     * @param string|null $ip
+     * @param string|null $ip_address
      * @return static
      */
-    public static function detect(?string $ip): static
+    public static function detect(?string $ip_address): static
     {
-        return self::getProvider()->detect($ip);
+        return self::getProvider()->detect($ip_address);
     }
 
 
