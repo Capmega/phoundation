@@ -8,7 +8,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Exception\WorkersException;
 
-
 /**
  * Class Workers
  *
@@ -86,7 +85,6 @@ class Workers extends Process
     protected bool $wait_worker_finish = false;
 
 
-
 // TODO Delete the Workers class constructor as it does exactly the same as the parent (VALIDATE THIS)
 
 //    /**
@@ -103,7 +101,6 @@ class Workers extends Process
 //    }
 
 
-
     /**
      * Returns a new Workers object
      *
@@ -117,7 +114,6 @@ class Workers extends Process
     }
 
 
-
     /**
      * Returns if this process will wait for the workers to finish before returning
      *
@@ -127,7 +123,6 @@ class Workers extends Process
     {
         return $this->wait_worker_finish;
     }
-
 
 
     /**
@@ -143,7 +138,6 @@ class Workers extends Process
     }
 
 
-
     /**
      * Returns the minimum amount of workers required
      *
@@ -153,7 +147,6 @@ class Workers extends Process
     {
         return $this->minimum;
     }
-
 
 
     /**
@@ -169,7 +162,6 @@ class Workers extends Process
     }
 
 
-
     /**
      * Returns the maximum amount of workers required
      *
@@ -179,7 +171,6 @@ class Workers extends Process
     {
         return $this->maximum;
     }
-
 
     /**
      * Sets the maximum amount of workers required
@@ -194,7 +185,6 @@ class Workers extends Process
     }
 
 
-
     /**
      * Returns amount of time in milliseconds that the process cycle should sleep before retrying to start workers
      *
@@ -204,7 +194,6 @@ class Workers extends Process
     {
         return $this->wait_sleep;
     }
-
 
     /**
      * Sets Amount of time in milliseconds that the process cycle should sleep before retrying to start workers
@@ -219,7 +208,6 @@ class Workers extends Process
     }
 
 
-
     /**
      * Returns amount of time in milliseconds that the process cycle should sleep each cycle while checking alive workers
      *
@@ -229,7 +217,6 @@ class Workers extends Process
     {
         return $this->cycle_sleep;
     }
-
 
     /**
      * Sets amount of time in milliseconds that the process cycle should sleep each cycle while checking alive workers
@@ -244,7 +231,6 @@ class Workers extends Process
     }
 
 
-
     /**
      * Returns the variable values list that this master worker will process
      *
@@ -254,7 +240,6 @@ class Workers extends Process
     {
         return $this->key;
     }
-
 
 
     /**
@@ -274,7 +259,6 @@ class Workers extends Process
     }
 
 
-
     /**
      * Returns the variable values list that this master worker will process
      *
@@ -284,7 +268,6 @@ class Workers extends Process
     {
         return $this->values;
     }
-
 
 
     /**
@@ -307,7 +290,6 @@ class Workers extends Process
     }
 
 
-
     /**
      * Returns the current amount of workers running
      *
@@ -318,7 +300,6 @@ class Workers extends Process
         $this->cleanWorkers();
         return count($this->workers);
     }
-
 
 
     /**
@@ -373,7 +354,6 @@ class Workers extends Process
     }
 
 
-
     /**
      * Stop all background running workers
      *
@@ -385,7 +365,6 @@ class Workers extends Process
             $worker->kill();
         }
     }
-
 
 
     /**
@@ -407,7 +386,6 @@ class Workers extends Process
         Log::success(tr('Started worker with PID ":pid" for value ":value"', [':pid' => $worker->getPid(), ':value' => $value]));
         $this->workers_executed++;
     }
-
 
 
     /**

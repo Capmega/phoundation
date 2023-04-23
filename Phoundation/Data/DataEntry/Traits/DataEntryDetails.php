@@ -4,7 +4,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Utils\Json;
 
-
 /**
  * Trait DataEntryDetails
  *
@@ -26,7 +25,6 @@ trait DataEntryDetails
     {
         return Json::decode($this->getDataValue('details'));
     }
-
 
 
     /**

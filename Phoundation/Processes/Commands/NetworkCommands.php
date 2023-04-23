@@ -5,7 +5,6 @@ namespace Phoundation\Processes\Commands;
 use Phoundation\Processes\Exception\ProcessFailedException;
 use Phoundation\Processes\Process;
 
-
 /**
  * Class NetworkCommands
  *

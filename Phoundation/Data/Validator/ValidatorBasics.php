@@ -10,7 +10,6 @@ use Phoundation\Data\Validator\Exception\ValidatorException;
 use ReflectionProperty;
 
 
-
 /**
  * ValidatorBasics trait
  *
@@ -158,7 +157,6 @@ trait ValidatorBasics
     protected static bool $password_disabled = false;
 
 
-
     /**
      * Returns the maximum string size that this Validator will touch
      *
@@ -168,7 +166,6 @@ trait ValidatorBasics
     {
         return $this->max_string_size;
     }
-
 
 
     /**
@@ -183,7 +180,6 @@ trait ValidatorBasics
     }
 
 
-
     /**
      * Returns the parent field with the specified name
      *
@@ -193,7 +189,6 @@ trait ValidatorBasics
     {
         return $this->parent_field;
     }
-
 
 
     /**
@@ -206,7 +201,6 @@ trait ValidatorBasics
     {
         $this->parent_field = $field;
     }
-
 
 
     /**
@@ -226,7 +220,6 @@ trait ValidatorBasics
         return $this;
     }
 
-
     /**
      * Renames the current field to the specified field name
      *
@@ -241,7 +234,6 @@ trait ValidatorBasics
 
         return $this;
     }
-
 
     /**
      * This method will make sure that either this field OR the other specified field will have a value
@@ -290,7 +282,6 @@ trait ValidatorBasics
     }
 
 
-
     /**
      * This method will make sure that either this field OR the other specified field optionally will have a value
      *
@@ -319,7 +310,6 @@ trait ValidatorBasics
 
         return $this;
     }
-
 
 
     /**
@@ -354,7 +344,6 @@ trait ValidatorBasics
     }
 
 
-
     /**
      * Recurse into a sub array and return another validator object for that sub array
      *
@@ -378,7 +367,6 @@ trait ValidatorBasics
         $this->children[$this->selected_field] = $child;
         return $child;
     }
-
 
 
     /**
@@ -423,7 +411,6 @@ trait ValidatorBasics
     }
 
 
-
     /**
      * Resets the class for a new validation
      *
@@ -442,7 +429,6 @@ trait ValidatorBasics
         $this->process_values  = null;
         $this->source          = null;
     }
-
 
 
     /**
@@ -480,7 +466,6 @@ trait ValidatorBasics
         // Field has a value, we're okay
         return true;
     }
-
 
 
     /**
@@ -541,7 +526,6 @@ trait ValidatorBasics
     }
 
 
-
     /**
      * Returns the list of failures found during validation
      *
@@ -551,7 +535,6 @@ trait ValidatorBasics
     {
         return $this->failures;
     }
-
 
 
     /**

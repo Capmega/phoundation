@@ -5,7 +5,6 @@ namespace Phoundation\Virtualization\Kubernetes\Services;
 use Phoundation\Virtualization\Kubernetes\KubernetesObject;
 use Phoundation\Virtualization\Kubernetes\ObjectFile;
 
-
 /**
  * Class ServiceFile
  *
@@ -40,7 +39,6 @@ class ServiceFile extends ObjectFile
         parent::__construct($service);
     }
 
-
     /**
      * Returns the deployment data object for this deployment file
      *
@@ -50,7 +48,6 @@ class ServiceFile extends ObjectFile
     {
         return $this->object;
     }
-
 
     /**
      * Builds the data string for this deployment file from the Service object

@@ -9,7 +9,6 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 
-
 /**
  * Class Employee
  *
@@ -25,7 +24,6 @@ class Employee extends DataEntry
 {
     use DataEntryNameDescription;
 
-
     /**
      * Employee class constructor
      *
@@ -39,7 +37,6 @@ class Employee extends DataEntry
         parent::__construct($identifier);
     }
 
-
     /**
      * @inheritDoc
      */
@@ -47,7 +44,6 @@ class Employee extends DataEntry
     {
         // TODO: Implement validate() method.
     }
-
 
     /**
      * Sets the available data keys for this entry

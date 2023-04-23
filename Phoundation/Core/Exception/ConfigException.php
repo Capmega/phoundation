@@ -3,7 +3,6 @@
 namespace Phoundation\Core\Exception;
 
 
-
 /**
  * Class ConfigException
  *

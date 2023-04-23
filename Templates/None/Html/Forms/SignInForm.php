@@ -5,7 +5,6 @@ namespace Templates\None\Html\Forms;
 use Phoundation\Web\Http\Html\Renderer;
 
 
-
 /**
  * None Plugin SignIn form class
  *
@@ -25,7 +24,6 @@ class SignInForm extends Renderer
     {
         parent::__construct($element);
     }
-
 
 
     /**

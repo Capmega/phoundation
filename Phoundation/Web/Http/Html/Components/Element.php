@@ -11,7 +11,6 @@ use Phoundation\Web\Http\Html\Renderer;
 use Phoundation\Web\Http\Html\Template\Template;
 use Phoundation\Web\Page;
 
-
 /**
  * Class Element
  *
@@ -26,7 +25,6 @@ abstract class Element
 {
     use ElementAttributes;
 
-
     /**
      * The element type
      *
@@ -40,7 +38,6 @@ abstract class Element
      * @var bool $requires_closing_tag
      */
     protected bool $requires_closing_tag = true;
-
 
     /**
      * Sets the type of element to display
@@ -59,7 +56,6 @@ abstract class Element
         return $this;
     }
 
-
     /**
      * Returns the HTML class element attribute
      *
@@ -69,7 +65,6 @@ abstract class Element
     {
         return $this->element;
     }
-
 
     /**
      * Renders and returns the HTML for this object using the template renderer if avaialable
@@ -129,7 +124,6 @@ abstract class Element
         return $render_function();
     }
 
-
     /**
      * Builds and returns the class string
      *
@@ -145,7 +139,6 @@ abstract class Element
 
         return null;
     }
-
 
     /**
      * Add the system arguments to the arguments list

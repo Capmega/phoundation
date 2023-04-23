@@ -14,7 +14,6 @@ use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Commands\Wget;
 use Throwable;
 
-
 /**
  * Import class
  *
@@ -40,12 +39,10 @@ class Import extends \Phoundation\Developer\Project\Import
         $this->name = 'Geo / GeoNames';
     }
 
-
     public function execute(): int
     {
         // TODO: Implement execute() method.
     }
-
 
 
     /**
@@ -79,7 +76,6 @@ class Import extends \Phoundation\Developer\Project\Import
 
         return $path;
     }
-
 
     /**
      * Process downloaded Geo files
@@ -144,7 +140,6 @@ class Import extends \Phoundation\Developer\Project\Import
     }
 
 
-
     /**
      * Returns a list of MaxMind files that will be downloaded
      *
@@ -191,7 +186,6 @@ class Import extends \Phoundation\Developer\Project\Import
             ],
         ];
     }
-
 
     /**
      * Import the GeoNames data
@@ -450,7 +444,6 @@ return;
         // Disable local_infile for security
         sql('geonames')->query('SET GLOBAL local_infile=false;');
    }
-
 
 
     /**

@@ -6,7 +6,6 @@ use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 
 
-
 /**
  * Class Time
  *
@@ -136,7 +135,6 @@ class Time
     }
 
 
-
     /**
      * Returns "... days and hours ago" string.
      *
@@ -187,7 +185,6 @@ class Time
         return $output;
     }
 
-
     /**
      * Validates the given time.
      * Can check either hh:mm:ss, or hh:mm
@@ -237,7 +234,6 @@ class Time
         // The time format is not valid
         throw new OutOfBoundsException(tr('Specified time ":time" is not a valid time format', [':time' => $time]));
     }
-
 
 
     /**

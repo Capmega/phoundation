@@ -2,9 +2,7 @@
 
 namespace Phoundation\Accounts\Users\Exception;
 
-
 use Phoundation\Accounts\Exception\AccountsException;
-
 
 
 /**

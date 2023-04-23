@@ -21,7 +21,6 @@
 	
 */
 
-
 include "socialmedia_oauth_connect.php";
 $oauth = new socialmedia_oauth_connect();
 $oauth->provider="Yammer";
@@ -42,6 +41,5 @@ if (empty($code)) {
 	$getData = json_decode($oauth->getUserProfile());
 	$oauth->debugJson($getData);
 }
-
 
 ?>

@@ -18,7 +18,6 @@ use Phoundation\Notifications\Notification;
 use Phoundation\Web\Http\Html\Components\Table;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 
-
 /**
  * Libraries class
  *
@@ -52,7 +51,6 @@ class Libraries
      * @var bool
      */
     protected static bool $initializing = false;
-
 
 
     /**
@@ -96,7 +94,6 @@ class Libraries
             }
         }
     }
-
 
 
     /**
@@ -161,7 +158,6 @@ class Libraries
     }
 
 
-
     /**
      * Returns a list with all libraries
      *
@@ -209,7 +205,6 @@ class Libraries
     }
 
 
-
     /**
      * Returns true if the system is initializing
      *
@@ -219,7 +214,6 @@ class Libraries
     {
         return static::$initializing;
     }
-
 
 
     /**
@@ -282,7 +276,6 @@ class Libraries
     }
 
 
-
     /**
      * Returns the PhpStatistics object for this library
      *
@@ -317,7 +310,6 @@ class Libraries
     }
 
 
-
     /**
      * Creates and returns an HTML table for the data in this list
      *
@@ -330,7 +322,6 @@ class Libraries
             ->setColumnHeaders([tr('Library'), tr('Version'), tr('Description')])
             ->setSourceArray(static::listLibraries());
     }
-
 
 
     /**
@@ -348,7 +339,6 @@ class Libraries
         sql('system')->use();
         sql('system', false)->resetSchema();
     }
-
 
 
     /**
@@ -391,7 +381,6 @@ class Libraries
 
         return $return;
     }
-
 
 
     /**
@@ -447,7 +436,6 @@ class Libraries
     }
 
 
-
     /**
      * Order the libraries by next_init_version first
      *
@@ -468,7 +456,6 @@ class Libraries
             return version_compare($a->getNextInitVersion(), $b->getNextInitVersion());
         });
     }
-
 
 
     /**

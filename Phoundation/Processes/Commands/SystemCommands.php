@@ -10,7 +10,6 @@ use Phoundation\Processes\Commands\Exception\CommandsException;
 use Phoundation\Processes\Exception\ProcessFailedException;
 use Phoundation\Processes\Process;
 
-
 /**
  * Class SystemCommands
  *
@@ -76,7 +75,6 @@ class SystemCommands extends Command
     }
 
 
-
     /**
      * Returns the user, group
      *
@@ -114,7 +112,6 @@ class SystemCommands extends Command
     }
 
 
-
     /**
      * Install the specified packages
      *
@@ -133,7 +130,6 @@ class SystemCommands extends Command
             ->setTimeout(120)
             ->executePassthru();
     }
-
 
 
     /**

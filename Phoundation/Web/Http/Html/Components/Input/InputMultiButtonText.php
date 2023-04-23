@@ -6,7 +6,6 @@ use Phoundation\Web\Http\Html\Components\Button;
 use Phoundation\Web\Http\Html\Components\ElementsBlock;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 
-
 /**
  * Class InputMultiButtonText
  *
@@ -34,7 +33,6 @@ class InputMultiButtonText extends ElementsBlock
      */
     protected Input $input;
 
-
     /**
      * InputMultiButtonText class constructor
      */
@@ -46,7 +44,6 @@ class InputMultiButtonText extends ElementsBlock
         return parent::__construct();
     }
 
-
     /**
      * Returns the internal button object
      *
@@ -56,7 +53,6 @@ class InputMultiButtonText extends ElementsBlock
     {
         return $this->button;
     }
-
 
     /**
      * Returns the internal button object
@@ -75,7 +71,6 @@ class InputMultiButtonText extends ElementsBlock
         return $this;
     }
 
-
     /**
      * Returns the internal input object
      *
@@ -90,7 +85,6 @@ class InputMultiButtonText extends ElementsBlock
 
         return $this->input;
     }
-
 
     /**
      * Returns the internal input object
@@ -108,7 +102,6 @@ class InputMultiButtonText extends ElementsBlock
         $this->input = $input;
         return $this;
     }
-
 
     /**
      * Clears the button options

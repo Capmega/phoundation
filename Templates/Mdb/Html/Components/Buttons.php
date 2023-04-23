@@ -6,7 +6,6 @@ use Phoundation\Web\Http\Html\Components\ButtonProperties;
 use Phoundation\Web\Http\Html\Renderer;
 
 
-
 /**
  * MDB Plugin Buttons class
  *
@@ -22,7 +21,6 @@ class Buttons extends Renderer
     use ButtonProperties;
 
 
-
     /**
      * Buttons class constructor
      */
@@ -30,7 +28,6 @@ class Buttons extends Renderer
     {
         parent::__construct($element);
     }
-
 
 
    /**

@@ -7,7 +7,6 @@ use Phoundation\Virtualization\Kubernetes\KubernetesObject;
 use Phoundation\Virtualization\Kubernetes\Traits\DataReplicas;
 use Phoundation\Virtualization\Traits\DataImage;
 
-
 /**
  * Class KubernetesNamespace
  *
@@ -24,7 +23,6 @@ class KubernetesNamespace extends KubernetesObject
     use DataImage;
     use DataReplicas;
 
-
     /**
      * Namespace class constructor
      *
@@ -35,7 +33,6 @@ class KubernetesNamespace extends KubernetesObject
         $this->object_file_class = KubernetesNamespaceFile::class;
         parent::__construct($name);
     }
-
 
     /**
      * Returns the API version for this object

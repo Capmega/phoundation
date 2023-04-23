@@ -2,7 +2,6 @@
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait DataIntId
  *
@@ -22,7 +21,6 @@ trait DataIntId
      * @var int|null $id
      */
     protected ?int $id = null;
-
 
     /**
      * Returns the integer id for this object or null

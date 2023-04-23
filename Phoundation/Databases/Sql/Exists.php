@@ -56,7 +56,6 @@ class SqlExists
     }
 
 
-
     /**
      * Returns if specified column exists
      *
@@ -103,7 +102,6 @@ class SqlExists
             throw new OutOfBoundsException('sql_table_exists(): Failed', $e);
         }
     }
-
 
 
     /*
@@ -154,7 +152,6 @@ class SqlExists
     }
 
 
-
     /*
      * Returns if specified column exists
      *
@@ -201,7 +198,6 @@ class SqlExists
             throw new OutOfBoundsException('sql_column_exists(): Failed', $e);
         }
     }
-
 
 
     /*
@@ -262,7 +258,6 @@ class SqlExists
     }
 
 
-
     /*
      * Returns if specified function exists
      *
@@ -321,7 +316,6 @@ class SqlExists
             throw new OutOfBoundsException('sql_function_exists(): Failed', $e);
         }
     }
-
 
 
     /*

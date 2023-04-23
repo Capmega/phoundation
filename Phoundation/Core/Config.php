@@ -14,7 +14,6 @@ use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Throwable;
 
-
 /**
  * Class Config
  *
@@ -72,7 +71,6 @@ class Config
     protected static ?string $environment = null;
 
 
-
     /**
      * Singleton, ensure to always return the same Log object.
      *
@@ -88,7 +86,6 @@ class Config
     }
 
 
-
     /**
      * Returns the current environment for the configuration object
      *
@@ -98,7 +95,6 @@ class Config
     {
         return static::$environment;
     }
-
 
 
     /**
@@ -122,7 +118,6 @@ class Config
         static::reset();
         static::read();
     }
-
 
 
     /**
@@ -156,7 +151,6 @@ class Config
     }
 
 
-
     /**
      * Return configuration INTEGER for the specified key path
      *
@@ -179,7 +173,6 @@ class Config
             ':value' => $return
         ]));
     }
-
 
 
     /**
@@ -206,7 +199,6 @@ class Config
     }
 
 
-
     /**
      * Return configuration NUMBER for the specified key path
      *
@@ -229,7 +221,6 @@ class Config
             ':value' => $return
         ]));
     }
-
 
 
     /**
@@ -256,7 +247,6 @@ class Config
     }
 
 
-
     /**
      * Return configuration STRING for the specified key path
      *
@@ -281,7 +271,6 @@ class Config
     }
 
 
-
     /**
      * Returns true of the specified configuration path exists
      *
@@ -300,7 +289,6 @@ class Config
             return false;
         }
     }
-
 
 
     /**
@@ -322,7 +310,6 @@ class Config
             return null;
         }
     }
-
 
 
     /**
@@ -405,7 +392,6 @@ class Config
     }
 
 
-
     /**
      * Return configuration data for the specified key path
      *
@@ -448,7 +434,6 @@ class Config
         $data = $value;
         return static::$cache[$cache_key] = $value;
     }
-
 
 
     /**
@@ -509,7 +494,6 @@ class Config
             // TODO Log here that configuration loading failed.
         }
     }
-
 
 
     /**
@@ -631,7 +615,6 @@ class Config
     }
 
 
-
     /**
      * Save the configuration as currently in memory to the configuration file
      *
@@ -654,7 +637,6 @@ class Config
         Log::action(tr('Saving environment ":env"', [':env' => static::$environment]));
         file_put_contents(PATH_ROOT . 'config/' . static::$environment . '.yaml', $data);
     }
-
 
     /**
      * Import data from the specified setup configuration and save it in a yaml config file for the current environment
@@ -736,7 +718,6 @@ class Config
             ],
         ];
     }
-
 
 
     /**

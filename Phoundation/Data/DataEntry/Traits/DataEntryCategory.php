@@ -4,7 +4,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Data\Categories\Category;
 
-
 /**
  * Trait DataEntryCategory
  *
@@ -28,7 +27,6 @@ trait DataEntryCategory
     }
 
 
-
     /**
      * Sets the categories_id for this object
      *
@@ -39,7 +37,6 @@ trait DataEntryCategory
     {
         return $this->setDataValue('categories_id', $categories_id);
     }
-
 
 
     /**
@@ -57,7 +54,6 @@ trait DataEntryCategory
 
         return null;
     }
-
 
 
     /**

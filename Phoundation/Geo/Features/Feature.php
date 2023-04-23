@@ -10,7 +10,6 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\UnderConstructionException;
 
-
 /**
  * Class Feature
  *
@@ -26,7 +25,6 @@ class Feature extends DataEntry
 {
     use DataEntryNameDescription;
 
-
     /**
      * Features class constructor
      *
@@ -40,7 +38,6 @@ class Feature extends DataEntry
 
         parent::__construct($identifier);
     }
-
 
     /**
      * Validates the provider record with the specified validator object
@@ -70,7 +67,6 @@ class Feature extends DataEntry
 
         return $data;
     }
-
 
     /**
      * Sets the available data keys for this entry

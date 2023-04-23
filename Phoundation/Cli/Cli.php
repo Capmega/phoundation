@@ -8,7 +8,6 @@ use Phoundation\Core\Strings;
 use Phoundation\Data\Classes\Iterator;
 use Phoundation\Exception\OutOfBoundsException;
 
-
 /**
  * Cli\Cli class
  *
@@ -29,7 +28,6 @@ class Cli
     protected static bool $show_passwords = false;
 
 
-
     /**
      * Sets & returns if passwords are shown or not.
      *
@@ -46,7 +44,6 @@ class Cli
     }
 
 
-
     /**
      * Returns the terminal available for this process
      *
@@ -56,7 +53,6 @@ class Cli
     {
         return exec('echo $TERM');
     }
-
 
 
     /**
@@ -77,7 +73,6 @@ class Cli
     }
 
 
-
     /**
      * Returns the rows for this terminal
      *
@@ -94,7 +89,6 @@ class Cli
 
         return -1;
     }
-
 
 
     /**
@@ -178,7 +172,6 @@ class Cli
     }
 
 
-
     /**
      * Display the data in the specified source array in a neat looking form
      *
@@ -239,7 +232,6 @@ class Cli
     }
 
 
-
     /**
      * Read a password from the command line prompt
      *
@@ -263,7 +255,6 @@ class Cli
 
         return $return;
     }
-
 
 
     /**

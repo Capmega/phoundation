@@ -5,7 +5,6 @@ namespace Phoundation\Notifications\Exception;
 use Phoundation\Exception\Exception;
 
 
-
 /**
  * Class NotificationsException
  *

@@ -11,7 +11,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnexpectedValueException;
 use Throwable;
 
-
 /**
  * Updates class
  *
@@ -60,7 +59,6 @@ abstract class Updates
     protected bool $versions_exists;
 
 
-
     /**
      * Init constructor
      */
@@ -100,7 +98,6 @@ abstract class Updates
     }
 
 
-
     /**
      * Returns the file for this library
      *
@@ -112,7 +109,6 @@ abstract class Updates
     }
 
 
-
     /**
      * Returns the current code version for this library
      *
@@ -122,7 +118,6 @@ abstract class Updates
     {
         return $this->code_version;
     }
-
 
 
     /**
@@ -142,7 +137,6 @@ abstract class Updates
 
         return Version::getString($version);
     }
-
 
 
     /**
@@ -183,7 +177,6 @@ abstract class Updates
     }
 
 
-
     /**
      * Registers the specified version and the function containing all tasks that should be executed to get to that
      * version
@@ -210,7 +203,6 @@ abstract class Updates
 
         return $this;
     }
-
 
 
     /**
@@ -246,7 +238,6 @@ abstract class Updates
     }
 
 
-
     /**
      * Add a new version data row in the versions table
      *
@@ -262,7 +253,6 @@ abstract class Updates
             'comments' => $comments
         ]);
     }
-
 
 
     /**
@@ -306,7 +296,6 @@ abstract class Updates
     }
 
 
-
     /**
      * Returns true if this init file has a version above the current version (and should not yet be executed)
      *
@@ -342,7 +331,6 @@ abstract class Updates
     }
 
 
-
     /**
      * Returns true if the versions table exists, false otherwise
      *
@@ -358,7 +346,6 @@ abstract class Updates
     }
 
 
-
     /**
      * Returns the library version
      *
@@ -367,14 +354,12 @@ abstract class Updates
     abstract public function version(): string;
 
 
-
     /**
      * Returns the library description
      *
      * @return string
      */
     abstract public function description(): string;
-
 
 
     /**

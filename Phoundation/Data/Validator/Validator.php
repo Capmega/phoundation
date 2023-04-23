@@ -20,7 +20,6 @@ use Phoundation\Web\Http\Url;
 use ReflectionProperty;
 use Throwable;
 
-
 /**
  * Validator class
  *
@@ -36,7 +35,6 @@ abstract class Validator
     use ValidatorBasics;
 
 
-
     /**
      * Returns if all validations are disabled or not
      *
@@ -46,7 +44,6 @@ abstract class Validator
     {
         return static::$disabled;
     }
-
 
 
     /**
@@ -60,7 +57,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Enable all validations
      *
@@ -70,7 +66,6 @@ abstract class Validator
     {
         static::$disabled = false;
     }
-
 
 
     /**
@@ -84,7 +79,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Disable password validations
      *
@@ -96,7 +90,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Enable password validations
      *
@@ -106,7 +99,6 @@ abstract class Validator
     {
         static::$password_disabled = false;
     }
-
 
 
     /**
@@ -135,7 +127,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Will let the validator treat the value as a single variable
      *
@@ -153,7 +144,6 @@ abstract class Validator
 
         return $this;
     }
-
 
 
     /**
@@ -193,7 +183,6 @@ abstract class Validator
         return $this;
     }
 
-
     /**
      * Validates the datatype for the selected field
      *
@@ -215,7 +204,6 @@ abstract class Validator
             }
         });
     }
-
 
 
     /**
@@ -244,7 +232,6 @@ abstract class Validator
             }
         });
     }
-
 
 
     /**
@@ -276,7 +263,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Validates the datatype for the selected field
      *
@@ -298,7 +284,6 @@ abstract class Validator
             }
         });
     }
-
 
 
     /**
@@ -326,7 +311,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Validates the datatype for the selected field
      *
@@ -339,7 +323,6 @@ abstract class Validator
     {
         return $this->isInteger()->isPositive($allow_zero);
     }
-
 
 
     /**
@@ -355,7 +338,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Validates the datatype for the selected field
      *
@@ -367,7 +349,6 @@ abstract class Validator
     {
         return $this->isFloat()->isBetween(0, 180);
     }
-
 
 
     /**
@@ -382,7 +363,6 @@ abstract class Validator
     {
         return $this->isInteger()->isPositive($allow_zero);
     }
-
 
 
     /**
@@ -406,7 +386,6 @@ abstract class Validator
             $this->isPrintable();
         });
     }
-
 
     /**
      * Validates the datatype for the selected field
@@ -440,7 +419,6 @@ abstract class Validator
         });
     }
 
-
     /**
      * Validates the datatype for the selected field
      *
@@ -473,7 +451,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Validates the datatype for the selected field
      *
@@ -503,7 +480,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Validates the datatype for the selected field
      *
@@ -527,7 +503,6 @@ abstract class Validator
             }
         });
     }
-
 
 
     /**
@@ -556,7 +531,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Validates the datatype for the selected field
      *
@@ -578,7 +552,6 @@ abstract class Validator
             }
         });
     }
-
 
 
     /**
@@ -606,7 +579,6 @@ abstract class Validator
             }
         });
     }
-
 
 
     /**
@@ -641,7 +613,6 @@ abstract class Validator
         });
     }
 
-
     /**
      * Ensures that the value has the specified string
      *
@@ -674,7 +645,6 @@ abstract class Validator
         });
     }
 
-
     /**
      * Validates the datatype for the selected field
      *
@@ -704,7 +674,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Validates the datatype for the selected field
      *
@@ -730,7 +699,6 @@ abstract class Validator
             $this->contains($column);
         });
     }
-
 
 
     /**
@@ -760,7 +728,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Validates the datatype for the selected field
      *
@@ -782,7 +749,6 @@ abstract class Validator
             }
         });
     }
-
 
 
     /**
@@ -808,7 +774,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Validates that the selected field is equal or larger than the specified amount of characters
      *
@@ -830,7 +795,6 @@ abstract class Validator
             }
         });
     }
-
 
 
     /**
@@ -868,7 +832,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Validates that the selected field matches the specified regex
      *
@@ -881,7 +844,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Validates that the selected field NOT matches the specified regex
      *
@@ -892,7 +854,6 @@ abstract class Validator
     {
         return $this->containsNot($regex, true);
     }
-
 
 
     /**
@@ -917,7 +878,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Validates that the selected field contains only alphanumeric characters
      *
@@ -938,7 +898,6 @@ abstract class Validator
             }
         });
     }
-
 
 
     /**
@@ -963,7 +922,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Validates that the selected field contains only uppercase letters
      *
@@ -984,7 +942,6 @@ abstract class Validator
             }
         });
     }
-
 
 
     /**
@@ -1010,7 +967,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Validates that the selected field contains only printable characters (including blanks)
      *
@@ -1031,7 +987,6 @@ abstract class Validator
             }
         });
     }
-
 
 
     /**
@@ -1056,7 +1011,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Validates that the selected field contains only whitespace characters
      *
@@ -1077,7 +1031,6 @@ abstract class Validator
             }
         });
     }
-
 
 
     /**
@@ -1102,7 +1055,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Validates that the selected field contains only octal numbers
      *
@@ -1123,7 +1075,6 @@ abstract class Validator
             }
         });
     }
-
 
     /**
      * Validates that the selected field is the specified value
@@ -1173,7 +1124,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Validates that the selected field is a date
      *
@@ -1209,7 +1159,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Validates that the selected field is a date
      *
@@ -1233,7 +1182,6 @@ abstract class Validator
             $this->addFailure(tr('must be a valid time'));
         });
     }
-
 
 
     /**
@@ -1286,7 +1234,6 @@ abstract class Validator
         });
     }
 
-
     /**
      * Validates that the selected field is a valid mode
      *
@@ -1335,7 +1282,6 @@ abstract class Validator
         });
     }
 
-
     /**
      * Validates that the selected field is a timezone
      *
@@ -1357,7 +1303,6 @@ abstract class Validator
 //            }
         });
     }
-
 
 
     /**
@@ -1384,7 +1329,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Validates that the selected date field is younger than the specified date
      *
@@ -1407,7 +1351,6 @@ abstract class Validator
 //            }
         });
     }
-
 
 
     /**
@@ -1433,7 +1376,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Validates that the selected field array has a minimal amount of elements
      *
@@ -1455,7 +1397,6 @@ abstract class Validator
             }
         });
     }
-
 
 
     /**
@@ -1481,7 +1422,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Validates that the selected field array has a maximum amount of elements
      *
@@ -1503,7 +1443,6 @@ abstract class Validator
             }
         });
     }
-
 
 
     /**
@@ -1551,7 +1490,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Validates if the selected field is a valid phone number
      *
@@ -1570,7 +1508,6 @@ abstract class Validator
             $this->matchesRegex('/[0-9- ].+?/');
         });
     }
-
 
 
     /**
@@ -1593,7 +1530,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Validates if the selected field is a valid gender
      *
@@ -1612,7 +1548,6 @@ abstract class Validator
             $this->isPrintable();
         });
     }
-
 
     /**
      * Validates if the selected field is a valid name
@@ -1635,7 +1570,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Validates if the selected field is a valid word
      *
@@ -1656,7 +1590,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Validates if the selected field is a valid variable
      *
@@ -1675,7 +1608,6 @@ abstract class Validator
             $this->matchesRegex('/^[a-z_]+$/i');
         });
     }
-
 
 
     /**
@@ -1702,7 +1634,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Validates if the selected field is a valid directory
      *
@@ -1725,7 +1656,6 @@ abstract class Validator
             }
         });
     }
-
 
     /**
      * Checks if the specified path exists or not, and if its of the correct type
@@ -1770,7 +1700,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Validates if the selected field is a valid directory
      *
@@ -1794,7 +1723,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Validates if the selected field is a valid description
      *
@@ -1813,7 +1741,6 @@ abstract class Validator
             $this->isPrintable();
         });
     }
-
 
 
     /**
@@ -1845,7 +1772,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Validates if the selected field is a valid and strong enough password
      *
@@ -1864,7 +1790,6 @@ abstract class Validator
             // TODO Implement
         });
     }
-
 
     /**
      * Validates if the selected field is a valid email address
@@ -1887,7 +1812,6 @@ abstract class Validator
             }
         });
     }
-
 
     /**
      * Validates if the selected field is a valid email address
@@ -1912,7 +1836,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Validates if the selected field is a valid domain name
      *
@@ -1935,7 +1858,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Validates if the selected field is a valid IP address
      *
@@ -1956,7 +1878,6 @@ abstract class Validator
             }
         });
     }
-
 
 
     /**
@@ -1992,7 +1913,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Validates if the selected field is a valid CSV string
      *
@@ -2026,7 +1946,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Validates if the selected field is a serialized string
      *
@@ -2054,7 +1973,6 @@ abstract class Validator
             }
         });
     }
-
 
 
     /**
@@ -2085,7 +2003,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Validates if the selected field is a base64 string
      *
@@ -2114,7 +2031,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Sanitize the selected value by trimming whitespace
      *
@@ -2136,7 +2052,6 @@ abstract class Validator
             return trim($value, $characters);
         });
     }
-
 
 
     /**
@@ -2165,7 +2080,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Sanitize the selected value by making the entire string lowercase
      *
@@ -2190,7 +2104,6 @@ abstract class Validator
             }
         });
     }
-
 
 
     /**
@@ -2224,7 +2137,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Sanitize the selected value by decoding the JSON
      *
@@ -2252,7 +2164,6 @@ abstract class Validator
             }
         });
     }
-
 
 
     /**
@@ -2289,7 +2200,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Sanitize the selected value by decoding the specified CSV
      *
@@ -2316,7 +2226,6 @@ abstract class Validator
             }
         });
     }
-
 
 
     /**
@@ -2347,7 +2256,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Sanitize the selected value by decoding the specified CSV
      *
@@ -2374,7 +2282,6 @@ abstract class Validator
             }
         });
     }
-
 
 
     /**
@@ -2405,7 +2312,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Sanitize the selected value by decoding the specified CSV
      *
@@ -2432,7 +2338,6 @@ abstract class Validator
             }
         });
     }
-
 
 
     /**
@@ -2467,7 +2372,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Constructor for all validator types
      *
@@ -2488,7 +2392,6 @@ abstract class Validator
         $this->reflection_selected_optional = new ReflectionProperty($this, 'selected_optional');
         $this->reflection_process_value     = new ReflectionProperty($this, 'process_value');
    }
-
 
 
     /**
@@ -2537,7 +2440,6 @@ abstract class Validator
 
         return $this;
     }
-
 
 
     /**

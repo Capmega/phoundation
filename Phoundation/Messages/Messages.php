@@ -4,7 +4,6 @@ namespace Phoundation\Messages;
 
 use Phoundation\Data\DataEntry\DataList;
 
-
 /**
  * Messages class
  *
@@ -35,7 +34,6 @@ class Messages extends DataList
                                    ORDER BY `title`');
         parent::__construct($parent, $id_column);
     }
-
 
 
     /**

@@ -7,7 +7,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use PHPUnit\Framework\TestCase;
 
 
-
 /**
  * \Phoundation\Core\Strings test class
  */
@@ -32,7 +31,6 @@ class StringsTest extends TestCase
         $this->expectException(OutOfBoundsException::class);
         $this->assertEquals(null, Strings::from('so.oostenbrink@gmail.com', ''));                           // Needle is obligatory
     }
-
 
 
     /**

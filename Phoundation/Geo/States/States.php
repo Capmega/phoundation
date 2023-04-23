@@ -6,7 +6,6 @@ use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Geo\Countries\Country;
 use Phoundation\Web\Http\Html\Components\Table;
 
-
 /**
  * States class
  *
@@ -39,7 +38,6 @@ class States extends DataList
     }
 
 
-
     /**
      * Creates and returns an HTML table for the data in this list
      *
@@ -52,7 +50,6 @@ class States extends DataList
 
         return $table;
     }
-
 
 
     /**

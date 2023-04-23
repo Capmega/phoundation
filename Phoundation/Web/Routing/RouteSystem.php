@@ -11,7 +11,6 @@ use Phoundation\Core\Strings;
 use Phoundation\Templates\Template;
 use Throwable;
 
-
 /**
  * Class RouteSystem
  *
@@ -39,7 +38,6 @@ class RouteSystem
     protected RoutingParameters $parameters;
 
 
-
     /**
      * RouteSystem class constructor
      */
@@ -48,7 +46,6 @@ class RouteSystem
         $this->parameters  = $parameters;
         $this->system_page = Template::page('system/error');
     }
-
 
 
     /**
@@ -61,7 +58,6 @@ class RouteSystem
     {
         return new static($parameters);
     }
-
 
 
     /**
@@ -81,7 +77,6 @@ class RouteSystem
     }
 
 
-
     /**
      * Show the 403 - FORBIDDEN page
      *
@@ -97,7 +92,6 @@ class RouteSystem
             'message' => tr('You need to login to access the specified resource')
         ]);
     }
-
 
 
     /**
@@ -117,7 +111,6 @@ class RouteSystem
     }
 
 
-
     /**
      * Show the 404 - NOT FOUND page
      *
@@ -133,7 +126,6 @@ class RouteSystem
             'message' => tr('The requested URL does not exist on this server'),
         ]);
     }
-
 
 
     /**
@@ -153,7 +145,6 @@ class RouteSystem
     }
 
 
-
     /**
      * Show the 503 - Service unavailable page
      *
@@ -169,7 +160,6 @@ class RouteSystem
             'message' => tr('The server is currently unable to handle the request due to a temporary overload or scheduled maintenance'),
         ]);
     }
-
 
 
     /**

@@ -8,7 +8,6 @@ use Phoundation\Developer\Versioning\Git\Traits\GitProcess;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Processes\Process;
 
-
 /**
  * Class Repositories
  *
@@ -26,7 +25,6 @@ class RemoteRepositories extends Iterator
     }
 
 
-
     /**
      * RemoteRepositories class constructor
      */
@@ -39,7 +37,6 @@ class RemoteRepositories extends Iterator
             ->addArgument('show')
             ->executeReturnArray();
     }
-
 
 
     /**
@@ -57,7 +54,6 @@ class RemoteRepositories extends Iterator
 
         Cli::displayTable($list, ['repository' => tr('Repository')], 'repository');
     }
-
 
 
     /**

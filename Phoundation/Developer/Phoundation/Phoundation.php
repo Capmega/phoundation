@@ -17,7 +17,6 @@ use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Restrictions;
 
-
 /**
  * Class Phoundation
  *
@@ -37,7 +36,6 @@ class Phoundation extends Project
      */
     protected ?string $branch = null;
 
-
     /**
      * Phoundation constructor
      *
@@ -47,7 +45,6 @@ class Phoundation extends Project
     {
         parent::__construct($this->detectLocation($path));
     }
-
 
     /**
      * Detects and returns the location of your phoundation installation
@@ -151,7 +148,6 @@ class Phoundation extends Project
         throw new PhoundationNotFoundException();
     }
 
-
     /**
      * @param string|null $branch
      * @return $this
@@ -176,7 +172,6 @@ class Phoundation extends Project
 
         return $this;
     }
-
 
     /**
      * Copies all phoundation updates from your current project back to Phoundation
@@ -234,7 +229,6 @@ class Phoundation extends Project
     }
 
 
-
     /**
      * Returns true if the specified filesystem location contains a valid Phoundation installation
      *
@@ -252,7 +246,6 @@ class Phoundation extends Project
     }
 
 
-
     /**
      * Ensures that the Phoundation installation has no changes
      *
@@ -267,7 +260,6 @@ class Phoundation extends Project
             ]))->makeWarning();
         }
     }
-
 
     /**
      * Ensure that Phoundation is on the specified branch
@@ -295,7 +287,6 @@ class Phoundation extends Project
             $this->git->checkout($branch);
         }
     }
-
 
 
     /**

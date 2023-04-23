@@ -5,7 +5,6 @@ namespace Templates\AdminLte\Html\Layouts;
 use Phoundation\Web\Http\Html\Renderer;
 
 
-
 /**
  * AdminLte Plugin GridRow class
  *
@@ -25,7 +24,6 @@ class GridRow extends Renderer
     {
         parent::__construct($element);
     }
-
 
 
     /**

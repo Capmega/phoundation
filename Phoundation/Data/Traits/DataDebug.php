@@ -3,7 +3,6 @@
 namespace Phoundation\Data\Traits;
 
 
-
 /**
  * Trait DataDebug 
  *
@@ -19,7 +18,6 @@ trait DataDebug
     protected bool $debug = false;
 
 
-
     /**
      * Returns the debug value
      *
@@ -29,7 +27,6 @@ trait DataDebug
     {
         return $this->debug;
     }
-
 
 
     /**

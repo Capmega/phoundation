@@ -3,7 +3,6 @@
 namespace Phoundation\Accounts\Users;
 
 
-
 /**
  * Class Table
  *

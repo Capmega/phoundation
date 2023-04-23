@@ -13,7 +13,6 @@ use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
 
-
 // Validate GET
 GetValidator::new()
     ->select('id')->isOptional()->isId()
@@ -21,7 +20,6 @@ GetValidator::new()
 
 $notification = Notification::get($_GET['id']);
 $notification->setStatus('READ');
-
 
 // Build the notification form
 $notification_card = Card::new()
@@ -34,14 +32,12 @@ $notification_card = Card::new()
         ->addButton(isset_get($impersonate)));
 
 
-
 // Build relevant links
 $relevant = Card::new()
     ->setMode(DisplayMode::info)
     ->setTitle(tr('Relevant links'))
     ->setContent('<a href="' . UrlBuilder::getWww('/security/incidents.html') . '">' . tr('Security incidents') . '</a><br>
                          <a href="' . UrlBuilder::getWww('/development/incidents.html') . '">' . tr('Development incidents') . '</a>');
-
 
 
 // Build documentation
@@ -53,14 +49,12 @@ $documentation = Card::new()
                          <p>Et molestias aut vitae et autem distinctio. Molestiae quod ullam a. Fugiat veniam dignissimos rem repudiandae consequuntur voluptatem. Enim dolores sunt unde sit dicta animi quod. Nesciunt nisi non ea sequi aut. Suscipit aperiam amet fugit facere dolorem qui deserunt.</p>');
 
 
-
 // Build and render the grid
 $grid = Grid::new()
     ->addColumn($notification_card, 9)
     ->addColumn($relevant->render() . $documentation->render(), 3);
 
 echo $grid->render();
-
 
 // Set page meta data
 Page::setHeaderTitle(tr('Notification'));

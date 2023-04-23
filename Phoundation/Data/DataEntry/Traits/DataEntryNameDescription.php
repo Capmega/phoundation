@@ -2,7 +2,6 @@
 
 namespace Phoundation\Data\DataEntry\Traits;
 
-
 /**
  * Trait DataEntryNameDescription
  *

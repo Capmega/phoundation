@@ -4,7 +4,6 @@ namespace Phoundation\Cli;
 
 use Phoundation\Core\Log\Log;
 
-
 /**
  * Class Documentation
  *
@@ -30,7 +29,6 @@ class Documentation
      */
     protected static bool $usage = false;
 
-
     /**
      * Returns the help text
      *
@@ -49,7 +47,6 @@ class Documentation
     }
 
 
-
     /**
      * Sets the usage text
      *
@@ -66,7 +63,6 @@ class Documentation
             Script::die();
         }
     }
-
 
 
     /**

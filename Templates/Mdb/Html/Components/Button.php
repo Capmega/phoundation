@@ -5,7 +5,6 @@ namespace Templates\Mdb\Html\Components;
 use Phoundation\Web\Http\Html\Renderer;
 
 
-
 /**
  * MDB Plugin Button class
  *

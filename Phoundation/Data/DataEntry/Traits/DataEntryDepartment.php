@@ -4,7 +4,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Business\Companies\Departments\Department;
 
-
 /**
  * Trait DataEntryDepartment
  *
@@ -25,7 +24,6 @@ trait DataEntryDepartment
     protected ?Department $department;
 
 
-
     /**
      * Returns the departments_id for this object
      *
@@ -35,7 +33,6 @@ trait DataEntryDepartment
     {
         return $this->getDataValue('departments_id');
     }
-
 
 
     /**
@@ -48,7 +45,6 @@ trait DataEntryDepartment
     {
         return $this->setDataValue('departments_id', $departments_id);
     }
-
 
 
     /**
@@ -66,7 +62,6 @@ trait DataEntryDepartment
 
         return null;
     }
-
 
 
     /**

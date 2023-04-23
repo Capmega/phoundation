@@ -2,7 +2,6 @@
 
 namespace Phoundation\Core;
 
-
 use Phoundation\Accounts\Rights\Right;
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Core\Locale\Language\Import;
@@ -31,7 +30,6 @@ class Updates extends Libraries\Updates
     }
 
 
-
     /**
      * The description for this library
      *
@@ -41,7 +39,6 @@ class Updates extends Libraries\Updates
     {
         return tr('The Core library is the most basic library in the entire Phoundation framwork. It contains all the low level libraries used by all other libraries and is an essential component of your entire system. Do NOT modify!');
     }
-
 
 
     /**

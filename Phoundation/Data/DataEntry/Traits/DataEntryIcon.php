@@ -5,7 +5,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 use Phoundation\Exception\OutOfBoundsException;
 
 
-
 /**
  * Trait DataEntryIcon
  *
@@ -41,7 +40,6 @@ trait DataEntryIcon
     }
 
 
-
     /**
      * Sets the icon for this object
      *
@@ -59,5 +57,4 @@ trait DataEntryIcon
         return $this->setDataValue('icon', $icon);
     }
 }
-
 

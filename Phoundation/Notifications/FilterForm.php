@@ -3,7 +3,6 @@
 namespace Phoundation\Notifications;
 
 
-
 /**
  * Class FilterForm
  *
@@ -44,7 +43,6 @@ class FilterForm extends \Phoundation\Web\Http\Html\Components\FilterForm
             'filter[]' => 6,
         ];
     }
-
 
 
     /**

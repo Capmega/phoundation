@@ -5,7 +5,6 @@ namespace Templates\None;
 use Phoundation\Web\Http\Html\Template\Template;
 use Templates\None\Html\Components\Menu;
 
-
 /**
  * Class None
  *
@@ -34,7 +33,6 @@ class None extends Template
     }
 
 
-
     /**
      * Return a description for this template
      *
@@ -44,7 +42,6 @@ class None extends Template
     {
         return 'This is the None template, a template that will build *nothing* and allows (and requires) you to build all the HTML yourself';
     }
-
 
 
     /**

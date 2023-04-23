@@ -8,7 +8,6 @@ use Phoundation\Core\Strings;
 use Phoundation\Filesystem\File;
 use Phoundation\Web\Http\Html\Components\Img;
 
-
 /**
  * Class Image
  *
@@ -36,7 +35,6 @@ class Image extends Content
     protected ?string $description = null;
 
 
-
     /**
      * Returns a Convert class to convert the specified image
      *
@@ -49,7 +47,6 @@ class Image extends Content
 
         return $convert;
     }
-
 
 
     /**
@@ -65,7 +62,6 @@ class Image extends Content
     }
 
 
-
     /**
      * Returns the image description
      *
@@ -75,7 +71,6 @@ class Image extends Content
     {
         return $this->description;
     }
-
 
 
     /**
@@ -118,7 +113,6 @@ class Image extends Content
     }
 
 
-
     /**
      * Returns an HTML Img element for this image
      *
@@ -130,7 +124,6 @@ class Image extends Content
             ->setSrc($this->file)
             ->setAlt($this->description);
     }
-
 
 
     /**

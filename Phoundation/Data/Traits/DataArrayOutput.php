@@ -2,7 +2,6 @@
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait DataArrayOutput
  *
@@ -21,7 +20,6 @@ trait DataArrayOutput
      * @var array|null $output
      */
     protected ?array $output = null;
-
 
     /**
      * Returns the output

@@ -11,7 +11,6 @@ use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Databases\Sql\QueryBuilder;
 use Phoundation\Web\Http\Html\Components\Input\Select;
 
-
 /**
  * Class Roles
  *
@@ -42,7 +41,6 @@ class Roles extends DataList
                                    ORDER BY `name`');
         parent::__construct($parent, $id_column);
     }
-
 
     /**
      * Set the entries to the specified list
@@ -76,7 +74,6 @@ class Roles extends DataList
 
         return $this;
     }
-
 
 
     /**
@@ -149,7 +146,6 @@ class Roles extends DataList
     }
 
 
-
     /**
      * Remove the specified role from the roles list
      *
@@ -215,7 +211,6 @@ class Roles extends DataList
     }
 
 
-
     /**
      * Remove all rights for this right
      *
@@ -246,7 +241,6 @@ class Roles extends DataList
 
         return parent::clearEntries();
     }
-
 
 
     /**
@@ -286,7 +280,6 @@ class Roles extends DataList
         $this->list = array_flip($this->list);
         return $this;
     }
-
 
 
     /**
@@ -386,7 +379,6 @@ class Roles extends DataList
     }
 
 
-
     /**
      * Save the data for this roles list in the database
      *
@@ -425,7 +417,6 @@ class Roles extends DataList
 
         return $this;
     }
-
 
 
     /**

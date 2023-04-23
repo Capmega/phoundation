@@ -4,7 +4,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Seo\Seo;
 
-
 /**
  * Trait DataEntryName
  *
@@ -28,7 +27,6 @@ trait DataEntryName
     }
 
 
-
     /**
      * Returns the name for this object
      *
@@ -38,7 +36,6 @@ trait DataEntryName
     {
         return $this->getDataValue('name');
     }
-
 
 
     /**

@@ -15,7 +15,6 @@ use Phoundation\Filesystem\Restrictions;
 use Phoundation\Geo\Timezones\Timezones;
 use Phoundation\Processes\Commands\Grep;
 
-
 /**
  * Class AutoComplete
  *
@@ -61,7 +60,6 @@ class AutoComplete
     protected static array $system_arguments;
 
 
-
     /**
      * Returns true if auto complete mode is active
      *
@@ -71,7 +69,6 @@ class AutoComplete
     {
         return self::$position !== null;
     }
-
 
 
     /**
@@ -116,7 +113,6 @@ class AutoComplete
     }
 
 
-
     /**
      * Get the word location for auto complete
      *
@@ -126,7 +122,6 @@ class AutoComplete
     {
         return self::$position;
     }
-
 
 
     /**
@@ -232,7 +227,6 @@ class AutoComplete
 
 
 
-
     /**
      * Process auto complete for this script from the definitions specified by the script
      *
@@ -278,7 +272,6 @@ class AutoComplete
     }
 
 
-
     /**
      * Process script arguments
      *
@@ -293,7 +286,6 @@ class AutoComplete
             self::processArguments(self::$system_arguments);
         }
     }
-
 
 
     /**
@@ -315,7 +307,6 @@ class AutoComplete
 
         return !empty(File::new(self::$script, PATH_ROOT . 'scripts/')->grep(['Documentation::autoComplete('], 100));
     }
-
 
 
     /**
@@ -355,7 +346,6 @@ complete -F _phoundation pho');
 
         Log::information('Setup auto complete for Phoundation in ~/.bash_completion');
     }
-
 
 
     /**
@@ -425,7 +415,6 @@ complete -F _phoundation pho');
             Script::die();
         }
     }
-
 
 
     /**

@@ -8,7 +8,6 @@ use Phoundation\Data\Traits\DataSource;
 use Phoundation\Data\Traits\DataTarget;
 
 
-
 /**
  * Class Axel
  *
@@ -24,7 +23,6 @@ class Axel extends Command
     use DataSource;
     use DataTarget;
     use DataBindAddress;
-
 
 
     /**

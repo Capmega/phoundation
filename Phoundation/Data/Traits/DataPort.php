@@ -5,7 +5,6 @@ namespace Phoundation\Data\Traits;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 
-
 /**
  * Trait DataPort
  *
@@ -26,7 +25,6 @@ trait DataPort
     protected ?int $port = null;
 
 
-
     /**
      * Returns the port
      *
@@ -36,7 +34,6 @@ trait DataPort
     {
         return $this->port;
     }
-
 
 
     /**

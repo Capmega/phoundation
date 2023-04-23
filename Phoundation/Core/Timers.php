@@ -3,7 +3,6 @@
 namespace Phoundation\Core;
 
 
-
 use Phoundation\Exception\OutOfBoundsException;
 
 /**
@@ -27,7 +26,6 @@ class Timers
     protected static array $timers = [];
 
 
-
     /**
      * Add the specified timer object to the timer register
      *
@@ -46,7 +44,6 @@ class Timers
     }
 
 
-
     /**
      * Returns the specified timer
      *
@@ -62,7 +59,6 @@ class Timers
 
         return static::$timers[$name];
     }
-
 
 
     /**

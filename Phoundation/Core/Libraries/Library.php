@@ -12,7 +12,6 @@ use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Path;
 use Phoundation\Utils\Json;
 
-
 /**
  * Library class
  *
@@ -47,7 +46,6 @@ class Library
     protected ?Updates $updates = null;
 
 
-
     /**
      * Library constructor
      *
@@ -65,7 +63,6 @@ class Library
     }
 
 
-
     /**
      * Return the object contents in JSON string format
      *
@@ -75,7 +72,6 @@ class Library
     {
         return Json::encode($this);
     }
-
 
 
     /**
@@ -91,7 +87,6 @@ class Library
             'description' => $this->getDescription()
         ];
     }
-
 
 
     /**
@@ -129,7 +124,6 @@ class Library
     }
 
 
-
     /**
      * Initialize this library
      *
@@ -161,7 +155,6 @@ class Library
     }
 
 
-
     /**
      * Returns the type of library; system or plugin
      *
@@ -186,7 +179,6 @@ class Library
     }
 
 
-
     /**
      * Returns true if the library is a system library
      *
@@ -196,7 +188,6 @@ class Library
     {
         return $this->getType() === 'system';
     }
-
 
 
     /**
@@ -210,7 +201,6 @@ class Library
     }
 
 
-
     /**
      * Returns true if the library is a template library
      *
@@ -220,7 +210,6 @@ class Library
     {
         return $this->getType() === 'template';
     }
-
 
 
     /**
@@ -234,7 +223,6 @@ class Library
     }
 
 
-
     /**
      * Returns the library name
      *
@@ -244,7 +232,6 @@ class Library
     {
         return $this->library;
     }
-
 
 
     /**
@@ -258,7 +245,6 @@ class Library
     }
 
 
-
     /**
      * Returns the database version for this library
      *
@@ -268,7 +254,6 @@ class Library
     {
         return $this->updates?->getDatabaseVersion();
     }
-
 
 
     /**
@@ -282,7 +267,6 @@ class Library
     }
 
 
-
     /**
      * Returns the size of all files in this library in bytes
      *
@@ -292,7 +276,6 @@ class Library
     {
         return Path::new($this->path, PATH_ROOT)->treeFileSize();
     }
-
 
 
     /**
@@ -306,7 +289,6 @@ class Library
     }
 
 
-
     /**
      * Returns the description for this library
      *
@@ -318,7 +300,6 @@ class Library
     }
 
 
-
     /**
      * Returns the PhpStatistics object for this library
      *
@@ -328,7 +309,6 @@ class Library
     {
         return Path::new($this->getPath(), [PATH_WWW, PATH_ROOT . '/scripts/', LIBRARIES::CLASS_PATH_SYSTEM, LIBRARIES::CLASS_PATH_PLUGINS, LIBRARIES::CLASS_PATH_TEMPLATES])->getPhpStatistics(true);
     }
-
 
 
     /**
@@ -375,7 +355,6 @@ class Library
     }
 
 
-
     /**
      * Get the .php file for the specified class path
      *
@@ -407,7 +386,6 @@ class Library
     }
 
 
-
     /**
      * Get the .php file for the specified class path
      *
@@ -420,7 +398,6 @@ class Library
         Log::action(tr('Including class file ":file"', [':file' => $file]), 2);
         include_once($file);
     }
-
 
 
     /**
@@ -465,7 +442,6 @@ class Library
             $this->updates = null;
         }
     }
-
 
     /**
      * This method will check the structure of the library and make sure everything is in working order

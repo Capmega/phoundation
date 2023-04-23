@@ -5,7 +5,6 @@ namespace Templates\AdminLte;
 use Phoundation\Web\Http\Html\Template\Template;
 use Templates\AdminLte\Html\Components\Menu;
 
-
 /**
  * Class AdminLte
  *
@@ -33,7 +32,6 @@ class AdminLte extends Template
     }
 
 
-
     /**
      * Return a description for this template
      *
@@ -43,7 +41,6 @@ class AdminLte extends Template
     {
         return 'This is the AdminLte admin template for your website. You are free to add or build other templates';
     }
-
 
 
     /**

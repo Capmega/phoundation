@@ -11,7 +11,6 @@ use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Path;
 use Phoundation\Processes\Process;
 
-
 /**
  * Class Git
  *
@@ -39,7 +38,6 @@ class Git extends Versioning
     protected Process $git;
 
 
-
     /**
      * Git class constructor
      *
@@ -49,7 +47,6 @@ class Git extends Versioning
     {
         $this->setPath($path);
     }
-
 
 
     /**
@@ -64,7 +61,6 @@ class Git extends Versioning
     }
 
 
-
     /**
      * Returns the path for this ChangedFiles object
      *
@@ -74,7 +70,6 @@ class Git extends Versioning
     {
         return $this->path;
     }
-
 
 
     /**
@@ -100,7 +95,6 @@ class Git extends Versioning
     }
 
 
-
     /**
      * Clone the specified URL to this path
      *
@@ -118,7 +112,6 @@ class Git extends Versioning
         Log::notice($output, 4, false);
         return $this;
     }
-
 
 
     /**
@@ -145,7 +138,6 @@ class Git extends Versioning
     }
 
 
-
     /**
      * Returns the current git branch for this path
      *
@@ -165,7 +157,6 @@ class Git extends Versioning
     }
 
 
-
     /**
      * Returns all available git repositories
      *
@@ -175,7 +166,6 @@ class Git extends Versioning
     {
         return RemoteRepositories::new($this->path);
     }
-
 
 
     /**
@@ -189,7 +179,6 @@ class Git extends Versioning
     }
 
 
-
     /**
      * Stashes the git changes
      *
@@ -199,7 +188,6 @@ class Git extends Versioning
     {
         return Stash::new($this->path);
     }
-
 
 
     /**
@@ -221,7 +209,6 @@ class Git extends Versioning
     }
 
 
-
     /**
      * Resets the current branch to the specified revision
      *
@@ -241,7 +228,6 @@ class Git extends Versioning
         Log::notice($output, 4, false);
         return $this;
     }
-
 
 
     /**
@@ -267,7 +253,6 @@ class Git extends Versioning
     }
 
 
-
     /**
      * Resets the current branch to the specified revision
      *
@@ -290,7 +275,6 @@ class Git extends Versioning
     }
 
 
-
     /**
      * Returns a ChangedFiles object containing all the files that have changes according to git
      *
@@ -303,7 +287,6 @@ class Git extends Versioning
     }
 
 
-
     /**
      * Returns if this git path has any changes
      *
@@ -313,7 +296,6 @@ class Git extends Versioning
     {
         return (bool) $this->getStatus()->getCount();
     }
-
 
 
     /**
@@ -334,7 +316,6 @@ class Git extends Versioning
             ->addArguments($files)
             ->executeReturnString();
     }
-
 
 
     /**
@@ -360,7 +341,6 @@ class Git extends Versioning
         Log::warning(tr('Files ":files" has / have no diff', [':files' => $files]));
         return null;
     }
-
 
 
     /**
@@ -391,7 +371,6 @@ class Git extends Versioning
     }
 
 
-
     /**
      * Push the local changes to the remote repository / branch
      *
@@ -413,7 +392,6 @@ class Git extends Versioning
     }
 
 
-
     /**
      * Merge the specified branch into this one
      *
@@ -431,7 +409,6 @@ class Git extends Versioning
         Log::notice($output, 4, false);
         return $this;
     }
-
 
 
     /**

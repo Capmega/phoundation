@@ -3,7 +3,6 @@
 namespace Phoundation\Developer\Project;
 
 
-
 /**
  * Database class
  *
@@ -45,7 +44,6 @@ class Database
     protected ?string $pass = null;
 
 
-
     /**
      * Returns the configured host for this environment
      *
@@ -55,7 +53,6 @@ class Database
     {
         return $this->host;
     }
-
 
 
     /**
@@ -71,7 +68,6 @@ class Database
     }
 
 
-
     /**
      * Returns the configured database name for this environment
      *
@@ -81,7 +77,6 @@ class Database
     {
         return $this->name;
     }
-
 
 
     /**
@@ -97,7 +92,6 @@ class Database
     }
 
 
-
     /**
      * Returns the configured user for this environment
      *
@@ -107,7 +101,6 @@ class Database
     {
         return $this->user;
     }
-
 
 
     /**
@@ -123,7 +116,6 @@ class Database
     }
 
 
-
     /**
      * Returns the configured password for this environment
      *
@@ -133,7 +125,6 @@ class Database
     {
         return $this->pass;
     }
-
 
 
     /**

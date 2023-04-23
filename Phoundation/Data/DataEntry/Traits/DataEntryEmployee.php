@@ -4,7 +4,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Business\Companies\Employees\Employee;
 
-
 /**
  * Trait DataEntryEmployee
  *
@@ -25,7 +24,6 @@ trait DataEntryEmployee
     protected ?Employee $employee;
 
 
-
     /**
      * Returns the employees_id for this object
      *
@@ -35,7 +33,6 @@ trait DataEntryEmployee
     {
         return $this->getDataValue('employees_id');
     }
-
 
 
     /**
@@ -48,7 +45,6 @@ trait DataEntryEmployee
     {
         return $this->setDataValue('employees_id', $employees_id);
     }
-
 
 
     /**
@@ -66,7 +62,6 @@ trait DataEntryEmployee
 
         return null;
     }
-
 
 
     /**

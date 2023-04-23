@@ -131,7 +131,6 @@ class socialmedia_oauth_connect
 				$this->header="Authorization: Bearer ";
 				break;
 
-
 			case 'Microsoft':
 				$this->oauth_version="2.0";
 				$this->dialogUrl = 'https://login.live.com/oauth20_authorize.srf?';
@@ -140,7 +139,6 @@ class socialmedia_oauth_connect
 				$this->userProfileUrl = "https://apis.live.net/v5.0/me?access_token=";
 				$this->header="";
 				break;
-
 
 			case 'Foursquare':
 				$this->oauth_version="2.0";
@@ -231,7 +229,6 @@ class socialmedia_oauth_connect
 				$this->responseType="code";
 				$this->userProfileUrl = "https://api.linkedin.com/v1/people/~?format=json&oauth2_access_token=";
 				break;
-
 
 			case 'Flattr':
 				$this->oauth_version="2.0";
@@ -326,12 +323,10 @@ class socialmedia_oauth_connect
 				$this->header="Authorization: Bearer ";
 				break;
 
-
 			default:
 				return($this->provider.'is not yet a supported. We will release soon. Contact kayalshri@gmail.com!' );
 		}
   	}
-
 
 
   	public function Authorize() {
@@ -359,7 +354,6 @@ class socialmedia_oauth_connect
      			$redirect_url = $request_url."".$postvals;
 
 
-
      			$oauth_redirect_value= $this->curl_request($redirect_url,'GET','');
 
   			$dialog_url = $this->dialogUrl.$oauth_redirect_value;
@@ -368,7 +362,6 @@ class socialmedia_oauth_connect
      		}
 
   	}
-
 
   	public function getAccessToken() {
 		$postvals = "client_id=".$this->client_id

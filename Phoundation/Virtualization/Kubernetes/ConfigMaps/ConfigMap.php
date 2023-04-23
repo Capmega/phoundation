@@ -4,7 +4,6 @@ namespace Phoundation\Virtualization\Kubernetes\ConfigMaps;
 
 use Phoundation\Virtualization\Kubernetes\KubernetesObject;
 
-
 /**
  * Class ConfigMap
  *

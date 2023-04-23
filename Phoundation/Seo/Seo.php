@@ -7,7 +7,6 @@ use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 
 
-
 /**
  * Class Seo
  *
@@ -165,7 +164,6 @@ class Seo
             $id++;
         }
     }
-
 
 
     /**

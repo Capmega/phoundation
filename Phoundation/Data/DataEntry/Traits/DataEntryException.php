@@ -5,7 +5,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 use Phoundation\Exception\Exception;
 use Throwable;
 
-
 /**
  * Trait DataEntryException
  *
@@ -27,7 +26,6 @@ trait DataEntryException
     {
         return Exception::import($this->getDataValue('exception'));
     }
-
 
 
     /**

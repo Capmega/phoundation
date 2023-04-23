@@ -7,7 +7,6 @@ use Phoundation\Databases\Sql\Sql;
 
 
 
-
 /**
  * Databases class
  *
@@ -56,7 +55,6 @@ class Databases
     protected static array $null_db = [];
 
 
-
     /**
      * Access SQL database instances
      *
@@ -80,7 +78,6 @@ class Databases
 
         return static::$sql[$instance];
     }
-
 
 
     /**
@@ -107,7 +104,6 @@ class Databases
     }
 
 
-
     /**
      * Access Redis database instances
      *
@@ -132,7 +128,6 @@ class Databases
     }
 
 
-
     /**
      * Access Mongo database instances
      *
@@ -155,7 +150,6 @@ class Databases
 
         return static::$mongo[$instance];
     }
-
 
 
     /**

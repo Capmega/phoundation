@@ -6,7 +6,6 @@ use Phoundation\Developer\Exception\DeveloperException;
 use Throwable;
 
 
-
 /**
  * Class PhoundationNotFoundException
  *

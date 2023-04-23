@@ -13,7 +13,6 @@ use Phoundation\Geo\Continents\Continent;
 use Phoundation\Geo\Timezones\Timezone;
 use Phoundation\Web\Http\Html\Components\Input\Select;
 
-
 /**
  * Class Country
  *
@@ -29,7 +28,6 @@ class Country extends DataEntry
 {
     use DataEntryNameDescription;
 
-
     /**
      * Country class constructor
      *
@@ -44,7 +42,6 @@ class Country extends DataEntry
         parent::__construct($identifier);
     }
 
-
     /**
      * Returns the general timezone for this country
      *
@@ -56,7 +53,6 @@ class Country extends DataEntry
     }
 
 
-
     /**
      * Returns the continent for this country
      *
@@ -66,7 +62,6 @@ class Country extends DataEntry
     {
         return new Continent($this->getDataValue('continents_id'));
     }
-
 
 
     /**
@@ -87,7 +82,6 @@ class Country extends DataEntry
             ->setNone(tr('Please select a state'))
             ->setEmpty(tr('No states available'));
     }
-
 
 
     /**
@@ -118,7 +112,6 @@ class Country extends DataEntry
 
         return $data;
     }
-
 
     /**
      * Sets the available data keys for this entry

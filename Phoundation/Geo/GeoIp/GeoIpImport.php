@@ -4,7 +4,6 @@ namespace Phoundation\Geo\GeoIp;
 
 use Phoundation\Filesystem\Restrictions;
 
-
 /**
  * GeoIpImport class
  *
@@ -29,7 +28,6 @@ abstract class GeoIpImport extends Import
      * @return string
      */
     abstract public static function download(): string;
-
 
     /**
      * Process downloaded GeoIP files

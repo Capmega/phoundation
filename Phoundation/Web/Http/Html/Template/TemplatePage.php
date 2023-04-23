@@ -7,7 +7,6 @@ use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Page;
 
 
-
 /**
  * Template class
  *
@@ -57,7 +56,6 @@ abstract class TemplatePage
     }
 
 
-
     /**
      * Build the page body
      *
@@ -68,7 +66,6 @@ abstract class TemplatePage
     {
         return execute_page($target);
     }
-
 
 
     /**

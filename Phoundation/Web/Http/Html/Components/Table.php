@@ -11,7 +11,6 @@ use Phoundation\Web\Http\Html\Components\Input\InputCheckbox;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
 use Phoundation\Web\Http\UrlBuilder;
 
-
 /**
  * Class Table
  *
@@ -115,7 +114,6 @@ class Table extends ResourceElement
      */
     protected bool $process_entities = true;
 
-
     /**
      * Table constructor
      */
@@ -124,7 +122,6 @@ class Table extends ResourceElement
         parent::__construct();
         parent::setElement('table');
     }
-
 
 
     /**
@@ -136,7 +133,6 @@ class Table extends ResourceElement
     {
         return $this->title;
     }
-
 
 
     /**
@@ -152,7 +148,6 @@ class Table extends ResourceElement
     }
 
 
-
     /**
      * Returns if the table is header_text or not
      *
@@ -162,7 +157,6 @@ class Table extends ResourceElement
     {
         return $this->header_text;
     }
-
 
 
     /**
@@ -178,7 +172,6 @@ class Table extends ResourceElement
     }
 
 
-
     /**
      * Returns if the table is responsive or not
      *
@@ -188,7 +181,6 @@ class Table extends ResourceElement
     {
         return $this->responsive;
     }
-
 
 
     /**
@@ -204,7 +196,6 @@ class Table extends ResourceElement
     }
 
 
-
     /**
      * Sets if the table will process entities in the source data or not
      *
@@ -214,7 +205,6 @@ class Table extends ResourceElement
     {
         return $this->process_entities;
     }
-
 
 
     /**
@@ -230,7 +220,6 @@ class Table extends ResourceElement
     }
 
 
-
     /**
      * Returns if the table is full width or not
      *
@@ -240,7 +229,6 @@ class Table extends ResourceElement
     {
         return $this->full_width;
     }
-
 
 
     /**
@@ -256,7 +244,6 @@ class Table extends ResourceElement
     }
 
 
-
     /**
      * Clears the table's column conversions
      *
@@ -267,7 +254,6 @@ class Table extends ResourceElement
         $this->convert_columns = [];
         return $this;
     }
-
 
 
     /**
@@ -281,7 +267,6 @@ class Table extends ResourceElement
         $this->convert_columns = [];
         return $this->addConvertColumns($convert_columns);
     }
-
 
 
     /**
@@ -300,7 +285,6 @@ class Table extends ResourceElement
     }
 
 
-
     /**
      * Adds single table column conversions
      *
@@ -315,7 +299,6 @@ class Table extends ResourceElement
     }
 
 
-
     /**
      * Returns the table's column conversions
      *
@@ -325,7 +308,6 @@ class Table extends ResourceElement
     {
         return $this->convert_columns;
     }
-
 
 
     /**
@@ -340,7 +322,6 @@ class Table extends ResourceElement
     }
 
 
-
     /**
      * Sets the table's  top buttons
      *
@@ -352,7 +333,6 @@ class Table extends ResourceElement
         $this->top_buttons = [];
         return $this->addTopButtons($top_buttons);
     }
-
 
 
     /**
@@ -371,7 +351,6 @@ class Table extends ResourceElement
     }
 
 
-
     /**
      * Adds single button to the table's top buttons
      *
@@ -385,7 +364,6 @@ class Table extends ResourceElement
     }
 
 
-
     /**
      * Returns the table's top buttons
      *
@@ -395,7 +373,6 @@ class Table extends ResourceElement
     {
         return $this->top_buttons;
     }
-
 
 
     /**
@@ -410,7 +387,6 @@ class Table extends ResourceElement
     }
 
 
-
     /**
      * Sets the HTML row_class element attribute
      *
@@ -422,7 +398,6 @@ class Table extends ResourceElement
         $this->row_classes = [];
         return $this->addRowClasses($row_classes);
     }
-
 
 
     /**
@@ -441,7 +416,6 @@ class Table extends ResourceElement
     }
 
 
-
     /**
      * Adds a row_class to the HTML row_class element attribute
      *
@@ -455,7 +429,6 @@ class Table extends ResourceElement
     }
 
 
-
     /**
      * Returns the HTML row_class element attribute
      *
@@ -465,7 +438,6 @@ class Table extends ResourceElement
     {
         return $this->row_classes;
     }
-
 
 
     /**
@@ -483,7 +455,6 @@ class Table extends ResourceElement
     }
 
 
-
     /**
      * Returns the URL that applies to each column
      *
@@ -493,7 +464,6 @@ class Table extends ResourceElement
     {
         return $this->column_url;
     }
-
 
 
     /**
@@ -510,7 +480,6 @@ class Table extends ResourceElement
     }
 
 
-
     /**
      * Returns if the first column will automatically be converted to checkboxes
      *
@@ -520,7 +489,6 @@ class Table extends ResourceElement
     {
         return $this->checkbox_selectors;
     }
-
 
 
     /**
@@ -536,7 +504,6 @@ class Table extends ResourceElement
     }
 
 
-
     /**
      * Returns the URL that applies to each row
      *
@@ -546,7 +513,6 @@ class Table extends ResourceElement
     {
         return $this->row_url;
     }
-
 
 
     /**
@@ -562,7 +528,6 @@ class Table extends ResourceElement
     }
 
 
-
     /**
      * Clears the table headers
      *
@@ -573,7 +538,6 @@ class Table extends ResourceElement
         $this->column_headers = [];
         return $this;
     }
-
 
 
     /**
@@ -587,7 +551,6 @@ class Table extends ResourceElement
         $this->column_headers = [];
         return $this->addColumnHeaders($headers);
     }
-
 
 
     /**
@@ -606,7 +569,6 @@ class Table extends ResourceElement
     }
 
 
-
     /**
      * Adds a header to the table headers
      *
@@ -623,7 +585,6 @@ class Table extends ResourceElement
     }
 
 
-
     /**
      * Returns the table headers
      *
@@ -633,7 +594,6 @@ class Table extends ResourceElement
     {
         return $this->column_headers;
     }
-
 
 
     /**
@@ -667,7 +627,6 @@ class Table extends ResourceElement
 
         return $this->renderHeaders() . $return;
     }
-
 
 
     /**
@@ -730,7 +689,6 @@ class Table extends ResourceElement
     }
 
 
-
     /**
      * Generates and returns the HTML string for a table body from an array source
      *
@@ -763,7 +721,6 @@ class Table extends ResourceElement
     }
 
 
-
     /**
      * Render an <option> for "this select has no data and is empty"
      *
@@ -778,7 +735,6 @@ class Table extends ResourceElement
 
         return '';
     }
-
 
 
     /**
@@ -809,7 +765,6 @@ class Table extends ResourceElement
     }
 
 
-
     /**
      * Builds and returns the class string
      *
@@ -825,7 +780,6 @@ class Table extends ResourceElement
 
         return null;
     }
-
 
 
     /**
@@ -875,7 +829,6 @@ class Table extends ResourceElement
 
         return $return . '</tr>';
     }
-
 
 
     /**
@@ -936,7 +889,6 @@ class Table extends ResourceElement
 
         return '<td>' . $value . '</td>';
     }
-
 
 
     /**

@@ -3,7 +3,6 @@
 namespace Phoundation\Data\Traits;
 
 
-
 /**
  * Trait DataSelector
  *
@@ -19,7 +18,6 @@ trait DataSelector
     protected string $selector;
 
 
-
     /**
      * Returns the source
      *
@@ -29,7 +27,6 @@ trait DataSelector
     {
         return $this->selector;
     }
-
 
 
     /**

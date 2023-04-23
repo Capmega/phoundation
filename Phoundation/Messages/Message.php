@@ -8,7 +8,6 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\UnderConstructionException;
 
-
 /**
  * Message class
  *
@@ -50,7 +49,6 @@ class Message extends DataEntry
 
         return $data;
     }
-
 
     /**
      * Sets the available data keys for this entry

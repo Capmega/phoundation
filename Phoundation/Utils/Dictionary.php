@@ -3,7 +3,6 @@
 namespace Phoundation\Utils;
 
 
-
 /**
  * Class Words
  *
@@ -25,7 +24,6 @@ class Dictionary
     protected ?string $language = null;
 
 
-
     /**
      * Dictionary class constructor
      *
@@ -35,7 +33,6 @@ class Dictionary
     {
 
     }
-
 
 
     /**

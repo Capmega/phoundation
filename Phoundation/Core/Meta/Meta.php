@@ -11,7 +11,6 @@ use Phoundation\Web\Http\Html\Components\Table;
 use Phoundation\Web\Http\UrlBuilder;
 
 
-
 /**
  * Meta class
  *
@@ -44,7 +43,6 @@ class Meta
      * @var array $history
      */
     protected array $history = [];
-
 
     /**
      * Meta constructor
@@ -85,7 +83,6 @@ class Meta
         }
     }
 
-
     /**
      * Returns the Meta id
      *
@@ -95,7 +92,6 @@ class Meta
     {
         return (string) $this->id;
     }
-
 
     /**
      * Returns a new Meta object
@@ -108,7 +104,6 @@ class Meta
         return new static();
     }
 
-
     /**
      * Returns if meta system is enabled or not
      *
@@ -118,7 +113,6 @@ class Meta
     {
         return self::$enbabled;
     }
-
 
 
     /**
@@ -132,7 +126,6 @@ class Meta
     }
 
 
-
     /**
      * Disable meta data processing
      *
@@ -142,7 +135,6 @@ class Meta
     {
         self::$enbabled = false;
     }
-
 
 
     /**
@@ -157,7 +149,6 @@ class Meta
     }
 
 
-
     /**
      * Returns the id for this metadata object
      *
@@ -167,7 +158,6 @@ class Meta
     {
         return $this->id;
     }
-
 
 
     /**
@@ -189,7 +179,6 @@ class Meta
         // Return an empty meta-object that won't store any actions
         return new Meta(0);
     }
-
 
 
     /**
@@ -219,7 +208,6 @@ class Meta
     }
 
 
-
     /**
      * Creates and returns an HTML table for the data in this list
      *
@@ -230,7 +218,6 @@ class Meta
         // Create and return the table
         return Table::new()->setSourceQuery('SELECT * FROM `meta_history` WHERE `meta_id` = :meta_id', [':meta_id' => $this->id]);
     }
-
 
 
     /**

@@ -7,7 +7,6 @@ use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Exception\ProcessFailedException;
 
-
 /**
  * Class StatusFile
  *
@@ -42,7 +41,6 @@ class StatusFile
     protected Status $status;
 
 
-
     /**
      * ChangedFile class constructor
      *
@@ -56,7 +54,6 @@ class StatusFile
         $this->target = $target;
         $this->status = (is_string($status) ? new Status($status) : $status);
     }
-
 
 
     /**
@@ -73,7 +70,6 @@ class StatusFile
     }
 
 
-
     /**
      * Returns the file name
      *
@@ -83,7 +79,6 @@ class StatusFile
     {
         return $this->file;
     }
-
 
 
     /**
@@ -97,7 +92,6 @@ class StatusFile
     }
 
 
-
     /**
      * Returns the status for this file
      *
@@ -107,7 +101,6 @@ class StatusFile
     {
         return $this->status;
     }
-
 
 
     /**
@@ -123,7 +116,6 @@ class StatusFile
 
         return Git::new(dirname($this->file))->saveDiff(basename($this->file));
     }
-
 
 
     /**

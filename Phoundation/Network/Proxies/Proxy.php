@@ -3,7 +3,6 @@
 namespace Phoundation\Network\Proxies;
 
 
-
 /**
  * Class Proxy
  *
@@ -20,7 +19,6 @@ class Proxy
     {
 
     }
-
 
 
     /**

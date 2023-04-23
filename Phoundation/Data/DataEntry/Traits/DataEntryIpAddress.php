@@ -2,7 +2,6 @@
 
 namespace Phoundation\Data\DataEntry\Traits;
 
-
 /**
  * Trait DataEntryIpAddress
  *
@@ -24,7 +23,6 @@ trait DataEntryIpAddress
     {
         return $this->getDataValue('ip_address');
     }
-
 
 
     /**

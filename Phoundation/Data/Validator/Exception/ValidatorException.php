@@ -5,7 +5,6 @@ namespace Phoundation\Data\Validator\Exception;
 use Phoundation\Data\Exception\DataException;
 
 
-
 /**
  * Class ValidatorException
  *

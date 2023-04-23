@@ -6,7 +6,6 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Exception\UnderConstructionException;
 
-
 /**
  * Schema class
  *
@@ -41,7 +40,6 @@ class Database extends SchemaAbstract
     protected array $tables = [];
 
 
-
     /**
      * Returns if the database exists in the database or not
      *
@@ -54,7 +52,6 @@ class Database extends SchemaAbstract
     }
 
 
-
     /**
      * Returns the database name
      *
@@ -64,7 +61,6 @@ class Database extends SchemaAbstract
     {
         return $this->sql->getDatabase();
     }
-
 
 
     /**
@@ -80,7 +76,6 @@ class Database extends SchemaAbstract
     {
         throw new UnderConstructionException();
     }
-
 
 
     /**
@@ -106,7 +101,6 @@ class Database extends SchemaAbstract
     }
 
 
-
     /**
      * Drop this database
      *
@@ -124,7 +118,6 @@ class Database extends SchemaAbstract
     }
 
 
-
     /**
      * Use the specified database name
      *
@@ -135,7 +128,6 @@ class Database extends SchemaAbstract
     {
         $this->sql->use($name);
     }
-
 
 
     /**
@@ -153,7 +145,6 @@ class Database extends SchemaAbstract
 
         return $this->tables[$name];
     }
-
 
 
     /**

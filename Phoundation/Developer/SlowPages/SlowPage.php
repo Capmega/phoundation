@@ -5,7 +5,6 @@ namespace Phoundation\Developer\SlowPages;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
 use Phoundation\Developer\Incidents\Incident;
 
-
 /**
  * SlowPage class
  *

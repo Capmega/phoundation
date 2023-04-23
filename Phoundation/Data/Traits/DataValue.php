@@ -2,7 +2,6 @@
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait DataValue
  *
@@ -22,7 +21,6 @@ trait DataValue
      */
     protected string $value;
 
-
     /**
      * Returns the value
      *
@@ -32,7 +30,6 @@ trait DataValue
     {
         return $this->value;
     }
-
 
     /**
      * Sets the value

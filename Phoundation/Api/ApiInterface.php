@@ -3,7 +3,6 @@
 namespace Phoundation\Api;
 
 
-
 use Phoundation\Web\Page;
 
 /**
@@ -27,7 +26,6 @@ class ApiInterface
     {
         return new static();
     }
-
 
 
     /**
@@ -55,7 +53,6 @@ class ApiInterface
 
         return $output;
     }
-
 
 
     /**

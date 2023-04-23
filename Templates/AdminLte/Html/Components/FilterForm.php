@@ -3,7 +3,6 @@
 namespace Templates\AdminLte\Html\Components;
 
 
-
 /**
  * Class FilterForm
  *

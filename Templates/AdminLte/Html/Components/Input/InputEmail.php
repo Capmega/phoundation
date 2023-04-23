@@ -5,7 +5,6 @@ namespace Templates\AdminLte\Html\Components\Input;
 use Phoundation\Web\Http\Html\Renderer;
 
 
-
 /**
  * Class InputEmail
  *

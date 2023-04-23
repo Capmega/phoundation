@@ -16,7 +16,6 @@ use Phoundation\Processes\Commands\FilesystemCommands;
 use Throwable;
 use const PhpConsole\Test\PATH_TMP_DIR;
 
-
 /**
  * Path class
  *
@@ -38,7 +37,6 @@ class Path extends FileBasics
     protected static ?string $temp_path = null;
 
 
-
     /**
      * Path class constructor
      *
@@ -52,7 +50,6 @@ class Path extends FileBasics
     }
 
 
-
     /**
      * Returns an Execute object to execute callbacks on each file in specified paths
      *
@@ -63,7 +60,6 @@ class Path extends FileBasics
         $this->file = Strings::slash($this->file);
         return new Execute($this->file, $this->restrictions);
     }
-
 
 
     /**
@@ -101,7 +97,6 @@ class Path extends FileBasics
     }
 
 
-
     /**
      * Check if the object file exists and is writable. If not both, an exception will be thrown
      *
@@ -135,7 +130,6 @@ class Path extends FileBasics
 
         return $this;
     }
-
 
 
     /**
@@ -221,7 +215,6 @@ class Path extends FileBasics
     }
 
 
-
     /**
      * Returns true if the object paths are all empty
      *
@@ -258,7 +251,6 @@ class Path extends FileBasics
         closedir($handle);
         return true;
     }
-
 
 
     /**
@@ -324,7 +316,6 @@ class Path extends FileBasics
     }
 
 
-
     /**
      * Creates a random path in specified base path (If it does not exist yet), and returns that path
      *
@@ -364,7 +355,6 @@ class Path extends FileBasics
         // Ensure again to be sure the target directories too have been created
         return Strings::slash(Path::new($this->file, $this->restrictions)->ensure());
     }
-
 
 
     /**
@@ -421,7 +411,6 @@ class Path extends FileBasics
     }
 
 
-
     /**
      * Pick and return a random file name from the specified path
      *
@@ -450,7 +439,6 @@ class Path extends FileBasics
 
         return Strings::slash($this->file) . Arrays::getRandomValue($files);
     }
-
 
 
     /**
@@ -484,7 +472,6 @@ class Path extends FileBasics
     }
 
 
-
     /**
      * Returns the total size in bytes of the tree under the specified path
      *
@@ -515,7 +502,6 @@ class Path extends FileBasics
     }
 
 
-
     /**
      * Returns the amount of files under the object path (directories not included in count)
      *
@@ -543,7 +529,6 @@ class Path extends FileBasics
 
         return $return;
     }
-
 
 
     /**
@@ -661,7 +646,6 @@ class Path extends FileBasics
     }
 
 
-
     /**
      * Ensure that the object file is writable
      *
@@ -689,7 +673,6 @@ class Path extends FileBasics
     }
 
 
-
     /**
      * Returns a temporary path specific for this process
      *
@@ -715,7 +698,6 @@ class Path extends FileBasics
     }
 
 
-
     /**
      * Returns a temporary sub path specific for this process
      *
@@ -729,7 +711,6 @@ class Path extends FileBasics
 
         return Path::new($path);
     }
-
 
 
     /**
@@ -749,7 +730,6 @@ class Path extends FileBasics
     }
 
 
-
     /**
      * Tars this path and returns a file object for the tar file
      *
@@ -759,7 +739,6 @@ class Path extends FileBasics
     {
         return File::new(FilesystemCommands::new()->tar($this->file), $this->restrictions);
     }
-
 
     /**
      * Returns the single one file in this path IF there is only one file
@@ -772,7 +751,6 @@ class Path extends FileBasics
         return File::new($this->file . $this->getSingle($regex, false), $this->restrictions);
     }
 
-
     /**
      * Returns the single one directory in this path IF there is only one file
      *
@@ -783,7 +761,6 @@ class Path extends FileBasics
     {
         return Path::new($this->file . $this->getSingle($regex, true), $this->restrictions);
     }
-
 
     /**
      * Returns the single one file in this path IF there is only one file

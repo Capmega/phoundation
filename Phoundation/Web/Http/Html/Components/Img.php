@@ -11,7 +11,6 @@ use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
 
-
 /**
  * Class Img
  *
@@ -67,7 +66,6 @@ class Img extends Element
     protected bool $external = false;
 
 
-
     /**
      * Img constructor
      */
@@ -79,7 +77,6 @@ class Img extends Element
         $this->setLazyLoad(Config::get('web.images.lazy-load', true));
         $this->requires_closing_tag = false;
     }
-
 
 
     /**
@@ -104,7 +101,6 @@ class Img extends Element
     }
 
 
-
     /**
      * Returns the HTML alt element attribute
      *
@@ -114,7 +110,6 @@ class Img extends Element
     {
         return $this->lazy_load;
     }
-
 
 
     /**
@@ -130,7 +125,6 @@ class Img extends Element
     }
 
 
-
     /**
      * Returns the HTML alt element attribute
      *
@@ -142,7 +136,6 @@ class Img extends Element
     }
 
 
-
     /**
      * Returns if this image is hosted on an external domain (that is, a domain NOT in the "web.domains" configuration
      *
@@ -152,7 +145,6 @@ class Img extends Element
     {
         return $this->external;
     }
-
 
 
     /**
@@ -220,7 +212,6 @@ class Img extends Element
     }
 
 
-
     /**
      * Returns the HTML src element attribute
      *
@@ -230,7 +221,6 @@ class Img extends Element
     {
         return $this->src;
     }
-
 
 
     /**
@@ -247,7 +237,6 @@ class Img extends Element
     }
 
 
-
     /**
      * Returns the lowercase extension of the file
      *
@@ -259,7 +248,6 @@ class Img extends Element
         $extension = Strings::fromReverse($url, '.');
         return strtolower($extension);
     }
-
 
 
     /**
@@ -278,7 +266,6 @@ class Img extends Element
     }
 
 
-
     /**
      * Returns if this image type is accepted or not
      *
@@ -289,7 +276,6 @@ class Img extends Element
     {
         return Page::accepts('image/' . $format);
     }
-
 
 
     /**
@@ -308,15 +294,6 @@ class Img extends Element
         }
 
         return parent::render();
-
-
-
-
-
-
-
-
-
 
 
 
@@ -865,7 +842,6 @@ class Img extends Element
 //
 //        return '<'.$params['tag'].' src="'.$params['src'].'" alt="'.htmlentities($params['alt']).'"'.$params['width'].$params['height'].$params['extra'].'>';
     }
-
 
 
 //    /**

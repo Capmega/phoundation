@@ -4,7 +4,6 @@ namespace Phoundation\Virtualization\Kubernetes\KubernetesNamespaces;
 
 use Phoundation\Virtualization\Kubernetes\KubernetesObjects;
 
-
 /**
  * Class KubernetesNamespaces
  *

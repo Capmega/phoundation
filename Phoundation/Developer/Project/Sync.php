@@ -3,7 +3,6 @@
 namespace Phoundation\Developer\Project;
 
 
-
 /**
  * Class Sync
  *
@@ -26,7 +25,6 @@ class Sync
     {
 
     }
-
 
 
     /**

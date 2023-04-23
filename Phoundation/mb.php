@@ -17,7 +17,6 @@
  */
 
 
-
 /*
  * Initialize the library, automatically executed by libs_load()
  *
@@ -47,7 +46,6 @@ function mb_library_init() {
 }
 
 
-
 /*
  * The main secret, the core of the magic is...
  *    utf8_decode ($str);
@@ -55,7 +53,6 @@ function mb_library_init() {
  */
 define('UTF8_ENCODED_CHARLIST', 'ÀÁÂÃÄÅàáâãäåÒÓÔÕÖØòóôõöøÈÉÊËéèêëÇçÌÍÎÏìíîïÙÚÛÜùúûüÿÑñ');
 define('UTF8_DECODED_CHARLIST', utf8_decode('ÀÁÂÃÄÅàáâãäåÒÓÔÕÖØòóôõöøÈÉÊËéèêëÇçÌÍÎÏìíîïÙÚÛÜùúûüÿÑñ'));
-
 
 if (! function_exists ('mb_init'))
 {
@@ -262,7 +259,6 @@ if (!function_exists('mb_string_url'))
    }
 }
 
-
 /*
  * Remove invalid UTF8 sequences, or if $replace is true, replace them with
  * (hopefully) reasonably correct UTF8 charactres
@@ -295,7 +291,6 @@ END;
         throw new CoreException(tr('mb_strip_invalid(): Failed'), $e);
     }
 }
-
 
 
 /*
@@ -332,7 +327,6 @@ function mb_utf8replacer($captures) {
         throw new CoreException(tr('mb_utf8replacer(): Failed'), $e);
     }
 }
-
 
 
 /*

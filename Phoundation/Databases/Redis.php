@@ -10,7 +10,6 @@ use Phoundation\Databases\Exception\RedisException;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Utils\Json;
 
-
 /**
  * Class Redis
  *
@@ -45,7 +44,6 @@ class Redis extends \Redis
     protected ?int $database = null;
 
 
-
     /**
      * Initialize the class object through the constructor.
      *
@@ -65,7 +63,6 @@ class Redis extends \Redis
     }
 
 
-
     /**
      * Returns the configuration for this Redis instance
      *
@@ -75,7 +72,6 @@ class Redis extends \Redis
     {
         return $this->configuration;
     }
-
 
 
     /**
@@ -96,7 +92,6 @@ class Redis extends \Redis
     }
 
 
-
     /**
      * Get the document for the specified key from the specified collection
      *
@@ -111,7 +106,6 @@ class Redis extends \Redis
     }
 
 
-
     /**
      * Get the document for the specified key from the specified collection
      *
@@ -122,7 +116,6 @@ class Redis extends \Redis
     {
         return parent::del($key);
     }
-
 
 
     /**

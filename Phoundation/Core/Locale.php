@@ -66,7 +66,6 @@ class Locale
 //}
 
 
-
     /*
      * Set PHP locale data from specified configuration. If no configuration was specified, use $_CONFIG[locale] instead
      *

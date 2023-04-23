@@ -4,7 +4,6 @@ use Phoundation\Templates\Template;
 use Phoundation\Web\Page;
 
 
-
 // Display the template with the following information
 echo Template::page('system/detail-error')->render([
     ':h1'     => tr('(404) The requested page was not found!'),
@@ -12,7 +11,6 @@ echo Template::page('system/detail-error')->render([
         ':url' => Page::getReferer(true)
     ])
 ]);
-
 
 
 // Set page meta data

@@ -6,7 +6,6 @@ use Phoundation\Core\Config;
 use Phoundation\Core\Strings;
 
 
-
 /**
  * Class Url
  *
@@ -30,7 +29,6 @@ class Url {
     }
 
 
-
     /**
      * Returns true if the specified string is an external URL
      *
@@ -51,7 +49,6 @@ class Url {
         // domain name
         return !static::getDomainType($url, $check_sub_domains);
     }
-
 
 
     /**
@@ -95,7 +92,6 @@ class Url {
         // This is an external URL
         return null;
     }
-
 
 
     /**

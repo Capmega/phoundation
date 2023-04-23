@@ -7,7 +7,6 @@ use Phoundation\Virtualization\Kubernetes\KubernetesObject;
 use Phoundation\Virtualization\Kubernetes\Traits\DataReplicas;
 use Phoundation\Virtualization\Traits\DataImage;
 
-
 /**
  * Class Deployment
  *
@@ -24,7 +23,6 @@ class Deployment extends KubernetesObject
     use DataImage;
     use DataReplicas;
 
-
     /**
      * Deployment class constructor
      *
@@ -35,7 +33,6 @@ class Deployment extends KubernetesObject
         $this->object_file_class = DeploymentFile::class;
         parent::__construct($name);
     }
-
 
     /**
      * Returns the API version for this object

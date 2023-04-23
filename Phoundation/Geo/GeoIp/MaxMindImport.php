@@ -12,7 +12,6 @@ use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Commands\Wget;
 use Throwable;
 
-
 /**
  * MaxMind class
  *
@@ -37,7 +36,6 @@ class MaxMindImport extends GeoIpImport
         parent::__construct($demo, $min, $max);
         $this->name = 'GeoIP / MaxMind';
     }
-
 
     /**
      * Download the GeoIP files
@@ -69,7 +67,6 @@ class MaxMindImport extends GeoIpImport
 
         return $path;
     }
-
 
     /**
      * Process downloaded GeoIP files
@@ -140,7 +137,6 @@ class MaxMindImport extends GeoIpImport
 
         return $target_path;
     }
-
 
     /**
      * Returns a list of MaxMind files that will be downloaded

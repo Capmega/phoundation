@@ -23,7 +23,6 @@ class InputFile extends Input
      */
     protected ?string $accept = null;
 
-
     /**
      * InputFile class constructor
      */

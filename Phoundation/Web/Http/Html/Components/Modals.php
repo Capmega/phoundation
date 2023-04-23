@@ -6,7 +6,6 @@ use Phoundation\Core\Arrays;
 use Phoundation\Exception\OutOfBoundsException;
 
 
-
 /**
  * Phoundation Modals class
  *
@@ -27,7 +26,6 @@ class Modals extends ElementsBlock
     protected ?array $required = null;
 
 
-
     /**
      * Add a new modal
      *
@@ -42,7 +40,6 @@ class Modals extends ElementsBlock
     }
 
 
-
     /**
      * Remove the specified modal
      *
@@ -54,7 +51,6 @@ class Modals extends ElementsBlock
         unset($this->source[$identifier]);
         return $this;
     }
-
 
 
     /**
@@ -73,7 +69,6 @@ class Modals extends ElementsBlock
 
         return $this;
     }
-
 
 
     /**

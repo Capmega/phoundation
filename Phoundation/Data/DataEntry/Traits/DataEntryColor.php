@@ -3,7 +3,6 @@
 namespace Phoundation\Data\DataEntry\Traits;
 
 
-
 /**
  * Trait DataEntryColor
  *
@@ -25,7 +24,6 @@ trait DataEntryColor
     {
         return $this->getDataValue('color');
     }
-
 
 
     /**

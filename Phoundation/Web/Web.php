@@ -7,7 +7,6 @@ use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\Url;
 
 
-
 /**
  * Class Web
  *
@@ -143,7 +142,6 @@ class Web
 //    }
 
 
-
 //    /**
 //     * Returns the language for this process
 //     *
@@ -154,7 +152,6 @@ class Web
 //        // TODO implement
 //        return 'en';
 //    }
-
 
 
 //    /**
@@ -181,7 +178,6 @@ class Web
 //    {
 //        return static::getDomain($url, $query, $prefix, $_CONFIG['api']['domain'], $language, $allow_url_cloak);
 //    }
-
 
 
 //    /**

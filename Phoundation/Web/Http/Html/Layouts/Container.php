@@ -4,7 +4,6 @@ namespace Phoundation\Web\Http\Html\Layouts;
 
 use Phoundation\Web\Http\Html\Traits\UsesSize;
 
-
 /**
  * Container class
  *

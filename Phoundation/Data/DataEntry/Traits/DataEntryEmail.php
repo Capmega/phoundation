@@ -2,7 +2,6 @@
 
 namespace Phoundation\Data\DataEntry\Traits;
 
-
 /**
  * Trait DataEntryEmail
  *
@@ -24,7 +23,6 @@ trait DataEntryEmail
     {
         return $this->getDataValue('email');
     }
-
 
     /**
      * Sets the email for this object

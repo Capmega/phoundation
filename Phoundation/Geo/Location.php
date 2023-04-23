@@ -2,7 +2,6 @@
 
 namespace Phoundation\Geo;
 
-
 /**
  * Location class
  *
@@ -30,7 +29,6 @@ class Location
     protected float $latitude;
 
 
-
     /**
      * Location class constructor
      *
@@ -42,7 +40,6 @@ class Location
         $this->longitude = $longitude;
         $this->latitude  = $latitude;
     }
-
 
     /**
      * Returns a Geo object for the specified IP address

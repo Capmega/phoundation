@@ -29,7 +29,6 @@ use Phoundation\Geo\Countries\Country;
 use Phoundation\Geo\States\State;
 use Phoundation\Geo\States\States;
 
-
 /**
  * Provider class
  *
@@ -56,7 +55,6 @@ class Provider extends DataEntry
     use DataEntryNameDescription;
 
 
-
     /**
      * Provider class constructor
      *
@@ -70,7 +68,6 @@ class Provider extends DataEntry
 
         parent::__construct($identifier);
     }
-
 
 
     /**
@@ -104,7 +101,6 @@ class Provider extends DataEntry
     }
 
 
-
     /**
      * Returns the address2 for this object
      *
@@ -114,7 +110,6 @@ class Provider extends DataEntry
     {
         return $this->getDataValue('address2');
     }
-
 
 
     /**
@@ -129,7 +124,6 @@ class Provider extends DataEntry
     }
 
 
-
     /**
      * Returns the address3 for this object
      *
@@ -139,7 +133,6 @@ class Provider extends DataEntry
     {
         return $this->getDataValue('address3');
     }
-
 
 
     /**
@@ -152,7 +145,6 @@ class Provider extends DataEntry
     {
         return $this->setDataValue('address3', $address3);
     }
-
 
 
     /**

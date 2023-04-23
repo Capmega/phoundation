@@ -18,7 +18,6 @@ use Phoundation\Exception\Exception;
 use Phoundation\Filesystem\File;
 use Phoundation\Web\Page;
 
-
 /**
  * functions file functions.php
  *
@@ -32,7 +31,6 @@ use Phoundation\Web\Page;
  */
 
 
-
 /**
  * Shortcut to echo-ing a new line
  *
@@ -42,7 +40,6 @@ function nl(): void
 {
     echo PHP_EOL;
 }
-
 
 
 /**
@@ -111,7 +108,6 @@ function tr(string $text, ?array $replace = null, bool $clean = true): string
 }
 
 
-
 /**
  * Will return $return if the specified item id is in the specified source.
  *
@@ -127,7 +123,6 @@ function in_source(array $source, string|int $key): bool
 
     return false;
 }
-
 
 
 /**
@@ -158,7 +153,6 @@ function isset_get(mixed &$variable, mixed $default = null): mixed
 }
 
 
-
 /**
  * Ensures the specified variable exists. If the variable already exists with a non NULL value, it will not be touched.
  * If the variable does not exist, or has a NULL value, it will be set to the $initialization variable
@@ -179,7 +173,6 @@ function ensure_variable(mixed &$variable, mixed $initialize): mixed
 
     return $variable;
 }
-
 
 
 /**
@@ -223,7 +216,6 @@ function force_natural(mixed $source, int $default = 1, int $start = 1): int
 }
 
 
-
 /**
  * Returns true if the specified number is a natural number.
  *
@@ -252,7 +244,6 @@ function is_natural($number, int $start = 1): bool
 }
 
 
-
 /**
  * Returns true if the specified string is a version, or false if it is not
  *
@@ -264,7 +255,6 @@ function is_version(string $version): bool
 {
     return preg_match('/\d{1,4}\.\d{1,4}\.\d{1,4}/', $version);
 }
-
 
 
 /**
@@ -299,7 +289,6 @@ function is_new(InterfaceDataEntry|array $entry): bool
 
 
 
-
 /**
  * Correctly converts <br> to \n
  *
@@ -314,7 +303,6 @@ function br2nl(string $source, string $nl = "\n"): string
 
     return $source;
 }
-
 
 
 /**
@@ -337,7 +325,6 @@ function not_empty(): mixed
 }
 
 
-
 /**
  * Return the first non null argument
  *
@@ -357,7 +344,6 @@ function not_null(): mixed
 }
 
 
-
 /**
  * Return a randomly picked argument
  *
@@ -367,7 +353,6 @@ function pick_random(): mixed
 {
     return Arrays::getRandomValue(func_get_args());
 }
-
 
 /**
  * Return randomly picked arguments
@@ -406,7 +391,6 @@ function pick_random_multiple(?int $count = null): string|array
 }
 
 
-
 /**
  * Shortcut to the Debug::show() call
  *
@@ -425,7 +409,6 @@ function show(mixed $source = null, int $trace_offset = 1, bool $quiet = false):
 }
 
 
-
 /**
  * Shortcut to the Debug::show() call
  *
@@ -442,7 +425,6 @@ function show(mixed $source = null, int $trace_offset = 1, bool $quiet = false):
 
     show_system($source);
 }
-
 
 
 /**
@@ -476,7 +458,6 @@ function get_null(mixed $source): mixed
 }
 
 
-
 /**
  * Return the value quoted if non-numeric string
  *
@@ -491,7 +472,6 @@ function quote(int|string $value): int|string
 
     return $value;
 }
-
 
 
 /**
@@ -510,7 +490,6 @@ function ensure_value(int|string $value, array $array, mixed $default): mixed
 
     return $default;
 }
-
 
 
 /**
@@ -532,7 +511,6 @@ function execute_callback(?callable $callback, ?array $params = null): ?string
 }
 
 
-
 /**
  * Execute the specified script file
  *
@@ -549,7 +527,6 @@ function execute_script(string $__file): void
         File::new($__file, PATH_SCRIPTS)->checkReadable('script', $e);
     }
 }
-
 
 
 /**
@@ -576,7 +553,6 @@ function execute_page(string $__file): ?string
 
     return $body;
 }
-
 
 
 /**
@@ -620,7 +596,6 @@ function variable_zts_safe(mixed $variable, int $level = 0): mixed
 }
 
 
-
 /**
  * Returns the system SQL database object
  *
@@ -631,7 +606,6 @@ function sql(?string $instance_name = null, bool $use_database = true): Sql
 {
     return Databases::Sql($instance_name, $use_database);
 }
-
 
 
 /**
@@ -646,7 +620,6 @@ function mc(?string $instance_name = null): Mc
 }
 
 
-
 /**
  * Returns the system SQL database object
  *
@@ -657,7 +630,6 @@ function mongo(?string $instance_name = null): Mongo
 {
     return Databases::Mongo($instance_name);
 }
-
 
 
 /**
@@ -672,7 +644,6 @@ function redis(?string $instance_name = null): Redis
 }
 
 
-
 /**
  * Returns the system SQL database object
  *
@@ -683,7 +654,6 @@ function null(?string $instance_name = null): NullDb
 {
     return Databases::NullDb($instance_name);
 }
-
 
 
 /**
@@ -708,7 +678,6 @@ function has_trait(string $trait, object|string $class): bool
 
     return false;
 }
-
 
 /**
  * Show command that requires no configuration and can be used at startup times. USE WITH CARE!

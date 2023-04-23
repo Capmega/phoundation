@@ -5,7 +5,6 @@ namespace Templates\AdminLte\Html\Forms;
 use Phoundation\Web\Http\Html\Renderer;
 
 
-
 /**
  * AdminLte Plugin SignIn form class
  *
@@ -25,7 +24,6 @@ class SignInForm extends Renderer
     {
         parent::__construct($element);
     }
-
 
 
     /**

@@ -3,7 +3,6 @@
 namespace Phoundation\Web\Http\Html\Components;
 
 
-
 /**
  * Class DataEntryForm
  *
@@ -68,7 +67,6 @@ class DataEntryForm extends ElementsBlock
     ];
 
 
-
     /**
      * Returns true if the specified intput type is supported
      *
@@ -81,7 +79,6 @@ class DataEntryForm extends ElementsBlock
     }
 
 
-
     /**
      * Returns the optional class for input elements
      *
@@ -91,7 +88,6 @@ class DataEntryForm extends ElementsBlock
     {
         return $this->input_class;
     }
-
 
 
     /**
@@ -107,7 +103,6 @@ class DataEntryForm extends ElementsBlock
     }
 
 
-
     /**
      * Returns the data source for this DataEntryForm
      *
@@ -117,7 +112,6 @@ class DataEntryForm extends ElementsBlock
     {
         return $this->keys;
     }
-
 
 
     /**
@@ -133,7 +127,6 @@ class DataEntryForm extends ElementsBlock
     }
 
 
-
     /**
      * Returns the data source for this DataEntryForm
      *
@@ -143,7 +136,6 @@ class DataEntryForm extends ElementsBlock
     {
         return $this->keys_display;
     }
-
 
 
     /**

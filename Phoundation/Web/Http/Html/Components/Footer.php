@@ -3,7 +3,6 @@
 namespace Phoundation\Web\Http\Html\Components;
 
 
-
 /**
  * Footer class
  *

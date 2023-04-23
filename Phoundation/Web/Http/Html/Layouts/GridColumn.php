@@ -6,7 +6,6 @@ use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Exception\OutOfBoundsException;
 
 
-
 /**
  * GridColumn class
  *
@@ -36,7 +35,6 @@ class GridColumn extends Layout
     protected string $tier = '';
 
 
-
     /**
      * GridColumn class constructor
      */
@@ -45,7 +43,6 @@ class GridColumn extends Layout
         $this->tier = 'md';
         parent::__construct();
     }
-
 
 
     /**
@@ -61,7 +58,6 @@ class GridColumn extends Layout
     }
 
 
-
     /**
      * Returns the tier class
      *
@@ -71,7 +67,6 @@ class GridColumn extends Layout
     {
         return $this->tier;
     }
-
 
 
     /**
@@ -87,7 +82,6 @@ class GridColumn extends Layout
     }
 
 
-
     /**
      * Returns the column size
      *
@@ -97,7 +91,6 @@ class GridColumn extends Layout
     {
         return $this->size;
     }
-
 
 
     /**
@@ -117,7 +110,6 @@ class GridColumn extends Layout
     }
 
 
-
     /**
      * Adds the specified content to the content of the grid
      *
@@ -133,7 +125,6 @@ class GridColumn extends Layout
 
         return parent::addContent($content);
     }
-
 
 
     /**

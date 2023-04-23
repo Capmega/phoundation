@@ -17,7 +17,6 @@ use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Page;
 use Throwable;
 
-
 /**
  * Class Bundler
  *
@@ -66,7 +65,6 @@ class Bundler
     protected Restrictions $restrictions;
 
 
-
     /**
      * Bundler class constructor
      */
@@ -74,7 +72,6 @@ class Bundler
     {
         $this->setRestrictions(Restrictions::new([PATH_CDN . 'js', PATH_CDN . 'css'], true, 'Bundler'));
     }
-
 
 
     /**
@@ -88,7 +85,6 @@ class Bundler
     }
 
 
-
     /**
      * Returns the server and filesystem restrictions for this File object
      *
@@ -98,7 +94,6 @@ class Bundler
     {
         return $this->restrictions;
     }
-
 
 
     /**
@@ -114,7 +109,6 @@ class Bundler
     }
 
 
-
     /**
      * Bundle multiple javascript files into one
      *
@@ -127,7 +121,6 @@ class Bundler
     }
 
 
-
     /**
      * Bundle multiple CSS files into one
      *
@@ -138,7 +131,6 @@ class Bundler
     {
         return $this->bundle($files, 'css');
     }
-
 
 
     /**
@@ -191,7 +183,6 @@ class Bundler
     }
 
 
-
     /**
      * Initialize the class to build a new bundle file
      *
@@ -213,7 +204,6 @@ class Bundler
         $this->bundle_file =  $this->path . 'bundle-' . $this->bundle_file . $this->extension;
         $this->count       =  0;
     }
-
 
 
     /**
@@ -248,7 +238,6 @@ class Bundler
 
         return true;
     }
-
 
 
     /**
@@ -360,7 +349,6 @@ class Bundler
     }
 
 
-
     /**
      * Execute the bundling of all the specified files.
      *
@@ -418,7 +406,6 @@ class Bundler
                 }
             });
     }
-
 
 
     /**

@@ -3,7 +3,6 @@
 namespace Phoundation\Data\DataEntry\Traits;
 
 
-
 /**
  * Trait DataEntryComments
  *
@@ -25,7 +24,6 @@ trait DataEntryComments
     {
         return $this->getDataValue('comments');
     }
-
 
 
     /**

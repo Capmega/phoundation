@@ -9,7 +9,6 @@ use Phoundation\Data\Classes\Iterator;
 use Phoundation\Developer\Versioning\Git\Traits\GitProcess;
 use Phoundation\Exception\OutOfBoundsException;
 
-
 /**
  * Class Repository
  *
@@ -27,7 +26,6 @@ class RemoteRepository extends Iterator
     }
 
 
-
     /**
      * The repository name
      *
@@ -41,7 +39,6 @@ class RemoteRepository extends Iterator
      * @var array $data
      */
     protected array $data = [];
-
 
 
     /**
@@ -58,7 +55,6 @@ class RemoteRepository extends Iterator
     }
 
 
-
     /**
      * Returns a new Repository object
      *
@@ -72,7 +68,6 @@ class RemoteRepository extends Iterator
     }
 
 
-
     /**
      * Returns the repository name
      *
@@ -82,7 +77,6 @@ class RemoteRepository extends Iterator
     {
         return $this->repository;
     }
-
 
 
     /**
@@ -108,7 +102,6 @@ class RemoteRepository extends Iterator
     }
 
 
-
     /**
      * Returns the fetch url for this remote repository
      *
@@ -118,7 +111,6 @@ class RemoteRepository extends Iterator
     {
         return isset_get($this->data['fetch_url']);
     }
-
 
 
     /**
@@ -146,7 +138,6 @@ class RemoteRepository extends Iterator
     }
 
 
-
     /**
      * Returns the local refs for this repository
      *
@@ -156,7 +147,6 @@ class RemoteRepository extends Iterator
     {
         return $this->data['local_refs'];
     }
-
 
 
     /**
@@ -170,7 +160,6 @@ class RemoteRepository extends Iterator
     }
 
 
-
     /**
      * Returns the remote branches for this repository
      *
@@ -180,7 +169,6 @@ class RemoteRepository extends Iterator
     {
         return $this->data['remote_branches'];
     }
-
 
 
     /**
@@ -193,7 +181,6 @@ class RemoteRepository extends Iterator
         Cli::displayForm($this->data);
         return $this;
     }
-
 
 
     /**
@@ -215,7 +202,6 @@ class RemoteRepository extends Iterator
 
         $this->parseData($data);
     }
-
 
 
     /**

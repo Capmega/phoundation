@@ -3,7 +3,6 @@
 namespace Phoundation\Developer\Project\Exception;
 
 
-
 /**
  * Class EnvironmentExists
  *

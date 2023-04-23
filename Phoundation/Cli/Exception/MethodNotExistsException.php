@@ -3,7 +3,6 @@
 namespace Phoundation\Cli\Exception;
 
 
-
 /**
  * Class MethodNotExistsException
  *

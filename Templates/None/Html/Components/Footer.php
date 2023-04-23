@@ -6,7 +6,6 @@ use Phoundation\Core\Core;
 use Phoundation\Web\Http\Html\Renderer;
 
 
-
 /**
  * None Plugin Footer class
  *
@@ -26,7 +25,6 @@ class Footer extends Renderer
     {
         parent::__construct($element);
     }
-
 
 
     /**

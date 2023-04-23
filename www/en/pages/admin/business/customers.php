@@ -10,21 +10,17 @@ use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
 
-
 // Build the page content
-
 
 
 // Build customers filter card
 $filters_content = FilterForm::new();
-
 
 $filters = Card::new()
     ->setTitle('Customers filters')
     ->setHasCollapseSwitch(true)
     ->setContent($filters_content->render())
     ->useForm(true);
-
 
 
 // Build customers table
@@ -42,7 +38,6 @@ $customers->getForm()
         ->setMethod('POST');
 
 
-
 // Build relevant links
 $relevant = Card::new()
     ->setMode(DisplayMode::info)
@@ -50,7 +45,6 @@ $relevant = Card::new()
     ->setHasCollapseSwitch(true)
     ->setContent('<a href="' . UrlBuilder::getWww('/business/providers.html') . '">' . tr('Providers management') . '</a><br>
                          <a href="' . UrlBuilder::getWww('/business/companies.html') . '">' . tr('Companies management') . '</a>');
-
 
 
 // Build documentation
@@ -61,14 +55,12 @@ $documentation = Card::new()
     ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
 
 
-
 // Build and render the grid
 $grid = Grid::new()
     ->addColumn($filters->render() . $customers->render(), 9)
     ->addColumn($relevant->render() . $documentation->render(), 3);
 
 echo $grid->render();
-
 
 
 // Set page meta data

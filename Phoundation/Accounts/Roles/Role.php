@@ -13,7 +13,6 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Web\Http\Html\Components\Form;
 
-
 /**
  * Class Role
  *
@@ -30,7 +29,6 @@ class Role extends DataEntry
     use DataEntryNameDescription;
 
 
-
     /**
      * Role class constructor
      *
@@ -43,7 +41,6 @@ class Role extends DataEntry
 
         parent::__construct($identifier);
     }
-
 
 
     /**
@@ -61,7 +58,6 @@ class Role extends DataEntry
     }
 
 
-
     /**
      * Returns the users that are linked to this role
      *
@@ -71,7 +67,6 @@ class Role extends DataEntry
     {
         return new Users($this);
     }
-
 
 
     /**
@@ -95,7 +90,6 @@ class Role extends DataEntry
         $form->addContent($select->render());
         return $form;
     }
-
 
 
     /**
@@ -123,7 +117,6 @@ class Role extends DataEntry
 
         return $data;
     }
-
 
     /**
      * Sets the available data keys for this entry

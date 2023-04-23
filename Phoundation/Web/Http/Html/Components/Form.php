@@ -8,7 +8,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\UrlBuilder;
 
 
-
 /**
  * Form class
  *
@@ -72,7 +71,6 @@ class Form extends Element
     protected ?string $rel = null;
 
 
-
     /**
      * Form class constructor
      */
@@ -82,7 +80,6 @@ class Form extends Element
         $this->setElement('form');
         $this->setAcceptCharset(Config::get('languages.encoding.', 'utf-8'));
     }
-
 
 
     /**
@@ -96,7 +93,6 @@ class Form extends Element
     {
         return $this->action ?? UrlBuilder::getWww();
     }
-
 
 
     /**
@@ -117,7 +113,6 @@ class Form extends Element
     }
 
 
-
     /**
      * Sets the form method
      *
@@ -127,7 +122,6 @@ class Form extends Element
     {
         return $this->method;
     }
-
 
 
     /**
@@ -143,7 +137,6 @@ class Form extends Element
     }
 
 
-
     /**
      * Sets the form no_validate
      *
@@ -153,7 +146,6 @@ class Form extends Element
     {
         return $this->no_validate;
     }
-
 
 
     /**
@@ -169,7 +161,6 @@ class Form extends Element
     }
 
 
-
     /**
      * Sets the form auto_complete
      *
@@ -179,7 +170,6 @@ class Form extends Element
     {
         return $this->auto_complete;
     }
-
 
 
     /**
@@ -195,7 +185,6 @@ class Form extends Element
     }
 
 
-
     /**
      * Sets the form accept_charset
      *
@@ -205,7 +194,6 @@ class Form extends Element
     {
         return $this->accept_charset;
     }
-
 
 
     /**
@@ -221,7 +209,6 @@ class Form extends Element
     }
 
 
-
     /**
      * Sets the form rel
      *
@@ -231,7 +218,6 @@ class Form extends Element
     {
         return $this->rel;
     }
-
 
 
     /**
@@ -247,7 +233,6 @@ class Form extends Element
     }
 
 
-
     /**
      * Sets the form target
      *
@@ -257,7 +242,6 @@ class Form extends Element
     {
         return $this->target;
     }
-
 
 
     /**
@@ -290,7 +274,6 @@ class Form extends Element
         $this->target = $target;
         return $this;
     }
-
 
 
     /**

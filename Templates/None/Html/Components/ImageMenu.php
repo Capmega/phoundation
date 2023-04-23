@@ -6,7 +6,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Renderer;
 
 
-
 /**
  * None Plugin ImageMenu class
  *
@@ -26,7 +25,6 @@ class ImageMenu extends Renderer
     {
         parent::__construct($element);
     }
-
 
 
     /**

@@ -4,7 +4,6 @@ namespace Phoundation\Core\Plugins\Exception;
 
 use Phoundation\Core\Exception\CoreException;
 
-
 /**
  * Class PluginsException
  *

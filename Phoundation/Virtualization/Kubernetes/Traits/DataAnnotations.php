@@ -2,7 +2,6 @@
 
 namespace Phoundation\Virtualization\Kubernetes\Traits;
 
-
 /**
  * Trait DataAnnotations
  *
@@ -22,7 +21,6 @@ trait DataAnnotations
      */
     protected array $annotations = [];
 
-
     /**
      * Returns the annotations
      *
@@ -32,7 +30,6 @@ trait DataAnnotations
     {
         return $this->annotations;
     }
-
 
     /**
      * Clears the annotations
@@ -45,7 +42,6 @@ trait DataAnnotations
         return $this;
     }
 
-
     /**
      * Sets the annotations
      *
@@ -57,7 +53,6 @@ trait DataAnnotations
         $this->annotations = $annotations;
         return $this;
     }
-
 
     /**
      * Adds the specified annotations
@@ -73,7 +68,6 @@ trait DataAnnotations
 
         return $this;
     }
-
 
     /**
      * Adds the specified annotation

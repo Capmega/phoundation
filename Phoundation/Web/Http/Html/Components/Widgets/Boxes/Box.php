@@ -7,7 +7,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Widgets\Widget;
 
 
-
 /**
  * Box class
  *
@@ -71,7 +70,6 @@ abstract class Box extends Widget
     protected ?string $url = null;
 
 
-
     /**
      * Returns the icon for this infobox
      *
@@ -81,7 +79,6 @@ abstract class Box extends Widget
     {
         return $this->icon;
     }
-
 
 
     /**
@@ -97,7 +94,6 @@ abstract class Box extends Widget
     }
 
 
-
     /**
      * Returns the icon for this infobox
      *
@@ -107,7 +103,6 @@ abstract class Box extends Widget
     {
         return $this->url;
     }
-
 
 
     /**
@@ -123,7 +118,6 @@ abstract class Box extends Widget
     }
 
 
-
     /**
      * Returns the type of shadow to display with the infobox, if any
      *
@@ -134,7 +128,6 @@ abstract class Box extends Widget
     {
         return $this->shadow;
     }
-
 
 
     /**
@@ -150,7 +143,6 @@ abstract class Box extends Widget
     }
 
 
-
     /**
      * Returns the value for this infobox
      *
@@ -160,7 +152,6 @@ abstract class Box extends Widget
     {
         return $this->value;
     }
-
 
 
     /**
@@ -176,7 +167,6 @@ abstract class Box extends Widget
     }
 
 
-
     /**
      * Returns the value for the progress bar in %, if shown
      *
@@ -186,7 +176,6 @@ abstract class Box extends Widget
     {
         return $this->progress;
     }
-
 
 
     /**
@@ -208,7 +197,6 @@ abstract class Box extends Widget
     }
 
 
-
     /**
      * Returns the title for this infobox
      *
@@ -218,7 +206,6 @@ abstract class Box extends Widget
     {
         return $this->title;
     }
-
 
 
     /**
@@ -234,7 +221,6 @@ abstract class Box extends Widget
     }
 
 
-
     /**
      * Returns the description for this infobox
      *
@@ -244,7 +230,6 @@ abstract class Box extends Widget
     {
         return $this->description;
     }
-
 
 
     /**

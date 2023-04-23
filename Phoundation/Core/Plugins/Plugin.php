@@ -14,7 +14,6 @@ use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 
-
 /**
  * Class Plugin
  *
@@ -35,7 +34,6 @@ abstract class Plugin extends DataEntry
     }
 
 
-
     /**
      * Plugin class constructor
      *
@@ -51,13 +49,11 @@ abstract class Plugin extends DataEntry
     }
 
 
-
     /**
      * @return void
      */
     // TODO Use hooks after startup!
     abstract public static function start(): void;
-
 
 
     /**
@@ -69,7 +65,6 @@ abstract class Plugin extends DataEntry
     {
         return (bool) $this->getDataValue('enabled');
     }
-
 
 
     /**
@@ -90,7 +85,6 @@ abstract class Plugin extends DataEntry
     }
 
 
-
     /**
      * Returns if this plugin is disabled or not
      *
@@ -100,7 +94,6 @@ abstract class Plugin extends DataEntry
     {
         return !$this->getEnabled();
     }
-
 
 
     /**
@@ -115,7 +108,6 @@ abstract class Plugin extends DataEntry
     }
 
 
-
     /**
      * Returns the plugin path for this plugin
      *
@@ -125,7 +117,6 @@ abstract class Plugin extends DataEntry
     {
         return Library::getClassPath($this->getPath() . 'Plugin.php');
     }
-
 
     /**
      * Sets the main class for this plugin
@@ -137,7 +128,6 @@ abstract class Plugin extends DataEntry
     {
         return $this->setDataValue('class', $class);
     }
-
 
     /**
      * Sets the priority for this plugin
@@ -163,7 +153,6 @@ abstract class Plugin extends DataEntry
         return $this->setTraitPriority($priority);
     }
 
-
     /**
      * Returns the plugin path for this plugin
      *
@@ -173,7 +162,6 @@ abstract class Plugin extends DataEntry
     {
         return dirname(Library::getClassFile($this)) . '/';
     }
-
 
     /**
      * Returns the plugin name
@@ -185,7 +173,6 @@ abstract class Plugin extends DataEntry
         return basename(dirname(Library::getClassFile($this)));
     }
 
-
     /**
      * Uninstalls this plugin
      *
@@ -195,7 +182,6 @@ abstract class Plugin extends DataEntry
     {
         self::disable();
     }
-
 
 
     /**
@@ -215,7 +201,6 @@ abstract class Plugin extends DataEntry
             ->save();
     }
 
-
     /**
      * Delete the plugin from the plugin registry
      *
@@ -227,7 +212,6 @@ abstract class Plugin extends DataEntry
         self::unlinkScripts();
         sql()->delete('core_plugins', [':seo_name' => $this->getName()], $comments);
     }
-
 
 
     /**
@@ -242,7 +226,6 @@ abstract class Plugin extends DataEntry
         sql()->setStatus(null, 'core_plugins', ['seo_name' => $this->getSeoName()], $comments);
     }
 
-
     /**
      * Disable this plugin
      *
@@ -254,7 +237,6 @@ abstract class Plugin extends DataEntry
         self::unlinkScripts();
         sql()->setStatus('disabled', 'core_plugins', ['seo_name' => $this->getSeoName()], $comments);
     }
-
 
     /**
      * Link the scripts for this plugin to the PATH_ROOT/scripts directory
@@ -272,7 +254,6 @@ abstract class Plugin extends DataEntry
     }
 
 
-
     /**
      * Link the scripts for this plugin to the PATH_ROOT/scripts directory
      *
@@ -287,7 +268,6 @@ abstract class Plugin extends DataEntry
             File::new(PATH_ROOT . 'scripts/' . $plugin)->delete();
         }
     }
-
 
     /**
      * Validates the provider record with the specified validator object
@@ -316,7 +296,6 @@ abstract class Plugin extends DataEntry
 
         return $data;
     }
-
 
     /**
      * Sets the available data keys for the User class

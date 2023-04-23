@@ -33,7 +33,6 @@ $oauth->client_secret = $config['secret'];
 $oauth->scope         = $config['scope'];
 $oauth->redirect_uri  = $config['redirect'];
 
-
 $oauth->Initialize();
 
 $code = (!empty($_REQUEST["code"])) ?  ($_REQUEST["code"]) : "";
@@ -47,6 +46,5 @@ if (empty($code)) {
 	$oauth->debugJson($getData);
 	/* redirect here */
 }
-
 
 ?>

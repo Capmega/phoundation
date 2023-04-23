@@ -2,7 +2,6 @@
 
 namespace Phoundation\Web\Http\Html\Components;
 
-
 /**
  * Class Autosuggest
  *

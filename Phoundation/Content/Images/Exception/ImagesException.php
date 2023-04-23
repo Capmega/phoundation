@@ -5,7 +5,6 @@ namespace Phoundation\Core\Exception;
 use Phoundation\Content\Exception\ContentException;
 
 
-
 /**
  * Class ImagesException
  *

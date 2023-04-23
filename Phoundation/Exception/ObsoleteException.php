@@ -3,7 +3,6 @@
 namespace Phoundation\Exception;
 
 
-
 /**
  * Class ObsoleteException
  *

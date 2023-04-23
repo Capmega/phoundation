@@ -5,7 +5,6 @@ namespace Phoundation\Developer\Phoundation\Exception;
 use Throwable;
 
 
-
 /**
  * Class IsPhoundationException
  *

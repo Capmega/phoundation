@@ -2,7 +2,6 @@
 
 namespace Phoundation\Servers;
 
-
 /**
  * Updates class
  *
@@ -27,7 +26,6 @@ class Updates extends \Phoundation\Core\Libraries\Updates
     }
 
 
-
     /**
      * The description for this library
      *
@@ -37,7 +35,6 @@ class Updates extends \Phoundation\Core\Libraries\Updates
     {
         return tr('This library manages servers, and how to access them over SSH');
     }
-
 
 
     /**

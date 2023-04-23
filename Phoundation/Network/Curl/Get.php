@@ -15,7 +15,6 @@ use Phoundation\Network\Exception\NetworkException;
 use Phoundation\Network\Interfaces;
 use Phoundation\Utils\Json;
 
-
 /**
  * Class Curl
  *
@@ -40,7 +39,6 @@ class Get extends Curl
 
         parent::__construct($url);
     }
-
 
 
     /**
@@ -186,7 +184,6 @@ class Get extends Curl
             file_put_contents($this->save_to_file, $this->result_data);
         }
    }
-
 
 
     /**

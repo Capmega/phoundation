@@ -6,7 +6,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Processes\Process;
 
-
 /**
  * Trait GitRepository
  *
@@ -27,7 +26,6 @@ trait GitRepository
     protected string $repository;
 
 
-
     /**
      * GitRepository class constructor
      *
@@ -37,7 +35,6 @@ trait GitRepository
     {
         $this->setRepository($repository);
     }
-
 
 
     /**
@@ -50,7 +47,6 @@ trait GitRepository
     {
         return new static($repository);
     }
-
 
 
     /**
@@ -74,7 +70,6 @@ trait GitRepository
 
         return $this;
     }
-
 
 
     /**

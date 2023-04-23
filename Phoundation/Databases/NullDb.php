@@ -3,7 +3,6 @@
 namespace Phoundation\Databases;
 
 
-
 /**
  * Class NullDb
  *
@@ -29,7 +28,6 @@ class NullDb
     }
 
 
-
     /**
      * Do nothing, really
      *
@@ -42,7 +40,6 @@ class NullDb
     }
 
 
-
     /**
      * Do nothing, really
      *
@@ -51,7 +48,6 @@ class NullDb
     public function clear(int $delay = 0): void
     {
     }
-
 
 
     /**

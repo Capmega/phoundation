@@ -2,7 +2,6 @@
 
 namespace Phoundation\Web\Http\Html\Traits;
 
-
 /**
  * Trait UsesAttributeMultiple
  *
@@ -22,7 +21,6 @@ trait UsesAttributeMultiple
      */
     protected bool $multiple = false;
 
-
     /**
      * Returns if this object allows multiple data entries
      *
@@ -32,7 +30,6 @@ trait UsesAttributeMultiple
     {
         return $this->multiple;
     }
-
 
     /**
      * Sets if this object allows multiple data entries

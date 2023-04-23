@@ -5,7 +5,6 @@ namespace Templates\None\Html\Components;
 use Phoundation\Web\Http\Html\Renderer;
 use Phoundation\Web\Http\UrlBuilder;
 
-
 /**
  * None Plugin TopMenu class
  *
@@ -25,7 +24,6 @@ class TopMenu extends Renderer
     {
         parent::__construct($element);
     }
-
 
 
     /**

@@ -8,7 +8,6 @@ use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Web\Http\Html\Components\Menu;
 
 
-
 /**
  * Menus class
  *
@@ -24,7 +23,6 @@ class Menus implements Iterator
     protected array $menus;
 
 
-
     /**
      * Returns the specified menu
      *
@@ -37,7 +35,6 @@ class Menus implements Iterator
     }
 
 
-
     /**
      * Returns the primary menu
      *
@@ -47,7 +44,6 @@ class Menus implements Iterator
     {
         return isset_get($this->menus['primary']);
     }
-
 
 
     /**
@@ -63,7 +59,6 @@ class Menus implements Iterator
     }
 
 
-
     /**
      * Returns the secondary menu
      *
@@ -73,7 +68,6 @@ class Menus implements Iterator
     {
         return isset_get($this->menus['secondary']);
     }
-
 
 
     /**
@@ -87,7 +81,6 @@ class Menus implements Iterator
         $this->menus['secondary'] = $menu;
         return $this;
     }
-
 
 
     /**
@@ -104,7 +97,6 @@ class Menus implements Iterator
     }
 
 
-
     /**
      * Add multiple menus
      *
@@ -119,7 +111,6 @@ class Menus implements Iterator
 
         return $this;
     }
-
 
 
     /**
@@ -139,7 +130,6 @@ class Menus implements Iterator
     }
 
 
-
     /**
      * Returns the amount of menus available
      *
@@ -149,7 +139,6 @@ class Menus implements Iterator
     {
         return current($this->menus);
     }
-
 
 
     /**
@@ -162,7 +151,6 @@ class Menus implements Iterator
         $this->menus = [];
         return $this;
     }
-
 
 
     /**
@@ -197,7 +185,6 @@ class Menus implements Iterator
     }
 
 
-
     /**
      * Returns the current menu
      *
@@ -207,7 +194,6 @@ class Menus implements Iterator
     {
         return current($this->menus);
     }
-
 
 
     /**
@@ -221,7 +207,6 @@ class Menus implements Iterator
     }
 
 
-
     /**
      * Returns the current key for the current menu
      *
@@ -231,7 +216,6 @@ class Menus implements Iterator
     {
         return key($this->menus);
     }
-
 
 
     /**
@@ -244,7 +228,6 @@ class Menus implements Iterator
     {
         return isset($this->menus[key($this->menus)]);
     }
-
 
 
     /**

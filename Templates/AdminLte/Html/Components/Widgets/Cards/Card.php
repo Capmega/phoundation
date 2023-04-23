@@ -5,7 +5,6 @@ namespace Templates\AdminLte\Html\Components\Widgets\Cards;
 use Phoundation\Web\Http\Html\Renderer;
 
 
-
 /**
  * AdminLte Plugin Card class
  *
@@ -25,7 +24,6 @@ class Card extends Renderer
     {
         parent::__construct($element);
     }
-
 
 
     /**

@@ -3,7 +3,6 @@
 namespace Phoundation\Core;
 
 
-
 /**
  * Class Tmp
  *
@@ -27,7 +26,6 @@ class Tmp
     }
 
 
-
     /**
      * Returns a temp directory that can be used by this process
      *
@@ -37,7 +35,6 @@ class Tmp
     {
 
     }
-
 
 
     /**

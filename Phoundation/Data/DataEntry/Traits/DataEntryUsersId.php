@@ -5,7 +5,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 use Phoundation\Exception\OutOfBoundsException;
 
 
-
 /**
  * Trait DataEntryUsersId
  *
@@ -27,7 +26,6 @@ trait DataEntryUsersId
     {
         return $this->getDataValue('users_id');
     }
-
 
     /**
      * Sets the users_id for this object

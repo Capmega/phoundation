@@ -5,7 +5,6 @@ namespace Phoundation\Cli\Exception;
 use Phoundation\Exception\Exception;
 
 
-
 /**
  * Class CliException
  *

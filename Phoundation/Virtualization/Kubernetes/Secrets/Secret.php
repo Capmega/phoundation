@@ -4,7 +4,6 @@ namespace Phoundation\Virtualization\Kubernetes\Secrets;
 
 use Phoundation\Virtualization\Kubernetes\KubernetesObject;
 
-
 /**
  * Class Secret
  *

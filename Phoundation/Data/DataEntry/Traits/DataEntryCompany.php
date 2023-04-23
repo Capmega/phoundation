@@ -4,7 +4,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Business\Companies\Company;
 
-
 /**
  * Trait DataEntryCompany
  *
@@ -25,7 +24,6 @@ trait DataEntryCompany
     protected ?Company $company;
 
 
-
     /**
      * Returns the companies_id for this object
      *
@@ -35,7 +33,6 @@ trait DataEntryCompany
     {
         return $this->getDataValue('companies_id');
     }
-
 
 
     /**
@@ -48,7 +45,6 @@ trait DataEntryCompany
     {
         return $this->setDataValue('companies_id', $companies_id);
     }
-
 
 
     /**
@@ -66,7 +62,6 @@ trait DataEntryCompany
 
         return null;
     }
-
 
 
     /**

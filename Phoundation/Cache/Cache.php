@@ -14,7 +14,6 @@ use Phoundation\Databases\Redis;
 use Phoundation\Databases\Sql\Sql;
 
 
-
 /**
  * Cache class
  *
@@ -40,7 +39,6 @@ class Cache
     }
 
 
-
     /**
      * Write the specified page to cache
      *
@@ -59,7 +57,6 @@ class Cache
             Log::warning($e);
         }
     }
-
 
 
     /**
@@ -93,7 +90,6 @@ class Cache
     }
 
 
-
     /**
      * Delete the specified page from cache
      *
@@ -105,7 +101,6 @@ class Cache
     {
         static::driver()->delete($key, $namespace);
     }
-
 
 
     /**

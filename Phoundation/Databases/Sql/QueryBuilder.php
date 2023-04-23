@@ -7,7 +7,6 @@ use Phoundation\Exception\OutOfBoundsException;
 
 
 
-
 /**
  * queryBuilder class
  *
@@ -90,7 +89,6 @@ class QueryBuilder
      */
     protected array $execute = [];
 
-
     /**
      * Make this a SELECT query by adding the select clause here
      *
@@ -111,7 +109,6 @@ class QueryBuilder
         $this->select .= $select;
         return $this->addExecuteArray($execute);
     }
-
 
 
     /**
@@ -136,7 +133,6 @@ class QueryBuilder
     }
 
 
-
     /**
      * Make this a UPDATE query by adding the select clause here
      *
@@ -159,7 +155,6 @@ class QueryBuilder
     }
 
 
-
     /**
      * Add the FROM part of the query
      *
@@ -179,7 +174,6 @@ class QueryBuilder
     }
 
 
-
     /**
      * Add a JOIN part of the query
      *
@@ -195,7 +189,6 @@ class QueryBuilder
 
         return $this->addExecuteArray($execute);
     }
-
 
 
     /**
@@ -215,7 +208,6 @@ class QueryBuilder
     }
 
 
-
     /**
      * Add a GROUP BY part of the query
      *
@@ -231,7 +223,6 @@ class QueryBuilder
 
         return $this->addExecuteArray($execute);
     }
-
 
 
     /**
@@ -251,7 +242,6 @@ class QueryBuilder
     }
 
 
-
     /**
      * Add a ORDER BY part of the query
      *
@@ -269,7 +259,6 @@ class QueryBuilder
     }
 
 
-
     /**
      * Add a JOIN part of the query
      *
@@ -282,7 +271,6 @@ class QueryBuilder
         $this->execute[Strings::startsWith($column, ':')] = $value;
         return $this;
     }
-
 
 
     /**
@@ -328,7 +316,6 @@ class QueryBuilder
             ':value' => $value
         ]));
     }
-
 
 
     /**
@@ -377,7 +364,6 @@ class QueryBuilder
     }
 
 
-
     /**
      * Returns the bound variables execute array
      *
@@ -387,7 +373,6 @@ class QueryBuilder
     {
         return $this->execute;
     }
-
 
 
     /**
@@ -406,7 +391,6 @@ class QueryBuilder
 
         return $this;
     }
-
 
 
     /**

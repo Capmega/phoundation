@@ -33,7 +33,6 @@ use Phoundation\Web\Page;
 use Phoundation\Web\Routing\Route;
 use Throwable;
 
-
 /**
  * Class Core
  *
@@ -147,7 +146,6 @@ class Core {
     protected static bool $script = false;
 
 
-
     /**
      * Core class constructor
      */
@@ -204,7 +202,6 @@ class Core {
     }
 
 
-
     /**
      * Singleton
      *
@@ -218,7 +215,6 @@ class Core {
 
         return self::$instance;
     }
-
 
 
     /**
@@ -257,7 +253,6 @@ class Core {
     }
 
 
-
     /**
      * Select what startup should be executed
      *
@@ -279,7 +274,6 @@ class Core {
         static::$state  = 'script';
         static::$script = true;
     }
-
 
 
     /**
@@ -375,7 +369,6 @@ class Core {
 //                    Html::setJsCdnUrl();
         Http::validateGet();
     }
-
 
 
     /**
@@ -675,7 +668,6 @@ class Core {
     }
 
 
-
     /**
      * Checks what platform we're running on and sets definitions for those
      *
@@ -701,7 +693,6 @@ class Core {
     }
 
 
-
     /**
      * Set general file access restrictions
      *
@@ -712,7 +703,6 @@ class Core {
         // Set up the Core restrictions object with default file access restrictions
         static::$restrictions = Restrictions::new(PATH_DATA, false, 'Core');
     }
-
 
 
     /**
@@ -759,7 +749,6 @@ class Core {
             }
         }
     }
-
 
 
     /**
@@ -809,7 +798,6 @@ class Core {
     }
 
 
-
     /**
      * Returns true if the Core is running in failed state
      *
@@ -819,7 +807,6 @@ class Core {
     {
         return static::$failed;
     }
-
 
 
     /**
@@ -846,7 +833,6 @@ class Core {
 
         return $return;
     }
-
 
 
     /**
@@ -885,7 +871,6 @@ class Core {
     }
 
 
-
     /**
      * Delete the specified variable from the core register
      *
@@ -920,7 +905,6 @@ class Core {
     }
 
 
-
     /**
      * Compare the specified value with the registered value for the specified key / sub key in the core register.
      *
@@ -938,7 +922,6 @@ class Core {
 
         return $value === isset_get(static::$register[$key][$subkey]);
     }
-
 
 
     /**
@@ -963,7 +946,6 @@ class Core {
     }
 
 
-
     /**
      * Returns true once script processing has started
      *
@@ -975,7 +957,6 @@ class Core {
     }
 
 
-
     /**
      * Returns true if the Core state is the same as the specified state
      * @param string $state
@@ -985,7 +966,6 @@ class Core {
     {
         return static::$state === $state;
     }
-
 
 
     /**
@@ -1025,7 +1005,6 @@ class Core {
     }
 
 
-
     /**
      * Returns true if the system is still starting up
      *
@@ -1048,7 +1027,6 @@ class Core {
     }
 
 
-
     /**
      * Returns true if the system is still starting up
      *
@@ -1068,7 +1046,6 @@ class Core {
     }
 
 
-
     /**
      * Returns true if the system is running in PHPUnit
      *
@@ -1078,7 +1055,6 @@ class Core {
     {
         return static::readRegister('system', 'script') === 'phpunit';
     }
-
 
 
     /**
@@ -1095,7 +1071,6 @@ class Core {
     }
 
 
-
     /**
      * Returns true if the system is in error state
      *
@@ -1109,7 +1084,6 @@ class Core {
             default             => false,
         };
     }
-
 
 
     /**
@@ -1130,7 +1104,6 @@ class Core {
     }
 
 
-
     /**
      * This method will return the calltype for this call, as is stored in the private variable core::callType
      *
@@ -1140,7 +1113,6 @@ class Core {
     {
         return static::$request_type;
     }
-
 
 
     /**
@@ -1153,7 +1125,6 @@ class Core {
     {
         return (static::$request_type === $type);
     }
-
 
 
     /**
@@ -1194,7 +1165,6 @@ class Core {
     }
 
 
-
     /**
      * Convert all PHP errors in exceptions. With this function the entirety of base works only with exceptions, and
      * function output normally does not need to be checked for errors.
@@ -1223,7 +1193,6 @@ class Core {
 
         throw new \Exception('PHP ERROR [' .$errno . '] "' . $errstr . '" in "' . $errfile . '@' . $errline . '"', $errno);
     }
-
 
 
     /**
@@ -1490,7 +1459,6 @@ class Core {
                                 header('Content-Type: text/html', true);
                             }
 
-
                             if (method_exists($e, 'getMessages')) {
                                 foreach ($e->getMessages() as $message) {
                                     Log::error($message);
@@ -1688,7 +1656,6 @@ class Core {
     }
 
 
-
     /**
      * Set the timeout value for this script
      *
@@ -1708,7 +1675,6 @@ class Core {
         static::$register['system']['timeout'] = $timeout;
         return set_time_limit($timeout);
     }
-
 
 
     /**
@@ -1756,7 +1722,6 @@ class Core {
             $e = new OutOfBoundsException('Language selection failed', $e);
         }
     }
-
 
 
     /**
@@ -1831,7 +1796,6 @@ class Core {
 
         static::$register['system']['locale'] = $locale;
     }
-
 
 
     /**
@@ -1923,7 +1887,6 @@ class Core {
     }
 
 
-
     /**
      * Register a shutdown function
      *
@@ -1947,7 +1910,6 @@ class Core {
             'function' => $function
         ];
     }
-
 
 
     /**
@@ -1981,7 +1943,6 @@ class Core {
 
         return false;
     }
-
 
     /**
      * THIS METHOD SHOULD NOT BE RUN BY ANYBODY! IT IS EXECUTED AUTOMATICALLY ON SHUTDOWN
@@ -2131,7 +2092,6 @@ class Core {
     }
 
 
-
     /**
      * Returns the framework database version
      *
@@ -2143,7 +2103,6 @@ class Core {
 // TODO implement
         return 'unknown';
     }
-
 
 
     /**
@@ -2164,7 +2123,6 @@ class Core {
 
         return $limit;
     }
-
 
 
     /**
@@ -2190,7 +2148,6 @@ class Core {
 
         return $available;
     }
-
 
     /**
      * Returns either the specified restrictions object or the Core restrictions object
@@ -2228,7 +2185,6 @@ class Core {
     }
 
 
-
     /**
      * Will execute the specified callback only when not running in TEST mode
      *
@@ -2246,7 +2202,6 @@ class Core {
             $function();
         }
     }
-
 
 
     /**
@@ -2312,7 +2267,6 @@ class Core {
     }
 
 
-
     /**
      * Sets timezone, see http://www.php.net/manual/en/timezones.php for more info
      *
@@ -2338,7 +2292,6 @@ class Core {
         define('TIMEZONE', $timezone);
         ensure_variable($_SESSION['user']['timezone'], 'UTC');
     }
-
 
 
     /**

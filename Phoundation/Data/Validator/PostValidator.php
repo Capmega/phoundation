@@ -6,7 +6,6 @@ use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 
 
-
 /**
  * PostValidator class
  *
@@ -29,7 +28,6 @@ class PostValidator extends Validator
     public static ?array $post = null;
 
 
-
     /**
      * Validator constructor.
      *
@@ -46,7 +44,6 @@ class PostValidator extends Validator
     }
 
 
-
     /**
      * Returns a new $_POST data Validator object
      *
@@ -57,7 +54,6 @@ class PostValidator extends Validator
     {
         return new static($parent);
     }
-
 
 
     /**
@@ -79,7 +75,6 @@ class PostValidator extends Validator
         $_POST    = [];
         $_REQUEST = [];
     }
-
 
 
     /**
@@ -104,7 +99,6 @@ class PostValidator extends Validator
     }
 
 
-
     /**
      * Add the specified value for key to the internal GET array
      *
@@ -116,7 +110,6 @@ class PostValidator extends Validator
     {
         static::$post[$key] = $value;
     }
-
 
 
     /**
@@ -138,7 +131,6 @@ class PostValidator extends Validator
     }
 
 
-
     /**
      * Selects the specified key within the array that we are validating
      *
@@ -149,7 +141,6 @@ class PostValidator extends Validator
     {
         return $this->standardSelect($field);
     }
-
 
 
     /**
@@ -176,7 +167,6 @@ class PostValidator extends Validator
 
         return $button;
     }
-
 
 
     /**

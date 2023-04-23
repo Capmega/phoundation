@@ -5,7 +5,6 @@ namespace Phoundation\Business\Companies\Departments;
 use Phoundation\Business\Companies\Company;
 use Phoundation\Data\DataEntry\DataList;
 
-
 /**
  *  Class Departments
  *
@@ -38,7 +37,6 @@ class Departments extends DataList
     }
 
 
-
     /**
      * @inheritDoc
      */
@@ -48,7 +46,6 @@ class Departments extends DataList
     }
 
 
-
     /**
      * @inheritDoc
      */
@@ -56,7 +53,6 @@ class Departments extends DataList
     {
         // TODO: Implement save() method.
     }
-
 
 
     /**

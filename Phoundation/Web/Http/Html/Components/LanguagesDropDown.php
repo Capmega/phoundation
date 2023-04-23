@@ -5,7 +5,6 @@ namespace Phoundation\Web\Http\Html\Components;
 use Phoundation\Core\Locale\Language\Languages;
 use Phoundation\Web\Http\UrlBuilder;
 
-
 /**
  * LanguagesDropDown class
  *
@@ -33,7 +32,6 @@ class LanguagesDropDown extends ElementsBlock
     protected ?string $settings_url = null;
 
 
-
     /**
      * Returns the languages object
      *
@@ -43,7 +41,6 @@ class LanguagesDropDown extends ElementsBlock
     {
         return $this->languages;
     }
-
 
 
     /**
@@ -59,7 +56,6 @@ class LanguagesDropDown extends ElementsBlock
     }
 
 
-
     /**
      * Returns the languages page URL
      *
@@ -69,7 +65,6 @@ class LanguagesDropDown extends ElementsBlock
     {
         return $this->settings_url;
     }
-
 
 
     /**

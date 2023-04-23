@@ -15,7 +15,6 @@ use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
 
-
 // Validate GET
 GetValidator::new()
     ->select('id')->isOptional()->isId()
@@ -46,12 +45,10 @@ if (Page::isPostRequestMethod()) {
 }
 
 
-
 // Build the buttons
 $buttons = Buttons::new()
     ->addButton('Submit')
     ->addButton(tr('Back'), 'secondary', '/accounts/users.html', true);
-
 
 
 // Build the user form
@@ -60,7 +57,6 @@ $card = Card::new()
     ->setTitle(tr('Edit data for User :name', [':name' => $user->getDisplayName()]))
     ->setContent($user->getHtmlForm()->render())
     ->setButtons($buttons);
-
 
 
 // Build the roles list management section
@@ -73,13 +69,11 @@ $rights = Card::new()
     ->setButtons($buttons);
 
 
-
 // Build the grid column with a form containing the user and roles cards
 $column = GridColumn::new()
     ->addContent($card->render() . $rights->render())
     ->setSize(9)
     ->useForm(true);
-
 
 
 // Build profile picture card
@@ -88,7 +82,6 @@ $picture = Card::new()
     ->setContent(Img::new()
         ->setSrc($user->getPicture())
         ->setAlt(tr('Profile picture for :user', [':user' => $user->getDisplayName()])));
-
 
 
 // Build relevant links
@@ -100,7 +93,6 @@ $relevant = Card::new()
                          <a href="' . UrlBuilder::getWww('/accounts/rights.html') . '">' . tr('Rights management') . '</a>');
 
 
-
 // Build documentation
 $documentation = Card::new()
     ->setMode(DisplayMode::info)
@@ -110,14 +102,12 @@ $documentation = Card::new()
                          <p>Et molestias aut vitae et autem distinctio. Molestiae quod ullam a. Fugiat veniam dignissimos rem repudiandae consequuntur voluptatem. Enim dolores sunt unde sit dicta animi quod. Nesciunt nisi non ea sequi aut. Suscipit aperiam amet fugit facere dolorem qui deserunt.</p>');
 
 
-
 // Build and render the grid
 $grid = Grid::new()
     ->addColumn($column)
     ->addColumn($picture->render() . $relevant->render() . $documentation->render(), 3);
 
 echo $grid->render();
-
 
 // Set page meta data
 Page::setHeaderTitle(tr('User'));

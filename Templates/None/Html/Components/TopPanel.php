@@ -7,7 +7,6 @@ use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Html\Renderer;
 use Phoundation\Web\Http\UrlBuilder;
 
-
 /**
  * None Plugin TopPanel class
  *
@@ -27,7 +26,6 @@ class TopPanel extends Renderer
     {
         parent::__construct($element);
     }
-
 
 
     /**

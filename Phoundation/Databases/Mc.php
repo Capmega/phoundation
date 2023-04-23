@@ -13,7 +13,6 @@ use Phoundation\Notifications\Notification;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Throwable;
 
-
 /**
  * Class Mc
  *
@@ -61,7 +60,6 @@ class Mc
     protected ?MemcachedNamespace $namespace = null;
 
 
-
     /**
      * Initialize the class object through the constructor.
      *
@@ -91,7 +89,6 @@ class Mc
     }
 
 
-
     /**
      * Return the active Mc connections
      *
@@ -103,7 +100,6 @@ class Mc
     }
 
 
-
     /**
      * Return the configured Mc connections
      *
@@ -113,7 +109,6 @@ class Mc
     {
         return $this->configuration['connections'];
     }
-
 
 
     /**
@@ -128,7 +123,6 @@ class Mc
     }
 
 
-
     /**
      * Set the configured Mc connections
      *
@@ -141,7 +135,6 @@ class Mc
         $this->configuration['connections'] = [];
         return $this->addConnections($connections);
     }
-
 
 
     /**
@@ -160,7 +153,6 @@ class Mc
     }
 
 
-
     /**
      * Add the specified connection
      *
@@ -174,7 +166,6 @@ class Mc
         return $this;
     }
 
-
     /**
      * Return the memcached namespace object
      *
@@ -184,7 +175,6 @@ class Mc
     {
         return $this->namespace;
     }
-
 
 
     /**
@@ -205,7 +195,6 @@ class Mc
     }
 
 
-
     /**
      * Flush all cached memcache data
      *
@@ -217,7 +206,6 @@ class Mc
         $this->memcached->flush($delay);
         return $this;
     }
-
 
 
     /**
@@ -242,7 +230,6 @@ class Mc
 
         return $value;
     }
-
 
 
     /**
@@ -271,7 +258,6 @@ class Mc
     }
 
 
-
     /**
      *
      *
@@ -298,7 +284,6 @@ class Mc
     }
 
 
-
     /**
      * Return the data for the specified key (and optionally namespace)
      *
@@ -323,7 +308,6 @@ class Mc
 
         return $data;
     }
-
 
 
     /**
@@ -355,7 +339,6 @@ class Mc
     }
 
 
-
     /**
      * Clear the entire memcache
      *
@@ -369,7 +352,6 @@ class Mc
 
         $this->memcached->flush($delay);
     }
-
 
 
     /**
@@ -389,7 +371,6 @@ class Mc
     }
 
 
-
     /**
      * Return statistics for this memcached instance
      *
@@ -406,7 +387,6 @@ class Mc
 
         return $stats;
     }
-
 
 
     /**
@@ -443,7 +423,6 @@ class Mc
             Arrays::ensure($restrictionss, 'host,port,weight');
         }
     }
-
 
 
     /**

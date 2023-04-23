@@ -12,7 +12,6 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\UnderConstructionException;
 
-
 /**
  * Category class
  *
@@ -29,7 +28,6 @@ class Category extends DataEntry
     use DataEntryNameDescription;
 
 
-
     /**
      * Category class constructor
      *
@@ -44,7 +42,6 @@ class Category extends DataEntry
     }
 
 
-
     /**
      * Returns the parents_id for this object
      *
@@ -54,7 +51,6 @@ class Category extends DataEntry
     {
         return $this->getDataValue('parents_id');
     }
-
 
 
     /**
@@ -67,7 +63,6 @@ class Category extends DataEntry
     {
         return $this->setDataValue('parents_id', $parents_id);
     }
-
 
 
     /**
@@ -85,7 +80,6 @@ class Category extends DataEntry
 
         return null;
     }
-
 
 
     /**
@@ -106,7 +100,6 @@ class Category extends DataEntry
 
         return $this->setDataValue('parents_id', $parents_id);
     }
-
 
 
     /**
@@ -134,7 +127,6 @@ class Category extends DataEntry
 
         return $data;
     }
-
 
     /**
      * Sets the available data keys for this entry

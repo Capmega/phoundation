@@ -3,7 +3,6 @@
 namespace Phoundation\Data\DataEntry\Enums;
 
 
-
 /**
  * Enum StateMismatchHandling
  *

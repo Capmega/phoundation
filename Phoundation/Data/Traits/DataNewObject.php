@@ -3,7 +3,6 @@
 namespace Phoundation\Data\Traits;
 
 
-
 /**
  * Trait NewObject
  *

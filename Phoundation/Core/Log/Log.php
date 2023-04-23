@@ -23,7 +23,6 @@ use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
 use Throwable;
 
-
 /**
  * Log class
  *
@@ -49,7 +48,6 @@ Class Log {
      * Used to display both classes and function and files and line numbers in backtraces
      */
     public const BACKTRACE_DISPLAY_BOTH = 3;
-
 
 
     /**
@@ -141,7 +139,6 @@ Class Log {
     protected static Restrictions $restrictions;
 
 
-
     /**
      * Log constructor
      *
@@ -198,7 +195,6 @@ Class Log {
     }
 
 
-
     /**
      * Singleton, ensure to always return the same Log object.
      *
@@ -230,7 +226,6 @@ Class Log {
     }
 
 
-
     /**
      * Returns if the static Log object has been initialized or not. This SHOULD always return true.
      *
@@ -240,7 +235,6 @@ Class Log {
     {
         return static::$init;
     }
-
 
 
     /**
@@ -254,7 +248,6 @@ Class Log {
     }
 
 
-
     /**
      * Returns the log threshold on which log messages will pass to log files
      *
@@ -264,7 +257,6 @@ Class Log {
     {
         return static::$threshold;
     }
-
 
 
     /**
@@ -289,7 +281,6 @@ Class Log {
     }
 
 
-
     /**
      * Returns if double messages shoudl be filtered or not
      *
@@ -299,7 +290,6 @@ Class Log {
     {
         return static::$filter_double;
     }
-
 
 
     /**
@@ -313,7 +303,6 @@ Class Log {
     }
 
 
-
     /**
      * Returns the file to which log messages will be written
      *
@@ -323,7 +312,6 @@ Class Log {
     {
         return static::$file;
     }
-
 
 
     /**
@@ -364,7 +352,6 @@ Class Log {
     }
 
 
-
     /**
      * Close the specified log file
      *
@@ -386,7 +373,6 @@ Class Log {
     }
 
 
-
     /**
      * Returns the local log id value
      *
@@ -399,7 +385,6 @@ Class Log {
     {
         return static::$local_id;
     }
-
 
 
     /**
@@ -422,7 +407,6 @@ Class Log {
     }
 
 
-
     /**
      * Returns the backtrace display configuration
      *
@@ -436,7 +420,6 @@ Class Log {
     {
         return static::$display;
     }
-
 
 
     /**
@@ -483,7 +466,6 @@ Class Log {
     }
 
 
-
     /**
      * Returns the local log id value
      *
@@ -496,7 +478,6 @@ Class Log {
     {
         return static::$global_id;
     }
-
 
 
     /**
@@ -523,7 +504,6 @@ Class Log {
     }
 
 
-
     /**
      * Write a success message in the log file
      *
@@ -535,7 +515,6 @@ Class Log {
     {
         return static::write($messages, 'success', $threshold, $clean, $newline);
     }
-
 
 
     /**
@@ -551,7 +530,6 @@ Class Log {
     }
 
 
-
     /**
      * Dump an exception object in the log file
      *
@@ -563,7 +541,6 @@ Class Log {
     {
         return static::write($messages, 'error', $threshold, false);
     }
-
 
 
     /**
@@ -579,7 +556,6 @@ Class Log {
     }
 
 
-
     /**
      * Write a notice message in the log file
      *
@@ -593,7 +569,6 @@ Class Log {
     }
 
 
-
     /**
      * Write a action message in the log file
      *
@@ -605,7 +580,6 @@ Class Log {
     {
         return static::write($messages, 'action', $threshold, $clean, $newline);
     }
-
 
 
     /**
@@ -622,7 +596,6 @@ Class Log {
     }
 
 
-
     /**
      * Write a information message in the log file
      *
@@ -634,7 +607,6 @@ Class Log {
     {
         return static::write($messages, 'information', $threshold, $clean, $newline);
     }
-
 
 
     /**
@@ -704,7 +676,6 @@ Class Log {
     }
 
 
-
     /**
      * Write a "FUNCTION IS DEPRECATED" message in the log file
      *
@@ -715,7 +686,6 @@ Class Log {
     {
         return static::logDebugHeader('DEPRECATED', 1, $threshold, $clean, $newline);
     }
-
 
 
     /**
@@ -733,7 +703,6 @@ Class Log {
     }
 
 
-
     /**
      * Write a checkpoint message in the log file.
      *
@@ -747,7 +716,6 @@ Class Log {
     {
         return static::logDebugHeader('CHECKPOINT ' . $message, 1, $threshold, $clean, $newline);
     }
-
 
 
     /**
@@ -764,7 +732,6 @@ Class Log {
     }
 
 
-
     /**
      * Write a debug message using vardump() in the log file
      *
@@ -777,7 +744,6 @@ Class Log {
         static::logDebugHeader('VARDUMP', 1, $threshold);
         return static::write(var_export($messages, true), 'debug', $threshold, false);
     }
-
 
 
     /**
@@ -796,7 +762,6 @@ Class Log {
     }
 
 
-
     /**
      * Write a debug statistics dump message in the log file
      *
@@ -808,7 +773,6 @@ Class Log {
         // WTH IS THIS? LIBRARY::GETJSON() ???
         return Log::printr(Library::getJson(), $threshold);
     }
-
 
 
     /**
@@ -825,7 +789,6 @@ Class Log {
         $query = Strings::endsWith($query, ';');
         return static::write('SQL QUERY: ' . $query, 'debug', $threshold, $clean, $newline);
     }
-
 
 
     /**
@@ -1023,7 +986,6 @@ Class Log {
     }
 
 
-
     /**
      * Write a debug header message in the log file
      *
@@ -1054,7 +1016,6 @@ Class Log {
                 ':line'     => $line
             ]), 'debug', $threshold);
     }
-
 
 
     /**

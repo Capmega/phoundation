@@ -3,7 +3,6 @@
 namespace Phoundation\Data\DataEntry\Traits;
 
 
-
 use Phoundation\Seo\Seo;
 
 /**
@@ -29,7 +28,6 @@ trait DataEntryHostnamePort
     }
 
 
-
     /**
      * Returns the hostname for this object
      *
@@ -39,7 +37,6 @@ trait DataEntryHostnamePort
     {
         return $this->getDataValue('hostname');
     }
-
 
 
     /**
@@ -61,7 +58,6 @@ trait DataEntryHostnamePort
     }
 
 
-
     /**
      * Returns the port for this object
      *
@@ -71,7 +67,6 @@ trait DataEntryHostnamePort
     {
         return $this->getDataValue('port');
     }
-
 
 
     /**

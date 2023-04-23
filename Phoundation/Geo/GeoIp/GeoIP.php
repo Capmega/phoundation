@@ -1,7 +1,6 @@
 <?php
 
 
-
 /**
  * GeoIp class
  *
@@ -28,7 +27,6 @@ class GeoIP
     }
 
 
-
     /**
      * Returns a new GeoIp object
      *
@@ -39,7 +37,6 @@ class GeoIP
     {
         return new static($ip);
     }
-
 
 
     /**

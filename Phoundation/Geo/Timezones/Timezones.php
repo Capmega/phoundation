@@ -6,7 +6,6 @@ use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Web\Http\Html\Components\Input\Select;
 use Phoundation\Web\Http\Html\Components\Table;
 
-
 /**
  * Timezones class
  *
@@ -39,7 +38,6 @@ class Timezones extends DataList
     }
 
 
-
     /**
      * Creates and returns an HTML table for the data in this list
      *
@@ -52,7 +50,6 @@ class Timezones extends DataList
 
         return $table;
     }
-
 
 
     /**
@@ -71,7 +68,6 @@ class Timezones extends DataList
             ->setNone(tr('Please select a timezone'))
             ->setEmpty(tr('No timezones available'));
     }
-
 
 
     /**

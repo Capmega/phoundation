@@ -5,7 +5,6 @@ namespace Phoundation\Web\Http\Html\Components;
 use Phoundation\Web\Http\Html\Modals\SignInModal;
 
 
-
 /**
  * SidePanel class
  *

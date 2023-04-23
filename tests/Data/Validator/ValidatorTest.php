@@ -7,7 +7,6 @@ use Phoundation\Data\Validator\Validator;
 use PHPUnit\Framework\TestCase;
 
 
-
 /**
  * \Phoundation\Core\Validator test class
  */
@@ -54,7 +53,6 @@ class ValidatorTest extends TestCase
     }
 
 
-
     /**
      * Test Validator::isString()
      *
@@ -94,7 +92,6 @@ class ValidatorTest extends TestCase
 
         $this->assertEquals($result, $array);
     }
-
 
 
     /**
@@ -138,7 +135,6 @@ class ValidatorTest extends TestCase
     }
 
 
-
     /**
      * Test Validator::isBoolean()
      *
@@ -178,7 +174,6 @@ class ValidatorTest extends TestCase
 
         $this->assertEquals($result, $array);
     }
-
 
 
     /**
@@ -222,7 +217,6 @@ class ValidatorTest extends TestCase
     }
 
 
-
     /**
      * Test Validator::isInteger()
      *
@@ -262,7 +256,6 @@ class ValidatorTest extends TestCase
 
         $this->assertEquals($result, $array);
     }
-
 
 
     /**
@@ -306,7 +299,6 @@ class ValidatorTest extends TestCase
     }
 
 
-
     /**
      * Test Validator::isLessThan()
      *
@@ -348,7 +340,6 @@ class ValidatorTest extends TestCase
     }
 
 
-
     /**
      * Test Validator::isMoreThan()
      *
@@ -388,7 +379,6 @@ class ValidatorTest extends TestCase
 
         $this->assertEquals($result, $array);
     }
-
 
 
     /**

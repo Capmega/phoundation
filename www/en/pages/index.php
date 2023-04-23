@@ -8,7 +8,6 @@ use Phoundation\Web\Page;
 use Phoundation\Web\Http\Html\Components\BreadCrumbs;
 
 
-
 // Build the page
 $card = Card::new()
     ->setTitle(tr('This is a test!'))
@@ -28,7 +27,6 @@ $layout = Grid::new()
     ->addRow($row);
 
 echo $layout->render();
-
 
 
 // Set page meta data

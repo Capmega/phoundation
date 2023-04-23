@@ -11,7 +11,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Page;
 use Throwable;
 
-
 /**
  * Class Csrf
  *
@@ -67,7 +66,6 @@ class Csrf
         Core::readRegister('csrf', $csrf);
         return $csrf;
     }
-
 
 
     /**

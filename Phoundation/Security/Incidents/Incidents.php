@@ -4,7 +4,6 @@ namespace Phoundation\Security\Incidents;
 
 use Phoundation\Data\DataEntry\DataList;
 
-
 /**
  * Class Incidents
  *
@@ -38,7 +37,6 @@ class Incidents extends DataList
     }
 
 
-
     /**
      * @inheritDoc
      */
@@ -48,7 +46,6 @@ class Incidents extends DataList
     }
 
 
-
     /**
      * @inheritDoc
      */
@@ -56,7 +53,6 @@ class Incidents extends DataList
     {
         // TODO: Implement loadDetails() method.
     }
-
 
 
     /**

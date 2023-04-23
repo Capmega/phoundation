@@ -5,7 +5,6 @@ namespace Phoundation\Data\Traits;
 use Phoundation\Seo\Seo;
 
 
-
 /**
  * Trait DataUserPass
  *
@@ -33,7 +32,6 @@ trait DataUserPass
     protected ?string $password = null;
 
 
-
     /**
      * Returns the user for this object
      *
@@ -43,7 +41,6 @@ trait DataUserPass
     {
         return $this->user;
     }
-
 
 
     /**
@@ -59,7 +56,6 @@ trait DataUserPass
     }
 
 
-
     /**
      * Returns the pass for this object
      *
@@ -69,7 +65,6 @@ trait DataUserPass
     {
         return $this->pass;
     }
-
 
 
     /**

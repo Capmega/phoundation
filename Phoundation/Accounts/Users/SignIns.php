@@ -7,7 +7,6 @@ use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Web\Http\Html\Components\Input\Select;
 use Phoundation\Web\Http\Html\Components\Table;
 
-
 /**
  * SignIns class
  *
@@ -51,7 +50,6 @@ class SignIns extends DataList
     }
 
 
-
     /**
      * Creates and returns an HTML table for the data in this list
      *
@@ -64,7 +62,6 @@ class SignIns extends DataList
 
         return $table;
     }
-
 
 
     /**
@@ -86,7 +83,6 @@ class SignIns extends DataList
     }
 
 
-
     /**
      * @inheritDoc
      */
@@ -94,7 +90,6 @@ class SignIns extends DataList
     {
         // TODO: Implement load() method.
     }
-
 
 
     /**

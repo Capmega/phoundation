@@ -2,7 +2,6 @@
 
 namespace Phoundation\Data\Interfaces;
 
-
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Meta\Meta;
 use Phoundation\Data\DataEntry\DataEntry;

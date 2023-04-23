@@ -21,7 +21,6 @@ use Phoundation\Processes\Commands\Rsync;
 use Phoundation\Processes\Process;
 use Throwable;
 
-
 /**
  * Project class
  *
@@ -38,7 +37,6 @@ class Project
     use Git {
         __construct as protected construct;
     }
-
 
 
     /**
@@ -73,7 +71,6 @@ class Project
     ];
 
 
-
     /**
      * Phoundation constructor
      *
@@ -90,7 +87,6 @@ class Project
     }
 
 
-
     /**
      * Returns a new Phoundation object
      *
@@ -101,7 +97,6 @@ class Project
     {
         return new static($path);
     }
-
 
 
     /**
@@ -126,7 +121,6 @@ class Project
     }
 
 
-
     /**
      * Returns the git object for this project
      *
@@ -138,7 +132,6 @@ class Project
     }
 
 
-
     /**
      * Returns the project name
      *
@@ -148,7 +141,6 @@ class Project
     {
         return static::$name;
     }
-
 
 
     /**
@@ -176,7 +168,6 @@ class Project
     }
 
 
-
     /**
      * Returns the selected environment for this project
      *
@@ -186,7 +177,6 @@ class Project
     {
         return static::$environment;
     }
-
 
 
     /**
@@ -211,7 +201,6 @@ class Project
 
         return $return;
     }
-
 
 
     /**
@@ -249,7 +238,6 @@ class Project
     }
 
 
-
     /**
      * Remove this project
      *
@@ -269,7 +257,6 @@ class Project
         Log::warning(tr('Removing project file "config/project"'));
         File::new(PATH_ROOT . 'config/project', Restrictions::new(PATH_ROOT . 'config/project', true))->delete();
     }
-
 
 
     /**
@@ -320,7 +307,6 @@ class Project
     }
 
 
-
     /**
      * Returns if the project file exists
      *
@@ -330,7 +316,6 @@ class Project
     {
         return file_exists(PATH_ROOT . 'config/project');
     }
-
 
 
     /**
@@ -358,7 +343,6 @@ class Project
     }
 
 
-
     /**
      * Loads and returns the project name
      *
@@ -373,7 +357,6 @@ class Project
 
         return $project;
     }
-
 
 
     /**
@@ -453,7 +436,6 @@ class Project
     }
 
 
-
     /**
      * Checks your Phoundation project installation
      *
@@ -513,7 +495,6 @@ class Project
     }
 
 
-
     /**
      * Checks if there are updates availabe for Phoundation
      */
@@ -521,7 +502,6 @@ class Project
     {
         throw new UnderConstructionException();
     }
-
 
 
     /**
@@ -585,7 +565,6 @@ class Project
     }
 
 
-
     /**
      * Updates your Phoundation installation from Phoundation g
      */
@@ -593,7 +572,6 @@ class Project
     {
         throw new UnderConstructionException();
     }
-
 
 
     /**
@@ -605,7 +583,6 @@ class Project
     {
         file_put_contents(PATH_ROOT . 'config/project', static::$name);
     }
-
 
 
     /**
@@ -638,7 +615,6 @@ class Project
     }
 
 
-
     /**
      * Remove the specified environment
      *
@@ -663,7 +639,6 @@ class Project
         // Get the environment and remove all environment specific data
         return Environment::get(static::$name, $environment)->remove();
     }
-
 
 
     /**

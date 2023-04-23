@@ -2,7 +2,6 @@
 
 namespace Phoundation\Web\Http\Html\Enums;
 
-
 /**
  * Enum BrowserEvents
  *

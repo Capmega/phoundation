@@ -12,7 +12,6 @@ use Phoundation\Web\Http\Html\Components\DataTable;
 use Phoundation\Web\Http\Html\Components\Table;
 use ReturnTypeWillChange;
 
-
 /**
  * Class DataList
  *
@@ -89,7 +88,6 @@ abstract class DataList implements Iterator
     protected string $unique_column = 'seo_name';
 
 
-
     /**
      * DataList class constructor
      *
@@ -114,7 +112,6 @@ abstract class DataList implements Iterator
     }
 
 
-
     /**
      * Return the object contents in JSON string format
      *
@@ -126,7 +123,6 @@ abstract class DataList implements Iterator
     }
 
 
-
     /**
      * Return the object contents in array format
      *
@@ -136,7 +132,6 @@ abstract class DataList implements Iterator
     {
         return $this->list;
     }
-
 
 
     /**
@@ -152,7 +147,6 @@ abstract class DataList implements Iterator
     }
 
 
-
     /**
      * Returns the amount of items in this list
      *
@@ -162,7 +156,6 @@ abstract class DataList implements Iterator
     {
         return count($this->list);
     }
-
 
 
     /**
@@ -179,7 +172,6 @@ abstract class DataList implements Iterator
 
         return array_key_exists($entry->getId(), $this->list);
     }
-
 
 
     /**
@@ -213,7 +205,6 @@ abstract class DataList implements Iterator
 
         return $return;
     }
-
 
 
     /**
@@ -255,7 +246,6 @@ abstract class DataList implements Iterator
     }
 
 
-
     /**
      * Returns if all (or optionally any) of the specified entries are in this list
      *
@@ -295,7 +285,6 @@ abstract class DataList implements Iterator
     }
 
 
-
     /**
      * Returns the entire internal list
      *
@@ -305,7 +294,6 @@ abstract class DataList implements Iterator
     {
         return array_flip($this->list);
     }
-
 
 
     /**
@@ -329,7 +317,6 @@ abstract class DataList implements Iterator
     }
 
 
-
     /**
      * Returns the list of internal ID's
      *
@@ -341,7 +328,6 @@ abstract class DataList implements Iterator
     }
 
 
-
     /**
      * Returns all configured filters to apply when loading the data list
      *
@@ -351,7 +337,6 @@ abstract class DataList implements Iterator
     {
         return $this->filters;
     }
-
 
 
     /**
@@ -370,7 +355,6 @@ abstract class DataList implements Iterator
     }
 
 
-
     /**
      * Returns the query for this object when shown as HTML table
      *
@@ -382,7 +366,6 @@ abstract class DataList implements Iterator
     }
 
 
-
     /**
      * Returns the table name that is the source for this DataList object
      *
@@ -392,7 +375,6 @@ abstract class DataList implements Iterator
     {
         return $this->table_name;
     }
-
 
 
     /**
@@ -408,7 +390,6 @@ abstract class DataList implements Iterator
     }
 
 
-
     /**
      * Returns the schema Table object for the table that is the source for this DataList object
      *
@@ -418,7 +399,6 @@ abstract class DataList implements Iterator
     {
         return sql()->schema()->table($this->table_name);
     }
-
 
 
     /**
@@ -431,7 +411,6 @@ abstract class DataList implements Iterator
         $this->filters = [];
         return $this;
     }
-
 
 
     /**
@@ -448,7 +427,6 @@ abstract class DataList implements Iterator
     }
 
 
-
     /**
      * Add multiple filters to apply when loading the data list
      *
@@ -463,7 +441,6 @@ abstract class DataList implements Iterator
 
         return $this;
     }
-
 
 
     /**
@@ -485,7 +462,6 @@ abstract class DataList implements Iterator
 
         return $this;
     }
-
 
 
     /**
@@ -512,7 +488,6 @@ abstract class DataList implements Iterator
     }
 
 
-
     /**
      * Returns the current item
      *
@@ -522,7 +497,6 @@ abstract class DataList implements Iterator
     {
         return $this->get(key($this->list));
     }
-
 
 
     /**
@@ -537,7 +511,6 @@ abstract class DataList implements Iterator
     }
 
 
-
     /**
      * Jumps to the next element
      *
@@ -548,7 +521,6 @@ abstract class DataList implements Iterator
         prev($this->list);
         return $this;
     }
-
 
 
     /**
@@ -562,7 +534,6 @@ abstract class DataList implements Iterator
     }
 
 
-
     /**
      * Returns if the current element exists or not
      *
@@ -572,7 +543,6 @@ abstract class DataList implements Iterator
     {
         return isset($this->list[key($this->list)]);
     }
-
 
 
     /**
@@ -585,7 +555,6 @@ abstract class DataList implements Iterator
         reset($this->list);
         return $this;
     }
-
 
 
     /**
@@ -606,7 +575,6 @@ abstract class DataList implements Iterator
             ->setSourceQuery($this->html_query, $this->html_execute)
             ->setCheckboxSelectors(true);
     }
-
 
 
     /**
@@ -630,7 +598,6 @@ abstract class DataList implements Iterator
     }
 
 
-
     /**
      * Creates and returns a CLI table for the data in this list
      *
@@ -644,7 +611,6 @@ abstract class DataList implements Iterator
         $list = $this->loadDetails($columns, $filters);
         Cli::displayTable($list, $columns, $id_column);
     }
-
 
 
     /**
@@ -661,7 +627,6 @@ abstract class DataList implements Iterator
     }
 
 
-
     /**
      * Delete the specified entries
      *
@@ -676,7 +641,6 @@ showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY F
     }
 
 
-
     /**
      * Undelete the specified entries
      *
@@ -689,7 +653,6 @@ showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY F
 showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY FOR A SINGLE ROW!');
         return $this->setStatus(null, $entries, $comments);
     }
-
 
 
     /**
@@ -708,7 +671,6 @@ showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY F
     }
 
 
-
 //    /**
 //     * Erase the specified entries
 //     *
@@ -719,7 +681,6 @@ showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY F
 //    {
 //        return sql()->erase($this->table_name, $entries);
 //    }
-
 
 
     /**
@@ -736,7 +697,6 @@ showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY F
 
         return $this;
     }
-
 
 
     /**
@@ -759,7 +719,6 @@ showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY F
     }
 
 
-
     /**
      * Remove all the entries from the DataList
      *
@@ -770,7 +729,6 @@ showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY F
         $this->list = [];
         return $this;
     }
-
 
 
     /**
@@ -784,7 +742,6 @@ showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY F
             $this->load();
         }
     }
-
 
 
     /**
@@ -801,7 +758,6 @@ showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY F
     }
 
 
-
     /**
      * Load the id list from database
      *
@@ -809,7 +765,6 @@ showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY F
      * @return static
      */
     abstract protected function load(string|null $id_column = null): static;
-
 
 
     /**
@@ -820,7 +775,6 @@ showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY F
      * @return array
      */
     abstract protected function loadDetails(array|string|null $columns, array $filters = []): array;
-
 
 
     /**

@@ -2,7 +2,6 @@
 
 namespace Phoundation\Security\Puks;
 
-
 use Phoundation\Core\Session;
 use Phoundation\Puks\Exception\PuksException;
 use Phoundation\Utils\Json;
@@ -26,7 +25,6 @@ class Puks
      */
     protected string $user_key;
 
-
     /**
      * Puks class constructor
      *
@@ -45,7 +43,6 @@ class Puks
         unset($user_key);
     }
 
-
     /**
      * Returns a new Puks type object
      *
@@ -56,7 +53,6 @@ class Puks
     {
         return new static($user_key);
     }
-
 
     /**
      * Encrypts and returns the specified data string
@@ -72,7 +68,6 @@ class Puks
         return $data;
     }
 
-
     /**
      * Encrypts and returns the specified data string
      *
@@ -85,7 +80,6 @@ class Puks
 
         return Json::decode($data);
     }
-
 
     /**
      * Returns the database stored key
@@ -105,7 +99,6 @@ class Puks
         return null;
     }
 
-
     /**
      * @param string $key
      * @param string|null $encryption_key
@@ -115,7 +108,6 @@ class Puks
     {
         return $key;
     }
-
 
     /**
      * @param string $data

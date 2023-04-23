@@ -7,7 +7,6 @@ use Phoundation\Web\Http\Html\Components\Input\InputElement;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
 
 
-
 /**
  * Class RenderElement
  *
@@ -21,7 +20,6 @@ use Phoundation\Web\Http\Html\Exception\HtmlException;
 abstract class ResourceElement extends Element
 {
     use InputElement;
-
 
 
     /**
@@ -81,7 +79,6 @@ abstract class ResourceElement extends Element
     protected bool $cache = false;
 
 
-
     /**
      * ResourceElement class constructor
      */
@@ -89,7 +86,6 @@ abstract class ResourceElement extends Element
     {
         parent::__construct();
     }
-
 
 
     /**
@@ -105,7 +101,6 @@ abstract class ResourceElement extends Element
     }
 
 
-
     /**
      * Returns the HTML none element attribute
      *
@@ -117,7 +112,6 @@ abstract class ResourceElement extends Element
     }
 
 
-
     /**
      * Returns the HTML empty element attribute
      *
@@ -127,7 +121,6 @@ abstract class ResourceElement extends Element
     {
         return $this->empty;
     }
-
 
 
     /**
@@ -143,7 +136,6 @@ abstract class ResourceElement extends Element
     }
 
 
-
     /**
      * Returns whether query sources will be cached or not
      *
@@ -153,7 +145,6 @@ abstract class ResourceElement extends Element
     {
         return $this->cache;
     }
-
 
 
     /**
@@ -169,7 +160,6 @@ abstract class ResourceElement extends Element
     }
 
 
-
     /**
      * Sets if this element will be hidden (Element::render() will return an empty string) if the resource is empty
      *
@@ -183,7 +173,6 @@ abstract class ResourceElement extends Element
     }
 
 
-
     /**
      * Returns if this element will be hidden (Element::render() will return an empty string) if the resource is empty
      *
@@ -193,7 +182,6 @@ abstract class ResourceElement extends Element
     {
         return $this->hide_empty;
     }
-
 
 
     /**
@@ -213,7 +201,6 @@ abstract class ResourceElement extends Element
     }
 
 
-
     /**
      * Sets the array source
      *
@@ -231,7 +218,6 @@ abstract class ResourceElement extends Element
     }
 
 
-
     /**
      * Returns the array source
      *
@@ -241,7 +227,6 @@ abstract class ResourceElement extends Element
     {
         return $this->source_array;
     }
-
 
 
     /**
@@ -267,7 +252,6 @@ abstract class ResourceElement extends Element
     }
 
 
-
     /**
      * Returns the query source
      *
@@ -277,7 +261,6 @@ abstract class ResourceElement extends Element
     {
         return $this->source_query;
     }
-
 
 
     /**
@@ -295,7 +278,6 @@ abstract class ResourceElement extends Element
     }
 
 
-
     /**
      * Returns the source for "data-*" attributes where the data key matches the source key
      *
@@ -307,7 +289,6 @@ abstract class ResourceElement extends Element
     {
         return $this->source_data;
     }
-
 
 
     /**
@@ -329,7 +310,6 @@ abstract class ResourceElement extends Element
     }
 
 
-
     /**
      * Add the system arguments to the arguments list
      *
@@ -341,7 +321,6 @@ abstract class ResourceElement extends Element
     {
         return array_merge(parent::buildAttributes(), []);
     }
-
 
 
     /**

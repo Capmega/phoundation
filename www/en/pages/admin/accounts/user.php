@@ -17,14 +17,12 @@ use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
 
-
 // Validate GET
 GetValidator::new()
     ->select('id')->isOptional()->isId()
     ->validate();
 
 $user = User::get($_GET['id']);
-
 
 
 // Validate POST and submit
@@ -66,7 +64,6 @@ if (Page::isPostRequestMethod()) {
 }
 
 
-
 // Impersonate button. We must have the right to impersonate, we cannot impersonate ourselves, and we cannot impersonate
 // god users
 if ($user->canBeImpersonated()) {
@@ -77,7 +74,6 @@ if ($user->canBeImpersonated()) {
 }
 
 
-
 // Delete button. We cannot delete god users
 if (!$user->canBeStatusChanged()) {
     $delete = Button::new()
@@ -85,7 +81,6 @@ if (!$user->canBeStatusChanged()) {
         ->setMode(DisplayMode::warning)
         ->setContent(tr('Delete'));
 }
-
 
 
 // Build the user form
@@ -99,7 +94,6 @@ $user_card = Card::new()
         ->addButton(tr('Audit'), 'green', '/audit/meta-' . $user->getMeta() . '.html', false, true)
         ->addButton(isset_get($delete))
         ->addButton(isset_get($impersonate)));
-
 
 
 // Build the roles list management section
@@ -116,13 +110,11 @@ if ($user->getId()) {
 }
 
 
-
 // Build the grid column with a form containing the user and roles cards
 $column = GridColumn::new()
     ->addContent($user_card->render() . (isset($roles_card) ? $roles_card->render() : ''))
     ->setSize(9)
     ->useForm(true);
-
 
 
 // Build profile picture card
@@ -131,7 +123,6 @@ $picture = Card::new()
     ->setContent(Img::new()
         ->setSrc($user->getPicture())
         ->setAlt(tr('Profile picture for :user', [':user' => $user->getDisplayName()])));
-
 
 
 // Build relevant links
@@ -143,7 +134,6 @@ $relevant = Card::new()
                          <a href="' . UrlBuilder::getWww('/accounts/rights.html') . '">' . tr('Rights management') . '</a>');
 
 
-
 // Build documentation
 $documentation = Card::new()
     ->setMode(DisplayMode::info)
@@ -153,14 +143,12 @@ $documentation = Card::new()
                          <p>Et molestias aut vitae et autem distinctio. Molestiae quod ullam a. Fugiat veniam dignissimos rem repudiandae consequuntur voluptatem. Enim dolores sunt unde sit dicta animi quod. Nesciunt nisi non ea sequi aut. Suscipit aperiam amet fugit facere dolorem qui deserunt.</p>');
 
 
-
 // Build and render the grid
 $grid = Grid::new()
     ->addColumn($column)
     ->addColumn($picture->render() . $relevant->render() . $documentation->render(), 3);
 
 echo $grid->render();
-
 
 // Set page meta data
 Page::setHeaderTitle(tr('User'));

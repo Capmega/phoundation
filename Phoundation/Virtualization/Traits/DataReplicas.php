@@ -3,7 +3,6 @@
 namespace Phoundation\Virtualization\Traits;
 
 
-
 /**
  * Trait DataReplicas
  *
@@ -19,7 +18,6 @@ trait DataReplicas
     protected int $replicas = 1;
 
 
-
     /**
      * Returns the replicas
      *
@@ -29,7 +27,6 @@ trait DataReplicas
     {
         return $this->replicas;
     }
-
 
 
     /**

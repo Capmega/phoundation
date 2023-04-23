@@ -24,7 +24,6 @@ use Phoundation\Filesystem\Path;
 use Phoundation\Processes\Commands\Command;
 use Throwable;
 
-
 /**
  * Class Scripts
  *
@@ -72,7 +71,6 @@ class Script
      * @var array $found_methods
      */
     protected static array $found_methods = [];
-
 
     /**
      * Execute a command by the "cli" script
@@ -163,7 +161,6 @@ that does not support it, it will simply be ignored. See the --help output for e
 SYSTEM ARGUMENTS
 
 
-
 -A,--all                                If set, the system will run in ALL mode, which typically will display normally 
                                         hidden information like deleted entries. Only used by specific commands, check 
                                         --help on commands to see if and how this flag is used. 
@@ -251,7 +248,6 @@ SYSTEM ARGUMENTS
     }
 
 
-
     /**
      * Returns the process exit code
      *
@@ -262,7 +258,6 @@ SYSTEM ARGUMENTS
         return static::$exit_code;
     }
 
-
     /**
      * Returns the list of methods that came to the script that executed
      *
@@ -272,7 +267,6 @@ SYSTEM ARGUMENTS
     {
         return self::$methods;
     }
-
 
     /**
      * Sets the process exit code
@@ -293,7 +287,6 @@ SYSTEM ARGUMENTS
     }
 
 
-
     /**
      * Returns the UID for the current process
      *
@@ -309,7 +302,6 @@ SYSTEM ARGUMENTS
     }
 
 
-
     /**
      * Returns the UID for the current process
      *
@@ -323,7 +315,6 @@ SYSTEM ARGUMENTS
 
         return null;
     }
-
 
 
     /**
@@ -431,7 +422,6 @@ SYSTEM ARGUMENTS
     }
 
 
-
     /**
      * Limit execution of scripts to the specified limit
      *
@@ -457,7 +447,6 @@ SYSTEM ARGUMENTS
     }
 
 
-
     /**
      * Returns the name of the script that is running
      *
@@ -474,7 +463,6 @@ SYSTEM ARGUMENTS
     }
 
 
-
     /**
      * Returns the name of the script that is running
      *
@@ -486,7 +474,6 @@ SYSTEM ARGUMENTS
     {
         return $script === static::getCurrent($full);
     }
-
 
 
     /**
@@ -505,7 +492,6 @@ SYSTEM ARGUMENTS
             static::runOnceLocal();
         }
     }
-
 
 
     /**
@@ -613,7 +599,6 @@ SYSTEM ARGUMENTS
     }
 
 
-
     /**
      * Show a dot on the console each $each call if $each is false, "DONE" will be printed, with next line. Internal counter will reset if a different $each is received.
      *
@@ -678,7 +663,6 @@ SYSTEM ARGUMENTS
 
         return false;
     }
-
 
 
     /**
@@ -767,7 +751,6 @@ SYSTEM ARGUMENTS
 
         die($exit_code);
     }
-
 
 
     /**

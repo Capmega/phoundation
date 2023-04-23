@@ -7,7 +7,6 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 
-
 /**
  * Class Translation
  *
@@ -28,7 +27,6 @@ class Translation extends DataEntry
     {
         // TODO: Implement validate() method.
     }
-
 
     /**
      * Sets the available data keys for this entry

@@ -3,7 +3,6 @@
 namespace Phoundation\Data\DataEntry\Traits;
 
 
-
 /**
  * Trait DataEntryDomain
  *
@@ -25,7 +24,6 @@ trait DataEntryDomain
     {
         return $this->getDataValue('domain');
     }
-
 
 
     /**

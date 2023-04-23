@@ -16,7 +16,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Throwable;
 
 
-
 /**
  * Class Date
  *
@@ -145,7 +144,6 @@ class Date
     }
 
 
-
     /**
      * ???
      *
@@ -182,7 +180,6 @@ class Date
     }
 
 
-
     /**
      * Return a random date
      *
@@ -214,7 +211,6 @@ class Date
     }
 
 
-
     /**
      * Returns the HTML for a timezone selection HTML select
      *
@@ -244,7 +240,6 @@ class Date
     }
 
 
-
     /**
      * Returns true if the specified timezone exists, false if not
      *
@@ -255,7 +250,6 @@ class Date
     {
         return isset_get(Date::timezonesList()[strtolower($timezone)]);
     }
-
 
 
     /**
@@ -274,7 +268,6 @@ class Date
 
         return $list;
     }
-
 
 
     /**
@@ -304,7 +297,6 @@ class Date
 
         return Date::convert($date, $format);
     }
-
 
 
     /**
@@ -393,7 +385,6 @@ class Date
 
         return $date;
     }
-
 
 
     /**

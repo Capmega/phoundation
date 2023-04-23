@@ -4,7 +4,6 @@ namespace Phoundation\Content\Images;
 
 use Phoundation\Servers\Traits\UsesRestrictions;
 
-
 /**
  * Phoundation UsesImage trait
  *
@@ -21,14 +20,12 @@ trait UsesImage
     use UsesRestrictions;
 
 
-
     /**
      * The image
      *
      * @var Image $image
      */
     protected Image $image;
-
 
 
     /**
@@ -40,7 +37,6 @@ trait UsesImage
     {
         return $this->image;
     }
-
 
 
     /**

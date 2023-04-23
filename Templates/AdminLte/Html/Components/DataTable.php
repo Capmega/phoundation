@@ -8,7 +8,6 @@ use Phoundation\Web\Http\Html\Layouts\GridRow;
 use Phoundation\Web\Http\Html\Renderer;
 use Phoundation\Web\Page;
 
-
 /**
  * AdminLte Plugin DataTable class
  *
@@ -29,7 +28,6 @@ class DataTable extends Renderer
         $element->addClass('table');
         parent::__construct($element);
     }
-
 
 
     /**
@@ -121,7 +119,6 @@ class DataTable extends Renderer
 //
 //  src: url('chrome-extension://liecbddmkiiihnedobmlmillhodjkdmb/fonts/CircularXXWeb-Black.woff2') format('woff2');
 //}</style>
-
 
 
 //                                <table id="' . $id . '" class="table table-bordered table-striped dataTable dtr-inline" aria-describedby="' . $id . '_info">

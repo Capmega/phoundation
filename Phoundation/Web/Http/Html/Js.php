@@ -7,7 +7,6 @@ use Phoundation\Notifications\Notification;
 use Phoundation\Web\Exception\WebException;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 
-
 /**
  * Class Js
  *
@@ -115,7 +114,6 @@ class Js
 
         unset($config);
     }
-
 
 
     /**

@@ -3,7 +3,6 @@
 namespace Phoundation\Databases\Sql\Exception;
 
 
-
 /**
  * Class SqlColumnDoesNotExistsException
  *

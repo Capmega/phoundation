@@ -5,7 +5,6 @@ use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
 
-
 echo Template::page('admin/system/detail-error')->render([
     ':h2'     => '400',
     ':h3'     => tr('400 Bad Request'),
@@ -16,7 +15,6 @@ echo Template::page('admin/system/detail-error')->render([
     ':search' => tr('Search'),
     ':action' => UrlBuilder::getWww('search/')
 ]);
-
 
 
 // Set page meta data

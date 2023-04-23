@@ -36,7 +36,6 @@ use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Throwable;
 
-
 /**
  * Sql class
  *
@@ -112,7 +111,6 @@ class Sql
      */
     protected static bool $debug = false;
 
-
     /**
      * Sql constructor
      *
@@ -135,7 +133,6 @@ class Sql
     }
 
 
-
     /**
      * Returns the configuration for this SQL object
      *
@@ -145,7 +142,6 @@ class Sql
     {
         return $this->configuration;
     }
-
 
 
 //    /**
@@ -177,7 +173,6 @@ class Sql
 //        return $configuration;
 //    }
 
-
     /**
      * Returns the name of the database that currently is in use by this database object
      *
@@ -189,7 +184,6 @@ class Sql
     }
 
 
-
     /**
      * Returns the name of this SQL instance
      *
@@ -199,7 +193,6 @@ class Sql
     {
         return $this->instance;
     }
-
 
     /**
      * Sets or returns debug for SQL
@@ -227,7 +220,6 @@ class Sql
         return $previous;
     }
 
-
     /**
      * Returns an SQL schema object for this instance
      *
@@ -244,7 +236,6 @@ class Sql
     }
 
 
-
     /**
      * Clears schema cache and returns a new SQL schema object for this instance
      *
@@ -256,7 +247,6 @@ class Sql
         unset($this->schema);
         return $this->schema($use_database);
     }
-
 
 
     /**
@@ -294,7 +284,6 @@ class Sql
             throw $e;
         }
     }
-
 
 
     /**
@@ -545,7 +534,6 @@ class Sql
         }
     }
 
-
     /**
      * Write the specified data row in the specified table
      *
@@ -594,7 +582,6 @@ class Sql
         return $update_row['id'];
     }
 
-
     /**
      * Insert the specified data row in the specified table
      *
@@ -628,7 +615,6 @@ class Sql
 
         return $this->pdo->lastInsertId();
     }
-
 
     /**
      * Insert the specified data row in the specified table
@@ -670,7 +656,6 @@ class Sql
     }
 
 
-
     /**
      * Update the status for the data row in the specified table to "deleted"
      *
@@ -695,7 +680,6 @@ class Sql
     }
 
 
-
     /**
      * Truncates the specified table
      *
@@ -706,7 +690,6 @@ class Sql
     {
         $this->query('TRUNCATE `' . addslashes($table) . '`');
     }
-
 
 
     /**
@@ -734,7 +717,6 @@ class Sql
     }
 
 
-
     /**
      * Delete the row in the specified table
      *
@@ -755,7 +737,6 @@ class Sql
         return $this->query('DELETE FROM `' . $table . '`
                                    WHERE        ' . $update, $values)->rowCount();
     }
-
 
 
     /**
@@ -822,7 +803,6 @@ class Sql
     }
 
 
-
     /**
      * Prepare specified query
      *
@@ -833,7 +813,6 @@ class Sql
     {
         return $this->pdo->prepare($query);
     }
-
 
 
     /**
@@ -856,7 +835,6 @@ class Sql
         // Return data
         return $result;
     }
-
 
 
     /**
@@ -887,7 +865,6 @@ class Sql
                 throw new SqlMultipleResultsException(tr('Failed for query ":query" to fetch single row, specified query result contains not 1 but ":count" results', [':count' => $result->rowCount(), ':query' => self::buildQueryString($result->queryString, $execute)]));
         }
     }
-
 
 
     /**
@@ -931,7 +908,6 @@ class Sql
             return Arrays::firstValue($result);
         }
     }
-
 
 
     /**
@@ -985,7 +961,6 @@ class Sql
     }
 
 
-
     /**
      * Close the connection for the specified connector
      *
@@ -995,7 +970,6 @@ class Sql
     {
         $this->pdo = null;
     }
-
 
 
     /**
@@ -1034,7 +1008,6 @@ class Sql
 
         fclose($handle);
     }
-
 
 
     /**
@@ -1125,7 +1098,6 @@ class Sql
     }
 
 
-
     /**
      * Return a list of the specified $columns from the specified source
      *
@@ -1154,7 +1126,6 @@ class Sql
     }
 
 
-
     /**
      * Return a list of the specified $columns from the specified source
      *
@@ -1174,7 +1145,6 @@ class Sql
     }
 
 
-
     /**
      * Return a list of the specified $columns from the specified source
      *
@@ -1192,7 +1162,6 @@ class Sql
 
         return implode(', ', $return);
     }
-
 
 
     /**
@@ -1215,7 +1184,6 @@ class Sql
 
         return $return;
     }
-
 
 
     /**
@@ -1243,7 +1211,6 @@ class Sql
     }
 
 
-
     /**
      * Get the current last insert id for this SQL database instance
      *
@@ -1259,7 +1226,6 @@ class Sql
 
         return null;
     }
-
 
     /**
      * Return a unique, non-existing ID for the specified table.column
@@ -1298,7 +1264,6 @@ class Sql
     }
 
 
-
     /**
      * Use correct SQL in case NULL is used in queries
      *
@@ -1326,7 +1291,6 @@ class Sql
     }
 
 
-
     /**
      * Enable / Disable all query logging on mysql server
      *
@@ -1344,7 +1308,6 @@ class Sql
             $this->query('SET global log_output = "OFF";');
         }
     }
-
 
 
     /**
@@ -1365,7 +1328,6 @@ class Sql
 
         return (bool) $this->getColumn('SELECT `' . $column . '` FROM `' . $table . '` WHERE `' . $column . '` = :' . $column, [$column => $value]);
     }
-
 
 
     /**
@@ -1414,7 +1376,6 @@ class Sql
     }
 
 
-
     /**
      * Returns what database currently is selected
      *
@@ -1424,7 +1385,6 @@ class Sql
     {
         return $this->getColumn('SELECT DATABASE() AS `database` FROM DUAL;');
     }
-
 
 
     /**
@@ -1472,7 +1432,6 @@ class Sql
     }
 
 
-
     /**
      * Ensure that the specified limit is below or equal to the maximum configured limit
      *
@@ -1489,7 +1448,6 @@ class Sql
 
         return $limit;
     }
-
 
 
     /**
@@ -1510,7 +1468,6 @@ class Sql
 
         return ' LIMIT ' . ((Paging::getPage($page) - 1) * $limit) . ', ' . $limit;
     }
-
 
 
     /**
@@ -1590,7 +1547,6 @@ class Sql
         return Debug::show(Strings::endsWith($query, ';'), 6);
     }
 
-
     /**
      * Ensure that the specified query is either a select query or a show query
      *
@@ -1612,7 +1568,6 @@ class Sql
     }
 
 
-
     /**
      * Add the configuration for the specified instance name
      *
@@ -1624,7 +1579,6 @@ class Sql
     {
         self::$configurations[$instance] = $configuration;
     }
-
 
 
     /**
@@ -1661,7 +1615,6 @@ class Sql
         // Copy the configuration options over the template
         return $this->applyConfigurationTemplate($configuration);
     }
-
 
 
     /**
@@ -1706,7 +1659,6 @@ class Sql
                                   WHERE  `seo_name` = :seo_name', [':seo_name' => $seo_name]);
     }
 
-
     /**
      * Apply configuration template over the specified configuration array
      *
@@ -1744,7 +1696,6 @@ class Sql
     }
 
 
-
     /**
      * Returns an SQL connection configuration template
      *
@@ -1777,7 +1728,6 @@ class Sql
             'timezone'         => 'UTC'
         ];
     }
-
 
 
     /**
@@ -2032,7 +1982,6 @@ class Sql
     }
 
 
-
     /**
      * Returns the specified database name or the configured system database name
      *
@@ -2049,7 +1998,6 @@ class Sql
     }
 
 
-
     /**
      * @return void
      */
@@ -2057,7 +2005,6 @@ class Sql
     {
 
     }
-
 
 
 //    /**
@@ -2187,7 +2134,6 @@ class Sql
 //    }
 
 
-
 //    /**
 //     *
 //     *
@@ -2255,7 +2201,6 @@ class Sql
 //    }
 
 
-
 //    /**
 //     *
 //     *
@@ -2290,7 +2235,6 @@ class Sql
 //    }
 
 
-
     /**
      * Return a sequential array that can be used in $this->in
      *
@@ -2311,7 +2255,6 @@ class Sql
 
         return Arrays::sequentialKeys($source, $column, $filter_null, $null_string);
     }
-
 
 
 //    /**
@@ -2339,7 +2282,6 @@ class Sql
 //
 //        return implode(', ', array_keys($in));
 //    }
-
 
 
 //    /**
@@ -2389,7 +2331,6 @@ class Sql
 //    }
 
 
-
 //    /**
 //     * Try to get data list from memcached. If not available, get it from
 //     * MySQL and store results in memcached for future use
@@ -2415,7 +2356,6 @@ class Sql
 //
 //        return $list;
 //    }
-
 
 
     ///*

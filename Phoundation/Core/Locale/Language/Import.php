@@ -6,7 +6,6 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Filesystem\File;
 
 
-
 /**
  * Import class
  *
@@ -31,7 +30,6 @@ class Import extends \Phoundation\Developer\Project\Import
         parent::__construct($demo, $min, $max);
         $this->name = 'Languages';
     }
-
 
     /**
      * Import the content for the languages table from a data-source file

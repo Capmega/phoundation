@@ -5,7 +5,6 @@ namespace Phoundation\Virtualization\Kubernetes\Services;
 use Phoundation\Virtualization\Kubernetes\KubernetesObject;
 use Phoundation\Virtualization\Kubernetes\Traits\DataSelectors;
 
-
 /**
  * Class Service
  *
@@ -19,7 +18,6 @@ use Phoundation\Virtualization\Kubernetes\Traits\DataSelectors;
 class Service extends KubernetesObject
 {
     use DataSelectors;
-
 
     /**
      * Service class constructor

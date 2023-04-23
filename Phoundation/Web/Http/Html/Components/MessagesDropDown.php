@@ -5,7 +5,6 @@ namespace Phoundation\Web\Http\Html\Components;
 use Phoundation\Messages\Messages;
 use Phoundation\Web\Http\UrlBuilder;
 
-
 /**
  * MessagesDropDown class
  *
@@ -33,7 +32,6 @@ class MessagesDropDown extends ElementsBlock
     protected ?string $messages_url = null;
 
 
-
     /**
      * Returns the messages object
      *
@@ -43,7 +41,6 @@ class MessagesDropDown extends ElementsBlock
     {
         return $this->messages;
     }
-
 
 
     /**
@@ -59,7 +56,6 @@ class MessagesDropDown extends ElementsBlock
     }
 
 
-
     /**
      * Returns the messages page URL
      *
@@ -69,7 +65,6 @@ class MessagesDropDown extends ElementsBlock
     {
         return $this->messages_url;
     }
-
 
 
     /**

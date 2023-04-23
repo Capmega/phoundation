@@ -11,7 +11,6 @@ use Phoundation\Data\Traits\DataTarget;
 use Phoundation\Data\Traits\DataValue;
 use Phoundation\Processes\Commands\Exception\CommandsException;
 
-
 /**
  * Class Grep
  *
@@ -27,7 +26,6 @@ class Grep extends Command
     use DataFile;
     use DataPath;
     use DataValue;
-
 
 
     /**

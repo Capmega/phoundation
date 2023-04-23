@@ -3,7 +3,6 @@
 namespace Phoundation\Cdn;
 
 
-
 use Phoundation\Core\Config;
 use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
@@ -46,7 +45,6 @@ class Cdn
         }
 // TODO Implement
     }
-
 
 
     /**
@@ -187,7 +185,6 @@ class Cdn
             throw new OutOfBoundsException('cdn_domain(): Failed', $e);
         }
     }
-
 
 
 }

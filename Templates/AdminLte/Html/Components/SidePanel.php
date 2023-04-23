@@ -9,7 +9,6 @@ use Phoundation\Web\Http\Html\Renderer;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
-
 /**
  * AdminLte Plugin SidePanel class
  *
@@ -29,7 +28,6 @@ class SidePanel extends Renderer
     {
         parent::__construct($element);
     }
-
 
 
     /**

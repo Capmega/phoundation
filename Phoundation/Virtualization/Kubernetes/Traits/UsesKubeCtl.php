@@ -2,7 +2,6 @@
 
 namespace Phoundation\Virtualization\Kubernetes\Traits;
 
-
 /**
  * Class KubeCtl
  *
@@ -36,7 +35,6 @@ trait UsesKubeCtl
      */
     protected string $get_command;
 
-
     /**
      * Returns the kind of Kubernetes object
      *
@@ -47,7 +45,6 @@ trait UsesKubeCtl
         return $this->kind;
     }
 
-
     /**
      * Returns the API version for this object
      *
@@ -57,7 +54,6 @@ trait UsesKubeCtl
     {
         return $this->api_version;
     }
-
 
     /**
      * Returns the get command for use with kubectl

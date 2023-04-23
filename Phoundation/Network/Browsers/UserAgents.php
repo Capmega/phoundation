@@ -5,7 +5,6 @@ namespace Phoundation\Network\Browsers;
 use Phoundation\Core\Arrays;
 
 
-
 /**
  * Class UserAgents
  *
@@ -26,7 +25,6 @@ class UserAgents
     protected array $filters = [];
 
 
-
     /**
      * Returns a new UserAgents object
      *
@@ -36,7 +34,6 @@ class UserAgents
     {
         return new static();
     }
-
 
     /**
      * Adds a filter
@@ -49,7 +46,6 @@ class UserAgents
         $this->filters[] = $filter;
         return $this;
     }
-
 
 
     /**
@@ -70,7 +66,6 @@ class UserAgents
 
         return $return;
     }
-
 
 
     /**

@@ -19,7 +19,6 @@ class AccessDeniedException extends Exception
     protected string|int|null $new_target;
 
 
-
     /**
      * Returns the new target
      *
@@ -29,7 +28,6 @@ class AccessDeniedException extends Exception
     {
         return $this->new_target;
     }
-
 
 
     /**

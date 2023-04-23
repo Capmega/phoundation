@@ -12,7 +12,6 @@ use Phoundation\Web\Http\Html\Exception\HtmlException;
 use Throwable;
 
 
-
 /**
  * Class Html
  *
@@ -54,7 +53,6 @@ Class Html
     protected static array $footers = [];
 
 
-
     /**
      * Returns the Csrf protection class (Cross Site Request Forgery)
      *
@@ -70,7 +68,6 @@ Class Html
     }
 
 
-
     /**
      * Returns the current tab index and automatically increments it
      *
@@ -80,7 +77,6 @@ Class Html
     {
         return static::$tabindex++;
     }
-
 
 
     /**
@@ -96,7 +92,6 @@ Class Html
     }
 
 
-
     /**
      * Minify and return the specified HTML
      *
@@ -107,7 +102,6 @@ Class Html
     {
         return Minifier::html($html);
     }
-
 
 
     /**
@@ -124,27 +118,6 @@ Class Html
             static::$footers[] = $footer;
         }
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -210,8 +183,6 @@ Class Html
 
         return "\n<!--[if IE ".Strings::from($filter, 'ie')."]>\n\t".$html."\n<![endif]-->\n";
     }
-
-
 
 
 
@@ -381,7 +352,6 @@ Class Html
     }
 
 
-
     /*
      * Generate all <meta> tags
      *
@@ -485,7 +455,6 @@ Class Html
     }
 
 
-
     /*
      * Generate all open graph <meta> tags
      *
@@ -542,7 +511,6 @@ Class Html
     }
 
 
-
     /*
      * Generate and return the HTML footer
      *
@@ -571,7 +539,6 @@ Class Html
     }
 
 
-
     /*
      * Generate and return the HTML footer
      *
@@ -596,7 +563,6 @@ Class Html
 
         return '</body></html>';
     }
-
 
 
     /*
@@ -770,7 +736,6 @@ Class Html
     }
 
 
-
     /*
      * Set a message in the $_SESSION[flash] array so that it can be shown later as an HTML flash message
      *
@@ -892,7 +857,6 @@ Class Html
     }
 
 
-
 ///*
 // * Returns true if there is an HTML message with the specified class
 // */
@@ -912,7 +876,6 @@ Class Html
 //        throw new HtmlException('html_flash_class(): Failed', $e);
 //    }
 //}
-
 
 
     /*
@@ -956,7 +919,6 @@ Class Html
     }
 
 
-
     /*
      * Return HTML for a submit button
      * If the button should not cause validation, then use "no_validation" true
@@ -991,7 +953,6 @@ Class Html
 
         return $return.isset_get($script);
     }
-
 
 
     /*
@@ -1050,7 +1011,6 @@ Class Html
 
         return html_select($params);
     }
-
 
 
     /*
@@ -1238,7 +1198,6 @@ Class Html
     }
 
 
-
     /*
      * Return the body HTML for a <select> list
      *
@@ -1355,7 +1314,6 @@ Class Html
             }
         }
 
-
         if (empty($notempty)) {
             /*
              * No conent (other than maybe the "none available" entry) was added
@@ -1372,7 +1330,6 @@ Class Html
 
         return $return;
     }
-
 
 
     /*
@@ -1606,7 +1563,6 @@ Class Html
     }
 
 
-
     /**
      * Return favicon HTML
      *
@@ -1646,7 +1602,6 @@ Class Html
             }
         }
     }
-
 
 
     /**
@@ -1745,7 +1700,6 @@ Class Html
     }
 
 
-
     /**
      *
      */
@@ -1758,7 +1712,6 @@ Class Html
 
         return static::select($params);
     }
-
 
 
     /**
@@ -1897,7 +1850,6 @@ Class Html
 
         return $src;
     }
-
 
 
     /*
@@ -2414,7 +2366,6 @@ Class Html
     }
 
 
-
     /**
      * Create and return a video container that has at the least src, alt, height and width
      */
@@ -2522,7 +2473,6 @@ Class Html
     }
 
 
-
     /*
      *
      */
@@ -2565,8 +2515,6 @@ Class Html
 
 
 
-
-
     /*
      * Ensure that missing checkbox values are restored automatically (Seriously, sometimes web design is tiring...)
      *
@@ -2590,7 +2538,6 @@ Class Html
             }
         }
     }
-
 
 
     /*
@@ -2646,7 +2593,6 @@ Class Html
     }
 
 
-
     /*
      * Returns the current global tabindex and automatically increases it
      *
@@ -2663,7 +2609,6 @@ Class Html
     }
 
 
-
     /*
      * Set the base URL for CDN requests from javascript
      *
@@ -2678,7 +2623,6 @@ Class Html
     function set_js_cdn_url() {
         $core->register['header'] = html_script('var cdnprefix="'.cdn_domain().'"; var site_prefix="'.domain().'";', false);
     }
-
 
 
     /*
@@ -2727,7 +2671,6 @@ Class Html
         $html = $dom->saveHTML();
         return $this->render;
     }
-
 
 
     /*
@@ -2867,7 +2810,6 @@ Class Html
 
         return $this->render;
     }
-
 
 
     /*

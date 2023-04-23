@@ -45,5 +45,4 @@ if (empty($code)) {
 	$oauth->debugJson($getData);
 }
 
-
 ?>

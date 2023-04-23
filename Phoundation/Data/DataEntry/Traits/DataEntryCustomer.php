@@ -4,7 +4,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Business\Customers\Customer;
 
-
 /**
  * Trait DataEntryCustomer
  *
@@ -28,7 +27,6 @@ trait DataEntryCustomer
     }
 
 
-
     /**
      * Sets the customers_id for this object
      *
@@ -39,7 +37,6 @@ trait DataEntryCustomer
     {
         return $this->setDataValue('customers_id', $customers_id);
     }
-
 
 
     /**
@@ -57,7 +54,6 @@ trait DataEntryCustomer
 
         return null;
     }
-
 
 
     /**

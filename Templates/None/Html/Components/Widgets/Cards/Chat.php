@@ -5,7 +5,6 @@ namespace Templates\None\Html\Components\Widgets\Cards;
 use Phoundation\Web\Http\Html\Renderer;
 
 
-
 /**
  * None Plugin Chat class
  *

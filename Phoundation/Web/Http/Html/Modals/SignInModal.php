@@ -12,7 +12,6 @@ use Phoundation\Web\Http\Html\Layouts\GridRow;
 use Phoundation\Web\Http\UrlBuilder;
 
 
-
 /**
  * SignInModal class
  *
@@ -33,7 +32,6 @@ class SignInModal extends Modal
         $this->setContent(SignInForm::new());
         parent::__construct();
     }
-
 
 
     /**

@@ -7,7 +7,6 @@ use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Web\Http\Html\Components\Input\Select;
 use Phoundation\Web\Http\Html\Components\Table;
 
-
 /**
  * Class Companies
  *
@@ -40,7 +39,6 @@ class Companies extends DataList
     }
 
 
-
     /**
      * Creates and returns an HTML table for the data in this list
      *
@@ -53,7 +51,6 @@ class Companies extends DataList
 
         return $table;
     }
-
 
 
     /**
@@ -74,7 +71,6 @@ class Companies extends DataList
     }
 
 
-
     /**
      *
      *
@@ -85,7 +81,6 @@ class Companies extends DataList
     {
         // TODO: Implement load() method.
     }
-
 
 
     /**
@@ -99,7 +94,6 @@ class Companies extends DataList
     {
         // TODO: Implement loadDetails() method.
     }
-
 
 
     /**

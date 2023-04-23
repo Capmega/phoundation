@@ -7,7 +7,6 @@ use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Http\Html\Renderer;
 
 
-
 /**
  * None Plugin BreadCrumbs class
  *
@@ -27,7 +26,6 @@ class BreadCrumbs extends Renderer
     {
         parent::__construct($element);
     }
-
 
 
     /**

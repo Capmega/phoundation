@@ -12,7 +12,6 @@ use Phoundation\Processes\Exception\ProcessFailedException;
 use Phoundation\Processes\Process;
 
 
-
 /**
  * Class FilesystemCommands
  *
@@ -60,7 +59,6 @@ class FilesystemCommands extends Command
             });
         }
     }
-
 
 
     /**
@@ -116,7 +114,6 @@ class FilesystemCommands extends Command
     }
 
 
-
     /**
      * Creates the specified directory
      *
@@ -157,7 +154,6 @@ class FilesystemCommands extends Command
     }
 
 
-
     /**
      * Returns a SHA256 hash for the specified file
      *
@@ -182,7 +178,6 @@ class FilesystemCommands extends Command
             });
         }
     }
-
 
 
     /**
@@ -215,7 +210,6 @@ class FilesystemCommands extends Command
             });
         }
     }
-
 
     /**
      * Tars the specified path
@@ -252,7 +246,6 @@ class FilesystemCommands extends Command
     }
 
 
-
     /**
      * Gzips the specified file
      *
@@ -287,7 +280,6 @@ class FilesystemCommands extends Command
     }
 
 
-
     /**
      * Gunzips the specified file
      *
@@ -312,7 +304,6 @@ class FilesystemCommands extends Command
             });
         }
     }
-
 
     /**
      * Gunzips the specified file

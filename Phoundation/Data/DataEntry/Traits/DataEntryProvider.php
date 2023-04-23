@@ -4,7 +4,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Business\Providers\Provider;
 
-
 /**
  * Trait DataEntryProvider
  *
@@ -28,7 +27,6 @@ trait DataEntryProvider
     }
 
 
-
     /**
      * Sets the providers_id for this object
      *
@@ -39,7 +37,6 @@ trait DataEntryProvider
     {
         return $this->setDataValue('providers_id', $providers_id);
     }
-
 
 
     /**
@@ -57,7 +54,6 @@ trait DataEntryProvider
 
         return null;
     }
-
 
 
     /**

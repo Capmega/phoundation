@@ -7,7 +7,6 @@ use Phoundation\Data\Traits\DataStringData;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 
-
 /**
  * Class KubernetesFile
  *
@@ -23,14 +22,12 @@ abstract class ObjectFile
     use DataFile;
     use DataStringData;
 
-
     /**
      * The kubernetes object for this configuration file
      *
      * @var KubernetesObject $object
      */
     protected KubernetesObject $object;
-
 
     /**
      * KubernetesFile class constructor
@@ -40,7 +37,6 @@ abstract class ObjectFile
         $this->object = $object;
         $this->file   = PATH_ROOT . 'config/kubernetes/' . strtolower($object->getKind()) . '/' . $this->object->getName() . '.yml';
     }
-
 
     /**
      * Save the data from this deployment to the yaml configuration file
@@ -64,7 +60,6 @@ abstract class ObjectFile
 
         return $this;
     }
-
 
     /**
      * Builds the configuration data

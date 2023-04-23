@@ -11,7 +11,6 @@ use Phoundation\Processes\Exception\ProcessFailedException;
 use Phoundation\Processes\Process;
 
 
-
 /**
  * Class Commands
  *
@@ -31,7 +30,6 @@ class Command
      */
     protected Process $process;
 
-
     /**
      * Command class constructor
      *
@@ -45,7 +43,6 @@ class Command
     }
 
 
-
     /**
      * Returns the internal process
      *
@@ -55,7 +52,6 @@ class Command
     {
         return $this->process;
     }
-
 
     /**
      * Returns a new Images object
@@ -69,7 +65,6 @@ class Command
     {
         return new static($restrictions, $write, $label);
     }
-
 
 
     /**
@@ -98,7 +93,6 @@ class Command
             return false;
         }
     }
-
 
 
     /**

@@ -8,7 +8,6 @@ use Phoundation\Core\Config;
 use Phoundation\Core\Strings;
 use Phoundation\Filesystem\File;
 
-
 /**
  * Class Css
  *
@@ -29,7 +28,6 @@ class Css
     protected static array $files = [];
 
 
-
     /**
      * Loads the specified CSS file(s) into the page payload
      *
@@ -43,7 +41,6 @@ class Css
             static::$files[$file] = $media;
         }
     }
-
 
 
     /**
@@ -102,7 +99,6 @@ class Css
 
         return $return;
     }
-
 
 
     /**

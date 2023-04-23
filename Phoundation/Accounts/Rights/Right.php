@@ -9,7 +9,6 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 
-
 /**
  * Class Right
  *
@@ -26,7 +25,6 @@ class Right extends DataEntry
     use DataEntryNameDescription;
 
 
-
     /**
      * Right class constructor
      *
@@ -39,7 +37,6 @@ class Right extends DataEntry
 
         parent::__construct($identifier);
     }
-
 
     /**
      * Validates the provider record with the specified validator object
@@ -66,7 +63,6 @@ class Right extends DataEntry
 
         return $data;
     }
-
 
     /**
      * Sets the available data keys for this entry

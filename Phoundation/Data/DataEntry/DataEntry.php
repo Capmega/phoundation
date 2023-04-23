@@ -29,7 +29,6 @@ use Phoundation\Web\Http\Html\Components\DataEntryForm;
 use Phoundation\Web\Http\Html\Components\Input\InputText;
 use Throwable;
 
-
 /**
  * Class DataEntry
  *
@@ -43,7 +42,6 @@ use Throwable;
 abstract class DataEntry implements InterfaceDataEntry
 {
     use DataDebug;
-
 
 
     /**
@@ -161,7 +159,6 @@ abstract class DataEntry implements InterfaceDataEntry
     protected bool $user_modifying = false;
 
 
-
     /**
      * DataEntry class constructor
      *
@@ -207,7 +204,6 @@ abstract class DataEntry implements InterfaceDataEntry
     }
 
 
-
     /**
      * Return the object contents in JSON string format
      *
@@ -217,7 +213,6 @@ abstract class DataEntry implements InterfaceDataEntry
     {
         return Json::encode($this);
     }
-
 
 
     /**
@@ -230,7 +225,6 @@ abstract class DataEntry implements InterfaceDataEntry
         return $this->data;
     }
 
-
     /**
      * Returns a new DataEntry object
      *
@@ -241,7 +235,6 @@ abstract class DataEntry implements InterfaceDataEntry
     {
         return new static($identifier);
     }
-
 
     /**
      * Returns a help file generated from the DataEntry keys
@@ -266,7 +259,6 @@ abstract class DataEntry implements InterfaceDataEntry
         ]);
     }
 
-
     /**
      * Returns a translation table between CLI arguments and internal fields
      *
@@ -289,7 +281,6 @@ abstract class DataEntry implements InterfaceDataEntry
 
         return $return;
     }
-
 
     /**
      * Returns a help text generated from this DataEntry's field information
@@ -355,7 +346,6 @@ abstract class DataEntry implements InterfaceDataEntry
         return $help . $return . isset_get($miscellaneous) . PHP_EOL;
     }
 
-
     /**
      * Returns a DataEntry object matching the specified identifier
      *
@@ -397,7 +387,6 @@ abstract class DataEntry implements InterfaceDataEntry
     }
 
 
-
     /**
      * Returns a random DataEntry object
      *
@@ -417,7 +406,6 @@ abstract class DataEntry implements InterfaceDataEntry
             ':table' => $table
         ]));
     }
-
 
 
     /**
@@ -450,7 +438,6 @@ abstract class DataEntry implements InterfaceDataEntry
 
         return (bool) $exists;
     }
-
 
 
     /**
@@ -489,7 +476,6 @@ abstract class DataEntry implements InterfaceDataEntry
     }
 
 
-
     /**
      * Returns the table name used by this object
      *
@@ -499,7 +485,6 @@ abstract class DataEntry implements InterfaceDataEntry
     {
         return $this->table;
     }
-
 
 
     /**
@@ -513,7 +498,6 @@ abstract class DataEntry implements InterfaceDataEntry
     }
 
 
-
     /**
      * Returns id for this database entry
      *
@@ -523,7 +507,6 @@ abstract class DataEntry implements InterfaceDataEntry
     {
         return $this->getDataValue('id');
     }
-
 
 
     /**
@@ -537,7 +520,6 @@ abstract class DataEntry implements InterfaceDataEntry
     }
 
 
-
     /**
      * Returns status for this database entry
      *
@@ -547,7 +529,6 @@ abstract class DataEntry implements InterfaceDataEntry
     {
         return $this->getDataValue('status');
     }
-
 
 
     /**
@@ -564,7 +545,6 @@ abstract class DataEntry implements InterfaceDataEntry
     }
 
 
-
     /**
      * Returns the meta state for this database entry
      *
@@ -574,7 +554,6 @@ abstract class DataEntry implements InterfaceDataEntry
     {
         return $this->getDataValue('meta_state');
     }
-
 
 
     /**
@@ -589,7 +568,6 @@ abstract class DataEntry implements InterfaceDataEntry
     }
 
 
-
     /**
      * Delete the specified entries
      *
@@ -600,7 +578,6 @@ abstract class DataEntry implements InterfaceDataEntry
     {
         return $this->setStatus('deleted', $comments);
     }
-
 
 
     /**
@@ -615,7 +592,6 @@ abstract class DataEntry implements InterfaceDataEntry
     }
 
 
-
     /**
      * Erase this DataEntry from the database
      *
@@ -626,7 +602,6 @@ abstract class DataEntry implements InterfaceDataEntry
         sql()->erase('users', ['id' => $this->getId()]);
         return $this;
     }
-
 
 
     /**
@@ -647,7 +622,6 @@ abstract class DataEntry implements InterfaceDataEntry
     }
 
 
-
     /**
      * Returns the object that created this data entry
      *
@@ -664,7 +638,6 @@ abstract class DataEntry implements InterfaceDataEntry
 
         return new DateTime($created_on);
     }
-
 
 
     /**
@@ -686,7 +659,6 @@ abstract class DataEntry implements InterfaceDataEntry
     }
 
 
-
     /**
      * Returns the meta id for this entry
      *
@@ -698,7 +670,6 @@ abstract class DataEntry implements InterfaceDataEntry
     }
 
 
-
     /**
      * Returns a string containing all diff data
      *
@@ -708,7 +679,6 @@ abstract class DataEntry implements InterfaceDataEntry
     {
         return $this->diff;
     }
-
 
     /**
      * Create the data for this object with the new specified data
@@ -739,7 +709,6 @@ abstract class DataEntry implements InterfaceDataEntry
 
         return $this->save();
     }
-
 
     /**
      * Modify the data for this object with the new specified data
@@ -797,7 +766,6 @@ abstract class DataEntry implements InterfaceDataEntry
 
         return $this->save();
     }
-
 
 
     /**
@@ -863,7 +831,6 @@ abstract class DataEntry implements InterfaceDataEntry
     }
 
 
-
     /**
      * Sets all data for this data entry at once with an array of information
      *
@@ -923,7 +890,6 @@ abstract class DataEntry implements InterfaceDataEntry
     }
 
 
-
     /**
      * Returns all keys that are protected and cannot be removed from this object
      *
@@ -933,7 +899,6 @@ abstract class DataEntry implements InterfaceDataEntry
     {
         return $this->protected_fields;
     }
-
 
 
     /**
@@ -952,7 +917,6 @@ abstract class DataEntry implements InterfaceDataEntry
     }
 
 
-
     /**
      * Adds a single extra key that are protected and cannot be removed from this object
      *
@@ -966,7 +930,6 @@ abstract class DataEntry implements InterfaceDataEntry
     }
 
 
-
     /**
      * Returns all data for this data entry at once with an array of information
      *
@@ -978,7 +941,6 @@ abstract class DataEntry implements InterfaceDataEntry
     {
         return Arrays::remove($this->data, $this->protected_fields);
     }
-
 
 
     /**
@@ -1019,7 +981,6 @@ abstract class DataEntry implements InterfaceDataEntry
         return $this;
     }
 
-
     /**
      * Sets the value for the specified data key
      *
@@ -1057,7 +1018,6 @@ abstract class DataEntry implements InterfaceDataEntry
     }
 
 
-
     /**
      * Sets the value for the specified data key
      *
@@ -1082,7 +1042,6 @@ abstract class DataEntry implements InterfaceDataEntry
     }
 
 
-
     /**
      * Returns the value for the specified data key
      *
@@ -1094,7 +1053,6 @@ abstract class DataEntry implements InterfaceDataEntry
         $this->checkProtected($key);
         return isset_get($this->data[$key]);
     }
-
 
 
     /**
@@ -1113,7 +1071,6 @@ abstract class DataEntry implements InterfaceDataEntry
     }
 
 
-
     /**
      * Rewrite the specified variable into the set method for that variable
      *
@@ -1128,7 +1085,6 @@ abstract class DataEntry implements InterfaceDataEntry
 
         return 'set' . ucfirst($return);
     }
-
 
 
     /**
@@ -1153,7 +1109,6 @@ abstract class DataEntry implements InterfaceDataEntry
     }
 
 
-
     /**
      * Returns the data to add for an SQL insert
      *
@@ -1168,7 +1123,6 @@ abstract class DataEntry implements InterfaceDataEntry
     }
 
 
-
     /**
      * Returns the data to add for an SQL update
      *
@@ -1178,7 +1132,6 @@ abstract class DataEntry implements InterfaceDataEntry
     {
         return $this->getDataColumns();
     }
-
 
 
     /**
@@ -1218,7 +1171,6 @@ abstract class DataEntry implements InterfaceDataEntry
     }
 
 
-
     /**
      * Creates and returns a CLI table for the data in this entry
      *
@@ -1230,7 +1182,6 @@ abstract class DataEntry implements InterfaceDataEntry
     {
         Cli::displayForm($this->data, $key_header, $value_header);
     }
-
 
 
     /**
@@ -1246,7 +1197,6 @@ abstract class DataEntry implements InterfaceDataEntry
             ->setKeysDisplay($this->field_display);
     }
 
-
     /**
      * Returns the key definitions for this DataEntry object
      *
@@ -1256,7 +1206,6 @@ abstract class DataEntry implements InterfaceDataEntry
     {
         return $this->fields;
     }
-
 
     /**
      * Modify the form keys
@@ -1284,7 +1233,6 @@ abstract class DataEntry implements InterfaceDataEntry
         return $this;
     }
 
-
     /**
      * Validate the data using the specified validator
      *
@@ -1294,7 +1242,6 @@ abstract class DataEntry implements InterfaceDataEntry
      * @return array
      */
     abstract protected function validate(ArgvValidator|PostValidator|GetValidator $validator, bool $no_arguments_left = false, bool $modify = true): array;
-
 
     /**
      * Returns either the specified field, or if $translate has content, the alternate field name
@@ -1316,7 +1263,6 @@ abstract class DataEntry implements InterfaceDataEntry
 
         return get_null($alt) ?? $field;
     }
-
 
     /**
      * Apply defaults to this objects according to the key configuration
@@ -1345,7 +1291,6 @@ abstract class DataEntry implements InterfaceDataEntry
     }
 
 
-
     /**
      * Load all object data from database
      *
@@ -1364,7 +1309,6 @@ abstract class DataEntry implements InterfaceDataEntry
         $this->setMetaData($data);
         $this->setData($data);
     }
-
 
     /**
      * Returns the field definitions for this DataEntry class
@@ -1427,7 +1371,6 @@ abstract class DataEntry implements InterfaceDataEntry
             ],
         ], static::getFieldDefinitions());
     }
-
 
     /**
      * Returns the field definitions for the data fields in this DataEntry object

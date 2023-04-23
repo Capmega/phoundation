@@ -5,7 +5,6 @@ namespace Phoundation\Data\Traits;
 use Phoundation\Core\Strings;
 use Phoundation\Filesystem\Filesystem;
 
-
 /**
  * Trait DataStringData
  *
@@ -26,7 +25,6 @@ trait DataStringData
     protected ?string $data = null;
 
 
-
     /**
      * Returns the data
      *
@@ -36,7 +34,6 @@ trait DataStringData
     {
         return $this->data;
     }
-
 
     /**
      * Sets the data

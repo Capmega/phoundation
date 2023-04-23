@@ -33,7 +33,6 @@ use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 use Throwable;
 
-
 /**
  * Class Session
  *
@@ -82,7 +81,6 @@ class Session
     protected static ?FlashMessages $flash_messages = null;
 
 
-
     /**
      * Start this session
      *
@@ -109,7 +107,6 @@ class Session
     }
 
 
-
     /**
      * Shut down the session object
      *
@@ -130,7 +127,6 @@ class Session
     }
 
 
-
     /**
      * Returns the user for this session
      *
@@ -142,7 +138,6 @@ class Session
     }
 
 
-
     /**
      * Returns the user for this session
      *
@@ -152,7 +147,6 @@ class Session
     {
         return self::returnUser(true);
     }
-
 
 
     /**
@@ -171,7 +165,6 @@ class Session
     }
 
 
-
     /**
      * Validate sign in data
      *
@@ -188,7 +181,6 @@ class Session
             ->select('password')->isPassword()
             ->validate();
     }
-
 
 
     /**
@@ -240,7 +232,6 @@ class Session
     }
 
 
-
     /**
      * Returns the domain for this session
      *
@@ -250,7 +241,6 @@ class Session
     {
         return static::$domain;
     }
-
 
 
     /**
@@ -273,7 +263,6 @@ class Session
     }
 
 
-
     /**
      * Returns the language for this session
      *
@@ -288,7 +277,6 @@ class Session
 
         return static::$language ?? $default;
     }
-
 
 
     /**
@@ -312,7 +300,6 @@ class Session
         // No supported language found, set the default language
         return Config::get('languages.default', 'en');
     }
-
 
 
 //    /*
@@ -344,7 +331,6 @@ class Session
 //    }
 
 
-
     /**
      * Check if we have a session from a cookie
      *
@@ -368,7 +354,6 @@ class Session
     }
 
 
-
     /**
      * Clear the current session
      *
@@ -390,7 +375,6 @@ class Session
             $_SESSION = [];
         }
     }
-
 
 
     /**
@@ -548,7 +532,6 @@ Log::warning('RESTART SESSION');
     }
 
 
-
     /**
      * Destroy the current user session
      *
@@ -591,7 +574,6 @@ Log::warning('RESTART SESSION');
     }
 
 
-
     /**
      * Returns true if the specified sign in method is supported
      *
@@ -622,7 +604,6 @@ Log::warning('RESTART SESSION');
     }
 
 
-
     /**
      * Returns true if this session is impersonated
      *
@@ -632,7 +613,6 @@ Log::warning('RESTART SESSION');
     {
         return isset($_SESSION['user']['impersonate_id']);
     }
-
 
 
     /**
@@ -720,7 +700,6 @@ Log::warning('RESTART SESSION');
             ]))
             ->send();
     }
-
 
 
     /**
@@ -825,7 +804,6 @@ Log::warning('RESTART SESSION');
     }
 
 
-
     /**
      * Check the requested domain, if its a valid main domain, sub domain or whitelabel domain
      *
@@ -926,7 +904,6 @@ Log::warning('RESTART SESSION');
     }
 
 
-
     /**
      * Checks if an extended session is available for this user
      *
@@ -964,7 +941,6 @@ Log::warning('RESTART SESSION');
 
         return false;
     }
-
 
 
     /**
@@ -1010,7 +986,6 @@ Log::warning('RESTART SESSION');
 
         return true;
     }
-
 
 
     /**

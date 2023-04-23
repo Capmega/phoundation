@@ -13,7 +13,6 @@ use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
 
-
 $user = User::get(Session::getUser()->getId());
 
 // Validate POST and submit
@@ -28,11 +27,9 @@ if (Page::isPostRequestMethod()) {
 }
 
 
-
 // Build the buttons
 $buttons = Buttons::new()
     ->addButton('Submit');
-
 
 
 // Alter the default user form
@@ -40,7 +37,6 @@ $user
     ->modifyKeys('comments'  , ['visible'  => false])
     ->modifyKeys('is_leader' , ['disabled' => true])
     ->modifyKeys('leaders_id', ['disabled' => true]);
-
 
 
 // Build the form
@@ -51,13 +47,11 @@ $card = Card::new()
     ->setButtons($buttons);
 
 
-
 // Build the grid column with a form containing the user and roles cards
 $column = GridColumn::new()
     ->addContent($card->render())
     ->setSize(9)
     ->useForm(true);
-
 
 
 // Build relevant links
@@ -66,7 +60,6 @@ $relevant = Card::new()
     ->setTitle(tr('Relevant links'))
     ->setContent('<a href="' . UrlBuilder::getWww('/profile.html') . '">' . tr('Your profile') . '</a><br>
                          <a href="' . UrlBuilder::getWww('/api-access.html') . '">' . tr('Your API access') . '</a>');
-
 
 
 // Build documentation
@@ -78,14 +71,12 @@ $documentation = Card::new()
                          <p>Et molestias aut vitae et autem distinctio. Molestiae quod ullam a. Fugiat veniam dignissimos rem repudiandae consequuntur voluptatem. Enim dolores sunt unde sit dicta animi quod. Nesciunt nisi non ea sequi aut. Suscipit aperiam amet fugit facere dolorem qui deserunt.</p>');
 
 
-
 // Build and render the grid
 $grid = Grid::new()
     ->addColumn($column)
     ->addColumn($relevant->render() . $documentation->render(), 3);
 
 echo $grid->render();
-
 
 // Set page meta data
 Page::setHeaderTitle(tr('My API access'));

@@ -20,7 +20,6 @@ use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Page;
 
-
 /**
  * Class Debug
  *
@@ -52,7 +51,6 @@ class Debug {
      * @var DebugCounter|null $counter
      */
     protected static ?DebugCounter $counter = null;
-
 
 
     /**
@@ -92,7 +90,6 @@ class Debug {
     }
 
 
-
     /**
      * If true, methods supporting it will clean up debug data string before returning them.
      *
@@ -108,7 +105,6 @@ class Debug {
 
         return static::$clean_data;
     }
-
 
 
     /**
@@ -155,7 +151,6 @@ class Debug {
     }
 
 
-
     /**
      * Returns a backtrace
      *
@@ -184,7 +179,6 @@ class Debug {
     }
 
 
-
     /**
      * Returns the class name from where this call was made
      *
@@ -198,7 +192,6 @@ class Debug {
         return isset_get($backtrace[$trace + 1]['class'], $default);
     }
 
-
     /**
      * Returns the function name from where this call was made
      *
@@ -211,7 +204,6 @@ class Debug {
         $backtrace = debug_backtrace();
         return isset_get($backtrace[$trace + 1]['function'], $default);
     }
-
 
 
     /**
@@ -228,7 +220,6 @@ class Debug {
     }
 
 
-
     /**
      * Returns the line number from where this call was made
      *
@@ -241,7 +232,6 @@ class Debug {
         $backtrace = debug_backtrace();
         return isset_get($backtrace[$trace + 1]['line'], $default);
     }
-
 
 
     /**
@@ -277,7 +267,6 @@ class Debug {
     }
 
 
-
     /**
      * Returns an array with debug information
      *
@@ -287,7 +276,6 @@ class Debug {
     {
         return [];
     }
-
 
 
     /**
@@ -318,7 +306,6 @@ class Debug {
                 ->setRoles('developer')
                 ->send();
         }
-
 
         // Filter secure data
         if (is_array($value)) {
@@ -410,7 +397,6 @@ class Debug {
         return $value;
     }
 
-
     /**
      * Show the given value on screen, then die.
      *
@@ -431,7 +417,6 @@ class Debug {
     }
 
 
-
     /**
      * Returns a new statistics class
      *
@@ -443,7 +428,6 @@ class Debug {
         static::$statistics[] = $statistic;
         return $statistic;
     }
-
 
 
     /**
@@ -497,7 +481,6 @@ class Debug {
                               '.static::showHtmlRow($value, $key) . '
                             </table>';
     }
-
 
 
     /**
@@ -647,7 +630,6 @@ class Debug {
     }
 
 
-
     /**
      * Displays the specified query in a show() output
      *
@@ -723,7 +705,6 @@ class Debug {
     }
 
 
-
     /**
      * Returns a filtered debug_backtrace()
      *
@@ -759,7 +740,6 @@ class Debug {
 
         return $trace;
     }
-
 
 
     /**
@@ -798,7 +778,6 @@ class Debug {
         usort($core->register['debug_queries'], 'debug_bar_sort');
         $usage = getrusage();
         $files = get_included_files();
-
 
         // Build HTML
         $html = '<div class="debug" id="debug-bar">
@@ -894,7 +873,6 @@ class Debug {
     }
 
 
-
     /**
      * Used for ordering entries on the debug bar
      *
@@ -916,7 +894,6 @@ class Debug {
         // They're the same, so ordering doesn't matter
         return 0;
     }
-
 
 
     /**
@@ -941,7 +918,6 @@ class Debug {
             die(Strings::endsWith(str_replace('%count%', $count, $message), PHP_EOL));
         }
     }
-
 
 
     /**

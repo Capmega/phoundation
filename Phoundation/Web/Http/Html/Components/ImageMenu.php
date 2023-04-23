@@ -6,7 +6,6 @@ use Phoundation\Content\Images\UsesImage;
 use Phoundation\Exception\OutOfBoundsException;
 
 
-
 /**
  * ImageMenu class
  *
@@ -20,7 +19,6 @@ use Phoundation\Exception\OutOfBoundsException;
 abstract class ImageMenu extends ElementsBlock
 {
     use UsesImage;
-
 
 
     /**
@@ -45,7 +43,6 @@ abstract class ImageMenu extends ElementsBlock
     protected ?string $modal_selector = null;
 
 
-
     /**
      * ImageMenu class constructor
      */
@@ -59,7 +56,6 @@ abstract class ImageMenu extends ElementsBlock
     }
 
 
-
     /**
      * Returns the menu items
      *
@@ -69,7 +65,6 @@ abstract class ImageMenu extends ElementsBlock
     {
         return $this->menu;
     }
-
 
 
     /**
@@ -89,7 +84,6 @@ abstract class ImageMenu extends ElementsBlock
     }
 
 
-
     /**
      * Returns the URL
      *
@@ -99,7 +93,6 @@ abstract class ImageMenu extends ElementsBlock
     {
         return $this->url;
     }
-
 
 
     /**
@@ -119,7 +112,6 @@ abstract class ImageMenu extends ElementsBlock
     }
 
 
-
     /**
      * Returns the modal selector
      *
@@ -129,7 +121,6 @@ abstract class ImageMenu extends ElementsBlock
     {
         return $this->modal_selector;
     }
-
 
 
     /**

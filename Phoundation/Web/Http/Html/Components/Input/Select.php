@@ -9,7 +9,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\ResourceElement;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
 
-
 /**
  * Class Select
  *
@@ -51,7 +50,6 @@ class Select extends ResourceElement
     protected bool $auto_select = false;
 
 
-
     /**
      * Select constructor
      */
@@ -60,7 +58,6 @@ class Select extends ResourceElement
         parent::__construct();
         parent::setElement('select');
     }
-
 
 
     /**
@@ -76,7 +73,6 @@ class Select extends ResourceElement
     }
 
 
-
     /**
      * Sets if the select element allows multiple options to be selected
      *
@@ -86,7 +82,6 @@ class Select extends ResourceElement
     {
         return (bool) array_key_exists('multiple', $this->attributes);
     }
-
 
 
     /**
@@ -102,7 +97,6 @@ class Select extends ResourceElement
     }
 
 
-
     /**
      * Returns if there is only one option, it should automatically be selected
      *
@@ -112,7 +106,6 @@ class Select extends ResourceElement
     {
         return (bool) $this->auto_select;
     }
-
 
 
     /**
@@ -128,7 +121,6 @@ class Select extends ResourceElement
     }
 
 
-
     /**
      * Disables auto select
      *
@@ -140,7 +132,6 @@ class Select extends ResourceElement
         $this->auto_select = false;
         return $this;
     }
-
 
 
     /**
@@ -155,7 +146,6 @@ class Select extends ResourceElement
     }
 
 
-
     /**
      * Sets multiple selected options
      *
@@ -167,7 +157,6 @@ class Select extends ResourceElement
         $this->selected = [];
         return $this->addSelected($selected);
     }
-
 
 
     /**
@@ -197,7 +186,6 @@ class Select extends ResourceElement
     }
 
 
-
     /**
      * Returns the selected option(s)
      *
@@ -207,7 +195,6 @@ class Select extends ResourceElement
     {
         return $this->selected;
     }
-
 
 
     /**
@@ -222,7 +209,6 @@ class Select extends ResourceElement
     }
 
 
-
     /**
      * Adds all multiple class element attributes for option elements
      *
@@ -234,7 +220,6 @@ class Select extends ResourceElement
         $this->option_classes = [];
         return $this->addOptionClasses($option_classes);
     }
-
 
 
     /**
@@ -253,7 +238,6 @@ class Select extends ResourceElement
     }
 
 
-
     /**
      * Adds an class element attribute for option elements
      *
@@ -267,7 +251,6 @@ class Select extends ResourceElement
     }
 
 
-
     /**
      * Returns the HTML class element attribute for option elements
      *
@@ -277,7 +260,6 @@ class Select extends ResourceElement
     {
         return $this->option_classes;
     }
-
 
 
     /**
@@ -293,7 +275,6 @@ class Select extends ResourceElement
 
         return $this->option_class;
     }
-
 
 
     /**
@@ -334,7 +315,6 @@ class Select extends ResourceElement
 
         return $none . $return;
     }
-
 
 
     /**
@@ -384,7 +364,6 @@ class Select extends ResourceElement
 
         return $return;
     }
-
 
 
     /**
@@ -458,7 +437,6 @@ class Select extends ResourceElement
     }
 
 
-
     /**
      * Render an <option> for "this select has no data and is empty"
      *
@@ -473,7 +451,6 @@ class Select extends ResourceElement
 
         return null;
     }
-
 
     /**
      * Builds and returns the class string
@@ -490,7 +467,6 @@ class Select extends ResourceElement
 
         return null;
     }
-
 
 
     /**

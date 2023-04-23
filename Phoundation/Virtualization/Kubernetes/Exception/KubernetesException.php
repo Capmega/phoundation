@@ -4,7 +4,6 @@ namespace Phoundation\Kubernetes\Exception;
 
 use Phoundation\Virtualization\Exception\VirtualizationException;
 
-
 /**
  * Class KubernetesException
  *

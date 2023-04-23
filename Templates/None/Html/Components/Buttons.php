@@ -5,7 +5,6 @@ namespace Templates\None\Html\Components;
 use Phoundation\Web\Http\Html\Renderer;
 
 
-
 /**
  * None Plugin Buttons class
  *
@@ -25,7 +24,6 @@ class Buttons extends Renderer
     {
         parent::__construct($element);
     }
-
 
 
     /**

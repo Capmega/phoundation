@@ -2,7 +2,6 @@
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait DataStringId
  *
@@ -22,7 +21,6 @@ trait DataStringId
      * @var string|null $id
      */
     protected ?string $id = null;
-
 
     /**
      * Returns the string id for this object or null

@@ -3,7 +3,6 @@
 namespace Phoundation\Data\DataEntry\Traits;
 
 
-
 /**
  * Trait DataEntryDescription
  *
@@ -25,7 +24,6 @@ trait DataEntryDescription
     {
         return $this->getDataValue('description');
     }
-
 
 
     /**

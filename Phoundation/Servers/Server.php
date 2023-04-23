@@ -23,7 +23,6 @@ use Phoundation\Geo\States\States;
 use Phoundation\Processes\Process;
 use Phoundation\Servers\Traits\DataEntrySshAccount;
 
-
 /**
  * Server class
  *
@@ -43,7 +42,6 @@ class Server extends DataEntry
     use DataEntryProvider;
     use DataEntrySshAccount;
 
-
     /**
      * Server class constructor
      *
@@ -58,7 +56,6 @@ class Server extends DataEntry
         parent::__construct($identifier);
     }
 
-
     /**
      * Returns the cost for this object
      *
@@ -68,7 +65,6 @@ class Server extends DataEntry
     {
         return $this->getDataValue('cost');
     }
-
 
 
     /**
@@ -83,7 +79,6 @@ class Server extends DataEntry
     }
 
 
-
     /**
      * Returns the bill_due_date for this object
      *
@@ -93,7 +88,6 @@ class Server extends DataEntry
     {
         return $this->getDataValue('bill_due_date');
     }
-
 
 
     /**
@@ -108,7 +102,6 @@ class Server extends DataEntry
     }
 
 
-
     /**
      * Returns the interval for this object
      *
@@ -119,7 +112,6 @@ class Server extends DataEntry
     {
         return $this->getDataValue('interval');
     }
-
 
 
     /**
@@ -134,7 +126,6 @@ class Server extends DataEntry
     }
 
 
-
     /**
      * Returns the os_name for this object
      *
@@ -145,7 +136,6 @@ class Server extends DataEntry
     {
         return $this->getDataValue('os_name');
     }
-
 
 
     /**
@@ -160,7 +150,6 @@ class Server extends DataEntry
     }
 
 
-
     /**
      * Returns the os_version for this object
      *
@@ -170,7 +159,6 @@ class Server extends DataEntry
     {
         return $this->getDataValue('os_version');
     }
-
 
 
     /**
@@ -186,7 +174,6 @@ class Server extends DataEntry
 
 
 
-
     /**
      * Returns the web_services for this object
      *
@@ -196,7 +183,6 @@ class Server extends DataEntry
     {
         return (bool) $this->getDataValue('web_services');
     }
-
 
 
     /**
@@ -211,7 +197,6 @@ class Server extends DataEntry
     }
 
 
-
     /**
      * Returns the mail_services for this object
      *
@@ -221,7 +206,6 @@ class Server extends DataEntry
     {
         return (bool) $this->getDataValue('mail_services');
     }
-
 
 
     /**
@@ -236,7 +220,6 @@ class Server extends DataEntry
     }
 
 
-
     /**
      * Returns the database_services for this object
      *
@@ -246,7 +229,6 @@ class Server extends DataEntry
     {
         return (bool) $this->getDataValue('database_services');
     }
-
 
 
     /**
@@ -261,7 +243,6 @@ class Server extends DataEntry
     }
 
 
-
     /**
      * Returns the allow_sshd_modifications for this object
      *
@@ -271,7 +252,6 @@ class Server extends DataEntry
     {
         return (bool) $this->getDataValue('allow_sshd_modifications');
     }
-
 
 
     /**
@@ -286,7 +266,6 @@ class Server extends DataEntry
     }
 
 
-
     /**
      * Returns the username for the SSH account for this server
      *
@@ -296,7 +275,6 @@ class Server extends DataEntry
     {
         return $this->getSshAccount()->getUsername();
     }
-
 
 
     /**
@@ -314,7 +292,6 @@ class Server extends DataEntry
             ->addArgument($command_line)
             ->getFullCommandLine();
     }
-
 
     /**
      * Validates the provider record with the specified validator object
@@ -364,7 +341,6 @@ class Server extends DataEntry
 
         return $data;
     }
-
 
 
     /**

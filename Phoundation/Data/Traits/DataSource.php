@@ -3,7 +3,6 @@
 namespace Phoundation\Data\Traits;
 
 
-
 /**
  * Trait Source
  *
@@ -19,7 +18,6 @@ trait DataSource
     protected string $source;
 
 
-
     /**
      * Returns the source
      *
@@ -29,7 +27,6 @@ trait DataSource
     {
         return $this->source;
     }
-
 
 
     /**

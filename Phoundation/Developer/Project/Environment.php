@@ -11,7 +11,6 @@ use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Restrictions;
 use Throwable;
 
-
 /**
  * Environment class
  *
@@ -46,7 +45,6 @@ class Environment
     protected Configuration $config;
 
 
-
     /**
      * Environment class constructor
      *
@@ -59,7 +57,6 @@ class Environment
         $this->project = $project;
         $this->config  = new Configuration($project);
     }
-
 
 
     /**
@@ -83,7 +80,6 @@ class Environment
     }
 
 
-
     /**
      * Returns the specified environment
      *
@@ -103,7 +99,6 @@ class Environment
     }
 
 
-
     /**
      * Returns the name for this environment
      *
@@ -113,7 +108,6 @@ class Environment
     {
         return $this->name;
     }
-
 
 
     /**
@@ -146,7 +140,6 @@ class Environment
     }
 
 
-
     /**
      * Returns if the specified environment exists or not
      *
@@ -162,7 +155,6 @@ class Environment
     }
 
 
-
     /**
      * Returns the configuration file for the specified environment
      *
@@ -175,7 +167,6 @@ class Environment
     }
 
 
-
     /**
      * Returns the configuration for this environment
      *
@@ -185,7 +176,6 @@ class Environment
     {
         return $this->config;
     }
-
 
 
     /**
@@ -221,7 +211,6 @@ class Environment
 
         return true;
     }
-
 
 
     /**

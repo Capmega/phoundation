@@ -3,7 +3,6 @@
 namespace Phoundation\Data\Validator;
 
 
-
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 
@@ -30,7 +29,6 @@ class GetValidator extends Validator
 
 
 
-
     /**
      * Validator constructor.
      *
@@ -44,7 +42,6 @@ class GetValidator extends Validator
     }
 
 
-
     /**
      * Returns a new $_GET data Validator object
      *
@@ -55,7 +52,6 @@ class GetValidator extends Validator
     {
         return new static($parent);
     }
-
 
 
     /**
@@ -77,7 +73,6 @@ class GetValidator extends Validator
         $_GET     = [];
         $_REQUEST = [];
     }
-
 
 
     /**
@@ -102,7 +97,6 @@ class GetValidator extends Validator
     }
 
 
-
     /**
      * Add the specified value for key to the internal GET array
      *
@@ -114,7 +108,6 @@ class GetValidator extends Validator
     {
         static::$get[$key] = $value;
     }
-
 
 
     /**
@@ -136,7 +129,6 @@ class GetValidator extends Validator
     }
 
 
-
     /**
      * Selects the specified key within the array that we are validating
      *
@@ -147,7 +139,6 @@ class GetValidator extends Validator
     {
         return $this->standardSelect($field);
     }
-
 
 
     /**

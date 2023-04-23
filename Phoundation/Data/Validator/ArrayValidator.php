@@ -3,7 +3,6 @@
 namespace Phoundation\Data\Validator;
 
 
-
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 
@@ -35,7 +34,6 @@ class ArrayValidator extends Validator
     }
 
 
-
     /**
      * Returns a new array data Validator object
      *
@@ -47,7 +45,6 @@ class ArrayValidator extends Validator
     {
         return new static($source, $parent);
     }
-
 
 
     /**

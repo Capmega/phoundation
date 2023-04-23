@@ -5,7 +5,6 @@ namespace Phoundation\Web\Http\Html\Components;
 use JetBrains\PhpStorm\ExpectedValues;
 
 
-
 /**
  * Modal class
  *
@@ -76,7 +75,6 @@ abstract class Modal extends ElementsBlock
     protected ?bool $backdrop = true;
 
 
-
     /**
      * Returns the modal identifier
      *
@@ -86,7 +84,6 @@ abstract class Modal extends ElementsBlock
     {
         return $this->id;
     }
-
 
     /**
      * Sets the modal identifier
@@ -101,7 +98,6 @@ abstract class Modal extends ElementsBlock
     }
 
 
-
     /**
      * Sets the modal size
      *
@@ -111,7 +107,6 @@ abstract class Modal extends ElementsBlock
     {
         return $this->size;
     }
-
 
     /**
      * Sets the modal size
@@ -130,7 +125,6 @@ abstract class Modal extends ElementsBlock
     }
 
 
-
     /**
      * Returns the modal fade
      *
@@ -140,7 +134,6 @@ abstract class Modal extends ElementsBlock
     {
         return $this->fade;
     }
-
 
     /**
      * Sets the modal fade
@@ -155,7 +148,6 @@ abstract class Modal extends ElementsBlock
     }
 
 
-
     /**
      * Returns the modal backdrop
      *
@@ -165,7 +157,6 @@ abstract class Modal extends ElementsBlock
     {
         return $this->backdrop;
     }
-
 
     /**
      * Sets the modal backdrop
@@ -180,7 +171,6 @@ abstract class Modal extends ElementsBlock
     }
 
 
-
     /**
      * Returns if the modal is vertically centered
      *
@@ -190,7 +180,6 @@ abstract class Modal extends ElementsBlock
     {
         return $this->vertical_center;
     }
-
 
     /**
      * Sets if the modal is vertically centered
@@ -205,7 +194,6 @@ abstract class Modal extends ElementsBlock
     }
 
 
-
     /**
      * Returns the modal escape
      *
@@ -215,7 +203,6 @@ abstract class Modal extends ElementsBlock
     {
         return $this->escape;
     }
-
 
     /**
      * Sets the modal escape
@@ -230,7 +217,6 @@ abstract class Modal extends ElementsBlock
     }
 
 
-
     /**
      * Returns the modal title
      *
@@ -240,7 +226,6 @@ abstract class Modal extends ElementsBlock
     {
         return $this->title;
     }
-
 
 
     /**
@@ -256,7 +241,6 @@ abstract class Modal extends ElementsBlock
     }
 
 
-
     /**
      * Returns the modal buttons
      *
@@ -266,7 +250,6 @@ abstract class Modal extends ElementsBlock
     {
         return $this->buttons;
     }
-
 
 
     /**

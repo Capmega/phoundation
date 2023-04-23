@@ -8,7 +8,6 @@ use Phoundation\Core\Strings;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\Sql;
 
-
 /**
  * TableDefine class
  *
@@ -50,7 +49,6 @@ class TableDefine extends SchemaAbstract
     protected array $foreign_keys = [];
 
 
-
     /**
      * Sets the table name
      *
@@ -62,7 +60,6 @@ class TableDefine extends SchemaAbstract
         $this->name = $name;
         return $this;
     }
-
 
 
     /**
@@ -77,7 +74,6 @@ class TableDefine extends SchemaAbstract
     }
 
 
-
     /**
      * Sets the table columns
      *
@@ -90,7 +86,6 @@ class TableDefine extends SchemaAbstract
         $this->columns = [];
         return $this->addColumns($columns);
     }
-
 
 
     /**
@@ -115,7 +110,6 @@ class TableDefine extends SchemaAbstract
     }
 
 
-
     /**
      * Add a single column to the table
      *
@@ -133,7 +127,6 @@ class TableDefine extends SchemaAbstract
     }
 
 
-
     /**
      * Clears the table indices
      *
@@ -144,7 +137,6 @@ class TableDefine extends SchemaAbstract
         $this->indices = [];
         return $this;
     }
-
 
 
     /**
@@ -159,7 +151,6 @@ class TableDefine extends SchemaAbstract
         $this->indices = [];
         return $this->addIndices($indices);
     }
-
 
 
     /**
@@ -183,7 +174,6 @@ class TableDefine extends SchemaAbstract
     }
 
 
-
     /**
      * Add a single index to the table
      *
@@ -195,7 +185,6 @@ class TableDefine extends SchemaAbstract
         $this->indices[] = $index;
         return $this;
     }
-
 
 
     /**
@@ -210,7 +199,6 @@ class TableDefine extends SchemaAbstract
     }
 
 
-
     /**
      * Sets the table foreign_keys
      *
@@ -223,7 +211,6 @@ class TableDefine extends SchemaAbstract
         $this->foreign_keys = [];
         return $this->addForeignKeys($foreign_keys);
     }
-
 
 
     /**
@@ -246,7 +233,6 @@ class TableDefine extends SchemaAbstract
     }
 
 
-
     /**
      * Add a single foreign_key to the table
      *
@@ -258,7 +244,6 @@ class TableDefine extends SchemaAbstract
         $this->foreign_keys[] = $foreign_key;
         return $this;
     }
-
 
 
     /**

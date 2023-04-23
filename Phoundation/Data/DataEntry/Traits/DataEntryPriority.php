@@ -4,7 +4,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Exception\OutOfBoundsException;
 
-
 /**
  * Trait DataEntryPriority
  *
@@ -26,7 +25,6 @@ trait DataEntryPriority
     {
         return $this->getDataValue('priority');
     }
-
 
     /**
      * Sets the priority for this object

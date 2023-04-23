@@ -5,7 +5,6 @@ namespace Phoundation\Data\Validator\Exception;
 use Throwable;
 
 
-
 /**
  * Class ValidationFailedException
  *

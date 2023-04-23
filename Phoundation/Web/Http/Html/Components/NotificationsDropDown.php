@@ -7,7 +7,6 @@ use Phoundation\Notifications\Notifications;
 use Phoundation\Web\Http\UrlBuilder;
 
 
-
 /**
  * NotificationsDropDown class
  *
@@ -42,7 +41,6 @@ class NotificationsDropDown extends ElementsBlock
     protected ?string $notifications_all_url = null;
 
 
-
     /**
      * Returns the notifications object
      *
@@ -62,7 +60,6 @@ class NotificationsDropDown extends ElementsBlock
     }
 
 
-
     /**
      * Sets the notifications object
      *
@@ -76,7 +73,6 @@ class NotificationsDropDown extends ElementsBlock
     }
 
 
-
     /**
      * Returns the notifications page URL
      *
@@ -86,7 +82,6 @@ class NotificationsDropDown extends ElementsBlock
     {
         return $this->notifications_url;
     }
-
 
 
     /**
@@ -102,7 +97,6 @@ class NotificationsDropDown extends ElementsBlock
     }
 
 
-
     /**
      * Returns the notifications page URL
      *
@@ -112,7 +106,6 @@ class NotificationsDropDown extends ElementsBlock
     {
         return $this->notifications_all_url;
     }
-
 
 
     /**

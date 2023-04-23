@@ -5,7 +5,6 @@ namespace Phoundation\Web\Http\Html\Layouts;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\ElementsBlock;
 
-
 /**
  * Grid class
  *
@@ -30,7 +29,6 @@ class Grid extends Container
     }
 
 
-
     /**
      * Set the rows for this grid
      *
@@ -42,7 +40,6 @@ class Grid extends Container
         $this->source = [];
         return $this->addRows($rows);
     }
-
 
 
     /**
@@ -66,7 +63,6 @@ class Grid extends Container
 
         return $this;
     }
-
 
 
     /**
@@ -100,7 +96,6 @@ class Grid extends Container
     }
 
 
-
     /**
      * Returns the rows for this grid
      *
@@ -110,7 +105,6 @@ class Grid extends Container
     {
         return $this->source;
     }
-
 
 
     /**
@@ -125,7 +119,6 @@ class Grid extends Container
     }
 
 
-
     /**
      * Set the columns for the current row in this grid
      *
@@ -138,7 +131,6 @@ class Grid extends Container
         $this->getCurrentRow()->clearColumns();
         return $this->addColumns($columns, $size);
     }
-
 
 
     /**
@@ -156,7 +148,6 @@ class Grid extends Container
 
         return $this;
     }
-
 
 
     /**
@@ -198,7 +189,6 @@ class Grid extends Container
         $row->addColumn($column, $size);
         return $this;
     }
-
 
     
     /**

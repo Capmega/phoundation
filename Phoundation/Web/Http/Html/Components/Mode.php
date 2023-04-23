@@ -6,7 +6,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Html\Interfaces\InterfaceDisplayMode;
 
-
 /**
  * Mode trait
  *
@@ -27,7 +26,6 @@ trait Mode
     protected InterfaceDisplayMode $mode = DisplayMode::primary;
 
 
-
     /**
      * Returns the type of mode for the element or element block
      *
@@ -37,7 +35,6 @@ trait Mode
     {
         return $this->mode;
     }
-
 
 
     /**

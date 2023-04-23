@@ -6,7 +6,6 @@ use Phoundation\Core\Session;
 use Phoundation\Web\Http\UrlBuilder;
 
 
-
 /**
  * Menu class
  *
@@ -30,7 +29,6 @@ class Menu extends ElementsBlock
         $source = $this->makeUrlsAbsolute($source);
         return parent::setSource($source);
     }
-
 
 
     /**
@@ -72,7 +70,6 @@ class Menu extends ElementsBlock
     }
 
 
-
     /**
      * Append the specified menu to the end of this menu
      *
@@ -88,7 +85,6 @@ class Menu extends ElementsBlock
         $this->source = array_merge($this->source, $menu);
         return $this;
     }
-
 
 
     /**

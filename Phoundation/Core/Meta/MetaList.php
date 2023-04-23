@@ -8,7 +8,6 @@ use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Components\DataTable;
 use Phoundation\Web\Http\Url;
 
-
 /**
  * Class MetaList
  *
@@ -27,7 +26,6 @@ class MetaList
     protected ?array $meta_list = null;
 
 
-
     /**
      * MetaList class constructor
      *
@@ -37,7 +35,6 @@ class MetaList
     {
         $this->meta_list = $meta_list;
     }
-
 
 
     /**
@@ -50,7 +47,6 @@ class MetaList
     {
         return new MetaList($meta_list);
     }
-
 
 
     /**

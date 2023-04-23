@@ -3,7 +3,6 @@
 namespace Plugins\Phoundation\Components;
 
 
-
 use Phoundation\Core\Log\Log;
 
 /**

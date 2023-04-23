@@ -5,7 +5,6 @@ namespace Phoundation\Accounts\Users;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
 
 
-
 /**
  * Class GuestUser
  *

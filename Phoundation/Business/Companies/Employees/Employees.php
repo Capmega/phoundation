@@ -5,7 +5,6 @@ namespace Phoundation\Business\Companies\Employees;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\DataList;
 
-
 /**
  * Class Employees
  *
@@ -38,7 +37,6 @@ class Employees extends DataList
     }
 
 
-
     /**
      * @inheritDoc
      */
@@ -48,7 +46,6 @@ class Employees extends DataList
     }
 
 
-
     /**
      * @inheritDoc
      */
@@ -56,7 +53,6 @@ class Employees extends DataList
     {
         return $this;
     }
-
 
 
     /**

@@ -5,7 +5,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 use Phoundation\Exception\OutOfBoundsException;
 
 
-
 /**
  * Trait DataEntryCode
  *
@@ -27,7 +26,6 @@ trait DataEntryCode
     {
         return $this->getDataValue('code');
     }
-
 
 
     /**

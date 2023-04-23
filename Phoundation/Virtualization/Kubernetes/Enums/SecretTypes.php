@@ -2,7 +2,6 @@
 
 namespace Phoundation\Virtualization\Kubernetes\Enums;
 
-
 /**
  * Enum SecretTypes
  *

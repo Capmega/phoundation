@@ -11,7 +11,6 @@ use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Geo\Timezones\Timezone;
 
-
 /**
  * Class Continent
  *
@@ -27,7 +26,6 @@ class Continent extends DataEntry
 {
     use DataEntryNameDescription;
 
-
     /**
      * Continent class constructor
      *
@@ -42,7 +40,6 @@ class Continent extends DataEntry
         parent::__construct($identifier);
     }
 
-
     /**
      * Returns the general timezone for this continent
      *
@@ -52,7 +49,6 @@ class Continent extends DataEntry
     {
         return new Timezone($this->getDataValue('timezones_id'));
     }
-
 
 
     /**
@@ -83,7 +79,6 @@ class Continent extends DataEntry
 
         return $data;
     }
-
 
     /**
      * Sets the available data keys for this entry

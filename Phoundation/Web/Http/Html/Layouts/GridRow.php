@@ -5,7 +5,6 @@ namespace Phoundation\Web\Http\Html\Layouts;
 use Phoundation\Exception\OutOfBoundsException;
 
 
-
 /**
  * GridRow class
  *
@@ -30,7 +29,6 @@ class GridRow extends Layout
     }
 
 
-
     /**
      * Returns the source for this row
      *
@@ -40,7 +38,6 @@ class GridRow extends Layout
     {
         return $this->source;
     }
-
 
 
     /**
@@ -55,7 +52,6 @@ class GridRow extends Layout
         $this->source = [];
         return $this->addColumns($source, $size);
     }
-
 
 
     /**
@@ -80,7 +76,6 @@ class GridRow extends Layout
 
         return $this;
     }
-
 
 
     /**

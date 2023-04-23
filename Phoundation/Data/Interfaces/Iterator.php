@@ -2,7 +2,6 @@
 
 namespace Phoundation\Data\Interfaces;
 
-
 /**
  * Interface Iterator
  *
@@ -40,14 +39,12 @@ interface Iterator extends \Iterator
     public function __toString(): string;
 
 
-
     /**
      * Returns the contents of this iterator object as an array
      *
      * @return array
      */
     public function __toArray(): array;
-
 
 
     /**
@@ -60,14 +57,12 @@ interface Iterator extends \Iterator
     public function get(string|float|int $key, bool $exception = false): mixed;
 
 
-
     /**
      * Returns all values with their keys in this object
      *
      * @return array
      */
     public function getList(): array;
-
 
 
     /**
@@ -78,14 +73,12 @@ interface Iterator extends \Iterator
     public function getCount(): int;
 
 
-
     /**
      * Returns the first element contained in this object without changing the internal pointer
      *
      * @return mixed
      */
     public function getFirst(): mixed;
-
 
 
     /**
@@ -96,14 +89,12 @@ interface Iterator extends \Iterator
     public function getLast(): mixed;
 
 
-
     /**
      * Clears all the internal content for this object
      *
      * @return mixed
      */
     public function clear(): static;
-
 
 
     /**

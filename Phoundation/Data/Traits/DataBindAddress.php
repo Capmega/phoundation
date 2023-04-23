@@ -3,7 +3,6 @@
 namespace Phoundation\Data\Traits;
 
 
-
 /**
  * Class DataBindAddress
  *
@@ -24,7 +23,6 @@ trait DataBindAddress
     protected ?string $bind_address = null;
 
 
-
     /**
      * Returns the bind address for this connection
      *
@@ -34,7 +32,6 @@ trait DataBindAddress
     {
         return $this->bind_address;
     }
-
 
 
     /**

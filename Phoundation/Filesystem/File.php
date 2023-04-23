@@ -17,7 +17,6 @@ use Phoundation\Filesystem\Exception\Sha256MismatchException;
 use Phoundation\Processes\Commands\FilesystemCommands;
 use Throwable;
 
-
 /**
  * File class
  *
@@ -37,7 +36,6 @@ class File extends FileBasics
      * @var int|null $buffer_size
      */
     protected ?int $buffer_size = null;
-
 
 
     /**
@@ -73,7 +71,6 @@ class File extends FileBasics
     }
 
 
-
     /**
      * Sets the configured file buffer size
      *
@@ -85,7 +82,6 @@ class File extends FileBasics
         $this->buffer_size = $buffer_size;
         return $this;
     }
-
 
 
     /**
@@ -100,7 +96,6 @@ class File extends FileBasics
         return $this->write($data, 'a');
     }
 
-
     /**
      * Append specified data string to the end of the object file
      *
@@ -112,7 +107,6 @@ class File extends FileBasics
     {
         return $this->write($data, 'w');
     }
-
 
     /**
      * Concatenates a list of files to a target file
@@ -158,7 +152,6 @@ class File extends FileBasics
 
         return $this;
     }
-
 
 
     /**
@@ -209,7 +202,6 @@ class File extends FileBasics
     }
 
 
-
     /**
      * Ensure that the object file exists in the specified path
      *
@@ -249,7 +241,6 @@ class File extends FileBasics
     }
 
 
-
     /**
      * Returns true or false if file is ASCII or not
      *
@@ -262,7 +253,6 @@ class File extends FileBasics
     }
 
 
-
     /**
      * Returns true or false if file is ASCII or not
      *
@@ -273,7 +263,6 @@ class File extends FileBasics
         $mimetype = $this->mimetype();
         return Filesystem::isBinary(Strings::until($mimetype, '/'), Strings::from($mimetype, '/'));
     }
-
 
 
     /**
@@ -291,7 +280,6 @@ class File extends FileBasics
 
         return false;
     }
-
 
 
     /**
@@ -321,7 +309,6 @@ class File extends FileBasics
         copy($this->file, $target, $context);
         return new static($target, $this->restrictions);
     }
-
 
 
     /**
@@ -370,7 +357,6 @@ class File extends FileBasics
     }
 
 
-
     /**
      * Check if the object file exists and is readable. If not both, an exception will be thrown
      *
@@ -403,7 +389,6 @@ class File extends FileBasics
 
         return $this;
     }
-
 
 
     /**
@@ -440,7 +425,6 @@ class File extends FileBasics
     }
 
 
-
     /**
      * Returns if the link target exists or not
      *
@@ -465,7 +449,6 @@ class File extends FileBasics
             ':target' => readlink()
         ]));
     }
-
 
 
     /**
@@ -504,7 +487,6 @@ class File extends FileBasics
     }
 
 
-
     /**
      * Return line count for the specified text file
      *
@@ -518,7 +500,6 @@ class File extends FileBasics
     }
 
 
-
     /**
      * Return word count for the specified text file
      *
@@ -530,7 +511,6 @@ class File extends FileBasics
         throw new UnderConstructionException();
         $this->isText($source);
     }
-
 
 
     /**
@@ -594,7 +574,6 @@ class File extends FileBasics
     }
 
 
-
     /**
      * ???
      *
@@ -611,7 +590,6 @@ class File extends FileBasics
         if (!$context) return null;
         return stream_context_create($context);
     }
-
 
 
     /**
@@ -657,7 +635,6 @@ class File extends FileBasics
     }
 
 
-
     // GARBAGE BELOW, REIMPLEMENT
     /**
      * Create a target, but don't put anything in it
@@ -673,7 +650,6 @@ class File extends FileBasics
     {
         return $this->moveToTarget('', $path, $extension, $singledir, $length);
     }
-
 
 
     /**
@@ -692,7 +668,6 @@ class File extends FileBasics
     }
 
 
-
     /**
      * Copy object file, see file_move_to_target for implementation
      *
@@ -707,7 +682,6 @@ class File extends FileBasics
     {
         return $this->moveToTarget($path, $extension, $singledir, $length, true);
     }
-
 
     /**
      * Move object file (must be either file string or PHP uploaded file array) to a target and returns the target name
@@ -811,7 +785,6 @@ class File extends FileBasics
 
         return Strings::from($target, $path);
     }
-
 
 
     /**
@@ -1064,7 +1037,6 @@ class File extends FileBasics
     }
 
 
-
     /**
      * Makes a backup of this file to the specified target and returns a new File object for the target
      *
@@ -1107,7 +1079,6 @@ class File extends FileBasics
 
         return new static($target, $this->restrictions);
     }
-
 
 
     /**
@@ -1246,7 +1217,6 @@ class File extends FileBasics
     }
 
 
-
     /**
      * Ensure that the object file is writable
      *
@@ -1268,7 +1238,6 @@ class File extends FileBasics
 
         return $this;
     }
-
 
 
     /**
@@ -1299,7 +1268,6 @@ class File extends FileBasics
     }
 
 
-
     /**
      * Returns the extension of the object filename
      *
@@ -1309,7 +1277,6 @@ class File extends FileBasics
     {
         return Strings::fromReverse($this->file, '.');
     }
-
 
 
     /**
@@ -1339,7 +1306,6 @@ class File extends FileBasics
     }
 
 
-
     /**
      * Tars this file and returns a file object for the tar file
      *
@@ -1349,7 +1315,6 @@ class File extends FileBasics
     {
         return File::new(FilesystemCommands::new($this->restrictions)->tar($this->file), $this->restrictions);
     }
-
 
 
     /**
@@ -1364,7 +1329,6 @@ class File extends FileBasics
     }
 
 
-
     /**
      * Gzips the file
      *
@@ -1375,7 +1339,6 @@ class File extends FileBasics
         $file = FilesystemCommands::new($this->restrictions)->gzip($this->file);
         return File::new($file, $this->restrictions);
     }
-
 
 
     /**
@@ -1390,7 +1353,6 @@ class File extends FileBasics
     }
 
 
-
     /**
      * Returns the contents of this file as a string
      *
@@ -1400,7 +1362,6 @@ class File extends FileBasics
     {
         return file_get_contents($this->file);
     }
-
 
 
     /**
@@ -1414,7 +1375,6 @@ class File extends FileBasics
     }
 
 
-
     /**
      * Will unzip this file
      *
@@ -1425,7 +1385,6 @@ class File extends FileBasics
         FilesystemCommands::new($this->restrictions)->unzip($this->file);
         return $this;
     }
-
 
     /**
      * Write the specified data to this file with the requested file mode

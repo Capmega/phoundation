@@ -9,7 +9,6 @@ use Phoundation\Filesystem\Exception\FilesystemException;
 use Throwable;
 
 
-
 /**
  * Filesystem class
  *
@@ -24,7 +23,6 @@ use Throwable;
 class Filesystem
 {
     const DIRECTORY_SEPARATOR = '/';
-
 
 
     /**
@@ -53,7 +51,6 @@ class Filesystem
     }
 
 
-
     /**
      * Return the extension of the object filename
      *
@@ -64,7 +61,6 @@ class Filesystem
     {
         return Strings::fromReverse($filename, '.');
     }
-
 
 
     /**
@@ -144,7 +140,6 @@ class Filesystem
     }
 
 
-
     /**
      * Return true if the specified mimetype is for a binary file or false if it is for a text file
      *
@@ -203,7 +198,6 @@ class Filesystem
         // This is binary
         return true;
     }
-
 
 
     /**
@@ -292,7 +286,6 @@ class Filesystem
     }
 
 
-
     /**
      * realpath() wrapper that won't crash with an exception if the specified string is not a real path
      *
@@ -332,7 +325,6 @@ class Filesystem
     }
 
 
-
     /**
      * Creates a temporary directory
      *
@@ -349,7 +341,6 @@ class Filesystem
 
         return new Path($path, Restrictions::new($tmp_path, true));
     }
-
 
 
     /**
@@ -369,7 +360,6 @@ class Filesystem
 
         return new File($file, Restrictions::new($tmp_path, true));
     }
-
 
 
     /**
@@ -414,7 +404,6 @@ class Filesystem
     }
 
 
-
     /**
      * Return a system path for the specified type
      *
@@ -439,7 +428,6 @@ class Filesystem
                 throw new OutOfBoundsException(tr('Unknown type ":type" specified', [':type' => $type]));
         }
     }
-
 
 
     /**

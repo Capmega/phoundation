@@ -3,7 +3,6 @@
 namespace Phoundation\Core\Log;
 
 
-
 /**
  * Class LogManager
  *
@@ -25,7 +24,6 @@ class LogManager
     {
 
     }
-
 
 
     /**

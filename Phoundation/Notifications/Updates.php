@@ -3,7 +3,6 @@
 namespace Phoundation\Notifications;
 
 
-
 /**
  * Updates class
  *
@@ -28,7 +27,6 @@ class Updates extends \Phoundation\Core\Libraries\Updates
     }
 
 
-
     /**
      * The description for this library
      *
@@ -38,7 +36,6 @@ class Updates extends \Phoundation\Core\Libraries\Updates
     {
         return tr('The notifications library manages all system notifications to users, administrators, developers, etc');
     }
-
 
 
     /**

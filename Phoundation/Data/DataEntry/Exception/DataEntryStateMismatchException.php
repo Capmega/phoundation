@@ -3,7 +3,6 @@
 namespace Phoundation\Data\DataEntry\Exception;
 
 
-
 /**
  * Class DataEntryStateMismatchException
  *

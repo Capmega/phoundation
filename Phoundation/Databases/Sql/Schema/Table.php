@@ -5,7 +5,6 @@ namespace Phoundation\Databases\Sql\Schema;
 use Phoundation\Core\Log\Log;
 use Phoundation\Databases\Sql\Sql;
 
-
 /**
  * Table class
  *
@@ -47,7 +46,6 @@ class Table extends SchemaAbstract
     protected array $foreign_keys = [];
 
 
-
     /**
      * Table constructor
      *
@@ -66,7 +64,6 @@ class Table extends SchemaAbstract
     }
 
 
-
     /**
      * Define and create the table
      *
@@ -76,7 +73,6 @@ class Table extends SchemaAbstract
     {
         return new TableDefine($this->name, $this->sql, $this);
     }
-
 
 
     /**
@@ -90,7 +86,6 @@ class Table extends SchemaAbstract
     }
 
 
-
     /**
      * Returns if the table exists in the database or not
      *
@@ -101,7 +96,6 @@ class Table extends SchemaAbstract
         // If this query returns nothing, the table does not exist. If it returns anything, it does exist.
         return (bool) sql()->get('SHOW TABLES LIKE :name', [':name' => $this->name]);
     }
-
 
 
     /**
@@ -121,7 +115,6 @@ class Table extends SchemaAbstract
     }
 
 
-
     /**
      * Will truncate this table
      *
@@ -132,7 +125,6 @@ class Table extends SchemaAbstract
         Log::warning(tr('Truncating table :table', [':table' => $this->name]));
         sql()->query('TRUNCATE `' . $this->name . '`');
     }
-
 
 
     /**
@@ -146,7 +138,6 @@ class Table extends SchemaAbstract
     }
 
 
-
     /**
      * Returns the table name
      *
@@ -156,7 +147,6 @@ class Table extends SchemaAbstract
     {
         return $this->name;
     }
-
 
 
     /**
@@ -170,7 +160,6 @@ class Table extends SchemaAbstract
     }
 
 
-
     /**
      * Returns the table indices
      *
@@ -182,7 +171,6 @@ class Table extends SchemaAbstract
     }
 
 
-
     /**
      * Returns the table foreign_keys
      *
@@ -192,7 +180,6 @@ class Table extends SchemaAbstract
     {
         return $this->foreign_keys;
     }
-
 
 
     /**

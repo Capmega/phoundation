@@ -6,7 +6,6 @@ use Phoundation\Data\DataEntry\Traits\DataEntryGeo;
 use Phoundation\Data\DataEntry\Traits\DataEntryLongLat;
 use Phoundation\Geo\GeoIp\GeoIp;
 
-
 /**
  * Trait DataEntryGeoIp
  *
@@ -23,14 +22,12 @@ trait DataGeoIp
     use DataEntryLongLat;
 
 
-
     /**
      * A GeoIP object
      *
      * @var GeoIp|null
      */
     protected ?GeoIp $geo_ip = null;
-
 
 
     /**

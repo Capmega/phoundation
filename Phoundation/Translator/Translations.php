@@ -4,7 +4,6 @@ namespace Phoundation\Translator;
 
 use Phoundation\Data\DataEntry\DataList;
 
-
 /**
  * Class Translations
  *

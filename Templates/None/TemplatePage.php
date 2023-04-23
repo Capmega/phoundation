@@ -10,7 +10,6 @@ use Phoundation\Web\Http\Html\Modals\SignInModal;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
-
 /**
  * None template class
  *
@@ -38,7 +37,6 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     }
 
 
-
     /**
      * Build the HTTP headers for the page
      *
@@ -53,7 +51,6 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     }
 
 
-
     /**
      * Build the HTML header for the page
      *
@@ -63,7 +60,6 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     {
         return Page::buildHeaders();
     }
-
 
 
     /**
@@ -77,7 +73,6 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     }
 
 
-
     /**
      * Build the page footer
      *
@@ -87,7 +82,6 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     {
         return '';
     }
-
 
 
     /**
@@ -101,7 +95,6 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     }
 
 
-
     /**
      * Build the HTML menu
      *
@@ -111,7 +104,6 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     {
         return null;
     }
-
 
 
     /**
@@ -126,7 +118,6 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     }
 
 
-
     /**
      * @return string|null
      */
@@ -134,7 +125,6 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     {
         // TODO: Implement buildProfileImage() method.
     }
-
 
 
     /**
@@ -148,7 +138,6 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     }
 
 
-
     /**
      * Builds and returns the sidebar HTML
      *
@@ -158,7 +147,6 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     {
         return '';
     }
-
 
 
     /**

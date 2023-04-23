@@ -5,7 +5,6 @@ namespace Phoundation\Processes\Commands\Exception;
 use Phoundation\Processes\Exception\ProcessesException;
 
 
-
 /**
  * Class CommandsException
  *

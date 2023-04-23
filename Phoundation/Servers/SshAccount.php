@@ -11,7 +11,6 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Filesystem\Traits\DataRestrictions;
 
-
 /**
  * SshAccount class
  *
@@ -29,7 +28,6 @@ class SshAccount extends DataEntry
     use DataEntryNameDescription;
     use DataEntryUsername;
 
-
     /**
      * User class constructor
      *
@@ -43,7 +41,6 @@ class SshAccount extends DataEntry
         parent::__construct($identifier);
     }
 
-
     /**
      * Returns the ssh_key for this object
      *
@@ -53,7 +50,6 @@ class SshAccount extends DataEntry
     {
         return $this->getDataValue('ssh_key');
     }
-
 
 
     /**
@@ -66,7 +62,6 @@ class SshAccount extends DataEntry
     {
         return $this->setDataValue('ssh_key', $ssh_key);
     }
-
 
 
     /**
@@ -95,7 +90,6 @@ class SshAccount extends DataEntry
 
         return $data;
     }
-
 
 
     /**

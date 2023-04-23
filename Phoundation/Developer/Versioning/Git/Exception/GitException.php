@@ -4,7 +4,6 @@ namespace Phoundation\Developer\Versioning\Git\Exception;
 
 use Phoundation\Developer\Versioning\Exception\VersioningException;
 
-
 /**
  * Class GitException
  *

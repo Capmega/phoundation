@@ -4,7 +4,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Core\Locale\Language\Language;
 
-
 /**
  * Trait DataEntryLanguage
  *
@@ -28,7 +27,6 @@ trait DataEntryLanguage
     }
 
 
-
     /**
      * Sets the languages_id for this object
      *
@@ -39,7 +37,6 @@ trait DataEntryLanguage
     {
         return $this->setDataValue('languages_id', $languages_id);
     }
-
 
 
     /**
@@ -57,7 +54,6 @@ trait DataEntryLanguage
 
         return null;
     }
-
 
 
     /**

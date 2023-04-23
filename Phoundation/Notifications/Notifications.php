@@ -9,7 +9,6 @@ use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Databases\Sql\QueryBuilder;
 use Phoundation\Databases\Sql\Sql;
 
-
 /**
  * Notifications class
  *
@@ -43,7 +42,6 @@ class Notifications extends DataList
         parent::__construct($parent, $id_column);
     }
 
-
     /**
      * Returns the query builder for this object
      *
@@ -57,7 +55,6 @@ class Notifications extends DataList
     {
         $this->list = $this->loadDetails($columns, $filters, $order_by);
     }
-
 
 
     /**
@@ -88,7 +85,6 @@ class Notifications extends DataList
         return array_search($return, $list);
     }
 
-
     /**
      * @inheritDoc
      */
@@ -101,7 +97,6 @@ class Notifications extends DataList
 
         return $this;
     }
-
 
 
     /**
@@ -147,7 +142,6 @@ class Notifications extends DataList
 
         return sql()->list($builder->getQuery(), $builder->getExecute());
     }
-
 
 
     /**

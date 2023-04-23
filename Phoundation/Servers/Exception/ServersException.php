@@ -5,7 +5,6 @@ namespace Phoundation\Databases\Exception;
 use Phoundation\Exception\Exception;
 
 
-
 /**
  * Class ServersException
  *

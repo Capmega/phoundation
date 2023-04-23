@@ -47,7 +47,6 @@ use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\Html\Components\Form;
 use Phoundation\Web\Http\UrlBuilder;
 
-
 /**
  * Class User
  *
@@ -76,7 +75,6 @@ class User extends DataEntry
     use DataEntryNameDescription;
 
 
-
     /**
      * The roles for this user
      *
@@ -99,7 +97,6 @@ class User extends DataEntry
     protected array $fields_filter_on_insert = ['id', 'password'];
 
 
-
     /**
      * User class constructor
      *
@@ -113,7 +110,6 @@ class User extends DataEntry
 
         parent::__construct($identifier);
     }
-
 
 
     /**
@@ -134,7 +130,6 @@ class User extends DataEntry
     }
 
 
-
     /**
      * Authenticates the specified user id / email with its password
      *
@@ -147,7 +142,6 @@ class User extends DataEntry
     {
         return self::doAuthenticate($identifier, $password, $domain);
     }
-
 
 
     /**
@@ -166,7 +160,6 @@ class User extends DataEntry
     }
 
 
-
     /**
      * Authenticates the specified user id / email with its password
      *
@@ -180,7 +173,6 @@ class User extends DataEntry
     }
 
 
-
     /**
      * Returns true if this user object is the guest user
      *
@@ -192,7 +184,6 @@ class User extends DataEntry
     }
 
 
-
     /**
      * Returns the nickname for this user
      *
@@ -202,7 +193,6 @@ class User extends DataEntry
     {
         return $this->getDataValue('nickname');
     }
-
 
 
     /**
@@ -217,7 +207,6 @@ class User extends DataEntry
     }
 
 
-
     /**
      * Returns the name for this user
      *
@@ -227,7 +216,6 @@ class User extends DataEntry
     {
         return trim($this->getDataValue('first_names') . ' ' . $this->getDataValue('last_names'));
     }
-
 
 
     /**
@@ -242,7 +230,6 @@ class User extends DataEntry
     }
 
 
-
     /**
      * Returns the first_names for this user
      *
@@ -252,7 +239,6 @@ class User extends DataEntry
     {
         return $this->getDataValue('first_names');
     }
-
 
 
     /**
@@ -267,7 +253,6 @@ class User extends DataEntry
     }
 
 
-
     /**
      * Returns the last_names for this user
      *
@@ -277,7 +262,6 @@ class User extends DataEntry
     {
         return $this->getDataValue('last_names');
     }
-
 
 
     /**
@@ -292,7 +276,6 @@ class User extends DataEntry
     }
 
 
-
     /**
      * Returns the username for this user
      *
@@ -302,7 +285,6 @@ class User extends DataEntry
     {
         return $this->getDataValue('username');
     }
-
 
 
     /**
@@ -317,7 +299,6 @@ class User extends DataEntry
     }
 
 
-
     /**
      * Returns the last_sign_in for this user
      *
@@ -327,7 +308,6 @@ class User extends DataEntry
     {
         return $this->getDataValue('last_sign_in');
     }
-
 
 
     /**
@@ -342,7 +322,6 @@ class User extends DataEntry
     }
 
 
-
     /**
      * Returns the authentication_failures for this user
      *
@@ -352,7 +331,6 @@ class User extends DataEntry
     {
         return $this->getDataValue('authentication_failures');
     }
-
 
 
     /**
@@ -367,7 +345,6 @@ class User extends DataEntry
     }
 
 
-
     /**
      * Returns the locked_until for this user
      *
@@ -377,7 +354,6 @@ class User extends DataEntry
     {
         return $this->getDataValue('locked_until');
     }
-
 
 
     /**
@@ -392,7 +368,6 @@ class User extends DataEntry
     }
 
 
-
     /**
      * Returns the sign_in_count for this user
      *
@@ -402,7 +377,6 @@ class User extends DataEntry
     {
         return $this->getDataValue('sign_in_count');
     }
-
 
 
     /**
@@ -417,7 +391,6 @@ class User extends DataEntry
     }
 
 
-
     /**
      * Returns the fingerprint datetime for this user
      *
@@ -428,7 +401,6 @@ class User extends DataEntry
         $fingerprint = $this->getDataValue('fingerprint');
         return new DateTime($fingerprint);
     }
-
 
 
     /**
@@ -451,7 +423,6 @@ class User extends DataEntry
     }
 
 
-
     /**
      * Returns the title for this user
      *
@@ -461,7 +432,6 @@ class User extends DataEntry
     {
         return $this->getDataValue('title');
     }
-
 
 
     /**
@@ -476,7 +446,6 @@ class User extends DataEntry
     }
 
 
-
     /**
      * Returns the keywords for this user
      *
@@ -486,7 +455,6 @@ class User extends DataEntry
     {
         return $this->getDataValue('keywords');
     }
-
 
 
     /**
@@ -501,7 +469,6 @@ class User extends DataEntry
     }
 
 
-
     /**
      * Returns the verification_code for this user
      *
@@ -511,7 +478,6 @@ class User extends DataEntry
     {
         return $this->getDataValue('verification_code');
     }
-
 
 
     /**
@@ -526,7 +492,6 @@ class User extends DataEntry
     }
 
 
-
     /**
      * Returns the verified_on for this user
      *
@@ -536,7 +501,6 @@ class User extends DataEntry
     {
         return $this->getDataValue('verified_on');
     }
-
 
 
     /**
@@ -551,7 +515,6 @@ class User extends DataEntry
     }
 
 
-
     /**
      * Returns the priority for this user
      *
@@ -561,7 +524,6 @@ class User extends DataEntry
     {
         return $this->getDataValue('priority');
     }
-
 
 
     /**
@@ -576,7 +538,6 @@ class User extends DataEntry
     }
 
 
-
     /**
      * Returns the is_leader for this user
      *
@@ -586,7 +547,6 @@ class User extends DataEntry
     {
         return $this->getDataValue('is_leader');
     }
-
 
 
     /**
@@ -601,7 +561,6 @@ class User extends DataEntry
     }
 
 
-
     /**
      * Returns the leader for this user
      *
@@ -611,7 +570,6 @@ class User extends DataEntry
     {
         return $this->getDataValue('leaders_id');
     }
-
 
 
     /**
@@ -624,7 +582,6 @@ class User extends DataEntry
     {
         return $this->setDataValue('leaders_id', $leaders_id);
     }
-
 
 
     /**
@@ -642,7 +599,6 @@ class User extends DataEntry
 
         return new User($leaders_id);
     }
-
 
 
     /**
@@ -665,7 +621,6 @@ class User extends DataEntry
     }
 
 
-
     /**
      * Returns the latitude for this user
      *
@@ -675,7 +630,6 @@ class User extends DataEntry
     {
         return $this->getDataValue('latitude');
     }
-
 
 
     /**
@@ -690,7 +644,6 @@ class User extends DataEntry
     }
 
 
-
     /**
      * Returns the longitude for this user
      *
@@ -700,7 +653,6 @@ class User extends DataEntry
     {
         return $this->getDataValue('longitude');
     }
-
 
 
     /**
@@ -715,7 +667,6 @@ class User extends DataEntry
     }
 
 
-
     /**
      * Returns the accuracy for this user
      *
@@ -725,7 +676,6 @@ class User extends DataEntry
     {
         return $this->getDataValue('accuracy');
     }
-
 
 
     /**
@@ -740,7 +690,6 @@ class User extends DataEntry
     }
 
 
-
     /**
      * Returns the offset_latitude for this user
      *
@@ -750,7 +699,6 @@ class User extends DataEntry
     {
         return $this->getDataValue('offset_latitude');
     }
-
 
 
     /**
@@ -765,7 +713,6 @@ class User extends DataEntry
     }
 
 
-
     /**
      * Returns the offset_longitude for this user
      *
@@ -775,7 +722,6 @@ class User extends DataEntry
     {
         return $this->getDataValue('offset_longitude');
     }
-
 
 
     /**
@@ -790,7 +736,6 @@ class User extends DataEntry
     }
 
 
-
     /**
      * Returns the redirect for this user
      *
@@ -800,7 +745,6 @@ class User extends DataEntry
     {
         return $this->getDataValue('redirect');
     }
-
 
 
     /**
@@ -820,7 +764,6 @@ class User extends DataEntry
     }
 
 
-
     /**
      * Returns the gender for this user
      *
@@ -830,7 +773,6 @@ class User extends DataEntry
     {
         return $this->getDataValue('gender');
     }
-
 
     /**
      * Sets the gender for this user
@@ -842,7 +784,6 @@ class User extends DataEntry
     {
         return $this->setDataValue('gender', $gender);
     }
-
 
     /**
      * Returns the birthdate for this user
@@ -860,7 +801,6 @@ class User extends DataEntry
         return null;
     }
 
-
     /**
      * Sets the birthdate for this user
      *
@@ -871,7 +811,6 @@ class User extends DataEntry
     {
         return $this->setDataValue('birthdate', $birthdate);
     }
-
 
     /**
      * Sets the password for this user
@@ -892,7 +831,6 @@ class User extends DataEntry
     }
 
 
-
     /**
      * Sets the password for this user
      *
@@ -903,7 +841,6 @@ class User extends DataEntry
     {
         return $this->setDataValue('password', $password);
     }
-
 
 
     /**
@@ -954,7 +891,6 @@ class User extends DataEntry
     }
 
 
-
     /**
      * Returns the name for this user that can be displayed
      *
@@ -992,7 +928,6 @@ class User extends DataEntry
     }
 
 
-
     /**
      * Returns the name with an id for a user
      *
@@ -1002,7 +937,6 @@ class User extends DataEntry
     {
         return $this->getDataValue('id') . ' / ' . $this->getDisplayName();
     }
-
 
 
     /**
@@ -1024,7 +958,6 @@ class User extends DataEntry
     }
 
 
-
     /**
      * Returns the roles for this user
      *
@@ -1038,7 +971,6 @@ class User extends DataEntry
 
         return $this->rights;
     }
-
 
 
     /**
@@ -1057,7 +989,6 @@ class User extends DataEntry
     }
 
 
-
     /**
      * Returns an array of what rights this user misses
      *
@@ -1074,7 +1005,6 @@ class User extends DataEntry
     }
 
 
-
     /**
      * Returns true if the user has SOME of the specified rights
      *
@@ -1089,7 +1019,6 @@ class User extends DataEntry
 
         return $this->rights()->containsKey($rights, false, 'god');
     }
-
 
 
     /**
@@ -1115,7 +1044,6 @@ class User extends DataEntry
 
         return $form;
     }
-
 
 
     /**
@@ -1182,7 +1110,6 @@ class User extends DataEntry
     }
 
 
-
     /**
      * Update this session so that it impersonates this person
      *
@@ -1192,7 +1119,6 @@ class User extends DataEntry
     {
         Session::impersonate($this);
     }
-
 
 
     /**
@@ -1223,7 +1149,6 @@ class User extends DataEntry
     }
 
 
-
     /**
      * Returns true if the current session user can change the status of this user
      *
@@ -1240,7 +1165,6 @@ class User extends DataEntry
 
         return false;
     }
-
 
     /**
      * Validates the DataEntry record with the specified validator object
@@ -1301,7 +1225,6 @@ class User extends DataEntry
         return $data;
     }
 
-
     /**
      * Save the password for this user
      *
@@ -1320,7 +1243,6 @@ class User extends DataEntry
 
         return $this;
     }
-
 
     /**
      * Authenticates the specified user id / email with its password
@@ -1378,7 +1300,6 @@ class User extends DataEntry
             ':user' => $identifier
         ]));
     }
-
 
 
     /**

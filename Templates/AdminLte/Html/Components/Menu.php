@@ -5,7 +5,6 @@ namespace Templates\AdminLte\Html\Components;
 use Phoundation\Web\Http\Html\Renderer;
 
 
-
 /**
  * AdminLte Plugin Menu class
  *
@@ -27,7 +26,6 @@ class Menu extends Renderer
     }
 
 
-
     /**
      * Renders the HTML for the menu
      *
@@ -38,7 +36,6 @@ class Menu extends Renderer
     {
         return $this->renderMenu($this->element->getSource(), 0);
     }
-
 
 
     /**

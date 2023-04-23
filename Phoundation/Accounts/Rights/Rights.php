@@ -12,7 +12,6 @@ use Phoundation\Databases\Sql\QueryBuilder;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Web\Http\Html\Components\Input\Select;
 
-
 /**
  * Class Rights
  *
@@ -44,7 +43,6 @@ class Rights extends DataList
 
         parent::__construct($parent, $id_column);
     }
-
 
 
     /**
@@ -79,7 +77,6 @@ class Rights extends DataList
 
         return $this;
     }
-
 
 
     /**
@@ -149,7 +146,6 @@ class Rights extends DataList
     }
 
 
-
     /**
      * Remove the specified data entry from the data list
      *
@@ -210,7 +206,6 @@ class Rights extends DataList
     }
 
 
-
     /**
      * Remove all rights for this role
      *
@@ -241,7 +236,6 @@ class Rights extends DataList
 
         return parent::clearEntries();
     }
-
 
 
     /**
@@ -286,7 +280,6 @@ class Rights extends DataList
     }
 
 
-
     /**
      * Checks the list of specified rights if they exist and returns those rights that do not exist.
      *
@@ -309,7 +302,6 @@ class Rights extends DataList
 
         return array_flip($rights);
     }
-
 
 
     /**
@@ -409,7 +401,6 @@ class Rights extends DataList
     }
 
 
-
     /**
      * Save the data for this rights list in the database
      *
@@ -456,7 +447,6 @@ class Rights extends DataList
 
         return $this;
     }
-
 
 
     /**

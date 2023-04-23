@@ -2,7 +2,6 @@
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait DataStringOutput
  *
@@ -21,7 +20,6 @@ trait DataStringOutput
      * @var string|null $output
      */
     protected ?string $output = null;
-
 
     /**
      * Returns the output

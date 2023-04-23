@@ -6,7 +6,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Filesystem;
 
 
-
 /**
  * Trait Git
  *
@@ -34,7 +33,6 @@ trait Git
     protected \Phoundation\Developer\Versioning\Git\Git $git;
 
 
-
     /**
      * GitPath class constructor
      *
@@ -44,7 +42,6 @@ trait Git
     {
         $this->setPath($path);
     }
-
 
 
     /**
@@ -59,7 +56,6 @@ trait Git
     }
 
 
-
     /**
      * Returns the GIT process
      *
@@ -71,7 +67,6 @@ trait Git
     }
 
 
-
     /**
      * Returns the path for this ChangedFiles object
      *
@@ -81,7 +76,6 @@ trait Git
     {
         return $this->path;
     }
-
 
 
     /**

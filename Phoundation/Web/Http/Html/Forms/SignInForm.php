@@ -7,7 +7,6 @@ use Phoundation\Web\Http\Html\Components\Form;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Http\UrlBuilder;
 
-
 /**
  * SignIn form class
  *
@@ -42,7 +41,6 @@ class SignInForm extends Form
     protected ?string $forgot_password_url = null;
 
 
-
     /**
      * Signin class constructor
      */
@@ -57,7 +55,6 @@ class SignInForm extends Form
     }
 
 
-
     /**
      * Returns the signin URL
      *
@@ -67,7 +64,6 @@ class SignInForm extends Form
     {
         return $this->sign_in_url;
     }
-
 
 
     /**
@@ -83,7 +79,6 @@ class SignInForm extends Form
     }
 
 
-
     /**
      * Returns the register URL
      *
@@ -93,7 +88,6 @@ class SignInForm extends Form
     {
         return $this->register_url;
     }
-
 
 
     /**
@@ -109,7 +103,6 @@ class SignInForm extends Form
     }
 
 
-
     /**
      * Returns the register URL
      *
@@ -119,7 +112,6 @@ class SignInForm extends Form
     {
         return $this->forgot_password_url;
     }
-
 
 
     /**

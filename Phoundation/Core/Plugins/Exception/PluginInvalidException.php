@@ -3,7 +3,6 @@
 namespace Phoundation\Core\Plugins\Exception;
 
 
-
 /**
  * Class PluginInvalidException
  *

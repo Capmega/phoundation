@@ -2,7 +2,6 @@
 
 namespace Phoundation\Virtualization\Kubernetes\Traits;
 
-
 /**
  * Trait DataSelector
  *
@@ -22,7 +21,6 @@ trait DataSelectors
      */
     protected array $selectors = [];
 
-
     /**
      * Returns the selectors
      *
@@ -32,7 +30,6 @@ trait DataSelectors
     {
         return $this->selectors;
     }
-
 
     /**
      * Clears the selectors
@@ -45,7 +42,6 @@ trait DataSelectors
         return $this;
     }
 
-
     /**
      * Sets the selectors
      *
@@ -57,7 +53,6 @@ trait DataSelectors
         $this->selectors = [];
         return $this->addSelectors($selectors);
     }
-
 
     /**
      * Adds the specified selectors
@@ -79,7 +74,6 @@ trait DataSelectors
 
         return $this;
     }
-
 
     /**
      * Adds the specified selector

@@ -4,7 +4,6 @@ namespace Phoundation\Virtualization\Kubernetes\ConfigMaps;
 
 use Phoundation\Virtualization\Kubernetes\ObjectFile;
 
-
 /**
  * Class ConfigMapFile
  *
@@ -45,7 +44,6 @@ class ConfigMapFile extends ObjectFile
         parent::__construct($configmap);
     }
 
-
     /**
      * Returns the kubernetes configmap data object for this configmap file
      *
@@ -55,7 +53,6 @@ class ConfigMapFile extends ObjectFile
     {
         return $this->object;
     }
-
 
     /**
      * Builds the data string for this configmap file from the ConfigMap object

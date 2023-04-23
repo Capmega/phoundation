@@ -3,7 +3,6 @@
 namespace Phoundation\Web\Http\Html\Components\Widgets\Cards;
 
 
-
 /**
  * Chat class
  *

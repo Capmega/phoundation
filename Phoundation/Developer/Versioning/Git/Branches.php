@@ -7,7 +7,6 @@ use Phoundation\Data\Iterator;
 use Phoundation\Developer\Versioning\Git\Traits\GitProcess;
 use Phoundation\Processes\Process;
 
-
 /**
  * Class Branches
  *
@@ -21,7 +20,6 @@ use Phoundation\Processes\Process;
 class Branches extends Iterator
 {
     use GitProcess;
-
 
 
     /**
@@ -49,7 +47,6 @@ class Branches extends Iterator
 
         return $this->list;
     }
-
 
 
     /**

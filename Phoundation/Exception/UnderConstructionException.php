@@ -6,7 +6,6 @@ use Phoundation\Developer\Debug;
 use Throwable;
 
 
-
 /**
  * Class UnderConstructionException
  *

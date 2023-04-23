@@ -2,7 +2,6 @@
 
 namespace Phoundation\Web\Http\Html\Traits;
 
-
 /**
  * Trait Rendered
  *
@@ -21,7 +20,6 @@ trait Rendered
      * @var bool $rendered
      */
     protected static bool $rendered = false;
-
 
     /**
      * Returns the rendered

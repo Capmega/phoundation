@@ -2,7 +2,6 @@
 
 namespace Phoundation\Virtualization\Kubernetes\Traits;
 
-
 /**
  * Trait DataNamespace
  *
@@ -22,7 +21,6 @@ trait DataNamespace
      */
     protected ?string $namespace = null;
 
-
     /**
      * Returns the namespace
      *
@@ -32,7 +30,6 @@ trait DataNamespace
     {
         return $this->namespace;
     }
-
 
     /**
      * Sets the namespace

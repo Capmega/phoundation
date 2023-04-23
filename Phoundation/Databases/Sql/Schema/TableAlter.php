@@ -4,7 +4,6 @@ namespace Phoundation\Databases\Sql\Schema;
 
 use Phoundation\Core\Arrays;
 
-
 /**
  * TableAlter class
  *
@@ -35,7 +34,6 @@ class TableAlter extends SchemaAbstract
     }
 
 
-
     /**
      * Add the array of columns to the table
      *
@@ -59,7 +57,6 @@ class TableAlter extends SchemaAbstract
     }
 
 
-
     /**
      * Add a single column to the table
      *
@@ -76,7 +73,6 @@ class TableAlter extends SchemaAbstract
 
         return $this;
     }
-
 
 
     /**
@@ -100,7 +96,6 @@ class TableAlter extends SchemaAbstract
     }
 
 
-
     /**
      * Add a single index to the table
      *
@@ -115,7 +110,6 @@ class TableAlter extends SchemaAbstract
 
         return $this;
     }
-
 
 
     /**
@@ -137,7 +131,6 @@ class TableAlter extends SchemaAbstract
 
         return $this;
     }
-
 
 
     /**

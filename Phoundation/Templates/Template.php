@@ -5,7 +5,6 @@ namespace Phoundation\Templates;
 use Phoundation\Core\Session;
 use Phoundation\Web\Http\UrlBuilder;
 
-
 /**
  * Class Template
  *
@@ -26,7 +25,6 @@ class Template
     protected ?string $text = null;
 
 
-
     /**
      * Template class constructor
      */
@@ -34,7 +32,6 @@ class Template
     {
         $this->text = $text;
     }
-
 
 
     /**
@@ -49,7 +46,6 @@ class Template
     }
 
 
-
     /**
      * Returns a new Template object
      */
@@ -58,7 +54,6 @@ class Template
         $text = static::getPage($page_name);
         return static::new($text);
     }
-
 
 
     /**
@@ -72,7 +67,6 @@ class Template
     }
 
 
-
     /**
      * Set the template text
      *
@@ -84,7 +78,6 @@ class Template
         $this->text = $text;
         return $this;
     }
-
 
 
     /**
@@ -101,7 +94,6 @@ class Template
 
         return $text;
     }
-
 
 
     /**

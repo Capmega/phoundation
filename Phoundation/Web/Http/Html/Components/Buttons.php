@@ -10,7 +10,6 @@ use Phoundation\Web\Http\Html\Interfaces\InterfaceDisplayMode;
 use Phoundation\Web\Http\Html\Interfaces\InterfaceInputType;
 use ReturnTypeWillChange;
 
-
 /**
  * Buttons class
  *
@@ -26,14 +25,12 @@ class Buttons extends ElementsBlock implements Iterator
     use ButtonProperties;
 
 
-
     /**
      * If true, the buttons will be grouped in one larger button
      *
      * @var bool $group
      */
     protected bool $group = false;
-
 
 
     /**
@@ -47,7 +44,6 @@ class Buttons extends ElementsBlock implements Iterator
         $this->source = [];
         return $this->addButtons($buttons);
     }
-
 
 
     /**
@@ -64,7 +60,6 @@ class Buttons extends ElementsBlock implements Iterator
 
         return $this;
     }
-
 
 
     /**
@@ -116,7 +111,6 @@ class Buttons extends ElementsBlock implements Iterator
     }
 
 
-
     /**
      * Returns the buttons list
      *
@@ -126,7 +120,6 @@ class Buttons extends ElementsBlock implements Iterator
     {
         return $this->source;
     }
-
 
 
     /**
@@ -142,7 +135,6 @@ class Buttons extends ElementsBlock implements Iterator
     }
 
 
-
     /**
      * Returns the button grouping
      *
@@ -154,7 +146,6 @@ class Buttons extends ElementsBlock implements Iterator
     }
 
 
-
     /**
      * Returns the current button
      *
@@ -164,7 +155,6 @@ class Buttons extends ElementsBlock implements Iterator
     {
         return current($this->source);
     }
-
 
 
     /**
@@ -179,7 +169,6 @@ class Buttons extends ElementsBlock implements Iterator
     }
 
 
-
     /**
      * Returns the current key for the current button
      *
@@ -189,7 +178,6 @@ class Buttons extends ElementsBlock implements Iterator
     {
         return key($this->source);
     }
-
 
 
     /**
@@ -202,7 +190,6 @@ class Buttons extends ElementsBlock implements Iterator
     {
         return isset($this->source[key($this->source)]);
     }
-
 
 
     /**

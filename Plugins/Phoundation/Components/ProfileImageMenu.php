@@ -5,7 +5,6 @@ namespace Plugins\Phoundation\Components;
 use Phoundation\Web\Http\Html\Components\Menu;
 
 
-
 /**
  * ProfileImageMenu class
  *

@@ -7,7 +7,6 @@ use Phoundation\Accounts\Users\User;
 use Phoundation\Developer\Incidents\Incidents;
 
 
-
 /**
  * SlowPages class
  *

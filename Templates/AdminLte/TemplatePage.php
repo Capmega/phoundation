@@ -10,7 +10,6 @@ use Phoundation\Web\Http\Html\Modals\SignInModal;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
-
 /**
  * AdminLte template class
  *
@@ -38,7 +37,6 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     }
 
 
-
     /**
      * Build the HTTP headers for the page
      *
@@ -51,7 +49,6 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
         Page::setContentType('text/html');
         Page::setDoctype('html');
     }
-
 
 
     /**
@@ -91,7 +88,6 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     }
 
 
-
     /**
      * Build the page header
      *
@@ -107,7 +103,6 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     }
 
 
-
     /**
      * Build the page footer
      *
@@ -118,7 +113,6 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
         return      Footer::new()->render() . '
                 </div>';
     }
-
 
 
     /**
@@ -139,7 +133,6 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     }
 
 
-
     /**
      * Build the HTML menu
      *
@@ -149,7 +142,6 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     {
         return null;
     }
-
 
 
     /**
@@ -181,7 +173,6 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     }
 
 
-
     /**
      * @return string|null
      */
@@ -189,7 +180,6 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     {
         // TODO: Implement buildProfileImage() method.
     }
-
 
 
     /**
@@ -218,7 +208,6 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     }
 
 
-
     /**
      * Builds and returns the sidebar HTML
      *
@@ -239,7 +228,6 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
 
         return $panel->render();
     }
-
 
 
     /**

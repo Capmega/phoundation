@@ -4,7 +4,6 @@ namespace Phoundation\Virtualization\Kubernetes\Deployments;
 
 use Phoundation\Virtualization\Kubernetes\ObjectFile;
 
-
 /**
  * Class DeploymentFile
  *
@@ -71,7 +70,6 @@ class DeploymentFile extends ObjectFile
         parent::__construct($deployment);
     }
 
-
     /**
      * Returns the kubernetes deployment data object for this deployment file
      *
@@ -81,7 +79,6 @@ class DeploymentFile extends ObjectFile
     {
         return $this->object;
     }
-
 
     /**
      * Builds the data string for this deployment file from the Deployment object

@@ -9,7 +9,6 @@ use Phoundation\Web\Http\Html\Components\ElementsBlock;
 use Phoundation\Web\Http\Html\Template\Exception\TemplateException;
 use Plugins\Phoundation\Components\Menu;
 
-
 /**
  * Class Template
  *
@@ -51,7 +50,6 @@ abstract class Template
     protected TemplatePage $page;
 
 
-
     /**
      * Template constructor
      *
@@ -71,7 +69,6 @@ abstract class Template
         }
     }
 
-
     /**
      * Returns a new Template object
      *
@@ -81,7 +78,6 @@ abstract class Template
     {
         return new static();
     }
-
 
 
     /**
@@ -100,7 +96,6 @@ abstract class Template
             ]));
         }
     }
-
 
 
     /**
@@ -128,7 +123,6 @@ abstract class Template
     }
 
 
-
     /**
      * Returns the name for this template
      *
@@ -138,7 +132,6 @@ abstract class Template
     {
         return Strings::from(Strings::fromReverse(get_class($this), '\\'), '\\');
     }
-
 
 
     /**
@@ -184,14 +177,12 @@ abstract class Template
     }
 
 
-
     /**
      * Returns the description for this template
      *
      * @return string
      */
     abstract public function getDescription(): string;
-
 
 
     /**

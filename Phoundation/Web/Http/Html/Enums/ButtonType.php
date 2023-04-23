@@ -4,7 +4,6 @@ namespace Phoundation\Web\Http\Html\Enums;
 
 use Phoundation\Web\Http\Html\Interfaces\InterfaceButtonType;
 
-
 /**
  * Enum ButtonTypes
  *

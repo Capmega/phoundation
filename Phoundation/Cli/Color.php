@@ -5,7 +5,6 @@ namespace Phoundation\Cli;
 use Phoundation\Cli\Exception\CliColorException;
 
 
-
 /**
  * Cli\Color class
  *
@@ -52,7 +51,6 @@ class Color
     ];
 
 
-
     /**
      * The supported background colors
      *
@@ -69,7 +67,6 @@ class Color
         'cyan' => '46',
         'light_gray' => '47'
     ];
-
 
 
     /**
@@ -112,10 +109,8 @@ class Color
             $return .= static::getColorReset();
         }
 
-
         return $return;
     }
-
 
 
     /**
@@ -129,7 +124,6 @@ class Color
     }
 
 
-
     /**
      * Returns all background color names
      *
@@ -141,7 +135,6 @@ class Color
     }
 
 
-
     /**
      * Returns all background color names
      *
@@ -151,7 +144,6 @@ class Color
     {
         return "\033[0m";
     }
-
 
 
     /**
@@ -168,5 +160,4 @@ class Color
 //        return preg_replace('/\033\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]/', '',  $string);
     }
 }
-
 

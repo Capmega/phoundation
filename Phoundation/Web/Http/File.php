@@ -12,7 +12,6 @@ use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Restrictions;
 
-
 /**
  * Class File
  *
@@ -93,7 +92,6 @@ class File
     protected ?int $size = null;
 
 
-
     /**
      * File class constructor
      *
@@ -106,7 +104,6 @@ class File
     }
 
 
-
     /**
      * Returns a new File object with the specified restrictions
      *
@@ -117,7 +114,6 @@ class File
     {
         return new static($restrictions);
     }
-
 
 
     /**
@@ -133,7 +129,6 @@ class File
     }
 
 
-
     /**
      * Returns the file access restrictions
      *
@@ -143,7 +138,6 @@ class File
     {
         return $this->restrictions;
     }
-
 
 
     /**
@@ -167,7 +161,6 @@ class File
     }
 
 
-
     /**
      * Returns if files will be transferred using compression
      *
@@ -177,7 +170,6 @@ class File
     {
         return $this->compression;
     }
-
 
 
     /**
@@ -193,7 +185,6 @@ class File
     }
 
 
-
     /**
      * Returns if the process will be terminated once the HTTP file transfer has been completed
      *
@@ -203,7 +194,6 @@ class File
     {
         return $this->die;
     }
-
 
 
     /**
@@ -219,7 +209,6 @@ class File
     }
 
 
-
     /**
      * Returns if the file will be transferred as an attachment
      *
@@ -229,7 +218,6 @@ class File
     {
         return $this->attachment;
     }
-
 
 
     /**
@@ -256,7 +244,6 @@ class File
     }
 
 
-
     /**
      * Returns the file (locally on this server)
      *
@@ -266,7 +253,6 @@ class File
     {
         return $this->file;
     }
-
 
 
     /**
@@ -282,7 +268,6 @@ class File
     }
 
 
-
     /**
      * Returns the name of the file so that the client knows with what name to save it
      *
@@ -292,7 +277,6 @@ class File
     {
         return $this->filename;
     }
-
 
 
     /**
@@ -313,7 +297,6 @@ class File
     }
 
 
-
     /**
      * Returns the raw data for the file to send, in case no file on disk should be sent
      *
@@ -323,7 +306,6 @@ class File
     {
         return $this->data;
     }
-
 
 
     /**
@@ -339,7 +321,6 @@ class File
     }
 
 
-
     /**
      * Returns the mimetype for the file to be sent
      *
@@ -352,7 +333,6 @@ class File
     }
 
 
-
     /**
      * Returns the size of the file (or data) to be sent in bytes
      *
@@ -363,7 +343,6 @@ class File
     {
         return $this->size;
     }
-
 
 
     /**
@@ -420,7 +399,6 @@ Log::checkpoint();
     }
 
 
-
     /**
      * Download the specified single file to the specified path
      *
@@ -450,7 +428,6 @@ Log::checkpoint();
 
         return $file;
     }
-
 
 
     /**
@@ -510,7 +487,6 @@ Log::checkpoint();
             throw new FilesystemException(tr('Failed for file ":file"', [':file' => $url]), $e);
         }
     }
-
 
 
     /**

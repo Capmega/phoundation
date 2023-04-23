@@ -8,7 +8,6 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
 use Throwable;
 
-
 /**
  * Execute class
  *
@@ -86,7 +85,6 @@ class Execute extends Path
     protected bool $ignore_exceptions = false;
 
 
-
     /**
      * Returns the extensions that are blacklisted
      *
@@ -96,7 +94,6 @@ class Execute extends Path
     {
         return $this->blacklist_extensions;
     }
-
 
 
     /**
@@ -112,7 +109,6 @@ class Execute extends Path
     }
 
 
-
     /**
      * Returns the extensions that are whitelisted
      *
@@ -122,7 +118,6 @@ class Execute extends Path
     {
         return $this->whitelist_extensions;
     }
-
 
 
     /**
@@ -138,7 +133,6 @@ class Execute extends Path
     }
 
 
-
     /**
      * Returns the path mode that will be set for each path
      *
@@ -148,7 +142,6 @@ class Execute extends Path
     {
         return $this->mode;
     }
-
 
 
     /**
@@ -165,7 +158,6 @@ class Execute extends Path
     }
 
 
-
     /**
      * Returns if exceptions will be ignored during the processing of multiple files
      *
@@ -175,7 +167,6 @@ class Execute extends Path
     {
         return $this->ignore_exceptions;
     }
-
 
 
     /**
@@ -192,7 +183,6 @@ class Execute extends Path
     }
 
 
-
     /**
      * Returns if symlinks should be processed
      *
@@ -202,7 +192,6 @@ class Execute extends Path
     {
         return $this->follow_symlinks;
     }
-
 
 
     /**
@@ -219,7 +208,6 @@ class Execute extends Path
     }
 
 
-
     /**
      * Returns if hidden file should be processed
      *
@@ -229,7 +217,6 @@ class Execute extends Path
     {
         return $this->follow_hidden;
     }
-
 
 
     /**
@@ -246,7 +233,6 @@ class Execute extends Path
     }
 
 
-
     /**
      * Returns the path that will be skipped
      *
@@ -256,7 +242,6 @@ class Execute extends Path
     {
         return $this->skip;
     }
-
 
 
     /**
@@ -271,7 +256,6 @@ class Execute extends Path
     }
 
 
-
     /**
      * Sets the paths that will be skipped
      *
@@ -284,7 +268,6 @@ class Execute extends Path
         $this->skip = [];
         return $this->addSkipPaths(Arrays::force($paths, ''));
     }
-
 
 
     /**
@@ -304,7 +287,6 @@ class Execute extends Path
     }
 
 
-
     /**
      * Sets the path that will be skipped
      *
@@ -322,7 +304,6 @@ class Execute extends Path
     }
 
 
-
     /**
      * Returns if the object will recurse or not
      *
@@ -332,7 +313,6 @@ class Execute extends Path
     {
         return $this->recurse;
     }
-
 
 
     /**
@@ -346,7 +326,6 @@ class Execute extends Path
         $this->recurse = $recurse;
         return $this;
     }
-
 
 
 
@@ -385,7 +364,6 @@ class Execute extends Path
             }
         }
     }
-
 
 
     /**
@@ -508,7 +486,6 @@ class Execute extends Path
 
         return $count;
     }
-
 
 
     /**

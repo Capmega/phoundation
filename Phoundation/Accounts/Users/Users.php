@@ -11,7 +11,6 @@ use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Databases\Sql\QueryBuilder;
 use Phoundation\Web\Http\Html\Components\Input\Select;
 
-
 /**
  * Class Users
  *
@@ -44,7 +43,6 @@ class Users extends DataList
     }
 
 
-
     /**
      * Returns an HTML <select> object with all available users
      *
@@ -61,7 +59,6 @@ class Users extends DataList
             ->setNone(tr('Please select a user'))
             ->setEmpty(tr('No users available'));
     }
-
 
 
     /**
@@ -96,7 +93,6 @@ class Users extends DataList
 
         return $this;
     }
-
 
 
     /**
@@ -160,7 +156,6 @@ class Users extends DataList
     }
 
 
-
     /**
      * Remove the specified data entry from the data list
      *
@@ -216,7 +211,6 @@ class Users extends DataList
     }
 
 
-
     /**
      * Remove all rights for this right
      *
@@ -247,7 +241,6 @@ class Users extends DataList
 
         return parent::clearEntries();
     }
-
 
 
     /**
@@ -287,7 +280,6 @@ class Users extends DataList
         $this->list = array_flip($this->list);
         return $this;
     }
-
 
 
     /**
@@ -383,7 +375,6 @@ class Users extends DataList
 
         return $return;
     }
-
 
 
     /**

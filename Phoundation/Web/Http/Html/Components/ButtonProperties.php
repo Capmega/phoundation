@@ -8,7 +8,6 @@ use Phoundation\Web\Http\Html\Interfaces\InterfaceInputType;
 use Phoundation\Web\Http\Html\Traits\UsesSize;
 use Phoundation\Web\Http\UrlBuilder;
 
-
 /**
  * ButtonProperties trait
  *
@@ -23,7 +22,6 @@ trait ButtonProperties
 {
     use Mode;
     use UsesSize;
-
 
     /**
      * Sets if this is an anchor button or not
@@ -60,7 +58,6 @@ trait ButtonProperties
      */
     protected bool $wrapping = true;
 
-
     /**
      * ButtonProperties class constructor
      */
@@ -70,7 +67,6 @@ trait ButtonProperties
         parent::__construct();
         $this->setType(ButtonType::button);
     }
-
 
     /**
      * Set if the button is outlined or not
@@ -84,7 +80,6 @@ trait ButtonProperties
         return $this;
     }
 
-
     /**
      * Returns if the button is outlined or not
      *
@@ -94,7 +89,6 @@ trait ButtonProperties
     {
         return $this->outlined;
     }
-
 
     /**
      * Set the button type
@@ -127,7 +121,6 @@ trait ButtonProperties
         return $this;
     }
 
-
     /**
      * Returns the button type
      *
@@ -138,7 +131,6 @@ trait ButtonProperties
         return $this->type;
     }
 
-
     /**
      * Returns the button's anchor URL
      *
@@ -148,7 +140,6 @@ trait ButtonProperties
     {
         return $this->anchor_url;
     }
-
 
     /**
      * Returns the button's anchor URL
@@ -179,7 +170,6 @@ trait ButtonProperties
         return $this;
     }
 
-
     /**
      * Set if the button is flat or not
      *
@@ -192,7 +182,6 @@ trait ButtonProperties
         return $this;
     }
 
-
     /**
      * Returns if the button is flat or not
      *
@@ -202,7 +191,6 @@ trait ButtonProperties
     {
         return $this->flat;
     }
-
 
     /**
      * Set if the button is rounded or not
@@ -216,7 +204,6 @@ trait ButtonProperties
         return $this;
     }
 
-
     /**
      * Returns if the button is rounded or not
      *
@@ -226,7 +213,6 @@ trait ButtonProperties
     {
         return $this->rounded;
     }
-
 
     /**
      * Set if the button is wrapping or not
@@ -239,7 +225,6 @@ trait ButtonProperties
         $this->wrapping = $wrapping;
         return $this;
     }
-
 
     /**
      * Returns if the button is wrapping or not

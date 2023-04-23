@@ -30,7 +30,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Exception\NotificationBusyException;
 use Throwable;
 
-
 /**
  * Class Notification
  *
@@ -56,7 +55,6 @@ class Notification extends DataEntry
     use DataEntryMessage;
     use DataEntryDetails;
     use DataEntryTrace;
-
 
     /**
      * Keeps track of if this noticication was logged or not
@@ -86,7 +84,6 @@ class Notification extends DataEntry
      */
     protected ?Throwable $e = null;
 
-
     /**
      * Notification class constructor
      *
@@ -103,7 +100,6 @@ class Notification extends DataEntry
 
         parent::__construct($identifier);
     }
-
 
     /**
      * Sets the exception for this notification
@@ -130,7 +126,6 @@ class Notification extends DataEntry
     }
 
 
-
     /**
      * Returns the exception for this notification
      *
@@ -140,7 +135,6 @@ class Notification extends DataEntry
     {
         return $this->e;
     }
-
 
 
     /**
@@ -154,7 +148,6 @@ class Notification extends DataEntry
     }
 
 
-
     /**
      * Clears the message for this notification
      *
@@ -165,7 +158,6 @@ class Notification extends DataEntry
         $this->roles = [];
         return $this;
     }
-
 
 
     /**
@@ -185,7 +177,6 @@ class Notification extends DataEntry
             ->clearRoles()
             ->addRoles($roles);
     }
-
 
 
     /**
@@ -208,7 +199,6 @@ class Notification extends DataEntry
     }
 
 
-
     /**
      * Sets the message for this notification
      *
@@ -225,7 +215,6 @@ class Notification extends DataEntry
 
         return $this;
     }
-
 
     /**
      * Send the notification
@@ -306,7 +295,6 @@ class Notification extends DataEntry
     }
 
 
-
     /**
      * Log this notification to the system logs as well
      *
@@ -346,7 +334,6 @@ class Notification extends DataEntry
     }
 
 
-
     /**
      * Save this notification for the specified user
      *
@@ -377,7 +364,6 @@ class Notification extends DataEntry
     }
 
 
-
     /**
      * Send this notification to the specified user
      *
@@ -402,7 +388,6 @@ class Notification extends DataEntry
 
         return $this;
     }
-
 
     /**
      * Validates the provider record with the specified validator object
@@ -437,7 +422,6 @@ class Notification extends DataEntry
 
         return $data;
     }
-
 
     /**
      * Sets the available data keys for this entry

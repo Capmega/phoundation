@@ -22,4 +22,5 @@ nohup.out
 .docker
 docker-compose.y*
 config/kubernetes
+data/garbage
 

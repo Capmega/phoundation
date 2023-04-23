@@ -3,7 +3,6 @@
 namespace Phoundation\Web\Exception;
 
 
-
 /**
  * Class PageException
  *

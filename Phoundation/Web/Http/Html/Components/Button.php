@@ -5,7 +5,6 @@ namespace Phoundation\Web\Http\Html\Components;
 use Phoundation\Web\Http\Html\Components\Input\Input;
 use Phoundation\Web\Http\Html\Enums\ButtonType;
 
-
 /**
  * Button class
  *
@@ -21,14 +20,12 @@ class Button extends Input
     use ButtonProperties;
 
 
-
     /**
      * Floating buttons
      *
      * @var bool $floating
      */
     protected bool $floating = false;
-
 
 
     /**
@@ -44,7 +41,6 @@ class Button extends Input
     }
 
 
-
     /**
      * Set if the button is floating or not
      *
@@ -58,7 +54,6 @@ class Button extends Input
     }
 
 
-
     /**
      * Returns if the button is floating or not
      *
@@ -68,7 +63,6 @@ class Button extends Input
     {
         return $this->floating;
     }
-
 
 
     /**
@@ -95,7 +89,6 @@ class Button extends Input
     }
 
 
-
     /**
      * Set the content for this button
      *
@@ -118,7 +111,6 @@ class Button extends Input
 
         return parent::setValue($value);
     }
-
 
 
     /**
@@ -163,7 +155,6 @@ class Button extends Input
             $this->setContent(Icons::new()->setContent($this->content)->render());
         }
     }
-
 
 
     /**

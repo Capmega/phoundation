@@ -13,10 +13,8 @@ use Phoundation\Web\Http\Html\Layouts\GridColumn;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
-
 // Get the user
 $user = Session::getUser();
-
 
 
 // Validate POST and submit
@@ -69,11 +67,9 @@ if (Page::isPostRequestMethod()) {
 }
 
 
-
 // Build the buttons
 $buttons = Buttons::new()
     ->addButton('Submit');
-
 
 
 // Alter the default user form
@@ -81,7 +77,6 @@ $user
     ->modifyKeys('comments'  , ['visible'  => false])
     ->modifyKeys('is_leader' , ['disabled' => true])
     ->modifyKeys('leaders_id', ['disabled' => true]);
-
 
 
 // Build the user form
@@ -92,13 +87,11 @@ $card = Card::new()
     ->setButtons($buttons);
 
 
-
 // Build the grid column with a form containing the user and roles cards
 $column = GridColumn::new()
     ->addContent($card->render())
     ->setSize(9)
     ->useForm(true);
-
 
 
 // Build profile picture card
@@ -107,7 +100,6 @@ $picture = Card::new()
     ->setContent(Img::new()
         ->setSrc($user->getPicture())
         ->setAlt(tr('My profile picture')));
-
 
 
 // Build relevant links
@@ -119,7 +111,6 @@ $relevant = Card::new()
                          <a href="' . UrlBuilder::getWww('/sign-in-history.html') . '">' . tr('Your sign in history') . '</a>');
 
 
-
 // Build documentation
 $documentation = Card::new()
     ->setMode(DisplayMode::info)
@@ -129,14 +120,12 @@ $documentation = Card::new()
                          <p>Et molestias aut vitae et autem distinctio. Molestiae quod ullam a. Fugiat veniam dignissimos rem repudiandae consequuntur voluptatem. Enim dolores sunt unde sit dicta animi quod. Nesciunt nisi non ea sequi aut. Suscipit aperiam amet fugit facere dolorem qui deserunt.</p>');
 
 
-
 // Build and render the grid
 $grid = Grid::new()
     ->addColumn($column)
     ->addColumn($picture->render() . $relevant->render() . $documentation->render(), 3);
 
 echo $grid->render();
-
 
 // Set page meta data
 Page::setHeaderTitle(tr('My profile'));

@@ -6,7 +6,6 @@ use Phoundation\Content\Images\Image;
 use Phoundation\Core\Session;
 use Phoundation\Web\Page;
 
-
 /**
  * ProfileImage class
  *
@@ -39,7 +38,6 @@ class ProfileImage extends ImageMenu
     }
 
 
-
     /**
      * ProfileImage class constructor
      *
@@ -60,7 +58,6 @@ class ProfileImage extends ImageMenu
 
         return parent::setImage($image);
     }
-
 
 
     /**

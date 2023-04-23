@@ -12,7 +12,6 @@ use Phoundation\Web\Http\Html\Components\Input\TextArea;
 use Phoundation\Web\Http\Html\Renderer;
 
 
-
 /**
  * Class DataEntryForm
  *
@@ -32,7 +31,6 @@ class DataEntryForm extends Renderer
     {
         parent::__construct($element);
     }
-
 
 
     /**
@@ -291,7 +289,6 @@ class DataEntryForm extends Renderer
     }
 
 
-
     /**
      * Renders and returns the HTML for this component
      *
@@ -360,7 +357,6 @@ class DataEntryForm extends Renderer
 
         return $return;
     }
-
 
 
     /**

@@ -14,7 +14,6 @@ use Phoundation\Geo\Countries\Country;
 use Phoundation\Geo\Timezones\Timezone;
 use Phoundation\Web\Http\Html\Components\Input\Select;
 
-
 /**
  * Class State
  *
@@ -30,7 +29,6 @@ class State extends DataEntry
 {
     use DataEntryNameDescription;
 
-
     /**
      * State class constructor
      *
@@ -45,7 +43,6 @@ class State extends DataEntry
         parent::__construct($identifier);
     }
 
-
     /**
      * Returns the general timezone for this state
      *
@@ -55,7 +52,6 @@ class State extends DataEntry
     {
         return new Timezone($this->getDataValue('timezones_id'));
     }
-
 
 
     /**
@@ -69,7 +65,6 @@ class State extends DataEntry
     }
 
 
-
     /**
      * Returns the country for this state
      *
@@ -79,7 +74,6 @@ class State extends DataEntry
     {
         return new Country($this->getDataValue('countries_id'));
     }
-
 
 
     /**
@@ -100,7 +94,6 @@ class State extends DataEntry
             ->setNone(tr('Please select a city'))
             ->setEmpty(tr('No cities available'));
     }
-
 
 
     /**
@@ -131,7 +124,6 @@ class State extends DataEntry
 
         return $data;
     }
-
 
     /**
      * Sets the available data keys for this entry

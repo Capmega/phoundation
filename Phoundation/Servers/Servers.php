@@ -10,7 +10,6 @@ use Phoundation\Databases\Sql\QueryBuilder;
 use Phoundation\Web\Http\Html\Components\Input\Select;
 use Phoundation\Web\Http\Html\Components\Table;
 
-
 /**
  * Servers class
  *
@@ -43,7 +42,6 @@ class Servers extends DataList
     }
 
 
-
     /**
      * Creates and returns an HTML table for the data in this list
      *
@@ -56,7 +54,6 @@ class Servers extends DataList
 
         return $table;
     }
-
 
 
     /**
@@ -78,7 +75,6 @@ class Servers extends DataList
     }
 
 
-
     /**
      * @inheritDoc
      */
@@ -95,7 +91,6 @@ class Servers extends DataList
     }
 
 
-
     /**
      * @inheritDoc
      */
@@ -103,7 +98,6 @@ class Servers extends DataList
     {
         // TODO: Implement save() method.
     }
-
 
 
     /**

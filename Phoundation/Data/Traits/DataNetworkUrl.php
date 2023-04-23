@@ -3,7 +3,6 @@
 namespace Phoundation\Data\Traits;
 
 
-
 /**
  * Class DataNetworkUrl
  *
@@ -22,7 +21,6 @@ trait DataNetworkUrl
     protected ?string $url = null;
 
 
-
     /**
      * Returns the path for this object
      *
@@ -32,7 +30,6 @@ trait DataNetworkUrl
     {
         return $this->url;
     }
-
 
 
     /**

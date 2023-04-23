@@ -3,7 +3,6 @@
 namespace Phoundation\Data\Validator;
 
 
-
 use Phoundation\Exception\OutOfBoundsException;
 
 /**
@@ -23,7 +22,6 @@ class FileValidator
     use ValidatorBasics;
 
 
-
     /**
      * FileValidator constructor
      *
@@ -39,7 +37,6 @@ class FileValidator
         $this->source = &$source;
         $this->parent = $parent;
     }
-
 
 
     /**
@@ -62,7 +59,6 @@ class FileValidator
     }
 
 
-
     /**
      * Validates that the file is a plain text file
      *
@@ -72,7 +68,6 @@ class FileValidator
     {
         return $this;
     }
-
 
 
     /**
@@ -86,7 +81,6 @@ class FileValidator
     }
 
 
-
     /**
      * Validates that the file is a JPEG image
      *
@@ -96,7 +90,6 @@ class FileValidator
     {
         return $this;
     }
-
 
     /**
      * Validates that the file is smaller than the specified amount of bytes

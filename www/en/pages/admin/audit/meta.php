@@ -15,12 +15,10 @@ use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
 
-
 // Validate GET
 GetValidator::new()
     ->select('id')->sanitizeForceArray('-')->each()->isId()
     ->validate();
-
 
 
 $meta  = MetaList::new($_GET['id']);
@@ -31,13 +29,11 @@ $card  = Card::new()
     ->setContent($table->render());
 
 
-
 // Build documentation
 $documentation = Card::new()
     ->setMode(DisplayMode::info)
     ->setTitle(tr('Documentation'))
     ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
-
 
 
 // Build and render the grid
@@ -46,7 +42,6 @@ $grid = Grid::new()
     ->addColumn($documentation->render(), 3);
 
 echo $grid->render();
-
 
 
 // Set page meta data

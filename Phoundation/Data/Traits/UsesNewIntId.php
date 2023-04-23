@@ -2,7 +2,6 @@
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait UsesNewId
  *
@@ -23,7 +22,6 @@ trait UsesNewIntId
      */
     protected ?int $id = null;
 
-
     /**
      * UsesNewIntId class constructor
      *
@@ -33,7 +31,6 @@ trait UsesNewIntId
     {
 
     }
-
 
     /**
      * Returns a new static object

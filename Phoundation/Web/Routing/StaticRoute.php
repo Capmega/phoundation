@@ -7,7 +7,6 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 
-
 /**
  * Class StaticRoute
  *
@@ -29,7 +28,6 @@ class StaticRoute extends DataEntry
         // TODO: Implement validate() method.
     }
 
-
     /**
      * Sets the available data keys for this entry
      *
@@ -39,7 +37,6 @@ class StaticRoute extends DataEntry
     {
         // TODO: Implement getFieldDefinitions() method.
     }
-
 
 //sql()->query(
 //'INSERT INTO `routes_static` (`expiredon`                                , `meta_id`, `ip`, `uri`, `regex`, `target`, `flags`)
@@ -54,7 +51,6 @@ class StaticRoute extends DataEntry
 //':target'    => $route['target'],
 //':flags'     => $route['flags']
 //]);
-
 
 //    /**
 //     * Validate a route
@@ -77,7 +73,6 @@ class StaticRoute extends DataEntry
 ////        return $route;
 //    }
 //
-
 
 
 }

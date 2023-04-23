@@ -5,7 +5,6 @@ namespace Phoundation\Core;
 use Phoundation\Exception\OutOfBoundsException;
 
 
-
 /**
  * Class Timer
  *
@@ -43,7 +42,6 @@ class Timer
     protected ?string $name = null;
 
 
-
     /**
      * Timer constructor
      *
@@ -62,7 +60,6 @@ class Timer
     }
 
 
-
     /**
      * Returns the name for this timer
      *
@@ -72,7 +69,6 @@ class Timer
     {
         return $this->name;
     }
-
 
 
     /**
@@ -86,7 +82,6 @@ class Timer
     }
 
 
-
     /**
      * Returns the passed time for this timer
      *
@@ -96,7 +91,6 @@ class Timer
     {
         return microtime(true) - $this->start;
     }
-
 
 
     /**
@@ -110,7 +104,6 @@ class Timer
         return new Timer($name);
     }
 
-
     /**
      * Records a passed lap and returns the time for that lap
      *
@@ -122,7 +115,6 @@ class Timer
         $this->lap = $time;
         return $time;
     }
-
 
 
     /**

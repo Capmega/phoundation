@@ -5,7 +5,6 @@ namespace Phoundation\Developer\Versioning\Git;
 use Phoundation\Exception\OutOfBoundsException;
 
 
-
 /**
  * Class Status
  *
@@ -75,7 +74,6 @@ class Status
     protected string $readable = 'Unknown';
 
 
-
     /**
      * Status class constructor
      *
@@ -85,7 +83,6 @@ class Status
     {
         $this->parseStatus($status);
     }
-
 
 
     /**
@@ -100,7 +97,6 @@ class Status
     }
 
 
-
     /**
      * Returns the status as a string
      *
@@ -110,7 +106,6 @@ class Status
     {
         return $this->status;
     }
-
 
 
     /**
@@ -124,7 +119,6 @@ class Status
     }
 
 
-
     /**
      * Returns a readable status string
      *
@@ -134,7 +128,6 @@ class Status
     {
         return $this->readable;
     }
-
 
 
     /**
@@ -148,7 +141,6 @@ class Status
     }
 
 
-
     /**
      * Returns if this file is modified or not
      *
@@ -158,7 +150,6 @@ class Status
     {
         return $this->flag_modified;
     }
-
 
 
     /**
@@ -172,7 +163,6 @@ class Status
     }
 
 
-
     /**
      * Returns if this file is deleted or not
      *
@@ -182,7 +172,6 @@ class Status
     {
         return $this->flag_deleted;
     }
-
 
 
     /**
@@ -196,7 +185,6 @@ class Status
     }
 
 
-
     /**
      * Returns if this file is tracked or not
      *
@@ -206,7 +194,6 @@ class Status
     {
         return $this->flag_tracked;
     }
-
 
 
     /**

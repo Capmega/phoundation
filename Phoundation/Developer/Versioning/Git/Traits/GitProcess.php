@@ -7,7 +7,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Processes\Process;
 
-
 /**
  * Trait GitProcess
  *
@@ -35,7 +34,6 @@ trait GitProcess
     protected Process $git_process;
 
 
-
     /**
      * GitPath class constructor
      *
@@ -45,7 +43,6 @@ trait GitProcess
     {
         $this->setPath($path);
     }
-
 
 
     /**
@@ -60,7 +57,6 @@ trait GitProcess
     }
 
 
-
     /**
      * Returns the path for this ChangedFiles object
      *
@@ -70,7 +66,6 @@ trait GitProcess
     {
         return $this->path;
     }
-
 
 
     /**

@@ -3,7 +3,6 @@
 namespace Phoundation\Data\DataEntry\Traits;
 
 
-
 /**
  * Trait DataEntryPath
  *
@@ -25,7 +24,6 @@ trait DataEntryPath
     {
         return $this->getDataValue('path');
     }
-
 
 
     /**

@@ -4,7 +4,6 @@ namespace Phoundation\Core\Libraries\Exception;
 
 use Phoundation\Core\Exception\CoreException;
 
-
 /**
  * Class LibrariesException
  *

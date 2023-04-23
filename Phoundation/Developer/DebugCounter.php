@@ -5,7 +5,6 @@ namespace Phoundation\Developer;
 use Phoundation\Exception\OutOfBoundsException;
 
 
-
 /**
  * Class DebugCounter
  *
@@ -33,7 +32,6 @@ class DebugCounter
     protected ?string $counter = null;
 
 
-
     /**
      * Set which counter to use
      *
@@ -56,7 +54,6 @@ class DebugCounter
     }
 
 
-
     /**
      * Increase the current counter by one
      *
@@ -66,7 +63,6 @@ class DebugCounter
     {
         $this->counters[$this->counter]++;
     }
-
 
 
     /**

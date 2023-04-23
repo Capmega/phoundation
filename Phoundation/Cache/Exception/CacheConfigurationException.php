@@ -3,7 +3,6 @@
 namespace Phoundation\Cache\Exception;
 
 
-
 /**
  * Class CacheConfigurationException
  *

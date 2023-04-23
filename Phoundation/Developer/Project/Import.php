@@ -3,7 +3,6 @@
 namespace Phoundation\Developer\Project;
 
 
-
 use Exception;
 
 /**
@@ -40,7 +39,6 @@ abstract class Import
      */
     protected ?string $name = null;
 
-
     /**
      * Import class constructor
      *
@@ -56,7 +54,6 @@ abstract class Import
         $this->demo  = $demo;
         $this->count = random_int((int) $min, (int) $max);
     }
-
 
     /**
      * Returns a new Import object
@@ -75,14 +72,12 @@ abstract class Import
     }
 
 
-
     /**
      * Execute the import function
      *
      * @return int
      */
     abstract public function execute(): int;
-
 
     /**
      * Returns the name for this importers object
@@ -93,7 +88,6 @@ abstract class Import
     {
         return $this->name;
     }
-
 
 //    /**
 //     * Execute the data import

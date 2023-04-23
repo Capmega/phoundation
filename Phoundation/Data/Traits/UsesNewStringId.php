@@ -2,7 +2,6 @@
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait UsesNewStringId
  *
@@ -18,7 +17,6 @@ trait UsesNewStringId
 {
     use DataStringId;
 
-
     /**
      * UsesNewStringId class constructor
      *
@@ -28,7 +26,6 @@ trait UsesNewStringId
     {
         $this->id = $id;
     }
-
 
     /**
      * Returns a new static object

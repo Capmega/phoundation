@@ -29,7 +29,6 @@ use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 use Throwable;
 
-
 /**
  * Class Route
  *
@@ -98,7 +97,6 @@ class Route
      */
     protected static bool $dynamic_pagematch = false;
 
-
     /**
      * Route constructor
      */
@@ -160,7 +158,6 @@ class Route
     }
 
 
-
     /**
      * Singleton, ensure to always return the same Route object.
      *
@@ -176,7 +173,6 @@ class Route
     }
 
 
-
     /**
      * Returns the routing parameters list
      *
@@ -190,7 +186,6 @@ class Route
 
         return static::$parameters;
     }
-
 
 
     /**
@@ -922,7 +917,6 @@ class Route
     }
 
 
-
     /**
      * Specify a language routing map for multi-lingual websites
      *
@@ -972,7 +966,6 @@ class Route
     }
 
 
-
     /**
      * Shutdown the URL routing
      *
@@ -1005,7 +998,6 @@ class Route
     }
 
 
-
     /**
      * Shutdown the URL routing
      *
@@ -1032,7 +1024,6 @@ class Route
         // This is not a hack, the page simply cannot be found. Show a 404 instead
         static::executeSystem(404);
     }
-
 
 
     /**
@@ -1065,7 +1056,6 @@ class Route
         // Route the requested system page
         RouteSystem::new(static::parameters()->select(static::$uri, true))->$method();
     }
-
 
 
     /**
@@ -1146,7 +1136,6 @@ class Route
     }
 
 
-
     /**
      * Create a static route for the specified IP
      *
@@ -1186,7 +1175,6 @@ class Route
         // TODO Implement
         return $route;
     }
-
 
 
     /**

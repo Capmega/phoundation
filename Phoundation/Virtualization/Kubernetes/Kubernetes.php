@@ -7,7 +7,6 @@ use Phoundation\Processes\Enum\ExecuteMethod;
 use Phoundation\Processes\Process;
 use Phoundation\Virtualization\Kubernetes\Enums\Services;
 
-
 /**
  * Class Kubernetes
  *
@@ -41,7 +40,6 @@ class Kubernetes
      */
     protected int $start_timeout = 60;
 
-
     /**
      * Kubernetes class constructor
      */
@@ -53,7 +51,6 @@ class Kubernetes
                 $this->command = 'minikube';
         }
     }
-
 
     /**
      * Returns the timeout value for starting the kubernetes cluster.
@@ -67,7 +64,6 @@ class Kubernetes
     {
         return $this->start_timeout;
     }
-
 
 
     /**
@@ -92,7 +88,6 @@ class Kubernetes
     }
 
 
-
     /**
      * Returns a new Kubernetes service object
      */
@@ -100,7 +95,6 @@ class Kubernetes
     {
         return new Kubernetes($service);
     }
-
 
     /**
      * Starts the kubernetes service
@@ -115,7 +109,6 @@ class Kubernetes
             ->execute($method);
     }
 
-
     /**
      * Stops the kubernetes service
      *
@@ -127,7 +120,6 @@ class Kubernetes
             ->addArguments('stop')
             ->execute($method);
     }
-
 
     /**
      * Returns the status of the kubernetes service
@@ -143,7 +135,6 @@ class Kubernetes
         return new Status($output);
     }
 
-
     /**
      * Deletes the local kubernetes cluster
      *
@@ -157,7 +148,6 @@ class Kubernetes
             ->execute($method);
     }
 
-
     /**
      * Pauses the local kubernetes cluster
      *
@@ -170,7 +160,6 @@ class Kubernetes
             ->execute($method);
     }
 
-
     /**
      * Unpauses the local kubernetes cluster
      *
@@ -182,7 +171,6 @@ class Kubernetes
             ->addArguments('unpause')
             ->execute($method);
     }
-
 
     /**
      * Starts the kubernetes dashboard in a background process

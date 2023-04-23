@@ -5,7 +5,6 @@ namespace Phoundation\Web\Http\Html\Components\Input;
 use Phoundation\Web\Http\Html\Components\Element;
 use Phoundation\Web\Http\Html\Enums\InputType;
 
-
 /**
  * Checkbox class
  *
@@ -19,7 +18,6 @@ use Phoundation\Web\Http\Html\Enums\InputType;
 class InputCheckbox extends Element
 {
     use InputElement;
-
 
 
     /**
@@ -44,7 +42,6 @@ class InputCheckbox extends Element
     protected ?string $label_class = null;
 
 
-
     /**
      * CheckBox class constructor
      */
@@ -56,7 +53,6 @@ class InputCheckbox extends Element
     }
 
 
-
     /**
      * Returns if the checkbox is checked or not
      *
@@ -66,7 +62,6 @@ class InputCheckbox extends Element
     {
         return (bool) isset_get($this->attributes['checked']);
     }
-
 
 
     /**
@@ -82,7 +77,6 @@ class InputCheckbox extends Element
     }
 
 
-
     /**
      * Returns the label for the checkbox
      *
@@ -92,7 +86,6 @@ class InputCheckbox extends Element
     {
         return $this->label;
     }
-
 
 
     /**
@@ -108,7 +101,6 @@ class InputCheckbox extends Element
     }
 
 
-
     /**
      * Returns the label_class for the checkbox
      *
@@ -118,7 +110,6 @@ class InputCheckbox extends Element
     {
         return $this->label_class;
     }
-
 
 
     /**
@@ -132,7 +123,6 @@ class InputCheckbox extends Element
         $this->label_class = $label_class;
         return $this;
     }
-
 
 
     /**
@@ -153,7 +143,6 @@ class InputCheckbox extends Element
 
         return parent::render();
     }
-
 
 
     /**

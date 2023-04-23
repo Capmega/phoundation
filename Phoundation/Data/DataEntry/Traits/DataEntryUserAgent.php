@@ -2,7 +2,6 @@
 
 namespace Phoundation\Data\DataEntry\Traits;
 
-
 /**
  * Trait DataEntryUserAgent
  *
@@ -24,7 +23,6 @@ trait DataEntryUserAgent
     {
         return $this->getDataValue('user_agent');
     }
-
 
 
     /**

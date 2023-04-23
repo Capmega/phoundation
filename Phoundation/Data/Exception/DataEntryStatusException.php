@@ -3,7 +3,6 @@
 namespace Phoundation\Data\Exception;
 
 
-
 /**
  * Class DataEntryStatusException
  *

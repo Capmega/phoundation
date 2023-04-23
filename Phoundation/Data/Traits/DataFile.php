@@ -2,7 +2,6 @@
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait DataFile
  *
@@ -22,7 +21,6 @@ trait DataFile
      */
     protected ?string $file = null;
 
-
     /**
      * Returns the file
      *
@@ -32,7 +30,6 @@ trait DataFile
     {
         return $this->file;
     }
-
 
     /**
      * Sets the file

@@ -2,7 +2,6 @@
 
 namespace Phoundation\Core\Exception;
 
-
 /**
  * Class KeywordsNotFoundException
  *

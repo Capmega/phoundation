@@ -3,7 +3,6 @@
 namespace Phoundation\Databases;
 
 
-
 /**
  * Class MemcachedNamespace
  *
@@ -22,7 +21,6 @@ class MemcachedNamespace
     protected ?Mc $mc = null;
 
 
-
     /**
      * MemcachedNamespace Constructor
      *
@@ -32,7 +30,6 @@ class MemcachedNamespace
     {
         $this->mc = $mc;
     }
-
 
 
     /**
@@ -105,7 +102,6 @@ class MemcachedNamespace
 
         return $this->mc->getConfiguration('prefix') . $key;
     }
-
 
 
     /**

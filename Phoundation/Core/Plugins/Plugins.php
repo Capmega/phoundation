@@ -9,7 +9,6 @@ use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Path;
 use Throwable;
 
-
 /**
  * Class Plugin
  *
@@ -29,7 +28,6 @@ class Plugins extends DataList
      */
     protected ?array $enabled = null;
 
-
     /**
      * Providers class constructor
      *
@@ -48,7 +46,6 @@ class Plugins extends DataList
     }
 
 
-
     /**
      * @return void
      */
@@ -57,7 +54,6 @@ class Plugins extends DataList
         self::clear();
         self::scan();
     }
-
 
 
     /**
@@ -93,7 +89,6 @@ class Plugins extends DataList
     }
 
 
-
     /**
      * Starts all enabled plugins
      *
@@ -109,7 +104,6 @@ class Plugins extends DataList
             }
         }
     }
-
 
 
 //    /**
@@ -141,7 +135,6 @@ class Plugins extends DataList
 //    }
 
 
-
     /**
      * Loads all plugins from the database and returns them in an array
      *
@@ -153,7 +146,6 @@ class Plugins extends DataList
                                   FROM     `core_plugins` 
                                   ORDER BY `priority`');
     }
-
 
 
     /**
@@ -183,7 +175,6 @@ class Plugins extends DataList
     }
 
 
-
     /**
      * Clears all plugins from only the database
      *
@@ -193,7 +184,6 @@ class Plugins extends DataList
     {
         sql()->query('DELETE FROM `core_plugins`');
     }
-
 
 
     /**
@@ -209,7 +199,6 @@ class Plugins extends DataList
         File::new($path)->delete();
         Path::new($path)->ensure();
     }
-
 
 
     /**
@@ -268,7 +257,6 @@ class Plugins extends DataList
     }
 
 
-
     /**
      * @inheritDoc
      */
@@ -278,7 +266,6 @@ class Plugins extends DataList
     }
 
 
-
     /**
      * @inheritDoc
      */
@@ -286,7 +273,6 @@ class Plugins extends DataList
     {
         // TODO: Implement loadDetails() method.
     }
-
 
 
     /**

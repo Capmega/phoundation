@@ -13,7 +13,6 @@ use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Exception\OutOfBoundsException;
 
 
-
 /**
  * ArgvValidator class
  *
@@ -34,7 +33,6 @@ class ArgvValidator extends Validator
     public static array $argv;
 
 
-
     /**
      * Validator constructor.
      *
@@ -52,7 +50,6 @@ class ArgvValidator extends Validator
     }
 
 
-
     /**
      * Returns a new Command Line Arguments data Validator object
      *
@@ -63,7 +60,6 @@ class ArgvValidator extends Validator
     {
         return new static($parent);
     }
-
 
 
     /**
@@ -91,7 +87,6 @@ class ArgvValidator extends Validator
         static::$argv = $argv;
         $argv = [];
     }
-
 
 
     /**
@@ -190,7 +185,6 @@ class ArgvValidator extends Validator
     }
 
 
-
     /**
      * Returns the $argv array
      *
@@ -201,7 +195,6 @@ class ArgvValidator extends Validator
         global $argv;
         return $argv;
     }
-
 
 
     /**
@@ -226,7 +219,6 @@ class ArgvValidator extends Validator
     }
 
 
-
     /**
      * Returns the amount of command line arguments still available.
      *
@@ -236,7 +228,6 @@ class ArgvValidator extends Validator
     {
         return count(static::$argv);
     }
-
 
 
     /**
@@ -271,7 +262,6 @@ class ArgvValidator extends Validator
 
         return $count;
     }
-
 
 
     /**
@@ -310,7 +300,6 @@ class ArgvValidator extends Validator
     }
 
 
-
     /**
      * Returns an array of all UNVALIDATED command line arguments that are left
      *
@@ -320,7 +309,6 @@ class ArgvValidator extends Validator
     {
         return array_values(static::$argv);
     }
-
 
 
     /**
@@ -341,7 +329,6 @@ class ArgvValidator extends Validator
 
         unset(static::$argv[$key]);
     }
-
 
 
     /**
@@ -386,7 +373,6 @@ class ArgvValidator extends Validator
 
         return $default;
     }
-
 
 
     /**

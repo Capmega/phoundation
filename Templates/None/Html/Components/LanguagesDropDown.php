@@ -7,7 +7,6 @@ use Phoundation\Date\Date;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Renderer;
 
-
 /**
  * LanguagesDropDown class
  *
@@ -27,7 +26,6 @@ class LanguagesDropDown extends Renderer
     {
         parent::__construct($element);
     }
-
 
 
     /**

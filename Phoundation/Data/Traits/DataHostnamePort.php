@@ -2,7 +2,6 @@
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait DataHostnamePort
  *
@@ -30,7 +29,6 @@ trait DataHostnamePort
     protected ?int $port = null;
 
 
-
     /**
      * Returns the hostname for this object
      *
@@ -40,7 +38,6 @@ trait DataHostnamePort
     {
         return $this->hostname;
     }
-
 
 
     /**
@@ -56,7 +53,6 @@ trait DataHostnamePort
     }
 
 
-
     /**
      * Returns the port for this object
      *
@@ -66,7 +62,6 @@ trait DataHostnamePort
     {
         return $this->port;
     }
-
 
 
     /**

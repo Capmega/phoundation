@@ -2,7 +2,6 @@
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait UsesNewName
  *
@@ -18,7 +17,6 @@ trait UsesNewName
 {
     use DataName;
 
-
     /**
      * UsesNewName class constructor
      *
@@ -28,7 +26,6 @@ trait UsesNewName
     {
         $this->name = $name;
     }
-
 
     /**
      * Returns a new static object

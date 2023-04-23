@@ -6,7 +6,6 @@ use Phoundation\Web\Http\Html\Components\Background;
 use Phoundation\Web\Http\Html\Components\ElementsBlock;
 use Phoundation\Web\Http\Html\Components\Mode;
 
-
 /**
  * Widget class
  *
@@ -23,14 +22,12 @@ abstract class Widget extends ElementsBlock
     use Background;
 
 
-
     /**
      * Show the type color as gradient or not
      *
      * @var bool $gradient
      */
     protected bool $gradient = false;
-
 
 
     /**
@@ -42,7 +39,6 @@ abstract class Widget extends ElementsBlock
     {
         return $this->gradient;
     }
-
 
 
     /**

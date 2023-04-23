@@ -6,7 +6,6 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Web\Http\Html\Renderer;
 
 
-
 /**
  * MDB Plugin GridRow class
  *
@@ -26,7 +25,6 @@ class GridRow extends Renderer
     {
         parent::__construct($element);
     }
-
 
 
     /**

@@ -5,7 +5,6 @@ namespace Phoundation\Web\Http;
 use Iterator;
 
 
-
 /**
  * Class Uploads
  *
@@ -27,7 +26,6 @@ class Uploads implements Iterator
     protected array $files;
 
 
-
     /**
      * Uploads class constructor
      */
@@ -39,7 +37,6 @@ class Uploads implements Iterator
         $this->files = $_FILES;
         $_FILES      = [];
     }
-
 
 
     /**

@@ -14,7 +14,6 @@ use Phoundation\Web\Page;
 use Plugins\AgnesAzzolino\Mathnstuff\Quizzes\Quizzes;
 use Plugins\JavaScriptCopy\JavaScriptCopy;
 
-
 // Validate POST and submit
 if (Page::isPostRequestMethod()) {
     try {
@@ -38,7 +37,6 @@ if (Page::isPostRequestMethod()) {
         $quiz->modify($_POST);
     }
 }
-
 
 
 // Build the roles list management section
@@ -65,7 +63,6 @@ if ($quizzes->getCount()) {
 }
 
 
-
 // Build relevant links
 $relevant = Card::new()
     ->setMode(DisplayMode::info)
@@ -73,7 +70,6 @@ $relevant = Card::new()
     ->setHasCollapseSwitch(true)
     ->setContent('<a href="' . UrlBuilder::getWww('/business/customers.html') . '">' . tr('Customers management') . '</a><br>
                          <a href="' . UrlBuilder::getWww('/business/providers.html') . '">' . tr('Providers management') . '</a><br>');
-
 
 
 // Build documentation
@@ -84,7 +80,6 @@ $documentation = Card::new()
     ->setContent('<p>Soluta a rerum quia est blanditiis ipsam ut libero. Pariatur est ut qui itaque dolor nihil illo quae. Asperiores ut corporis et explicabo et. Velit perspiciatis sunt dicta maxime id nam aliquid repudiandae. Et id quod tempore.</p>
                          <p>Debitis pariatur tempora quia dolores minus sint repellendus accusantium. Ipsam hic molestiae vel beatae modi et. Voluptate suscipit nisi fugit vel. Animi suscipit suscipit est excepturi est eos.</p>
                          <p>Et molestias aut vitae et autem distinctio. Molestiae quod ullam a. Fugiat veniam dignissimos rem repudiandae consequuntur voluptatem. Enim dolores sunt unde sit dicta animi quod. Nesciunt nisi non ea sequi aut. Suscipit aperiam amet fugit facere dolorem qui deserunt.</p>');
-
 
 
 // Build and render the grid
@@ -98,7 +93,6 @@ $grid = Grid::new()
     ->addColumn($relevant->render() . $documentation->render(), 3);
 
 echo $grid->render();
-
 
 // Set page meta data
 Page::setHeaderTitle(tr('Quizzes'));

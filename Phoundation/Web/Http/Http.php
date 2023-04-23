@@ -8,7 +8,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Web\Http\Exception\HttpException;
 
-
 /**
  * Class Http
  *
@@ -29,7 +28,6 @@ class Http
     protected static ?Http $instance = null;
 
 
-
     /**
      * Singleton
      *
@@ -43,7 +41,6 @@ class Http
 
         return self::$instance;
     }
-
 
 
     /**
@@ -75,7 +72,6 @@ class Http
             ]
         ]);
     }
-
 
 
     /**
@@ -117,7 +113,6 @@ class Http
     }
 
 
-
     /**
      * Return the URL the client requested
      *
@@ -127,7 +122,6 @@ class Http
     {
         return $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
     }
-
 
 
     /**
@@ -151,7 +145,6 @@ class Http
 
         return $url.'?'.urlencode($key) . '='.urlencode($value);
     }
-
 
 
     /**
@@ -179,7 +172,6 @@ class Http
         //
         //return substr($url, 0, );
     }
-
 
 
 //    /**
@@ -287,7 +279,6 @@ class Http
 //    }
 
 
-
     /**
      * Redirect if the session redirector is set
      *
@@ -343,7 +334,6 @@ class Http
     }
 
 
-
     /**
      * Return $_POST[dosubmit] value, and reset it to be sure it won't be applied twice
      *
@@ -386,7 +376,6 @@ class Http
 
         return $submit;
     }
-
 
 
 //    /*
@@ -547,7 +536,6 @@ class Http
     }
 
 
-
     /*
      * ???
      *
@@ -566,7 +554,6 @@ class Http
     }
 
 
-
     /*
      * Return the $_POST value for the translated specified key
      */
@@ -583,6 +570,5 @@ class Http
 
         return $count;
     }
-
 
 }

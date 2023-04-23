@@ -7,7 +7,6 @@ use Phoundation\Exception\NotExistsException;
 use Phoundation\Utils\Json;
 use ReturnTypeWillChange;
 
-
 /**
  * Class Iterator
  *
@@ -36,7 +35,6 @@ class Iterator implements \Phoundation\Data\Interfaces\Iterator
     protected array $list = [];
 
 
-
     /**
      * Returns the contents of this iterator object as a JSON string
      *
@@ -46,7 +44,6 @@ class Iterator implements \Phoundation\Data\Interfaces\Iterator
     {
         return Json::encode($this->list);
     }
-
 
 
     /**
@@ -60,7 +57,6 @@ class Iterator implements \Phoundation\Data\Interfaces\Iterator
     }
 
 
-
     /**
      * Returns the current button
      *
@@ -70,7 +66,6 @@ class Iterator implements \Phoundation\Data\Interfaces\Iterator
     {
         return current($this->list);
     }
-
 
 
     /**
@@ -85,7 +80,6 @@ class Iterator implements \Phoundation\Data\Interfaces\Iterator
     }
 
 
-
     /**
      * Returns the current key for the current button
      *
@@ -95,7 +89,6 @@ class Iterator implements \Phoundation\Data\Interfaces\Iterator
     {
         return key($this->list);
     }
-
 
 
     /**
@@ -110,7 +103,6 @@ class Iterator implements \Phoundation\Data\Interfaces\Iterator
     }
 
 
-
     /**
      * Rewinds the internal pointer
      *
@@ -123,7 +115,6 @@ class Iterator implements \Phoundation\Data\Interfaces\Iterator
 
     }
 
-
     /**
      * Returns a list of all internal values with their keys
      *
@@ -133,7 +124,6 @@ class Iterator implements \Phoundation\Data\Interfaces\Iterator
     {
         return $this->list;
     }
-
 
 
     /**
@@ -155,7 +145,6 @@ class Iterator implements \Phoundation\Data\Interfaces\Iterator
     }
 
 
-
     /**
      * Returns the amount of items contained in this object
      *
@@ -165,7 +154,6 @@ class Iterator implements \Phoundation\Data\Interfaces\Iterator
     {
         return count($this->list);
     }
-
 
 
     /**
@@ -179,7 +167,6 @@ class Iterator implements \Phoundation\Data\Interfaces\Iterator
     }
 
 
-
     /**
      * Returns the last element contained in this object without changing the internal pointer
      *
@@ -189,7 +176,6 @@ class Iterator implements \Phoundation\Data\Interfaces\Iterator
     {
         return $this->list[array_key_last($this->list)];
     }
-
 
 
     /**
@@ -202,7 +188,6 @@ class Iterator implements \Phoundation\Data\Interfaces\Iterator
         $this->list = [];
         return $this;
     }
-
 
 
     /**

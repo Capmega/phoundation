@@ -5,7 +5,6 @@ namespace Phoundation\Databases\Sql\Schema\Exception;
 use Phoundation\Databases\Exception\DatabasesException;
 
 
-
 /**
  * Class SchemaException
  *

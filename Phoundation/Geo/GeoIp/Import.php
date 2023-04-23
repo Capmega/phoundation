@@ -6,7 +6,6 @@ use Phoundation\Core\Config;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 
-
 /**
  * Importer class
  *
@@ -32,7 +31,6 @@ class Import extends \Phoundation\Developer\Project\Import
         $this->name = 'GeoIP';
     }
 
-
     /**
      * Import the content for the languages table from a data-source file
      *
@@ -46,7 +44,6 @@ class Import extends \Phoundation\Developer\Project\Import
         $provider->process($path);
         return 0;
     }
-
 
 
     /**

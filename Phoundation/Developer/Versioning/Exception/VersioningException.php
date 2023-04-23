@@ -4,7 +4,6 @@ namespace Phoundation\Developer\Versioning\Exception;
 
 use Phoundation\Exception\Exception;
 
-
 /**
  * Class VersioningException
  *

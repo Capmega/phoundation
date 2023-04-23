@@ -4,7 +4,6 @@ namespace Phoundation\Date;
 
 use Exception;
 
-
 /**
  * Class DateTime
  *
@@ -34,7 +33,6 @@ class DateTime extends \DateTime
     }
 
 
-
     /**
      * Returns this DateTime object as a string
      *
@@ -44,7 +42,6 @@ class DateTime extends \DateTime
     {
         return $this->format();
     }
-
 
 
     /**

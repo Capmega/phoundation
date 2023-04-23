@@ -13,7 +13,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Web\Page;
 
-
 /**
  * Class Domain
  *
@@ -41,7 +40,6 @@ class UrlBuilder
     protected string $url;
 
 
-
     /**
      * UrlBuilder class constructor
      *
@@ -60,7 +58,6 @@ class UrlBuilder
             $this->url = $url;
         }
     }
-
 
 
     /**
@@ -85,7 +82,6 @@ class UrlBuilder
     }
 
 
-
     /**
      * Returns the current URL
      *
@@ -95,7 +91,6 @@ class UrlBuilder
     {
         return static::getCurrentDomainUrl();
     }
-
 
 
     /**
@@ -108,7 +103,6 @@ class UrlBuilder
     {
         return (string) $url === (string) static::getCurrent();
     }
-
 
 
     /**
@@ -131,7 +125,6 @@ class UrlBuilder
     }
 
 
-
     /**
      * Returns a CDN URL
      *
@@ -149,7 +142,6 @@ class UrlBuilder
     }
 
 
-
     /**
      * Returns the root URL for the primary domain
      *
@@ -159,7 +151,6 @@ class UrlBuilder
     {
         return new UrlBuilder(Page::getRootUrl());
     }
-
 
 
     /**
@@ -173,7 +164,6 @@ class UrlBuilder
     }
 
 
-
     /**
      * Returns the root URL for the parent domain
      *
@@ -183,7 +173,6 @@ class UrlBuilder
     {
         return new UrlBuilder(Domains::from()->getParent() . Page::getRootUri());
     }
-
 
 
     /**
@@ -197,7 +186,6 @@ class UrlBuilder
     }
 
 
-
     /**
      * Returns the root URL for the root domain
      *
@@ -207,7 +195,6 @@ class UrlBuilder
     {
         return new UrlBuilder(Domains::from()->getRoot() . Page::getRootUri());
     }
-
 
 
     /**
@@ -221,7 +208,6 @@ class UrlBuilder
     }
 
 
-
     /**
      * Returns the root URL for the primary domain
      *
@@ -233,7 +219,6 @@ class UrlBuilder
     }
 
 
-
     /**
      * Returns the URL as requested for the primary domain
      *
@@ -243,7 +228,6 @@ class UrlBuilder
     {
         return new UrlBuilder(Domains::getPrimary() . Page::getUri());
     }
-
 
 
     /**
@@ -272,7 +256,6 @@ class UrlBuilder
     }
 
 
-
     /**
      * Returns an ajax URL
      *
@@ -289,7 +272,6 @@ class UrlBuilder
 
         return static::buildUrl($url, 'ajax/', $use_configured_root);
     }
-
 
 
     /**
@@ -310,7 +292,6 @@ class UrlBuilder
     }
 
 
-
     /**
      * Returns a CSS URL
      *
@@ -327,7 +308,6 @@ class UrlBuilder
     }
 
 
-
     /**
      * Returns a Javascript URL
      *
@@ -342,7 +322,6 @@ class UrlBuilder
 
         return static::buildCdn($url, 'js');
     }
-
 
 
     /**
@@ -380,7 +359,6 @@ class UrlBuilder
     }
 
 
-
     /**
      * Returns if generated URL's is cloaked or not
      *
@@ -390,7 +368,6 @@ class UrlBuilder
     {
         return isset_get($this->is_cloaked);
     }
-
 
 
     /**
@@ -433,7 +410,6 @@ class UrlBuilder
     }
 
 
-
     /**
      * Uncloak the specified URL.
      *
@@ -456,7 +432,6 @@ class UrlBuilder
         sql()->delete('url_cloaks', [':cloak' => $this->url]);
         return $this;
     }
-
 
 
     /**
@@ -482,7 +457,6 @@ class UrlBuilder
     }
 
 
-
     /**
      * Remove the query part from the URL
      *
@@ -493,7 +467,6 @@ class UrlBuilder
         $this->url = Strings::until($this->url, '?');
         return $this;
     }
-
 
 
     /**
@@ -573,7 +546,6 @@ class UrlBuilder
     }
 
 
-
     /**
      * Returns the extension for the URL
      *
@@ -592,7 +564,6 @@ class UrlBuilder
 
         return '.' . $extension;
     }
-
 
 
     /**
@@ -619,7 +590,6 @@ class UrlBuilder
 
         return new UrlBuilder($url);
     }
-
 
 
     /**
@@ -651,7 +621,6 @@ class UrlBuilder
     }
 
 
-
     /**
      * Apply predefined URL names
      *
@@ -668,7 +637,6 @@ class UrlBuilder
         };
 
     }
-
 
 
     /**

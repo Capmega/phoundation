@@ -5,7 +5,6 @@ namespace Phoundation\Data\Traits;
 use Phoundation\Core\Strings;
 use Phoundation\Filesystem\Filesystem;
 
-
 /**
  * Trait DataPath
  *
@@ -26,7 +25,6 @@ trait DataPath
     protected ?string $path = null;
 
 
-
     /**
      * Returns the path
      *
@@ -36,7 +34,6 @@ trait DataPath
     {
         return $this->path;
     }
-
 
     /**
      * Sets the path

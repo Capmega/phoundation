@@ -15,7 +15,6 @@ use Phoundation\Processes\Process;
 use Phoundation\Servers\Traits\UsesRestrictions;
 use Throwable;
 
-
 /**
  * FileVariables class
  *
@@ -30,7 +29,6 @@ use Throwable;
 class FileBasics
 {
     use UsesRestrictions;
-
 
 
     /**
@@ -58,7 +56,6 @@ class FileBasics
     protected ?string $target = null;
 
 
-
     /**
      * File class constructor
      *
@@ -79,7 +76,6 @@ class FileBasics
     }
 
 
-
     /**
      * FileBasics class toString method
      *
@@ -89,7 +85,6 @@ class FileBasics
     {
         return $this->getFile();
     }
-
 
     /**
      * Returns a new File object with the specified restrictions
@@ -102,7 +97,6 @@ class FileBasics
     {
         return new static($file, $restrictions_restrictions);
     }
-
 
     /**
      * Returns the file for this File object
@@ -119,7 +113,6 @@ class FileBasics
     }
 
 
-
     /**
      * Returns the file for this File object
      *
@@ -129,7 +122,6 @@ class FileBasics
     {
         return $this->file;
     }
-
 
 
     /**
@@ -143,7 +135,6 @@ class FileBasics
         $this->target = $target;
         return $this;
     }
-
 
 
     /**
@@ -162,7 +153,6 @@ class FileBasics
     }
 
 
-
     /**
      * Checks if the specified file exists
      *
@@ -176,7 +166,6 @@ class FileBasics
 
         return $this;
     }
-
 
 
     /**
@@ -236,7 +225,6 @@ class FileBasics
     }
 
 
-
     /**
      * Check if the object file exists and is writable. If not both, an exception will be thrown
      *
@@ -282,7 +270,6 @@ class FileBasics
 
         return $this;
     }
-
 
 
     /**
@@ -343,7 +330,6 @@ class FileBasics
 
         return $return;
     }
-
 
 
     /**
@@ -463,7 +449,6 @@ class FileBasics
     }
 
 
-
     /**
      * Returns the mimetype data for the object file
      *
@@ -496,7 +481,6 @@ class FileBasics
             ]), previous: $e));
         }
     }
-
 
 
     /**
@@ -539,7 +523,6 @@ class FileBasics
         return $this;
     }
 
-
     /**
      * Delete a file weather it exists or not, without error, using the "rm" command
      *
@@ -573,7 +556,6 @@ class FileBasics
 
         return $this;
     }
-
 
 
     /**
@@ -636,7 +618,6 @@ class FileBasics
     }
 
 
-
     /**
      * Switches file mode to the new value and returns the previous value
      *
@@ -653,7 +634,6 @@ class FileBasics
     }
 
 
-
     /**
      * Returns the file mode for the object file
      *
@@ -663,7 +643,6 @@ class FileBasics
     {
         return $this->getStat()['mode'];
     }
-
 
 
     /**
@@ -686,7 +665,6 @@ class FileBasics
             $this->checkReadable(null, $e);
         }
     }
-
 
 
     /**
@@ -728,7 +706,6 @@ class FileBasics
     }
 
 
-
     /**
      * Change file mode, optionally recursively
      *
@@ -762,7 +739,6 @@ class FileBasics
 
         return $this;
     }
-
 
 
     /**
@@ -815,7 +791,6 @@ class FileBasics
 
         return false;
     }
-
 
 
     /**

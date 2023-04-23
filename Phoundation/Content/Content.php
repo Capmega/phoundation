@@ -9,7 +9,6 @@ use Phoundation\Processes\Commands\Command;
 use Phoundation\Processes\Process;
 
 
-
 /**
  * Class View
  *
@@ -46,7 +45,6 @@ class Content extends File
     }
 
 
-
     /**
      * Display the image file
      *
@@ -60,7 +58,6 @@ class Content extends File
     }
 
 
-
     /**
      * Display the PDF file
      *
@@ -72,7 +69,6 @@ class Content extends File
     }
 
 
-
     /**
      * Display the video file
      *
@@ -82,7 +78,6 @@ class Content extends File
     {
 
     }
-
 
 
     /**

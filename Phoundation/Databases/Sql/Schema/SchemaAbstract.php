@@ -8,7 +8,6 @@ use Phoundation\Databases\Sql\Sql;
 use Phoundation\Exception\OutOfBoundsException;
 
 
-
 /**
  * SchemaAbstract class
  *
@@ -49,7 +48,6 @@ abstract class SchemaAbstract
      */
     protected string $name;
 
-
     /**
      * SchemaAbstract class constructor
      *
@@ -64,7 +62,6 @@ abstract class SchemaAbstract
         $this->parent        = $parent;
         $this->configuration = $sql->getConfiguration();
     }
-
 
 
     /**

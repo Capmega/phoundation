@@ -5,7 +5,6 @@ namespace Phoundation\Content\Exception;
 use Phoundation\Exception\Exception;
 
 
-
 /**
  * Class ContentException
  *

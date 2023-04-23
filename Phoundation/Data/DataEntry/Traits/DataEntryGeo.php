@@ -6,7 +6,6 @@ use Phoundation\Geo\Cities\City;
 use Phoundation\Geo\Countries\Country;
 use Phoundation\Geo\States\State;
 
-
 /**
  * Trait DataEntryGeo
  *
@@ -30,7 +29,6 @@ trait DataEntryGeo
     }
 
 
-
     /**
      * Sets the cities_id for this user
      *
@@ -41,7 +39,6 @@ trait DataEntryGeo
     {
         return $this->setDataValue('cities_id', $cities_id);
     }
-
 
 
     /**
@@ -59,7 +56,6 @@ trait DataEntryGeo
 
         return null;
     }
-
 
 
     /**
@@ -82,7 +78,6 @@ trait DataEntryGeo
     }
 
 
-
     /**
      * Returns the states_id for this user
      *
@@ -92,7 +87,6 @@ trait DataEntryGeo
     {
         return $this->getDataValue('states_id');
     }
-
 
 
     /**
@@ -105,7 +99,6 @@ trait DataEntryGeo
     {
         return $this->setDataValue('states_id', $states_id);
     }
-
 
 
     /**
@@ -123,7 +116,6 @@ trait DataEntryGeo
 
         return null;
     }
-
 
 
     /**
@@ -146,7 +138,6 @@ trait DataEntryGeo
     }
 
 
-
     /**
      * Returns the countries_id for this user
      *
@@ -156,7 +147,6 @@ trait DataEntryGeo
     {
         return $this->getDataValue('countries_id');
     }
-
 
 
     /**
@@ -169,7 +159,6 @@ trait DataEntryGeo
     {
         return $this->setDataValue('countries_id', $countries_id);
     }
-
 
 
     /**
@@ -187,7 +176,6 @@ trait DataEntryGeo
 
         return null;
     }
-
 
 
     /**

@@ -6,7 +6,6 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Developer\TestDataGenerator;
 
 
-
 /**
  * Importer class
  *
@@ -31,7 +30,6 @@ class Import extends \Phoundation\Developer\Project\Import
         parent::__construct($demo, $min, $max);
         $this->name = 'Providers';
     }
-
 
     /**
      * Import the content for the business_providers table

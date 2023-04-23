@@ -4,7 +4,6 @@ namespace Phoundation\Web\Http\Html\Components\Input;
 
 use Phoundation\Web\Http\Html\Components\Element;
 
-
 /**
  * Class Input
  *
@@ -19,7 +18,6 @@ abstract class Input extends Element
 {
     use InputElement;
 
-
     /**
      * Input class constructor
      */
@@ -30,7 +28,6 @@ abstract class Input extends Element
         $this->requires_closing_tag = false;
         $this->element              = 'input';
     }
-
 
     /**
      * Render and return the HTML for this Input Element

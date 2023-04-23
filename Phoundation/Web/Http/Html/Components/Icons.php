@@ -4,7 +4,6 @@ namespace Phoundation\Web\Http\Html\Components;
 
 use JetBrains\PhpStorm\ExpectedValues;
 
-
 /**
  * Icons class
  *
@@ -26,7 +25,6 @@ class Icons extends Element
     protected ?string $size = null;
 
 
-
     /**
      * Sets the icon size
      *
@@ -36,7 +34,6 @@ class Icons extends Element
     {
         return $this->size;
     }
-
 
 
     /**

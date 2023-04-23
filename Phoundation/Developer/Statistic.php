@@ -40,7 +40,6 @@ class Statistic
     protected ?string $line = null;
 
 
-
     /**
      * Statistics constructor
      */
@@ -51,7 +50,6 @@ class Statistic
         $this->file = Debug::currentFile(-1);
         $this->line = Debug::currentLine(-1);
     }
-
 
 
     /**
@@ -67,7 +65,6 @@ class Statistic
     }
 
 
-
     /**
      * Returns the time for this statistic
      *
@@ -77,7 +74,6 @@ class Statistic
     {
         return $this->time;
     }
-
 
 
     /**
@@ -93,7 +89,6 @@ class Statistic
     }
 
 
-
     /**
      * Returns the query for this statistic
      *
@@ -103,7 +98,6 @@ class Statistic
     {
         return $this->query;
     }
-
 
 
     /**
@@ -117,7 +111,6 @@ class Statistic
     }
 
 
-
     /**
      * Returns the function for this statistic
      *
@@ -129,7 +122,6 @@ class Statistic
     }
 
 
-
     /**
      * Returns the file for this statistic
      *
@@ -139,7 +131,6 @@ class Statistic
     {
         return $this->file;
     }
-
 
 
     /**

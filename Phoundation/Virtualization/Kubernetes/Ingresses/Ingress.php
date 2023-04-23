@@ -4,7 +4,6 @@ namespace Phoundation\Virtualization\Kubernetes\Ingresses;
 
 use Phoundation\Virtualization\Kubernetes\KubernetesObject;
 
-
 /**
  * Class Ingress
  *
@@ -27,7 +26,6 @@ class Ingress extends KubernetesObject
         $this->object_file_class = IngressFile::class;
         parent::__construct($name);
     }
-
 
     /**
      * Returns the API version for this object

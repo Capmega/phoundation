@@ -15,7 +15,6 @@ use Phoundation\Web\Uglify;
 use Throwable;
 
 
-
 /**
  * Class Script
  *
@@ -38,7 +37,6 @@ class Script extends Element
     protected ?string $event_wrapper = 'dom_content';
 
 
-
     /**
      * Returns the event wrapper code for this script
      *
@@ -49,7 +47,6 @@ class Script extends Element
     {
         return $this->event_wrapper;
     }
-
 
 
     /**
@@ -81,7 +78,6 @@ class Script extends Element
         $this->event_wrapper = $event_wrapper;
         return $this;
     }
-
 
 
     /**
@@ -134,7 +130,6 @@ class Script extends Element
         }
 
         return '<script type="text/javascript">' . $render . '</script>';
-
 
         // TODO GARBAGE BELOW, CLEAN UP
         /*

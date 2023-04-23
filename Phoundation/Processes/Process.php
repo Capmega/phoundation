@@ -16,7 +16,6 @@ use Phoundation\Processes\Exception\ProcessException;
 use Phoundation\Processes\Exception\ProcessFailedException;
 use Phoundation\Servers\Server;
 
-
 /**
  * Class Process
  *
@@ -33,7 +32,6 @@ Class Process
     use ProcessVariables;
 
 
-
     /**
      * Create a new process factory
      *
@@ -46,7 +44,6 @@ Class Process
     {
         return new static($command, $restrictions, $packages);
     }
-
 
 
     /**
@@ -64,7 +61,6 @@ Class Process
 
         return $process;
     }
-
 
 
     /**
@@ -91,7 +87,6 @@ Class Process
     }
 
 
-
     /**
      * Sets the server on which this command should be executed
      *
@@ -101,7 +96,6 @@ Class Process
     {
         return $this->server;
     }
-
 
 
     /**
@@ -115,7 +109,6 @@ Class Process
         $this->server = Server::get($server);
         return $this;
     }
-
 
 
     /**
@@ -157,7 +150,6 @@ Class Process
     }
 
 
-
     /**
      * Execute the command using the PHP exec() call and return an array
      *
@@ -180,7 +172,6 @@ Class Process
     }
 
 
-
     /**
      * Execute the command using the PHP exec() call and return a string
      *
@@ -195,7 +186,6 @@ Class Process
     }
 
 
-
     /**
      * Execute the command using the PHP exec() call and return a string
      *
@@ -205,7 +195,6 @@ Class Process
     {
         $this->executeReturnArray();
     }
-
 
 
     /**
@@ -240,7 +229,6 @@ Class Process
                 ]));
         }
     }
-
 
 
     /**
@@ -281,7 +269,6 @@ Class Process
 
         return true;
     }
-
 
 
     /**
@@ -327,7 +314,6 @@ Class Process
     }
 
 
-
     /**
      * Returns if the process has executed or not
      *
@@ -339,7 +325,6 @@ Class Process
     }
 
 
-
     /**
      * Returns if the process is currently executing
      *
@@ -349,7 +334,6 @@ Class Process
     {
         return !($this->pid === null);
     }
-
 
     /**
      * Kill this (backgroun) process
@@ -363,7 +347,6 @@ Class Process
             Command::new($this->restrictions)->killPid($signal, $this->pid);
         }
     }
-
 
 
     /**

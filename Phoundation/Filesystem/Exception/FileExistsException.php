@@ -3,7 +3,6 @@
 namespace Phoundation\Filesystem\Exception;
 
 
-
 /**
  * Class FileExistsException
  *

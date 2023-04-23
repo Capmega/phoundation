@@ -11,7 +11,6 @@ use Phoundation\Databases\Exception\MongoException;
 use Phoundation\Databases\Sql\Sql;
 
 
-
 /**
  * Class Mongo
  *
@@ -46,7 +45,6 @@ class Mongo extends Client
     protected ?string $database = null;
 
 
-
     /**
      * Initialize the class object through the constructor.
      *
@@ -66,7 +64,6 @@ class Mongo extends Client
     }
 
 
-
     /**
      * Returns the configuration for this Mongo instance
      *
@@ -76,7 +73,6 @@ class Mongo extends Client
     {
         return $this->configuration;
     }
-
 
 
     /**
@@ -92,7 +88,6 @@ class Mongo extends Client
     }
 
 
-
     /**
      * Returns the database for this Mongo instance
      *
@@ -102,7 +97,6 @@ class Mongo extends Client
     {
         return $this->database;
     }
-
 
 
     /**
@@ -116,7 +110,6 @@ class Mongo extends Client
     {
         return $this->selectCollection($this->database, $collection)->findOne(['_id' => $key]);
     }
-
 
 
     /**
@@ -152,7 +145,6 @@ class Mongo extends Client
     }
 
 
-
     /**
      * Get the document for the specified key from the specified collection
      *
@@ -165,7 +157,6 @@ class Mongo extends Client
         $result = $this->selectCollection($this->database, $collection)->deleteOne(['_id' => $key]);
         return (bool) $result->getDeletedCount();
     }
-
 
 
     /**

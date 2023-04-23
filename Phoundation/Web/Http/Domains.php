@@ -12,7 +12,6 @@ use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Web\Page;
 
-
 /**
  * Class Domains
  *
@@ -53,7 +52,6 @@ class Domains {
     protected static ?string $primary_domain = null;
 
 
-
     /**
      * Domains class constructor
      *
@@ -74,7 +72,6 @@ class Domains {
     }
 
 
-
     /**
      * Returns a Domains object which will work from the specified domain
      *
@@ -85,7 +82,6 @@ class Domains {
     {
         return new Domains($domain);
     }
-
 
 
     /**
@@ -116,7 +112,6 @@ class Domains {
     }
 
 
-
     /**
      * Returns true if the specified domain is the primary domain
      *
@@ -127,7 +122,6 @@ class Domains {
     {
         return static::getPrimary() === $domain;
     }
-
 
 
     /**
@@ -142,7 +136,6 @@ class Domains {
     }
 
 
-
     /**
      * Returns true if the specified domain is the current domain
      *
@@ -153,7 +146,6 @@ class Domains {
     {
         return static::getCurrent() === $domain;
     }
-
 
 
     /**
@@ -181,7 +173,6 @@ class Domains {
     }
 
 
-
     /**
      * Returns true if the specified domain is the primary domain
      *
@@ -192,7 +183,6 @@ class Domains {
     {
         return in_array($domain, static::getWhitelist());
     }
-
 
 
     /**
@@ -231,7 +221,6 @@ class Domains {
     }
 
 
-
     /**
      * Returns the value for the specified domain key
      *
@@ -245,7 +234,6 @@ class Domains {
         $domain_config = static::getConfiguration($domain);
         return isset_get($domain_config[$key], $default);
     }
-
 
 
     /**
@@ -267,7 +255,6 @@ class Domains {
 
         return $uri;
     }
-
 
 
     /**
@@ -300,7 +287,6 @@ class Domains {
     }
 
 
-
     /**
      * Returns the current object domain
      *
@@ -310,7 +296,6 @@ class Domains {
     {
         return $this->domain;
     }
-
 
 
     /**
@@ -334,7 +319,6 @@ class Domains {
     }
 
 
-
     /**
      * Returns the root domain for the object domain
      *
@@ -347,7 +331,6 @@ class Domains {
     {
         return Strings::skip($this->domain, '.', 1);
     }
-
 
 
     /**

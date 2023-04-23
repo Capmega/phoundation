@@ -5,7 +5,6 @@ namespace Phoundation\Filesystem\Exception;
 use Phoundation\Exception\Exception;
 
 
-
 /**
  * Class FilesystemException
  *

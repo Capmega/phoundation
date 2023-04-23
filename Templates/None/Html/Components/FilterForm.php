@@ -3,7 +3,6 @@
 namespace Templates\None\Html\Components;
 
 
-
 /**
  * Class FilterForm
  *

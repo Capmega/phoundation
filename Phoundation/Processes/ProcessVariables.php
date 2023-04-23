@@ -19,7 +19,6 @@ use Phoundation\Processes\Exception\ProcessesException;
 use Phoundation\Processes\Exception\ProcessException;
 use Phoundation\Servers\Server;
 
-
 /**
  * Trait ProcessVariables
  *
@@ -218,7 +217,6 @@ trait ProcessVariables
     protected bool $debug = false;
 
 
-
     /**
      * Process class constructor
      *
@@ -229,7 +227,6 @@ trait ProcessVariables
         // Set server filesystem restrictions
         $this->setRestrictions($restrictions);
     }
-
 
 
     /**
@@ -244,7 +241,6 @@ trait ProcessVariables
     }
 
 
-
     /**
      * Returns if  the log files will be cleared after this object is destroyed or not
      *
@@ -254,7 +250,6 @@ trait ProcessVariables
     {
         return $this->clear_logs;
     }
-
 
 
     /**
@@ -270,7 +265,6 @@ trait ProcessVariables
     }
 
 
-
     /**
      * Returns if this process will register pid information or not
      *
@@ -280,7 +274,6 @@ trait ProcessVariables
     {
         return $this->register_run_file;
     }
-
 
 
     /**
@@ -296,7 +289,6 @@ trait ProcessVariables
     }
 
 
-
     /**
      * Returns if the process will first CD to this directory before continuing
      *
@@ -306,7 +298,6 @@ trait ProcessVariables
     {
         return $this->execution_path;
     }
-
 
 
     /**
@@ -324,7 +315,6 @@ trait ProcessVariables
     }
 
 
-
     /**
      * Sets the execution path to private temp dir
      *
@@ -338,7 +328,6 @@ trait ProcessVariables
     }
 
 
-
     /**
      * Sets the log path where the process output will be redirected to
      *
@@ -348,7 +337,6 @@ trait ProcessVariables
     {
         return $this->log_file;
     }
-
 
 
 // TODO Document why this was commented out
@@ -376,7 +364,6 @@ trait ProcessVariables
 //    }
 
 
-
     /**
      * Returns the run path where the process run file will be written
      *
@@ -386,7 +373,6 @@ trait ProcessVariables
     {
         return $this->run_file;
     }
-
 
 
     /**
@@ -403,7 +389,6 @@ trait ProcessVariables
 
         return getmypid() . '-' . Strings::fromReverse($this->command, '/');
     }
-
 
 
     /**
@@ -426,7 +411,6 @@ trait ProcessVariables
     }
 
 
-
     /**
      * Sets the run path where the process run file will be written
      *
@@ -439,7 +423,6 @@ trait ProcessVariables
 
         return $this;
     }
-
 
 
 // TODO Document why this was commented out
@@ -467,7 +450,6 @@ trait ProcessVariables
 //    }
 
 
-
     /**
      * Sets the terminal to execute this command
      *
@@ -485,7 +467,6 @@ trait ProcessVariables
     }
 
 
-
     /**
      * Return the terminal to execute this command
      *
@@ -495,7 +476,6 @@ trait ProcessVariables
     {
         return $this->term;
     }
-
 
 
     /**
@@ -510,7 +490,6 @@ trait ProcessVariables
     {
         return $this->sudo;
     }
-
 
 
     /**
@@ -542,7 +521,6 @@ trait ProcessVariables
     }
 
 
-
     /**
      * Returns the CLI return values that are accepted as "success" and won't cause an exception
      *
@@ -552,7 +530,6 @@ trait ProcessVariables
     {
         return $this->accepted_exit_codes;
     }
-
 
 
     /**
@@ -565,7 +542,6 @@ trait ProcessVariables
         $this->accepted_exit_codes = [];
         return $this;
     }
-
 
 
     /**
@@ -583,7 +559,6 @@ trait ProcessVariables
     }
 
 
-
     /**
      * Sets the CLI return values that are accepted as "success" and won't cause an exception
      *
@@ -598,7 +573,6 @@ trait ProcessVariables
 
         return $this;
     }
-
 
 
     /**
@@ -619,7 +593,6 @@ trait ProcessVariables
     }
 
 
-
     /**
      * Returns the server on which the command should be executed for this process
      *
@@ -630,7 +603,6 @@ trait ProcessVariables
     {
         return $this->restrictions;
     }
-
 
     /**
      * Set the server on which the command should be executed for this process
@@ -647,7 +619,6 @@ trait ProcessVariables
         $this->restrictions        = Core::ensureRestrictions($restrictions, $write, $label);
         return $this;
     }
-
 
 
     /**
@@ -732,7 +703,6 @@ trait ProcessVariables
     }
 
 
-
     /**
      * Returns the command to be executed for this process
      *
@@ -744,7 +714,6 @@ trait ProcessVariables
     }
 
 
-
     /**
      * Returns the arguments for the command that will be executed
      *
@@ -754,7 +723,6 @@ trait ProcessVariables
     {
         return $this->arguments;
     }
-
 
 
     /**
@@ -770,7 +738,6 @@ trait ProcessVariables
         return $this;
     }
 
-
     /**
      * Sets the arguments for the command that will be executed
      *
@@ -784,7 +751,6 @@ trait ProcessVariables
         $this->arguments = [];
         return $this->addArguments($arguments, $escape);
     }
-
 
     /**
      * Adds multiple arguments to the existing list of arguments for the command that will be executed
@@ -810,7 +776,6 @@ trait ProcessVariables
 
         return $this;
     }
-
 
     /**
      * Adds an argument to the existing list of arguments for the command that will be executed
@@ -840,7 +805,6 @@ trait ProcessVariables
     }
 
 
-
     /**
      * Sets a single argument for the command that will be executed
      *
@@ -854,7 +818,6 @@ trait ProcessVariables
     }
 
 
-
     /**
      * Returns the Variables for the command that will be executed
      *
@@ -864,7 +827,6 @@ trait ProcessVariables
     {
         return $this->variables;
     }
-
 
 
     /**
@@ -886,7 +848,6 @@ trait ProcessVariables
     }
 
 
-
     /**
      * Adds a variable to the existing list of Variables for the command that will be executed
      *
@@ -902,7 +863,6 @@ trait ProcessVariables
     }
 
 
-
     /**
      * Returns the process where the output of this command will be piped to, IF specified
      *
@@ -912,7 +872,6 @@ trait ProcessVariables
     {
         return $this->pipe;
     }
-
 
 
     /**
@@ -930,7 +889,6 @@ trait ProcessVariables
 
         return $this;
     }
-
 
     /**
      * Sets the output redirection for this process
@@ -969,7 +927,6 @@ trait ProcessVariables
     }
 
 
-
     /**
      * Returns the output redirection for the specified channel this process
      *
@@ -981,7 +938,6 @@ trait ProcessVariables
     }
 
 
-
     /**
      * Returns all the output redirections for this process
      *
@@ -991,7 +947,6 @@ trait ProcessVariables
     {
         return $this->output_redirect;
     }
-
 
 
     /**
@@ -1012,7 +967,6 @@ trait ProcessVariables
     }
 
 
-
     /**
      * Returns the input redirection for the specified channel this process
      *
@@ -1022,7 +976,6 @@ trait ProcessVariables
     {
         return $this->input_redirect[$channel];
     }
-
 
 
     /**
@@ -1035,7 +988,6 @@ trait ProcessVariables
         return $this->input_redirect;
     }
 
-
     /**
      * Returns the time in milliseconds that a process will wait before executing
      *
@@ -1047,7 +999,6 @@ trait ProcessVariables
     {
         return $this->wait;
     }
-
 
 
     /**
@@ -1073,7 +1024,6 @@ trait ProcessVariables
     }
 
 
-
     /**
      * Sets the packages that should be installed automatically if the command for this process cannot be found
      *
@@ -1083,7 +1033,6 @@ trait ProcessVariables
     {
         return $this->packages;
     }
-
 
 
     /**
@@ -1101,7 +1050,6 @@ trait ProcessVariables
     }
 
 
-
     /**
      * Returns the timeout value for this process.
      *
@@ -1114,7 +1062,6 @@ trait ProcessVariables
     {
         return $this->timeout;
     }
-
 
 
     /**
@@ -1139,7 +1086,6 @@ trait ProcessVariables
 
         return $this;
     }
-
 
 
     /**
@@ -1182,7 +1128,6 @@ trait ProcessVariables
     }
 
 
-
     /**
      * Returns the pid value for this process when it is running in the background.
      *
@@ -1196,7 +1141,6 @@ trait ProcessVariables
     }
 
 
-
     /**
      * Returns if debug is enabled or not
      *
@@ -1206,7 +1150,6 @@ trait ProcessVariables
     {
         return $this->debug;
     }
-
 
 
     /**
@@ -1220,7 +1163,6 @@ trait ProcessVariables
         $this->debug = $debug;
         return $this;
     }
-
 
     /**
      * Validates the specified stream

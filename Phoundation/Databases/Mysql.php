@@ -10,7 +10,6 @@ use Phoundation\Processes\Process;
 use Phoundation\Servers\Servers;
 
 
-
 /**
  * Mysql class
  *
@@ -31,7 +30,6 @@ class Mysql
      */
     protected Restrictions|array|string|null $restrictions = null;
 
-
     /**
      * Mysql class constructor
      *
@@ -41,7 +39,6 @@ class Mysql
     {
         $this->restrictions = Core::ensureRestrictions($restrictions);
     }
-
 
 
     /**
@@ -54,7 +51,6 @@ class Mysql
     {
         return new Mysql($restrictions);
     }
-
 
 
     /**
@@ -97,7 +93,6 @@ class Mysql
             $this->deletePasswordFile($restrictions);
         }
     }
-
 
 
     /**

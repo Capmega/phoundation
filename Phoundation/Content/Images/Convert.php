@@ -6,7 +6,6 @@ use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Path;
 use Phoundation\Processes\Commands\Command;
 
-
 /**
  * Class Convert
  *
@@ -48,7 +47,6 @@ class Convert extends Command
     protected ?string $method = null;
 
 
-
     /**
      * The format to which the image should be converted
      *
@@ -63,7 +61,6 @@ class Convert extends Command
     }
 
 
-
     /**
      * Returns the format to which the image should be converted
      *
@@ -73,7 +70,6 @@ class Convert extends Command
     {
         return $this->format;
     }
-
 
 
     /**
@@ -90,7 +86,6 @@ class Convert extends Command
     }
 
 
-
     /**
      * Returns the source image on which the conversions will be applied
      *
@@ -102,7 +97,6 @@ class Convert extends Command
     }
 
 
-
     /**
      * Returns the source file
      *
@@ -112,7 +106,6 @@ class Convert extends Command
     {
         return $this->source->getFile();
     }
-
 
 
     /**
@@ -135,7 +128,6 @@ class Convert extends Command
     }
 
 
-
     /**
      * Returns the file to which the image should be converted
      *
@@ -153,7 +145,6 @@ class Convert extends Command
     }
 
 
-
     /**
      * The format to which the image should be converted
      *
@@ -167,7 +158,6 @@ class Convert extends Command
     }
 
 
-
     /**
      * Returns the method with which the image should be converted
      *
@@ -177,7 +167,6 @@ class Convert extends Command
     {
         return $this->method;
     }
-
 
 
     /**
@@ -195,7 +184,6 @@ class Convert extends Command
     }
 
 
-
     /**
      * Access to the image resize object
      *
@@ -205,7 +193,6 @@ class Convert extends Command
     {
         throw new UnderConstructionException();
     }
-
 
 
     /**

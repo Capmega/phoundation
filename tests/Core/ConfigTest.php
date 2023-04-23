@@ -6,7 +6,6 @@ use Phoundation\Core\Config;
 use PHPUnit\Framework\TestCase;
 
 
-
 /**
  * \Phoundation\Core\Config test class
  */

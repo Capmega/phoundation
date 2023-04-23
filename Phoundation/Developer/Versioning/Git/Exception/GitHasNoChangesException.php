@@ -3,7 +3,6 @@
 namespace Phoundation\Developer\Versioning\Git\Exception;
 
 
-
 /**
  * Class GitHasNoChangesException
  *

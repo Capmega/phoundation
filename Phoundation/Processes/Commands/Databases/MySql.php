@@ -11,7 +11,6 @@ use Phoundation\Processes\Commands\Command;
 use Phoundation\Processes\Process;
 use Throwable;
 
-
 /**
  * Class MySql
  *
@@ -27,7 +26,6 @@ class MySql extends Command
     use DataHostnamePort;
     use DataUserPass;
     use DataSource;
-
 
 
     /**
@@ -76,7 +74,6 @@ class MySql extends Command
         }
     }
 
-
     /**
      * Creates a MySQL password file
      *
@@ -88,7 +85,6 @@ class MySql extends Command
         file_put_contents('~/.my.cnf')
         servers_exec($server, "rm ~/.my.cnf -f; touch ~/.my.cnf; chmod 0600 ~/.my.cnf; echo '[client]\nuser=\\\"".$user."\\\"\npassword=\\\"".$password."\\\"\n\n[mysql]\nuser=\\\"".$user."\\\"\npassword=\\\"".$password."\\\"\n\n[mysqldump]\nuser=\\\"".$user."\\\"\npassword=\\\"".$password."\\\"\n\n[mysqldiff]\nuser=\\\"".$user."\\\"\npassword=\\\"".$password."\\\"\n\n' >> ~/.my.cnf");
     }
-
 
     /**
      * @return $this

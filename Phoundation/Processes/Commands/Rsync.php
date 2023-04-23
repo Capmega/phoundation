@@ -8,7 +8,6 @@ use Phoundation\Data\Traits\DataSource;
 use Phoundation\Data\Traits\DataTarget;
 
 
-
 /**
  * Class Rsync
  *
@@ -24,7 +23,6 @@ class Rsync extends Command
     use DataSource;
     use DataTarget;
     use DataNetworkConnection;
-
 
 
     /**
@@ -105,7 +103,6 @@ class Rsync extends Command
     protected ?string $ssh_key = null;
 
 
-
     /**
      * Returns if file progress should be displayed or not
      *
@@ -115,7 +112,6 @@ class Rsync extends Command
     {
         return $this->progress;
     }
-
 
 
     /**
@@ -131,7 +127,6 @@ class Rsync extends Command
     }
 
 
-
     /**
      * Returns if archive mode should be used
      *
@@ -141,7 +136,6 @@ class Rsync extends Command
     {
         return $this->archive;
     }
-
 
 
     /**
@@ -157,7 +151,6 @@ class Rsync extends Command
     }
 
 
-
     /**
      * Returns if output should be more verbose
      *
@@ -167,7 +160,6 @@ class Rsync extends Command
     {
         return $this->verbose;
     }
-
 
 
     /**
@@ -183,7 +175,6 @@ class Rsync extends Command
     }
 
 
-
     /**
      * Returns if non-error messages should be  suppressed
      *
@@ -193,7 +184,6 @@ class Rsync extends Command
     {
         return $this->quiet;
     }
-
 
 
     /**
@@ -209,7 +199,6 @@ class Rsync extends Command
     }
 
 
-
     /**
      * Returns if rsync will ignore symlinks that point outside the tree
      *
@@ -219,7 +208,6 @@ class Rsync extends Command
     {
         return $this->safe_links;
     }
-
 
 
     /**
@@ -235,7 +223,6 @@ class Rsync extends Command
     }
 
 
-
     /**
      * Returns if compression should be used during the transfer
      *
@@ -245,7 +232,6 @@ class Rsync extends Command
     {
         return $this->compress;
     }
-
 
 
     /**
@@ -259,7 +245,6 @@ class Rsync extends Command
         $this->compress = $compress;
         return $this;
     }
-
 
 
     /**

@@ -5,7 +5,6 @@ namespace Phoundation\Web\Http\Html\Components\Input;
 use Phoundation\Web\Http\Html\Enums\InputType;
 use Phoundation\Web\Http\Html\Traits\UsesAttributeMultiple;
 
-
 /**
  * Class InputTel
  *
@@ -19,7 +18,6 @@ use Phoundation\Web\Http\Html\Traits\UsesAttributeMultiple;
 class InputTel extends Input
 {
     use UsesAttributeMultiple;
-
 
     /**
      * InputTel class constructor

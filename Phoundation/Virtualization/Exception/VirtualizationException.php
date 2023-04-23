@@ -4,7 +4,6 @@ namespace Phoundation\Virtualization\Exception;
 
 use Phoundation\Exception\Exception;
 
-
 /**
  * Class VirtualizationException
  *

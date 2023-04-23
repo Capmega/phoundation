@@ -5,7 +5,6 @@ namespace Phoundation\Web\Http\Html\Components;
 use Phoundation\Content\Images\Image;
 
 
-
 /**
  * Phoundation Panel class
  *
@@ -21,14 +20,12 @@ abstract class Panel extends ElementsBlock
     use Mode;
 
 
-
     /**
      * Modals for this panel
      *
      * @var Modals $modals
      */
     protected Modals $modals;
-
 
 
     /**
@@ -44,7 +41,6 @@ abstract class Panel extends ElementsBlock
     }
 
 
-
     /**
      * Returns the panel menu
      *
@@ -56,7 +52,6 @@ abstract class Panel extends ElementsBlock
     }
 
 
-
     /**
      * Returns the panel profile image
      *
@@ -66,7 +61,6 @@ abstract class Panel extends ElementsBlock
     {
         return isset_get($this->source['profile_image']);
     }
-
 
 
     /**
@@ -82,7 +76,6 @@ abstract class Panel extends ElementsBlock
     }
 
 
-
     /**
      * Returns the panel logo
      *
@@ -92,7 +85,6 @@ abstract class Panel extends ElementsBlock
     {
         return isset_get($this->source['logo']);
     }
-
 
 
     /**
@@ -110,7 +102,6 @@ abstract class Panel extends ElementsBlock
         $this->source['logo'] = $logo;
         return $this;
     }
-
 
 
     /**

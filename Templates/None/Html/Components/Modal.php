@@ -7,7 +7,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Renderer;
 
 
-
 /**
  * None Plugin Modal class
  *
@@ -27,7 +26,6 @@ class Modal extends Renderer
     {
         parent::__construct($element);
     }
-
 
 
     /**

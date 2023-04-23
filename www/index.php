@@ -6,7 +6,6 @@ use Templates\AdminLte\AdminLte;
 use Templates\Mdb\Mdb;
 
 
-
 /**
  * Routing table script
  *
@@ -89,7 +88,6 @@ use Templates\Mdb\Mdb;
 require('../vendor/autoload.php');
 
 
-
 //// Setup URL translations map
 //Route::mapUrl('es', [
 //    'conferencias' => 'conferences',
@@ -104,7 +102,6 @@ require('../vendor/autoload.php');
 //    'diensten'     => 'services',
 //    'over-ons'     => 'about'
 //]);
-
 
 
 // Set routing parameters to be applied for the various page types
@@ -139,7 +136,6 @@ Route::parameters()
         ->setSystemPagesOnly(true));
 
 
-
 // AdminLte based admin page routes
 Route::try('/^(\w{2})\/admin\/ajax\/(.+?).html$/'       , '/$1/ajax/$2.php');                 // Execute the requested AJAX page
 Route::try('/^(\w{2})\/admin\/(.+?)\/(.+?)-(.+?).html$/', '/$1/pages/admin/$2/$3.php?id=$4'); // Show the requested form page
@@ -148,15 +144,11 @@ Route::try('/^(\w{2})\/admin\/?$/'                      , '/index.html', 'R301')
 Route::try('/^admin\/$/'                                , '/index.html', 'R301');       // Redirect to admin index page
 
 
-
 // Mdb based front page routes
 Route::try('/^\w{2}\/ajax\/(.+?).html$/', '/en/ajax/$1.php');           // Execute the requested AJAX page
 Route::try('/^(\w{2})\/(.+?).html$/'    , '/$1/pages/$2.php');          // Show the requested page
 Route::try('/^(\w{2})\/?$/'             , '/index.html', 'R301'); // Redirect to front-end index page
 Route::try('/^$/'                       , '/index.html', 'R301'); // Redirect to front-end index page
-
-
-
 
 
 

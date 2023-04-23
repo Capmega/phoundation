@@ -3,7 +3,6 @@
 namespace Phoundation\Security\Incidents;
 
 
-
 /**
  * Enum Severity
  *

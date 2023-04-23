@@ -14,7 +14,6 @@ use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Exception\ProcessFailedException;
 
-
 /**
  * Class StatusFiles
  *
@@ -37,7 +36,6 @@ class StatusFiles extends Iterator
     protected Git $git;
 
 
-
     /**
      * StatusFiles class constructor
      *
@@ -48,7 +46,6 @@ class StatusFiles extends Iterator
         $this->setPath($path);
         $this->scanChanges();
     }
-
 
 
     /**
@@ -85,7 +82,6 @@ class StatusFiles extends Iterator
     }
 
 
-
     /**
      * Display the files status on the CLI
      *
@@ -106,7 +102,6 @@ class StatusFiles extends Iterator
 
         Cli::displayTable($list, ['file' => tr('File'), 'status' => tr('Status')], 'file');
     }
-
 
 
     /**
@@ -162,7 +157,6 @@ class StatusFiles extends Iterator
     }
 
 
-
     /**
      * Generates a diff patch file for this path and returns the file name for the patch file
      *
@@ -173,7 +167,6 @@ class StatusFiles extends Iterator
     {
         return Git::new(dirname($this->path))->saveDiff(basename($this->path), $cached);
     }
-
 
 
     /**

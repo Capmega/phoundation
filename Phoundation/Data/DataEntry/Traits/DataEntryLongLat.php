@@ -6,7 +6,6 @@ use Phoundation\Geo\Cities\Longitude;
 use Phoundation\Geo\Countries\Country;
 use Phoundation\Geo\States\State;
 
-
 /**
  * Trait DataEntryLongLat
  *
@@ -28,7 +27,6 @@ trait DataEntryLongLat
     {
         return $this->getDataValue('longitude');
     }
-
 
 
     /**
@@ -53,7 +51,6 @@ trait DataEntryLongLat
     {
         return $this->getDataValue('latitude');
     }
-
 
 
     /**

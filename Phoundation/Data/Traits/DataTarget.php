@@ -2,7 +2,6 @@
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait DataTarget
  *
@@ -17,7 +16,6 @@ trait DataTarget
 {
     protected ?string $target;
 
-
     /**
      * Returns the source
      *
@@ -27,7 +25,6 @@ trait DataTarget
     {
         return $this->target;
     }
-
 
     /**
      * Sets the source

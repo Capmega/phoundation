@@ -5,7 +5,6 @@ namespace Templates\None\Html\Components\Input;
 use Phoundation\Web\Http\Html\Renderer;
 
 
-
 /**
  * Class InputMonth
  *

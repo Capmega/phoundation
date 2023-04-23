@@ -3,7 +3,6 @@
 namespace Phoundation\Data\Validator\Exception;
 
 
-
 /**
  * Class NoKeySelectedException
  *

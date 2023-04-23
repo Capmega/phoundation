@@ -9,7 +9,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Json;
 use Throwable;
 
-
 /**
  * Class Strings
  *
@@ -41,7 +40,6 @@ class Strings
     }
 
 
-
     /**
      * Return "house" or "houses" based on the specified count. If the specified $count is 1,the single_text will be
      * returned. If not, the $multiple_text will be retuned
@@ -62,7 +60,6 @@ class Strings
     }
 
 
-
     /**
      * Returns true if string is serialized, false if not
      *
@@ -79,7 +76,6 @@ class Strings
     }
 
 
-
     /**
      * Ensure that the specified string has UTF8 format
      *
@@ -94,7 +90,6 @@ class Strings
 
         return utf8_encode($source);
     }
-
 
 
     /**
@@ -121,7 +116,6 @@ class Strings
     }
 
 
-
     /**
      * Return string will not contain HTML codes for Spanish characters
      *
@@ -135,7 +129,6 @@ class Strings
 
         return str_replace($from, $to, $source);
     }
-
 
 
     /**
@@ -153,7 +146,6 @@ class Strings
 
         return mb_strtolower(mb_substr($source, 0, $position)).mb_strtoupper(mb_substr($source, $position, 1)).mb_strtolower(mb_substr($source, $position + 1));
     }
-
 
     /**
      * Return a random string
@@ -239,7 +231,6 @@ class Strings
     }
 
 
-
     /**
      * Returns true if the specified source string is alphanumeric
      *
@@ -256,7 +247,6 @@ class Strings
     }
 
 
-
     /**
      * Return a clean string, basically leaving only printable latin1 characters,
      *
@@ -268,7 +258,6 @@ class Strings
     {
         return preg_replace('/[#;&,.+*~\':"!^$[\]()=>|\/]/gu', '\\\\$&', $source);
     }
-
 
 
     /**
@@ -285,7 +274,6 @@ class Strings
 
         return base64_decode($source);
     }
-
 
 
     /**
@@ -308,7 +296,6 @@ class Strings
     }
 
 
-
     /**
      * PHP explode() only in case $source is empty, it will return an actually empty array instead of an array with the
      * empty value in there
@@ -325,7 +312,6 @@ class Strings
 
         return explode($separator, $source);
     }
-
 
     /**
      * Interleave given string with given secondary string
@@ -371,7 +357,6 @@ class Strings
     }
 
 
-
     /**
      * Convert weird chars to their standard ASCII variant
      *
@@ -387,7 +372,6 @@ class Strings
     }
 
 
-
     /**
      * Strip whitespace
      *
@@ -398,7 +382,6 @@ class Strings
     {
         return preg_replace('/>\s+</u', '><', $source);
     }
-
 
 
     /**
@@ -419,7 +402,6 @@ class Strings
     }
 
 
-
     /**
      * Return if specified source is a valid version or not
      *
@@ -431,7 +413,6 @@ class Strings
     {
         return preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}$/', $source);
     }
-
 
 
     /**
@@ -446,7 +427,6 @@ class Strings
     }
 
 
-
     /**
      * Return if specified source is a JSON string or not
      *
@@ -459,7 +439,6 @@ class Strings
 
         return !empty($source) and is_string($source) and preg_match('/^("(\\.|[^"\\\n\r])*?"|[,:{}\[\]0-9.\-+Eaeflnr-u \n\r\t])+?$/', $source);
     }
-
 
 
     /**
@@ -485,7 +464,6 @@ class Strings
     }
 
 
-
     /**
      * Returns true if the specified text has ALL of the specified keywords
      *
@@ -507,7 +485,6 @@ class Strings
 
         return true;
     }
-
 
 
     /**
@@ -605,7 +582,6 @@ class Strings
     }
 
 
-
     /**
      * Returns an estimation of the caps style of the string
      * styles may be:
@@ -654,7 +630,6 @@ class Strings
     }
 
 
-
     /**
      * Force the specified source to be a string
      *
@@ -692,7 +667,6 @@ class Strings
 
         return (string) $source;
     }
-
 
 
     /**
@@ -733,7 +707,6 @@ class Strings
     }
 
 
-
     /**
      * Escape all specified $escape characters in the specified $source
      *
@@ -752,7 +725,6 @@ class Strings
 
         return $source;
     }
-
 
 
     /**
@@ -775,7 +747,6 @@ class Strings
     }
 
 
-
     /**
      * Returns how much similar the specified second string is to the first string
      *
@@ -788,7 +759,6 @@ class Strings
     {
         return similar_text($first, $second, $percent);
     }
-
 
 
     /**
@@ -817,7 +787,6 @@ class Strings
     }
 
 
-
     /**
      * Returns a "*** HIDDEN ***" string if the specified string has content.
      *
@@ -838,7 +807,6 @@ class Strings
         // The source string is empty
         return $empty;
     }
-
 
 
     /**
@@ -874,7 +842,6 @@ class Strings
     }
 
 
-
     /**
      * Return the specified value as a boolean name, false for null, zero, "", false, true otherwise.
      *
@@ -889,7 +856,6 @@ class Strings
 
         return 'false';
     }
-
 
 
     /**
@@ -941,7 +907,6 @@ class Strings
 
         return $string;
     }
-
 
 
     /**
@@ -999,7 +964,6 @@ class Strings
     }
 
 
-
     /**
      * Cut and return a piece out of the source string, starting from the start string, stopping at the stop string.
      *
@@ -1033,7 +997,6 @@ class Strings
     }
 
 
-
     /**
      * Cleanup string
      *
@@ -1057,7 +1020,6 @@ class Strings
 // :TODO:SVEN:20130709: Check if we should be using mysqli_escape_string() or addslashes(), since the former requires SQL connection, but the latter does NOT have correct UTF8 support!!
 //    return mysqli_escape_string(trim(decode_entities(mb_strip_tags($str))));
     }
-
 
 
     /**
@@ -1089,7 +1051,6 @@ class Strings
         return mb_substr($source, $pos + mb_strlen($needle) - $more);
     }
 
-
     /**
      * Return the given string from the specified needle having been skipped $count times
      *
@@ -1117,7 +1078,6 @@ class Strings
     }
 
 
-
     /**
      * Return the given string from the specified needle having been skipped $count times starting from the end of the
      * string
@@ -1143,7 +1103,6 @@ class Strings
 
         return $source;
     }
-
 
 
     /**
@@ -1177,7 +1136,6 @@ class Strings
     }
 
 
-
     /**
      * Return the given string from the specified needle, starting from the end
      *
@@ -1199,7 +1157,6 @@ class Strings
 
         return mb_substr($source, $pos + mb_strlen($needle) - $more);
     }
-
 
 
     /**
@@ -1228,7 +1185,6 @@ class Strings
     }
 
 
-
     /**
      * Ensure that specified source string starts with specified string
      *
@@ -1246,7 +1202,6 @@ class Strings
 
         return $string . $source;
     }
-
 
 
     /**
@@ -1268,7 +1223,6 @@ class Strings
     }
 
 
-
     /**
      * Ensure that specified string ends with specified character
      *
@@ -1287,7 +1241,6 @@ class Strings
 
         return $source . $string;
     }
-
 
 
     /**
@@ -1335,7 +1288,6 @@ class Strings
     }
 
 
-
     /**
      * Ensure that specified string ends with slash
      *
@@ -1346,7 +1298,6 @@ class Strings
     {
         return static::endsWith($string, '/');
     }
-
 
 
     /**
@@ -1360,7 +1311,6 @@ class Strings
     {
         return static::endsNotWith($string, '/', $loop);
     }
-
 
 
     /**
@@ -1382,7 +1332,6 @@ class Strings
         // Remove ALL double characters
         return preg_replace('/(.)\\1+/u'.($case_insensitive ? 'i' : ''), $replace, $source);
     }
-
 
     /**
      * Truncate string using the specified fill and method
@@ -1459,7 +1408,6 @@ class Strings
     }
 
 
-
     /**
      * Return a string that is suitable for logging.
      *
@@ -1515,7 +1463,6 @@ class Strings
     }
 
 
-
     /**
      * utf8_escape( )
      *
@@ -1532,7 +1479,6 @@ class Strings
     }
 
 
-
     /**
      * utf8_escape( )
      *
@@ -1547,7 +1493,6 @@ class Strings
     {
         return Zend_Utf8::unescape($string);
     }
-
 
 
     /**
@@ -1579,7 +1524,6 @@ class Strings
 
         return str_contains($source, $keyword);
     }
-
 
 
     /**
@@ -1631,7 +1575,6 @@ class Strings
     }
 
 
-
     /**
      * Remove all double tabs, spaces, line ends, etc and replace them by a single space.
      *
@@ -1644,7 +1587,6 @@ class Strings
         $source = Strings::noDouble($source, ' ', '\s');
         return $source;
     }
-
 
 
     /**
@@ -1686,7 +1628,6 @@ class Strings
     }
 
 
-
     /**
      * Returns a string displaying the specified ocal value
      *
@@ -1702,7 +1643,6 @@ class Strings
         // Source is already a string, just return it as-is
         return $source;
     }
-
 
 
     /**
@@ -1730,7 +1670,6 @@ class Strings
     }
 
 
-
     /**
      * Returns an array with
      *
@@ -1751,7 +1690,6 @@ class Strings
         sort($return);
         return $return;
     }
-
 
 
     /**
@@ -1782,7 +1720,6 @@ class Strings
     }
 
 
-
     /**
      * Generates and returns an RFC 4122 compliant Version 4 UUID
      *
@@ -1804,7 +1741,6 @@ class Strings
         // Output the 36 character UUID.
         return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
     }
-
 
 
     /**

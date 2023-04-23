@@ -5,7 +5,6 @@ namespace Templates\Mdb;
 use Phoundation\Web\Http\Html\Template\Template;
 use Templates\Mdb\Html\Components\Menu;
 
-
 /**
  * Class Mdb
  *
@@ -33,7 +32,6 @@ class Mdb extends Template
     }
 
 
-
     /**
      * Return a description for this template
      *
@@ -43,7 +41,6 @@ class Mdb extends Template
     {
         return 'This is the default template for your website. You are free to add or build other templates';
     }
-
 
 
     /**

@@ -8,7 +8,6 @@ use Phoundation\Databases\Sql\Sql;
 use Phoundation\Exception\OutOfBoundsException;
 
 
-
 /**
  * Schema class
  *
@@ -43,7 +42,6 @@ class Schema
     protected ?string $current_database = null;
 
 
-
     /**
      * Schema constructor
      */
@@ -57,7 +55,6 @@ class Schema
         $this->instance_name = $instance_name;
         $this->sql = new Sql($instance_name, $use_database);
     }
-
 
 
     /**
@@ -84,7 +81,6 @@ class Schema
     }
 
 
-
     /**
      * Access a new Table object for the currently selected database
      *
@@ -99,7 +95,6 @@ class Schema
 
         return $this->database()->table($name);
     }
-
 
 
     /**

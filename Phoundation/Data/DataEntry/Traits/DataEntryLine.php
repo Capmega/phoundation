@@ -5,7 +5,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 use Phoundation\Exception\OutOfBoundsException;
 
 
-
 /**
  * Trait DataEntryLine
  *
@@ -27,7 +26,6 @@ trait DataEntryLine
     {
         return $this->getDataValue('line');
     }
-
 
     /**
      * Sets the line for this object

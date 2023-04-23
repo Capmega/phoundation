@@ -11,7 +11,6 @@ use Phoundation\Web\Http\Html\Components\TopPanel;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
-
 /**
  * Mdb template class
  *
@@ -42,7 +41,6 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     }
 
 
-
     /**
      * Build the HTTP headers for the page
      *
@@ -55,7 +53,6 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
         Page::setContentType('text/html');
         Page::setDoctype('html');
     }
-
 
 
     /**
@@ -85,7 +82,6 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     }
 
 
-
     /**
      * Build the page header
      *
@@ -103,7 +99,6 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     }
 
 
-
     /**
      * Build the page footer
      *
@@ -116,7 +111,6 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
                             </main>' .
                             Footer::new()->render();
     }
-
 
 
     /**
@@ -137,7 +131,6 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     }
 
 
-
     /**
      * Build the HTML menu
      *
@@ -147,7 +140,6 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     {
         return null;
     }
-
 
 
     /**
@@ -162,7 +154,6 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     }
 
 
-
     /**
      * @return string|null
      */
@@ -170,7 +161,6 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     {
         // TODO: Implement buildProfileImage() method.
     }
-
 
 
     /**

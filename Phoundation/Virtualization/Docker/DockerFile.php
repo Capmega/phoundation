@@ -10,7 +10,6 @@ use Phoundation\Filesystem\Traits\DataRestrictions;
 use Phoundation\Processes\Process;
 use Phoundation\Virtualization\Traits\DataImage;
 
-
 /**
  * Class DockerFile
  *
@@ -28,14 +27,12 @@ class DockerFile
     use DataImage;
     use DataRestrictions;
 
-
     /**
      * Docker file FROM variable
      *
      * @var string|null $from
      */
     protected ?string $from = null;
-
 
     /**
      * DockerFile class constructor
@@ -53,7 +50,6 @@ class DockerFile
         $this->setPath($path);
     }
 
-
     /**
      * Returns a new object
      *
@@ -65,7 +61,6 @@ class DockerFile
     {
         return new static($image, $path);
     }
-
 
     /**
      * Sets the docker file FROM
@@ -79,7 +74,6 @@ class DockerFile
         return $this;
     }
 
-
     /**
      * Returns the docker file FROM
      *
@@ -89,7 +83,6 @@ class DockerFile
     {
         return $this->from;
     }
-
 
     /**
      * Create configuration files for docker
@@ -137,7 +130,6 @@ services:
         return $this;
     }
 
-
     /**
      * Builds an image from the Dockerfile
      *
@@ -153,7 +145,6 @@ services:
             ->setRestrictions($this->path)
             ->setExecutionPath($this->path)
             ->addArguments(['build', '-f', $this->path . '.docker/Dockerfile', '-t', $this->image, '.']);
-
 
         if ($passthru) {
             $process->executePassthru();

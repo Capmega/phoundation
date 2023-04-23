@@ -7,7 +7,6 @@ use Exception;
 use Phoundation\Core\Log\Log;
 use Phoundation\Network\Exception\NetworkException;
 
-
 /**
  * Class Curl
  *
@@ -49,7 +48,6 @@ class Post extends Get
     protected bool $post_url_encoded = false;
 
 
-
     /**
      * Post class constructor
      *
@@ -62,7 +60,6 @@ class Post extends Get
     }
 
 
-
     /**
      * Returns the content type header
      *
@@ -72,7 +69,6 @@ class Post extends Get
     {
         return $this->content_type;
     }
-
 
 
     /**
@@ -88,7 +84,6 @@ class Post extends Get
     }
 
 
-
     /**
      * Returns if the POST data will be URL encoded or not
      *
@@ -98,7 +93,6 @@ class Post extends Get
     {
         return $this->post_url_encoded;
     }
-
 
 
     /**
@@ -114,7 +108,6 @@ class Post extends Get
     }
 
 
-
     /**
      * Returns all POST values
      *
@@ -124,7 +117,6 @@ class Post extends Get
     {
         return $this->post_data;
     }
-
 
 
     /**
@@ -139,7 +131,6 @@ class Post extends Get
     }
 
 
-
     /**
      * Sets POST values
      *
@@ -151,7 +142,6 @@ class Post extends Get
         $this->post_data = [];
         return $this->addPostValues($values);
     }
-
 
 
     /**
@@ -169,7 +159,6 @@ class Post extends Get
         return $this;
     }
 
-
     /**
      * Adds another POST data key value
      *
@@ -184,7 +173,6 @@ class Post extends Get
     }
 
 
-
     /**
      * Returns all files that will be uploaded over POST
      *
@@ -194,7 +182,6 @@ class Post extends Get
     {
         return $this->upload_files;
     }
-
 
 
     /**
@@ -209,7 +196,6 @@ class Post extends Get
     }
 
 
-
     /**
      * Sets all files that will be uploaded over POST
      *
@@ -221,7 +207,6 @@ class Post extends Get
         $this->upload_files = [];
         return $this->addPostValues($files);
     }
-
 
 
     /**
@@ -240,7 +225,6 @@ class Post extends Get
     }
 
 
-
     /**
      * Adds another POST data key value
      *
@@ -255,7 +239,6 @@ class Post extends Get
     }
 
 
-
     /**
      * Executes the POST request
      *
@@ -268,7 +251,6 @@ class Post extends Get
 
         parent::execute();
     }
-
 
 
     /**

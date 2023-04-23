@@ -3,7 +3,6 @@
 namespace Phoundation\Data\DataEntry\Traits;
 
 
-
 /**
  * Trait DataEntryAddress
  *
@@ -25,7 +24,6 @@ trait DataEntryAddress
     {
         return $this->getDataValue('address');
     }
-
 
 
     /**
@@ -50,7 +48,6 @@ trait DataEntryAddress
     {
         return $this->getDataValue('zipcode');
     }
-
 
 
     /**

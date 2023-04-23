@@ -4,7 +4,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Exception\OutOfBoundsException;
 
-
 /**
  * Trait DataEntryMessage
  *
@@ -26,7 +25,6 @@ trait DataEntryMessage
     {
         return $this->getDataValue('message');
     }
-
 
 
     /**

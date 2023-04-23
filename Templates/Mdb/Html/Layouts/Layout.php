@@ -5,7 +5,6 @@ namespace Templates\Mdb\Html\Layouts;
 use Phoundation\Web\Http\Html\Renderer;
 
 
-
 /**
  * MDB Plugin Layout class
  *

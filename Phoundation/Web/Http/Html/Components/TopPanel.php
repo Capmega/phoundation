@@ -3,7 +3,6 @@
 namespace Phoundation\Web\Http\Html\Components;
 
 
-
 use Phoundation\Developer\Debug;
 use Phoundation\Web\Http\UrlBuilder;
 
@@ -41,7 +40,6 @@ class TopPanel extends Panel
     protected LanguagesDropDown $languages;
 
 
-
     /**
      * TopPanel class constructor
      */
@@ -51,7 +49,6 @@ class TopPanel extends Panel
         $this->source['menu'] = Menu::new()->addSource([(string) UrlBuilder::getCurrent() => tr('Home')]);
         parent::__construct();
     }
-
 
 
     /**
@@ -69,7 +66,6 @@ class TopPanel extends Panel
     }
 
 
-
     /**
      * Sets the notifications drop down object
      *
@@ -81,7 +77,6 @@ class TopPanel extends Panel
         $this->notifications = $notifications;
         return $this;
     }
-
 
 
     /**
@@ -98,7 +93,6 @@ class TopPanel extends Panel
     }
 
 
-
     /**
      * Sets the notifications drop down object
      *
@@ -110,7 +104,6 @@ class TopPanel extends Panel
         $this->messages = $messages;
         return $this;
     }
-
 
 
     /**
@@ -125,7 +118,6 @@ class TopPanel extends Panel
         }
         return $this->languages;
     }
-
 
 
     /**

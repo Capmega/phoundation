@@ -7,12 +7,10 @@ use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
 
-
 // Only show sign-in page if we're a guest user
 if (!Session::getUser()->isGuest()) {
     Page::redirect('prev', 302);
 }
-
 
 
 // Validate sign in data and sign in
@@ -27,7 +25,6 @@ if (Page::isPostRequestMethod()) {
         Page::getFlashMessages()->add(tr('Access denied'), tr('The specified email or password was incorrect'), 'warning');
     }
 }
-
 
 
 // This page will build its own body

@@ -7,7 +7,6 @@ use Phoundation\Data\Traits\DataSource;
 use Phoundation\Data\Traits\DataTarget;
 use Phoundation\Processes\Enum\ExecuteMethod;
 
-
 /**
  * Class Wget
  *
@@ -23,7 +22,6 @@ class Wget extends Command
     use DataSource;
     use DataTarget;
     use DataBindAddress;
-
 
 
     /**

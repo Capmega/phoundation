@@ -9,7 +9,6 @@ use Phoundation\Network\Browsers\UserAgents;
 use Phoundation\Web\Exception\WebException;
 
 
-
 /**
  * Class Curl
  *
@@ -213,7 +212,6 @@ abstract class Curl
     protected bool $multipart = false;
 
 
-
     /**
      * Curl class constructor
      */
@@ -225,7 +223,6 @@ abstract class Curl
 
         $this->url  = $url;
     }
-
 
 
     /**
@@ -240,7 +237,6 @@ abstract class Curl
     }
 
 
-
     /**
      * Returns the request method
      *
@@ -251,7 +247,6 @@ abstract class Curl
     {
         return $this->method;
     }
-
 
 
     /**
@@ -274,7 +269,6 @@ abstract class Curl
     }
 
 
-
     /**
      * Returns if the request will follow page redirects
      *
@@ -284,7 +278,6 @@ abstract class Curl
     {
         return $this->follow_location;
     }
-
 
 
     /**
@@ -304,7 +297,6 @@ abstract class Curl
     }
 
 
-
     /**
      * Returns the user agent to be used for this request
      *
@@ -321,7 +313,6 @@ abstract class Curl
     }
 
 
-
     /**
      * Sets the user agent to be used for this request
      *
@@ -335,7 +326,6 @@ abstract class Curl
     }
 
 
-
     /**
      * Returns the path to where cURL will log. "" if logging was disabled
      *
@@ -345,7 +335,6 @@ abstract class Curl
     {
         return $this->log_path;
     }
-
 
 
     /**
@@ -366,7 +355,6 @@ abstract class Curl
     }
 
 
-
     /**
      * Returns the amount of retries executed for this request
      *
@@ -378,7 +366,6 @@ abstract class Curl
     }
 
 
-
     /**
      * Sets the maximum amount of retries executed for this request
      *
@@ -388,7 +375,6 @@ abstract class Curl
     {
         return $this->retries;
     }
-
 
 
     /**
@@ -404,7 +390,6 @@ abstract class Curl
     }
 
 
-
     /**
      * Sets the amount of time this object will wait before retrying a failed connection
      *
@@ -414,7 +399,6 @@ abstract class Curl
     {
         return $this->sleep;
     }
-
 
 
     /**
@@ -430,7 +414,6 @@ abstract class Curl
     }
 
 
-
     /**
      * Sets the amount of time in seconds before a complete request times out
      *
@@ -440,7 +423,6 @@ abstract class Curl
     {
         return $this->timeout;
     }
-
 
 
     /**
@@ -456,7 +438,6 @@ abstract class Curl
     }
 
 
-
     /**
      * Sets the amount of time in seconds before a connection times out
      *
@@ -466,7 +447,6 @@ abstract class Curl
     {
         return $this->connect_timeout;
     }
-
 
 
     /**
@@ -482,7 +462,6 @@ abstract class Curl
     }
 
 
-
     /**
      * Returns the cURL interface
      *
@@ -494,7 +473,6 @@ abstract class Curl
     }
 
 
-
     /**
      * Returns if the request should use multipart or not
      *
@@ -504,7 +482,6 @@ abstract class Curl
     {
         return $this->multipart;
     }
-
 
 
     /**
@@ -520,7 +497,6 @@ abstract class Curl
     }
 
 
-
     /**
      * Returns if the connection will be closed once the request has been completed
      *
@@ -530,7 +506,6 @@ abstract class Curl
     {
         return $this->close;
     }
-
 
 
     /**
@@ -546,7 +521,6 @@ abstract class Curl
     }
 
 
-
     /**
      * Returns if the DNS should use cache or not
      *
@@ -556,7 +530,6 @@ abstract class Curl
     {
         return $this->dns_cache;
     }
-
 
 
     /**
@@ -572,7 +545,6 @@ abstract class Curl
     }
 
 
-
     /**
      * Returns if the request will verify the SSL certificate or not
      *
@@ -582,7 +554,6 @@ abstract class Curl
     {
         return $this->verify_ssl;
     }
-
 
 
     /**
@@ -598,7 +569,6 @@ abstract class Curl
     }
 
 
-
     /**
      * Sets if object will store and use cookies
      *
@@ -608,7 +578,6 @@ abstract class Curl
     {
         return $this->get_cookies;
     }
-
 
 
     /**
@@ -624,7 +593,6 @@ abstract class Curl
     }
 
 
-
     /**
      * Sets what file cookies should be written to
      *
@@ -634,7 +602,6 @@ abstract class Curl
     {
         return $this->cookie_file;
     }
-
 
 
     /**
@@ -650,7 +617,6 @@ abstract class Curl
     }
 
 
-
     /**
      * Returns the cookies that were sent by the remote server for this request
      *
@@ -662,7 +628,6 @@ abstract class Curl
     }
 
 
-
     /**
      * Returns the cookies that will be sent for this request
      *
@@ -672,7 +637,6 @@ abstract class Curl
     {
         return $this->cookies;
     }
-
 
 
     /**
@@ -687,7 +651,6 @@ abstract class Curl
     }
 
 
-
     /**
      * Sets the cookies that will be sent for this request
      *
@@ -699,7 +662,6 @@ abstract class Curl
         $this->cookies = [];
         return $this->addCookies($cookies);
     }
-
 
 
     /**
@@ -718,7 +680,6 @@ abstract class Curl
     }
 
 
-
     /**
      * Adds the specified cookie that will be sent for this request
      *
@@ -732,7 +693,6 @@ abstract class Curl
     }
 
 
-
     /**
      * Sets if object will use local cache for this request
      *
@@ -742,7 +702,6 @@ abstract class Curl
     {
         return $this->cache;
     }
-
 
 
     /**
@@ -758,7 +717,6 @@ abstract class Curl
     }
 
 
-
     /**
      * Returns the user_password header
      *
@@ -768,7 +726,6 @@ abstract class Curl
     {
         return $this->user_password;
     }
-
 
 
     /**
@@ -784,7 +741,6 @@ abstract class Curl
     }
 
 
-
     /**
      * Returns the file to which the result will be saved
      *
@@ -794,7 +750,6 @@ abstract class Curl
     {
         return $this->save_to_file;
     }
-
 
 
     /**
@@ -810,7 +765,6 @@ abstract class Curl
     }
 
 
-
     /**
      * Returns other extra cURL options
      *
@@ -820,7 +774,6 @@ abstract class Curl
     {
         return $this->options;
     }
-
 
 
     /**
@@ -835,7 +788,6 @@ abstract class Curl
     }
 
 
-
     /**
      * Sets other extra cURL options
      *
@@ -847,7 +799,6 @@ abstract class Curl
         $this->options = [];
         return $this->addOptions($options);
     }
-
 
 
     /**
@@ -865,7 +816,6 @@ abstract class Curl
         return $this;
     }
 
-
     /**
      * Adds another extra cURL option
      *
@@ -880,7 +830,6 @@ abstract class Curl
     }
 
 
-
     /**
      * Returns the result headers
      *
@@ -890,7 +839,6 @@ abstract class Curl
     {
         return $this->result_headers;
     }
-
 
 
     /**
@@ -904,7 +852,6 @@ abstract class Curl
     }
 
 
-
     /**
      * Returns the result data
      *
@@ -916,14 +863,12 @@ abstract class Curl
     }
 
 
-
     /**
      * Executes the request
      *
      * @return void
      */
     abstract public function execute(): void;
-
 
 
     /**

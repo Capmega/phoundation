@@ -8,7 +8,6 @@ use Phoundation\Network\Exception\NetworkException;
 use Phoundation\Processes\Process;
 
 
-
 /**
  * Class Interfaces
  *
@@ -90,7 +89,6 @@ class Interfaces
 
         return $ips;
     }
-
 
 
     /**

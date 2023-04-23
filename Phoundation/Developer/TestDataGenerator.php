@@ -8,7 +8,6 @@ use Phoundation\Core\Numbers;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 
-
 /**
  * Class TestDataGenerator
  *
@@ -35,7 +34,6 @@ class TestDataGenerator
         return Strings::random(random_int($min, $max), $unique, 'alpha');
     }
 
-
     /**
      * Returns a random code
      *
@@ -49,7 +47,6 @@ class TestDataGenerator
         $date = random_int($min, $max);
         return date("Y-m-d H:i:s", $date);
     }
-
 
     /**
      * Returns a random code
@@ -72,7 +69,6 @@ class TestDataGenerator
         ]);
     }
 
-
     /**
      * Returns a random number
      *
@@ -85,7 +81,6 @@ class TestDataGenerator
     {
         return (int) random_int($min, $max);
     }
-
 
     /**
      * Returns a random number
@@ -100,7 +95,6 @@ class TestDataGenerator
         return random_int($min, $max - 1) + Numbers::getRandomFloat();
     }
 
-
     /**
      * Returns a random percentage
      *
@@ -113,7 +107,6 @@ class TestDataGenerator
     {
         return (int) random_int($min, $max);
     }
-
 
     /**
      * Returns a random percentage
@@ -128,7 +121,6 @@ class TestDataGenerator
         return random_int($min, $max - 1) + Numbers::getRandomFloat();
     }
 
-
     /**
      * Returns a random name
      *
@@ -140,7 +132,6 @@ class TestDataGenerator
         return Strings::random(random_int(3, 10));
     }
 
-
     /**
      * Returns a random domain
      *
@@ -151,7 +142,6 @@ class TestDataGenerator
     {
         return Strings::random(random_int(3, 24) . pick_random('.com', '.org', '.net', '.ca', '.nl', '.mx', '.com.mx', '.info', '.local'));
     }
-
 
     /**
      * Returns a random email address
@@ -165,7 +155,6 @@ class TestDataGenerator
     }
 
 
-
     /**
      * Returns a random providers id
      *
@@ -175,7 +164,6 @@ class TestDataGenerator
     {
         return sql()->getColumn('SELECT `id` FROM `business_providers` ORDER BY RAND() LIMIT 1;');
     }
-
 
 
     /**
@@ -189,7 +177,6 @@ class TestDataGenerator
     }
 
 
-
     /**
      * Returns a random categories id
      *
@@ -199,7 +186,6 @@ class TestDataGenerator
     {
         return sql()->getColumn('SELECT `id` FROM `business_categories` ORDER BY RAND() LIMIT 1;');
     }
-
 
     /**
      * Returns a random amount of lorem ipsum paragraps

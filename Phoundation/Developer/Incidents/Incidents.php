@@ -7,7 +7,6 @@ use Phoundation\Accounts\Users\User;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Web\Http\Html\Components\Table;
 
-
 /**
  * Incidents class
  *
@@ -39,7 +38,6 @@ class Incidents extends DataList
     }
 
 
-
     /**
      * Creates and returns an HTML table for the data in this list
      *
@@ -52,7 +50,6 @@ class Incidents extends DataList
 
         return $table;
     }
-
 
 
     /**

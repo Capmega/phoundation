@@ -6,7 +6,6 @@ use Phoundation\Web\Http\Html\Components\Mode;
 use Phoundation\Web\Http\Html\Enums\InputType;
 use Phoundation\Web\Http\Html\Interfaces\InterfaceInputType;
 
-
 /**
  * Trait InputElement
  *
@@ -20,7 +19,6 @@ use Phoundation\Web\Http\Html\Interfaces\InterfaceInputType;
 trait InputElement
 {
     use Mode;
-
 
 
     /**
@@ -38,7 +36,6 @@ trait InputElement
     protected ?string $value = null;
 
 
-
     /**
      * Returns the type for the input element
      *
@@ -48,7 +45,6 @@ trait InputElement
     {
         return $this->type;
     }
-
 
 
     /**
@@ -64,7 +60,6 @@ trait InputElement
     }
 
 
-
     /**
      * Returns the value for the input element
      *
@@ -74,7 +69,6 @@ trait InputElement
     {
         return $this->value;
     }
-
 
 
     /**
@@ -90,7 +84,6 @@ trait InputElement
     }
 
 
-
     /**
      * Sets if the element will auto submit
      *
@@ -104,7 +97,6 @@ trait InputElement
     }
 
 
-
     /**
      * Returns if the element will auto submit
      *
@@ -114,7 +106,6 @@ trait InputElement
     {
         return $this->attributes['auto_submit'];
     }
-
 
 
     /**
@@ -130,7 +121,6 @@ trait InputElement
     }
 
 
-
     /**
      * Returns onchange functionality
      *
@@ -140,7 +130,6 @@ trait InputElement
     {
         return isset_get($this->attributes['on_change']);
     }
-
 
 
     /**

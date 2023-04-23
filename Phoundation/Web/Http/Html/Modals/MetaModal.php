@@ -12,7 +12,6 @@ use Phoundation\Web\Http\Html\Layouts\GridRow;
 use Phoundation\Web\Http\UrlBuilder;
 
 
-
 /**
  * MetaModal class
  *
@@ -33,7 +32,6 @@ class MetaModal extends Modal
         $this->setContent('Hello!');
         parent::__construct();
     }
-
 
 
     /**

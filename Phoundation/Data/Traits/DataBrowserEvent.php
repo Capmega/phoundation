@@ -4,7 +4,6 @@ namespace Phoundation\Data\Traits;
 
 use Phoundation\Web\Http\Html\Enums\BrowserEvent;
 
-
 /**
  * Trait DataEvent
  *
@@ -19,7 +18,6 @@ trait DataBrowserEvent
 {
     protected BrowserEvent $browser_event;
 
-
     /**
      * Returns the source
      *
@@ -29,7 +27,6 @@ trait DataBrowserEvent
     {
         return $this->browser_event;
     }
-
 
     /**
      * Sets the source

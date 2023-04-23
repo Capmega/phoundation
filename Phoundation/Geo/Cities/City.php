@@ -15,7 +15,6 @@ use Phoundation\Geo\Countries\Country;
 use Phoundation\Geo\States\State;
 use Phoundation\Geo\Timezones\Timezone;
 
-
 /**
  * Class City
  *
@@ -31,7 +30,6 @@ class City extends DataEntry
 {
     use DataEntryNameDescription;
 
-
     /**
      * City class constructor
      *
@@ -46,7 +44,6 @@ class City extends DataEntry
         parent::__construct($identifier);
     }
 
-
     /**
      * Returns the general timezone for this city
      *
@@ -56,7 +53,6 @@ class City extends DataEntry
     {
         return new Timezone($this->getDataValue('timezones_id'));
     }
-
 
 
     /**
@@ -70,7 +66,6 @@ class City extends DataEntry
     }
 
 
-
     /**
      * Returns the country for this city
      *
@@ -80,7 +75,6 @@ class City extends DataEntry
     {
         return new Country($this->getDataValue('countries_id'));
     }
-
 
 
     /**
@@ -94,7 +88,6 @@ class City extends DataEntry
     }
 
 
-
     /**
      * Returns the county for this city
      *
@@ -104,7 +97,6 @@ class City extends DataEntry
     {
         return new County($this->getDataValue('counties_id'));
     }
-
 
 
     /**
@@ -135,7 +127,6 @@ class City extends DataEntry
 
         return $data;
     }
-
 
     /**
      * Sets the available data keys for this entry

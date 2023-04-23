@@ -3,7 +3,6 @@
 namespace Phoundation\Data\Traits;
 
 
-
 /**
  * Class NetworkConnection
  *
@@ -45,7 +44,6 @@ trait DataNetworkConnection
     protected ?string $password = null;
 
 
-
     /**
      * Returns the host for this connection
      *
@@ -55,7 +53,6 @@ trait DataNetworkConnection
     {
         return $this->host;
     }
-
 
 
     /**
@@ -75,7 +72,6 @@ trait DataNetworkConnection
     }
 
 
-
     /**
      * Returns the port for this connection
      *
@@ -85,7 +81,6 @@ trait DataNetworkConnection
     {
         return $this->port;
     }
-
 
 
     /**
@@ -101,7 +96,6 @@ trait DataNetworkConnection
     }
 
 
-
     /**
      * Returns the user for this connection
      *
@@ -111,7 +105,6 @@ trait DataNetworkConnection
     {
         return $this->user;
     }
-
 
 
     /**
@@ -127,7 +120,6 @@ trait DataNetworkConnection
     }
 
 
-
     /**
      * Returns the password for this connection
      *
@@ -137,7 +129,6 @@ trait DataNetworkConnection
     {
         return $this->password;
     }
-
 
 
     /**

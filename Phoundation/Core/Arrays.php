@@ -6,7 +6,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 
 
-
 /**
  * Class Arrays
  *
@@ -39,7 +38,6 @@ class Arrays {
     const HIDE_EMPTY_VALUES = 8;
 
 
-
     /**
      * If all the specified keys are not in the source array, an exception will be thrown
      *
@@ -60,7 +58,6 @@ class Arrays {
             static::ensure($source, $keys);
         }
     }
-
 
 
     /**
@@ -110,7 +107,6 @@ class Arrays {
     }
 
 
-
     /**
      * Returns the value for the next value after the specified value
      *
@@ -153,7 +149,6 @@ class Arrays {
         reset($source);
         return current($source);
     }
-
 
 
     /**
@@ -212,7 +207,6 @@ class Arrays {
     }
 
 
-
     /**
      * Ensures that the specified $key exists in the specified $source.
      *
@@ -247,7 +241,6 @@ class Arrays {
     }
 
 
-
     /**
      * Ensure that the specified keys are available. If not, exception
      *
@@ -263,7 +256,6 @@ class Arrays {
             }
         }
     }
-
 
 
     /**
@@ -289,7 +281,6 @@ class Arrays {
     }
 
 
-
     /**
      * Return an array from the given object, recursively
      *
@@ -309,7 +300,6 @@ class Arrays {
     }
 
 
-
     /**
      * Return an object from the given array, recursively
      *
@@ -322,7 +312,6 @@ class Arrays {
     }
 
 
-
     /**
      * Return a random value from the specified array
      *
@@ -333,7 +322,6 @@ class Arrays {
     {
         return $array[array_rand($array)];
     }
-
 
 
     /**
@@ -394,7 +382,6 @@ class Arrays {
     }
 
 
-
     /**
      * Merge all specified arrays
      *
@@ -426,7 +413,6 @@ class Arrays {
     }
 
 
-
     /**
      * Limit the specified array to the specified amount of entries
      *
@@ -453,7 +439,6 @@ class Arrays {
 
         return $return;
     }
-
 
     /**
      * Filter the specified values out of the source array
@@ -485,7 +470,6 @@ class Arrays {
         return $source;
     }
 
-
     /**
      * Return an array with the amount of values where each value name is $base_value_name# and # is a sequential number
      *
@@ -507,7 +491,6 @@ class Arrays {
 
         return $return;
     }
-
 
 
     /**
@@ -546,7 +529,6 @@ class Arrays {
     }
 
 
-
     /**
      * Return the source array with the specified keys kept, all else removed.
      *
@@ -568,7 +550,6 @@ class Arrays {
     }
 
 
-
     /**
      * Return the source array with the specified keys removed.
      *
@@ -584,7 +565,6 @@ class Arrays {
 
         return $source;
     }
-
 
 
     /**
@@ -631,7 +611,6 @@ class Arrays {
     }
 
 
-
     /**
      * Return all array parts until (but without) the specified key
      *
@@ -660,7 +639,6 @@ class Arrays {
     }
 
 
-
     /**
      * Merge two arrays together, using the values of array1 as keys, and the values of array2 as values
      *
@@ -684,7 +662,6 @@ class Arrays {
 
         return $return;
     }
-
 
 
     /**
@@ -713,7 +690,6 @@ class Arrays {
     }
 
 
-
     /**
      * Return the array keys that has a STRING value that contains the specified keyword
      *
@@ -737,7 +713,6 @@ class Arrays {
 
         return $return;
     }
-
 
 
     /**
@@ -765,7 +740,6 @@ class Arrays {
     }
 
 
-
     /**
      * Return an array with all the values in the specified column
      *
@@ -787,7 +761,6 @@ class Arrays {
     }
 
 
-
     /**
      * ???? Return the value of one of the first found key of the specified keys
      *
@@ -806,7 +779,6 @@ class Arrays {
             }
         }
     }
-
 
     /**
      * Check the specified array and ensure it has not too many elements (to avoid attack with processing foreach over 2000000 elements, for example)
@@ -827,7 +799,6 @@ class Arrays {
 
         return $source;
     }
-
 
 
     /**
@@ -852,7 +823,6 @@ class Arrays {
     }
 
 
-
     /**
      * Filter
      */
@@ -867,7 +837,6 @@ class Arrays {
 
         return call_user_func_array('array_merge', $arguments);
     }
-
 
 
     /**
@@ -896,7 +865,6 @@ class Arrays {
     }
 
 
-
     /**
      * Return the average value of all values in the specified source array
      *
@@ -920,7 +888,6 @@ class Arrays {
 
         return $total / count($source);
     }
-
 
 
     /**
@@ -954,7 +921,6 @@ class Arrays {
     }
 
 
-
     /**
      * Returns if the specified callback function returns true for all elements
      *
@@ -975,7 +941,6 @@ class Arrays {
 
         return true;
     }
-
 
 
     /**
@@ -1000,7 +965,6 @@ class Arrays {
     }
 
 
-
     /**
      * Returns if the specified callback has duplicate values
      *
@@ -1016,7 +980,6 @@ class Arrays {
     }
 
 
-
     /**
      * Returns if the specified callback has duplicate values
      *
@@ -1030,7 +993,6 @@ class Arrays {
     {
         return (bool) Arrays::countDuplicates($source);
     }
-
 
 
     /**
@@ -1050,7 +1012,6 @@ class Arrays {
 
         return true;
     }
-
 
 
     /**
@@ -1080,7 +1041,6 @@ class Arrays {
     }
 
 
-
     /**
      * Merge multiple arrays together, but overwrite null values
      *
@@ -1102,7 +1062,6 @@ class Arrays {
 
         return $return;
     }
-
 
 
     /**
@@ -1154,7 +1113,6 @@ class Arrays {
     }
 
 
-
     /**
      * Rename the specified old key to the new key
      *
@@ -1176,7 +1134,6 @@ class Arrays {
 
         return $source;
     }
-
 
 
     /**
@@ -1201,7 +1158,6 @@ class Arrays {
     }
 
 
-
     /**
      * Returns the value of the last element of the specified array
      *
@@ -1220,7 +1176,6 @@ class Arrays {
 
         return $end;
     }
-
 
 
     /**
@@ -1256,7 +1211,6 @@ class Arrays {
             }
         }
     }
-
 
 
     /**
@@ -1311,7 +1265,6 @@ class Arrays {
     }
 
 
-
     /**
      * Recursively trim all strings in the specified array tree
      *
@@ -1335,7 +1288,6 @@ class Arrays {
 
         return $source;
     }
-
 
 
     /**
@@ -1365,7 +1317,6 @@ class Arrays {
     }
 
 
-
     /**
      * Returns the longest key string of all values in the specified source array
      *
@@ -1387,7 +1338,6 @@ class Arrays {
 
         return $longest;
     }
-
 
 
     /**
@@ -1456,7 +1406,6 @@ class Arrays {
     }
 
 
-
     /**
      * Returns a new array with the specified keys, all having the specified default value
      *
@@ -1474,7 +1423,6 @@ class Arrays {
 
         return $return;
     }
-
 
 
     /**
@@ -1495,7 +1443,6 @@ class Arrays {
         unset($source[$key]);
         return $key;
     }
-
 
 
     /**
@@ -1572,7 +1519,6 @@ class Arrays {
     }
 
 
-
     /**
      * Returns the argument arrays ensuring that there are at least 2
      *
@@ -1592,7 +1538,6 @@ class Arrays {
 
         return $arguments;
     }
-
 
 
     /**
@@ -1622,7 +1567,6 @@ class Arrays {
             ':count' => $id
         ]));
     }
-
 
 
     /**
@@ -1665,7 +1609,6 @@ class Arrays {
     }
 
 
-
     /**
      * Will return true if the specified value exists, and remove if from the array
      *
@@ -1684,7 +1627,6 @@ class Arrays {
 
         return false;
     }
-
 
 
     /**
@@ -1708,7 +1650,6 @@ class Arrays {
     }
 
 
-
     /**
      * Prepend the key + value to the specified source array
      *
@@ -1725,7 +1666,6 @@ class Arrays {
 
         return $source;
     }
-
 
 
     /**
@@ -1753,7 +1693,6 @@ class Arrays {
         return $source;
     }
 
-
     /**
      * Splits up the specified source string into an array according to the specified format and returns it
      *
@@ -1775,7 +1714,6 @@ class Arrays {
 
         return $return;
     }
-
 
     /**
      * Detects and returns a format to parse table strings using Arrays::format()

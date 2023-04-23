@@ -9,7 +9,6 @@ use Phoundation\Web\Http\Html\Components\Element;
 use Phoundation\Web\Http\Html\Renderer;
 use Phoundation\Web\Page;
 
-
 /**
  * MDB Plugin ProfileImage class
  *
@@ -40,7 +39,6 @@ class ProfileImage extends Renderer
 
         parent::__construct($element);
     }
-
 
 
     /**

@@ -3,7 +3,6 @@
 namespace Phoundation\Geo;
 
 
-
 /**
  * Updates class
  *
@@ -28,7 +27,6 @@ class Updates extends \Phoundation\Core\Libraries\Updates
     }
 
 
-
     /**
      * The description for this library
      *
@@ -38,7 +36,6 @@ class Updates extends \Phoundation\Core\Libraries\Updates
     {
         return tr('The Geo library manages all geographical information for users, etc.');
     }
-
 
 
     /**

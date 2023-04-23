@@ -9,7 +9,6 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 
-
 /**
  * Language class
  *
@@ -24,7 +23,6 @@ use Phoundation\Data\Validator\PostValidator;
 class Language extends DataEntry
 {
     use DataEntryNameDescription;
-
 
 
     /**
@@ -42,7 +40,6 @@ class Language extends DataEntry
     }
 
 
-
     /**
      * Returns the code_639_1 for this language
      *
@@ -52,7 +49,6 @@ class Language extends DataEntry
     {
         return $this->getDataValue('code_639_1');
     }
-
 
 
     /**
@@ -67,7 +63,6 @@ class Language extends DataEntry
     }
 
 
-
     /**
      * Returns the code_639_2_b for this language
      *
@@ -77,7 +72,6 @@ class Language extends DataEntry
     {
         return $this->getDataValue('code_639_2_b');
     }
-
 
 
     /**
@@ -92,7 +86,6 @@ class Language extends DataEntry
     }
 
 
-
     /**
      * Returns the code_639_2_t for this language
      *
@@ -102,7 +95,6 @@ class Language extends DataEntry
     {
         return $this->getDataValue('code_639_2_t');
     }
-
 
 
     /**
@@ -117,7 +109,6 @@ class Language extends DataEntry
     }
 
 
-
     /**
      * Returns the code_639_3 for this language
      *
@@ -127,7 +118,6 @@ class Language extends DataEntry
     {
         return $this->getDataValue('code_639_3');
     }
-
 
 
     /**
@@ -140,7 +130,6 @@ class Language extends DataEntry
     {
         return $this->setDataValue('code_639_3', $code_639_3);
     }
-
 
 
     /**
@@ -170,7 +159,6 @@ class Language extends DataEntry
 
         return $data;
     }
-
 
     /**
      * Sets the available data keys for this entry

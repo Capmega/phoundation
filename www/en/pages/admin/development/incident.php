@@ -12,7 +12,6 @@ use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
 
-
 // Validate GET
 GetValidator::new()
     ->select('id')->isOptional()->isId()
@@ -26,14 +25,12 @@ $buttons = Buttons::new()
     ->addButton(tr('Back'), 'secondary', '/development/incidents.html', true);
 
 
-
 // Build the incident form
 $incident_card = Card::new()
     ->setHasCollapseSwitch(true)
     ->setTitle(tr('Edit data for Incident :name', [':name' => $incident->getTitle()]))
     ->setContent($incident->getHtmlForm()->render())
     ->setButtons($buttons);
-
 
 
 // Build the grid column with a form containing the incident and roles cards
@@ -43,14 +40,12 @@ $column = GridColumn::new()
     ->useForm(true);
 
 
-
 // Build relevant links
 $relevant = Card::new()
     ->setMode(DisplayMode::info)
     ->setTitle(tr('Relevant links'))
     ->setContent('<a href="' . UrlBuilder::getWww('/development/slow-pages.html') . '">' . tr('Slow pages') . '</a><br>
                          <a href="' . UrlBuilder::getWww('/security/security.html') . '">' . tr('Security management') . '</a>');
-
 
 
 // Build documentation
@@ -62,14 +57,12 @@ $documentation = Card::new()
                          <p>Et molestias aut vitae et autem distinctio. Molestiae quod ullam a. Fugiat veniam dignissimos rem repudiandae consequuntur voluptatem. Enim dolores sunt unde sit dicta animi quod. Nesciunt nisi non ea sequi aut. Suscipit aperiam amet fugit facere dolorem qui deserunt.</p>');
 
 
-
 // Build and render the grid
 $grid = Grid::new()
     ->addColumn($column)
     ->addColumn($relevant->render() . $documentation->render(), 3);
 
 echo $grid->render();
-
 
 // Set page meta data
 Page::setHeaderTitle(tr('Incident'));

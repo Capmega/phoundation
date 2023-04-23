@@ -9,7 +9,6 @@ use Phoundation\Data\Traits\UsesNew;
 use Phoundation\Processes\Process;
 use Phoundation\Virtualization\Kubernetes\Traits\UsesKubeCtl;
 
-
 /**
  * Class KubernetesObjects
  *
@@ -24,7 +23,6 @@ class KubernetesObjects extends Iterator
 {
     use UsesKubeCtl;
     use UsesNew;
-
 
     /**
      * KubernetesObjects class constructor

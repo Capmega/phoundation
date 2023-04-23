@@ -7,7 +7,6 @@ use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 
 
-
 /**
  * Trait ElementAttributes
  *
@@ -154,14 +153,12 @@ trait ElementAttributes
     protected bool $right = false;
 
 
-
     /**
      * ElementsAttributes class constructor
      */
     public function __construct()
     {
     }
-
 
 
     /**
@@ -173,7 +170,6 @@ trait ElementAttributes
     {
         return new static();
     }
-
 
 
     /**
@@ -196,7 +192,6 @@ trait ElementAttributes
     }
 
 
-
     /**
      * Returns the HTML id element attribute
      *
@@ -206,7 +201,6 @@ trait ElementAttributes
     {
         return $this->id;
     }
-
 
 
     /**
@@ -229,7 +223,6 @@ trait ElementAttributes
     }
 
 
-
     /**
      * Returns the HTML name element attribute
      *
@@ -239,7 +232,6 @@ trait ElementAttributes
     {
         return $this->name;
     }
-
 
 
     /**
@@ -254,7 +246,6 @@ trait ElementAttributes
     }
 
 
-
     /**
      * Sets the HTML class element attribute
      *
@@ -266,7 +257,6 @@ trait ElementAttributes
         $this->classes = [];
         return $this->addClasses($classes);
     }
-
 
 
     /**
@@ -283,7 +273,6 @@ trait ElementAttributes
 
         return $this;
     }
-
 
 
     /**
@@ -304,7 +293,6 @@ trait ElementAttributes
     }
 
 
-
     /**
      * Removes the specified class for this element
      *
@@ -316,7 +304,6 @@ trait ElementAttributes
         unset($this->classes[$class]);
         return $this;
     }
-
 
 
     /**
@@ -336,7 +323,6 @@ trait ElementAttributes
     }
 
 
-
     /**
      * Returns the HTML class element attribute store
      *
@@ -346,7 +332,6 @@ trait ElementAttributes
     {
         return $this->classes;
     }
-
 
 
     /**
@@ -368,7 +353,6 @@ trait ElementAttributes
     }
 
 
-
     /**
      * Returns if this element has the specified class or not
      *
@@ -379,7 +363,6 @@ trait ElementAttributes
     {
         return isset($this->classes[$class]);
     }
-
 
 
     /**
@@ -394,7 +377,6 @@ trait ElementAttributes
     }
 
 
-
     /**
      * Sets the HTML class element attribute
      *
@@ -406,7 +388,6 @@ trait ElementAttributes
         $this->data = [];
         return $this->addDatas($data);
     }
-
 
 
     /**
@@ -423,7 +404,6 @@ trait ElementAttributes
 
         return $this;
     }
-
 
     /**
      * Adds a class to the HTML class element attribute
@@ -442,7 +422,6 @@ trait ElementAttributes
     }
 
 
-
     /**
      * Removes the specified class for this element
      *
@@ -456,7 +435,6 @@ trait ElementAttributes
     }
 
 
-
     /**
      * Returns the HTML class element attribute store
      *
@@ -466,7 +444,6 @@ trait ElementAttributes
     {
         return $this->data;
     }
-
 
 
     /**
@@ -481,7 +458,6 @@ trait ElementAttributes
     }
 
 
-
     /**
      * Clears the HTML class element attribute
      *
@@ -492,7 +468,6 @@ trait ElementAttributes
         $this->aria = [];
         return $this;
     }
-
 
 
     /**
@@ -506,7 +481,6 @@ trait ElementAttributes
         $this->aria = [];
         return $this->addArias($aria);
     }
-
 
 
     /**
@@ -523,7 +497,6 @@ trait ElementAttributes
 
         return $this;
     }
-
 
     /**
      * Adds a class to the HTML class element attribute
@@ -542,7 +515,6 @@ trait ElementAttributes
     }
 
 
-
     /**
      * Removes the specified class for this element
      *
@@ -556,7 +528,6 @@ trait ElementAttributes
     }
 
 
-
     /**
      * Returns the HTML class element attribute store
      *
@@ -566,7 +537,6 @@ trait ElementAttributes
     {
         return $this->aria;
     }
-
 
 
     /**
@@ -581,7 +551,6 @@ trait ElementAttributes
     }
 
 
-
     /**
      * Set the HTML tabindex element attribute
      *
@@ -594,7 +563,6 @@ trait ElementAttributes
         return $this;
     }
 
-
     /**
      * Returns the HTML tabindex element attribute
      *
@@ -604,7 +572,6 @@ trait ElementAttributes
     {
         return ($this->disabled ? null : $this->tabindex);
     }
-
 
 
     /**
@@ -617,7 +584,6 @@ trait ElementAttributes
         $this->extra = '';
         return $this;
     }
-
 
 
     /**
@@ -633,7 +599,6 @@ trait ElementAttributes
     }
 
 
-
     /**
      * Adds more to the extra element attribute code
      *
@@ -647,7 +612,6 @@ trait ElementAttributes
     }
 
 
-
     /**
      * Returns the extra element attribute code
      *
@@ -657,7 +621,6 @@ trait ElementAttributes
     {
         return $this->extra;
     }
-
 
 
     /**
@@ -673,7 +636,6 @@ trait ElementAttributes
     }
 
 
-
     /**
      * Returns the HTML class element attribute
      *
@@ -683,7 +645,6 @@ trait ElementAttributes
     {
         return (bool) $this->autofocus;
     }
-
 
 
     /**
@@ -698,7 +659,6 @@ trait ElementAttributes
         return $this;
     }
 
-
     /**
      * Returns the HTML disabled element attribute
      *
@@ -708,7 +668,6 @@ trait ElementAttributes
     {
         return (bool) $this->disabled;
     }
-
 
 
     /**
@@ -723,7 +682,6 @@ trait ElementAttributes
         return $this;
     }
 
-
     /**
      * Returns the HTML readonly element attribute
      *
@@ -733,7 +691,6 @@ trait ElementAttributes
     {
         return $this->readonly;
     }
-
 
 
     /**
@@ -748,7 +705,6 @@ trait ElementAttributes
     }
 
 
-
     /**
      * Sets all HTML element attributes
      *
@@ -760,7 +716,6 @@ trait ElementAttributes
         $this->attributes = [];
         return $this->addAttributes($notifications);
     }
-
 
 
     /**
@@ -777,7 +732,6 @@ trait ElementAttributes
 
         return $this;
     }
-
 
 
     /**
@@ -801,7 +755,6 @@ trait ElementAttributes
     }
 
 
-
     /**
      * Returns all HTML element attributes
      *
@@ -811,7 +764,6 @@ trait ElementAttributes
     {
         return $this->attributes;
     }
-
 
 
     /**
@@ -825,7 +777,6 @@ trait ElementAttributes
         $this->content = null;
         return $this->addContent($content);
     }
-
 
 
     /**
@@ -847,7 +798,6 @@ trait ElementAttributes
     }
 
 
-
     /**
      * Returns the content of the element to display
      *
@@ -857,7 +807,6 @@ trait ElementAttributes
     {
         return $this->content;
     }
-
 
 
     /**
@@ -879,7 +828,6 @@ trait ElementAttributes
     }
 
 
-
     /**
      * Returns the height of the element to display
      *
@@ -889,7 +837,6 @@ trait ElementAttributes
     {
         return $this->height;
     }
-
 
 
     /**
@@ -911,7 +858,6 @@ trait ElementAttributes
     }
 
 
-
     /**
      * Returns the width of the element to display
      *
@@ -921,7 +867,6 @@ trait ElementAttributes
     {
         return $this->width;
     }
-
 
 
     /**
@@ -940,7 +885,6 @@ trait ElementAttributes
     }
 
 
-
     /**
      * Returns if the button is right aligned or not
      *
@@ -950,7 +894,6 @@ trait ElementAttributes
     {
         return $this->hasClass('float-right');
     }
-
 
 
     /**
@@ -966,7 +909,6 @@ trait ElementAttributes
     {
         static::ensureElementAttributesTrait($class);
     }
-
 
 
     /**

@@ -4,7 +4,6 @@ namespace Phoundation\Web\Http\Html\Components\Input;
 
 use Phoundation\Web\Http\Html\Enums\InputType;
 
-
 /**
  * Class InputMonth
  *

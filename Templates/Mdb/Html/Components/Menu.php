@@ -8,7 +8,6 @@ use Phoundation\Web\Http\Html\Renderer;
 use Phoundation\Web\Http\UrlBuilder;
 
 
-
 /**
  * MDB Plugin Menu class
  *
@@ -30,7 +29,6 @@ class Menu extends Renderer
     }
 
 
-
     /**
      * Renders and returns the HTML for the footer
      *
@@ -40,7 +38,6 @@ class Menu extends Renderer
     {
         return $this->renderMenu($this->element->getSource(), 'nav navbar-nav me-auto mb-2 mb-lg-0');
     }
-
 
 
     /**
@@ -86,7 +83,6 @@ class Menu extends Renderer
 
         return $html;
     }
-
 
 
     /**

@@ -7,7 +7,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 
 
-
 /**
  * GeoIp class
  *
@@ -28,7 +27,6 @@ class GeoIp
     protected ?string $ip_address = null;
 
 
-
     /**
      * Returns a GeoIp object for the specified IP address
      *
@@ -39,7 +37,6 @@ class GeoIp
     {
         return self::getProvider()->detect($ip_address);
     }
-
 
     /**
      * Returns the class for the specified provider
@@ -66,7 +63,6 @@ class GeoIp
     }
 
 
-
     /**
      * Returns the ip address for this user
      *
@@ -76,7 +72,6 @@ class GeoIp
     {
         return $this->ip_address;
     }
-
 
 
     /**
@@ -90,7 +85,6 @@ class GeoIp
         $this->ip_address = $ip_address;
         return $this;
     }
-
 
 
     /**

@@ -7,7 +7,6 @@ use Phoundation\Core\Exception\NumbersException;
 use Phoundation\Exception\OutOfBoundsException;
 
 
-
 /**
  * Class Numbers
  *
@@ -45,7 +44,6 @@ class Numbers
 
         return $number;
     }
-
 
 
     /**
@@ -173,7 +171,6 @@ class Numbers
     }
 
 
-
     /**
      * Reads a bytes string like "4MB" and returns the amount of bytes
      *
@@ -264,7 +261,6 @@ class Numbers
     }
 
 
-
     /**
      * Make the specified number humand readable
      *
@@ -297,7 +293,6 @@ class Numbers
 
         return number_format($number, $decimals);
     }
-
 
 
     /**
@@ -366,7 +361,6 @@ class Numbers
 
         return '1';
     }
-
 
     /**
      * Returns a random float number between 0 and 1

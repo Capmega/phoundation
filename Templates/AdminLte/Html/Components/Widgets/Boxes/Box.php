@@ -5,7 +5,6 @@ namespace Templates\AdminLte\Html\Components\Widgets\Boxes;
 use Phoundation\Web\Http\Html\Renderer;
 
 
-
 /**
  * AdminLte Plugin Box class
  *

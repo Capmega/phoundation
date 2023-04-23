@@ -5,7 +5,6 @@ namespace Templates\Mdb\Html\Components;
 use Phoundation\Web\Http\Html\Renderer;
 
 
-
 /**
  * MDB Plugin Footer class
  *
@@ -25,7 +24,6 @@ class Footer extends Renderer
     {
         parent::__construct($element);
     }
-
 
 
     /**

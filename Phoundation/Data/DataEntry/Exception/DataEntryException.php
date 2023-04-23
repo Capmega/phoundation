@@ -5,7 +5,6 @@ namespace Phoundation\Data\DataEntry\Exception;
 use Phoundation\Data\Exception\DataException;
 
 
-
 /**
  * Class DataException
  *

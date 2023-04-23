@@ -5,7 +5,6 @@ namespace Templates\None\Html\Components\Widgets\Boxes;
 use Phoundation\Web\Http\Html\Renderer;
 
 
-
 /**
  * None Plugin SmallBox class
  *
@@ -25,7 +24,6 @@ class SmallBox extends Renderer
     {
         parent::__construct($element);
     }
-
 
 
     /**

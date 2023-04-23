@@ -5,7 +5,6 @@ namespace Phoundation\Web\Http;
 use JetBrains\PhpStorm\ExpectedValues;
 
 
-
 /**
  * Class Flash
  *
@@ -24,7 +23,6 @@ class Flash
      * @var array $messages
      */
     protected array $messages = [];
-
 
 
     /**

@@ -5,7 +5,6 @@ namespace Templates\None\Html\Layouts;
 use Phoundation\Web\Http\Html\Renderer;
 
 
-
 /**
  * None Plugin Grid class
  *
@@ -25,7 +24,6 @@ class Grid extends Renderer
     {
         parent::__construct($element);
     }
-
 
 
     /**

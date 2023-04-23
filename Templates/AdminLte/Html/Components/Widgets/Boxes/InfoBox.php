@@ -5,7 +5,6 @@ namespace Templates\AdminLte\Html\Components\Widgets\Boxes;
 use Phoundation\Web\Http\Html\Renderer;
 
 
-
 /**
  * AdminLte Plugin InfoBox class
  *
@@ -25,7 +24,6 @@ class InfoBox extends Renderer
     {
         parent::__construct($element);
     }
-
 
 
     /**

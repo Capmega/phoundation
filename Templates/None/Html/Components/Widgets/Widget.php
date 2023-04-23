@@ -5,7 +5,6 @@ namespace Templates\None\Html\Components\Widgets;
 use Phoundation\Web\Http\Html\Renderer;
 
 
-
 /**
  * None Plugin Widget class
  *

@@ -5,7 +5,6 @@ namespace Templates\AdminLte\Html\Components;
 use Phoundation\Web\Http\Html\Renderer;
 
 
-
 /**
  * AdminLte Plugin Buttons class
  *
@@ -25,7 +24,6 @@ class Buttons extends Renderer
     {
         parent::__construct($element);
     }
-
 
 
     /**

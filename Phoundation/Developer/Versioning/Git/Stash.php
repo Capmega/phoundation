@@ -6,7 +6,6 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Versioning\Git\Traits\GitProcess;
 use Phoundation\Developer\Versioning\Versioning;
 
-
 /**
  * Class Stash
  *
@@ -22,7 +21,6 @@ class Stash extends Versioning
     use GitProcess {
         setPath as protected setTraitPath;
     }
-
 
 
     /**
@@ -43,7 +41,6 @@ class Stash extends Versioning
     }
 
 
-
     /**
      * Unstashes the git changes
      *
@@ -61,7 +58,6 @@ class Stash extends Versioning
 
         return $this;
     }
-
 
 
     /**
@@ -85,7 +81,6 @@ class Stash extends Versioning
         
         return $return;
     }
-
 
 
     /**

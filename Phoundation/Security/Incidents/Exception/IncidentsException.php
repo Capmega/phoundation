@@ -5,7 +5,6 @@ namespace Phoundation\Security\Incidents\Exception;
 use Phoundation\Security\Exception\SecurityException;
 
 
-
 /**
  * Class IncidentsException
  *

@@ -5,7 +5,6 @@ namespace Phoundation\Accounts\Exception;
 use Phoundation\Exception\Exception;
 
 
-
 /**
  * Class AccountsException
  *

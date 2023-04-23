@@ -5,7 +5,6 @@ namespace Phoundation\Web\Routing;
 use Phoundation\Core\Log\Log;
 use Phoundation\Web\Exception\RouteException;
 
-
 /**
  * Class RouteParametersList
  *
@@ -40,7 +39,6 @@ class RoutingParametersList
     protected array $system_list = [];
 
 
-
     /**
      * Add the specified parameters
      *
@@ -60,7 +58,6 @@ class RoutingParametersList
     }
 
 
-
     /**
      * Clears all routing parameters
      *
@@ -73,7 +70,6 @@ class RoutingParametersList
 
         return $this;
     }
-
 
 
     /**
@@ -90,7 +86,6 @@ class RoutingParametersList
 
         return $this->list;
     }
-
 
 
     /**
@@ -152,7 +147,6 @@ class RoutingParametersList
 
         return $parameters;
     }
-
 
 
     /**

@@ -4,7 +4,6 @@ namespace Templates\AdminLte\Html\Components;
 
 use Phoundation\Web\Http\Html\Renderer;
 
-
 /**
  * AdminLte Plugin Icons class
  *
@@ -24,7 +23,6 @@ class Icons extends Renderer
     {
         parent::__construct($element);
     }
-
 
 
     /**

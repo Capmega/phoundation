@@ -7,7 +7,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Processes\Exception\ProcessFailedException;
 use Phoundation\Processes\Process;
 
-
 /**
  * Class ProcessCommands
  *
@@ -52,7 +51,6 @@ class ProcessCommands extends Command
     }
 
 
-
     /**
      * Returns the process id's for all children of the specified parent process id
      *
@@ -83,7 +81,6 @@ class ProcessCommands extends Command
             Command::handleException('pgrep', $e);
         }
     }
-
 
 
     /**
@@ -125,7 +122,6 @@ class ProcessCommands extends Command
     }
 
 
-
     /**
      * Sends the specified signal to the specified process names
      *
@@ -163,7 +159,6 @@ class ProcessCommands extends Command
             Command::handleException('pkill', $e);
         }
     }
-
 
     /**
      * Returns limited process information about the specified PID
@@ -205,7 +200,6 @@ class ProcessCommands extends Command
             Command::handleException('pkill', $e);
         }
     }
-
 
 
     /**
@@ -280,7 +274,6 @@ class ProcessCommands extends Command
             $return['rss']    = (int)   $return['rss'];
             $return['%cpu']   = (float) $return['%cpu'];
             $return['%mem']   = (float) $return['%mem'];
-
 
             $return['state_label'] = match ($return['state']) {
                 'D' => tr('uninterruptible sleep (usually IO)'),

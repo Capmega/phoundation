@@ -12,7 +12,6 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Exception\OutOfBoundsException;
 
-
 /**
  * Class Passwords
  *
@@ -60,7 +59,6 @@ class Passwords
     }
 
 
-
     /**
      * Returns true if the password is considered secure enough
      *
@@ -80,7 +78,6 @@ class Passwords
 
         return $weak;
     }
-
 
 
     /**
@@ -187,7 +184,6 @@ class Passwords
     }
 
 
-
     /**
      * Returns true if the password is considered secure enough
      *
@@ -200,7 +196,6 @@ class Passwords
             ':password' => $password
         ]);
     }
-
 
     /**
      * Returns true if the password is considered secure enough
@@ -226,7 +221,6 @@ class Passwords
     }
 
 
-
     /**
      * Returns the hashed version of the password
      *
@@ -246,7 +240,6 @@ class Passwords
     }
 
 
-
     /**
      * Returns the password with a seed
      *
@@ -258,7 +251,6 @@ class Passwords
     {
         return Config::get('security.seed', 'phoundation') . $id . $password;
     }
-
 
 
     /**
@@ -299,7 +291,6 @@ class Passwords
     }
 
 
-
     /**
      * Returns true if the specified password matches the users password
      *
@@ -312,7 +303,6 @@ class Passwords
     {
         return static::compare($id, $password_test, $password_database);
     }
-
 
 
     /**

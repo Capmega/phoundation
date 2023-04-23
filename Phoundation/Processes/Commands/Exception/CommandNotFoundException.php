@@ -3,7 +3,6 @@
 namespace Phoundation\Processes\Commands\Exception;
 
 
-
 /**
  * Class CommandNotFoundException
  *

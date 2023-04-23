@@ -6,7 +6,6 @@ use Phoundation\Notifications\Notification;
 use Phoundation\Web\Page;
 
 
-
 try {
     Notification::new()
         ->setMode(pick_random('UNKNOWN', 'ERROR', 'WARNING', 'SUCCESS', 'INFO'))
@@ -22,7 +21,6 @@ try {
 } catch (Throwable $e) {
     showdie($e);
 }
-
 
 // Redirect to the all notifications page
 Page::redirect('notifications/all.html');

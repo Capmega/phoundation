@@ -7,7 +7,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use PHPUnit\Framework\TestCase;
 
 
-
 /**
  * \Phoundation\Core\Arrays test class
  */

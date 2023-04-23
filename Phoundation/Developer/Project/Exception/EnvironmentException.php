@@ -5,7 +5,6 @@ namespace Phoundation\Developer\Project\Exception;
 use Phoundation\Developer\Exception\DeveloperException;
 
 
-
 /**
  * Class EnvironmentException
  *

@@ -6,7 +6,6 @@ use Phoundation\Web\Http\Html\Components\Menu;
 use Phoundation\Web\Page;
 use Plugins\Phoundation\Components\ProfileImageMenu;
 
-
 /**
  * Class Plugin
  *
@@ -28,7 +27,6 @@ class Plugin extends \Phoundation\Core\Plugins\Plugin
     {
         return tr('This is the default Phoundation plugin');
     }
-
 
 
     /**

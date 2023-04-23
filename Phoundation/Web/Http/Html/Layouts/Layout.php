@@ -5,7 +5,6 @@ namespace Phoundation\Web\Http\Html\Layouts;
 use Phoundation\Web\Http\Html\Components\ElementsBlock;
 
 
-
 /**
  * Layout class
  *

@@ -6,7 +6,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Html\Interfaces\InterfaceDisplayMode;
 
-
 /**
  * Trait DataEntryMode
  *
@@ -28,7 +27,6 @@ trait DataEntryMode
     {
         return DisplayMode::from($this->getDataValue('mode'));
     }
-
 
 
     /**

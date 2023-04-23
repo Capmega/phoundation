@@ -5,7 +5,6 @@ namespace Templates\AdminLte\Html\Components\Widgets\Cards;
 use Phoundation\Web\Http\Html\Renderer;
 
 
-
 /**
  * AdminLte Plugin Chat class
  *

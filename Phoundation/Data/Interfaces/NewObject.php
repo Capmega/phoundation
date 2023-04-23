@@ -2,7 +2,6 @@
 
 namespace Phoundation\Data\Interfaces;
 
-
 /**
  * Class New
  *

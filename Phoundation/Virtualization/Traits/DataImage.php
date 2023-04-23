@@ -3,7 +3,6 @@
 namespace Phoundation\Virtualization\Traits;
 
 
-
 /**
  * Trait DataImage
  *
@@ -19,7 +18,6 @@ trait DataImage
     protected string $image;
 
 
-
     /**
      * Returns the docker image
      *
@@ -29,7 +27,6 @@ trait DataImage
     {
         return $this->image;
     }
-
 
 
     /**

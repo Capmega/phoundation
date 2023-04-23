@@ -6,7 +6,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Renderer;
 
 
-
 /**
  * None Plugin MessagesDropDown class
  *
@@ -26,7 +25,6 @@ class MessagesDropDown extends Renderer
     {
         parent::__construct($element);
     }
-
 
 
     /**

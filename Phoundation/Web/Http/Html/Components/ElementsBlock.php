@@ -12,7 +12,6 @@ use Phoundation\Web\Page;
 use ReturnTypeWillChange;
 
 
-
 /**
  * Class ElementsBlock
  *
@@ -26,7 +25,6 @@ use ReturnTypeWillChange;
 abstract class ElementsBlock implements Iterator
 {
     use ElementAttributes;
-
 
 
     /**
@@ -51,7 +49,6 @@ abstract class ElementsBlock implements Iterator
     protected array $source = [];
 
 
-
     /**
      * Returns the contents of this object as an array
      *
@@ -61,7 +58,6 @@ abstract class ElementsBlock implements Iterator
     {
         return $this->source;
     }
-
 
 
     /**
@@ -84,7 +80,6 @@ abstract class ElementsBlock implements Iterator
     }
 
 
-
     /**
      * Returns the form of this objects block
      *
@@ -94,7 +89,6 @@ abstract class ElementsBlock implements Iterator
     {
         return $this->form;
     }
-
 
 
     /**
@@ -110,7 +104,6 @@ abstract class ElementsBlock implements Iterator
     }
 
 
-
     /**
      * Returns the source of this object
      *
@@ -120,7 +113,6 @@ abstract class ElementsBlock implements Iterator
     {
         return $this->source;
     }
-
 
     /**
      * Returns the specified entry from the source of this object
@@ -134,7 +126,6 @@ abstract class ElementsBlock implements Iterator
     }
 
 
-
     /**
      * Sets the data source of this object
      *
@@ -146,7 +137,6 @@ abstract class ElementsBlock implements Iterator
         $this->source = [];
         return $this->addSource($source);
     }
-
 
 
     /**
@@ -165,7 +155,6 @@ abstract class ElementsBlock implements Iterator
     }
 
 
-
     /**
      * Adds a single entry to the source of this object
      *
@@ -178,7 +167,6 @@ abstract class ElementsBlock implements Iterator
         $this->source[$key] = $value;
         return $this;
     }
-
 
 
     /**
@@ -225,7 +213,6 @@ abstract class ElementsBlock implements Iterator
     }
 
 
-
     /**
      * Returns if this FlashMessages object has rendered HTML or not
      *
@@ -235,7 +222,6 @@ abstract class ElementsBlock implements Iterator
     {
         return $this->has_rendered;
     }
-
 
 
     /**
@@ -250,7 +236,6 @@ abstract class ElementsBlock implements Iterator
     }
 
 
-
     /**
      * Return the amount of flash messages in this object
      *
@@ -260,7 +245,6 @@ abstract class ElementsBlock implements Iterator
     {
         return count($this->source);
     }
-
 
 
     /**
@@ -281,7 +265,6 @@ abstract class ElementsBlock implements Iterator
     }
 
 
-
     /**
      * Returns if the specified key exists or not
      *
@@ -294,7 +277,6 @@ abstract class ElementsBlock implements Iterator
     }
 
 
-
     /**
      * Returns the current item
      *
@@ -304,7 +286,6 @@ abstract class ElementsBlock implements Iterator
     {
         return $this->get(key($this->source));
     }
-
 
 
     /**
@@ -319,7 +300,6 @@ abstract class ElementsBlock implements Iterator
     }
 
 
-
     /**
      * Jumps to the next element
      *
@@ -330,7 +310,6 @@ abstract class ElementsBlock implements Iterator
         prev($this->source);
         return $this;
     }
-
 
 
     /**
@@ -344,7 +323,6 @@ abstract class ElementsBlock implements Iterator
     }
 
 
-
     /**
      * Returns if the current element exists or not
      *
@@ -354,7 +332,6 @@ abstract class ElementsBlock implements Iterator
     {
         return isset($this->source[key($this->source)]);
     }
-
 
 
     /**

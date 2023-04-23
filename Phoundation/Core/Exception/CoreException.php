@@ -5,7 +5,6 @@ namespace Phoundation\Core\Exception;
 use Phoundation\Exception\Exception;
 
 
-
 /**
  * Class CoreException
  *

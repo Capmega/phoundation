@@ -46,7 +46,6 @@ use Phoundation\Web\Routing\RoutingParameters;
 use Throwable;
 
 
-
 /**
  * Class Page
  *
@@ -278,7 +277,6 @@ class Page
     protected static Menus $menus;
 
 
-
     /**
      * Page class constructor
      *
@@ -289,7 +287,6 @@ class Page
         static::$headers['meta']['charset']  = Config::get('languages.encoding.charset', 'UTF-8');
         static::$headers['meta']['viewport'] = Config::get('web.viewport'              , 'width=device-width, initial-scale=1, shrink-to-fit=no');
     }
-
 
 
     /**
@@ -307,7 +304,6 @@ class Page
     }
 
 
-
     /**
      * Returns the current tab index and automatically increments it
      *
@@ -317,7 +313,6 @@ class Page
     {
         return static::$restrictions;
     }
-
 
 
     /**
@@ -330,7 +325,6 @@ class Page
     {
         static::$restrictions = $restrictions;
     }
-
 
 
     /**
@@ -349,7 +343,6 @@ class Page
     }
 
 
-
     /**
      * Sets the current tab index and automatically increments it
      *
@@ -362,7 +355,6 @@ class Page
     }
 
 
-
     /**
      * Returns page parameters specified by the router
      *
@@ -372,7 +364,6 @@ class Page
     {
         return static::$parameters;
     }
-
 
 
     /**
@@ -403,7 +394,6 @@ class Page
     }
 
 
-
     /**
      * Returns the page flash messages
      *
@@ -413,7 +403,6 @@ class Page
     {
         return static::$flash_messages;
     }
-
 
 
     /**
@@ -427,7 +416,6 @@ class Page
     }
 
 
-
     /**
      * Returns the SEO optimized version of the project name
      *
@@ -437,7 +425,6 @@ class Page
     {
         return str_replace('_', '-', strtolower(PROJECT));
     }
-
 
 
     /**
@@ -452,7 +439,6 @@ class Page
     }
 
 
-
     /**
      * Returns the alternative class for the <body> tag or if not preset, the default
      *
@@ -462,7 +448,6 @@ class Page
     {
         return static::$build_body;
     }
-
 
 
     /**
@@ -491,7 +476,6 @@ class Page
     }
 
 
-
     /**
      * Returns the request method for this page
      *
@@ -502,7 +486,6 @@ class Page
     {
         return strtoupper($_SERVER['REQUEST_METHOD']);
     }
-
 
 
     /**
@@ -517,7 +500,6 @@ class Page
     }
 
 
-
     /**
      * Returns if this request is a POST method
      *
@@ -527,7 +509,6 @@ class Page
     {
         return static::isRequestMethod('POST');
     }
-
 
 
     /**
@@ -545,7 +526,6 @@ class Page
     }
 
 
-
     /**
      * Return the URL for this page
      *
@@ -560,7 +540,6 @@ class Page
 
         return static::$parameters->getRootUrl();
     }
-
 
 
     /**
@@ -580,7 +559,6 @@ class Page
     }
 
 
-
     /**
      * Return the complete request URL for this page (WITH domain)
      *
@@ -590,7 +568,6 @@ class Page
     {
         return static::$parameters->getRootUrl();
     }
-
 
 
     /**
@@ -608,7 +585,6 @@ class Page
     }
 
 
-
     /**
      * Returns the bread crumbs for this page
      *
@@ -618,7 +594,6 @@ class Page
     {
         return static::$bread_crumbs;
     }
-
 
 
     /**
@@ -633,7 +608,6 @@ class Page
     }
 
 
-
     /**
      * Returns the current Template for this page
      *
@@ -645,7 +619,6 @@ class Page
     }
 
 
-
     /**
      * Returns the current TemplatePage used for this page
      *
@@ -655,7 +628,6 @@ class Page
     {
         return static::$template_page;
     }
-
 
 
     /**
@@ -671,7 +643,6 @@ class Page
                 ->setNewTarget($new_target);
         }
     }
-
 
 
     /**
@@ -698,7 +669,6 @@ class Page
     }
 
 
-
     /**
      * Will throw an AccessDeniedException if the current session user does not have SOME of the specified rights
      *
@@ -723,7 +693,6 @@ class Page
     }
 
 
-
     /**
      * Returns true if the HTTP headers have been sent
      *
@@ -735,7 +704,6 @@ class Page
     }
 
 
-
     /**
      * Returns the status code that will be sent to the client
      *
@@ -745,7 +713,6 @@ class Page
     {
         return static::$http_code;
     }
-
 
 
     /**
@@ -763,7 +730,6 @@ class Page
     }
 
 
-
     /**
      * Returns the mimetype / content type
      *
@@ -773,7 +739,6 @@ class Page
     {
         return static::$content_type;
     }
-
 
 
     /**
@@ -791,7 +756,6 @@ class Page
     }
 
 
-
     /**
      * Returns the CORS headers
      *
@@ -801,7 +765,6 @@ class Page
     {
         return static::$cors;
     }
-
 
     /**
      * Sets the status code that will be sent to the client
@@ -824,7 +787,6 @@ class Page
     }
 
 
-
     /**
      * Returns the current tab index and automatically increments it
      *
@@ -834,7 +796,6 @@ class Page
     {
         return static::$doctype;
     }
-
 
 
     /**
@@ -849,7 +810,6 @@ class Page
     }
 
 
-
     /**
      * Returns the browser page title
      *
@@ -859,7 +819,6 @@ class Page
     {
         return static::$page_title;
     }
-
 
 
     /**
@@ -874,7 +833,6 @@ class Page
     }
 
 
-
     /**
      * Returns the browser page title
      *
@@ -884,7 +842,6 @@ class Page
     {
         return static::$description;
     }
-
 
 
     /**
@@ -899,7 +856,6 @@ class Page
     }
 
 
-
     /**
      * Returns the page header title
      *
@@ -909,7 +865,6 @@ class Page
     {
         return static::$header_title;
     }
-
 
 
     /**
@@ -928,7 +883,6 @@ class Page
     }
 
 
-
     /**
      * Returns the page header subtitle
      *
@@ -938,7 +892,6 @@ class Page
     {
         return static::$header_sub_title;
     }
-
 
 
     /**
@@ -953,7 +906,6 @@ class Page
     }
 
 
-
     /**
      * Returns the page charset
      *
@@ -963,7 +915,6 @@ class Page
     {
         return isset_get(static::$headers['meta']['charset']);
     }
-
 
 
     /**
@@ -978,7 +929,6 @@ class Page
     }
 
 
-
     /**
      * Returns the page viewport
      *
@@ -988,7 +938,6 @@ class Page
     {
         return isset_get(static::$headers['meta']['viewport']);
     }
-
 
 
     /**
@@ -1001,7 +950,6 @@ class Page
     {
         static::$headers['meta']['viewport'] = $viewport;
     }
-
 
 
     /**
@@ -1097,7 +1045,6 @@ class Page
             throw $e;
         }
     }
-
 
 
     /**
@@ -1208,7 +1155,6 @@ class Page
     }
 
 
-
     /**
      * Return the specified URL with a redirect URL stored in $core->register['redirect']
      *
@@ -1302,7 +1248,6 @@ class Page
     }
 
 
-
     /**
      * Returns requested main mimetype, or if requested mimetype is accepted or not
      *
@@ -1348,7 +1293,6 @@ class Page
         // Return if the client supports the specified mimetype
         return isset($headers[$mimetype]);
     }
-
 
 
     /**
@@ -1417,7 +1361,6 @@ class Page
     }
 
 
-
     /**
      * Returns the HTML output buffer for this page
      *
@@ -1427,7 +1370,6 @@ class Page
     {
         return ob_get_contents();
     }
-
 
 
     /**
@@ -1441,7 +1383,6 @@ class Page
     }
 
 
-
     /**
      * Returns if the HTML headers have been sent
      *
@@ -1453,7 +1394,6 @@ class Page
     }
 
 
-
     /**
      * Returns the length HTML output buffer for this page
      *
@@ -1463,7 +1403,6 @@ class Page
     {
         return ob_get_length();
     }
-
 
 
     /**
@@ -1485,7 +1424,6 @@ class Page
     }
 
 
-
     /**
      * Returns the page instead of sending it to the client
      *
@@ -1496,7 +1434,6 @@ class Page
     {
         return static::$template_page->get();
     }
-
 
 
     /**
@@ -1514,7 +1451,6 @@ class Page
     }
 
 
-
     /**
      * Add meta information
      *
@@ -1526,7 +1462,6 @@ class Page
     {
         static::$headers['meta'][$key] = $value;
     }
-
 
 
     /**
@@ -1548,7 +1483,6 @@ class Page
             Log::warning($e->makeWarning());
         }
     }
-
 
 
     /**
@@ -1598,7 +1532,6 @@ class Page
     }
 
 
-
     /**
      * Load the specified CSS file(s)
      *
@@ -1623,7 +1556,6 @@ class Page
             static::$headers['link'] = array_merge(static::$headers['link'], $scripts);
         }
     }
-
 
 
     /**
@@ -1658,7 +1590,6 @@ class Page
     }
 
 
-
     /**
      * Build and return the HTML footers
      *
@@ -1677,7 +1608,6 @@ class Page
     }
 
 
-
     /**
      * Only-on type switch to indicate that the HTML headers have been generated and no more information can be added
      * to them
@@ -1693,7 +1623,6 @@ class Page
 
         return static::$html_headers_sent;
     }
-
 
 
     /**
@@ -1829,7 +1758,6 @@ class Page
     }
 
 
-
     /**
      * Send all the specified HTTP headers
      *
@@ -1888,7 +1816,6 @@ class Page
         }
     }
 
-
     /**
      * Kill this web page script process
      *
@@ -1915,7 +1842,6 @@ class Page
         Log::action(tr('Killing web page process'), 2);
         die();
     }
-
 
 
     /**
@@ -1977,7 +1903,6 @@ class Page
     }
 
 
-
     /**
      * Send the required headers to ensure that the page will not be cached ever
      *
@@ -1997,7 +1922,6 @@ class Page
         header('Pragma: no-cache', true);
         header('Expires: Wed, 10 Jan 2000 07:00:00 GMT', true);
     }
-
 
 
     /*
@@ -2029,7 +1953,6 @@ class Page
 
         return true;
     }
-
 
 
     /*
@@ -2064,7 +1987,6 @@ class Page
     }
 
 
-
     /**
      * Checks if HTTP headers have already been sent and logs warnings if so
      *
@@ -2094,7 +2016,6 @@ class Page
 
         return false;
     }
-
 
     /**
      * Starts up this page object
@@ -2132,7 +2053,6 @@ class Page
     }
 
 
-
     /**
      * Try to send this page from cache, if available
      *
@@ -2166,7 +2086,6 @@ class Page
     }
 
 
-
     /**
      * Returns NULL output if the request method was HEAD (don't return output, only headers)
      *
@@ -2187,7 +2106,6 @@ class Page
             default  => $output,
         };
     }
-
 
 
     /**
@@ -2234,7 +2152,6 @@ class Page
 
         return $output;
     }
-
 
 
     /**

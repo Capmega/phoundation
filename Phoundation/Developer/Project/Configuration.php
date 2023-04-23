@@ -3,7 +3,6 @@
 namespace Phoundation\Developer\Project;
 
 
-
 /**
  * Configuration class
  *
@@ -52,7 +51,6 @@ class Configuration
     protected string $project;
 
 
-
     /**
      * Configuration class constructor
      *
@@ -62,7 +60,6 @@ class Configuration
         $this->project  = $project;
         $this->database = new Database();
     }
-
 
 
     /**
@@ -76,7 +73,6 @@ class Configuration
     }
 
 
-
     /**
      * Returns the administrator email address
      *
@@ -86,7 +82,6 @@ class Configuration
     {
         return $this->email;
     }
-
 
 
     /**
@@ -102,7 +97,6 @@ class Configuration
     }
 
 
-
     /**
      * Returns the administrator password
      *
@@ -112,7 +106,6 @@ class Configuration
     {
         return $this->password;
     }
-
 
 
     /**
@@ -128,7 +121,6 @@ class Configuration
     }
 
 
-
     /**
      * Returns the project name
      *
@@ -138,7 +130,6 @@ class Configuration
     {
         return $this->project;
     }
-
 
 
     /**
@@ -154,7 +145,6 @@ class Configuration
     }
 
 
-
     /**
      * Returns the project domain name
      *
@@ -164,7 +154,6 @@ class Configuration
     {
         return $this->domain;
     }
-
 
 
     /**

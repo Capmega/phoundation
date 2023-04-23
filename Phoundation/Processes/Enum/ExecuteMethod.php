@@ -3,7 +3,6 @@
 namespace Phoundation\Processes\Enum;
 
 
-
 /**
  * Enum ExecuteMethod
  *

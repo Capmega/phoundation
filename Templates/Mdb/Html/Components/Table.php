@@ -6,7 +6,6 @@ use Phoundation\Web\Http\Html\Components\Section;
 use Phoundation\Web\Http\Html\Renderer;
 
 
-
 /**
  * MDB Plugin Table class
  *
@@ -27,7 +26,6 @@ class Table extends Renderer
         $element->addClass('table');
         parent::__construct($element);
     }
-
 
 
     /**

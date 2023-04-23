@@ -3,7 +3,6 @@
 namespace Phoundation\Developer;
 
 
-
 /**
  * Sync Page
  *
@@ -32,7 +31,6 @@ class Sync
     protected bool $lock = true;
 
 
-
     /**
      * Returns new Sync object
      *
@@ -44,7 +42,6 @@ class Sync
     }
 
 
-
     /**
      * Returns if the system will initialize after syncing
      *
@@ -54,7 +51,6 @@ class Sync
     {
         return $this->init;
     }
-
 
 
     /**
@@ -70,7 +66,6 @@ class Sync
     }
 
 
-
     /**
      * Returns if the sync should use locking or not
      *
@@ -80,7 +75,6 @@ class Sync
     {
         return $this->lock;
     }
-
 
 
     /**
@@ -94,7 +88,6 @@ class Sync
         $this->lock = $lock;
         return $this;
     }
-
 
 
     /**
@@ -118,7 +111,6 @@ class Sync
     }
 
 
-
     /**
      * Sync from this environment to the specified environment
      *
@@ -129,7 +121,6 @@ class Sync
     {
 
     }
-
 
 
     /**
@@ -144,7 +135,6 @@ class Sync
     }
 
 
-
     /**
      * Lock all databases in readonly for this projects so that we can dump them
      *
@@ -156,7 +146,6 @@ class Sync
     }
 
 
-
     /**
      * Lock all databases in readonly for this projects so that we can dump them
      *
@@ -166,7 +155,6 @@ class Sync
     {
 
     }
-
 
 
     /**
@@ -181,7 +169,6 @@ class Sync
     }
 
 
-
     /**
      * Lock all databases in readonly for this projects so that we can dump them
      *
@@ -193,7 +180,6 @@ class Sync
     }
 
 
-
     /**
      * Lock all databases in readonly for this projects so that we can dump them
      *
@@ -203,7 +189,6 @@ class Sync
     {
 
     }
-
 
 
     /**
@@ -221,7 +206,6 @@ class Sync
     }
 
 
-
     /**
      * Dumps the SQL databases for this project
      *
@@ -231,7 +215,6 @@ class Sync
     {
 
     }
-
 
 
     /**
@@ -245,7 +228,6 @@ class Sync
     }
 
 
-
     /**
      * Dumps the Redis databases for this project
      *
@@ -257,7 +239,6 @@ class Sync
     }
 
 
-
     /**
      * Copy all databases
      *
@@ -267,7 +248,6 @@ class Sync
     {
 
     }
-
 
 
     /**
@@ -285,7 +265,6 @@ class Sync
     }
 
 
-
     /**
      * Imports the SQL databases for this project
      *
@@ -297,7 +276,6 @@ class Sync
     }
 
 
-
     /**
      * Imports the Mongo databases for this project
      *
@@ -307,7 +285,6 @@ class Sync
     {
 
     }
-
 
 
     /**

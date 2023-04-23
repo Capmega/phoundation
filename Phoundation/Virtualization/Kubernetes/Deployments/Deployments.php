@@ -4,7 +4,6 @@ namespace Phoundation\Virtualization\Kubernetes\Deployments;
 
 use Phoundation\Virtualization\Kubernetes\KubernetesObjects;
 
-
 /**
  * Class Deployments
  *

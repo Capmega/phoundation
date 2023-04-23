@@ -7,7 +7,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\FileBasics;
 use Phoundation\Processes\Process;
 
-
 /**
  * Class Resize
  *
@@ -42,7 +41,6 @@ class Resize extends FileBasics
     protected string $method = 'resize';
 
 
-
     /**
      * Returns the method used to perform the resize operations
      *
@@ -70,7 +68,6 @@ class Resize extends FileBasics
     }
 
 
-
     /**
      * Returns the method used to perform the resize operations
      *
@@ -80,7 +77,6 @@ class Resize extends FileBasics
     {
         return $this->method;
     }
-
 
 
     /**
@@ -94,7 +90,6 @@ class Resize extends FileBasics
     }
 
 
-
     /**
      * Sets if the resize command should be executed in the background or not
      *
@@ -106,7 +101,6 @@ class Resize extends FileBasics
         $this->background = $background;
         return $this;
     }
-
 
 
     /**
@@ -134,7 +128,6 @@ class Resize extends FileBasics
     }
 
 
-
     /**
      * Resize the image to the specified absolute width and height, ignore aspect ratio
      *
@@ -158,7 +151,6 @@ class Resize extends FileBasics
         // Resize in foreground and store results
         $this->output = $process->executeReturnArray();
     }
-
 
 
     /**
@@ -186,7 +178,6 @@ class Resize extends FileBasics
     }
 
 
-
     /**
      * Resize image to the specified absolute width and height only when smaller than the specified width x height
      *
@@ -210,7 +201,6 @@ class Resize extends FileBasics
         // Resize in foreground and store results
         $this->output = $process->executeReturnArray();
     }
-
 
 
     /**
@@ -237,7 +227,6 @@ class Resize extends FileBasics
     }
 
 
-
     /**
      * Resize image to the specified amount of pixels, irrespective of the width or height
      *
@@ -260,7 +249,6 @@ class Resize extends FileBasics
         // Resize in foreground and store results
         $this->output = $process->executeReturnArray();
     }
-
 
 
     /**

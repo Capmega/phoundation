@@ -12,7 +12,6 @@ use Phoundation\Web\Http\Html\Components\Script;
 use Phoundation\Web\Page;
 
 
-
 /**
  * Class FlashMessage
  *
@@ -26,7 +25,6 @@ use Phoundation\Web\Page;
 class FlashMessage extends ElementsBlock
 {
     use Mode;
-
 
 
     /**
@@ -86,7 +84,6 @@ class FlashMessage extends ElementsBlock
     protected bool $left = false;
 
 
-
     /**
      * Returns the flash message contents
      *
@@ -96,7 +93,6 @@ class FlashMessage extends ElementsBlock
     {
         return $this->content;
     }
-
 
 
     /**
@@ -112,7 +108,6 @@ class FlashMessage extends ElementsBlock
     }
 
 
-
     /**
      * Returns the flash message title
      *
@@ -122,7 +117,6 @@ class FlashMessage extends ElementsBlock
     {
         return $this->title;
     }
-
 
 
     /**
@@ -138,7 +132,6 @@ class FlashMessage extends ElementsBlock
     }
 
 
-
     /**
      * Returns the flash message subtitle
      *
@@ -148,7 +141,6 @@ class FlashMessage extends ElementsBlock
     {
         return $this->sub_title;
     }
-
 
 
     /**
@@ -164,7 +156,6 @@ class FlashMessage extends ElementsBlock
     }
 
 
-
     /**
      * Returns the flash icon contents
      *
@@ -174,7 +165,6 @@ class FlashMessage extends ElementsBlock
     {
         return $this->icon;
     }
-
 
 
     /**
@@ -196,7 +186,6 @@ class FlashMessage extends ElementsBlock
     }
 
 
-
     /**
      * Returns the flash image contents
      *
@@ -206,7 +195,6 @@ class FlashMessage extends ElementsBlock
     {
         return $this->image;
     }
-
 
 
     /**
@@ -236,7 +224,6 @@ class FlashMessage extends ElementsBlock
     }
 
 
-
     /**
      * Returns if the flash message is shown on the left side of the screen
      *
@@ -246,7 +233,6 @@ class FlashMessage extends ElementsBlock
     {
         return $this->left;
     }
-
 
 
     /**
@@ -262,7 +248,6 @@ class FlashMessage extends ElementsBlock
     }
 
 
-
     /**
      * Returns if the flash message is shown at the top of the screen
      *
@@ -272,7 +257,6 @@ class FlashMessage extends ElementsBlock
     {
         return $this->top;
     }
-
 
 
     /**
@@ -288,7 +272,6 @@ class FlashMessage extends ElementsBlock
     }
 
 
-
     /**
      * Returns if the flash message will close automatically after N milliseconds
      *
@@ -298,7 +281,6 @@ class FlashMessage extends ElementsBlock
     {
         return $this->auto_close;
     }
-
 
 
     /**
@@ -314,7 +296,6 @@ class FlashMessage extends ElementsBlock
     }
 
 
-
     /**
      * Returns if the flash message can be closed
      *
@@ -324,7 +305,6 @@ class FlashMessage extends ElementsBlock
     {
         return $this->can_close;
     }
-
 
 
     /**
@@ -340,7 +320,6 @@ class FlashMessage extends ElementsBlock
     }
 
 
-
     /**
      * Renders and returns the HTML for this flash message
      *
@@ -351,7 +330,6 @@ class FlashMessage extends ElementsBlock
         $this->render = Script::new()->setContent($this->renderBare())->render();
         return parent::render();
     }
-
 
 
     /**
@@ -391,7 +369,6 @@ class FlashMessage extends ElementsBlock
     }
 
 
-
     /**
      * Import the flash message object data from the specified array
      *
@@ -416,7 +393,6 @@ class FlashMessage extends ElementsBlock
 
         return $this;
     }
-
 
 
     /**

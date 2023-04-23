@@ -5,7 +5,6 @@ namespace Phoundation\Business\Companies\Exception;
 use Phoundation\Exception\Exception;
 
 
-
 /**
  * Class CompaniesException
  *

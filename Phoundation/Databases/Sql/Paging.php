@@ -4,7 +4,6 @@ namespace Phoundation\Databases\Sql;
 
 use Phoundation\Core\Config;
 
-
 /**
  * Class Paging
  *
@@ -31,7 +30,6 @@ class Paging
 
         return Config::getInteger('data.paging.default-limit', 50);
     }
-
 
 
     /**

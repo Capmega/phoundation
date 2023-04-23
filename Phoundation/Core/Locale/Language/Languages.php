@@ -5,7 +5,6 @@ namespace Phoundation\Core\Locale\Language;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Web\Http\Html\Components\Input\Select;
 
-
 /**
  * Languages class
  *
@@ -39,7 +38,6 @@ class Languages extends DataList
     }
 
 
-
     /**
      * Returns an HTML <select> object with all available languages
      *
@@ -54,7 +52,6 @@ class Languages extends DataList
             ->setNone(tr('Please select a language'))
             ->setEmpty(tr('No languages available'));
     }
-
 
     /**
      * @param string|int|null $id_column

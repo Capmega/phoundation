@@ -4,7 +4,6 @@ namespace Phoundation\Servers\Traits;
 
 use Phoundation\Servers\SshAccount;
 
-
 /**
  * Trait DataEntrySshAccount
  *
@@ -28,7 +27,6 @@ trait DataEntrySshAccount
     }
 
 
-
     /**
      * Sets the ssh_accounts_id for this object
      *
@@ -39,7 +37,6 @@ trait DataEntrySshAccount
     {
         return $this->setDataValue('ssh_accounts_id', $ssh_accounts_id);
     }
-
 
 
     /**
@@ -57,7 +54,6 @@ trait DataEntrySshAccount
 
         return null;
     }
-
 
 
     /**

@@ -6,7 +6,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Element;
 use Phoundation\Web\Http\Html\Components\ElementsBlock;
 
-
 /**
  * Class Renderer
  *
@@ -41,7 +40,6 @@ class Renderer
     protected mixed $render_function;
 
 
-
     /**
      * Renderer class element
      *
@@ -51,7 +49,6 @@ class Renderer
     {
         $this->element = $element;
     }
-
 
 
     /**
@@ -64,7 +61,6 @@ class Renderer
     {
         return new static($element);
     }
-
 
 
     /**
@@ -80,7 +76,6 @@ class Renderer
     }
 
 
-
     /**
      * Returns the parent rendering function
      *
@@ -90,7 +85,6 @@ class Renderer
     {
         return $this->render_function;
     }
-
 
 
     /**
@@ -106,7 +100,6 @@ class Renderer
     }
 
 
-
     /**
      * Returns the element to be rendered
      *
@@ -116,7 +109,6 @@ class Renderer
     {
         return $this->element;
     }
-
 
 
     /**
@@ -136,7 +128,6 @@ class Renderer
             ]));
         }
     }
-
 
 
     /**

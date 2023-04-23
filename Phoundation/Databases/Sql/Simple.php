@@ -6,7 +6,6 @@ use Phoundation\Core\Strings;
 use Phoundation\Databases\Sql\Exception\SqlException;
 
 
-
 /**
  * SqlSimple class
  *
@@ -26,7 +25,6 @@ class SqlSimple
     protected ?Sql $sql = null;
 
 
-
     /**
      * SimpleSql constructor.
      *
@@ -36,7 +34,6 @@ class SqlSimple
     {
         $this->sql = $sql;
     }
-
 
 
     /**
@@ -115,7 +112,6 @@ class SqlSimple
                 throw new SqlException(tr('Sql::simple_list(): Unknown method ":method" specified', array(':method' => $method)), 'unknown');
         }
     }
-
 
 
     /**
@@ -202,7 +198,6 @@ class SqlSimple
     }
 
 
-
     /**
      *
      *
@@ -226,7 +221,6 @@ class SqlSimple
 
         return ' = ' . Strings::quote($value);
     }
-
 
 
     /**
@@ -281,7 +275,6 @@ class SqlSimple
     }
 
 
-
     /**
      * Return a valid PDO execute array
      *
@@ -320,7 +313,6 @@ class SqlSimple
     }
 
 
-
     /*
      * OBSOLETE / COMPATIBILITY FUNCTIONS
      *
@@ -328,7 +320,6 @@ class SqlSimple
      *
      * Return affected rows
      */
-
 
 
     /**
@@ -587,7 +578,6 @@ class SqlSimple
     }
 
 
-
     /**
      * Build the SQL columns list for the specified columns list, escaping all columns with backticks
      *
@@ -635,7 +625,6 @@ class SqlSimple
         unset($column);
         return $columns;
     }
-
 
 
     /**

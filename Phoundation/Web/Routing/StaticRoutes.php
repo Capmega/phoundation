@@ -4,7 +4,6 @@ namespace Phoundation\Web\Routing;
 
 use Phoundation\Data\DataEntry\DataList;
 
-
 /**
  * Class StaticRoutes
  *
@@ -35,7 +34,6 @@ class StaticRoutes extends DataList
                                    ORDER BY `created_on` DESC');
         parent::__construct($parent, $id_column);
     }
-
 
 
     /**

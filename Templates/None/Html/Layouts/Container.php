@@ -5,7 +5,6 @@ namespace Templates\None\Html\Layouts;
 use Phoundation\Web\Http\Html\Renderer;
 
 
-
 /**
  * None Plugin Container class
  *
@@ -25,7 +24,6 @@ class Container extends Renderer
     {
         parent::__construct($element);
     }
-
 
 
     /**

@@ -12,7 +12,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\ElementsBlock;
 use Phoundation\Web\Http\Html\Components\Script;
 
-
 /**
  * Class FlashMessages
  *
@@ -44,7 +43,6 @@ class FlashMessages extends ElementsBlock implements Iterator
 
         return $this;
     }
-
 
 
     /**
@@ -141,7 +139,6 @@ class FlashMessages extends ElementsBlock implements Iterator
     }
 
 
-
     /**
      * Renders all flash messages
      *
@@ -166,7 +163,6 @@ class FlashMessages extends ElementsBlock implements Iterator
     }
 
 
-
     /**
      * Export the flash messages in this object to an array
      *
@@ -182,7 +178,6 @@ class FlashMessages extends ElementsBlock implements Iterator
 
         return $return;
     }
-
 
 
     /**

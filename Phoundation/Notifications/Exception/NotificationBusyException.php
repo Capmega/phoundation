@@ -3,7 +3,6 @@
 namespace Phoundation\Notifications\Exception;
 
 
-
 /**
  * Class NotificationBusyException
  *

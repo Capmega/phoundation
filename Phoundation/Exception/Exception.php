@@ -12,7 +12,6 @@ use Phoundation\Utils\Json;
 use RuntimeException;
 use Throwable;
 
-
 /**
  * Class Exception
  *
@@ -52,7 +51,6 @@ class Exception extends RuntimeException
      * @var string $code
      */
     protected $code = 0;
-
 
 
     /**
@@ -100,7 +98,6 @@ class Exception extends RuntimeException
     }
 
 
-
     /**
      * Returns this exception object as a string
      *
@@ -112,7 +109,6 @@ class Exception extends RuntimeException
         parent::__toString();
         return '[ ' . ($this->warning ? 'WARNING ' : '') . $this->getCode() . ' ] ' . $this->getMessage();
     }
-
 
 
     /**
@@ -130,7 +126,6 @@ class Exception extends RuntimeException
     }
 
 
-
     /**
      * Return the exception related data
      *
@@ -140,7 +135,6 @@ class Exception extends RuntimeException
     {
         return $this->data;
     }
-
 
 
     /**
@@ -156,7 +150,6 @@ class Exception extends RuntimeException
     }
 
 
-
     /**
      * Returns the exception messages
      *
@@ -166,7 +159,6 @@ class Exception extends RuntimeException
     {
         return $this->messages;
     }
-
 
 
     /**
@@ -185,7 +177,6 @@ class Exception extends RuntimeException
     }
 
 
-
     /**
      * Returns the warning setting for this exception. If true, the exception message may be displayed completely
      *
@@ -195,7 +186,6 @@ class Exception extends RuntimeException
     {
         return $this->warning;
     }
-
 
 
     /**
@@ -208,7 +198,6 @@ class Exception extends RuntimeException
         $this->code = $code;
         return $this;
     }
-
 
 
     /**
@@ -229,7 +218,6 @@ class Exception extends RuntimeException
     }
 
 
-
     /**
      * Sets that this exception is a warning. If an exception is a warning, its message may be displayed completely
      *
@@ -242,7 +230,6 @@ class Exception extends RuntimeException
     }
 
 
-
     /**
      * Returns true if this exception is a warning or false if not
      *
@@ -252,7 +239,6 @@ class Exception extends RuntimeException
     {
         return $this->getWarning();
     }
-
 
 
     /**
@@ -289,7 +275,6 @@ class Exception extends RuntimeException
     }
 
 
-
     /**
      * Write this exception to the log file
      *
@@ -300,7 +285,6 @@ class Exception extends RuntimeException
         Log::warning($this);
         return $this;
     }
-
 
 
     /**
@@ -314,7 +298,6 @@ class Exception extends RuntimeException
     }
 
 
-
     /**
      * Register this exception in the developer incidents log
      *
@@ -326,7 +309,6 @@ class Exception extends RuntimeException
 
         return $this;
     }
-
 
 
     /**
@@ -360,7 +342,6 @@ class Exception extends RuntimeException
     }
 
 
-
     /**
      * Export this exception as an array
      *
@@ -379,7 +360,6 @@ class Exception extends RuntimeException
     }
 
 
-
     /**
      * Export this exception as a Json string
      *
@@ -392,7 +372,6 @@ class Exception extends RuntimeException
 
         return $return;
     }
-
 
 
     /**

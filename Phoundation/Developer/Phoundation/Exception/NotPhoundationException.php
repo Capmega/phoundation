@@ -3,7 +3,6 @@
 namespace Phoundation\Developer\Phoundation\Exception;
 
 
-
 /**
  * Class NotPhoundationException
  *

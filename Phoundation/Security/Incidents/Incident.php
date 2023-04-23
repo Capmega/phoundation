@@ -16,7 +16,6 @@ use Phoundation\Data\Validator\Validator;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
 use Phoundation\Utils\Json;
 
-
 /**
  * Class Incident
  *
@@ -36,14 +35,12 @@ class Incident extends DataEntry
     use DataEntryDetails;
 
 
-
     /**
      * Sets if this incident will be logged in the text log
      *
      * @var bool
      */
     protected bool $log = true;
-
 
     /**
      * Incident class constructor
@@ -59,7 +56,6 @@ class Incident extends DataEntry
         parent::__construct($identifier);
     }
 
-
     /**
      * Returns if this incident will be logged in the text log
      *
@@ -69,7 +65,6 @@ class Incident extends DataEntry
     {
         return $this->log;
     }
-
 
 
     /**
@@ -85,7 +80,6 @@ class Incident extends DataEntry
     }
 
 
-
     /**
      * Returns the severity for this object
      *
@@ -95,7 +89,6 @@ class Incident extends DataEntry
     {
         return $this->getDataValue('severity');
     }
-
 
 
     /**
@@ -112,7 +105,6 @@ class Incident extends DataEntry
 
         return $this->setDataValue('severity', $severity->value);
     }
-
 
 
     /**
@@ -155,7 +147,6 @@ class Incident extends DataEntry
     }
 
 
-
     /**
      * Throw an incidents exception
      *
@@ -165,7 +156,6 @@ class Incident extends DataEntry
     {
         throw IncidentsException::new($this->getTitle(), $this->getDetails());
     }
-
 
 
     /**
@@ -188,7 +178,6 @@ class Incident extends DataEntry
 
         return $data;
     }
-
 
 
     /**

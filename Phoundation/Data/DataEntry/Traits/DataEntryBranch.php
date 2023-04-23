@@ -4,7 +4,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Business\Companies\Branches\Branch;
 
-
 /**
  * Trait DataEntryBranch
  *
@@ -25,7 +24,6 @@ trait DataEntryBranch
     protected ?Branch $branch;
 
 
-
     /**
      * Returns the branches_id for this object
      *
@@ -35,7 +33,6 @@ trait DataEntryBranch
     {
         return $this->getDataValue('branches_id');
     }
-
 
 
     /**
@@ -48,7 +45,6 @@ trait DataEntryBranch
     {
         return $this->setDataValue('branches_id', $branches_id);
     }
-
 
 
     /**
@@ -66,7 +62,6 @@ trait DataEntryBranch
 
         return null;
     }
-
 
 
     /**

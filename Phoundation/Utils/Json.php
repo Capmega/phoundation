@@ -16,7 +16,6 @@ use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\UrlBuilder;
 use Throwable;
 
-
 /**
  * Class Json
  *
@@ -93,7 +92,6 @@ class Json
                 ]));
         }
     }
-
 
     /**
      * Send JSON error to client
@@ -238,7 +236,6 @@ class Json
     }
 
 
-
     /**
      * Send a JSON message
      *
@@ -378,7 +375,6 @@ class Json
     }
 
 
-
     /**
      * Encode the specified variable into a JSON string
      *
@@ -402,7 +398,6 @@ class Json
 
         return $return;
     }
-
 
 
     /**
@@ -431,7 +426,6 @@ class Json
 
         return $return;
     }
-
 
 
     /**

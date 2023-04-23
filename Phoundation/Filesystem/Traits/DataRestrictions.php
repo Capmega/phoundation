@@ -5,7 +5,6 @@ namespace Phoundation\Filesystem\Traits;
 use Phoundation\Core\Core;
 use Phoundation\Filesystem\Restrictions;
 
-
 /**
  * Trait Restrictions
  *
@@ -25,7 +24,6 @@ trait DataRestrictions
      */
     protected Restrictions $restrictions;
 
-
     /**
      * Returns the server restrictions
      *
@@ -35,7 +33,6 @@ trait DataRestrictions
     {
         return $this->restrictions;
     }
-
 
     /**
      * Sets the server and filesystem restrictions for this File object

@@ -2,7 +2,6 @@
 
 namespace Phoundation\Virtualization\Docker;
 
-
 /**
  * Class Docker
  *

@@ -3,7 +3,6 @@
 namespace Phoundation\Business\Customers;
 
 
-
 /**
  * Class FilterForm
  *

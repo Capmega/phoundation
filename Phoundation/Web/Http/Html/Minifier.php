@@ -5,7 +5,6 @@ namespace Phoundation\Web\Http\Html;
 use Minify_HTML;
 use Phoundation\Core\Log\Log;
 
-
 /**
  * Class Minifier
  *
@@ -45,7 +44,6 @@ class Minifier
     }
 
 
-
     /**
      * Minify the specified CSS file
      *
@@ -57,7 +55,6 @@ class Minifier
         Log::warning('The Minifier::css() function is not yet implemented!');
         return $file;
     }
-
 
 
     /**

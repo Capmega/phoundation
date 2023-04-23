@@ -3,7 +3,6 @@
 namespace Phoundation\Data\DataEntry\Traits;
 
 
-
 use Phoundation\Core\Strings;
 
 /**
@@ -27,7 +26,6 @@ trait DataEntryPhones
     {
         return $this->getDataValue('phones');
     }
-
 
 
     /**

@@ -5,7 +5,6 @@ namespace Templates\AdminLte\Html\Layouts;
 use Phoundation\Web\Http\Html\Renderer;
 
 
-
 /**
  * AdminLte Plugin Layout class
  *

@@ -5,7 +5,6 @@ namespace Phoundation\Web\Http\Html\Components;
 use JetBrains\PhpStorm\ExpectedValues;
 
 
-
 /**
  * Background trait
  *
@@ -27,7 +26,6 @@ trait Background
     protected ?string $background = null;
 
 
-
     /**
      * Sets the type of infobox to show
      *
@@ -38,7 +36,6 @@ trait Background
     {
         return $this->background;
     }
-
 
 
     /**

@@ -5,7 +5,6 @@ namespace Phoundation\Data\Traits;
 use Phoundation\Core\Strings;
 use Phoundation\Filesystem\Filesystem;
 
-
 /**
  * Trait DataArrayData
  *
@@ -26,7 +25,6 @@ trait DataArrayData
     protected ?array $data = null;
 
 
-
     /**
      * Returns the data
      *
@@ -36,7 +34,6 @@ trait DataArrayData
     {
         return $this->data;
     }
-
 
     /**
      * Clears the data
@@ -49,7 +46,6 @@ trait DataArrayData
         return $this;
     }
 
-
     /**
      * Sets the data
      *
@@ -61,7 +57,6 @@ trait DataArrayData
         $this->data = [];
         return $this->addData($data);
     }
-
 
     /**
      * Adds the specified data

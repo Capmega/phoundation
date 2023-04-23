@@ -3,7 +3,6 @@
 namespace Phoundation\Business;
 
 
-
 /**
  * Updates class
  *
@@ -28,7 +27,6 @@ class Updates extends \Phoundation\Core\Libraries\Updates
     }
 
 
-
     /**
      * The description for this library
      *
@@ -38,7 +36,6 @@ class Updates extends \Phoundation\Core\Libraries\Updates
     {
         return tr('The Core library is the most basic library in the entire Phoundation framwork. It contains all the low level libraries used by all other libraries and is an essential component of your entire system. Do NOT modify!');
     }
-
 
 
     /**
@@ -279,7 +276,6 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             // Drop the tables to be sure we have a clean slate
             sql()->schema()->table('business_invoices_items')->drop();
             sql()->schema()->table('business_invoices')->drop();
-
 
             // Add table for invoices
             sql()->schema()->table('business_invoices')->define()

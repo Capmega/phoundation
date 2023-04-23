@@ -7,7 +7,6 @@ use Phoundation\Core\Strings;
 use Phoundation\Filesystem\Exception\RestrictionsException;
 
 
-
 /**
  * Restrictions class
  *
@@ -35,7 +34,6 @@ class Restrictions
      */
     protected string $label = 'system';
 
-
     /**
      * Restrictions constructor
      *
@@ -54,7 +52,6 @@ class Restrictions
         }
     }
 
-
     /**
      * Returns a new Restrictions object with the specified restrictions
      *
@@ -67,7 +64,6 @@ class Restrictions
     {
         return new static($paths, $write, $label);
     }
-
 
     /**
      * Returns a restrictions object with parent paths for all paths in this restrictions object
@@ -87,7 +83,6 @@ class Restrictions
 
         return $restrictions;
     }
-
 
     /**
      * Returns a restrictions object with the current path and the specified child path attached
@@ -112,7 +107,6 @@ class Restrictions
         return $restrictions;
     }
 
-
     /**
      * Clear all paths for this restriction
      *
@@ -123,7 +117,6 @@ class Restrictions
         $this->paths = [];
         return $this;
     }
-
 
     /**
      * Set all paths for this restriction
@@ -137,7 +130,6 @@ class Restrictions
         $this->paths = [];
         return $this->addPaths($paths, $write);
     }
-
 
     /**
      * Set all paths for this restriction
@@ -155,7 +147,6 @@ class Restrictions
         return $this;
     }
 
-
     /**
      * Add new path for this restriction
      *
@@ -169,7 +160,6 @@ class Restrictions
         return $this;
     }
 
-
     /**
      * Returns all paths for this restriction
      *
@@ -179,7 +169,6 @@ class Restrictions
     {
         return $this->paths;
     }
-
 
     /**
      * Sets the label for this restriction
@@ -193,7 +182,6 @@ class Restrictions
         return $this;
     }
 
-
     /**
      * Returns the label for this restriction
      *
@@ -203,7 +191,6 @@ class Restrictions
     {
         return $this->label;
     }
-
 
     /**
      * @param string|array $patterns

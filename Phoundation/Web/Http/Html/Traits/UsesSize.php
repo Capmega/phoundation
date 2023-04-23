@@ -5,7 +5,6 @@ namespace Phoundation\Web\Http\Html\Traits;
 use Phoundation\Web\Http\Html\Enums\DisplaySize;
 use Phoundation\Web\Http\Html\Interfaces\InterfaceDisplaySize;
 
-
 /**
  * UsesSize trait
  *
@@ -25,7 +24,6 @@ trait UsesSize
      */
     protected InterfaceDisplaySize $size = DisplaySize::xxl;
 
-
     /**
      * Sets the type for this container
      *
@@ -37,7 +35,6 @@ trait UsesSize
         $this->size = $size;
         return $this;
     }
-
 
     /**
      * Returns the type for this container
