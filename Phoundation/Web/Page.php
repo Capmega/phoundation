@@ -30,7 +30,6 @@ use Phoundation\Security\Incidents\Exception\IncidentsException;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Security\Incidents\Severity;
 use Phoundation\Utils\Json;
-use Phoundation\Web\Exception\PageNotFoundException;
 use Phoundation\Web\Exception\WebException;
 use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\Exception\HttpException;
@@ -1078,7 +1077,7 @@ class Page
             static::getFlashMessages()->add($e);
             Route::executeSystem(403);
 
-        } catch (PageNotFoundException|DataEntryNotExistsException $e) {
+        } catch (DataEntryNotExistsException $e) {
             Log::warning('Page did not catch the following "DataEntryNotExistsException" warning, showing "system/404"');
             Log::warning($e);
 
@@ -1138,17 +1137,18 @@ class Page
 
             Incident::new()
                 ->setType('401 - unauthorized')->setSeverity(Severity::low)
-                ->setTitle(tr('Guest user has no access to target page ":target" (real target ":real_target"), redirecting to ":redirect"', [
+                ->setTitle(tr('Guest user has no access to target page ":target" (real target ":real_target" requires rights ":rights"), redirecting to ":redirect"', [
                     ':target'      => Strings::from(static::$target, PATH_ROOT),
                     ':real_target' => Strings::from($target, PATH_ROOT),
-                    ':redirect'    => $guest_redirect
+                    ':redirect'    => $guest_redirect,
+                    ':rights'      => $rights
                 ]))
                 ->setDetails([
-                    'user'         => 0,
-                    'uri'          => Page::getUri(),
-                    'target'       => Strings::from(static::$target, PATH_ROOT),
-                    ':real_target' => Strings::from($target, PATH_ROOT),
-                    'rights'       => $rights
+                    'user'        => 0,
+                    'uri'         => Page::getUri(),
+                    'target'      => Strings::from(static::$target, PATH_ROOT),
+                    'real_target' => Strings::from($target, PATH_ROOT),
+                    'rights'      => $rights
                 ])
                 ->save();
 
