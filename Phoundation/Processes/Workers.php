@@ -172,6 +172,7 @@ class Workers extends Process
         return $this->maximum;
     }
 
+
     /**
      * Sets the maximum amount of workers required
      *
@@ -195,6 +196,7 @@ class Workers extends Process
         return $this->wait_sleep;
     }
 
+
     /**
      * Sets Amount of time in milliseconds that the process cycle should sleep before retrying to start workers
      *
@@ -217,6 +219,7 @@ class Workers extends Process
     {
         return $this->cycle_sleep;
     }
+
 
     /**
      * Sets amount of time in milliseconds that the process cycle should sleep each cycle while checking alive workers

@@ -335,6 +335,7 @@ Class Process
         return !($this->pid === null);
     }
 
+
     /**
      * Kill this (backgroun) process
      *

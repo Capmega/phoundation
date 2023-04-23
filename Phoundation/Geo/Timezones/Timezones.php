@@ -78,6 +78,7 @@ class Timezones extends DataList
         // TODO: Implement load() method.
     }
 
+
     /**
      * @inheritDoc
      */
@@ -85,6 +86,7 @@ class Timezones extends DataList
     {
         // TODO: Implement loadDetails() method.
     }
+
 
     /**
      * @inheritDoc

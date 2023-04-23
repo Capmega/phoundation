@@ -166,6 +166,7 @@ class Mc
         return $this;
     }
 
+
     /**
      * Return the memcached namespace object
      *

@@ -56,6 +56,7 @@ class Company extends DataEntry
         parent::__construct($identifier);
     }
 
+
     /**
      * Access company branches
      *
@@ -71,6 +72,7 @@ class Company extends DataEntry
 
     }
 
+
     /**
      * Access company branches
      *
@@ -85,6 +87,7 @@ class Company extends DataEntry
         return $this->departments;
     }
 
+
     /**
      * @inheritDoc
      */
@@ -93,6 +96,7 @@ class Company extends DataEntry
         // TODO: Implement save() method.
     }
 
+
     /**
      * @inheritDoc
      */
@@ -100,6 +104,7 @@ class Company extends DataEntry
     {
         // TODO: Implement validate() method.
     }
+
 
     /**
      * Sets the available data keys for this entry

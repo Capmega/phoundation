@@ -60,6 +60,7 @@ class Incidents extends DataList
         // TODO: Implement load() method.
     }
 
+
     /**
      * @inheritDoc
      */
@@ -67,6 +68,7 @@ class Incidents extends DataList
     {
         // TODO: Implement loadDetails() method.
     }
+
 
     /**
      * @inheritDoc

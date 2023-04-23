@@ -91,6 +91,7 @@ class FileValidator
         return $this;
     }
 
+
     /**
      * Validates that the file is smaller than the specified amount of bytes
      *

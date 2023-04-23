@@ -35,6 +35,7 @@ trait DataPath
         return $this->path;
     }
 
+
     /**
      * Sets the path
      *

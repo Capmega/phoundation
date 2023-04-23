@@ -27,6 +27,7 @@ trait DataEntryTimezone
         return $this->getDataValue('timezones_id');
     }
 
+
     /**
      * Sets the timezones_id for this user
      *
@@ -37,6 +38,7 @@ trait DataEntryTimezone
     {
         return $this->setDataValue('timezones_id', $timezones_id);
     }
+
 
     /**
      * Returns the timezones_id for this user
@@ -53,6 +55,7 @@ trait DataEntryTimezone
 
         return null;
     }
+
 
     /**
      * Sets the timezones_id for this user

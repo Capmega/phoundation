@@ -25,6 +25,7 @@ class InputNumeric extends Input
         parent::__construct();
     }
 
+
     /**
      * Returns the maximum numeric value for this numeric input
      *
@@ -34,6 +35,7 @@ class InputNumeric extends Input
     {
         return isset_get($this->attributes['max']);
     }
+
 
     /**
      * Sets the maximum numeric value for this numeric input
@@ -47,6 +49,7 @@ class InputNumeric extends Input
         return $this;
     }
 
+
     /**
      * Returns the minimum numeric value for this numeric input
      *
@@ -56,6 +59,7 @@ class InputNumeric extends Input
     {
         return isset_get($this->attributes['min']);
     }
+
 
     /**
      * Sets the minimum numeric value for this numeric input
@@ -69,6 +73,7 @@ class InputNumeric extends Input
         return $this;
     }
 
+
     /**
      * Returns the step value for this numeric input
      *
@@ -78,6 +83,7 @@ class InputNumeric extends Input
     {
         return isset_get($this->attributes['step']);
     }
+
 
     /**
      * Sets the step value for this numeric input

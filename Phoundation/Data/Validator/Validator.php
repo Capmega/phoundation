@@ -183,6 +183,7 @@ abstract class Validator
         return $this;
     }
 
+
     /**
      * Validates the datatype for the selected field
      *
@@ -387,6 +388,7 @@ abstract class Validator
         });
     }
 
+
     /**
      * Validates the datatype for the selected field
      *
@@ -418,6 +420,7 @@ abstract class Validator
 
         });
     }
+
 
     /**
      * Validates the datatype for the selected field
@@ -613,6 +616,7 @@ abstract class Validator
         });
     }
 
+
     /**
      * Ensures that the value has the specified string
      *
@@ -644,6 +648,7 @@ abstract class Validator
             }
         });
     }
+
 
     /**
      * Validates the datatype for the selected field
@@ -1076,6 +1081,7 @@ abstract class Validator
         });
     }
 
+
     /**
      * Validates that the selected field is the specified value
      *
@@ -1234,6 +1240,7 @@ abstract class Validator
         });
     }
 
+
     /**
      * Validates that the selected field is a valid mode
      *
@@ -1281,6 +1288,7 @@ abstract class Validator
 
         });
     }
+
 
     /**
      * Validates that the selected field is a timezone
@@ -1549,6 +1557,7 @@ abstract class Validator
         });
     }
 
+
     /**
      * Validates if the selected field is a valid name
      *
@@ -1656,6 +1665,7 @@ abstract class Validator
             }
         });
     }
+
 
     /**
      * Checks if the specified path exists or not, and if its of the correct type
@@ -1791,6 +1801,7 @@ abstract class Validator
         });
     }
 
+
     /**
      * Validates if the selected field is a valid email address
      *
@@ -1812,6 +1823,7 @@ abstract class Validator
             }
         });
     }
+
 
     /**
      * Validates if the selected field is a valid email address

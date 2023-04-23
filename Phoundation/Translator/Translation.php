@@ -28,6 +28,7 @@ class Translation extends DataEntry
         // TODO: Implement validate() method.
     }
 
+
     /**
      * Sets the available data keys for this entry
      *

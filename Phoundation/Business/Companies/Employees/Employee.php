@@ -37,6 +37,7 @@ class Employee extends DataEntry
         parent::__construct($identifier);
     }
 
+
     /**
      * @inheritDoc
      */
@@ -44,6 +45,7 @@ class Employee extends DataEntry
     {
         // TODO: Implement validate() method.
     }
+
 
     /**
      * Sets the available data keys for this entry

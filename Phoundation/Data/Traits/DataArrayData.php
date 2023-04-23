@@ -35,6 +35,7 @@ trait DataArrayData
         return $this->data;
     }
 
+
     /**
      * Clears the data
      *
@@ -45,6 +46,7 @@ trait DataArrayData
         $this->data = [];
         return $this;
     }
+
 
     /**
      * Sets the data
@@ -57,6 +59,7 @@ trait DataArrayData
         $this->data = [];
         return $this->addData($data);
     }
+
 
     /**
      * Adds the specified data

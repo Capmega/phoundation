@@ -38,6 +38,7 @@ class GeoIp
         return self::getProvider()->detect($ip_address);
     }
 
+
     /**
      * Returns the class for the specified provider
      *

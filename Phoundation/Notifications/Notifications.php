@@ -42,6 +42,7 @@ class Notifications extends DataList
         parent::__construct($parent, $id_column);
     }
 
+
     /**
      * Returns the query builder for this object
      *
@@ -84,6 +85,7 @@ class Notifications extends DataList
 
         return array_search($return, $list);
     }
+
 
     /**
      * @inheritDoc

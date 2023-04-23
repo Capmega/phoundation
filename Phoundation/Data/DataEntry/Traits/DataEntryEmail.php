@@ -24,6 +24,7 @@ trait DataEntryEmail
         return $this->getDataValue('email');
     }
 
+
     /**
      * Sets the email for this object
      *

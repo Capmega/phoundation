@@ -27,6 +27,7 @@ trait DataEntryLine
         return $this->getDataValue('line');
     }
 
+
     /**
      * Sets the line for this object
      *

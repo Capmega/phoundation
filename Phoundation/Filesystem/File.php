@@ -96,6 +96,7 @@ class File extends FileBasics
         return $this->write($data, 'a');
     }
 
+
     /**
      * Append specified data string to the end of the object file
      *
@@ -107,6 +108,7 @@ class File extends FileBasics
     {
         return $this->write($data, 'w');
     }
+
 
     /**
      * Concatenates a list of files to a target file
@@ -682,6 +684,7 @@ class File extends FileBasics
     {
         return $this->moveToTarget($path, $extension, $singledir, $length, true);
     }
+
 
     /**
      * Move object file (must be either file string or PHP uploaded file array) to a target and returns the target name
@@ -1385,6 +1388,7 @@ class File extends FileBasics
         FilesystemCommands::new($this->restrictions)->unzip($this->file);
         return $this;
     }
+
 
     /**
      * Write the specified data to this file with the requested file mode

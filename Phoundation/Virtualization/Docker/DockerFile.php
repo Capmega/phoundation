@@ -50,6 +50,7 @@ class DockerFile
         $this->setPath($path);
     }
 
+
     /**
      * Returns a new object
      *
@@ -61,6 +62,7 @@ class DockerFile
     {
         return new static($image, $path);
     }
+
 
     /**
      * Sets the docker file FROM
@@ -74,6 +76,7 @@ class DockerFile
         return $this;
     }
 
+
     /**
      * Returns the docker file FROM
      *
@@ -83,6 +86,7 @@ class DockerFile
     {
         return $this->from;
     }
+
 
     /**
      * Create configuration files for docker
@@ -129,6 +133,7 @@ services:
 
         return $this;
     }
+
 
     /**
      * Builds an image from the Dockerfile

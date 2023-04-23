@@ -258,6 +258,7 @@ SYSTEM ARGUMENTS
         return static::$exit_code;
     }
 
+
     /**
      * Returns the list of methods that came to the script that executed
      *
@@ -267,6 +268,7 @@ SYSTEM ARGUMENTS
     {
         return self::$methods;
     }
+
 
     /**
      * Sets the process exit code

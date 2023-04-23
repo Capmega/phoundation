@@ -38,6 +38,7 @@ abstract class ObjectFile
         $this->file   = PATH_ROOT . 'config/kubernetes/' . strtolower($object->getKind()) . '/' . $this->object->getName() . '.yml';
     }
 
+
     /**
      * Save the data from this deployment to the yaml configuration file
      *
@@ -60,6 +61,7 @@ abstract class ObjectFile
 
         return $this;
     }
+
 
     /**
      * Builds the configuration data

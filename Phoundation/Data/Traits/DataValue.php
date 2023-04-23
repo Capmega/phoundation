@@ -31,6 +31,7 @@ trait DataValue
         return $this->value;
     }
 
+
     /**
      * Sets the value
      *

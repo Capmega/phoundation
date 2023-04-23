@@ -160,6 +160,7 @@ class ProcessCommands extends Command
         }
     }
 
+
     /**
      * Returns limited process information about the specified PID
      *

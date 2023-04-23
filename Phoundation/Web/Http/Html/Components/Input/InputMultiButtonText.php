@@ -44,6 +44,7 @@ class InputMultiButtonText extends ElementsBlock
         return parent::__construct();
     }
 
+
     /**
      * Returns the internal button object
      *
@@ -53,6 +54,7 @@ class InputMultiButtonText extends ElementsBlock
     {
         return $this->button;
     }
+
 
     /**
      * Returns the internal button object
@@ -71,6 +73,7 @@ class InputMultiButtonText extends ElementsBlock
         return $this;
     }
 
+
     /**
      * Returns the internal input object
      *
@@ -85,6 +88,7 @@ class InputMultiButtonText extends ElementsBlock
 
         return $this->input;
     }
+
 
     /**
      * Returns the internal input object
@@ -102,6 +106,7 @@ class InputMultiButtonText extends ElementsBlock
         $this->input = $input;
         return $this;
     }
+
 
     /**
      * Clears the button options

@@ -225,6 +225,7 @@ abstract class DataEntry implements InterfaceDataEntry
         return $this->data;
     }
 
+
     /**
      * Returns a new DataEntry object
      *
@@ -235,6 +236,7 @@ abstract class DataEntry implements InterfaceDataEntry
     {
         return new static($identifier);
     }
+
 
     /**
      * Returns a help file generated from the DataEntry keys
@@ -259,6 +261,7 @@ abstract class DataEntry implements InterfaceDataEntry
         ]);
     }
 
+
     /**
      * Returns a translation table between CLI arguments and internal fields
      *
@@ -281,6 +284,7 @@ abstract class DataEntry implements InterfaceDataEntry
 
         return $return;
     }
+
 
     /**
      * Returns a help text generated from this DataEntry's field information
@@ -345,6 +349,7 @@ abstract class DataEntry implements InterfaceDataEntry
         // Get the fields that have no group
         return $help . $return . isset_get($miscellaneous) . PHP_EOL;
     }
+
 
     /**
      * Returns a DataEntry object matching the specified identifier
@@ -680,6 +685,7 @@ abstract class DataEntry implements InterfaceDataEntry
         return $this->diff;
     }
 
+
     /**
      * Create the data for this object with the new specified data
      *
@@ -709,6 +715,7 @@ abstract class DataEntry implements InterfaceDataEntry
 
         return $this->save();
     }
+
 
     /**
      * Modify the data for this object with the new specified data
@@ -981,6 +988,7 @@ abstract class DataEntry implements InterfaceDataEntry
         return $this;
     }
 
+
     /**
      * Sets the value for the specified data key
      *
@@ -1197,6 +1205,7 @@ abstract class DataEntry implements InterfaceDataEntry
             ->setKeysDisplay($this->field_display);
     }
 
+
     /**
      * Returns the key definitions for this DataEntry object
      *
@@ -1206,6 +1215,7 @@ abstract class DataEntry implements InterfaceDataEntry
     {
         return $this->fields;
     }
+
 
     /**
      * Modify the form keys
@@ -1232,6 +1242,7 @@ abstract class DataEntry implements InterfaceDataEntry
 
         return $this;
     }
+
 
     /**
      * Validate the data using the specified validator
@@ -1263,6 +1274,7 @@ abstract class DataEntry implements InterfaceDataEntry
 
         return get_null($alt) ?? $field;
     }
+
 
     /**
      * Apply defaults to this objects according to the key configuration
@@ -1309,6 +1321,7 @@ abstract class DataEntry implements InterfaceDataEntry
         $this->setMetaData($data);
         $this->setData($data);
     }
+
 
     /**
      * Returns the field definitions for this DataEntry class
@@ -1371,6 +1384,7 @@ abstract class DataEntry implements InterfaceDataEntry
             ],
         ], static::getFieldDefinitions());
     }
+
 
     /**
      * Returns the field definitions for the data fields in this DataEntry object

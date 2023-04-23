@@ -101,6 +101,7 @@ class Notification extends DataEntry
         parent::__construct($identifier);
     }
 
+
     /**
      * Sets the exception for this notification
      *
@@ -215,6 +216,7 @@ class Notification extends DataEntry
 
         return $this;
     }
+
 
     /**
      * Send the notification
@@ -389,6 +391,7 @@ class Notification extends DataEntry
         return $this;
     }
 
+
     /**
      * Validates the provider record with the specified validator object
      *
@@ -422,6 +425,7 @@ class Notification extends DataEntry
 
         return $data;
     }
+
 
     /**
      * Sets the available data keys for this entry

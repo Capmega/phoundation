@@ -638,6 +638,7 @@ class Config
         file_put_contents(PATH_ROOT . 'config/' . static::$environment . '.yaml', $data);
     }
 
+
     /**
      * Import data from the specified setup configuration and save it in a yaml config file for the current environment
      *

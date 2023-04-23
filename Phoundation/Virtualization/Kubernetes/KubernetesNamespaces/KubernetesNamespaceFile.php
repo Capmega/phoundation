@@ -70,6 +70,7 @@ class KubernetesNamespaceFile extends ObjectFile
         parent::__construct($deployment);
     }
 
+
     /**
      * Returns the kubernetes deployment data object for this deployment file
      *
@@ -79,6 +80,7 @@ class KubernetesNamespaceFile extends ObjectFile
     {
         return $this->object;
     }
+
 
     /**
      * Builds the data string for this deployment file from the KubernetesNamespace object

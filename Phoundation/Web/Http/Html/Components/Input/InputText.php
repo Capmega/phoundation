@@ -25,6 +25,7 @@ class InputText extends Input
         parent::__construct();
     }
 
+
     /**
      * Returns the maximum length this text input
      *
@@ -34,6 +35,7 @@ class InputText extends Input
     {
         return isset_get($this->attributes['maxlength']);
     }
+
 
     /**
      * Returns the maximum length this text input

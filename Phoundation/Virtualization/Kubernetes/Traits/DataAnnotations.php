@@ -31,6 +31,7 @@ trait DataAnnotations
         return $this->annotations;
     }
 
+
     /**
      * Clears the annotations
      *
@@ -41,6 +42,7 @@ trait DataAnnotations
         $this->annotations = [];
         return $this;
     }
+
 
     /**
      * Sets the annotations
@@ -53,6 +55,7 @@ trait DataAnnotations
         $this->annotations = $annotations;
         return $this;
     }
+
 
     /**
      * Adds the specified annotations
@@ -68,6 +71,7 @@ trait DataAnnotations
 
         return $this;
     }
+
 
     /**
      * Adds the specified annotation

@@ -185,6 +185,7 @@ class Time
         return $output;
     }
 
+
     /**
      * Validates the given time.
      * Can check either hh:mm:ss, or hh:mm

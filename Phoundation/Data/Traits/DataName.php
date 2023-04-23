@@ -27,6 +27,7 @@ trait DataName
         return $this->name;
     }
 
+
     /**
      * Sets the name
      *

@@ -31,6 +31,7 @@ trait DataLabels
         return $this->labels;
     }
 
+
     /**
      * Clears the labels
      *
@@ -41,6 +42,7 @@ trait DataLabels
         $this->labels = [];
         return $this;
     }
+
 
     /**
      * Sets the labels
@@ -53,6 +55,7 @@ trait DataLabels
         $this->labels = $labels;
         return $this;
     }
+
 
     /**
      * Adds the specified labels
@@ -68,6 +71,7 @@ trait DataLabels
 
         return $this;
     }
+
 
     /**
      * Adds the specified label

@@ -28,6 +28,7 @@ trait DataBrowserEvent
         return $this->browser_event;
     }
 
+
     /**
      * Sets the source
      *

@@ -104,6 +104,7 @@ class Timer
         return new Timer($name);
     }
 
+
     /**
      * Records a passed lap and returns the time for that lap
      *

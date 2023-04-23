@@ -197,6 +197,7 @@ class Passwords
         ]);
     }
 
+
     /**
      * Returns true if the password is considered secure enough
      *

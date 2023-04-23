@@ -13,6 +13,7 @@ class Hooks extends \Phoundation\Data\DataEntry\DataList
         // TODO: Implement load() method.
     }
 
+
     /**
      * @inheritDoc
      */
@@ -20,6 +21,7 @@ class Hooks extends \Phoundation\Data\DataEntry\DataList
     {
         // TODO: Implement loadDetails() method.
     }
+
 
     /**
      * @inheritDoc

@@ -34,6 +34,7 @@ trait DataRestrictions
         return $this->restrictions;
     }
 
+
     /**
      * Sets the server and filesystem restrictions for this File object
      *

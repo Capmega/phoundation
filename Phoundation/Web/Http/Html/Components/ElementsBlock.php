@@ -114,6 +114,7 @@ abstract class ElementsBlock implements Iterator
         return $this->source;
     }
 
+
     /**
      * Returns the specified entry from the source of this object
      *

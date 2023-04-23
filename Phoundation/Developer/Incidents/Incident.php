@@ -58,6 +58,7 @@ class Incident extends DataEntry
         return $data;
     }
 
+
     /**
      * Sets the available data keys for this entry
      *

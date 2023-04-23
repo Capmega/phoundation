@@ -42,6 +42,7 @@ class Country extends DataEntry
         parent::__construct($identifier);
     }
 
+
     /**
      * Returns the general timezone for this country
      *
@@ -112,6 +113,7 @@ class Country extends DataEntry
 
         return $data;
     }
+
 
     /**
      * Sets the available data keys for this entry

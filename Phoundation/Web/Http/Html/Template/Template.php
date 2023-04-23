@@ -69,6 +69,7 @@ abstract class Template
         }
     }
 
+
     /**
      * Returns a new Template object
      *

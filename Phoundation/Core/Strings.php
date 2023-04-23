@@ -147,6 +147,7 @@ class Strings
         return mb_strtolower(mb_substr($source, 0, $position)).mb_strtoupper(mb_substr($source, $position, 1)).mb_strtolower(mb_substr($source, $position + 1));
     }
 
+
     /**
      * Return a random string
      *
@@ -312,6 +313,7 @@ class Strings
 
         return explode($separator, $source);
     }
+
 
     /**
      * Interleave given string with given secondary string
@@ -1051,6 +1053,7 @@ class Strings
         return mb_substr($source, $pos + mb_strlen($needle) - $more);
     }
 
+
     /**
      * Return the given string from the specified needle having been skipped $count times
      *
@@ -1332,6 +1335,7 @@ class Strings
         // Remove ALL double characters
         return preg_replace('/(.)\\1+/u'.($case_insensitive ? 'i' : ''), $replace, $source);
     }
+
 
     /**
      * Truncate string using the specified fill and method

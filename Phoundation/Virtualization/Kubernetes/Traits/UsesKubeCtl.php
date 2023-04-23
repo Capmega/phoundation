@@ -45,6 +45,7 @@ trait UsesKubeCtl
         return $this->kind;
     }
 
+
     /**
      * Returns the API version for this object
      *
@@ -54,6 +55,7 @@ trait UsesKubeCtl
     {
         return $this->api_version;
     }
+
 
     /**
      * Returns the get command for use with kubectl

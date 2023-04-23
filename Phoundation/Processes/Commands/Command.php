@@ -53,6 +53,7 @@ class Command
         return $this->process;
     }
 
+
     /**
      * Returns a new Images object
      *

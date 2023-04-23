@@ -47,6 +47,7 @@ class SignIn extends DataEntry
         parent::__construct($identifier);
     }
 
+
     /**
      * Detects signin information automatically
      *
@@ -59,6 +60,7 @@ class SignIn extends DataEntry
             ->setUserAgent($_SERVER['HTTP_USER_AGENT'])
             ->setGeoIp(GeoIp::detect($_SERVER['REMOTE_ADDR']));
     }
+
 
     /**
      * Validates the data contained in the validator object
@@ -86,6 +88,7 @@ class SignIn extends DataEntry
 
         return $data;
     }
+
 
     /**
      * Sets the available data keys for the User class

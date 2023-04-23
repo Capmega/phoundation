@@ -39,6 +39,7 @@ class Timezone extends DataEntry
         parent::__construct($identifier);
     }
 
+
     /**
      * Validates the provider record with the specified validator object
      *
@@ -67,6 +68,7 @@ class Timezone extends DataEntry
 
         return $data;
     }
+
 
     /**
      * Sets the available data keys for this entry

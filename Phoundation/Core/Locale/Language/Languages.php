@@ -53,6 +53,7 @@ class Languages extends DataList
             ->setEmpty(tr('No languages available'));
     }
 
+
     /**
      * @param string|int|null $id_column
      * @return $this

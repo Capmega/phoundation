@@ -36,6 +36,7 @@ abstract class KubernetesFile
         $this->file = PATH_ROOT . 'config/kubernetes/' . $this->kind . '/';
     }
 
+
     /**
      * Save the data from this deployment to the yaml configuration file
      *
@@ -54,6 +55,7 @@ abstract class KubernetesFile
 
         return $this;
     }
+
 
     /**
      * Builds the configuration data

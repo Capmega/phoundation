@@ -55,6 +55,7 @@ abstract class Import
         $this->count = random_int((int) $min, (int) $max);
     }
 
+
     /**
      * Returns a new Import object
      *

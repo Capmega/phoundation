@@ -774,6 +774,7 @@ class User extends DataEntry
         return $this->getDataValue('gender');
     }
 
+
     /**
      * Sets the gender for this user
      *
@@ -784,6 +785,7 @@ class User extends DataEntry
     {
         return $this->setDataValue('gender', $gender);
     }
+
 
     /**
      * Returns the birthdate for this user
@@ -801,6 +803,7 @@ class User extends DataEntry
         return null;
     }
 
+
     /**
      * Sets the birthdate for this user
      *
@@ -811,6 +814,7 @@ class User extends DataEntry
     {
         return $this->setDataValue('birthdate', $birthdate);
     }
+
 
     /**
      * Sets the password for this user
@@ -1166,6 +1170,7 @@ class User extends DataEntry
         return false;
     }
 
+
     /**
      * Validates the DataEntry record with the specified validator object
      *
@@ -1225,6 +1230,7 @@ class User extends DataEntry
         return $data;
     }
 
+
     /**
      * Save the password for this user
      *
@@ -1243,6 +1249,7 @@ class User extends DataEntry
 
         return $this;
     }
+
 
     /**
      * Authenticates the specified user id / email with its password

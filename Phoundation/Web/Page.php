@@ -766,6 +766,7 @@ class Page
         return static::$cors;
     }
 
+
     /**
      * Sets the status code that will be sent to the client
      *
@@ -1816,6 +1817,7 @@ class Page
         }
     }
 
+
     /**
      * Kill this web page script process
      *
@@ -2016,6 +2018,7 @@ class Page
 
         return false;
     }
+
 
     /**
      * Starts up this page object

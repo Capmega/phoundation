@@ -220,6 +220,7 @@ trait ValidatorBasics
         return $this;
     }
 
+
     /**
      * Renames the current field to the specified field name
      *
@@ -234,6 +235,7 @@ trait ValidatorBasics
 
         return $this;
     }
+
 
     /**
      * This method will make sure that either this field OR the other specified field will have a value

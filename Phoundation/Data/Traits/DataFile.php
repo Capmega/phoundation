@@ -31,6 +31,7 @@ trait DataFile
         return $this->file;
     }
 
+
     /**
      * Sets the file
      *

@@ -27,6 +27,7 @@ trait UsesNewName
         $this->name = $name;
     }
 
+
     /**
      * Returns a new static object
      *

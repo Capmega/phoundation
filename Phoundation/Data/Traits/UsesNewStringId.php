@@ -27,6 +27,7 @@ trait UsesNewStringId
         $this->id = $id;
     }
 
+
     /**
      * Returns a new static object
      *

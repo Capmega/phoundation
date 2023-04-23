@@ -808,6 +808,7 @@ class simple_html_dom_node
         return $converted_text;
     }
 
+
     /**
     * Returns true if $string is valid UTF-8 and false otherwise.
     *

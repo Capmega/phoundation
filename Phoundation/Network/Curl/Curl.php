@@ -816,6 +816,7 @@ abstract class Curl
         return $this;
     }
 
+
     /**
      * Adds another extra cURL option
      *

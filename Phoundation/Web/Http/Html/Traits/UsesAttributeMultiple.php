@@ -31,6 +31,7 @@ trait UsesAttributeMultiple
         return $this->multiple;
     }
 
+
     /**
      * Sets if this object allows multiple data entries
      *

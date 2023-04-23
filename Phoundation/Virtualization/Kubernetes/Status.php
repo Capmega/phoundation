@@ -114,6 +114,7 @@ class Status
         }
     }
 
+
     /**
      * Returns the service that manages the kubernetes cluster
      *
@@ -123,6 +124,7 @@ class Status
     {
         return $this->service;
     }
+
 
     /**
      * Returns the service type
@@ -134,6 +136,7 @@ class Status
         return $this->type;
     }
 
+
     /**
      * Returns the host status
      *
@@ -143,6 +146,7 @@ class Status
     {
         return $this->host;
     }
+
 
     /**
      * Returns the kubelet status
@@ -154,6 +158,7 @@ class Status
         return $this->kubelet;
     }
 
+
     /**
      * Returns the API server status
      *
@@ -163,6 +168,7 @@ class Status
     {
         return $this->apiserver;
     }
+
 
     /**
      * Returns the KubeConfig status

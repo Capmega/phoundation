@@ -93,6 +93,7 @@ class Json
         }
     }
 
+
     /**
      * Send JSON error to client
      *

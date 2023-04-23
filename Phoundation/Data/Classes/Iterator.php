@@ -115,6 +115,7 @@ class Iterator implements \Phoundation\Data\Interfaces\Iterator
 
     }
 
+
     /**
      * Returns a list of all internal values with their keys
      *

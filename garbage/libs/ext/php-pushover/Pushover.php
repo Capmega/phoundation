@@ -134,6 +134,7 @@ class Pushover
     public function __construct () {
     }
 
+
     /**
      * Set API token
      *
@@ -145,6 +146,7 @@ class Pushover
         $this->_token = (string)$token;
     }
 
+
     /**
      * Get API token
      *
@@ -153,6 +155,7 @@ class Pushover
     public function getToken () {
         return $this->_token;
     }
+
 
     /**
      * Set API user
@@ -164,6 +167,7 @@ class Pushover
     public function setUser ($user) {
         $this->_user = (string)$user;
     }
+
 
     /**
      * Validate the user using Pushover API
@@ -188,6 +192,7 @@ class Pushover
         }
     }
 
+
     /**
      * Get API user
      *
@@ -196,6 +201,7 @@ class Pushover
     public function getUser () {
         return $this->_user;
     }
+
 
     /**
      * Set message title
@@ -208,6 +214,7 @@ class Pushover
         $this->_title = (string)$title;
     }
 
+
     /**
      * Get message title
      *
@@ -216,6 +223,7 @@ class Pushover
     public function getTitle () {
         return $this->_title;
     }
+
 
     /**
      * Set html attribute
@@ -228,6 +236,7 @@ class Pushover
         $this->_html = (int)$html;
     }
 
+
     /**
      * Get html attribute
      *
@@ -236,6 +245,7 @@ class Pushover
     public function getHtml () {
         return $this->_html;
     }
+
 
     /**
      * Set Retry Time
@@ -246,6 +256,7 @@ class Pushover
         $this->_retry = (int)$retry;
     }
 
+
     /**
      * Get Retry Time
      *
@@ -254,6 +265,7 @@ class Pushover
     public function getRetry() {
         return $this->_retry;
     }
+
 
     /**
      * Set Expire Time
@@ -264,6 +276,7 @@ class Pushover
         $this->_expire = (int)$expire;
     }
 
+
     /**
      * Get Expire Time
      *
@@ -272,6 +285,7 @@ class Pushover
     public function getExpire () {
         return $this->_expire;
     }
+
 
     /**
      * Set Callback URL
@@ -282,6 +296,7 @@ class Pushover
         $this->_callback = $callback;
     }
 
+
     /**
      * Get Callback URL
      *
@@ -290,6 +305,7 @@ class Pushover
     public function getCallback() {
         return $this->_callback;
     }
+
 
     /**
      * Set message
@@ -302,6 +318,7 @@ class Pushover
         $this->_message = (string)$msg;
     }
 
+
     /**
      * Get message
      *
@@ -310,6 +327,7 @@ class Pushover
     public function getMessage () {
         return $this->_message;
     }
+
 
     /**
      * Set device
@@ -322,6 +340,7 @@ class Pushover
         $this->_device = (string)$device;
     }
 
+
     /**
      * Get device
      *
@@ -330,6 +349,7 @@ class Pushover
     public function getDevice () {
         return $this->_device;
     }
+
 
     /**
      * Set timestamp
@@ -344,6 +364,7 @@ class Pushover
         $this->_timestamp = (int)$time;
     }
 
+
     /**
      * Get timestamp
      *
@@ -352,6 +373,7 @@ class Pushover
     public function getTimestamp () {
         return $this->_timestamp;
     }
+
 
     /**
      * Set priority (-1, 0 or 1)
@@ -369,6 +391,7 @@ class Pushover
         $this->_priority = (int)$priority;
     }
 
+
     /**
      * Get priority
      *
@@ -377,6 +400,7 @@ class Pushover
     public function getPriority () {
         return $this->_priority;
     }
+
 
     /**
      * Set url
@@ -389,6 +413,7 @@ class Pushover
         $this->_url = (string)$url;
     }
 
+
     /**
      * Get url
      *
@@ -397,6 +422,7 @@ class Pushover
     public function getUrl () {
         return $this->_url;
     }
+
 
     /**
      * Set url title
@@ -409,6 +435,7 @@ class Pushover
         $this->_url_title = (string)$url_title;
     }
 
+
     /**
      * Get url title
      *
@@ -417,6 +444,7 @@ class Pushover
     public function getUrlTitle () {
         return $this->_url_title;
     }
+
 
     /**
      * Set debug mode
@@ -429,6 +457,7 @@ class Pushover
         $this->_debug = (boolean)$debug;
     }
 
+
     /**
      * Get debug mode
      *
@@ -437,6 +466,7 @@ class Pushover
     public function getDebug () {
         return $this->_debug;
     }
+
 
     /**
      * Set sound
@@ -449,6 +479,7 @@ class Pushover
         $this->_sound = (string)$sound;
     }
 
+
     /**
      * Get sound
      *
@@ -457,6 +488,7 @@ class Pushover
     public function getSound () {
         return $this->_sound;
     }
+
 
     /**
      * Gets an array of notification sounds that can be used with Pushover.
@@ -474,6 +506,7 @@ class Pushover
         }
         return null;
     }
+
 
     /**
      * Send message to Pushover API

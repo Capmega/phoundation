@@ -172,6 +172,7 @@ class Zend_Utf8
         return $result;
      }
 
+
     /**
      * Compute the code point of a given UTF-8 character
      *
@@ -258,6 +259,7 @@ class Zend_Utf8
         return $result;
     }
 
+
     /**
      * Compute the surrogate pair of a given extended UTF-8 character
      *
@@ -282,6 +284,7 @@ class Zend_Utf8
 
         return $result;
     }
+
 
     /**
      * Unescape UTF-8 characters from a given escape format
@@ -372,6 +375,7 @@ class Zend_Utf8
         return $result;
      }
 
+
     /**
      * Compute the UTF-8 character of a given code point
      *
@@ -449,6 +453,7 @@ class Zend_Utf8
         return $result;
     }
 
+
     /**
      * Compute the extended UTF-8 character of a given surrogate pair
      *
@@ -477,6 +482,7 @@ class Zend_Utf8
         return $result;
     }
 
+
     /**
      * A little calling interface: validation
      *
@@ -488,6 +494,7 @@ class Zend_Utf8
         $result = is_callable($handler['callback']) && is_array($handler['arguments']);
         return $result;
     }
+
 
     /**
      * A little calling interface: call
@@ -502,6 +509,7 @@ class Zend_Utf8
         $result = call_user_func_array($handler['callback'], $args);
         return $result;
     }
+
 
     /**
      * Validate filters. If there are filters return true, else false

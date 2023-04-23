@@ -405,6 +405,7 @@ trait ElementAttributes
         return $this;
     }
 
+
     /**
      * Adds a class to the HTML class element attribute
      *
@@ -498,6 +499,7 @@ trait ElementAttributes
         return $this;
     }
 
+
     /**
      * Adds a class to the HTML class element attribute
      *
@@ -562,6 +564,7 @@ trait ElementAttributes
         $this->tabindex = $tabindex;
         return $this;
     }
+
 
     /**
      * Returns the HTML tabindex element attribute
@@ -659,6 +662,7 @@ trait ElementAttributes
         return $this;
     }
 
+
     /**
      * Returns the HTML disabled element attribute
      *
@@ -681,6 +685,7 @@ trait ElementAttributes
         $this->readonly = ($readonly ? 'readonly' : null);
         return $this;
     }
+
 
     /**
      * Returns the HTML readonly element attribute

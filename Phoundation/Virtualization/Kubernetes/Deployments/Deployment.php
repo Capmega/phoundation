@@ -34,6 +34,7 @@ class Deployment extends KubernetesObject
         parent::__construct($name);
     }
 
+
     /**
      * Returns the API version for this object
      *

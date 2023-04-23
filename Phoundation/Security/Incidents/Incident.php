@@ -56,6 +56,7 @@ class Incident extends DataEntry
         parent::__construct($identifier);
     }
 
+
     /**
      * Returns if this incident will be logged in the text log
      *

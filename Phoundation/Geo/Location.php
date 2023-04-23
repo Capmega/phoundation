@@ -41,6 +41,7 @@ class Location
         $this->latitude  = $latitude;
     }
 
+
     /**
      * Returns a Geo object for the specified IP address
      *

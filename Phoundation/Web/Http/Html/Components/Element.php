@@ -56,6 +56,7 @@ abstract class Element
         return $this;
     }
 
+
     /**
      * Returns the HTML class element attribute
      *
@@ -65,6 +66,7 @@ abstract class Element
     {
         return $this->element;
     }
+
 
     /**
      * Renders and returns the HTML for this object using the template renderer if avaialable
@@ -124,6 +126,7 @@ abstract class Element
         return $render_function();
     }
 
+
     /**
      * Builds and returns the class string
      *
@@ -139,6 +142,7 @@ abstract class Element
 
         return null;
     }
+
 
     /**
      * Add the system arguments to the arguments list

@@ -42,6 +42,7 @@ class Roles extends DataList
         parent::__construct($parent, $id_column);
     }
 
+
     /**
      * Set the entries to the specified list
      *

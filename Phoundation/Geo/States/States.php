@@ -60,6 +60,7 @@ class States extends DataList
         // TODO: Implement load() method.
     }
 
+
     /**
      * @inheritDoc
      */
@@ -67,6 +68,7 @@ class States extends DataList
     {
         // TODO: Implement loadDetails() method.
     }
+
 
     /**
      * @inheritDoc

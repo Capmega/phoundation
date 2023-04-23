@@ -35,6 +35,7 @@ class UserAgents
         return new static();
     }
 
+
     /**
      * Adds a filter
      *

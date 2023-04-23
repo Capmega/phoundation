@@ -1944,6 +1944,7 @@ class Core {
         return false;
     }
 
+
     /**
      * THIS METHOD SHOULD NOT BE RUN BY ANYBODY! IT IS EXECUTED AUTOMATICALLY ON SHUTDOWN
      *
@@ -2148,6 +2149,7 @@ class Core {
 
         return $available;
     }
+
 
     /**
      * Returns either the specified restrictions object or the Core restrictions object

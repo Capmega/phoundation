@@ -604,6 +604,7 @@ trait ProcessVariables
         return $this->restrictions;
     }
 
+
     /**
      * Set the server on which the command should be executed for this process
      *
@@ -738,6 +739,7 @@ trait ProcessVariables
         return $this;
     }
 
+
     /**
      * Sets the arguments for the command that will be executed
      *
@@ -751,6 +753,7 @@ trait ProcessVariables
         $this->arguments = [];
         return $this->addArguments($arguments, $escape);
     }
+
 
     /**
      * Adds multiple arguments to the existing list of arguments for the command that will be executed
@@ -776,6 +779,7 @@ trait ProcessVariables
 
         return $this;
     }
+
 
     /**
      * Adds an argument to the existing list of arguments for the command that will be executed
@@ -890,6 +894,7 @@ trait ProcessVariables
         return $this;
     }
 
+
     /**
      * Sets the output redirection for this process
      *
@@ -987,6 +992,7 @@ trait ProcessVariables
     {
         return $this->input_redirect;
     }
+
 
     /**
      * Returns the time in milliseconds that a process will wait before executing
@@ -1163,6 +1169,7 @@ trait ProcessVariables
         $this->debug = $debug;
         return $this;
     }
+
 
     /**
      * Validates the specified stream

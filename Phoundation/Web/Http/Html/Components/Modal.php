@@ -85,6 +85,7 @@ abstract class Modal extends ElementsBlock
         return $this->id;
     }
 
+
     /**
      * Sets the modal identifier
      *
@@ -107,6 +108,7 @@ abstract class Modal extends ElementsBlock
     {
         return $this->size;
     }
+
 
     /**
      * Sets the modal size
@@ -135,6 +137,7 @@ abstract class Modal extends ElementsBlock
         return $this->fade;
     }
 
+
     /**
      * Sets the modal fade
      *
@@ -157,6 +160,7 @@ abstract class Modal extends ElementsBlock
     {
         return $this->backdrop;
     }
+
 
     /**
      * Sets the modal backdrop
@@ -181,6 +185,7 @@ abstract class Modal extends ElementsBlock
         return $this->vertical_center;
     }
 
+
     /**
      * Sets if the modal is vertically centered
      *
@@ -203,6 +208,7 @@ abstract class Modal extends ElementsBlock
     {
         return $this->escape;
     }
+
 
     /**
      * Sets the modal escape

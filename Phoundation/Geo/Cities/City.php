@@ -44,6 +44,7 @@ class City extends DataEntry
         parent::__construct($identifier);
     }
 
+
     /**
      * Returns the general timezone for this city
      *
@@ -127,6 +128,7 @@ class City extends DataEntry
 
         return $data;
     }
+
 
     /**
      * Sets the available data keys for this entry

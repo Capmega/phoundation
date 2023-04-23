@@ -83,6 +83,7 @@ class Meta
         }
     }
 
+
     /**
      * Returns the Meta id
      *
@@ -92,6 +93,7 @@ class Meta
     {
         return (string) $this->id;
     }
+
 
     /**
      * Returns a new Meta object
@@ -103,6 +105,7 @@ class Meta
     {
         return new static();
     }
+
 
     /**
      * Returns if meta system is enabled or not

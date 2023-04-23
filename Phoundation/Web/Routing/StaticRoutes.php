@@ -44,6 +44,7 @@ class StaticRoutes extends DataList
         // TODO: Implement load() method.
     }
 
+
     /**
      * @inheritDoc
      */
@@ -51,6 +52,7 @@ class StaticRoutes extends DataList
     {
         // TODO: Implement loadDetails() method.
     }
+
 
     /**
      * @inheritDoc

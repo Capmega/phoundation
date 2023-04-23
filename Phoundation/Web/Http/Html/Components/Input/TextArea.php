@@ -42,6 +42,7 @@ class TextArea extends Input
         $this->type                 = InputType::null;
     }
 
+
     /**
      * Returns the amount of cols to use for this text area
      *
@@ -51,6 +52,7 @@ class TextArea extends Input
     {
         return $this->cols;
     }
+
 
     /**
      * Sets the amount of cols to use for this text area
@@ -64,6 +66,7 @@ class TextArea extends Input
         return $this;
     }
 
+
     /**
      * Returns the amount of rows to use for this text area
      *
@@ -73,6 +76,7 @@ class TextArea extends Input
     {
         return $this->rows;
     }
+
 
     /**
      * Sets the amount of rows to use for this text area
@@ -86,6 +90,7 @@ class TextArea extends Input
         return $this;
     }
 
+
     /**
      * Returns the maximum length this text area
      *
@@ -95,6 +100,7 @@ class TextArea extends Input
     {
         return isset_get($this->attributes['maxlength']);
     }
+
 
     /**
      * Sets the maximum length this text area
@@ -107,6 +113,7 @@ class TextArea extends Input
         $this->attributes['maxlength'] = $maxlength;
         return $this;
     }
+
 
     /**
      * Add the system arguments to the arguments list

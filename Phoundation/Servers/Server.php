@@ -56,6 +56,7 @@ class Server extends DataEntry
         parent::__construct($identifier);
     }
 
+
     /**
      * Returns the cost for this object
      *
@@ -292,6 +293,7 @@ class Server extends DataEntry
             ->addArgument($command_line)
             ->getFullCommandLine();
     }
+
 
     /**
      * Validates the provider record with the specified validator object

@@ -26,6 +26,7 @@ trait DataEntryPriority
         return $this->getDataValue('priority');
     }
 
+
     /**
      * Sets the priority for this object
      *

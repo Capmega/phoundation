@@ -31,6 +31,7 @@ trait DataNamespace
         return $this->namespace;
     }
 
+
     /**
      * Sets the namespace
      *

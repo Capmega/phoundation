@@ -43,6 +43,7 @@ class County extends DataEntry
         parent::__construct($identifier);
     }
 
+
     /**
      * Returns the general timezone for this county
      *
@@ -86,6 +87,7 @@ class County extends DataEntry
         return new State($this->getDataValue('states_id'));
     }
 
+
     /**
      * Validates the provider record with the specified validator object
      *
@@ -114,6 +116,7 @@ class County extends DataEntry
 
         return $data;
     }
+
 
     /**
      * Sets the available data keys for this entry

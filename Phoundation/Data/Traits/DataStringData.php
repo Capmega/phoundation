@@ -35,6 +35,7 @@ trait DataStringData
         return $this->data;
     }
 
+
     /**
      * Sets the data
      *

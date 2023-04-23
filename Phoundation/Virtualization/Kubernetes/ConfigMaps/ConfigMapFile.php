@@ -44,6 +44,7 @@ class ConfigMapFile extends ObjectFile
         parent::__construct($configmap);
     }
 
+
     /**
      * Returns the kubernetes configmap data object for this configmap file
      *
@@ -53,6 +54,7 @@ class ConfigMapFile extends ObjectFile
     {
         return $this->object;
     }
+
 
     /**
      * Builds the data string for this configmap file from the ConfigMap object

@@ -173,6 +173,7 @@ class Sql
 //        return $configuration;
 //    }
 
+
     /**
      * Returns the name of the database that currently is in use by this database object
      *
@@ -193,6 +194,7 @@ class Sql
     {
         return $this->instance;
     }
+
 
     /**
      * Sets or returns debug for SQL
@@ -219,6 +221,7 @@ class Sql
         self::$debug = $debug;
         return $previous;
     }
+
 
     /**
      * Returns an SQL schema object for this instance
@@ -534,6 +537,7 @@ class Sql
         }
     }
 
+
     /**
      * Write the specified data row in the specified table
      *
@@ -582,6 +586,7 @@ class Sql
         return $update_row['id'];
     }
 
+
     /**
      * Insert the specified data row in the specified table
      *
@@ -615,6 +620,7 @@ class Sql
 
         return $this->pdo->lastInsertId();
     }
+
 
     /**
      * Insert the specified data row in the specified table
@@ -1227,6 +1233,7 @@ class Sql
         return null;
     }
 
+
     /**
      * Return a unique, non-existing ID for the specified table.column
      *
@@ -1547,6 +1554,7 @@ class Sql
         return Debug::show(Strings::endsWith($query, ';'), 6);
     }
 
+
     /**
      * Ensure that the specified query is either a select query or a show query
      *
@@ -1658,6 +1666,7 @@ class Sql
     
                                   WHERE  `seo_name` = :seo_name', [':seo_name' => $seo_name]);
     }
+
 
     /**
      * Apply configuration template over the specified configuration array

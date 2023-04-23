@@ -740,6 +740,7 @@ class Path extends FileBasics
         return File::new(FilesystemCommands::new()->tar($this->file), $this->restrictions);
     }
 
+
     /**
      * Returns the single one file in this path IF there is only one file
      *
@@ -751,6 +752,7 @@ class Path extends FileBasics
         return File::new($this->file . $this->getSingle($regex, false), $this->restrictions);
     }
 
+
     /**
      * Returns the single one directory in this path IF there is only one file
      *
@@ -761,6 +763,7 @@ class Path extends FileBasics
     {
         return Path::new($this->file . $this->getSingle($regex, true), $this->restrictions);
     }
+
 
     /**
      * Returns the single one file in this path IF there is only one file

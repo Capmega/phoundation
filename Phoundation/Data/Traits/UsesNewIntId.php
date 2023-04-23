@@ -32,6 +32,7 @@ trait UsesNewIntId
 
     }
 
+
     /**
      * Returns a new static object
      *

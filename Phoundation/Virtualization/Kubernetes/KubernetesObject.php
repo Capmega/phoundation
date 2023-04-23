@@ -64,6 +64,7 @@ class KubernetesObject
         $this->load();
     }
 
+
     /**
      * Returns the SecretFile for this Kubernetes Secret object
      *
@@ -84,6 +85,7 @@ class KubernetesObject
         return $this->file;
     }
 
+
     /**
      * Save the current deployment data
      *
@@ -101,6 +103,7 @@ class KubernetesObject
 
         return $this;
     }
+
 
     /**
      * Deletes this deployment
@@ -120,6 +123,7 @@ class KubernetesObject
         return $this;
     }
 
+
     /**
      * Creates a Kubernetes deployment from the internal variables
      *
@@ -132,6 +136,7 @@ class KubernetesObject
 
         return $this;
     }
+
 
     /**
      * Creates a Kubernetes deployment from the deployment file
@@ -149,6 +154,7 @@ class KubernetesObject
         return $this;
     }
 
+
     /**
      * Returns the data in Yaml format
      *
@@ -158,6 +164,7 @@ class KubernetesObject
     {
         return yaml_emit($this->data);
     }
+
 
     /**
      * Load the deployment description

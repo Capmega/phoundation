@@ -86,6 +86,7 @@ class FileBasics
         return $this->getFile();
     }
 
+
     /**
      * Returns a new File object with the specified restrictions
      *
@@ -97,6 +98,7 @@ class FileBasics
     {
         return new static($file, $restrictions_restrictions);
     }
+
 
     /**
      * Returns the file for this File object
@@ -522,6 +524,7 @@ class FileBasics
 
         return $this;
     }
+
 
     /**
      * Delete a file weather it exists or not, without error, using the "rm" command

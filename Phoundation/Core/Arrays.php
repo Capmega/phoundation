@@ -440,6 +440,7 @@ class Arrays {
         return $return;
     }
 
+
     /**
      * Filter the specified values out of the source array
      *
@@ -469,6 +470,7 @@ class Arrays {
 
         return $source;
     }
+
 
     /**
      * Return an array with the amount of values where each value name is $base_value_name# and # is a sequential number
@@ -779,6 +781,7 @@ class Arrays {
             }
         }
     }
+
 
     /**
      * Check the specified array and ensure it has not too many elements (to avoid attack with processing foreach over 2000000 elements, for example)
@@ -1693,6 +1696,7 @@ class Arrays {
         return $source;
     }
 
+
     /**
      * Splits up the specified source string into an array according to the specified format and returns it
      *
@@ -1714,6 +1718,7 @@ class Arrays {
 
         return $return;
     }
+
 
     /**
      * Detects and returns a format to parse table strings using Arrays::format()

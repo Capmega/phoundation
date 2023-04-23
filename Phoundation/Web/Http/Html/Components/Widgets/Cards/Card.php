@@ -84,6 +84,7 @@ class Card extends Widget
         parent::__construct();
     }
 
+
     /**
      * Returns the title for this card
      *
@@ -93,6 +94,7 @@ class Card extends Widget
     {
         return $this->title;
     }
+
 
     /**
      * Sets the title for this card
@@ -106,6 +108,7 @@ class Card extends Widget
         return $this;
     }
 
+
     /**
      * Returns the buttons for this card
      *
@@ -115,6 +118,7 @@ class Card extends Widget
     {
         return $this->buttons;
     }
+
 
     /**
      * Sets the buttons for this card
@@ -132,6 +136,7 @@ class Card extends Widget
         $this->buttons = $buttons;
         return $this;
     }
+
 
     /**
      * Returns a list of enabled switches
@@ -160,6 +165,7 @@ class Card extends Widget
 
         return $return;
     }
+
 
     /**
      * Sets a list of enabled switches
@@ -206,6 +212,7 @@ class Card extends Widget
         return $this;
     }
 
+
     /**
      * Returns extra header content for the card
      *
@@ -215,6 +222,7 @@ class Card extends Widget
     {
         return $this->header_content;
     }
+
 
     /**
      * Returns extra header content for the card
@@ -228,6 +236,7 @@ class Card extends Widget
         return $this;
     }
 
+
     /**
      * Returns if the card can collapse
      *
@@ -237,6 +246,7 @@ class Card extends Widget
     {
         return $this->has_collapse_switch;
     }
+
 
     /**
      * Sets if the card can collapse
@@ -250,6 +260,7 @@ class Card extends Widget
         return $this;
     }
 
+
     /**
      * Returns if the card can close
      *
@@ -259,6 +270,7 @@ class Card extends Widget
     {
         return $this->has_close_switch;
     }
+
 
     /**
      * Sets if the card can close
@@ -272,6 +284,7 @@ class Card extends Widget
         return $this;
     }
 
+
     /**
      * Returns if the card can reload
      *
@@ -281,6 +294,7 @@ class Card extends Widget
     {
         return $this->has_reload_switch;
     }
+
 
     /**
      * Sets if the card can reload
@@ -294,6 +308,7 @@ class Card extends Widget
         return $this;
     }
 
+
     /**
      * Returns if the card can maximize
      *
@@ -303,6 +318,7 @@ class Card extends Widget
     {
         return $this->has_maximize_switch;
     }
+
 
     /**
      * Sets if the card can maximize
@@ -316,6 +332,7 @@ class Card extends Widget
         return $this;
     }
 
+
     /**
      * Returns if this card is shown with outline color or not
      *
@@ -325,6 +342,7 @@ class Card extends Widget
     {
         return $this->outline;
     }
+
 
     /**
      * Sets if this card is shown with outline color or not

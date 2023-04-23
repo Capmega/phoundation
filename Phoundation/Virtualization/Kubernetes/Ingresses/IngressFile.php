@@ -46,6 +46,7 @@ class IngressFile extends ObjectFile
         parent::__construct($ingress);
     }
 
+
     /**
      * Returns the kubernetes ingress data object for this ingress file
      *
@@ -55,6 +56,7 @@ class IngressFile extends ObjectFile
     {
         return $this->object;
     }
+
 
     /**
      * Builds the data string for this ingress file from the Ingress object

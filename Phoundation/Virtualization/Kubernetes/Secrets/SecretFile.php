@@ -38,6 +38,7 @@ class SecretFile extends ObjectFile
         parent::__construct($secret);
     }
 
+
     /**
      * Returns the deployment data object for this deployment file
      *
@@ -47,6 +48,7 @@ class SecretFile extends ObjectFile
     {
         return $this->object;
     }
+
 
     /**
      * Builds the data string for this deployment file from the Secret object

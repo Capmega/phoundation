@@ -31,6 +31,7 @@ class Import extends \Phoundation\Developer\Project\Import
         $this->name = 'Providers';
     }
 
+
     /**
      * Import the content for the business_providers table
      *

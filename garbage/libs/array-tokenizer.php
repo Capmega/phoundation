@@ -72,6 +72,7 @@ class ArrayTokenScanner
         throw new InvalidArgumentException("Invalid array format.");
     }
 
+
     /**
      * @param array $tokens
      */
@@ -85,6 +86,7 @@ class ArrayTokenScanner
             }
         }
     }
+
 
     /**
      * @param array $tokens
@@ -166,6 +168,7 @@ class ArrayTokenScanner
         }
     }
 
+
     /**
      * @param array $tokens
      * @param int|string $discriminator
@@ -191,6 +194,7 @@ class ArrayTokenScanner
         } while (++$index);
     }
 
+
     /**
      * @param $string
      * @return array|false
@@ -211,6 +215,7 @@ class ArrayTokenScanner
         return false;
     }
 
+
     /**
      * Method used to accept or deny tokens so that we only have to deal with the allowed tokens
      *
@@ -230,6 +235,7 @@ class ArrayTokenScanner
         // Token is accepted.
         return true;
     }
+
 
     /**
      * Normalize tokens so that each allowed syntax character looks like a token for consistent parsing.
@@ -258,6 +264,7 @@ class ArrayTokenScanner
 
         }, $tokens);
     }
+
 
     /**
      * @param $value

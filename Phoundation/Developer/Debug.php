@@ -192,6 +192,7 @@ class Debug {
         return isset_get($backtrace[$trace + 1]['class'], $default);
     }
 
+
     /**
      * Returns the function name from where this call was made
      *
@@ -396,6 +397,7 @@ class Debug {
 
         return $value;
     }
+
 
     /**
      * Show the given value on screen, then die.

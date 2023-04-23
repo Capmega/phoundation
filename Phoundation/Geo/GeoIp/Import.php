@@ -31,6 +31,7 @@ class Import extends \Phoundation\Developer\Project\Import
         $this->name = 'GeoIP';
     }
 
+
     /**
      * Import the content for the languages table from a data-source file
      *

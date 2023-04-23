@@ -52,6 +52,7 @@ class Kubernetes
         }
     }
 
+
     /**
      * Returns the timeout value for starting the kubernetes cluster.
      *
@@ -96,6 +97,7 @@ class Kubernetes
         return new Kubernetes($service);
     }
 
+
     /**
      * Starts the kubernetes service
      *
@@ -109,6 +111,7 @@ class Kubernetes
             ->execute($method);
     }
 
+
     /**
      * Stops the kubernetes service
      *
@@ -120,6 +123,7 @@ class Kubernetes
             ->addArguments('stop')
             ->execute($method);
     }
+
 
     /**
      * Returns the status of the kubernetes service
@@ -135,6 +139,7 @@ class Kubernetes
         return new Status($output);
     }
 
+
     /**
      * Deletes the local kubernetes cluster
      *
@@ -148,6 +153,7 @@ class Kubernetes
             ->execute($method);
     }
 
+
     /**
      * Pauses the local kubernetes cluster
      *
@@ -160,6 +166,7 @@ class Kubernetes
             ->execute($method);
     }
 
+
     /**
      * Unpauses the local kubernetes cluster
      *
@@ -171,6 +178,7 @@ class Kubernetes
             ->addArguments('unpause')
             ->execute($method);
     }
+
 
     /**
      * Starts the kubernetes dashboard in a background process

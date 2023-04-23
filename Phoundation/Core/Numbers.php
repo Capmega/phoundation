@@ -362,6 +362,7 @@ class Numbers
         return '1';
     }
 
+
     /**
      * Returns a random float number between 0 and 1
      *

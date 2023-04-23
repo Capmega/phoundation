@@ -47,6 +47,7 @@ class Branch extends DataEntry
         // TODO: Implement save() method.
     }
 
+
     /**
      * @inheritDoc
      */
@@ -54,6 +55,7 @@ class Branch extends DataEntry
     {
         // TODO: Implement validate() method.
     }
+
 
     /**
      * Sets the available data keys for this entry
