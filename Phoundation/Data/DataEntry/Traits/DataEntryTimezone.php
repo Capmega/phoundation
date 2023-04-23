@@ -29,7 +29,6 @@ trait DataEntryTimezone
     }
 
 
-
     /**
      * Sets the timezones_id for this user
      *
@@ -40,7 +39,6 @@ trait DataEntryTimezone
     {
         return $this->setDataValue('timezones_id', $timezones_id);
     }
-
 
 
     /**
@@ -60,23 +58,26 @@ trait DataEntryTimezone
     }
 
 
-
     /**
      * Sets the timezones_id for this user
      *
-     * @param Timezone|string|int|null $timezones_id
+     * @param Timezone|string|int|null $timezone
      * @return static
      */
-    public function setTimezone(Timezone|string|int|null $timezones_id): static
+    public function setTimezone(Timezone|string|int|null $timezone): static
     {
-        if (!is_numeric($timezones_id)) {
-            $timezones_id = Timezone::get($timezones_id);
+        $timezone = get_null($timezone);
+
+        if ($timezone) {
+            if (!is_integer($timezone)) {
+                if (is_string($timezone)) {
+                    $timezone = $timezone::new($timezone);
+                }
+
+                $timezone = $timezone->getId();
+            }
         }
 
-        if (is_object($timezones_id)) {
-            $timezones_id = $timezones_id->getId();
-        }
-
-        return $this->setDataValue('timezones_id', $timezones_id);
+        return $this->setDataValue('timezones_id', $timezone);
     }
 }

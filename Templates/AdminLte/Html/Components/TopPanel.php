@@ -3,6 +3,7 @@
 namespace Templates\AdminLte\Html\Components;
 
 use Phoundation\Core\Session;
+use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Html\Renderer;
 use Phoundation\Web\Http\UrlBuilder;
 
@@ -41,10 +42,10 @@ class TopPanel extends Renderer
 
         // If impersonated, change top panel color and add impersonation message
         if (Session::isImpersonated()) {
-            $this->element->setMode('danger');
+            $this->element->setMode(DisplayMode::danger);
             $message = tr('(Impersonated by ":user")', [':user' => Session::getRealUser()->getDisplayName()]);
         } else {
-            $this->element->setMode('white');
+            $this->element->setMode(DisplayMode::white);
         }
 
         // Top level message?
@@ -58,11 +59,18 @@ class TopPanel extends Renderer
         $left_menu    = ' <ul class="navbar-nav">
                             <li class="nav-item">
                               <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
-                            </li>
-                            <li class="nav-item d-none d-sm-inline-block">
-                              <a href="' . UrlBuilder::getCurrent() . '" class="nav-link">' . tr('Home') . '</a>
-                            </li>
-                            ' . isset_get($message) . '
+                            </li>';
+
+        if ($this->element->getSourceEntry('menu')) {
+            foreach ($this->element->getSourceEntry('menu') as $url => $label) {
+                $left_menu .= ' <li class="nav-item d-none d-sm-inline-block">
+                                  <a href="' . $url . '" class="nav-link">' . $label . '</a>
+                                </li>';
+            }
+        }
+
+        // Add the optional extra message and finish the left menu
+        $left_menu .=       isset_get($message) . '
                           </ul>';
 
         // Build the panel

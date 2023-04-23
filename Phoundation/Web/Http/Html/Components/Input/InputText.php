@@ -2,6 +2,7 @@
 
 namespace Phoundation\Web\Http\Html\Components\Input;
 
+use Phoundation\Web\Http\Html\Enums\InputType;
 
 
 /**
@@ -21,10 +22,9 @@ class InputText extends Input
      */
     public function __construct()
     {
-        $this->type = 'text';
+        $this->type = InputType::text;
         parent::__construct();
     }
-
 
 
     /**
@@ -36,7 +36,6 @@ class InputText extends Input
     {
         return isset_get($this->attributes['maxlength']);
     }
-
 
 
     /**

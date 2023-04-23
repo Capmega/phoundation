@@ -50,7 +50,7 @@ class Database extends SchemaAbstract
     public function exists(): bool
     {
         // If this query returns nothing, the database does not exist. If it returns anything, it does exist.
-        return (bool) sql()->get(' SHOW DATABASES LIKE :name', [':name' => $this->sql->getDatabase()]);
+        return (bool) sql()->get('SHOW DATABASES LIKE :name', [':name' => $this->sql->getDatabase()]);
     }
 
 

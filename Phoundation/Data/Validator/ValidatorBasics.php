@@ -2,6 +2,7 @@
 
 namespace Phoundation\Data\Validator;
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Exception\NoKeySelectedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
@@ -227,15 +228,32 @@ trait ValidatorBasics
 
 
     /**
+     * Renames the current field to the specified field name
+     *
+     * @param string $field_name
+     * @return $this
+     */
+    public function rename(string $field_name): static
+    {
+        $this->source[$field_name] = $this->source[$this->selected_field];
+        unset($this->source[$this->selected_field]);
+        $this->selected_field = $field_name;
+
+        return $this;
+    }
+
+
+    /**
      * This method will make sure that either this field OR the other specified field will have a value
      *
      * @param string $field
+     * @param bool $rename
      * @return static
      *
      * @see Validator::isOptional()
      * @see Validator::or()
      */
-    public function xor(string $field): static
+    public function xor(string $field, bool $rename = false): static
     {
         if ($this->selected_field === $field) {
             throw new ValidatorException(tr('Cannot validate XOR field ":field" with itself', [':field' => $field]));
@@ -244,12 +262,27 @@ trait ValidatorBasics
         if (isset_get($this->source[$this->selected_field])) {
             // The currently selected field exists, the specified field cannot exist
             if (isset_get($this->source[$field])) {
-                $this->addFailure(tr('Both fields ":field" and ":selected_field" were set, where only either one of them are allowed', [':field' => $field, ':selected_field' => $this->selected_field]));
+                $this->addFailure(tr('Both fields ":field" and ":selected_field" were set, where only either one of them are allowed', [
+                    ':field' => $field,
+                    ':selected_field' => $this->selected_field
+                ]));
+            }
+
+            if ($rename) {
+                // Rename this field to the specified field
+                $this->rename($field);
             }
         } else {
             // The currently selected field does not exist, the specified field MUST exist
             if (!isset_get($this->source[$field])) {
-                $this->addFailure(tr('Neither fields ":field" and ":selected_field" were set, where either one of them must be set', [':field' => $field, ':selected_field' => $this->selected_field]));
+                $this->addFailure(tr('Neither fields ":field" and ":selected_field" were set, where either one of them must be set', [
+                    ':field' => $field,
+                    ':selected_field' => $this->selected_field
+                ]));
+
+            } else {
+                // Yay, the alternate field exists, so this one can be made optional.
+                $this->isOptional();
             }
         }
 

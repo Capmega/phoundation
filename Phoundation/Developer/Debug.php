@@ -16,6 +16,7 @@ use Phoundation\Developer\Exception\DebugException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Notifications\Notification;
+use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Page;
 
@@ -311,7 +312,7 @@ class Debug {
         if (Debug::production()) {
             // This is not usually something you want to happen!
             Notification::new()
-                ->setMode('EXCEPTION')
+                ->setMode(DisplayMode::exception)
                 ->setTitle('Debug mode enabled on production environment!')
                 ->setMessage('Debug mode enabled on production environment, with this all internal debug information can be visible to everybody!')
                 ->setRoles('developer')

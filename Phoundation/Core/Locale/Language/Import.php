@@ -48,7 +48,7 @@ class Import extends \Phoundation\Developer\Project\Import
 
         $file  = File::new(PATH_DATA . 'sources/languages/languages');
         $h     = $file->open('r');
-        $table = sql()->schema()->table('languages');
+        $table = sql()->schema()->table('core_languages');
         $count = $table->getCount();
 
         if ($count and !FORCE) {
@@ -56,7 +56,7 @@ class Import extends \Phoundation\Developer\Project\Import
             return 0;
         }
 
-        sql()->query('DELETE FROM `languages`');
+        sql()->query('DELETE FROM `core_languages`');
 
         $count  = 0;
         $buffer = $file->getBufferSize();

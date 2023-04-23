@@ -23,8 +23,10 @@ use Phoundation\Data\DataEntry\Traits\DataEntryLanguage;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryPhones;
 use Phoundation\Data\DataEntry\Traits\DataEntryPicture;
+use Phoundation\Data\DataEntry\Traits\DataEntryTimezone;
 use Phoundation\Data\DataEntry\Traits\DataEntryType;
 use Phoundation\Data\DataEntry\Traits\DataEntryUrl;
+use Phoundation\Data\Interfaces\InterfaceDataEntry;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
@@ -70,6 +72,7 @@ class User extends DataEntry
     use DataEntryAddress;
     use DataEntryLanguage;
     use DataEntryComments;
+    use DataEntryTimezone;
     use DataEntryNameDescription;
 
 
@@ -100,9 +103,9 @@ class User extends DataEntry
     /**
      * User class constructor
      *
-     * @param int|string|null $identifier
+     * @param InterfaceDataEntry|string|int|null $identifier
      */
-    public function __construct(int|string|null $identifier = null)
+    public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
     {
         static::$entry_name = 'user';
         $this->unique_field = 'email';
@@ -829,7 +832,6 @@ class User extends DataEntry
     }
 
 
-
     /**
      * Sets the gender for this user
      *
@@ -840,7 +842,6 @@ class User extends DataEntry
     {
         return $this->setDataValue('gender', $gender);
     }
-
 
 
     /**
@@ -860,7 +861,6 @@ class User extends DataEntry
     }
 
 
-
     /**
      * Sets the birthdate for this user
      *
@@ -871,38 +871,6 @@ class User extends DataEntry
     {
         return $this->setDataValue('birthdate', $birthdate);
     }
-
-
-
-    /**
-     * Returns the timezone for this user
-     *
-     * @return Timezone|null
-     */
-    public function getTimezone(): ?Timezone
-    {
-        $timezone = $this->getDataValue('timezone');
-
-        if ($timezone === null) {
-            return null;
-        }
-
-        return new Timezone($timezone);
-    }
-
-
-
-    /**
-     * Sets the timezone for this user
-     *
-     * @param string|null $gender
-     * @return static
-     */
-    public function setTimezone(?string $gender): static
-    {
-        return $this->setDataValue('timezone', $gender);
-    }
-
 
 
     /**
@@ -1189,11 +1157,11 @@ class User extends DataEntry
                 ->setType('User information changed')
                 ->setSeverity(Severity::low)
                 ->setTitle(tr('The user ":user" was modified, see audit ":meta_id" for more information', [
-                    ':user'    => $this,
+                    ':user'    => $this->getLogId(),
                     ':meta_id' => $meta_id
                 ]))
                 ->setDetails([
-                    ':user' => $this,
+                    ':user' => $this->getLogId(),
                 ])
                 ->save();
 
@@ -1202,10 +1170,10 @@ class User extends DataEntry
                 ->setType('User information changed')
                 ->setSeverity(Severity::low)
                 ->setTitle(tr('The user ":user" was created', [
-                    ':user'    => $this
+                    ':user' => $this->getLogId()
                 ]))
                 ->setDetails([
-                    ':user' => $this,
+                    ':user' => $this->getLogId(),
                 ])
                 ->save();
         }
@@ -1313,12 +1281,12 @@ class User extends DataEntry
             ->select($this->getAlternateValidationField('redirect'), true)->isOptional()->hasMaxCharacters(255)->isUrl()
             ->select($this->getAlternateValidationField('timezone'), true)->isOptional()->isTimezone()
             ->select($this->getAlternateValidationField('leader'), true)->or('leaders_id')->hasMaxCharacters(255)->isName()->isQueryColumn    ('SELECT `email` FROM `accounts_users` WHERE `email` = :email AND `status` IS NULL', [':email' => '$leader'])
-            ->select($this->getAlternateValidationField('language'), true)->or('languages_id')->hasMaxCharacters(32)->isName()->isQueryColumn ('SELECT `code_639_1` FROM `languages` WHERE `code_639_1` = :code AND `status` IS NULL', [':code' => '$language'])
+            ->select($this->getAlternateValidationField('language'), true)->or('languages_id')->hasMaxCharacters(32)->isName()->isQueryColumn ('SELECT `code_639_1` FROM `core_languages` WHERE `code_639_1` = :code AND `status` IS NULL', [':code' => '$language'])
             ->select($this->getAlternateValidationField('country'), true)->or('countries_id')->hasMaxCharacters(200)->isName()->isQueryColumn ('SELECT `name` FROM `geo_countries` WHERE `name` = :name AND `status` IS NULL', [':name' => '$country'])
             ->select($this->getAlternateValidationField('state'), true)->or('states_id')->hasMaxCharacters(200)->isName()->isQueryColumn      ('SELECT `name` FROM `geo_states`    WHERE `name` = :name AND `countries_id` = :countries_id AND `status` IS NULL', [':name' => '$state'    , ':countries_id' => '$countries_id'])
             ->select($this->getAlternateValidationField('city'), true)->or('cities_id')->hasMaxCharacters(200)->isName()->isQueryColumn       ('SELECT `name` FROM `geo_cities`    WHERE `name` = :name AND `states_name`  = :states_id    AND `status` IS NULL', [':name' => '$city'     , ':states_id'    => '$states_id'])
-            ->select($this->getAlternateValidationField('leaders_id'), true)->or('leader')->isId()->isQueryColumn      ('SELECT `id` FROM `languages`     WHERE `id` = :id AND `status` IS NULL', [':id'   => '$language'])
-            ->select($this->getAlternateValidationField('languages_id'), true)->or('language')->isId()->isQueryColumn  ('SELECT `id` FROM `languages`     WHERE `id` = :id AND `status` IS NULL', [':id' => '$languages_id'])
+            ->select($this->getAlternateValidationField('leaders_id'), true)->or('leader')->isId()->isQueryColumn      ('SELECT `id` FROM `core_languages`     WHERE `id` = :id AND `status` IS NULL', [':id'   => '$language'])
+            ->select($this->getAlternateValidationField('languages_id'), true)->or('language')->isId()->isQueryColumn  ('SELECT `id` FROM `core_languages`     WHERE `id` = :id AND `status` IS NULL', [':id' => '$languages_id'])
             ->select($this->getAlternateValidationField('countries_id'), true)->or('country')->isId()->isQueryColumn   ('SELECT `id` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':id' => '$countries_id'])
             ->select($this->getAlternateValidationField('states_id'), true)->or('state')->isId()->isQueryColumn        ('SELECT `id` FROM `geo_states`    WHERE `id` = :id AND `countries_id` = :countries_id AND `status` IS NULL', [':id'   => '$states_id', ':countries_id' => '$countries_id'])
             ->select($this->getAlternateValidationField('cities_id'), true)->or('city')->isId()->isQueryColumn         ('SELECT `id` FROM `geo_cities`    WHERE `id` = :id AND `states_name`  = :states_id    AND `status` IS NULL', [':id'   => '$cities_id', ':states_id'    => '$states_id'])
@@ -1469,22 +1437,35 @@ class User extends DataEntry
                 ],
                 'cli'      => '--timezone TIMEZONE-NAME',
             ],
+            'timezones_id' => [
+                'element' => function (string $key, array $data, array $source) {
+                    return Timezones::getHtmlSelect($key)
+                        ->setSelected(isset_get($source['timezones_id']))
+                        ->render();
+                },
+                'cli'        => '--timezones-id',
+                'complete'   => true,
+                'size'       => 3,
+                'label'      => tr('Timezone'),
+                'help_group' => tr('Location information'),
+                'help'       => tr('The timezone where this user resides'),
+            ],
             'picture' => [
-                'display'  => false,
+                'visible'  => false,
                 'complete' => true,
                 'readonly' => true
             ],
             'verification_code' => [
-                'display'  => false,
+                'visible'  => false,
                 'readonly' => true
             ],
             'fingerprint' => [
                 // TODO Implement
-                'display'  => false,
+                'visible'  => false,
                 'readonly' => true
             ],
             'password' => [
-                'display'    => false,
+                'visible'    => false,
                 'complete'   => true,
                 'readonly'   => true,
                 'type'       => 'password',
@@ -1614,7 +1595,7 @@ class User extends DataEntry
                 'help'       => tr('Phone numbers where this user can be reached'),
             ],
             'code' => [
-                'display'    => false,
+                'visible'    => false,
                 'cli'        => '--code',
                 'complete'   => true,
                 'label'      => tr('Code'),
@@ -1652,19 +1633,6 @@ class User extends DataEntry
                 'step'       => 1,
                 'help_group' => tr(''),
                 'help'       => tr('The priority for this user, between 1 and 10'),
-            ],
-            'timezones_id' => [
-                'element' => function (string $key, array $data, array $source) {
-                    return Timezones::getHtmlSelect($key)
-                        ->setSelected(isset_get($source['timezones_id']))
-                        ->render();
-                },
-                'cli'        => '--timezones-id',
-                'complete'   => true,
-                'size'       => 3,
-                'label'      => tr('Timezone'),
-                'help_group' => tr('Location information'),
-                'help'       => tr('The timezone where this user resides'),
             ],
             'countries_id' => [
                 'element' => function (string $key, array $data, array $source) {

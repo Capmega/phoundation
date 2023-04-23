@@ -2,6 +2,7 @@
 
 namespace Phoundation\Web\Http\Html\Components\Input;
 
+use Phoundation\Web\Http\Html\Enums\InputType;
 
 
 /**
@@ -21,10 +22,9 @@ class InputNumeric extends Input
      */
     public function __construct()
     {
-        $this->type = 'numeric';
+        $this->type = InputType::numeric;
         parent::__construct();
     }
-
 
 
     /**
@@ -36,7 +36,6 @@ class InputNumeric extends Input
     {
         return isset_get($this->attributes['max']);
     }
-
 
 
     /**
@@ -52,7 +51,6 @@ class InputNumeric extends Input
     }
 
 
-
     /**
      * Returns the minimum numeric value for this numeric input
      *
@@ -62,7 +60,6 @@ class InputNumeric extends Input
     {
         return isset_get($this->attributes['min']);
     }
-
 
 
     /**
@@ -78,7 +75,6 @@ class InputNumeric extends Input
     }
 
 
-
     /**
      * Returns the step value for this numeric input
      *
@@ -88,7 +84,6 @@ class InputNumeric extends Input
     {
         return isset_get($this->attributes['step']);
     }
-
 
 
     /**

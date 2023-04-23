@@ -2,14 +2,15 @@
 
 namespace Phoundation\Web\Http\Html\Components;
 
-use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Http\Html\Enums\DisplayMode;
+use Phoundation\Web\Http\Html\Interfaces\InterfaceDisplayMode;
 
 
 /**
  * Mode trait
  *
- *
+ * Manages display modes for elements or element blocks
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -19,22 +20,20 @@ use Phoundation\Exception\OutOfBoundsException;
 trait Mode
 {
     /**
-     * The type of infobox to show
+     * The type of mode for the element or element block
      *
-     * @var string|null $mode
+     * @var InterfaceDisplayMode $mode
      */
-    #[ExpectedValues(values: ['white', 'success', 'info', 'warning', 'danger', 'primary', 'secondary', 'tertiary', 'link', 'light', 'dark', null])]
-    protected ?string $mode = 'primary';
+    protected InterfaceDisplayMode $mode = DisplayMode::primary;
 
 
 
     /**
-     * Sets the type of infobox to show
+     * Returns the type of mode for the element or element block
      *
-     * @return string|null
+     * @return InterfaceDisplayMode
      */
-    #[ExpectedValues(values: ['white', 'success', 'info', 'warning', 'danger', 'primary', 'secondary', 'tertiary', 'link', 'light', 'dark', null])]
-    public function getMode(): ?string
+    public function getMode(): InterfaceDisplayMode
     {
         return $this->mode;
     }
@@ -42,43 +41,37 @@ trait Mode
 
 
     /**
-     * Set the mode
+     * Sets the type of mode for the element or element block
      *
-     * @param string|null $mode
+     * @param InterfaceDisplayMode $mode
      * @return static
      */
-    public function setMode(
-        #[ExpectedValues(values: [
-            'white',
-            'success',
-            'green',
-            'info',
-            'information',
-            'blue',
-            'warning',
-            'yellow',
-            'danger',
-            'red',
-            'error',
-            'exception',
-            'primary',
-            'secondary',
-            'tertiary',
-            'link',
-            'light',
-            'dark',
-            null
-        ])] ?string $mode = null
-    ): static {
-        $mode = match (strtolower(trim((string) $mode))) {
-            'white'                                                     => 'white',
-            'blue', 'info', 'information'                               => 'info',
-            'green', 'success'                                          => 'success',
-            'yellow', 'warning',                                        => 'warning',
-            'red', 'error', 'exception', 'danger',                      => 'danger',
-            'primary', 'secondary', 'tertiary', 'link', 'light', 'dark' => $mode,
-            ''                                                          => null,
-            default => throw new OutOfBoundsException(tr('Unknown mode ":mode" specified', [':mode' => $mode]))
+    public function setMode(InterfaceDisplayMode $mode): static {
+        // Convert aliases
+        $mode = match ($mode) {
+            DisplayMode::white       => DisplayMode::white,
+            DisplayMode::blue,
+            DisplayMode::info,
+            DisplayMode::information => DisplayMode::info,
+            DisplayMode::green,
+            DisplayMode::success     => DisplayMode::success,
+            DisplayMode::yellow,
+            DisplayMode::warning,    => DisplayMode::warning,
+            DisplayMode::red,
+            DisplayMode::error,
+            DisplayMode::exception,
+            DisplayMode::danger      => DisplayMode::danger,
+            DisplayMode::plain,
+            DisplayMode::primary,
+            DisplayMode::secondary,
+            DisplayMode::tertiary,
+            DisplayMode::link,
+            DisplayMode::light,
+            DisplayMode::dark,
+            DisplayMode::null        => $mode,
+            default                  => throw new OutOfBoundsException(tr('Unknown mode ":mode" specified', [
+                ':mode' => $mode
+            ]))
         };
 
         $this->mode = $mode;

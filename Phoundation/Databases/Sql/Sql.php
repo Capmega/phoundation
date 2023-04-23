@@ -33,6 +33,7 @@ use Phoundation\Notifications\Notification;
 use Phoundation\Processes\Commands\Command;
 use Phoundation\Servers\Servers;
 use Phoundation\Utils\Json;
+use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Throwable;
 
 
@@ -518,7 +519,7 @@ class Sql
             global $argv;
 
             Notification::new()
-                ->setMode('EXCEPTION')
+                ->setMode(DisplayMode::exception)
                 ->setCode('SQL_QUERY_ERROR')->setRoles('developer')->setTitle('SQL Query error')->setMessage('
                 SQL STATE ERROR : "' . $error[0] . '"
                 DRIVER ERROR    : "' . $error[1] . '"

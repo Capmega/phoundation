@@ -2,7 +2,6 @@
 
 namespace Phoundation\Data\DataEntry;
 
-use DateTime;
 use Exception;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Accounts\Users\Users;
@@ -16,15 +15,14 @@ use Phoundation\Data\DataEntry\Enums\StateMismatchHandling;
 use Phoundation\Data\DataEntry\Exception\DataEntryAlreadyExistsException;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntry\Exception\DataEntryStateMismatchException;
+use Phoundation\Data\Interfaces\InterfaceDataEntry;
 use Phoundation\Data\Traits\DataDebug;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
-use Phoundation\Data\Validator\Validator;
 use Phoundation\Databases\Sql\Sql;
+use Phoundation\Date\DateTime;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Network\Curl\Post;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Components\DataEntryForm;
@@ -42,7 +40,7 @@ use Throwable;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
-abstract class DataEntry
+abstract class DataEntry implements InterfaceDataEntry
 {
     use DataDebug;
 
@@ -167,9 +165,9 @@ abstract class DataEntry
     /**
      * DataEntry class constructor
      *
-     * @param DataEntry|string|int|null $identifier
+     * @param InterfaceDataEntry|string|int|null $identifier
      */
-    public function __construct(DataEntry|string|int|null $identifier = null)
+    public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
     {
         if (empty(static::$entry_name)) {
             throw new OutOfBoundsException(tr('No entry_name specified for class ":class"', [
@@ -189,7 +187,7 @@ abstract class DataEntry
             ]));
         }
 
-        $this->fields = static::getAllFieldDefinitions();
+        $this->fields = self::getAllFieldDefinitions();
 
         if ($identifier) {
             if (is_numeric($identifier)) {
@@ -236,10 +234,10 @@ abstract class DataEntry
     /**
      * Returns a new DataEntry object
      *
-     * @param DataEntry|string|int|null $identifier
+     * @param InterfaceDataEntry|string|int|null $identifier
      * @return static
      */
-    public static function new(DataEntry|string|int|null $identifier = null): static
+    public static function new(InterfaceDataEntry|string|int|null $identifier = null): static
     {
         return new static($identifier);
     }
@@ -364,10 +362,10 @@ abstract class DataEntry
      * @note This method also accepts DataEntry objects, in which case it will simply return this object. This is to
      *       simplify "if this is not DataEntry object then this is new DataEntry object" into
      *       "PossibleDataEntryVariable is DataEntry::new(PossibleDataEntryVariable)"
-     * @param DataEntry|string|int|null $identifier
+     * @param InterfaceDataEntry|string|int|null $identifier
      * @return static|null
      */
-    public static function get(DataEntry|string|int|null $identifier = null): ?static
+    public static function get(InterfaceDataEntry|string|int|null $identifier = null): ?static
     {
         if (!$identifier) {
             // No identifier specified, just return an empty object
@@ -654,7 +652,7 @@ abstract class DataEntry
      * Returns the object that created this data entry
      *
      * @note Returns NULL if this class has no support for created_by information or has not been written to disk yet
-     * @return User|null
+     * @return DateTime|null
      */
     public function getCreatedOn(): ?DateTime
     {
@@ -1307,12 +1305,16 @@ abstract class DataEntry
     protected function getAlternateValidationField(string $field): string
     {
         if (!array_key_exists($field, $this->fields)) {
-            throw new OutOfBoundsException(tr('Specified field name ":field" has no alternate field available', [
+            throw new OutOfBoundsException(tr('Specified field name ":field" does not exist', [
                 ':field' => $field
             ]));
         }
 
-        return Strings::until(isset_get($this->cli_fields[$field]['cli']), ' ');
+        $alt = isset_get($this->cli_fields[$field]['cli']);
+        $alt = Strings::until($alt, ' ');
+        $alt = trim($alt);
+
+        return get_null($alt) ?? $field;
     }
 
 
@@ -1369,7 +1371,7 @@ abstract class DataEntry
      *
      * @return array
      */
-    public static function getAllFieldDefinitions(): array
+    protected static function getAllFieldDefinitions(): array
     {
          return array_merge([
             'id' => [

@@ -4,9 +4,9 @@ namespace Phoundation\Web\Http\Html\Components\Widgets\Cards;
 
 use Phoundation\Core\Arrays;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Http\Html\Components\Button;
 use Phoundation\Web\Http\Html\Components\Buttons;
 use Phoundation\Web\Http\Html\Components\Widgets\Widget;
-
 
 
 /**
@@ -78,16 +78,13 @@ class Card extends Widget
     protected ?Buttons $buttons = null;
 
 
-
     /**
      * Card class constructor
      */
     public function __construct()
     {
-        $this->setMode();
         parent::__construct();
     }
-
 
 
     /**
@@ -99,7 +96,6 @@ class Card extends Widget
     {
         return $this->title;
     }
-
 
 
     /**
@@ -115,7 +111,6 @@ class Card extends Widget
     }
 
 
-
     /**
      * Returns the buttons for this card
      *
@@ -127,19 +122,22 @@ class Card extends Widget
     }
 
 
-
     /**
      * Sets the buttons for this card
      *
-     * @param Buttons|null $buttons
+     * @param Buttons|Button|null $buttons
      * @return static
      */
-    public function setButtons(?Buttons $buttons): static
+    public function setButtons(Buttons|Button|null $buttons): static
     {
+        if (is_object($buttons) and ($buttons instanceof Button)) {
+            // This is a single button, store it in a buttons group
+            $buttons = Buttons::new()->addButton($buttons);
+        }
+
         $this->buttons = $buttons;
         return $this;
     }
-
 
 
     /**
@@ -169,7 +167,6 @@ class Card extends Widget
 
         return $return;
     }
-
 
 
     /**
@@ -218,7 +215,6 @@ class Card extends Widget
     }
 
 
-
     /**
      * Returns extra header content for the card
      *
@@ -228,7 +224,6 @@ class Card extends Widget
     {
         return $this->header_content;
     }
-
 
 
     /**
@@ -244,7 +239,6 @@ class Card extends Widget
     }
 
 
-
     /**
      * Returns if the card can collapse
      *
@@ -254,7 +248,6 @@ class Card extends Widget
     {
         return $this->has_collapse_switch;
     }
-
 
 
     /**
@@ -270,7 +263,6 @@ class Card extends Widget
     }
 
 
-
     /**
      * Returns if the card can close
      *
@@ -280,7 +272,6 @@ class Card extends Widget
     {
         return $this->has_close_switch;
     }
-
 
 
     /**
@@ -296,7 +287,6 @@ class Card extends Widget
     }
 
 
-
     /**
      * Returns if the card can reload
      *
@@ -306,7 +296,6 @@ class Card extends Widget
     {
         return $this->has_reload_switch;
     }
-
 
 
     /**
@@ -322,7 +311,6 @@ class Card extends Widget
     }
 
 
-
     /**
      * Returns if the card can maximize
      *
@@ -332,7 +320,6 @@ class Card extends Widget
     {
         return $this->has_maximize_switch;
     }
-
 
 
     /**
@@ -348,7 +335,6 @@ class Card extends Widget
     }
 
 
-
     /**
      * Returns if this card is shown with outline color or not
      *
@@ -358,7 +344,6 @@ class Card extends Widget
     {
         return $this->outline;
     }
-
 
 
     /**

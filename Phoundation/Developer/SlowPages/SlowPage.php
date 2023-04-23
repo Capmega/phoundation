@@ -2,8 +2,8 @@
 
 namespace Phoundation\Developer\SlowPages;
 
+use Phoundation\Data\Interfaces\InterfaceDataEntry;
 use Phoundation\Developer\Incidents\Incident;
-
 
 
 /**
@@ -18,7 +18,12 @@ use Phoundation\Developer\Incidents\Incident;
  */
 class SlowPage extends Incident
 {
-    public function __construct(int|string|null $identifier = null)
+    /**
+     * SlowPage class constructor
+     *
+     * @param InterfaceDataEntry|string|int|null $identifier
+     */
+    public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
     {
         $this->setType('slow_page');
         parent::__construct($identifier);

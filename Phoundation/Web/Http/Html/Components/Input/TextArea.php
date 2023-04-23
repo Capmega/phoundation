@@ -2,6 +2,7 @@
 
 namespace Phoundation\Web\Http\Html\Components\Input;
 
+use Phoundation\Web\Http\Html\Enums\InputType;
 
 
 /**
@@ -31,7 +32,6 @@ class TextArea extends Input
     protected ?int $rows = null;
 
 
-
     /**
      * Form class constructor
      */
@@ -41,9 +41,8 @@ class TextArea extends Input
 
         $this->requires_closing_tag = true;
         $this->element              = 'textarea';
-        $this->type                 = null;
+        $this->type                 = InputType::null;
     }
-
 
 
     /**
@@ -55,7 +54,6 @@ class TextArea extends Input
     {
         return $this->cols;
     }
-
 
 
     /**
@@ -71,7 +69,6 @@ class TextArea extends Input
     }
 
 
-
     /**
      * Returns the amount of rows to use for this text area
      *
@@ -81,7 +78,6 @@ class TextArea extends Input
     {
         return $this->rows;
     }
-
 
 
     /**
@@ -97,7 +93,6 @@ class TextArea extends Input
     }
 
 
-
     /**
      * Returns the maximum length this text area
      *
@@ -107,7 +102,6 @@ class TextArea extends Input
     {
         return isset_get($this->attributes['maxlength']);
     }
-
 
 
     /**
@@ -121,7 +115,6 @@ class TextArea extends Input
         $this->attributes['maxlength'] = $maxlength;
         return $this;
     }
-
 
 
     /**

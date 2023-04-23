@@ -2,6 +2,7 @@
 
 namespace Phoundation\Date;
 
+use Exception;
 
 
 /**
@@ -22,7 +23,7 @@ class DateTime extends \DateTime
      * @param $datetime
      * @param $timezone
      * @return DateTime
-     * @throws \Exception
+     * @throws Exception
      */
     public static function new(
         #[LanguageLevelTypeAware(['8.0' => 'string'], default: '')] $datetime = 'now',

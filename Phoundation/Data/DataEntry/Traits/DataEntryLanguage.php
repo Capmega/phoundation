@@ -20,11 +20,11 @@ trait DataEntryLanguage
     /**
      * Returns the languages_id for this object
      *
-     * @return string|null
+     * @return int|null
      */
-    public function getLanguagesId(): ?string
+    public function getLanguagesId(): ?int
     {
-        return $this->getDataValue('languages_id');
+        return (int) $this->getDataValue('languages_id');
     }
 
 
@@ -32,10 +32,10 @@ trait DataEntryLanguage
     /**
      * Sets the languages_id for this object
      *
-     * @param string|null $languages_id
+     * @param int|null $languages_id
      * @return static
      */
-    public function setLanguagesId(?string $languages_id): static
+    public function setLanguagesId(?int $languages_id): static
     {
         return $this->setDataValue('languages_id', $languages_id);
     }

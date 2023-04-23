@@ -4,6 +4,7 @@ namespace Phoundation\Web\Http\Html\Components\Input;
 
 use Phoundation\Web\Http\Html\Components\Button;
 use Phoundation\Web\Http\Html\Components\ElementsBlock;
+use Phoundation\Web\Http\Html\Enums\DisplayMode;
 
 
 /**
@@ -34,18 +35,16 @@ class InputMultiButtonText extends ElementsBlock
     protected Input $input;
 
 
-
     /**
      * InputMultiButtonText class constructor
      */
     public function __construct()
     {
         $this->setButton(Button::new()
-            ->setMode('info')
+            ->setMode(DisplayMode::info)
             ->setContent(tr('Action')));
         return parent::__construct();
     }
-
 
 
     /**
@@ -57,7 +56,6 @@ class InputMultiButtonText extends ElementsBlock
     {
         return $this->button;
     }
-
 
 
     /**
@@ -78,7 +76,6 @@ class InputMultiButtonText extends ElementsBlock
     }
 
 
-
     /**
      * Returns the internal input object
      *
@@ -93,7 +90,6 @@ class InputMultiButtonText extends ElementsBlock
 
         return $this->input;
     }
-
 
 
     /**
@@ -112,7 +108,6 @@ class InputMultiButtonText extends ElementsBlock
         $this->input = $input;
         return $this;
     }
-
 
 
     /**

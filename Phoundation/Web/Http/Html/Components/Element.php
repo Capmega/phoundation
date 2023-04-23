@@ -27,7 +27,6 @@ abstract class Element
     use ElementAttributes;
 
 
-
     /**
      * The element type
      *
@@ -41,7 +40,6 @@ abstract class Element
      * @var bool $requires_closing_tag
      */
     protected bool $requires_closing_tag = true;
-
 
 
     /**
@@ -62,7 +60,6 @@ abstract class Element
     }
 
 
-
     /**
      * Returns the HTML class element attribute
      *
@@ -72,7 +69,6 @@ abstract class Element
     {
         return $this->element;
     }
-
 
 
     /**
@@ -134,7 +130,6 @@ abstract class Element
     }
 
 
-
     /**
      * Builds and returns the class string
      *
@@ -150,7 +145,6 @@ abstract class Element
 
         return null;
     }
-
 
 
     /**
@@ -177,7 +171,6 @@ abstract class Element
         foreach ($return as $key => $value) {
             if ($value === null) {
                 unset($return[$key]);
-                continue;
             }
         }
 

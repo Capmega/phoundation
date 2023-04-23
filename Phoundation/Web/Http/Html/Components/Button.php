@@ -3,7 +3,7 @@
 namespace Phoundation\Web\Http\Html\Components;
 
 use Phoundation\Web\Http\Html\Components\Input\Input;
-
+use Phoundation\Web\Http\Html\Enums\ButtonType;
 
 
 /**
@@ -39,7 +39,7 @@ class Button extends Input
     {
         parent::__construct();
 
-        $this->setType('submit');
+        $this->setType(ButtonType::submit);
         $this->setClasses('btn');
     }
 

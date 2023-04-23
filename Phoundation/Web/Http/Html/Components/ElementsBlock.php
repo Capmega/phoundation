@@ -122,6 +122,18 @@ abstract class ElementsBlock implements Iterator
     }
 
 
+    /**
+     * Returns the specified entry from the source of this object
+     *
+     * @param string|int $entry
+     * @return mixed
+     */
+    public function getSourceEntry(string|int $entry): mixed
+    {
+        return isset_get($this->source[$entry]);
+    }
+
+
 
     /**
      * Sets the data source of this object

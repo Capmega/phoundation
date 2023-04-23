@@ -27,6 +27,7 @@ use Phoundation\Notifications\Notification;
 use Phoundation\Processes\Commands\SystemCommands;
 use Phoundation\Processes\Process;
 use Phoundation\Utils\Json;
+use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Page;
 use Phoundation\Web\Routing\Route;
@@ -1180,7 +1181,7 @@ class Core {
                 $language = Config::get('language.default', 'en');
 
                 Notification::new()
-                    ->setMode('WARNING')
+                    ->setMode(DisplayMode::warning)
                     ->setCode('unknown-language')
                     ->setRoles('developers')
                     ->setTitle(tr('Unknown language specified'))

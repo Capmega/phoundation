@@ -2,9 +2,11 @@
 
 namespace Phoundation\Web\Http\Html\Components;
 
-use JetBrains\PhpStorm\ExpectedValues;
+use Phoundation\Web\Http\Html\Enums\ButtonType;
+use Phoundation\Web\Http\Html\Enums\InputType;
+use Phoundation\Web\Http\Html\Interfaces\InterfaceInputType;
+use Phoundation\Web\Http\Html\Traits\UsesSize;
 use Phoundation\Web\Http\UrlBuilder;
-
 
 
 /**
@@ -20,7 +22,7 @@ use Phoundation\Web\Http\UrlBuilder;
 trait ButtonProperties
 {
     use Mode;
-
+    use UsesSize;
 
 
     /**
@@ -58,14 +60,16 @@ trait ButtonProperties
      */
     protected bool $wrapping = true;
 
-    /**
-     * Button size
-     *
-     * @var string|null $size
-     */
-    #[ExpectedValues(values: ['lg', 'sm', 'xs', null])]
-    protected ?string $size = null;
 
+    /**
+     * ButtonProperties class constructor
+     */
+    public function __construct()
+    {
+        // By default, buttons are submit buttons
+        parent::__construct();
+        $this->setType(ButtonType::button);
+    }
 
 
     /**
@@ -81,7 +85,6 @@ trait ButtonProperties
     }
 
 
-
     /**
      * Returns if the button is outlined or not
      *
@@ -93,50 +96,22 @@ trait ButtonProperties
     }
 
 
-
-    /**
-     * Set the button size
-     *
-     * @param string|null $size
-     * @return Button
-     */
-    public function setSize(#[ExpectedValues(values: ['lg', 'sm', 'xs', null])] ?string $size): static
-    {
-        $this->size = $size;
-        return $this;
-    }
-
-
-
-    /**
-     * Returns the button size
-     *
-     * @return string|null
-     */
-    #[ExpectedValues(values: ['lg', 'sm', 'xs', null])] public function getSize(): ?string
-    {
-        return $this->size;
-    }
-
-
-
     /**
      * Set the button type
      *
-     * @param string|null $type
+     * @param InterfaceInputType $type
      * @return Button
      */
-    public function setType(#[ExpectedValues(values: ['submit', 'reset', 'button', null])] ?string $type = 'button'): static
+    public function setType(InterfaceInputType $type): static
     {
         switch ($type) {
-            case 'submit':
+            case ButtonType::submit:
                 // Make this an input submit button
                 $this->setElement('input');
                 $this->setName('submit');
 
                 $this->value   = $this->content;
                 $this->content = null;
-                $this->type    = $type;
                 break;
 
             default:
@@ -145,24 +120,23 @@ trait ButtonProperties
 
                 $this->content = $this->value;
                 $this->value   = null;
-                $this->type    = $type;
         }
+
+        $this->type = $type;
 
         return $this;
     }
 
 
-
     /**
      * Returns the button type
      *
-     * @return string|null
+     * @return InterfaceInputType
      */
-    #[ExpectedValues(values: ['submit', 'reset', 'button'])] public function getType(): ?string
+    public function getType(): InterfaceInputType
     {
         return $this->type;
     }
-
 
 
     /**
@@ -176,7 +150,6 @@ trait ButtonProperties
     }
 
 
-
     /**
      * Returns the button's anchor URL
      *
@@ -188,7 +161,7 @@ trait ButtonProperties
         if ($anchor_url) {
             $this->setElement('a');
             $this->anchor_url = UrlBuilder::getWww($anchor_url);
-            $this->type       = null;
+            $this->type       = InputType::null;
             $this->content    = $this->value;
             $this->value      = null;
         } else {
@@ -199,13 +172,12 @@ trait ButtonProperties
 
             if (!$this->type) {
                 // Default to button
-                $this->setType();
+                $this->setType(ButtonType::button);
             }
         }
 
         return $this;
     }
-
 
 
     /**
@@ -221,7 +193,6 @@ trait ButtonProperties
     }
 
 
-
     /**
      * Returns if the button is flat or not
      *
@@ -231,7 +202,6 @@ trait ButtonProperties
     {
         return $this->flat;
     }
-
 
 
     /**
@@ -247,7 +217,6 @@ trait ButtonProperties
     }
 
 
-
     /**
      * Returns if the button is rounded or not
      *
@@ -257,7 +226,6 @@ trait ButtonProperties
     {
         return $this->rounded;
     }
-
 
 
     /**
@@ -271,7 +239,6 @@ trait ButtonProperties
         $this->wrapping = $wrapping;
         return $this;
     }
-
 
 
     /**

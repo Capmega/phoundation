@@ -2,6 +2,7 @@
 
 namespace Phoundation\Web\Http\Html\Components\Input;
 
+use Phoundation\Web\Http\Html\Enums\InputType;
 
 
 /**
@@ -21,7 +22,7 @@ class InputRadio extends Input
      */
     public function __construct()
     {
-        $this->type = 'radio';
+        $this->type = InputType::radio;
         parent::__construct();
     }
 }

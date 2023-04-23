@@ -4,6 +4,9 @@ namespace Phoundation\Web\Http\Html\Components;
 
 
 
+use Phoundation\Developer\Debug;
+use Phoundation\Web\Http\UrlBuilder;
+
 /**
  * TopPanel class
  *
@@ -36,6 +39,18 @@ class TopPanel extends Panel
      * @var LanguagesDropDown $languages
      */
     protected LanguagesDropDown $languages;
+
+
+
+    /**
+     * TopPanel class constructor
+     */
+    public function __construct()
+    {
+        // Set the default menu for top panels
+        $this->source['menu'] = Menu::new()->addSource([(string) UrlBuilder::getCurrent() => tr('Home')]);
+        parent::__construct();
+    }
 
 
 

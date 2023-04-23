@@ -35,6 +35,6 @@ class Container extends Renderer
      */
     public function render(): ?string
     {
-        return '<div class="container' . ($this->element->getType() ? '-' . $this->type : null) . '">' . $this->element->getContent() . '</div>';
+        return '<div class="container' . ($this->element->getSize() ? '-' . $this->type : null) . '">' . $this->element->getContent() . '</div>';
     }
 }

@@ -102,12 +102,12 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `cities_id` bigint DEFAULT NULL,
                     `states_id` bigint DEFAULT NULL,
                     `countries_id` bigint DEFAULT NULL,
+                    `timezones_id` bigint DEFAULT NULL,
                     `redirect` varchar(255) DEFAULT NULL,
                     `languages_id` bigint DEFAULT NULL,
                     `gender` varchar(16) DEFAULT NULL,
                     `birthdate` date DEFAULT NULL,
                     `url` varchar(2048) DEFAULT NULL,
-                    `timezone` varchar(32) DEFAULT NULL,
                     `description` text DEFAULT NULL,
                     `comments` mediumtext DEFAULT NULL
                 ')->setIndices('                
@@ -135,13 +135,15 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     KEY `cities_id` (`cities_id`),
                     KEY `states_id` (`states_id`),
                     KEY `countries_id` (`countries_id`),
+                    KEY `timezones_id` (`timezones_id`),
                 ')->setForeignKeys('
                     CONSTRAINT `fk_accounts_users_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_accounts_users_leaders_id` FOREIGN KEY (`leaders_id`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_accounts_users_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_accounts_users_countries_id` FOREIGN KEY (`countries_id`) REFERENCES `geo_countries` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_accounts_users_states_id` FOREIGN KEY (`states_id`) REFERENCES `geo_states` (`id`) ON DELETE RESTRICT,
-                    CONSTRAINT `fk_accounts_users_cities_id` FOREIGN KEY (`cities_id`) REFERENCES `geo_cities` (`id`) ON DELETE RESTRICT
+                    CONSTRAINT `fk_accounts_users_cities_id` FOREIGN KEY (`cities_id`) REFERENCES `geo_cities` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_accounts_users_timezones_id` FOREIGN KEY (`timezones_id`) REFERENCES `geo_timezones` (`id`) ON DELETE RESTRICT,
                 ')->create();
 
             // Create the users_rights table.
@@ -394,6 +396,10 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ->setName('Phoundation')->setDescription('This right will give the user access to the administrative phoundation system management section of the site')
                 ->save();
 
+            $audit = Right::new()
+                ->setName('Audit')->setDescription('This right will give the user access to the audit information system of the site')
+                ->save();
+
             // Define basic roles
             Role::new()
                 ->setName('God')->setDescription('This role will give the user the "God" right which will give it access to everything, everywhere')
@@ -405,6 +411,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ->save()
                 ->rights()
                 ->add($admin)
+                ->add($audit)
                 ->add($security)
                 ->add($phoundation);
 

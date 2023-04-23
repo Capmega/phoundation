@@ -1,0 +1,47 @@
+#!/usr/bin/php
+<?php
+
+use Phoundation\Accounts\Rights\Rights;
+use Phoundation\Data\Validator\ArgvValidator;
+
+
+
+/**
+ * Script system/accounts/rights/list
+ *
+ * This script will list the available rights on this system
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Scripts
+ */
+$usage = './pho system accounts rights list [OPTIONS]
+./cli system accounts rights list -d -r god';
+
+$help  = 'This script will list the available rights on this system
+
+
+
+ARGUMENTS
+
+
+--deleted                               Will also show deleted rights
+
+-r/--roles ROLE                         Will only display rights associated with the specified role(s)';
+
+
+
+// Validate arguments
+$argv = ArgvValidator::new()
+    ->select('-r,--roles,--role', true)->isOptional(null)->isName()
+    ->noArgumentsLeft()
+    ->validate();
+
+
+
+// Display rights
+Rights::new()
+    ->addFilter('status', (DELETED ? 'deleted' : null))
+    ->addFilter('roles' , $argv['roles'] )
+    ->CliDisplayTable();

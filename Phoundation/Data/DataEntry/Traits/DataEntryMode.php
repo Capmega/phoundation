@@ -2,9 +2,9 @@
 
 namespace Phoundation\Data\DataEntry\Traits;
 
-use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Exception\OutOfBoundsException;
-
+use Phoundation\Web\Http\Html\Enums\DisplayMode;
+use Phoundation\Web\Http\Html\Interfaces\InterfaceDisplayMode;
 
 
 /**
@@ -20,37 +20,51 @@ use Phoundation\Exception\OutOfBoundsException;
 trait DataEntryMode
 {
     /**
-     * Returns the mode for this object
+     * Returns the type of mode for the element or element block
      *
-     * @return string|null
+     * @return InterfaceDisplayMode
      */
-    #[ExpectedValues(values: ['white', 'success', 'info', 'warning', 'danger', 'primary', 'secondary', 'tertiary', 'link', 'light', 'dark', null])]
-    public function getMode(): ?string
+    public function getMode(): InterfaceDisplayMode
     {
-        return $this->getDataValue('mode');
+        return DisplayMode::from($this->getDataValue('mode'));
     }
 
 
 
     /**
-     * Sets the mode for this object
+     * Sets the type of mode for the element or element block
      *
-     * @param string|null $mode
+     * @param InterfaceDisplayMode $mode
      * @return static
      */
-    public function setMode(?string $mode): static
-    {
-        $mode = match (strtolower(trim((string) $mode))) {
-            'white'                                                     => 'white',
-            'blue', 'info', 'information'                               => 'info',
-            'green', 'success'                                          => 'success',
-            'yellow', 'warning',                                        => 'warning',
-            'red', 'error', 'exception', 'danger',                      => 'danger',
-            'primary', 'secondary', 'tertiary', 'link', 'light', 'dark' => $mode,
-            ''                                                          => null,
-            default => throw new OutOfBoundsException(tr('Unknown mode ":mode" specified', [':mode' => $mode]))
+    public function setMode(InterfaceDisplayMode $mode): static {
+        // Convert aliases
+        $mode = match ($mode) {
+            DisplayMode::white       => DisplayMode::white,
+            DisplayMode::blue,
+            DisplayMode::info,
+            DisplayMode::information => DisplayMode::info,
+            DisplayMode::green,
+            DisplayMode::success     => DisplayMode::success,
+            DisplayMode::yellow,
+            DisplayMode::warning,    => DisplayMode::warning,
+            DisplayMode::red,
+            DisplayMode::error,
+            DisplayMode::exception,
+            DisplayMode::danger      => DisplayMode::danger,
+            DisplayMode::plain,
+            DisplayMode::primary,
+            DisplayMode::secondary,
+            DisplayMode::tertiary,
+            DisplayMode::link,
+            DisplayMode::light,
+            DisplayMode::dark,
+            DisplayMode::null        => $mode,
+            default                  => throw new OutOfBoundsException(tr('Unknown mode ":mode" specified', [
+                ':mode' => $mode
+            ]))
         };
 
-        return $this->setDataValue('mode', $mode);
+        return $this->setDataValue('mode', $mode->value);
     }
 }

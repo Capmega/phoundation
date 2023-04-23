@@ -18,6 +18,7 @@ use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryPhones;
 use Phoundation\Data\DataEntry\Traits\DataEntryPicture;
 use Phoundation\Data\DataEntry\Traits\DataEntryUrl;
+use Phoundation\Data\Interfaces\InterfaceDataEntry;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
@@ -59,9 +60,9 @@ class Customer extends DataEntry
     /**
      * Customer class constructor
      *
-     * @param int|string|null $identifier
+     * @param InterfaceDataEntry|string|int|null $identifier
      */
-    public function __construct(int|string|null $identifier = null)
+    public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
     {
         static::$entry_name  = 'customer';
         $this->table         = 'business_customers';
@@ -92,7 +93,7 @@ class Customer extends DataEntry
             ->select('address2')->isOptional()->isPrintable()->hasMaxCharacters(64)
             ->select('address3')->isOptional()->isPrintable()->hasMaxCharacters(64)
             ->select('categories_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `categories` WHERE `id` = :id AND `status` IS NULL', [':id' => '$categories_id'])
-            ->select('languages_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `languages` WHERE `id` = :id AND `status` IS NULL', [':id' => '$languages_id'])
+            ->select('languages_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `core_languages` WHERE `id` = :id AND `status` IS NULL', [':id' => '$languages_id'])
             ->select('companies_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `business_companies` WHERE `id` = :id AND `status` IS NULL', [':id' => '$companies_id'])
             ->select('countries_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':id' => '$countries_id'])
             ->select('states_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_states` WHERE `id` = :id AND `countries_id` = :countries_id AND `status` IS NULL', [':id' => 'states_id', ':countries_id' => '$countries_id'])
@@ -159,7 +160,7 @@ class Customer extends DataEntry
      *
      * @return array
      */
-    public static function getFieldDefinitions(): array
+    protected static function getFieldDefinitions(): array
     {
         return [
             'country' => [
@@ -233,7 +234,7 @@ class Customer extends DataEntry
                 'help'       => tr('The name for this customer'),
             ],
             'seo_name' => [
-                'display'  => false
+                'visible'  => false
             ],
             'code' => [
                 'complete'   => true,
@@ -264,7 +265,7 @@ class Customer extends DataEntry
                 'help'       => tr('The customer phone number(s)'),
             ],
             'picture' => [
-                'display'  => false
+                'visible'  => false
             ],
             'url' => [
                 'complete'   => true,

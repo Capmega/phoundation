@@ -27,6 +27,7 @@ use Phoundation\Security\Incidents\Incident;
 use Phoundation\Security\Incidents\Severity;
 use Phoundation\Web\Client;
 use Phoundation\Web\Http\Html\Components\FlashMessages\FlashMessages;
+use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
@@ -711,7 +712,7 @@ Log::warning('RESTART SESSION');
 
         // Notify the target user
         Notification::new()
-            ->setMode('WARNING')
+            ->setMode(DisplayMode::warning)
             ->setUsersId($_SESSION['user']['impersonate_id'])
             ->setTitle(tr('Your account was impersonated'))
             ->setMessage(tr('Your account was impersonated by the user ":user". For questions or more information about this, please contact the user', [
@@ -762,7 +763,7 @@ Log::warning('RESTART SESSION');
 
                 if (!str_contains(static::$domain, $test)) {
                     Notification::new()
-                        ->setMode('WARNING')
+                        ->setMode(DisplayMode::warning)
                         ->setCode('configuration')
                         ->setRoles('developers')
                         ->setTitle(tr('Invalid cookie domain'))

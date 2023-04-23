@@ -5,6 +5,7 @@ namespace Phoundation\Core;
 
 use Phoundation\Accounts\Rights\Right;
 use Phoundation\Accounts\Roles\Role;
+use Phoundation\Core\Locale\Language\Import;
 
 /**
  * Updates class
@@ -154,7 +155,7 @@ class Updates extends Libraries\Updates
                     KEY `created_by` (`created_by`),
                     KEY `status` (`status`),
                     UNIQUE KEY `cloak` (`cloak`),
-                    UNIQUE KEY `url_created_by` (`url`,`created_by`),
+                    UNIQUE KEY `url_created_by` (`url` (32), `created_by`),
                 ')->setForeignKeys('
                     CONSTRAINT `fk_url_cloaks_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
                 ')->create();
@@ -186,9 +187,9 @@ class Updates extends Libraries\Updates
                 ')->create();
 
         })->addUpdate('0.0.8', function () {
-            sql()->schema()->table('languages')->drop();
+            sql()->schema()->table('core_languages')->drop();
 
-            sql()->schema()->table('languages')->define()
+            sql()->schema()->table('core_languages')->define()
                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -217,6 +218,9 @@ class Updates extends Libraries\Updates
                     CONSTRAINT `fk_languages_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_languages_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                 ')->create();
+
+            // Import all languages
+            Import::new(false, 0, 0)->execute();
 
         })->addUpdate('0.0.10', function () {
             sql()->schema()->table('core_templates')->drop();

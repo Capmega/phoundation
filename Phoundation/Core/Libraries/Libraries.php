@@ -16,6 +16,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Path;
 use Phoundation\Notifications\Notification;
 use Phoundation\Web\Http\Html\Components\Table;
+use Phoundation\Web\Http\Html\Enums\DisplayMode;
 
 
 /**
@@ -145,7 +146,7 @@ class Libraries
         if (Debug::production()) {
             // Notification developers
             Notification::new()
-                ->setMode('INFO')
+                ->setMode(DisplayMode::info)
                 ->setRoles('developers')->setTitle(tr('System initialization'))
                 ->setMessage(tr('The system ran an initialization'))
                 ->setDetails([

@@ -93,6 +93,10 @@ class Schema
      */
     public function table(string $name): Table
     {
+        if (!$name) {
+            throw new OutOfBoundsException(tr('No table specified'));
+        }
+
         return $this->database()->table($name);
     }
 

@@ -3,7 +3,6 @@
 namespace Phoundation\Data\DataEntry\Traits;
 
 
-
 /**
  * Trait DataEntryEmail
  *
@@ -27,15 +26,14 @@ trait DataEntryEmail
     }
 
 
-
     /**
      * Sets the email for this object
      *
-     * @param string|null $email
+     * @param string|null $number
      * @return static
      */
-    public function setEmail(?string $email): static
+    public function setEmail(?string $number): static
     {
-        return $this->setDataValue('email', $email);
+        return $this->setDataValue('email', $number);
     }
 }

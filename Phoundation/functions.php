@@ -6,6 +6,7 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
+use Phoundation\Data\Interfaces\InterfaceDataEntry;
 use Phoundation\Databases\Databases;
 use Phoundation\Databases\Mc;
 use Phoundation\Databases\Mongo;
@@ -271,11 +272,11 @@ function is_version(string $version): bool
  *
  * A data entry is considered new when the id is null, or _new
  *
- * @param DataEntry|array $entry The entry to check
+ * @param InterfaceDataEntry|array $entry The entry to check
  * @return boolean TRUE if the specified $entry is new
  * @version 2.5.46: Added function and documentation
  */
-function is_new(DataEntry|array $entry): bool
+function is_new(InterfaceDataEntry|array $entry): bool
 {
     if (!is_array($entry)) {
         if (!is_object($entry)) {

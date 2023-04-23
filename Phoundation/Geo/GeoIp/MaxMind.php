@@ -8,7 +8,6 @@ use GeoIp2\Model\City;
 use MaxMind\Db\Reader\InvalidDatabaseException;
 use Phoundation\Core\Config;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Strings;
 use Phoundation\Data\Traits\DataPath;
 use Phoundation\Network\Network;
 use Phoundation\Notifications\Notification;
@@ -28,13 +27,6 @@ class MaxMind extends GeoIp
 {
     Use DataPath;
 
-
-    /**
-     * The path for this object
-     *
-     * @var string $path
-     */
-    protected string $path;
 
     /**
      * The location record

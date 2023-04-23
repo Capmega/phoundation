@@ -2,6 +2,8 @@
 
 namespace Phoundation\Accounts\Users;
 
+use Phoundation\Data\Interfaces\InterfaceDataEntry;
+
 
 
 /**
@@ -19,9 +21,9 @@ class GuestUser extends User
     /**
      * GuestUser class constructor
      *
-     * @param string|int|null $identifier
+     * @param InterfaceDataEntry|string|int|null $identifier
      */
-    public function __construct(string|int|null $identifier = null)
+    public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
     {
         parent::__construct(null);
         $this->id = -1;

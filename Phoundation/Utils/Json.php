@@ -12,6 +12,7 @@ use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Exception\JsonException;
+use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\UrlBuilder;
 use Throwable;
 
@@ -366,7 +367,7 @@ class Json
 
             default:
                 Notification::new()
-                    ->setMode('EXCEPTION')
+                    ->setMode(DisplayMode::exception)
                     ->setCode('unknown')
                     ->setRoles('developer')
                     ->setTitle('Unknown message specified')

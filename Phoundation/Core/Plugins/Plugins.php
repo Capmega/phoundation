@@ -163,7 +163,7 @@ class Plugins extends DataList
      */
     public static function getEnabled(): array
     {
-        $return = sql()->list('SELECT   `name` AS `id`, `name`, `path`, `class`, `start` 
+        $return = sql()->list('SELECT   `name` AS `id`, `name`, `path`, `class`, `enabled` 
                                      FROM     `core_plugins` 
                                      WHERE    `status` IS NULL 
                                      ORDER BY `priority` ASC');

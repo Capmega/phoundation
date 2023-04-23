@@ -8,6 +8,7 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Traits\DataEntryDetails;
 use Phoundation\Data\DataEntry\Traits\DataEntryTitle;
 use Phoundation\Data\DataEntry\Traits\DataEntryType;
+use Phoundation\Data\Interfaces\InterfaceDataEntry;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
@@ -44,13 +45,12 @@ class Incident extends DataEntry
     protected bool $log = true;
 
 
-
     /**
      * Incident class constructor
      *
-     * @param int|string|null $identifier
+     * @param InterfaceDataEntry|string|int|null $identifier
      */
-    public function __construct(int|string|null $identifier = null)
+    public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
     {
         static::$entry_name  = 'incident';
         $this->table         = 'security_incidents';
@@ -58,7 +58,6 @@ class Incident extends DataEntry
 
         parent::__construct($identifier);
     }
-
 
 
     /**
@@ -193,11 +192,11 @@ class Incident extends DataEntry
 
 
     /**
-     * Set the form keys for this object
+     * Sets the available data keys for this entry
      *
-     * @return void
+     * @return array
      */
-    public static function getFieldDefinitions(): array
+    protected static function getFieldDefinitions(): array
     {
         return [
             'severity' => [
@@ -237,7 +236,5 @@ class Incident extends DataEntry
                 'maxlength' => 65_535,
             ]
         ];
-
-        parent::setFields();
     }
 }

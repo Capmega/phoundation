@@ -4,6 +4,7 @@ namespace Phoundation\Data\DataEntry;
 
 use Iterator;
 use Phoundation\Cli\Cli;
+use Phoundation\Data\Interfaces\InterfaceDataEntry;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Json;
@@ -167,10 +168,10 @@ abstract class DataList implements Iterator
     /**
      * Returns if the specified data entry exists in the data list
      *
-     * @param DataEntry|int $entry
+     * @param InterfaceDataEntry|int $entry
      * @return bool
      */
-    public function exists(DataEntry|int $entry): bool
+    public function exists(InterfaceDataEntry|int $entry): bool
     {
         if (is_integer($entry)) {
             return array_key_exists($entry, $this->list);
@@ -741,10 +742,10 @@ showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY F
     /**
      * Remove the specified data entry from the data list
      *
-     * @param DataEntry|int|null $entry
+     * @param InterfaceDataEntry|int|null $entry
      * @return static
      */
-    protected function removeEntry(DataEntry|int|null $entry): static
+    protected function removeEntry(InterfaceDataEntry|int|null $entry): static
     {
         if ($entry) {
             if (is_object($entry)) {

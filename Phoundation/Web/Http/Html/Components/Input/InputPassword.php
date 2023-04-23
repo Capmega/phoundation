@@ -2,6 +2,7 @@
 
 namespace Phoundation\Web\Http\Html\Components\Input;
 
+use Phoundation\Web\Http\Html\Enums\InputType;
 
 
 /**
@@ -21,7 +22,7 @@ class InputPassword extends Input
      */
     public function __construct()
     {
-        $this->type = 'password';
+        $this->type = InputType::password;
         parent::__construct();
     }
 }

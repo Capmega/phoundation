@@ -21,6 +21,7 @@ use Phoundation\Data\DataEntry\Traits\DataEntryTitle;
 use Phoundation\Data\DataEntry\Traits\DataEntryTrace;
 use Phoundation\Data\DataEntry\Traits\DataEntryUrl;
 use Phoundation\Data\DataEntry\Traits\DataEntryUsersId;
+use Phoundation\Data\Interfaces\InterfaceDataEntry;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
@@ -86,13 +87,12 @@ class Notification extends DataEntry
     protected ?Throwable $e = null;
 
 
-
     /**
      * Notification class constructor
      *
-     * @param int|string|null $identifier
+     * @param InterfaceDataEntry|string|int|null $identifier
      */
-    public function __construct(int|string|null $identifier = null)
+    public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
     {
         static::$auto_log   = Config::get('notifications.auto-log', true);
         static::$entry_name = 'notification';
@@ -440,11 +440,11 @@ class Notification extends DataEntry
 
 
     /**
-     * Sets the available data keys for the User class
+     * Sets the available data keys for this entry
      *
      * @return array
      */
-    public static function getFieldDefinitions(): array
+    protected static function getFieldDefinitions(): array
     {
         return [
             'users_id' => [

@@ -3,6 +3,8 @@
 namespace Phoundation\Web\Http\Html\Components\Input;
 
 use Phoundation\Web\Http\Html\Components\Mode;
+use Phoundation\Web\Http\Html\Enums\InputType;
+use Phoundation\Web\Http\Html\Interfaces\InterfaceInputType;
 
 
 /**
@@ -24,9 +26,9 @@ trait InputElement
     /**
      * Input element type
      *
-     * @var string|null $type
+     * @var InterfaceInputType $type
      */
-    protected ?string $type = 'text';
+    protected InterfaceInputType $type = InputType::text;
 
     /**
      * Input element value
@@ -40,9 +42,9 @@ trait InputElement
     /**
      * Returns the type for the input element
      *
-     * @return string|null
+     * @return InterfaceInputType
      */
-    public function getType(): ?string
+    public function getType(): InterfaceInputType
     {
         return $this->type;
     }
@@ -52,10 +54,10 @@ trait InputElement
     /**
      * Sets the type for the input element
      *
-     * @param string|null $type
+     * @param InterfaceInputType $type
      * @return static
      */
-    public function setType(?string $type): static
+    public function setType(InterfaceInputType $type): static
     {
         $this->type = $type;
         return $this;
@@ -151,7 +153,7 @@ trait InputElement
     protected function buildInputAttributes(): array
     {
         return [
-            'type'  => $this->type,
+            'type'  => $this->type->value,
             'value' => $this->value,
         ];
     }

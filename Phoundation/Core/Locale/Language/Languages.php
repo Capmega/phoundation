@@ -28,10 +28,10 @@ class Languages extends DataList
     public function __construct(?Language $parent = null, ?string $id_column = null)
     {
         $this->entry_class = Language::class;
-        $this->table_name  = 'languages';
+        $this->table_name  = 'core_languages';
 
         $this->setHtmlQuery('SELECT   `id`, `code_639_1`, `name`, `status`, `created_on` 
-                             FROM     `languages` 
+                             FROM     `core_languages` 
                              WHERE    `status` IS NULL 
                              ORDER BY `name`');
         parent::__construct($parent, $id_column);
@@ -49,23 +49,23 @@ class Languages extends DataList
     public static function getHtmlSelect(string $name = 'languages_id'): Select
     {
         return Select::new()
-            ->setSourceQuery('SELECT `id`, `name` FROM `languages` WHERE `status` IS NULL ORDER BY `name`')
+            ->setSourceQuery('SELECT `id`, `name` FROM `core_languages` WHERE `status` IS NULL ORDER BY `name`')
             ->setName($name)
             ->setNone(tr('Please select a language'))
             ->setEmpty(tr('No languages available'));
     }
 
 
-
     /**
-     * @param string|null $id_column
+     * @param string|int|null $id_column
      * @return $this
+     * @throws \Throwable
      */
     protected function load(string|int|null $id_column = null): static
     {
-        $this->list = sql()->list('SELECT `languages`.`id`, substring_index(substring_index(`languages`.`name`, "(", 1), ",", 1) AS `name` 
-                                   FROM     `languages` 
-                                   WHERE    `languages`.`status` IS NULL
+        $this->list = sql()->list('SELECT `core_languages`.`id`, substring_index(substring_index(`core_languages`.`name`, "(", 1), ",", 1) AS `name` 
+                                   FROM     `core_languages` 
+                                   WHERE    `core_languages`.`status` IS NULL
                                    ORDER BY `name`');
 
         // The keys contain the ids...

@@ -13,6 +13,7 @@ use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
+use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Page;
 use Throwable;
 
@@ -274,7 +275,7 @@ class Bundler
 
                     if (!file_exists($this->path . $import)) {
                         Notification::new()
-                            ->setMode('EXCEPTION')
+                            ->setMode(DisplayMode::exception)
                             ->setCode('not-exists')
                             ->setRoles('developer')
                             ->setTitle(tr('Bundler file does not exist'))
@@ -298,7 +299,7 @@ class Bundler
 
                     if (!file_exists($import)) {
                         Notification::new()
-                            ->setMode('EXCEPTION')
+                            ->setMode(DisplayMode::exception)
                             ->setCode('not-exists')
                             ->setRoles('developer')
                             ->setTitle(tr('Bundler file does not exist'))
@@ -383,7 +384,7 @@ class Bundler
     
                     if (!file_exists($file)) {
                         Notification::new()
-                            ->setMode('EXCEPTION')
+                            ->setMode(DisplayMode::exception)
                             ->setCode('not-exists')
                             ->setRoles('developer')
                             ->setTitle(tr('Bundler file does not exist'))

@@ -2,6 +2,7 @@
 
 namespace Phoundation\Web\Http\Html\Components\Input;
 
+use Phoundation\Web\Http\Html\Enums\InputType;
 
 
 /**
@@ -21,7 +22,7 @@ class InputMonth extends Input
      */
     public function __construct()
     {
-        $this->type = 'month';
+        $this->type = InputType::month;
         parent::__construct();
     }
 }

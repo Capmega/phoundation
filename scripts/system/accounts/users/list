@@ -1,0 +1,54 @@
+#!/usr/bin/php
+<?php
+
+use Phoundation\Accounts\Users\Users;
+use Phoundation\Cli\Documentation;
+use Phoundation\Data\Validator\ArgvValidator;
+
+
+
+/**
+ * Script system/accounts/users/list
+ *
+ * This script will list the available users on this system
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Scripts
+ */
+Documentation::usage('./pho system accounts users list [OPTIONS]
+./cli system accounts users list -d -r god');
+
+$help  = 'This script will list the available users on this system
+
+
+
+ARGUMENTS
+
+
+--domains DOMAIN[,DOMAIN,DOMAIN,...]    Will only display users for the specified domains
+
+--deleted                               Will also show deleted users
+
+--roles ROLE[,ROLE,ROLE,...]           Will only display users with the specified role
+
+--rights RIGHT[RIGHT,RIGHT,...]        Will only display users with the specified right';
+
+
+
+// Validate arguments
+$argv = ArgvValidator::new()
+    ->select('--domains,--domain')->isOptional(null)->sanitizeForceArray()->each()->isDomain()
+    ->select('-r,--roles,--role', true)->isOptional(null)->sanitizeForceArray()->each()->isName()
+    ->select('-r,--rights,--right', true)->isOptional(null)->sanitizeForceArray()->each()->isName()
+    ->noArgumentsLeft()
+    ->validate();
+
+
+Users::new()
+    ->addFilter('roles', $argv['roles'])
+    ->addFilter('rights', $argv['rights'])
+    ->addFilter('domains', $argv['domains'])
+    ->addFilter('status', (DELETED ? 'deleted' : null))
+    ->CliDisplayTable();

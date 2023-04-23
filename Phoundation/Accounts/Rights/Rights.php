@@ -173,7 +173,7 @@ class Rights extends DataList
 
                 if ($this->parent instanceof User) {
                     Log::action(tr('Removing right ":right" from user ":user"', [
-                        ':user' => $this->parent->getLogId(),
+                        ':user'  => $this->parent->getLogId(),
                         ':right' => $right->getLogId()
                     ]));
 

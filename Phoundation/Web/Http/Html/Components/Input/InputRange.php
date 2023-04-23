@@ -2,6 +2,7 @@
 
 namespace Phoundation\Web\Http\Html\Components\Input;
 
+use Phoundation\Web\Http\Html\Enums\InputType;
 
 
 /**
@@ -21,7 +22,7 @@ class InputRange extends Input
      */
     public function __construct()
     {
-        $this->type = 'range';
+        $this->type = InputType::range;
         parent::__construct();
     }
 }

@@ -6,6 +6,7 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Traits\DataEntryIpAddress;
 use Phoundation\Data\DataEntry\Traits\DataEntryTimezone;
 use Phoundation\Data\DataEntry\Traits\DataEntryUserAgent;
+use Phoundation\Data\Interfaces\InterfaceDataEntry;
 use Phoundation\Data\Traits\DataGeoIp;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\GetValidator;
@@ -34,13 +35,12 @@ class SignIn extends DataEntry
     use DataGeoIp;
 
 
-
     /**
      * SignIn class constructor
      *
-     * @param int|string|null $identifier
+     * @param InterfaceDataEntry|string|int|null $identifier
      */
-    public function __construct(int|string|null $identifier = null)
+    public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
     {
         static::$entry_name  = 'signin';
         $this->table         = 'accounts_signins';
@@ -48,7 +48,6 @@ class SignIn extends DataEntry
 
         parent::__construct($identifier);
     }
-
 
 
     /**
@@ -98,14 +97,14 @@ class SignIn extends DataEntry
      *
      * @return array
      */
-    public static function getFieldDefinitions(): array
+    protected static function getFieldDefinitions(): array
     {
        return [
            'ip_address' => [
-               'display'  => false
+               'visible'  => false
            ],
            'net_len' => [
-               'display'  => false
+               'visible'  => false
            ],
            'ip_address_human' => [
                'readonly'  => true,

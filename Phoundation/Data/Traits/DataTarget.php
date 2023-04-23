@@ -3,7 +3,6 @@
 namespace Phoundation\Data\Traits;
 
 
-
 /**
  * Trait DataTarget
  *
@@ -16,29 +15,27 @@ namespace Phoundation\Data\Traits;
  */
 trait DataTarget
 {
-    protected string $target;
-
+    protected ?string $target;
 
 
     /**
      * Returns the source
      *
-     * @return string
+     * @return string|null
      */
-    public function getTarget(): string
+    public function getTarget(): ?string
     {
         return $this->target;
     }
 
 
-
     /**
      * Sets the source
      *
-     * @param string $target
+     * @param string|null $target
      * @return static
      */
-    public function setTarget(string $target): static
+    public function setTarget(?string $target): static
     {
         $this->target = $target;
         return $this;

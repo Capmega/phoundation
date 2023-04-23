@@ -194,7 +194,6 @@ abstract class Validator
     }
 
 
-
     /**
      * Validates the datatype for the selected field
      *
@@ -611,16 +610,17 @@ abstract class Validator
 
 
     /**
-     * Validates the datatype for the selected field
+     * Ensures that the value has the specified string
      *
      * This method ensures that the specified array key contains the specified string
      *
      * @param string $string
+     * @param bool $regex
      * @return static
      */
-    public function contains(string $string) : Validator
+    public function contains(string $string, bool $regex = false) : Validator
     {
-        return $this->validateValues(function(&$value) use ($string) {
+        return $this->validateValues(function(&$value) use ($string, $regex) {
             // This value must be scalar
             $this->isScalar();
 
@@ -629,8 +629,47 @@ abstract class Validator
                 return;
             }
 
-            if (!str_contains($value, $string)) {
-                $this->addFailure(tr('must contain ":value"', [':value' => $string]));
+            if ($regex) {
+                if (!preg_match($string, $value)) {
+                    $this->addFailure(tr('must contain ":value"', [':value' => $string]));
+                }
+            } else {
+                if (!str_contains($value, $string)) {
+                    $this->addFailure(tr('must contain ":value"', [':value' => $string]));
+                }
+            }
+        });
+    }
+
+
+    /**
+     * Ensures that the value has the specified string
+     *
+     * This method ensures that the specified array key contains the specified string
+     *
+     * @param string $string
+     * @param bool $regex
+     * @return static
+     */
+    public function containsNot(string $string, bool $regex = false) : Validator
+    {
+        return $this->validateValues(function(&$value) use ($string, $regex) {
+            // This value must be scalar
+            $this->isScalar();
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return;
+            }
+
+            if ($regex) {
+                if (preg_match($string, $value)) {
+                    $this->addFailure(tr('must not contain ":value"', [':value' => $string]));
+                }
+            } else {
+                if (str_contains($value, $string)) {
+                    $this->addFailure(tr('must not contain ":value"', [':value' => $string]));
+                }
             }
         });
     }
@@ -838,18 +877,20 @@ abstract class Validator
      */
     public function matchesRegex(string $regex): static
     {
-        return $this->validateValues(function(&$value) use ($regex) {
-            $this->isString();
+        return $this->contains($regex, true);
+    }
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
-                return;
-            }
 
-            if (!preg_match($regex, $value)) {
-                $this->addFailure(tr('must match ":regex"', [':regex' => $regex]));
-            }
-        });
+
+    /**
+     * Validates that the selected field NOT matches the specified regex
+     *
+     * @param string $regex
+     * @return static
+     */
+    public function matchesNotRegex(string $regex): static
+    {
+        return $this->containsNot($regex, true);
     }
 
 
@@ -1669,10 +1710,10 @@ abstract class Validator
      * @param Restrictions|array|string|null $restrictions
      * @return static
      */
-    public function isDirectory(?string $exists_in_path = null, Restrictions|array|string|null $restrictions = null): static
+    public function isPath(?string $exists_in_path = null, Restrictions|array|string|null $restrictions = null): static
     {
-        return $this->validateValues(function(&$value) use($restrictions, $exists_in_path) {
-            $this->isFile('', $restrictions);
+        return $this->validateValues(function(&$value) use($exists_in_path, $restrictions) {
+            $this->hasMinCharacters(1)->hasMaxCharacters(2048);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -1684,7 +1725,6 @@ abstract class Validator
             }
         });
     }
-
 
 
     /**
@@ -1727,6 +1767,30 @@ abstract class Validator
                 $this->addFailure(tr('cannot be a directory'));
             }
         }
+    }
+
+
+
+    /**
+     * Validates if the selected field is a valid directory
+     *
+     * @param Restrictions|array|string $restrictions
+     * @return static
+     */
+    public function isDirectory(Restrictions|array|string $restrictions): static
+    {
+        return $this->validateValues(function(&$value) use($restrictions) {
+            $this->isFile('', $restrictions);
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return;
+            }
+
+            if (!is_dir($value)) {
+                $this->addFailure(tr('must be an existing directory'));
+            }
+        });
     }
 
 

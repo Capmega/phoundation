@@ -2,6 +2,8 @@
 
 namespace Phoundation\Web\Http\Html\Components\Input;
 
+use Phoundation\Web\Http\Html\Enums\InputType;
+use Phoundation\Web\Http\Html\Traits\UsesAttributeMultiple;
 
 
 /**
@@ -16,12 +18,15 @@ namespace Phoundation\Web\Http\Html\Components\Input;
  */
 class InputEmail extends Input
 {
+    use UsesAttributeMultiple;
+
+
     /**
      * InputEmail class constructor
      */
     public function __construct()
     {
-        $this->type = 'email';
+        $this->type = InputType::email;
         parent::__construct();
     }
 }

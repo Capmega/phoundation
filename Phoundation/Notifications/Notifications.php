@@ -44,11 +44,13 @@ class Notifications extends DataList
     }
 
 
-
     /**
      * Returns the query builder for this object
      *
-     * @note This is an expirimental function
+     * @note This is an experimental function
+     * @param array|string|null $columns
+     * @param array $filters
+     * @param array $order_by
      * @return void
      */
     public function loadList(array|string|null $columns = null, array $filters = [], array $order_by = []): void
@@ -92,7 +94,12 @@ class Notifications extends DataList
      */
     protected function load(string|int|null $id_column = null): static
     {
-        // TODO: Implement load() method.
+        $this->list = sql()->list('SELECT `notifications`.`id`, `notifications`.`title`  
+                                   FROM     `notifications` 
+                                   WHERE    `notifications`.`status` IS NULL
+                                   ORDER BY `created_on`');
+
+        return $this;
     }
 
 

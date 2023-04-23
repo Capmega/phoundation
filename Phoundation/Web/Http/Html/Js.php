@@ -5,6 +5,7 @@ namespace Phoundation\Web\Http\Html;
 use Phoundation\Core\Arrays;
 use Phoundation\Notifications\Notification;
 use Phoundation\Web\Exception\WebException;
+use Phoundation\Web\Http\Html\Enums\DisplayMode;
 
 
 /**
@@ -61,7 +62,7 @@ class Js
                     $file = substr($file, 0, -3);
 
                     Notification::new()
-                        ->setMode('EXCEPTION')
+                        ->setMode(DisplayMode::exception)
                         ->setCode('not-exists')
                         ->setRoles('developer')
                         ->setTitle(tr('html_load_js() issue detected'))
@@ -72,7 +73,7 @@ class Js
                     $file = substr($file, 0, -7);
 
                     Notification::new()
-                        ->setMode('EXCEPTION')
+                        ->setMode(DisplayMode::exception)
                         ->setCode('not-exists')
                         ->setRoles('developer')
                         ->setTitle(tr('html_load_js() issue detected'))

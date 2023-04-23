@@ -32,7 +32,7 @@ class SqlExists
         try {
             $return = sql()->query('SHOW DATABASES LIKE "'.cfm($database).'"', null, $connector);
 
-            if (substr($query, 0, 1) == '!') {
+            if (str_starts_with($query, '!')) {
                 $not   = true;
                 $query = substr($query, 1);
 

@@ -51,7 +51,7 @@ class DataEntryForm extends Renderer
 
         // Possible $data contents:
         //
-        // $data['display']  true   If false, this key will be completely ignored
+        // $data['visible']  true   If false, this key will be completely ignored
         // $data['element']  input  Type of element, input, select, or text or callable function
         // $data['type']     text   Type of input element, if element is "input"
         // $data['readonly'] false  If true, will make the input element readonly
@@ -70,16 +70,27 @@ class DataEntryForm extends Renderer
                 ]));
             }
 
-            if (!isset_get($data['display'], true)) {
+            if (!isset_get($data['visible'], true)) {
                 continue;
             }
 
             // Set defaults
-            Arrays::default($data, 'size'    , 12);
-            Arrays::default($data, 'type'    , 'text');
-            Arrays::default($data, 'label'   , null);
-            Arrays::default($data, 'disabled', false);
-            Arrays::default($data, 'readonly', false);
+            Arrays::default($data, 'size'     , 12);
+            Arrays::default($data, 'type'     , 'text');
+            Arrays::default($data, 'label'    , null);
+            Arrays::default($data, 'disabled' , false);
+            Arrays::default($data, 'readonly' , false);
+            Arrays::default($data, 'visible'  , true);
+            Arrays::default($data, 'readonly' , false);
+//            Arrays::default($data, 'maxlength', 0);
+//            Arrays::default($data, 'min'      , 0);
+//            Arrays::default($data, 'max'      , 0);
+//            Arrays::default($data, 'step'     , 0);
+
+            if (!$data['visible']) {
+                // This element shouldn't be shown, continue
+                continue;
+            }
 
             // Ensure password is never sent in the form
             switch ($key) {
@@ -155,7 +166,7 @@ class DataEntryForm extends Renderer
                     }
 
                     // Build the element class path and load the required class file
-                    $type    = match ($data['type']) {
+                    $type = match ($data['type']) {
                         'datetime-local' => 'DateTimeLocal',
                         default          => Strings::capitalize($data['type']),
                     };
@@ -292,10 +303,6 @@ class DataEntryForm extends Renderer
     protected function renderItem(string|int|null $id, ?string $html, ?array $data): ?string
     {
         static $col_size = 12;
-// TODO Leave the following lines for easy debugging form layouts
-//        Log::printr($label);
-//        Log::printr($size);
-//        Log::printr($col_size);
         $return = '';
 
         if ($data === null) {

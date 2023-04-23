@@ -4,6 +4,7 @@ namespace Phoundation\Geo\Continents;
 
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
+use Phoundation\Data\Interfaces\InterfaceDataEntry;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
@@ -27,13 +28,12 @@ class Continent extends DataEntry
     use DataEntryNameDescription;
 
 
-
     /**
      * Continent class constructor
      *
-     * @param int|string|null $identifier
+     * @param InterfaceDataEntry|string|int|null $identifier
      */
-    public function __construct(int|string|null $identifier = null)
+    public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
     {
         static::$entry_name = 'geo continent';
         $this->table        = 'geo_continents';
@@ -41,7 +41,6 @@ class Continent extends DataEntry
 
         parent::__construct($identifier);
     }
-
 
 
     /**
@@ -87,11 +86,11 @@ class Continent extends DataEntry
 
 
     /**
-     * Set the form keys for this DataEntry
+     * Sets the available data keys for this entry
      *
-     * @return void
+     * @return array
      */
-    public static function getFieldDefinitions(): array
+    protected static function getFieldDefinitions(): array
     {
         // TODO: Implement getFieldDefinitions() method.
     }

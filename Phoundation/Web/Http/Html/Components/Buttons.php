@@ -4,6 +4,10 @@ namespace Phoundation\Web\Http\Html\Components;
 
 use Iterator;
 use JetBrains\PhpStorm\ExpectedValues;
+use Phoundation\Web\Http\Html\Enums\ButtonType;
+use Phoundation\Web\Http\Html\Enums\DisplayMode;
+use Phoundation\Web\Http\Html\Interfaces\InterfaceDisplayMode;
+use Phoundation\Web\Http\Html\Interfaces\InterfaceInputType;
 use ReturnTypeWillChange;
 
 
@@ -67,13 +71,13 @@ class Buttons extends ElementsBlock implements Iterator
      * Adds a single button to button list
      *
      * @param Button|string|null $button
-     * @param string $mode
-     * @param string|null $type_or_anchor_url
+     * @param InterfaceDisplayMode $mode
+     * @param InterfaceInputType|string $type_or_anchor_url
      * @param bool $outline
      * @param bool $right
      * @return static
      */
-    public function addButton(Button|string|null $button, #[ExpectedValues(values: ['success', 'green', 'info', 'information', 'blue', 'warning', 'yellow', 'danger', 'red', 'error', 'exception', 'primary', 'secondary', 'tertiary', 'link', 'light', 'dark', null])] ?string $mode = 'primary', ?string $type_or_anchor_url = null, bool $outline = false, bool $right = false): static
+    public function addButton(Button|string|null $button, InterfaceDisplayMode $mode = DisplayMode::primary, InterfaceInputType|string $type_or_anchor_url = ButtonType::button, bool $outline = false, bool $right = false): static
     {
         if (is_string($button)) {
             // Button was specified as string, create a button first
@@ -88,16 +92,12 @@ class Buttons extends ElementsBlock implements Iterator
                 ->setMode($mode);
 
             switch ($type_or_anchor_url) {
-                case null:
-                    // Use default button
-                    break;
-
-                case 'submit':
+                case ButtonType::submit:
                 // no break
-                case 'button':
+                case ButtonType::button:
                 // no break
-                case 'reset':
-                    // One of the submit, reset or button buttons
+                case ButtonType::reset:
+                    // One of the submit, reset, or button buttons
                     $button->setType($type_or_anchor_url);
                     break;
 

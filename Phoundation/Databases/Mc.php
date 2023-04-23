@@ -10,6 +10,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Notifications\Notification;
+use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Throwable;
 
 
@@ -481,7 +482,7 @@ class Mc
                         Log::warning(tr('Failed to connect to any memcached server'), 10);
 
                         Notification::new()
-                            ->setMode('WARNING')
+                            ->setMode(DisplayMode::warning)
                             ->setCode('not-available')
                             ->addRole('developers')
                             ->setTitle(tr('Memcached server not available'))
