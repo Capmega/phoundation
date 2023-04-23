@@ -5,6 +5,7 @@ namespace Phoundation\Core\Log;
 use JetBrains\PhpStorm\ExpectedValues;
 use PDOStatement;
 use Phoundation\Cli\Color;
+use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Libraries\Library;
@@ -918,6 +919,19 @@ Class Log {
                 static::write('Encountered "' . get_class($messages) . '" class exception in "' . $messages->getFile() . '@' . $messages->getLine() . '" (Main script "' . basename(isset_get($_SERVER['SCRIPT_FILENAME'])) . '")', $class, $threshold);
                 static::write('"' . get_class($messages) . '" Exception message: [' . ($messages->getCode() ?? 'N/A') . '] ' . $messages->getMessage(), $class, $threshold, false);
 
+                // Log the exception data
+                if ($messages instanceof Exception) {
+                    $data = $messages->getData();
+
+                    if ($data) {
+                        foreach (Arrays::force($data, null) as $line) {
+                            static::write(print_r($line, true), 'warning', $threshold, false);
+                        }
+
+                        return true;
+                    }
+                }
+
                 // Warning exceptions do not need to show the extra messages, trace, or data or previous exception
                 if ($class == 'error') {
                     // Log the backtrace
@@ -928,20 +942,10 @@ Class Log {
                         static::dumpTrace($messages->getTrace());
                     }
 
-                    // Log the exception data
-                    if ($messages instanceof Exception) {
-                        $data = $messages->getData();
-
-                        if ($data) {
-                            return static::write(print_r($messages, true), 'debug', $threshold, false);
-                        }
-                    }
-
                     // Log all previous exceptions as well
                     $previous = $messages->getPrevious();
 
                     while ($previous) {
-
                         static::write('Previous exception: ', $class, $threshold);
                         static::write($previous, $class, $threshold, $clean);
 
