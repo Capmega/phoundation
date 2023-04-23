@@ -1655,17 +1655,7 @@ abstract class Validator
             }
 
             if ($exists_in_path !== null) {
-                if (!$restrictions) {
-                    throw new ValidationException(tr('Cannot validate the specified file, no restrictions specified'));
-                }
-
-                $path = ($exists_in_path ? Strings::slash($exists_in_path) : null) . $value;
-
-                Core::ensureRestrictions($restrictions)->check($path, false);
-
-                if (!file_exists($path)) {
-                    $this->addFailure(tr('must be an existing file'));
-                }
+                $this->checkFile($value, $exists_in_path, $restrictions);
             }
         });
     }
@@ -1675,12 +1665,13 @@ abstract class Validator
     /**
      * Validates if the selected field is a valid directory
      *
-     * @param Restrictions|array|string $restrictions
+     * @param string|null $exists_in_path
+     * @param Restrictions|array|string|null $restrictions
      * @return static
      */
-    public function isDirectory(Restrictions|array|string $restrictions): static
+    public function isDirectory(?string $exists_in_path = null, Restrictions|array|string|null $restrictions = null): static
     {
-        return $this->validateValues(function(&$value) use($restrictions) {
+        return $this->validateValues(function(&$value) use($restrictions, $exists_in_path) {
             $this->isFile('', $restrictions);
 
             if ($this->process_value_failed) {
@@ -1688,10 +1679,54 @@ abstract class Validator
                 return;
             }
 
-            if (!is_dir($value)) {
-                $this->addFailure(tr('must be an existing directory'));
+            if ($exists_in_path !== null) {
+                $this->checkFile($value, $exists_in_path, $restrictions, true);
             }
         });
+    }
+
+
+
+    /**
+     * Checks if the specified path exists or not, and if its of the correct type
+     *
+     * @param string $value
+     * @param string|null $exists_in_path
+     * @param Restrictions|array|string|null $restrictions
+     * @param bool $directory
+     * @return void
+     */
+    protected function checkFile(string $value, ?string $exists_in_path = null, Restrictions|array|string|null $restrictions = null, bool $directory = false): void
+    {
+        if ($directory) {
+            $type = 'directory';
+        } else {
+            $type = 'file';
+        }
+
+        if (!$restrictions) {
+            throw new ValidationException(tr('Cannot validate the specified :type, no restrictions specified', [
+                ':type' => $type
+            ]));
+        }
+
+        $path = ($exists_in_path ? Strings::slash($exists_in_path) : null) . $value;
+
+        Core::ensureRestrictions($restrictions)->check($path, false);
+
+        if (!file_exists($path)) {
+            $this->addFailure(tr('must be an existing :type', [':type' => $type]));
+        }
+
+        if ($directory) {
+            if (!is_dir($path)) {
+                $this->addFailure(tr('must be a directory'));
+            }
+        } else {
+            if (is_dir($path)) {
+                $this->addFailure(tr('cannot be a directory'));
+            }
+        }
     }
 
 
