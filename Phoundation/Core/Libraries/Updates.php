@@ -6,8 +6,10 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Developer\Exception\DoubleVersionException;
+use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnexpectedValueException;
+use Throwable;
 
 
 /**
@@ -174,7 +176,7 @@ abstract class Updates
 
             return $version;
 
-        } catch (OutOfBoundsException $e) {
+        } catch (OutOfBoundsException) {
             // There is no next available!
             return null;
         }
@@ -228,8 +230,15 @@ abstract class Updates
         ]));
 
         // Execute the update and clear the versions_exists as after any update, the versions table should exist
-        $this->updates[$version]();
-        unset($this->versions_exists);
+        try {
+            $this->updates[$version]();
+            unset($this->versions_exists);
+
+        } catch (Exception $e) {
+            // In init mode, we don't do warnings, only full exceptions
+            $e->setWarning(false);
+            throw $e;
+        }
 
         // Register the version update and return the next available init
         $this->addVersion($version, $comments);
