@@ -4,6 +4,7 @@ namespace Phoundation\Web\Http\Html\Components;
 
 use Phoundation\Web\Http\Html\Components\Input\Input;
 use Phoundation\Web\Http\Html\Enums\ButtonType;
+use Phoundation\Web\Http\Html\Enums\InputType;
 
 /**
  * Button class
@@ -36,6 +37,7 @@ class Button extends Input
     {
         parent::__construct();
 
+        $this->setElement('button');
         $this->setType(ButtonType::submit);
         $this->setClasses('btn');
     }
@@ -74,10 +76,6 @@ class Button extends Input
      */
     public function setContent(object|string|null $content): static
     {
-        if ($this->type === 'submit') {
-            return $this->setValue($content);
-        }
-
         if ($this->floating) {
             // What does this do?????????????
             $this->addClass('btn-floating');
@@ -98,10 +96,6 @@ class Button extends Input
      */
     public function setValue(object|string|null $value): static
     {
-        if ($this->type !== 'submit') {
-            return $this->setContent($value);
-        }
-
         if ($this->floating) {
             // What does this do?????????????
             $this->addClass('btn-floating');
@@ -127,8 +121,8 @@ class Button extends Input
             }
         }
 
-        if ($this->mode) {
-            $this->addClass('btn-' . ($this->outlined ? 'outline-' : '') . $this->mode);
+        if ($this->mode->value) {
+            $this->addClass('btn-' . ($this->outlined ? 'outline-' : '') . $this->mode->value);
         } else {
             if ($this->outlined) {
                 $this->addClass('btn-outline');
@@ -139,8 +133,8 @@ class Button extends Input
             $this->addClass('btn-flat');
         }
 
-        if ($this->size) {
-            $this->addClass('btn-' . $this->size);
+        if ($this->size->value) {
+            $this->addClass('btn-' . $this->size->value);
         }
 
         if ($this->rounded) {
@@ -165,8 +159,7 @@ class Button extends Input
     public function render(): ?string
     {
         $this->resetButtonClasses();
-
-        $this->attributes['type'] = $this->type;
+        $this->attributes['type'] = $this->type->value;
 
         if ($this->anchor_url) {
             unset($this->attributes['type']);

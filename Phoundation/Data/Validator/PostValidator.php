@@ -2,6 +2,7 @@
 
 namespace Phoundation\Data\Validator;
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 
@@ -128,6 +129,24 @@ class PostValidator extends Validator
             $this->liberateData();
             throw $e;
         }
+    }
+
+
+    /**
+     * Force a return of all POST data without check
+     *
+     * @return array
+     */
+    public static function force(): array
+    {
+        Log::warning(tr('Liberated all POST data without data validation!'));
+
+        global $_POST;
+
+        $_POST = static::$post;
+        static::$post = null;
+
+        return $_POST;
     }
 
 

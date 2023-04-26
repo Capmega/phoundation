@@ -4,6 +4,7 @@ namespace Templates\AdminLte\Html\Components;
 
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Html\Renderer;
 
 
@@ -39,11 +40,11 @@ class Modal extends Renderer
             throw new OutOfBoundsException(tr('Cannot render modal, no "id" specified'));
         }
 
-        $this->render =  '  <div class="modal' . ($this->element->getFade() ? ' fade' : null) . '" id="' . $this->element->getId() . '" tabindex="' . $this->element->getTabIndex() . '" aria-labelledby="' . $this->element->getId() . 'Label" aria-hidden="true" data-mdb-keyboard="' . ($this->element->getEscape() ? 'false' : 'true') . '" data-mdb-backdrop="' . ($this->element->getBackdrop() === null ? 'static' : Strings::boolean($this->element->getBackdrop())) . '">
-                                <div class="modal-dialog' . ($this->element->getSize() ? ' modal-' . $this->element->getSize() : null) . ($this->element->getVerticalCenter() ? ' modal-dialog-centered' : null) . '">
+        $this->render =  '  <div class="modal' . ($this->element->getFade() ? ' fade' : null) . '" id="' . Html::safe($this->element->getId()) . '" tabindex="' . Html::safe($this->element->getTabIndex()) . '" aria-labelledby="' . Html::safe($this->element->getId()) . 'Label" aria-hidden="true" data-mdb-keyboard="' . ($this->element->getEscape() ? 'false' : 'true') . '" data-mdb-backdrop="' . ($this->element->getBackdrop() === null ? 'static' : Strings::boolean($this->element->getBackdrop())) . '">
+                                <div class="modal-dialog' . ($this->element->getTier()->value ? ' modal-' . Html::safe($this->element->getTier()->value) : null) . ($this->element->getVerticalCenter() ? ' modal-dialog-centered' : null) . '">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title" id="' . $this->element->getId() . 'Label">' . $this->element->getTitle() . '</h5>
+                                            <h5 class="modal-title" id="' . Html::safe($this->element->getId()) . 'Label">' . Html::safe($this->element->getTitle()) . '</h5>
                                             <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="' . tr('Close') . '"></button>
                                         </div>
                                         <div class="modal-body">' . $this->element->getContent() . '</div>

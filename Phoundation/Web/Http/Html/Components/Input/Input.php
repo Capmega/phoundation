@@ -4,6 +4,7 @@ namespace Phoundation\Web\Http\Html\Components\Input;
 
 use Phoundation\Web\Http\Html\Components\Element;
 
+
 /**
  * Class Input
  *
@@ -17,6 +18,7 @@ use Phoundation\Web\Http\Html\Components\Element;
 abstract class Input extends Element
 {
     use InputElement;
+
 
     /**
      * Input class constructor

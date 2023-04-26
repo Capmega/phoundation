@@ -9,6 +9,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Input\InputMultiButtonText;
 use Phoundation\Web\Http\Html\Components\Input\Select;
 use Phoundation\Web\Http\Html\Components\Input\TextArea;
+use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Html\Renderer;
 
 
@@ -223,6 +224,29 @@ class DataEntryForm extends Renderer
                     $this->render .= $this->renderItem($key, $html, $data);
                     break;
 
+                case 'div':
+                    // no break;
+                case 'span':
+                    $element = Strings::capitalize($data['element']);
+
+                    // If we have a source query specified, then get the actual value from the query
+                    if (isset_get($data['source'])) {
+                        $source[$key] = sql()->getColumn($data['source'], $execute);
+                    }
+
+                    // Build the element class path and load the required class file
+                    $element = '\\Phoundation\\Web\\Http\\Html\\Components\\' . $element;
+                    $file    = Library::getClassFile($element);
+                    include_once($file);
+
+                    $html = $element::new()
+                        ->setName($key)
+                        ->setContent(isset_get($source[$key]))
+                        ->render();
+
+                    $this->render .= $this->renderItem($key, $html, $data);
+                    break;
+
                 case 'select':
                     // Build the element class path and load the required class file
                     $element = '\\Phoundation\\Web\\Http\\Html\\Components\\Input\\Select';
@@ -320,21 +344,21 @@ class DataEntryForm extends Renderer
 
             switch ($data['type']) {
                 case 'checkbox':
-                    $return .= '    <div class="col-sm-' . $data['size'] . '">
+                    $return .= '    <div class="col-sm-' . Html::safe($data['size']) . '">
                                         <div class="form-group">
-                                            <label for="' . $id . '">' . $data['label'] . '</label>
+                                            <label for="' . Html::safe($id) . '">' . Html::safe($data['label']) . '</label>
                                             <div class="form-check">
                                                 ' . $html . '
-                                                <label class="form-check-label" for="' . $id . '">' . $data['label'] . '</label>
+                                                <label class="form-check-label" for="' . Html::safe($id) . '">' . Html::safe($data['label']) . '</label>
                                             </div>
                                         </div>
                                     </div>';
                     break;
 
                 default:
-                    $return .= '    <div class="col-sm-' . $data['size'] . '">
+                    $return .= '    <div class="col-sm-' . Html::safe($data['size']) . '">
                                         <div class="form-group">
-                                            <label for="' . $id . '">' . $data['label'] . '</label>
+                                            <label for="' . Html::safe($id) . '">' . Html::safe($data['label']) . '</label>
                                             ' . $html . '
                                         </div>
                                     </div>';

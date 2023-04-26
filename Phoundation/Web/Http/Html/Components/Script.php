@@ -10,7 +10,10 @@ use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Web\Http\Html\Components\Input\Select;
+use Phoundation\Web\Http\Html\Enums\AttachJavascript;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
+use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Page;
 use Phoundation\Web\Uglify;
 use Throwable;
 
@@ -28,6 +31,14 @@ use Throwable;
  */
 class Script extends Element
 {
+    /**
+     * Keeps track on where this script will be attached to
+     *
+     * @var AttachJavascript $attach
+     */
+    protected AttachJavascript $attach = AttachJavascript::footer;
+
+
     /**
      * What event to wrap this script into
      *
@@ -91,14 +102,7 @@ class Script extends Element
     {
         $render = '';
 
-        /*
-         * Apply event wrapper
-         *
-         * On what event should this script be executed? Eithere boolean true
-         * for standard "document ready" or your own jQuery
-         *
-         * If false, no event wrapper will be added
-         */
+        // Apply event wrapper
         switch ($this->event_wrapper) {
             case 'dom_content':
                 $render = 'document.addEventListener("DOMContentLoaded", function(e) {
@@ -129,7 +133,35 @@ class Script extends Element
                 ]));
         }
 
-        return '<script type="text/javascript">' . $render . '</script>';
+        //
+        switch ($this->attach) {
+            case AttachJavascript::here:
+                return '<script type="text/javascript">' . $render . '</script>';
+
+            case AttachJavascript::header:
+                Page::addToHeader('javascript', [
+                    'type' => 'text/javascript',
+                    'content' => $render
+                ]);
+
+                return null;
+
+            case AttachJavascript::footer:
+                Page::addToFooter('javascript', [
+                    'type' => 'text/javascript',
+                    'content' => $render
+                ]);
+
+                return null;
+        }
+
+
+
+
+
+
+
+
 
         // TODO GARBAGE BELOW, CLEAN UP
         /*

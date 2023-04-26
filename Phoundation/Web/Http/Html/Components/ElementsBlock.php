@@ -3,10 +3,9 @@
 namespace Phoundation\Web\Http\Html\Components;
 
 use Iterator;
-use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
-use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Http\Html\Interfaces\InterfaceElementsBlock;
 use Phoundation\Web\Http\Html\Renderer;
 use Phoundation\Web\Page;
 use ReturnTypeWillChange;
@@ -22,7 +21,7 @@ use ReturnTypeWillChange;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-abstract class ElementsBlock implements Iterator
+abstract class ElementsBlock implements Iterator, InterfaceElementsBlock
 {
     use ElementAttributes;
 
@@ -180,7 +179,7 @@ abstract class ElementsBlock implements Iterator
      *       with Template AdminLte will be rendered by Templates\AdminLte\Html\Components\Input\InputText
      *
      * @return string|null
-     * @see Element::render()
+     * @see InterfaceElement::render()
      */
     public function render(): ?string
     {

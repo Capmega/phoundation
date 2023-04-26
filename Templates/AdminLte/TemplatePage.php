@@ -6,6 +6,7 @@ use Phoundation\Core\Config;
 use Phoundation\Web\Http\Html\Components\Footer;
 use Phoundation\Web\Http\Html\Components\SidePanel;
 use Phoundation\Web\Http\Html\Components\TopPanel;
+use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Html\Modals\SignInModal;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
@@ -245,7 +246,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
                           <div class="col-sm-6">
                             <h1>
                               ' . Page::getHeaderTitle() . '
-                              ' . ($sub_title ? '<small>' . $sub_title . '</small>' : '') . '                          
+                              ' . ($sub_title ? '<small>' . Html::safe($sub_title) . '</small>' : '') . '                          
                             </h1>
                           </div>
                           <div class="col-sm-6">

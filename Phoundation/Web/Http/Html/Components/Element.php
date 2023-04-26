@@ -7,9 +7,11 @@ use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Http\Html\Interfaces\InterfaceElement;
 use Phoundation\Web\Http\Html\Renderer;
 use Phoundation\Web\Http\Html\Template\Template;
 use Phoundation\Web\Page;
+
 
 /**
  * Class Element
@@ -21,9 +23,10 @@ use Phoundation\Web\Page;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-abstract class Element
+abstract class Element implements InterfaceElement
 {
     use ElementAttributes;
+
 
     /**
      * The element type
@@ -38,6 +41,7 @@ abstract class Element
      * @var bool $requires_closing_tag
      */
     protected bool $requires_closing_tag = true;
+
 
     /**
      * Sets the type of element to display

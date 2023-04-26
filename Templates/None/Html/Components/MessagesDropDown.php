@@ -3,6 +3,7 @@
 namespace Templates\None\Html\Components;
 
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Html\Renderer;
 
 
@@ -46,7 +47,7 @@ class MessagesDropDown extends Renderer
 
         $this->render = '       <a class="nav-link" data-toggle="dropdown" href="#">
                                   <i class="far fa-comments"></i>
-                                  ' . ($count ? '<span class="badge badge-danger navbar-badge">' . $count . '</span>' : null) .  '
+                                  ' . ($count ? '<span class="badge badge-danger navbar-badge">' . Html::safe($count) . '</span>' : null) .  '
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
                                   <span class="dropdown-item dropdown-header">' . tr(':count Messages', [':count' => $count]) . '</span>
@@ -54,17 +55,17 @@ class MessagesDropDown extends Renderer
 
         if ($count) {
             foreach ($this->element->getMessages() as $message) {
-                $this->render . -'<a href="' . $message->getUrl() . '" class="dropdown-item">
+                $this->render . -'<a href="' . Html::safe($message->getUrl()) . '" class="dropdown-item">
                                     <!-- Message Start -->
                                     <div class="media">
-                                      <img src="' . $message->getAvatar() . '" alt="' . tr('Avatar for :user', [':user' => $message->getDisplayName()]) . '" class="img-size-50 mr-3 img-circle">
+                                      <img src="' . Html::safe($message->getAvatar()) . '" alt="' . tr('Avatar for :user', [':user' => Html::safe($message->getDisplayName())]) . '" class="img-size-50 mr-3 img-circle">
                                       <div class="media-body">
                                         <h3 class="dropdown-item-title">
-                                          ' . $message->getDisplayName() . '
-                                          ' . ($message->getStar() ? '<span class="float-right text-sm text-' . $message->getStar() . '"><i class="fas fa-star"></i></span>' : null) . '                                          
+                                          ' . Html::safe($message->getDisplayName()) . '
+                                          ' . ($message->getStar() ? '<span class="float-right text-sm text-' . Html::safe($message->getStar()) . '"><i class="fas fa-star"></i></span>' : null) . '                                          
                                         </h3>
-                                        <p class="text-sm">' . $message->getMessageHeader() . '</p>
-                                        <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i> ' . $message->getAge() . '</p>
+                                        <p class="text-sm">' . Html::safe($message->getMessageHeader()) . '</p>
+                                        <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i> ' . Html::safe($message->getAge()) . '</p>
                                       </div>
                                     </div>
                                     <!-- Message End -->
@@ -74,7 +75,7 @@ class MessagesDropDown extends Renderer
         }
 
         $this->render .= '        
-                                  <a href="' . $this->element->getMessagesUrl() . '" class="dropdown-item dropdown-footer">' . tr('See All Messages') . '</a>
+                                  <a href="' . Html::safe($this->element->getMessagesUrl()) . '" class="dropdown-item dropdown-footer">' . tr('See All Messages') . '</a>
                                 </div>';
 
         return parent::render();

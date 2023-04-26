@@ -3,6 +3,7 @@
 namespace Templates\AdminLte\Html\Components;
 
 use Phoundation\Core\Strings;
+use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Http\Html\Renderer;
 
@@ -45,10 +46,10 @@ class BreadCrumbs extends Renderer
 
                 if (!--$count) {
                     // The last item is the active item
-                    $this->render .= '<li class="breadcrumb-item active">' . $label . '</li>';
+                    $this->render .= '<li class="breadcrumb-item active">' . Html::safe($label) . '</li>';
 
                 } else {
-                    $this->render .= '<li class="breadcrumb-item"><a href="' . UrlBuilder::getWww($url) . '">' . $label . '</a></li>';
+                    $this->render .= '<li class="breadcrumb-item"><a href="' . Html::safe(UrlBuilder::getWww($url)) . '">' . Html::safe($label) . '</a></li>';
                 }
             }
         }

@@ -243,9 +243,9 @@ class Post extends Get
     /**
      * Executes the POST request
      *
-     * @return void
+     * @return static
      */
-    public function execute(): void
+    public function execute(): static
     {
         // Disable 301 302 location header following since this would cause the POST to go to GET
         $this->follow_location = false;

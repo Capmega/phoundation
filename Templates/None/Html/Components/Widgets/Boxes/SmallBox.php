@@ -33,7 +33,7 @@ class SmallBox extends Renderer
      */
     public function render(): ?string
     {
-        $this->render = '   <div class="small-box bg-' . $this->element->getMode() . ($this->shadow ? ' ' . $this->shadow : '') . '">
+        $this->render = '   <div class="small-box bg-' . $this->element->getMode()->value . ($this->shadow ? ' ' . $this->shadow : '') . '">
                               <div class="inner">
                                 <h3>' . $this->element->getValue() . '</h3>       
                                 <p>' . $this->element->getTitle() . '</p>

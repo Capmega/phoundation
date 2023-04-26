@@ -2,9 +2,9 @@
 
 namespace Phoundation\Accounts\Roles;
 
+use Phoundation\Accounts\Interfaces\InterfaceRole;
 use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Accounts\Users\Users;
-use Phoundation\Data\Categories\Categories;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
@@ -12,6 +12,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Web\Http\Html\Components\Form;
+
 
 /**
  * Class Role
@@ -24,7 +25,7 @@ use Phoundation\Web\Http\Html\Components\Form;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
-class Role extends DataEntry
+class Role extends DataEntry implements InterfaceRole
 {
     use DataEntryNameDescription;
 

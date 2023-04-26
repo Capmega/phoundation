@@ -2,6 +2,7 @@
 
 namespace Templates\AdminLte\Html\Components;
 
+use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Html\Renderer;
 use Phoundation\Web\Http\UrlBuilder;
 
@@ -38,7 +39,7 @@ class TopMenu extends Renderer
                             <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
                         </li>
                         <li class="nav-item d-none d-sm-inline-block">
-                            <a href="' . UrlBuilder::getCurrent() . '" class="nav-link">' . tr('Home') . '</a>
+                            <a href="' . Html::safe(UrlBuilder::getCurrent()) . '" class="nav-link">' . tr('Home') . '</a>
                         </li>';
 
         if ($this->element->getSource()) {
@@ -48,7 +49,7 @@ class TopMenu extends Renderer
                 }
 
                 $return .= '<li class="nav-item d-none d-sm-inline-block">
-                                <a href="' . $entry['url'] . '" class="nav-link">' . $label . '</a>
+                                <a href="' . Html::safe($entry['url']) . '" class="nav-link">' . Html::safe($label) . '</a>
                             </li>';
             }
         }

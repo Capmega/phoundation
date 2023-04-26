@@ -2,6 +2,9 @@
 
 namespace Phoundation\Accounts\Rights;
 
+use Phoundation\Accounts\Interfaces\InterfaceRights;
+use Phoundation\Accounts\Interfaces\InterfaceRole;
+use Phoundation\Accounts\Interfaces\InterfaceUser;
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Arrays;
@@ -11,6 +14,7 @@ use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Databases\Sql\QueryBuilder;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Web\Http\Html\Components\Input\Select;
+
 
 /**
  * Class Rights
@@ -23,15 +27,15 @@ use Phoundation\Web\Http\Html\Components\Input\Select;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
-class Rights extends DataList
+class Rights extends DataList implements InterfaceRights
 {
     /**
      * Rights class constructor
      *
-     * @param User|Role|null $parent
+     * @param InterfaceUser|InterfaceRole|null $parent
      * @param string|null $id_column
      */
-    public function __construct(User|Role|null $parent = null, ?string $id_column = null)
+    public function __construct(InterfaceUser|InterfaceRole|null $parent = null, ?string $id_column = null)
     {
         $this->entry_class = Right::class;
         $this->table_name  = 'accounts_rights';

@@ -623,7 +623,7 @@ class Sql
 
 
     /**
-     * Insert the specified data row in the specified table
+     * Update the specified data row in the specified table
      *
      * This is a simplified insert method to speed up writing basic insert queries
      * @note This method assumes that the specifies rows are correct to the specified table. If columns not pertaining

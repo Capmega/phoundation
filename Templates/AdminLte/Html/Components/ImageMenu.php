@@ -3,6 +3,7 @@
 namespace Templates\AdminLte\Html\Components;
 
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Html\Renderer;
 
 
@@ -40,13 +41,10 @@ class ImageMenu extends Renderer
 //.        <button type="button" class="btn btn-primary" data-mdb-toggle="modal" data-mdb-target="#exampleModal" style=""> Launch demo modal </button>
 
         $this->render = ' <div class="dropdown image-menu">
-                            <a
-                              class="' . ($this->element->getMenu() ? 'dropdown-toggle ' : '') . 'd-flex align-items-center hidden-arrow"
-                              href="' . ($this->element->getMenu() ? '#' : $this->element->getUrl()) . '"
-                              id="navbarDropdownMenuAvatar"
-                              ' . ($this->element->getMenu() ? 'role="button" data-mdb-toggle="dropdown"' : ($this->element->getModalSelector() ? 'data-mdb-toggle="modal" data-mdb-target="' . $this->element->getModalSelector() . '"' : null)) . '                    
-                              aria-expanded="false"
-                            >';
+                            <a class="' . ($this->element->getMenu() ? 'dropdown-toggle ' : '') . 'd-flex align-items-center hidden-arrow"
+                              href="' . ($this->element->getMenu() ? '#' : Html::safe($this->element->getUrl())) . '"
+                              id="navbarDropdownMenuAvatar" aria-expanded="false"
+                              ' . ($this->element->getMenu() ? 'role="button" data-mdb-toggle="dropdown"' : ($this->element->getModalSelector() ? 'data-mdb-toggle="modal" data-mdb-target="' . Html::safe($this->element->getModalSelector()) . '"' : null)) . '>';
 
         $this->render .= $this->element->getImage()->getHtmlElement()
             ->setHeight($this->element->getHeight())
@@ -63,7 +61,7 @@ class ImageMenu extends Renderer
         if ($this->element->getMenu()) {
             foreach ($this->element->getMenu() as $label => $url) {
                 $this->render .= '<li>
-                                    <a class="dropdown-item" href="' . $url . '">' . $label . '</a>
+                                    <a class="dropdown-item" href="' . Html::safe($url) . '">' . Html::safe($label) . '</a>
                                   </li>';
             }
 

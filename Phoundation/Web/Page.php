@@ -1594,15 +1594,26 @@ class Page
     /**
      * Build and return the HTML footers
      *
+     * @todo This should be upgraded to using Javascript / Css objects
      * @return string|null
      */
     public static function buildFooters(): ?string
     {
+        Log::warning('TODO Reminder: Page::buildFooters() should be upgraded to using Javascript / Css objects');
+
         $return = '';
 
-        foreach (static::$footers['javascript'] as $header) {
-            $header  = Arrays::implodeWithKeys($header, ' ', '=', '"');
-            $return .= '<script ' . $header . '></script>' . PHP_EOL;
+        foreach (static::$footers['javascript'] as $footer) {
+            if (isset($footer['src'])) {
+                $footer  = Arrays::implodeWithKeys($footer, ' ', '=', '"');
+                $return .= '<script ' . $footer . '></script>' . PHP_EOL;
+
+            } elseif (isset($footer['content'])) {
+                $return .= '<script>' . PHP_EOL . $footer['content'] . PHP_EOL . '</script>' . PHP_EOL;
+
+            } else {
+                throw new OutOfBoundsException(tr('Invalid script footer specified, should contain at least "src" or "content"'));
+            }
         }
 
         return $return;
@@ -1844,6 +1855,35 @@ class Page
         Log::action(tr('Killing web page process'), 2);
         die();
     }
+
+
+    /**
+     * Add the specified HTML to the HEAD tag
+     *
+     * @todo This should -in the near future- be updated to sending Javascript, Css, etc objects instead of "some array"
+     * @param string $key
+     * @param array $entry
+     * @return void
+     */
+    public static function addToHeader(string $key, array $entry): void
+    {
+        static::$headers[$key][] = $entry;
+    }
+
+
+    /**
+     * Add the specified HTML to the footer
+     *
+     * @todo This should -in the near future- be updated to sending Javascript, Css, etc objects instead of "some array"
+     * @param string $key
+     * @param array $entry
+     * @return void
+     */
+    public static function addToFooter(string $key, array $entry): void
+    {
+        static::$footers[$key][] = $entry;
+    }
+
 
 
     /**

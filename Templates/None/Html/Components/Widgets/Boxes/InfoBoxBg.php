@@ -33,7 +33,7 @@ class InfoBoxBg extends Renderer
      */
     public function render(): ?string
     {
-        $this->render = '   <div class="info-box bg-' . $this->element->getMode() . '">
+        $this->render = '   <div class="info-box bg-' . $this->element->getMode()->value . '">
                               <span class="info-box-icon"><i class="far ' . $this->element->getIcon() . '"></i></span>
                 
                               <div class="info-box-content">

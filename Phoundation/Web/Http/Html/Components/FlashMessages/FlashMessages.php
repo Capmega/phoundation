@@ -11,6 +11,8 @@ use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\ElementsBlock;
 use Phoundation\Web\Http\Html\Components\Script;
+use Phoundation\Web\Http\Html\Enums\DisplayMode;
+use Phoundation\Web\Http\Html\Interfaces\InterfaceDisplayMode;
 
 /**
  * Class FlashMessages
@@ -50,39 +52,12 @@ class FlashMessages extends ElementsBlock implements Iterator
      *
      * @param FlashMessage|Exception|string|null $title
      * @param string|null $message
-     * @param string|null $mode
+     * @param InterfaceDisplayMode|null $mode
      * @param string|null $icon
      * @param int|null $auto_close
      * @return $this
      */
-    public function add(
-        FlashMessage|Exception|string|null $title,
-        ?string $message = null,
-
-        #[ExpectedValues(values: [
-            'success',
-            'green',
-            'info',
-            'information',
-            'blue',
-            'warning',
-            'yellow',
-            'danger',
-            'red',
-            'error',
-            'exception',
-            'primary',
-            'secondary',
-            'tertiary',
-            'link',
-            'light',
-            'dark',
-            null
-        ])] ?string $mode = null,
-
-        string $icon = null, ?
-        int $auto_close = null
-    ): static {
+    public function add(FlashMessage|Exception|string|null $title, ?string $message = null, ?InterfaceDisplayMode $mode = null, string $icon = null, ?int $auto_close = null): static {
         if ($title) {
             // a title was specified
             if (is_string($title)) {
@@ -109,7 +84,7 @@ class FlashMessages extends ElementsBlock implements Iterator
                         }
 
                         $count++;
-                        $this->add(tr('Information validation failure'), $message, 'warning', null, 5000);
+                        $this->add(tr('Information validation failure'), $message, DisplayMode::warning, null, 5000);
                     }
 
                     if (!$count) {
@@ -126,7 +101,7 @@ class FlashMessages extends ElementsBlock implements Iterator
                 // message
                 if ($title->getMessages()) {
                     foreach ($title->getMessages() as $message) {
-                        $this->add(tr('Problem encountered!'), $message, 'warning', null, 5000);
+                        $this->add(tr('Problem encountered!'), $message, DisplayMode::warning, null, 5000);
                     }
                 }
 

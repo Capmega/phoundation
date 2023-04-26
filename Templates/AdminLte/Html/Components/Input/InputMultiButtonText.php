@@ -2,6 +2,7 @@
 
 namespace Templates\AdminLte\Html\Components\Input;
 
+use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Html\Renderer;
 
 
@@ -41,7 +42,7 @@ class InputMultiButtonText extends Renderer
                 // Any label starting with # is a divider
                 $options .= '<li class="dropdown-divider"></li>';
             } else {
-                $options .= '<li class="dropdown-item"><a href="' . $url . '">' . $label . '</a></li>';
+                $options .= '<li class="dropdown-item"><a href="' . Html::safe($url) . '">' . Html::safe($label) . '</a></li>';
             }
         }
 

@@ -4,6 +4,8 @@ namespace Phoundation\Web\Http\Html\Layouts;
 
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\ElementsBlock;
+use Phoundation\Web\Http\Html\Interfaces\InterfaceDisplaySize;
+
 
 /**
  * Grid class
@@ -69,9 +71,10 @@ class Grid extends Container
      * Add the specified row to this grid
      *
      * @param GridRow|GridColumn|ElementsBlock|null $row
+     * @param InterfaceDisplaySize|null $column_size
      * @return static
      */
-    public function addRow(GridRow|GridColumn|ElementsBlock|null $row = null, ?int $column_size = null): static
+    public function addRow(GridRow|GridColumn|ElementsBlock|null $row = null, ?InterfaceDisplaySize $column_size = null): static
     {
         if (!$row) {
             // Just add an empty row
@@ -123,10 +126,10 @@ class Grid extends Container
      * Set the columns for the current row in this grid
      *
      * @param array $columns
-     * @param int|null $size
+     * @param InterfaceDisplaySize|int|null $size $size
      * @return static
      */
-    public function setColumns(array $columns, ?int $size = null): static
+    public function setColumns(array $columns, InterfaceDisplaySize|int|null $size = null): static
     {
         $this->getCurrentRow()->clearColumns();
         return $this->addColumns($columns, $size);
@@ -137,10 +140,10 @@ class Grid extends Container
      * Add the specified column to the current row in this grid
      *
      * @param array $columns
-     * @param int|null $size
+     * @param InterfaceDisplaySize|int|null $size $size
      * @return static
      */
-    public function addColumns(array $columns, ?int $size = null): static
+    public function addColumns(array $columns, InterfaceDisplaySize|int|null $size = null): static
     {
         foreach ($columns as $column) {
             $this->addColumn($column, $size);
@@ -154,10 +157,10 @@ class Grid extends Container
      * Add the specified column to the current row in this grid
      *
      * @param object|string|null $column
-     * @param int|null $size
+     * @param InterfaceDisplaySize|int|null $size $size
      * @return static
      */
-    public function addColumn(object|string|null $column, ?int $size = null): static
+    public function addColumn(object|string|null $column, InterfaceDisplaySize|int|null $size = null): static
     {
         // Get a row
         if ($this->source) {

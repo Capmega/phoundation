@@ -38,7 +38,7 @@ class GridRow extends Renderer
         $size   = 0;
 
         foreach ($this->element->getColumns() as $column) {
-            $size   += $column->getSize();
+            $size   += $column->getSize()->value;
             $return .= $column->render();
         }
 

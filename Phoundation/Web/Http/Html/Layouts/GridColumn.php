@@ -2,8 +2,11 @@
 
 namespace Phoundation\Web\Http\Html\Layouts;
 
-use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Http\Html\Enums\DisplayTier;
+use Phoundation\Web\Http\Html\Interfaces\InterfaceDisplaySize;
+use Phoundation\Web\Http\Html\Traits\UsesSize;
+use Phoundation\Web\Http\Html\Traits\UsesTier;
 
 
 /**
@@ -18,21 +21,8 @@ use Phoundation\Exception\OutOfBoundsException;
  */
 class GridColumn extends Layout
 {
-    /**
-     * The size of this column
-     *
-     * @var int|null
-     */
-    #[ExpectedValues(values: [null, 1, 2, 3, 4, 5, 6, 7 ,8, 9, 10, 11, 12])]
-    protected ?int $size = 12;
-
-    /**
-     * The tier class for this column
-     *
-     * @var string
-     */
-    #[ExpectedValues(values: ["xs", "sm", "md", "lg", "xl"])]
-    protected string $tier = '';
+    use UsesSize;
+    use UsesTier;
 
 
     /**
@@ -40,56 +30,8 @@ class GridColumn extends Layout
      */
     public function __construct()
     {
-        $this->tier = 'md';
+        $this->tier = DisplayTier::md;
         parent::__construct();
-    }
-
-
-    /**
-     * Sets the tier class
-     *
-     * @param string $tier
-     * @return static
-     */
-    public function setTier(#[ExpectedValues(values: ["xs", "sm", "md", "lg", "xl"])] string $tier): static
-    {
-        $this->tier = $tier;
-        return $this;
-    }
-
-
-    /**
-     * Returns the tier class
-     *
-     * @return string
-     */
-    #[ExpectedValues(values: ["xs", "sm", "md", "lg", "xl"])] public function getTier(): string
-    {
-        return $this->tier;
-    }
-
-
-    /**
-     * Sets the column size
-     *
-     * @param int $size
-     * @return static
-     */
-    public function setSize(#[ExpectedValues(values: [1, 2, 3, 4, 5, 6, 7 ,8, 9, 10, 11, 12])] int $size): static
-    {
-        $this->size = $size;
-        return $this;
-    }
-
-
-    /**
-     * Returns the column size
-     *
-     * @return int|null
-     */
-    #[ExpectedValues(values: [null, 1, 2, 3, 4, 5, 6, 7 ,8, 9, 10, 11, 12])] public function getSize(): ?int
-    {
-        return $this->size;
     }
 
 
@@ -97,10 +39,10 @@ class GridColumn extends Layout
      * Sets the content of the grid
      *
      * @param object|string|null $content
-     * @param int|null $size
+     * @param InterfaceDisplaySize|int|null $size
      * @return static
      */
-    public function setContent(object|string|null $content, ?int $size = null): static
+    public function setContent(object|string|null $content, InterfaceDisplaySize|int|null $size = null): static
     {
         if ($size !== null) {
             $this->setSize($size);
@@ -114,10 +56,10 @@ class GridColumn extends Layout
      * Adds the specified content to the content of the grid
      *
      * @param object|string|null $content
-     * @param int|null $size
+     * @param InterfaceDisplaySize|int|null $size $size
      * @return static
      */
-    public function addContent(object|string|null $content, ?int $size = null): static
+    public function addContent(object|string|null $content, InterfaceDisplaySize|int|null $size = null): static
     {
         if ($size !== null) {
             $this->setSize($size);

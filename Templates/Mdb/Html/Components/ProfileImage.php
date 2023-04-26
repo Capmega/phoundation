@@ -6,6 +6,7 @@ use Phoundation\Content\Images\Image;
 use Phoundation\Core\Session;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Element;
+use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Html\Renderer;
 use Phoundation\Web\Page;
 
@@ -56,9 +57,9 @@ class ProfileImage extends Renderer
         $this->render = ' <div class="dropdown image-menu">
                             <a
                               class="' . ($this->element->getMenu() ? 'dropdown-toggle ' : '') . 'd-flex align-items-center hidden-arrow"
-                              href="' . ($this->element->getMenu() ? '#' : $this->element->getUrl()) . '"
+                              href="' . ($this->element->getMenu() ? '#' : Html::safe($this->element->getUrl())) . '"
                               id="navbarDropdownMenuAvatar"
-                              ' . ($this->element->getMenu() ? 'role="button" data-mdb-toggle="dropdown"' : ($this->element->getModalSelector() ? 'data-mdb-toggle="modal" data-mdb-target="' . $this->element->getModalSelector() . '"' : null)) . '                    
+                              ' . ($this->element->getMenu() ? 'role="button" data-mdb-toggle="dropdown"' : ($this->element->getModalSelector() ? 'data-mdb-toggle="modal" data-mdb-target="' . Html::safe($this->element->getModalSelector()) . '"' : null)) . '                    
                               aria-expanded="false"
                             >';
 
@@ -83,7 +84,7 @@ class ProfileImage extends Renderer
                     }
 
                     $this->render .= '  <li>
-                                            <a class="dropdown-item" href="' . $entry['url'] . '">' . $label . '</a>
+                                            <a class="dropdown-item" href="' . Html::safe($entry['url']) . '">' . Html::safe($label) . '</a>
                                         </li>';
                 }
             }

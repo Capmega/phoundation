@@ -2,6 +2,7 @@
 
 namespace Templates\AdminLte\Html\Components;
 
+use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Html\Renderer;
 
 /**
@@ -38,6 +39,6 @@ class Icons extends Renderer
             return $this->element->getContent();
         }
 
-        return '<i class="fas fa-' . $this->element->getContent() . ($this->element->getSize() ? ' fa-' . $this->element->getSize() : '') .'"></i>';
+        return '<i class="fas fa-' . $this->element->getContent() . ($this->element->getTier()->value ? ' fa-' . Html::safe($this->element->getTier()->value) : '') .'"></i>';
     }
 }

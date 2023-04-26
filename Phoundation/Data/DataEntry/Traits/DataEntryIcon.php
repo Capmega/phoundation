@@ -3,6 +3,7 @@
 namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Http\Html\Enums\DisplayMode;
 
 
 /**
@@ -28,11 +29,11 @@ trait DataEntryIcon
 
         if (!$return) {
             // Assign default icon
-            return match (strtolower($this->getMode())) {
-                'warning', 'danger' => 'exclamation-circle',
-                'success'           => 'check-circle',
-                'info'              => 'info-circle',
-                default             => 'question-circle',
+            return match ($this->getMode()) {
+                DisplayMode::warning, DisplayMode::danger => 'exclamation-circle',
+                DisplayMode::success                      => 'check-circle',
+                DisplayMode::info                         => 'info-circle',
+                default                                   => 'question-circle',
             };
         }
 

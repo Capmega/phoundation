@@ -638,7 +638,7 @@ class Table extends ResourceElement
      *@see \Templates\AdminLte\Html\Components\Table::render()
      * @see \Templates\AdminLte\Html\Components\Table::renderHeaders()
      * @see ResourceElement::renderBody()
-     * @see Element::render()
+     * @see InterfaceElement::render()
      */
     protected function renderBodyArray(): ?string
     {
@@ -698,7 +698,7 @@ class Table extends ResourceElement
      *@see \Templates\AdminLte\Html\Components\Table::render()
      * @see \Templates\AdminLte\Html\Components\Table::renderHeaders()
      * @see ResourceElement::renderBody()
-     * @see Element::render()
+     * @see InterfaceElement::render()
      */
     protected function renderBodyQuery(): ?string
     {

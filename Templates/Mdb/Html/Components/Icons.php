@@ -41,6 +41,6 @@ class Icons extends Renderer
             return $content;
         }
 
-        return '<i class="fas fa-' . $content . ($this->element->getSize() ? ' fa-' . $this->element->getSize() : '') .'"></i>';
+        return '<i class="fas fa-' . $content . ($this->element->getTier()->value ? ' fa-' . $this->element->getTier()->value : '') .'"></i>';
     }
 }

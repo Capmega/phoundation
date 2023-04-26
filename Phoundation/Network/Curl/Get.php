@@ -44,9 +44,9 @@ class Get extends Curl
     /**
      * Executes the GET request
      *
-     * @return void
+     * @return static
      */
-    public function execute(): void
+    public function execute(): static
     {
         // Use local cache?
         if ($this->cache) {
@@ -61,7 +61,7 @@ class Get extends Curl
             if ($return) {
                 $this->retry = 0;
                 $this->result_data = Json::decode($return);
-                return;
+                return $this;
             }
         }
 
@@ -91,8 +91,7 @@ class Get extends Curl
                 ]));
 
                 usleep($this->sleep);
-                $this->execute();
-                return;
+                return $this->execute();
             }
 
             throw new NetworkException(tr('Failed to make ":method" request for url ":url"', [

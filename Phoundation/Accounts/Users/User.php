@@ -2,6 +2,7 @@
 
 namespace Phoundation\Accounts\Users;
 
+use Phoundation\Accounts\Interfaces\InterfaceUser;
 use Phoundation\Accounts\Passwords;
 use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Accounts\Roles\Roles;
@@ -39,13 +40,13 @@ use Phoundation\Geo\Countries\Countries;
 use Phoundation\Geo\Countries\Country;
 use Phoundation\Geo\States\State;
 use Phoundation\Geo\States\States;
-use Phoundation\Geo\Timezones\Timezone;
 use Phoundation\Geo\Timezones\Timezones;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Security\Incidents\Severity;
 use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\Html\Components\Form;
 use Phoundation\Web\Http\UrlBuilder;
+
 
 /**
  * Class User
@@ -58,7 +59,7 @@ use Phoundation\Web\Http\UrlBuilder;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
-class User extends DataEntry
+class User extends DataEntry implements InterfaceUser
 {
     use DataEntryGeo;
     use DataEntryUrl;

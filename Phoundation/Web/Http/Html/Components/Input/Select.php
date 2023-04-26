@@ -288,7 +288,7 @@ class Select extends ResourceElement
      * @see \Templates\AdminLte\Html\Components\Input\Select::render()
      * @see \Templates\AdminLte\Html\Components\Input\Select::renderHeaders()
      * @see ResourceElement::renderBody()
-     * @see Element::render()
+     * @see InterfaceElement::render()
      */
     public function renderBody(): ?string
     {
@@ -328,7 +328,7 @@ class Select extends ResourceElement
      *@see \Templates\AdminLte\Html\Components\Input\Select::render()
      * @see \Templates\AdminLte\Html\Components\Input\Select::renderHeaders()
      * @see ResourceElement::renderBody()
-     * @see Element::render()
+     * @see InterfaceElement::render()
      */
     protected function renderBodyArray(): ?string
     {
@@ -377,7 +377,7 @@ class Select extends ResourceElement
      * @see \Templates\AdminLte\Html\Components\Input\Select::render()
      * @see \Templates\AdminLte\Html\Components\Input\Select::renderHeaders()
      * @see ResourceElement::renderBody()
-     * @see Element::render()
+     * @see InterfaceElement::render()
      */
     protected function renderBodyQuery(): ?string
     {

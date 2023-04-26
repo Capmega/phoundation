@@ -2,6 +2,7 @@
 
 namespace Templates\AdminLte\Html\Forms;
 
+use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Html\Renderer;
 
 
@@ -57,7 +58,7 @@ class SignInForm extends Renderer
                         
                             <div class="col">
                               <!-- Simple link -->
-                              <a href="' . $this->element->getForgotPasswordUrl() . '">' . tr('Forgot password?') . '</a>
+                              <a href="' . Html::safe($this->element->getForgotPasswordUrl()) . '">' . tr('Forgot password?') . '</a>
                             </div>
                           </div>
                         
@@ -66,7 +67,7 @@ class SignInForm extends Renderer
                         
                           <!-- Register buttons -->
                           <div class="text-center">
-                            <p>' . tr('Not a member?') . ' <a href="' . $this->element->getRegisterUrl() . '">' . tr('Register') . '</a></p>
+                            <p>' . tr('Not a member?') . ' <a href="' . Html::safe($this->element->getRegisterUrl()) . '">' . tr('Register') . '</a></p>
                             <p>' . tr('or sign up with:') . '</p>
                             <button type="button" class="btn btn-primary btn-floating mx-1">
                               <i class="fab fa-facebook-f"></i>

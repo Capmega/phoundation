@@ -101,26 +101,8 @@ trait ButtonProperties
      */
     public function setType(InterfaceInputType $type): static
     {
-        switch ($type) {
-            case ButtonType::submit:
-                // Make this an input submit button
-                $this->setElement('input');
-                $this->setName('submit');
-
-                $this->value   = $this->content;
-                $this->content = null;
-                break;
-
-            default:
-                // Make this a normal button
-                $this->setElement('button');
-
-                $this->content = $this->value;
-                $this->value   = null;
-        }
-
+        $this->setElement('button');
         $this->type = $type;
-
         return $this;
     }
 
@@ -155,23 +137,11 @@ trait ButtonProperties
      */
     public function setAnchorUrl(?string $anchor_url): static
     {
-        if ($anchor_url) {
-            $this->setElement('a');
-            $this->anchor_url = UrlBuilder::getWww($anchor_url);
-            $this->type       = InputType::null;
-            $this->content    = $this->value;
-            $this->value      = null;
-        } else {
-            $this->setElement('button');
-            $this->anchor_url = null;
-            $this->value      = $this->content;
-            $this->content    = null;
-
-            if (!$this->type) {
-                // Default to button
-                $this->setType(ButtonType::button);
-            }
-        }
+        $this->setElement('a');
+        $this->anchor_url = UrlBuilder::getWww($anchor_url);
+        $this->type       = InputType::null;
+        $this->content    = $this->value;
+        $this->value      = null;
 
         return $this;
     }

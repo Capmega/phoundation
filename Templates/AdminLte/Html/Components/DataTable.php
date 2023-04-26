@@ -4,6 +4,7 @@ namespace Templates\AdminLte\Html\Components;
 
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Script;
+use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Html\Layouts\GridRow;
 use Phoundation\Web\Http\Html\Renderer;
 use Phoundation\Web\Page;
@@ -63,26 +64,26 @@ class DataTable extends Renderer
         $id    = $this->element->getId();
         $table = GridRow::new()->addColumn(parent::render());
 
-        $this->render  = '<div id="' . $id . '_wrapper" class="dataTables_wrapper dt-bootstrap4">' .
+        $this->render  = '<div id="' . Html::safe($id) . '_wrapper" class="dataTables_wrapper dt-bootstrap4">' .
                             $table->render() .
                          '</div>';
 
         $this->render .= Script::new()
             ->setEventWrapper('dom_content')
             ->setContent('
-        $("#' . $id . '").DataTable({
-          "responsive": true, "lengthChange": false, "autoWidth": false,
-          "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
-        }).buttons().container().appendTo("#' . $id . '_wrapper .col-md-6:eq(0)");
-        $("#example2").DataTable({
-          "paging": true,
-          "lengthChange": false,
-          "searching": false,
-          "ordering": true,
-          "info": true,
-          "autoWidth": false,
-          "responsive": true,
-        });')->render();
+                $("#' . Html::safe($id) . '").DataTable({
+                  "responsive": true, "lengthChange": false, "autoWidth": false,
+                  "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+                }).buttons().container().appendTo("#' . Html::safe($id) . '_wrapper .col-md-6:eq(0)");
+                $("#example2").DataTable({
+                  "paging": true,
+                  "lengthChange": false,
+                  "searching": false,
+                  "ordering": true,
+                  "info": true,
+                  "autoWidth": false,
+                  "responsive": true,
+                });')->render();
 
         return $this->render;
 
@@ -121,9 +122,9 @@ class DataTable extends Renderer
 //}</style>
 
 
-//                                <table id="' . $id . '" class="table table-bordered table-striped dataTable dtr-inline" aria-describedby="' . $id . '_info">
+//                                <table id="' . Html::safe($id) . '" class="table table-bordered table-striped dataTable dtr-inline" aria-describedby="' . Html::safe($id) . '_info">
 //                                    <thead>
-//                                    <tr><th class="sorting sorting_asc" tabindex="0" aria-controls="' . $id . '" rowspan="1" colspan="1" aria-label="Rendering engine: activate to sort column descending" aria-sort="ascending">Rendering engine</th><th class="sorting" tabindex="0" aria-controls="' . $id . '" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending">Engine version</th><th class="sorting" tabindex="0" aria-controls="' . $id . '" rowspan="1" colspan="1" aria-label="CSS grade: activate to sort column ascending">CSS grade</th></tr>
+//                                    <tr><th class="sorting sorting_asc" tabindex="0" aria-controls="' . Html::safe($id) . '" rowspan="1" colspan="1" aria-label="Rendering engine: activate to sort column descending" aria-sort="ascending">Rendering engine</th><th class="sorting" tabindex="0" aria-controls="' . Html::safe($id) . '" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending">Engine version</th><th class="sorting" tabindex="0" aria-controls="' . Html::safe($id) . '" rowspan="1" colspan="1" aria-label="CSS grade: activate to sort column ascending">CSS grade</th></tr>
 //                                    </thead>
 //                                    <tbody>
 //                                    <tr class="odd">

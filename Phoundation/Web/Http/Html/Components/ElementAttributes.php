@@ -878,7 +878,7 @@ trait ElementAttributes
      * Set if the button is right aligned or not
      *
      * @param bool $right
-     * @return Button
+     * @return static
      */
     public function setRight(bool $right): static
     {

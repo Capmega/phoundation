@@ -2,8 +2,10 @@
 
 namespace Phoundation\Web\Http\Html\Traits;
 
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Enums\DisplaySize;
 use Phoundation\Web\Http\Html\Interfaces\InterfaceDisplaySize;
+
 
 /**
  * UsesSize trait
@@ -20,18 +22,29 @@ trait UsesSize
     /**
      * Container value for this container
      *
-     * @var InterfaceDisplaySize $size
+     * @var InterfaceDisplaySize|null $size
      */
-    protected InterfaceDisplaySize $size = DisplaySize::xxl;
+    protected InterfaceDisplaySize|null $size = DisplaySize::twelve;
+
 
     /**
      * Sets the type for this container
      *
-     * @param InterfaceDisplaySize $size
+     * @param InterfaceDisplaySize|int|null $size
      * @return static
      */
-    public function setSize(InterfaceDisplaySize $size): static
+    public function setSize(InterfaceDisplaySize|int|null $size): static
     {
+        if (is_numeric($size)) {
+            if (($size < 1) or ($size > 12)) {
+                throw new OutOfBoundsException(tr('Specified size ":size" is invalid, it should have the InterfaceDisplaySize interface, or be a numeric int between 1 and 12', [
+                    ':size' => $size
+                ]));
+            }
+
+            $size = DisplaySize::from((string) $size);
+        }
+
         $this->size = $size;
         return $this;
     }
@@ -40,9 +53,9 @@ trait UsesSize
     /**
      * Returns the type for this container
      *
-     * @return InterfaceDisplaySize
+     * @return InterfaceDisplaySize|int|null
      */
-    public function getSize(): InterfaceDisplaySize
+    public function getSize(): InterfaceDisplaySize|int|null
     {
         return $this->size;
     }

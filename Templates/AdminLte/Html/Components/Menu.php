@@ -2,6 +2,7 @@
 
 namespace Templates\AdminLte\Html\Components;
 
+use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Html\Renderer;
 
 
@@ -48,7 +49,7 @@ class Menu extends Renderer
     protected function renderMenu(array $source, int $sub_menu): string
     {
         if ($sub_menu) {
-            $html = '<ul class="nav nav-treeview sub-menu-' . $sub_menu . '">';
+            $html = '<ul class="nav nav-treeview sub-menu-' . Html::safe($sub_menu) . '">';
         } else {
             $html = '<ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">';
         }
@@ -57,9 +58,9 @@ class Menu extends Renderer
             // Build menu entry
             if (isset($entry['url']) or isset($entry['menu'])) {
                 $html .= '<li class="nav-item">
-                            <a href="' . (isset_get($entry['url']) ?? '#') . '" class="nav-link">
-                                ' . (isset($entry['icon']) ? '<i class="nav-icon fas ' . $entry['icon'] . '"></i>' : '') . '
-                                <p>' . $label . (isset($entry['menu']) ? '<i class="right fas fa-angle-left"></i>' : (isset($entry['badge']) ? '<span class="right badge badge-' . $entry['badge']['type'] . '">' . $entry['badge']['label'] . '</span>' : '')) . '</p>
+                            <a href="' . Html::safe(isset_get($entry['url']) ?? '#') . '" class="nav-link">
+                                ' . (isset($entry['icon']) ? '<i class="nav-icon fas ' . Html::safe($entry['icon']) . '"></i>' : '') . '
+                                <p>' . Html::safe($label) . (isset($entry['menu']) ? '<i class="right fas fa-angle-left"></i>' : (isset($entry['badge']) ? '<span class="right badge badge-' . Html::safe($entry['badge']['type']) . '">' . Html::safe($entry['badge']['label']) . '</span>' : '')) . '</p>
                             </a>';
 
                 if (isset($entry['menu'])) {
@@ -68,8 +69,8 @@ class Menu extends Renderer
             } else {
                 // Not a clickable menu element, just a label
                 $html .= '<li class="nav-header">
-                                ' . (isset($entry['icon']) ? '<i class="nav-icon fas ' . $entry['icon'] . '"></i>' : '') . '
-                                ' . strtoupper($label) . (isset($entry['badge']) ? '<span class="right badge badge-' . $entry['badge']['type'] . '">' . $entry['badge']['label'] . '</span>' : '');
+                                ' . (isset($entry['icon']) ? '<i class="nav-icon fas ' . Html::safe($entry['icon']) . '"></i>' : '') . '
+                                ' . strtoupper(Html::safe($label)) . (isset($entry['badge']) ? '<span class="right badge badge-' . Html::safe($entry['badge']['type']) . '">' . Html::safe($entry['badge']['label']) . '</span>' : '');
             }
 
             $html .= '</li>';

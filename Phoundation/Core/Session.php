@@ -559,7 +559,7 @@ Log::warning('RESTART SESSION');
             unset($_SESSION['user']['impersonate_id']);
             unset($_SESSION['user']['impersonate_url']);
 
-            Page::getFlashMessages()->add(tr('Success'), tr('You have stopped impersonating user ":user"', [':user' => User::get($users_id)]), 'success');
+            Page::getFlashMessages()->add(tr('Success'), tr('You have stopped impersonating user ":user"', [':user' => User::get($users_id)]), DisplayMode::success);
             Page::redirect($url);
         }
 

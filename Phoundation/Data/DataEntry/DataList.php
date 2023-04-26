@@ -2,8 +2,8 @@
 
 namespace Phoundation\Data\DataEntry;
 
-use Iterator;
 use Phoundation\Cli\Cli;
+use Phoundation\Data\DataEntry\Interfaces\InterfaceDataList;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Exception\OutOfBoundsException;
@@ -11,6 +11,7 @@ use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Components\DataTable;
 use Phoundation\Web\Http\Html\Components\Table;
 use ReturnTypeWillChange;
+
 
 /**
  * Class DataList
@@ -22,7 +23,7 @@ use ReturnTypeWillChange;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
-abstract class DataList implements Iterator
+abstract class DataList implements InterfaceDataList
 {
     /**
      * The list parent
@@ -91,10 +92,10 @@ abstract class DataList implements Iterator
     /**
      * DataList class constructor
      *
-     * @param DataEntry|null $parent
+     * @param InterfaceDataEntry|null $parent
      * @param string|null $id_column
      */
-    public function __construct(?DataEntry $parent = null, ?string $id_column = null)
+    public function __construct(?InterfaceDataEntry $parent = null, ?string $id_column = null)
     {
         // Validate the entry class
         if (isset($this->entry_class)) {
@@ -137,11 +138,11 @@ abstract class DataList implements Iterator
     /**
      * Returns new DataList object with an optional parent
      *
-     * @param DataEntry|null $parent
+     * @param InterfaceDataEntry|null $parent
      * @param string|null $id_column
      * @return static
      */
-    public static function new(?DataEntry $parent = null, ?string $id_column = null): static
+    public static function new(?InterfaceDataEntry $parent = null, ?string $id_column = null): static
     {
         return new static($parent, $id_column);
     }
@@ -177,11 +178,11 @@ abstract class DataList implements Iterator
     /**
      * Returns a list of items that are specified, but not available in this DataList
      *
-     * @param DataList|array|string $list
+     * @param InterfaceDataList|array|string $list
      * @param string|null $always_match
      * @return array
      */
-    public function missesKeys(DataList|array|string $list, string $always_match = null): array
+    public function missesKeys(InterfaceDataList|array|string $list, string $always_match = null): array
     {
         if (is_string($list)) {
             $list = explode(',', $list);
@@ -210,12 +211,12 @@ abstract class DataList implements Iterator
     /**
      * Returns if all (or optionally any) of the specified entries are in this list
      *
-     * @param DataList|array|string $list
+     * @param InterfaceDataList|array|string $list
      * @param bool $all
      * @param string|null $always_match
      * @return bool
      */
-    public function containsKey(DataList|array|string $list, bool $all = true, string $always_match = null): bool
+    public function containsKey(InterfaceDataList|array|string $list, bool $all = true, string $always_match = null): bool
     {
         if (is_string($list)) {
             $list = explode(',', $list);
@@ -249,12 +250,12 @@ abstract class DataList implements Iterator
     /**
      * Returns if all (or optionally any) of the specified entries are in this list
      *
-     * @param DataList|array|string $list
+     * @param InterfaceDataList|array|string $list
      * @param bool $all
      * @param string|null $always_match
      * @return bool
      */
-    public function containsValue(DataList|array|string $list, bool $all = true, string $always_match = null): bool
+    public function containsValue(InterfaceDataList|array|string $list, bool $all = true, string $always_match = null): bool
     {
         if (is_string($list)) {
             $list = explode(',', $list);
@@ -468,9 +469,9 @@ abstract class DataList implements Iterator
      * Returns the item with the specified identifier
      *
      * @param int $identifier
-     * @return DataEntry|null
+     * @return InterfaceDataEntry|null
      */
-    #[ReturnTypeWillChange] public function get(int $identifier): ?DataEntry
+    #[ReturnTypeWillChange] public function get(int $identifier): ?InterfaceDataEntry
     {
         // Does this entry exist?
         if (!array_key_exists($identifier, $this->list)) {
@@ -481,7 +482,7 @@ abstract class DataList implements Iterator
 
         // Is this entry loaded?
         if (!is_object($this->list[$identifier])) {
-            $this->list[$identifier] = new $this->entry_class($identifier);
+            $this->list[$identifier] = $this->entry_class::get($identifier);
         }
 
         return $this->list[$identifier];
@@ -491,9 +492,9 @@ abstract class DataList implements Iterator
     /**
      * Returns the current item
      *
-     * @return DataEntry|null
+     * @return InterfaceDataEntry|null
      */
-    #[ReturnTypeWillChange] public function current(): ?DataEntry
+    #[ReturnTypeWillChange] public function current(): ?InterfaceDataEntry
     {
         return $this->get(key($this->list));
     }
@@ -686,10 +687,10 @@ showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY F
     /**
      * Add the specified data entry to the data list
      *
-     * @param DataEntry|null $entry
+     * @param InterfaceDataEntry|null $entry
      * @return static
      */
-    protected function addEntry(?DataEntry $entry): static
+    protected function addEntry(?InterfaceDataEntry $entry): static
     {
         if ($entry) {
             $this->list[$entry->getId()] = $entry;

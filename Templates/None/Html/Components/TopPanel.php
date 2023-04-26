@@ -4,6 +4,7 @@ namespace Templates\None\Html\Components;
 
 use Phoundation\Core\Session;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
+use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Html\Renderer;
 use Phoundation\Web\Http\UrlBuilder;
 
@@ -59,13 +60,13 @@ class TopPanel extends Renderer
                               <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
                             </li>
                             <li class="nav-item d-none d-sm-inline-block">
-                              <a href="' . UrlBuilder::getCurrent() . '" class="nav-link">' . tr('Home') . '</a>
+                              <a href="' . Html::safe(UrlBuilder::getCurrent()) . '" class="nav-link">' . tr('Home') . '</a>
                             </li>
                             ' . isset_get($message) . '
                           </ul>';
 
         // Build the panel
-        $this->render = ' <nav class="main-header navbar navbar-expand navbar-' . $this->element->getMode() . ' navbar-light">
+        $this->render = ' <nav class="main-header navbar navbar-expand navbar-' . Html::safe($this->element->getMode()->value) . ' navbar-light">
                             <!-- Left navbar links -->
                             ' . $left_menu . '                    
                             <!-- Right navbar links -->
@@ -115,7 +116,7 @@ class TopPanel extends Renderer
                                 </a>
                               </li>
                               <li class="nav-item">
-                                <a class="nav-link" href="' . UrlBuilder::getWww('sign-out.html') . '" role="button">
+                                <a class="nav-link" href="' . Html::safe(UrlBuilder::getWww('sign-out.html')) . '" role="button">
                                   <i class="fas fa-sign-out-alt"></i>
                                 </a>
                               </li>

@@ -357,7 +357,7 @@ class FlashMessage extends ElementsBlock
 
         return '
             $(document).Toasts("create", {
-                class: "bg-' . $this->mode . '",
+                class: "bg-' . $this->mode->value . '",
                 title: "' . Strings::escape($this->title) . '",
                 subtitle: "' . Strings::escape($this->sub_title) . '",
                 position: "' . $position . '",
@@ -381,7 +381,7 @@ class FlashMessage extends ElementsBlock
             match ($key) {
                 'top'        => $this->top        = $value,
                 'left'       => $this->left       = $value,
-                'mode'       => $this->mode       = $value,
+                'mode'       => $this->mode       = $this->mode::from($value),
                 'icon'       => $this->icon       = $value,
                 'image'      => $this->image      = $value,
                 'title'      => $this->title      = $value,
@@ -405,7 +405,7 @@ class FlashMessage extends ElementsBlock
         return [
             'top'        => $this->top,
             'left'       => $this->left,
-            'mode'       => $this->mode,
+            'mode'       => $this->mode->value,
             'icon'       => $this->icon,
             'image'      => $this->image,
             'title'      => $this->title,

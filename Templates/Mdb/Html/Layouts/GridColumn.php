@@ -2,6 +2,7 @@
 
 namespace Templates\Mdb\Html\Layouts;
 
+use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Html\Renderer;
 
 
@@ -35,13 +36,13 @@ class GridColumn extends Renderer
     {
         if ($this->element->getForm()) {
             // Return content rendered in a form
-            $this->render = '<div class="col' . ($this->element->getTier() ? '-' . $this->element->getTier() : '') . '-' . $this->element->getSize() . '">' . $this->element->getForm()->setContent($this->element->getContent())->render() . '</div>';
+            $this->render = '<div class="col' . ($this->element->getTier()->value ? '-' . Html::safe($this->element->getTier()->value) : '') . '-' . Html::safe($this->element->getSize()->value) . '">' . $this->element->getForm()->setContent($this->element->getContent())->render() . '</div>';
             $this->element->setForm(null);
 
             return parent::render();
         }
 
-        $this->render = '<div class="col' . ($this->element->getTier() ? '-' . $this->element->getTier() : '') . '-' . $this->element->getSize() . '">' . $this->element->getContent() . '</div>';
+        $this->render = '<div class="col' . ($this->element->getTier()->value ? '-' . Html::safe($this->element->getTier()->value) : '') . '-' . Html::safe($this->element->getSize()->value) . '">' . $this->element->getContent() . '</div>';
         return parent::render();
     }
 }

@@ -82,13 +82,13 @@ Class Html
     /**
      * Wrapper for htmlentities()
      *
-     * @see htmlentities()
-     * @param string $html
+     * @param string|int|null $html
      * @return string
+     * @see htmlentities()
      */
-    function safe(string $html): string
+    public static function safe(string|int|null $html): string
     {
-        return htmlentities($html);
+        return htmlentities((string) $html);
     }
 
 
@@ -565,317 +565,317 @@ Class Html
     }
 
 
-    /*
-     * Generate and return HTML to show HTML flash messages
-     *
-     * This function will scan the $_SESSION[flash] array for messages to be displayed as flash messages. If $class is specified, only messages that have the specified class will be displayed. If multiple flash messages are available, all will be returned. Messages that are returned will be removed from the $_SESSION[flash] array.
-     *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package html
-     * @see html_flash_set()
-     * @version 1.26.0: Added documentation
-     * @note Each message will be placed in an HTML template defined in $_CONFIG[flash][html]
-     * @example
-     * code
-     * $this->render = '<div>.
-     *             'html_flash('users').'
-     *          </div>';
-     * /code
-     *
-     * @param string $class If specified, only display messages with this specified class
-     * @return string The HTML containing all flash messages that matched
-     */
-    function flash($class = null) {
-        if (!PLATFORM_HTTP) {
-            throw new HtmlException('html_flash(): This function can only be executed on a webserver!');
-        }
-
-        if (!isset($_SESSION['flash'])) {
-            /*
-             * Nothing to see here!
-             */
-            return '';
-        }
-
-        if (!is_array($_SESSION['flash'])) {
-            /*
-             * $_SESSION['flash'] should always be an array. Don't crash on minor detail, just correct and continue
-             */
-            $_SESSION['flash'] = array();
-
-            Notification(array('code'    => 'invalid',
-                'groups'  => 'developers',
-                'title'   => tr('Invalid flash structure specified'),
-                'message' => tr('html_flash(): Invalid flash structure in $_SESSION array, it should always be an array but it is a ":type". Be sure to always use html_flash_set() to add new flash messages', array(':type' => gettype($_SESSION['flash'])))));
-        }
-
-        $return = '';
-
-        foreach ($_SESSION['flash'] as $id => $flash) {
-            Arrays::default($flash, 'class', null);
-
-            if ($flash['class'] and ($flash['class'] != $class)) {
-                continue;
-            }
-
-            Arrays::default($flash, 'title', null);
-            Arrays::default($flash, 'type' , null);
-            Arrays::default($flash, 'html' , null);
-            Arrays::default($flash, 'text' , null);
-
-            unset($flash['class']);
-
-            switch ($type = strtolower($flash['type'])) {
-                case 'info':
-                    break;
-
-                case 'information':
-                    break;
-
-                case 'success':
-                    break;
-
-                case 'error':
-                    break;
-
-                case 'warning':
-                    break;
-
-                case 'attention':
-                    break;
-
-                case 'danger':
-                    break;
-
-                default:
-                    $type = 'error';
-// :TODO: Notification OF UNKNOWN HTML FLASH TYPE
-            }
-
-            if (!Debug::enabled()) {
-                /*
-                 * Don't show "function_name(): " part of message
-                 */
-                $flash['html'] = trim(Strings::from($flash['html'], '():'));
-                $flash['text'] = trim(Strings::from($flash['text'], '():'));
-            }
-
-            /*
-             * Set the indicator that we have added flash texts
-             */
-            switch ($_CONFIG['flash']['type']) {
-                case 'html':
-                    /*
-                     * Either text or html could have been specified, or both
-                     * In case both are specified, show both!
-                     */
-                    foreach (array('html', 'text') as $type) {
-                        if ($flash[$type]) {
-                            $return .= tr($_CONFIG['flash']['html'], array(':message' => $flash[$type], ':type' => $flash['type'], ':hidden' => ''), false);
-                        }
-                    }
-
-                    break;
-
-                case 'sweetalert':
-                    if ($flash['html']) {
-                        /*
-                         * Show specified html
-                         */
-                        $sweetalerts[] = array_remove($flash, 'text');
-                    }
-
-                    if ($flash['text']) {
-                        /*
-                         * Show specified text
-                         */
-                        $sweetalerts[] = array_remove($flash, 'html');
-                    }
-
-                    break;
-
-                default:
-                    throw new HtmlException(tr('html_flash(): Unknown html flash type ":type" specified. Please check your $_CONFIG[flash][type] configuration', array(':type' => $_CONFIG['flash']['type'])), 'unknown');
-            }
-
-            $core->register['flash'] = true;
-            unset($_SESSION['flash'][$id]);
-        }
-
-        switch ($_CONFIG['flash']['type']) {
-            case 'html':
-// :TODO: DONT USE tr() HERE!!!!
-                /*
-                 * Add an extra hidden flash text box that can respond for jsFlashMessages
-                 */
-                return $return.tr($_CONFIG['flash']['html'], array(':message' => '', ':type' => '', ':hidden' => ' hidden'), false);
-
-            case 'sweetalert':
-                load_libs('sweetalert');
-
-                switch (count(isset_get($sweetalerts, array()))) {
-                    case 0:
-                        /*
-                         * No alerts
-                         */
-                        return '';
-
-                    case 1:
-                        return html_script(sweetalert(array_pop($sweetalerts)));
-
-                    default:
-                        /*
-                         * Multiple modals, show a queue
-                         */
-                        return html_script(sweetalert_queue(array('modals' => $sweetalerts)));
-                }
-        }
-    }
-
-
-    /*
-     * Set a message in the $_SESSION[flash] array so that it can be shown later as an HTML flash message
-     *
-     * Messages set with this function will be stored in the $_SESSION[flash] array, which can later be accessed by html_flash(). Messages stored without a class will be shown on any page, messages stored with a class will only be shown on the pages where html_flash() is called with that specified class.
-     *
-     * Each message requires a type, which can be one of info, warning, error, or success. Depending on the type, the shown flash message will be one of those four types
-     *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package html
-     * @see html_flash()
-     * @version 1.26.0: Added documentation
-     * @example
-     * code
-     * html_flash_set(tr('The action was succesful!'), 'success', 'users');
-     * /code
-     *
-     * @param mixed $params The message to be shown. Can be a simple string, a parameter array or an exception object. In case if an exception object was given, the $e->getMessage() text will be used. In case a parameter object was specified, the following variables may be specified
-     * @param params $params[html] The actual message to be shown. May include HTML if needed
-     * @param params $params[type] The type of flash message to be shown, must be one of "info", "warning", "error" or "success". Defaults to $type
-     * @param params $params[title] (Only applies when sweetalert flash messages are used) The title of the sweetalert popup. Defaults to a str_capitalized() $type
-     * @param params $params[class] the class for this message. If specified, subsequent html_flash() calls will only return this message if the class matches. Defaults to $class
-     * @param string $type The type of flash message to be shown, must be one of "info", "warning", "error" or "success"
-     * @param string $class If specified, subsequent html_flash() calls will only return this specific message if they specify the same class
-     * @return string The HTML containing all flash messages that matched
-     */
-    function flash_set($params, $type = 'info', $class = null) {
-        try {
-            if (!PLATFORM_HTTP) {
-                throw new HtmlException(tr('html_flash_set(): This function can only be executed on a webserver!'), 'invalid');
-            }
-
-            if (!$params) {
-                /*
-                 * Wut? no message?
-                 */
-                throw new HtmlException(tr('html_flash_set(): No messages specified'), 'not-specified');
-            }
-
-            /*
-             * Ensure session flash data consistency
-             */
-            if (empty($_SESSION['flash'])) {
-                $_SESSION['flash'] = array();
-            }
-
-            if (is_object($params)) {
-                return include(__DIR__.'/handlers/html-flash-set-object.php');
-            }
-
-            /*
-             * Backward compatibility
-             */
-            if (!is_array($params)) {
-                $params = array('title' => str_capitalize($type),
-                    'html'  => $params,
-                    'type'  => $type,
-                    'class' => $class);
-            }
-
-            /*
-             * Backward compatibility as well
-             */
-            if (empty($params['html']) and empty($params['text']) and empty($params['title'])) {
-                if (Debug::production()) {
-                    Notification(array('code'    => 'invalid',
-                        'groups'  => 'developers',
-                        'title'   => tr('Invalid flash structure specified'),
-                        'message' => tr('html_flash_set(): Invalid html flash structure specified'),
-                        'data'    => $params));
-
-                    return html_flash_set(implode(',', $params), $type, $class);
-                }
-
-                throw new HtmlException(tr('html_flash_set(): Invalid call data ":data", should contain at least "text" or "html" or "title"!', array(':data' => $params)), 'invalid');
-            }
-
-            switch (strtolower($params['type'])) {
-                case 'success':
-                    $color = 'green';
-                    break;
-
-                case 'exception':
-                    // no-break
-                case 'error':
-                    $color = 'green';
-                    break;
-
-                default:
-                    $color = 'yellow';
-            }
-
-            if (empty($params['title'])) {
-                $params['title'] = str_capitalize($params['type']);
-            }
-
-            $_SESSION['flash'][] = $params;
-
-            log_file(strip_tags($params['html']), $core->register['script'], $color);
-
-        } catch (Throwable $e) {
-            if (Debug::enabled() and (substr(Strings::from($e->getCode(), '/'), 0, 1) == '_')) {
-                /*
-                 * These are exceptions sent to be shown as an html flash error, but
-                 * since we're in debug mode, we'll just show it as an uncaught
-                 * exception. Don't add html_flash_set() history to this exception
-                 * as that would cause confusion.
-                 */
-                throw $e->setCode(substr(Strings::from($e->getCode(), '/'), 1));
-            }
-
-            /*
-             * Here, something actually went wrong within html_flash_set()
-             */
-            throw new HtmlException('html_flash_set(): Failed', $e);
-        }
-    }
-
-
-///*
-// * Returns true if there is an HTML message with the specified class
-// */
-//function flash_class($class = null) {
-//    try {
-//        if (isset($_SESSION['flash'])) {
-//            foreach ($_SESSION['flash'] as $message) {
-//                if ((isset_get($message['class']) == $class) or ($message['class'] == '*')) {
-//                    return true;
-//                }
-//            }
+//    /*
+//     * Generate and return HTML to show HTML flash messages
+//     *
+//     * This function will scan the $_SESSION[flash] array for messages to be displayed as flash messages. If $class is specified, only messages that have the specified class will be displayed. If multiple flash messages are available, all will be returned. Messages that are returned will be removed from the $_SESSION[flash] array.
+//     *
+//     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+//     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+//     * @category Function reference
+//     * @package html
+//     * @see html_flash_set()
+//     * @version 1.26.0: Added documentation
+//     * @note Each message will be placed in an HTML template defined in $_CONFIG[flash][html]
+//     * @example
+//     * code
+//     * $this->render = '<div>.
+//     *             'html_flash('users').'
+//     *          </div>';
+//     * /code
+//     *
+//     * @param string $class If specified, only display messages with this specified class
+//     * @return string The HTML containing all flash messages that matched
+//     */
+//    function flash($class = null) {
+//        if (!PLATFORM_HTTP) {
+//            throw new HtmlException('html_flash(): This function can only be executed on a webserver!');
 //        }
 //
-//        return false;
+//        if (!isset($_SESSION['flash'])) {
+//            /*
+//             * Nothing to see here!
+//             */
+//            return '';
+//        }
 //
-//    } catch (Throwable $e) {
-//        throw new HtmlException('html_flash_class(): Failed', $e);
+//        if (!is_array($_SESSION['flash'])) {
+//            /*
+//             * $_SESSION['flash'] should always be an array. Don't crash on minor detail, just correct and continue
+//             */
+//            $_SESSION['flash'] = array();
+//
+//            Notification(array('code'    => 'invalid',
+//                'groups'  => 'developers',
+//                'title'   => tr('Invalid flash structure specified'),
+//                'message' => tr('html_flash(): Invalid flash structure in $_SESSION array, it should always be an array but it is a ":type". Be sure to always use html_flash_set() to add new flash messages', array(':type' => gettype($_SESSION['flash'])))));
+//        }
+//
+//        $return = '';
+//
+//        foreach ($_SESSION['flash'] as $id => $flash) {
+//            Arrays::default($flash, 'class', null);
+//
+//            if ($flash['class'] and ($flash['class'] != $class)) {
+//                continue;
+//            }
+//
+//            Arrays::default($flash, 'title', null);
+//            Arrays::default($flash, 'type' , null);
+//            Arrays::default($flash, 'html' , null);
+//            Arrays::default($flash, 'text' , null);
+//
+//            unset($flash['class']);
+//
+//            switch ($type = strtolower($flash['type'])) {
+//                case 'info':
+//                    break;
+//
+//                case 'information':
+//                    break;
+//
+//                case 'success':
+//                    break;
+//
+//                case 'error':
+//                    break;
+//
+//                case 'warning':
+//                    break;
+//
+//                case 'attention':
+//                    break;
+//
+//                case 'danger':
+//                    break;
+//
+//                default:
+//                    $type = 'error';
+//// :TODO: Notification OF UNKNOWN HTML FLASH TYPE
+//            }
+//
+//            if (!Debug::enabled()) {
+//                /*
+//                 * Don't show "function_name(): " part of message
+//                 */
+//                $flash['html'] = trim(Strings::from($flash['html'], '():'));
+//                $flash['text'] = trim(Strings::from($flash['text'], '():'));
+//            }
+//
+//            /*
+//             * Set the indicator that we have added flash texts
+//             */
+//            switch ($_CONFIG['flash']['type']) {
+//                case 'html':
+//                    /*
+//                     * Either text or html could have been specified, or both
+//                     * In case both are specified, show both!
+//                     */
+//                    foreach (array('html', 'text') as $type) {
+//                        if ($flash[$type]) {
+//                            $return .= tr($_CONFIG['flash']['html'], array(':message' => $flash[$type], ':type' => $flash['type'], ':hidden' => ''), false);
+//                        }
+//                    }
+//
+//                    break;
+//
+//                case 'sweetalert':
+//                    if ($flash['html']) {
+//                        /*
+//                         * Show specified html
+//                         */
+//                        $sweetalerts[] = array_remove($flash, 'text');
+//                    }
+//
+//                    if ($flash['text']) {
+//                        /*
+//                         * Show specified text
+//                         */
+//                        $sweetalerts[] = array_remove($flash, 'html');
+//                    }
+//
+//                    break;
+//
+//                default:
+//                    throw new HtmlException(tr('html_flash(): Unknown html flash type ":type" specified. Please check your $_CONFIG[flash][type] configuration', array(':type' => $_CONFIG['flash']['type'])), 'unknown');
+//            }
+//
+//            $core->register['flash'] = true;
+//            unset($_SESSION['flash'][$id]);
+//        }
+//
+//        switch ($_CONFIG['flash']['type']) {
+//            case 'html':
+//// :TODO: DONT USE tr() HERE!!!!
+//                /*
+//                 * Add an extra hidden flash text box that can respond for jsFlashMessages
+//                 */
+//                return $return.tr($_CONFIG['flash']['html'], array(':message' => '', ':type' => '', ':hidden' => ' hidden'), false);
+//
+//            case 'sweetalert':
+//                load_libs('sweetalert');
+//
+//                switch (count(isset_get($sweetalerts, array()))) {
+//                    case 0:
+//                        /*
+//                         * No alerts
+//                         */
+//                        return '';
+//
+//                    case 1:
+//                        return html_script(sweetalert(array_pop($sweetalerts)));
+//
+//                    default:
+//                        /*
+//                         * Multiple modals, show a queue
+//                         */
+//                        return html_script(sweetalert_queue(array('modals' => $sweetalerts)));
+//                }
+//        }
 //    }
-//}
+//
+//
+//    /*
+//     * Set a message in the $_SESSION[flash] array so that it can be shown later as an HTML flash message
+//     *
+//     * Messages set with this function will be stored in the $_SESSION[flash] array, which can later be accessed by html_flash(). Messages stored without a class will be shown on any page, messages stored with a class will only be shown on the pages where html_flash() is called with that specified class.
+//     *
+//     * Each message requires a type, which can be one of info, warning, error, or success. Depending on the type, the shown flash message will be one of those four types
+//     *
+//     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+//     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+//     * @category Function reference
+//     * @package html
+//     * @see html_flash()
+//     * @version 1.26.0: Added documentation
+//     * @example
+//     * code
+//     * html_flash_set(tr('The action was succesful!'), 'success', 'users');
+//     * /code
+//     *
+//     * @param mixed $params The message to be shown. Can be a simple string, a parameter array or an exception object. In case if an exception object was given, the $e->getMessage() text will be used. In case a parameter object was specified, the following variables may be specified
+//     * @param params $params[html] The actual message to be shown. May include HTML if needed
+//     * @param params $params[type] The type of flash message to be shown, must be one of "info", "warning", "error" or "success". Defaults to $type
+//     * @param params $params[title] (Only applies when sweetalert flash messages are used) The title of the sweetalert popup. Defaults to a str_capitalized() $type
+//     * @param params $params[class] the class for this message. If specified, subsequent html_flash() calls will only return this message if the class matches. Defaults to $class
+//     * @param string $type The type of flash message to be shown, must be one of "info", "warning", "error" or "success"
+//     * @param string $class If specified, subsequent html_flash() calls will only return this specific message if they specify the same class
+//     * @return string The HTML containing all flash messages that matched
+//     */
+//    function flash_set($params, $type = 'info', $class = null) {
+//        try {
+//            if (!PLATFORM_HTTP) {
+//                throw new HtmlException(tr('html_flash_set(): This function can only be executed on a webserver!'), 'invalid');
+//            }
+//
+//            if (!$params) {
+//                /*
+//                 * Wut? no message?
+//                 */
+//                throw new HtmlException(tr('html_flash_set(): No messages specified'), 'not-specified');
+//            }
+//
+//            /*
+//             * Ensure session flash data consistency
+//             */
+//            if (empty($_SESSION['flash'])) {
+//                $_SESSION['flash'] = array();
+//            }
+//
+//            if (is_object($params)) {
+//                return include(__DIR__.'/handlers/html-flash-set-object.php');
+//            }
+//
+//            /*
+//             * Backward compatibility
+//             */
+//            if (!is_array($params)) {
+//                $params = array('title' => str_capitalize($type),
+//                    'html'  => $params,
+//                    'type'  => $type,
+//                    'class' => $class);
+//            }
+//
+//            /*
+//             * Backward compatibility as well
+//             */
+//            if (empty($params['html']) and empty($params['text']) and empty($params['title'])) {
+//                if (Debug::production()) {
+//                    Notification(array('code'    => 'invalid',
+//                        'groups'  => 'developers',
+//                        'title'   => tr('Invalid flash structure specified'),
+//                        'message' => tr('html_flash_set(): Invalid html flash structure specified'),
+//                        'data'    => $params));
+//
+//                    return html_flash_set(implode(',', $params), $type, $class);
+//                }
+//
+//                throw new HtmlException(tr('html_flash_set(): Invalid call data ":data", should contain at least "text" or "html" or "title"!', array(':data' => $params)), 'invalid');
+//            }
+//
+//            switch (strtolower($params['type'])) {
+//                case 'success':
+//                    $color = 'green';
+//                    break;
+//
+//                case 'exception':
+//                    // no-break
+//                case 'error':
+//                    $color = 'green';
+//                    break;
+//
+//                default:
+//                    $color = 'yellow';
+//            }
+//
+//            if (empty($params['title'])) {
+//                $params['title'] = str_capitalize($params['type']);
+//            }
+//
+//            $_SESSION['flash'][] = $params;
+//
+//            log_file(strip_tags($params['html']), $core->register['script'], $color);
+//
+//        } catch (Throwable $e) {
+//            if (Debug::enabled() and (substr(Strings::from($e->getCode(), '/'), 0, 1) == '_')) {
+//                /*
+//                 * These are exceptions sent to be shown as an html flash error, but
+//                 * since we're in debug mode, we'll just show it as an uncaught
+//                 * exception. Don't add html_flash_set() history to this exception
+//                 * as that would cause confusion.
+//                 */
+//                throw $e->setCode(substr(Strings::from($e->getCode(), '/'), 1));
+//            }
+//
+//            /*
+//             * Here, something actually went wrong within html_flash_set()
+//             */
+//            throw new HtmlException('html_flash_set(): Failed', $e);
+//        }
+//    }
+//
+//
+/////*
+//// * Returns true if there is an HTML message with the specified class
+//// */
+////function flash_class($class = null) {
+////    try {
+////        if (isset($_SESSION['flash'])) {
+////            foreach ($_SESSION['flash'] as $message) {
+////                if ((isset_get($message['class']) == $class) or ($message['class'] == '*')) {
+////                    return true;
+////                }
+////            }
+////        }
+////
+////        return false;
+////
+////    } catch (Throwable $e) {
+////        throw new HtmlException('html_flash_class(): Failed', $e);
+////    }
+////}
 
 
     /*

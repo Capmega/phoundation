@@ -5,6 +5,7 @@ namespace Templates\None\Html\Components;
 use Phoundation\Core\Strings;
 use Phoundation\Date\Date;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Html\Renderer;
 
 /**
@@ -55,7 +56,7 @@ class NotificationsDropDown extends Renderer
 
         $this->render = '   <a class="nav-link" data-toggle="dropdown" href="#">
                               <i class="far fa-bell"></i>
-                              ' . ($count ? '<span class="badge badge-' . $mode . ' navbar-badge">' . $count . '</span>' : null) . '                              
+                              ' . ($count ? '<span class="badge badge-' . Html::safe($mode) . ' navbar-badge">' . Html::safe($count) . '</span>' : null) . '                              
                             </a>
                             <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
                                   <span class="dropdown-item dropdown-header">' . tr(':count Notifications', [':count' => $count]) . '</span>
@@ -69,15 +70,15 @@ class NotificationsDropDown extends Renderer
                     break;
                 }
 
-                $this->render .= '<a href="' . str_replace(':ID', $notification->getId(), $this->element->getNotificationsUrl()) . '" class="dropdown-item">
-                                    ' . ($notification->getIcon() ? '<i class="text-' . strtolower($notification->getMode()) . ' fas fa-' . $notification->getIcon() . ' mr-2"></i> ' : null) . Strings::truncate($notification->getTitle(), 24) . '
-                                    <span class="float-right text-muted text-sm"> ' . Date::getAge($notification->getCreatedOn()) . '</span>
+                $this->render .= '<a href="' . Html::safe(str_replace(':ID', $notification->getId(), $this->element->getNotificationsUrl())) . '" class="dropdown-item">
+                                    ' . ($notification->getIcon() ? '<i class="text-' . Html::safe($notification->getMode()->value) . ' fas fa-' . Html::safe($notification->getIcon()) . ' mr-2"></i> ' : null) . Html::safe(Strings::truncate($notification->getTitle()), 24) . '
+                                    <span class="float-right text-muted text-sm"> ' . Html::safe(Date::getAge($notification->getCreatedOn())) . '</span>
                                   </a>
                                   <div class="dropdown-divider"></div>';
             }
         }
 
-        $this->render .= '        <a href="' . $this->element->getAllNotificationsUrl() . '" class="dropdown-item dropdown-footer">' . tr('See All Notifications') . '</a>
+        $this->render .= '        <a href="' . Html::safe($this->element->getAllNotificationsUrl()) . '" class="dropdown-item dropdown-footer">' . tr('See All Notifications') . '</a>
                                 </div>';
 
         return parent::render();

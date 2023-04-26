@@ -2,6 +2,7 @@
 
 namespace Templates\AdminLte\Html\Components\Widgets\Cards;
 
+use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Html\Renderer;
 
 
@@ -31,25 +32,25 @@ class Card extends Renderer
      */
     public function render(): ?string
     {
-        $this->render = '   <div class="card ' . ($this->element->getGradient() ? 'gradient-' : '') . ($this->element->getMode() ? 'card-' . $this->element->getMode() : '') . ($this->element->getBackground() ? 'bg-' . $this->element->getBackground() : '') . '">';
+        $this->render = '   <div class="card ' . ($this->element->getClass() ? $this->element->getClass() . ' ' : null) . ($this->element->getGradient() ? 'gradient-' . Html::safe($this->element->getGradient()) : '') . ($this->element->getMode()->value ? 'card-' . Html::safe($this->element->getMode()->value) : '') . ($this->element->getBackground() ? 'bg-' . Html::safe($this->element->getBackground()) : '') . '">';
 
         if ($this->element->hasReloadSwitch() or $this->element->hasMaximizeSwitch() or $this->element->hasCollapseSwitch() or $this->element->hasCloseSwitch() or $this->element->getTitle() or $this->element->getHeaderContent()) {
             $this->render .= '  <div class="card-header">
-                                    <h3 class="card-title">' . $this->element->getTitle() . '</h3>
+                                    <h3 class="card-title">' . Html::safe($this->element->getTitle()) . '</h3>
                                     <div class="card-tools">
                                       ' . $this->element->getHeaderContent() . '
                                       ' . ($this->element->hasReloadSwitch() ? '   <button type="button" class="btn btn-tool" data-card-widget="card-refresh" data-source="widgets.html" data-source-selector="#card-refresh-content" data-load-on-init="false">
-                                                                            <i class="fas fa-sync-alt"></i>
-                                                                          </button>' : '') . '
+                                                                                    <i class="fas fa-sync-alt"></i>
+                                                                                  </button>' : '') . '
                                       ' . ($this->element->hasMaximizeSwitch() ? ' <button type="button" class="btn btn-tool" data-card-widget="maximize">
-                                                                            <i class="fas fa-expand"></i>
-                                                                          </button>' : '') . '
+                                                                                    <i class="fas fa-expand"></i>
+                                                                                  </button>' : '') . '
                                       ' . ($this->element->hasCollapseSwitch() ? ' <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                                                            <i class="fas fa-minus"></i>
-                                                                          </button>' : '') . '
+                                                                                    <i class="fas fa-minus"></i>
+                                                                                  </button>' : '') . '
                                       ' . ($this->element->hasCloseSwitch() ? '    <button type="button" class="btn btn-tool" data-card-widget="remove">
-                                                                            <i class="fas fa-times"></i>
-                                                                          </button>' : '') . '                              
+                                                                                    <i class="fas fa-times"></i>
+                                                                                  </button>' : '') . '                              
                                     </div>
                                 </div>';
         }

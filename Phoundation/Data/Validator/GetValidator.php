@@ -3,6 +3,7 @@
 namespace Phoundation\Data\Validator;
 
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 
@@ -126,6 +127,24 @@ class GetValidator extends Validator
             $this->liberateData();
             throw $e;
         }
+    }
+
+
+    /**
+     * Force a return of all GET data without check
+     *
+     * @return array
+     */
+    public static function force(): array
+    {
+        Log::warning(tr('Liberated all GET data without data validation!'));
+
+        global $_GET;
+
+        $_GET = static::$get;
+        static::$get = null;
+
+        return $_GET;
     }
 
 

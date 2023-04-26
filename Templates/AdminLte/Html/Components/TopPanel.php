@@ -4,6 +4,7 @@ namespace Templates\AdminLte\Html\Components;
 
 use Phoundation\Core\Session;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
+use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Html\Renderer;
 use Phoundation\Web\Http\UrlBuilder;
 
@@ -49,7 +50,7 @@ class TopPanel extends Renderer
         // Top level message?
         if (isset($message)) {
             $message = '    <li class="nav-item d-none d-sm-inline-block">
-                              <a href="#" class="nav-link">' . $message . '</a>
+                              <a href="#" class="nav-link">' . Html::safe($message) . '</a>
                             </li>';
         }
 
@@ -62,17 +63,17 @@ class TopPanel extends Renderer
         if ($this->element->getSourceEntry('menu')) {
             foreach ($this->element->getSourceEntry('menu') as $url => $label) {
                 $left_menu .= ' <li class="nav-item d-none d-sm-inline-block">
-                                  <a href="' . $url . '" class="nav-link">' . $label . '</a>
+                                  <a href="' . Html::safe($url) . '" class="nav-link">' . Html::safe($label) . '</a>
                                 </li>';
             }
         }
 
         // Add the optional extra message and finish the left menu
-        $left_menu .=       isset_get($message) . '
+        $left_menu .=       Html::safe(isset_get($message)) . '
                           </ul>';
 
         // Build the panel
-        $this->render = ' <nav class="main-header navbar navbar-expand navbar-' . $this->element->getMode() . ' navbar-light">
+        $this->render = ' <nav class="main-header navbar navbar-expand navbar-' . Html::safe($this->element->getMode()->value) . ' navbar-light">
                             <!-- Left navbar links -->
                             ' . $left_menu . '                    
                             <!-- Right navbar links -->
@@ -122,7 +123,7 @@ class TopPanel extends Renderer
                                 </a>
                               </li>
                               <li class="nav-item">
-                                <a class="nav-link" href="' . UrlBuilder::getWww('sign-out.html') . '" role="button">
+                                <a class="nav-link" href="' . Html::safe(UrlBuilder::getWww('sign-out.html')) . '" role="button">
                                   <i class="fas fa-sign-out-alt"></i>
                                 </a>
                               </li>

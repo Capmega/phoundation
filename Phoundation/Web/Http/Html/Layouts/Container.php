@@ -2,7 +2,8 @@
 
 namespace Phoundation\Web\Http\Html\Layouts;
 
-use Phoundation\Web\Http\Html\Traits\UsesSize;
+use Phoundation\Web\Http\Html\Traits\UsesTier;
+
 
 /**
  * Container class
@@ -16,5 +17,5 @@ use Phoundation\Web\Http\Html\Traits\UsesSize;
  */
 class Container extends Layout
 {
-    use UsesSize;
+    use UsesTier;
 }

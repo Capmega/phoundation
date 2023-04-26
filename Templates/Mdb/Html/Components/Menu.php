@@ -4,6 +4,7 @@ namespace Templates\Mdb\Html\Components;
 
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Html\Renderer;
 use Phoundation\Web\Http\UrlBuilder;
 
@@ -54,7 +55,7 @@ class Menu extends Renderer
             return '';
         }
 
-        $html = ' <ul class="' . $ul_class . '">';
+        $html = ' <ul class="' . Html::safe($ul_class) . '">';
 
         foreach ($menu as $label => $entry) {
             if (!is_array($entry)) {
@@ -67,14 +68,14 @@ class Menu extends Renderer
             if (is_array(isset_get($entry['menu']))) {
                 // This is a sub menu, recurse!
                 $html .= '<li class="nav-item dropdown">
-                              <a class="nav-link dropdown-toggle" data-mdb-toggle="dropdown" id="navbarDropdownMenu' . Strings::capitalize($label) . '">
-                                ' . $label . ' 
+                              <a class="nav-link dropdown-toggle" data-mdb-toggle="dropdown" id="navbarDropdownMenu' . Html::safe(Strings::capitalize($label)) . '">
+                                ' . Html::safe($label) . ' 
                               </a>
-                              ' . $this->renderSubMenu($entry['menu'], 'dropdown-menu', ' aria-labelledby="navbarDropdownMenu' . Strings::capitalize($label) . '"') . '
+                              ' . $this->renderSubMenu($entry['menu'], 'dropdown-menu', ' aria-labelledby="navbarDropdownMenu' . Html::safe(Strings::capitalize($label)) . '"') . '
                           </li>';
             } else {
                 $html .= '  <li class="nav-item">
-                              <a class="nav-link" href="' . UrlBuilder::getWww(isset_get($entry['url'])) . '">' . $label . '</a>
+                              <a class="nav-link" href="' . Html::safe(UrlBuilder::getWww(isset_get($entry['url']))) . '">' . Html::safe($label) . '</a>
                             </li>';
             }
         }
@@ -100,7 +101,7 @@ class Menu extends Renderer
             return '';
         }
 
-        $html = ' <ul class="' . $ul_class . '"' . $ul_attributes . '>';
+        $html = ' <ul class="' . Html::safe($ul_class) . '"' . $ul_attributes . '>';
 
         foreach ($menu as $label => $entry) {
             if (!is_array($entry)) {
@@ -114,13 +115,13 @@ class Menu extends Renderer
                 // This is a sub menu, recurse!
                 $html .= '<li>
                               <a class="dropdown-item" href="#">
-                                ' . $label . ' &raquo;
+                                ' . Html::safe($label) . ' &raquo;
                               </a>
                               ' . $this->renderSubMenu($entry['menu'], 'dropdown-menu dropdown-submenu') . '
                           </li>';
             } else {
                 $html .= '  <li>
-                              <a class="dropdown-item" href="' . UrlBuilder::getWww($entry['url']) . '">' . $label . '</a>
+                              <a class="dropdown-item" href="' . Html::safe(UrlBuilder::getWww($entry['url'])) . '">' . $label . '</a>
                             </li>';
             }
         }

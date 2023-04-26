@@ -28,6 +28,7 @@ use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Exception\NotificationBusyException;
+use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Throwable;
 
 /**
@@ -305,28 +306,34 @@ class Notification extends DataEntry
     public function log(): static
     {
         switch ($this->getMode()) {
-            case 'ERROR':
+            case DisplayMode::danger:
                 Log::error($this->getTitle());
                 Log::error($this->getMessage());
                 Log::error($this->getDetails());
                 break;
 
-            case 'WARNING':
+            case DisplayMode::warning:
                 Log::warning($this->getTitle());
                 Log::warning($this->getMessage());
                 Log::warning($this->getDetails());
                 break;
 
-            case 'NOTICE':
-                Log::notice($this->getTitle());
-                Log::notice($this->getMessage());
-                Log::notice($this->getDetails());
+            case DisplayMode::success:
+                Log::success($this->getTitle());
+                Log::success($this->getMessage());
+                Log::success($this->getDetails());
                 break;
 
-            case 'INFO':
+            case DisplayMode::info:
                 Log::information($this->getTitle());
                 Log::information($this->getMessage());
                 Log::information($this->getDetails());
+                break;
+
+            default:
+                Log::notice($this->getTitle());
+                Log::notice($this->getMessage());
+                Log::notice($this->getDetails());
                 break;
         }
 

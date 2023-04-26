@@ -867,10 +867,9 @@ abstract class Curl
     /**
      * Executes the request
      *
-     * @return void
+     * @return static
      */
-    abstract public function execute(): void;
-
+    abstract public function execute(): static;
 
     /**
      * Prepare the request

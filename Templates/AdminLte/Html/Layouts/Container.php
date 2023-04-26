@@ -2,6 +2,7 @@
 
 namespace Templates\AdminLte\Html\Layouts;
 
+use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Html\Renderer;
 
 
@@ -33,6 +34,6 @@ class Container extends Renderer
      */
     public function render(): ?string
     {
-        return '<div class="container' . ($this->element->getSize() ? '-' . $this->element->getSize() : null) . '">' . $this->element->getContent() . '</div>';
+        return '<div class="container' . ($this->element->getTier()->value ? '-' . Html::safe($this->element->getTier()->value) : null) . '">' . Html::safe($this->element->getContent()) . '</div>';
     }
 }

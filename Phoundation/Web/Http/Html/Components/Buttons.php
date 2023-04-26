@@ -22,9 +22,6 @@ use ReturnTypeWillChange;
  */
 class Buttons extends ElementsBlock implements Iterator
 {
-    use ButtonProperties;
-
-
     /**
      * If true, the buttons will be grouped in one larger button
      *

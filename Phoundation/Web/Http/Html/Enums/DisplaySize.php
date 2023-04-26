@@ -16,12 +16,16 @@ use Phoundation\Web\Http\Html\Interfaces\InterfaceDisplaySize;
  */
 enum DisplaySize: string implements InterfaceDisplaySize
 {
-    case null = '';
-    case xxs = 'xxs';
-    case xs = 'xs';
-    case sm = 'sm';
-    case md = 'md';
-    case lg = 'lg';
-    case xl = 'xl';
-    case xxl = 'xxl';
+    case one = '1';
+    case two = '2';
+    case three = '3';
+    case four = '4';
+    case five = '5';
+    case six = '6';
+    case seven = '7';
+    case eight = '8';
+    case nine = '9';
+    case ten = '10';
+    case eleven = '11';
+    case twelve = '12';
 }

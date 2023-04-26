@@ -2,12 +2,14 @@
 
 namespace Phoundation\Accounts\Rights;
 
+use Phoundation\Accounts\Interfaces\InterfaceRight;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
+
 
 /**
  * Class Right
@@ -20,7 +22,7 @@ use Phoundation\Data\Validator\PostValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
-class Right extends DataEntry
+class Right extends DataEntry implements InterfaceRight
 {
     use DataEntryNameDescription;
 

@@ -3,6 +3,7 @@
 namespace Templates\Mdb\Html\Components;
 
 use Phoundation\Web\Http\Html\Components\Img;
+use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Html\Modals\SignInModal;
 use Phoundation\Web\Http\Html\Renderer;
 use Phoundation\Web\Http\UrlBuilder;
@@ -57,7 +58,7 @@ class TopPanel extends Renderer
                                 <!-- Collapsible wrapper -->
                                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                                   <!-- Navbar brand -->
-                                  <a class="navbar-brand mt-2 mt-lg-0" href="' . UrlBuilder::getCurrentDomainRootUrl() . '">
+                                  <a class="navbar-brand mt-2 mt-lg-0" href="' . Html::safe(UrlBuilder::getCurrentDomainRootUrl()) . '">
                                   ' . Img::new()
                                         ->setSrc('img/logos/phoundation/phoundation-64x64.png')
                                         ->setAlt(tr('The Phoundation logo'))

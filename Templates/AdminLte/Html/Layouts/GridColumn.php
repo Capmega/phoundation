@@ -2,6 +2,7 @@
 
 namespace Templates\AdminLte\Html\Layouts;
 
+use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Html\Renderer;
 
 
@@ -33,7 +34,7 @@ class GridColumn extends Renderer
      */
     public function render(): ?string
     {
-        $this->render = '   <div class="col' . ($this->element->getTier() ? '-' . $this->element->getTier() : '') . '-' . $this->element->getSize() . '">';
+        $this->render = '   <div class="col' . (Html::safe($this->element->getTier()->value) ? '-' . Html::safe($this->element->getTier()->value) : '') . '-' . Html::safe($this->element->getSize()->value) . '">';
 
         if ($this->element->getForm()) {
             // Return column content rendered in a form
