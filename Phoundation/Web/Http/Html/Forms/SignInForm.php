@@ -8,7 +8,6 @@ use Phoundation\Core\Config;
 use Phoundation\Web\Http\Html\Components\Form;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Http\UrlBuilder;
-use Stringable;
 
 /**
  * SignIn form class
@@ -42,7 +41,6 @@ class SignInForm extends Form
      * @var Stringable|string|null $forgot_password_url
      */
     protected Stringable|string|null $forgot_password_url = null;
-
 
     /**
      * Signin class constructor

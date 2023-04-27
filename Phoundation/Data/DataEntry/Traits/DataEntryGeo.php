@@ -49,7 +49,6 @@ trait DataEntryGeo
         return $this->setDataValue('cities_id', get_null(isset_get_typed('integer', $cities_id)));
     }
 
-
     /**
      * Returns the cities_id for this user
      *
@@ -117,7 +116,6 @@ trait DataEntryGeo
         return $this->setDataValue('states_id', get_null(isset_get_typed('integer', $states_id)));
     }
 
-
     /**
      * Returns the state for this user
      *
@@ -184,7 +182,6 @@ trait DataEntryGeo
 
         return $this->setDataValue('countries_id', get_null(isset_get_typed('integer', $countries_id)));
     }
-
 
     /**
      * Returns the countries_id for this user

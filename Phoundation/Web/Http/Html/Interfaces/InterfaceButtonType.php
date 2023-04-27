@@ -1,19 +1,17 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Developer\Versioning\Git\Exception;
+namespace Phoundation\Web\Http\Html\Interfaces;
 
 /**
- * Class GitHasNoChangesException
+ * Interface InterfaceButtonType
  *
- *
+ * The different available HTML button types
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Developer
+ * @package Phoundation\Web
  */
-class GitHasNoChangesException extends GitException
+interface InterfaceButtonType extends InterfaceInputType
 {
 }

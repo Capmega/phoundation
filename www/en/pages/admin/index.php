@@ -1,8 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Web\Http\Html\Components\BreadCrumbs;

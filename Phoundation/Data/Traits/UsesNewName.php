@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait UsesNewName
  *
@@ -19,7 +18,6 @@ namespace Phoundation\Data\Traits;
 trait UsesNewName
 {
     use DataName;
-
 
     /**
      * UsesNewName class constructor

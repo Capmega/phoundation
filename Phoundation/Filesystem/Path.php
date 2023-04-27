@@ -19,7 +19,6 @@ use Stringable;
 use Throwable;
 use const PhpConsole\Test\PATH_TMP_DIR;
 
-
 /**
  * Path class
  *
@@ -39,7 +38,6 @@ class Path extends FileBasics
      * @var Stringable|string|null
      */
     protected static Stringable|string|null $temp_path = null;
-
 
     /**
      * Path class constructor

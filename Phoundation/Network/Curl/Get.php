@@ -17,7 +17,6 @@ use Phoundation\Network\Exception\NetworkException;
 use Phoundation\Network\Interfaces;
 use Phoundation\Utils\Json;
 
-
 /**
  * Class Curl
  *
@@ -96,36 +95,8 @@ class Get extends Curl
                 ]));
             }
 
-        }catch(Exception $e) {
-            if (++$this->retry <= $this->retries) {
-                switch ($e->getCode()) {
-                    case 'CURL0':
-                        // no break;
-
-                    case 'CURL28':
-                        // For whatever reason, connection gave HTTP code 0 which probably means that the server died
-                        // off during connection. This again may mean that the server overloaded. Wait for a few
-                        // seconds, and try again for a limited number of times
-                        Log::warning(tr('Got HTTP0 for url ":url" at attempt ":retry" with ":connect_timeout" seconds connect timeout', [
-                            ':url'             => $this->url,
-                            ':retry'           => $this->retry,
-                            ':connect_timeout' => $this->connect_timeout
-                        ]));
-
-                        usleep($this->sleep);
-                        return $this->execute();
-
-                    case 'CURL92':
-                        // This server apparently doesn't support anything beyond HTTP1.1
-                        Log::warning(tr('Got HTTP92 for url ":url" at attempt ":retry", forcing protocol HTTP 1.1 to fix', [
-                            ':url'             => $this->url,
-                            ':retry'           => $this->retry,
-                            ':connect_timeout' => $this->connect_timeout
-                        ]));
-
-                        $this->http_version = CURL_HTTP_VERSION_1_1;
-                        return $this->execute();
-                }
+                usleep($this->sleep);
+                return $this->execute();
             }
 
             throw new NetworkException(tr('Failed to make ":method" request for url ":url"', [
@@ -220,7 +191,6 @@ class Get extends Curl
         $this->retry = 0;
         return $this;
    }
-
 
     /**
      * Prepare the cURL request

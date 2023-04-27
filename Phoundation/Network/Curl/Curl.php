@@ -245,7 +245,6 @@ abstract class Curl
     #[ExpectedValues(values: [CURL_HTTP_VERSION_NONE, CURL_HTTP_VERSION_1_0, CURL_HTTP_VERSION_1_1, CURL_HTTP_VERSION_2_0, CURL_HTTP_VERSION_2, CURL_HTTP_VERSION_2TLS, CURL_HTTP_VERSION_2_PRIOR_KNOWLEDGE])]
     protected int $http_version = CURL_HTTP_VERSION_NONE;
 
-
     /**
      * Curl class constructor
      */
@@ -266,7 +265,6 @@ abstract class Curl
         $this->setLogPath(PATH_DATA . 'log/curl/');
     }
 
-
     /**
      * Returns a new cURL class
      *
@@ -276,31 +274,6 @@ abstract class Curl
     public static function new(?string $url = null): static
     {
         return new static($url);
-    }
-
-
-    /**
-     * Returns the request method
-     *
-     * @return int
-     */
-    #[ExpectedValues(values: [CURL_HTTP_VERSION_NONE, CURL_HTTP_VERSION_1_0, CURL_HTTP_VERSION_1_1, CURL_HTTP_VERSION_2_0, CURL_HTTP_VERSION_2, CURL_HTTP_VERSION_2TLS, CURL_HTTP_VERSION_2_PRIOR_KNOWLEDGE])]
-    public function getHttpVersion(): int
-    {
-        return $this->http_version;
-    }
-
-
-    /**
-     * Sets the request method
-     *
-     * @param int $http_version
-     * @return static
-     */
-    public function setHttpVersion(#[ExpectedValues(values: [CURL_HTTP_VERSION_NONE, CURL_HTTP_VERSION_1_0, CURL_HTTP_VERSION_1_1, CURL_HTTP_VERSION_2_0, CURL_HTTP_VERSION_2, CURL_HTTP_VERSION_2TLS, CURL_HTTP_VERSION_2_PRIOR_KNOWLEDGE])] int $http_version): static
-    {
-        $this->http_version = $http_version;
-        return $this;
     }
 
 
@@ -332,30 +305,6 @@ abstract class Curl
             $this->follow_location = false;
         }
 
-        return $this;
-    }
-
-
-    /**
-     * Returns if cURL will be verbose or not
-     *
-     * @return bool
-     */
-    public function getVerbose(): bool
-    {
-        return $this->verbose;
-    }
-
-
-    /**
-     * Sets if cURL will be verbose or not
-     *
-     * @param bool $verbose
-     * @return static
-     */
-    public function setVerbose(bool $verbose): static
-    {
-        $this->verbose = $verbose;
         return $this;
     }
 
@@ -425,17 +374,6 @@ abstract class Curl
     public function getLogPath(): string
     {
         return $this->log_path;
-    }
-
-
-    /**
-     * Returns the restrictions for curl output logging
-     *
-     * @return Restrictions|null
-     */
-    public function getLogRestrictions(): ?Restrictions
-    {
-        return $this->log_restrictions;
     }
 
 

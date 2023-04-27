@@ -36,11 +36,11 @@ class GeoIp
      * Returns a GeoIp object for the specified IP address
      *
      * @param string|null $ip_address
-     * @return static|null
+     * @return static
      */
-    public static function detect(?string $ip_address): ?static
+    public static function detect(?string $ip_address): static
     {
-        return self::getProvider()?->detect($ip_address);
+        return self::getProvider()->detect($ip_address);
     }
 
 
@@ -85,7 +85,6 @@ class GeoIp
 
         return $provider;
     }
-
 
     /**
      * Returns the ip address for this user

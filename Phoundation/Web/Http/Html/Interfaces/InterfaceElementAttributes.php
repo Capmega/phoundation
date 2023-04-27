@@ -1,11 +1,7 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Phoundation\Web\Http\Html\Interfaces;
 
-
-use Stringable;
 
 /**
  * Interface ElementAttributes
@@ -288,9 +284,10 @@ interface InterfaceElementAttributes
     /**
      * Sets the HTML class element attribute
      *
+     * @param bool $autofocus
      * @return static
      */
-    function setAutofocus(): static;
+    function setAutofocus(bool $autofocus): static;
 
     /**
      * Returns the HTML class element attribute
@@ -372,18 +369,18 @@ interface InterfaceElementAttributes
     /**
      * Sets the content of the element
      *
-     * @param Stringable|string|float|int|null $content
+     * @param object|string|null $content
      * @return static
      */
-    function setContent(Stringable|string|float|int|null $content): static;
+    function setContent(object|string|null $content): static;
 
     /**
      * Adds the specified content to the content of the element
      *
-     * @param Stringable|string|float|int|null $content
+     * @param object|string|null $content
      * @return static
      */
-    function addContent(Stringable|string|float|int|null $content): static;
+    function addContent(object|string|null $content): static;
 
     /**
      * Returns the content of the element to display

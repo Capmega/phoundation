@@ -161,7 +161,6 @@ class Plugins extends DataList
         return $return;
     }
 
-
     /**
      * Returns an array with all enabled plugins from the database
      *
@@ -169,7 +168,7 @@ class Plugins extends DataList
      */
     public static function getEnabled(): array
     {
-        $return = sql()->list('SELECT   `id`, `status`, `name`, `enabled`, `priority`, `path`, `class` 
+        $return = sql()->list('SELECT   `name` AS `id`, `name`, `path`, `class`, `enabled` 
                                      FROM     `core_plugins` 
                                      WHERE    `status` IS NULL 
                                      ORDER BY `priority` ASC');
@@ -185,26 +184,6 @@ class Plugins extends DataList
         }
 
         return $return;
-    }
-
-
-    /**
-     * Returns the phoundation plugin entry
-     *
-     * @return array[]
-     */
-    protected static function getPhoundationPluginEntry(): array
-    {
-        return [
-            0 => [
-                'name'     => 'Phoundation',
-                'path'     => PATH_ROOT . '/Plugins/Phoundation/',
-                'class'    => 'Plugins\Phoundation\Plugin',
-                'enabled'  => true,
-                'status'   => null,
-                'priority' => 0
-            ]
-        ];
     }
 
 

@@ -443,7 +443,6 @@ class Strings
         return (bool) $result;
     }
 
-
     /**
      * Returns true if the specified source string contains HTML
      *
@@ -462,7 +461,6 @@ class Strings
 
         return !$result;
     }
-
 
     /**
      * Return if specified source is a JSON string or not
@@ -893,6 +891,22 @@ class Strings
 
 
     /**
+     * Return the specified value as a boolean name, false for null, zero, "", false, true otherwise.
+     *
+     * @param mixed $value
+     * @return string
+     */
+    public static function boolean(mixed $value): string
+    {
+        if ($value) {
+            return 'true';
+        }
+
+        return 'false';
+    }
+
+
+    /**
      * Convert underscore type variables to camelcase type variables
      *
      * @param string $source The string to convert
@@ -1090,6 +1104,60 @@ throw new UnderConstructionException();
 
 
     /**
+     * Return the given string from the specified needle having been skipped $count times
+     *
+     * @param string|null $source
+     * @param string $needle
+     * @param int $count
+     * @param bool $required
+     * @return string
+     */
+    public static function skip(?string $source, string $needle, int $count, bool $required = false): string
+    {
+        if (!$needle) {
+            throw new OutOfBoundsException(tr('No needle specified'));
+        }
+
+        if ($count < 1) {
+            throw new OutOfBoundsException(tr('Invalid count ":count" specified', [':count' => $count]));
+        }
+
+        for ($i = 0; $i < $count; $i++) {
+            $source = Strings::from($source, $needle, 0, $required);
+        }
+
+        return $source;
+    }
+
+
+    /**
+     * Return the given string from the specified needle having been skipped $count times starting from the end of the
+     * string
+     *
+     * @param string|null $source
+     * @param string $needle
+     * @param int $count
+     * @return string
+     */
+    public static function skipReverse(?string $source, string $needle, int $count): string
+    {
+        if (!$needle) {
+            throw new OutOfBoundsException(tr('No needle specified'));
+        }
+
+        if ($count < 1) {
+            throw new OutOfBoundsException(tr('Invalid count ":count" specified', [':count' => $count]));
+        }
+
+        for ($i = 0; $i < $count; $i++) {
+            $source = Strings::fromReverse($source, $needle, 0);
+        }
+
+        return $source;
+    }
+
+
+    /**
      * Return the given string from 0 until the specified needle
      *
      * @param Stringable|string|int|null $source
@@ -1169,66 +1237,6 @@ throw new UnderConstructionException();
         }
 
         return mb_substr($source, $start, $pos + $more);
-    }
-
-
-    /**
-     * Return the given string from the specified needle having been skipped $count times
-     *
-     * @param Stringable|string|int|null $source
-     * @param Stringable|string|int $needle
-     * @param int $count
-     * @param bool $required
-     * @return string
-     */
-    public static function skip(Stringable|string|int|null $source, Stringable|string|int $needle, int $count, bool $required = false): string
-    {
-        if (!$needle) {
-            throw new OutOfBoundsException(tr('No needle specified'));
-        }
-
-        if ($count < 1) {
-            throw new OutOfBoundsException(tr('Invalid count ":count" specified', [':count' => $count]));
-        }
-
-        $needle = (string) $needle;
-        $source = (string) $source;
-
-        for ($i = 0; $i < $count; $i++) {
-            $source = Strings::from($source, $needle, 0, $required);
-        }
-
-        return $source;
-    }
-
-
-    /**
-     * Return the given string from the specified needle having been skipped $count times starting from the end of the
-     * string
-     *
-     * @param Stringable|string|int|null $source
-     * @param Stringable|string|int $needle
-     * @param int $count
-     * @return string
-     */
-    public static function skipReverse(Stringable|string|int|null $source, Stringable|string|int $needle, int $count): string
-    {
-        if (!$needle) {
-            throw new OutOfBoundsException(tr('No needle specified'));
-        }
-
-        if ($count < 1) {
-            throw new OutOfBoundsException(tr('Invalid count ":count" specified', [':count' => $count]));
-        }
-
-        $needle = (string) $needle;
-        $source = (string) $source;
-
-        for ($i = 0; $i < $count; $i++) {
-            $source = Strings::fromReverse($source, $needle, 0);
-        }
-
-        return $source;
     }
 
 
@@ -1588,22 +1596,6 @@ throw new UnderConstructionException();
         }
 
         return str_contains($source, $keyword);
-    }
-
-
-    /**
-     * Return the specified value as a boolean name, false for null, zero, "", false, true otherwise.
-     *
-     * @param mixed $value
-     * @return string
-     */
-    public static function fromBoolean(mixed $value): string
-    {
-        if ($value) {
-            return 'true';
-        }
-
-        return 'false';
     }
 
 

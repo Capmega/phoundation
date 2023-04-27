@@ -59,8 +59,7 @@ class FlashMessages extends ElementsBlock implements Iterator
      * @param int|null $auto_close
      * @return $this
      */
-    public function add(FlashMessage|Exception|string|null $title, ?string $message = null, ?InterfaceDisplayMode $mode = null, string $icon = null, ?int $auto_close = null): static
-    {
+    public function add(FlashMessage|Exception|string|null $title, ?string $message = null, ?InterfaceDisplayMode $mode = null, string $icon = null, ?int $auto_close = null): static {
         if ($title) {
             // a title was specified
             if (is_string($title)) {

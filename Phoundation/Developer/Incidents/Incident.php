@@ -16,7 +16,6 @@ use Phoundation\Data\DataEntry\Traits\DataEntryType;
 use Phoundation\Data\DataEntry\Traits\DataEntryUrl;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
 
-
 /**
  * Incident class
  *
@@ -52,69 +51,52 @@ class Incident extends DataEntry
 
 
     /**
-     * Returns the table name used by this object
-     *
-     * @return string
-     */
-    public static function getTable(): string
-    {
-        return 'developer_incidents';
-    }
-
-
-    /**
      * Sets the available data keys for this entry
      *
-     * @return DataEntryFieldDefinitions
+     * @return array
      */
-    protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
+    protected static function getFieldDefinitions(): array
     {
-        return DataEntryFieldDefinitions::new('developer_incidents')
-            ->add(DataEntryFieldDefinition::new('type')
-                ->setReadonly(true)
-                ->setLabel('Type')
-                ->setSize(6)
-                ->setMaxlength(255)
-                ->setValidationFunction(function ($validator) {
-                    $validator->isName(16);
-                }))
-            ->add(DataEntryFieldDefinition::new('title')
-                ->setReadonly(true)
-                ->setLabel('Title')
-                ->setSize(6)
-                ->setMaxlength(255)
-                ->setValidationFunction(function ($validator) {
-                    $validator->hasMaxCharacters(255)->isPrintable();
-                }))
-            ->add(DataEntryFieldDefinition::new('url')
-                ->setReadonly(true)
-                ->setLabel('URL')
-                ->setSize(12)
-                ->setMaxlength(2048)
-                ->setValidationFunction(function ($validator) {
-                    $validator->isUrl();
-                }))
-            ->add(DataEntryFieldDefinition::new('description')
-                ->setOptional(true)
-                ->setLabel('Description')
-                ->setSize(12)
-                ->setMaxlength(255)
-                ->setValidationFunction(function ($validator) {
-                    $validator->isDescription();
-                }))
-            ->add(DataEntryFieldDefinition::new('exception')
-                ->setReadonly(true)
-                ->setLabel('Exception')
-                ->setSize(12)
-                ->setMaxlength(16_777_200)
-                ->setValidationFunction(function ($validator) {
-                    $validator->isPrintable();
-                }))
-            ->add(DataEntryFieldDefinition::new('data')
-                ->setReadonly(true)
-                ->setElement('text')
-                ->setLabel('Data')
-                ->setSize(12)
-                ->setMaxlength(16_777_200));
+        return [
+            'type' => [
+                'readonly' => true,
+                'label'    => tr('URL'),
+                'size'     => 6,
+                'maxlength'=> 255,
+            ],
+            'title' => [
+                'readonly' => true,
+                'label'    => tr('Title'),
+                'size'     => 6,
+                'maxlength'=> 255,
+            ],
+            'url' => [
+                'readonly' => true,
+                'label'    => tr('URL'),
+                'size'     => 12,
+                'maxlength'=> 2048,
+            ],
+            'description' => [
+                'readonly' => true,
+                'element'  => 'text',
+                'size'     => 12,
+                'maxlength'=> 16_777_200,
+                'label'    => tr('Description'),
+            ],
+            'exception' => [
+                'readonly' => true,
+                'element'  => 'text',
+                'size'     => 12,
+                'maxlength'=> 16_777_200,
+                'label'    => tr('Exception'),
+            ],
+            'data' => [
+                'readonly' => true,
+                'element'  => 'text',
+                'size'     => 12,
+                'maxlength'=> 16_777_200,
+                'label'    => tr('Data'),
+            ],
+        ];
     }
 }

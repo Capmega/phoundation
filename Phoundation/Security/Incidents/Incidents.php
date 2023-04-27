@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Phoundation\Security\Incidents;
 
 use Phoundation\Data\DataEntry\DataList;
-use Phoundation\Security\Incidents\Exception\IncidentsException;
 
 /**
  * Class Incidents

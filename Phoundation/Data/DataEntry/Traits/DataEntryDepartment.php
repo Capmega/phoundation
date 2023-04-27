@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Business\Companies\Departments\Department;
-use Phoundation\Exception\OutOfBoundsException;
 
 /**
  * Trait DataEntryDepartment
@@ -54,7 +53,6 @@ trait DataEntryDepartment
 
         return $this->setDataValue('departments_id', get_null(isset_get_typed('integer', $departments_id)));
     }
-
 
     /**
      * Returns the departments_id for this object

@@ -43,7 +43,7 @@ class Modal extends Renderer
             throw new OutOfBoundsException(tr('Cannot render modal, no "id" specified'));
         }
 
-        $this->render =  '  <div class="modal' . ($this->element->getFade() ? ' fade' : null) . '" id="' . Html::safe($this->element->getId()) . '" tabindex="' . Html::safe($this->element->getTabIndex()) . '" aria-labelledby="' . Html::safe($this->element->getId()) . 'Label" aria-hidden="true" data-mdb-keyboard="' . ($this->element->getEscape() ? 'false' : 'true') . '" data-mdb-backdrop="' . ($this->element->getBackdrop() === null ? 'static' : Strings::fromBoolean($this->element->getBackdrop())) . '">
+        $this->render =  '  <div class="modal' . ($this->element->getFade() ? ' fade' : null) . '" id="' . Html::safe($this->element->getId()) . '" tabindex="' . Html::safe($this->element->getTabIndex()) . '" aria-labelledby="' . Html::safe($this->element->getId()) . 'Label" aria-hidden="true" data-mdb-keyboard="' . ($this->element->getEscape() ? 'false' : 'true') . '" data-mdb-backdrop="' . ($this->element->getBackdrop() === null ? 'static' : Strings::boolean($this->element->getBackdrop())) . '">
                                 <div class="modal-dialog' . ($this->element->getTier()->value ? ' modal-' . Html::safe($this->element->getTier()->value) : null) . ($this->element->getVerticalCenter() ? ' modal-dialog-centered' : null) . '">
                                     <div class="modal-content">
                                         <div class="modal-header">

@@ -1,8 +1,6 @@
 #!/usr/bin/php
 <?php
 
-declare(strict_types=1);
-
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\Cli;

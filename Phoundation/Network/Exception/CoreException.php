@@ -5,7 +5,6 @@ namespace Phoundation\Network\Exception;
 use Phoundation\Exception\Exception;
 
 
-
 /**
  * Class NetworkException
  *

@@ -24,7 +24,6 @@ use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
 use Throwable;
 
-
 /**
  * Log class
  *
@@ -733,19 +732,6 @@ Class Log {
 
 
     /**
-     * Write a debug message trying to format the data in a neat table.
-     *
-     * @param mixed $key_value
-     * @param int $threshold
-     * @return bool
-     */
-    public static function table(array $key_value, int $threshold = 10): bool
-    {
-        return static::write(Strings::getKeyValueTable($key_value, PHP_EOL, ': '), 'debug', $threshold, false, false);
-    }
-
-
-    /**
      * Write a debug message using vardump() in the log file
      *
      * @param mixed $messages
@@ -900,20 +886,14 @@ Class Log {
 
                 // Log the exception data
                 if ($messages instanceof Exception) {
-                    if ($messages->isWarning()) {
-                        // Log warning data as individual lines for easier read
-                        $data = $messages->getData();
+                    $data = $messages->getData();
 
-                        if ($data) {
-                            foreach (Arrays::force($data, null) as $line) {
-                                static::write(print_r($line, true), 'warning', $threshold, false);
-                            }
-
-                            return true;
+                    if ($data) {
+                        foreach (Arrays::force($data, null) as $line) {
+                            static::write(print_r($line, true), 'warning', $threshold, false);
                         }
-                    } else {
-                        // Dump the error data completely
-                        Log::printr($messages->getData());
+
+                        return true;
                     }
                 }
 

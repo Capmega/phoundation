@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Phoundation\Data\Traits;
 
 use Phoundation\Web\Http\Html\Enums\BrowserEvent;

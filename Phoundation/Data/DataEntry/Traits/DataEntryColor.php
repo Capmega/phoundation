@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Phoundation\Data\DataEntry\Traits;
 
 
@@ -24,7 +22,7 @@ trait DataEntryColor
      */
     public function getColor(): ?int
     {
-        return $this->getDataValue('string', 'color');
+        return $this->getDataValue('color');
     }
 
 

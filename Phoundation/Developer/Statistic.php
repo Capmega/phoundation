@@ -55,7 +55,6 @@ class Statistic
      */
     protected ?int $line = null;
 
-
     /**
      * Statistics constructor
      */

@@ -8,14 +8,15 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
-use Phoundation\Data\Validator\Interfaces\DataValidator;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Geo\Continents\Continent;
 use Phoundation\Geo\Counties\County;
 use Phoundation\Geo\Countries\Country;
 use Phoundation\Geo\States\State;
 use Phoundation\Geo\Timezones\Timezone;
-
 
 /**
  * Class City
@@ -43,17 +44,6 @@ class City extends DataEntry
         $this->unique_field = 'seo_name';
 
         parent::__construct($identifier);
-    }
-
-
-    /**
-     * Returns the table name used by this object
-     *
-     * @return string
-     */
-    public static function getTable(): string
-    {
-        return 'geo_cities';
     }
 
 
@@ -145,9 +135,9 @@ class City extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @return DataEntryFieldDefinitionsInterface
+     * @return array
      */
-    protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
+    protected static function getFieldDefinitions(): array
     {
         // TODO: Implement getFieldDefinitions() method.
         return [];

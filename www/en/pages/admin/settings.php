@@ -37,9 +37,9 @@ $buttons = Buttons::new()
 
 // Alter the default user form
 $user
-    ->modifyDefinitions('comments'  , ['visible'  => false])
-    ->modifyDefinitions('is_leader' , ['disabled' => true])
-    ->modifyDefinitions('leaders_id', ['disabled' => true]);
+    ->modifyKeys('comments'  , ['visible'  => false])
+    ->modifyKeys('is_leader' , ['disabled' => true])
+    ->modifyKeys('leaders_id', ['disabled' => true]);
 
 
 // Build the form

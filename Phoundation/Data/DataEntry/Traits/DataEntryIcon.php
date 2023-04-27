@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Exception\OutOfBoundsException;
@@ -27,7 +25,7 @@ trait DataEntryIcon
      */
     public function getIcon(): ?string
     {
-        $return = $this->getDataValue('string', 'icon');
+        $return = $this->getDataValue('icon');
 
         if (!$return) {
             // Assign default icon

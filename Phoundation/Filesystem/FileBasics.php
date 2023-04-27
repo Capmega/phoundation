@@ -18,7 +18,6 @@ use Phoundation\Servers\Traits\UsesRestrictions;
 use Stringable;
 use Throwable;
 
-
 /**
  * FileVariables class
  *

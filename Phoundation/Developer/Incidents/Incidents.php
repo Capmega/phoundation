@@ -41,17 +41,6 @@ class Incidents extends DataList
 
 
     /**
-     * Returns the table name used by this object
-     *
-     * @return string
-     */
-    public static function getTable(): string
-    {
-        return 'accounts_signins';
-    }
-
-
-    /**
      * Creates and returns an HTML table for the data in this list
      *
      * @return Table

@@ -22,7 +22,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Web\Page;
 
-
 /**
  * functions file functions.php
  *
@@ -34,27 +33,6 @@ use Phoundation\Web\Page;
  * @category Function reference
  * @package functions
  */
-
-
-/**
- * Returns true if the specified string is a version, or false if it is not
- *
- * @version 2.5.46: Added function and documentation
- * @param string $version The version to be validated
- * @return boolean True if the specified $version is an N.N.N version string
- */
-function is_version(string $version): bool
-{
-    $return = preg_match('/\d{1,4}\.\d{1,4}\.\d{1,4}/', $version);
-
-    if ($return === false) {
-        throw new Exception(tr('Failed to determine if ":version" is a valid version or not', [
-            ':version' => $version
-        ]));
-    }
-
-    return (bool) $return;
-}
 
 
 /**
@@ -152,34 +130,6 @@ function in_source(array $source, string|int $key): bool
 
 
 /**
- * Returns true if the specified source is an enum
- *
- * @param mixed $source
- * @return bool
- */
-function is_enum(mixed $source) {
-    return (is_object($source) and ($source instanceof UnitEnum));
-}
-
-
-/**
- * Returns true if the specified needle is in the given Enum haystack
- *
- * @note Internally this function will convert the enum to an array and then use in_array()
- *
- * @param mixed $needle
- * @param UnitEnum $haystack
- * @param bool $strict
- * @return bool
- */
-function in_enum(mixed $needle, UnitEnum $haystack, bool $strict = false): bool
-{
-    $haystack = Arrays::fromEnum($haystack);
-    return in_array($needle, $haystack, $strict);
-}
-
-
-/**
  * Return the value if it actually exists, or NULL instead.
  *
  * If (for example) a non-existing key from an array was specified, NULL will be returned instead of causing a variable
@@ -199,133 +149,6 @@ function isset_get(mixed &$variable, mixed $default = null): mixed
     // The previous isset would have actually set the variable with null, unset it to ensure it won't exist
     unset($variable);
     return $default;
-}
-
-
-/**
- * Return the value if it actually exists with the correct datatype, or NULL instead.
- *
- * If (for example) a non-existing key from an array was specified, NULL will be returned instead of causing a variable
- *
- * @note IMPORTANT! After calling this function, $var will exist in the scope of the calling function!
- * @param array|string $types If the data exists, it must have one of these data types. Can be specified as array or |
- *                            separated string
- * @param mixed $variable The variable to test
- * @param mixed $default (optional) The value to return in case the specified $variable did not exist or was NULL.*
- * @return mixed
- */
-function isset_get_typed(array|string $types, mixed &$variable, mixed $default = null): mixed
-{
-    // The variable exists
-    if (isset($variable)) {
-        // Ensure datatype
-        foreach (Arrays::force($types, '|') as $type) {
-            switch ($type) {
-                case 'scalar':
-                    if (is_scalar($variable)) {
-                        return $variable;
-                    }
-
-                    break;
-
-                case 'string':
-                    if (is_string($variable)) {
-                        return $variable;
-                    }
-
-                    // Allow hard casting for numbers
-                    if (is_numeric($variable)) {
-                        return (string) $variable;
-                    }
-
-                    break;
-
-                case 'int':
-                    // no break
-                case 'integer':
-                    if (is_integer($variable)) {
-                        return $variable;
-                    }
-
-                    break;
-
-                case 'double':
-                    // no break
-                case 'float':
-                    if (is_float($variable)) {
-                        return $variable;
-                    }
-
-                    break;
-
-                case 'bool':
-                    // no break
-                case 'boolean':
-                    if (is_bool($variable)) {
-                        return $variable;
-                    }
-
-                    break;
-
-                case 'array':
-                    if (is_array($variable)) {
-                        return $variable;
-                    }
-
-                    break;
-
-                case 'resource':
-                    if (is_resource($variable)) {
-                        break;
-                    }
-
-                    return $variable;
-
-                case 'function':
-                    // no-break
-                case 'callable':
-                    if (is_callable($variable)) {
-                        break;
-                    }
-
-                    return $variable;
-
-                case 'null':
-                    if (is_null($variable)) {
-                        break;
-                    }
-
-                    return $variable;
-
-                default:
-                    // This should be an object
-                    if (is_object($variable)) {
-                        return $variable;
-                    }
-
-                    if ($variable instanceof $type) {
-                        return $variable;
-                    }
-
-                    break;
-            }
-        }
-
-        throw OutOfBoundsException::new(tr('isset_get_typed(): Specified variable has datatype ":has" but it should be one of ":types"', [
-            ':has'   => gettype($variable),
-            ':types' => $types,
-        ]))->setData(['variable' => $variable]);
-    }
-
-    // The previous isset would have actually set the variable with null, unset it to ensure it won't exist
-    unset($variable);
-
-    if ($default === null) {
-        return null;
-    }
-
-    // Return the default variable after validating datatype
-    return isset_get_typed($types, $default);
 }
 
 
@@ -530,7 +353,6 @@ function pick_random(mixed ...$arguments): mixed
     return Arrays::getRandomValue($arguments);
 }
 
-
 /**
  * Return randomly picked arguments
  *
@@ -543,7 +365,7 @@ function pick_random_multiple(int $count, mixed ...$arguments): string|array
 {
     if (!$count) {
         // Get a random count
-        $count = random_int(1, count($arguments));
+        $count = random_int(1, count($args));
     }
 
     if (($count < 1) or ($count > count($arguments))) {
@@ -581,35 +403,6 @@ function show(mixed $source = null, int $trace_offset = 1, bool $quiet = false):
     }
 
     return show_system($source, false);
-}
-
-
-/**
- * Shortcut to the Debug::show() call, but displaying the data in hex
- *
- * @param mixed $source
- * @param int $trace_offset
- * @param bool $quiet
- * @return mixed
- */
-function showhex(mixed $source = null, int $trace_offset = 1, bool $quiet = false): mixed
-{
-    $source = bin2hex($source);
-    return show($source, $trace_offset);
-}
-
-
-/**
- * Shortcut to the Debug::show() call, but displaying the backtrace
- *
- * @param mixed $source
- * @param int $trace_offset
- * @param bool $quiet
- * @return mixed
- */
-function showbacktrace(mixed $source = null, int $trace_offset = 1, bool $quiet = false): mixed
-{
-    return show(Debug::backtrace(), $trace_offset, $quiet);
 }
 
 
@@ -883,13 +676,8 @@ function has_trait(string $trait, object|string $class): bool
     return false;
 }
 
-
 /**
  * Show command that requires no configuration and can be used at startup times. USE WITH CARE!
- *
- * @param mixed|null $source
- * @param bool $die
- * @return mixed
  * @throws \Exception
  */
 #[NoReturn] function show_system(mixed $source = null, bool $die = true): mixed

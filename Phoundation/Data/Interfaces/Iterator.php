@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Data\Interfaces;
-
 /**
  * Interface Iterator
  *
@@ -60,22 +58,6 @@ interface Iterator extends \Iterator
 
 
     /**
-     * Returns if the specified field exists or not
-     *
-     * @param float|int|string $key
-     * @return bool
-     */
-    public function exists(float|int|string $key): bool;
-
-    /**
-     * Returns the current key for the current menu
-     *
-     * @return float|int|string
-     */
-    public function key(): float|int|string;
-
-
-    /**
      * Returns all values with their keys in this object
      *
      * @return array
@@ -89,14 +71,6 @@ interface Iterator extends \Iterator
      * @return int
      */
     public function getCount(): int;
-
-
-    /**
-     * Returns true if the list is empty
-     *
-     * @return bool
-     */
-    public function isEmpty(): bool;
 
 
     /**

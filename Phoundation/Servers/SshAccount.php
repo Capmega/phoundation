@@ -9,7 +9,9 @@ use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryUsername;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
-use Phoundation\Data\Validator\Interfaces\DataValidator;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Filesystem\Traits\DataRestrictions;
 
 /**
@@ -107,9 +109,9 @@ class SshAccount extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @return DataEntryFieldDefinitionsInterface
+     * @return array
      */
-    protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
+    protected static function getFieldDefinitions(): array
     {
         return [
             'name' => [

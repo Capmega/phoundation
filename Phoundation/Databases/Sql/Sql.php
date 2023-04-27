@@ -38,7 +38,6 @@ use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Throwable;
 
-
 /**
  * Sql class
  *
@@ -917,102 +916,6 @@ class Sql
 
             return Arrays::firstValue($result);
         }
-    }
-
-
-    /**
-     * Returns a numeric variable from the SQL database
-     *
-     * @param string|PDOStatement $query
-     * @param array|null $execute
-     * @param string|null $column
-     * @return float|int|null
-     * @throws OutOfBoundsException Thrown if the result is non numeric
-     */
-    public function getNumeric(string|PDOStatement $query, array $execute = null, ?string $column = null): float|int|null
-    {
-        $result = static::getColumn($query, $execute, $column);
-
-        if ($result === null) {
-            // Not found
-            return null;
-        }
-
-        if (!is_numeric($result)) {
-            throw new OutOfBoundsException(tr('Query ":query" produced non-numeric result ":result"', [
-                ':query'  => $query,
-                ':result' => $result
-            ]));
-        }
-
-        if (is_numeric_integer($result)) {
-            return (int) $result;
-        }
-
-        return (float) $result;
-    }
-
-
-    /**
-     * Returns an integer variable from the SQL database
-     *
-     * @param string|PDOStatement $query
-     * @param array|null $execute
-     * @param string|null $column
-     * @return int|null
-     */
-    public function getInteger(string|PDOStatement $query, array $execute = null, ?string $column = null): int|null
-    {
-        $result = static::getNumeric($query, $execute, $column);
-
-        if ($result === null) {
-            // Not found
-            return null;
-        }
-
-        if (is_integer($result)) {
-            return $result;
-        }
-
-        throw new OutOfBoundsException(tr('Query ":query" produced non-integer result ":result"', [
-            ':query'  => $query,
-            ':result' => $result
-        ]));
-    }
-
-
-    /**
-     * Returns a float variable from the SQL database
-     *
-     * @param string|PDOStatement $query
-     * @param array|null $execute
-     * @param string|null $column
-     * @return float|null
-     */
-    public function getFloat(string|PDOStatement $query, array $execute = null, ?string $column = null): float|null
-    {
-        return (float) static::getNumeric($query, $execute, $column);
-    }
-
-
-    /**
-     * Returns a float variable from the SQL database
-     *
-     * @param string|PDOStatement $query
-     * @param array|null $execute
-     * @param string|null $column
-     * @return bool|null
-     */
-    public function getBoolean(string|PDOStatement $query, array $execute = null, ?string $column = null): bool|null
-    {
-        $result = static::getColumn($query, $execute, $column);
-
-        if ($result === null) {
-            // Not found
-            return null;
-        }
-
-        return Strings::toBoolean($result);
     }
 
 

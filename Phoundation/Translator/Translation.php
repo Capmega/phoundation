@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Phoundation\Translator;
 
 use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
-use Phoundation\Data\Validator\Interfaces\DataValidator;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Data\Validator\PostValidator;
 
 /**
  * Class Translation
@@ -24,7 +25,7 @@ class Translation extends DataEntry
     /**
      * @inheritDoc
      */
-    protected function validate(DataValidator $validator, bool $no_arguments_left, bool $modify): array
+    protected function validate(GetValidator|PostValidator|ArgvValidator $validator, bool $no_arguments_left = false, bool $modify = true): array
     {
         // TODO: Implement validate() method.
     }
@@ -33,9 +34,9 @@ class Translation extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @return DataEntryFieldDefinitionsInterface
+     * @return array
      */
-    protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
+    protected static function getFieldDefinitions(): array
     {
         // TODO: Implement getFieldDefinitions() method.
         return [];

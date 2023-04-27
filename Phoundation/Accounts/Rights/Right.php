@@ -11,7 +11,9 @@ use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
-use Phoundation\Data\Validator\Interfaces\DataValidator;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Data\Validator\PostValidator;
 
 
 /**
@@ -40,17 +42,6 @@ class Right extends DataEntry implements InterfaceRight
         static::$entry_name = 'right';
 
         parent::__construct($identifier);
-    }
-
-
-    /**
-     * Returns the table name used by this object
-     *
-     * @return string
-     */
-    public static function getTable(): string
-    {
-        return 'accounts_rights';
     }
 
 
@@ -84,23 +75,28 @@ class Right extends DataEntry implements InterfaceRight
     /**
      * Sets the available data keys for this entry
      *
-     * @return DataEntryFieldDefinitionsInterface
+     * @return array
      */
-    protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
+    protected static function getFieldDefinitions(): array
     {
-        return DataEntryFieldDefinitions::new(self::getTable())
-            ->add(DataEntryFieldDefinition::new('name')
-                ->setLabel(tr('Name'))
-                ->setSize(12)
-                ->setMaxlength(64)
-                ->setHelpText(tr('The name for this right')))
-            ->add(DataEntryFieldDefinition::new('seo_name')
-                ->setVisible(true)
-                ->setReadonly(true))
-            ->add(DataEntryFieldDefinition::new('description')
-                ->setLabel(tr('Description'))
-                ->setSize(12)
-                ->setMaxlength(65_535)
-                ->setHelpText(tr('The description for this right')));
+        return [
+            'name' => [
+                'label'     => tr('Name'),
+                'size'      => 12,
+                'maxlength' => 64,
+                'help'      => tr('The name for this right'),
+            ],
+            'seo_name' => [
+                'visible'  => false,
+                'readonly' => true,
+            ],
+            'description' => [
+                'element'   => 'text',
+                'label'     => tr('Description'),
+                'size'      => 12,
+                'maxlength' => 65535,
+                'help'      => tr('The description for this right'),
+            ]
+        ];
     }
 }

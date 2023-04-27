@@ -6,7 +6,6 @@ use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Components\ProfileImage;
 use Plugins\Phoundation\Components\Menu;
 
-
 /**
  * Ajax system/sign-in
  *

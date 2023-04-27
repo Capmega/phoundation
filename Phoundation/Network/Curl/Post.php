@@ -64,7 +64,6 @@ class Post extends Get
         $this->follow_location = false;
     }
 
-
     /**
      * Returns the content type header
      *
@@ -242,6 +241,20 @@ class Post extends Get
         $this->multipart = true;
         $this->post_data[] = $file;
         return $this;
+    }
+
+
+    /**
+     * Executes the POST request
+     *
+     * @return static
+     */
+    public function execute(): static
+    {
+        // Disable 301 302 location header following since this would cause the POST to go to GET
+        $this->follow_location = false;
+
+        parent::execute();
     }
 
 

@@ -29,7 +29,7 @@ class Languages extends DataList
     public function __construct(?Language $parent = null, ?string $id_column = null)
     {
         $this->entry_class = Language::class;
-        self::$table       = Language::getTable();
+        $this->table_name  = 'core_languages';
 
         $this->setHtmlQuery('SELECT   `id`, `code_639_1`, `name`, `status`, `created_on` 
                              FROM     `core_languages` 

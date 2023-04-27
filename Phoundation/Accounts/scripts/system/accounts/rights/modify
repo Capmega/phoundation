@@ -1,10 +1,7 @@
 #!/usr/bin/php
 <?php
 
-declare(strict_types=1);
-
 use Phoundation\Accounts\Rights\Right;
-use Phoundation\Cli\Documentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
@@ -20,10 +17,10 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho system accounts right create -n NAME [OPTIONS]
-./cli system accounts right create -n test -d "This is a test right!"');
+$usage = './pho system accounts right create -n NAME [OPTIONS]
+./cli system accounts right create -n test -d "This is a test right!"';
 
-Documentation::help('This script allows you to create rights
+$help  = 'This script allows you to create rights
 
 
 
@@ -33,7 +30,7 @@ ARGUMENTS
 
 -n / --name                             The name for the right
 
-[-d / --description]                    The description for the right');
+[-d / --description]                    The description for the right';
 
 
 

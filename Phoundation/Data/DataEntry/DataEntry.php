@@ -17,11 +17,10 @@ use Phoundation\Data\DataEntry\Enums\StateMismatchHandling;
 use Phoundation\Data\DataEntry\Exception\DataEntryAlreadyExistsException;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntry\Exception\DataEntryStateMismatchException;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
 use Phoundation\Data\Traits\DataDebug;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Data\Validator\Interfaces\DataValidator;
+use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Date\DateTime;
@@ -31,7 +30,6 @@ use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Components\DataEntryForm;
 use Phoundation\Web\Http\Html\Components\Input\InputText;
 use Throwable;
-
 
 /**
  * Class DataEntry
@@ -181,8 +179,7 @@ abstract class DataEntry implements InterfaceDataEntry
             ]));
         }
 
-        // Set up the fields for this object
-        $this->field_definitions = static::getFieldDefinitions();
+        $this->fields = self::getAllFieldDefinitions();
 
         if ($identifier) {
             if (is_numeric($identifier)) {
@@ -485,7 +482,6 @@ abstract class DataEntry implements InterfaceDataEntry
      * @return string
      */
     abstract public static function getTable(): string;
-
 
     /**
      * Returns true if this is a new entry that hasn't been written to the database yet
@@ -1246,7 +1242,6 @@ abstract class DataEntry implements InterfaceDataEntry
         return $validator->validate();
     }
 
-
     /**
      * Returns either the specified field, or if $translate has content, the alternate field name
      *
@@ -1255,13 +1250,13 @@ abstract class DataEntry implements InterfaceDataEntry
      */
     protected function getAlternateValidationField(string $field): string
     {
-        if (!$this->field_definitions->exists($field)) {
+        if (!array_key_exists($field, $this->fields)) {
             throw new OutOfBoundsException(tr('Specified field name ":field" does not exist', [
                 ':field' => $field
             ]));
         }
 
-        $alt = $this->field_definitions->get($field)->getCliField();
+        $alt = isset_get($this->cli_fields[$field]['cli']);
         $alt = Strings::until($alt, ' ');
         $alt = trim($alt);
 
@@ -1323,7 +1318,7 @@ abstract class DataEntry implements InterfaceDataEntry
      *
      * @return DataEntryFieldDefinitionsInterface
      */
-    public static function getFieldDefinitions(): DataEntryFieldDefinitionsInterface
+    protected static function getAllFieldDefinitions(): array
     {
         // Get the DataEntry specific definitions and prepend the general definitions
         return static::setFieldDefinitions()

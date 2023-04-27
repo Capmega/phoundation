@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Exception\OutOfBoundsException;
@@ -26,24 +24,24 @@ trait DataEntryUsersId
      */
     public function getUsersId(): ?int
     {
-        return $this->getDataValue('int', 'users_id');
+        return $this->getDataValue('users_id');
     }
 
 
     /**
      * Sets the users_id for this object
      *
-     * @param string|int|null $users_id
+     * @param int|null $users_id
      * @return static
      */
-    public function setUsersId(string|int|null $users_id): static
+    public function setUsersId(?int $users_id): static
     {
-        if ($users_id and !is_natural($users_id)) {
-            throw new OutOfBoundsException(tr('Specified users_id ":id" is not a natural number', [
-                ':id' => $users_id
+        if (is_numeric($users_id) and ($users_id < 1)) {
+            throw new OutOfBoundsException(tr('Specified users_id ":users_id" is invalid, it should be a number 1 or higher', [
+                ':users_id' => $users_id
             ]));
         }
 
-        return $this->setDataValue('users_id', get_null(isset_get_typed('integer', $users_id)));
+        return $this->setDataValue('users_id', $users_id);
     }
 }

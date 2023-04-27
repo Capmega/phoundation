@@ -20,7 +20,6 @@ use Phoundation\Processes\Commands\SystemCommands;
 use Phoundation\Processes\Exception\ProcessesException;
 use Phoundation\Processes\Exception\ProcessException;
 use Phoundation\Servers\Server;
-use Stringable;
 
 /**
  * Trait ProcessVariables
@@ -240,7 +239,6 @@ trait ProcessVariables
      */
     protected ?float $stop = null;
 
-
     /**
      * Process class constructor
      *
@@ -262,67 +260,6 @@ trait ProcessVariables
         if ($this->clear_logs) {
             unlink($this->log_file);
         }
-    }
-
-
-    /**
-     * Returns the exact time that execution started
-     *
-     * @return float|null
-     */
-    public function getExecutionStartTime(): ?float
-    {
-        return $this->start;
-    }
-
-
-    /**
-     * Returns the exact time that execution stopped
-     *
-     * @return float|null
-     */
-    public function getExecutionStopTime(): ?float
-    {
-        return $this->stop;
-    }
-
-
-    /**
-     * Returns the exact time that a process took to execute
-     *
-     * @param bool $require_stop
-     * @return float|null
-     */
-    public function getExecutionTime(bool $require_stop = true): ?float
-    {
-        if (!$this->start) {
-            throw new OutOfBoundsException(tr('Cannot measure execution time, the process has not yet started'));
-        }
-
-        if (!$this->stop) {
-            if ($require_stop) {
-                throw new OutOfBoundsException(tr('Cannot measure execution time, the process is still running'));
-            }
-
-            $stop = microtime(true);
-
-        } else {
-            $stop = $this->stop;
-        }
-
-        return $stop - $this->start;
-    }
-
-
-    /**
-     * Increases the amount of times quotes should be escaped
-     *
-     * @return ProcessVariables
-     */
-    public function increaseQuoteEscapes(): static
-    {
-        $this->escape_quotes++;
-        return $this;
     }
 
 

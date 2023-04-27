@@ -1,11 +1,8 @@
 #!/usr/bin/php
 <?php
 
-declare(strict_types=1);
-
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Cli\Cli;
-use Phoundation\Cli\Documentation;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
 
@@ -20,9 +17,9 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho system accounts roles info USER');
+$usage = './pho system accounts roles info USER';
 
-Documentation::help('This script displays information about the specified role.  
+$help  = 'This script displays information about the specified role.  
 
 
 
@@ -30,7 +27,7 @@ ARGUMENTS
 
 
 
-USER                                    The role to display information about. Specify either by role id or seo-name');
+USER                                    The role to display information about. Specify either by role id or seo-name';
 
 
 

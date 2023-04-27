@@ -52,7 +52,7 @@ class TopMenu extends Renderer
                 }
 
                 $return .= '<li class="nav-item d-none d-sm-inline-block">
-                                <a href="' . Html::safe((string) $entry['url']) . '" class="nav-link">' . Html::safe($label) . '</a>
+                                <a href="' . Html::safe($entry['url']) . '" class="nav-link">' . Html::safe($label) . '</a>
                             </li>';
             }
         }

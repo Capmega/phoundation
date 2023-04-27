@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Business\Providers\Provider;
-use Phoundation\Exception\OutOfBoundsException;
 
 /**
  * Trait DataEntryProvider
@@ -46,7 +45,6 @@ trait DataEntryProvider
 
         return $this->setDataValue('providers_id', get_null(isset_get_typed('integer', $providers_id)));
     }
-
 
     /**
      * Returns the providers_id for this user

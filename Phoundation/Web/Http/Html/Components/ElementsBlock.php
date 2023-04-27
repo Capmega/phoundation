@@ -51,17 +51,6 @@ abstract class ElementsBlock implements Iterator, InterfaceElementsBlock
 
 
     /**
-     * Returns the rendered version of this element
-     *
-     * @return string
-     */
-    public function __toString(): string
-    {
-        return $this->render();
-    }
-
-
-    /**
      * Returns the contents of this object as an array
      *
      * @return array

@@ -10,7 +10,6 @@ use Phoundation\Web\Http\Url;
 use Phoundation\Web\Http\UrlBuilder;
 use Stringable;
 
-
 /**
  * NotificationsDropDown class
  *
@@ -43,7 +42,6 @@ class NotificationsDropDown extends ElementsBlock
      * @var Stringable|string|null $notifications_all_url
      */
     protected Stringable|string|null $notifications_all_url = null;
-
 
     /**
      * Returns the notifications object

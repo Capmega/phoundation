@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Phoundation\Accounts\Interfaces;
 
 use Phoundation\Data\Interfaces\InterfaceDataEntry;

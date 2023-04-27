@@ -11,7 +11,9 @@ use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
-use Phoundation\Data\Validator\Interfaces\DataValidator;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Data\Validator\PostValidator;
 
 /**
  *  Class Company
@@ -58,17 +60,6 @@ class Company extends DataEntry
 
 
     /**
-     * Returns the table name used by this object
-     *
-     * @return string
-     */
-    public static function getTable(): string
-    {
-        return 'business_companies';
-    }
-
-
-    /**
      * Access company branches
      *
      * @return Branches
@@ -111,7 +102,7 @@ class Company extends DataEntry
     /**
      * @inheritDoc
      */
-    protected function validate(DataValidator $validator, bool $no_arguments_left, bool $modify): array
+    protected function validate(GetValidator|PostValidator|ArgvValidator $validator, bool $no_arguments_left = false, bool $modify = true): array
     {
         // TODO: Implement validate() method.
     }
@@ -120,11 +111,10 @@ class Company extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @return DataEntryFieldDefinitionsInterface
+     * @return array
      */
-    protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
+    protected static function getFieldDefinitions(): array
     {
         // TODO: Implement getFieldDefinitions() method.
-        return [];
     }
 }

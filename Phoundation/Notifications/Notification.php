@@ -27,14 +27,13 @@ use Phoundation\Data\DataEntry\Traits\DataEntryTrace;
 use Phoundation\Data\DataEntry\Traits\DataEntryUrl;
 use Phoundation\Data\DataEntry\Traits\DataEntryUsersId;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
-use Phoundation\Data\Validator\Interfaces\DataValidator;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Exception\NotificationBusyException;
-use Phoundation\Web\Http\Html\Components\Mode;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
-use Phoundation\Web\Http\Html\Enums\InputElement;
-use Phoundation\Web\Http\Html\Enums\InputType;
 use Throwable;
 
 /**
@@ -109,17 +108,6 @@ class Notification extends DataEntry
 
 
     /**
-     * Returns the table name used by this object
-     *
-     * @return string
-     */
-    public static function getTable(): string
-    {
-        return 'notifications';
-    }
-
-
-/**
      * Sets the exception for this notification
      *
      * @param Throwable $e
@@ -418,12 +406,12 @@ class Notification extends DataEntry
     /**
      * Validates the provider record with the specified validator object
      *
-     * @param DataValidator $validator
+     * @param ArgvValidator|PostValidator|GetValidator $validator
      * @param bool $no_arguments_left
      * @param bool $modify
      * @return array
      */
-    protected function validate(DataValidator $validator, bool $no_arguments_left, bool $modify): array
+    protected function validate(ArgvValidator|PostValidator|GetValidator $validator, bool $no_arguments_left = false, bool $modify = false): array
     {
         $data = $validator
             ->select($this->getAlternateValidationField('users_id'), true)->isId()->isQueryColumn('SELECT `id` FROM `accounts_users` WHERE `id` = :id', [':id' => '$id'])
@@ -453,79 +441,89 @@ class Notification extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @return DataEntryFieldDefinitionsInterface
+     * @param DataValidator $validator
+     * @param bool $no_arguments_left
+     * @param bool $modify
+     * @return array
      */
-    protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
+    protected static function getFieldDefinitions(): array
     {
-        return DataEntryFieldDefinitions::new(self::getTable())
-            ->add(DataEntryFieldDefinition::new('users_id')
-                ->setVisible(false)
-                ->setInputType(InputType::numeric))
-            ->add(DataEntryFieldDefinition::new('code')
-                ->setReadonly(true)
-                ->setLabel(tr('Code'))
-                ->setDefault(tr('-'))
-                ->setSize(4)
-                ->setMaxlength(16))
-            ->add(DataEntryFieldDefinition::new('mode')
-                ->setReadonly(true)
-                ->setLabel(tr('Mode'))
-                ->setSize(4)
-                ->setMaxlength(16)
-                ->setValidationFunction(function ($validator) {
-                    $validator->isInArray(DisplayMode::cases());
-                }))
-            ->add(DataEntryFieldDefinition::new('icon')
-                ->setVisible(false))
-            ->add(DataEntryFieldDefinition::new('priority')
-                ->setReadonly(true)
-                ->setInputType(InputType::numeric)
-                ->setLabel(tr('Priority'))
-                ->setDefault(5)
-                ->setMin(1)
-                ->setMax(9)
-                ->setSize(4))
-            ->add(DataEntryFieldDefinition::new('title')
-                ->setReadonly(true)
-                ->setLabel(tr('Title'))
-                ->setMaxlength(255)
-                ->setSize(4))
-            ->add(DataEntryFieldDefinition::new('Message')
-                ->setReadonly(true)
-                ->setElement(InputElement::textarea)
-                ->setLabel(tr('Message'))
-                ->setMaxlength(65_535)
-                ->setSize(12))
-            ->add(DataEntryFieldDefinition::new('file')
-                ->setReadonly(true)
-                ->setLabel(tr('File'))
-                ->setMaxlength(255)
-                ->setSize(8))
-            ->add(DataEntryFieldDefinition::new('line')
-                ->setReadonly(true)
-                ->setInputType(InputType::numeric)
-                ->setLabel(tr('File'))
-                ->setMin(1)
-                ->setSize(4))
-            ->add(DataEntryFieldDefinition::new('url')
-                ->setReadonly(true)
-                ->setInputType(InputType::url)
-                ->setLabel(tr('URL'))
-                ->setMaxlength(2048)
-                ->setSize(12))
-            ->add(DataEntryFieldDefinition::new('trace')
-                ->setReadonly(true)
-                ->setElement(InputElement::textarea)
-                ->setLabel(tr('Trace'))
-                ->setMaxlength(65_535)
-                ->setRows(10)
-                ->setSize(12))
-            ->add(DataEntryFieldDefinition::new('details')
-                ->setReadonly(true)
-                ->setElement(InputElement::textarea)
-                ->setLabel(tr('Details'))
-                ->setMaxlength(65_535)
-                ->setRows(10)
-                ->setSize(12));
+        return [
+            'users_id' => [
+                'visible' => false
+            ],
+            'code' => [
+                'readonly'   => true,
+                'size'       => 4,
+                'maxlength'  => 16,
+                'label'      => tr('Code'),
+                'default'    => '-',
+            ],
+            'mode' => [
+                'readonly'  => true,
+                'size'      => 4,
+                'maxlength' => 16,
+                'label'     => tr('Mode'),
+            ],
+            'icon' => [
+                'visible' => false,
+            ],
+            'priority' => [
+                'readonly'   => true,
+                'type'       => 'numeric',
+                'size'       => 4,
+                'label'      => tr('Priority'),
+                'default'    => 0,
+                'min'        => 1,
+                'max'        => 9,
+            ],
+            'title' => [
+                'readonly'  => true,
+                'size'      => 4,
+                'label'     => tr('Title'),
+                'maxlength' => 255,
+            ],
+            'message' => [
+                'readonly'  => true,
+                'element'   => 'text',
+                'size'      => 12,
+                'label'     => tr('Message'),
+                'maxlength' => 65535,
+            ],
+            'file' => [
+                'readonly'  => true,
+                'size'      => 8,
+                'label'     => tr('File'),
+                'maxlength' => 255,
+            ],
+            'line' => [
+                'readonly' => true,
+                'type'     => 'numeric',
+                'size'     => 4,
+                'label'    => tr('Line'),
+            ],
+            'url' => [
+                'readonly'  => true,
+                'size'      => 12,
+                'label'     => tr('Url'),
+                'maxlength' => 2048,
+            ],
+            'trace' => [
+                'readonly'  => true,
+                'element'   => 'text',
+                'size'      => 12,
+                'label'     => tr('Trace'),
+                'rows'      => 10,
+                'maxlength' => 65535,
+            ],
+            'details' => [
+                'readonly'  => true,
+                'element'   => 'text',
+                'size'      => 12,
+                'label'     => tr('Details'),
+                'rows'      => 10,
+                'maxlength' => 65535,
+            ],
+        ];
     }
 }

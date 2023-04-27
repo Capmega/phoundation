@@ -9,7 +9,6 @@ use Phoundation\Core\Strings;
 use Phoundation\Filesystem\Exception\RestrictionsException;
 use Stringable;
 
-
 /**
  * Restrictions class
  *

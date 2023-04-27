@@ -7,8 +7,9 @@ namespace Phoundation\Business\Companies\Employees;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
-use Phoundation\Data\Validator\Interfaces\DataValidator;
-
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Data\Validator\PostValidator;
 
 /**
  * Class Employee
@@ -43,17 +44,19 @@ class Employee extends DataEntry
      *
      * @return string
      */
-    public static function getTable(): string
+    protected function validate(GetValidator|PostValidator|ArgvValidator $validator, bool $no_arguments_left = false, bool $modify = true): array
     {
-        return 'business_employees';
+        // TODO: Implement validate() method.
     }
 
 
     /**
-     * @inheritDoc
+     * Sets the available data keys for this entry
+     *
+     * @return array
      */
-    protected function validate(DataValidator $validator, bool $no_arguments_left, bool $modify): array
+    protected static function getFieldDefinitions(): array
     {
-        // TODO: Implement validate() method.
+        // TODO: Implement getFieldDefinitions() method.
     }
 }

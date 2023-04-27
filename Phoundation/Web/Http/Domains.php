@@ -14,7 +14,6 @@ use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Web\Page;
 
-
 /**
  * Class Domains
  *

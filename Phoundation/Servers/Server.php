@@ -15,7 +15,9 @@ use Phoundation\Data\DataEntry\Traits\DataEntryDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryHostnamePort;
 use Phoundation\Data\DataEntry\Traits\DataEntryProvider;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
-use Phoundation\Data\Validator\Interfaces\DataValidator;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Geo\Cities\Cities;
 use Phoundation\Geo\Countries\Countries;
 use Phoundation\Geo\Countries\Country;
@@ -359,9 +361,9 @@ class Server extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @return DataEntryFieldDefinitionsInterface
+     * @return array
      */
-    protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
+    protected static function getFieldDefinitions(): array
     {
         return [
             'seo_hostname' => [

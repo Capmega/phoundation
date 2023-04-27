@@ -1,8 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-
 namespace Templates\None;
 
 use Phoundation\Web\Http\Html\Template\Template;

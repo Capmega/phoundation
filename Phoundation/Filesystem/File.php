@@ -19,7 +19,6 @@ use Phoundation\Filesystem\Exception\Sha256MismatchException;
 use Phoundation\Processes\Commands\FilesystemCommands;
 use Throwable;
 
-
 /**
  * File class
  *

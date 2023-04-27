@@ -13,7 +13,6 @@ use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 use Stringable;
 
-
 /**
  * Class Img
  *

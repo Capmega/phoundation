@@ -7,7 +7,6 @@ namespace Phoundation\Web\Http\Html\Components;
 use Phoundation\Web\Http\Html\Components\Input\Input;
 use Phoundation\Web\Http\Html\Enums\ButtonType;
 use Phoundation\Web\Http\Html\Enums\InputType;
-use Stringable;
 
 /**
  * Button class
@@ -162,7 +161,7 @@ class Button extends Input
     public function render(): ?string
     {
         $this->resetButtonClasses();
-        $this->attributes['type'] = $this->type?->value;
+        $this->attributes['type'] = $this->type->value;
 
         if ($this->anchor_url) {
             unset($this->attributes['type']);

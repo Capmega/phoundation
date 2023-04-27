@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Phoundation\Web\Http\Html\Enums;
 
 use Phoundation\Web\Http\Html\Interfaces\InterfaceDisplaySize;

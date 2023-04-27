@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Phoundation\Data\DataEntry\Interfaces;
 
 use Iterator;
@@ -142,7 +140,7 @@ interface InterfaceDataList extends Iterator
      *
      * @return string
      */
-    function getTable(): string;
+    function getTableName(): string;
 
     /**
      * Add a filter to apply when loading the data list
@@ -157,7 +155,7 @@ interface InterfaceDataList extends Iterator
      *
      * @return \Phoundation\Databases\Sql\Schema\Table
      */
-    function getTableSchema(): \Phoundation\Databases\Sql\Schema\Table;
+    function getTable(): \Phoundation\Databases\Sql\Schema\Table;
 
     /**
      * Clears multiple filters to apply when loading the data list

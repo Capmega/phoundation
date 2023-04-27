@@ -6,7 +6,6 @@ namespace Phoundation\Web\Http\Html\Components;
 
 use Phoundation\Messages\Messages;
 use Phoundation\Web\Http\UrlBuilder;
-use Stringable;
 
 /**
  * MessagesDropDown class
@@ -33,7 +32,6 @@ class MessagesDropDown extends ElementsBlock
      * @var Stringable|string|null $messages_url
      */
     protected Stringable|string|null $messages_url = null;
-
 
     /**
      * Returns the messages object

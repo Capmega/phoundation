@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Exception\OutOfBoundsException;
@@ -26,7 +24,7 @@ trait DataEntryFile
      */
     public function getFile(): ?string
     {
-        return $this->getDataValue('string', 'file');
+        return $this->getDataValue('file');
     }
 
 

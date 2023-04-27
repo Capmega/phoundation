@@ -1,10 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Phoundation\Web\Http\Html\Interfaces;
-
-use Stringable;
 
 
 /**
@@ -17,7 +13,7 @@ use Stringable;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-interface InterfaceElement extends InterfaceElementAttributes, Stringable
+interface InterfaceElement extends InterfaceElementAttributes
 {
     /**
      * Sets the type of element to display

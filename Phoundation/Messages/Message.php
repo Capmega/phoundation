@@ -9,7 +9,6 @@ use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
 use Phoundation\Data\Validator\Interfaces\DataValidator;
 use Phoundation\Exception\UnderConstructionException;
 
-
 /**
  * Message class
  *
@@ -56,9 +55,9 @@ class Message extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @return DataEntryFieldDefinitionsInterface
+     * @return array
      */
-    protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
+    protected static function getFieldDefinitions(): array
     {
         // TODO: Implement getFieldDefinitions() method.
         return [];

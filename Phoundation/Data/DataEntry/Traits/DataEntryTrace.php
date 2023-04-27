@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Utils\Json;
@@ -25,7 +23,7 @@ trait DataEntryTrace
      */
     public function getTrace(): ?array
     {
-        return Json::decode($this->getDataValue('array', 'trace'));
+        return Json::decode($this->getDataValue('trace'));
     }
 
 

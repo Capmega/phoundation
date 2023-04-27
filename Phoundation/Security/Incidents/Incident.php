@@ -14,10 +14,12 @@ use Phoundation\Data\DataEntry\Traits\DataEntryDetails;
 use Phoundation\Data\DataEntry\Traits\DataEntryTitle;
 use Phoundation\Data\DataEntry\Traits\DataEntryType;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
-use Phoundation\Data\Validator\Interfaces\DataValidator;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Data\Validator\Validator;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
 use Phoundation\Web\Http\Html\Enums\InputElement;
-
 
 /**
  * Class Incident
@@ -45,7 +47,6 @@ class Incident extends DataEntry
      */
     protected bool $log = true;
 
-
     /**
      * Incident class constructor
      *
@@ -57,17 +58,6 @@ class Incident extends DataEntry
         $this->unique_field = 'id';
 
         parent::__construct($identifier);
-    }
-
-
-    /**
-     * Returns the table name used by this object
-     *
-     * @return string
-     */
-    public static function getTable(): string
-    {
-        return 'security_incidents';
     }
 
 
@@ -198,9 +188,9 @@ class Incident extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @return DataEntryFieldDefinitionsInterface
+     * @return array
      */
-    protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
+    protected static function getFieldDefinitions(): array
     {
         return DataEntryFieldDefinitions::new(self::getTable())
             ->add(DataEntryFieldDefinition::new('type')
@@ -221,18 +211,32 @@ class Incident extends DataEntry
                     Severity::medium->value => tr('Medium'),
                     Severity::high->value   => tr('High'),
                     Severity::severe->value => tr('Severe')
-                ]))
-            ->add(DataEntryFieldDefinition::new('title')
-                ->setLabel(tr('Title'))
-                ->setDisabled(true)
-                ->setSize(12)
-                ->setMaxlength(4)
-                ->setMaxlength(255))
-            ->add(DataEntryFieldDefinition::new('details')
-                ->setElement(InputElement::textarea)
-                ->setLabel(tr('Details'))
-                ->setDisabled(true)
-                ->setSize(12)
-                ->setMaxlength(65_535));
+                ],
+                'label'     => tr('Severity'),
+                'size'      => 6,
+                'maxlength' => 6,
+            ],
+            'type' => [
+                'readonly' => true,
+                'default'  => tr('Unknown'),
+                'label'    => tr('Incident type'),
+                'size'     => 6,
+                'maxlength'=> 255,
+            ],
+            'title' => [
+                'disabled'  => true,
+                'db_null'   => false,
+                'type'      => 'numeric',
+                'label'     => tr('Title'),
+                'size'      => 12,
+                'maxlength' => 255,
+            ],
+            'details' => [
+                'element'   => 'text',
+                'label'     => tr('Details'),
+                'size'      => 12,
+                'maxlength' => 65_535,
+            ]
+        ];
     }
 }

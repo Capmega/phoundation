@@ -5,9 +5,36 @@ declare(strict_types = 1);
 use Phoundation\Exception\PhpModuleNotAvailableException;
 
 
-/**
- * Extra mb functions
+/*
+ * Initialize the library, automatically executed by libs_load()
  *
+ * NOTE: This function is executed automatically by the load_libs() function and does not need to be called manually
+ *
+ * @author Ismael Haro <isma@capmega.com>
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package mysqlr
+ *
+ * @return void
+ */
+function mb_library_init() {
+    try {
+        if (!extension_loaded('mbstring')) {
+            throw new CoreException(tr('mb_library_init: php module "mbstring" appears not to be installed. Please install the modules first. On Ubuntu and alikes, use "sudo apt-get -y install php-mbstring; sudo php5enmod mbstring" to install and enable the module., on Redhat and alikes use ""sudo yum -y install php-mbstring" to install the module. After this, a restart of your webserver or php-fpm server might be needed'), 'missing-module', 'mb');
+        }
+
+        if (!utf8_decode('xml')) {
+            throw new CoreException(tr('mb_library_init: php module "xml" appears not to be installed. Please install the modules first. On Ubuntu and alikes, use "sudo apt-get -y install php-xml; sudo php5enmod xml" to install and enable the module., on Redhat and alikes use ""sudo yum -y install php-xml" to install the module. After this, a restart of your webserver or php-fpm server might be needed'), 'missing-module', 'mb');
+        }
+
+    }catch(Exception $e) {
+        throw new CoreException('mb_library_init(): Failed', $e);
+    }
+}
+
+
+/*
  * The main secret, the core of the magic is...
  *    utf8_decode($str);
  *    utf8_encode($str);
@@ -26,16 +53,14 @@ use Phoundation\Exception\PhpModuleNotAvailableException;
 define('UTF8_ENCODED_CHARLIST','ÀÁÂÃÄÅàáâãäåÒÓÔÕÖØòóôõöøÈÉÊËéèêëÇçÌÍÎÏìíîïÙÚÛÜùúûüÿÑñ');
 define('UTF8_DECODED_CHARLIST', utf8_decode('ÀÁÂÃÄÅàáâãäåÒÓÔÕÖØòóôõöøÈÉÊËéèêëÇçÌÍÎÏìíîïÙÚÛÜùúûüÿÑñ'));
 
-
-/**
- *
- */
-if (!function_exists('mb_init')) {
-    function mb_init(?string $locale = null): void
-    {
-        if (!$locale) {
-            $locale = 'en_EN';
-        }
+if (! function_exists ('mb_init'))
+{
+   function mb_init($locale = 'es_ES')
+   {
+      /*
+       * Setting the Content-Type header with charset
+       */
+      setlocale(LC_CTYPE, $locale.'.UTF-8');
 
         if (!extension_loaded('mbstring')) {
             throw new PhpModuleNotAvailableException(tr('mb_library_init: php module "mbstring" appears not to be installed. Please install the modules first. On Ubuntu and alikes, use "sudo apt-get -y install php-mbstring; sudo php5enmod mbstring" to install and enable the module., on Redhat and alikes use ""sudo yum -y install php-mbstring" to install the module. After this, a restart of your webserver or php-fpm server might be needed'), 'missing-module', 'mb');
@@ -245,7 +270,44 @@ if (!function_exists('mb_trim')) {
 /************************ EXPERIMENTAL ZONE ************************/
 
 
-/**
+if (! function_exists('mb_strip_tags'))
+{
+   function mb_strip_tags($document,$repl = '') {
+      $search = array('@<script[^>]*?>.*?</script>@si',  // Strip out javascript
+                     '@<[\/\!]*?[^<>]*?>@si',            // Strip out HTML tags
+                     '@<style[^>]*?>.*?</style>@siU',    // Strip style tags properly
+                     '@<![\s\S]*?--[ \t\n\r]*>@'         // Strip multi-line comments including CDATA
+      );
+      $text = mb_preg_replace($search, $repl, $document);
+      return $text;
+   }
+}
+
+if (! function_exists('mb_strip_urls'))
+{
+   function mb_strip_urls($txt, $repl = ' ')
+   {
+      $txt = mb_preg_replace('@http[s]?://[^\s<>"\']*@',$repl,$txt);
+      return $txt;
+   }
+}
+
+// parse strings as identifiers
+if (!function_exists('mb_string_url'))
+{
+   function mb_string_url($string, $to_lower = true)
+   {
+      $string = mb_strtolower($string);
+      $string = mb_strip_accents($string);
+      $string = preg_replace('@[^a-z0-9]@',' ',$string);
+      $string = preg_replace('@\s+@','-',$string);
+      return $string;
+   }
+}
+
+/*
+ * Remove invalid UTF8 sequences, or if $replace is true, replace them with
+ * (hopefully) reasonably correct UTF8 charactres
  *
  */
 if (!function_exists('mb_strip_tags_all'))
@@ -264,7 +326,9 @@ if (!function_exists('mb_strip_tags_all'))
 }
 
 
-/**
+/*
+ * Replace captured invalid UTF8 sequences with (hopefully) reasonably correct
+ * UTF8 charactres
  *
  */
 if (!function_exists('mb_strip_tags')) {
@@ -282,8 +346,9 @@ if (!function_exists('mb_strip_tags')) {
 }
 
 
-/**
- *
+/*
+ * Taken from https://stackoverflow.com/questions/10199017/how-to-solve-json-error-utf8-error-in-php-json-decode
+ * Rewritten by Sven Oostenbrink
  */
 if (!function_exists('mb_strip_urls')) {
     function mb_strip_urls(array|string $source, array|string $replace = ' '): array|string
