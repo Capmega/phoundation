@@ -28,6 +28,7 @@ enum DisplayMode: string implements InterfaceDisplayMode
     case light = 'light';
     case dark = 'dark';
     case plain = 'plain';
+    case unknown = 'unknown';
     case null = '';
 
     // The following are aliasses
