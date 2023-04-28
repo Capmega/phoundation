@@ -3,8 +3,10 @@
 namespace Phoundation\Network\Curl;
 
 use JetBrains\PhpStorm\ExpectedValues;
+use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Restrictions;
 use Phoundation\Network\Browsers\UserAgents;
 use Phoundation\Web\Exception\WebException;
 
@@ -76,14 +78,21 @@ abstract class Curl
      *
      * @var string|null $log_path
      */
-    protected ?string $log_path = PATH_DATA . 'log/curl/';
+    protected ?string $log_path = null;
+
+    /**
+     * File access restrictions for logging
+     *
+     * @var Restrictions|null $log_restrictions
+     */
+    protected ?Restrictions $log_restrictions = null;
 
     /**
      * The maximum amount of retries executed for this request
      *
      * @var int $retries
      */
-    protected int $retries = 10;
+    protected int $retries = 5;
 
     /**
      * The amount of retries executed for this request
@@ -104,14 +113,14 @@ abstract class Curl
      *
      * @var int $connect_timeout
      */
-    protected int $connect_timeout = 10;
+    protected int $connect_timeout = 2;
 
     /**
      * The amount of time this object will wait before retrying a failed connection
      *
      * @var int $sleep
      */
-    protected int $sleep = 2;
+    protected int $sleep = 1;
 
     /**
      * If true, will store and use cookies
@@ -119,6 +128,13 @@ abstract class Curl
      * @var bool $get_cookies
      */
     protected bool $get_cookies = true;
+
+    /**
+     * If true, cURL will return more meta information
+     *
+     * @var bool $verbose
+     */
+    protected bool $verbose = false;
 
     /**
      * The file where cookies will be written to
@@ -211,6 +227,22 @@ abstract class Curl
      */
     protected bool $multipart = false;
 
+    /**
+     * Possible options:
+     *
+     * CURL_HTTP_VERSION_NONE (default, lets CURL decide which version to use)
+     * CURL_HTTP_VERSION_1_0 (forces HTTP/1.0),
+     * CURL_HTTP_VERSION_1_1 (forces HTTP/1.1),
+     * CURL_HTTP_VERSION_2_0 (attempts HTTP 2),
+     * CURL_HTTP_VERSION_2 (alias of CURL_HTTP_VERSION_2_0),
+     * CURL_HTTP_VERSION_2TLS (attempts HTTP 2 over TLS (HTTPS) only)
+     * CURL_HTTP_VERSION_2_PRIOR_KNOWLEDGE
+     *
+     * @var int $http_version
+     */
+    #[ExpectedValues(values: [CURL_HTTP_VERSION_NONE, CURL_HTTP_VERSION_1_0, CURL_HTTP_VERSION_1_1, CURL_HTTP_VERSION_2_0, CURL_HTTP_VERSION_2, CURL_HTTP_VERSION_2TLS, CURL_HTTP_VERSION_2_PRIOR_KNOWLEDGE])]
+    protected int $http_version = CURL_HTTP_VERSION_NONE;
+
 
     /**
      * Curl class constructor
@@ -221,7 +253,15 @@ abstract class Curl
             throw new WebException(tr('The PHP "curl" module is not available, please install it first. On ubuntu install the module with "apt -y install php-curl"; a restart of the webserver or php fpm server may be required'));
         }
 
-        $this->url  = $url;
+        // Verbose is always on when running in debug mode
+        if (Debug::enabled()) {
+            $this->verbose = true;
+        }
+
+        $this->url   = $url;
+        $this->retry = 0;
+
+        $this->setLogPath(PATH_DATA . 'log/curl/');
     }
 
 
@@ -234,6 +274,31 @@ abstract class Curl
     public static function new(?string $url = null): static
     {
         return new static($url);
+    }
+
+
+    /**
+     * Returns the request method
+     *
+     * @return int
+     */
+    #[ExpectedValues(values: [CURL_HTTP_VERSION_NONE, CURL_HTTP_VERSION_1_0, CURL_HTTP_VERSION_1_1, CURL_HTTP_VERSION_2_0, CURL_HTTP_VERSION_2, CURL_HTTP_VERSION_2TLS, CURL_HTTP_VERSION_2_PRIOR_KNOWLEDGE])]
+    public function getHttpVersion(): int
+    {
+        return $this->http_version;
+    }
+
+
+    /**
+     * Sets the request method
+     *
+     * @param int $http_version
+     * @return static
+     */
+    public function setHttpVersion(#[ExpectedValues(values: [CURL_HTTP_VERSION_NONE, CURL_HTTP_VERSION_1_0, CURL_HTTP_VERSION_1_1, CURL_HTTP_VERSION_2_0, CURL_HTTP_VERSION_2, CURL_HTTP_VERSION_2TLS, CURL_HTTP_VERSION_2_PRIOR_KNOWLEDGE])] int $http_version): static
+    {
+        $this->http_version = $http_version;
+        return $this;
     }
 
 
@@ -265,6 +330,30 @@ abstract class Curl
             $this->follow_location = false;
         }
 
+        return $this;
+    }
+
+
+    /**
+     * Returns if cURL will be verbose or not
+     *
+     * @return bool
+     */
+    public function getVerbose(): bool
+    {
+        return $this->verbose;
+    }
+
+
+    /**
+     * Sets if cURL will be verbose or not
+     *
+     * @param bool $verbose
+     * @return static
+     */
+    public function setVerbose(bool $verbose): static
+    {
+        $this->verbose = $verbose;
         return $this;
     }
 
@@ -338,19 +427,31 @@ abstract class Curl
 
 
     /**
+     * Returns the restrictions for curl output logging
+     *
+     * @return Restrictions|null
+     */
+    public function getLogRestrictions(): ?Restrictions
+    {
+        return $this->log_restrictions;
+    }
+
+
+    /**
      * Sets the path to where cURL will log. NULL or "" if logging has to be disabled
      *
      * @param string $log_path
+     * @param string $restrictions
      * @return static
      */
-    public function setLogPath(string $log_path): static
+    public function setLogPath(string $log_path, string $restrictions = PATH_DATA . 'log/'): static
     {
-        $this->log_path = $log_path;
-
-        if ($this->log_path) {
-            Path::new(dirname($this->log_path), PATH_DATA . 'log/')->ensure();
+        if ($log_path) {
+            $this->log_restrictions = Restrictions::new($restrictions, true);
+            Path::new($log_path, $this->log_restrictions)->ensure();
         }
 
+        $this->log_path = $log_path;
         return $this;
     }
 

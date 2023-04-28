@@ -31,15 +31,11 @@ class Interfaces
      */
     public static function listIps(bool $ipv4 = true, bool $ipv6 = false, bool $localhost = true): array
     {
-        try {
-            $results = Process::new('ifconfig')->setPipe(Process::new('egrep')
-                    ->addArgument('-i')
-                    ->addArgument('addr|inet'))
-                ->executeReturnArray();
-
-        }catch(Throwable $e) {
-            throw new NetworkException(tr('Failed to execute ifconfig'), $e);
-        }
+        $results = Process::new('ifconfig')
+            ->setPipe(Process::new('egrep')
+                ->addArgument('-i')
+                ->addArgument('addr|inet'))
+            ->executeReturnString();
 
         if (!preg_match_all('/(?:addr|inet)6?(?:\:| )(.+?) /', $results, $matches)) {
             throw new NetworkException(tr('ifconfig returned no IPs'));
@@ -83,6 +79,9 @@ class Interfaces
             }
         }
 
+        // Ensure we have unique IP addresses
+        $ips = array_unique($ips);
+
         if (!$ips) {
             throw new NetworkException(tr('Failed to find any IP addresses'));
         }
@@ -94,10 +93,28 @@ class Interfaces
     /**
      * Returns a random interface IP
      *
+     * @param bool $allow_localhosts
      * @return string
      */
-    public static function getRandomIp(): string
+    public static function getRandomInterfaceIp(bool $allow_localhosts = false): string
     {
-        return Arrays::getRandomValue(static::listIps());
+        $ips = static::listIps();
+
+        // Filter local IP's?
+        // Todo find a better way to handle this, as 172.* is typically used by virtual machines, so don't have internet
+        // Todo ideally we would need to know if the interface has internet access before we return its ip
+        if (!$allow_localhosts) {
+            foreach ($ips as $id => $ip) {
+                if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_RES_RANGE)) {
+                    unset($ips[$id]);
+                }
+
+                if (str_starts_with($ip, '172.')) {
+                    unset($ips[$id]);
+                }
+            }
+        }
+
+        return Arrays::getRandomValue($ips);
     }
 }

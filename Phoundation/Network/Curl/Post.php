@@ -55,8 +55,11 @@ class Post extends Get
      */
     public function __construct(?string $url = null)
     {
-        $this->setMethod('POST');
         parent::__construct($url);
+
+        // Disable 301 302 location header following since this would cause the POST to go to GET
+        $this->method          = 'POST';
+        $this->follow_location = false;
     }
 
 
@@ -163,11 +166,11 @@ class Post extends Get
     /**
      * Adds another POST data key value
      *
-     * @param int $key
+     * @param string|int $key
      * @param mixed $value
      * @return static
      */
-    public function addPostValue(int $key, mixed $value): static
+    public function addPostValue(string|int $key, mixed $value): static
     {
         $this->post_data[$key] = $value;
         return $this;
@@ -241,20 +244,6 @@ class Post extends Get
 
 
     /**
-     * Executes the POST request
-     *
-     * @return static
-     */
-    public function execute(): static
-    {
-        // Disable 301 302 location header following since this would cause the POST to go to GET
-        $this->follow_location = false;
-
-        parent::execute();
-    }
-
-
-    /**
      * Prepares the POST request
      *
      * @return void
@@ -267,7 +256,7 @@ class Post extends Get
 
         // Log cURL request?
         if ($this->log_path) {
-            Log::action(tr('Sending the following data'));
+            Log::action(tr('Sending following post data'));
             Log::printr($this->post_data);
         }
 

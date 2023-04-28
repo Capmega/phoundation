@@ -15,6 +15,7 @@ use Phoundation\Network\Exception\NetworkException;
 use Phoundation\Network\Interfaces;
 use Phoundation\Utils\Json;
 
+
 /**
  * Class Curl
  *
@@ -71,27 +72,58 @@ class Get extends Curl
         try {
             $data = curl_exec($this->curl);
 
-            $this->result_data    = $data['data'];
-            $this->result_headers = $data['headers'];
+            if (curl_errno($this->curl)) {
+                // Oops... cURL request failed!
+                throw NetworkException::new(tr('The cURL request ":url" failed with error ":errno" ":error"', [
+                    ':url'   => $this->url,
+                    ':errno' => curl_errno($this->curl),
+                    ':error' => curl_error($this->curl),
+                ]))
+                    ->setData(curl_getinfo($this->curl))
+                    ->setCode('CURL' . curl_errno($this->curl));
+            }
+
+            // Split data from headers
+            $this->result_data    = Strings::from($data, "\r\n\r\n");
+            $data                 = Strings::until($data, "\r\n\r\n");
+            $this->result_headers = explode(PHP_EOL, $data);
 
             if (curl_errno($this->curl)) {
                 throw new NetworkException(tr('CURL failed with ":e"', [
                     ':e' => curl_strerror(curl_errno($this->curl))
                 ]));
             }
-        }catch(Exception $e) {
-            if ((($e->getCode() == 'HTTP0') or ($e->getCode() == 'CURL28')) and (++$this->retry <= $this->retries)) {
-                // For whatever reason, connection gave HTTP code 0 which probably means that the server died off
-                // during connection. This again may mean that the server overloaded. Wait for a few seconds, and try
-                // again for a limited number of times
-                Log::warning(tr('Got HTTP0 for url ":url" at attempt ":retry" with ":connect_timeout" seconds connect timeout', [
-                    ':url'             => $this->url,
-                    ':retry'           => $this->retry,
-                    ':connect_timeout' => $this->connect_timeout
-                ]));
 
-                usleep($this->sleep);
-                return $this->execute();
+        }catch(Exception $e) {
+            if (++$this->retry <= $this->retries) {
+                switch ($e->getCode()) {
+                    case 'CURL0':
+                        // no break;
+
+                    case 'CURL28':
+                        // For whatever reason, connection gave HTTP code 0 which probably means that the server died
+                        // off during connection. This again may mean that the server overloaded. Wait for a few
+                        // seconds, and try again for a limited number of times
+                        Log::warning(tr('Got HTTP0 for url ":url" at attempt ":retry" with ":connect_timeout" seconds connect timeout', [
+                            ':url'             => $this->url,
+                            ':retry'           => $this->retry,
+                            ':connect_timeout' => $this->connect_timeout
+                        ]));
+
+                        usleep($this->sleep);
+                        return $this->execute();
+
+                    case 'CURL92':
+                        // This server apparently doesn't support anything beyond HTTP1.1
+                        Log::warning(tr('Got HTTP92 for url ":url" at attempt ":retry", forcing protocol HTTP 1.1 to fix', [
+                            ':url'             => $this->url,
+                            ':retry'           => $this->retry,
+                            ':connect_timeout' => $this->connect_timeout
+                        ]));
+
+                        $this->http_version = CURL_HTTP_VERSION_1_1;
+                        return $this->execute();
+                }
             }
 
             throw new NetworkException(tr('Failed to make ":method" request for url ":url"', [
@@ -182,6 +214,9 @@ class Get extends Curl
         if ($this->save_to_file) {
             file_put_contents($this->save_to_file, $this->result_data);
         }
+
+        $this->retry = 0;
+        return $this;
    }
 
 
@@ -195,8 +230,6 @@ class Get extends Curl
         if (empty($this->url)) {
             throw new OutOfBoundsException('No URL or existing cURL connection specified');
         }
-
-        $this->retry = 0;
 
         if (isset($this->curl)) {
             // Update only the URL
@@ -239,7 +272,7 @@ class Get extends Curl
             curl_setopt($this->curl, CURLOPT_URL           , $this->url);
             curl_setopt($this->curl, CURLOPT_REFERER       , $this->referer);
             curl_setopt($this->curl, CURLOPT_USERAGENT     , $this->getUserAgent());
-            curl_setopt($this->curl, CURLOPT_INTERFACE     , Interfaces::getRandomIp());
+            curl_setopt($this->curl, CURLOPT_INTERFACE     , Interfaces::getRandomInterfaceIp());
             curl_setopt($this->curl, CURLOPT_TIMEOUT       , $this->timeout);
             curl_setopt($this->curl, CURLOPT_CONNECTTIMEOUT, $this->connect_timeout);
             curl_setopt($this->curl, CURLOPT_SSL_VERIFYHOST, ($this->verify_ssl ? 2 : 0));
@@ -250,14 +283,15 @@ class Get extends Curl
             curl_setopt($this->curl, CURLOPT_FOLLOWLOCATION, ($this->follow_location ? 1 : 0));
             curl_setopt($this->curl, CURLOPT_MAXREDIRS     , ($this->follow_location ? 50 : null));
             curl_setopt($this->curl, CURLOPT_POST          , false);
-            curl_setopt($this->curl, CURLOPT_HTTPHEADER    , true);
+            //curl_setopt($this->curl, CURLOPT_HTTPHEADER    , true);
 
             // Log cURL request?
             if ($this->log_path) {
-                curl_setopt($this->curl, CURLOPT_STDERR, File::new($this->log_path)->open('a'));
+                curl_setopt($this->curl, CURLOPT_STDERR, File::new($this->log_path . getmypid(), $this->log_restrictions)->open('a'));
 
                 Log::action(tr('Preparing ":method" cURL request to ":url"', [
-                    ':url' => $this->url,
+                    ':method' => $this->method,
+                    ':url'    => $this->url,
                 ]));
             }
 
