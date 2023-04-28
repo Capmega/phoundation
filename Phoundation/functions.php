@@ -410,6 +410,21 @@ function show(mixed $source = null, int $trace_offset = 1, bool $quiet = false):
 
 
 /**
+ * Shortcut to the Debug::show() call, but displaying the data in hex
+ *
+ * @param mixed $source
+ * @param int $trace_offset
+ * @param bool $quiet
+ * @return mixed
+ */
+function showhex(mixed $source = null, int $trace_offset = 1, bool $quiet = false): mixed
+{
+    $source = bin2hex($source);
+    return show($source, false);
+}
+
+
+/**
  * Shortcut to the Debug::show() call
  *
  * @param mixed $source
