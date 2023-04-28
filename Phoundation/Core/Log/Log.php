@@ -884,14 +884,20 @@ Class Log {
 
                 // Log the exception data
                 if ($messages instanceof Exception) {
-                    $data = $messages->getData();
+                    if ($messages->isWarning()) {
+                        // Log warning data as individual lines for easier read
+                        $data = $messages->getData();
 
-                    if ($data) {
-                        foreach (Arrays::force($data, null) as $line) {
-                            static::write(print_r($line, true), 'warning', $threshold, false);
+                        if ($data) {
+                            foreach (Arrays::force($data, null) as $line) {
+                                static::write(print_r($line, true), 'warning', $threshold, false);
+                            }
+
+                            return true;
                         }
-
-                        return true;
+                    } else {
+                        // Dump the error data completely
+                        Log::printr($messages->getData());
                     }
                 }
 
