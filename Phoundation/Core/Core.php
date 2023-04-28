@@ -1198,6 +1198,7 @@ class Core {
     /**
      * This function is called automatically
      *
+     * @todo Refactor this, its a godawful mess
      * @param Throwable $e
      * @param boolean $die Specify false if this exception should be a warning and continue, true if it should die
      * @return void
@@ -1409,10 +1410,12 @@ class Core {
                             Log::warning($e->getMessage());
                             Log::warning($e->getData());
                             Script::die(255);
+
                         } elseif (($e instanceof Exception) and ($e->isWarning())) {
                             // This is just a simple general warning, no backtrace and such needed, only show the
                             // principal message
                             Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
+
                         } else {
                             // Log exception data
                             Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE WEB SCRIPT ":script" WITH ENVIRONMENT ":environment" DURING CORE STATE ":state" ***', [
@@ -1436,10 +1439,14 @@ class Core {
                             header_remove('Cache-Control');
                             header_remove('Expires');
                             header_remove('Content-Type');
+
+                            Page::setHttpCode(500);
+                            http_response_code(500);
+                            header('Content-Type: text/html');
+                            header('Content-length: 1048576'); // Required or browser won't show half the information
                         }
 
                         //
-                        Page::setHttpCode(500);
                         static::unregisterShutdown('route_postprocess');
 
                         Notification::new()
@@ -1476,12 +1483,6 @@ class Core {
                         }
 
                         if (Debug::enabled()) {
-                            // We're trying to show an html error here!
-                            if (!headers_sent()) {
-                                http_response_code(500);
-                                header('Content-Type: text/html', true);
-                            }
-
                             switch (Core::getRequestType()) {
                                 case 'api':
                                     // no-break
