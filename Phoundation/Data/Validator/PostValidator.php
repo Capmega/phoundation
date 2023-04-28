@@ -137,9 +137,9 @@ class PostValidator extends Validator
      *
      * @return array
      */
-    public static function force(): array
+    public static function extract(): array
     {
-        Log::warning(tr('Liberated all POST data without data validation!'));
+        Log::warning(tr('Liberated all $_POST data without data validation!'));
 
         global $_POST;
 
@@ -147,6 +147,18 @@ class PostValidator extends Validator
         static::$post = null;
 
         return $_POST;
+    }
+
+
+    /**
+     * Force a return of a single POST key value
+     *
+     * @return array
+     */
+    public static function extractKey(string $key): mixed
+    {
+        Log::warning(tr('Liberated $_POST[:key] without data validation!', [':key' => $key]));
+        return isset_get(static::$post[$key]);
     }
 
 
