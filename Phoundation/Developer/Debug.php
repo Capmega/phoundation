@@ -413,7 +413,7 @@ class Debug {
     {
         if (static::enabled()) {
             static::show($value, $trace_offset, $quiet);
-            Log::warning('Reached showdie() call');
+            Log::warning(tr('Reached showdie() call at :location', [':location' => static::currentLocation($trace_offset)]));
             die();
         }
     }
