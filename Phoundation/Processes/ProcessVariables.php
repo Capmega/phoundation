@@ -216,6 +216,13 @@ trait ProcessVariables
      */
     protected bool $debug = false;
 
+    /**
+     * Tracks how many times quotes should be escaped
+     *
+     * @var int $escape_quotes
+     */
+    protected int $escape_quotes = 0;
+
 
     /**
      * Process class constructor
@@ -238,6 +245,18 @@ trait ProcessVariables
         if ($this->clear_logs) {
             unlink($this->log_file);
         }
+    }
+
+
+    /**
+     * Increases the amount of times quotes should be escaped
+     *
+     * @return ProcessVariables
+     */
+    public function increaseQuoteEscapes(): static
+    {
+        $this->escape_quotes++;
+        return $this;
     }
 
 
@@ -629,7 +648,7 @@ trait ProcessVariables
      * @param bool $which_command
      * @return static This process so that multiple methods can be chained
      */
-    public function setCommand(?string $command, bool $which_command = false): static
+    public function setCommand(?string $command, bool $which_command = true): static
     {
         if ($command) {
             // Make sure we have a clean command
@@ -699,7 +718,6 @@ trait ProcessVariables
         $this->real_command = escapeshellcmd($real_command);
 
         $this->setIdentifier();
-
         return $this;
     }
 
@@ -889,6 +907,7 @@ trait ProcessVariables
         $this->cached_command_line = null;
         $this->pipe                = $pipe;
 
+        $this->pipe->increaseQuoteEscapes();
         $this->pipe->setTerm();
 
         return $this;

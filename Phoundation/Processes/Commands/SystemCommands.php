@@ -38,7 +38,7 @@ class SystemCommands extends Command
         }
 
         $this->process
-            ->setCommand('which')
+            ->setCommand('which', false)
             ->addArgument($command)
             ->setRegisterRunfile(false)
             ->setTimeout(1);

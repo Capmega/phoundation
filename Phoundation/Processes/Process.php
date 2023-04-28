@@ -16,6 +16,7 @@ use Phoundation\Processes\Exception\ProcessException;
 use Phoundation\Processes\Exception\ProcessFailedException;
 use Phoundation\Servers\Server;
 
+
 /**
  * Class Process
  *
@@ -30,6 +31,30 @@ use Phoundation\Servers\Server;
 Class Process
 {
     use ProcessVariables;
+
+
+    /**
+     * Processes constructor.
+     *
+     * @param string|null $command
+     * @param Restrictions|array|string|null $restrictions
+     * @param string|null $packages
+     */
+    public function __construct(?string $command = null, Restrictions|array|string|null $restrictions = null, ?string $packages = null)
+    {
+        // Ensure that the run files directory is available
+        Path::new(PATH_ROOT . 'data/run/', $restrictions)->ensure();
+
+        $this->setRestrictions($restrictions);
+
+        if ($packages) {
+            $this->setPackages($packages);
+        }
+
+        if ($command) {
+            $this->setCommand($command);
+        }
+    }
 
 
     /**
@@ -60,30 +85,6 @@ Class Process
         $process->addArguments(Arrays::force($command, ' '));
 
         return $process;
-    }
-
-
-    /**
-     * Processes constructor.
-     *
-     * @param string|null $command
-     * @param Restrictions|array|string|null $restrictions
-     * @param string|null $packages
-     */
-    public function __construct(?string $command = null, Restrictions|array|string|null $restrictions = null, ?string $packages = null)
-    {
-        // Ensure that the run files directory is available
-        Path::new(PATH_ROOT . 'data/run/', $restrictions)->ensure();
-
-        $this->setRestrictions($restrictions);
-
-        if ($packages) {
-            $this->setPackages($packages);
-        }
-
-        if ($command) {
-            $this->setCommand($command);
-        }
     }
 
 
@@ -134,6 +135,7 @@ Class Process
                 'full_command' => $this->getFullCommandLine(),
                 'pipe'         => $this->pipe?->getFullCommandLine(),
                 'arguments'    => $this->arguments,
+                'variables'    => $this->variables,
                 'timeout'      => $this->timeout,
                 'pid'          => $this->pid,
                 'term'         => $this->term,
@@ -159,6 +161,7 @@ Class Process
     {
         if ($this->debug) {
             Log::printr(Strings::untilReverse($this->getFullCommandLine(), 'exit '));
+
         } else {
             Log::action(tr('Executing command ":command" using exec() to return an array', [
                 ':command' => $this->getFullCommandLine()
@@ -166,7 +169,6 @@ Class Process
         }
 
         exec($this->getFullCommandLine(), $output, $exit_code);
-
         $this->setExitCode($exit_code, $output);
         return $output;
     }
@@ -358,6 +360,7 @@ Class Process
      */
     public function getFullCommandLine(bool $background = false): string
     {
+        $arguments = [];
         $this->failed = false;
 
         if ($this->cached_command_line) {
@@ -374,7 +377,8 @@ Class Process
         }
 
         // Update the arguments with the variables
-        foreach ($this->arguments as &$argument) {
+        foreach ($this->arguments as $argument) {
+            // Does this argument contain variables? If so, apply them here
             if (preg_match('/^\$.+?\$$/', $argument)) {
                 if (!array_key_exists($argument, $this->variables)) {
                     // This variable was not defined, cannot apply it.
@@ -386,12 +390,18 @@ Class Process
                 // Update and escape the argument
                 $argument = escapeshellarg($this->variables[$argument]);
             }
+
+            // Escape quotes if required so for shell
+            for ($i = 0; $i < $this->escape_quotes; $i++) {
+                $argument = str_replace('\\', '\\\\', $argument);
+                $argument = str_replace('\'', '\\\'', $argument);
+            }
+
+            $arguments[] = $argument;
         }
 
-        unset($value);
-
         // Add arguments to the command
-        $this->cached_command_line = $this->command . ' ' . implode(' ', $this->arguments);
+        $this->cached_command_line = $this->real_command . ' ' . implode(' ', $arguments);
 
         // Add sudo
         if ($this->sudo) {
