@@ -46,13 +46,19 @@ class ReCaptcha extends Captcha
     /**
      * Returns true if the token is valid for the specified action
      *
-     * @param string $response
+     * @param string|null $response
      * @param string|null $remote_ip
      * @param string|null $secret
      * @return bool
      */
-    public function isValid(string $response, string $remote_ip = null, string $secret = null): bool
+    public function isValid(?string $response, string $remote_ip = null, string $secret = null): bool
     {
+        if (!$response) {
+            // There is no response, this is failed before we even begin
+            Log::warning(tr('No captcha client response received'));
+            return false;
+        }
+
         // Get captcha secret key
         if (!$secret) {
             // Use configured secret key
@@ -95,12 +101,12 @@ class ReCaptcha extends Captcha
     /**
      * Returns true if the token is valid for the specified action
      *
-     * @param string $response
+     * @param string|null $response
      * @param string|null $remote_ip
      * @param string|null $secret
      * @return void
      */
-    public function validate(string $response, string $remote_ip = null, string $secret = null): void
+    public function validate(?string $response, string $remote_ip = null, string $secret = null): void
     {
         if (!$this->isValid($response, $remote_ip, $secret)) {
             throw new ValidationFailedException(tr('The ReCaptcha response is invalid for ":remote_ip"', [

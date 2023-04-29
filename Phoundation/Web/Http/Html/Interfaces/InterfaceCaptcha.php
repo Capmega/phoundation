@@ -18,22 +18,22 @@ interface InterfaceCaptcha extends InterfaceElementsBlock
     /**
      * Throws a ValidationFailedException if the captcha has failed
      *
-     * @param string $response
+     * @param string|null $response
      * @param string|null $remote_ip
      * @param string|null $secret
      * @return void
      */
-    function validate(string $response, string $remote_ip = null, string $secret = null): void;
+    function validate(?string $response, string $remote_ip = null, string $secret = null): void;
 
     /**
      * Returns true if the token is valid for the specified action
      *
-     * @param string $response
+     * @param string|null $response
      * @param string|null $remote_ip
      * @param string|null $secret
      * @return bool
      */
-    function isValid(string $response, string $remote_ip = null, string $secret = null): bool;
+    function isValid(?string $response, string $remote_ip = null, string $secret = null): bool;
 
     /**
      * Renders and returns the HTML for the google ReCAPTCHA
