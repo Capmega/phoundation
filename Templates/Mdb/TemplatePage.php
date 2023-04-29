@@ -70,6 +70,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
         Page::loadCss('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap');
         Page::loadCss('css/mdb');
         Page::loadCss('css/mdb-fix');
+        Page::loadCss('css/phoundation');
 
         // Load basic MDB amd jQuery javascript libraries
         Page::loadJavascript('js/mdb,js/jquery/jquery');

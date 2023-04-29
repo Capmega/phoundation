@@ -697,6 +697,7 @@ abstract class DataEntry implements InterfaceDataEntry
     {
         $this->user_modifying = true;
 
+        // Autofill the data from either POST or CLI
         if (!is_object($data)) {
             if (PLATFORM_HTTP) {
                 // Validator was specified,
@@ -1253,6 +1254,7 @@ abstract class DataEntry implements InterfaceDataEntry
      * @return array
      */
     abstract protected function validate(ArgvValidator|PostValidator|GetValidator $validator, bool $no_arguments_left = false, bool $modify = true): array;
+
 
     /**
      * Returns either the specified field, or if $translate has content, the alternate field name

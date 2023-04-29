@@ -69,7 +69,8 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
             'adminlte/plugins/fontawesome-free/css/all',
             'adminlte/css/adminlte',
             'adminlte/css/phoundation',
-            'adminlte/plugins/overlayScrollbars/css/OverlayScrollbars'
+            'adminlte/plugins/overlayScrollbars/css/OverlayScrollbars',
+            'adminlte/css/phoundation'
         ], true);
 
         // Load basic MDB amd jQuery javascript libraries
