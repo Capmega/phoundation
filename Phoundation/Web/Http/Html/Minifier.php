@@ -38,7 +38,8 @@ class Minifier
         ]);
 
 // :FIX: This is a temp fix because the minifier appears to use \n as a space?
-        $html = str_replace("\n", ' ', $html);
+// :TODO: This fails because it also removes \n from content that NEEDS \n like <textarea>
+//        $html = str_replace("\n", ' ', $html);
 
         return $html;
     }
