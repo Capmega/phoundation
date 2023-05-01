@@ -125,7 +125,7 @@ abstract class Element implements InterfaceElement
         // The template component does not exist, return the basic Phoundation version
         Log::warning(tr('No template render class found for element component ":component", rendering basic HTML', [
             ':component' => get_class($this)
-        ]));
+        ]), 4);
 
         return $render_function();
     }
