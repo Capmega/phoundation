@@ -425,6 +425,20 @@ function showhex(mixed $source = null, int $trace_offset = 1, bool $quiet = fals
 
 
 /**
+ * Shortcut to the Debug::show() call, but displaying the backtrace
+ *
+ * @param mixed $source
+ * @param int $trace_offset
+ * @param bool $quiet
+ * @return mixed
+ */
+function showbacktrace(mixed $source = null, int $trace_offset = 1, bool $quiet = false): mixed
+{
+    return show(Debug::backtrace(), false);
+}
+
+
+/**
  * Shortcut to the Debug::show() call
  *
  * @param mixed $source
