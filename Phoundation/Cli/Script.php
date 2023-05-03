@@ -232,6 +232,7 @@ SYSTEM ARGUMENTS
 
                                         WARNING: This may result in weak and or compromised passwords in your database
                 ', [':environment' => 'PHOUNDATION_' . PROJECT . '_ENVIRONMENT']));
+                die();
             }
         }
 
