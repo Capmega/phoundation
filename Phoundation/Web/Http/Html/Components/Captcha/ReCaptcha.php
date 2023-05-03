@@ -110,7 +110,7 @@ class ReCaptcha extends Captcha
     {
         if (!$this->isValid($response, $remote_ip, $secret)) {
             throw new ValidationFailedException(tr('The ReCaptcha response is invalid for ":remote_ip"', [
-                ':remote_ip' => $remote_ip
+                ':remote_ip' => $remote_ip ?? $_SERVER['REMOTE_ADDR']
             ]));
         }
     }
