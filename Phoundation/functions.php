@@ -1,5 +1,6 @@
 <?php
 
+use CNZ\Helpers\Yml;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Core;
@@ -708,6 +709,7 @@ function has_trait(string $trait, object|string $class): bool
     return false;
 }
 
+
 /**
  * Show command that requires no configuration and can be used at startup times. USE WITH CARE!
  * @throws \Exception
@@ -728,4 +730,29 @@ function has_trait(string $trait, object|string $class): bool
     }
 
     return $source;
+}
+
+
+/**
+ * Wrappers for PHP yaml_emit(), yaml_parse() if the PHP YAML extension is not installed
+ */
+if (!function_exists('yaml_emit')) {
+    function yaml_emit($data, $encoding = YAML_ANY_ENCODING, $linebreak = YAML_ANY_BREAK, array $callbacks = []): ?string
+    {
+        return Yml::dump($data);
+    }
+}
+
+if (!function_exists('yaml_parse')) {
+    function yaml_parse($input, $pos = 0, &$ndocs = null, array $callbacks = []): ?array
+    {
+        return Yml::parse($input);
+    }
+}
+
+if (!function_exists('yaml_parse_file')) {
+    function yaml_parse_file($filename, $pos = 0, &$ndocs = null, array $callbacks = []): ?array
+    {
+        return Yml::parseFile($filename);
+    }
 }
