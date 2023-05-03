@@ -3,6 +3,9 @@
 namespace Phoundation\Geo\GeoIp;
 
 use Phoundation\Core\Config;
+use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
+use Phoundation\Core\Log\Log;
+use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 
@@ -31,11 +34,11 @@ class GeoIp
      * Returns a GeoIp object for the specified IP address
      *
      * @param string|null $ip_address
-     * @return static
+     * @return static|null
      */
-    public static function detect(?string $ip_address): static
+    public static function detect(?string $ip_address): ?static
     {
-        return self::getProvider()->detect($ip_address);
+        return self::getProvider()?->detect($ip_address);
     }
 
 
@@ -43,24 +46,42 @@ class GeoIp
      * Returns the class for the specified provider
      *
      * @param string|null $provider
-     * @return static
+     * @return static|null
      */
-    public static function getProvider(?string $provider = null): static
+    public static function getProvider(?string $provider = null): ?static
     {
-        $provider = Config::get('geo.ip.provider', null, $provider);
+        try {
+            $provider = null;
+            $enabled  = Config::get('geo.ip.enabled', true);
+            $provider = Config::get('geo.ip.provider', null, $provider);
 
-        switch ($provider) {
-            case 'maxmind':
-                return new MaxMind();
+            if (!$enabled) {
+                // GeoIP detection has been disabled
+                return null;
+            }
 
-            case 'ip2location':
-                throw new UnderConstructionException();
+            switch ($provider) {
+                case 'maxmind':
+                    return new MaxMind();
 
-            default:
-                throw new OutOfBoundsException(tr('Unknown GeoIP provider ":provider" specified', [
-                    ':provider' => $provider
-                ]));
+                case 'ip2location':
+                    throw new UnderConstructionException();
+
+                default:
+                    throw new OutOfBoundsException(tr('Unknown GeoIP provider ":provider" specified', [
+                        ':provider' => $provider
+                    ]));
+            }
+
+        } catch (ConfigurationDoesNotExistsException $e) {
+            if (Debug::production()) {
+                throw $e;
+            }
+
+            Log::warning($e->makeWarning());
         }
+
+        return $provider;
     }
 
 

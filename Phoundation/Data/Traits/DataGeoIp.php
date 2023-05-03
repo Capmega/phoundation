@@ -31,7 +31,7 @@ trait DataGeoIp
 
 
     /**
-     * Set a
+     * Set GeoIP data
      *
      * @param GeoIp|null $geo_ip
      * @return $this
@@ -40,8 +40,10 @@ trait DataGeoIp
     {
         $this->geo_ip = $geo_ip;
 
-        $this->setLatitude($geo_ip->getLocation()->location->latitude);
-        $this->setLongitude($geo_ip->getLocation()->location->longitude);
+        if ($geo_ip) {
+            $this->setLatitude($geo_ip->getLocation()->location->latitude);
+            $this->setLongitude($geo_ip->getLocation()->location->longitude);
+        }
 
         return $this;
     }
