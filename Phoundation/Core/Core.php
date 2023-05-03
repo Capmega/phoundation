@@ -236,16 +236,18 @@ class Core {
             static::getInstance();
 
         } catch (Throwable $e) {
-            if (PLATFORM_HTTP and headers_sent($file, $line)) {
-                if (preg_match('/debug-.+\.php$/', $file)) {
-                    throw new CoreException(tr('Failed because headers were already sent on ":location", so probably some added debug code caused this issue', [
+            if (defined('PLATFORM_HTTP')) {
+                if (PLATFORM_HTTP and headers_sent($file, $line)) {
+                    if (preg_match('/debug-.+\.php$/', $file)) {
+                        throw new CoreException(tr('Failed because headers were already sent on ":location", so probably some added debug code caused this issue', [
+                            ':location' => $file . '@' . $line
+                        ]), $e);
+                    }
+
+                    throw new CoreException(tr('Failed because headers were already sent on ":location"', [
                         ':location' => $file . '@' . $line
                     ]), $e);
                 }
-
-                throw new CoreException(tr('Failed because headers were already sent on ":location"', [
-                    ':location' => $file . '@' . $line
-                ]), $e);
             }
 
             throw $e;
@@ -1109,7 +1111,7 @@ class Core {
      *
      * @return string Returns core::callType
      */
-    public static function getRequestType(): string
+    public static function getRequestType(): ?string
     {
         return static::$request_type;
     }
