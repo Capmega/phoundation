@@ -1,7 +1,8 @@
 <?php
-/*
- * mbfunctions
- * PHP Multibyte Functions for PHP < 6
+/**
+ * mb functions
+ *
+ * mbfunctions PHP Multibyte Functions for PHP < 6
  *
  * Author: Ignacio Lago (www.ignaciolago.com)
  * Version: 1.2
@@ -14,22 +15,16 @@
  * The functions are defined with the same arguments and returns that their no-multibyte counterparts.
  *
  * Note: Some of them could have added arguments with default values defined.
- */
-
-
-/*
- * Initialize the library, automatically executed by libs_load()
  *
- * NOTE: This function is executed automatically by the load_libs() function and does not need to be called manually
- *
- * @author Ismael Haro <isma@capmega.com>
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+ * @todo Get rid of this
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package mysqlr
- *
- * @return void
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Core
  */
+use Phoundation\Core\Exception\CoreException;
+
+
 function mb_library_init() {
     try {
         if (!extension_loaded('mbstring')) {
