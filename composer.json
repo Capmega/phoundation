@@ -17,7 +17,8 @@
     "ext-pcntl": "*",
     "ext-exif": "*",
     "ext-readline": "*",
-    "ext-curl": "*"
+    "ext-curl": "*",
+    "clausnz/php-helpers": "^0.2.1"
   },
   "require-dev": {
     "phpmd/phpmd": "@stable",
@@ -37,4 +38,3 @@
     }
   }
 }
-
