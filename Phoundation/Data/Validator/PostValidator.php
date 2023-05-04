@@ -135,9 +135,9 @@ class PostValidator extends Validator
     /**
      * Force a return of all POST data without check
      *
-     * @return array
+     * @return array|null
      */
-    public static function extract(): array
+    public static function extract(): ?array
     {
         Log::warning(tr('Liberated all $_POST data without data validation!'));
 

@@ -133,9 +133,9 @@ class GetValidator extends Validator
     /**
      * Force a return of all GET data without check
      *
-     * @return array
+     * @return array|null
      */
-    public static function extract(): array
+    public static function extract(): ?array
     {
         Log::warning(tr('Liberated all $_GET data without data validation!'));
 
