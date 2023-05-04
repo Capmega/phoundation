@@ -141,6 +141,16 @@ class DataEntryForm extends Renderer
                 $source[$key] = isset_get($data['default']);
             }
 
+            // Set value to value specified in $data
+            if (isset($data['value'])) {
+                $source[$key] = $data['value'];
+
+                // Apply variables
+                foreach ($source as $source_key => $source_value) {
+                    $source[$key] = str_replace(':' . $source_key, (string) $source_value, $source[$key]);
+                }
+            }
+
             // Build the form elements
             switch ($data['element']) {
                 case 'input':
