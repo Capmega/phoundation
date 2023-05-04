@@ -29,7 +29,7 @@ abstract class Captcha extends ElementsBlock implements InterfaceCaptcha
     {
         switch (Config::getString('security.web.captcha.provider', 'recaptcha')) {
             case 'recaptcha':
-                return new ReCaptcha();
+                return new ReCaptcha2();
 
             case '':
                 throw new OutOfBoundsException(tr('No captcha provider specified'));

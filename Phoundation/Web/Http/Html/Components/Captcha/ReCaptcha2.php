@@ -2,10 +2,11 @@
 
 namespace Phoundation\Web\Http\Html\Components\Captcha;
 
+use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Core\Config;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
-use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\Exception\CaptchaFailedException;
 use Phoundation\Developer\Debug;
 use Phoundation\Network\Curl\Post;
 use Phoundation\Utils\Json;
@@ -22,14 +23,47 @@ use Phoundation\Web\Http\Html\Components\Script;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class ReCaptcha extends Captcha
+class ReCaptcha2 extends Captcha
 {
+    /**
+     * Captcha size
+     *
+     * @var string $size
+     */
+    #[ExpectedValues('normal', 'compact')]
+    protected string $size = 'normal';
+
     /**
      * Script used for this ReCaptcha object
      *
      * @var string $script
      */
     protected string $script = 'https://www.google.com/recaptcha/api.js';
+
+
+    /**
+     * Returns the recaptcha size
+     *
+     * @return string
+     */
+    #[ExpectedValues('normal', 'compact')]
+    public function getSize(): string
+    {
+        return $this->size;
+    }
+
+
+    /**
+     * Sets the captcha size
+     *
+     * @param string $size
+     * @return ReCaptcha2
+     */
+    public function setSize(#[ExpectedValues('normal', 'compact')] string $size): static
+    {
+        $this->size = $size;
+        return $this;
+    }
 
 
     /**
@@ -109,7 +143,7 @@ class ReCaptcha extends Captcha
     public function validate(?string $response, string $remote_ip = null, string $secret = null): void
     {
         if (!$this->isValid($response, $remote_ip, $secret)) {
-            throw new ValidationFailedException(tr('The ReCaptcha response is invalid for ":remote_ip"', [
+            throw new CaptchaFailedException(tr('The ReCaptcha response is invalid for ":remote_ip"', [
                 ':remote_ip' => $remote_ip ?? $_SERVER['REMOTE_ADDR']
             ]));
         }
@@ -135,6 +169,6 @@ class ReCaptcha extends Captcha
             ->setAsync(true)
             ->setDefer(true)
             ->setSrc($this->script)
-            ->render() . '<div class="g-recaptcha" data-sitekey="' . $key . '"></div>';
+            ->render() . '<div class="g-recaptcha" data-size="' . $this->size . '" data-sitekey="' . $key . '"></div>';
     }
 }
