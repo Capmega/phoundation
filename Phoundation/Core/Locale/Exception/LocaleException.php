@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Core\Locale\Exception;
 
 use Phoundation\Core\Exception\CoreException;

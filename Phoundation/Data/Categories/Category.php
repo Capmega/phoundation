@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Data\Categories;
 
 use Phoundation\Core\Locale\Language\Languages;

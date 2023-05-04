@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Translator;
 
 use Phoundation\Data\DataEntry\DataList;

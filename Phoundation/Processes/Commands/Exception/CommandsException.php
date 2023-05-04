@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Processes\Commands\Exception;
 
 use Phoundation\Processes\Exception\ProcessesException;

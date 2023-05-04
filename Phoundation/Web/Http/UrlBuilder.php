@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Web\Http;
 
 use Phoundation\Content\Images\Image;

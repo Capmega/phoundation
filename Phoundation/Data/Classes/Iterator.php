@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Data\Classes;
 
 use Phoundation\Core\Log\Log;

@@ -1,5 +1,8 @@
 <?php
 
+declare(strict_types=1);
+
+
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;

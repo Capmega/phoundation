@@ -1,5 +1,8 @@
 <?php
 
+declare(strict_types=1);
+
+
 use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Web\Http\Html\Components\BreadCrumbs;
 use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;

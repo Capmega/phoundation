@@ -1,5 +1,8 @@
 <?php
 
+declare(strict_types=1);
+
+
 use Phoundation\Templates\Template;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;

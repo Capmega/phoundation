@@ -1,5 +1,8 @@
 <?php
 
+declare(strict_types=1);
+
+
 namespace Plugins\Phoundation;
 
 use Phoundation\Web\Http\Html\Components\Menu;

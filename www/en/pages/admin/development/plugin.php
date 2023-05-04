@@ -1,5 +1,8 @@
 <?php
 
+declare(strict_types=1);
+
+
 use Phoundation\Core\Plugins\Plugin;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Web\Http\Html\Components\BreadCrumbs;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use CNZ\Helpers\Yml;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Arrays;

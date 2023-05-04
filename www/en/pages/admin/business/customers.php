@@ -1,5 +1,8 @@
 <?php
 
+declare(strict_types=1);
+
+
 use Phoundation\Business\Customers\FilterForm;
 use Phoundation\Business\Customers\Customers;
 use Phoundation\Web\Http\Html\Components\BreadCrumbs;

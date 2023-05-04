@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Databases\Sql\Schema\Exception;
 
 use Phoundation\Databases\Exception\DatabasesException;

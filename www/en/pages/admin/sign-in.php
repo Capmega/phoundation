@@ -1,5 +1,8 @@
 <?php
 
+declare(strict_types=1);
+
+
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Core\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
@@ -43,6 +46,9 @@ Page::setBuildBody(false);
 
           <form action="<?= UrlBuilder::getWww() ?>" method="post">
             <?php
+
+declare(strict_types=1);
+
                 if (Session::supports('email')) {
                     ?>
                     <div class="input-group mb-3">
@@ -77,10 +83,16 @@ Page::setBuildBody(false);
                         <!-- /.col -->
                     </div>
                     <?php
+
+declare(strict_types=1);
+
                 }
             ?>
           </form>
           <?php
+
+declare(strict_types=1);
+
                 $html = '';
 
                 if (Session::supports('facebook')) {
@@ -120,6 +132,9 @@ Page::setBuildBody(false);
     </div>
 </body>
 <?php
+
+declare(strict_types=1);
+
 
 // Set page meta data
 Page::setPageTitle(tr('Setup Phoundation'));

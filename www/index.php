@@ -1,5 +1,8 @@
 <?php
 
+declare(strict_types=1);
+
+
 use Phoundation\Web\Routing\Route;
 use Phoundation\Web\Routing\RoutingParameters;
 use Templates\AdminLte\AdminLte;

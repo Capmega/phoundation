@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Processes\Commands;
 
 use Phoundation\Data\Traits\DataBindAddress;

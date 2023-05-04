@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Web\Http\Html\Interfaces;
 use Phoundation\Web\Http\Html\Components\Form;
 

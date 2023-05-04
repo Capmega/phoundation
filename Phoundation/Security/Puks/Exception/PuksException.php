@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Puks\Exception;
 
 use Phoundation\Exception\Exception;

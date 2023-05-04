@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Audio;
 
 use Phoundation\Core\Log\Log;

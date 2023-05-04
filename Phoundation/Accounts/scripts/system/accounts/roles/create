@@ -1,6 +1,8 @@
 #!/usr/bin/php
 <?php
 
+declare(strict_types=1);
+
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Cli\Documentation;
 use Phoundation\Core\Log\Log;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Databases\Sql\Tunnel;
 
 use Phoundation\Databases\Sql\Exception\SqlException;

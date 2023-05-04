@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Virtualization\Kubernetes\Ingresses;
 
 use Phoundation\Exception\UnderConstructionException;

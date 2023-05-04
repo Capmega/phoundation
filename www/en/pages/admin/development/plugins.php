@@ -1,5 +1,8 @@
 <?php
 
+declare(strict_types=1);
+
+
 use Phoundation\Core\Plugins\Plugins;
 use Phoundation\Core\Plugins\FilterForm;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;

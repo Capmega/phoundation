@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Content;
 
 use Phoundation\Content\Exception\ContentException;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Business\Customers;
 
 use Phoundation\Business\Companies\Company;

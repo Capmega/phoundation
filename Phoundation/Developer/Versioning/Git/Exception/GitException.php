@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Developer\Versioning\Git\Exception;
 
 use Phoundation\Developer\Versioning\Exception\VersioningException;

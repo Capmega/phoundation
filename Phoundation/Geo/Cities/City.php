@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Geo\Cities;
 
 use Phoundation\Data\DataEntry\DataEntry;

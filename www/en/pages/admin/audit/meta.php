@@ -1,5 +1,8 @@
 <?php
 
+declare(strict_types=1);
+
+
 use Phoundation\Accounts\Users\FilterForm;
 use Phoundation\Accounts\Users\Users;
 use Phoundation\Core\Meta\MetaList;

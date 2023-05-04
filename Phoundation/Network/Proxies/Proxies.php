@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Network\Proxies;
 
 use Phoundation\Network\Exception\NetworkException;

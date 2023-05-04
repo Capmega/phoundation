@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Servers;
 
 use Phoundation\Data\DataEntry\DataEntry;

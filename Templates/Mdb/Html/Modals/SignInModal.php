@@ -1,5 +1,8 @@
 <?php
 
+declare(strict_types=1);
+
+
 namespace Templates\Mdb\Html\Modals;
 
 use Phoundation\Core\Config;

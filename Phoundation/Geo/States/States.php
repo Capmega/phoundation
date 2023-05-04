@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Geo\States;
 
 use Phoundation\Data\DataEntry\DataList;

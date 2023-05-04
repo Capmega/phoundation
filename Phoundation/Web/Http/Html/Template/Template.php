@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Web\Http\Html\Template;
 
 use Phoundation\Core\Strings;

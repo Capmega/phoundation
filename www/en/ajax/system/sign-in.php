@@ -1,5 +1,8 @@
 <?php
 
+declare(strict_types=1);
+
+
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Session;
 use Phoundation\Utils\Json;

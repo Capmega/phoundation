@@ -1,5 +1,8 @@
 <?php
 
+declare(strict_types=1);
+
+
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Notifications\Notification;

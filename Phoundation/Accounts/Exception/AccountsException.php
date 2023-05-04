@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Accounts\Exception;
 
 use Phoundation\Exception\Exception;

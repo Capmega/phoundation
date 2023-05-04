@@ -1,6 +1,11 @@
 #!/usr/bin/php
 <?php
 
+declare(strict_types=1);
+
+
+declare(strict_types=1);
+
 use Phoundation\Core\Config;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;

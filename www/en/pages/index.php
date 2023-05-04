@@ -1,5 +1,8 @@
 <?php
 
+declare(strict_types=1);
+
+
 use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Http\Html\Layouts\Grid;
 use Phoundation\Web\Http\Html\Layouts\GridColumn;

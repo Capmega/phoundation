@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Core\Hooks;
 
 class Hooks extends \Phoundation\Data\DataEntry\DataList

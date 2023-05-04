@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Core\Hooks;
 
 class Hook extends \Phoundation\Data\DataEntry\DataEntry

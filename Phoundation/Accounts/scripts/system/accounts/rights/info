@@ -1,6 +1,8 @@
 #!/usr/bin/php
 <?php
 
+declare(strict_types=1);
+
 use Phoundation\Accounts\Rights\Right;
 use Phoundation\Cli\Cli;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;

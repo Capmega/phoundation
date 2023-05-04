@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Business\Exception;
 
 use Phoundation\Exception\Exception;

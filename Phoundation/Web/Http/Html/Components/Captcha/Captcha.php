@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Web\Http\Html\Components\Captcha;
 
 use Phoundation\Core\Config;

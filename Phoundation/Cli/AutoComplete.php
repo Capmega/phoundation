@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Cli;
 
 use JetBrains\PhpStorm\NoReturn;
