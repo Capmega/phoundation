@@ -132,9 +132,9 @@ class AutoComplete
      * @see https://iridakos.com/programming/2018/03/01/bash-programmable-completion-tutorial
      * @param array|null $cli_methods
      * @param array $data
-     * @return void
+     * @return never
      */
-    #[NoReturn] public static function processMethods(?array $cli_methods, array $data): void
+    #[NoReturn] public static function processMethods(?array $cli_methods, array $data): never
     {
         // $data['position'] is the amount of found methods
         // self::$position is the word # where the cursor was when <TAB> was pressed

@@ -350,43 +350,43 @@ function not_null(): mixed
 /**
  * Return a randomly picked argument
  *
+ * @param mixed ...$arguments
  * @return mixed
  */
-function pick_random(): mixed
+function pick_random(mixed ...$arguments): mixed
 {
-    return Arrays::getRandomValue(func_get_args());
+    return Arrays::getRandomValue($arguments);
 }
+
 
 /**
  * Return randomly picked arguments
  *
- * @param int|null $count
+ * @param int $count
+ * @param mixed ...$arguments
  * @return string|array
  * @throws \Exception
  */
-function pick_random_multiple(?int $count = null): string|array
+function pick_random_multiple(int $count, mixed ...$arguments): string|array
 {
-    $args = func_get_args();
-
-    // Remove the $count argument from the list
-    array_shift($args);
-
     if (!$count) {
         // Get a random count
-        $count = random_int(1, count($args));
+        $count = random_int(1, count($arguments));
     }
 
-    if (($count < 1) or ($count > count($args))) {
+    if (($count < 1) or ($count > count($arguments))) {
         // Invalid count specified
-        throw new OutOfBoundsException(tr('Invalid count ":count" specified for ":args" arguments', [':count' => $count, ':args' => count($args)]));
-
+        throw new OutOfBoundsException(tr('Invalid count ":count" specified for ":args" arguments', [
+            ':count' => $count,
+            ':args' => count($arguments)
+        ]));
     }
 
     // Return multiple arguments in an array
     $return = [];
 
     for ($i = 0; $i < $count; $i++) {
-        $return[] = $args[$key = array_rand($args)];
+        $return[] = $arguments[$key = Arrays::getRandomValue($args)];
         unset($args[$key]);
     }
 
@@ -447,9 +447,9 @@ function showbacktrace(mixed $source = null, int $trace_offset = 1, bool $quiet 
  * @param mixed $source
  * @param int $trace_offset
  * @param bool $quiet
- * @return void
+ * @return never
  */
-#[NoReturn] function showdie(mixed $source = null, int $trace_offset = 2, bool $quiet = false): void
+#[NoReturn] function showdie(mixed $source = null, int $trace_offset = 2, bool $quiet = false): never
 {
     if (Core::scriptStarted()) {
         Debug::showdie($source, $trace_offset, $quiet);
@@ -714,6 +714,8 @@ function has_trait(string $trait, object|string $class): bool
 
 /**
  * Show command that requires no configuration and can be used at startup times. USE WITH CARE!
+ *
+ * @return mixed
  * @throws \Exception
  */
 #[NoReturn] function show_system(mixed $source = null, bool $die = true): mixed

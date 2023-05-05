@@ -67,9 +67,9 @@ class RouteSystem
      *
      * @see Route::add()
      * @see Route::shutdown()
-     * @return void
+     * @return never
      */
-    #[NoReturn] public function execute400(): void
+    #[NoReturn] public function execute400(): never
     {
         $this->execute([
             'code'    => 400,
@@ -84,9 +84,9 @@ class RouteSystem
      *
      * @see Route::add()
      * @see Route::shutdown()
-     * @return void
+     * @return never
      */
-    #[NoReturn] public function execute401(): void
+    #[NoReturn] public function execute401(): never
     {
         $this->execute([
             'code'    => 401,
@@ -101,9 +101,9 @@ class RouteSystem
      *
      * @see Route::add()
      * @see Route::shutdown()
-     * @return void
+     * @return never
      */
-    #[NoReturn] public function execute403(): void
+    #[NoReturn] public function execute403(): never
     {
         $this->execute([
             'code'    => 403,
@@ -118,9 +118,9 @@ class RouteSystem
      *
      * @see Route::add()
      * @see Route::shutdown()
-     * @return void
+     * @return never
      */
-    #[NoReturn] public function execute404(): void
+    #[NoReturn] public function execute404(): never
     {
         $this->execute([
             'code'    => 404,
@@ -135,9 +135,9 @@ class RouteSystem
      *
      * @see Route::add()
      * @see Route::shutdown()
-     * @return void
+     * @return never
      */
-    #[NoReturn] public function execute500(): void
+    #[NoReturn] public function execute500(): never
     {
         $this->execute([
             'code'    => 500,
@@ -152,9 +152,9 @@ class RouteSystem
      *
      * @see Route::add()
      * @see Route::shutdown()
-     * @return void
+     * @return never
      */
-    #[NoReturn] public function execute503(): void
+    #[NoReturn] public function execute503(): never
     {
         $this->execute([
             'code'    => 503,
@@ -168,9 +168,9 @@ class RouteSystem
      * Protect exceptions generated whilst trying to execute system pages
      *
      * @param array $variables
-     * @return void
+     * @return never
      */
-    #[NoReturn] protected function execute(array $variables): void
+    #[NoReturn] protected function execute(array $variables): never
     {
         Arrays::default($variables, 'code'   , -1);
         Arrays::default($variables, 'title'  , '');

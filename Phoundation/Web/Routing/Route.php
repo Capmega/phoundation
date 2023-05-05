@@ -1032,12 +1032,12 @@ class Route
      * Show the system page for the specified HTTP code
      *
      * @param int|null $http_code
-     * @return void
+     * @return never
      *
      * @see Route::try()
      * @see Route::execute()
      */
-    #[NoReturn] public static function executeSystem(?int $http_code): void
+    #[NoReturn] public static function executeSystem(?int $http_code): never
     {
         Log::warning(tr('Executing system page ":page"', [':page' => $http_code]));
 
@@ -1055,8 +1055,10 @@ class Route
             ]));
         }
 
-        // Route the requested system page
+        // Route the requested system page. The called method will die(), so the following die() call is there more to
+        // make the static analyzers shut up :)
         RouteSystem::new(static::parameters()->select(static::$uri, true))->$method();
+        die();
     }
 
 
@@ -1065,9 +1067,9 @@ class Route
      *
      * @param string $target
      * @param bool $attachment
-     * @return void
+     * @return never
      */
-    #[NoReturn] public static function execute(string $target, bool $attachment, ?RoutingParameters $parameters = null): void
+    #[NoReturn] public static function execute(string $target, bool $attachment, ?RoutingParameters $parameters = null): never
     {
         // Get routing parameters and find the correct target page
         if (!$parameters) {

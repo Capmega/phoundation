@@ -153,9 +153,9 @@ class Incident extends DataEntry
     /**
      * Throw an incidents exception
      *
-     * @return void
+     * @return never
      */
-    #[NoReturn] public function throw(): void
+    #[NoReturn] public function throw(): never
     {
         throw IncidentsException::new($this->getTitle(), $this->getDetails());
     }

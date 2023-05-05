@@ -956,101 +956,6 @@ class Page
 
 
     /**
-     * Executes the target specified by Route::execute()
-     *
-     * We have a target for the requested route. If the resource is a PHP page, then execute it. Anything else, send it
-     * directly to the client
-     *
-     * @note Since this method required a RoutingParameters object do NOT execute this directly to execute a page, use
-     * Route::execute() instead!
-     *
-     * @param string $target      The target file that should be executed or sent to the client
-     * @param boolean $attachment If specified as true, will send the file as a downloadable attachment, to be written
-     *                            to disk instead of displayed on the browser. If set to false, the file will be sent as
-     *                            a file to be displayed in the browser itself.
-     * @return string|null
-     *
-     * @see Route::execute()
-     * @see Template::execute()
-     */
-    #[NoReturn] public static function execute(string $target, bool $attachment = false): ?string
-    {
-        try {
-            // Startup the page and see if we can use cache
-            self::startup($target);
-            self::tryCache($target, $attachment);
-
-            Core::writeRegister($target, 'system', 'script_file');
-            ob_start();
-
-            // Execute the specified target
-            // Build the headers, cache output and headers together, then send the headers
-            // TODO Work on the HTTP headers, lots of issues here still, like content-length!
-            $output  = self::executeTarget($target);
-            $headers = static::buildHttpHeaders($output, $attachment);
-
-            if ($headers) {
-                // Only cache if there are headers. If static::buildHeaders() returned null this means that the headers
-                // have already been sent before, probably by a debugging function like Debug::show(). DON'T CACHE!
-                Cache::write([
-                    'output'  => $output,
-                    'headers' => $headers,
-                ], $target,'pages');
-
-                $length = static::sendHttpHeaders($headers);
-                Log::success(tr('Sent ":length" bytes of HTTP to client', [':length' => $length]), 3);
-            }
-
-            // All done, send output to client
-            $output = self::filterOutput($output);
-            self::sendOutputToClient($output, $target, $attachment);
-
-        } catch (ValidationFailedException $e) {
-            // TODO Improve this uncaught validation failure handling
-            Log::warning('Page did not catch the following "ValidationFailedException" warning, showing "system/400"');
-            Log::warning($e);
-
-            static::getFlashMessages()->add($e);
-            Route::executeSystem(400);
-
-        } catch (AuthenticationException $e) {
-            Log::warning('Page did not catch the following "AuthenticationException" warning, showing "system/401"');
-            Log::warning($e);
-
-            static::getFlashMessages()->add($e);
-            Route::executeSystem(401);
-
-        } catch (IncidentsException $e) {
-            // TODO Should we also catch AccessDenied exception here?
-            Log::warning('Page did not catch the following "IncidentsException" warning, showing "system/401"');
-            Log::warning($e);
-
-            static::getFlashMessages()->add($e);
-            Route::executeSystem(403);
-
-        } catch (DataEntryNotExistsException $e) {
-            Log::warning('Page did not catch the following "DataEntryNotExistsException" warning, showing "system/404"');
-            Log::warning($e);
-
-            // Show a 404 page instead
-            Route::executeSystem(404);
-
-        } catch (Exception $e) {
-            Notification::new()
-                ->setTitle(tr('Failed to execute ":type" page ":page" with language ":language"', [
-                    ':type'     => Core::getRequestType(),
-                    ':page'     => $target,
-                    ':language' => LANGUAGE
-                ]))
-                ->setException($e)
-                ->send();
-
-            throw $e;
-        }
-    }
-
-
-    /**
      * Ensures that this session user has all the specified rights, or a redirect will happen
      *
      * @param array|string $rights
@@ -1159,18 +1064,113 @@ class Page
 
 
     /**
+     * Executes the target specified by Route::execute()
+     *
+     * We have a target for the requested route. If the resource is a PHP page, then execute it. Anything else, send it
+     * directly to the client
+     *
+     * @note Since this method required a RoutingParameters object do NOT execute this directly to execute a page, use
+     * Route::execute() instead!
+     *
+     * @param string $target      The target file that should be executed or sent to the client
+     * @param boolean $attachment If specified as true, will send the file as a downloadable attachment, to be written
+     *                            to disk instead of displayed on the browser. If set to false, the file will be sent as
+     *                            a file to be displayed in the browser itself.
+     * @return never
+     *
+     * @see Route::execute()
+     * @see Template::execute()
+     */
+    #[NoReturn] public static function execute(string $target, bool $attachment = false): never
+    {
+        try {
+            // Startup the page and see if we can use cache
+            self::startup($target);
+            self::tryCache($target, $attachment);
+
+            Core::writeRegister($target, 'system', 'script_file');
+            ob_start();
+
+            // Execute the specified target
+            // Build the headers, cache output and headers together, then send the headers
+            // TODO Work on the HTTP headers, lots of issues here still, like content-length!
+            $output  = self::executeTarget($target);
+            $headers = static::buildHttpHeaders($output, $attachment);
+
+            if ($headers) {
+                // Only cache if there are headers. If static::buildHeaders() returned null this means that the headers
+                // have already been sent before, probably by a debugging function like Debug::show(). DON'T CACHE!
+                Cache::write([
+                    'output'  => $output,
+                    'headers' => $headers,
+                ], $target,'pages');
+
+                $length = static::sendHttpHeaders($headers);
+                Log::success(tr('Sent ":length" bytes of HTTP to client', [':length' => $length]), 3);
+            }
+
+            // All done, send output to client
+            $output = self::filterOutput($output);
+            self::sendOutputToClient($output, $target, $attachment);
+
+        } catch (ValidationFailedException $e) {
+            // TODO Improve this uncaught validation failure handling
+            Log::warning('Page did not catch the following "ValidationFailedException" warning, showing "system/400"');
+            Log::warning($e);
+
+            static::getFlashMessages()->add($e);
+            Route::executeSystem(400);
+
+        } catch (AuthenticationException $e) {
+            Log::warning('Page did not catch the following "AuthenticationException" warning, showing "system/401"');
+            Log::warning($e);
+
+            static::getFlashMessages()->add($e);
+            Route::executeSystem(401);
+
+        } catch (IncidentsException $e) {
+            // TODO Should we also catch AccessDenied exception here?
+            Log::warning('Page did not catch the following "IncidentsException" warning, showing "system/401"');
+            Log::warning($e);
+
+            static::getFlashMessages()->add($e);
+            Route::executeSystem(403);
+
+        } catch (DataEntryNotExistsException $e) {
+            Log::warning('Page did not catch the following "DataEntryNotExistsException" warning, showing "system/404"');
+            Log::warning($e);
+
+            // Show a 404 page instead
+            Route::executeSystem(404);
+
+        } catch (Exception $e) {
+            Notification::new()
+                ->setTitle(tr('Failed to execute ":type" page ":page" with language ":language"', [
+                    ':type'     => Core::getRequestType(),
+                    ':page'     => $target,
+                    ':language' => LANGUAGE
+                ]))
+                ->setException($e)
+                ->send();
+
+            throw $e;
+        }
+    }
+
+
+    /**
      * Return the specified URL with a redirect URL stored in $core->register['redirect']
      *
      * @note If no URL is specified, the current URL will be used
      * @param UrlBuilder|string|bool|null $url
      * @param int $http_code
      * @param int|null $time_delay
-     * @return void
-     *@see UrlBuilder
+     * @return never
+     * @see UrlBuilder
      * @see UrlBuilder::addQueries()
      *
      */
-    #[NoReturn] public static function redirect(UrlBuilder|string|bool|null $url = null, int $http_code = 301, ?int $time_delay = null): void
+    #[NoReturn] public static function redirect(UrlBuilder|string|bool|null $url = null, int $http_code = 301, ?int $time_delay = null): never
     {
         if (!PLATFORM_HTTP) {
             throw new WebException(tr('Page::redirect() can only be called on web sessions'));
@@ -1836,10 +1836,10 @@ class Page
      *
      * @note Even if $kill_message was specified, the normal shutdown functions will still be called
      * @param string|null $kill_message If specified, this message will be displayed and the process will be terminated
-     * @return void
+     * @return never
      * @todo Implement this and add required functionality
      */
-    #[NoReturn] public static function die(?string $kill_message = null): void
+    #[NoReturn] public static function die(?string $kill_message = null): never
     {
         // If something went really, really wrong...
         if ($kill_message) {
@@ -2205,9 +2205,9 @@ class Page
      * @param string $output
      * @param string $target
      * @param bool $attachment
-     * @return void
+     * @return never
      */
-    #[NoReturn] protected static function sendOutputToClient(string $output, string $target, bool $attachment): void
+    #[NoReturn] protected static function sendOutputToClient(string $output, string $target, bool $attachment): never
     {
         if ($attachment) {
             // Send download headers and send the $html payload

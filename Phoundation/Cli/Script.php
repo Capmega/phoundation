@@ -675,10 +675,10 @@ SYSTEM ARGUMENTS
      *
      * @param Throwable|int $exit_code
      * @param string|null $exit_message
-     * @return void
+     * @return never
      * @todo Add required functionality
      */
-    #[NoReturn] public static function die(Throwable|int $exit_code = 0, string $exit_message = null): void
+    #[NoReturn] public static function die(Throwable|int $exit_code = 0, string $exit_message = null): never
     {
         if (is_object($exit_code)) {
             // Specified exit code is an exception, we're in trouble...

@@ -410,8 +410,9 @@ class Debug {
      * @param mixed $value
      * @param int $trace_offset
      * @param bool $quiet
+     * @return never
      */
-    #[NoReturn] public static function showDie(mixed $value = null, int $trace_offset = 1, bool $quiet = false): void
+    #[NoReturn] public static function showDie(mixed $value = null, int $trace_offset = 1, bool $quiet = false): never
     {
         if (static::enabled()) {
             static::show($value, $trace_offset, $quiet);
