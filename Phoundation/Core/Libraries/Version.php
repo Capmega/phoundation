@@ -62,7 +62,7 @@ class Version
      */
     public static function getInteger(string $version): int
     {
-        if (!is_version($version)) {
+        if (!Strings::isVersion($version)) {
             throw new OutOfBoundsException(tr('Specified version ":version" is not valid, should be of format "\d{1,4}.\d{1,4}.\d{1,4}"', [
                 ':version' => $version
             ]));

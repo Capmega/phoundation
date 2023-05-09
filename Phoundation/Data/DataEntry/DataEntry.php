@@ -706,7 +706,6 @@ abstract class DataEntry implements InterfaceDataEntry
                 $data = $this->validate(PostValidator::new(), $no_arguments_left);
             } else {
                 // Validator was specified,
-                $this->setCliFields();
                 $data = $this->validate(ArgvValidator::new(), $no_arguments_left);
             }
         }
@@ -737,7 +736,6 @@ abstract class DataEntry implements InterfaceDataEntry
                 $data = $this->validate(PostValidator::new(), $no_arguments_left);
             } else {
                 // Validator was specified,
-                $this->setCliFields();
                 $data = $this->validate(ArgvValidator::new(), $no_arguments_left);
             }
         }
@@ -1272,7 +1270,7 @@ abstract class DataEntry implements InterfaceDataEntry
             ]));
         }
 
-        $alt = isset_get($this->cli_fields[$field]['cli']);
+        $alt = isset_get($this->fields[$field]['cli']);
         $alt = Strings::until($alt, ' ');
         $alt = trim($alt);
 

@@ -176,7 +176,7 @@ class Passwords
         $strength  += ((100 - $percentage) / 2);
 
         // Strength is a number 1 - 100;
-        $strength = floor(($strength > 99) ? 99 : $strength);
+        $strength = (int) floor(($strength > 99) ? 99 : $strength);
 
         if (VERBOSE) {
             Log::notice(tr('Password strength is ":strength"', [':strength' => $strength]));

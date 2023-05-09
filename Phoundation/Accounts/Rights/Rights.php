@@ -281,7 +281,6 @@ class Rights extends DataList implements InterfaceRights
 
         // The keys contain the ids...
         $this->list = array_flip($this->list);
-
         return $this;
     }
 

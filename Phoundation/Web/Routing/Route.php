@@ -21,6 +21,7 @@ use Phoundation\Date\Time;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Notifications\Notification;
 use Phoundation\Web\Exception\RouteException;
@@ -30,6 +31,7 @@ use Phoundation\Web\Http\Url;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 use Throwable;
+
 
 /**
  * Class Route
@@ -633,14 +635,14 @@ class Route
 
                             default:
                                 throw new RouteException(tr('Invalid R flag HTTP CODE ":code" specified for target ":target"', [
-                                    ':code' => ':' . $http_code,
+                                    ':code'   => ':' . $http_code,
                                     ':target' => ':' . $target
                                 ]));
                         }
 
                         Core::unregisterShutdown('route[postprocess]');
                         Page::setRoutingParameters(static::parameters()->select(static::$uri));
-                        Page::redirect(UrlBuilder::getWww($route)->addQueries($_GET), $http_code);
+                        Page::redirect(UrlBuilder::getWww($route)->addQueries($_GET), (int) $http_code);
 
                     case 'S':
                         $until = substr($flag, 1);
@@ -915,7 +917,17 @@ class Route
             throw $e;
         }
 
-        static::execute($page, $attachment);
+        try {
+            static::execute($page, $attachment);
+
+        } catch (FileNotExistException $e) {
+            Log::warning(tr('Page ":page" does not exist', [':page' => $page]));
+
+            // TODO route_postprocess() This should be a class method!
+            Core::unregisterShutdown('route[postprocess]');
+            // TODO Check if this should be 404 or maybe some other HTTP code?
+            Route::executeSystem(404);
+        }
     }
 
 

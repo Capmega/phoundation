@@ -65,10 +65,10 @@ class Strings
     /**
      * Returns true if string is serialized, false if not
      *
-     * @param string $source The source text on which the operation will be executed
+     * @param string|null $source The source text on which the operation will be executed
      * @return bool
      */
-    public static function isSerialized(string $source): bool
+    public static function isSerialized(?string $source): bool
     {
         if (!$source) {
             return false;
@@ -143,10 +143,10 @@ class Strings
     public static function capitalize(string $source, int $position = 0): string
     {
         if (!$position) {
-            return mb_strtoupper(mb_substr($source, 0, 1)).mb_strtolower(mb_substr($source, 1));
+            return mb_strtoupper(mb_substr($source, 0, 1)) . mb_strtolower(mb_substr($source, 1));
         }
 
-        return mb_strtolower(mb_substr($source, 0, $position)).mb_strtoupper(mb_substr($source, $position, 1)).mb_strtolower(mb_substr($source, $position + 1));
+        return mb_strtolower(mb_substr($source, 0, $position)) . mb_strtoupper(mb_substr($source, $position, 1)) . mb_strtolower(mb_substr($source, $position + 1));
     }
 
 
@@ -415,7 +415,15 @@ class Strings
      */
     public static function isVersion(string $source): bool
     {
-        return preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}$/', $source);
+        $result = preg_match('/^\d{1,4}\.\d{1,4}\.\d{1,4}$/', $source);
+
+        if ($result === false) {
+            throw new CoreException(tr('Failed version detection for specified source ":source"', [
+                ':source' => $source
+            ]));
+        }
+
+        return (bool) $result;
     }
 
 
@@ -427,7 +435,15 @@ class Strings
      */
     public static function containsHtml(string $source): bool
     {
-        return !preg_match('/<[^<]+>/', $source);
+        $result = preg_match('/<[^<]+>/', $source);
+
+        if ($result === false) {
+            throw new CoreException(tr('Failed HTML detection for specified source ":source"', [
+                ':source' => $source
+            ]));
+        }
+
+        return !$result;
     }
 
 
@@ -440,8 +456,7 @@ class Strings
      */
     public static function isJson(string $source): bool
     {
-
-        return !empty($source) and is_string($source) and preg_match('/^("(\\.|[^"\\\n\r])*?"|[,:{}\[\]0-9.\-+Eaeflnr-u \n\r\t])+?$/', $source);
+        return !empty($source) and preg_match('/^("(\\.|[^"\\\n\r])*?"|[,:{}\[\]0-9.\-+Eaeflnr-u \n\r\t])+?$/', $source);
     }
 
 
@@ -456,15 +471,19 @@ class Strings
      */
     public static function hasKeyword(string $source, array $keywords, bool $regex = false, bool $unicode = true): ?string
     {
-        $count = 0;
-
         foreach ($keywords as $keyword) {
-            if (!static::searchKeyword($source, $keyword, $regex, $unicode)) {
-                return true;
+            if (!is_scalar($keyword)) {
+                throw new OutOfBoundsException(tr('Specified keyword ":keyword" is invalid, it should be a scalar', [
+                    ':source' => $keyword
+                ]));
+            }
+
+            if (static::searchKeyword($source, $keyword, $regex, $unicode)) {
+                return $keyword;
             }
         }
 
-        return false;
+        return null;
     }
 
 
@@ -1342,7 +1361,7 @@ class Strings
     /**
      * Truncate string using the specified fill and method
      *
-     * @param string $source
+     * @param string|int|null $source
      * @param int $length
      * @param string $fill
      * @param string $method
@@ -1362,14 +1381,20 @@ class Strings
      * /code
      *
      */
-    public static function truncate(string$source, int $length, string $fill = ' ... ', string $method = 'right', bool $on_word = false): string
+    public static function truncate(string|int|null $source, int $length, string $fill = ' ... ', string $method = 'right', bool $on_word = false): string
     {
+        $source = (string) $source;
+
         if (!$length) {
             return $source;
         }
 
         if ($length < (mb_strlen($fill) + 1)) {
-            throw new OutOfBoundsException(tr('Specified length ":length" is invalid. You must specify a length of minimal $fill length + 1, so at least ":fill"', [':length' => $length, ':fill' => mb_strlen($fill) + 1]), [':length' => $length]);
+            throw new OutOfBoundsException(tr('Specified length ":length" is invalid. You must specify a length of minimal $fill length + 1, so at least ":fill"', [
+                ':length' => $length,
+                ':fill'   => mb_strlen($fill) + 1
+            ]),
+            [':length' => $length]);
         }
 
         if ($length >= mb_strlen($source)) {
@@ -1446,7 +1471,7 @@ class Strings
     {
         if (!$source) {
             if (is_numeric($source)) {
-                return 0;
+                return '0';
             }
 
             return '';
@@ -1505,26 +1530,22 @@ class Strings
      * Returns true if the specified keyword exists in the specified source
      *
      * @param string $source
-     * @param string $keyword
+     * @param string|int|float $keyword
      * @param bool $regex
      * @param bool $unicode
      * @return bool
      */
-    protected static function searchKeyword(string $source, string $keyword, bool $regex = false, bool $unicode = true): bool
+    protected static function searchKeyword(string $source, string|int|float $keyword, bool $regex = false, bool $unicode = true): bool
     {
-        /*
-         * Ensure keywords are trimmed, and don't search for empty keywords
-         */
-        $keyword = trim($keyword);
+        // Ensure keywords are trimmed, and don't search for empty keywords
+        $keyword = trim((string) $keyword);
 
         if (!$keyword) {
             return false;
         }
 
         if ($regex) {
-            /*
-             * Do a regex search instead
-             */
+            // Do a regex search instead
             return preg_match('/' . $keyword.'/ims'.($unicode ? 'u' : ''), $source, $matches) !== false;
         }
 

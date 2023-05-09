@@ -7,39 +7,53 @@ namespace Phoundation\Developer;
 class Statistic
 {
     /**
-     * @var float|null
+     * The time when this statistic was created
+     *
+     * @var float|null $time
      */
     protected ?float $time = null;
 
     /**
-     * @var string|null
+     * The user readable title label for this statistic
+     *
+     * @var string|null $title
      */
     protected ?string $title = null;
 
     /**
-     * @var string|null
+     * The query line for this statistic
+     *
+     * @var string|null $query
      */
     protected ?string $query = null;
 
     /**
-     * @var string|null
+     * The class information for this statistic
+     *
+     * @var string|null $class
      */
     protected ?string $class = null;
 
     /**
-     * @var string|null
+     * The function or method call for this statistic
+     *
+     * @var string|null $function
      */
     protected ?string $function = null;
 
     /**
-     * @var string|null
+     * The file for this statistic
+     *
+     * @var string|null $file
      */
     protected ?string $file = null;
 
     /**
-     * @var string|null
+     * The line in the file for this statistic
+     *
+     * @var int|null $line
      */
-    protected ?string $line = null;
+    protected ?int $line = null;
 
 
     /**
@@ -47,10 +61,10 @@ class Statistic
      */
     public function __construct()
     {
-        $this->class = Debug::currentClass(-1);
+        $this->file     = Debug::currentFile(-1);
+        $this->line     = Debug::currentLine(-1);
+        $this->class    = Debug::currentClass(-1);
         $this->function = Debug::currentFunction(-1);
-        $this->file = Debug::currentFile(-1);
-        $this->line = Debug::currentLine(-1);
     }
 
 
@@ -138,9 +152,9 @@ class Statistic
     /**
      * Returns the line for this statistic
      *
-     * @return string $line
+     * @return int $line
      */
-    public function getLine(): string
+    public function getLine(): int
     {
         return $this->line;
     }

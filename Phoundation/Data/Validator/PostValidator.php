@@ -28,7 +28,7 @@ class PostValidator extends Validator
      *
      * @var array|null $post
      */
-    public static ?array $post = null;
+    protected static ?array $post = null;
 
 
     /**

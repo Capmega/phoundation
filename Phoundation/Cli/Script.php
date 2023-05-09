@@ -139,6 +139,10 @@ class Script
                 $script = static::findScript();
 
             } catch (NoMethodSpecifiedException) {
+                global $argv;
+
+                $argv['help'] = true;
+
                 Documentation::usage('./pho METHODS [ARGUMENTS]
 ./pho system info
 ./pho system accounts users create --help

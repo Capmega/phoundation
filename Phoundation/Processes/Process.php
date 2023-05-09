@@ -412,7 +412,7 @@ Class Process
 
         // Add timeout
         if ($this->timeout) {
-            $this->cached_command_line = 'timeout --foreground ' . escapeshellarg($this->timeout) . ' ' . $this->cached_command_line;
+            $this->cached_command_line = 'timeout --foreground ' . escapeshellarg((string) $this->timeout) . ' ' . $this->cached_command_line;
         }
 
         // Add wait

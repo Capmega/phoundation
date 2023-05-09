@@ -139,7 +139,7 @@ class Cli
 
             // Display header
             foreach ($headers as $column => $header) {
-                Log::cli(Color::apply(Strings::size($header , $column_sizes[$column]), 'white') . Strings::size(' ', $column_spacing), 10, false);
+                Log::cli(Color::apply(Strings::size((string) $header, $column_sizes[$column]), 'white') . Strings::size(' ', $column_spacing), 10, false);
             }
 
             Log::cli();
@@ -162,7 +162,7 @@ class Cli
                         $column = $id_column;
                     }
 
-                    Log::cli(Strings::size($value , $column_sizes[$column], ' ', is_numeric($value)) . Strings::size(' ', $column_spacing), 10, false);
+                    Log::cli(Strings::size((string) $value, $column_sizes[$column], ' ', is_numeric($value)) . Strings::size(' ', $column_spacing), 10, false);
                 }
 
                 Log::cli();

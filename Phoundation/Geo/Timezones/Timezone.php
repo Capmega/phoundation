@@ -80,5 +80,6 @@ class Timezone extends DataEntry
     protected static function getFieldDefinitions(): array
     {
         // TODO: Implement getFieldDefinitions() method.
+        return [];
     }
 }

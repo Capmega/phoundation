@@ -11,6 +11,7 @@ use Phoundation\Filesystem\Restrictions;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
+use Stringable;
 
 
 /**
@@ -42,9 +43,9 @@ class Img extends Element
     /**
      * The source URL for this image
      *
-     * @var string|null $src
+     * @var Stringable|string|null $src
      */
-    protected ?string $src = null;
+    protected Stringable|string|null $src = null;
 
     /**
      * The file source path for this image
@@ -152,10 +153,10 @@ class Img extends Element
     /**
      * Sets the HTML src element attribute
      *
-     * @param File|string|null $src
+     * @param File|Stringable|string|null $src
      * @return Img
      */
-    public function setSrc(File|string|null $src): static
+    public function setSrc(File|Stringable|string|null $src): static
     {
 //        // Get a built src string. If $built_src is equal to specified $src then it wasn't changed and so it's an
 //        $domain         = Url::getDomain($src);
@@ -217,9 +218,9 @@ class Img extends Element
     /**
      * Returns the HTML src element attribute
      *
-     * @return string|null
+     * @return Stringable|string|null
      */
-    public function getSrc(): ?string
+    public function getSrc(): Stringable|string|null
     {
         return $this->src;
     }

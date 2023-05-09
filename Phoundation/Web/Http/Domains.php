@@ -118,9 +118,9 @@ class Domains {
      * Returns true if the specified domain is the primary domain
      *
      * @param string $domain
-     * @return string
+     * @return bool
      */
-    public static function isPrimary(string $domain): string
+    public static function isPrimary(string $domain): bool
     {
         return static::getPrimary() === $domain;
     }

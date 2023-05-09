@@ -175,7 +175,7 @@ class RouteSystem
         Arrays::default($variables, 'code'   , -1);
         Arrays::default($variables, 'title'  , '');
         Arrays::default($variables, 'message', '');
-        Arrays::default($variables, 'details', ((Config::get('security.expose.phoundation', false)) ? '<address>Phoundation ' . Core::FRAMEWORKCODEVERSION . '</address>' : ''));
+        Arrays::default($variables, 'details', ((Config::getBoolString('security.expose.phoundation', 'limited')) ? '<address>Phoundation ' . Core::FRAMEWORKCODEVERSION . '</address>' : ''));
 
         try {
             Route::execute($page ?? Config::get('web.pages.' . strtolower(str_replace(' ', '-', $variables['title'])), 'system/' . $variables['code'] . '.php'), false, $this->parameters);

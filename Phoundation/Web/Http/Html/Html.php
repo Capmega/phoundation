@@ -11,6 +11,7 @@ use Phoundation\Developer\Debug;
 use Phoundation\Filesystem\File;
 use Phoundation\Web\Http\Html\Components\Script;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
+use Stringable;
 use Throwable;
 
 
@@ -84,11 +85,11 @@ Class Html
     /**
      * Wrapper for htmlentities()
      *
-     * @param string|int|null $html
+     * @param Stringable|string|int|null $html
      * @return string
      * @see htmlentities()
      */
-    public static function safe(string|int|null $html): string
+    public static function safe(Stringable|string|int|null $html): string
     {
         return htmlentities((string) $html);
     }

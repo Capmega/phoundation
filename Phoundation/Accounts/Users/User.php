@@ -673,9 +673,9 @@ class User extends DataEntry implements InterfaceUser
     /**
      * Returns the accuracy for this user
      *
-     * @return int|null
+     * @return float|null
      */
-    public function getAccuracy(): ?int
+    public function getAccuracy(): ?float
     {
         return $this->getDataValue('accuracy');
     }
@@ -684,10 +684,10 @@ class User extends DataEntry implements InterfaceUser
     /**
      * Sets the accuracy for this user
      *
-     * @param int|null $accuracy
+     * @param float|null $accuracy
      * @return static
      */
-    public function setAccuracy(?int $accuracy): static
+    public function setAccuracy(?float $accuracy): static
     {
         return $this->setDataValue('accuracy', $accuracy);
     }
@@ -1008,7 +1008,7 @@ class User extends DataEntry implements InterfaceUser
             return [];
         }
 
-        return $this->rights()->missesKeys($rights, true, 'god');
+        return $this->rights()->missesKeys($rights, 'god');
     }
 
 
@@ -1185,13 +1185,13 @@ class User extends DataEntry implements InterfaceUser
     protected function validate(ArgvValidator|PostValidator|GetValidator $validator, bool $no_arguments_left = false, bool $modify = false): array
     {
         $data = $validator
+            ->select($this->getAlternateValidationField('email'), true)->hasMaxCharacters(128)->isEmail()
             ->select($this->getAlternateValidationField('username'), true)->isOptional()->hasMaxCharacters(64)->isName()
             ->select($this->getAlternateValidationField('domain'), true)->isOptional()->hasMaxCharacters(128)->isDomain()
             ->select($this->getAlternateValidationField('title'), true)->isOptional()->hasMaxCharacters(24)->isName()
             ->select($this->getAlternateValidationField('first_names'), true)->isOptional()->hasMaxCharacters(127)->isName()
             ->select($this->getAlternateValidationField('last_names'), true)->isOptional()->hasMaxCharacters(127)->isName()
             ->select($this->getAlternateValidationField('nickname'), true)->isOptional()->hasMaxCharacters(64)->isName()
-            ->select($this->getAlternateValidationField('email'), true)->hasMaxCharacters(128)->isEmail()
             ->select($this->getAlternateValidationField('type'), true)->isOptional()->hasMaxCharacters(16)->isName()
             ->select($this->getAlternateValidationField('code'), true)->isOptional()->hasMaxCharacters(16)->isCode()
             ->select($this->getAlternateValidationField('keywords'), true)->isOptional()->hasMaxCharacters(255)->isPrintable()

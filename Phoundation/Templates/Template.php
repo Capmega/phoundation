@@ -91,7 +91,7 @@ class Template
         $text = $this->text;
 
         foreach ($source as $search => $replace) {
-            $text = str_replace($search, $replace, $text);
+            $text = str_replace($search, (string) $replace, $text);
         }
 
         return $text;

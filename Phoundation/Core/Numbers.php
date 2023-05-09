@@ -148,7 +148,9 @@ class Numbers
                 break;
 
             default:
-                throw new OutOfBoundsException(tr('Specified unit ":unit" is not a valid. Should be one of b, or KB, KiB, mb, mib, etc', [':unit' => $unit]));
+                throw new OutOfBoundsException(tr('Specified unit ":unit" is not a valid. Should be one of b, or KB, KiB, mb, mib, etc', [
+                    ':unit' => $unit
+                ]));
         }
 
         $amount = number_format(round($amount, $precision), $precision);
@@ -169,7 +171,9 @@ class Numbers
                 return $amount . strtoupper($unit[0]) . strtolower($unit[1]) . strtoupper($unit[2]);
         }
 
-        throw new OutOfBoundsException(tr('Unknown selected unit ":unit", ensure that only correct abbreviations like b, B, KB, KiB, GiB, etc are used', [':unit' => $unit]));
+        throw new OutOfBoundsException(tr('Unknown selected unit ":unit", ensure that only correct abbreviations like b, B, KB, KiB, GiB, etc are used', [
+            ':unit' => $unit
+        ]));
     }
 
 
@@ -186,7 +190,7 @@ class Numbers
             $amount = 0;
         }
 
-        $amount = str_replace(',', '', $amount);
+        $amount = str_replace(',', '', (string) $amount);
 
         if (!is_numeric($amount)) {
             // Calculate back to bytes
@@ -196,70 +200,26 @@ class Numbers
                 ]));
             }
 
-            switch (strtolower($matches[2])) {
-                case 'b':
-                    // Just bytes
-                    $amount = $matches[1];
-                    break;
-
-                case 'kb':
-                    // Kilobytes
-                    $amount = $matches[1] * 1000;
-                    break;
-
-                case 'k':
-                    // no-break
-                case 'kib':
-                    // Kibibytes
-                    $amount = $matches[1] * 1024;
-                    break;
-
-                case 'mb':
-                    // Megabytes
-                    $amount = $matches[1] * 1000000;
-                    break;
-
-                case 'm':
-                    // no-break
-                case 'mib':
-                    // Mibibytes
-                    $amount = $matches[1] * 1048576;
-                    break;
-
-                case 'gb':
-                    // Gigabytes
-                    $amount = $matches[1] * 1000000 * 1000;
-                    break;
-
-                case 'g':
-                    // no-break
-                case 'gib':
-                    // Gibibytes
-                    $amount = $matches[1] * 1048576 * 1024;
-                    break;
-
-                case 'tb':
-                    // Terabytes
-                    $amount = $matches[1] * 1000000 * 1000000;
-                    break;
-
-                case 't':
-                    // no-break
-                case 'tib':
-                    // Tibibytes
-                    $amount = $matches[1] * 1048576 * 1048576;
-                    break;
-
-                default:
-                    throw new OutOfBoundsException(tr('Specified suffix ":suffix" on amount ":amount" is not a valid. Should be one of b, or KB, KiB, mb, mib, etc', [
-                        ':suffix' => strtolower($matches[2]),
-                        ':amount' => $amount
-                    ]));
-            }
+            $amount = match (strtolower($matches[2])) {
+                'b'        => (float) $matches[1],
+                'kb'       => (float) $matches[1] * 1000,
+                'k', 'kib' => (float) $matches[1] * 1024,
+                'mb'       => (float) $matches[1] * 1000000,
+                'm', 'mib' => (float) $matches[1] * 1048576,
+                'gb'       => (float) $matches[1] * 1000000 * 1000,
+                'g', 'gib' => (float) $matches[1] * 1048576 * 1024,
+                'tb'       => (float) $matches[1] * 1000000 * 1000000,
+                't', 'tib' => (float) $matches[1] * 1048576 * 1048576,
+                default    => throw new OutOfBoundsException(tr('Specified suffix ":suffix" on amount ":amount" is not a valid. Should be one of b, or KB, KiB, mb, mib, etc', [
+                    ':suffix' => strtolower($matches[2]),
+                    ':amount' => $amount
+                ])),
+            };
         }
 
         // We can only have an integer amount of bytes
-        return ceil($amount);
+        // We can only have an integer amount of bytes
+        return (int) ceil((float) $amount);
     }
 
 

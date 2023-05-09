@@ -93,20 +93,20 @@ class Form extends Element
      */
     public function getAction(): ?string
     {
-        return $this->action ?? UrlBuilder::getWww();
+        return $this->action ?? (string) UrlBuilder::getWww();
     }
 
 
     /**
      * Sets the form action
      *
-     * @param ?string $action
+     * @param UrlBuilder|string|null $action
      * @return static
      */
-    public function setAction(?string $action): static
+    public function setAction(UrlBuilder|string|null $action): static
     {
         if ($action) {
-            $this->action = UrlBuilder::getWww($action);
+            $this->action = (string) UrlBuilder::getWww($action);
         } else {
             $this->action = null;
         }

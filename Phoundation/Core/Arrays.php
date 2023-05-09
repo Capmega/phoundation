@@ -6,6 +6,7 @@ namespace Phoundation\Core;
 
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Web\Http\UrlBuilder;
 
 
 /**
@@ -341,10 +342,10 @@ class Arrays {
         $return = [];
 
         // Decode options
-        $filter_null       = $options & self::FILTER_NULL;
-        $filter_empty      = $options & self::FILTER_EMPTY;
-        $quote_always      = $options & self::QUOTE_ALWAYS;
-        $hide_empty_values = $options & self::HIDE_EMPTY_VALUES;
+        $filter_null       = (bool) ($options & self::FILTER_NULL);
+        $filter_empty      = (bool) ($options & self::FILTER_EMPTY);
+        $quote_always      = (bool) ($options & self::QUOTE_ALWAYS);
+        $hide_empty_values = (bool) ($options & self::HIDE_EMPTY_VALUES);
 
         foreach ($source as $key => $value) {
             if (is_array($value)) {
@@ -372,7 +373,7 @@ class Arrays {
                 }
 
                 if ($quote_character) {
-                    $return[] .= $key . $key_separator . Strings::quote($value, $quote_character, $quote_always);
+                    $return[] .= $key . $key_separator . Strings::quote((string) $value, $quote_character, $quote_always);
 
                 } else {
                     $return[] .= $key . $key_separator . $value;
@@ -1093,14 +1094,14 @@ class Arrays {
                         $source_value = Arrays::hide($source_value, $keys, $hide, $empty, $recurse);
                     } else {
                         // If we don't recurse, we'll hide the entire sub array
-                        $source_value = Strings::hide($source_value, $hide, $empty);
+                        $source_value = Arrays::hide($source_value, $hide, $empty);
                     }
 
                 } else {
                     if (str_contains($key, '%')) {
-                        // These keys can match partial source keys, so "%pass" will also match the source key "password"
-                        // for example
-                        if (str_contains($source_key, str_replace('%', '', $key))) {
+                        // These keys can match partial source keys, so "%pass" will also match the source key
+                        // "password" for example
+                        if (str_contains((string) $source_key, str_replace('%', '', $key))) {
                             $source_value = Strings::hide($source_value, $hide, $empty);
                         }
 

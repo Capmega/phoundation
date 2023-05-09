@@ -1622,30 +1622,6 @@ abstract class Validator
 
 
     /**
-     * Validates if the selected field is a valid file
-     *
-     * @param string|null $exists_in_path
-     * @param Restrictions|array|string|null $restrictions
-     * @return static
-     */
-    public function isFile(?string $exists_in_path = null, Restrictions|array|string|null $restrictions = null): static
-    {
-        return $this->validateValues(function(&$value) use($exists_in_path, $restrictions) {
-            $this->hasMinCharacters(1)->hasMaxCharacters(2048);
-
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
-                return;
-            }
-
-            if ($exists_in_path !== null) {
-                $this->checkFile($value, $exists_in_path, $restrictions);
-            }
-        });
-    }
-
-
-    /**
      * Validates if the selected field is a valid directory
      *
      * @param string|null $exists_in_path
@@ -1663,7 +1639,54 @@ abstract class Validator
             }
 
             if ($exists_in_path !== null) {
+                $this->checkFile($value, $exists_in_path, $restrictions, null);
+            }
+        });
+    }
+
+
+    /**
+     * Validates if the selected field is a valid directory
+     *
+     * @param Restrictions|array|string $restrictions
+     * @return static
+     */
+    public function isDirectory(Restrictions|array|string $restrictions): static
+    {
+        return $this->validateValues(function(&$value) use($exists_in_path, $restrictions) {
+            $this->hasMinCharacters(1)->hasMaxCharacters(2048);
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return;
+            }
+
+            if ($exists_in_path !== null) {
                 $this->checkFile($value, $exists_in_path, $restrictions, true);
+            }
+        });
+    }
+
+
+    /**
+     * Validates if the selected field is a valid file
+     *
+     * @param string|bool $exists_in_path
+     * @param Restrictions|array|string|null $restrictions
+     * @return static
+     */
+    public function isFile(string|bool $exists_in_path = null, Restrictions|array|string|null $restrictions = null): static
+    {
+        return $this->validateValues(function(&$value) use($exists_in_path, $restrictions) {
+            $this->hasMinCharacters(1)->hasMaxCharacters(2048);
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return;
+            }
+
+            if ($exists_in_path !== null) {
+                $this->checkFile($value, $exists_in_path, $restrictions);
             }
         });
     }
@@ -1672,18 +1695,20 @@ abstract class Validator
     /**
      * Checks if the specified path exists or not, and if its of the correct type
      *
-     * @param string $value
+     * @param string|bool $value
      * @param string|null $exists_in_path
      * @param Restrictions|array|string|null $restrictions
      * @param bool $directory
      * @return void
      */
-    protected function checkFile(string $value, ?string $exists_in_path = null, Restrictions|array|string|null $restrictions = null, bool $directory = false): void
+    protected function checkFile(string|bool $value, ?string $exists_in_path = null, Restrictions|array|string|null $restrictions = null, ?bool $directory = false): void
     {
         if ($directory) {
             $type = 'directory';
-        } else {
+        } elseif (is_bool($directory)) {
             $type = 'file';
+        } else {
+            $type = '';
         }
 
         if (!$restrictions) {
@@ -1697,41 +1722,22 @@ abstract class Validator
         Core::ensureRestrictions($restrictions)->check($path, false);
 
         if (!file_exists($path)) {
-            $this->addFailure(tr('must be an existing :type', [':type' => $type]));
+            if ($type) {
+                $this->addFailure(tr('must be an existing :type', [':type' => $type]));
+            } else {
+                $this->addFailure(tr('must exist'));
+            }
         }
 
         if ($directory) {
             if (!is_dir($path)) {
                 $this->addFailure(tr('must be a directory'));
             }
-        } else {
+        } elseif (is_bool($directory)) {
             if (is_dir($path)) {
                 $this->addFailure(tr('cannot be a directory'));
             }
         }
-    }
-
-
-    /**
-     * Validates if the selected field is a valid directory
-     *
-     * @param Restrictions|array|string $restrictions
-     * @return static
-     */
-    public function isDirectory(Restrictions|array|string $restrictions): static
-    {
-        return $this->validateValues(function(&$value) use($restrictions) {
-            $this->isFile('', $restrictions);
-
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
-                return;
-            }
-
-            if (!is_dir($value)) {
-                $this->addFailure(tr('must be an existing directory'));
-            }
-        });
     }
 
 

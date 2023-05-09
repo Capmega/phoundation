@@ -6,6 +6,7 @@ namespace Phoundation\Web\Http\Html\Components;
 
 use Phoundation\Core\Locale\Language\Languages;
 use Phoundation\Web\Http\UrlBuilder;
+use Stringable;
 
 /**
  * LanguagesDropDown class
@@ -29,9 +30,9 @@ class LanguagesDropDown extends ElementsBlock
     /**
      * Contains the URL for the settings page
      *
-     * @var string|null $settings_url
+     * @var Stringable|string|null $settings_url
      */
-    protected ?string $settings_url = null;
+    protected Stringable|string|null $settings_url = null;
 
 
     /**
@@ -61,9 +62,9 @@ class LanguagesDropDown extends ElementsBlock
     /**
      * Returns the languages page URL
      *
-     * @return string|null
+     * @return Stringable|string|null
      */
-    public function getSettingsUrl(): ?string
+    public function getSettingsUrl(): Stringable|string|null
     {
         return $this->settings_url;
     }
@@ -72,10 +73,10 @@ class LanguagesDropDown extends ElementsBlock
     /**
      * Sets the settings page URL
      *
-     * @param string|null $settings_url
+     * @param Stringable|string|null $settings_url
      * @return static
      */
-    public function setSettingsUrl(?string $settings_url): static
+    public function setSettingsUrl(Stringable|string|null $settings_url): static
     {
         $this->settings_url = UrlBuilder::getWww($settings_url);
         return $this;

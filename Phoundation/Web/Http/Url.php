@@ -27,7 +27,7 @@ class Url {
      */
     public static function isValid(string $url): bool
     {
-        return filter_var($url, FILTER_VALIDATE_URL);
+        return (bool) filter_var($url, FILTER_VALIDATE_URL);
     }
 
 

@@ -407,12 +407,13 @@ class Debug {
      * In command line and API type modes, the value will be displayed using print_r(),
      * in web page mode, the value will be nicely displayed in a recursive table
      *
+     * @note Does NOT return data type "never" because in production mode this call will be completely ignored!
      * @param mixed $value
      * @param int $trace_offset
      * @param bool $quiet
-     * @return never
+     * @return void
      */
-    #[NoReturn] public static function showDie(mixed $value = null, int $trace_offset = 1, bool $quiet = false): never
+    #[NoReturn] public static function showDie(mixed $value = null, int $trace_offset = 1, bool $quiet = false): void
     {
         if (static::enabled()) {
             static::show($value, $trace_offset, $quiet);
@@ -532,15 +533,15 @@ class Debug {
 
             case 'double':
                 return '<tr>
-                    <td>'.htmlentities($key) . '</td>
+                    <td>'.htmlentities((string) $key) . '</td>
                     <td>' . $type.'</td>
                     <td>'.strlen((string) $value) . '</td>
-                    <td class="value">'.nl2br(htmlentities($value)) . '</td>
+                    <td class="value">'.nl2br(htmlentities((string) $value)) . '</td>
                 </tr>';
 
             case 'boolean':
                 return '<tr>
-                    <td>'.htmlentities($key) . '</td>
+                    <td>'.htmlentities((string) $key) . '</td>
                     <td>' . $type.'</td>
                     <td>1</td>
                     <td class="value">'.($value ? tr('true') : tr('false')) . '</td>
@@ -555,7 +556,7 @@ class Debug {
                 </tr>';
 
             case 'resource':
-                return '<tr><td>'.htmlentities($key) . '</td>
+                return '<tr><td>'.htmlentities((string) $key) . '</td>
                     <td>' . $type.'</td>
                     <td>?</td>
                     <td class="value">' . $value.'</td>
@@ -565,9 +566,9 @@ class Debug {
                 // no-break
 
             case 'property':
-                return '<tr><td>'.htmlentities($key) . '</td>
+                return '<tr><td>'.htmlentities((string) $key) . '</td>
                     <td>' . $type.'</td>
-                    <td>'.strlen($value) . '</td>
+                    <td>'.strlen((string) $value) . '</td>
                     <td class="value">' . $value.'</td>
                 </tr>';
 
@@ -577,7 +578,7 @@ class Debug {
                 ksort($value);
 
                 foreach ($value as $subkey => $subvalue) {
-                    $return .= static::showHtmlRow($subvalue, $subkey);
+                    $return .= static::showHtmlRow($subvalue, (string) $subkey);
                 }
 
                 return '<tr>
@@ -629,7 +630,7 @@ class Debug {
                     <td>' . $key . '</td>
                     <td>'.tr('Unknown') . '</td>
                     <td>???</td>
-                    <td class="value">'.htmlentities($value) . '</td>
+                    <td class="value">'.htmlentities((string) $value) . '</td>
                 </tr>';
         }
     }
@@ -671,13 +672,13 @@ class Debug {
             foreach ($execute as $key => $value) {
                 if (is_string($value)) {
                     $value = addslashes($value);
-                    $query = str_replace($key, '"'.(!is_scalar($value) ? ' ['.tr('NOT SCALAR').'] ' : '') . Strings::Log($value).'"', $query);
+                    $query = str_replace((string) $key, '"'.(!is_scalar($value) ? ' ['.tr('NOT SCALAR').'] ' : '') . Strings::Log($value) . '"', $query);
 
                 } elseif (is_null($value)) {
-                    $query = str_replace($key, ' '.tr('NULL').' ', $query);
+                    $query = str_replace((string) $key, ' '.tr('NULL').' ', $query);
 
                 } elseif (is_bool($value)) {
-                    $query = str_replace($key, Strings::boolean($value), $query);
+                    $query = str_replace((string) $key, Strings::boolean($value), $query);
 
                 } else {
                     if (!is_scalar($value)) {
@@ -763,7 +764,7 @@ class Debug {
         }
 
         if ($enabled === 'limited') {
-            if (empty($_SESSION['user']['id']) or !Session::user()->hasAllRights("debug")) {
+            if (empty($_SESSION['user']['id']) or !Session::getUser()->hasAllRights("debug")) {
                 /*
                  * Only show debug bar to authenticated users with "debug" right
                  */

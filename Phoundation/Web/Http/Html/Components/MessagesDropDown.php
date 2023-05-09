@@ -6,6 +6,7 @@ namespace Phoundation\Web\Http\Html\Components;
 
 use Phoundation\Messages\Messages;
 use Phoundation\Web\Http\UrlBuilder;
+use Stringable;
 
 /**
  * MessagesDropDown class
@@ -29,9 +30,9 @@ class MessagesDropDown extends ElementsBlock
     /**
      * Contains the URL for the messages page
      *
-     * @var string|null $messages_url
+     * @var Stringable|string|null $messages_url
      */
-    protected ?string $messages_url = null;
+    protected Stringable|string|null $messages_url = null;
 
 
     /**
@@ -61,9 +62,9 @@ class MessagesDropDown extends ElementsBlock
     /**
      * Returns the messages page URL
      *
-     * @return string|null
+     * @return Stringable|string|null
      */
-    public function getMessagesUrl(): ?string
+    public function getMessagesUrl(): Stringable|string|null
     {
         return $this->messages_url;
     }
@@ -72,10 +73,10 @@ class MessagesDropDown extends ElementsBlock
     /**
      * Sets the messages page URL
      *
-     * @param string|null $messages_url
+     * @param Stringable|string|null $messages_url
      * @return static
      */
-    public function setMessagesUrl(?string $messages_url): static
+    public function setMessagesUrl(Stringable|string|null $messages_url): static
     {
         $this->messages_url = UrlBuilder::getWww($messages_url);
         return $this;

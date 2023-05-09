@@ -6,7 +6,9 @@ namespace Phoundation\Web\Http\Html\Components;
 
 use Phoundation\Core\Session;
 use Phoundation\Notifications\Notifications;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Http\UrlBuilder;
+use Stringable;
 
 
 /**
@@ -31,21 +33,22 @@ class NotificationsDropDown extends ElementsBlock
     /**
      * Contains the URL for the specific notifications
      *
-     * @var string|null $notifications_url
+     * @var Stringable|string|null $notifications_url
      */
-    protected ?string $notifications_url = null;
+    protected Stringable|string|null $notifications_url = null;
 
     /**
      * Contains the URL for the notifications page
      *
-     * @var string|null $notifications_all_url
+     * @var Stringable|string|null $notifications_all_url
      */
-    protected ?string $notifications_all_url = null;
+    protected Stringable|string|null $notifications_all_url = null;
 
 
     /**
      * Returns the notifications object
      *
+     * @param string|null $status
      * @return Notifications|null
      */
     public function getNotifications(?string $status): ?Notifications
@@ -78,9 +81,9 @@ class NotificationsDropDown extends ElementsBlock
     /**
      * Returns the notifications page URL
      *
-     * @return string|null
+     * @return Stringable|string|null
      */
-    public function getNotificationsUrl(): ?string
+    public function getNotificationsUrl(): Stringable|string|null
     {
         return $this->notifications_url;
     }
@@ -89,10 +92,10 @@ class NotificationsDropDown extends ElementsBlock
     /**
      * Sets the notifications page URL
      *
-     * @param string|null $notifications_url
+     * @param Stringable|string|null $notifications_url
      * @return static
      */
-    public function setNotificationsUrl(?string $notifications_url): static
+    public function setNotificationsUrl(Stringable|string|null $notifications_url): static
     {
         $this->notifications_url = UrlBuilder::getWww($notifications_url);
         return $this;
@@ -102,9 +105,9 @@ class NotificationsDropDown extends ElementsBlock
     /**
      * Returns the notifications page URL
      *
-     * @return string|null
+     * @return Stringable|string|null
      */
-    public function getAllNotificationsUrl(): ?string
+    public function getAllNotificationsUrl(): Stringable|string|null
     {
         return $this->notifications_all_url;
     }
@@ -113,10 +116,10 @@ class NotificationsDropDown extends ElementsBlock
     /**
      * Sets the notifications page URL
      *
-     * @param string|null $notifications_url
+     * @param Stringable|string|null $notifications_url
      * @return static
      */
-    public function setAllNotificationsUrl(?string $notifications_url): static
+    public function setAllNotificationsUrl(Stringable|string|null $notifications_url): static
     {
         $this->notifications_all_url = UrlBuilder::getWww($notifications_url);
         return $this;

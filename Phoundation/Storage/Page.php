@@ -39,5 +39,6 @@ class Page extends DataEntry
     protected static function getFieldDefinitions(): array
     {
         // TODO: Implement setColumns() method.
+        return [];
     }
 }

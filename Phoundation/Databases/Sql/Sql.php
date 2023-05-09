@@ -369,6 +369,7 @@ class Sql
             return $pdo_statement;
 
         } catch (Throwable $e) {
+showdie($e);
             if ($query) {
                 if ($execute) {
                     if (!is_array($execute)) {
@@ -594,6 +595,7 @@ class Sql
      *
      * This is a simplified insert method to speed up writing basic insert queries
      *
+     * @note: PDO::lastInsertId() returns string|false, this method will return int
      * @note This method assumes that the specifies rows are correct to the specified table. If columns not pertaining
      *       to this table are in the $row value, the query will automatically fail with an exception!
      * @param string $table
@@ -601,6 +603,7 @@ class Sql
      * @param string|null $comments
      * @param string|null $diff
      * @return int
+     * @throws Exception
      */
     public function insert(string $table, array $row,  ?string $comments = null, ?string $diff = null): int
     {
@@ -620,7 +623,7 @@ class Sql
 
         $this->query('INSERT INTO `' . $table . '` (' . $columns . ') VALUES (' . $keys . ')', $values);
 
-        return $this->pdo->lastInsertId();
+        return (int) $this->pdo->lastInsertId();
     }
 
 
@@ -775,7 +778,8 @@ class Sql
         // Apply execution variables
         if (is_array($execute)) {
             /*
-             * Reverse key sort to ensure that there are keys that contain at least parts of other keys will not be used incorrectly
+             * Reverse key sort to ensure that there are keys that contain at least parts of other keys will not be used
+             * incorrectly
              *
              * example:
              *
@@ -799,10 +803,14 @@ class Sql
 
                 } else {
                     if (!is_scalar($value)) {
-                        throw new LogException(tr('Specified $execute key ":key" has non-scalar value ":value"', [':key' => $key, ':value' => $value]));
+                        throw new LogException(tr('Query ":query" $execute key ":key" has non-scalar value ":value"', [
+                            ':key'   => $key,
+                            ':value' => $value,
+                            ':query' => $query
+                        ]));
                     }
 
-                    $query = str_replace($key, $value, $query);
+                    $query = str_replace((string) $key, (string) $value, $query);
                 }
             }
         }
@@ -881,9 +889,9 @@ class Sql
      * @param string|PDOStatement $query
      * @param array|null $execute
      * @param string|null $column
-     * @return string|null
+     * @return string|float|int|bool|null
      */
-    public function getColumn(string|PDOStatement $query, array $execute = null, ?string $column = null): ?string
+    public function getColumn(string|PDOStatement $query, array $execute = null, ?string $column = null): string|float|int|bool|null
     {
         $result = $this->get($query, $execute);
 
@@ -939,29 +947,24 @@ class Sql
         $return = [];
 
         while ($row = $this->fetch($resource)) {
-            if (is_scalar($row)) {
-                $return[] = $row;
+            switch ($numerical_array ? 0 : count($row)) {
+                case 0:
+                    /*
+                     * Force numerical array
+                     */
+                    $return[] = $row;
+                    break;
 
-            } else {
-                switch ($numerical_array ? 0 : count($row)) {
-                    case 0:
-                        /*
-                         * Force numerical array
-                         */
-                        $return[] = $row;
-                        break;
+                case 1:
+                    $return[] = array_shift($row);
+                    break;
 
-                    case 1:
-                        $return[] = array_shift($row);
-                        break;
+                case 2:
+                    $return[array_shift($row)] = array_shift($row);
+                    break;
 
-                    case 2:
-                        $return[array_shift($row)] = array_shift($row);
-                        break;
-
-                    default:
-                        $return[array_shift($row)] = $row;
-                }
+                default:
+                    $return[array_shift($row)] = $row;
             }
         }
 
@@ -1277,12 +1280,12 @@ class Sql
      * Use correct SQL in case NULL is used in queries
      *
      * @todo Find a good usecase for this method or get rid of it
-     * @param ?string $value
+     * @param string|int|float|null $value
      * @param string $column
      * @param bool $not
      * @return string
      */
-    public static function is(?string $value, string $column, bool $not = false): string
+    public static function is(string|int|float|null $value, string $column, bool $not = false): string
     {
         if ($not) {
             if ($value === null) {
@@ -1490,54 +1493,7 @@ class Sql
      */
     public function show(string|PDOStatement $query, ?array $execute = null, bool $return_only = false): mixed
     {
-        if (is_array($execute)) {
-            /*
-             * Reverse key sort to ensure that there are keys that contain at least parts of other keys will not be used incorrectly
-             *
-             * example:
-             *
-             * array(category    => test,
-             *       category_id => 5)
-             *
-             * Would cause the query to look like `category` = "test", `category_id` = "test"_id
-             */
-            krsort($execute);
-
-            if (is_object($query)) {
-                /*
-                 * Query to be debugged is a PDO statement, extract the query
-                 */
-                if (!($query instanceof PDOStatement)) {
-                    throw new SqlException(tr('Object of unknown class ":class" specified where PDOStatement was expected', [':class' => get_class($query)]));
-                }
-
-                $query = $query->queryString;
-            }
-
-            foreach ($execute as $key => $value) {
-                if (is_string($value)) {
-                    $value = addslashes($value);
-                    $query = str_replace($key, '"'.(!is_scalar($value) ? ' ['.tr('NOT SCALAR') . '] ' : '').Strings::log($value) . '"', $query);
-
-                } elseif (is_null($value)) {
-                    $query = str_replace($key, ' '.tr('NULL') . ' ', $query);
-
-                } elseif (is_bool($value)) {
-                    $query = str_replace($key, Strings::boolean($value), $query);
-
-                } else {
-                    if (!is_scalar($value)) {
-                        throw new SqlException(tr('(:id) Specified key ":key" has non-scalar value ":value"', [
-                            ':id'    => $this->uniqueid,
-                            ':key'   => $key,
-                            ':value' => $value
-                        ]), 'invalid');
-                    }
-
-                    $query = str_replace($key, $value, $query);
-                }
-            }
-        }
+        $query = self::buildQueryString($query, $execute, true);
 
         if ($return_only) {
             return $query;

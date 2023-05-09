@@ -62,10 +62,10 @@ class Exception extends RuntimeException
      * @param array $data [array] Data related to the exception. Should be a named array with elements that may be
      *      anything, string, array, object, resource, etc. The handler for this exception is assumed to know how to
      *      handle this data if it wants to do so
-     * @param string|null $code The exception code (optional)
+     * @param string|int|null $code The exception code (optional)
      * @param Throwable|null $previous A previous exception, if available.
      */
-    public function __construct(Throwable|array|string|null $messages, mixed $data = null, ?string $code = null, ?Throwable $previous = null)
+    public function __construct(Throwable|array|string|null $messages, mixed $data = null, string|int|null $code = null, ?Throwable $previous = null)
     {
         if (is_object($messages)) {
             // The message actually is an Exception! Extract data and make this exception the previous
@@ -92,7 +92,7 @@ class Exception extends RuntimeException
         $message = reset($messages);
         $message = Strings::force($message);
 
-        $this->setCode($code);
+        $this->setCode((string) $code);
         $this->setData($data);
         $this->addMessages($messages);
 
@@ -118,11 +118,11 @@ class Exception extends RuntimeException
      *
      * @param Throwable|array|string|null $messages
      * @param mixed|null $data
-     * @param string|null $code
+     * @param string|int|null $code
      * @param Throwable|null $previous
      * @return static
      */
-    public static function new(Throwable|array|string|null $messages, mixed $data = null, ?string $code = null, ?Throwable $previous = null): static
+    public static function new(Throwable|array|string|null $messages, mixed $data = null, string|int|null $code = null, ?Throwable $previous = null): static
     {
         return new static($messages, $data, $code, $previous);
     }

@@ -8,6 +8,7 @@ use Phoundation\Core\Config;
 use Phoundation\Web\Http\Html\Components\Form;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Http\UrlBuilder;
+use Stringable;
 
 /**
  * SignIn form class
@@ -24,23 +25,23 @@ class SignInForm extends Form
     /**
      * The sign in URL
      *
-     * @var string|null
+     * @var Stringable|string|null $sign_in_url
      */
-    protected ?string $sign_in_url = null;
+    protected Stringable|string|null $sign_in_url = null;
 
     /**
      * The register page URL
      *
-     * @var string|null
+     * @var Stringable|string|null $register_url
      */
-    protected ?string $register_url = null;
+    protected Stringable|string|null $register_url = null;
 
     /**
      * The forgot password page URL
      *
-     * @var string|null $forgot_password_url
+     * @var Stringable|string|null $forgot_password_url
      */
-    protected ?string $forgot_password_url = null;
+    protected Stringable|string|null $forgot_password_url = null;
 
 
     /**
@@ -58,11 +59,11 @@ class SignInForm extends Form
 
 
     /**
-     * Returns the signin URL
+     * Returns the sign in URL
      *
-     * @return string
+     * @return Stringable|string
      */
-    public function getSignInUrl(): string
+    public function getSignInUrl(): Stringable|string
     {
         return $this->sign_in_url;
     }
@@ -71,10 +72,10 @@ class SignInForm extends Form
     /**
      * Sets the signin URL
      *
-     * @param string $sign_in_url
+     * @param Stringable|string $sign_in_url
      * @return static
      */
-    public function setSignInUrl(string $sign_in_url): static
+    public function setSignInUrl(Stringable|string $sign_in_url): static
     {
         $this->sign_in_url = UrlBuilder::getWww($sign_in_url);
         return $this;
@@ -84,9 +85,9 @@ class SignInForm extends Form
     /**
      * Returns the register URL
      *
-     * @return string
+     * @return Stringable|string
      */
-    public function getRegisterUrl(): string
+    public function getRegisterUrl(): Stringable|string
     {
         return $this->register_url;
     }
@@ -95,10 +96,10 @@ class SignInForm extends Form
     /**
      * Sets the register URL
      *
-     * @param string $register_url
+     * @param Stringable|string $register_url
      * @return static
      */
-    public function setRegisterUrl(string $register_url): static
+    public function setRegisterUrl(Stringable|string $register_url): static
     {
         $this->register_url = UrlBuilder::getWww($register_url);
         return $this;
@@ -110,7 +111,7 @@ class SignInForm extends Form
      *
      * @return string
      */
-    public function getForgotPasswordUrl(): string
+    public function getForgotPasswordUrl(): Stringable|string
     {
         return $this->forgot_password_url;
     }
@@ -119,10 +120,10 @@ class SignInForm extends Form
     /**
      * Sets the register URL
      *
-     * @param string $forgot_password_url
+     * @param Stringable|string $forgot_password_url
      * @return static
      */
-    public function setForgotPasswordUrl(string $forgot_password_url): static
+    public function setForgotPasswordUrl(Stringable|string $forgot_password_url): static
     {
         $this->forgot_password_url = UrlBuilder::getWww($forgot_password_url);
         return $this;

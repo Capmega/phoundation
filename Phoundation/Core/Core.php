@@ -408,7 +408,7 @@ class Core {
             ->select('--deleted')->isOptional(false)->isBoolean()
             ->select('--version')->isOptional(false)->isBoolean()
             ->select('--limit', true)->isOptional(0)->isNatural()
-            ->select('--timezone', true)->isOptional(false)->isBoolean()
+            ->select('--timezone', true)->isOptional()->isString()
             ->select('--auto-complete', true)->isOptional()->hasMaxCharacters(1024)
             ->select('--show-passwords')->isOptional(false)->isBoolean()
             ->select('--no-validation')->isOptional(false)->isBoolean()
@@ -666,7 +666,6 @@ class Core {
             }
 
         }
-
         // Setup language map in case domain() calls are used
         // Route::map();
     }
@@ -1668,9 +1667,9 @@ class Core {
      * @version 2.7.5: Added function and documentation
      *
      * @param null|int $timeout The amount of seconds this script can run until it is aborted automatically
-     * @return int The previous timeout value
+     * @return bool Returns TRUE on success, or FALSE on failure.
      */
-    public static function setTimeout(int $timeout = null): int
+    public static function setTimeout(int $timeout = null): bool
     {
         if ($timeout === null) {
             // Default timeout to either system configuration system.timeout, or environment variable TIMEOUT
@@ -2127,7 +2126,7 @@ class Core {
             $limit = ceil($free['memory']['available'] * .8);
         }
 
-        return $limit;
+        return (int) floor($limit);
     }
 
 

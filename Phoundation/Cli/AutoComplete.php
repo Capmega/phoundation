@@ -244,10 +244,27 @@ class AutoComplete
         $word = isset_get(ArgvValidator::getArguments()[self::$position]);
         $word = strtolower(trim((string) $word));
 
-        // First check positions!
-        if (array_key_exists(self::$position, isset_get($definitions))) {
+        // First check position!
+        self::processScriptPosition($definitions, $word, self::$position);
+
+        // Do we have an "all other positions" entry?
+        self::processScriptPosition($definitions, $word, -1);
+    }
+
+
+    /**
+     * Process auto complete for this script from the definitions specified by the script
+     *
+     * @param array $definitions
+     * @param string $word
+     * @param int $position
+     * @return void
+     */
+    protected static function processScriptPosition(array $definitions, string $word, int $position): void
+    {
+        if (array_key_exists($position, isset_get($definitions))) {
             // Get position specific data
-            $position_data = $definitions[self::$position];
+            $position_data = $definitions[$position];
 
             // We may have a word or not, check if position_data allows word (or not) and process
             if ($word) {

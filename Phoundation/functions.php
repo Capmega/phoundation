@@ -248,19 +248,6 @@ function is_natural($number, int $start = 1): bool
 
 
 /**
- * Returns true if the specified string is a version, or false if it is not
- *
- * @version 2.5.46: Added function and documentation
- * @param string $version The version to be validated
- * @return boolean True if the specified $version is an N.N.N version string
- */
-function is_version(string $version): bool
-{
-    return preg_match('/\d{1,4}\.\d{1,4}\.\d{1,4}/', $version);
-}
-
-
-/**
  * Returns TRUE if the specified data entry is new.
  *
  * A data entry is considered new when the id is null, or _new
@@ -437,7 +424,7 @@ function showhex(mixed $source = null, int $trace_offset = 1, bool $quiet = fals
  */
 function showbacktrace(mixed $source = null, int $trace_offset = 1, bool $quiet = false): mixed
 {
-    return show(Debug::backtrace(), false);
+    return show(Debug::backtrace(), $trace_offset, $quiet);
 }
 
 

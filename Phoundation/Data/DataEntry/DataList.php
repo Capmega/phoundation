@@ -767,7 +767,7 @@ showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY F
      * @param string|null $id_column
      * @return static
      */
-    abstract protected function load(string|null $id_column = null): static;
+    abstract protected function load(?string $id_column = null): static;
 
 
     /**

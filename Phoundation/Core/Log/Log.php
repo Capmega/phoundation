@@ -169,9 +169,9 @@ Class Log {
                     // Be... normal, I guess
                     if (Debug::enabled()) {
                         // Debug shows a bit more
-                        $threshold = Config::get('log.threshold', Core::errorState() ? 10 : 5);
+                        $threshold = Config::getInteger('log.threshold', Core::errorState() ? 10 : 5);
                     } else {
-                        $threshold = Config::get('log.threshold', Core::errorState() ? 10 : 3);
+                        $threshold = Config::getInteger('log.threshold', Core::errorState() ? 10 : 3);
                     }
                 }
 
@@ -181,7 +181,7 @@ Class Log {
             static::$restrictions = Restrictions::new(PATH_DATA . 'log/', true, 'Log');
             static::setFile(Config::get('log.file', PATH_ROOT . 'data/log/syslog'));
             static::setBacktraceDisplay(Config::get('log.backtrace-display', self::BACKTRACE_DISPLAY_BOTH));
-            static::setLocalId(substr(uniqid(true), -8, 8));
+            static::setLocalId(substr(uniqid(), -8, 8));
             static::setGlobalId($global_id);
         } catch (\Throwable) {
             // Likely configuration read failed. Just set defaults
@@ -221,7 +221,7 @@ Class Log {
             static::$fail = true;
 
             error_log('Log constructor failed with the following message. Until the following issue has been resolved, all log entries will be written to the PHP system log only');
-            error_log($e);
+            error_log($e->getMessage());
         }
 
         return self::$instance;

@@ -8,6 +8,7 @@ use Phoundation\Cli\Exception\ArgumentsException;
 use Phoundation\Cli\Exception\CliInvalidArgumentsException;
 use Phoundation\Cli\Script;
 use Phoundation\Core\Arrays;
+use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Exception\KeyAlreadySelectedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
@@ -32,7 +33,7 @@ class ArgvValidator extends Validator
      *
      * @var array $argv
      */
-    public static array $argv;
+    protected static array $argv = [];
 
 
     /**
@@ -531,5 +532,35 @@ class ArgvValidator extends Validator
 
         unset(static::$argv[$key]);
         return true;
+    }
+
+
+    /**
+     * Force a return of all POST data without check
+     *
+     * @return array|null
+     */
+    public static function extract(): ?array
+    {
+        Log::warning(tr('Liberated all $argv data without data validation!'));
+
+        global $argv;
+
+        $argv = static::$argv;
+        static::$argv = [];
+
+        return $argv;
+    }
+
+
+    /**
+     * Force a return of a single POST key value
+     *
+     * @return array
+     */
+    public static function extractKey(string $key): mixed
+    {
+        Log::warning(tr('Liberated $argv[:key] without data validation!', [':key' => $key]));
+        return isset_get(static::$argv[$key]);
     }
 }

@@ -541,6 +541,16 @@ Log::warning('RESTART SESSION');
      */
     public static function signOut(): void
     {
+        if (!session_id()) {
+            Incident::new()
+                ->setType('User sign out')
+                ->setSeverity(Severity::low)
+                ->setTitle(tr('User sign out requested on non existing session'))
+                ->save();
+
+            return;
+        }
+
         if (isset($_SESSION['user']['impersonate_id'])) {
             Incident::new()
                 ->setType('User impersonation')->setSeverity(Severity::low)
@@ -993,6 +1003,7 @@ Log::warning('RESTART SESSION');
     /**
      * Returns the user for this session
      *
+     * @todo Add caching for real_user
      * @param bool $real_user
      * @return User
      */
@@ -1025,7 +1036,7 @@ Log::warning('RESTART SESSION');
                         ]));
                     }
 
-                    return $user;
+                    static::$user = $user;
 
                 } catch (DataEntryNotExistsException) {
                     Log::warning(tr('The session user ":id" does not exist, removing session entry and dropping to guest user', [
@@ -1034,26 +1045,30 @@ Log::warning('RESTART SESSION');
 
                     // Remove entry and try again
                     unset($_SESSION['user']['id']);
+                    static::$user = new GuestUser();
 
                 } catch (DataEntryStatusException $e) {
                     Log::warning($e->getMessage());
 
                     // Remove entry and try again
                     unset($_SESSION['user']['id']);
+                    static::$user = new GuestUser();
 
                 } catch (Throwable $e) {
                     Log::warning(tr('Failed to fetch user ":user" for session with ":e", removing session entry and dropping to guest user', [
-                        ':e'    => $e->getMessage(),
+                        ':e' => $e->getMessage(),
                         ':user' => $_SESSION['user']['id']
                     ]));
 
                     // Remove entry and try again
                     unset($_SESSION['user']['id']);
+                    static::$user = new GuestUser();
                 }
-            }
 
-            // There is no user, this is a guest session
-            return new GuestUser();
+            } else {
+                // There is no user, this is a guest session
+                static::$user = new GuestUser();
+            }
         }
 
         // Return the user object

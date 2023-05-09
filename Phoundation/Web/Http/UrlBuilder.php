@@ -14,6 +14,8 @@ use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Web\Page;
+use Stringable;
+
 
 /**
  * Class Domain
@@ -25,7 +27,7 @@ use Phoundation\Web\Page;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Http
  */
-class UrlBuilder
+class UrlBuilder implements Stringable
 {
     /**
      * Will be true if the current URL as-is is cloaked
@@ -110,12 +112,12 @@ class UrlBuilder
     /**
      * Returns a complete www URL
      *
-     * @param string|null $url The URL to build
+     * @param UrlBuilder|string|null $url The URL to build
      * @param bool $use_configured_root If true, the builder will not use the root URI from the routing parameters but
      *                                  from the static configuration
      * @return static
      */
-    public static function getWww(?string $url = null, bool $use_configured_root = false): static
+    public static function getWww(UrlBuilder|string|null $url = null, bool $use_configured_root = false): static
     {
         if (!$url) {
             $url = UrlBuilder::getCurrent();
@@ -571,14 +573,19 @@ class UrlBuilder
     /**
      * Builds and returns the domain prefix
      *
-     * @param string $url
+     * @param UrlBuilder|string $url
      * @param string|null $prefix
      * @param bool $use_configured_root If true, the builder will not use the root URI from the routing parameters but
      *                                  from the static configuration
      * @return static
      */
-    protected static function buildUrl(string $url, ?string $prefix, bool $use_configured_root): static
+    protected static function buildUrl(UrlBuilder|string $url, ?string $prefix, bool $use_configured_root): static
     {
+        if (is_object($url)) {
+            // Extract URL from object
+            $url = $url->__toString();
+        }
+
         if (Url::isValid($url)) {
             return new UrlBuilder($url);
         }
@@ -626,12 +633,12 @@ class UrlBuilder
     /**
      * Apply predefined URL names
      *
-     * @param $url
-     * @return string
+     * @param UrlBuilder|string $url
+     * @return UrlBuilder|string
      */
-    protected static function applyPredefined($url): string
+    protected static function applyPredefined(UrlBuilder|string $url): UrlBuilder|string
     {
-        return match ($url) {
+        return match ((string) $url) {
             'self', 'this' , 'here'       => static::getCurrent(),
             'root'                        => static::getCurrentDomainRootUrl(),
             'prev', 'previous', 'referer' => static::getReferer(),

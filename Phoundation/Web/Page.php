@@ -444,9 +444,9 @@ class Page
     /**
      * Returns the alternative class for the <body> tag or if not preset, the default
      *
-     * @return string|null
+     * @return bool
      */
-    public static function getBuildBody(): ?string
+    public static function getBuildBody(): bool
     {
         return static::$build_body;
     }
@@ -469,8 +469,13 @@ class Page
         }
 
         if ($default) {
-            // We don't have a referer, return the current URL instead
-            return UrlBuilder::getWww($default);
+            if (is_bool($default)) {
+                // We don't have a referer, return the current URL instead
+                return UrlBuilder::getCurrent()->__toString();
+            }
+
+            // Use the specified referrer
+            return UrlBuilder::getWww($default)->__toString();
         }
 
         // We got nothing...
@@ -969,6 +974,8 @@ class Page
         if (Session::getUser()->hasAllRights($rights)) {
             return;
         }
+        show(Session::getUser()->rights()->list());
+        showdie($rights);
 
         if (!$target) {
             // If target wasn't specified we can safely assume it's the same as the real target.
@@ -1178,7 +1185,7 @@ class Page
 
         // Display a system error page instead?
         if (is_numeric($url)) {
-            Route::executeSystem($url);
+            Route::executeSystem((int) $url);
         }
 
         // Build URL
@@ -1580,12 +1587,12 @@ class Page
         }
 
         foreach (static::$headers['link'] as $header) {
-            $header  = Arrays::implodeWithKeys($header, ' ', '=', '"', true);
+            $header  = Arrays::implodeWithKeys($header, ' ', '=', '"');
             $return .= '<link ' . $header . ' />' . PHP_EOL;
         }
 
         foreach (static::$headers['javascript'] as $header) {
-            $header  = Arrays::implodeWithKeys($header, ' ', '=', '"', true);
+            $header  = Arrays::implodeWithKeys($header, ' ', '=', '"');
             $return .= '<script ' . $header . '></script>' . PHP_EOL;
         }
 
@@ -1685,7 +1692,7 @@ class Page
         }
 
         // Add a powered-by header
-        switch (Config::getBoolean('security.expose.phoundation', 'limited')) {
+        switch (Config::getBoolString('security.expose.phoundation', 'limited')) {
             case 'limited':
                 header('Powered-By: Phoundation');
                 break;
@@ -1701,7 +1708,7 @@ class Page
 
             default:
                 throw new OutOfBoundsException(tr('Invalid configuration value ":value" for "security.signature" Please use one of "none", "limited", or "full"', [
-                    ':value' => Config::get('security.expose.phoundation')
+                    ':value' => Config::getBoolString('security.expose.phoundation', 'limited')
                 ]));
         }
 
