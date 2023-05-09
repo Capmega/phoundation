@@ -4,20 +4,26 @@ declare(strict_types=1);
 
 
 use Phoundation\Templates\Template;
+use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
 
-// Display the template with the following information
-echo Template::page('system/detail-error')->render([
-    ':h1'     => tr('(404) The requested page was not found!'),
-    ':p'      => tr('The page you requested to view does not exist on this server. If you think this was in error, please contact the system administrator. Meanwhile, you may <a href=":url">return to dashboard</a> or try using the search form.', [
-        ':url' => Page::getReferer(true)
-    ])
+echo Template::page('admin/system/detail-error')->render([
+    ':h2'     => '404',
+    ':h3'     => tr('Page not found'),
+    ':p'      => tr('We could not find the page you were looking for', [
+            ':url' => Page::getReferer(true)
+    ]),
+    ':type'   => 'warning',
+    ':search' => tr('Search'),
+    ':action' => UrlBuilder::getWww('search/')
 ]);
 
 
 // Set page meta data
-Page::setPageTitle(tr('404 - Page not found'));
-Page::setHeaderTitle('');
-Page::setDescription(tr('404 - Page not found: The page you requested does not (or no longer) exist on this server'));
+Page::setHttpCode(404);
+Page::setBuildBody(false);
+Page::setPageTitle('404 - Page not found');
+Page::setHeaderTitle(tr('404 - Error'));
+Page::setDescription(tr('The specified page is not found'));
 Page::setBreadCrumbs();

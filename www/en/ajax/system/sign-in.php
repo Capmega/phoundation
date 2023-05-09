@@ -1,13 +1,11 @@
 <?php
 
-declare(strict_types=1);
-
-
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Session;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Components\ProfileImage;
 use Plugins\Phoundation\Components\Menu;
+
 
 /**
  * Ajax system/sign-in
