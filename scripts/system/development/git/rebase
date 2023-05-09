@@ -3,9 +3,6 @@
 
 declare(strict_types=1);
 
-
-declare(strict_types=1);
-
 use Phoundation\Cli\Documentation;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Versioning\Git\Git;
@@ -32,7 +29,7 @@ useful- beyond testing the git library');
 
 // Get command line arguments
 $argv = ArgvValidator::new()
-    ->select('-b,--branch', true)->isFile()
+    ->select('-b,--branch', true)->isDirectory()
     ->noArgumentsLeft()
     ->validate();
 

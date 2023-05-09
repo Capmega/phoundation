@@ -3,11 +3,9 @@
 
 declare(strict_types=1);
 
-
-declare(strict_types=1);
-
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\Color;
+use Phoundation\Cli\Documentation;
 use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Log;
@@ -27,9 +25,9 @@ use Phoundation\Exception\OutOfBoundsException;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-$usage   = './pho system libraries info LIBRARY_NAME';
+Documentation::usage('./pho system libraries info LIBRARY_NAME');
 
-$help    = 'The libraries info script will show detailed information about the specified library';
+Documentation::help('The libraries info script will show detailed information about the specified library');
 
 
 

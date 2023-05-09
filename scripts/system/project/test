@@ -3,13 +3,9 @@
 
 declare(strict_types=1);
 
-
-declare(strict_types=1);
-
+use Phoundation\Cli\Documentation;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\Validator;
-use Phoundation\Processes\FilesystemCommands;
-use Phoundation\Processes\ProcessCommands;
 
 
 /**
@@ -22,11 +18,11 @@ use Phoundation\Processes\ProcessCommands;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-$usage = './pho system info';
+Documentation::usage('./pho system info');
 
-$help  = 'The info script will show detailed information about the current framework, project, database and more';
+Documentation::help('The info script will show detailed information about the current framework, project, database and more');
 
-ArgvValidator::noArgumentsLeft();
+ArgvValidator::new()->noArgumentsLeft();
 
 
 
@@ -53,7 +49,7 @@ $array = [
     'test-email' => 'so.oostenbrink@gmail.com',
 ];
 
-Validator::array($array)
+Validator::new($array)
     ->select('test-xora')->xor('test-xorb')->isArray()
     ->select('test-optional')->isOptional([])->isArray()
     ->select('test-list-array')->recurse()

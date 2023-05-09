@@ -3,9 +3,6 @@
 
 declare(strict_types=1);
 
-
-declare(strict_types=1);
-
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\Documentation;
 use Phoundation\Security\Puks\Puks;

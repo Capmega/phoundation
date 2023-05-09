@@ -3,10 +3,8 @@
 
 declare(strict_types=1);
 
-
-declare(strict_types=1);
-
 use Phoundation\Cli\Color;
+use Phoundation\Cli\Documentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Mysql;
@@ -22,9 +20,9 @@ use Phoundation\Databases\Mysql;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-$usage = './pho system mysql timezones import';
+Documentation::usage('./pho system mysql timezones import');
 
-$help  = '';
+Documentation::help('');
 
 $argv = ArgvValidator::new()->noArgumentsLeft();
 

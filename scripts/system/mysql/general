@@ -3,23 +3,18 @@
 
 declare(strict_types=1);
 
-
-declare(strict_types=1);
-/*
- * This is an empty test script template
- */
-
+use Phoundation\Cli\Documentation;
 use Phoundation\Exception\UnderConstructionException;
 
-$usage = './scripts/base/mysql method [OPTIONS]
+Documentation::usage('./scripts/base/mysql method [OPTIONS]
 
 ./scripts/base/mysql list databases [OPTIONS]
 ./scripts/base/mysql list tables [OPTIONS]
 ./scripts/base/mysql list foreign-keys [OPTIONS]
 ./scripts/base/mysql change default-charset [OPTIONS]
-./scripts/base/mysql scan SERVER';
+./scripts/base/mysql scan SERVER');
 
-$help  = 'This script contains various methods to assist with various mysql operations
+Documentation::help('This script contains various methods to assist with various mysql operations
 
 
 
@@ -76,7 +71,7 @@ replication
                                    on mysql
 
     backup                       - Make remote backup on replication server
-                                   for databases that are replicating';
+                                   for databases that are replicating');
 
 throw new UnderConstructionException();
 

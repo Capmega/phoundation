@@ -3,9 +3,7 @@
 
 declare(strict_types=1);
 
-
-declare(strict_types=1);
-
+use Phoundation\Cli\Documentation;
 use Phoundation\Content\Images\Image;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
@@ -22,16 +20,16 @@ use Phoundation\Filesystem\Restrictions;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-$usage = './pho system image convert IMAGE';
+Documentation::usage('./pho system image convert IMAGE');
 
-$help  = 'This script can apply various conversions to the specified image';
+Documentation::help('This script can apply various conversions to the specified image');
 
 
 
 // Validate arguments
 $argv = ArgvValidator::new()
     ->select('method')->isName()
-    ->select('file')->isExistingFile()
+    ->select('file')->isFile(true)
     ->validate();
 
 

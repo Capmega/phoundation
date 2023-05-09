@@ -3,10 +3,8 @@
 
 declare(strict_types=1);
 
-
-declare(strict_types=1);
-
-use Phoundation\Accounts\Users\User;
+use Phoundation\Accounts\Passwords;
+use Phoundation\Cli\Documentation;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
@@ -22,9 +20,9 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-$usage = './pho system accounts users encryption';
+Documentation::usage('./pho system accounts users encryption');
 
-$help  = 'This script determines the best encryption cost value for your machine so you can configure 
+Documentation::help('This script determines the best encryption cost value for your machine so you can configure 
 "security.passwords.cost" with the best value  
 
 
@@ -33,7 +31,7 @@ ARGUMENTS
 
 
 
--';
+-');
 
 
 
@@ -45,4 +43,4 @@ $argv = ArgvValidator::new()->noArgumentsLeft();
 // Display
 Core::setTimeout(60);
 Log::information(tr('Calculating best encryption cost, this may take a few seconds so be patient...'));
-Log::information(tr('Best encryption cost value is: " :value', [':value' => User::findBestEncryptionCost()]));
+Log::information(tr('Best encryption cost value is: " :value', [':value' => Passwords::findBestEncryptionCost()]));

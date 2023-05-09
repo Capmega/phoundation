@@ -3,9 +3,7 @@
 
 declare(strict_types=1);
 
-
-declare(strict_types=1);
-
+use Phoundation\Cli\Documentation;
 use Phoundation\Core\Config;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
@@ -22,9 +20,9 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-$usage = './pho system config create-default';
+Documentation::usage('./pho system config create-default');
 
-$help  = 'This script will create a default configuration file ROOT/config/default.yaml containing ALL possible configuration paths and their default values';
+Documentation::help('This script will create a default configuration file ROOT/config/default.yaml containing ALL possible configuration paths and their default values');
 
 
 

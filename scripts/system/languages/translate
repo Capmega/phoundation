@@ -3,11 +3,7 @@
 
 declare(strict_types=1);
 
-
-declare(strict_types=1);
-
 use Phoundation\Cli\Documentation;
-use Phoundation\Core\Locale\Language\Import;
 use Phoundation\Core\Locale\Language\Languages;
 use Phoundation\Data\Validator\ArgvValidator;
 

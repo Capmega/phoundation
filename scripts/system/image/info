@@ -3,10 +3,8 @@
 
 declare(strict_types=1);
 
-
-declare(strict_types=1);
-
 use Phoundation\Cli\Cli;
+use Phoundation\Cli\Documentation;
 use Phoundation\Content\Images\Image;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
@@ -22,15 +20,15 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-$usage = './pho system image info IMAGE_FILE_NAME';
+Documentation::usage('./pho system image info IMAGE_FILE_NAME');
 
-$help  = 'This script will display basic information about the specified image';
+Documentation::help('This script will display basic information about the specified image');
 
 
 
 // Validate arguments
 $argv = ArgvValidator::new()
-    ->select('file', true)->isExistingFile()
+    ->select('file', true)->isFile(true)
     ->noArgumentsLeft()
     ->validate();
 

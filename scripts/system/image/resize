@@ -3,9 +3,7 @@
 
 declare(strict_types=1);
 
-
-declare(strict_types=1);
-
+use Phoundation\Cli\Documentation;
 use Phoundation\Content\Images\Image;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
@@ -21,9 +19,9 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-$usage = './pho system image resize IMAGE_FILE_NAME -x 500 -y 500 -m scale';
+Documentation::usage('./pho system image resize IMAGE_FILE_NAME -x 500 -y 500 -m scale');
 
-$help  = 'This script can apply various conversions to the specified image
+Documentation::help('This script can apply various conversions to the specified image
 
 
 
@@ -34,7 +32,7 @@ ARGUMENTS
 -x, --width WIDTH                       Width of the image
 -y, --height HEIGHT                     Height of the image
 -m, --method METHOD                     Resizing method (scale, sample, resample)
--t, --type                              Resizing type ';
+-t, --type                              Resizing type ');
 
 
 
@@ -43,7 +41,7 @@ $argv = ArgvValidator::new()
     ->select('-m,--method', true)->isOptional('scale')->isName()
     ->select('-x,--width', true)->isInteger()
     ->select('-y,--height', true)->isInteger()
-    ->select('file')->isExistingFile()
+    ->select('file')->isFile(true)
     ->noArgumentsLeft()
     ->validate();
 
