@@ -33,7 +33,7 @@ if (Page::isPostRequestMethod()) {
                 // Delete selected users
                 $count = $users->delete($_POST['id']);
 
-                Page::getFlashMessages()->add(tr('Success'), tr('Deleted ":count" users', [':count' => $count]), 'success');
+                Page::getFlashMessages()->add(tr('Success'), tr('Deleted ":count" users', [':count' => $count]), DisplayMode::success);
                 Page::redirect('this');
                 break;
 
@@ -41,7 +41,7 @@ if (Page::isPostRequestMethod()) {
                 // Undelete selected users
                 $count = $users->undelete($_POST['id']);
 
-                Page::getFlashMessages()->add(tr('Success'), tr('Undeleted ":count" users', [':count' => $count]), 'success');
+                Page::getFlashMessages()->add(tr('Success'), tr('Undeleted ":count" users', [':count' => $count]), DisplayMode::success);
                 Page::redirect('this');
                 break;
         }
@@ -67,10 +67,10 @@ $filters = Card::new()
 
 
 // Build users table
-$buttons = Buttons::new()
-    ->addButton(tr('Create'), 'primary', '/accounts/user.html')
-    ->addButton(tr('Delete'), 'warning');
 
+$buttons = Buttons::new()
+    ->addButton(tr('Create'), DisplayMode::primary, '/accounts/user.html')
+    ->addButton(tr('Delete'), DisplayMode::warning);
 $table = $users->getHtmlDataTable()
     ->setRowUrl('/accounts/user-:ROW.html');
 // TODO Automatically re-select items if possible

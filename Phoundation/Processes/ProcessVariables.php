@@ -20,6 +20,7 @@ use Phoundation\Processes\Commands\SystemCommands;
 use Phoundation\Processes\Exception\ProcessesException;
 use Phoundation\Processes\Exception\ProcessException;
 use Phoundation\Servers\Server;
+use Stringable;
 
 /**
  * Trait ProcessVariables
@@ -225,6 +226,20 @@ trait ProcessVariables
      */
     protected int $escape_quotes = 0;
 
+    /**
+     * The time the process started execution
+     *
+     * @var float|null $start
+     */
+    protected ?float $start = null;
+
+    /**
+     * The time the process stopped execution
+     *
+     * @var float|null $stop
+     */
+    protected ?float $stop = null;
+
 
     /**
      * Process class constructor
@@ -247,6 +262,55 @@ trait ProcessVariables
         if ($this->clear_logs) {
             unlink($this->log_file);
         }
+    }
+
+
+    /**
+     * Returns the exact time that execution started
+     *
+     * @return float|null
+     */
+    public function getExecutionStartTime(): ?float
+    {
+        return $this->start;
+    }
+
+
+    /**
+     * Returns the exact time that execution stopped
+     *
+     * @return float|null
+     */
+    public function getExecutionStopTime(): ?float
+    {
+        return $this->stop;
+    }
+
+
+    /**
+     * Returns the exact time that a process took to execute
+     *
+     * @param bool $require_stop
+     * @return float|null
+     */
+    public function getExecutionTime(bool $require_stop = true): ?float
+    {
+        if (!$this->start) {
+            throw new OutOfBoundsException(tr('Cannot measure execution time, the process has not yet started'));
+        }
+
+        if (!$this->stop) {
+            if ($require_stop) {
+                throw new OutOfBoundsException(tr('Cannot measure execution time, the process is still running'));
+            }
+
+            $stop = microtime(true);
+
+        } else {
+            $stop = $this->stop;
+        }
+
+        return $stop - $this->start;
     }
 
 
@@ -324,13 +388,13 @@ trait ProcessVariables
     /**
      * Sets if the process will first CD to this directory before continuing
      *
-     * @param string|null $execution_path
+     * @param Stringable|string|null $execution_path
      * @return static This process so that multiple methods can be chained
      */
-    public function setExecutionPath(?string $execution_path): static
+    public function setExecutionPath(Stringable|string|null $execution_path): static
     {
         $this->cached_command_line = null;
-        $this->execution_path      = $execution_path;
+        $this->execution_path      = (string) $execution_path;
 
         return $this;
     }
@@ -1195,11 +1259,12 @@ trait ProcessVariables
     /**
      * Validates the specified stream
      *
+     * @todo Implement
      * @param int $stream
      * @param string $type
-     * @return $this
+     * @return void
      */
-    protected function validateStream(int $stream, string $type): static
+    protected function validateStream(int $stream, string $type): void
     {
         if (($stream < 1) or ($stream > 10)) {
             throw new OutOfBoundsException(tr('Invalid ":type" stream ":stream" specified', [

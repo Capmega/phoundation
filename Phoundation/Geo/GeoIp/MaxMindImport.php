@@ -55,7 +55,7 @@ class MaxMindImport extends GeoIpImport
     {
         $license_key = Config::getString('geo.ip.max-mind.api-key');
         $wget        = Wget::new();
-        $path        = $wget->getProcess()->setExecutionPathToTemp()->getExecutionPath();
+        $path        = $wget->getProcess()->setTimeout(1200)->setExecutionPathToTemp()->getExecutionPath();
 
         Log::action(tr('Storing GeoIP files in path ":path"', [':path' => $path]));
 

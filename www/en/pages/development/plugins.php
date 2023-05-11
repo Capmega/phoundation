@@ -23,7 +23,7 @@ if (Page::isPostRequestMethod()) {
         switch (PostValidator::getSubmitButton()) {
             case tr('Scan'):
                 $count = Plugins::scan();
-                Page::getFlashMessages()->add(tr('Success'), tr('Finished scanning for libraries, found and registered ":count" new libraries', [':count' => $count]), 'success');
+                Page::getFlashMessages()->add(tr('Success'), tr('Finished scanning for libraries, found and registered ":count" new libraries', [':count' => $count]), DisplayMode::success);
                 Page::redirect('this');
         }
 

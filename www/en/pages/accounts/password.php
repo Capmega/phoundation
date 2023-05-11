@@ -37,7 +37,7 @@ if (Page::isPostRequestMethod()) {
         $user = User::get($_GET['id']);
         $user->setPassword($_POST['password1'] ,$_POST['password2']);
 
-        Page::getFlashMessages()->add(tr('Success'), tr('The password for user ":user" has been updated', [':user' => $user->getDisplayName()]), 'success');
+        Page::getFlashMessages()->add(tr('Success'), tr('The password for user ":user" has been updated', [':user' => $user->getDisplayName()]), DisplayMode::success);
         Page::redirect('this');
 
     } catch (ValidationFailedException $e) {

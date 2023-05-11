@@ -40,22 +40,22 @@ if (Page::isPostRequestMethod()) {
 // TODO Implement timers
 //showdie(Timers::get('query'));
 
-                Page::getFlashMessages()->add(tr('Success'), tr('User ":user" has been updated', [':user' => $user->getDisplayName()]), 'success');
+                Page::getFlashMessages()->add(tr('Success'), tr('User ":user" has been updated', [':user' => $user->getDisplayName()]), DisplayMode::success);
                 Page::redirect('referer');
 
             case tr('Impersonate'):
                 $user->impersonate();
-                Page::getFlashMessages()->add(tr('Success'), tr('You are now impersonating ":user"', [':user' => $user->getDisplayName()]), 'success');
+                Page::getFlashMessages()->add(tr('Success'), tr('You are now impersonating ":user"', [':user' => $user->getDisplayName()]), DisplayMode::success);
                 Page::redirect('root');
 
             case tr('Delete'):
                 $user->delete();
-                Page::getFlashMessages()->add(tr('Success'), tr('The user ":user" has been deleted', [':user' => $user->getDisplayName()]), 'success');
+                Page::getFlashMessages()->add(tr('Success'), tr('The user ":user" has been deleted', [':user' => $user->getDisplayName()]), DisplayMode::success);
                 Page::redirect();
 
             case tr('Undelete'):
                 $user->undelete();
-                Page::getFlashMessages()->add(tr('Success'), tr('The user ":user" has been undeleted', [':user' => $user->getDisplayName()]), 'success');
+                Page::getFlashMessages()->add(tr('Success'), tr('The user ":user" has been undeleted', [':user' => $user->getDisplayName()]), DisplayMode::success);
                 Page::redirect();
         }
 

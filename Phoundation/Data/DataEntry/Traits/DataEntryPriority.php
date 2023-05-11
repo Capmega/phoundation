@@ -25,7 +25,7 @@ trait DataEntryPriority
      */
     public function getPriority(): ?int
     {
-        return $this->getDataValue('priority');
+        return $this->getDataValue('priority', 50);
     }
 
 
@@ -37,8 +37,8 @@ trait DataEntryPriority
      */
     public function setPriority(?int $priority): static
     {
-        if (is_numeric($priority) and (($priority < 1) or ($priority > 9))) {
-            throw new OutOfBoundsException(tr('Specified priority ":priority" is invalid, it should be a number from 1 to 9', [
+        if (is_numeric($priority) and (($priority < 0) or ($priority > 100))) {
+            throw new OutOfBoundsException(tr('Specified priority ":priority" is invalid, it should be a number from 0 to 100', [
                 ':priority' => $priority
             ]));
         }

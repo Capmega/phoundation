@@ -7,6 +7,7 @@ namespace Phoundation\Filesystem;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Strings;
 use Phoundation\Filesystem\Exception\RestrictionsException;
+use Stringable;
 
 
 /**
@@ -39,11 +40,11 @@ class Restrictions
     /**
      * Restrictions constructor
      *
-     * @param string|array|null $paths
+     * @param Stringable|string|array|null $paths
      * @param bool $write
      * @param string|null $label
      */
-    public function __construct(string|array|null $paths = null, bool $write = false, ?string $label = null)
+    public function __construct(Stringable|string|array|null $paths = null, bool $write = false, ?string $label = null)
     {
         if ($label) {
             $this->label = $label;
@@ -58,12 +59,12 @@ class Restrictions
     /**
      * Returns a new Restrictions object with the specified restrictions
      *
-     * @param string|array|null $paths
+     * @param Stringable|string|array|null $paths
      * @param bool $write
      * @param string|null $label
      * @return static
      */
-    public static function new(string|array|null $paths = null, bool $write = false, ?string $label = null): static
+    public static function new(Stringable|string|array|null $paths = null, bool $write = false, ?string $label = null): static
     {
         return new static($paths, $write, $label);
     }
@@ -128,11 +129,11 @@ class Restrictions
     /**
      * Set all paths for this restriction
      *
-     * @param array|string $paths
+     * @param Stringable|array|string $paths
      * @param bool $write
      * @return static
      */
-    public function setPaths(array|string $paths, bool $write = false): static
+    public function setPaths(Stringable|array|string $paths, bool $write = false): static
     {
         $this->paths = [];
         return $this->addPaths($paths, $write);
@@ -142,11 +143,11 @@ class Restrictions
     /**
      * Set all paths for this restriction
      *
-     * @param array|string $paths
+     * @param Stringable|array|string $paths
      * @param bool $write
      * @return static
      */
-    public function addPaths(array|string $paths, bool $write = false): static
+    public function addPaths(Stringable|array|string $paths, bool $write = false): static
     {
         foreach (Arrays::force($paths) as $path) {
             $this->addPath($path, $write);
@@ -159,11 +160,11 @@ class Restrictions
     /**
      * Add new path for this restriction
      *
-     * @param string $path
+     * @param Stringable|string $path
      * @param bool $write
      * @return static
      */
-    public function addPath(string $path, bool $write = false): static
+    public function addPath(Stringable|string $path, bool $write = false): static
     {
         $this->paths[Filesystem::absolute($path, null, false)] = $write;
         return $this;

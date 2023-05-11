@@ -22,6 +22,9 @@ use Phoundation\Web\Http\Html\Components\Menu;
  */
 class Menus implements Iterator
 {
+    /**
+     * @var array $menus
+     */
     protected array $menus;
 
 
@@ -33,7 +36,7 @@ class Menus implements Iterator
      */
     public function getMenu(string $menu): ?Menu
     {
-        return isset_get($this->menus[$menu]);
+        return isset_get($this->menus[$menu], Menu::new());
     }
 
 
@@ -44,7 +47,7 @@ class Menus implements Iterator
      */
     public function getPrimaryMenu(): ?Menu
     {
-        return isset_get($this->menus['primary']);
+        return $this->getMenu('primary');
     }
 
 
@@ -68,7 +71,7 @@ class Menus implements Iterator
      */
     public function getSecondaryMenu(): ?Menu
     {
-        return isset_get($this->menus['secondary']);
+        return $this->getMenu('secondary');
     }
 
 
@@ -139,7 +142,18 @@ class Menus implements Iterator
      */
     public function getCount(): int
     {
-        return current($this->menus);
+        return count($this->menus);
+    }
+
+
+    /**
+     * Returns the internal menus array
+     *
+     * @return array
+     */
+    public function list(): array
+    {
+        return $this->menus;
     }
 
 

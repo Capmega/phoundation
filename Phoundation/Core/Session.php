@@ -408,7 +408,7 @@ class Session
         // What handler to use?
         switch (Config::get('web.sessions.handler', 'files')) {
             case 'files':
-                $path = Path::new(Config::get('web.sessions.path', PATH_DATA), Restrictions::new([PATH_DATA . 'sessions/', '/var/lib/php/sessions'], true, 'system/sessions'))->ensure();
+                $path = Path::new(Config::get('web.sessions.path', PATH_DATA), Restrictions::new([PATH_DATA . 'sessions/', '/var/lib/php/sessions/'], true, 'system/sessions'))->ensure();
                 session_save_path($path);
                 break;
 

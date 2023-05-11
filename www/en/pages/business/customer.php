@@ -35,7 +35,7 @@ if (Page::isPostRequestMethod()) {
 //        $customer->save();
 //
 //        // Go back to where we came from
-//        Page::getFlashMessages()->add(tr('Success'), tr('Customer ":customer" has been updated', [':customer' => $customer->getName()]), 'success');
+//        Page::getFlashMessages()->add(tr('Success'), tr('Customer ":customer" has been updated', [':customer' => $customer->getName()]), DisplayMode::success);
 //        Page::redirect('referer');
 
     } catch (ValidationFailedException $e) {

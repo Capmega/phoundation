@@ -7,6 +7,7 @@ namespace Phoundation\Core;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Web\Http\UrlBuilder;
+use Stringable;
 
 
 /**
@@ -1256,7 +1257,13 @@ class Arrays {
 
         if (!is_array($source)) {
             if (!is_string($source)) {
-                return [$source];
+                if (!is_object($source) or !($source instanceof Stringable)) {
+                    // Unknown datatype
+                    return [$source];
+                }
+
+                // This is an object that can convert to string
+                $source = (string) $source;
             }
 
             if (!$separator) {

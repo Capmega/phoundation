@@ -3,6 +3,7 @@
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Core\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
@@ -22,9 +23,9 @@ if (Page::isPostRequestMethod()) {
         Session::signIn($_POST['email'], $_POST['password']);
         Page::redirect('/');
     } catch (ValidationFailedException) {
-        Page::getFlashMessages()->add(tr('Access denied'), tr('Please specify a valid email and password'), 'warning');
+        Page::getFlashMessages()->add(tr('Access denied'), tr('Please specify a valid email and password'), DisplayMode::warning);
     } catch (AuthenticationException) {
-        Page::getFlashMessages()->add(tr('Access denied'), tr('The specified email or password was incorrect'), 'warning');
+        Page::getFlashMessages()->add(tr('Access denied'), tr('The specified email or password was incorrect'), DisplayMode::warning);
     }
 }
 

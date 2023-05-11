@@ -1055,12 +1055,13 @@ abstract class DataEntry implements InterfaceDataEntry
      * Returns the value for the specified data key
      *
      * @param string $key
+     * @param mixed|null $default
      * @return mixed
      */
-    protected function getDataValue(string $key): mixed
+    protected function getDataValue(string $key, mixed $default = null): mixed
     {
         $this->checkProtected($key);
-        return isset_get($this->data[$key]);
+        return isset_get($this->data[$key], $default);
     }
 
 

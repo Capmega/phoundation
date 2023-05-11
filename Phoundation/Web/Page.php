@@ -974,8 +974,6 @@ class Page
         if (Session::getUser()->hasAllRights($rights)) {
             return;
         }
-        show(Session::getUser()->rights()->list());
-        showdie($rights);
 
         if (!$target) {
             // If target wasn't specified we can safely assume it's the same as the real target.

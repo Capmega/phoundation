@@ -144,9 +144,21 @@ class Plugins extends DataList
      */
     public static function getAvailable(): array
     {
-        return sql()->list('SELECT   `name`, `status`, `priority`, `path`, `class` 
-                                  FROM     `core_plugins` 
-                                  ORDER BY `priority`');
+        $return = sql()->list('SELECT   `id`, `status`, `name`, `enabled`, `priority`, `path`, `class` 
+                                     FROM     `core_plugins` 
+                                     ORDER BY `priority`');
+
+        if (!$return) {
+            // Phoundation plugin is ALWAYS enabled
+            return static::getPhoundationPluginEntry();
+        }
+
+        if (!array_key_exists('phoundation', $return)) {
+            // Phoundation plugin MUST always exist!
+            $return = array_merge(static::getPhoundationPluginEntry(), $return);
+        }
+
+        return $return;
     }
 
 
@@ -157,23 +169,42 @@ class Plugins extends DataList
      */
     public static function getEnabled(): array
     {
-        $return = sql()->list('SELECT   `name` AS `id`, `name`, `path`, `class`, `enabled` 
+        $return = sql()->list('SELECT   `id`, `status`, `name`, `enabled`, `priority`, `path`, `class` 
                                      FROM     `core_plugins` 
                                      WHERE    `status` IS NULL 
                                      ORDER BY `priority` ASC');
 
         if (!$return) {
             // Phoundation plugin is ALWAYS enabled
-            return [
-                'phoundation' => [
-                    'path'    => PATH_ROOT . '/Plugins/Phoundation/',
-                    'class'   => 'Plugins\Phoundation\Plugin',
-                    'enabled' => true
-                ]
-            ];
+            return static::getPhoundationPluginEntry();
+        }
+
+        if (!array_key_exists('phoundation', $return)) {
+            // Phoundation plugin MUST always exist!
+            $return = array_merge(static::getPhoundationPluginEntry(), $return);
         }
 
         return $return;
+    }
+
+
+    /**
+     * Returns the phoundation plugin entry
+     *
+     * @return array[]
+     */
+    protected static function getPhoundationPluginEntry(): array
+    {
+        return [
+            0 => [
+                'name'     => 'Phoundation',
+                'path'     => PATH_ROOT . '/Plugins/Phoundation/',
+                'class'    => 'Plugins\Phoundation\Plugin',
+                'enabled'  => true,
+                'status'   => null,
+                'priority' => 0
+            ]
+        ];
     }
 
 

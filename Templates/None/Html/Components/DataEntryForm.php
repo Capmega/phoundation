@@ -12,6 +12,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Input\InputMultiButtonText;
 use Phoundation\Web\Http\Html\Components\Input\Select;
 use Phoundation\Web\Http\Html\Components\Input\TextArea;
+use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Html\Renderer;
 
 
@@ -242,7 +243,7 @@ class DataEntryForm extends Renderer
                         ->setSource($data['source']);
 
                     $input->getButton()
-                        ->setMode(isset_get($data['mode']))
+                        ->setMode(DisplayMode::from(isset_get($data['mode'])))
                         ->setContent(isset_get($data['label']));
 
                     $input->getInput()

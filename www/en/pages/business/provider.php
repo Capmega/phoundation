@@ -35,7 +35,7 @@ if (Page::isPostRequestMethod()) {
 //        $provider->save();
 //
 //        // Go back to where we came from
-//        Page::getFlashMessages()->add(tr('Success'), tr('Provider ":provider" has been updated', [':provider' => $provider->getName()]), 'success');
+//        Page::getFlashMessages()->add(tr('Success'), tr('Provider ":provider" has been updated', [':provider' => $provider->getName()]), DisplayMode::success);
 //        Page::redirect('referer');
 
     } catch (ValidationFailedException $e) {

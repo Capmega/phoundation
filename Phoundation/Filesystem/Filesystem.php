@@ -8,6 +8,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\Exception\FilesystemException;
+use Stringable;
 use Throwable;
 
 
@@ -207,13 +208,15 @@ class Filesystem
      *
      * @note If the specified path exists, and it is a directory, this function will automatically add a trailing / to
      *       the path name
-     * @param string|null $path
+     * @param Stringable|string|null $path
      * @param string|null $prefix
      * @param bool $must_exist
      * @return string The absolute path
      */
-    public static function absolute(?string $path = null, string $prefix = null, bool $must_exist = true): string
+    public static function absolute(Stringable|string|null $path = null, string $prefix = null, bool $must_exist = true): string
     {
+        $path = (string) $path;
+
         Filesystem::validateFilename($path);
 
         if (!$path) {

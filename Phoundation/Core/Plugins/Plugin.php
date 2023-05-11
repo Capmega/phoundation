@@ -47,7 +47,7 @@ abstract class Plugin extends DataEntry
     {
         static::$entry_name  = 'plugin';
         $this->table         = 'core_plugins';
-        $this->unique_field = 'name';
+        $this->unique_field  = 'name';
 
         parent::__construct($identifier);
     }
@@ -67,6 +67,10 @@ abstract class Plugin extends DataEntry
      */
     public function getEnabled(): bool
     {
+        if ($this->getName() === 'Phoundation') {
+            return true;
+        }
+
         return (bool) $this->getDataValue('enabled');
     }
 
@@ -74,11 +78,13 @@ abstract class Plugin extends DataEntry
     /**
      * Sets if this plugin is enabled or not
      *
-     * @param bool $enabled
+     * @param int|bool $enabled
      * @return static
      */
-    public function setEnabled(bool $enabled): static
+    public function setEnabled(int|bool $enabled): static
     {
+        $enabled = (bool) $enabled;
+
         if ($this->getName() === 'Phoundation') {
             if (!$enabled) {
                 throw new CoreException(tr('Cannot disable the "Phoundation" plugin, it is always enabled'));
@@ -145,10 +151,12 @@ abstract class Plugin extends DataEntry
     {
         if ($this->getName() === 'Phoundation') {
             $priority = 0;
+
         } else {
             if (!$priority) {
                 // Default to mid level
                 $priority = 50;
+
             } elseif (($priority < 1) or ($priority > 100)) {
                 throw new OutOfBoundsException(tr('Specified priority ":priority" is invalid, it should be between 1 - 100', [
                     ':priority' => $priority
@@ -198,15 +206,16 @@ abstract class Plugin extends DataEntry
      *
      * @return void
      */
-    public function register(): void
+    public static function register(): void
     {
-        $this
-            ->setName($this->getName())
-            ->setPath($this->getPath())
-            ->setClass($this->getClass())
-            ->setStart($this->getStart())
-            ->setPriority($this->getPriority())
-            ->setDescription($this->getDescription())
+        $plugin = static::new();
+        $plugin
+            ->setName($plugin->getName())
+            ->setPath($plugin->getPath())
+            ->setClass($plugin->getClass())
+            ->setEnabled(false)
+            ->setPriority($plugin->getPriority())
+            ->setDescription($plugin->getDescription())
             ->save();
     }
 

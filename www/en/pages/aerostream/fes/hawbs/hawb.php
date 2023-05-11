@@ -7,6 +7,7 @@ use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Web\Http\Html\Components\BreadCrumbs;
 use Phoundation\Web\Http\Html\Components\Buttons;
 use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
+use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Html\Layouts\Grid;
 use Phoundation\Web\Http\Html\Layouts\GridColumn;
 use Phoundation\Web\Http\UrlBuilder;
@@ -28,18 +29,16 @@ $mawb = $hawb->getMawb();
 // Validate POST and submit
 if (Page::isPostRequestMethod()) {
     try {
-        (new Plugins\Aerostream\AerostreamFes\Hawbs\Hawb)->validate(PostValidator::new());
-
         // Update hawb
         $hawb = Hawb::get($_GET['id']);
-        $hawb->modify($_POST);
+        $hawb->modify();
         $hawb->save();
 
         // Go back to where we came from
 // TODO Implement timers
 //showdie(Timers::get('query'));
 
-        Page::getFlashMessages()->add(tr('Success'), tr('Hawb ":hawb" has been updated', [':hawb' => $hawb->getCode()]), 'success');
+        Page::getFlashMessages()->add(tr('Success'), tr('Hawb ":hawb" has been updated', [':hawb' => $hawb->getCode()]), DisplayMode::success);
         Page::redirect('referer');
 
     } catch (ValidationFailedException $e) {
@@ -61,7 +60,7 @@ if ($hawbs->getCount()) {
     foreach ($hawbs as $hawb) {
         $meta[] = $hawb->getMeta()->getId();
         $hawbs_card .= Card::new()
-            ->setMode('info')
+            ->setMode(DisplayMode::info)
             ->setHasCollapseSwitch(true)
             ->setTitle(tr('House Airway bill ":id"', [':id' => $hawb->getCode()]))
             ->setContent($hawb->getHtmlForm())
@@ -77,20 +76,20 @@ if ($hawbs->getCount()) {
 
 // Build the mawb form
 $mawb_card = Card::new()
-    ->setMode('success')
+    ->setMode(DisplayMode::success)
     ->setHasCollapseSwitch(true)
     ->setTitle(tr('Master Airway Bill :code', [':code' => $mawb->getCode()]))
     ->setContent($mawb->getHtmlForm()->render())
     ->setButtons(Buttons::new()
         ->addButton(tr('Update'))
-        ->addButton(tr('Back'), 'secondary', '/aerostream/fes/mawbs/all.html', true)
-        ->addButton(tr('Audit'), 'green', '/audit/meta-' . Strings::force($meta, '-') . '.html', false, true));
+        ->addButton(tr('Back'), DisplayMode::secondary, '/aerostream/fes/mawbs/all.html', true)
+        ->addButton(tr('Audit'), DisplayMode::info, '/audit/meta-' . Strings::force($meta, '-') . '.html', false, true));
 
 
 
 // Build relevant links
 $relevant = Card::new()
-    ->setMode('info')
+    ->setMode(DisplayMode::info)
     ->setTitle(tr('Relevant links'))
     ->setHasCollapseSwitch(true)
     ->setContent('<a href="' . UrlBuilder::getWww('/business/customers.html') . '">' . tr('Customers management') . '</a><br>
@@ -100,7 +99,7 @@ $relevant = Card::new()
 
 // Build documentation
 $documentation = Card::new()
-    ->setMode('info')
+    ->setMode(DisplayMode::info)
     ->setTitle(tr('Documentation'))
     ->setHasCollapseSwitch(true)
     ->setContent('<p>Soluta a rerum quia est blanditiis ipsam ut libero. Pariatur est ut qui itaque dolor nihil illo quae. Asperiores ut corporis et explicabo et. Velit perspiciatis sunt dicta maxime id nam aliquid repudiandae. Et id quod tempore.</p>

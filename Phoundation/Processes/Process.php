@@ -125,27 +125,41 @@ Class Process
      */
     protected function setExitCode(int $exit_code, string|array|null $output = null): int
     {
+        $this->stop      = microtime(true);
         $this->exit_code = $exit_code;
 
         if (!in_array($exit_code, $this->accepted_exit_codes)) {
+            switch ($exit_code) {
+                case 124:
+                    $cause = 'timeout';
+                    break;
+
+                default:
+                    $cause = 'unknown';
+            }
+
             // The command finished with an error
             throw new ProcessFailedException(tr('The command ":command" failed with exit code ":code"', [
                 ':command' => $this->command,
                 ':code'    => $exit_code
             ]), [
-                'command'      => $this->command,
-                'full_command' => $this->getFullCommandLine(),
-                'pipe'         => $this->pipe?->getFullCommandLine(),
-                'arguments'    => $this->arguments,
-                'variables'    => $this->variables,
-                'timeout'      => $this->timeout,
-                'pid'          => $this->pid,
-                'term'         => $this->term,
-                'sudo'         => $this->sudo,
-                'log_file'     => $this->log_file,
-                'run_file'     => $this->run_file,
-                'exit_code'    => $exit_code,
-                'output'       => $output,
+                'command'              => $this->command,
+                'full_command'         => $this->getFullCommandLine(),
+                'pipe'                 => $this->pipe?->getFullCommandLine(),
+                'arguments'            => $this->arguments,
+                'variables'            => $this->variables,
+                'timeout'              => $this->timeout,
+                'pid'                  => $this->pid,
+                'term'                 => $this->term,
+                'sudo'                 => $this->sudo,
+                'log_file'             => $this->log_file,
+                'run_file'             => $this->run_file,
+                'exit_code'            => $exit_code,
+                'output'               => $output,
+                'probable_cause'       => $cause,
+                'execution_time'       => $this->getExecutionTime(),
+                'execution_stop_time'  => $this->getExecutionStopTime(),
+                'execution_start_time' => $this->getExecutionStartTime(),
             ], $exit_code);
         }
 
@@ -170,6 +184,7 @@ Class Process
             ]), 2);
         }
 
+        $this->start = microtime(true);
         exec($this->getFullCommandLine(), $output, $exit_code);
         $this->setExitCode($exit_code, $output);
         return $output;
@@ -253,7 +268,8 @@ Class Process
             Log::action(tr('Executing command ":commands" using passthru()', [':commands' => $commands]), 2);
         }
 
-        $result = passthru($this->getFullCommandLine(), $exit_code);
+        $this->start = microtime(true);
+        $result      = passthru($this->getFullCommandLine(), $exit_code);
 
         // Output available in output file?
         if (file_exists($output_file)) {
@@ -293,6 +309,7 @@ Class Process
             ]), 3);
         }
 
+        $this->start = microtime(true);
         exec($this->getFullCommandLine(true), $output, $exit_code);
 
         if ($exit_code) {

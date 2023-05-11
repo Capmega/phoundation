@@ -15,7 +15,9 @@ use Phoundation\Filesystem\Exception\PathNotExistsException;
 use Phoundation\Processes\Exception\ProcessesException;
 use Phoundation\Processes\Process;
 use Phoundation\Servers\Traits\UsesRestrictions;
+use Stringable;
 use Throwable;
+
 
 /**
  * FileVariables class
@@ -28,7 +30,7 @@ use Throwable;
  * @category Function reference
  * @package Phoundation\Filesystem
  */
-class FileBasics
+class FileBasics implements Stringable
 {
     use UsesRestrictions;
 
@@ -61,10 +63,10 @@ class FileBasics
     /**
      * File class constructor
      *
-     * @param FileBasics|string|null $file
+     * @param FileBasics|Stringable|string|null $file
      * @param Restrictions|array|string|null $restrictions_restrictions
      */
-    public function __construct(FileBasics|string|null $file = null, Restrictions|array|string|null $restrictions_restrictions = null)
+    public function __construct(FileBasics|Stringable|string|null $file = null, Restrictions|array|string|null $restrictions_restrictions = null)
     {
         // Specified file was actually a File or Path object, get the file from there
         if (is_object($file)) {
@@ -92,11 +94,11 @@ class FileBasics
     /**
      * Returns a new File object with the specified restrictions
      *
-     * @param FileBasics|string|null $file
+     * @param FileBasics|Stringable|string|null $file
      * @param Restrictions|array|string|null $restrictions_restrictions
      * @return static
      */
-    public static function new(FileBasics|string|null $file = null, Restrictions|array|string|null $restrictions_restrictions = null): static
+    public static function new(FileBasics|Stringable|string|null $file = null, Restrictions|array|string|null $restrictions_restrictions = null): static
     {
         return new static($file, $restrictions_restrictions);
     }
@@ -105,12 +107,12 @@ class FileBasics
     /**
      * Returns the file for this File object
      *
-     * @param string|null $file
+     * @param Stringable|string|null $file
      * @param string|null $prefix
      * @param bool $must_exist
      * @return static
      */
-    public function setFile(?string $file, string $prefix = null, bool $must_exist = false): static
+    public function setFile(Stringable|string|null $file, string $prefix = null, bool $must_exist = false): static
     {
         $this->file = Filesystem::absolute($file, $prefix, $must_exist);
         return $this;
@@ -131,12 +133,12 @@ class FileBasics
     /**
      * Sets the target file name in case operations create copies of this file
      *
-     * @param string $target
+     * @param Stringable|string $target
      * @return static
      */
-    public function setTarget(string $target): static
+    public function setTarget(Stringable|string $target): static
     {
-        $this->target = $target;
+        $this->target = Filesystem::absolute($target);
         return $this;
     }
 

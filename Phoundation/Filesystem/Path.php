@@ -15,8 +15,10 @@ use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\PathNotDirectoryException;
 use Phoundation\Filesystem\Exception\RestrictionsException;
 use Phoundation\Processes\Commands\FilesystemCommands;
+use Stringable;
 use Throwable;
 use const PhpConsole\Test\PATH_TMP_DIR;
+
 
 /**
  * Path class
@@ -34,9 +36,9 @@ class Path extends FileBasics
     /**
      * Temporary path, if set
      *
-     * @var string|null
+     * @var Stringable|string|null
      */
-    protected static ?string $temp_path = null;
+    protected static Stringable|string|null $temp_path = null;
 
 
     /**

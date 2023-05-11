@@ -1,8 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-
 use Phoundation\Web\Routing\Route;
 use Phoundation\Web\Routing\RoutingParameters;
 use Templates\AdminLte\AdminLte;
@@ -91,6 +88,7 @@ use Templates\Mdb\Mdb;
 require('../vendor/autoload.php');
 
 
+
 //// Setup URL translations map
 //Route::mapUrl('es', [
 //    'conferencias' => 'conferences',
@@ -107,51 +105,38 @@ require('../vendor/autoload.php');
 //]);
 
 
+
 // Set routing parameters to be applied for the various page types
 Route::parameters()
 
-    ->add(RoutingParameters::new() // Routing parameters for admin pages
-        ->setPattern('/^\w{2}\/admin\//')
-        ->setRootUrl('http://phoundation.org.local/:LANGUAGE/admin/')
-        ->setRequirePathRights('pages/admin/', 'sign-in.php')
+    ->add(RoutingParameters::new() // Routing parameters for pages
+    ->setPattern('/^\w{2}\//')
+        ->setRootUrl('http://aerostream.phoundation.org.local/:LANGUAGE/')
+        ->setRequirePathRights('pages/')
+        ->setRights('aerostream')
+        ->setRightsExceptions('sign-in.php,sign-out.php')
         ->setTemplate(AdminLte::class))
 
-    ->add(RoutingParameters::new() // Routing parameters for default pages
-        ->setTemplate(Mdb::class))
-
-    ->add(RoutingParameters::new() // Routing parameters for admin system pages
-        ->setPattern('/^(\w{2})\/admin\//')
+    ->add(RoutingParameters::new() // Routing parameters for system pages
+    ->setPattern('/^(\w{2})\//')
         ->setTemplate(AdminLte::class)
-        ->setRootPath('$1/pages/admin/')
-        ->setRootUrl('http://phoundation.org.local/:LANGUAGE/admin/')
-        ->setRights('admin')
-        ->setSystemPagesOnly(true))
-
-    ->add(RoutingParameters::new() // Routing parameters for default multi lingual system pages
-        ->setPattern('/^(\w{2})\//')
-        ->setTemplate(Mdb::class)
         ->setRootPath('$1/pages/')
+        ->setRootUrl('http://aerostream.phoundation.org.local/:LANGUAGE/')
         ->setSystemPagesOnly(true))
 
     ->add(RoutingParameters::new() // Routing parameters for default english system pages
-        ->setTemplate(Mdb::class)
+    ->setTemplate(Mdb::class)
         ->setRootPath('en/pages/')
         ->setSystemPagesOnly(true));
 
 
+
 // AdminLte based admin page routes
-Route::try('/^(\w{2})\/admin\/ajax\/(.+?).html$/'       , '/$1/ajax/$2.php');                 // Execute the requested AJAX page
-Route::try('/^(\w{2})\/admin\/(.+?)\/(.+?)-(.+?).html$/', '/$1/pages/admin/$2/$3.php?id=$4'); // Show the requested form page
-Route::try('/^(\w{2})\/admin\/(.+?).html$/'             , '/$1/pages/admin/$2.php');          // Show the requested table page
-Route::try('/^(\w{2})\/admin\/?$/'                      , '/index.html', 'R301');       // Redirect to admin index page
-Route::try('/^admin\/$/'                                , '/index.html', 'R301');       // Redirect to admin index page
-
-
-// Mdb based front page routes
-Route::try('/^\w{2}\/ajax\/(.+?).html$/', '/en/ajax/$1.php');           // Execute the requested AJAX page
-Route::try('/^(\w{2})\/(.+?).html$/'    , '/$1/pages/$2.php');          // Show the requested page
-Route::try('/^(\w{2})\/?$/'             , '/index.html', 'R301'); // Redirect to front-end index page
-Route::try('/^$/'                       , '/index.html', 'R301'); // Redirect to front-end index page
+Route::try('/^(\w{2})\/ajax\/(.+?).html$/'       , '/$1/ajax/$2.php');           // Execute the requested AJAX page
+Route::try('/^(\w{2})\/(.+?)\/(.+?)-(.+?).html$/', '/$1/pages/$2/$3.php?id=$4'); // Show the requested form page
+Route::try('/^(\w{2})\/(.+?).html$/'             , '/$1/pages/$2.php');          // Show the requested table page
+Route::try('/^(\w{2})\/?$/'                      , '/index.html', 'R301'); // Redirect to admin index page
+Route::try('/^$/'                                , '/index.html', 'R301'); // Redirect to admin index page
 
 
 
