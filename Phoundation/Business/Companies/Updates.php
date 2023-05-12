@@ -96,7 +96,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `phones` varchar(64) CHARACTER SET latin1 DEFAULT NULL,
                     `documents_id` bigint DEFAULT NULL,
                     `categories_id` bigint DEFAULT NULL,
-                    `address1` varchar(64) DEFAULT NULL,
+                    `address` varchar(64) DEFAULT NULL,
                     `address2` varchar(64) DEFAULT NULL,
                     `address3` varchar(64) DEFAULT NULL,
                     `zipcode` varchar(8) DEFAULT NULL,

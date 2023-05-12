@@ -269,12 +269,12 @@ class Customer extends DataEntry
                 'label'      => tr('URL'),
                 'help'       => tr('A URL with more information about this customer'),
             ],
-            'address1' => [
+            'address' => [
                 'complete'  => true,
-                'cli'       => '--address1 URL',
+                'cli'       => '--address URL',
                 'size'      => 12,
                 'maxlength' => 64,
-                'label'     => tr('Address 1'),
+                'label'     => tr('Address'),
                 'help'      => tr('Address information for this customer'),
             ],
             'address2' => [

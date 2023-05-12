@@ -370,7 +370,7 @@ class Project
      * @param array|string|null $libraries
      * @return void
      */
-    public static function import(bool $demo, int $min, int $max, array|string|null $libraries): void
+    public static function import(bool $demo, int $min, int $max, array|string|null $libraries = null): void
     {
         Log::information(tr('Starting import for all libraries that support it'));
 
