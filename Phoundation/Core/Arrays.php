@@ -1304,56 +1304,6 @@ class Arrays {
 
 
     /**
-     * Returns the longest string of all values in the specified source array
-     *
-     * @note Any non-scalar values will be silently ignored. Any non string values will be measured as displayed strings
-     * @param array $source
-     * @return int
-     */
-    public static function getLongestString(array $source): int
-    {
-        $longest = 0;
-
-        foreach ($source as $value) {
-            if (!is_scalar($value)) {
-                continue;
-            }
-
-            $length = strlen((string) $value);
-
-            if ($length > $longest) {
-                $longest = $length;
-            }
-        }
-
-        return $longest;
-    }
-
-
-    /**
-     * Returns the longest key string of all values in the specified source array
-     *
-     * @note Any non-string keys will be treated as displayed strings
-     * @param array $source
-     * @return int
-     */
-    public static function getLongestKeyString(array $source): int
-    {
-        $longest = 0;
-
-        foreach ($source as $key => $value) {
-            $length = strlen((string) $key);
-
-            if ($length > $longest) {
-                $longest = $length;
-            }
-        }
-
-        return $longest;
-    }
-
-
-    /**
      * Returns the longest value string for each column from each row in the specified source array
      *
      * @note Any non-string keys will be treated as displayed strings
@@ -1813,5 +1763,73 @@ class Arrays {
 
         $return[$key] = $pos;
         return $return;
+    }
+
+
+    /**
+     * Returns the size of the largest key in the specified array.
+     *
+     * @param array $source
+     * @return int
+     */
+    public static function getLongestKeySize(array $source): int
+    {
+        $largest = 0;
+
+        foreach ($source as $key => $value) {
+            // Determine the largest key
+            $size = strlen((string) $key);
+
+            if ($size > $largest) {
+                $largest = $size;
+            }
+        }
+
+        return $largest;
+    }
+
+
+    /**
+     * Returns the size of the largest scalar value in the specified array.
+     *
+     * @note This function will ignore any and all non scalar values
+     *
+     * @param array $source
+     * @param string|null $key
+     * @return int
+     */
+    public static function getLongestValueSize(array $source, ?string $key = null): int
+    {
+        $largest = 0;
+
+        foreach ($source as $value) {
+            if ($key) {
+                if (!is_array($value)) {
+                    // $key requires string to be a sub array! Ignore this entry
+                    continue;
+                }
+
+                if (!array_key_exists($key, $value)) {
+                    // $key requires the key to exist in the sub array. Ignore this entry
+                    continue;
+                }
+
+                $value = $value[$key];
+            }
+
+            if (!is_scalar($value)) {
+                // $string must be a scalar value! Ignore this entry
+                continue;
+            }
+
+            // Determine the largest call line
+            $size = strlen((string) $value);
+
+            if ($size > $largest) {
+                $largest = $size;
+            }
+        }
+
+        return $largest;
     }
 }
