@@ -79,7 +79,7 @@ class Debug {
 
         if ($enabled === null) {
             // Return the setting
-            $return = strings::getBoolean(Config::get('debug.enabled', false));
+            $return = Config::getBoolean('debug.enabled', false);
             $loop   = false;
 
             return $return;
@@ -678,7 +678,7 @@ class Debug {
                     $query = str_replace((string) $key, ' '.tr('NULL').' ', $query);
 
                 } elseif (is_bool($value)) {
-                    $query = str_replace((string) $key, Strings::boolean($value), $query);
+                    $query = str_replace((string) $key, Strings::fromBoolean($value), $query);
 
                 } else {
                     if (!is_scalar($value)) {
