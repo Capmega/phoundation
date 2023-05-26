@@ -800,7 +800,7 @@ showdie($e);
                     $query = str_replace($key, ' ' . tr('NULL') . ' ', $query);
 
                 } elseif (is_bool($value)) {
-                    $query = str_replace($key, Strings::boolean($value), $query);
+                    $query = str_replace($key, Strings::fromBoolean($value), $query);
 
                 } else {
                     if (!is_scalar($value)) {

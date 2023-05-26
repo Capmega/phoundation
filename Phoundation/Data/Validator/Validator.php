@@ -198,7 +198,7 @@ abstract class Validator
         return $this->validateValues(function(&$value) {
             $this->checkIsOptional($value);
 
-            if (Strings::getBoolean($value, false) === null) {
+            if (Strings::toBoolean($value, false) === null) {
                 if ($value !== null) {
                     $this->addFailure(tr('must have a boolean value'));
                 }

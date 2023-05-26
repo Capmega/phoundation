@@ -122,7 +122,7 @@ class ReCaptcha2 extends Captcha
 
         $response = $post->getResultData();
         $response = Json::decode($response);
-        $response = Strings::getBoolean($response['success']);
+        $response = Strings::toBoolean($response['success']);
 
         if ($response) {
             Log::success(tr('Passed ReCaptcha test'));

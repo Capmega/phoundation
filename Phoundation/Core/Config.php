@@ -141,7 +141,7 @@ class Config
             }
 
             // Try to interpret as boolean
-            return Strings::getBoolean($return);
+            return Strings::toBoolean($return);
         } catch(OutOfBoundsException) {
             // Do nothing, following exception will do the job
         }

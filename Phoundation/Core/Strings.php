@@ -893,22 +893,6 @@ class Strings
 
 
     /**
-     * Return the specified value as a boolean name, false for null, zero, "", false, true otherwise.
-     *
-     * @param mixed $value
-     * @return string
-     */
-    public static function boolean(mixed $value): string
-    {
-        if ($value) {
-            return 'true';
-        }
-
-        return 'false';
-    }
-
-
-    /**
      * Convert underscore type variables to camelcase type variables
      *
      * @param string $source The string to convert
@@ -1604,6 +1588,22 @@ throw new UnderConstructionException();
 
 
     /**
+     * Return the specified value as a boolean name, false for null, zero, "", false, true otherwise.
+     *
+     * @param mixed $value
+     * @return string
+     */
+    public static function fromBoolean(mixed $value): string
+    {
+        if ($value) {
+            return 'true';
+        }
+
+        return 'false';
+    }
+
+
+    /**
      * Get a boolean value from the specified "boolean" string, like "true" to TRUE and "off" to FALSE
      *
      * FALSE: FALSE, "false", "no", "n", "off", "0"
@@ -1613,7 +1613,7 @@ throw new UnderConstructionException();
      * @param bool $exception
      * @return bool|null
      */
-    public static function getBoolean(Stringable|string|int|bool|null $source, bool $exception = true): ?bool
+    public static function toBoolean(Stringable|string|int|bool|null $source, bool $exception = true): ?bool
     {
         if (is_bool($source)) {
             return $source;

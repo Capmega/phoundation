@@ -627,7 +627,7 @@ Class Log {
 
             case 'boolean':
                 $size = '-';
-                $message = strtoupper(Strings::boolean($messages));
+                $message = strtoupper(Strings::fromBoolean($messages));
                 break;
 
             case 'string':

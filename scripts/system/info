@@ -58,8 +58,8 @@ $templates_size = 0;
 Log::cli(Color::apply(Strings::size(tr('Project name:') , 28), 'white') . ' ' . PROJECT);
 Log::cli(Color::apply(Strings::size(tr('Platform:')     , 28), 'white') . ' ' . PLATFORM);
 Log::cli(Color::apply(Strings::size(tr('Environment:')  , 28), 'white') . ' ' . ENVIRONMENT);
-Log::cli(Color::apply(Strings::size(tr('Production:')   , 28), 'white') . ' ' . Strings::boolean(Debug::production()));
-Log::cli(Color::apply(Strings::size(tr('Debug:')        , 28), 'white') . ' ' . Strings::boolean(Debug::enabled()));
+Log::cli(Color::apply(Strings::size(tr('Production:')   , 28), 'white') . ' ' . Strings::fromBoolean(Debug::production()));
+Log::cli(Color::apply(Strings::size(tr('Debug:')        , 28), 'white') . ' ' . Strings::fromBoolean(Debug::enabled()));
 Log::cli(Color::apply(Strings::size(tr('Core database:'), 28), 'white') . ' ' . Config::get('databases.sql.instances.system.name', 'unknown'));
 
 Log::cli();
