@@ -35,6 +35,7 @@ use Phoundation\Web\Page;
 use Phoundation\Web\Routing\Route;
 use Throwable;
 
+
 /**
  * Class Core
  *
@@ -49,7 +50,7 @@ class Core {
     /**
      * Framework version and minimum required PHP version
      */
-    public const FRAMEWORKCODEVERSION = '4.1.0';
+    public const FRAMEWORKCODEVERSION = '4.2.0';
     public const PHP_MINIMUM_VERSION  = '8.1.0';
 
     /**
@@ -147,6 +148,20 @@ class Core {
      */
     protected static bool $script = false;
 
+    /**
+     * Usleep timestamp for the Core::usleep() call
+     *
+     * @var int|null $usleep
+     */
+    protected static ?int $usleep = null;
+
+    /**
+     * Sleep timestamp for the Core::usleep() call
+     *
+     * @var int|null $sleep
+     */
+    protected static ?int $sleep = null;
+
 
     /**
      * Core class constructor
@@ -183,10 +198,13 @@ class Core {
         set_exception_handler(['\Phoundation\Core\Core'     , 'uncaughtException']);
         register_shutdown_function(['\Phoundation\Core\Core', 'shutdown']);
 
-// TODO Implement PCNTL functions
-//            pcntl_signal(SIGTERM, ['\Phoundation\Core\Core', 'shutdown']);
-//            pcntl_signal(SIGINT , ['\Phoundation\Core\Core', 'shutdown']);
-//            pcntl_signal(SIGHUP , ['\Phoundation\Core\Core', 'shutdown']);
+        // Catch and handle process control signals
+        if (function_exists('pcntl_signal')) {
+            pcntl_async_signals(true);
+            pcntl_signal(SIGINT ,['\Phoundation\Core\ProcessControlSignals', 'execute']);
+            pcntl_signal(SIGTERM,['\Phoundation\Core\ProcessControlSignals', 'execute']);
+            pcntl_signal(SIGHUP ,['\Phoundation\Core\ProcessControlSignals', 'execute']);
+        }
 
         // Load the functions and mb files
         require(PATH_ROOT . 'Phoundation/functions.php');
@@ -254,6 +272,94 @@ class Core {
 
             throw $e;
         }
+    }
+
+
+    /**
+     * A sleep() method that is process interrupt signal safe.
+     *
+     * The sleep() and usleep() calls can be messed up with pcntl signals, as these stop the sleep commands.
+     * This Core::sleep() method is pcntl safe
+     *
+     * @see https://www.php.net/manual/en/function.pcntl-signal.php#124049
+     * @param int $seconds
+     * @return void
+     */
+    public static function sleep(int $seconds): void
+    {
+        self::doSleep($seconds);
+    }
+
+
+    /**
+     * A usleep() method that is process interrupt signal safe.
+     *
+     * The sleep() and usleep() calls can be messed up with pcntl signals, as these stop the sleep commands.
+     * This Core::usleep() method is pcntl safe
+     *
+     * @see https://www.php.net/manual/en/function.pcntl-signal.php#124049
+     * @param int $micro_seconds
+     * @return void
+     */
+    public static function usleep(int $micro_seconds): void
+    {
+        self::doUsleep($micro_seconds);
+    }
+
+
+    /**
+     * Implementation of the sleep() method that is process interrupt signal safe.
+     *
+     * The sleep() and usleep() calls can be messed up with pcntl signals, as these stop the sleep commands.
+     * This Core::usleep() method is pcntl safe
+     *
+     * This method implements the Core::usleep() method, adding $offset which can be used to add some extra seconds
+     * because those were spent in signal processing
+     *
+     * @see https://www.php.net/manual/en/function.pcntl-signal.php#124049
+     * @param int $seconds
+     * @param int|null $offset The amount of seconds to add to the sleep as they were lost
+     * @return void
+     */
+    protected static function doSleep(int $seconds, int $offset = null): void
+    {
+        if (Core::$usleep) {
+            // Ups, we were sleeping but it got interrupted. Resume
+            sleep(Core::$usleep - time() + $offset);
+        } else {
+            Core::$usleep = (time()) + $seconds;
+            sleep($seconds);
+        }
+
+        Core::$usleep = null;
+    }
+
+
+    /**
+     * A usleep() method that is process interrupt signal safe.
+     *
+     * The sleep() and usleep() calls can be messed up with pcntl signals, as these stop the sleep commands.
+     * This Core::usleep() method is pcntl safe
+     *
+     * This method implements the Core::usleep() method, adding $offset which can be used to add some extra microseconds
+     * because those were spent in signal processing
+     *
+     * @see https://www.php.net/manual/en/function.pcntl-signal.php#124049
+     * @param int $micro_seconds
+     * @param int|null $offset
+     * @return void
+     */
+    protected static function doUsleep(int $micro_seconds, int $offset = null): void
+    {
+        if (Core::$usleep) {
+            // Ups, we were sleeping but it got interrupted. Resume
+            usleep(Core::$usleep - (microtime(true) * 1000000) + $offset);
+        } else {
+            Core::$usleep = (microtime(true) * 1000000) + $micro_seconds;
+            usleep($micro_seconds);
+        }
+
+        Core::$usleep = null;
     }
 
 
