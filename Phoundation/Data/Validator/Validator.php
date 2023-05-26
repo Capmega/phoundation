@@ -572,7 +572,7 @@ abstract class Validator
         return $this->validateValues(function(&$value) use ($array) {
             // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
             $this->isScalar();
-            $this->hasMaxCharacters(Arrays::getLongestString($array));
+            $this->hasMaxCharacters(Arrays::getLongestValueSize($array));
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
