@@ -534,6 +534,21 @@ class Page
 
 
     /**
+     * Return the protocol for this page, or the primary domain on CLI
+     *
+     * @return string
+     */
+    public static function getProtocol(): string
+    {
+        if (PLATFORM_HTTP) {
+            return $_SERVER['SERVER_PROTOCOL'];
+        }
+
+        return Domains::getPrimary();
+    }
+
+
+    /**
      * Return the URL for this page
      *
      * @param bool $no_queries
