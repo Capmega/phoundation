@@ -718,36 +718,36 @@ SYSTEM ARGUMENTS
             }
 
         } elseif ($exit_code) {
-            if ($exit_code > 200) {
+            if ($exit_code >= 200) {
                 if ($exit_message) {
-                    Log::warning($exit_message);
+                    Log::warning($exit_message, 8);
+                } else {
+                    // Script ended with warning
+                    Log::warning(tr('Script ":script" ended with exit code ":exitcode" warning in ":time" with ":usage" peak memory usage', [
+                        ':script'   => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
+                        ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+                        ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
+                        ':exitcode' => $exit_code
+                    ]), 8);
                 }
-
-                // Script ended with warning
-                Log::warning(tr('Script ":script" ended with exit code ":exitcode" warning in ":time" with ":usage" peak memory usage', [
-                    ':script'   => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
-                    ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
-                    ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
-                    ':exitcode' => $exit_code
-                ]), 8);
 
             } else {
                 if ($exit_message) {
-                    Log::error($exit_message);
+                    Log::error($exit_message, 8);
+                } else {
+                    // Script ended with error
+                    Log::error(tr('Script ":script" failed with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
+                        ':script'   => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
+                        ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+                        ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
+                        ':exitcode' => $exit_code
+                    ]), 8);
                 }
-
-                // Script ended with error
-                Log::error(tr('Script ":script" failed with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
-                    ':script'   => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
-                    ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
-                    ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
-                    ':exitcode' => $exit_code
-                ]), 8);
             }
 
         } else {
             if ($exit_message) {
-                Log::success($exit_message);
+                Log::success($exit_message, 8);
             }
 
             // Script ended successfully
