@@ -201,7 +201,7 @@ class Cli
         }
 
         // Determine the size of the keys to display them
-        $key_size = Arrays::getLongestKeyString($source) + 4;
+        $key_size = Arrays::getLongestKeySize($source) + 4;
 
         // Display header
         if ($key_header and $value_header) {
