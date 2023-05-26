@@ -35,6 +35,27 @@ use Phoundation\Web\Page;
 
 
 /**
+ * Returns true if the specified string is a version, or false if it is not
+ *
+ * @version 2.5.46: Added function and documentation
+ * @param string $version The version to be validated
+ * @return boolean True if the specified $version is an N.N.N version string
+ */
+function is_version(string $version): bool
+{
+    $return = preg_match('/\d{1,4}\.\d{1,4}\.\d{1,4}/', $version);
+
+    if ($return === false) {
+        throw new Exception(tr('Failed to determine if ":version" is a valid version or not', [
+            ':version' => $version
+        ]));
+    }
+
+    return (bool) $return;
+}
+
+
+/**
  * Shortcut to echo-ing a new line
  *
  * @return void
@@ -702,6 +723,8 @@ function has_trait(string $trait, object|string $class): bool
 /**
  * Show command that requires no configuration and can be used at startup times. USE WITH CARE!
  *
+ * @param mixed|null $source
+ * @param bool $die
  * @return mixed
  * @throws \Exception
  */
