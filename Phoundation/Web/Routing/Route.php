@@ -101,6 +101,7 @@ class Route
      */
     protected static bool $dynamic_pagematch = false;
 
+
     /**
      * Route constructor
      */
@@ -117,7 +118,7 @@ class Route
         static::$method = ($_POST ? 'POST' : 'GET');
         static::$ip     = (empty($_SERVER['HTTP_X_REAL_IP']) ? $_SERVER['REMOTE_ADDR'] : $_SERVER['HTTP_X_REAL_IP']);
         static::$uri    = Strings::startsNotWith($_SERVER['REQUEST_URI'], '/');
-        static::$uri    = Strings::until(static::$uri                     , '?');
+        static::$uri    = Strings::until(static::$uri                   , '?');
         static::$query  = Strings::from($_SERVER['REQUEST_URI']         , '?');
 
         if (strlen(static::$uri) > 2048) {
@@ -184,6 +185,8 @@ class Route
      */
     public static function parameters(): RoutingParametersList
     {
+        static::getInstance();
+
         if (!isset(static::$parameters)) {
             static::$parameters = new RoutingParametersList();
         }
