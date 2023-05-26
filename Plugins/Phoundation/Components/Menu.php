@@ -28,6 +28,11 @@ class Menu extends \Phoundation\Web\Http\Html\Components\Menu
                 'url'    => '/',
                 'icon'   => 'fa-tachometer-alt',
             ],
+            tr('Test') => [
+                'rights' => 'admin',
+                'url'    => '/test.html',
+                'icon'   => 'fa-tachometer-alt',
+            ],
             tr('System') => [
                 'icon' => '',
             ],
