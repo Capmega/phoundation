@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Network;
 
+use Phoundation\Core\Log\Log;
+use Phoundation\Network\Curl\Get;
+use Phoundation\Processes\Exception\ProcessFailedException;
 use Phoundation\Processes\Process;
 
 
@@ -27,10 +30,19 @@ class Network
      */
     public static function getPublicIpAddress(): string
     {
-        return Process::new('dig')
-            ->addArgument('+short')
-            ->addArgument('myip.opendns.com')
-            ->addArgument('@resolver1.opendns.com')
-            ->executeReturnString();
+        try {
+            return Process::new('dig')
+                ->addArgument('+short')
+                ->addArgument('myip.opendns.com')
+                ->addArgument('@resolver1.opendns.com')
+                ->executeReturnString();
+
+        } catch (ProcessFailedException $e) {
+            Log::warning(tr('Network::getPublicIpAddress() The dig command failed with the following exception'));
+            Log::warning(tr('This issue might be caused by a VPN, retrying with curl'));
+            Log::warning($e);
+
+            return Get::new('https://ipinfo.io/ip')->execute()->getResultData();
+        }
     }
 }
