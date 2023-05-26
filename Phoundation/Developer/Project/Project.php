@@ -18,6 +18,7 @@ use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\Traits\DataRestrictions;
 use Phoundation\Processes\Commands\Command;
 use Phoundation\Processes\Commands\Rsync;
 use Phoundation\Processes\Process;
@@ -35,7 +36,7 @@ use Throwable;
  */
 class Project
 {
-    use \Phoundation\Filesystem\Traits\DataRestrictions;
+    use DataRestrictions;
     use Git {
         __construct as protected construct;
     }

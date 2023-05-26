@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Servers\Traits;
 
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Servers\SshAccount;
 
 /**
@@ -21,23 +22,29 @@ trait DataEntrySshAccount
     /**
      * Returns the ssh_accounts_id for this object
      *
-     * @return string|null
+     * @return int|null
      */
-    public function getSshAccountsId(): ?string
+    public function getSshAccountsId(): ?int
     {
-        return $this->getDataValue('ssh_accounts_id');
+        return get_null((integer) $this->getDataValue('ssh_accounts_id'));
     }
 
 
     /**
      * Sets the ssh_accounts_id for this object
      *
-     * @param string|null $ssh_accounts_id
+     * @param string|int|null $ssh_accounts_id
      * @return static
      */
-    public function setSshAccountsId(?string $ssh_accounts_id): static
+    public function setSshAccountsId(string|int|null $ssh_accounts_id): static
     {
-        return $this->setDataValue('ssh_accounts_id', $ssh_accounts_id);
+        if ($ssh_accounts_id and !is_natural($ssh_accounts_id)) {
+            throw new OutOfBoundsException(tr('Specified ssh_accounts_id ":id" is not a natural number', [
+                ':id' => $ssh_accounts_id
+            ]));
+        }
+
+        return $this->setDataValue('ssh_accounts_id', (integer) $ssh_accounts_id);
     }
 
 

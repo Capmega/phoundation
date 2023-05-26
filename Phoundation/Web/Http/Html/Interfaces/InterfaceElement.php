@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html\Interfaces;
 
+use Stringable;
+
 
 /**
  * Interface Element
@@ -15,7 +17,7 @@ namespace Phoundation\Web\Http\Html\Interfaces;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-interface InterfaceElement extends InterfaceElementAttributes
+interface InterfaceElement extends InterfaceElementAttributes, Stringable
 {
     /**
      * Sets the type of element to display

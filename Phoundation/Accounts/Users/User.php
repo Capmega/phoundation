@@ -571,19 +571,25 @@ class User extends DataEntry implements InterfaceUser
      */
     public function getLeadersId(): ?int
     {
-        return $this->getDataValue('leaders_id');
+        return get_null((integer) $this->getDataValue('leaders_id'));
     }
 
 
     /**
      * Sets the leader for this user
      *
-     * @param int|null $leaders_id
+     * @param string|int|null $leaders_id
      * @return static
      */
-    public function setLeadersId(int|null $leaders_id): static
+    public function setLeadersId(string|int|null $leaders_id): static
     {
-        return $this->setDataValue('leaders_id', $leaders_id);
+        if ($leaders_id and !is_natural($leaders_id)) {
+            throw new OutOfBoundsException(tr('Specified leaders_id ":id" is not numeric', [
+                ':id' => $leaders_id
+            ]));
+        }
+
+        return $this->setDataValue('leaders_id', (integer) $leaders_id);
     }
 
 

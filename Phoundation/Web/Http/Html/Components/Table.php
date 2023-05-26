@@ -12,6 +12,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Input\InputCheckbox;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
 use Phoundation\Web\Http\UrlBuilder;
+use Stringable;
 
 /**
  * Class Table
@@ -788,10 +789,10 @@ class Table extends ResourceElement
      * Returns a table cell
      *
      * @param array $row_values
-     * @param string|int|null $row_id
+     * @param string|float|int|null $row_id
      * @return string
      */
-    protected function renderRow(array $row_values, string|int|null $row_id = null): string
+    protected function renderRow(array $row_values, string|float|int|null $row_id = null): string
     {
         if (empty($this->column_headers)) {
             // Auto set headers from the column names
@@ -836,13 +837,13 @@ class Table extends ResourceElement
     /**
      * Returns a table cell
      *
-     * @param string $row_id
-     * @param string|int $column
-     * @param string|null $value
+     * @param string|float|int|null $row_id
+     * @param string|float|int|null $column
+     * @param Stringable|string|float|int|null $value
      * @param bool $entities
      * @return string
      */
-    protected function renderCell(string $row_id, string|int $column, ?string $value, bool $entities): string
+    protected function renderCell(string|float|int|null $row_id, string|float|int|null $column, Stringable|string|float|int|null $value, bool $entities): string
     {
         $value = (string) $value;
 
@@ -882,8 +883,8 @@ class Table extends ResourceElement
 
         if (isset($url)) {
             // Apply URL row / column specific information
-            $url = str_replace(':ROW'   , $row_id, $url);
-            $url = str_replace(':COLUMN', $column, $url);
+            $url = str_replace(':ROW'   , (string) $row_id, $url);
+            $url = str_replace(':COLUMN', (string) $column, $url);
             $url = UrlBuilder::getWww($url);
 
             return '<td><a href="' . $url . '">' . $value . '</a></td>';
@@ -897,10 +898,10 @@ class Table extends ResourceElement
      * Changes the first column to a checkbox
      *
      * @param string $column
-     * @param string $value
+     * @param string|float|int $value
      * @return string
      */
-    protected function renderCheckboxColumn(string $column, string $value): string
+    protected function renderCheckboxColumn(string $column, string|float|int $value): string
     {
         if (!$this->checkbox_selectors) {
             return $value;

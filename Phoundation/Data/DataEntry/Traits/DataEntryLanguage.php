@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Core\Locale\Language\Language;
+use Phoundation\Exception\OutOfBoundsException;
 
 /**
  * Trait DataEntryLanguage
@@ -25,19 +26,25 @@ trait DataEntryLanguage
      */
     public function getLanguagesId(): ?int
     {
-        return (int) $this->getDataValue('languages_id');
+        return get_null((integer) $this->getDataValue('languages_id'));
     }
 
 
     /**
      * Sets the languages_id for this object
      *
-     * @param int|null $languages_id
+     * @param string|int|null $languages_id
      * @return static
      */
-    public function setLanguagesId(?int $languages_id): static
+    public function setLanguagesId(string|int|null $languages_id): static
     {
-        return $this->setDataValue('languages_id', $languages_id);
+        if ($languages_id and !is_natural($languages_id)) {
+            throw new OutOfBoundsException(tr('Specified languages_id ":id" is not a natural number', [
+                ':id' => $languages_id
+            ]));
+        }
+
+        return $this->setDataValue('languages_id', (integer) $languages_id);
     }
 
 

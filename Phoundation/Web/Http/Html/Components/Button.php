@@ -7,6 +7,7 @@ namespace Phoundation\Web\Http\Html\Components;
 use Phoundation\Web\Http\Html\Components\Input\Input;
 use Phoundation\Web\Http\Html\Enums\ButtonType;
 use Phoundation\Web\Http\Html\Enums\InputType;
+use Stringable;
 
 /**
  * Button class
@@ -61,9 +62,9 @@ class Button extends Input
     /**
      * Returns if the button is floating or not
      *
-     * @return string
+     * @return bool
      */
-    public function getFloating(): string
+    public function getFloating(): bool
     {
         return $this->floating;
     }
@@ -73,10 +74,10 @@ class Button extends Input
      * Set the content for this button
      *
      * @todo add documentation for when button is floating as it is unclear what is happening there
-     * @param object|string|null $content
+     * @param Stringable|string|float|int|null $content
      * @return static
      */
-    public function setContent(object|string|null $content): static
+    public function setContent(Stringable|string|float|int|null $content): static
     {
         if ($this->floating) {
             // What does this do?????????????
@@ -92,11 +93,11 @@ class Button extends Input
     /**
      * Set the content for this button
      *
-     * @param object|string|null $value
+     * @param Stringable|string|float|int|null $value
      * @return static
-     *@todo add documentation for when button is floating as it is unclear what is happening there
+     * @todo add documentation for when button is floating as it is unclear what is happening there
      */
-    public function setValue(object|string|null $value): static
+    public function setValue(Stringable|string|float|int|null $value): static
     {
         if ($this->floating) {
             // What does this do?????????????
@@ -161,7 +162,7 @@ class Button extends Input
     public function render(): ?string
     {
         $this->resetButtonClasses();
-        $this->attributes['type'] = $this->type->value;
+        $this->attributes['type'] = $this->type?->value;
 
         if ($this->anchor_url) {
             unset($this->attributes['type']);

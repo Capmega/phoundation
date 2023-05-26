@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Data\Categories\Category;
+use Phoundation\Exception\OutOfBoundsException;
 
 /**
  * Trait DataEntryCategory
@@ -21,23 +22,29 @@ trait DataEntryCategory
     /**
      * Returns the categories_id for this object
      *
-     * @return string|null
+     * @return int|null
      */
-    public function getCategoriesId(): ?string
+    public function getCategoriesId(): ?int
     {
-        return $this->getDataValue('categories_id');
+        return get_null((integer) $this->getDataValue('categories_id'));
     }
 
 
     /**
      * Sets the categories_id for this object
      *
-     * @param string|null $categories_id
+     * @param string|int|null $categories_id
      * @return static
      */
-    public function setCategoriesId(?string $categories_id): static
+    public function setCategoriesId(string|int|null $categories_id): static
     {
-        return $this->setDataValue('categories_id', $categories_id);
+        if ($categories_id and !is_natural($categories_id)) {
+            throw new OutOfBoundsException(tr('Specified categories_id ":id" is not numeric', [
+                ':id' => $categories_id
+            ]));
+        }
+
+        return $this->setDataValue('categories_id', (integer) $categories_id);
     }
 
 

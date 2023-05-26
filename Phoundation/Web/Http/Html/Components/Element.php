@@ -46,6 +46,17 @@ abstract class Element implements InterfaceElement
 
 
     /**
+     * Returns the rendered version of this element
+     *
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return $this->render();
+    }
+
+
+    /**
      * Sets the type of element to display
      *
      * @param string $element

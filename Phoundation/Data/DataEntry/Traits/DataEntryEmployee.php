@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Business\Companies\Employees\Employee;
+use Phoundation\Exception\OutOfBoundsException;
 
 /**
  * Trait DataEntryEmployee
@@ -29,23 +30,29 @@ trait DataEntryEmployee
     /**
      * Returns the employees_id for this object
      *
-     * @return string|null
+     * @return int|null
      */
-    public function getEmployeesId(): ?string
+    public function getEmployeesId(): ?int
     {
-        return $this->getDataValue('employees_id');
+        return get_null((integer) $this->getDataValue('employees_id'));
     }
 
 
     /**
      * Sets the employees_id for this object
      *
-     * @param string|null $employees_id
+     * @param string|int|null $employees_id
      * @return static
      */
-    public function setEmployeesId(?string $employees_id): static
+    public function setEmployeesId(string|int|null $employees_id): static
     {
-        return $this->setDataValue('employees_id', $employees_id);
+        if ($employees_id and !is_natural($employees_id)) {
+            throw new OutOfBoundsException(tr('Specified employees_id ":id" is not numeric', [
+                ':id' => $employees_id
+            ]));
+        }
+
+        return $this->setDataValue('employees_id', (integer) $employees_id);
     }
 
 

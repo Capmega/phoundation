@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Business\Providers\Provider;
+use Phoundation\Exception\OutOfBoundsException;
 
 /**
  * Trait DataEntryProvider
@@ -21,23 +22,29 @@ trait DataEntryProvider
     /**
      * Returns the providers_id for this object
      *
-     * @return string|null
+     * @return int|null
      */
-    public function getProvidersId(): ?string
+    public function getProvidersId(): ?int
     {
-        return $this->getDataValue('providers_id');
+        return get_null((integer) $this->getDataValue('providers_id'));
     }
 
 
     /**
      * Sets the providers_id for this object
      *
-     * @param string|null $providers_id
+     * @param string|int|null $providers_id
      * @return static
      */
-    public function setProvidersId(?string $providers_id): static
+    public function setProvidersId(string|int|null $providers_id): static
     {
-        return $this->setDataValue('providers_id', $providers_id);
+        if ($providers_id and !is_natural($providers_id)) {
+            throw new OutOfBoundsException(tr('Specified providers_id ":id" is not a natural number', [
+                ':id' => $providers_id
+            ]));
+        }
+
+        return $this->setDataValue('providers_id', (integer) $providers_id);
     }
 
 

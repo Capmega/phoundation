@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http\Html\Components;
 
 use Iterator;
-use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Web\Http\Html\Enums\ButtonType;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Html\Interfaces\InterfaceDisplayMode;
 use Phoundation\Web\Http\Html\Interfaces\InterfaceInputType;
 use ReturnTypeWillChange;
+
 
 /**
  * Buttons class
@@ -24,6 +24,9 @@ use ReturnTypeWillChange;
  */
 class Buttons extends ElementsBlock implements Iterator
 {
+    use ButtonProperties;
+
+
     /**
      * If true, the buttons will be grouped in one larger button
      *

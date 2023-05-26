@@ -7,6 +7,7 @@ namespace Phoundation\Web\Http\Html\Components;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
+use Stringable;
 
 
 /**
@@ -776,10 +777,10 @@ trait ElementAttributes
     /**
      * Sets the content of the element
      *
-     * @param object|string|null $content
+     * @param Stringable|string|float|int|null $content
      * @return static
      */
-    public function setContent(object|string|null $content): static
+    public function setContent(Stringable|string|float|int|null $content): static
     {
         $this->content = null;
         return $this->addContent($content);
@@ -789,10 +790,10 @@ trait ElementAttributes
     /**
      * Adds the specified content to the content of the element
      *
-     * @param object|string|null $content
+     * @param Stringable|string|float|int|null $content
      * @return static
      */
-    public function addContent(object|string|null $content): static
+    public function addContent(Stringable|string|float|int|null $content): static
     {
         if (is_object($content)) {
             // This object must be able to render HTML. Check this and then render.

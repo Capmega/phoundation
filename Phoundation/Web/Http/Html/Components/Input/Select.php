@@ -361,7 +361,7 @@ class Select extends ResourceElement
                 throw new OutOfBoundsException(tr('The specified select source array is invalid. Format should be [key => value, key => value, ...]'));
             }
 
-            $return .= '<option' . $this->buildOptionClassString() . $this->buildSelectedString($key) . ' value="' . htmlentities($key) . '"' . $option_data . '>' . htmlentities($value) . '</option>';
+            $return .= '<option' . $this->buildOptionClassString() . $this->buildSelectedString($key) . ' value="' . htmlentities((string) $key) . '"' . $option_data . '>' . htmlentities((string) $value) . '</option>';
         }
 
         return $return;
@@ -428,7 +428,7 @@ class Select extends ResourceElement
                 }
             }
 
-            $return .= '<option' . $this->buildOptionClassString() . $this->buildSelectedString($key) . ' value="' . htmlentities($key) . '"' . $option_data . '>' . htmlentities($value) . '</option>';
+            $return .= '<option' . $this->buildOptionClassString() . $this->buildSelectedString($key) . ' value="' . htmlentities((string) $key) . '"' . $option_data . '>' . htmlentities((string) $value) . '</option>';
         }
 
         if ($this->cache) {

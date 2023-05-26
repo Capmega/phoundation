@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Business\Companies\Company;
+use Phoundation\Exception\OutOfBoundsException;
 
 /**
  * Trait DataEntryCompany
@@ -29,23 +30,29 @@ trait DataEntryCompany
     /**
      * Returns the companies_id for this object
      *
-     * @return string|null
+     * @return int|null
      */
-    public function getCompaniesId(): ?string
+    public function getCompaniesId(): ?int
     {
-        return $this->getDataValue('companies_id');
+        return get_null((integer) $this->getDataValue('companies_id'));
     }
 
 
     /**
      * Sets the companies_id for this object
      *
-     * @param string|null $companies_id
+     * @param string|int|null $companies_id
      * @return static
      */
-    public function setCompaniesId(?string $companies_id): static
+    public function setCompaniesId(string|int|null $companies_id): static
     {
-        return $this->setDataValue('companies_id', $companies_id);
+        if ($companies_id and !is_natural($companies_id)) {
+            throw new OutOfBoundsException(tr('Specified companies_id ":id" is not numeric', [
+                ':id' => $companies_id
+            ]));
+        }
+
+        return $this->setDataValue('companies_id', (integer) $companies_id);
     }
 
 

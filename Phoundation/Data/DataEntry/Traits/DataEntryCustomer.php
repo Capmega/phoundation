@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Business\Customers\Customer;
+use Phoundation\Exception\OutOfBoundsException;
 
 /**
  * Trait DataEntryCustomer
@@ -21,23 +22,29 @@ trait DataEntryCustomer
     /**
      * Returns the customers_id for this object
      *
-     * @return string|null
+     * @return int|null
      */
-    public function getCustomersId(): ?string
+    public function getCustomersId(): ?int
     {
-        return $this->getDataValue('customers_id');
+        return get_null((integer) $this->getDataValue('customers_id'));
     }
 
 
     /**
      * Sets the customers_id for this object
      *
-     * @param string|null $customers_id
+     * @param string|int|null $customers_id
      * @return static
      */
-    public function setCustomersId(?string $customers_id): static
+    public function setCustomersId(string|int|null $customers_id): static
     {
-        return $this->setDataValue('customers_id', $customers_id);
+        if ($customers_id and !is_natural($customers_id)) {
+            throw new OutOfBoundsException(tr('Specified customers_id ":id" is not numeric', [
+                ':id' => $customers_id
+            ]));
+        }
+
+        return $this->setDataValue('customers_id', (integer) $customers_id);
     }
 
 

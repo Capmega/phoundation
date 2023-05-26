@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Geo\Timezones\Timezone;
 
 
@@ -26,19 +27,25 @@ trait DataEntryTimezone
      */
     public function getTimezonesId(): ?int
     {
-        return $this->getDataValue('timezones_id');
+        return get_null((integer) $this->getDataValue('timezones_id'));
     }
 
 
     /**
      * Sets the timezones_id for this user
      *
-     * @param int|null $timezones_id
+     * @param string|int|null $timezones_id
      * @return static
      */
-    public function setTimezonesId(?int $timezones_id): static
+    public function setTimezonesId(string|int|null $timezones_id): static
     {
-        return $this->setDataValue('timezones_id', $timezones_id);
+        if ($timezones_id and !is_natural($timezones_id)) {
+            throw new OutOfBoundsException(tr('Specified timezones_id ":id" is not a natural number', [
+                ':id' => $timezones_id
+            ]));
+        }
+
+        return $this->setDataValue('timezones_id', (integer) $timezones_id);
     }
 
 

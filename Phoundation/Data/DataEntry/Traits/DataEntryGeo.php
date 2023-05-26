@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Geo\Cities\City;
 use Phoundation\Geo\Countries\Country;
 use Phoundation\Geo\States\State;
@@ -27,19 +28,25 @@ trait DataEntryGeo
      */
     public function getCitiesId(): ?int
     {
-        return $this->getDataValue('cities_id');
+        return get_null((integer) $this->getDataValue('cities_id'));
     }
 
 
     /**
      * Sets the cities_id for this user
      *
-     * @param int|null $cities_id
+     * @param string|int|null $cities_id
      * @return static
      */
-    public function setCitiesId(?int $cities_id): static
+    public function setCitiesId(string|int|null $cities_id): static
     {
-        return $this->setDataValue('cities_id', $cities_id);
+        if ($cities_id and !is_natural($cities_id)) {
+            throw new OutOfBoundsException(tr('Specified cities_id ":id" is not numeric', [
+                ':id' => $cities_id
+            ]));
+        }
+
+        return $this->setDataValue('cities_id', (integer) $cities_id);
     }
 
 
@@ -87,19 +94,25 @@ trait DataEntryGeo
      */
     public function getStatesId(): ?int
     {
-        return $this->getDataValue('states_id');
+        return get_null((integer) $this->getDataValue('states_id'));
     }
 
 
     /**
      * Sets the states_id for this user
      *
-     * @param int|null $states_id
+     * @param string|int|null $states_id
      * @return static
      */
-    public function setStatesId(?int $states_id): static
+    public function setStatesId(string|int|null $states_id): static
     {
-        return $this->setDataValue('states_id', $states_id);
+        if ($states_id and !is_natural($states_id)) {
+            throw new OutOfBoundsException(tr('Specified states_id ":id" is not a natural number', [
+                ':id' => $states_id
+            ]));
+        }
+
+        return $this->setDataValue('states_id', (integer) $states_id);
     }
 
 
@@ -147,19 +160,25 @@ trait DataEntryGeo
      */
     public function getCountriesId(): ?int
     {
-        return $this->getDataValue('countries_id');
+        return get_null((integer) $this->getDataValue('countries_id'));
     }
 
 
     /**
      * Sets the countries_id for this user
      *
-     * @param int|null $countries_id
+     * @param string|int|null $countries_id
      * @return static
      */
-    public function setCountriesId(?int $countries_id): static
+    public function setCountriesId(string|int|null $countries_id): static
     {
-        return $this->setDataValue('countries_id', $countries_id);
+        if ($countries_id and !is_natural($countries_id)) {
+            throw new OutOfBoundsException(tr('Specified countries_id ":id" is not a natural number', [
+                ':id' => $countries_id
+            ]));
+        }
+
+        return $this->setDataValue('countries_id', (integer) $countries_id);
     }
 
 

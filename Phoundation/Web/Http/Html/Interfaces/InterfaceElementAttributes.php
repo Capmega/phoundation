@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http\Html\Interfaces;
 
 
+use Stringable;
+
 /**
  * Interface ElementAttributes
  *
@@ -371,18 +373,18 @@ interface InterfaceElementAttributes
     /**
      * Sets the content of the element
      *
-     * @param object|string|null $content
+     * @param Stringable|string|float|int|null $content
      * @return static
      */
-    function setContent(object|string|null $content): static;
+    function setContent(Stringable|string|float|int|null $content): static;
 
     /**
      * Adds the specified content to the content of the element
      *
-     * @param object|string|null $content
+     * @param Stringable|string|float|int|null $content
      * @return static
      */
-    function addContent(object|string|null $content): static;
+    function addContent(Stringable|string|float|int|null $content): static;
 
     /**
      * Returns the content of the element to display

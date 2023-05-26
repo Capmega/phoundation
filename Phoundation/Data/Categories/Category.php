@@ -12,6 +12,7 @@ use Phoundation\Data\Interfaces\InterfaceDataEntry;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 
 /**
@@ -47,23 +48,29 @@ class Category extends DataEntry
     /**
      * Returns the parents_id for this object
      *
-     * @return string|null
+     * @return int|null
      */
-    public function getParentsId(): ?string
+    public function getParentsId(): ?int
     {
-        return $this->getDataValue('parents_id');
+        return get_null((integer) $this->getDataValue('parents_id'));
     }
 
 
     /**
      * Sets the parents_id for this object
      *
-     * @param string|null $parents_id
+     * @param string|int|null $parents_id
      * @return static
      */
-    public function setParentsId(?string $parents_id): static
+    public function setParentsId(string|int|null $parents_id): static
     {
-        return $this->setDataValue('parents_id', $parents_id);
+        if ($parents_id and !is_natural($parents_id)) {
+            throw new OutOfBoundsException(tr('Specified parents_id ":id" is not numeric', [
+                ':id' => $parents_id
+            ]));
+        }
+
+        return $this->setDataValue('parents_id', (integer) $parents_id);
     }
 
 

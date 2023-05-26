@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Business\Companies\Branches\Branch;
+use Phoundation\Exception\OutOfBoundsException;
 
 /**
  * Trait DataEntryBranch
@@ -29,23 +30,29 @@ trait DataEntryBranch
     /**
      * Returns the branches_id for this object
      *
-     * @return string|null
+     * @return int|null
      */
-    public function getBranchesId(): ?string
+    public function getBranchesId(): ?int
     {
-        return $this->getDataValue('branches_id');
+        return get_null((integer) $this->getDataValue('branches_id'));
     }
 
 
     /**
      * Sets the branches_id for this object
      *
-     * @param string|null $branches_id
+     * @param string|int|null $branches_id
      * @return static
      */
-    public function setBranchesId(?string $branches_id): static
+    public function setBranchesId(string|int|null $branches_id): static
     {
-        return $this->setDataValue('branches_id', $branches_id);
+        if ($branches_id and !is_natural($branches_id)) {
+            throw new OutOfBoundsException(tr('Specified branches_id ":id" is not numeric', [
+                ':id' => $branches_id
+            ]));
+        }
+
+        return $this->setDataValue('branches_id', (integer) $branches_id);
     }
 
 

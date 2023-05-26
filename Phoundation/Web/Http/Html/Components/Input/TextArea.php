@@ -41,7 +41,7 @@ class TextArea extends Input
 
         $this->requires_closing_tag = true;
         $this->element              = 'textarea';
-        $this->type                 = InputType::null;
+        $this->type                 = null;
     }
 
 

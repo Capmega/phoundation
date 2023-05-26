@@ -673,7 +673,7 @@ abstract class DataEntry implements InterfaceDataEntry
      */
     public function getMetaId(): ?int
     {
-        return $this->getDataValue('meta_id');
+        return get_null((integer) $this->getDataValue('meta_id'));
     }
 
 
