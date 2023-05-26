@@ -1835,8 +1835,51 @@ throw new UnderConstructionException();
      * @param Stringable|string $prefix
      * @return string
      */
-    function unique(string $hash = 'sha512', Stringable|string $prefix = ''): string
+    public static function unique(string $hash = 'sha512', Stringable|string $prefix = ''): string
     {
         return hash($hash, uniqid((string) $prefix, true) . microtime(true) . Config::get('security.seed', ''));
+    }
+
+
+    /**
+     * Returns a formatted table displaying key > value patterns
+     *
+     * @param mixed $source
+     * @param string $eol
+     * @param string|null $separator
+     * @return string
+     */
+    public static function getKeyValueTable(mixed $source, string $eol = PHP_EOL, ?string $separator = null): string
+    {
+        if (!$source) {
+            return '';
+        }
+
+        if (is_scalar($source)) {
+            return (string) $source;
+        }
+
+        if (is_object($source)) {
+            $source = (array) $source;
+        }
+
+        if (!is_array($source)) {
+            // Is it a resource? What else is there left?
+            throw new OutOfBoundsException(tr('Specified source has unknown datatype ":type"', [
+                ':type' => gettype($source)
+            ]));
+        }
+
+        $return  = '';
+        $longest = Arrays::getLongestKeySize($source) + 1;
+
+        // format and write the lines
+        foreach ($source as $key => $value) {
+            // Resize the call lines to all have the same size for easier reading
+            $key     = Strings::size($key, $longest);
+            $return .= trim($key . $separator . $value) . $eol;
+        }
+
+        return $return;
     }
 }
