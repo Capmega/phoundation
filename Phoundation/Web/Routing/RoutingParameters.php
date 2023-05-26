@@ -15,6 +15,8 @@ use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\Html\Template\Template;
+use Phoundation\Web\Http\Protocols;
+use Phoundation\Web\Http\UrlBuilder;
 use Templates\AdminLte\AdminLte;
 
 /**
@@ -425,6 +427,10 @@ class RoutingParameters
      */
     public function setRootUrl(string $root_url): static
     {
+        // Apply keyword replacements
+        $root_url = str_replace(':DOMAIN'  , Domains::getCurrent(), $root_url);
+        $root_url = str_replace(':PROTOCOL', Protocols::getCurrent(), $root_url);
+
         $this->root_url = Strings::endsWith(Strings::startsNotWith($root_url, '/'), '/');
         return $this;
     }
