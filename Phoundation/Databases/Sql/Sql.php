@@ -38,6 +38,7 @@ use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Throwable;
 
+
 /**
  * Sql class
  *

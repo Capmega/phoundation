@@ -173,7 +173,7 @@ class TestDataGenerator
      */
     public static function getProvidersId(): int
     {
-        return sql()->getColumn('SELECT `id` FROM `business_providers` ORDER BY RAND() LIMIT 1;');
+        return get_null((integer) sql()->getColumn('SELECT `id` FROM `business_providers` ORDER BY RAND() LIMIT 1;'));
     }
 
 
@@ -184,7 +184,7 @@ class TestDataGenerator
      */
     public static function getCustomersId(): int
     {
-        return sql()->getColumn('SELECT `id` FROM `business_customers` ORDER BY RAND() LIMIT 1;');
+        return get_null((integer) sql()->getColumn('SELECT `id` FROM `business_customers` ORDER BY RAND() LIMIT 1;'));
     }
 
 
@@ -195,7 +195,7 @@ class TestDataGenerator
      */
     public static function getCategoriesId(): int
     {
-        return sql()->getColumn('SELECT `id` FROM `business_categories` ORDER BY RAND() LIMIT 1;');
+        return get_null((integer) sql()->getColumn('SELECT `id` FROM `business_categories` ORDER BY RAND() LIMIT 1;'));
     }
 
 
