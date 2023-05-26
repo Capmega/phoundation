@@ -14,6 +14,7 @@ use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Web\Page;
 
+
 /**
  * Class Domains
  *
@@ -142,9 +143,9 @@ class Domains {
      * Returns true if the specified domain is the current domain
      *
      * @param string $domain
-     * @return string
+     * @return bool
      */
-    public static function isCurrent(string $domain): string
+    public static function isCurrent(string $domain): bool
     {
         return static::getCurrent() === $domain;
     }
