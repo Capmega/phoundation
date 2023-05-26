@@ -20,10 +20,10 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Restrictions;
-use Phoundation\Servers\Server;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
 use Throwable;
+
 
 /**
  * Log class
@@ -183,7 +183,9 @@ Class Log {
             static::setBacktraceDisplay(Config::get('log.backtrace-display', self::BACKTRACE_DISPLAY_BOTH));
             static::setLocalId(substr(uniqid(), -8, 8));
             static::setGlobalId($global_id);
-        } catch (\Throwable) {
+        } catch (Throwable $e) {
+            error_log(tr('Configuration read failed with ":e"', [':e' => $e->getMessage()]));
+
             // Likely configuration read failed. Just set defaults
             static::$restrictions = Restrictions::new(PATH_DATA . 'log/', true, 'Log');
             static::setThreshold(10);
@@ -494,10 +496,6 @@ Class Log {
      */
     public static function setGlobalId(string $global_id): void
     {
-        if (!$global_id) {
-            return;
-        }
-
         if (static::$global_id !== '-') {
             throw new LogException('Cannot set the global log id, it has already been set');
         }
@@ -735,6 +733,19 @@ Class Log {
 
 
     /**
+     * Write a debug message trying to format the data in a neat table.
+     *
+     * @param mixed $key_value
+     * @param int $threshold
+     * @return bool
+     */
+    public static function table(array $key_value, int $threshold = 10): bool
+    {
+        return static::write(Strings::getKeyValueTable($key_value, PHP_EOL, ': '), 'debug', $threshold, false, false);
+    }
+
+
+    /**
      * Write a debug message using vardump() in the log file
      *
      * @param mixed $messages
@@ -752,15 +763,18 @@ Class Log {
      * Write a backtrace message in the log file
      *
      * @param ?int $display
+     * @param array|null $backtrace
      * @param int $threshold
-     * @return bool
+     * @return void
      */
-    public static function backtrace(?int $display = null, int $threshold = 10, bool $clean = true, bool $newline = true): bool
+    public static function backtrace(?int $display = null, ?array $backtrace = null, int $threshold = 10): void
     {
-        $backtrace = Debug::backtrace(1);
+        if ($backtrace === null) {
+            $backtrace = Debug::backtrace(1);
+        }
+
         static::logDebugHeader('BACKTRACE', 1, $threshold);
         static::dumpTrace($backtrace, $threshold, $display);
-        return static::debug(basename($_SERVER['SCRIPT_FILENAME']), $threshold);
     }
 
 
@@ -1038,103 +1052,133 @@ Class Log {
     protected static function dumpTrace(array $backtrace, int $threshold = 9, ?int $display = null): int
     {
         try {
-            $count = 0;
-            $largest = 0;
-            $lines = [];
+            $lines = self::formatTrace($backtrace, $threshold, $display);
 
-            if ($display === null) {
-                $display = static::$display;
-            }
-
-            // Parse backtrace data and build the log lines
-            foreach ($backtrace as $id => $step) {
-                // We usually don't want to see arguments as that clogs up BADLY
-                unset($step['args']);
-
-                // Remove unneeded information depending on the specified display
-                switch ($display) {
-                    case self::BACKTRACE_DISPLAY_FILE:
-                        // Display only file@line information, but ONLY if file@line information is available
-                        if (isset($step['file'])) {
-                            unset($step['class']);
-                            unset($step['function']);
-                        }
-
-                        break;
-
-                    case self::BACKTRACE_DISPLAY_FUNCTION:
-                        // Display only function / class information
-                        unset($step['file']);
-                        unset($step['line']);
-                        break;
-
-                    case self::BACKTRACE_DISPLAY_BOTH:
-                        // Display both function / class and file@line information
-                        break;
-
-                    default:
-                        // Wut? Just display both
-                        static::warning(tr('Unknown $display ":display" specified. Please use one of Log::BACKTRACE_DISPLAY_FILE, Log::BACKTRACE_DISPLAY_FUNCTION, or BACKTRACE_DISPLAY_BOTH', [':display' => $display]));
-                        $display = self::BACKTRACE_DISPLAY_BOTH;
-                }
-
-                // Build up log line from here. Start by getting the file information
-                $line = [];
-
-                if (isset($step['class'])) {
-                    if (isset_get($step['class']) === 'Closure') {
-                        // Log the closure call
-                        $line['call'] = '{closure}';
-                    } else {
-                        // Log the class method call
-                        $line['call'] = $step['class'] . $step['type'] . $step['function'] . '()';
-                    }
-                } elseif (isset($step['function'])) {
-                    // Log the function call
-                    $line['call'] = $step['function'] . '()';
-                }
-
-                // Log the file@line information
-                if (isset($step['file'])) {
-                    // Remove PATH_ROOT from the filenames for clarity
-                    $line['location'] = Strings::from($step['file'], PATH_ROOT) . '@' . $step['line'];
-                }
-
-                if (!$line) {
-                    // Failed to build backtrace line
-                    static::write(tr('Invalid backtrace data encountered, do not know how to process and display the following entry'), 'warning', $threshold);
-                    static::printr($step, 10);
-                    static::write(tr('Original backtrace data entry format below'), 'warning', $threshold);
-                    static::printr($step, 10);
-                }
-
-                // Determine the largest call line
-                $size = strlen(isset_get($line['call'], ''));
-
-                if ($size > $largest) {
-                    $largest = $size;
-                }
-
-                $lines[] = $line;
-            }
-
-            // format and write the lines
             foreach ($lines as $line) {
-                $count++;
-
-                if (isset($line['call'])) {
-                    // Resize the call lines to all have the same size for easier log reading
-                    $line['call'] = Strings::size($line['call'], $largest);
-                }
-
-                static::write(trim(($line['call'] ?? null) . (isset($line['location']) ? (isset($line['call']) ? ' in ' : null) . $line['location'] : null)), 'debug', $threshold, false);
+                static::write($line, 'debug', $threshold, false);
             }
 
-            return $count;
+            return count($lines);
+
         } catch (Throwable $e) {
             // Don't crash the process because of this, log it and return -1 to indicate an exception
             static::error(tr('Failed to log backtrace because of exception ":e"', [':e' => $e->getMessage()]));
             return -1;
         }
+    }
+
+
+    /**
+     * Dump the specified backtrace data
+     *
+     * @param array $backtrace The backtrace data
+     * @param int $threshold The log level for this backtrace data
+     * @param int|null $display How to display the backtrace. Must be one of Log::BACKTRACE_DISPLAY_FILE,
+     *                          Log::BACKTRACE_DISPLAY_FUNCTION or Log::BACKTRACE_DISPLAY_BOTH.
+     * @return array The backtrace lines
+     */
+    protected static function formatTrace(array $backtrace, int $threshold = 9, ?int $display = null): array
+    {
+        $lines   = self::buildTrace($backtrace, $threshold, $display);
+        $longest = Arrays::getLongestValueSize($lines, 'call');
+        $return  = [];
+
+        // format and write the lines
+        foreach ($lines as $line) {
+            if (isset($line['call'])) {
+                // Resize the call lines to all have the same size for easier log reading
+                $line['call'] = Strings::size($line['call'], $longest);
+            }
+
+            $return[] = trim(($line['call'] ?? null) . (isset($line['location']) ? (isset($line['call']) ? ' in ' : null) . $line['location'] : null));
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Dump the specified backtrace data
+     *
+     * @param array $backtrace The backtrace data
+     * @param int $threshold The log level for this backtrace data
+     * @param int|null $display How to display the backtrace. Must be one of Log::BACKTRACE_DISPLAY_FILE,
+     *                          Log::BACKTRACE_DISPLAY_FUNCTION or Log::BACKTRACE_DISPLAY_BOTH.
+     * @return array The backtrace lines
+     */
+    protected static function buildTrace(array $backtrace, int $threshold = 9, ?int $display = null): array
+    {
+        $lines = [];
+
+        if ($display === null) {
+            $display = static::$display;
+        }
+
+        // Parse backtrace data and build the log lines
+        foreach ($backtrace as $id => $step) {
+            // We usually don't want to see arguments as that clogs up BADLY
+            unset($step['args']);
+
+            // Remove unneeded information depending on the specified display
+            switch ($display) {
+                case self::BACKTRACE_DISPLAY_FILE:
+                    // Display only file@line information, but ONLY if file@line information is available
+                    if (isset($step['file'])) {
+                        unset($step['class']);
+                        unset($step['function']);
+                    }
+
+                    break;
+
+                case self::BACKTRACE_DISPLAY_FUNCTION:
+                    // Display only function / class information
+                    unset($step['file']);
+                    unset($step['line']);
+                    break;
+
+                case self::BACKTRACE_DISPLAY_BOTH:
+                    // Display both function / class and file@line information
+                    break;
+
+                default:
+                    // Wut? Just display both
+                    static::warning(tr('Unknown $display ":display" specified. Please use one of Log::BACKTRACE_DISPLAY_FILE, Log::BACKTRACE_DISPLAY_FUNCTION, or BACKTRACE_DISPLAY_BOTH', [':display' => $display]));
+                    $display = self::BACKTRACE_DISPLAY_BOTH;
+            }
+
+            // Build up log line from here. Start by getting the file information
+            $line = [];
+
+            if (isset($step['class'])) {
+                if (isset_get($step['class']) === 'Closure') {
+                    // Log the closure call
+                    $line['call'] = '{closure}';
+                } else {
+                    // Log the class method call
+                    $line['call'] = $step['class'] . $step['type'] . $step['function'] . '()';
+                }
+            } elseif (isset($step['function'])) {
+                // Log the function call
+                $line['call'] = $step['function'] . '()';
+            }
+
+            // Log the file@line information
+            if (isset($step['file'])) {
+                // Remove PATH_ROOT from the filenames for clarity
+                $line['location'] = Strings::from($step['file'], PATH_ROOT) . '@' . $step['line'];
+            }
+
+            if (!$line) {
+                // Failed to build backtrace line
+                static::write(tr('Invalid backtrace data encountered, do not know how to process and display the following entry'), 'warning', $threshold);
+                static::printr($step, 10);
+                static::write(tr('Original backtrace data entry format below'), 'warning', $threshold);
+                static::printr($step, 10);
+            }
+
+            $lines[] = $line;
+        }
+
+        return $lines;
     }
 }
