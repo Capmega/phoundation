@@ -69,7 +69,7 @@ class Libraries
             switch ($driver) {
                 case 'sql':
                     foreach ($data['instances'] as $instance => $configuration) {
-                        sql($instance, false)->schema()->database()->drop();
+                        sql($instance, false)->schema(false)->database()->drop();
                     }
 
                     break;
