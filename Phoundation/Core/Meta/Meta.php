@@ -233,7 +233,7 @@ class Meta
      */
     protected function load(int $id): void
     {
-        $this->id = sql()->getColumn('SELECT `id` FROM `meta` WHERE `id` = :id', [':id' => $id]);
+        $this->id = sql()->getInteger('SELECT `id` FROM `meta` WHERE `id` = :id', [':id' => $id]);
 
         if (!$this->id) {
             throw new DataEntryNotExistsException(tr('The specified meta id ":id" does not exist', [

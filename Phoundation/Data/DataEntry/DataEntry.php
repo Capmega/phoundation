@@ -403,7 +403,7 @@ abstract class DataEntry implements InterfaceDataEntry
     {
         $entry      = new static();
         $table      = $entry->getTable();
-        $identifier = sql()->getColumn('SELECT `id` FROM `' . $table . '` ORDER BY RAND() LIMIT 1;');
+        $identifier = sql()->getInteger('SELECT `id` FROM `' . $table . '` ORDER BY RAND() LIMIT 1;');
 
         if ($identifier) {
             return static::get($identifier);

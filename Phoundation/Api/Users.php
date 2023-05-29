@@ -27,10 +27,10 @@ class Users extends \Phoundation\Accounts\Users\Users\Users
      */
     public static function getUserFromApiKey(string $key): ?User
     {
-        $users_id = sql()->getColumn('SELECT `api_keys`.`users_id` 
-                                            FROM   `api_keys`
-                                            WHERE  `api_keys`.`key` = :key', [
-                                          ':key' => $key
+        $users_id = sql()->getInteger('SELECT `api_keys`.`users_id` 
+                                             FROM   `api_keys`
+                                             WHERE  `api_keys`.`key` = :key', [
+            ':key' => $key
         ]);
 
         if ($users_id) {

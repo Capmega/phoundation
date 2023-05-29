@@ -136,7 +136,7 @@ class Table extends SchemaAbstract
      */
     public function getCount(): int
     {
-        return sql()->getColumn('SELECT COUNT(*) as `count` FROM `' . $this->name . '`');
+        return sql()->getInteger('SELECT COUNT(*) as `count` FROM `' . $this->name . '`');
     }
 
 

@@ -269,6 +269,18 @@ function is_natural($number, int $start = 1): bool
 
 
 /**
+ * Returns true if the specified number (may be any datatype) is content wise an integer
+ *
+ * @param mixed $source
+ * @return bool
+ */
+function is_numeric_integer(mixed $source): bool
+{
+    return $source == (int) $source;
+}
+
+
+/**
  * Returns TRUE if the specified data entry is new.
  *
  * A data entry is considered new when the id is null, or _new
@@ -394,8 +406,8 @@ function pick_random_multiple(int $count, mixed ...$arguments): string|array
     $return = [];
 
     for ($i = 0; $i < $count; $i++) {
-        $return[] = $arguments[$key = Arrays::getRandomValue($args)];
-        unset($args[$key]);
+        $return[] = $arguments[$key = Arrays::getRandomValue($arguments)];
+        unset($arguments[$key]);
     }
 
     return $return;
@@ -431,7 +443,7 @@ function show(mixed $source = null, int $trace_offset = 1, bool $quiet = false):
 function showhex(mixed $source = null, int $trace_offset = 1, bool $quiet = false): mixed
 {
     $source = bin2hex($source);
-    return show($source, false);
+    return show($source, $trace_offset);
 }
 
 
