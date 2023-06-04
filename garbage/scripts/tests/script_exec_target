@@ -1,7 +1,0 @@
-#!/usr/bin/php
-<?php
-/*
- * This script serves as a target for script_exec
- */
-require_once(dirname(__FILE__).'/../../libs/startup.php');
-cli_only(true);

@@ -1,4 +1,0 @@
-#!/usr/bin/php
-<?php
-obsolete('Please use the ./scripts/base/code script instead');
-?>
