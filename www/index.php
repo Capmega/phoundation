@@ -105,30 +105,27 @@ require('../vendor/autoload.php');
 //]);
 
 
-
 // Set routing parameters to be applied for the various page types
 Route::parameters()
 
-    ->add(RoutingParameters::new() // Routing parameters for pages
-    ->setPattern('/^\w{2}\//')
-        ->setRootUrl('http://aerostream.phoundation.org.local/:LANGUAGE/')
-        ->setRequirePathRights('pages/')
-        ->setRights('aerostream')
+   ->add(RoutingParameters::new() // Routing parameters for pages
+        ->setPattern('/^\w{2}\/admin//')
+        ->setRootUrl('http://:DOMAIN/:LANGUAGE/admin/')
+        ->setRequirePathRights('pages/admin/')
         ->setRightsExceptions('sign-in.php,sign-out.php')
         ->setTemplate(AdminLte::class))
 
     ->add(RoutingParameters::new() // Routing parameters for system pages
-    ->setPattern('/^(\w{2})\//')
+        ->setPattern('/^(\w{2})\//')
         ->setTemplate(AdminLte::class)
         ->setRootPath('$1/pages/')
-        ->setRootUrl('http://aerostream.phoundation.org.local/:LANGUAGE/')
+        ->setRootUrl('http://:DOMAIN/:LANGUAGE/')
         ->setSystemPagesOnly(true))
 
     ->add(RoutingParameters::new() // Routing parameters for default english system pages
-    ->setTemplate(Mdb::class)
+        ->setTemplate(Mdb::class)
         ->setRootPath('en/pages/')
         ->setSystemPagesOnly(true));
-
 
 
 // AdminLte based admin page routes
@@ -139,25 +136,6 @@ Route::try('/^(\w{2})\/?$/'                      , '/index.html', 'R301'); // Re
 Route::try('/^$/'                                , '/index.html', 'R301'); // Redirect to admin index page
 
 
-
-
-
-//// Front end pages
-//Route::try('/^([a-z]{2})\/$/'                                    , '$1/index.php'                                         , '');                 // Show index page
-//Route::try('/^([a-z]{2})\/([-a-z]+).html$/'                      , '$1/$2.php'                                            , '');                 // Show pages with page name in URL
-//Route::try('/^([a-z]{2})\/(?!admin)([a-z]+)\/([a-z0-9-]+).html$/', '$1/$2.php?item=$3'                                    , '');                 // Show pages with page/section name in URL
-//Route::try(''                                                    , ':PROTOCOL:DOMAIN/:REQUESTED_LANGUAGE/'                , 'R301');             // Main page has to redirect to a language page
-//
-//
-//
-//// Admin pages
-//Route::try('/^([a-z]{2})\/(admin\/)?ajax\/([a-z\/]+).php$/'      , '$1/$2ajax/$3.php'                                     , 'Q');                // Redirect to admin ajax pages
-//Route::try('/^([a-z]{2})\/admin\/?$/'                            , ':PROTOCOL:DOMAIN/:REQUESTED_LANGUAGE/admin/index.html', 'R301');             // /en/admin/ has to go to /en/admin/index.html
-//Route::try('/^([a-z]{2})\/admin\/([a-z-]+).html$/'               , '$1/admin/$2.php'                                      , 'Q');                // Show admin pages with page name in URL
-//Route::try('/^admin\/?$/'                                        , ':PROTOCOL:DOMAIN/:REQUESTED_LANGUAGE/admin/index.html', 'R301');             // /admin/ has to go to /en/admin/index.html
-//
-//
-//
-//// System files / downloadable files
-//Route::try('/(.+?(?:xml|txt))$/'                                 , '$1'                                                   , '');                 // System files like sitemap.xml, robot.txt, etc.
-//Route::try('/\/files\/(.+)$/'                                    , '$1'                                                   , 'A');                // Downloadable files
+// System files / downloadable files
+Route::try('/(.+?(?:xml|txt))$/'                                 , '$1'                                                   , '');                 // System files like sitemap.xml, robot.txt, etc.
+Route::try('/\/files\/(.+)$/'                                    , '$1'                                                   , 'A');                // Downloadable files
