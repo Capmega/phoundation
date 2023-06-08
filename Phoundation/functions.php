@@ -18,8 +18,10 @@ use Phoundation\Databases\Redis;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exception;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Web\Page;
+
 
 /**
  * functions file functions.php
@@ -127,7 +129,7 @@ function tr(string $text, ?array $replace = null, bool $clean = true): string
 
     } catch (Exception $e) {
         // Do NOT use tr() here for obvious endless loop reasons!
-        throw new CoreException('tr(): Failed with text "'.Strings::log($text) . '". Very likely issue with $replace not containing all keywords, or one of the $replace values is non-scalar', $e);
+        throw new CoreException('tr(): Failed with text "' . Strings::log($text) . '". Very likely issue with $replace not containing all keywords, or one of the $replace values is non-scalar', $e);
     }
 }
 
@@ -150,6 +152,34 @@ function in_source(array $source, string|int $key): bool
 
 
 /**
+ * Returns true if the specified source is an enum
+ *
+ * @param mixed $source
+ * @return bool
+ */
+function is_enum(mixed $source) {
+    return (is_object($source) and ($source instanceof UnitEnum));
+}
+
+
+/**
+ * Returns true if the specified needle is in the given Enum haystack
+ *
+ * @note Internally this function will convert the enum to an array and then use in_array()
+ *
+ * @param mixed $needle
+ * @param UnitEnum $haystack
+ * @param bool $strict
+ * @return bool
+ */
+function in_enum(mixed $needle, UnitEnum $haystack, bool $strict = false): bool
+{
+    $haystack = Arrays::fromEnum($haystack);
+    return in_array($needle, $haystack, $strict);
+}
+
+
+/**
  * Return the value if it actually exists, or NULL instead.
  *
  * If (for example) a non-existing key from an array was specified, NULL will be returned instead of causing a variable
@@ -161,19 +191,141 @@ function in_source(array $source, string|int $key): bool
  */
 function isset_get(mixed &$variable, mixed $default = null): mixed
 {
-    /*
-     * The variable exists
-     */
+    // The variable exists
     if (isset($variable)) {
         return $variable;
     }
 
-    /*
-     * The previous isset would have actually set the variable with null, unset it to ensure it won't exist
-     */
+    // The previous isset would have actually set the variable with null, unset it to ensure it won't exist
+    unset($variable);
+    return $default;
+}
+
+
+/**
+ * Return the value if it actually exists with the correct datatype, or NULL instead.
+ *
+ * If (for example) a non-existing key from an array was specified, NULL will be returned instead of causing a variable
+ *
+ * @note IMPORTANT! After calling this function, $var will exist in the scope of the calling function!
+ * @param array|string $types If the data exists, it must have one of these data types. Can be specified as array or |
+ *                            separated string
+ * @param mixed $variable The variable to test
+ * @param mixed $default (optional) The value to return in case the specified $variable did not exist or was NULL.*
+ * @return mixed
+ */
+function isset_get_typed(array|string $types, mixed &$variable, mixed $default = null): mixed
+{
+    // The variable exists
+    if (isset($variable)) {
+        // Ensure datatype
+        foreach (Arrays::force($types, '|') as $type) {
+            switch ($type) {
+                case 'scalar':
+                    if (is_scalar($variable)) {
+                        return $variable;
+                    }
+
+                    break;
+
+                case 'string':
+                    if (is_string($variable)) {
+                        return $variable;
+                    }
+
+                    // Allow hard casting for numbers
+                    if (is_numeric($variable)) {
+                        return (string) $variable;
+                    }
+
+                    break;
+
+                case 'int':
+                    // no break
+                case 'integer':
+                    if (is_integer($variable)) {
+                        return $variable;
+                    }
+
+                    break;
+
+                case 'double':
+                    // no break
+                case 'float':
+                    if (is_float($variable)) {
+                        return $variable;
+                    }
+
+                    break;
+
+                case 'bool':
+                    // no break
+                case 'boolean':
+                    if (is_bool($variable)) {
+                        return $variable;
+                    }
+
+                    break;
+
+                case 'array':
+                    if (is_array($variable)) {
+                        return $variable;
+                    }
+
+                    break;
+
+                case 'resource':
+                    if (is_resource($variable)) {
+                        break;
+                    }
+
+                    return $variable;
+
+                case 'function':
+                    // no-break
+                case 'callable':
+                    if (is_callable($variable)) {
+                        break;
+                    }
+
+                    return $variable;
+
+                case 'null':
+                    if (is_null($variable)) {
+                        break;
+                    }
+
+                    return $variable;
+
+                default:
+                    // This should be an object
+                    if (is_object($variable)) {
+                        return $variable;
+                    }
+
+                    if ($variable instanceof $type) {
+                        return $variable;
+                    }
+
+                    break;
+            }
+        }
+
+        throw OutOfBoundsException::new(tr('isset_get_typed(): Specified variable has datatype ":has" but it should be one of ":types"', [
+            ':has'   => gettype($variable),
+            ':types' => $types,
+        ]))->setData(['variable' => $variable]);
+    }
+
+    // The previous isset would have actually set the variable with null, unset it to ensure it won't exist
     unset($variable);
 
-    return $default;
+    if ($default === null) {
+        return null;
+    }
+
+    // Return the default variable after validating datatype
+    return isset_get_typed($types, $default);
 }
 
 
