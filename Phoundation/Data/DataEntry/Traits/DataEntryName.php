@@ -25,7 +25,7 @@ trait DataEntryName
      */
     public function getSeoName(): ?string
     {
-        return $this->getDataValue('seo_name');
+        return $this->getDataValue('string', 'seo_name');
     }
 
 
@@ -36,7 +36,7 @@ trait DataEntryName
      */
     public function getName(): ?string
     {
-        return $this->getDataValue('name');
+        return $this->getDataValue('string', 'name');
     }
 
 
@@ -49,7 +49,7 @@ trait DataEntryName
     public function setName(?string $name): static
     {
         if ($name !== null) {
-            $seo_name = Seo::unique($name, $this->table, $this->getDataValue('id'), $this->unique_field);
+            $seo_name = Seo::unique($name, static::getTable(), $this->getDataValue('int', 'id'), $this->unique_field);
             $this->setDataValue('seo_name', $seo_name);
         }
 

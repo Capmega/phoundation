@@ -34,7 +34,7 @@ trait DataEntryCompany
      */
     public function getCompaniesId(): ?int
     {
-        return get_null((integer) $this->getDataValue('companies_id'));
+        return $this->getDataValue('string', 'companies_id');
     }
 
 
@@ -52,7 +52,7 @@ trait DataEntryCompany
             ]));
         }
 
-        return $this->setDataValue('companies_id', (integer) $companies_id);
+        return $this->setDataValue('companies_id', get_null(isset_get_typed('integer', $companies_id)));
     }
 
 
@@ -63,7 +63,7 @@ trait DataEntryCompany
      */
     public function getCompany(): ?Company
     {
-        $companies_id = $this->getDataValue('companies_id');
+        $companies_id = $this->getDataValue('string', 'companies_id');
 
         if ($companies_id) {
             return new Company($companies_id);
@@ -76,19 +76,21 @@ trait DataEntryCompany
     /**
      * Sets the companies_id for this object
      *
-     * @param Company|string|int|null $companies_id
+     * @param Company|string|int|null $company
      * @return static
      */
-    public function setCompany(Company|string|int|null $companies_id): static
+    public function setCompany(Company|string|int|null $company): static
     {
-        if (!is_numeric($companies_id)) {
-            $companies_id = Company::get($companies_id);
+        if ($company) {
+            if (!is_numeric($company)) {
+                $company = Company::get($company);
+            }
+
+            if (is_object($company)) {
+                $company = $company->getId();
+            }
         }
 
-        if (is_object($companies_id)) {
-            $companies_id = $companies_id->getId();
-        }
-
-        return $this->setDataValue('companies_id', $companies_id);
+        return $this->setCompaniesId(get_null($company));
     }
 }

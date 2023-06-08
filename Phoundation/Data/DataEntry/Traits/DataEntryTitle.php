@@ -23,7 +23,7 @@ trait DataEntryTitle
      */
     public function getTitle(): ?string
     {
-        return $this->getDataValue('title');
+        return $this->getDataValue('string', 'title');
     }
 
 

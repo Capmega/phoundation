@@ -123,18 +123,20 @@ class ArgvValidator extends Validator
 
         // Determine the correct clean field name for the specified argument field
         foreach (Arrays::force($fields, ',') as $field) {
-            $field = trim($field);
+            // Clean the field by stripping parameter information
+            $field       = trim($field);
+            $clean_field = Strings::until($field, ' ');
 
-            if (str_starts_with($field, '--')) {
+            if (str_starts_with($clean_field, '--')) {
                 // This is the long form argument
-                $clean_field = Strings::startsNotWith($field, '-');
+                $clean_field = Strings::startsNotWith($clean_field, '-');
                 $clean_field = str_replace('-', '_', $clean_field);
                 break;
             }
 
-            if (str_starts_with($field, '-')) {
+            if (str_starts_with($clean_field, '-')) {
                 // This is the short form argument, won't  be a variable name unless there is no alternative
-                $clean_field = Strings::startsNotWith($field, '-');
+                $clean_field = Strings::startsNotWith($clean_field, '-');
                 $clean_field = str_replace('-', '_', $clean_field);
                 continue;
             }
@@ -543,13 +545,7 @@ class ArgvValidator extends Validator
     public static function extract(): ?array
     {
         Log::warning(tr('Liberated all $argv data without data validation!'));
-
-        global $argv;
-
-        $argv = static::$argv;
-        static::$argv = [];
-
-        return $argv;
+        return static::$argv;
     }
 
 

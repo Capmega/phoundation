@@ -9,6 +9,7 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
+use Phoundation\Data\Validator\Interfaces\DataValidator;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Developer\Phoundation\Phoundation;
 use Phoundation\Developer\Project\Exception\EnvironmentExists;
@@ -23,6 +24,7 @@ use Phoundation\Processes\Commands\Command;
 use Phoundation\Processes\Commands\Rsync;
 use Phoundation\Processes\Process;
 use Throwable;
+
 
 /**
  * Project class
@@ -325,9 +327,11 @@ class Project
      * Validate the specified project information
      *
      * @param Validator $validator
-     * @return void
+     * @param bool $no_arguments_left
+     * @param bool $modify
+     * @return array
      */
-    public static function validate(Validator $validator): void
+    protected function validate(DataValidator $validator, bool $no_arguments_left, bool $modify): array
     {
         $validator
             ->select('admin_email')->isEmail()

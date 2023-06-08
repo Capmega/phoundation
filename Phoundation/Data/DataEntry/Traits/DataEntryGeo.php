@@ -28,7 +28,7 @@ trait DataEntryGeo
      */
     public function getCitiesId(): ?int
     {
-        return get_null((integer) $this->getDataValue('cities_id'));
+        return $this->getDataValue('int', 'cities_id');
     }
 
 
@@ -46,7 +46,7 @@ trait DataEntryGeo
             ]));
         }
 
-        return $this->setDataValue('cities_id', (integer) $cities_id);
+        return $this->setDataValue('cities_id', get_null(isset_get_typed('integer', $cities_id)));
     }
 
 
@@ -57,7 +57,7 @@ trait DataEntryGeo
      */
     public function getCity(): ?City
     {
-        $cities_id = $this->getDataValue('cities_id');
+        $cities_id = $this->getDataValue('int', 'cities_id');
 
         if ($cities_id) {
             return new City($cities_id);
@@ -70,20 +70,22 @@ trait DataEntryGeo
     /**
      * Sets the cities_id for this user
      *
-     * @param City|string|int|null $cities_id
+     * @param City|string|int|null $city
      * @return static
      */
-    public function setCity(City|string|int|null $cities_id): static
+    public function setCity(City|string|int|null $city): static
     {
-        if (!is_numeric($cities_id)) {
-            $cities_id = City::get($cities_id);
+        if ($city) {
+            if (!is_numeric($city)) {
+                $city = City::get($city);
+            }
+
+            if (is_object($city)) {
+                $city = $city->getId();
+            }
         }
 
-        if (is_object($cities_id)) {
-            $cities_id = $cities_id->getId();
-        }
-
-        return $this->setDataValue('cities_id', $cities_id);
+        return $this->setCitiesId(get_null($city));
     }
 
 
@@ -94,7 +96,7 @@ trait DataEntryGeo
      */
     public function getStatesId(): ?int
     {
-        return get_null((integer) $this->getDataValue('states_id'));
+        return $this->getDataValue('int', 'states_id');
     }
 
 
@@ -112,7 +114,7 @@ trait DataEntryGeo
             ]));
         }
 
-        return $this->setDataValue('states_id', (integer) $states_id);
+        return $this->setDataValue('states_id', get_null(isset_get_typed('integer', $states_id)));
     }
 
 
@@ -123,7 +125,7 @@ trait DataEntryGeo
      */
     public function getState(): ?State
     {
-        $states_id = $this->getDataValue('states_id');
+        $states_id = $this->getDataValue('int', 'states_id');
 
         if ($states_id) {
             return new State($states_id);
@@ -136,20 +138,22 @@ trait DataEntryGeo
     /**
      * Sets the state for this user
      *
-     * @param State|string|int|null $states_id
+     * @param State|string|int|null $state
      * @return static
      */
-    public function setState(State|string|int|null $states_id): static
+    public function setState(State|string|int|null $state): static
     {
-        if (!is_numeric($states_id)) {
-            $states_id = State::get($states_id);
+        if ($state) {
+            if (!is_numeric($state)) {
+                $state = State::get($state);
+            }
+
+            if (is_object($state)) {
+                $state = $state->getId();
+            }
         }
 
-        if (is_object($states_id)) {
-            $states_id = $states_id->getId();
-        }
-
-        return $this->setDataValue('states_id', $states_id);
+        return $this->setStatesId(get_null($state));
     }
 
 
@@ -160,7 +164,7 @@ trait DataEntryGeo
      */
     public function getCountriesId(): ?int
     {
-        return get_null((integer) $this->getDataValue('countries_id'));
+        return $this->getDataValue('int', 'countries_id');
     }
 
 
@@ -178,7 +182,7 @@ trait DataEntryGeo
             ]));
         }
 
-        return $this->setDataValue('countries_id', (integer) $countries_id);
+        return $this->setDataValue('countries_id', get_null(isset_get_typed('integer', $countries_id)));
     }
 
 
@@ -189,7 +193,7 @@ trait DataEntryGeo
      */
     public function getCountry(): ?Country
     {
-        $countries_id = $this->getDataValue('countries_id');
+        $countries_id = $this->getDataValue('int', 'countries_id');
 
         if ($countries_id) {
             return new Country($countries_id);
@@ -207,14 +211,16 @@ trait DataEntryGeo
      */
     public function setCountry(Country|string|int|null $countries_id): static
     {
-        if (!is_numeric($countries_id)) {
-            $countries_id = Country::get($countries_id);
+        if ($countries_id) {
+            if (!is_numeric($countries_id)) {
+                $countries_id = Country::get($countries_id);
+            }
+
+            if (is_object($countries_id)) {
+                $countries_id = $countries_id->getId();
+            }
         }
 
-        if (is_object($countries_id)) {
-            $countries_id = $countries_id->getId();
-        }
-
-        return $this->setDataValue('countries_id', $countries_id);
+        return $this->setCountriesId(get_null($countries_id));
     }
 }

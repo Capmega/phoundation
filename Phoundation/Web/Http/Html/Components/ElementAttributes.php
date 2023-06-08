@@ -81,16 +81,16 @@ trait ElementAttributes
     /**
      * The HTML readonly attribute
      *
-     * @var string|null $readonly
+     * @var bool $readonly
      */
-    protected ?string $readonly = null;
+    protected bool $readonly = false;
 
     /**
      * The HTML disabled attribute
      *
-     * @var string|null $disabled
+     * @var bool $disabled
      */
-    protected ?string $disabled = null;
+    protected bool $disabled = false;
 
     /**
      * The tabindex for this element
@@ -104,7 +104,7 @@ trait ElementAttributes
      *
      * @var string|null $autofocus
      */
-    protected ?string $autofocus = null;
+    static protected ?string $autofocus = null;
 
     /**
      * Extra attributes or element content can be added through the "extra" variable
@@ -632,12 +632,25 @@ trait ElementAttributes
     /**
      * Sets the HTML class element attribute
      *
-     * @param bool $autofocus
      * @return static
      */
-    public function setAutofocus(bool $autofocus): static
+    public function setAutofocus(): static
     {
-        $this->autofocus = ($autofocus ? 'autofocus' : null);
+        if (static::$autofocus) {
+            throw new OutOfBoundsException(tr('Cannot set autofocus on element ":id", its already being used by id ":already"', [
+                ':id'      => $this->id,
+                ':already' => static::$autofocus
+            ]));
+        }
+
+        if (!$this->id) {
+            throw new OutOfBoundsException(tr('Cannot set autofocus on this element, it has no "id" specified yet', [
+                ':id'      => $this->id,
+                ':already' => static::$autofocus
+            ]));
+        }
+
+        static::$autofocus = $this->id;
         return $this;
     }
 
@@ -645,11 +658,12 @@ trait ElementAttributes
     /**
      * Returns the HTML class element attribute
      *
+     * @note Returns true if the static autofocus variable was set and is equal to the ID of this specific element
      * @return bool
      */
     public function getAutofocus(): bool
     {
-        return (bool) $this->autofocus;
+        return static::$autofocus and (static::$autofocus === $this->id);
     }
 
 
@@ -661,7 +675,7 @@ trait ElementAttributes
      */
     public function setDisabled(bool $disabled): static
     {
-        $this->disabled = ($disabled ? 'disabled' : null);
+        $this->disabled = $disabled;
         return $this;
     }
 
@@ -673,7 +687,7 @@ trait ElementAttributes
      */
     public function getDisabled(): bool
     {
-        return (bool) $this->disabled;
+        return $this->disabled;
     }
 
 
@@ -685,7 +699,7 @@ trait ElementAttributes
      */
     public function setReadonly(bool $readonly): static
     {
-        $this->readonly = ($readonly ? 'readonly' : null);
+        $this->readonly = $readonly;
         return $this;
     }
 

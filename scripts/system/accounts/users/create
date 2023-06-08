@@ -61,6 +61,7 @@ if ($argv['roles']) {
     unset($role);
 }
 
+
 // Create user and set users roles
 $user = User::new()->create();
 $user->roles()->add($argv['roles']);
@@ -75,7 +76,7 @@ if (!$argv['no_password']) {
         $user->setPassword($password, $password_validate);
 
     } catch (Throwable $e) {
-        // Password update failed, remove the user and continue so we can retry later
+        // Password update failed, remove the user and continue, so we can retry later
         $user->erase();
         throw $e;
     }

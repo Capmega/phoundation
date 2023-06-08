@@ -26,7 +26,7 @@ trait DataEntrySshAccount
      */
     public function getSshAccountsId(): ?int
     {
-        return get_null((integer) $this->getDataValue('ssh_accounts_id'));
+        return $this->getDataValue('int', 'ssh_accounts_id');
     }
 
 
@@ -44,7 +44,7 @@ trait DataEntrySshAccount
             ]));
         }
 
-        return $this->setDataValue('ssh_accounts_id', (integer) $ssh_accounts_id);
+        return $this->setDataValue('ssh_accounts_id', get_null(isset_get_typed('integer', $ssh_accounts_id)));
     }
 
 
@@ -55,7 +55,7 @@ trait DataEntrySshAccount
      */
     public function getSshAccount(): ?SshAccount
     {
-        $ssh_accounts_id = $this->getDataValue('ssh_accounts_id');
+        $ssh_accounts_id = $this->getDataValue('int', 'ssh_accounts_id');
 
         if ($ssh_accounts_id) {
             return new SshAccount($ssh_accounts_id);
@@ -68,19 +68,21 @@ trait DataEntrySshAccount
     /**
      * Sets the ssh_accounts_id for this user
      *
-     * @param SshAccount|string|int|null $ssh_accounts_id
+     * @param SshAccount|string|int|null $ssh_account
      * @return static
      */
-    public function setSshAccount(SshAccount|string|int|null $ssh_accounts_id): static
+    public function setSshAccount(SshAccount|string|int|null $ssh_account): static
     {
-        if (!is_numeric($ssh_accounts_id)) {
-            $ssh_accounts_id = SshAccount::get($ssh_accounts_id);
+        if ($ssh_account) {
+            if (!is_numeric($ssh_account)) {
+                $ssh_account = SshAccount::get($ssh_account);
+            }
+
+            if (is_object($ssh_account)) {
+                $ssh_account = $ssh_account->getId();
+            }
         }
 
-        if (is_object($ssh_accounts_id)) {
-            $ssh_accounts_id = $ssh_accounts_id->getId();
-        }
-
-        return $this->setDataValue('ssh_accounts_id', $ssh_accounts_id);
+        return $this->setSshAccountsId(get_null($ssh_account));
     }
 }

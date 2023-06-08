@@ -33,7 +33,7 @@ if (Page::isPostRequestMethod()) {
             ->select('email')->isEmail()
             ->select('type')->isOptional()->isName()
             ->select('keywords')->isOptional()->sanitizeForceArray(' ')->each()->isWord()
-            ->select('phones')->isOptional()->sanitizeForceArray(',')->each()->isPhone()->sanitizeForceString()
+            ->select('phones')->isOptional()->sanitizeForceArray(',')->each()->isPhoneNumber()->sanitizeForceString()
             ->select('address')->isOptional()->isPrintable()
             ->select('priority')->isOptional()->isNatural()->isBetween(1, 10)
             ->select('latitude')->isOptional()->isLatitude()
@@ -43,7 +43,7 @@ if (Page::isPostRequestMethod()) {
             ->select('states_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_states` WHERE `id` = :id AND `countries_id` = :countries_id AND `status` IS NULL', [':id' => 'states_id', ':countries_id' => '$countries_id'])
             ->select('cities_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_cities` WHERE `id` = :id AND `states_id`    = :states_id    AND `status` IS NULL', [':id' => 'cities_id', ':states_id'    => '$states_id'])
             ->select('languages_id')->isQueryColumn('SELECT `id` FROM `languages` WHERE `id` = :id AND `status` IS NULL', [':id' => '$languages_id'])
-            ->select('gender')->isOptional()->inArray(['unknown', 'male', 'female', 'other'])
+            ->select('gender')->isOptional()->isInArray(['unknown', 'male', 'female', 'other'])
             ->select('redirect')->isOptional()->isUrl()
             ->select('birthday')->isOptional()->isDate()
             ->select('description')->isOptional()->isPrintable()->hasMaxCharacters(65_530)
@@ -77,9 +77,9 @@ $buttons = Buttons::new()
 
 // Alter the default user form
 $user
-    ->modifyKeys('comments'  , ['visible'  => false])
-    ->modifyKeys('is_leader' , ['disabled' => true])
-    ->modifyKeys('leaders_id', ['disabled' => true]);
+    ->modifyDefinitions('comments'  , ['visible'  => false])
+    ->modifyDefinitions('is_leader' , ['disabled' => true])
+    ->modifyDefinitions('leaders_id', ['disabled' => true]);
 
 
 // Build the user form

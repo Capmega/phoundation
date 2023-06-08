@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html\Components;
 
+use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
+
 
 /**
  * Class DataEntryForm
@@ -20,9 +22,9 @@ class DataEntryForm extends ElementsBlock
     /**
      * The key metadata for the specified data
      *
-     * @var array $keys
+     * @var DataEntryFieldDefinitions $fields
      */
-    protected array $keys;
+    protected DataEntryFieldDefinitions $fields;
 
     /**
      * The form specific metadata for the keys for the specified data
@@ -43,7 +45,7 @@ class DataEntryForm extends ElementsBlock
      *
      * @var array[] $supported_input
      */
-    protected array $supported_input = [
+    protected static array $supported_input = [
         'button',
         'checkbox',
         'color',
@@ -70,14 +72,14 @@ class DataEntryForm extends ElementsBlock
 
 
     /**
-     * Returns true if the specified intput type is supported
+     * Returns true if the specified input type is supported
      *
      * @param string $input
      * @return bool
      */
     public function inputTypeSupported(string $input): bool
     {
-        return in_array($input, $this->supported_input);
+        return in_array($input, self::$supported_input);
     }
 
 
@@ -106,25 +108,25 @@ class DataEntryForm extends ElementsBlock
 
 
     /**
-     * Returns the data source for this DataEntryForm
+     * Returns the data fields for this DataEntryForm
      *
-     * @return array
+     * @return DataEntryFieldDefinitions
      */
-    public function getKeys(): array
+    public function getFields(): DataEntryFieldDefinitions
     {
-        return $this->keys;
+        return $this->fields;
     }
 
 
     /**
      * Set the data source for this DataEntryForm
      *
-     * @param array $keys
+     * @param DataEntryFieldDefinitions $fields
      * @return static
      */
-    public function setKeys(array $keys): static
+    public function setFieldDefinitions(DataEntryFieldDefinitions $fields): static
     {
-        $this->keys = $keys;
+        $this->fields = $fields;
         return $this;
     }
 

@@ -25,7 +25,7 @@ interface InterfaceCaptcha extends InterfaceElementsBlock
      * @param string|null $secret
      * @return void
      */
-    function validate(?string $response, string $remote_ip = null, string $secret = null): void;
+    function validateResponse(?string $response, string $remote_ip = null, string $secret = null): void;
 
     /**
      * Returns true if the token is valid for the specified action

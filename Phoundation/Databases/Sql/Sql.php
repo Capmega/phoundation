@@ -370,15 +370,8 @@ class Sql
             return $pdo_statement;
 
         } catch (Throwable $e) {
-showdie($e);
             if ($query) {
                 if ($execute) {
-                    if (!is_array($execute)) {
-                        throw new SqlException(tr('The specified $execute parameter is NOT an array, it is an ":type"', [
-                            ':type' => gettype($execute)
-                        ]), $e);
-                    }
-
                     foreach ($execute as $key => $value) {
                         if (!is_scalar($value) and !is_null($value)) {
                             // This is automatically a problem!

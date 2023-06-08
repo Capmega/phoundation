@@ -26,11 +26,11 @@ trait DataEntryPicture
      */
     public function getPicture(): Image
     {
-        if (!$this->getDataValue('picture')) {
+        if (!$this->getDataValue('string', 'picture')) {
             $this->setDataValue('picture', 'img/profiles/default.png', true);
         }
 
-        return Image::new($this->getDataValue('picture'))
+        return Image::new($this->getDataValue('string', 'picture'))
             ->setDescription(tr('Profile image for :customer', [':customer' => $this->getName()]));
     }
 

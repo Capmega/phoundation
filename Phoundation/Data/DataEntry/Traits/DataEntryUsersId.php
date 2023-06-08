@@ -26,7 +26,7 @@ trait DataEntryUsersId
      */
     public function getUsersId(): ?int
     {
-        return get_null((integer) $this->getDataValue('users_id'));
+        return $this->getDataValue('int', 'users_id');
     }
 
 
@@ -44,6 +44,6 @@ trait DataEntryUsersId
             ]));
         }
 
-        return $this->setDataValue('users_id', (integer) $users_id);
+        return $this->setDataValue('users_id', get_null(isset_get_typed('integer', $users_id)));
     }
 }

@@ -24,7 +24,7 @@ trait DataEntryNumber
      */
     public function getNumber(): ?int
     {
-        return $this->getDataValue('number');
+        return $this->getDataValue('int', 'number');
     }
 
 

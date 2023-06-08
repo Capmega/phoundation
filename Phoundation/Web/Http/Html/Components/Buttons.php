@@ -8,7 +8,7 @@ use Iterator;
 use Phoundation\Web\Http\Html\Enums\ButtonType;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Html\Interfaces\InterfaceDisplayMode;
-use Phoundation\Web\Http\Html\Interfaces\InterfaceInputType;
+use Phoundation\Web\Http\Html\Interfaces\InputTypeInterface;
 use ReturnTypeWillChange;
 
 
@@ -69,12 +69,12 @@ class Buttons extends ElementsBlock implements Iterator
      *
      * @param Button|string|null $button
      * @param InterfaceDisplayMode $mode
-     * @param InterfaceInputType|string $type_or_anchor_url
+     * @param InputTypeInterface|string $type_or_anchor_url
      * @param bool $outline
      * @param bool $right
      * @return static
      */
-    public function addButton(Button|string|null $button, InterfaceDisplayMode $mode = DisplayMode::primary, InterfaceInputType|string $type_or_anchor_url = ButtonType::button, bool $outline = false, bool $right = false): static
+    public function addButton(Button|string|null $button, InterfaceDisplayMode $mode = DisplayMode::primary, InputTypeInterface|string $type_or_anchor_url = ButtonType::button, bool $outline = false, bool $right = false): static
     {
         if (is_string($button)) {
             // Button was specified as string, create a button first

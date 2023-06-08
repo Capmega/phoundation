@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Project;
 
-
 use Exception;
+
 
 /**
  * Import class
@@ -41,10 +41,9 @@ abstract class Import
      */
     protected ?string $name = null;
 
+
     /**
      * Import class constructor
-     *
-     * This constructor must define the $this->table variable
      *
      * @param bool $demo
      * @param int|null $min
@@ -60,8 +59,6 @@ abstract class Import
 
     /**
      * Returns a new Import object
-     *
-     * This constructor must define the $this->table variable
      *
      * @param bool $demo
      * @param int $min

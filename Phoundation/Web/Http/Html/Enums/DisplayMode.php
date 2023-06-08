@@ -18,28 +18,29 @@ use Phoundation\Web\Http\Html\Interfaces\InterfaceDisplayMode;
  */
 enum DisplayMode: string implements InterfaceDisplayMode
 {
-    case white = 'white';
-    case success = 'success';
-    case info = 'info';
-    case warning = 'warning';
-    case danger = 'danger';
-    case primary = 'primary';
+    case white     = 'white';
+    case success   = 'success';
+    case info      = 'info';
+    case warning   = 'warning';
+    case danger    = 'danger';
+    case primary   = 'primary';
     case secondary = 'secondary';
-    case tertiary = 'tertiary';
-    case link = 'link';
-    case light = 'light';
-    case dark = 'dark';
-    case plain = 'plain';
-    case unknown = 'unknown';
-    case null = '';
+    case tertiary  = 'tertiary';
+    case link      = 'link';
+    case light     = 'light';
+    case dark      = 'dark';
+    case plain     = 'plain';
+    case unknown   = 'unknown';
+    case null      = '';
 
-    // The following are aliasses
-    case blue = 'blue';                 // info
-    case notice = 'notice';             // info
-    case information = 'information';   // info
-    case green = 'green';               // success
-    case yellow = 'yellow';             // warning
-    case red = 'red';                   // danger
-    case error = 'error';               // danger
-    case exception = 'exception';       // danger
+    // The following entries are aliases
+
+    case blue        = 'blue';        // info
+    case notice      = 'notice';      // info
+    case information = 'information'; // info
+    case green       = 'green';       // success
+    case yellow      = 'yellow';      // warning
+    case red         = 'red';         // danger
+    case error       = 'error';       // danger
+    case exception   = 'exception';   // danger
 }

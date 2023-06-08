@@ -23,7 +23,7 @@ trait DataEntryUserAgent
      */
     public function getUserAgent(): ?string
     {
-        return $this->getDataValue('user_agent');
+        return $this->getDataValue('string', 'user_agent');
     }
 
 

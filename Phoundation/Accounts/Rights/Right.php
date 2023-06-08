@@ -6,11 +6,12 @@ namespace Phoundation\Accounts\Rights;
 
 use Phoundation\Accounts\Interfaces\InterfaceRight;
 use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntry\DataEntryFieldDefinition;
+use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Data\Validator\GetValidator;
-use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Data\Validator\Interfaces\DataValidator;
 
 
 /**
@@ -37,21 +38,31 @@ class Right extends DataEntry implements InterfaceRight
     public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
     {
         static::$entry_name = 'right';
-        $this->table        = 'accounts_rights';
 
         parent::__construct($identifier);
     }
 
 
     /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'accounts_rights';
+    }
+
+
+    /**
      * Validates the provider record with the specified validator object
      *
-     * @param ArgvValidator|PostValidator|GetValidator $validator
+     * @param DataValidator $validator
      * @param bool $no_arguments_left
      * @param bool $modify
      * @return array
      */
-    protected function validate(ArgvValidator|PostValidator|GetValidator $validator, bool $no_arguments_left = false, bool $modify = false): array
+    protected function validate(DataValidator $validator, bool $no_arguments_left, bool $modify): array
     {
         $data = $validator
             ->select($this->getAlternateValidationField('name'), true)->hasMaxCharacters(64)->isName()
@@ -73,28 +84,23 @@ class Right extends DataEntry implements InterfaceRight
     /**
      * Sets the available data keys for this entry
      *
-     * @return array
+     * @return DataEntryFieldDefinitionsInterface
      */
-    protected static function getFieldDefinitions(): array
+    protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
     {
-        return [
-            'name' => [
-                'label'     => tr('Name'),
-                'size'      => 12,
-                'maxlength' => 64,
-                'help'      => tr('The name for this right'),
-            ],
-            'seo_name' => [
-                'visible'  => false,
-                'readonly' => true,
-            ],
-            'description' => [
-                'element'   => 'text',
-                'label'     => tr('Description'),
-                'size'      => 12,
-                'maxlength' => 65535,
-                'help'      => tr('The description for this right'),
-            ]
-        ];
+        return DataEntryFieldDefinitions::new(self::getTable())
+            ->add(DataEntryFieldDefinition::new('name')
+                ->setLabel(tr('Name'))
+                ->setSize(12)
+                ->setMaxlength(64)
+                ->setHelpText(tr('The name for this right')))
+            ->add(DataEntryFieldDefinition::new('seo_name')
+                ->setVisible(true)
+                ->setReadonly(true))
+            ->add(DataEntryFieldDefinition::new('description')
+                ->setLabel(tr('Description'))
+                ->setSize(12)
+                ->setMaxlength(65_535)
+                ->setHelpText(tr('The description for this right')));
     }
 }

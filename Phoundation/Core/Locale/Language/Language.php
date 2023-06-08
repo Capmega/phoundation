@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace Phoundation\Core\Locale\Language;
 
 use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Data\Validator\GetValidator;
-use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Data\Validator\Interfaces\DataValidator;
 
 
 /**
@@ -36,10 +35,20 @@ class Language extends DataEntry
     public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
     {
         static::$entry_name = 'language';
-        $this->table        = 'core_languages';
         $this->unique_field = 'code_639_1';
 
         parent::__construct($identifier);
+    }
+
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'core_languages';
     }
 
 
@@ -50,7 +59,7 @@ class Language extends DataEntry
      */
     public function getCode_639_1(): ?string
     {
-        return $this->getDataValue('code_639_1');
+        return $this->getDataValue('string', 'code_639_1');
     }
 
 
@@ -73,7 +82,7 @@ class Language extends DataEntry
      */
     public function getCode_639_2_b(): ?string
     {
-        return $this->getDataValue('code_639_2_b');
+        return $this->getDataValue('string', 'code_639_2_b');
     }
 
 
@@ -96,7 +105,7 @@ class Language extends DataEntry
      */
     public function getCode_639_2_t(): ?string
     {
-        return $this->getDataValue('code_639_2_t');
+        return $this->getDataValue('string', 'code_639_2_t');
     }
 
 
@@ -119,7 +128,7 @@ class Language extends DataEntry
      */
     public function getCode_639_3(): ?string
     {
-        return $this->getDataValue('code_639_3');
+        return $this->getDataValue('string', 'code_639_3');
     }
 
 
@@ -138,12 +147,12 @@ class Language extends DataEntry
     /**
      * Validates the provider record with the specified validator object
      *
-     * @param ArgvValidator|PostValidator|GetValidator $validator
+     * @param DataValidator $validator
      * @param bool $no_arguments_left
      * @param bool $modify
      * @return array
      */
-    protected function validate(ArgvValidator|PostValidator|GetValidator $validator, bool $no_arguments_left = false, bool $modify = false): array
+    protected function validate(DataValidator $validator, bool $no_arguments_left, bool $modify): array
     {
         $data = $validator
             ->select($this->getAlternateValidationField('name'), true)->isOptional()->hasMaxCharacters(32)->isName()
@@ -167,9 +176,9 @@ class Language extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @return array
+     * @return DataEntryFieldDefinitionsInterface
      */
-    protected static function getFieldDefinitions(): array
+    protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
     {
         return [
             'name' => [

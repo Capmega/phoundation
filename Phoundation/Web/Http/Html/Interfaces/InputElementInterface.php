@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html\Interfaces;
 
+
 /**
- * Interface InterfaceButtonType
+ * Interface InputElementInterface
  *
  * The different available HTML button types
  *
@@ -14,6 +15,6 @@ namespace Phoundation\Web\Http\Html\Interfaces;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-interface InterfaceButtonType extends InterfaceInputType
+interface InputElementInterface
 {
 }

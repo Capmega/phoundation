@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace Phoundation\Web\Routing;
 
 use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Data\Validator\GetValidator;
-use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
+use Phoundation\Data\Interfaces\InterfaceDataEntry;
+use Phoundation\Data\Validator\Interfaces\DataValidator;
+
 
 /**
  * Class StaticRoute
@@ -23,20 +24,35 @@ use Phoundation\Data\Validator\PostValidator;
 class StaticRoute extends DataEntry
 {
     /**
-     * @inheritDoc
+     * StaticRoute class constructor
+     *
+     * @param InterfaceDataEntry|string|int|null $identifier
      */
-    protected function validate(GetValidator|PostValidator|ArgvValidator $validator, bool $no_arguments_left = false, bool $modify = true): array
+    public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
     {
-        // TODO: Implement validate() method.
+        static::$entry_name  = 'static route';
+
+        parent::__construct($identifier);
+    }
+
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'static_routes';
     }
 
 
     /**
      * Sets the available data keys for this entry
      *
-     * @return array
+     * @return DataEntryFieldDefinitionsInterface
      */
-    protected static function getFieldDefinitions(): array
+    protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
     {
         // TODO: Implement getFieldDefinitions() method.
         return [];

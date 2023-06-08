@@ -59,8 +59,8 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `type` varchar(64) NOT NULL,
                     `severity` ENUM("notice", "low", "medium", "high", "severe") NOT NULL,
-                    `title` VARCHAR(255) NOT NULL,
-                    `details` TEXT NULL,
+                    `title` varchar(255) NOT NULL,
+                    `details` text NULL,
                 ')->setIndices('                
                     PRIMARY KEY (`id`),
                     KEY `created_by` (`created_by`),
@@ -85,8 +85,8 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `meta_id` bigint NOT NULL,
                     `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
-                    `key` TEXT NOT NULL,
-                    `comments` TEXT DEFAULT NULL
+                    `key` text NOT NULL,
+                    `comments` text DEFAULT NULL
                 ')->setIndices('
                     PRIMARY KEY (`id`),
                     KEY `created_on` (`created_on`),

@@ -9,14 +9,13 @@ use Phoundation\Business\Customers\Customers;
 use Phoundation\Business\Providers\Providers;
 use Phoundation\Data\Categories\Categories;
 use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryCustomer;
 use Phoundation\Data\DataEntry\Traits\DataEntryDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryHostnamePort;
 use Phoundation\Data\DataEntry\Traits\DataEntryProvider;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Data\Validator\GetValidator;
-use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Data\Validator\Interfaces\DataValidator;
 use Phoundation\Geo\Cities\Cities;
 use Phoundation\Geo\Countries\Countries;
 use Phoundation\Geo\Countries\Country;
@@ -51,11 +50,21 @@ class Server extends DataEntry
      */
     public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
     {
-        static::$entry_name  = 'server';
-        $this->table         = 'servers';
+        static::$entry_name = 'server';
         $this->unique_field = 'seo_hostname';
 
         parent::__construct($identifier);
+    }
+
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'servers';
     }
 
 
@@ -66,7 +75,7 @@ class Server extends DataEntry
      */
     public function getCost(): ?float
     {
-        return $this->getDataValue('cost');
+        return $this->getDataValue('float', 'cost');
     }
 
 
@@ -89,7 +98,7 @@ class Server extends DataEntry
      */
     public function getBillDueDate(): ?string
     {
-        return $this->getDataValue('bill_due_date');
+        return $this->getDataValue('string', 'bill_due_date');
     }
 
 
@@ -113,7 +122,7 @@ class Server extends DataEntry
     #[ExpectedValues([null, 'hourly', 'daily', 'weekly', 'monthly', 'bimonthly', 'quarterly', 'semiannual', 'annually'])]
     public function getInterval(): ?string
     {
-        return $this->getDataValue('interval');
+        return $this->getDataValue('string', 'interval');
     }
 
 
@@ -137,7 +146,7 @@ class Server extends DataEntry
     #[ExpectedValues([null, 'debian','ubuntu','redhat','gentoo','slackware','linux','windows','freebsd','macos','other'])]
     public function getOsName(): ?string
     {
-        return $this->getDataValue('os_name');
+        return $this->getDataValue('string', 'os_name');
     }
 
 
@@ -160,7 +169,7 @@ class Server extends DataEntry
      */
     public function getOsVersion(): ?string
     {
-        return $this->getDataValue('os_version');
+        return $this->getDataValue('string', 'os_version');
     }
 
 
@@ -184,19 +193,19 @@ class Server extends DataEntry
      */
     public function getWebServices(): bool
     {
-        return (bool) $this->getDataValue('web_services');
+        return $this->getDataValue('bool', 'web_services', false);
     }
 
 
     /**
      * Sets the web_services for this object
      *
-     * @param bool $web_services
+     * @param bool|null $web_services
      * @return static
      */
-    public function setWebServices(bool $web_services): static
+    public function setWebServices(?bool $web_services): static
     {
-        return $this->setDataValue('web_services', $web_services);
+        return $this->setDataValue('web_services', (bool) $web_services);
     }
 
 
@@ -207,19 +216,19 @@ class Server extends DataEntry
      */
     public function getMailServices(): bool
     {
-        return (bool) $this->getDataValue('mail_services');
+        return $this->getDataValue('bool', 'mail_services', false);
     }
 
 
     /**
      * Sets the mail_services for this object
      *
-     * @param bool $mail_services
+     * @param bool|null $mail_services
      * @return static
      */
-    public function setMailServices(bool $mail_services): static
+    public function setMailServices(?bool $mail_services): static
     {
-        return $this->setDataValue('mail_services', $mail_services);
+        return $this->setDataValue('mail_services', (bool) $mail_services);
     }
 
 
@@ -230,19 +239,19 @@ class Server extends DataEntry
      */
     public function getDatabaseServices(): bool
     {
-        return (bool) $this->getDataValue('database_services');
+        return $this->getDataValue('bool', 'database_services', false);
     }
 
 
     /**
      * Sets the database_services for this object
      *
-     * @param bool $database_services
+     * @param bool|null $database_services
      * @return static
      */
-    public function setDatabaseServices(bool $database_services): static
+    public function setDatabaseServices(?bool $database_services): static
     {
-        return $this->setDataValue('database_services', $database_services);
+        return $this->setDataValue('database_services', (bool) $database_services);
     }
 
 
@@ -253,19 +262,19 @@ class Server extends DataEntry
      */
     public function getAllowSshdModifications(): bool
     {
-        return (bool) $this->getDataValue('allow_sshd_modifications');
+        return $this->getDataValue('bool', 'allow_sshd_modifications', false);
     }
 
 
     /**
      * Sets the allow_sshd_modifications for this object
      *
-     * @param bool $allow_sshd_modifications
+     * @param bool|null $allow_sshd_modifications
      * @return static
      */
-    public function setAllowSshdModifications(bool $allow_sshd_modifications): static
+    public function setAllowSshdModifications(?bool $allow_sshd_modifications): static
     {
-        return $this->setDataValue('allow_sshd_modifications', $allow_sshd_modifications);
+        return $this->setDataValue('allow_sshd_modifications', (bool) $allow_sshd_modifications);
     }
 
 
@@ -300,12 +309,12 @@ class Server extends DataEntry
     /**
      * Validates the provider record with the specified validator object
      *
-     * @param ArgvValidator|PostValidator|GetValidator $validator
+     * @param DataValidator $validator
      * @param bool $no_arguments_left
      * @param bool $modify
      * @return array
      */
-    protected function validate(ArgvValidator|PostValidator|GetValidator $validator, bool $no_arguments_left = false, bool $modify = false): array
+    protected function validate(DataValidator $validator, bool $no_arguments_left, bool $modify): array
     {
         $data = $validator
             ->select($this->getAlternateValidationField('hostname'), true)->isOptional()->hasMaxCharacters(128)->isDomain()
@@ -350,9 +359,9 @@ class Server extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @return array
+     * @return DataEntryFieldDefinitionsInterface
      */
-    protected static function getFieldDefinitions(): array
+    protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
     {
         return [
             'seo_hostname' => [

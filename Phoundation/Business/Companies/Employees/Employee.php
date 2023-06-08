@@ -7,9 +7,8 @@ namespace Phoundation\Business\Companies\Employees;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Data\Validator\GetValidator;
-use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Data\Validator\Interfaces\DataValidator;
+
 
 /**
  * Class Employee
@@ -34,29 +33,27 @@ class Employee extends DataEntry
     public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
     {
         static::$entry_name = 'company employee';
-        $this->table      = 'business_employees';
 
         parent::__construct($identifier);
     }
 
 
     /**
-     * @inheritDoc
+     * Returns the table name used by this object
+     *
+     * @return string
      */
-    protected function validate(GetValidator|PostValidator|ArgvValidator $validator, bool $no_arguments_left = false, bool $modify = true): array
+    public static function getTable(): string
     {
-        // TODO: Implement validate() method.
+        return 'business_employees';
     }
 
 
     /**
-     * Sets the available data keys for this entry
-     *
-     * @return array
+     * @inheritDoc
      */
-    protected static function getFieldDefinitions(): array
+    protected function validate(DataValidator $validator, bool $no_arguments_left, bool $modify): array
     {
-        // TODO: Implement getFieldDefinitions() method.
-        return [];
+        // TODO: Implement validate() method.
     }
 }

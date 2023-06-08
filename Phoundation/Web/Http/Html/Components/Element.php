@@ -5,13 +5,10 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http\Html\Components;
 
 use Phoundation\Core\Arrays;
-use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Interfaces\InterfaceElement;
 use Phoundation\Web\Http\Html\Renderer;
-use Phoundation\Web\Http\Html\Template\Template;
 use Phoundation\Web\Page;
 
 
@@ -176,9 +173,9 @@ abstract class Element implements InterfaceElement
             'class'     => $this->getClass(),
             'height'    => $this->height,
             'width'     => $this->width,
-            'autofocus' => $this->autofocus,
-            'readonly'  => $this->readonly,
-            'disabled'  => $this->disabled,
+            'autofocus' => ((self::$autofocus === $this->id) ? 'autofocus' : null),
+            'readonly'  => ($this->readonly ? 'readonly' : null),
+            'disabled'  => ($this->disabled ? 'disabled' : null),
         ];
 
         // Remove empty entries

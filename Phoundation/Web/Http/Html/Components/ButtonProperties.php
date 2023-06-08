@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html\Components;
 
-use Phoundation\Web\Http\Html\Enums\ButtonType;
-use Phoundation\Web\Http\Html\Enums\InputType;
-use Phoundation\Web\Http\Html\Interfaces\InterfaceInputType;
+use Phoundation\Web\Http\Html\Interfaces\InputTypeInterface;
 use Phoundation\Web\Http\Html\Traits\UsesSize;
 use Phoundation\Web\Http\UrlBuilder;
 use Stringable;
@@ -91,10 +89,10 @@ trait ButtonProperties
     /**
      * Set the button type
      *
-     * @param InterfaceInputType|null $type
+     * @param InputTypeInterface|null $type
      * @return Button
      */
-    public function setType(?InterfaceInputType $type): static
+    public function setType(?InputTypeInterface $type): static
     {
         $this->setElement('button');
         $this->type = $type;
@@ -105,9 +103,9 @@ trait ButtonProperties
     /**
      * Returns the button type
      *
-     * @return InterfaceInputType|null
+     * @return InputTypeInterface|null
      */
-    public function getType(): ?InterfaceInputType
+    public function getType(): ?InputTypeInterface
     {
         return $this->type;
     }

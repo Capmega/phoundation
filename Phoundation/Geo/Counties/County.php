@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace Phoundation\Geo\Counties;
 
 use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Data\Validator\GetValidator;
-use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Data\Validator\Interfaces\DataValidator;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Geo\Continents\Continent;
 use Phoundation\Geo\Countries\Country;
@@ -39,10 +38,20 @@ class County extends DataEntry
     public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
     {
         static::$entry_name = 'geo county';
-        $this->table        = 'geo_counties';
         $this->unique_field = 'seo_name';
 
         parent::__construct($identifier);
+    }
+
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'geo_counties';
     }
 
 
@@ -53,7 +62,7 @@ class County extends DataEntry
      */
     public function getTimezone(): Timezone
     {
-        return new Timezone($this->getDataValue('timezones_id'));
+        return new Timezone($this->getDataValue('int', 'timezones_id'));
     }
 
 
@@ -64,7 +73,7 @@ class County extends DataEntry
      */
     public function getContinent(): Continent
     {
-        return new Continent($this->getDataValue('continents_id'));
+        return new Continent($this->getDataValue('int', 'continents_id'));
     }
 
 
@@ -75,7 +84,7 @@ class County extends DataEntry
      */
     public function getCountry(): Country
     {
-        return new Country($this->getDataValue('countries_id'));
+        return new Country($this->getDataValue('int', 'countries_id'));
     }
 
 
@@ -86,19 +95,19 @@ class County extends DataEntry
      */
     public function getState(): State
     {
-        return new State($this->getDataValue('states_id'));
+        return new State($this->getDataValue('int', 'states_id'));
     }
 
 
     /**
      * Validates the provider record with the specified validator object
      *
-     * @param ArgvValidator|PostValidator|GetValidator $validator
+     * @param DataValidator $validator
      * @param bool $no_arguments_left
      * @param bool $modify
      * @return array
      */
-    protected function validate(ArgvValidator|PostValidator|GetValidator $validator, bool $no_arguments_left = false, bool $modify = false): array
+    protected function validate(DataValidator $validator, bool $no_arguments_left, bool $modify): array
     {
         throw new UnderConstructionException();
 
@@ -123,9 +132,9 @@ class County extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @return array
+     * @return DataEntryFieldDefinitionsInterface
      */
-    protected static function getFieldDefinitions(): array
+    protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
     {
         // TODO: Implement getFieldDefinitions() method.
         return [];

@@ -7,16 +7,17 @@ namespace Phoundation\Security\Incidents;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntry\DataEntryFieldDefinition;
+use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryDetails;
 use Phoundation\Data\DataEntry\Traits\DataEntryTitle;
 use Phoundation\Data\DataEntry\Traits\DataEntryType;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Data\Validator\GetValidator;
-use Phoundation\Data\Validator\PostValidator;
-use Phoundation\Data\Validator\Validator;
+use Phoundation\Data\Validator\Interfaces\DataValidator;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
-use Phoundation\Utils\Json;
+use Phoundation\Web\Http\Html\Enums\InputElement;
+
 
 /**
  * Class Incident
@@ -44,6 +45,7 @@ class Incident extends DataEntry
      */
     protected bool $log = true;
 
+
     /**
      * Incident class constructor
      *
@@ -51,11 +53,21 @@ class Incident extends DataEntry
      */
     public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
     {
-        static::$entry_name  = 'incident';
-        $this->table         = 'security_incidents';
+        static::$entry_name = 'incident';
         $this->unique_field = 'id';
 
         parent::__construct($identifier);
+    }
+
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'security_incidents';
     }
 
 
@@ -90,7 +102,7 @@ class Incident extends DataEntry
      */
     public function getSeverity(): string
     {
-        return $this->getDataValue('severity');
+        return $this->getDataValue('string', 'severity', Severity::unknown->value);
     }
 
 
@@ -164,12 +176,12 @@ class Incident extends DataEntry
     /**
      * Validates the provider record with the specified validator object
      *
-     * @param ArgvValidator|PostValidator|GetValidator $validator
+     * @param DataValidator $validator
      * @param bool $no_arguments_left
      * @param bool $modify
      * @return array
      */
-    protected function validate(ArgvValidator|PostValidator|GetValidator $validator, bool $no_arguments_left = false, bool $modify = false): array
+    protected function validate(DataValidator $validator, bool $no_arguments_left, bool $modify): array
     {
         $data = $validator
             ->select($this->getAlternateValidationField('type'), true)->isOptional()->hasMaxCharacters(64)->isPrintable()
@@ -186,47 +198,41 @@ class Incident extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @return array
+     * @return DataEntryFieldDefinitionsInterface
      */
-    protected static function getFieldDefinitions(): array
+    protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
     {
-        return [
-            'severity' => [
-                'disabled'  => true,
-                'required'  => true,
-                'type'      => 'text',
-                'source'    => [
+        return DataEntryFieldDefinitions::new(self::getTable())
+            ->add(DataEntryFieldDefinition::new('type')
+                ->setLabel(tr('Incident type'))
+                ->setDisabled(true)
+                ->setDefault(tr('Unknown'))
+                ->setSize(6)
+                ->setMaxlength(6))
+            ->add(DataEntryFieldDefinition::new('severity')
+                ->setElement(InputElement::select)
+                ->setLabel(tr('Severity'))
+                ->setDisabled(true)
+                ->setSize(6)
+                ->setMaxlength(6)
+                ->setSource([
                     Severity::notice->value => tr('Notice'),
                     Severity::low->value    => tr('Low'),
                     Severity::medium->value => tr('Medium'),
                     Severity::high->value   => tr('High'),
                     Severity::severe->value => tr('Severe')
-                ],
-                'label'     => tr('Severity'),
-                'size'      => 6,
-                'maxlength' => 6,
-            ],
-            'type' => [
-                'readonly' => true,
-                'default'  => tr('Unknown'),
-                'label'    => tr('Incident type'),
-                'size'     => 6,
-                'maxlength'=> 255,
-            ],
-            'title' => [
-                'disabled'  => true,
-                'db_null'   => false,
-                'type'      => 'numeric',
-                'label'     => tr('Title'),
-                'size'      => 12,
-                'maxlength' => 255,
-            ],
-            'details' => [
-                'element'   => 'text',
-                'label'     => tr('Details'),
-                'size'      => 12,
-                'maxlength' => 65_535,
-            ]
-        ];
+                ]))
+            ->add(DataEntryFieldDefinition::new('title')
+                ->setLabel(tr('Title'))
+                ->setDisabled(true)
+                ->setSize(12)
+                ->setMaxlength(4)
+                ->setMaxlength(255))
+            ->add(DataEntryFieldDefinition::new('details')
+                ->setElement(InputElement::textarea)
+                ->setLabel(tr('Details'))
+                ->setDisabled(true)
+                ->setSize(12)
+                ->setMaxlength(65_535));
     }
 }

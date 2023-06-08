@@ -27,7 +27,7 @@ trait DataEntryLongLat
      */
     public function getLongitude(): ?float
     {
-        return $this->getDataValue('longitude');
+        return $this->getDataValue('float', 'longitude');
     }
 
 
@@ -51,7 +51,7 @@ trait DataEntryLongLat
      */
     public function getLatitude(): ?float
     {
-        return $this->getDataValue('latitude');
+        return $this->getDataValue('float', 'latitude');
     }
 
 

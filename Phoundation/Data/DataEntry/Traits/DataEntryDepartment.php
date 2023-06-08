@@ -34,7 +34,7 @@ trait DataEntryDepartment
      */
     public function getDepartmentsId(): ?int
     {
-        return get_null((integer) $this->getDataValue('departments_id'));
+        return $this->getDataValue('int', 'departments_id');
     }
 
 
@@ -52,7 +52,7 @@ trait DataEntryDepartment
             ]));
         }
 
-        return $this->setDataValue('departments_id', (integer) $departments_id);
+        return $this->setDataValue('departments_id', get_null(isset_get_typed('integer', $departments_id)));
     }
 
 
@@ -76,19 +76,21 @@ trait DataEntryDepartment
     /**
      * Sets the departments_id for this object
      *
-     * @param Department|string|int|null $departments_id
+     * @param Department|string|int|null $department
      * @return static
      */
-    public function setDepartment(Department|string|int|null $departments_id): static
+    public function setDepartment(Department|string|int|null $department): static
     {
-        if (!is_numeric($departments_id)) {
-            $departments_id = Department::get($departments_id);
+        if ($department) {
+            if (!is_numeric($department)) {
+                $department = Department::get($department);
+            }
+
+            if (is_object($department)) {
+                $department = $department->getId();
+            }
         }
 
-        if (is_object($departments_id)) {
-            $departments_id = $departments_id->getId();
-        }
-
-        return $this->setDataValue('departments_id', $departments_id);
+        return $this->setDepartmentsId(get_null($department));
     }
 }

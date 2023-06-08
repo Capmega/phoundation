@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Security\Incidents;
 
 use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Security\Incidents\Exception\IncidentsException;
 
 /**
  * Class Incidents
@@ -29,7 +30,7 @@ class Incidents extends DataList
     public function __construct(?Incident $parent = null, ?string $id_column = null)
     {
         $this->entry_class = Incident::class;
-        $this->table_name  = 'security_incidents';
+        self::$table       = Incident::getTable();
 
         $this->setHtmlQuery('SELECT   `id`, `type`, `severity`, `title` 
                                    FROM     `security_incidents` 

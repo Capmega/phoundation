@@ -26,7 +26,7 @@ trait DataEntryCategory
      */
     public function getCategoriesId(): ?int
     {
-        return get_null((integer) $this->getDataValue('categories_id'));
+        return $this->getDataValue('int', 'categories_id');
     }
 
 
@@ -44,7 +44,7 @@ trait DataEntryCategory
             ]));
         }
 
-        return $this->setDataValue('categories_id', (integer) $categories_id);
+        return $this->setDataValue('categories_id', get_null(isset_get_typed('integer', $categories_id)));
     }
 
 
@@ -55,7 +55,7 @@ trait DataEntryCategory
      */
     public function getCategory(): ?static
     {
-        $categories_id = $this->getDataValue('categories_id');
+        $categories_id = $this->getDataValue('string', 'categories_id');
 
         if ($categories_id) {
             return new static($categories_id);
@@ -68,19 +68,21 @@ trait DataEntryCategory
     /**
      * Sets the categories_id for this user
      *
-     * @param Category|string|int|null $categories_id
+     * @param Category|string|int|null $category
      * @return static
      */
-    public function setCategory(Category|string|int|null $categories_id): static
+    public function setCategory(Category|string|int|null $category): static
     {
-        if (!is_numeric($categories_id)) {
-            $categories_id = static::get($categories_id);
+        if ($category) {
+            if (!is_numeric($category)) {
+                $category = static::get($category);
+            }
+
+            if (is_object($category)) {
+                $category = $category->getId();
+            }
         }
 
-        if (is_object($categories_id)) {
-            $categories_id = $categories_id->getId();
-        }
-
-        return $this->setDataValue('categories_id', $categories_id);
+        return $this->setCategoriesId(get_null($category));
     }
 }

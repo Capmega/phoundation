@@ -107,7 +107,7 @@ class ReCaptcha extends Captcha
      * @param string|null $secret
      * @return void
      */
-    public function validate(?string $response, string $remote_ip = null, string $secret = null): void
+    public function validateResponse(?string $response, string $remote_ip = null, string $secret = null): void
     {
         if (!$this->isValid($response, $remote_ip, $secret)) {
             throw new ValidationFailedException(tr('The ReCaptcha response is invalid for ":remote_ip"', [

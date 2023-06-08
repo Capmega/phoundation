@@ -25,7 +25,7 @@ trait DataEntryPriority
      */
     public function getPriority(): ?int
     {
-        return $this->getDataValue('priority', 50);
+        return $this->getDataValue('string', 'priority', 50);
     }
 
 

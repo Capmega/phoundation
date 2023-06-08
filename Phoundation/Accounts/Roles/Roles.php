@@ -35,7 +35,7 @@ class Roles extends DataList
     public function __construct(User|Role|null $parent = null, ?string $id_column = null)
     {
         $this->entry_class = Role::class;
-        $this->table_name  = 'accounts_roles';
+        self::$table       = Role::getTable();
 
         $this->setHtmlQuery('SELECT   `id`, `name`, `description` 
                                    FROM     `accounts_roles` 

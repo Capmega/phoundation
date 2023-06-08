@@ -6,11 +6,13 @@ namespace Phoundation\Data\Categories;
 
 use Phoundation\Core\Locale\Language\Languages;
 use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryCategory;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Data\Validator\Interfaces\DataValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
@@ -39,9 +41,19 @@ class Category extends DataEntry
     public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
     {
         static::$entry_name = 'category';
-        $this->table        = 'categories';
 
         parent::__construct($identifier);
+    }
+
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'categories';
     }
 
 
@@ -52,7 +64,7 @@ class Category extends DataEntry
      */
     public function getParentsId(): ?int
     {
-        return get_null((integer) $this->getDataValue('parents_id'));
+        return $this->getDataValue('int', 'parents_id');
     }
 
 
@@ -70,7 +82,7 @@ class Category extends DataEntry
             ]));
         }
 
-        return $this->setDataValue('parents_id', (integer) $parents_id);
+        return $this->setDataValue('parents_id', get_null(isset_get_typed('integer', $parents_id)));
     }
 
 
@@ -81,7 +93,7 @@ class Category extends DataEntry
      */
     public function getParent(): ?Parent
     {
-        $parents_id = $this->getDataValue('parents_id');
+        $parents_id = $this->getDataValue('int', 'parents_id');
 
         if ($parents_id) {
             return new static($parents_id);
@@ -94,32 +106,34 @@ class Category extends DataEntry
     /**
      * Sets the parents_id for this user
      *
-     * @param Category|string|int|null $parents_id
+     * @param Category|string|int|null $parent
      * @return static
      */
-    public function setParent(Category|string|int|null $parents_id): static
+    public function setParent(Category|string|int|null $parent): static
     {
-        if (!is_numeric($parents_id)) {
-            $parents_id = static::get($parents_id);
+        if ($parent) {
+            if (!is_numeric($parent)) {
+                $parent = static::get($parent);
+            }
+
+            if (is_object($parent)) {
+                $parent = $parent->getId();
+            }
         }
 
-        if (is_object($parents_id)) {
-            $parents_id = $parents_id->getId();
-        }
-
-        return $this->setDataValue('parents_id', $parents_id);
+        return $this->setParentsId(get_null($parent));
     }
 
 
     /**
      * Validates the provider record with the specified validator object
      *
-     * @param ArgvValidator|PostValidator|GetValidator $validator
+     * @param DataValidator $validator
      * @param bool $no_arguments_left
      * @param bool $modify
      * @return array
      */
-    protected function validate(ArgvValidator|PostValidator|GetValidator $validator, bool $no_arguments_left = false, bool $modify = false): array
+    protected function validate(DataValidator $validator, bool $no_arguments_left, bool $modify): array
     {
         $data = $validator
             ->select($this->getAlternateValidationField('name'), true)->hasMaxCharacters(64)->isName()
@@ -141,9 +155,9 @@ class Category extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @return array
+     * @return DataEntryFieldDefinitionsInterface
      */
-    protected static function getFieldDefinitions(): array
+    protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
     {
         return [
             'parents_id' => [

@@ -26,7 +26,7 @@ trait DataEntryFile
      */
     public function getFile(): ?string
     {
-        return $this->getDataValue('file');
+        return $this->getDataValue('string', 'file');
     }
 
 

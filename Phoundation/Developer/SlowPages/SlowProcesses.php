@@ -19,7 +19,7 @@ use Phoundation\Developer\Incidents\Incidents;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Developer
  */
-class SlowPages extends Incidents
+class SlowProcesses extends Incidents
 {
     /**
      * Users class constructor
@@ -29,8 +29,8 @@ class SlowPages extends Incidents
      */
     public function __construct(Role|User|null $parent = null, ?string $id_column = null)
     {
-        $this->entry_class = SlowPage::class;
-        $this->table_name  = 'developer_slow_pages';
+        $this->entry_class = SlowProcess::class;
+        self::$table       = SlowProcess::getTable();
 
         $this->setHtmlQuery('SELECT   `id`, `created_on`, `status`, `title` 
                                    FROM     `accounts_users` 

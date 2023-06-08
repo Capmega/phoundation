@@ -142,13 +142,7 @@ class PostValidator extends Validator
     public static function extract(): ?array
     {
         Log::warning(tr('Liberated all $_POST data without data validation!'));
-
-        global $_POST;
-
-        $_POST = static::$post;
-        static::$post = null;
-
-        return $_POST;
+        return static::$post;
     }
 
 

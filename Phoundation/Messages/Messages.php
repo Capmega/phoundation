@@ -28,7 +28,7 @@ class Messages extends DataList
     public function __construct(?Message $parent = null, ?string $id_column = null)
     {
         $this->entry_class = Message::class;
-        $this->table_name  = 'messages';
+        self::$table       = Message::getTable();
 
         $this->setHtmlQuery('SELECT   `id`, `title`, `status`, `created_on` 
                                    FROM     `messages` 

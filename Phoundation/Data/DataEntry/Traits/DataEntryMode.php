@@ -27,7 +27,7 @@ trait DataEntryMode
      */
     public function getMode(): InterfaceDisplayMode
     {
-        return DisplayMode::from($this->getDataValue('mode'));
+        return DisplayMode::from($this->getDataValue('string', 'mode', ''));
     }
 
 

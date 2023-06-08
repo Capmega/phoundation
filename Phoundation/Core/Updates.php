@@ -62,9 +62,9 @@ class Updates extends Libraries\Updates
                     `meta_id` bigint NOT NULL,
                     `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
-                    `library` VARCHAR(64) NOT NULL,
+                    `library` varchar(64) NOT NULL,
                     `version` bigint NOT NULL,
-                    `comments` TEXT DEFAULT NULL,
+                    `comments` text DEFAULT NULL,
                 ')->setIndices('
                     PRIMARY KEY (`id`),
                     KEY `created_on` (`created_on`),
@@ -145,7 +145,7 @@ class Updates extends Libraries\Updates
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
-                    `status` VARCHAR(16) DEFAULT NULL,
+                    `status` varchar(16) DEFAULT NULL,
                     `url` varchar(2048) DEFAULT NULL,
                     `cloak` varchar(32) NOT NULL,
                 ')->setIndices('

@@ -30,7 +30,7 @@ class Timezones extends DataList
     public function __construct(?Timezone $parent = null, ?string $id_column = null)
     {
         $this->entry_class = Timezone::class;
-        $this->table_name  = 'geo_timezones';
+        self::$table       = Timezone::getTable();
 
         $this->setHtmlQuery('SELECT   `id`, `name`, `status`, `created_on` 
                                    FROM     `geo_states` 

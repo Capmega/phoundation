@@ -29,7 +29,7 @@ class Employees extends DataList
     public function __construct(?DataEntry $parent = null, ?string $id_column = null)
     {
         $this->entry_class = Employee::class;
-        $this->table_name  = 'business_employees';
+        self::$table       = Employee::getTable();
 
         $this->setHtmlQuery('SELECT   `id`, `name`, `email`, `status`, `created_on` 
                                    FROM     `business_employees` 

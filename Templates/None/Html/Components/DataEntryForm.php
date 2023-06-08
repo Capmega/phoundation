@@ -44,12 +44,12 @@ class DataEntryForm extends Renderer
      */
     public function render(): ?string
     {
-        if (!$this->element->getKeys()) {
+        if (!$this->element->getFields()) {
             throw new OutOfBoundsException(tr('Cannot render DataEntryForm, no form keys specified'));
         }
 
         $source = $this->element->getSource();
-        $keys   = $this->reorderKeys($this->element->getKeys());
+        $keys   = $this->reorderKeys($this->element->getFields());
 
         // Possible $data contents:
         //

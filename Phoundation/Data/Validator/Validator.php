@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Phoundation\Data\Validator;
 
 use DateTime;
-use JsonSchema\Exception\ValidationException;
 use PDOStatement;
 use Phoundation\Accounts\Passwords;
 use Phoundation\Core\Arrays;
@@ -14,13 +13,18 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Exception\KeyAlreadySelectedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\Exception\ValidatorException;
+use Phoundation\Data\Validator\Interfaces\DataValidator;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Url;
 use ReflectionProperty;
 use Throwable;
+use UnitEnum;
+
 
 /**
  * Validator class
@@ -32,7 +36,7 @@ use Throwable;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
-abstract class Validator
+abstract class Validator implements DataValidator
 {
     use ValidatorBasics;
 
@@ -110,9 +114,9 @@ abstract class Validator
      * artificial array because of this. ->each() actually will have a list of values, so puts that list directly into
      * $this->process_values
      *
-     * @see Validator::self()
-     * @see Validator::select()
      * @return static
+     *@see DataValidator::select()
+     * @see DataValidator::self()
      */
     public function each(): static
     {
@@ -136,9 +140,9 @@ abstract class Validator
      * artificial array because of this. ->each() actually will have a list of values, so puts that list directly into
      * $this->process_values
      *
-     * @see Validator::each()
-     * @see Validator::select()
      * @return static
+     *@see DataValidator::select()
+     * @see DataValidator::each()
      */
     public function single(): static
     {
@@ -205,6 +209,9 @@ abstract class Validator
 
                 $value = false;
             }
+
+            // Sanitize value, must be a boolean
+            $value = Strings::toBoolean($value);
         });
     }
 
@@ -222,7 +229,7 @@ abstract class Validator
             $this->checkIsOptional($value);
 
             if (!is_integer($value)) {
-                if (is_string($value) and ((int) $value == $value)) {
+                if (is_string($value) and (((int) $value) == $value)) {
                     // This integer value was specified as a numeric string
                     $value = (int) $value;
                 } else {
@@ -567,7 +574,7 @@ abstract class Validator
      * @param array $array
      * @return static
      */
-    public function inArray(array $array) : Validator
+    public function isInArray(array $array): static
     {
         return $this->validateValues(function(&$value) use ($array) {
             // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
@@ -587,6 +594,32 @@ abstract class Validator
 
 
     /**
+     * Validates the datatype for the selected field
+     *
+     * This method ensures that the specified array key is a scalar value
+     *
+     * @param UnitEnum $enum
+     * @return static
+     */
+    public function isInEnum(UnitEnum $enum): static
+    {
+        return $this->validateValues(function(&$value) use ($enum) {
+            // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
+            $this->isScalar();
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return;
+            }
+
+            if (!in_enum($value, $enum)) {
+                $this->addFailure(tr('must be one of ":list"', [':list' => $enum]));
+            }
+        });
+    }
+
+
+    /**
      * Ensures that the value has the specified string
      *
      * This method ensures that the specified array key contains the specified string
@@ -595,7 +628,7 @@ abstract class Validator
      * @param bool $regex
      * @return static
      */
-    public function contains(string $string, bool $regex = false) : Validator
+    public function contains(string $string, bool $regex = false): static
     {
         return $this->validateValues(function(&$value) use ($string, $regex) {
             // This value must be scalar
@@ -628,7 +661,7 @@ abstract class Validator
      * @param bool $regex
      * @return static
      */
-    public function containsNot(string $string, bool $regex = false) : Validator
+    public function containsNot(string $string, bool $regex = false): static
     {
         return $this->validateValues(function(&$value) use ($string, $regex) {
             // This value must be scalar
@@ -662,7 +695,7 @@ abstract class Validator
      * @param bool $ignore_case
      * @return static
      */
-    public function isQueryColumn(PDOStatement|string $query, ?array $execute = null, bool $ignore_case = false) : Validator
+    public function isQueryColumn(PDOStatement|string $query, ?array $execute = null, bool $ignore_case = false): static
     {
         return $this->validateValues(function(&$value) use ($query, $execute, $ignore_case) {
             // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
@@ -684,13 +717,52 @@ abstract class Validator
     /**
      * Validates the datatype for the selected field
      *
+     * This method ensures that the specified key is the same as the column value in the specified query
+     *
+     * @param string $column
+     * @param PDOStatement|string $query
+     * @param array|null $execute
+     * @param bool $ignore_case
+     * @return static
+     */
+    public function setColumnFromQuery(string $column, PDOStatement|string $query, ?array $execute = null, bool $ignore_case = false): static
+    {
+        return $this->validateValues(function(&$value) use ($column, $query, $execute, $ignore_case) {
+            // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
+            $this->isScalar();
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return;
+            }
+
+            if (array_key_exists($column, $this->source)) {
+                $this->addFailure(tr('column ":column" already exists', [':column' => $column]));
+
+            } else {
+                $execute = $this->applyExecuteVariables($execute);
+                $value   = sql()->getColumn($query, $execute);
+
+                if (!$value) {
+                    $this->addFailure(tr('value ":value" does not exists', [':value' => $column]));
+                }
+
+                $this->source[$column] = $value;
+            }
+        });
+    }
+
+
+    /**
+     * Validates the datatype for the selected field
+     *
      * This method ensures that the specified key value contains the column value in the specified query
      *
      * @param PDOStatement|string $query
      * @param array|null $execute
      * @return static
      */
-    public function containsQueryColumn(PDOStatement|string $query, ?array $execute = null) : Validator
+    public function containsQueryColumn(PDOStatement|string $query, ?array $execute = null): static
     {
         return $this->validateValues(function(&$value) use ($query, $execute) {
             // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
@@ -717,7 +789,7 @@ abstract class Validator
      * @param array|null $execute
      * @return static
      */
-    public function inQueryColumns(PDOStatement|string $query, ?array $execute = null) : Validator
+    public function inQueryColumns(PDOStatement|string $query, ?array $execute = null): static
     {
         return $this->validateValues(function(&$value) use ($query, $execute) {
             // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
@@ -730,7 +802,7 @@ abstract class Validator
 
             $execute = $this->applyExecuteVariables($execute);
             $results = sql()->list($query, $execute);
-            $this->inArray($results);
+            $this->isInArray($results);
         });
     }
 
@@ -1183,11 +1255,94 @@ abstract class Validator
                 return;
             }
 
-            if (preg_match('(?=((?: |^)[0-2]?d[:. ]?[0-5]d(?:[:. ]?[0-5]d)?(?:[ ]?.?m?.?)?(?: |$))', $value)){
+            if (preg_match('/?=((?: |^)[0-2]?d[:. ]?[0-5]d(?:[:. ]?[0-5]d)?(?:[ ]?.?m?.?)?(?: |$)/', $value)){
                 return;
             }
 
             $this->addFailure(tr('must be a valid time'));
+        });
+    }
+
+
+    /**
+     * Validates that the selected field is a date time field
+     *
+     * @note Regex taken from https://code.oursky.com/regex-date-currency-and-time-accurate-data-extraction/
+     * @return static
+     */
+    public function isDateTime(): static
+    {
+        return $this->validateValues(function(&$value) {
+            $this->isString()->hasMaxCharacters(32); // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return;
+            }
+
+            // Must match regex
+            if (preg_match('/(?=((?:(?:(?:0[1-9]|1[0-2]|[1-9])(?:3[0-1]|0[1-9]|[1-2]d|[1-9])|(?:3[0-1]|0[1-9]|[1-2]d|[1-9])(?:0[1-9]|1[0-2]|[1-9]))(?:19|20)?d{2}(?!:)|(?:19|20)?d{2}(?:0[1-9]|1d|[1-9])(?:3[0-1]|0[1-9]|[1-2]d|[1-9](?!d)))))\s+?=((?: |^)[0-2]?d[:. ]?[0-5]d(?:[:. ]?[0-5]d)?(?:[ ]?.?m?.?)?(?: |$)/', $value)) {
+                // Must be able to create date object without failure
+                try {
+                    if (strtotime($value) !== false) {
+                        return;
+                    }
+                    // Yeah, this is not a valid date
+
+                } catch (Throwable) {
+                    // Yeah, this is not a valid date
+                }
+            }
+
+            $this->addFailure(tr('must be a valid date'));
+        });
+    }
+
+
+    /**
+     * Validates that the selected field is in the past
+     *
+     * @param DateTime|null $before
+     * @return static
+     */
+    public function isPast(?DateTime $before = null): static
+    {
+        return $this->validateValues(function(&$value) {
+            $this->isString()->hasMaxCharacters(32); // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return;
+            }
+
+            throw new UnderConstructionException();
+
+
+            $this->addFailure(tr('must be a valid date'));
+        });
+    }
+
+
+    /**
+     * Validates that the selected field is in the past
+     *
+     * @param DateTime|null $after
+     * @return static
+     */
+    public function isFuture(?DateTime $after = null): static
+    {
+        return $this->validateValues(function(&$value) {
+            $this->isString()->hasMaxCharacters(32); // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return;
+            }
+
+            throw new UnderConstructionException();
+
+
+            $this->addFailure(tr('must be a valid date'));
         });
     }
 
@@ -1307,10 +1462,7 @@ abstract class Validator
                 return;
             }
 
-// TODO Implement
-//            if (!preg_match($regex, $value)) {
-//                $this->addFailure(tr('must match ":regex"', [':regex' => $regex]));
-//            }
+            $this->hasMaxCharacters(64)->isQueryColumn('SELECT `id` FROM `geo_timezones` WHERE `name` = :name', [':name' => $value]);
         });
     }
 
@@ -1505,7 +1657,7 @@ abstract class Validator
      *
      * @return static
      */
-    public function isPhone(): static
+    public function isPhoneNumber(): static
     {
         return $this->validateValues(function(&$value) {
             $this->hasMinCharacters(10)->hasMaxCharacters(20);
@@ -1523,11 +1675,12 @@ abstract class Validator
     /**
      * Validates if the selected field is a valid multiple phones field
      *
+     * @param string $separator
      * @return static
      */
-    public function isPhones(): static
+    public function isPhoneNumbers(string $separator = ','): static
     {
-        return $this->validateValues(function(&$value) {
+        return $this->validateValues(function(&$value) use ($separator) {
             $this->hasMinCharacters(10)->hasMaxCharacters(64);
 
             if ($this->process_value_failed) {
@@ -1535,7 +1688,8 @@ abstract class Validator
                 return;
             }
 
-            $this->matchesRegex('/[0-9- ,].+?/');
+            $separator = Strings::escapeRegex($separator);
+            $this->matchesRegex('/[0-9- ' . $separator . '].+?/');
         });
     }
 
@@ -1648,10 +1802,11 @@ abstract class Validator
     /**
      * Validates if the selected field is a valid directory
      *
-     * @param Restrictions|array|string $restrictions
+     * @param string|bool|null $exists_in_path
+     * @param Restrictions|array|string|null $restrictions
      * @return static
      */
-    public function isDirectory(Restrictions|array|string $restrictions): static
+    public function isDirectory(string|bool $exists_in_path = null, Restrictions|array|string|null $restrictions = null): static
     {
         return $this->validateValues(function(&$value) use($exists_in_path, $restrictions) {
             $this->hasMinCharacters(1)->hasMaxCharacters(2048);
@@ -1712,7 +1867,7 @@ abstract class Validator
         }
 
         if (!$restrictions) {
-            throw new ValidationException(tr('Cannot validate the specified :type, no restrictions specified', [
+            throw new ValidatorException(tr('Cannot validate the specified :type, no restrictions specified', [
                 ':type' => $type
             ]));
         }
@@ -1744,12 +1899,13 @@ abstract class Validator
     /**
      * Validates if the selected field is a valid description
      *
+     * @param int $characters
      * @return static
      */
-    public function isDescription(): static
+    public function isDescription(int $characters = 16_777_200): static
     {
-        return $this->validateValues(function(&$value) {
-            $this->hasMaxCharacters(16777216);
+        return $this->validateValues(function(&$value) use ($characters) {
+            $this->hasMaxCharacters($characters);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -1816,6 +1972,29 @@ abstract class Validator
      * @param int $characters
      * @return static
      */
+    public function isColor(): static
+    {
+        return $this->validateValues(function(&$value) use ($characters) {
+            $this->hasMinCharacters(3)->hasMaxCharacters($characters);
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return;
+            }
+
+            if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
+                $this->addFailure(tr('must contain a valid email'));
+            }
+        });
+    }
+
+
+    /**
+     * Validates if the selected field is a valid email address
+     *
+     * @param int $characters
+     * @return static
+     */
     public function isEmail(int $characters = 2048): static
     {
         return $this->validateValues(function(&$value) use ($characters) {
@@ -1841,7 +2020,7 @@ abstract class Validator
      */
     public function isUrl(int $max_size = 2048): static
     {
-        return $this->validateValues(function(&$value) {
+        return $this->validateValues(function(&$value) use ($max_size) {
             $this->hasMinCharacters(3)->hasMaxCharacters($max_size);
 
             if ($this->process_value_failed) {
@@ -2046,6 +2225,50 @@ abstract class Validator
                 base64_decode($value);
             } catch (Throwable) {
                 $this->addFailure(tr('must contain a valid bas64 encoded string'));
+            }
+        });
+    }
+
+
+    /**
+     * Validates if the specified function returns TRUE for this value
+     *
+     * @param callable $function
+     * @param string $failure
+     * @return static
+     */
+    public function isTrue(callable $function, string $failure): static
+    {
+        return $this->validateValues(function(&$value) use ($function, $failure) {
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return;
+            }
+
+            if (!$function($value, $this->source)) {
+                $this->addFailure($failure);
+            }
+        });
+    }
+
+
+    /**
+     * Validates if the specified function returns FALSE for this value
+     *
+     * @param callable $function
+     * @param string $failure
+     * @return static
+     */
+    public function isFalse(callable $function, string $failure): static
+    {
+        return $this->validateValues(function(&$value) use ($function, $failure) {
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return;
+            }
+
+            if ($function($value, $this->source)) {
+                $this->addFailure($failure);
             }
         });
     }

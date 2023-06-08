@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http\Html\Components;
 
 use PDOStatement;
-use Phoundation\Web\Http\Html\Components\Input\InputElement;
+use Phoundation\Web\Http\Html\Components\Input\Traits\InputElement;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
 
 

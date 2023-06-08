@@ -17,9 +17,10 @@ namespace Phoundation\Security\Incidents;
  */
 enum Severity: string
 {
-    case notice = 'notice';
-    case low    = 'low';
-    case medium = 'medium';
-    case high   = 'high';
-    case severe = 'severe';
+    case unknown = 'unknown';
+    case notice  = 'notice';
+    case low     = 'low';
+    case medium  = 'medium';
+    case high    = 'high';
+    case severe  = 'severe';
 }

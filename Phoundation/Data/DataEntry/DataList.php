@@ -81,7 +81,7 @@ abstract class DataList implements InterfaceDataList
      *
      * @var string
      */
-    protected string $table_name;
+    protected static string $table;
 
     /**
      * The unique column identifier, next to id
@@ -374,9 +374,9 @@ abstract class DataList implements InterfaceDataList
      *
      * @return string
      */
-    public function getTableName(): string
+    public function getTable(): string
     {
-        return $this->table_name;
+        return self::$table;
     }
 
 
@@ -398,9 +398,9 @@ abstract class DataList implements InterfaceDataList
      *
      * @return \Phoundation\Databases\Sql\Schema\Table
      */
-    public function getTable(): \Phoundation\Databases\Sql\Schema\Table
+    public function getTableSchema(): \Phoundation\Databases\Sql\Schema\Table
     {
-        return sql()->schema()->table($this->table_name);
+        return sql()->schema()->table(self::$table);
     }
 
 
@@ -595,7 +595,7 @@ abstract class DataList implements InterfaceDataList
 
         // Create and return the table
         return DataTable::new()
-            ->setId($this->table_name)
+            ->setId(self::$table)
             ->setSourceQuery($this->html_query, $this->html_execute)
             ->setCheckboxSelectors(true);
     }
@@ -626,7 +626,7 @@ abstract class DataList implements InterfaceDataList
      */
     public function setStatus(?string $status, array $entries, ?string $comments = null): int
     {
-        return sql()->setStatus($status, $this->table_name, $entries, $comments);
+        return sql()->setStatus($status, self::$table, $entries, $comments);
     }
 
 
@@ -669,7 +669,7 @@ showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY F
         $in = Sql::in($identifiers);
 
         return sql()->list('SELECT `id` 
-                                  FROM   `' . $this->table_name . '` 
+                                  FROM   `' . self::$table . '` 
                                   WHERE  `' . $this->unique_column . '` IN (' . implode(', ', array_keys($in)) . ')', $in);
     }
 
@@ -682,7 +682,7 @@ showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY F
 //     */
 //    public function erase(array $entries): int
 //    {
-//        return sql()->erase($this->table_name, $entries);
+//        return sql()->erase(self::$table_name, $entries);
 //    }
 
 

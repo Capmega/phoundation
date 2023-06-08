@@ -40,7 +40,7 @@ class Rights extends DataList implements InterfaceRights
     public function __construct(InterfaceUser|InterfaceRole|null $parent = null, ?string $id_column = null)
     {
         $this->entry_class = Right::class;
-        $this->table_name  = 'accounts_rights';
+        self::$table       = Right::getTable();
 
         $this->setHtmlQuery('SELECT   `id`, `name`, `description` 
                                    FROM     `accounts_rights` 

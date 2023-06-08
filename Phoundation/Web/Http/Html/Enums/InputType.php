@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html\Enums;
 
-use Phoundation\Web\Http\Html\Interfaces\InterfaceInputType;
+use Phoundation\Web\Http\Html\Interfaces\InputTypeInterface;
+
 
 /**
  * Enum ButtonTypes
@@ -16,7 +17,7 @@ use Phoundation\Web\Http\Html\Interfaces\InterfaceInputType;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-enum InputType: string implements InterfaceInputType
+enum InputType: string implements InputTypeInterface
 {
     case button         = 'button';
     case checkbox       = 'checkbox';
@@ -40,4 +41,5 @@ enum InputType: string implements InterfaceInputType
     case time           = 'time';
     case url            = 'url';
     case week           = 'week';
+    case select         = 'select';
 }

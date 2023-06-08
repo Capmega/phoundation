@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Phoundation\Business\Companies\Branches;
 
 use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Data\Validator\GetValidator;
-use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Data\Validator\Interfaces\DataValidator;
+
 
 /**
  * Class Branch
@@ -35,9 +35,19 @@ class Branch extends DataEntry
     public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
     {
         static::$entry_name = 'company branch';
-        $this->table        = 'business_branches';
 
         parent::__construct($identifier);
+    }
+
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'business_branches';
     }
 
 
@@ -53,7 +63,7 @@ class Branch extends DataEntry
     /**
      * @inheritDoc
      */
-    protected function validate(GetValidator|PostValidator|ArgvValidator $validator, bool $no_arguments_left = false, bool $modify = true): array
+    protected function validate(DataValidator $validator, bool $no_arguments_left, bool $modify): array
     {
         // TODO: Implement validate() method.
     }
@@ -62,9 +72,9 @@ class Branch extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @return array
+     * @return DataEntryFieldDefinitionsInterface
      */
-    protected static function getFieldDefinitions(): array
+    protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
     {
         // TODO: Implement getFieldDefinitions() method.
         return [];

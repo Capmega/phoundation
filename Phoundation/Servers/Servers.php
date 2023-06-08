@@ -34,7 +34,7 @@ class Servers extends DataList
     public function __construct(?DataEntry $parent = null, ?string $id_column = null)
     {
         $this->entry_class = Server::class;
-        $this->table_name  = 'servers';
+        self::$table       = Server::getTable();
 
         $this->setHtmlQuery('SELECT   `id`, `name`, `code`, `email`, `status`, `created_on` 
                                    FROM     `servers` 

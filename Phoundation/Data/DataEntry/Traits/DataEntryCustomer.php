@@ -26,7 +26,7 @@ trait DataEntryCustomer
      */
     public function getCustomersId(): ?int
     {
-        return get_null((integer) $this->getDataValue('customers_id'));
+        return $this->getDataValue('string', 'customers_id');
     }
 
 
@@ -44,7 +44,7 @@ trait DataEntryCustomer
             ]));
         }
 
-        return $this->setDataValue('customers_id', (integer) $customers_id);
+        return $this->setDataValue('customers_id', get_null(isset_get_typed('integer', $customers_id)));
     }
 
 
@@ -55,7 +55,7 @@ trait DataEntryCustomer
      */
     public function getCustomer(): ?Customer
     {
-        $customers_id = $this->getDataValue('customers_id');
+        $customers_id = $this->getDataValue('string', 'customers_id');
 
         if ($customers_id) {
             return new Customer($customers_id);
@@ -68,19 +68,21 @@ trait DataEntryCustomer
     /**
      * Sets the customers_id for this user
      *
-     * @param Customer|string|int|null $customers_id
+     * @param Customer|string|int|null $customer
      * @return static
      */
-    public function setCustomer(Customer|string|int|null $customers_id): static
+    public function setCustomer(Customer|string|int|null $customer): static
     {
-        if (!is_numeric($customers_id)) {
-            $customers_id = Customer::get($customers_id);
+        if ($customer) {
+            if (!is_numeric($customer)) {
+                $customer = Customer::get($customer);
+            }
+
+            if (is_object($customer)) {
+                $customer = $customer->getId();
+            }
         }
 
-        if (is_object($customers_id)) {
-            $customers_id = $customers_id->getId();
-        }
-
-        return $this->setDataValue('customers_id', $customers_id);
+        return $this->setCustomersId(get_null($customer));
     }
 }

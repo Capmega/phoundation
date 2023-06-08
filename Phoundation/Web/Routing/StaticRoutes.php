@@ -28,7 +28,7 @@ class StaticRoutes extends DataList
     public function __construct(?StaticRoute $parent = null, ?string $id_column = null)
     {
         $this->entry_class = StaticRoute::class;
-        $this->table_name  = 'security_incidents';
+        self::$table       = StaticRoute::getTable();
 
         $this->setHtmlQuery('SELECT   `id`, `type`, `severity`, `title` 
                                    FROM     `static_routes` 

@@ -25,7 +25,7 @@ trait DataEntryMessage
      */
     public function getMessage(): ?string
     {
-        return $this->getDataValue('message');
+        return $this->getDataValue('string', 'message');
     }
 
 

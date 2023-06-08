@@ -162,9 +162,9 @@ trait ValidatorBasics
     /**
      * Returns the maximum string size that this Validator will touch
      *
-     * @return string|null
+     * @return int|null
      */
-    public function getMaximumStringSize(): ?string
+    public function getMaximumStringSize(): ?int
     {
         return $this->max_string_size;
     }
@@ -173,10 +173,10 @@ trait ValidatorBasics
     /**
      * Returns the maximum string size that this Validator will touch
      *
-     * @param string|null $max_string_size
+     * @param int|null $max_string_size
      * @return void
      */
-    public function setMaximumStringSize(?string $max_string_size): void
+    public function setMaximumStringSize(?int $max_string_size): void
     {
         $this->max_string_size = $max_string_size;
     }

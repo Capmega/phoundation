@@ -7,13 +7,12 @@ namespace Phoundation\Core\Plugins;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Libraries\Library;
 use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryPath;
 use Phoundation\Data\DataEntry\Traits\DataEntryPriority;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Data\Validator\GetValidator;
-use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Data\Validator\Interfaces\DataValidator;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 
@@ -46,10 +45,20 @@ abstract class Plugin extends DataEntry
     public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
     {
         static::$entry_name  = 'plugin';
-        $this->table         = 'core_plugins';
         $this->unique_field  = 'name';
 
         parent::__construct($identifier);
+    }
+
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'core_plugins';
     }
 
 
@@ -71,27 +80,25 @@ abstract class Plugin extends DataEntry
             return true;
         }
 
-        return (bool) $this->getDataValue('enabled');
+        return $this->getDataValue('bool', 'enabled', false);
     }
 
 
     /**
      * Sets if this plugin is enabled or not
      *
-     * @param int|bool $enabled
+     * @param bool|null $enabled
      * @return static
      */
-    public function setEnabled(int|bool $enabled): static
+    public function setEnabled(bool|null $enabled): static
     {
-        $enabled = (bool) $enabled;
-
         if ($this->getName() === 'Phoundation') {
             if (!$enabled) {
                 throw new CoreException(tr('Cannot disable the "Phoundation" plugin, it is always enabled'));
             }
         }
 
-        return $this->setDataValue('enabled', $enabled);
+        return $this->setDataValue('enabled', (bool) $enabled);
     }
 
 
@@ -294,12 +301,12 @@ abstract class Plugin extends DataEntry
     /**
      * Validates the provider record with the specified validator object
      *
-     * @param ArgvValidator|PostValidator|GetValidator $validator
+     * @param DataValidator $validator
      * @param bool $no_arguments_left
      * @param bool $modify
      * @return array
      */
-    protected function validate(ArgvValidator|PostValidator|GetValidator $validator, bool $no_arguments_left = false, bool $modify = false): array
+    protected function validate(DataValidator $validator, bool $no_arguments_left, bool $modify): array
     {
         $data = $validator
             ->select($this->getAlternateValidationField('name'), true)->hasMaxCharacters()->isName()
@@ -323,9 +330,9 @@ abstract class Plugin extends DataEntry
     /**
      * Sets the available data keys for the User class
      *
-     * @return array
+     * @return DataEntryFieldDefinitionsInterface
      */
-    protected static function getFieldDefinitions(): array
+    protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
     {
        return [
             'disabled' => [
@@ -347,7 +354,7 @@ abstract class Plugin extends DataEntry
             'priority' => [
                 'type'     => 'numeric',
                 'cli'      => '-p,--priority PRIORITY (1 - 10)',
-                'db_null'  => false,
+                'null_db'  => false,
                 'min'     => 1,
                 'default' => 5,
                 'max'     => 100,

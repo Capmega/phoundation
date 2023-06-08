@@ -34,7 +34,7 @@ trait DataEntryEmployee
      */
     public function getEmployeesId(): ?int
     {
-        return get_null((integer) $this->getDataValue('employees_id'));
+        return $this->getDataValue('int', 'employees_id');
     }
 
 
@@ -52,7 +52,7 @@ trait DataEntryEmployee
             ]));
         }
 
-        return $this->setDataValue('employees_id', (integer) $employees_id);
+        return $this->setDataValue('employees_id', get_null(isset_get_typed('integer', $employees_id)));
     }
 
 
@@ -63,7 +63,7 @@ trait DataEntryEmployee
      */
     public function getEmployee(): ?Employee
     {
-        $employees_id = $this->getDataValue('employees_id');
+        $employees_id = $this->getDataValue('string', 'employees_id');
 
         if ($employees_id) {
             return new Employee($employees_id);
@@ -76,19 +76,21 @@ trait DataEntryEmployee
     /**
      * Sets the employees_id for this object
      *
-     * @param Employee|string|int|null $employees_id
+     * @param Employee|string|int|null $employee
      * @return static
      */
-    public function setEmployee(Employee|string|int|null $employees_id): static
+    public function setEmployee(Employee|string|int|null $employee): static
     {
-        if (!is_numeric($employees_id)) {
-            $employees_id = Employee::get($employees_id);
+        if ($employee) {
+            if (!is_numeric($employee)) {
+                $employee = Employee::get($employee);
+            }
+
+            if (is_object($employee)) {
+                $employee = $employee->getId();
+            }
         }
 
-        if (is_object($employees_id)) {
-            $employees_id = $employees_id->getId();
-        }
-
-        return $this->setDataValue('employees_id', $employees_id);
+        return $this->setEmployeesId(get_null($employee));
     }
 }

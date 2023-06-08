@@ -31,7 +31,7 @@ class SignIns extends DataList
     public function __construct(?SignIn $parent = null, ?string $id_column = null)
     {
         $this->entry_class = SignIn::class;
-        $this->table_name  = 'accounts_signins';
+        self::$table       = SignIn::getTable();
 
         $this->setHtmlQuery('SELECT    `accounts_signins`.`id`,
                                              `accounts_signins`.`created_on`,

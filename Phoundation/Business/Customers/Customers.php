@@ -31,7 +31,7 @@ class Customers extends DataList
     public function __construct(?Company $parent = null, ?string $id_column = null)
     {
         $this->entry_class = Customer::class;
-        $this->table_name  = 'business_customers';
+        self::$table       = Customer::getTable();
 
         $this->setHtmlQuery('SELECT   `id`, `name`, `code`, `email`, `status`, `created_on` 
                                    FROM     `business_customers` 

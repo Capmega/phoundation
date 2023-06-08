@@ -39,7 +39,7 @@ class Plugins extends DataList
     public function __construct(?Plugin $parent = null, ?string $id_column = null)
     {
         $this->entry_class = Plugin::class;
-        $this->table_name  = 'core_plugins';
+        self::$table       = Plugin::getTable();
 
         $this->setHtmlQuery('SELECT   `id`, `name`, COALESCE(`status`, "' . tr('Enabled') . '") AS `status`, IF(`start`, "' . tr('Yes') . '", "' . tr('No') . '") AS `start`, `priority`, `description` 
                                    FROM     `core_plugins` 

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html\Enums;
 
-use Phoundation\Web\Http\Html\Interfaces\InterfaceButtonType;
+use Phoundation\Web\Http\Html\Interfaces\ButtonTypeInterface;
 
 /**
  * Enum ButtonTypes
@@ -16,7 +16,7 @@ use Phoundation\Web\Http\Html\Interfaces\InterfaceButtonType;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-enum ButtonType: string implements InterfaceButtonType
+enum ButtonType: string implements ButtonTypeInterface
 {
     case button = 'button';
     case submit = 'submit';

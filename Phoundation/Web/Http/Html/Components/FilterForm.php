@@ -24,7 +24,7 @@ class FilterForm extends DataEntryForm
     {
         parent::__construct();
 
-        $this->keys = [
+        $this->fields = [
             'type[]'   => [
                 'label'    => tr('Type'),
                 'element'  => 'select',

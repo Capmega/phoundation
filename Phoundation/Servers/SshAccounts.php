@@ -34,7 +34,7 @@ class SshAccounts extends DataList
     public function __construct(?DataEntry $parent = null, ?string $id_column = null)
     {
         $this->entry_class = SshAccount::class;
-        $this->table_name  = 'ssh_accounts';
+        self::$table       = SshAccounts::getTable();
 
         $this->setHtmlQuery('SELECT   `id`, `name`, `created_on` 
                                    FROM     `ssh_accounts` 

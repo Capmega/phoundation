@@ -30,7 +30,7 @@ class Countries extends DataList
     public function __construct(?Country $parent = null, ?string $id_column = null)
     {
         $this->entry_class = Country::class;
-        $this->table_name  = 'geo_countries';
+        self::$table       = Country::getTable();
 
         $this->setHtmlQuery('SELECT   `id`, `name`, `status`, `created_on` 
                                    FROM     `geo_states` 

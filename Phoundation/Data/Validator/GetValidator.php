@@ -140,13 +140,7 @@ class GetValidator extends Validator
     public static function extract(): ?array
     {
         Log::warning(tr('Liberated all $_GET data without data validation!'));
-
-        global $_GET;
-
-        $_GET = static::$get;
-        static::$get = null;
-
-        return $_GET;
+        return static::$get;
     }
 
 

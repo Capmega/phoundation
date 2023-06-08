@@ -30,7 +30,7 @@ class Categories extends DataList
     public function __construct(?Category $parent = null, ?string $id_column = null)
     {
         $this->entry_class = Category::class;
-        $this->table_name  = 'categories';
+        self::$table       = Category::getTable();
 
         $this->setHtmlQuery('SELECT   `id`, `name`, `status`, `created_on` 
                                    FROM     `categories` 

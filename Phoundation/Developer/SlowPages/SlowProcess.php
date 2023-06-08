@@ -17,7 +17,7 @@ use Phoundation\Developer\Incidents\Incident;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Developer
  */
-class SlowPage extends Incident
+class SlowProcess extends Incident
 {
     /**
      * SlowPage class constructor
@@ -26,7 +26,19 @@ class SlowPage extends Incident
      */
     public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
     {
-        $this->setType('slow_page');
+        static::$entry_name  = 'incident';
+
         parent::__construct($identifier);
+    }
+
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'developer_slow_processes';
     }
 }

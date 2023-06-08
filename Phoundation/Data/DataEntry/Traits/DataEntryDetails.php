@@ -25,7 +25,7 @@ trait DataEntryDetails
      */
     public function getDetails(): ?array
     {
-        return Json::decode($this->getDataValue('details'));
+        return Json::decode($this->getDataValue('string', 'details'));
     }
 
 

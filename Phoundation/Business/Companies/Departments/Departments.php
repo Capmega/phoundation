@@ -29,7 +29,7 @@ class Departments extends DataList
     public function __construct(?Company $parent = null, ?string $id_column = null)
     {
         $this->entry_class = Department::class;
-        $this->table_name  = 'business_departments';
+        self::$table       = Department::getTable();
 
         $this->setHtmlQuery('SELECT   `id`, `name`, `email`, `status`, `created_on` 
                                    FROM     `business_departments` 

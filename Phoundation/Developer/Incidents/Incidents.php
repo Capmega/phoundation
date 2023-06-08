@@ -30,13 +30,24 @@ class Incidents extends DataList
     public function __construct(Role|User|null $parent = null, ?string $id_column = null)
     {
         $this->entry_class = Incident::class;
-        $this->table_name  = 'developer_incidents';
+        self::$table       = Incident::getTable();
 
         $this->setHtmlQuery('SELECT   `id`, `created_on`, `status`, `type`, `title` 
                                    FROM     `developer_incidents` 
                                    WHERE    `status` IS NULL 
                                    ORDER BY `created_on`');
         parent::__construct($parent, $id_column);
+    }
+
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'accounts_signins';
     }
 
 

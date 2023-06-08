@@ -17,7 +17,13 @@ namespace Phoundation\Data\Traits;
  */
 trait DataName
 {
+    /**
+     * The name to use
+     *
+     * @var string|null $name
+     */
     protected ?string $name;
+
 
     /**
      * Returns the name

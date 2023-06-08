@@ -82,7 +82,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `countries_id` bigint DEFAULT NULL,
                     `states_id` bigint DEFAULT NULL,
                     `cities_id` bigint DEFAULT NULL,
-                    `description` TEXT DEFAULT NULL
+                    `description` text DEFAULT NULL
                 ')->setIndices('
                     PRIMARY KEY (`id`),
                     KEY `created_on` (`created_on`),
@@ -132,7 +132,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `countries_id` bigint DEFAULT NULL,
                     `states_id` bigint DEFAULT NULL,
                     `cities_id` bigint DEFAULT NULL,
-                    `description` TEXT DEFAULT NULL
+                    `description` text DEFAULT NULL
                 ')->setIndices('
                     PRIMARY KEY (`id`),
                     KEY `created_on` (`created_on`),
@@ -296,8 +296,8 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `available_date` datetime DEFAULT NULL,
                     `due_date` datetime DEFAULT NULL,
                     `amount_total` float DEFAULT NULL,
-                    `description` TEXT DEFAULT NULL,
-                    `comments` TEXT DEFAULT NULL
+                    `description` text DEFAULT NULL,
+                    `comments` text DEFAULT NULL
                 ')->setIndices('
                     PRIMARY KEY (`id`),
                     KEY `created_on` (`created_on`),

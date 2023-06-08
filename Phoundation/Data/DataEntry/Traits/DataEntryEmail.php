@@ -23,7 +23,7 @@ trait DataEntryEmail
      */
     public function getEmail(): ?string
     {
-        return $this->getDataValue('email');
+        return $this->getDataValue('string', 'email');
     }
 
 

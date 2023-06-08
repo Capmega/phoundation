@@ -26,7 +26,7 @@ trait DataEntryProvider
      */
     public function getProvidersId(): ?int
     {
-        return get_null((integer) $this->getDataValue('providers_id'));
+        return $this->getDataValue('string', 'providers_id');
     }
 
 
@@ -44,7 +44,7 @@ trait DataEntryProvider
             ]));
         }
 
-        return $this->setDataValue('providers_id', (integer) $providers_id);
+        return $this->setDataValue('providers_id', get_null(isset_get_typed('integer', $providers_id)));
     }
 
 
@@ -55,7 +55,7 @@ trait DataEntryProvider
      */
     public function getProvider(): ?Provider
     {
-        $providers_id = $this->getDataValue('providers_id');
+        $providers_id = $this->getDataValue('string', 'providers_id');
 
         if ($providers_id) {
             return new Provider($providers_id);
@@ -68,19 +68,21 @@ trait DataEntryProvider
     /**
      * Sets the providers_id for this user
      *
-     * @param Provider|string|int|null $providers_id
+     * @param Provider|string|int|null $provider
      * @return static
      */
-    public function setProvider(Provider|string|int|null $providers_id): static
+    public function setProvider(Provider|string|int|null $provider): static
     {
-        if (!is_numeric($providers_id)) {
-            $providers_id = Provider::get($providers_id);
+        if ($provider) {
+            if (!is_numeric($provider)) {
+                $provider = Provider::get($provider);
+            }
+
+            if (is_object($provider)) {
+                $provider = $provider->getId();
+            }
         }
 
-        if (is_object($providers_id)) {
-            $providers_id = $providers_id->getId();
-        }
-
-        return $this->setDataValue('providers_id', $providers_id);
+        return $this->setProvidersId(get_null($provider));
     }
 }

@@ -521,7 +521,7 @@ class Core {
             ->select('--no-password-validation')->isOptional(false)->isBoolean()
             ->validate();
 
-        if ($argv['auto_complete'] !== '') {
+        if ($argv['auto_complete']) {
             // We're in auto complete mode. Show only direct output, don't use any color
             $argv['log_level']     = 10;
             $argv['no_color']      = true;

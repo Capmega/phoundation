@@ -35,7 +35,7 @@ class Users extends DataList
     public function __construct(Role|User|null $parent = null, ?string $id_column = null)
     {
         $this->entry_class = User::class;
-        $this->table_name  = 'accounts_users';
+        self::$table       = User::getTable();
 
         $this->setHtmlQuery('SELECT   `id`, TRIM(CONCAT(`first_names`, " ", `last_names`)) AS `name`, `nickname`, `email`, `status`, `created_on`
                                    FROM     `accounts_users` 

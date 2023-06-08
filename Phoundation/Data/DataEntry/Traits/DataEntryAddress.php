@@ -24,7 +24,7 @@ trait DataEntryAddress
      */
     public function getAddress(): ?string
     {
-        return $this->getDataValue('address');
+        return $this->getDataValue('string', 'address');
     }
 
 
@@ -48,7 +48,7 @@ trait DataEntryAddress
      */
     public function getZipcode(): ?string
     {
-        return $this->getDataValue('zipcode');
+        return $this->getDataValue('string', 'zipcode');
     }
 
 

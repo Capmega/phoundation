@@ -31,7 +31,7 @@ class Providers extends DataList
     public function __construct(?Company $parent = null, ?string $id_column = null)
     {
         $this->entry_class = Provider::class;
-        $this->table_name  = 'business_providers';
+        self::$table       = Provider::getTable();
 
         $this->setHtmlQuery('SELECT   `id`, `name`, `code`, `email`, `status`, `created_on` 
                                    FROM     `business_providers` 

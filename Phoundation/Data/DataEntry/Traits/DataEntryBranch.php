@@ -34,7 +34,7 @@ trait DataEntryBranch
      */
     public function getBranchesId(): ?int
     {
-        return get_null((integer) $this->getDataValue('branches_id'));
+        return $this->getDataValue('string', 'branches_id');
     }
 
 
@@ -52,7 +52,7 @@ trait DataEntryBranch
             ]));
         }
 
-        return $this->setDataValue('branches_id', (integer) $branches_id);
+        return $this->setDataValue('branches_id', get_null(isset_get_typed('integer', $branches_id)));
     }
 
 
@@ -63,7 +63,7 @@ trait DataEntryBranch
      */
     public function getBranch(): ?Branch
     {
-        $branches_id = $this->getDataValue('branches_id');
+        $branches_id = $this->getDataValue('string', 'branches_id');
 
         if ($branches_id) {
             return new Branch($branches_id);
@@ -76,23 +76,21 @@ trait DataEntryBranch
     /**
      * Sets the branches_id for this object
      *
-     * @param Branch|string|int|null $branches_id
+     * @param Branch|string|int|null $branch
      * @return static
      */
-    public function setBranch(Branch|string|int|null $branches_id): static
+    public function setBranch(Branch|string|int|null $branch): static
     {
-        if (!is_numeric($branches_id)) {
-            $branches_id = Branch::get($branches_id);
+        if ($branch) {
+            if (!is_numeric($branch)) {
+                $branch = Branch::get($branch);
+            }
+
+            if (is_object($branch)) {
+                $branch = $branch->getId();
+            }
         }
 
-        if (!is_numeric($branches_id)) {
-            $branches_id = Branch::get($branches_id);
-        }
-
-        if (is_object($branches_id)) {
-            $branches_id = $branches_id->getId();
-        }
-
-        return $this->setDataValue('branches_id', $branches_id);
+        return $this->setBranchesId(get_null($branch));
     }
 }

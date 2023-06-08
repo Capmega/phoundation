@@ -24,7 +24,7 @@ trait DataEntryUrl
      */
     public function getUrl(): ?string
     {
-        return $this->getDataValue('url');
+        return $this->getDataValue('string', 'url');
     }
 
 

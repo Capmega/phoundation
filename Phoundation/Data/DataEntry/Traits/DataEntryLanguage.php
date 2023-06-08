@@ -26,7 +26,7 @@ trait DataEntryLanguage
      */
     public function getLanguagesId(): ?int
     {
-        return get_null((integer) $this->getDataValue('languages_id'));
+        return $this->getDataValue('int', 'languages_id');
     }
 
 
@@ -44,7 +44,7 @@ trait DataEntryLanguage
             ]));
         }
 
-        return $this->setDataValue('languages_id', (integer) $languages_id);
+        return $this->setDataValue('languages_id', get_null(isset_get_typed('integer', $languages_id)));
     }
 
 
@@ -55,7 +55,7 @@ trait DataEntryLanguage
      */
     public function getLanguage(): ?Language
     {
-        $languages_id = $this->getDataValue('languages_id');
+        $languages_id = $this->getDataValue('int', 'languages_id');
 
         if ($languages_id) {
             return new Language($languages_id);
@@ -68,19 +68,21 @@ trait DataEntryLanguage
     /**
      * Sets the languages_id for this user
      *
-     * @param Language|string|int|null $languages_id
+     * @param Language|string|int|null $language
      * @return static
      */
-    public function setLanguage(Language|string|int|null $languages_id): static
+    public function setLanguage(Language|string|int|null $language): static
     {
-        if (!is_numeric($languages_id)) {
-            $languages_id = Language::get($languages_id);
+        if ($language) {
+            if (!is_numeric($language)) {
+                $language = Language::get($language);
+            }
+
+            if (is_object($language)) {
+                $language = $language->getId();
+            }
         }
 
-        if (is_object($languages_id)) {
-            $languages_id = $languages_id->getId();
-        }
-
-        return $this->setDataValue('languages_id', $languages_id);
+        return $this->setLanguagesId(get_null($language));
     }
 }
