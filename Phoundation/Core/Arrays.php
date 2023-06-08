@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Phoundation\Core;
 
+use Enum;
+use Phoundation\Core\Enums\EnumMatchMode;
+use Phoundation\Core\Interfaces\EnumMatchModeInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Web\Http\UrlBuilder;
 use Stringable;
 
 
@@ -450,29 +452,46 @@ class Arrays {
      *
      * @param array $source
      * @param array|string $values
-     * @param bool $regex
+     * @param EnumMatchModeInterface $match_mode
      * @return array
      */
-    public static function filterValues(array $source, array|string $values, bool $regex = false): array
+    public static function filterValues(array $source, array|string $values, EnumMatchModeInterface $match_mode = EnumMatchMode::full): array
     {
-        if ($regex) {
-            // The specified values list contains regexes
-            foreach ($source as $key => $value) {
+        switch ($match_mode) {
+            case EnumMatchMode::full:
+                // Perform full match
                 foreach (Arrays::force($values, null) as $filter_value) {
-                    if (preg_match($filter_value, $value)) {
+                    if (($key = array_search($filter_value, $source)) !== false) {
                         unset($source[$key]);
                     }
                 }
-            }
-        } else {
-            foreach (Arrays::force($values, null) as $filter_value) {
-                if (($key = array_search($filter_value, $source)) !== false) {
-                    unset($source[$key]);
-                }
-            }
-        }
 
-        return $source;
+                return $source;
+
+            case EnumMatchMode::partial:
+                // Perform partial match
+                foreach ($source as $key => $value) {
+                    foreach (Arrays::force($values, null) as $filter_value) {
+                        if (str_contains($filter_value, $value)) {
+                            unset($source[$key]);
+                        }
+                    }
+                }
+
+                return $source;
+
+            case EnumMatchMode::regex:
+                // Perform regex match
+                foreach ($source as $key => $value) {
+                    foreach (Arrays::force($values, null) as $filter_value) {
+                        if (preg_match($filter_value, $value)) {
+                            unset($source[$key]);
+                        }
+                    }
+                }
+
+                return $source;
+        }
     }
 
 
@@ -1103,12 +1122,12 @@ class Arrays {
                         // These keys can match partial source keys, so "%pass" will also match the source key
                         // "password" for example
                         if (str_contains((string) $source_key, str_replace('%', '', $key))) {
-                            $source_value = Strings::hide($source_value, $hide, $empty);
+                            $source_value = Strings::hide((string) $source_value, $hide, $empty);
                         }
 
                     } else {
                         if ($source_key === $key) {
-                            $source_value = Strings::hide($source_value, $hide, $empty);
+                            $source_value = Strings::hide((string) $source_value, $hide, $empty);
                         }
                     }
                 }
@@ -1792,7 +1811,7 @@ class Arrays {
     /**
      * Returns the size of the largest scalar value in the specified array.
      *
-     * @note This function will ignore any and all non scalar values
+     * @note This function will ignore any and all non-scalar values
      *
      * @param array $source
      * @param string|null $key
@@ -1831,5 +1850,20 @@ class Arrays {
         }
 
         return $largest;
+    }
+
+
+    /**
+     * Returns an array with all the values from the specified enum
+     *
+     * @param UnitEnum $enum
+     * @return array
+     */
+    public static function fromEnum(UnitEnum $enum): array
+    {
+        $array = $enum::cases();
+        $array = array_column($array, 'value');
+
+        return $array;
     }
 }
