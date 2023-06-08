@@ -108,20 +108,18 @@ require('../vendor/autoload.php');
 // Set routing parameters to be applied for the various page types
 Route::parameters()
 
-   ->add(RoutingParameters::new() // Routing parameters for pages
+    ->add(RoutingParameters::new() // Routing parameters for pages
         ->setPattern('/^\w{2}\/admin//')
-        ->setRootUrl('http://:DOMAIN/:LANGUAGE/admin/')
-        ->setRequirePathRights('pages/')
-        ->setRights('phoundation')
+        ->setRootUrl('http://:DOMAIN/:LANGUAGE/')
         ->setRightsExceptions('sign-in.php,sign-out.php')
         ->setTemplate(AdminLte::class))
 
-    ->add(RoutingParameters::new() // Routing parameters for system pages
-        ->setPattern('/^(\w{2})\//')
-        ->setTemplate(AdminLte::class)
-        ->setRootPath('$1/pages/')
-        ->setRootUrl('http://:DOMAIN/:LANGUAGE/')
-        ->setSystemPagesOnly(true))
+//    ->add(RoutingParameters::new() // Routing parameters for system pages
+//    ->setPattern('/^(\w{2})\//')
+//        ->setTemplate(AdminLte::class)
+//        ->setRootPath('$1/pages/')
+//        ->setRootUrl('http://:DOMAIN/:LANGUAGE/')
+//        ->setSystemPagesOnly(true))
 
     ->add(RoutingParameters::new() // Routing parameters for default english system pages
         ->setTemplate(Mdb::class)
