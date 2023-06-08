@@ -111,7 +111,8 @@ Route::parameters()
    ->add(RoutingParameters::new() // Routing parameters for pages
         ->setPattern('/^\w{2}\/admin//')
         ->setRootUrl('http://:DOMAIN/:LANGUAGE/admin/')
-        ->setRequirePathRights('pages/admin/')
+        ->setRequirePathRights('pages/')
+        ->setRights('phoundation')
         ->setRightsExceptions('sign-in.php,sign-out.php')
         ->setTemplate(AdminLte::class))
 
