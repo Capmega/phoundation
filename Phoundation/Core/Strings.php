@@ -1511,6 +1511,10 @@ throw new UnderConstructionException();
         }
 
         if (!is_scalar($source)) {
+            if (is_enum($source)) {
+                $source = Arrays::fromEnum($source);
+            }
+
             if (is_array($source)) {
                 $source = Arrays::hide($source, ['password', 'ssh_key']);
                 $source = trim(JSON::encode($source));
@@ -1881,5 +1885,18 @@ throw new UnderConstructionException();
         }
 
         return $return;
+    }
+
+
+    /**
+     * Ensure that the specified string is properly escaped for use with regex
+     *
+     * @param string $string
+     * @param string $delimiters
+     * @return string
+     */
+    public static function escapeRegex(string $string, string $delimiters = '/'): string
+    {
+        return '\\' . Strings::interleave('\\()[]{}<>.?+*^$=!|:-' . $delimiters, '\\');
     }
 }
