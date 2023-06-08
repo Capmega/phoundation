@@ -769,6 +769,7 @@ showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY F
      */
     abstract protected function load(?string $id_column = null): static;
 
+
     /**
      * Load the data list elements from database
      *

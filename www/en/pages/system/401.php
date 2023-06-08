@@ -8,10 +8,10 @@ use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
 
-// Display the template with the following information
-echo Template::page('system/detail-error')->render([
-    ':h1'     => tr('(401) Unauthorized'),
-    ':p'      => tr('You need to sign in to be able to access this information. If you think this was in error, please contact the system administrator. Meanwhile, you may <a href=":url">return to dashboard</a> or try using the search form.', [
+echo Template::page('admin/system/detail-error')->render([
+    ':h2'     => '401',
+    ':h3'     => tr('Unauthorized'),
+    ':p'      => tr('You need to login to access the specified resource. Please contact the system administrator if you think this was in error', [
         ':url' => Page::getReferer(true)
     ]),
     ':type'   => 'warning',

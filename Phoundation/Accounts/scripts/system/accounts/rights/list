@@ -1,9 +1,11 @@
 #!/usr/bin/php
 <?php
 
-use Phoundation\Accounts\Rights\Rights;
-use Phoundation\Data\Validator\ArgvValidator;
+declare(strict_types=1);
 
+use Phoundation\Accounts\Rights\Rights;
+use Phoundation\Cli\Documentation;
+use Phoundation\Data\Validator\ArgvValidator;
 
 
 /**
@@ -16,10 +18,10 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-$usage = './pho system accounts rights list [OPTIONS]
-./cli system accounts rights list -d -r god';
+Documentation::usage('./pho system accounts rights list [OPTIONS]
+./cli system accounts rights list -d -r god');
 
-$help  = 'This script will list the available rights on this system
+Documentation::help('This script will list the available rights on this system
 
 
 
@@ -28,7 +30,7 @@ ARGUMENTS
 
 --deleted                               Will also show deleted rights
 
--r/--roles ROLE                         Will only display rights associated with the specified role(s)';
+-r/--roles ROLE                         Will only display rights associated with the specified role(s)');
 
 
 

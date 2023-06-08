@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Cli\Exception;
 
+
 /**
  * Class CliScriptException
  *

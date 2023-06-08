@@ -8,13 +8,12 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Data\Validator\GetValidator;
-use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Data\Validator\Interfaces\DataValidator;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Geo\Continents\Continent;
 use Phoundation\Geo\Timezones\Timezone;
 use Phoundation\Web\Http\Html\Components\Input\Select;
+
 
 /**
  * Class Country
@@ -42,6 +41,17 @@ class Country extends DataEntry
         $this->unique_field = 'seo_name';
 
         parent::__construct($identifier);
+    }
+
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'geo_counties';
     }
 
 
@@ -92,34 +102,7 @@ class Country extends DataEntry
      *
      * @return DataEntryFieldDefinitionsInterface
      */
-    protected function validate(ArgvValidator|PostValidator|GetValidator $validator, bool $no_arguments_left = false, bool $modify = false): array
-    {
-        throw new UnderConstructionException();
-
-        $data = $validator
-            ->select($this->getAlternateValidationField('code'), true)->hasMaxCharacters()->isName()->isQueryColumn('SELECT `name` FROM `geo_continents` WHERE `name` = :name AND `status` IS NULL', [':name' => '$continent'])
-            ->select($this->getAlternateValidationField('continent'), true)->or('continents_id')->isName()->isQueryColumn('SELECT `name` FROM `geo_continents` WHERE `name` = :name AND `status` IS NULL', [':name' => '$continent'])
-            ->select($this->getAlternateValidationField('continents_id'), true)->or('continent')->isId()->isQueryColumn  ('SELECT `id`   FROM `geo_continents` WHERE `id`   = :id   AND `status` IS NULL', [':id'   => '$continents_id'])
-            ->select($this->getAlternateValidationField('timezone'), true)->or('timezones_id')->isName()->isQueryColumn  ('SELECT `name` FROM `geo_timezone`   WHERE `name` = :name AND `status` IS NULL', [':name' => '$timezone'])
-            ->select($this->getAlternateValidationField('timezones_id'), true)->or('timezone')->isId()->isQueryColumn    ('SELECT `id`   FROM `geo_timezone`   WHERE `id`   = :id   AND `status` IS NULL', [':id'   => '$timezones_id'])
-            ->noArgumentsLeft($no_arguments_left)
-            ->validate();
-
-        // Ensure the name doesn't exist yet as it is a unique identifier
-        if ($data['name']) {
-            static::notExists($data['name'], $this->getId(), true);
-        }
-
-        return $data;
-    }
-
-
-    /**
-     * Sets the available data keys for this entry
-     *
-     * @return array
-     */
-    protected static function getFieldDefinitions(): array
+    protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
     {
         return [
             'geonames_id' => [

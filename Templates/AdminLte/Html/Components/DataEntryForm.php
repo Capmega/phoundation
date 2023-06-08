@@ -12,6 +12,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Input\InputMultiButtonText;
 use Phoundation\Web\Http\Html\Components\Input\Select;
 use Phoundation\Web\Http\Html\Components\Input\TextArea;
+use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Html\Renderer;
 
@@ -51,15 +52,48 @@ class DataEntryForm extends Renderer
         $source = $this->element->getSource();
         $keys   = $this->reorderKeys($this->element->getFields());
 
-        // Possible $data contents:
-        //
-        // $data['visible']  true   If false, this key will be completely ignored
-        // $data['element']  input  Type of element, input, select, or text or callable function
-        // $data['type']     text   Type of input element, if element is "input"
-        // $data['readonly'] false  If true, will make the input element readonly
-        // $data['label']    null
-        // $data['source']   null   Query to get contents for select, or value from ID for readonly input element
-        // $data['execute']  null   Array with bound execution variables for specified "source" query
+
+        /*
+         * $data field keys: (Or just use DataEntryFieldDefinitions class)
+         *
+         * FIELD          DATATYPE           DEFAULT VALUE  DESCRIPTION
+         * value          mixed              null           The value for this entry
+         * visible        boolean            true           If false, this key will not be shown on web, and be readonly
+         * virtual        boolean            false          If true, this key will be visible and can be modified but it
+         *                                                  won't exist in database. It instead will be used to generate
+         *                                                  a different field
+         * element        string|null        "input"        Type of element, input, select, or text or callable function
+         * type           string|null        "text"         Type of input element, if element is "input"
+         * readonly       boolean            false          If true, will make the input element readonly
+         * disabled       boolean            false          If true, the field will be displayed as disabled
+         * label          string|null        null           If specified, will show a description label in HTML
+         * size           int [1-12]         12             The HTML boilerplate column size, 1 - 12 (12 being the whole
+         *                                                  row)
+         * source         array|string|null  null           Array or query source to get contents for select, or single
+         *                                                  value for text inputs
+         * execute        array|null         null           Bound execution variables if specified "source" is a query
+         *                                                  string
+         * complete       array|bool|null    null           If defined must be bool or contain array with key "noword"
+         *                                                  and "word". each key must contain a callable function that
+         *                                                  returns an array with possible words for shell auto
+         *                                                  completion. If bool, the system will generate this array
+         *                                                  automatically from the rows for this field
+         * cli            string|null        null           If set, defines the alternative column name definitions for
+         *                                                  use with CLI. For example, the column may be name, whilst
+         *                                                  the cli column name may be "-n,--name"
+         * optional       boolean            false          If true, the field is optional and may be left empty
+         * title          string|null        null           The title attribute which may be used for tooltips
+         * placeholder    string|null        null           The placeholder attribute which typically shows an example
+         * maxlength      string|null        null           The maxlength attribute which typically shows an example
+         * pattern        string|null        null           The pattern the value content should match in browser client
+         * min            string|null        null           The minimum amount for numeric inputs
+         * max            string|null        null           The maximum amount for numeric inputs
+         * step           string|null        null           The up / down step for numeric inputs
+         * default        mixed              null           If "value" for entry is null, then default will be used
+         * null_disabled  boolean            false          If "value" for entry is null, then use this for "disabled"
+         * null_readonly  boolean            false          If "value" for entry is null, then use this for "readonly"
+         * null_type      boolean            false          If "value" for entry is null, then use this for "type"
+         */
 
         // If form key definitions are available, reorder the keys as in the form key definitions
 
@@ -83,17 +117,20 @@ class DataEntryForm extends Renderer
             }
 
             // Set defaults
-            Arrays::default($data, 'size'     , 12);
-            Arrays::default($data, 'type'     , 'text');
-            Arrays::default($data, 'label'    , null);
-            Arrays::default($data, 'disabled' , false);
-            Arrays::default($data, 'readonly' , false);
-            Arrays::default($data, 'visible'  , true);
-            Arrays::default($data, 'readonly' , false);
-//            Arrays::default($data, 'maxlength', 0);
-//            Arrays::default($data, 'min'      , 0);
-//            Arrays::default($data, 'max'      , 0);
-//            Arrays::default($data, 'step'     , 0);
+            Arrays::default($data, 'size'        , 12);
+            Arrays::default($data, 'type'        , 'text');
+            Arrays::default($data, 'label'       , null);
+            Arrays::default($data, 'disabled'    , false);
+            Arrays::default($data, 'readonly'    , false);
+            Arrays::default($data, 'visible'     , true);
+            Arrays::default($data, 'readonly'    , false);
+            Arrays::default($data, 'title'       , null);
+            Arrays::default($data, 'placeholder' , null);
+            Arrays::default($data, 'pattern'     , null);
+            Arrays::default($data, 'maxlength'   , 0);
+            Arrays::default($data, 'min'         , 0);
+            Arrays::default($data, 'max'         , 0);
+            Arrays::default($data, 'step'        , 0);
 
             if (!$data['visible']) {
                 // This element shouldn't be shown, continue

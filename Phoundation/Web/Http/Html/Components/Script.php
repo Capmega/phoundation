@@ -14,7 +14,6 @@ use Phoundation\Notifications\Notification;
 use Phoundation\Web\Http\Html\Components\Input\Select;
 use Phoundation\Web\Http\Html\Enums\AttachJavascript;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
-use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 use Phoundation\Web\Uglify;
 use Throwable;
@@ -40,6 +39,26 @@ class Script extends Element
      */
     protected AttachJavascript $attach = AttachJavascript::footer;
 
+    /**
+     * Async script load
+     *
+     * @var bool $async
+     */
+    protected bool $async = false;
+
+    /**
+     * URL for the script
+     *
+     * @var string|null $src
+     */
+    protected ?string $src = null;
+
+    /**
+     * Defer script load
+     *
+     * @var bool $defer
+     */
+    protected bool $defer = false;
 
     /**
      * What event to wrap this script into
@@ -48,6 +67,102 @@ class Script extends Element
      */
     #[ExpectedValues('dom_content', 'window', 'function', null)]
     protected ?string $event_wrapper = 'dom_content';
+
+
+    /**
+     * Returns if this script is loaded async
+     *
+     * @return bool
+     */
+    public function getAsync(): bool
+    {
+        return $this->async;
+    }
+
+
+    /**
+     * Sets if this script is loaded async
+     *
+     * @param bool $async
+     * @return static
+     */
+    public function setAsync(bool $async): static
+    {
+        $this->async = $async;
+        return $this;
+    }
+
+
+    /**
+     * Returns the script src
+     *
+     * @return string
+     */
+    public function getSrc(): string
+    {
+        return $this->src;
+    }
+
+
+    /**
+     * Sets the script src
+     *
+     * @param string $src
+     * @return static
+     */
+    public function setSrc(string $src): static
+    {
+        $this->src = $src;
+        return $this;
+    }
+
+
+    /**
+     * Returns where this script is attached to the document
+     *
+     * @return AttachJavascript
+     */
+    public function getAttach(): AttachJavascript
+    {
+        return $this->attach;
+    }
+
+
+    /**
+     * Sets where this script is attached to the document
+     *
+     * @param AttachJavascript $attach
+     * @return static
+     */
+    public function setAttach(AttachJavascript $attach): static
+    {
+        $this->attach = $attach;
+        return $this;
+    }
+
+
+    /**
+     * Returns if this script is loaded defer
+     *
+     * @return bool
+     */
+    public function getDefer(): bool
+    {
+        return $this->defer;
+    }
+
+
+    /**
+     * Sets if this script is loaded defer
+     *
+     * @param bool $defer
+     * @return static
+     */
+    public function setDefer(bool $defer): static
+    {
+        $this->defer = $defer;
+        return $this;
+    }
 
 
     /**
@@ -104,10 +219,11 @@ class Script extends Element
     {
         $render = '';
 
-        // Apply event wrapper
-        switch ($this->event_wrapper) {
-            case 'dom_content':
-                $render = 'document.addEventListener("DOMContentLoaded", function(e) {
+        if ($this->content) {
+            // Apply event wrapper
+            switch ($this->event_wrapper) {
+                case 'dom_content':
+                    $render = 'document.addEventListener("DOMContentLoaded", function(e) {
                               ' . $this->content . '
                            });';
                     break;
@@ -138,10 +254,10 @@ class Script extends Element
             $this->content = '';
         }
 
-        //
+        // Where should this script be attached?
         switch ($this->attach) {
             case AttachJavascript::here:
-                return '<script type="text/javascript">' . $render . '</script>';
+                return '<script type="text/javascript"' . ($this->async ? ' async' : '') . ($this->defer ? ' defer' : '') . ($this->src ? ' src="' . $this->src . '"' : '') . '>' . $render . '</script>';
 
             case AttachJavascript::header:
                 Page::addToHeader('javascript', [

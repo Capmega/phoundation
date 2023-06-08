@@ -8,9 +8,8 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Data\Validator\GetValidator;
-use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Data\Validator\Interfaces\DataValidator;
+
 
 /**
  * Language class
@@ -36,10 +35,20 @@ class Language extends DataEntry
     public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
     {
         static::$entry_name = 'language';
-        $this->table        = 'core_languages';
         $this->unique_field = 'code_639_1';
 
         parent::__construct($identifier);
+    }
+
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'core_languages';
     }
 
 
@@ -167,9 +176,9 @@ class Language extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @return array
+     * @return DataEntryFieldDefinitionsInterface
      */
-    protected static function getFieldDefinitions(): array
+    protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
     {
         return [
             'name' => [

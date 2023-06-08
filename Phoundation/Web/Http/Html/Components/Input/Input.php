@@ -9,6 +9,7 @@ use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinition;
 use Phoundation\Web\Http\Html\Components\Element;
 use Phoundation\Web\Http\Html\Components\Input\Traits\InputElement;
 
+
 /**
  * Class Input
  *
@@ -33,6 +34,30 @@ abstract class Input extends Element implements Interfaces\Input
 
         $this->requires_closing_tag = false;
         $this->element              = 'input';
+    }
+
+
+    /**
+     * Returns a new input element from
+     *
+     * @param DataEntryFieldDefinition $field
+     * @return static
+     */
+    public static function newFromDAtaEntryField(DataEntryFieldDefinition $field): static
+    {
+        $element    = new static();
+        $attributes = $field->getDefinitions();
+
+        // Set all attributes from the definitions file
+        foreach($attributes as $key => $value) {
+            $method = 'set' . Strings::capitalize($key);
+
+            if (method_exists($element, $method)) {
+                $element->$method($value);
+            }
+        }
+
+        return $element;
     }
 
 

@@ -1,7 +1,10 @@
 #!/usr/bin/php
 <?php
 
+declare(strict_types=1);
+
 use Phoundation\Accounts\Roles\Roles;
+use Phoundation\Cli\Documentation;
 use Phoundation\Data\Validator\ArgvValidator;
 
 
@@ -16,10 +19,10 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-$usage = './pho system accounts roles list [OPTIONS]
-./cli system accounts roles list -d -r god';
+Documentation::usage('./pho system accounts roles list [OPTIONS]
+./cli system accounts roles list -d -r god');
 
-$help  = 'This script will list the available roles on this system
+Documentation::help('This script will list the available roles on this system
 
 
 
@@ -28,7 +31,7 @@ ARGUMENTS
 
 --deleted                               Will also show deleted roles
 
---rights RIGHT[RIGHT,RIGHT,...]        Will only display roles with the specified right';
+--rights RIGHT[RIGHT,RIGHT,...]        Will only display roles with the specified right');
 
 
 

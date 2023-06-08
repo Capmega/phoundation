@@ -274,6 +274,30 @@ class Config
 
 
     /**
+     * Return configuration STRING or BOOLEAN for the specified key path
+     *
+     * @note Will cause an exception if a non string or bool value is returned!
+     * @param string|array $path
+     * @param string|bool|null $default
+     * @param mixed|null $specified
+     * @return string|bool
+     */
+    public static function getBoolString(string|array $path, string|bool|null $default = null, mixed $specified = null): string|bool
+    {
+        $return = static::get($path, $default, $specified);
+
+        if (is_string($return) or is_bool($return)) {
+            return $return;
+        }
+
+        throw new ConfigException(tr('The configuration path ":path" should be a string but has value ":value"', [
+            ':path'  => $path,
+            ':value' => $return
+        ]));
+    }
+
+
+    /**
      * Returns true of the specified configuration path exists
      *
      * @param string|array $path The key path to search for. This should be specified either as an array with key names

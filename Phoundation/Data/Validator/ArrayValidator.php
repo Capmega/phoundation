@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Validator;
 
+
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 

@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Web\Http\Html\Interfaces;
 use Phoundation\Web\Http\Html\Components\Form;
+use Stringable;
 
 
 /**
@@ -14,7 +17,7 @@ use Phoundation\Web\Http\Html\Components\Form;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-interface InterfaceElementsBlock
+interface InterfaceElementsBlock extends Stringable
 {
     /**
      * Returns the contents of this object as an array

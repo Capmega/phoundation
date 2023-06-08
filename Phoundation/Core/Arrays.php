@@ -11,6 +11,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Stringable;
 
+
 /**
  * Class Arrays
  *
@@ -1318,56 +1319,6 @@ class Arrays {
         }
 
         return $source;
-    }
-
-
-    /**
-     * Returns the longest string of all values in the specified source array
-     *
-     * @note Any non-scalar values will be silently ignored. Any non string values will be measured as displayed strings
-     * @param array $source
-     * @return int
-     */
-    public static function getLongestString(array $source): int
-    {
-        $longest = 0;
-
-        foreach ($source as $value) {
-            if (!is_scalar($value)) {
-                continue;
-            }
-
-            $length = strlen((string) $value);
-
-            if ($length > $longest) {
-                $longest = $length;
-            }
-        }
-
-        return $longest;
-    }
-
-
-    /**
-     * Returns the longest key string of all values in the specified source array
-     *
-     * @note Any non-string keys will be treated as displayed strings
-     * @param array $source
-     * @return int
-     */
-    public static function getLongestKeyString(array $source): int
-    {
-        $longest = 0;
-
-        foreach ($source as $key => $value) {
-            $length = strlen((string) $key);
-
-            if ($length > $longest) {
-                $longest = $length;
-            }
-        }
-
-        return $longest;
     }
 
 

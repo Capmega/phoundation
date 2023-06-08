@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Data\DataEntry\Traits;
 
 
@@ -22,7 +24,7 @@ trait DataEntryNumber
      */
     public function getNumber(): ?int
     {
-        return $this->getDataValue('number');
+        return $this->getDataValue('int', 'number');
     }
 
 

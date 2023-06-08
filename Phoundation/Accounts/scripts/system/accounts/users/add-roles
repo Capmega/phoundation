@@ -1,8 +1,11 @@
 #!/usr/bin/php
 <?php
 
+declare(strict_types=1);
+
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\User;
+use Phoundation\Cli\Documentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
@@ -18,10 +21,10 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-$usage = './pho system accounts roles add-right NAME "RIGHT[,RIGHT,RIGHT,...]"
-./cli system accounts roles add-right -n test -d "This is a test role!"';
+Documentation::usage('./pho system accounts roles add-right NAME "RIGHT[,RIGHT,RIGHT,...]"
+./cli system accounts roles add-right -n test -d "This is a test role!"');
 
-$help  = 'This script allows you to add rights to the specified role
+Documentation::help('This script allows you to add rights to the specified role
 
 
 
@@ -29,10 +32,10 @@ ARGUMENTS
 
 
 
-NAME                                    The identifier name of the role to which the rights shoudl be added
+NAME                                    The identifier name of the role to which the rights should be added
 
 RIGHT[,RIGHT,RIGHT,...]                 The rights linked with the role. Each user that gets this role assigned will 
-                                        also get these rights assigned';
+                                        also get these rights assigned');
 
 
 

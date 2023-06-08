@@ -50,6 +50,7 @@ abstract class SchemaAbstract
      */
     protected string $name;
 
+
     /**
      * SchemaAbstract class constructor
      *

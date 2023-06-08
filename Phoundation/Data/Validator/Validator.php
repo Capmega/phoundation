@@ -25,6 +25,7 @@ use ReflectionProperty;
 use Throwable;
 use UnitEnum;
 
+
 /**
  * Validator class
  *
@@ -593,7 +594,7 @@ abstract class Validator implements DataValidator
 
 
     /**
-     * Ensures that the value has the specified string
+     * Validates the datatype for the selected field
      *
      * This method ensures that the specified array key is a scalar value
      *
@@ -627,7 +628,7 @@ abstract class Validator implements DataValidator
      * @param bool $regex
      * @return static
      */
-    public function contains(string $string, bool $regex = false) : Validator
+    public function contains(string $string, bool $regex = false): static
     {
         return $this->validateValues(function(&$value) use ($string, $regex) {
             // This value must be scalar
@@ -660,7 +661,7 @@ abstract class Validator implements DataValidator
      * @param bool $regex
      * @return static
      */
-    public function containsNot(string $string, bool $regex = false) : Validator
+    public function containsNot(string $string, bool $regex = false): static
     {
         return $this->validateValues(function(&$value) use ($string, $regex) {
             // This value must be scalar
@@ -709,6 +710,45 @@ abstract class Validator implements DataValidator
             $column  = sql()->getColumn($query, $execute);
 
             $this->isValue($column, $ignore_case);
+        });
+    }
+
+
+    /**
+     * Validates the datatype for the selected field
+     *
+     * This method ensures that the specified key is the same as the column value in the specified query
+     *
+     * @param string $column
+     * @param PDOStatement|string $query
+     * @param array|null $execute
+     * @param bool $ignore_case
+     * @return static
+     */
+    public function setColumnFromQuery(string $column, PDOStatement|string $query, ?array $execute = null, bool $ignore_case = false): static
+    {
+        return $this->validateValues(function(&$value) use ($column, $query, $execute, $ignore_case) {
+            // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
+            $this->isScalar();
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return;
+            }
+
+            if (array_key_exists($column, $this->source)) {
+                $this->addFailure(tr('column ":column" already exists', [':column' => $column]));
+
+            } else {
+                $execute = $this->applyExecuteVariables($execute);
+                $value   = sql()->getColumn($query, $execute);
+
+                if (!$value) {
+                    $this->addFailure(tr('value ":value" does not exists', [':value' => $column]));
+                }
+
+                $this->source[$column] = $value;
+            }
         });
     }
 
@@ -1225,6 +1265,89 @@ abstract class Validator implements DataValidator
 
 
     /**
+     * Validates that the selected field is a date time field
+     *
+     * @note Regex taken from https://code.oursky.com/regex-date-currency-and-time-accurate-data-extraction/
+     * @return static
+     */
+    public function isDateTime(): static
+    {
+        return $this->validateValues(function(&$value) {
+            $this->isString()->hasMaxCharacters(32); // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return;
+            }
+
+            // Must match regex
+            if (preg_match('/(?=((?:(?:(?:0[1-9]|1[0-2]|[1-9])(?:3[0-1]|0[1-9]|[1-2]d|[1-9])|(?:3[0-1]|0[1-9]|[1-2]d|[1-9])(?:0[1-9]|1[0-2]|[1-9]))(?:19|20)?d{2}(?!:)|(?:19|20)?d{2}(?:0[1-9]|1d|[1-9])(?:3[0-1]|0[1-9]|[1-2]d|[1-9](?!d)))))\s+?=((?: |^)[0-2]?d[:. ]?[0-5]d(?:[:. ]?[0-5]d)?(?:[ ]?.?m?.?)?(?: |$)/', $value)) {
+                // Must be able to create date object without failure
+                try {
+                    if (strtotime($value) !== false) {
+                        return;
+                    }
+                    // Yeah, this is not a valid date
+
+                } catch (Throwable) {
+                    // Yeah, this is not a valid date
+                }
+            }
+
+            $this->addFailure(tr('must be a valid date'));
+        });
+    }
+
+
+    /**
+     * Validates that the selected field is in the past
+     *
+     * @param DateTime|null $before
+     * @return static
+     */
+    public function isPast(?DateTime $before = null): static
+    {
+        return $this->validateValues(function(&$value) {
+            $this->isString()->hasMaxCharacters(32); // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return;
+            }
+
+            throw new UnderConstructionException();
+
+
+            $this->addFailure(tr('must be a valid date'));
+        });
+    }
+
+
+    /**
+     * Validates that the selected field is in the past
+     *
+     * @param DateTime|null $after
+     * @return static
+     */
+    public function isFuture(?DateTime $after = null): static
+    {
+        return $this->validateValues(function(&$value) {
+            $this->isString()->hasMaxCharacters(32); // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return;
+            }
+
+            throw new UnderConstructionException();
+
+
+            $this->addFailure(tr('must be a valid date'));
+        });
+    }
+
+
+    /**
      * Validates that the selected field is a credit card
      *
      *
@@ -1670,76 +1793,9 @@ abstract class Validator implements DataValidator
             }
 
             if ($exists_in_path !== null) {
-                $this->checkFile($value, $exists_in_path, $restrictions);
+                $this->checkFile($value, $exists_in_path, $restrictions, null);
             }
         });
-    }
-
-
-    /**
-     * Validates if the selected field is a valid directory
-     *
-     * @param string|null $exists_in_path
-     * @param Restrictions|array|string|null $restrictions
-     * @return static
-     */
-    public function isPath(?string $exists_in_path = null, Restrictions|array|string|null $restrictions = null): static
-    {
-        return $this->validateValues(function(&$value) use($exists_in_path, $restrictions) {
-            $this->hasMinCharacters(1)->hasMaxCharacters(2048);
-
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
-                return;
-            }
-
-            if ($exists_in_path !== null) {
-                $this->checkFile($value, $exists_in_path, $restrictions, true);
-            }
-        });
-    }
-
-
-    /**
-     * Checks if the specified path exists or not, and if its of the correct type
-     *
-     * @param string $value
-     * @param string|null $exists_in_path
-     * @param Restrictions|array|string|null $restrictions
-     * @param bool $directory
-     * @return void
-     */
-    protected function checkFile(string $value, ?string $exists_in_path = null, Restrictions|array|string|null $restrictions = null, bool $directory = false): void
-    {
-        if ($directory) {
-            $type = 'directory';
-        } else {
-            $type = 'file';
-        }
-
-        if (!$restrictions) {
-            throw new ValidationException(tr('Cannot validate the specified :type, no restrictions specified', [
-                ':type' => $type
-            ]));
-        }
-
-        $path = ($exists_in_path ? Strings::slash($exists_in_path) : null) . $value;
-
-        Core::ensureRestrictions($restrictions)->check($path, false);
-
-        if (!file_exists($path)) {
-            $this->addFailure(tr('must be an existing :type', [':type' => $type]));
-        }
-
-        if ($directory) {
-            if (!is_dir($path)) {
-                $this->addFailure(tr('must be a directory'));
-            }
-        } else {
-            if (is_dir($path)) {
-                $this->addFailure(tr('cannot be a directory'));
-            }
-        }
     }
 
 
@@ -1764,6 +1820,79 @@ abstract class Validator implements DataValidator
                 $this->checkFile($value, $exists_in_path, $restrictions, true);
             }
         });
+    }
+
+
+    /**
+     * Validates if the selected field is a valid file
+     *
+     * @param string|bool $exists_in_path
+     * @param Restrictions|array|string|null $restrictions
+     * @return static
+     */
+    public function isFile(string|bool $exists_in_path = null, Restrictions|array|string|null $restrictions = null): static
+    {
+        return $this->validateValues(function(&$value) use($exists_in_path, $restrictions) {
+            $this->hasMinCharacters(1)->hasMaxCharacters(2048);
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return;
+            }
+
+            if ($exists_in_path !== null) {
+                $this->checkFile($value, $exists_in_path, $restrictions);
+            }
+        });
+    }
+
+
+    /**
+     * Checks if the specified path exists or not, and if its of the correct type
+     *
+     * @param string|bool $value
+     * @param string|null $exists_in_path
+     * @param Restrictions|array|string|null $restrictions
+     * @param bool $directory
+     * @return void
+     */
+    protected function checkFile(string|bool $value, ?string $exists_in_path = null, Restrictions|array|string|null $restrictions = null, ?bool $directory = false): void
+    {
+        if ($directory) {
+            $type = 'directory';
+        } elseif (is_bool($directory)) {
+            $type = 'file';
+        } else {
+            $type = '';
+        }
+
+        if (!$restrictions) {
+            throw new ValidatorException(tr('Cannot validate the specified :type, no restrictions specified', [
+                ':type' => $type
+            ]));
+        }
+
+        $path = ($exists_in_path ? Strings::slash($exists_in_path) : null) . $value;
+
+        Core::ensureRestrictions($restrictions)->check($path, false);
+
+        if (!file_exists($path)) {
+            if ($type) {
+                $this->addFailure(tr('must be an existing :type', [':type' => $type]));
+            } else {
+                $this->addFailure(tr('must exist'));
+            }
+        }
+
+        if ($directory) {
+            if (!is_dir($path)) {
+                $this->addFailure(tr('must be a directory'));
+            }
+        } elseif (is_bool($directory)) {
+            if (is_dir($path)) {
+                $this->addFailure(tr('cannot be a directory'));
+            }
+        }
     }
 
 
@@ -1891,7 +2020,7 @@ abstract class Validator implements DataValidator
      */
     public function isUrl(int $max_size = 2048): static
     {
-        return $this->validateValues(function(&$value) {
+        return $this->validateValues(function(&$value) use ($max_size) {
             $this->hasMinCharacters(3)->hasMaxCharacters($max_size);
 
             if ($this->process_value_failed) {
@@ -2096,6 +2225,50 @@ abstract class Validator implements DataValidator
                 base64_decode($value);
             } catch (Throwable) {
                 $this->addFailure(tr('must contain a valid bas64 encoded string'));
+            }
+        });
+    }
+
+
+    /**
+     * Validates if the specified function returns TRUE for this value
+     *
+     * @param callable $function
+     * @param string $failure
+     * @return static
+     */
+    public function isTrue(callable $function, string $failure): static
+    {
+        return $this->validateValues(function(&$value) use ($function, $failure) {
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return;
+            }
+
+            if (!$function($value, $this->source)) {
+                $this->addFailure($failure);
+            }
+        });
+    }
+
+
+    /**
+     * Validates if the specified function returns FALSE for this value
+     *
+     * @param callable $function
+     * @param string $failure
+     * @return static
+     */
+    public function isFalse(callable $function, string $failure): static
+    {
+        return $this->validateValues(function(&$value) use ($function, $failure) {
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return;
+            }
+
+            if ($function($value, $this->source)) {
+                $this->addFailure($failure);
             }
         });
     }

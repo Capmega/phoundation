@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
+
 /**
  * Trait DataName
  *
@@ -22,6 +23,7 @@ trait DataName
      * @var string|null $name
      */
     protected ?string $name;
+
 
     /**
      * Returns the name

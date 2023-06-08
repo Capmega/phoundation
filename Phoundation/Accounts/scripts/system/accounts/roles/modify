@@ -1,10 +1,12 @@
 #!/usr/bin/php
 <?php
 
+declare(strict_types=1);
+
 use Phoundation\Accounts\Rights\Right;
 use Phoundation\Accounts\Roles\Role;
+use Phoundation\Cli\Documentation;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
 
 
@@ -18,10 +20,10 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-$usage = './pho system accounts roles create -n NAME [OPTIONS]
-./cli system accounts roles create -n test -d "This is a test role!"';
+Documentation::usage('./pho system accounts roles create -n NAME [OPTIONS]
+./cli system accounts roles create -n test -d "This is a test role!"');
 
-$help  = 'This script allows you to create roles
+Documentation::help('This script allows you to create roles
 
 
 
@@ -33,7 +35,7 @@ ARGUMENTS
 
 [-d / --description]                    The description for the role
 
-[-r / --rights] RIGHT[,RIGHT,RIGHT,...] The rights for this role';
+[-r / --rights] RIGHT[,RIGHT,RIGHT,...] The rights for this role');
 
 
 

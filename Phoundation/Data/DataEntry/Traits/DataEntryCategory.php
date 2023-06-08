@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Data\Categories\Category;
+use Phoundation\Exception\OutOfBoundsException;
 
 /**
  * Trait DataEntryCategory
@@ -45,6 +46,7 @@ trait DataEntryCategory
 
         return $this->setDataValue('categories_id', get_null(isset_get_typed('integer', $categories_id)));
     }
+
 
     /**
      * Returns the categories_id for this user

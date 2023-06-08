@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Filesystem\Exception;
 
+
 /**
  * Class Sha256MismatchException
  *

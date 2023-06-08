@@ -1,7 +1,10 @@
 #!/usr/bin/php
 <?php
 
+declare(strict_types=1);
+
 use Phoundation\Accounts\Users\User;
+use Phoundation\Cli\Documentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
@@ -17,9 +20,9 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-$usage = './pho system accounts users info USER';
+Documentation::usage('./pho system accounts users info USER');
 
-$help  = 'This script displays information about the specified user.  
+Documentation::help('This script displays information about the specified user.  
 
 
 
@@ -28,7 +31,7 @@ ARGUMENTS
 
 
 USER                                    The user to display information about. Specify either by user id or email 
-                                        address';
+                                        address');
 
 
 

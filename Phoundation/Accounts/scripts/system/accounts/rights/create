@@ -1,8 +1,10 @@
 #!/usr/bin/php
 <?php
 
-use Phoundation\Accounts\Exception\AccountsException;
+declare(strict_types=1);
+
 use Phoundation\Accounts\Rights\Right;
+use Phoundation\Cli\Documentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 
@@ -17,10 +19,10 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-$usage = './pho system accounts right create NAME [OPTIONS]
-./cli system accounts right create test -d "This is a test right!"';
+Documentation::usage('./pho system accounts right create NAME [OPTIONS]
+./cli system accounts right create test -d "This is a test right!"');
 
-$help  = 'This script allows you to create rights
+Documentation::help('This script allows you to create rights
 
 
 
@@ -29,7 +31,7 @@ ARGUMENTS
 
 NAME                                    The name for the right
 
-[-d / --description]                    The description for the right';
+[-d / --description]                    The description for the right');
 
 
 

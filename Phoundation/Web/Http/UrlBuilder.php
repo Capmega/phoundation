@@ -16,6 +16,7 @@ use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Web\Page;
 use Stringable;
 
+
 /**
  * Class Domain
  *

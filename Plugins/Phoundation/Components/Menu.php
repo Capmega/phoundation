@@ -6,8 +6,6 @@ declare(strict_types=1);
 namespace Plugins\Phoundation\Components;
 
 
-use Phoundation\Core\Log\Log;
-
 /**
  * TemplateMenus class
  *

@@ -9,6 +9,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Stringable;
 
+
 /**
  * Trait ElementAttributes
  *

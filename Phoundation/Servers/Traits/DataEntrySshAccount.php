@@ -47,6 +47,7 @@ trait DataEntrySshAccount
         return $this->setDataValue('ssh_accounts_id', get_null(isset_get_typed('integer', $ssh_accounts_id)));
     }
 
+
     /**
      * Returns the ssh_accounts_id for this user
      *

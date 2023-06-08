@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Business\Companies;
 
+
 /**
  * Updates class
  *

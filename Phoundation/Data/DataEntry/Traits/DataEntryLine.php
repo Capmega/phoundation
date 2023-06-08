@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Exception\OutOfBoundsException;
@@ -24,7 +26,7 @@ trait DataEntryLine
      */
     public function getLine(): ?int
     {
-        return $this->getDataValue('line');
+        return $this->getDataValue('int', 'line');
     }
 
 

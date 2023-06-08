@@ -47,6 +47,17 @@ class Category extends DataEntry
 
 
     /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'categories';
+    }
+
+
+    /**
      * Returns the parents_id for this object
      *
      * @return int|null
@@ -73,6 +84,7 @@ class Category extends DataEntry
 
         return $this->setDataValue('parents_id', get_null(isset_get_typed('integer', $parents_id)));
     }
+
 
     /**
      * Returns the parents_id for this user
@@ -143,9 +155,9 @@ class Category extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @return array
+     * @return DataEntryFieldDefinitionsInterface
      */
-    protected static function getFieldDefinitions(): array
+    protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
     {
         return [
             'parents_id' => [

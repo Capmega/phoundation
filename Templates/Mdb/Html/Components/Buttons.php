@@ -21,9 +21,6 @@ use Phoundation\Web\Http\Html\Renderer;
  */
 class Buttons extends Renderer
 {
-    use ButtonProperties;
-
-
     /**
      * Buttons class constructor
      */

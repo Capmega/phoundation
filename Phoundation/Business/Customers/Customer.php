@@ -21,10 +21,7 @@ use Phoundation\Data\DataEntry\Traits\DataEntryPhones;
 use Phoundation\Data\DataEntry\Traits\DataEntryPicture;
 use Phoundation\Data\DataEntry\Traits\DataEntryUrl;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Data\Validator\GetValidator;
-use Phoundation\Data\Validator\PostValidator;
-use Phoundation\Data\Validator\Validator;
+use Phoundation\Data\Validator\Interfaces\DataValidator;
 use Phoundation\Geo\Cities\Cities;
 use Phoundation\Geo\Countries\Countries;
 use Phoundation\Geo\Countries\Country;
@@ -68,6 +65,17 @@ class Customer extends DataEntry
         $this->unique_field  = 'seo_name';
 
         parent::__construct($identifier);
+    }
+
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'business_customers';
     }
 
 
@@ -153,7 +161,7 @@ class Customer extends DataEntry
      *
      * @return DataEntryFieldDefinitionsInterface
      */
-    protected static function getFieldDefinitions(): array
+    protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
     {
         return [
             'country' => [

@@ -8,10 +8,15 @@ use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
 
-// Display the template with the following information
-echo Template::page('system/detail-error')->render([
-    ':h1'     => tr('(500) Internal Service Error'),
-    ':p'      => tr('The server encountered an unexpected condition that prevented it from fulfilling the request')
+echo Template::page('admin/system/detail-error')->render([
+    ':h2'     => '500',
+    ':h3'     => tr('500 Internal Server Error'),
+    ':p'      => tr('The server encountered an internal error and could not fulfill your request. Please contact the system administrator', [
+        ':url' => Page::getReferer(true)
+    ]),
+    ':type'   => 'warning',
+    ':search' => tr('Search'),
+    ':action' => UrlBuilder::getWww('search/')
 ]);
 
 

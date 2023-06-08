@@ -12,9 +12,7 @@ use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryPath;
 use Phoundation\Data\DataEntry\Traits\DataEntryPriority;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Data\Validator\GetValidator;
-use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Data\Validator\Interfaces\DataValidator;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 
@@ -54,6 +52,17 @@ abstract class Plugin extends DataEntry
 
 
     /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'core_plugins';
+    }
+
+
+    /**
      * @return void
      */
     // TODO Use hooks after startup!
@@ -73,6 +82,7 @@ abstract class Plugin extends DataEntry
 
         return $this->getDataValue('bool', 'enabled', false);
     }
+
 
     /**
      * Sets if this plugin is enabled or not
@@ -291,12 +301,12 @@ abstract class Plugin extends DataEntry
     /**
      * Validates the provider record with the specified validator object
      *
-     * @param ArgvValidator|PostValidator|GetValidator $validator
+     * @param DataValidator $validator
      * @param bool $no_arguments_left
      * @param bool $modify
      * @return array
      */
-    protected function validate(ArgvValidator|PostValidator|GetValidator $validator, bool $no_arguments_left = false, bool $modify = false): array
+    protected function validate(DataValidator $validator, bool $no_arguments_left, bool $modify): array
     {
         $data = $validator
             ->select($this->getAlternateValidationField('name'), true)->hasMaxCharacters()->isName()
@@ -322,7 +332,7 @@ abstract class Plugin extends DataEntry
      *
      * @return DataEntryFieldDefinitionsInterface
      */
-    protected static function getFieldDefinitions(): array
+    protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
     {
        return [
             'disabled' => [

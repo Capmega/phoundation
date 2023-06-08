@@ -6,6 +6,7 @@ namespace Phoundation\Web\Http\Html\Components;
 
 use Phoundation\Core\Locale\Language\Languages;
 use Phoundation\Web\Http\UrlBuilder;
+use Stringable;
 
 /**
  * LanguagesDropDown class
@@ -32,6 +33,7 @@ class LanguagesDropDown extends ElementsBlock
      * @var Stringable|string|null $settings_url
      */
     protected Stringable|string|null $settings_url = null;
+
 
     /**
      * Returns the languages object

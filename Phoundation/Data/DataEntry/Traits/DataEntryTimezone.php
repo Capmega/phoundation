@@ -48,6 +48,7 @@ trait DataEntryTimezone
         return $this->setDataValue('timezones_id', get_null(isset_get_typed('integer', $timezones_id)));
     }
 
+
     /**
      * Returns the timezones_id for this user
      *
@@ -73,18 +74,16 @@ trait DataEntryTimezone
      */
     public function setTimezone(Timezone|string|int|null $timezone): static
     {
-        $timezone = get_null($timezone);
-
         if ($timezone) {
-            if (!is_integer($timezone)) {
-                if (is_string($timezone)) {
-                    $timezone = $timezone::new($timezone);
-                }
+            if (!is_numeric($timezone)) {
+                $timezone = Timezone::get($timezone);
+            }
 
+            if (is_object($timezone)) {
                 $timezone = $timezone->getId();
             }
         }
 
-        return $this->setDataValue('timezones_id', $timezone);
+        return $this->setTimezonesId(get_null($timezone));
     }
 }

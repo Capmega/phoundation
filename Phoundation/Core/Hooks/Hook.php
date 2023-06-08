@@ -25,9 +25,9 @@ class Hook extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @return array
+     * @return DataEntryFieldDefinitionsInterface
      */
-    protected static function getFieldDefinitions(): array
+    protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
     {
         // TODO: Implement getFieldDefinitions() method.
         return [];

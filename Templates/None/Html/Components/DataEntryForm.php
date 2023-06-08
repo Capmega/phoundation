@@ -1,5 +1,8 @@
 <?php
 
+declare(strict_types=1);
+
+
 namespace Templates\None\Html\Components;
 
 use Phoundation\Core\Arrays;
@@ -9,6 +12,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Input\InputMultiButtonText;
 use Phoundation\Web\Http\Html\Components\Input\Select;
 use Phoundation\Web\Http\Html\Components\Input\TextArea;
+use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Html\Renderer;
 
 
@@ -40,12 +44,12 @@ class DataEntryForm extends Renderer
      */
     public function render(): ?string
     {
-        if (!$this->element->getKeys()) {
+        if (!$this->element->getFields()) {
             throw new OutOfBoundsException(tr('Cannot render DataEntryForm, no form keys specified'));
         }
 
         $source = $this->element->getSource();
-        $keys   = $this->reorderKeys($this->element->getKeys());
+        $keys   = $this->reorderKeys($this->element->getFields());
 
         // Possible $data contents:
         //
@@ -239,7 +243,7 @@ class DataEntryForm extends Renderer
                         ->setSource($data['source']);
 
                     $input->getButton()
-                        ->setMode(isset_get($data['mode']))
+                        ->setMode(DisplayMode::from(isset_get($data['mode'])))
                         ->setContent(isset_get($data['label']));
 
                     $input->getInput()

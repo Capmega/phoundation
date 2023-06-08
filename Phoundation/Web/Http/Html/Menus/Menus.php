@@ -147,6 +147,17 @@ class Menus implements Iterator
 
 
     /**
+     * Returns the internal menus array
+     *
+     * @return array
+     */
+    public function list(): array
+    {
+        return $this->menus;
+    }
+
+
+    /**
      * Clears the menus from memory
      *
      * @return static

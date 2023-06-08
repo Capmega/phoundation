@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Phoundation\Storage;
 
 use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Data\Validator\GetValidator;
-use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
+use Phoundation\Data\Validator\Interfaces\DataValidator;
+
 
 /**
  * Class Page
@@ -25,7 +25,7 @@ class Page extends DataEntry
     /**
      * @inheritDoc
      */
-    protected function validate(GetValidator|PostValidator|ArgvValidator $validator, bool $no_arguments_left = false, bool $modify = true): array
+    protected function validate(DataValidator $validator, bool $no_arguments_left, bool $modify): array
     {
         // TODO: Implement validate() method.
     }
@@ -34,9 +34,9 @@ class Page extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @return array
+     * @return DataEntryFieldDefinitionsInterface
      */
-    protected static function getFieldDefinitions(): array
+    protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
     {
         // TODO: Implement setColumns() method.
         return [];

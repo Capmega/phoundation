@@ -135,18 +135,24 @@ class GetValidator extends Validator
     /**
      * Force a return of all GET data without check
      *
+     * @return array|null
+     */
+    public static function extract(): ?array
+    {
+        Log::warning(tr('Liberated all $_GET data without data validation!'));
+        return static::$get;
+    }
+
+
+    /**
+     * Force a return of a single GET key value
+     *
      * @return array
      */
-    public static function force(): array
+    public static function extractKey(string $key): mixed
     {
-        Log::warning(tr('Liberated all GET data without data validation!'));
-
-        global $_GET;
-
-        $_GET = static::$get;
-        static::$get = null;
-
-        return $_GET;
+        Log::warning(tr('Liberated $_GET[:key] without data validation!', [':key' => $key]));
+        return isset_get(static::$get[$key]);
     }
 
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Exception\OutOfBoundsException;
@@ -25,7 +27,7 @@ trait DataEntryMode
      */
     public function getMode(): InterfaceDisplayMode
     {
-        return DisplayMode::from($this->getDataValue('mode'));
+        return DisplayMode::from($this->getDataValue('string', 'mode', ''));
     }
 
 

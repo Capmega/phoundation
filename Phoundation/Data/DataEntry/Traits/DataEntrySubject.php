@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Data\DataEntry\Traits;
 
 
@@ -22,7 +24,7 @@ trait DataEntrySubject
      */
     public function getSubject(): ?string
     {
-        return $this->getDataValue('subject');
+        return $this->getDataValue('string', 'subject');
     }
 
 

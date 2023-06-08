@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
+
 use Phoundation\Core\Strings;
 
 /**

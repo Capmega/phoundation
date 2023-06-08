@@ -18,6 +18,7 @@ use Phoundation\Processes\Exception\ProcessException;
 use Phoundation\Processes\Exception\ProcessFailedException;
 use Phoundation\Servers\Server;
 
+
 /**
  * Class Process
  *
@@ -32,6 +33,30 @@ use Phoundation\Servers\Server;
 Class Process
 {
     use ProcessVariables;
+
+
+    /**
+     * Processes constructor.
+     *
+     * @param string|null $command
+     * @param Restrictions|array|string|null $restrictions
+     * @param string|null $packages
+     */
+    public function __construct(?string $command = null, Restrictions|array|string|null $restrictions = null, ?string $packages = null)
+    {
+        // Ensure that the run files directory is available
+        Path::new(PATH_ROOT . 'data/run/', $restrictions)->ensure();
+
+        $this->setRestrictions($restrictions);
+
+        if ($packages) {
+            $this->setPackages($packages);
+        }
+
+        if ($command) {
+            $this->setCommand($command);
+        }
+    }
 
 
     /**
@@ -62,30 +87,6 @@ Class Process
         $process->addArguments(Arrays::force($command, ' '));
 
         return $process;
-    }
-
-
-    /**
-     * Processes constructor.
-     *
-     * @param string|null $command
-     * @param Restrictions|array|string|null $restrictions
-     * @param string|null $packages
-     */
-    public function __construct(?string $command = null, Restrictions|array|string|null $restrictions = null, ?string $packages = null)
-    {
-        // Ensure that the run files directory is available
-        Path::new(PATH_ROOT . 'data/run/', $restrictions)->ensure();
-
-        $this->setRestrictions($restrictions);
-
-        if ($packages) {
-            $this->setPackages($packages);
-        }
-
-        if ($command) {
-            $this->setCommand($command);
-        }
     }
 
 

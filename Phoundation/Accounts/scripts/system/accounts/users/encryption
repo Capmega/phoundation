@@ -1,7 +1,10 @@
 #!/usr/bin/php
 <?php
 
+declare(strict_types=1);
+
 use Phoundation\Accounts\Users\User;
+use Phoundation\Cli\Documentation;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
@@ -17,9 +20,9 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-$usage = './pho system accounts users encryption';
+Documentation::usage('./pho system accounts users encryption');
 
-$help  = 'This script determines the best encryption cost value for your machine so you can configure 
+Documentation::help('This script determines the best encryption cost value for your machine so you can configure 
 "security.passwords.cost" with the best value  
 
 
@@ -28,7 +31,7 @@ ARGUMENTS
 
 
 
--';
+-');
 
 
 

@@ -32,6 +32,7 @@ use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 use Throwable;
 
+
 /**
  * Class Route
  *
@@ -99,6 +100,7 @@ class Route
      * @var bool $dynamic_pagematch
      */
     protected static bool $dynamic_pagematch = false;
+
 
     /**
      * Route constructor
@@ -636,7 +638,7 @@ class Route
 
                             default:
                                 throw new RouteException(tr('Invalid R flag HTTP CODE ":code" specified for target ":target"', [
-                                    ':code' => ':' . $http_code,
+                                    ':code'   => ':' . $http_code,
                                     ':target' => ':' . $target
                                 ]));
                         }
@@ -930,6 +932,7 @@ class Route
             Route::executeSystem(404);
         }
     }
+
 
     /**
      * Specify a language routing map for multi-lingual websites

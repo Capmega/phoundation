@@ -48,6 +48,17 @@ class SignIn extends DataEntry
 
 
     /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'accounts_signins';
+    }
+
+
+    /**
      * Detects signin information automatically
      *
      * @return $this
@@ -94,7 +105,7 @@ class SignIn extends DataEntry
      *
      * @return DataEntryFieldDefinitionsInterface
      */
-    protected static function getFieldDefinitions(): array
+    protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
     {
        return [
            'ip_address' => [

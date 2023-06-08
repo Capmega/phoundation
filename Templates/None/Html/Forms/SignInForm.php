@@ -1,5 +1,8 @@
 <?php
 
+declare(strict_types=1);
+
+
 namespace Templates\None\Html\Forms;
 
 use Phoundation\Web\Http\Html\Html;
