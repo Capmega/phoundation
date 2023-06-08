@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Phoundation\Geo\Countries;
 
 use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
-use Phoundation\Data\Validator\Interfaces\DataValidator;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Geo\Continents\Continent;
 use Phoundation\Geo\Timezones\Timezone;
@@ -104,6 +104,8 @@ class Country extends DataEntry
      */
     protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
     {
+        return DataEntryFieldDefinitions::new(static::getTable());
+
         return [
             'geonames_id' => [
                 'visible'  => false,

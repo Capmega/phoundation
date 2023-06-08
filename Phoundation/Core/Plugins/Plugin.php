@@ -7,12 +7,12 @@ namespace Phoundation\Core\Plugins;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Libraries\Library;
 use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryPath;
 use Phoundation\Data\DataEntry\Traits\DataEntryPriority;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
-use Phoundation\Data\Validator\Interfaces\DataValidator;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 
@@ -299,42 +299,15 @@ abstract class Plugin extends DataEntry
 
 
     /**
-     * Validates the provider record with the specified validator object
-     *
-     * @param DataValidator $validator
-     * @param bool $no_arguments_left
-     * @param bool $modify
-     * @return array
-     */
-    protected function validate(DataValidator $validator, bool $no_arguments_left, bool $modify): array
-    {
-        $data = $validator
-            ->select($this->getAlternateValidationField('name'), true)->hasMaxCharacters()->isName()
-            ->select($this->getAlternateValidationField('priority'), true)->isOptional(0)->isBetween(0, 9)
-            ->select($this->getAlternateValidationField('enabled'), true)->isBoolean()
-            ->select($this->getAlternateValidationField('file'), true)->isPath()
-            ->select($this->getAlternateValidationField('class'), true)->hasMaxCharacters(2048)->matchesRegex('/Plugins\\[a-z0-9]+\\Plugin/')
-            ->select($this->getAlternateValidationField('description'), true)->isOptional()->hasMaxCharacters(65_530)->isPrintable()
-            ->noArgumentsLeft($no_arguments_left)
-            ->validate();
-
-        // Ensure the name doesn't exist yet as it is a unique identifier
-        if ($data['name']) {
-            static::notExists($data['name'], $this->getId(), true);
-        }
-
-        return $data;
-    }
-
-
-    /**
      * Sets the available data keys for the User class
      *
      * @return DataEntryFieldDefinitionsInterface
      */
     protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
     {
-       return [
+        return DataEntryFieldDefinitions::new(static::getTable());
+
+        return [
             'disabled' => [
                 'virtual' => true,
                 'cli'     => '-d,--disable',
@@ -387,5 +360,23 @@ abstract class Plugin extends DataEntry
                 'label'    => tr('Description')
             ],
         ];
+
+
+//        $data = $validator
+//            ->select($this->getAlternateValidationField('name'), true)->hasMaxCharacters()->isName()
+//            ->select($this->getAlternateValidationField('priority'), true)->isOptional(0)->isBetween(0, 9)
+//            ->select($this->getAlternateValidationField('enabled'), true)->isBoolean()
+//            ->select($this->getAlternateValidationField('file'), true)->isPath()
+//            ->select($this->getAlternateValidationField('class'), true)->hasMaxCharacters(2048)->matchesRegex('/Plugins\\[a-z0-9]+\\Plugin/')
+//            ->select($this->getAlternateValidationField('description'), true)->isOptional()->hasMaxCharacters(65_530)->isPrintable()
+//            ->noArgumentsLeft($no_arguments_left)
+//            ->validate();
+//
+//        // Ensure the name doesn't exist yet as it is a unique identifier
+//        if ($data['name']) {
+//            static::notExists($data['name'], $this->getId(), true);
+//        }
+//
+//        return $data;
     }
 }

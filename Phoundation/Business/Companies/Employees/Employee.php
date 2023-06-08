@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace Phoundation\Business\Companies\Employees;
 
 use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
-use Phoundation\Data\Validator\Interfaces\DataValidator;
 
 
 /**
@@ -24,6 +25,7 @@ use Phoundation\Data\Validator\Interfaces\DataValidator;
 class Employee extends DataEntry
 {
     use DataEntryNameDescription;
+
 
     /**
      * Employee class constructor
@@ -50,10 +52,12 @@ class Employee extends DataEntry
 
 
     /**
-     * @inheritDoc
+     * Sets the available data keys for this entry
+     *
+     * @return DataEntryFieldDefinitionsInterface
      */
-    protected function validate(DataValidator $validator, bool $no_arguments_left, bool $modify): array
+    protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
     {
-        // TODO: Implement validate() method.
+        return DataEntryFieldDefinitions::new(static::getTable());
     }
 }

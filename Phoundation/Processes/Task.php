@@ -10,7 +10,6 @@ use Phoundation\Data\DataEntry\Traits\DataEntryDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryName;
 use Phoundation\Data\DataEntry\Traits\DataEntryResults;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
-use Phoundation\Data\Validator\Interfaces\DataValidator;
 use Phoundation\Processes\Exception\TasksException;
 use Phoundation\Web\Http\Html\Enums\InputType;
 
@@ -80,7 +79,7 @@ class Task extends DataEntry
      */
     protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
     {
-        return DataEntryFieldDefinitions::new(self::getTable())
+        return DataEntryFieldDefinitions::new(static::getTable())
                 ->add(DataEntryFieldDefinition::new('name')
                     ->setLabel(tr('Name'))
                     ->setOptional(true)

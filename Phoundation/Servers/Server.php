@@ -9,13 +9,13 @@ use Phoundation\Business\Customers\Customers;
 use Phoundation\Business\Providers\Providers;
 use Phoundation\Data\Categories\Categories;
 use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryCustomer;
 use Phoundation\Data\DataEntry\Traits\DataEntryDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryHostnamePort;
 use Phoundation\Data\DataEntry\Traits\DataEntryProvider;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
-use Phoundation\Data\Validator\Interfaces\DataValidator;
 use Phoundation\Geo\Cities\Cities;
 use Phoundation\Geo\Countries\Countries;
 use Phoundation\Geo\Countries\Country;
@@ -307,62 +307,14 @@ class Server extends DataEntry
 
 
     /**
-     * Validates the provider record with the specified validator object
-     *
-     * @param DataValidator $validator
-     * @param bool $no_arguments_left
-     * @param bool $modify
-     * @return array
-     */
-    protected function validate(DataValidator $validator, bool $no_arguments_left, bool $modify): array
-    {
-        $data = $validator
-            ->select($this->getAlternateValidationField('hostname'), true)->isOptional()->hasMaxCharacters(128)->isDomain()
-            ->select($this->getAlternateValidationField('code'), true)->isOptional()->hasMaxCharacters(16)->isAlphaNumeric()
-            ->select($this->getAlternateValidationField('os_name'), true)->isOptional()->hasMaxCharacters(12)->inArray('debian','ubuntu','redhat','gentoo','slackware','linux','windows','freebsd','macos','other')
-            ->select($this->getAlternateValidationField('os_version'), true)->isOptional()->hasMaxCharacters(16)->isPrintable()
-            ->select($this->getAlternateValidationField('interval'), true)->isOptional()->hasMaxCharacters(12)->inArray(['hourly','daily','weekly','monthly','bimonthly','quarterly','semiannual','annually','none'])
-            ->select($this->getAlternateValidationField('bill_due_date'), true)->isOptional()->isDate()
-            ->select($this->getAlternateValidationField('port'), true)->isOptional()->isBetween(1, 65_535)
-            ->select($this->getAlternateValidationField('cost'), true)->isOptional()->isCurrency()
-            ->select($this->getAlternateValidationField('account'), true)->xor('accounts_id')->isName()->isQueryColumn   ('SELECT `name` FROM `ssh_accounts`  WHERE `name` = :name AND `status` IS NULL', [':name' => '$account'])
-            ->select($this->getAlternateValidationField('accounts_id'), true)->xor('account')->isId()->isQueryColumn     ('SELECT `id`   FROM `ssh_accounts`  WHERE `id`   = :id   AND `status` IS NULL', [':id'   => '$accounts_id'])
-            ->select($this->getAlternateValidationField('category'), true)->xor('categories_id')->isName()->isQueryColumn('SELECT `name` FROM `categories`    WHERE `name` = :name AND `status` IS NULL', [':name' => '$category'])
-            ->select($this->getAlternateValidationField('categories_id'), true)->xor('category')->isId()->isQueryColumn  ('SELECT `id`   FROM `categories`    WHERE `id`   = :id   AND `status` IS NULL', [':id'   => '$categories_id'])
-            ->select($this->getAlternateValidationField('provider'), true)->xor('providers_id')->isName()->isQueryColumn ('SELECT `name` FROM `providers`     WHERE `name` = :name AND `status` IS NULL', [':name' => '$provider'])
-            ->select($this->getAlternateValidationField('providers_id'), true)->xor('provider')->isId()->isQueryColumn   ('SELECT `id`   FROM `providers`     WHERE `id`   = :id   AND `status` IS NULL', [':id'   => '$providers_id'])
-            ->select($this->getAlternateValidationField('customer'), true)->xor('customers_id')->isName()->isQueryColumn ('SELECT `name` FROM `customers`     WHERE `name` = :name AND `status` IS NULL', [':name' => '$customer'])
-            ->select($this->getAlternateValidationField('customers_id'), true)->xor('customer')->isId()->isQueryColumn   ('SELECT `id`   FROM `customers`     WHERE `id`   = :id   AND `status` IS NULL', [':id'   => '$customers_id'])
-            ->select($this->getAlternateValidationField('country'), true)->xor('countries_id')->isName()->isQueryColumn  ('SELECT `name` FROM `geo_countries` WHERE `name` = :name AND `status` IS NULL', [':name' => '$country'])
-            ->select($this->getAlternateValidationField('countries_id'), true)->xor('country')->isId()->isQueryColumn    ('SELECT `id`   FROM `geo_countries` WHERE `id`   = :id   AND `status` IS NULL', [':id'   => '$countries_id'])
-            ->select($this->getAlternateValidationField('state'), true)->xor('states_id')->isName()->isQueryColumn       ('SELECT `name` FROM `geo_states`    WHERE `name` = :name AND `countries_id` = :countries_id AND `status` IS NULL', [':name' => '$state'    , ':countries_id' => '$countries_id'])
-            ->select($this->getAlternateValidationField('states_id'), true)->xor('state')->isId()->isQueryColumn         ('SELECT `id`   FROM `geo_states`    WHERE `id`   = :id   AND `countries_id` = :countries_id AND `status` IS NULL', [':id'   => '$states_id', ':countries_id' => '$countries_id'])
-            ->select($this->getAlternateValidationField('city'), true)->xor('cities_id')->isName()->isQueryColumn        ('SELECT `name` FROM `geo_cities`    WHERE `name` = :name AND `states_id`    = :states_id    AND `status` IS NULL', [':name' => '$city'     , ':states_id'    => '$states_id'])
-            ->select($this->getAlternateValidationField('cities_id'), true)->xor('city')->isId()->isQueryColumn          ('SELECT `id`   FROM `geo_cities`    WHERE `id`   = :id   AND `states_id`    = :states_id    AND `status` IS NULL', [':id'   => '$cities_id', ':states_id'    => '$states_id'])
-            ->select($this->getAlternateValidationField('description'), true)->isOptional()->hasMaxCharacters(65_530)->isPrintable()
-            ->select($this->getAlternateValidationField('allow_sshd_modification'))->isOptional()->isBoolean()
-            ->select($this->getAlternateValidationField('database_services'))->isOptional()->isBoolean()
-            ->select($this->getAlternateValidationField('mail_services'))->isOptional()->isBoolean()
-            ->select($this->getAlternateValidationField('web_services'))->isOptional()->isBoolean()
-            ->noArgumentsLeft($no_arguments_left)
-            ->validate();
-
-        // Ensure the hostname doesn't exist yet as it is a unique identifier
-        if ($data['hostname']) {
-            Server::notExists($data['hostname'], $this->getId(), true);
-        }
-
-        return $data;
-    }
-
-
-    /**
      * Sets the available data keys for this entry
      *
      * @return DataEntryFieldDefinitionsInterface
      */
     protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
     {
+        return DataEntryFieldDefinitions::new(static::getTable());
+
         return [
             'seo_hostname' => [
                 'visible'  => false,
@@ -676,5 +628,43 @@ class Server extends DataEntry
                 'help'       => tr('A description for this server'),
             ],
         ];
+
+//        $data = $validator
+//            ->select($this->getAlternateValidationField('hostname'), true)->isOptional()->hasMaxCharacters(128)->isDomain()
+//            ->select($this->getAlternateValidationField('code'), true)->isOptional()->hasMaxCharacters(16)->isAlphaNumeric()
+//            ->select($this->getAlternateValidationField('os_name'), true)->isOptional()->hasMaxCharacters(12)->inArray('debian','ubuntu','redhat','gentoo','slackware','linux','windows','freebsd','macos','other')
+//            ->select($this->getAlternateValidationField('os_version'), true)->isOptional()->hasMaxCharacters(16)->isPrintable()
+//            ->select($this->getAlternateValidationField('interval'), true)->isOptional()->hasMaxCharacters(12)->inArray(['hourly','daily','weekly','monthly','bimonthly','quarterly','semiannual','annually','none'])
+//            ->select($this->getAlternateValidationField('bill_due_date'), true)->isOptional()->isDate()
+//            ->select($this->getAlternateValidationField('port'), true)->isOptional()->isBetween(1, 65_535)
+//            ->select($this->getAlternateValidationField('cost'), true)->isOptional()->isCurrency()
+//            ->select($this->getAlternateValidationField('account'), true)->xor('accounts_id')->isName()->isQueryColumn   ('SELECT `name` FROM `ssh_accounts`  WHERE `name` = :name AND `status` IS NULL', [':name' => '$account'])
+//            ->select($this->getAlternateValidationField('accounts_id'), true)->xor('account')->isId()->isQueryColumn     ('SELECT `id`   FROM `ssh_accounts`  WHERE `id`   = :id   AND `status` IS NULL', [':id'   => '$accounts_id'])
+//            ->select($this->getAlternateValidationField('category'), true)->xor('categories_id')->isName()->isQueryColumn('SELECT `name` FROM `categories`    WHERE `name` = :name AND `status` IS NULL', [':name' => '$category'])
+//            ->select($this->getAlternateValidationField('categories_id'), true)->xor('category')->isId()->isQueryColumn  ('SELECT `id`   FROM `categories`    WHERE `id`   = :id   AND `status` IS NULL', [':id'   => '$categories_id'])
+//            ->select($this->getAlternateValidationField('provider'), true)->xor('providers_id')->isName()->isQueryColumn ('SELECT `name` FROM `providers`     WHERE `name` = :name AND `status` IS NULL', [':name' => '$provider'])
+//            ->select($this->getAlternateValidationField('providers_id'), true)->xor('provider')->isId()->isQueryColumn   ('SELECT `id`   FROM `providers`     WHERE `id`   = :id   AND `status` IS NULL', [':id'   => '$providers_id'])
+//            ->select($this->getAlternateValidationField('customer'), true)->xor('customers_id')->isName()->isQueryColumn ('SELECT `name` FROM `customers`     WHERE `name` = :name AND `status` IS NULL', [':name' => '$customer'])
+//            ->select($this->getAlternateValidationField('customers_id'), true)->xor('customer')->isId()->isQueryColumn   ('SELECT `id`   FROM `customers`     WHERE `id`   = :id   AND `status` IS NULL', [':id'   => '$customers_id'])
+//            ->select($this->getAlternateValidationField('country'), true)->xor('countries_id')->isName()->isQueryColumn  ('SELECT `name` FROM `geo_countries` WHERE `name` = :name AND `status` IS NULL', [':name' => '$country'])
+//            ->select($this->getAlternateValidationField('countries_id'), true)->xor('country')->isId()->isQueryColumn    ('SELECT `id`   FROM `geo_countries` WHERE `id`   = :id   AND `status` IS NULL', [':id'   => '$countries_id'])
+//            ->select($this->getAlternateValidationField('state'), true)->xor('states_id')->isName()->isQueryColumn       ('SELECT `name` FROM `geo_states`    WHERE `name` = :name AND `countries_id` = :countries_id AND `status` IS NULL', [':name' => '$state'    , ':countries_id' => '$countries_id'])
+//            ->select($this->getAlternateValidationField('states_id'), true)->xor('state')->isId()->isQueryColumn         ('SELECT `id`   FROM `geo_states`    WHERE `id`   = :id   AND `countries_id` = :countries_id AND `status` IS NULL', [':id'   => '$states_id', ':countries_id' => '$countries_id'])
+//            ->select($this->getAlternateValidationField('city'), true)->xor('cities_id')->isName()->isQueryColumn        ('SELECT `name` FROM `geo_cities`    WHERE `name` = :name AND `states_id`    = :states_id    AND `status` IS NULL', [':name' => '$city'     , ':states_id'    => '$states_id'])
+//            ->select($this->getAlternateValidationField('cities_id'), true)->xor('city')->isId()->isQueryColumn          ('SELECT `id`   FROM `geo_cities`    WHERE `id`   = :id   AND `states_id`    = :states_id    AND `status` IS NULL', [':id'   => '$cities_id', ':states_id'    => '$states_id'])
+//            ->select($this->getAlternateValidationField('description'), true)->isOptional()->hasMaxCharacters(65_530)->isPrintable()
+//            ->select($this->getAlternateValidationField('allow_sshd_modification'))->isOptional()->isBoolean()
+//            ->select($this->getAlternateValidationField('database_services'))->isOptional()->isBoolean()
+//            ->select($this->getAlternateValidationField('mail_services'))->isOptional()->isBoolean()
+//            ->select($this->getAlternateValidationField('web_services'))->isOptional()->isBoolean()
+//            ->noArgumentsLeft($no_arguments_left)
+//            ->validate();
+//
+//        // Ensure the hostname doesn't exist yet as it is a unique identifier
+//        if ($data['hostname']) {
+//            Server::notExists($data['hostname'], $this->getId(), true);
+//        }
+//
+//        return $data;
     }
 }

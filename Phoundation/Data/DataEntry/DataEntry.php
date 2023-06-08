@@ -21,7 +21,6 @@ use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
 use Phoundation\Data\Traits\DataDebug;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Data\Validator\Interfaces\DataValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Date\DateTime;

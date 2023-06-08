@@ -14,7 +14,6 @@ use Phoundation\Data\DataEntry\Traits\DataEntryDetails;
 use Phoundation\Data\DataEntry\Traits\DataEntryTitle;
 use Phoundation\Data\DataEntry\Traits\DataEntryType;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
-use Phoundation\Data\Validator\Interfaces\DataValidator;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
 use Phoundation\Web\Http\Html\Enums\InputElement;
 
@@ -174,35 +173,13 @@ class Incident extends DataEntry
 
 
     /**
-     * Validates the provider record with the specified validator object
-     *
-     * @param DataValidator $validator
-     * @param bool $no_arguments_left
-     * @param bool $modify
-     * @return array
-     */
-    protected function validate(DataValidator $validator, bool $no_arguments_left, bool $modify): array
-    {
-        $data = $validator
-            ->select($this->getAlternateValidationField('type'), true)->isOptional()->hasMaxCharacters(64)->isPrintable()
-            ->select($this->getAlternateValidationField('severity'), true)->hasMaxCharacters(6)->inArray(['notice', 'low', 'medium', 'high', 'severe'])
-            ->select($this->getAlternateValidationField('title'), true)->hasMaxCharacters(255)->isPrintable()
-            ->select($this->getAlternateValidationField('details'), true)->isOptional()->hasMaxCharacters(65535)->isPrintable()
-            ->noArgumentsLeft($no_arguments_left)
-            ->validate();
-
-        return $data;
-    }
-
-
-    /**
      * Sets the available data keys for this entry
      *
      * @return DataEntryFieldDefinitionsInterface
      */
     protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
     {
-        return DataEntryFieldDefinitions::new(self::getTable())
+        return DataEntryFieldDefinitions::new(static::getTable())
             ->add(DataEntryFieldDefinition::new('type')
                 ->setLabel(tr('Incident type'))
                 ->setDisabled(true)
@@ -234,5 +211,12 @@ class Incident extends DataEntry
                 ->setDisabled(true)
                 ->setSize(12)
                 ->setMaxlength(65_535));
+
+//        ->select($this->getAlternateValidationField('type'), true)->isOptional()->hasMaxCharacters(64)->isPrintable()
+//        ->select($this->getAlternateValidationField('severity'), true)->hasMaxCharacters(6)->inArray(['notice', 'low', 'medium', 'high', 'severe'])
+//        ->select($this->getAlternateValidationField('title'), true)->hasMaxCharacters(255)->isPrintable()
+//        ->select($this->getAlternateValidationField('details'), true)->isOptional()->hasMaxCharacters(65535)->isPrintable()
+//        ->noArgumentsLeft($no_arguments_left)
+
     }
 }

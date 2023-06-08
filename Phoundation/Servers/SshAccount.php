@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Phoundation\Servers;
 
 use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryUsername;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
-use Phoundation\Data\Validator\Interfaces\DataValidator;
 use Phoundation\Filesystem\Traits\DataRestrictions;
 
 /**
@@ -77,40 +77,14 @@ class SshAccount extends DataEntry
 
 
     /**
-     * Validates the provider record with the specified validator object
-     *
-     * @param DataValidator $validator
-     * @param bool $no_arguments_left
-     * @param bool $modify
-     * @return array
-     */
-    protected function validate(DataValidator $validator, bool $no_arguments_left, bool $modify): array
-    {
-        $data = $validator
-            ->select('name', true)->hasMaxCharacters(64)->isName()
-            ->select('username', true)->hasMaxCharacters(64)->isVariable()
-            ->select('ssh_key', true)->xor('ssh_key_file')->hasMaxCharacters(255)->isFile()
-            ->select('ssh_key_file', true)->xor('ssh_key')->hasMaxCharacters(65_535)->matchesRegex('-----BEGIN .+? PRIVATE KEY-----.+?-----END .+? PRIVATE KEY-----')
-            ->select('description', true)->isOptional()->hasMaxCharacters(65_535)->isDescription()
-            ->noArgumentsLeft()
-            ->validate();
-
-        // Ensure the hostname doesn't exist yet as it is a unique identifier
-        if ($data['name']) {
-            Server::notExists($data['name'], $this->getId(), true);
-        }
-
-        return $data;
-    }
-
-
-    /**
      * Sets the available data keys for this entry
      *
      * @return DataEntryFieldDefinitionsInterface
      */
     protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
     {
+        return DataEntryFieldDefinitions::new(static::getTable());
+
         return [
             'name' => [
                 'required'   => true,
@@ -158,5 +132,21 @@ class SshAccount extends DataEntry
                 'help'       => tr('The SSH private key associated with this username'),
             ],
        ];
+
+//        $data = $validator
+//            ->select('name', true)->hasMaxCharacters(64)->isName()
+//            ->select('username', true)->hasMaxCharacters(64)->isVariable()
+//            ->select('ssh_key', true)->xor('ssh_key_file')->hasMaxCharacters(255)->isFile()
+//            ->select('ssh_key_file', true)->xor('ssh_key')->hasMaxCharacters(65_535)->matchesRegex('-----BEGIN .+? PRIVATE KEY-----.+?-----END .+? PRIVATE KEY-----')
+//            ->select('description', true)->isOptional()->hasMaxCharacters(65_535)->isDescription()
+//            ->noArgumentsLeft()
+//            ->validate();
+//
+//        // Ensure the hostname doesn't exist yet as it is a unique identifier
+//        if ($data['name']) {
+//            Server::notExists($data['name'], $this->getId(), true);
+//        }
+//
+//        return $data;
     }
 }

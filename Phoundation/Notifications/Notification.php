@@ -27,7 +27,6 @@ use Phoundation\Data\DataEntry\Traits\DataEntryTrace;
 use Phoundation\Data\DataEntry\Traits\DataEntryUrl;
 use Phoundation\Data\DataEntry\Traits\DataEntryUsersId;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
-use Phoundation\Data\Validator\Interfaces\DataValidator;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Exception\NotificationBusyException;
@@ -119,7 +118,7 @@ class Notification extends DataEntry
     }
 
 
-/**
+    /**
      * Sets the exception for this notification
      *
      * @param Throwable $e
@@ -416,48 +415,13 @@ class Notification extends DataEntry
 
 
     /**
-     * Validates the provider record with the specified validator object
-     *
-     * @param DataValidator $validator
-     * @param bool $no_arguments_left
-     * @param bool $modify
-     * @return array
-     */
-    protected function validate(DataValidator $validator, bool $no_arguments_left, bool $modify): array
-    {
-        $data = $validator
-            ->select($this->getAlternateValidationField('users_id'), true)->isId()->isQueryColumn('SELECT `id` FROM `accounts_users` WHERE `id` = :id', [':id' => '$id'])
-            ->select($this->getAlternateValidationField('code'), true)->isOptional('-')->hasMaxCharacters(16)->isPrintable()
-            ->select($this->getAlternateValidationField('mode'), true)->isMode()
-            ->select($this->getAlternateValidationField('icon'), true)->isUrl()
-            ->select($this->getAlternateValidationField('title'), true)->hasMaxCharacters(255)->isPrintable()
-            ->select($this->getAlternateValidationField('message'), true)->isOptional()->hasMaxCharacters(65_530)->isPrintable()
-            ->select($this->getAlternateValidationField('details'), true)->isOptional()->hasMaxCharacters(65_530)
-            ->select($this->getAlternateValidationField('priority'), true)->isOptional(0)->isMoreThan(1, true)->isLessThan(9, true)
-            ->select($this->getAlternateValidationField('url'), true)->isOptional()->isUrl()
-            ->select($this->getAlternateValidationField('file'), true)->isOptional()->isFile()
-            ->select($this->getAlternateValidationField('line'), true)->isOptional()->isPositive()
-            ->select($this->getAlternateValidationField('trace'), true)->isOptional()->hasMaxCharacters(65_530)->isJson()
-            ->noArgumentsLeft($no_arguments_left)
-            ->validate();
-
-        // Ensure the name doesn't exist yet as it is a unique identifier
-        if ($data['name']) {
-            static::notExists($data['name'], $this->getId(), true);
-        }
-
-        return $data;
-    }
-
-
-    /**
      * Sets the available data keys for this entry
      *
      * @return DataEntryFieldDefinitionsInterface
      */
     protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
     {
-        return DataEntryFieldDefinitions::new(self::getTable())
+        return DataEntryFieldDefinitions::new(static::getTable())
             ->add(DataEntryFieldDefinition::new('users_id')
                 ->setVisible(false)
                 ->setInputType(InputType::numeric))
@@ -527,5 +491,27 @@ class Notification extends DataEntry
                 ->setMaxlength(65_535)
                 ->setRows(10)
                 ->setSize(12));
+
+
+//        $data = $validator
+//            ->select($this->getAlternateValidationField('users_id'), true)->isId()->isQueryColumn('SELECT `id` FROM `accounts_users` WHERE `id` = :id', [':id' => '$id'])
+//            ->select($this->getAlternateValidationField('code'), true)->isOptional('-')->hasMaxCharacters(16)->isPrintable()
+//            ->select($this->getAlternateValidationField('mode'), true)->isMode()
+//            ->select($this->getAlternateValidationField('icon'), true)->isUrl()
+//            ->select($this->getAlternateValidationField('title'), true)->hasMaxCharacters(255)->isPrintable()
+//            ->select($this->getAlternateValidationField('message'), true)->isOptional()->hasMaxCharacters(65_530)->isPrintable()
+//            ->select($this->getAlternateValidationField('details'), true)->isOptional()->hasMaxCharacters(65_530)
+//            ->select($this->getAlternateValidationField('priority'), true)->isOptional(0)->isMoreThan(1, true)->isLessThan(9, true)
+//            ->select($this->getAlternateValidationField('url'), true)->isOptional()->isUrl()
+//            ->select($this->getAlternateValidationField('file'), true)->isOptional()->isFile()
+//            ->select($this->getAlternateValidationField('line'), true)->isOptional()->isPositive()
+//            ->select($this->getAlternateValidationField('trace'), true)->isOptional()->hasMaxCharacters(65_530)->isJson()
+//            ->noArgumentsLeft($no_arguments_left)
+//            ->validate();
+//
+//        // Ensure the name doesn't exist yet as it is a unique identifier
+//        if ($data['name']) {
+//            static::notExists($data['name'], $this->getId(), true);
+//        }
     }
 }

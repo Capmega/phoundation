@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Phoundation\Storage;
 
 use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
-use Phoundation\Data\Validator\Interfaces\DataValidator;
 
 
 /**
@@ -23,11 +23,13 @@ use Phoundation\Data\Validator\Interfaces\DataValidator;
 class Page extends DataEntry
 {
     /**
-     * @inheritDoc
+     * Returns the table name used by this object
+     *
+     * @return string
      */
-    protected function validate(DataValidator $validator, bool $no_arguments_left, bool $modify): array
+    public static function getTable(): string
     {
-        // TODO: Implement validate() method.
+        return 'storage_pages';
     }
 
 
@@ -38,7 +40,6 @@ class Page extends DataEntry
      */
     protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
     {
-        // TODO: Implement setColumns() method.
-        return [];
+        return DataEntryFieldDefinitions::new(static::getTable());
     }
 }

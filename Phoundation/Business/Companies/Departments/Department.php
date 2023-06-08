@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Phoundation\Business\Companies\Departments;
 
 use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
-use Phoundation\Data\Validator\Interfaces\DataValidator;
 
 
 /**
@@ -52,22 +52,12 @@ class Department extends DataEntry
 
 
     /**
-     * @inheritDoc
-     */
-    protected function validate(DataValidator $validator, bool $no_arguments_left, bool $modify): array
-    {
-        // TODO: Implement validate() method.
-    }
-
-
-    /**
      * Sets the available data keys for this entry
      *
      * @return DataEntryFieldDefinitionsInterface
      */
     protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
     {
-        // TODO: Implement getFieldDefinitions() method.
-        return [];
+        return DataEntryFieldDefinitions::new(static::getTable());
     }
 }

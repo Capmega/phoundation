@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Phoundation\Core\Locale\Language;
 
 use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
-use Phoundation\Data\Validator\Interfaces\DataValidator;
 
 
 /**
@@ -145,41 +145,14 @@ class Language extends DataEntry
 
 
     /**
-     * Validates the provider record with the specified validator object
-     *
-     * @param DataValidator $validator
-     * @param bool $no_arguments_left
-     * @param bool $modify
-     * @return array
-     */
-    protected function validate(DataValidator $validator, bool $no_arguments_left, bool $modify): array
-    {
-        $data = $validator
-            ->select($this->getAlternateValidationField('name'), true)->isOptional()->hasMaxCharacters(32)->isName()
-            ->select($this->getAlternateValidationField('code_639_1'), true)->isOptional()->hasCharacters(2)->isCode()
-            ->select($this->getAlternateValidationField('code_639_2_t'), true)->isOptional()->hasCharacters(3)->isCode()
-            ->select($this->getAlternateValidationField('code_639_2_b'), true)->isOptional()->hasCharacters(3)->isCode()
-            ->select($this->getAlternateValidationField('code_639_3'), true)->isOptional()->hasCharacters(3)->isCode()
-            ->select($this->getAlternateValidationField('description'), true)->isOptional()->isPrintable()->hasMaxCharacters(65_530)
-            ->noArgumentsLeft($no_arguments_left)
-            ->validate();
-
-        // Ensure the name doesn't exist yet as it is a unique identifier
-        if ($data['name']) {
-            static::notExists($data['name'], $this->getId(), true);
-        }
-
-        return $data;
-    }
-
-
-    /**
      * Sets the available data keys for this entry
      *
      * @return DataEntryFieldDefinitionsInterface
      */
     protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
     {
+        return DataEntryFieldDefinitions::new(static::getTable());
+
         return [
             'name' => [
                 'disabled'  => true,
@@ -231,5 +204,23 @@ class Language extends DataEntry
                 'help'      => tr('The description for this language'),
             ]
         ];
+
+
+//        $data = $validator
+//            ->select($this->getAlternateValidationField('name'), true)->isOptional()->hasMaxCharacters(32)->isName()
+//            ->select($this->getAlternateValidationField('code_639_1'), true)->isOptional()->hasCharacters(2)->isCode()
+//            ->select($this->getAlternateValidationField('code_639_2_t'), true)->isOptional()->hasCharacters(3)->isCode()
+//            ->select($this->getAlternateValidationField('code_639_2_b'), true)->isOptional()->hasCharacters(3)->isCode()
+//            ->select($this->getAlternateValidationField('code_639_3'), true)->isOptional()->hasCharacters(3)->isCode()
+//            ->select($this->getAlternateValidationField('description'), true)->isOptional()->isPrintable()->hasMaxCharacters(65_530)
+//            ->noArgumentsLeft($no_arguments_left)
+//            ->validate();
+//
+//        // Ensure the name doesn't exist yet as it is a unique identifier
+//        if ($data['name']) {
+//            static::notExists($data['name'], $this->getId(), true);
+//        }
+//
+//        return $data;
     }
 }

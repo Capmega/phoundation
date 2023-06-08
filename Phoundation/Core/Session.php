@@ -170,6 +170,7 @@ class Session
     /**
      * Validate sign in data
      *
+     * @param Validator|null $validator
      * @return void
      */
     public static function validateSignIn(Validator $validator = null): void

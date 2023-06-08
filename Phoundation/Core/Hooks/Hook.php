@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Phoundation\Core\Hooks;
 
 use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
-use Phoundation\Data\Validator\Interfaces\DataValidator;
 
 
 /**
@@ -23,18 +23,23 @@ use Phoundation\Data\Validator\Interfaces\DataValidator;
 class Hook extends DataEntry
 {
     /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'core_hooks';
+    }
+
+
+    /**
      * Sets the available data keys for this entry
      *
      * @return DataEntryFieldDefinitionsInterface
      */
     protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
     {
-        // TODO: Implement getFieldDefinitions() method.
-        return [];
-    }
-
-    protected function validate(DataValidator $validator, bool $no_arguments_left, bool $modify): array
-    {
-        // TODO: Implement validate() method.
+        return DataEntryFieldDefinitions::new(static::getTable());
     }
 }

@@ -8,6 +8,7 @@ use Phoundation\Business\Companies\Companies;
 use Phoundation\Core\Locale\Language\Languages;
 use Phoundation\Data\Categories\Categories;
 use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryAddress;
 use Phoundation\Data\DataEntry\Traits\DataEntryCategory;
@@ -21,7 +22,6 @@ use Phoundation\Data\DataEntry\Traits\DataEntryPhones;
 use Phoundation\Data\DataEntry\Traits\DataEntryPicture;
 use Phoundation\Data\DataEntry\Traits\DataEntryUrl;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
-use Phoundation\Data\Validator\Interfaces\DataValidator;
 use Phoundation\Geo\Cities\Cities;
 use Phoundation\Geo\Countries\Countries;
 use Phoundation\Geo\Countries\Country;
@@ -80,37 +80,6 @@ class Customer extends DataEntry
 
 
     /**
-     * Validates the provider record with the specified validator object
-     *
-     * @param DataValidator $validator
-     * @param bool $no_arguments_left
-     * @param bool $modify
-     * @return array
-     */
-    protected function validate(DataValidator $validator, bool $no_arguments_left, bool $modify): array
-    {
-        $validator->hasMaxCharacters()
-            ->select('name')->isOptional()->isName()
-            ->select('code')->isOptional()->isDomain()
-            ->select('email')->isOptional()->isEmail()
-            ->select('zipcode')->isOptional()->isString()->hasMinCharacters(4)->hasMaxCharacters(7)
-            ->select('phones')->isOptional()->sanitizeForceArray(',')->each()->isPhone()->sanitizeForceString()
-            ->select('address')->isOptional()->isPrintable()->hasMaxCharacters(64)
-            ->select('address2')->isOptional()->isPrintable()->hasMaxCharacters(64)
-            ->select('address3')->isOptional()->isPrintable()->hasMaxCharacters(64)
-            ->select('categories_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `categories` WHERE `id` = :id AND `status` IS NULL', [':id' => '$categories_id'])
-            ->select('languages_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `core_languages` WHERE `id` = :id AND `status` IS NULL', [':id' => '$languages_id'])
-            ->select('companies_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `business_companies` WHERE `id` = :id AND `status` IS NULL', [':id' => '$companies_id'])
-            ->select('countries_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':id' => '$countries_id'])
-            ->select('states_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_states` WHERE `id` = :id AND `countries_id` = :countries_id AND `status` IS NULL', [':id' => 'states_id', ':countries_id' => '$countries_id'])
-            ->select('cities_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_cities` WHERE `id` = :id AND `states_id`    = :states_id    AND `status` IS NULL', [':id' => 'cities_id', ':states_id'    => '$states_id'])
-            ->select('description')->isOptional()->isPrintable()->hasMaxCharacters(65_530)
-            ->select('url')->isOptional()->isUrl()
-            ->validate();
-    }
-
-
-    /**
      * Returns the address2 for this object
      *
      * @return string|null
@@ -163,6 +132,8 @@ class Customer extends DataEntry
      */
     protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
     {
+        return DataEntryFieldDefinitions::new(static::getTable());
+
         return [
             'country' => [
                 'complete' => [
@@ -397,5 +368,24 @@ class Customer extends DataEntry
                 'help'       => tr('A description about this user'),
             ],
         ];
+
+//        $validator->hasMaxCharacters()
+//            ->select('name')->isOptional()->isName()
+//            ->select('code')->isOptional()->isDomain()
+//            ->select('email')->isOptional()->isEmail()
+//            ->select('zipcode')->isOptional()->isString()->hasMinCharacters(4)->hasMaxCharacters(7)
+//            ->select('phones')->isOptional()->sanitizeForceArray(',')->each()->isPhone()->sanitizeForceString()
+//            ->select('address')->isOptional()->isPrintable()->hasMaxCharacters(64)
+//            ->select('address2')->isOptional()->isPrintable()->hasMaxCharacters(64)
+//            ->select('address3')->isOptional()->isPrintable()->hasMaxCharacters(64)
+//            ->select('categories_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `categories` WHERE `id` = :id AND `status` IS NULL', [':id' => '$categories_id'])
+//            ->select('languages_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `core_languages` WHERE `id` = :id AND `status` IS NULL', [':id' => '$languages_id'])
+//            ->select('companies_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `business_companies` WHERE `id` = :id AND `status` IS NULL', [':id' => '$companies_id'])
+//            ->select('countries_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':id' => '$countries_id'])
+//            ->select('states_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_states` WHERE `id` = :id AND `countries_id` = :countries_id AND `status` IS NULL', [':id' => 'states_id', ':countries_id' => '$countries_id'])
+//            ->select('cities_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_cities` WHERE `id` = :id AND `states_id`    = :states_id    AND `status` IS NULL', [':id' => 'cities_id', ':states_id'    => '$states_id'])
+//            ->select('description')->isOptional()->isPrintable()->hasMaxCharacters(65_530)
+//            ->select('url')->isOptional()->isUrl()
+//            ->validate();
     }
 }
