@@ -5,9 +5,13 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry;
 
 use Phoundation\Data\Traits\UsesNewField;
+use Phoundation\Data\Validator\Interfaces\InterfaceDataValidator;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Web\Http\Html\Enums\InputType;
+use Phoundation\Web\Http\Html\Interfaces\InputTypeExtendedInterface;
 use Phoundation\Web\Http\Html\Interfaces\InputElementInterface;
+use Phoundation\Web\Http\Html\Interfaces\InputTypeInterface;
 
 
 /**
@@ -338,12 +342,80 @@ class DataEntryFieldDefinition implements Interfaces\DataEntryFieldDefinition
     /**
      * Sets the type of input element.
      *
-     * @param InputType|null $value
+     * @param InputTypeInterface|InputTypeExtendedInterface|null $value
      * @return static
      */
-    public function setInputType(?InputType $value): static
+    public function setInputType(InputTypeInterface|InputTypeExtendedInterface|null $value): static
     {
-        $this->validateType('type', $value->value);
+        if ($value) {
+            if ($value instanceof InputTypeExtendedInterface) {
+                // This is a extended virtual input type, adjust it to an existing input type.
+                switch ($value->value) {
+                    case 'dbid':
+                        $value = InputType::numeric;
+
+                        $this->addValidationFunction(function ($validator) {
+                            $validator->isDbId();
+                        });
+
+                        break;
+
+                    case 'natural':
+                        $value = InputType::numeric;
+
+                        $this->addValidationFunction(function ($validator) {
+                            $validator->isNatural();
+                        });
+
+                        break;
+
+                    case 'integer':
+                        $value = InputType::numeric;
+
+                        $this->addValidationFunction(function ($validator) {
+                            $validator->isInteger();
+                        });
+
+                        break;
+
+                    case 'float':
+                        $value = InputType::numeric;
+
+                        $this->addValidationFunction(function ($validator) {
+                            $validator->isFloat();
+                        });
+
+                        break;
+
+                    case 'name':
+                        $value = InputType::text;
+
+                        $this->addValidationFunction(function ($validator) {
+                            $validator->isName();
+                        });
+
+                        break;
+
+                    case 'username':
+                        $value = InputType::text;
+
+                        $this->addValidationFunction(function ($validator) {
+                            $validator->isUsername();
+                        });
+
+                        break;
+                }
+            }
+
+            switch ($value->value) {
+                case 'numeric':
+                    // Numbers should never be longer than this
+                    $this->setMaxlength(16);
+            }
+
+            $this->validateType('type', $value->value);
+        }
+
         return $this->setKey('type', $value->value);
     }
 
@@ -450,15 +522,19 @@ class DataEntryFieldDefinition implements Interfaces\DataEntryFieldDefinition
      */
     public function setSize(?int $value): static
     {
-        if ($value === null) {
-            $value = 12;
-        }
+        if ($value) {
+            if ($this->getVirtual()) {
+                throw new OutOfBoundsException(tr('Cannot define size for field ":field", this field is virtual and will not be displayed', [
+                    ':field' => $this->field,
+                ]));
+            }
 
-        if (($value < 1) or ($value > 12)) {
-            throw new OutOfBoundsException(tr('Invalid size ":value" specified for field ":field", it must be an integer number between 1 and 12', [
-                ':field' => $this->field,
-                ':value' => $value
-            ]));
+            if (($value < 1) or ($value > 12)) {
+                throw new OutOfBoundsException(tr('Invalid size ":value" specified for field ":field", it must be an integer number between 1 and 12', [
+                    ':field' => $this->field,
+                    ':value' => $value
+                ]));
+            }
         }
 
         return $this->setKey('size', $value);
@@ -488,6 +564,16 @@ class DataEntryFieldDefinition implements Interfaces\DataEntryFieldDefinition
      */
     public function setSource(array|string|null $value): static
     {
+        if ($value) {
+            if (is_string($value)) {
+throw new UnderConstructionException();
+            }
+
+            $this->addValidationFunction(function ($validator) use ($value) {
+                $validator->inArray(array_keys($value));
+            });
+        }
+
         return $this->setKey('source', $value);
     }
 
@@ -705,7 +791,6 @@ class DataEntryFieldDefinition implements Interfaces\DataEntryFieldDefinition
      */
     public function setMaxlength(?int $value): static
     {
-        $this->validateTextTypeElement('maxlength', $value);
         return $this->setKey('maxlength', $value);
     }
 
@@ -785,21 +870,21 @@ class DataEntryFieldDefinition implements Interfaces\DataEntryFieldDefinition
     /**
      * Return the step value for number input elements
      *
-     * @return float|int|null
+     * @return string|float|int|null
      */
-    public function getStep(): float|int|null
+    public function getStep(): string|float|int|null
     {
-        return isset_get_typed('float|int', $this->definitions['step'], 1);
+        return isset_get_typed('string|float|int', $this->definitions['step'], 1);
     }
 
 
     /**
      * Set the step value for number input elements
      *
-     * @param float|int|null $value
+     * @param string|float|int|null $value
      * @return static
      */
-    public function setStep(float|int|null $value): static
+    public function setStep(string|float|int|null $value): static
     {
         $this->validateNumberTypeInput('step', $value);
         return $this->setKey('step', $value);
@@ -1012,7 +1097,7 @@ class DataEntryFieldDefinition implements Interfaces\DataEntryFieldDefinition
      * @param callable $function
      * @return static
      */
-    public function setValidationFunction(callable $function): static
+    public function addValidationFunction(callable $function): static
     {
         $this->validations[] = $function;
         return $this;
@@ -1080,10 +1165,10 @@ class DataEntryFieldDefinition implements Interfaces\DataEntryFieldDefinition
     /**
      * Validate this field according to the field definitions
      *
-     * @param DataValidator $validator
+     * @param InterfaceDataValidator $validator
      * @return void
      */
-    public function validate(DataValidator $validator): void
+    public function validate(InterfaceDataValidator $validator): void
     {
         if ($this->getReadonly() or $this->getDisabled() or $this->getMeta()) {
             // This field cannot be modified, plain ignore it.
@@ -1189,7 +1274,7 @@ class DataEntryFieldDefinition implements Interfaces\DataEntryFieldDefinition
 
         // All other validations
         foreach ($this->validations as $validation) {
-            $validation($validator);
+            $validation($validator, );
         }
     }
 
@@ -1320,7 +1405,7 @@ class DataEntryFieldDefinition implements Interfaces\DataEntryFieldDefinition
         if (!$this->inputTypeSupported($value)) {
             throw new OutOfBoundsException(tr('Cannot set :key ":value" for field ":field", only the types ":types" are supported', [
                 ':key'   => $key,
-                ':type'  => $value,
+                ':value' => $value,
                 ':field' => $this->field,
                 ':types' => self::$supported_input_types
             ]));

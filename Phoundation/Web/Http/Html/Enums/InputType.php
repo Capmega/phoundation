@@ -8,7 +8,7 @@ use Phoundation\Web\Http\Html\Interfaces\InputTypeInterface;
 
 
 /**
- * Enum ButtonTypes
+ * Enum InputType
  *
  * The different available HTML <input> types
  *

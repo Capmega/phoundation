@@ -1290,7 +1290,7 @@ class User extends DataEntry implements InterfaceUser
                 ->setLabel(tr('Email address'))
                 ->setHelpGroup(tr('Personal information'))
                 ->setHelpText(tr('The email address for this user. This is also the unique identifier for the user'))
-                ->setValidationFunction(function ($validator) {
+                ->addValidationFunction(function ($validator) {
                     $validator->isEmail()->isTrue(function ($value, $source) {
                         // This email may NOT yet exist, unless its THIS user.
                         return static::notExists($value, isset_get($source['id']));
@@ -1304,8 +1304,8 @@ class User extends DataEntry implements InterfaceUser
                     'word'   => function($word) { return Countries::new()->filteredList($word); },
                     'noword' => function()      { return Countries::new()->list(); },
                 ])
-                ->setValidationFunction(function ($validator) {
-                    $validator->or('countries_id')->isName(200)->setColumnFromQuery('countries_id', 'SELECT `id` FROM `geo_countries` WHERE `name` = :name AND `status` IS NULL', [':name' => '$country']);
+                ->addValidationFunction(function ($validator) {
+                    $validator->xor('countries_id')->isName(200)->setColumnFromQuery('countries_id', 'SELECT `id` FROM `geo_countries` WHERE `name` = :name AND `status` IS NULL', [':name' => '$country']);
                 }))
             ->add(DataEntryFieldDefinition::new('state')
                 ->setOptional(true)
@@ -1315,8 +1315,8 @@ class User extends DataEntry implements InterfaceUser
                     'word'   => function($word) { return States::new()->filteredList($word); },
                     'noword' => function()      { return States::new()->list(); },
                 ])
-                ->setValidationFunction(function ($validator) {
-                    $validator->or('states_id')->isName()->isQueryColumn('SELECT `name` FROM `geo_states` WHERE `name` = :name AND `countries_id` = :countries_id AND `status` IS NULL', [':name' => '$state', ':countries_id' => '$countries_id']);
+                ->addValidationFunction(function ($validator) {
+                    $validator->xor('states_id')->isName()->isQueryColumn('SELECT `name` FROM `geo_states` WHERE `name` = :name AND `countries_id` = :countries_id AND `status` IS NULL', [':name' => '$state', ':countries_id' => '$countries_id']);
                 }))
             ->add(DataEntryFieldDefinition::new('city')
                 ->setOptional(true)
@@ -1326,8 +1326,8 @@ class User extends DataEntry implements InterfaceUser
                     'word'   => function($word) { return Cities::new()->filteredList($word); },
                     'noword' => function()      { return Cities::new()->list(); },
                 ])
-                ->setValidationFunction(function ($validator) {
-                    $validator->or('cities_id')->isName()->isQueryColumn('SELECT `name` FROM `geo_cities` WHERE `name` = :name AND `states_name`  = :states_id    AND `status` IS NULL', [':name' => '$city', ':states_id' => '$states_id']);
+                ->addValidationFunction(function ($validator) {
+                    $validator->xor('cities_id')->isName()->isQueryColumn('SELECT `name` FROM `geo_cities` WHERE `name` = :name AND `states_name`  = :states_id    AND `status` IS NULL', [':name' => '$city', ':states_id' => '$states_id']);
                 }))
             ->add(DataEntryFieldDefinition::new('language')
                 ->setOptional(true)
@@ -1338,7 +1338,7 @@ class User extends DataEntry implements InterfaceUser
                     'word'   => function($word) { return Languages::new()->filteredList($word); },
                     'noword' => function()      { return Languages::new()->list(); },
                 ])
-                ->setValidationFunction(function ($validator) {
+                ->addValidationFunction(function ($validator) {
                     $validator->isName()->isQueryColumn('SELECT `code_639_1` FROM `core_languages` WHERE `code_639_1` = :code AND `status` IS NULL', [':code' => '$language']);
                 }))
             ->add(DataEntryFieldDefinition::new('timezone')
@@ -1349,7 +1349,7 @@ class User extends DataEntry implements InterfaceUser
                     'word'   => function($word) { return Timezones::new()->filteredList($word); },
                     'noword' => function()      { return Timezones::new()->list(); },
                 ])
-                ->setValidationFunction(function ($validator) {
+                ->addValidationFunction(function ($validator) {
                     $validator->isTimezone();
                 }))
             ->add(DataEntryFieldDefinition::new('timezones_id')
@@ -1366,7 +1366,7 @@ class User extends DataEntry implements InterfaceUser
                 ->setLabel(tr('Timezone'))
                 ->setHelpGroup(tr('Location information'))
                 ->setHelpText(tr('The timezone where this user resides'))
-                ->setValidationFunction(function ($validator) {
+                ->addValidationFunction(function ($validator) {
                     $validator->isId()->isTrue(function ($value) {
                         // This timezone must exist.
                         return Timezone::exists($value);
@@ -1393,7 +1393,7 @@ class User extends DataEntry implements InterfaceUser
                 ->setMaxlength(64)
                 ->setNullDb(false)
                 ->setHelpText(tr('The password for this user'))
-                ->setValidationFunction(function ($validator) {
+                ->addValidationFunction(function ($validator) {
                     $validator->isStrongPassword();
                 }))
             ->add(DataEntryFieldDefinition::new('last_sign_in')
@@ -1433,7 +1433,7 @@ class User extends DataEntry implements InterfaceUser
                 ->setAutoComplete(true)
                 ->setLabel(tr('Restrict to domain'))
                 ->setHelpText(tr('The domain where this user will be able to sign in'))
-                ->setValidationFunction(function ($validator) {
+                ->addValidationFunction(function ($validator) {
                     $validator->isDomain();
                 }))
             ->add(DataEntryFieldDefinition::new('username')
@@ -1445,7 +1445,7 @@ class User extends DataEntry implements InterfaceUser
                 ->setLabel(tr('Username'))
                 ->setHelpGroup(tr('Personal information'))
                 ->setHelpText(tr('The unique username for this user.'))
-                ->setValidationFunction(function ($validator) {
+                ->addValidationFunction(function ($validator) {
                     $validator->isName();
                 }))
             ->add(DataEntryFieldDefinition::new('nickname')
@@ -1457,7 +1457,7 @@ class User extends DataEntry implements InterfaceUser
                 ->setLabel(tr('Nickname'))
                 ->setHelpGroup(tr('Personal information'))
                 ->setHelpText(tr('The nickname for this user'))
-                ->setValidationFunction(function ($validator) {
+                ->addValidationFunction(function ($validator) {
                     $validator->isName();
                 }))
             ->add(DataEntryFieldDefinition::new('first_names')
@@ -1469,7 +1469,7 @@ class User extends DataEntry implements InterfaceUser
                 ->setLabel(tr('First names'))
                 ->setHelpGroup(tr('Personal information'))
                 ->setHelpText(tr('The firstnames for this user'))
-                ->setValidationFunction(function ($validator) {
+                ->addValidationFunction(function ($validator) {
                     $validator->isName();
                 }))
             ->add(DataEntryFieldDefinition::new('last_names')
@@ -1481,7 +1481,7 @@ class User extends DataEntry implements InterfaceUser
                 ->setLabel(tr('Last names'))
                 ->setHelpGroup(tr('Personal information'))
                 ->setHelpText(tr('The lastnames / surnames for this user'))
-                ->setValidationFunction(function ($validator) {
+                ->addValidationFunction(function ($validator) {
                     $validator->isName();
                 }))
             ->add(DataEntryFieldDefinition::new('title')
@@ -1493,7 +1493,7 @@ class User extends DataEntry implements InterfaceUser
                 ->setLabel(tr('Title'))
                 ->setHelpGroup(tr('Personal information'))
                 ->setHelpText(tr('The title added to this users name'))
-                ->setValidationFunction(function ($validator) {
+                ->addValidationFunction(function ($validator) {
                     $validator->isName();
                 }))
             ->add(DataEntryFieldDefinition::new('gender')
@@ -1514,7 +1514,7 @@ class User extends DataEntry implements InterfaceUser
                 ->setLabel(tr('Gender'))
                 ->setHelpGroup(tr('Personal information'))
                 ->setHelpText(tr('The gender for this user'))
-                ->setValidationFunction(function ($validator) {
+                ->addValidationFunction(function ($validator) {
                     $validator->hasMaxCharacters(6);
                 }))
             ->add(DataEntryFieldDefinition::new('phones')
@@ -1527,7 +1527,7 @@ class User extends DataEntry implements InterfaceUser
                 ->setLabel(tr('Phones'))
                 ->setHelpGroup(tr('Personal information'))
                 ->setHelpText(tr('Phone numbers where this user can be reached'))
-                ->setValidationFunction(function ($validator) {
+                ->addValidationFunction(function ($validator) {
                     $validator->isPhoneNumbers();
                     // $validator->sanitizeForceArray(',')->each()->isPhone()->sanitizeForceString()
                 }))
@@ -1538,7 +1538,7 @@ class User extends DataEntry implements InterfaceUser
                 ->setLabel(tr('Code'))
                 ->setHelpGroup(tr('Personal information'))
                 ->setHelpText(tr(''))
-                ->setValidationFunction(function ($validator) {
+                ->addValidationFunction(function ($validator) {
                     $validator->isCode();
                 }))
             ->add(DataEntryFieldDefinition::new('type')
@@ -1550,7 +1550,7 @@ class User extends DataEntry implements InterfaceUser
                 ->setLabel(tr('Type'))
                 ->setHelpGroup(tr('Personal information'))
                 ->setHelpText(tr(''))
-                ->setValidationFunction(function ($validator) {
+                ->addValidationFunction(function ($validator) {
                     $validator->isName();
                 }))
             ->add(DataEntryFieldDefinition::new('birthdate')
@@ -1562,7 +1562,7 @@ class User extends DataEntry implements InterfaceUser
                 ->setLabel(tr('Birthday'))
                 ->setHelpGroup(tr('Personal information'))
                 ->setHelpText(tr('The birthdate for this user'))
-                ->setValidationFunction(function ($validator) {
+                ->addValidationFunction(function ($validator) {
                     $validator->isDate()->isPast();
                 }))
             ->add(DataEntryFieldDefinition::new('priority')
@@ -1575,7 +1575,7 @@ class User extends DataEntry implements InterfaceUser
                 ->setMin(1)
                 ->setMax(10)
                 ->setHelpText(tr('The priority for this user, between 1 and 10'))
-                ->setValidationFunction(function ($validator) {
+                ->addValidationFunction(function ($validator) {
                     $validator->isInteger();
                 }))
             ->add(DataEntryFieldDefinition::new('countries_id')
@@ -1592,8 +1592,8 @@ class User extends DataEntry implements InterfaceUser
                 ->setLabel(tr('Country'))
                 ->setHelpGroup(tr('Location information'))
                 ->setHelpText(tr('The country where this user resides'))
-                ->setValidationFunction(function ($validator) {
-                    $validator->or('country')->isId()->isQueryColumn('SELECT `id` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':id' => '$countries_id']);
+                ->addValidationFunction(function ($validator) {
+                    $validator->xor('country')->isId()->isQueryColumn('SELECT `id` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':id' => '$countries_id']);
                 }))
             ->add(DataEntryFieldDefinition::new('states_id')
                 ->setOptional(true)
@@ -1609,8 +1609,8 @@ class User extends DataEntry implements InterfaceUser
                 ->setLabel(tr('State'))
                 ->setHelpGroup(tr('Location information'))
                 ->setHelpText(tr('The state where this user resides'))
-                ->setValidationFunction(function ($validator) {
-                    $validator->or('state')->isId()->isQueryColumn('SELECT `id` FROM `geo_states` WHERE `id` = :id AND `countries_id` = :countries_id AND `status` IS NULL', [':id' => '$states_id', ':countries_id' => '$countries_id']);
+                ->addValidationFunction(function ($validator) {
+                    $validator->xor('state')->isId()->isQueryColumn('SELECT `id` FROM `geo_states` WHERE `id` = :id AND `countries_id` = :countries_id AND `status` IS NULL', [':id' => '$states_id', ':countries_id' => '$countries_id']);
                 }))
             ->add(DataEntryFieldDefinition::new('cities_id')
                 ->setOptional(true)
@@ -1628,8 +1628,8 @@ class User extends DataEntry implements InterfaceUser
                 ->setMax(10)
                 ->setHelpGroup(tr('Location information'))
                 ->setHelpText(tr('The city where this user resides'))
-                ->setValidationFunction(function ($validator) {
-                    $validator->or('city')->isId()->isQueryColumn('SELECT `id` FROM `geo_cities` WHERE `id` = :id AND `states_name`  = :states_id    AND `status` IS NULL', [':id' => '$cities_id', ':states_id' => '$states_id']);
+                ->addValidationFunction(function ($validator) {
+                    $validator->xor('city')->isId()->isQueryColumn('SELECT `id` FROM `geo_cities` WHERE `id` = :id AND `states_name`  = :states_id    AND `status` IS NULL', [':id' => '$cities_id', ':states_id' => '$states_id']);
                 }))
             ->add(DataEntryFieldDefinition::new('address')
                 ->setOptional(true)
@@ -1640,7 +1640,7 @@ class User extends DataEntry implements InterfaceUser
                 ->setLabel(tr('Address'))
                 ->setHelpGroup(tr('Location information'))
                 ->setHelpText(tr('The address where this user resides'))
-                ->setValidationFunction(function ($validator) {
+                ->addValidationFunction(function ($validator) {
                     $validator->isPrintable();
                 }))
             ->add(DataEntryFieldDefinition::new('zipcode')
@@ -1653,7 +1653,7 @@ class User extends DataEntry implements InterfaceUser
                 ->setLabel(tr('Zip code'))
                 ->setHelpGroup(tr('Location information'))
                 ->setHelpText(tr('The zip code (postal code) where this user resides'))
-                ->setValidationFunction(function ($validator) {
+                ->addValidationFunction(function ($validator) {
                     $validator->isPrintable();
                 }))
             ->add(DataEntryFieldDefinition::new('languages_id')
@@ -1670,8 +1670,8 @@ class User extends DataEntry implements InterfaceUser
                 ->setLabel(tr('Language'))
                 ->setHelpGroup(tr('Location information'))
                 ->setHelpText(tr('The language in which the site will be displayed to the user'))
-                ->setValidationFunction(function ($validator) {
-                    $validator->or('language')->isId()->isQueryColumn('SELECT `id` FROM `core_languages` WHERE `id` = :id AND `status` IS NULL', [':id' => '$languages_id']);
+                ->addValidationFunction(function ($validator) {
+                    $validator->xor('language')->isId()->isQueryColumn('SELECT `id` FROM `core_languages` WHERE `id` = :id AND `status` IS NULL', [':id' => '$languages_id']);
                 }))
             ->add(DataEntryFieldDefinition::new('latitude')
                 ->setOptional(true)
@@ -1682,7 +1682,7 @@ class User extends DataEntry implements InterfaceUser
                 ->setLabel(tr('Latitude'))
                 ->setHelpGroup(tr('Location information'))
                 ->setHelpText(tr('The latitude location for this user'))
-                ->setValidationFunction(function ($validator) {
+                ->addValidationFunction(function ($validator) {
                     $validator->isLatitude();
                 }))
             ->add(DataEntryFieldDefinition::new('longitude')
@@ -1694,7 +1694,7 @@ class User extends DataEntry implements InterfaceUser
                 ->setLabel(tr('Longitude'))
                 ->setHelpGroup(tr('Location information'))
                 ->setHelpText(tr('The longitude location for this user'))
-                ->setValidationFunction(function ($validator) {
+                ->addValidationFunction(function ($validator) {
                     $validator->isLongitude();
                 }))
             ->add(DataEntryFieldDefinition::new('accuracy')
@@ -1708,7 +1708,7 @@ class User extends DataEntry implements InterfaceUser
                 ->setLabel(tr('Accuracy'))
                 ->setHelpGroup(tr('Location information'))
                 ->setHelpText(tr('The accuracy of this users location'))
-                ->setValidationFunction(function ($validator) {
+                ->addValidationFunction(function ($validator) {
                     $validator->isFloat();
                 }))
             ->add(DataEntryFieldDefinition::new('offset_latitude')
@@ -1738,7 +1738,7 @@ class User extends DataEntry implements InterfaceUser
                 ->setLabel(tr('Is leader'))
                 ->setHelpGroup(tr('Hierarchical information'))
                 ->setHelpText(tr('Sets if this user is a leader itself'))
-                ->setValidationFunction(function ($validator) {
+                ->addValidationFunction(function ($validator) {
                     $validator->isBoolean();
                 }))
             ->add(DataEntryFieldDefinition::new('leader')
@@ -1750,8 +1750,8 @@ class User extends DataEntry implements InterfaceUser
                     'word'   => function($word) { return Users::new()->filterby('is_leader', true)->filteredList($word); },
                     'noword' => function()      { return Users::new()->filterby('is_leader', true)->list(); },
                 ])
-                ->setValidationFunction(function ($validator) {
-                    $validator->or('leaders_id')->isEmail()->setColumnFromQuery('leaders_id', 'SELECT `id` FROM `accounts_users` WHERE `email` = :email AND `status` IS NULL', [':email' => '$leader']);
+                ->addValidationFunction(function ($validator) {
+                    $validator->xor('leaders_id')->isEmail()->setColumnFromQuery('leaders_id', 'SELECT `id` FROM `accounts_users` WHERE `email` = :email AND `status` IS NULL', [':email' => '$leader']);
                 }))
             ->add(DataEntryFieldDefinition::new('leaders_id')
                 ->setOptional(true)
@@ -1767,8 +1767,8 @@ class User extends DataEntry implements InterfaceUser
                 ->setLabel(tr('Leader'))
                 ->setHelpGroup(tr('Hierarchical information'))
                 ->setHelpText(tr('The user that is the leader for this user'))
-                ->setValidationFunction(function ($validator) {
-                    $validator->or('leader')->isId()->isQueryColumn('SELECT `id` FROM `accounts_users` WHERE `id` = :id AND `status` IS NULL', [':id' => '$leaders_id']);
+                ->addValidationFunction(function ($validator) {
+                    $validator->xor('leader')->isId()->isQueryColumn('SELECT `id` FROM `accounts_users` WHERE `id` = :id AND `status` IS NULL', [':id' => '$leaders_id']);
                 }))
             ->add(DataEntryFieldDefinition::new('verified_on')
                 ->setReadonly(true)
@@ -1789,7 +1789,7 @@ class User extends DataEntry implements InterfaceUser
                 ->setLabel(tr('Account verified on'))
                 ->setHelpGroup(tr('Account information'))
                 ->setHelpText(tr('The URL where this user will be redirected to upon sign in'))
-                ->setValidationFunction(function ($validator) {
+                ->addValidationFunction(function ($validator) {
                     $validator->isOptional()->isUrl();
                 }))
             ->add(DataEntryFieldDefinition::new('url')
@@ -1802,7 +1802,7 @@ class User extends DataEntry implements InterfaceUser
                 ->setLabel(tr('Website'))
                 ->setHelpGroup(tr('Account information'))
                 ->setHelpText(tr('A URL specified by the user, usually containing more information about the user'))
-                ->setValidationFunction(function ($validator) {
+                ->addValidationFunction(function ($validator) {
                     $validator->isOptional()->isUrl();
                 }))
             ->add(DataEntryFieldDefinition::new('keywords')
@@ -1814,7 +1814,7 @@ class User extends DataEntry implements InterfaceUser
                 ->setLabel(tr('Keywords'))
                 ->setHelpGroup(tr('Account information'))
                 ->setHelpText(tr('The keywords for this user'))
-                ->setValidationFunction(function ($validator) {
+                ->addValidationFunction(function ($validator) {
                     $validator->isPrintable();
                     //$validator->sanitizeForceArray(' ')->each()->isWord()->sanitizeForceString()
                 }))
@@ -1827,7 +1827,7 @@ class User extends DataEntry implements InterfaceUser
                 ->setLabel(tr('Description'))
                 ->setHelpGroup(tr('Account information'))
                 ->setHelpText(tr('A public description about this user'))
-                ->setValidationFunction(function ($validator) {
+                ->addValidationFunction(function ($validator) {
                     $validator->isOptional()->isPrintable();
                 }))
             ->add(DataEntryFieldDefinition::new('comments')
@@ -1840,7 +1840,7 @@ class User extends DataEntry implements InterfaceUser
                 ->setLabel(tr('Comments'))
                 ->setHelpGroup(tr('Account information'))
                 ->setHelpText(tr('Comments about this user by leaders or administrators that are not visible to the user'))
-                ->setValidationFunction(function ($validator) {
+                ->addValidationFunction(function ($validator) {
                     $validator->isOptional()->isPrintable();
                 }));
     }

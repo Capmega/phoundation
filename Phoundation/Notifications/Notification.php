@@ -34,6 +34,7 @@ use Phoundation\Web\Http\Html\Components\Mode;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Html\Enums\InputElement;
 use Phoundation\Web\Http\Html\Enums\InputType;
+use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
 use Throwable;
 
 /**
@@ -424,26 +425,34 @@ class Notification extends DataEntry
         return DataEntryFieldDefinitions::new(static::getTable())
             ->add(DataEntryFieldDefinition::new('users_id')
                 ->setVisible(false)
-                ->setInputType(InputType::numeric))
+                ->setInputType(InputTypeExtended::dbid)
+                ->addValidationFunction(function ($validator) {
+                    $validator->isId()->isQueryColumn('SELECT `id` FROM `accounts_users` WHERE `id` = :id', [':id' => '$id']);
+                }))
             ->add(DataEntryFieldDefinition::new('code')
+                ->setOptional(true)
                 ->setReadonly(true)
                 ->setLabel(tr('Code'))
                 ->setDefault(tr('-'))
                 ->setSize(4)
-                ->setMaxlength(16))
+                ->setMaxlength(16)
+                ->addValidationFunction(function ($validator) {
+                    $validator->isPrintable();
+                }))
             ->add(DataEntryFieldDefinition::new('mode')
                 ->setReadonly(true)
                 ->setLabel(tr('Mode'))
                 ->setSize(4)
                 ->setMaxlength(16)
-                ->setValidationFunction(function ($validator) {
-                    $validator->isInArray(DisplayMode::cases());
+                ->addValidationFunction(function ($validator) {
+                    $validator->isMode()->isInArray(DisplayMode::cases());
                 }))
             ->add(DataEntryFieldDefinition::new('icon')
-                ->setVisible(false))
+                ->setVisible(false)
+                ->setInputType(InputType::url))
             ->add(DataEntryFieldDefinition::new('priority')
                 ->setReadonly(true)
-                ->setInputType(InputType::numeric)
+                ->setInputType(InputTypeExtended::integer)
                 ->setLabel(tr('Priority'))
                 ->setDefault(5)
                 ->setMin(1)
@@ -453,21 +462,28 @@ class Notification extends DataEntry
                 ->setReadonly(true)
                 ->setLabel(tr('Title'))
                 ->setMaxlength(255)
-                ->setSize(4))
-            ->add(DataEntryFieldDefinition::new('Message')
+                ->setSize(4)
+                ->addValidationFunction(function ($validator) {
+                    $validator->isPrintable();
+                }))
+            ->add(DataEntryFieldDefinition::new('message')
                 ->setReadonly(true)
                 ->setElement(InputElement::textarea)
                 ->setLabel(tr('Message'))
                 ->setMaxlength(65_535)
-                ->setSize(12))
+                ->setSize(12)
+                ->addValidationFunction(function ($validator) {
+                    $validator->isPrintable();
+                }))
             ->add(DataEntryFieldDefinition::new('file')
                 ->setReadonly(true)
+                ->setInputType(InputType::file)
                 ->setLabel(tr('File'))
                 ->setMaxlength(255)
                 ->setSize(8))
             ->add(DataEntryFieldDefinition::new('line')
                 ->setReadonly(true)
-                ->setInputType(InputType::numeric)
+                ->setInputType(InputTypeExtended::natural)
                 ->setLabel(tr('File'))
                 ->setMin(1)
                 ->setSize(4))
@@ -483,7 +499,10 @@ class Notification extends DataEntry
                 ->setLabel(tr('Trace'))
                 ->setMaxlength(65_535)
                 ->setRows(10)
-                ->setSize(12))
+                ->setSize(12)
+                ->addValidationFunction(function ($validator) {
+                    $validator->isJson();
+                }))
             ->add(DataEntryFieldDefinition::new('details')
                 ->setReadonly(true)
                 ->setElement(InputElement::textarea)
@@ -491,27 +510,5 @@ class Notification extends DataEntry
                 ->setMaxlength(65_535)
                 ->setRows(10)
                 ->setSize(12));
-
-
-//        $data = $validator
-//            ->select($this->getAlternateValidationField('users_id'), true)->isId()->isQueryColumn('SELECT `id` FROM `accounts_users` WHERE `id` = :id', [':id' => '$id'])
-//            ->select($this->getAlternateValidationField('code'), true)->isOptional('-')->hasMaxCharacters(16)->isPrintable()
-//            ->select($this->getAlternateValidationField('mode'), true)->isMode()
-//            ->select($this->getAlternateValidationField('icon'), true)->isUrl()
-//            ->select($this->getAlternateValidationField('title'), true)->hasMaxCharacters(255)->isPrintable()
-//            ->select($this->getAlternateValidationField('message'), true)->isOptional()->hasMaxCharacters(65_530)->isPrintable()
-//            ->select($this->getAlternateValidationField('details'), true)->isOptional()->hasMaxCharacters(65_530)
-//            ->select($this->getAlternateValidationField('priority'), true)->isOptional(0)->isMoreThan(1, true)->isLessThan(9, true)
-//            ->select($this->getAlternateValidationField('url'), true)->isOptional()->isUrl()
-//            ->select($this->getAlternateValidationField('file'), true)->isOptional()->isFile()
-//            ->select($this->getAlternateValidationField('line'), true)->isOptional()->isPositive()
-//            ->select($this->getAlternateValidationField('trace'), true)->isOptional()->hasMaxCharacters(65_530)->isJson()
-//            ->noArgumentsLeft($no_arguments_left)
-//            ->validate();
-//
-//        // Ensure the name doesn't exist yet as it is a unique identifier
-//        if ($data['name']) {
-//            static::notExists($data['name'], $this->getId(), true);
-//        }
     }
 }

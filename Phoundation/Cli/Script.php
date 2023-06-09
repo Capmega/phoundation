@@ -11,6 +11,7 @@ use Phoundation\Cli\Exception\MethodNotFoundException;
 use Phoundation\Cli\Exception\NoMethodSpecifiedException;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Core;
+use Phoundation\Core\Enums\EnumMatchMode;
 use Phoundation\Core\Exception\NoProjectException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Numbers;
@@ -63,6 +64,7 @@ class Script
     /**
      * The original set of methods
      *
+     * @todo Change "methods" to "commands"
      * @var array|null $methods
      */
     protected static ?array $methods = null;
@@ -158,7 +160,7 @@ The pho script command line has bash command line auto complete support so with 
 what methods are available to you. Auto complete support is also already enabled for some of the methods so (for 
 example) user creation with "pho system accounts user create" can show all available options with <TAB>
 
-The system arguments are ALWAYS available no matter what method is being executed. Some arguments always apply, others 
+The system arguments are ALWAYS available no matter what command is being executed. Some arguments always apply, others 
 only apply for the commands that implement and or use them. If a system modifier argument was specified with a command 
 that does not support it, it will simply be ignored. See the --help output for each method for more information. 
            
@@ -338,7 +340,7 @@ SYSTEM ARGUMENTS
                 ->makeWarning()
                 ->setData([
                     'position' => 0,
-                    'methods'  => Arrays::filterValues(scandir(PATH_ROOT . 'scripts/'), '/^\./', true)
+                    'methods'  => Arrays::filterValues(scandir(PATH_ROOT . 'scripts/'), '/^\./', EnumMatchMode::regex)
                 ]);
         }
 
@@ -380,7 +382,7 @@ SYSTEM ARGUMENTS
                     ->makeWarning()
                     ->setData([
                         'position' => $position,
-                        'methods'  => Arrays::filterValues(scandir(dirname($file)), '/^\./', true)
+                        'methods'  => Arrays::filterValues(scandir(dirname($file)), '/^\./', EnumMatchMode::regex)
                     ]);
             }
 
@@ -426,7 +428,7 @@ SYSTEM ARGUMENTS
             ->makeWarning()
             ->setData([
                 'position' => $position + 1,
-                'methods'  => Arrays::filterValues(scandir($file), '/^\./', true)
+                'methods'  => Arrays::filterValues(scandir($file), '/^\./', EnumMatchMode::regex)
             ]);
     }
 

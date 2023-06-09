@@ -106,12 +106,6 @@ class Country extends DataEntry
     {
         return DataEntryFieldDefinitions::new(static::getTable());
 
-        return [
-            'geonames_id' => [
-                'visible'  => false,
-                'readonly' => true,
-            ],
-
 //            $data = $validator
 //                ->select($this->getAlternateValidationField('code'), true)->hasMaxCharacters()->isName()->isQueryColumn('SELECT `name` FROM `geo_continents` WHERE `name` = :name AND `status` IS NULL', [':name' => '$continent'])
 //                ->select($this->getAlternateValidationField('continent'), true)->or('continents_id')->isName()->isQueryColumn('SELECT `name` FROM `geo_continents` WHERE `name` = :name AND `status` IS NULL', [':name' => '$continent'])
@@ -145,6 +139,5 @@ class Country extends DataEntry
 //            'capital' varchar(200) DEFAULT NULL,
 //            'areainsqkm' double DEFAULT NULL,
 //            'population' int DEFAULT NULL,
-        ];
     }
 }

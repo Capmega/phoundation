@@ -70,6 +70,7 @@ class Right extends DataEntry implements InterfaceRight
                 ->setVisible(true)
                 ->setReadonly(true))
             ->add(DataEntryFieldDefinition::new('description')
+                ->setOptional(true)
                 ->setLabel(tr('Description'))
                 ->setSize(12)
                 ->setMaxlength(65_535)

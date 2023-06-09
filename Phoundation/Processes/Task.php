@@ -10,6 +10,7 @@ use Phoundation\Data\DataEntry\Traits\DataEntryDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryName;
 use Phoundation\Data\DataEntry\Traits\DataEntryResults;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
+use Phoundation\Data\Validator\Interfaces\InterfaceDataValidator;
 use Phoundation\Processes\Exception\TasksException;
 use Phoundation\Web\Http\Html\Enums\InputType;
 
@@ -85,7 +86,7 @@ class Task extends DataEntry
                     ->setOptional(true)
                     ->setSize(4)
                     ->setMaxlength(64)
-                    ->setValidationFunction(function(DataValidator $validator) {
+                    ->addValidationFunction(function(InterfaceDataValidator $validator) {
                         $validator->isName();
                     }))
                 ->add(DataEntryFieldDefinition::new('seo_name')
@@ -93,7 +94,7 @@ class Task extends DataEntry
                 ->add(DataEntryFieldDefinition::new('send_to')
                     ->setVisible(false)
                     ->setMaxlength(128)
-                    ->setValidationFunction(function(DataValidator $validator) {
+                    ->addValidationFunction(function(InterfaceDataValidator $validator) {
                         $validator->isEmail();
                     }))
                 ->add(DataEntryFieldDefinition::new('execute_after')
@@ -101,7 +102,7 @@ class Task extends DataEntry
                     ->setLabel('Execute after')
                     ->setSize(4)
                     ->setMaxlength(17)
-                    ->setValidationFunction(function(DataValidator $validator) {
+                    ->addValidationFunction(function(InterfaceDataValidator $validator) {
                         $validator->isDateTime();
                     }))
                 ->add(DataEntryFieldDefinition::new('execute_on')
@@ -109,7 +110,7 @@ class Task extends DataEntry
                     ->setLabel('Executed on')
                     ->setSize(4)
                     ->setMaxlength(17)
-                    ->setValidationFunction(function(DataValidator $validator) {
+                    ->addValidationFunction(function(InterfaceDataValidator $validator) {
                         $validator->isDateTime();
                     }))
                 ->add(DataEntryFieldDefinition::new('finished_on')
@@ -117,7 +118,7 @@ class Task extends DataEntry
                     ->setLabel('Finished on')
                     ->setSize(4)
                     ->setMaxlength(17)
-                    ->setValidationFunction(function(DataValidator $validator) {
+                    ->addValidationFunction(function(InterfaceDataValidator $validator) {
                         $validator->isDateTime();
                     }))
                 ->add(DataEntryFieldDefinition::new('send_to_id')
@@ -126,7 +127,7 @@ class Task extends DataEntry
                     ->setSource('SELECT `id`, CONCAT(`email`, " <", `firstnames`, " ", `lastnames`, ">") FROM `accounts_users` WHERE `status` IS NULL')
                     ->setSize(4)
                     ->setMaxlength(17)
-                    ->setValidationFunction(function(DataValidator $validator) {
+                    ->addValidationFunction(function(InterfaceDataValidator $validator) {
                         $validator->isId();
                     }))
                 ->add(DataEntryFieldDefinition::new('parents_id')
@@ -135,7 +136,7 @@ class Task extends DataEntry
                     ->setSource('SELECT `id`, CONCAT(`email`, " (", `name`, ")") FROM `processes_tasks` WHERE `status` IS NULL')
                     ->setSize(4)
                     ->setMaxlength(17)
-                    ->setValidationFunction(function(DataValidator $validator) {
+                    ->addValidationFunction(function(InterfaceDataValidator $validator) {
                         $validator->isId();
                     }))
                 ->add(DataEntryFieldDefinition::new('time_limit')
@@ -143,7 +144,7 @@ class Task extends DataEntry
                     ->setLabel('Time limit')
                     ->setSize(4)
                     ->setMin(0)
-                    ->setValidationFunction(function(DataValidator $validator) {
+                    ->addValidationFunction(function(InterfaceDataValidator $validator) {
                         $validator->isPositive(true);
                     }))
                 ->add(DataEntryFieldDefinition::new('time_spent')
@@ -152,21 +153,21 @@ class Task extends DataEntry
                     ->setDisabled(true)
                     ->setMin(0)
                     ->setSize(4)
-                    ->setValidationFunction(function(DataValidator $validator) {
+                    ->addValidationFunction(function(InterfaceDataValidator $validator) {
                         $validator->isPositive(true);
                     }))
                 ->add(DataEntryFieldDefinition::new('parallel')
                     ->setInputType(InputType::checkbox)
                     ->setLabel('Execute parallel')
                     ->setSize(4)
-                    ->setValidationFunction(function(DataValidator $validator) {
+                    ->addValidationFunction(function(InterfaceDataValidator $validator) {
                         $validator->isBoolean();
                     }))
                 ->add(DataEntryFieldDefinition::new('Verbose')
                     ->setInputType(InputType::checkbox)
                     ->setLabel('Verbose output')
                     ->setSize(4)
-                    ->setValidationFunction(function(DataValidator $validator) {
+                    ->addValidationFunction(function(InterfaceDataValidator $validator) {
                         $validator->isBoolean();
                     }))
                 ->add(DataEntryFieldDefinition::new('pid')
@@ -174,7 +175,7 @@ class Task extends DataEntry
                     ->setLabel('Process ID')
                     ->setDisabled(true)
                     ->setSize(4)
-                    ->setValidationFunction(function(DataValidator $validator) {
+                    ->addValidationFunction(function(InterfaceDataValidator $validator) {
                         $validator->isId();
                     }))
                 ->add(DataEntryFieldDefinition::new('command')
@@ -197,7 +198,7 @@ class Task extends DataEntry
                     ->setLabel('description')
                     ->setSize(12)
                     ->setMaxlength(65535)
-                    ->setValidationFunction(function(DataValidator $validator) {
+                    ->addValidationFunction(function(InterfaceDataValidator $validator) {
                         $validator->isDescription();
                     }));
     }

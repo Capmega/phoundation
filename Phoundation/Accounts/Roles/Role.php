@@ -122,6 +122,7 @@ class Role extends DataEntry implements InterfaceRole
                 ->setVisible(true)
                 ->setReadonly(true))
             ->add(DataEntryFieldDefinition::new('description')
+                ->setOptional(true)
                 ->setLabel(tr('Description'))
                 ->setSize(12)
                 ->setMaxlength(65_535)

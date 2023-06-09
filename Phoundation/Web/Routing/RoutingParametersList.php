@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Routing;
 
+use Exception;
 use Phoundation\Core\Log\Log;
 use Phoundation\Web\Exception\RouteException;
 
@@ -112,22 +113,31 @@ class RoutingParametersList
                 break;
             }
 
-            if (preg_match_all($pattern, $uri, $matches)) {
-                $parameters
-                    ->setMatches($matches)
-                    ->setUri($uri);
-
-                // Use this template
-                Log::action(tr('Selected parameters pattern ":pattern" with template ":template" and path ":path" for:system page from URI ":uri"', [
-                    ':system'   => ($system ? ' system' : ''),
-                    ':uri'      => $uri,
-                    ':path'     => $parameters->getRootPath(),
-                    ':template' => $parameters->getTemplate(),
-                    ':pattern'  => $pattern
-                ]));
-
-                return $parameters;
+            try {
+                if (!preg_match_all($pattern, $uri, $matches)) {
+                    continue;
+                }
+            } catch (Exception $e) {
+                throw new RouteException(tr('Routing regular expression pattern ":regex" failed with error ":e"', [
+                    ':e'     => $e->getMessage(),
+                    ':regex' => $pattern
+                ]), ['failed_pattern' => $pattern], 0, $e);
             }
+
+            $parameters
+                ->setMatches($matches)
+                ->setUri($uri);
+
+            // Use this template
+            Log::action(tr('Selected parameters pattern ":pattern" with template ":template" and path ":path" for:system page from URI ":uri"', [
+                ':system'   => ($system ? ' system' : ''),
+                ':uri'      => $uri,
+                ':path'     => $parameters->getRootPath(),
+                ':template' => $parameters->getTemplate(),
+                ':pattern'  => $pattern
+            ]));
+
+            return $parameters;
         }
 
         if (!isset($parameters)) {

@@ -14,6 +14,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Exception\KeyAlreadySelectedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
+use Phoundation\Data\Validator\Interfaces\InterfaceDataValidator;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Restrictions;
@@ -35,7 +36,7 @@ use UnitEnum;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
-abstract class Validator implements DataValidator
+abstract class Validator implements InterfaceDataValidator
 {
     use ValidatorBasics;
 
@@ -1730,6 +1731,27 @@ abstract class Validator implements DataValidator
             }
 
             $this->isPrintable();
+        });
+    }
+
+
+    /**
+     * Validates if the selected field is a valid name
+     *
+     * @param int $characters
+     * @return static
+     */
+    public function isUsername(int $characters = 64): static
+    {
+        return $this->validateValues(function(&$value) use ($characters) {
+            $this->hasMinCharacters(2)->hasMaxCharacters($characters);
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return;
+            }
+
+            $this->isAlphaNumeric();
         });
     }
 

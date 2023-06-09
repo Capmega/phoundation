@@ -75,7 +75,7 @@ class Incident extends DataEntry
                 ->setLabel('Type')
                 ->setSize(6)
                 ->setMaxlength(255)
-                ->setValidationFunction(function ($validator) {
+                ->addValidationFunction(function ($validator) {
                     $validator->isName(16);
                 }))
             ->add(DataEntryFieldDefinition::new('title')
@@ -83,7 +83,7 @@ class Incident extends DataEntry
                 ->setLabel('Title')
                 ->setSize(6)
                 ->setMaxlength(255)
-                ->setValidationFunction(function ($validator) {
+                ->addValidationFunction(function ($validator) {
                     $validator->hasMaxCharacters(255)->isPrintable();
                 }))
             ->add(DataEntryFieldDefinition::new('url')
@@ -91,7 +91,7 @@ class Incident extends DataEntry
                 ->setLabel('URL')
                 ->setSize(12)
                 ->setMaxlength(2048)
-                ->setValidationFunction(function ($validator) {
+                ->addValidationFunction(function ($validator) {
                     $validator->isUrl();
                 }))
             ->add(DataEntryFieldDefinition::new('description')
@@ -99,7 +99,7 @@ class Incident extends DataEntry
                 ->setLabel('Description')
                 ->setSize(12)
                 ->setMaxlength(255)
-                ->setValidationFunction(function ($validator) {
+                ->addValidationFunction(function ($validator) {
                     $validator->isDescription();
                 }))
             ->add(DataEntryFieldDefinition::new('exception')
@@ -107,7 +107,7 @@ class Incident extends DataEntry
                 ->setLabel('Exception')
                 ->setSize(12)
                 ->setMaxlength(16_777_200)
-                ->setValidationFunction(function ($validator) {
+                ->addValidationFunction(function ($validator) {
                     $validator->isPrintable();
                 }))
             ->add(DataEntryFieldDefinition::new('data')

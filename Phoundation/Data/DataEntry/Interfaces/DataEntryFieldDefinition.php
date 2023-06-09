@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Interfaces;
 
+use Phoundation\Data\Validator\Interfaces\InterfaceDataValidator;
 use Phoundation\Web\Http\Html\Enums\InputType;
 use Phoundation\Web\Http\Html\Interfaces\InputElementInterface;
 
@@ -437,17 +438,17 @@ Interface DataEntryFieldDefinition
     /**
      * Return the step value for number input elements
      *
-     * @return float|int|null
+     * @return string|float|int|null
      */
-    public function getStep(): float|int|null;
+    public function getStep(): string|float|int|null;
 
     /**
      * Set the step value for number input elements
      *
-     * @param float|int|null $value
+     * @param string|float|int|null $value
      * @return $this
      */
-    function setStep(float|int|null $value): static;
+    function setStep(string|float|int|null $value): static;
 
     /**
      * Returns the rows value for textarea elements
@@ -572,8 +573,8 @@ Interface DataEntryFieldDefinition
     /**
      * Validate this field according to the field definitions
      *
-     * @param DataValidator $validator
+     * @param InterfaceDataValidator $validator
      * @return void
      */
-    public function validate(DataValidator $validator): void;
+    public function validate(InterfaceDataValidator $validator): void;
 }
