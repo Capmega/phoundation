@@ -26,7 +26,7 @@ use Phoundation\Web\Http\Html\Enums\InputElement;
  * @see \Phoundation\Data\DataEntry\DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Security
  * @todo Incidents should be able to throw exceptions depending on type. AuthenticationFailureExceptions, for example, should be thrown from here so that it is no longer required for the developer to both register the incident AND throw the exception
  */
@@ -175,11 +175,11 @@ class Incident extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @return DataEntryFieldDefinitionsInterface
+     * @param DataEntryFieldDefinitionsInterface $field_definitions
      */
-    protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
+    protected function initFieldDefinitions(DataEntryFieldDefinitionsInterface $field_definitions): void
     {
-        return DataEntryFieldDefinitions::new(static::getTable())
+        $field_definitions
             ->add(DataEntryFieldDefinition::new('type')
                 ->setLabel(tr('Incident type'))
                 ->setDisabled(true)
@@ -213,7 +213,7 @@ class Incident extends DataEntry
                 ->setMaxlength(65_535));
 
 //        ->select($this->getAlternateValidationField('type'), true)->isOptional()->hasMaxCharacters(64)->isPrintable()
-//        ->select($this->getAlternateValidationField('severity'), true)->hasMaxCharacters(6)->inArray(['notice', 'low', 'medium', 'high', 'severe'])
+//        ->select($this->getAlternateValidationField('severity'), true)->hasMaxCharacters(6)->isInArray(['notice', 'low', 'medium', 'high', 'severe'])
 //        ->select($this->getAlternateValidationField('title'), true)->hasMaxCharacters(255)->isPrintable()
 //        ->select($this->getAlternateValidationField('details'), true)->isOptional()->hasMaxCharacters(65535)->isPrintable()
 //        ->noArgumentsLeft($no_arguments_left)

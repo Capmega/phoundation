@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html;
 
+use PDOStatement;
 use Phoundation\Content\Images\Image;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Strings;
@@ -22,7 +23,7 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
 Class Html
@@ -770,14 +771,14 @@ Class Html
 //    function flash_set($params, $type = 'info', $class = null) {
 //        try {
 //            if (!PLATFORM_HTTP) {
-//                throw new HtmlException(tr('html_flash_set(): This function can only be executed on a webserver!'), 'invalid');
+//                throw new HtmlException(tr('html_flash_set(): This function can only be executed on a webserver!'));
 //            }
 //
 //            if (!$params) {
 //                /*
 //                 * Wut? no message?
 //                 */
-//                throw new HtmlException(tr('html_flash_set(): No messages specified'), 'not-specified');
+//                throw new HtmlException(tr('No messages specified'));
 //            }
 //
 //            /*
@@ -1094,7 +1095,7 @@ Class Html
 
         if (!$params['name']) {
             if (!$params['id']) {
-                throw new HtmlException(tr('html_select(): No name specified'), 'not-specified');
+                throw new HtmlException(tr('No name specified'));
             }
 
             $params['name'] = $params['id'];
@@ -1274,7 +1275,7 @@ Class Html
 
             } elseif (is_object($params['resource'])) {
                 if (!($params['resource'] instanceof PDOStatement)) {
-                    throw new HtmlException(tr('html_select_body(): Specified resource object is not an instance of PDOStatement'), 'invalidresource');
+                    throw new HtmlException(tr('html_select_body(): Specified resource object is not an instance of PDOStatement'));
                 }
 
                 if ($params['auto_select'] and ($params['resource']->rowCount() == 1)) {
@@ -1896,16 +1897,16 @@ Class Html
                 return '';
             }
 
-            throw new HtmlException(tr('html_img(): No src for image with alt text ":alt"', array(':alt' => $params['alt'])), 'no-image');
+            throw new HtmlException(tr('html_img(): No src for image with alt text ":alt"', [':alt' => $params['alt']]));
         }
 
         if (!Debug::production()) {
             if (!$params['src']) {
-                throw new HtmlException(tr('html_img(): No image src specified'), 'not-specified');
+                throw new HtmlException(tr('No image src specified'));
             }
 
             if (!$params['alt']) {
-                throw new HtmlException(tr('html_img(): No image alt text specified for src ":src"', array(':src' => $params['src'])), 'not-specified');
+                throw new HtmlException(tr('html_img(): No image alt text specified for src ":src"', [':src' => $params['src']]));
             }
 
         } else {
@@ -2379,7 +2380,7 @@ Class Html
 
         if (!Debug::production()) {
             if (!$params['src']) {
-                throw new HtmlException(tr('html_video(): No video src specified'), 'not-specified');
+                throw new HtmlException(tr('No video src specified'));
             }
         }
 
@@ -2387,19 +2388,19 @@ Class Html
 // But in this case, we have to use a external "library" to get this done
 // Investigate the best option for this!
         if (!$params['width']) {
-            throw new HtmlException(tr('html_video(): No width specified'), 'not-specified');
+            throw new HtmlException(tr('No width specified'));
         }
 
         if (!is_natural($params['width'])) {
-            throw new HtmlException(tr('html_video(): Invalid width ":width" specified', array(':width' => $params['width'])), 'invalid');
+            throw new HtmlException(tr('html_video(): Invalid width ":width" specified', [':width' => $params['width']]));
         }
 
         if (!$params['height']) {
-            throw new HtmlException(tr('html_video(): No height specified'), 'not-specified');
+            throw new HtmlException(tr('html_video(): No height specified'));
         }
 
         if (!is_natural($params['height'])) {
-            throw new HtmlException(tr('html_video(): Invalid height ":height" specified', array(':height' => $params['height'])), 'invalid');
+            throw new HtmlException(tr('html_video(): Invalid height ":height" specified', [':height' => $params['height']]));
         }
 
         /*
@@ -2438,11 +2439,11 @@ Class Html
                  * Remote videos MUST have height and width specified!
                  */
                 if (!$params['height']) {
-                    throw new HtmlException(tr('html_video(): No height specified for remote video'), 'not-specified');
+                    throw new HtmlException(tr('html_video(): No height specified for remote video'));
                 }
 
                 if (!$params['width']) {
-                    throw new HtmlException(tr('html_video(): No width specified for remote video'), 'not-specified');
+                    throw new HtmlException(tr('html_video(): No width specified for remote video'));
                 }
 
                 switch ($params['type']) {
@@ -2455,14 +2456,15 @@ Class Html
                         break;
 
                     case '':
-                        /*
-                         * Try to autodetect
-                         */
+                        // Try to autodetect
+                        $params['type'] = 'video/'.Strings::fromReverse($params['src'], '.');
                         $params['type'] = 'video/'.Strings::fromReverse($params['src'], '.');
                         break;
 
                     default:
-                        throw new HtmlException(tr('html_video(): Unknown type ":type" specified for remote video', array(':type' => $params['type'])), 'unknown');
+                        throw new HtmlException(tr('Unknown type ":type" specified for remote video', [
+                            ':type' => $params['type']
+                        ]));
                 }
             }
         }

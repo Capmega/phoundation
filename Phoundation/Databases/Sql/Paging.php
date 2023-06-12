@@ -6,6 +6,7 @@ namespace Phoundation\Databases\Sql;
 
 use Phoundation\Core\Config;
 
+
 /**
  * Class Paging
  *
@@ -13,7 +14,7 @@ use Phoundation\Core\Config;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Databases
  */
 class Paging
@@ -42,6 +43,6 @@ class Paging
      */
     public static function getPage(?int $page): int
     {
-        return $page || 1;
+        return $page ?? 1;
     }
 }

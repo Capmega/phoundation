@@ -19,7 +19,7 @@ use Phoundation\Web\Http\Html\Components\DataEntryForm;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
 interface InterfaceDataEntry
@@ -128,7 +128,7 @@ interface InterfaceDataEntry
      *
      * @return DataEntryFieldDefinitionsInterface
      */
-    static function getFieldDefinitions(): DataEntryFieldDefinitionsInterface;
+    function getFieldDefinitions(): DataEntryFieldDefinitionsInterface;
 
     /**
      * Returns true if this is a new entry that hasn't been written to the database yet

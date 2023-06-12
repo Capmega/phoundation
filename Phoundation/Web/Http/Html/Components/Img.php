@@ -21,7 +21,7 @@ use Stringable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
 class Img extends Element
@@ -352,11 +352,11 @@ class Img extends Element
 //
 //        if (!Debug::production()) {
 //            if (!$params['src']) {
-//                throw new CoreException(tr('html_img(): No image src specified'), 'not-specified');
+//                throw new CoreException(tr('No image src specified'));
 //            }
 //
 //            if (!$params['alt']) {
-//                throw new CoreException(tr('html_img(): No image alt text specified for src ":src"', array(':src' => $params['src'])), 'not-specified');
+//                throw new CoreException(tr('No image alt text specified for src ":src"', [':src' => $params['src']]));
 //            }
 //
 //        } else {

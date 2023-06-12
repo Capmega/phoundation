@@ -15,7 +15,7 @@ use Phoundation\Exception\UnderConstructionException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Databases
  */
 class Database extends SchemaAbstract
@@ -154,7 +154,7 @@ class Database extends SchemaAbstract
      *
      * @return void
      */
-    protected function load(): void
+    protected function load(string|int|null $id_column = null): static
     {
         // Load columns & indices data
         // TODO Implement

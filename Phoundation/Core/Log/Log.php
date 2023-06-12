@@ -32,7 +32,7 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
 Class Log {
@@ -115,9 +115,9 @@ Class Log {
     /**
      * The last message that was logged.
      *
-     * @var string|null
+     * @var mixed $last_message
      */
-    protected static ?string $last_message = null;
+    protected static mixed $last_message = null;
 
     /**
      * Lock the Log class from writing in case it is busy to avoid race conditions
@@ -509,6 +509,8 @@ Class Log {
      *
      * @param mixed $messages
      * @param int $threshold
+     * @param bool $clean
+     * @param bool $newline
      * @return bool
      */
     public static function success(mixed $messages = null, int $threshold = 5, bool $clean = true, bool $newline = true): bool
@@ -533,11 +535,11 @@ Class Log {
     /**
      * Dump an exception object in the log file
      *
-     * @param mixed $messages
+     * @param Throwable $messages
      * @param int $threshold
      * @return bool
      */
-    public static function exception(Throwable $messages = null, int $threshold = 10): bool
+    public static function exception(Throwable $messages, int $threshold = 10): bool
     {
         return static::write($messages, 'error', $threshold, false);
     }
@@ -548,6 +550,8 @@ Class Log {
      *
      * @param mixed $messages
      * @param int $threshold
+     * @param bool $clean
+     * @param bool $newline
      * @return bool
      */
     public static function warning(mixed $messages = null, int $threshold = 9, bool $clean = true, bool $newline = true): bool
@@ -561,6 +565,8 @@ Class Log {
      *
      * @param mixed $messages
      * @param int $threshold
+     * @param bool $clean
+     * @param bool $newline
      * @return bool
      */
     public static function notice(mixed $messages = null, int $threshold = 3, bool $clean = true, bool $newline = true): bool
@@ -570,10 +576,12 @@ Class Log {
 
 
     /**
-     * Write a action message in the log file
+     * Write an action message in the log file
      *
      * @param mixed $messages
      * @param int $threshold
+     * @param bool $clean
+     * @param bool $newline
      * @return bool
      */
     public static function action(mixed $messages = null, int $threshold = 5, bool $clean = true, bool $newline = true): bool
@@ -597,10 +605,12 @@ Class Log {
 
 
     /**
-     * Write a information message in the log file
+     * Write an information message in the log file
      *
      * @param mixed $messages
      * @param int $threshold
+     * @param bool $clean
+     * @param bool $newline
      * @return bool
      */
     public static function information(mixed $messages = null, int $threshold = 7, bool $clean = true, bool $newline = true): bool
@@ -736,12 +746,13 @@ Class Log {
      * Write a debug message trying to format the data in a neat table.
      *
      * @param mixed $key_value
+     * @param int $indent
      * @param int $threshold
      * @return bool
      */
-    public static function table(array $key_value, int $threshold = 10): bool
+    public static function table(array $key_value, int $indent = 4, int $threshold = 10): bool
     {
-        return static::write(Strings::getKeyValueTable($key_value, PHP_EOL, ': '), 'debug', $threshold, false, false);
+        return static::write(Strings::getKeyValueTable($key_value, PHP_EOL, ': ', $indent), 'debug', $threshold, false, false);
     }
 
 
@@ -797,6 +808,8 @@ Class Log {
      * @param string|PDOStatement $query
      * @param ?array $execute
      * @param int $threshold
+     * @param bool $clean
+     * @param bool $newline
      * @return bool
      */
     public static function sql(string|PDOStatement $query, ?array $execute = null, int $threshold = 10, bool $clean = true, bool $newline = true): bool
@@ -824,7 +837,7 @@ Class Log {
     {
         if (static::$init) {
             // Do not log anything while locked, initialising, or while dealing with a Log internal failure
-            error_log($messages);
+            error_log(Strings::force($messages));
             return false;
         }
 
@@ -958,7 +971,7 @@ Class Log {
 
             // If we're initializing the log then write to the system log
             if (static::$fail) {
-                error_log($messages);
+                error_log(Strings::force($messages));
                 static::$lock = false;
                 return true;
             }

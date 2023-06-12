@@ -8,6 +8,7 @@ namespace Templates\None\Html\Components;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Strings;
+use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Input\InputMultiButtonText;
 use Phoundation\Web\Http\Html\Components\Input\Select;
@@ -23,7 +24,7 @@ use Phoundation\Web\Http\Html\Renderer;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\None
  */
 class DataEntryForm extends Renderer
@@ -49,7 +50,7 @@ class DataEntryForm extends Renderer
         }
 
         $source = $this->element->getSource();
-        $keys   = $this->reorderKeys($this->element->getFields());
+        $keys   = $this->element->getFields();
 
         // Possible $data contents:
         //
@@ -350,36 +351,6 @@ class DataEntryForm extends Renderer
             // Close the row
             $col_size = 12;
             $return  .= '</div>';
-        }
-
-        return $return;
-    }
-
-
-    /**
-     * Reorder the keys in the order of the specified keys and add the size information
-     *
-     * @param array $keys
-     * @return array
-     */
-    public function reorderKeys(array $keys): array
-    {
-        $return       = [];
-        $keys_display = $this->element->getKeysDisplay();
-
-        if (!$keys_display) {
-            return $keys;
-        }
-
-        foreach ($keys_display as $key => $size) {
-            if (!array_key_exists($key, $keys)) {
-                throw new OutOfBoundsException(tr('Specified form key ":key" does not exist as DataEntry key', [
-                    ':key' => $key
-                ]));
-            }
-
-            $return[$key]         = $keys[$key];
-            $return[$key]['size'] = $size;
         }
 
         return $return;

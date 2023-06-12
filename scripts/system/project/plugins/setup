@@ -15,7 +15,7 @@ use Phoundation\Data\Validator\ArgvValidator;
  * This script allows you to scan the plugins directory PATH_ROOT/Plugins/ for new plugins and update the core_plugins
  * database table accordingly
  *
- * @author Sven Oostenbrink <support@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @category Function reference

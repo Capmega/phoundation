@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 use Phoundation\Core\Plugins\Plugins;
 use Phoundation\Core\Plugins\FilterForm;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
@@ -56,7 +55,7 @@ $plugins = Card::new()
     ->setSwitches('reload')
     ->setContent($table->render())
     ->useForm(true)
-    ->setButtons(Buttons::new()->addButton(tr('Scan'), 'primary'));
+    ->setButtons(Buttons::new()->addButton(tr('Scan')));
 
 $plugins->getForm()
         ->setAction(UrlBuilder::getCurrent())

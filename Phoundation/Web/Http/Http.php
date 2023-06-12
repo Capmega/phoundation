@@ -8,6 +8,7 @@ use Phoundation\Core\Config;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Exception\HttpException;
 
 /**
@@ -17,7 +18,7 @@ use Phoundation\Web\Http\Exception\HttpException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
 class Http
@@ -97,7 +98,7 @@ class Http
             if (!is_scalar($value)) {
                 if ($value) {
                     throw new HttpException(tr('The $_GET key ":key" contains a value with the content ":content" while only scalar values are allowed', [
-                        ':key' => $key,
+                        ':key'     => $key,
                         ':content' => $value
                     ]));
                 }
@@ -331,7 +332,9 @@ class Http
                 redirect($redirect);
 
             default:
-                throw new HttpException(tr('session_redirect(): Unknown method ":method" specified. Please speficy one of "json", or "http"', array(':method' => $method)), 'unknown');
+                throw new HttpException(tr('Unknown method ":method" specified. Please speficy one of "json", or "http"', [
+                    ':method' => $method
+                ]));
         }
     }
 

@@ -20,7 +20,7 @@ use Phoundation\Web\Exception\WebException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Network
  */
 abstract class Curl
@@ -106,9 +106,9 @@ abstract class Curl
     /**
      * Cache timeout
      *
-     * @var int $cache
+     * @var int $cache_timeout
      */
-    protected int $cache = 0;
+    protected int $cache_timeout = 0;
 
     /**
      * The amount of time in seconds before a connection times out
@@ -328,7 +328,7 @@ abstract class Curl
 
         if ($method === 'POST') {
             // Disable cache on POST requests, disable follow location too as it would convert POST into GET requests
-            $this->cache           = 0;
+            $this->cache_timeout           = 0;
             $this->follow_location = false;
         }
 
@@ -799,23 +799,23 @@ abstract class Curl
     /**
      * Sets if object will use local cache for this request
      *
-     * @return bool
+     * @return int
      */
-    public function getCache(): bool
+    public function getCacheTimeout(): int
     {
-        return $this->cache;
+        return $this->cache_timeout;
     }
 
 
     /**
      * Returns if object will use local cache for this request
      *
-     * @param bool $cache
+     * @param int $cache_timeout
      * @return static
      */
-    public function setCache(bool $cache): static
+    public function setCacheTimeout(int $cache_timeout): static
     {
-        $this->cache = $cache;
+        $this->cache_timeout = $cache_timeout;
         return $this;
     }
 

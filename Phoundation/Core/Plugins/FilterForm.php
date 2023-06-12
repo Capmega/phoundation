@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace Phoundation\Core\Plugins;
 
 
+use Phoundation\Data\DataEntry\DataEntryFieldDefinition;
+use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
+use Phoundation\Web\Http\Html\Enums\InputElement;
+
 /**
  * Class FilterForm
  *
@@ -12,7 +16,7 @@ namespace Phoundation\Core\Plugins;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
 class FilterForm extends \Phoundation\Web\Http\Html\Components\FilterForm
@@ -24,26 +28,19 @@ class FilterForm extends \Phoundation\Web\Http\Html\Components\FilterForm
     {
         parent::__construct();
 
-        $this->fields = [
-            'type[]'   => [
-                'label'    => tr('Type'),
-                'element'  => 'select',
-                'source'   => [
+        $this->fields = DataEntryFieldDefinitions::new()
+            ->add(DataEntryFieldDefinition::new('type[]')
+                ->setLabel(tr('Type'))
+                ->setSize(6)
+                ->setElement(InputElement::select)
+                ->setSource([
                     'all'      => tr('All'),
                     'enabled'  => tr('Enabled plugins'),
                     'disabled' => tr('Disabled plugins')
-                ],
-            ],
-            'filter[]' => [
-                'label'    => tr('Filter'),
-
-            ],
-        ];
-
-        $this->keys_display = [
-            'type[]'   => 6,
-            'filter[]' => 6,
-        ];
+                ]))
+            ->add(DataEntryFieldDefinition::new('filter[]')
+                ->setLabel(tr('Filter'))
+                ->setSize(6));
     }
 
 

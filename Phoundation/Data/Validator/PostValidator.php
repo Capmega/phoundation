@@ -18,7 +18,7 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
 class PostValidator extends Validator
@@ -187,7 +187,7 @@ class PostValidator extends Validator
         }
 
         if ((strlen($button) > 32) or !ctype_print($button)) {
-            throw new ValidationFailedException(tr('Invalid submit button specified'), [
+            throw ValidationFailedException::new(tr('Invalid submit button specified'))->setData([
                 'submit' => tr('The specified submit button is invalid'),
             ]);
         }

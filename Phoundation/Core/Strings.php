@@ -19,7 +19,7 @@ use Throwable;
  * This is the standard Phoundation string functionality extension class
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Class reference
  * @package Phoundation\Core
@@ -1013,13 +1013,13 @@ throw new UnderConstructionException();
      * @version 2.0.0: Moved to system library, added documentation
      * @example
      * code
-     * $result = Strings::cut('support@capmega.com', '@', '.');
+     * $result = Strings::cut('so.oostenbrink@gmail.com', '@', '.');
      * showdie($result);
      * /code
      *
      * This would return
      * code
-     * capmega
+     * gmail
      * /code
      *
      * @param Stringable|string|int|null $source The string to be cut
@@ -1851,9 +1851,11 @@ throw new UnderConstructionException();
      * @param mixed $source
      * @param string $eol
      * @param string|null $separator
+     * @param int $indent
+     * @param int $indent_increase
      * @return string
      */
-    public static function getKeyValueTable(mixed $source, string $eol = PHP_EOL, ?string $separator = null): string
+    public static function getKeyValueTable(mixed $source, string $eol = PHP_EOL, ?string $separator = null, int $indent = 0, int $indent_increase = 8): string
     {
         if (!$source) {
             return '';
@@ -1879,9 +1881,14 @@ throw new UnderConstructionException();
 
         // format and write the lines
         foreach ($source as $key => $value) {
+            if (!is_string($value)) {
+                // Recurse
+                $value = static::getKeyValueTable($value, $eol, $separator, $indent + $indent_increase, $indent_increase);
+            }
+
             // Resize the call lines to all have the same size for easier reading
-            $key     = Strings::size($key, $longest);
-            $return .= trim($key . $separator . $value) . $eol;
+            $key     = Strings::size((string) $key, $longest);
+            $return .= str_repeat(' ', $indent) . trim($key . $separator . $value) . $eol;
         }
 
         return $return;

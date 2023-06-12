@@ -3,7 +3,6 @@
 namespace Phoundation\Data\DataEntry\Interfaces;
 
 use Phoundation\Data\Interfaces\Iterator;
-use Phoundation\Data\Traits\UsesNew;
 
 
 /**
@@ -13,7 +12,7 @@ use Phoundation\Data\Traits\UsesNew;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 interface DataEntryFieldDefinitionsInterface extends Iterator
@@ -57,14 +56,6 @@ interface DataEntryFieldDefinitionsInterface extends Iterator
     public function add(DataEntryFieldDefinition $field): static;
 
     /**
-     * Prepends the specified DataEntryFieldDefinition to the fields list
-     *
-     * @param DataEntryFieldDefinition $field
-     * @return static
-     */
-    public function prepend(DataEntryFieldDefinition $field): static;
-
-    /**
      * Returns the current DataEntryFieldDefinition object
      *
      * @return DataEntryFieldDefinition
@@ -74,9 +65,9 @@ interface DataEntryFieldDefinitionsInterface extends Iterator
     /**
      * Progresses the internal pointer to the next DataEntryFieldDefinition object
      *
-     * @return void
+     * @return static
      */
-    public function next(): void;
+    public function next(): static;
 
     /**
      * Returns the current key for the current menu
@@ -96,9 +87,9 @@ interface DataEntryFieldDefinitionsInterface extends Iterator
     /**
      * Rewinds the internal pointer
      *
-     * @return void
+     * @return static
      */
-    public function rewind(): void;
+    public function rewind(): static;
 
     /**
      * Returns the DataEntryFieldDefinitions fields array in a JSON string

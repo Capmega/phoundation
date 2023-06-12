@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Interfaces;
 
+use ReturnTypeWillChange;
+
 /**
  * Interface Iterator
  *
@@ -28,7 +30,7 @@ namespace Phoundation\Data\Interfaces;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 interface Iterator extends \Iterator
@@ -38,7 +40,7 @@ interface Iterator extends \Iterator
      *
      * @return string
      */
-    public function __toString(): string;
+    function __toString(): string;
 
 
     /**
@@ -46,8 +48,51 @@ interface Iterator extends \Iterator
      *
      * @return array
      */
-    public function __toArray(): array;
+    function __toArray(): array;
 
+
+    /**
+     * Returns the current entry
+     *
+     * @return mixed
+     */
+    #[ReturnTypeWillChange] function current(): mixed;
+
+    /**
+     * Progresses the internal pointer to the next button
+     *
+     * @return static
+     */
+    #[ReturnTypeWillChange] function next(): static;
+
+    /**
+     * Returns the current key for the current menu
+     *
+     * @return float|int|string
+     */
+    function key(): float|int|string;
+
+    /**
+     * Returns if the current pointer is valid or not
+     *
+     * @todo Is this really really required? Since we're using internal array pointers anyway, it always SHOULD be valid
+     * @return bool
+     */
+    function valid(): bool;
+
+    /**
+     * Rewinds the internal pointer
+     *
+     * @return static
+     */
+    #[ReturnTypeWillChange] function rewind(): static;
+
+    /**
+     * Returns all values with their keys in this object
+     *
+     * @return array
+     */
+    function getList(): array;
 
     /**
      * Returns value for the specified key
@@ -56,55 +101,21 @@ interface Iterator extends \Iterator
      * @param bool $exception
      * @return mixed
      */
-    public function get(string|float|int $key, bool $exception = false): mixed;
-
-
-    /**
-     * Returns if the specified field exists or not
-     *
-     * @param float|int|string $key
-     * @return bool
-     */
-    public function exists(float|int|string $key): bool;
-
-    /**
-     * Returns the current key for the current menu
-     *
-     * @return float|int|string
-     */
-    public function key(): float|int|string;
-
-
-    /**
-     * Returns all values with their keys in this object
-     *
-     * @return array
-     */
-    public function getList(): array;
-
+    #[ReturnTypeWillChange] function get(string|float|int $key, bool $exception = false): mixed;
 
     /**
      * Returns the amount of elements contained in this object
      *
      * @return int
      */
-    public function getCount(): int;
-
-
-    /**
-     * Returns true if the list is empty
-     *
-     * @return bool
-     */
-    public function isEmpty(): bool;
-
+    function getCount(): int;
 
     /**
      * Returns the first element contained in this object without changing the internal pointer
      *
      * @return mixed
      */
-    public function getFirst(): mixed;
+    #[ReturnTypeWillChange] function getFirst(): mixed;
 
 
     /**
@@ -112,16 +123,14 @@ interface Iterator extends \Iterator
      *
      * @return mixed
      */
-    public function getLast(): mixed;
-
+    #[ReturnTypeWillChange] function getLast(): mixed;
 
     /**
      * Clears all the internal content for this object
      *
      * @return mixed
      */
-    public function clear(): static;
-
+    function clear(): static;
 
     /**
      * Deletes the specified key
@@ -129,5 +138,20 @@ interface Iterator extends \Iterator
      * @param float|int|string $key
      * @return mixed
      */
-    public function delete(string|float|int $key): static;
+    function delete(string|float|int $key): static;
+
+    /**
+     * Returns if the specified field exists or not
+     *
+     * @param float|int|string $key
+     * @return bool
+     */
+    function exists(float|int|string $key): bool;
+
+    /**
+     * Returns true if the list is empty
+     *
+     * @return bool
+     */
+    function isEmpty(): bool;
 }

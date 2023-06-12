@@ -16,7 +16,7 @@ use Phoundation\Core\Locale\Language\Import;
  * @see \Phoundation\Core\Libraries\Updates
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
 class Updates extends Libraries\Updates
@@ -251,6 +251,7 @@ class Updates extends Libraries\Updates
                     UNIQUE KEY `name` (`name`),
                     UNIQUE KEY `seo_name` (`seo_name`),
                     INDEX `enabled` (`enabled`),
+                    INDEX `enabled-status` (`enabled`, `status`),                    
                     INDEX `priority` (`priority`),
                 ')->setForeignKeys('
                     CONSTRAINT `fk_core_plugins_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,

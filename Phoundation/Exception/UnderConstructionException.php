@@ -17,11 +17,14 @@ use Throwable;
  */
 class UnderConstructionException extends Exception
 {
-    public function __construct(array|string $messages = null, mixed $data = null, ?string $code = null, ?Throwable $previous = null)
+    public function __construct(Throwable|array|string|null $messages, ?Throwable $previous = null)
     {
-        $messages = tr(':location IS UNDER CONSTRUCTION', [':location' => Debug::currentLocation(1)]);
+        if (!$messages) {
+            $messages = tr(':location IS UNDER CONSTRUCTION', [':location' => Debug::currentLocation(1)]);
+        }
+
         $this->makeWarning();
 
-        parent::__construct($messages, $data, $code, $previous);
+        parent::__construct($messages, $previous);
     }
 }

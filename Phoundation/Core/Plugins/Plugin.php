@@ -6,8 +6,9 @@ namespace Phoundation\Core\Plugins;
 
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Libraries\Library;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
+use Phoundation\Data\DataEntry\DataEntryFieldDefinition;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryPath;
@@ -15,6 +16,8 @@ use Phoundation\Data\DataEntry\Traits\DataEntryPriority;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
+use Phoundation\Web\Http\Html\Enums\InputType;
+use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
 
 
 /**
@@ -25,7 +28,7 @@ use Phoundation\Filesystem\File;
  * @see \Phoundation\Data\DataEntry\DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
 abstract class Plugin extends DataEntry
@@ -216,11 +219,28 @@ abstract class Plugin extends DataEntry
     public static function register(): void
     {
         $plugin = static::new();
+        $name   = $plugin->getName();
+
+        if (static::exists($name)) {
+            // This plugin is already registered
+            Log::warning(tr('Not registering plugin ":plugin", it is already registered', [
+                ':plugin' => $name
+            ]), 3);
+
+            return;
+        }
+
+        Log::action(tr('Registering new plugin ":plugin"', [
+            ':plugin' => $name
+        ]));
+
+        $enabled = ($name === 'Phoundation');
+
         $plugin
-            ->setName($plugin->getName())
+            ->setName($name)
             ->setPath($plugin->getPath())
             ->setClass($plugin->getClass())
-            ->setEnabled(false)
+            ->setEnabled($enabled)
             ->setPriority($plugin->getPriority())
             ->setDescription($plugin->getDescription())
             ->save();
@@ -301,65 +321,68 @@ abstract class Plugin extends DataEntry
     /**
      * Sets the available data keys for the User class
      *
-     * @return DataEntryFieldDefinitionsInterface
+     * @param DataEntryFieldDefinitionsInterface $field_definitions
      */
-    protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
+    protected function initFieldDefinitions(DataEntryFieldDefinitionsInterface $field_definitions): void
     {
-        return DataEntryFieldDefinitions::new(static::getTable());
-
-        return [
-            'disabled' => [
-                'virtual' => true,
-                'cli'     => '-d,--disable',
-            ],
-           'seo_name' => [
-               'visible' => false,
-           ],
-            'name' => [
-                'required'  => true,
-                'readonly'  => true,
-                'complete'  => false,
-                'label'     => tr('Name'),
-                'size'      => 4,
-                'maxlength' => 64,
-                'help'      => tr('The name of this plugin'),
-            ],
-            'priority' => [
-                'type'     => 'numeric',
-                'cli'      => '-p,--priority PRIORITY (1 - 10)',
-                'null_db'  => false,
-                'min'     => 1,
-                'default' => 5,
-                'max'     => 100,
-                'size'     => 4,
-                'label'    => tr('Priority'),
-                'help'     => tr('Sets the priority'),
-            ],
-           'enabled' => [
-               'complete' => false,
-               'type'     => 'checkbox',
-               'cli'      => '-e,--enable',
-               'size'     => 4,
-               'label'    => tr('Start'),
-               'help'     => tr('If specified, this plugin is enabled and will automatically start upon each page load or script execution'),
-               'default'  => true,
-           ],
-            'path' => [
-                'readonly' => true,
-                'size'     => 6,
-                'label'    => tr('Path'),
-            ],
-            'class' => [
-                'readonly' => true,
-                'size'     => 6,
-                'label'    => tr('Class'),
-            ],
-            'description' => [
-                'readonly' => true,
-                'size'     => 12,
-                'label'    => tr('Description')
-            ],
-        ];
+        $field_definitions
+            ->add(DataEntryFieldDefinition::new('disabled')
+                ->setOptional(true)
+                ->setVirtual(true)
+                ->setCliField('-d,--disable'))
+            ->add(DataEntryFieldDefinition::new('name')
+                ->setVisible(false))
+            ->add(DataEntryFieldDefinition::new('name')
+                ->setLabel(tr('Name'))
+                ->setInputType(InputTypeExtended::name)
+                ->setMaxlength(64)
+                ->setSize(9)
+                ->setHelpText(tr('The name of this plugin')))
+            ->add(DataEntryFieldDefinition::new('priority')
+                ->setOptional(true)
+                ->setInputType(InputType::numeric)
+                ->setNullDb(false, 5)
+                ->setSize(3)
+                ->setCliField('--priority')
+                ->setAutoComplete(true)
+                ->setLabel(tr('Priority'))
+                ->setMin(1)
+                ->setMax(9)
+                ->setHelpText(tr('The priority for this plugin, between 1 and 9'))
+                ->addValidationFunction(function ($validator) {
+                    $validator->isInteger();
+                }))
+            ->add(DataEntryFieldDefinition::new('enabled')
+                ->setOptional(true)
+                ->setInputType(InputType::checkbox)
+                ->setSize(4)
+                ->setCliField('-e,--enabled')
+                ->setLabel(tr('Enabled'))
+                ->setDefault(true)
+                ->setHelpText(tr('If enabled, this plugin will automatically start upon each page load or script execution'))
+                ->addValidationFunction(function ($validator) {
+                    $validator->isInteger();
+                }))
+            ->add(DataEntryFieldDefinition::new('class')
+                ->setLabel(tr('Class'))
+                ->setInputType(InputTypeExtended::name)
+                ->setMaxlength(255)
+                ->setSize(6)
+                ->setHelpText(tr('The base class path of this plugin')))
+            ->add(DataEntryFieldDefinition::new('path')
+                ->setLabel(tr('Name'))
+                ->setInputType(InputTypeExtended::name)
+                ->setMaxlength(128)
+                ->setSize(6)
+                ->setHelpText(tr('The filesystem path where this plugin is located')))
+            ->add(DataEntryFieldDefinition::new('description')
+                ->setOptional(true)
+                ->setLabel('Description')
+                ->setSize(12)
+                ->setMaxlength(16_777_215)
+                ->addValidationFunction(function ($validator) {
+                    $validator->isDescription();
+                }));
 
 
 //        $data = $validator

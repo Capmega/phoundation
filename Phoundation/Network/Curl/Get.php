@@ -13,7 +13,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Path;
-use Phoundation\Network\Exception\NetworkException;
+use Phoundation\Network\Curl\Exception\CurlGetException;
 use Phoundation\Network\Interfaces;
 use Phoundation\Utils\Json;
 
@@ -25,7 +25,7 @@ use Phoundation\Utils\Json;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Network
  */
 class Get extends Curl
@@ -52,13 +52,13 @@ class Get extends Curl
     public function execute(): static
     {
         // Use local cache?
-        if ($this->cache) {
+        if ($this->cache_timeout) {
             $return = sql()->getColumn('SELECT `data` 
                                               FROM   `network_curl_cache` 
                                               WHERE  `url` = :url 
                                               AND    `created_on` + :cache < NOW()', [
                 ':url'   => $this->url,
-                ':cache' => $this->cache
+                ':cache' => $this->cache_timeout
             ]);
 
             if ($return) {
@@ -76,7 +76,7 @@ class Get extends Curl
 
             if (curl_errno($this->curl)) {
                 // Oops... cURL request failed!
-                throw NetworkException::new(tr('The cURL request ":url" failed with error ":errno" ":error"', [
+                throw CurlGetException::new(tr('The cURL request ":url" failed with error ":errno" ":error"', [
                     ':url'   => $this->url,
                     ':errno' => curl_errno($this->curl),
                     ':error' => curl_error($this->curl),
@@ -91,7 +91,7 @@ class Get extends Curl
             $this->result_headers = explode(PHP_EOL, $data);
 
             if (curl_errno($this->curl)) {
-                throw new NetworkException(tr('CURL failed with ":e"', [
+                throw new CurlGetException(tr('CURL failed with ":e"', [
                     ':e' => curl_strerror(curl_errno($this->curl))
                 ]));
             }
@@ -128,7 +128,7 @@ class Get extends Curl
                 }
             }
 
-            throw new NetworkException(tr('Failed to make ":method" request for url ":url"', [
+            throw new CurlGetException(tr('Failed to make ":method" request for url ":url"', [
                 ':url'    => $this->url,
                 ':method' => $this->method
             ]), $e);
@@ -170,7 +170,7 @@ class Get extends Curl
             curl_close($this->curl);
         }
 
-        if ($this->cache) {
+        if ($this->cache_timeout) {
             // Store the request results in cache
             unset($this->curl);
 
@@ -193,7 +193,7 @@ class Get extends Curl
             case 403:
                 $data = Json::decode($this->result_data);
 
-                throw new NetworkException(tr('URL ":url" gave HTTP "403" ACCESS DENIED because ":data"', [
+                throw new CurlGetException(tr('URL ":url" gave HTTP "403" ACCESS DENIED because ":data"', [
                     ':url' => $this->url,
                     ':data' => $data
                 ]));
@@ -201,13 +201,13 @@ class Get extends Curl
             case 404:
                 $data = Json::decode($this->result_data);
 
-                throw new NetworkException(tr('URL ":url" gave HTTP "404" NOT FOUND because ":data"', [
+                throw new CurlGetException(tr('URL ":url" gave HTTP "404" NOT FOUND because ":data"', [
                     ':url' => $this->url,
                     ':data' => $data
                 ]));
 
             default:
-                throw new NetworkException(tr('URL ":url" gave HTTP ":httpcode"', [
+                throw new CurlGetException(tr('URL ":url" gave HTTP ":httpcode"', [
                     ':url'      => $this->url,
                     ':httpcode' => $this->result_status['http_code']
                 ]));

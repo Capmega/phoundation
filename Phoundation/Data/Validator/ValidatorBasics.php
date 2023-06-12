@@ -19,7 +19,7 @@ use ReflectionProperty;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
 trait ValidatorBasics
@@ -408,7 +408,9 @@ trait ValidatorBasics
         }
 
         if ($this->failures) {
-            throw ValidationFailedException::new(tr('Data validation failed with the following issues:'), $this->failures)->makeWarning();
+            throw ValidationFailedException::new(tr('Data validation failed with the following issues:'))
+                ->setData($this->failures)
+                ->makeWarning();
         }
 
         return $this->source;

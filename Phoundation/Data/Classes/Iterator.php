@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Classes;
 
-use Phoundation\Core\Log\Log;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Utils\Json;
 use ReturnTypeWillChange;
+
 
 /**
  * Class Iterator
@@ -29,11 +29,16 @@ use ReturnTypeWillChange;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 class Iterator implements \Phoundation\Data\Interfaces\Iterator
 {
+    /**
+     * The list that stores all entries
+     *
+     * @var array $list
+     */
     protected array $list = [];
 
 
@@ -60,7 +65,7 @@ class Iterator implements \Phoundation\Data\Interfaces\Iterator
 
 
     /**
-     * Returns the current button
+     * Returns the current entry
      *
      * @return mixed
      */
@@ -71,11 +76,11 @@ class Iterator implements \Phoundation\Data\Interfaces\Iterator
 
 
     /**
-     * Progresses the internal pointer to the next button
+     * Progresses the internal pointer to the next entry
      *
      * @return static
      */
-    #[ReturnTypeWillChange] public function next(): static
+    public function next(): static
     {
         next($this->list);
         return $this;
@@ -85,9 +90,9 @@ class Iterator implements \Phoundation\Data\Interfaces\Iterator
     /**
      * Returns the current key for the current button
      *
-     * @return string
+     * @return float|int|string
      */
-    #[ReturnTypeWillChange] public function key(): string
+    public function key(): float|int|string
     {
         return key($this->list);
     }
@@ -136,7 +141,7 @@ class Iterator implements \Phoundation\Data\Interfaces\Iterator
      * @param bool $exception
      * @return mixed
      */
-    public function get(string|float|int $key, bool $exception = false): mixed
+    #[ReturnTypeWillChange] public function get(string|float|int $key, bool $exception = false): mixed
     {
         if ($exception) {
             if (!array_key_exists($key, $this->list)) {
@@ -164,7 +169,7 @@ class Iterator implements \Phoundation\Data\Interfaces\Iterator
      *
      * @return mixed
      */
-    public function getFirst(): mixed
+    #[ReturnTypeWillChange] public function getFirst(): mixed
     {
         return $this->list[array_key_first($this->list)];
     }
@@ -175,7 +180,7 @@ class Iterator implements \Phoundation\Data\Interfaces\Iterator
      *
      * @return mixed
      */
-    public function getLast(): mixed
+    #[ReturnTypeWillChange] public function getLast(): mixed
     {
         return $this->list[array_key_last($this->list)];
     }
@@ -203,5 +208,28 @@ class Iterator implements \Phoundation\Data\Interfaces\Iterator
     {
         unset($this->list[$key]);
         return $this;
+    }
+
+
+    /**
+     * Returns if the specified key exists or not
+     *
+     * @param float|int|string $key
+     * @return bool
+     */
+    public function exists(float|int|string $key): bool
+    {
+        return array_key_exists($key, $this->list);
+    }
+
+
+    /**
+     * Returns if the list is empty or not
+     *
+     * @return bool
+     */
+    public function isEmpty(): bool
+    {
+        return !count($this->list);
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Cli;
 
 use JetBrains\PhpStorm\NoReturn;
+use Phoundation\Audio\Audio;
 use Phoundation\Cli\Exception\CliException;
 use Phoundation\Cli\Exception\MethodNotExistsException;
 use Phoundation\Cli\Exception\MethodNotFoundException;
@@ -42,7 +43,7 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Cli
  */
 class Script
@@ -289,7 +290,9 @@ SYSTEM ARGUMENTS
     public static function setExitCode(int $code, bool $only_if_null = false): void
     {
         if (($code < 0) or ($code > 255)) {
-            throw new OutOfBoundsException(tr('Invalid exit code ":code" specified, it should be a positive integer value between 0 and 255', [':code' => $code]));
+            throw new OutOfBoundsException(tr('Invalid exit code ":code" specified, it should be a positive integer value between 0 and 255', [
+                ':code' => $code
+            ]));
         }
 
         if (!$only_if_null or !static::$exit_code) {
@@ -580,7 +583,9 @@ SYSTEM ARGUMENTS
                         preg_match_all('/.+?\d{2}:\d{2}:\d{2}\s+('.str_replace('/', '\/', $script).')/', $name, $matches);
 
                         if (!empty($matches[1][0])) {
-                            throw new CliException(tr('cli_run_once_local(): The script ":script" for this project is already running', array(':script' => $script)), 'already-running');
+                            throw new CliException(tr('The script ":script" for this project is already running', [
+                                ':script' => $script
+                            ]));
                         }
                     }
                 }
@@ -700,6 +705,8 @@ SYSTEM ARGUMENTS
             if (($e instanceof Exception) and $e->isWarning()) {
                 $exit_code = $exit_code ?? 1;
 
+                Audio::new('data/audio/critical.mp3')->play(true);
+
                 Log::warning($e->getMessage());
                 Log::warning(tr('Script ":script" ended with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
                     ':script'   => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
@@ -709,6 +716,8 @@ SYSTEM ARGUMENTS
                 ]), 10);
             } else {
                 $exit_code = $exit_code ?? 255;
+
+                Audio::new('data/audio/critical.mp3')->play(true);
 
                 Log::error($e->getMessage());
                 Log::error(tr('Script ":script" ended with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
@@ -721,6 +730,8 @@ SYSTEM ARGUMENTS
 
         } elseif ($exit_code) {
             if ($exit_code >= 200) {
+                Audio::new('data/audio/critical.mp3')->play(true);
+
                 if ($exit_message) {
                     Log::warning($exit_message, 8);
                 } else {
@@ -734,6 +745,8 @@ SYSTEM ARGUMENTS
                 }
 
             } else {
+                Audio::new('data/audio/critical.mp3')->play(true);
+
                 if ($exit_message) {
                     Log::error($exit_message, 8);
                 } else {

@@ -15,12 +15,14 @@ use Phoundation\Core\Meta\Meta;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\Enums\StateMismatchHandling;
 use Phoundation\Data\DataEntry\Exception\DataEntryAlreadyExistsException;
+use Phoundation\Data\DataEntry\Exception\DataEntryException;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntry\Exception\DataEntryStateMismatchException;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
 use Phoundation\Data\Traits\DataDebug;
 use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Data\Validator\Interfaces\InterfaceDataValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Date\DateTime;
@@ -39,7 +41,7 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
 abstract class DataEntry implements InterfaceDataEntry
@@ -181,7 +183,8 @@ abstract class DataEntry implements InterfaceDataEntry
         }
 
         // Set up the fields for this object
-        $this->field_definitions = static::getFieldDefinitions();
+        $this->initMetaFieldDefinitions();
+        $this->initFieldDefinitions($this->field_definitions);
 
         if ($identifier) {
             if (is_numeric($identifier)) {
@@ -843,7 +846,7 @@ abstract class DataEntry implements InterfaceDataEntry
 
         if ($this->field_definitions->isEmpty()) {
             throw new OutOfBoundsException(tr('Data keys were not defined for this ":class" class', [
-                ':class' => gettype($this)
+                ':class' => get_class($this)
             ]));
         }
 
@@ -960,7 +963,7 @@ abstract class DataEntry implements InterfaceDataEntry
 
         if ($this->field_definitions->isEmpty()) {
             throw new OutOfBoundsException(tr('Data keys were not defined for this ":class" class', [
-                ':class' => gettype($this)
+                ':class' => get_class($this)
             ]));
         }
 
@@ -1009,6 +1012,10 @@ abstract class DataEntry implements InterfaceDataEntry
                     }
                 }
             }
+        } elseif ($this->field_definitions->isEmpty()) {
+            throw new DataEntryException(tr('The ":class" class has no fields defined yet', [
+                ':class' => get_class($this)
+            ]));
         }
 
         return $this;
@@ -1229,12 +1236,12 @@ abstract class DataEntry implements InterfaceDataEntry
     /**
      * Generate a validator
      *
-     * @param DataValidator $validator
+     * @param InterfaceDataValidator $validator
      * @param bool $no_arguments_left
      * @param bool $modify
      * @return array
      */
-    protected function validate(DataValidator $validator, bool $no_arguments_left, bool $modify): array
+    protected function validate(InterfaceDataValidator $validator, bool $no_arguments_left, bool $modify): array
     {
         foreach ($this->field_definitions as $definition) {
             $definition->validate($validator);
@@ -1284,7 +1291,8 @@ abstract class DataEntry implements InterfaceDataEntry
 
             if (empty($this->data[$field])) {
                 if (!$definition->getOptional()) {
-                    throw new OutOfBoundsException(tr('Required field ":field" has not been set', [
+                    throw new OutOfBoundsException(tr('Required field ":field" has not been set for class ":class"', [
+                        ':class' => get_class($this),
                         ':field' => $field
                     ]));
                 }
@@ -1318,71 +1326,75 @@ abstract class DataEntry implements InterfaceDataEntry
 
 
     /**
-     * Generates and returns the definitions for the fields in this table
+     * Returns the definitions for the fields in this table
      *
      * @return DataEntryFieldDefinitionsInterface
      */
-    public static function getFieldDefinitions(): DataEntryFieldDefinitionsInterface
+    public function getFieldDefinitions(): DataEntryFieldDefinitionsInterface
     {
-        // Get the DataEntry specific definitions and prepend the general definitions
-        return static::setFieldDefinitions()
-            ->prepend(
-                DataEntryFieldDefinition::new('status')->setDefinitions([
-                    'meta'     => true,
-                    'readonly' => true,
-                    'label'    => tr('Status'),
-                    'size'     => 3,
-                    'default'  => tr('Ok'),
-                ]))
-            ->prepend(
-                DataEntryFieldDefinition::new('meta_state')->setDefinitions([
-                    'meta'     => true,
-                    'visible'  => false,
-                    'readonly' => true,
-                ]))
-            ->prepend(
-                DataEntryFieldDefinition::new('meta_id')->setDefinitions([
-                    'meta'     => true,
-                    'visible'  => false,
-                    'readonly' => true,
-                ]))
-            ->prepend(
-                DataEntryFieldDefinition::new('created_by')->setDefinitions([
-                    'meta'     => true,
-                    'readonly' => true,
-                    'content'  => function (string $key, array $data, array $source) {
-                        if ($source['created_by']) {
-                            return Users::getHtmlSelect($key)
-                                ->setSelected(isset_get($source['created_by']))
-                                ->setDisabled(true)
-                                ->render();
-                        } else {
-                            return InputText::new()
-                                ->setName($key)
-                                ->setDisabled(true)
-                                ->setValue(tr('System'))
-                                ->render();
-                        }
-                    },
-                    'size'     => 3,
-                    'label'    => tr('Created by'),
-                ]))
-            ->prepend(
-                DataEntryFieldDefinition::new('created_on')->setDefinitions([
-                    'meta'     => true,
-                    'readonly' => true,
-                    'type'     => 'datetime_local',
-                    'size'     => 3,
-                    'label'    => tr('Created on')
-                ]))
-            ->prepend(
-                DataEntryFieldDefinition::new('id')->setDefinitions([
-                    'meta'     => true,
-                    'readonly' => true,
-                    'type'     => 'numeric',
-                    'size'     => 3,
-                    'label'    => tr('Database ID')
-                ]));
+        return $this->field_definitions;
+    }
+
+
+    /**
+     * Returns the meta fields that apply for all DataEntry objects
+     *
+     * @return void
+     */
+    protected function initMetaFieldDefinitions(): void
+    {
+        $this->field_definitions = DataEntryFieldDefinitions::new(static::getTable())
+            ->add(DataEntryFieldDefinition::new('id')->setDefinitions([
+                'meta'     => true,
+                'readonly' => true,
+                'type'     => 'numeric',
+                'size'     => 3,
+                'label'    => tr('Database ID')
+            ]))
+            ->add(DataEntryFieldDefinition::new('created_on')->setDefinitions([
+                'meta'     => true,
+                'readonly' => true,
+                'type'     => 'datetime_local',
+                'size'     => 3,
+                'label'    => tr('Created on')
+            ]))
+            ->add(DataEntryFieldDefinition::new('created_by')->setDefinitions([
+                'meta'     => true,
+                'readonly' => true,
+                'content'  => function (string $key, array $data, array $source) {
+                    if ($source['created_by']) {
+                        return Users::getHtmlSelect($key)
+                            ->setSelected(isset_get($source['created_by']))
+                            ->setDisabled(true)
+                            ->render();
+                    } else {
+                        return InputText::new()
+                            ->setName($key)
+                            ->setDisabled(true)
+                            ->setValue(tr('System'))
+                            ->render();
+                    }
+                },
+                'size'     => 3,
+                'label'    => tr('Created by'),
+            ]))
+            ->add(DataEntryFieldDefinition::new('meta_id')->setDefinitions([
+                'meta'     => true,
+                'visible'  => false,
+                'readonly' => true,
+            ]))
+            ->add(DataEntryFieldDefinition::new('meta_state')->setDefinitions([
+                'meta'     => true,
+                'visible'  => false,
+                'readonly' => true,
+            ]))
+            ->add(DataEntryFieldDefinition::new('status')->setDefinitions([
+                'meta'     => true,
+                'readonly' => true,
+                'label'    => tr('Status'),
+                'size'     => 3,
+                'default'  => tr('Ok'),
+            ]));
     }
 
 
@@ -1439,7 +1451,7 @@ abstract class DataEntry implements InterfaceDataEntry
      * null_readonly  boolean            false          If "value" for entry is null, then use this for "readonly"
      * null_type      boolean            false          If "value" for entry is null, then use this for "type"
      *
-     * @return Interfaces\DataEntryFieldDefinitionsInterface
+     * @param Interfaces\DataEntryFieldDefinitionsInterface $field_definitions
      */
-    abstract protected static function setFieldDefinitions(): Interfaces\DataEntryFieldDefinitionsInterface;
+    abstract protected function initFieldDefinitions(DataEntryFieldDefinitionsInterface $field_definitions): void;
 }

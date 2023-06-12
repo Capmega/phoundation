@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html\Components;
 
+use Phoundation\Data\DataEntry\DataEntryFieldDefinition;
+use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
+use Phoundation\Web\Http\Html\Enums\InputElement;
+
 
 /**
  * Class FilterForm
@@ -12,7 +16,7 @@ namespace Phoundation\Web\Http\Html\Components;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
 class FilterForm extends DataEntryForm
@@ -24,22 +28,14 @@ class FilterForm extends DataEntryForm
     {
         parent::__construct();
 
-        $this->fields = [
-            'type[]'   => [
-                'label'    => tr('Type'),
-                'element'  => 'select',
-                'source'   => [
-                ],
-            ],
-            'filter[]' => [
-                'label'    => tr('Filter'),
-
-            ],
-        ];
-
-        $this->keys_display = [
-            'type[]'   => 6,
-            'filter[]' => 6,
-        ];
+        $this->fields = DataEntryFieldDefinitions::new()
+            ->add(DataEntryFieldDefinition::new('type[]')
+                ->setLabel(tr('Type'))
+                ->setSize(6)
+                ->setElement(InputElement::select)
+                ->setSource([]))
+            ->add(DataEntryFieldDefinition::new('filter[]')
+                ->setLabel(tr('Filter'))
+                ->setSize(6));
     }
 }

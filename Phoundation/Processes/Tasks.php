@@ -14,7 +14,7 @@ use Phoundation\Web\Http\Html\Enums\InputType;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
 class Tasks extends DataList
@@ -22,7 +22,7 @@ class Tasks extends DataList
     /**
      * @inheritDoc
      */
-    protected function load(?string $id_column = null): static
+    protected function load(string|int|null $id_column = null): static
     {
         // TODO: Implement load() method.
     }

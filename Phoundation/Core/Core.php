@@ -6,6 +6,7 @@ namespace Phoundation\Core;
 
 use JetBrains\PhpStorm\ExpectedValues;
 use JetBrains\PhpStorm\NoReturn;
+use Phoundation\Audio\Audio;
 use Phoundation\Cli\AutoComplete;
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\Exception\MethodNotFoundException;
@@ -22,6 +23,7 @@ use Phoundation\Developer\Debug;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\PhpException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
@@ -43,7 +45,7 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
 class Core {
@@ -401,7 +403,7 @@ class Core {
 
             if (empty($env)) {
                 // No environment set in ENV, maybe given by parameter?
-                Page::die('startup: No required environment specified for project "' . PROJECT . '"');
+                Page::die('startup: No required web environment specified for project "' . PROJECT . '"');
             }
         }
 
@@ -546,7 +548,7 @@ class Core {
                 if (PROJECT !== 'UNKNOWN') {
                     // If we're in auto complete mode, then we don't need an environment
                     if (!AutoComplete::isActive()) {
-                        Script::die(2, 'startup: No required environment specified for project "' . PROJECT . '"');
+                        Script::die(2, 'startup: No required cli environment specified for project "' . PROJECT . '"');
                     }
                 }
 
@@ -1293,14 +1295,18 @@ class Core {
         if (static::startupState()) {
             // Wut? We're not even ready to go! Likely we don't have configuration available so we cannot even send out
             // notifications. Just crash with a standard PHP exception
-            throw new \Exception('Core startup PHP ERROR [' . $errno . '] "' . $errstr . '" in "' . $errfile . '@' . $errline . '"');
+            $e = new PhpException('Core startup PHP ERROR [' . $errno . '] "' . $errstr . '" in "' . $errfile . '@' . $errline . '"');
+            $e->setCode($errno);
+            throw $e;
         }
 
         $trace = Debug::backtrace();
         unset($trace[0]);
         unset($trace[1]);
 
-        throw new \Exception('PHP ERROR [' .$errno . '] "' . $errstr . '" in "' . $errfile . '@' . $errline . '"', $errno);
+        $e = new PhpException('PHP ERROR [' .$errno . '] "' . $errstr . '" in "' . $errfile . '@' . $errline . '"');
+        $e->setCode($errno);
+        throw $e;
     }
 
 
@@ -1315,6 +1321,8 @@ class Core {
      */
     #[NoReturn] public static function uncaughtException(Throwable $e, bool $die = true): never
     {
+        Audio::new('data/audio/critical.mp3')->play(true);
+
         //if (!headers_sent()) {header_remove('Content-Type'); header('Content-Type: text/html', true);} echo "<pre>\nEXCEPTION CODE: "; print_r($e->getCode()); echo "\n\nEXCEPTION:\n"; print_r($e); echo "\n\nBACKTRACE:\n"; print_r(debug_backtrace()); die();
         /*
          * Phoundation uncaught exception handler

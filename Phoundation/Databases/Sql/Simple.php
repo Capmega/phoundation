@@ -15,7 +15,7 @@ use Phoundation\Databases\Sql\Exception\SqlException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Databases
  */
 die('Killed by Databases\Sql\Simple');
@@ -64,11 +64,11 @@ class SqlSimple
         Arrays::ensure($params, 'joins,debug,limit,page,combine');
 
         if (empty($params['table'])) {
-            throw new SqlException(tr('Sql::simple_list(): No table specified'), 'not-specified');
+            throw new SqlException(tr('No table specified'));
         }
 
         if (empty($params['columns'])) {
-            throw new SqlException(tr('Sql::simple_list(): No columns specified'), 'not-specified');
+            throw new SqlException(tr('No columns specified'));
         }
 
         Arrays::default($params, 'connector', null);
@@ -142,11 +142,11 @@ class SqlSimple
         Arrays::ensure($params, 'joins,debug,combine');
 
         if (empty($params['table'])) {
-            throw new SqlException(tr('Sql::simple_get(): No table specified'), 'not-specified');
+            throw new SqlException(tr('No table specified'));
         }
 
         if (empty($params['columns'])) {
-            throw new SqlException(tr('Sql::simple_get(): No columns specified'), 'not-specified');
+            throw new SqlException(tr('No columns specified'));
         }
 
         Arrays::default($params, 'connector', null);

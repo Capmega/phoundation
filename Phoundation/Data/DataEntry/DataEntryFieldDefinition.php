@@ -21,7 +21,7 @@ use Phoundation\Web\Http\Html\Interfaces\InputTypeInterface;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 class DataEntryFieldDefinition implements Interfaces\DataEntryFieldDefinition
@@ -349,7 +349,7 @@ class DataEntryFieldDefinition implements Interfaces\DataEntryFieldDefinition
     {
         if ($value) {
             if ($value instanceof InputTypeExtendedInterface) {
-                // This is a extended virtual input type, adjust it to an existing input type.
+                // This is an extended virtual input type, adjust it to an existing input type.
                 switch ($value->value) {
                     case 'dbid':
                         $value = InputType::numeric;
@@ -401,6 +401,24 @@ class DataEntryFieldDefinition implements Interfaces\DataEntryFieldDefinition
 
                         $this->addValidationFunction(function ($validator) {
                             $validator->isUsername();
+                        });
+
+                        break;
+
+                    case 'code':
+                        $value = InputType::text;
+
+                        $this->addValidationFunction(function ($validator) {
+                            $validator->isCode();
+                        });
+
+                        break;
+
+                    case 'description':
+                        $value = InputType::text;
+
+                        $this->addValidationFunction(function ($validator) {
+                            $validator->isDescription();
                         });
 
                         break;
@@ -570,7 +588,7 @@ throw new UnderConstructionException();
             }
 
             $this->addValidationFunction(function ($validator) use ($value) {
-                $validator->inArray(array_keys($value));
+                $validator->isInArray(array_keys($value));
             });
         }
 

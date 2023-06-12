@@ -11,6 +11,7 @@ use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Path;
 use Throwable;
 
+
 /**
  * Class Plugin
  *
@@ -18,7 +19,7 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
 class Plugins extends DataList
@@ -29,6 +30,7 @@ class Plugins extends DataList
      * @var array|null $enabled
      */
     protected ?array $enabled = null;
+
 
     /**
      * Providers class constructor
@@ -41,7 +43,7 @@ class Plugins extends DataList
         $this->entry_class = Plugin::class;
         self::$table       = Plugin::getTable();
 
-        $this->setHtmlQuery('SELECT   `id`, `name`, COALESCE(`status`, "' . tr('Enabled') . '") AS `status`, IF(`start`, "' . tr('Yes') . '", "' . tr('No') . '") AS `start`, `priority`, `description` 
+        $this->setHtmlQuery('SELECT   `id`, `name`, IFNULL(`status`, "' . tr('Ok') . '") AS `status`, IF(`enabled`, "' . tr('Enabled') . '", "' . tr('Disabled') . '") AS `enabled`, `priority`, `description` 
                                    FROM     `core_plugins` 
                                    ORDER BY `name`');
         parent::__construct($parent, $id_column);
@@ -171,7 +173,8 @@ class Plugins extends DataList
     {
         $return = sql()->list('SELECT   `id`, `status`, `name`, `enabled`, `priority`, `path`, `class` 
                                      FROM     `core_plugins` 
-                                     WHERE    `status` IS NULL 
+                                     WHERE    `status`  IS NULL 
+                                       AND    `enabled` != 0  
                                      ORDER BY `priority` ASC');
 
         if (!$return) {
@@ -295,7 +298,14 @@ class Plugins extends DataList
      */
     protected function load(string|int|null $id_column = null): static
     {
-        // TODO: Implement load() method.
+        $this->list = sql()->list('SELECT `core_plugins`.`id`, `core_plugins`.`name`, `core_plugins`.`status`, `core_plugins`.`priority`, `core_plugins`.`enabled` 
+                                   FROM     `core_plugins` 
+                                   WHERE    `core_plugins`.`status` IS NULL
+                                   ORDER BY `core_plugins`.`name`' . sql()->getLimit());
+
+        // The keys contain the ids...
+        $this->list = array_flip($this->list);
+        return $this;
     }
 
 

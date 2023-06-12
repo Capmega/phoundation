@@ -62,7 +62,7 @@ use Phoundation\Web\Http\UrlBuilder;
  * @see \Phoundation\Data\DataEntry\DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
 class User extends DataEntry implements InterfaceUser
@@ -336,6 +336,42 @@ class User extends DataEntry implements InterfaceUser
     public function setLastSignin(?string $last_sign_in): static
     {
         return $this->setDataValue('last_sign_in', $last_sign_in);
+    }
+
+
+    /**
+     * Returns the update_password for this user
+     *
+     * @return DateTime|null
+     */
+    public function getUpdatePassword(): ?DateTime
+    {
+        $update_password = $this->getDataValue('string', 'update_password');
+
+        if ($update_password) {
+            return new DateTime($update_password);
+        }
+
+        return null;
+    }
+
+
+    /**
+     * Sets the update_password for this user
+     *
+     * @param DateTime|true|null $date_time
+     * @return static
+     */
+    public function setUpdatePassword(DateTime|bool|null $date_time): static
+    {
+        if (is_bool($date_time)) {
+            // Update password immediately
+            $date_time = new DateTime('1970');
+        } elseif ($date_time) {
+            $date_time = $date_time->getTimestamp();
+        }
+
+        return $this->setDataValue('update_password', $date_time);
     }
 
 
@@ -1279,9 +1315,9 @@ class User extends DataEntry implements InterfaceUser
      *
      * @return DataEntryFieldDefinitions
      */
-    protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
+    protected function initFieldDefinitions(DataEntryFieldDefinitionsInterface $field_definitions): void
     {
-        return DataEntryFieldDefinitions::new(static::getTable())
+        $field_definitions
             ->add(DataEntryFieldDefinition::new('email')
                 ->setInputType(InputType::email)
                 ->setMaxlength(128)
@@ -1305,7 +1341,7 @@ class User extends DataEntry implements InterfaceUser
                     'noword' => function()      { return Countries::new()->list(); },
                 ])
                 ->addValidationFunction(function ($validator) {
-                    $validator->xor('countries_id')->isName(200)->setColumnFromQuery('countries_id', 'SELECT `id` FROM `geo_countries` WHERE `name` = :name AND `status` IS NULL', [':name' => '$country']);
+                    $validator->or('countries_id')->isName(200)->setColumnFromQuery('countries_id', 'SELECT `id` FROM `geo_countries` WHERE `name` = :name AND `status` IS NULL', [':name' => '$country']);
                 }))
             ->add(DataEntryFieldDefinition::new('state')
                 ->setOptional(true)
@@ -1316,7 +1352,7 @@ class User extends DataEntry implements InterfaceUser
                     'noword' => function()      { return States::new()->list(); },
                 ])
                 ->addValidationFunction(function ($validator) {
-                    $validator->xor('states_id')->isName()->isQueryColumn('SELECT `name` FROM `geo_states` WHERE `name` = :name AND `countries_id` = :countries_id AND `status` IS NULL', [':name' => '$state', ':countries_id' => '$countries_id']);
+                    $validator->or('states_id')->isName()->setColumnFromQuery('states_id', 'SELECT `name` FROM `geo_states` WHERE `name` = :name AND `countries_id` = :countries_id AND `status` IS NULL', [':name' => '$state', ':countries_id' => '$countries_id']);
                 }))
             ->add(DataEntryFieldDefinition::new('city')
                 ->setOptional(true)
@@ -1327,7 +1363,7 @@ class User extends DataEntry implements InterfaceUser
                     'noword' => function()      { return Cities::new()->list(); },
                 ])
                 ->addValidationFunction(function ($validator) {
-                    $validator->xor('cities_id')->isName()->isQueryColumn('SELECT `name` FROM `geo_cities` WHERE `name` = :name AND `states_name`  = :states_id    AND `status` IS NULL', [':name' => '$city', ':states_id' => '$states_id']);
+                    $validator->or('cities_id')->isName()->setColumnFromQuery('cities_id', 'SELECT `name` FROM `geo_cities` WHERE `name` = :name AND `states_name`  = :states_id    AND `status` IS NULL', [':name' => '$city', ':states_id' => '$states_id']);
                 }))
             ->add(DataEntryFieldDefinition::new('language')
                 ->setOptional(true)
@@ -1339,7 +1375,7 @@ class User extends DataEntry implements InterfaceUser
                     'noword' => function()      { return Languages::new()->list(); },
                 ])
                 ->addValidationFunction(function ($validator) {
-                    $validator->isName()->isQueryColumn('SELECT `code_639_1` FROM `core_languages` WHERE `code_639_1` = :code AND `status` IS NULL', [':code' => '$language']);
+                    $validator->or('languages_id')->isName()->setColumnFromQuery('languages_id', 'SELECT `code_639_1` FROM `core_languages` WHERE `code_639_1` = :code AND `status` IS NULL', [':code' => '$language']);
                 }))
             ->add(DataEntryFieldDefinition::new('timezone')
                 ->setOptional(true)
@@ -1573,8 +1609,8 @@ class User extends DataEntry implements InterfaceUser
                 ->setAutoComplete(true)
                 ->setLabel(tr('Priority'))
                 ->setMin(1)
-                ->setMax(10)
-                ->setHelpText(tr('The priority for this user, between 1 and 10'))
+                ->setMax(9)
+                ->setHelpText(tr('The priority for this user, between 1 and 9'))
                 ->addValidationFunction(function ($validator) {
                     $validator->isInteger();
                 }))
@@ -1593,7 +1629,7 @@ class User extends DataEntry implements InterfaceUser
                 ->setHelpGroup(tr('Location information'))
                 ->setHelpText(tr('The country where this user resides'))
                 ->addValidationFunction(function ($validator) {
-                    $validator->xor('country')->isId()->isQueryColumn('SELECT `id` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':id' => '$countries_id']);
+                    $validator->or('country')->isId()->isQueryColumn('SELECT `id` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':id' => '$countries_id']);
                 }))
             ->add(DataEntryFieldDefinition::new('states_id')
                 ->setOptional(true)
@@ -1610,7 +1646,7 @@ class User extends DataEntry implements InterfaceUser
                 ->setHelpGroup(tr('Location information'))
                 ->setHelpText(tr('The state where this user resides'))
                 ->addValidationFunction(function ($validator) {
-                    $validator->xor('state')->isId()->isQueryColumn('SELECT `id` FROM `geo_states` WHERE `id` = :id AND `countries_id` = :countries_id AND `status` IS NULL', [':id' => '$states_id', ':countries_id' => '$countries_id']);
+                    $validator->or('state')->isId()->isQueryColumn('SELECT `id` FROM `geo_states` WHERE `id` = :id AND `countries_id` = :countries_id AND `status` IS NULL', [':id' => '$states_id', ':countries_id' => '$countries_id']);
                 }))
             ->add(DataEntryFieldDefinition::new('cities_id')
                 ->setOptional(true)
@@ -1629,7 +1665,7 @@ class User extends DataEntry implements InterfaceUser
                 ->setHelpGroup(tr('Location information'))
                 ->setHelpText(tr('The city where this user resides'))
                 ->addValidationFunction(function ($validator) {
-                    $validator->xor('city')->isId()->isQueryColumn('SELECT `id` FROM `geo_cities` WHERE `id` = :id AND `states_name`  = :states_id    AND `status` IS NULL', [':id' => '$cities_id', ':states_id' => '$states_id']);
+                    $validator->or('city')->isId()->isQueryColumn('SELECT `id` FROM `geo_cities` WHERE `id` = :id AND `states_name`  = :states_id    AND `status` IS NULL', [':id' => '$cities_id', ':states_id' => '$states_id']);
                 }))
             ->add(DataEntryFieldDefinition::new('address')
                 ->setOptional(true)
@@ -1671,7 +1707,7 @@ class User extends DataEntry implements InterfaceUser
                 ->setHelpGroup(tr('Location information'))
                 ->setHelpText(tr('The language in which the site will be displayed to the user'))
                 ->addValidationFunction(function ($validator) {
-                    $validator->xor('language')->isId()->isQueryColumn('SELECT `id` FROM `core_languages` WHERE `id` = :id AND `status` IS NULL', [':id' => '$languages_id']);
+                    $validator->or('language')->isId()->isQueryColumn('SELECT `id` FROM `core_languages` WHERE `id` = :id AND `status` IS NULL', [':id' => '$languages_id']);
                 }))
             ->add(DataEntryFieldDefinition::new('latitude')
                 ->setOptional(true)
@@ -1751,7 +1787,7 @@ class User extends DataEntry implements InterfaceUser
                     'noword' => function()      { return Users::new()->filterby('is_leader', true)->list(); },
                 ])
                 ->addValidationFunction(function ($validator) {
-                    $validator->xor('leaders_id')->isEmail()->setColumnFromQuery('leaders_id', 'SELECT `id` FROM `accounts_users` WHERE `email` = :email AND `status` IS NULL', [':email' => '$leader']);
+                    $validator->or('leaders_id')->isEmail()->setColumnFromQuery('leaders_id', 'SELECT `id` FROM `accounts_users` WHERE `email` = :email AND `status` IS NULL', [':email' => '$leader']);
                 }))
             ->add(DataEntryFieldDefinition::new('leaders_id')
                 ->setOptional(true)
@@ -1768,7 +1804,7 @@ class User extends DataEntry implements InterfaceUser
                 ->setHelpGroup(tr('Hierarchical information'))
                 ->setHelpText(tr('The user that is the leader for this user'))
                 ->addValidationFunction(function ($validator) {
-                    $validator->xor('leader')->isId()->isQueryColumn('SELECT `id` FROM `accounts_users` WHERE `id` = :id AND `status` IS NULL', [':id' => '$leaders_id']);
+                    $validator->or('leader')->isId()->isQueryColumn('SELECT `id` FROM `accounts_users` WHERE `id` = :id AND `status` IS NULL', [':id' => '$leaders_id']);
                 }))
             ->add(DataEntryFieldDefinition::new('verified_on')
                 ->setReadonly(true)

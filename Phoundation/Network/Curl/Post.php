@@ -7,7 +7,8 @@ namespace Phoundation\Network\Curl;
 use CURLFile;
 use Exception;
 use Phoundation\Core\Log\Log;
-use Phoundation\Network\Exception\NetworkException;
+use Phoundation\Network\Curl\Exception\CurlPostException;
+
 
 /**
  * Class Curl
@@ -16,7 +17,7 @@ use Phoundation\Network\Exception\NetworkException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Network
  */
 class Post extends Get
@@ -274,7 +275,7 @@ class Post extends Get
 
             } catch (Exception $e) {
                 if (str_contains($e->getMessage(), 'Array to string conversion')) {
-                    throw new NetworkException(tr('CURLOPT_POSTFIELDS failed with "Array to string conversion", this is very likely because the specified post array is a multi dimensional array, while CURLOPT_POSTFIELDS only accept one dimensional arrays. Please set $params[posturlencoded] = true to use http_build_query() to set CURLOPT_POSTFIELDS instead'), 'invalid');
+                    throw new CurlPostException(tr('CURLOPT_POSTFIELDS failed with "Array to string conversion", this is very likely because the specified post array is a multi dimensional array, while CURLOPT_POSTFIELDS only accept one dimensional arrays. Please set $params[posturlencoded] = true to use http_build_query() to set CURLOPT_POSTFIELDS instead'));
                 }
             }
         }

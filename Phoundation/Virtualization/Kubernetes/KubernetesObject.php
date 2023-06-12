@@ -24,7 +24,7 @@ use Phoundation\Virtualization\Kubernetes\Traits\UsesKubeCtl;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Virtualization
  */
 class KubernetesObject
@@ -173,7 +173,7 @@ class KubernetesObject
      *
      * @return static
      */
-    protected function load(): static
+    protected function load(string|int|null $id_column = null): static
     {
         if ($this->getName()) {
             $output = Process::new('kubectl')

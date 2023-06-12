@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Network\Proxies;
 
+use Phoundation\Core\Strings;
 use Phoundation\Network\Exception\NetworkException;
 use Phoundation\Utils\Json;
 
@@ -15,7 +16,7 @@ use Phoundation\Utils\Json;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Network
  */
 class Proxies
@@ -31,11 +32,11 @@ class Proxies
         }
 
         if (is_array($url)) {
-            throw new NetworkException(tr('curl_get_proxy(): No URL specified'), 'not-specified');
+            throw new NetworkException(tr('No URL specified'));
         }
 
         if (!$restrictionsurl) {
-            throw new NetworkException(tr('curl_get_proxy(): No proxy server URL(s) specified'), 'not-specified');
+            throw new NetworkException(tr('No proxy server URL(s) specified'));
         }
 
         log_console(tr('Using proxy ":proxy"', array(':proxy' => Strings::cut(Strings::Log($restrictionsurl), '://', '/'))), 'VERBOSE');
@@ -45,7 +46,7 @@ class Proxies
             'proxies'    => false));
 
         if (!trim($data['data'])) {
-            throw new NetworkException(tr('curl_get_proxy(): Proxy returned no data. Is proxy correctly configured? Proxy domain resolves correctly?'), 'no-data');
+            throw new NetworkException(tr('Proxy returned no data. Is proxy correctly configured? Proxy domain resolves correctly?'));
         }
 
         if (substr($data['data'], 0, 12) !== 'PROXY_RESULT') {
@@ -88,11 +89,11 @@ class Proxies
             }
 
             if (is_array($url)) {
-                throw new NetworkException(tr('curl_get_proxy(): No URL specified'), 'not-specified');
+                throw new NetworkException(tr('No URL specified'));
             }
 
             if (!$restrictionsurl) {
-                throw new NetworkException(tr('curl_get_proxy(): No proxy server URL(s) specified'), 'not-specified');
+                throw new NetworkException(tr('No proxy server URL(s) specified'));
             }
 
             log_console(tr('Using proxy ":proxy"', array(':proxy' => Strings::cut(Strings::Log($restrictionsurl), '://', '/'))), 'VERBOSE');
@@ -102,7 +103,7 @@ class Proxies
                 'proxies'    => false));
 
             if (!trim($data['data'])) {
-                throw new NetworkException(tr('curl_get_proxy(): Proxy returned no data. Is proxy correctly configured? Proxy domain resolves correctly?'), 'no-data');
+                throw new NetworkException(tr('Proxy returned no data. Is proxy correctly configured? Proxy domain resolves correctly?'));
             }
 
             if (substr($data['data'], 0, 12) !== 'PROXY_RESULT') {

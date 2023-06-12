@@ -2,7 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Dependencies;
+namespace Phoundation\Developer;
+
+
+use Exception;
+use Phoundation\Core\Arrays;
+use Phoundation\Exception\OutOfBoundsException;
 
 /**
  * Class Dependencies
@@ -11,7 +16,7 @@ namespace Phoundation\Dependencies;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Dependencies
  */
 class Dependencies
@@ -29,7 +34,7 @@ class Dependencies
              * Check if specified library is installed
              */
             if (!isset($params['name'])) {
-                throw new OutOfBoundsException(tr('ensure_installed(): No name specified for library'), 'not-specified');
+                throw new OutOfBoundsException(tr('No name specified for library'));
             }
 
             /*
@@ -80,7 +85,4 @@ class Dependencies
             throw new OutOfBoundsException(tr('ensure_installed(): Failed'), $e);
         }
     }
-
-
-
 }

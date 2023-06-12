@@ -25,9 +25,9 @@ use const PhpConsole\Test\PATH_TMP_DIR;
  *
  * This library contains various filesystem path related functions
  *
- * @author Sven Oostenbrink <support@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @category Function reference
  * @package Phoundation\Filesystem
  */
@@ -90,7 +90,7 @@ class Path extends FileBasics
             throw new FilesystemException(tr('The:type directory ":file" cannot be read because it is not a directory', [
                 ':type' => ($type ? '' : ' ' . $type),
                 ':file' => $this->file
-            ]), previous: $previous_e);
+            ]), $previous_e);
         }
 
         if ($previous_e) {
@@ -125,7 +125,7 @@ class Path extends FileBasics
             throw new FilesystemException(tr('The:type directory ":file" cannot be written because it is not a directory', [
                 ':type' => ($type ? '' : ' ' . $type),
                 ':file' => $this->file
-            ]), previous: $previous_e);
+            ]), $previous_e);
         }
 
         if ($previous_e) {

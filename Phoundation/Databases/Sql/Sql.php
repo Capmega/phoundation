@@ -46,7 +46,7 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Databases
  */
 class Sql
@@ -520,7 +520,7 @@ class Sql
                     '$_GET'     => $_GET,
                     '$_POST'    => $_POST,
                     '$_SERVER'  => $_SERVER,
-                    '$query'    => $query,
+                    '$query'    => [$query],
                     '$_SESSION' => $_SESSION
                 ])
                 ->log()
@@ -2429,7 +2429,7 @@ class Sql
     //    try {
     //
     //    } catch (Exception $e) {
-    //        throw new SqlException(tr('$this->exec_get(): Failed'), $e);
+    //        throw new SqlException(tr('Failed'), $e);
     //    }
     //}
 }

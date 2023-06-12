@@ -27,7 +27,7 @@ use Phoundation\Web\Http\Html\Enums\InputType;
  * @see \Phoundation\Data\DataEntry\DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
 class SignIn extends DataEntry
@@ -79,11 +79,11 @@ class SignIn extends DataEntry
     /**
      * Sets the available data keys for the User class
      *
-     * @return DataEntryFieldDefinitionsInterface
+     * @param DataEntryFieldDefinitionsInterface $field_definitions
      */
-    protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
+    protected function initFieldDefinitions(DataEntryFieldDefinitionsInterface $field_definitions): void
     {
-        return DataEntryFieldDefinitions::new(static::getTable())
+        $field_definitions
             ->add(DataEntryFieldDefinition::new('ip_address')
                 ->setVisible(false))
             ->add(DataEntryFieldDefinition::new('net_len')
@@ -94,11 +94,13 @@ class SignIn extends DataEntry
                 ->setMaxlength(48)
                 ->setLabel(tr('IP Address')))
             ->add(DataEntryFieldDefinition::new('user_agent')
+                ->setOptional(true)
                 ->setReadonly(true)
                 ->setSize(6)
                 ->setMaxlength(2040)
                 ->setLabel(tr('User agent')))
             ->add(DataEntryFieldDefinition::new('latitude')
+                ->setOptional(true)
                 ->setReadonly(true)
                 ->setInputType(InputType::numeric)
                 ->setSize(6)
@@ -107,6 +109,7 @@ class SignIn extends DataEntry
                 ->setStep('any')
                 ->setLabel(tr('Latitude')))
             ->add(DataEntryFieldDefinition::new('longitude')
+                ->setOptional(true)
                 ->setReadonly(true)
                 ->setInputType(InputType::numeric)
                 ->setSize(6)
@@ -115,6 +118,7 @@ class SignIn extends DataEntry
                 ->setStep('any')
                 ->setLabel(tr('Longitude')))
             ->add(DataEntryFieldDefinition::new('countries_id')
+                ->setOptional(true)
                 ->setReadonly(true)
                 ->setInputType(InputTypeExtended::dbid)
                 ->setContent(function (string $key, array $data, array $source) {
@@ -129,6 +133,7 @@ class SignIn extends DataEntry
                     $validator->xor('country')->isQueryColumn('SELECT `name` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':id' => '$countries_id']);
                 }))
             ->add(DataEntryFieldDefinition::new('timezones_id')
+                ->setOptional(true)
                 ->setReadonly(true)
                 ->setInputType(InputTypeExtended::dbid)
                 ->setContent(function (string $key, array $data, array $source) {

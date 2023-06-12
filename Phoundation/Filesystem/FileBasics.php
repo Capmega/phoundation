@@ -24,9 +24,9 @@ use Throwable;
  *
  * This library contains the variables used in the File class
  *
- * @author Sven Oostenbrink <support@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @category Function reference
  * @package Phoundation\Filesystem
  */
@@ -201,20 +201,20 @@ class FileBasics implements Stringable
                     ':type' => ($type ? '' : ' ' . $type),
                     ':file' => $this->file,
                     ':path' => dirname($this->file)
-                ]), previous: $previous_e);
+                ]), $previous_e);
             }
 
             throw new FilesystemException(tr('The:type file ":file" cannot be read because it does not exist', [
                 ':type' => ($type ? '' : ' ' . $type),
                 ':file' => $this->file
-            ]), previous: $previous_e);
+            ]), $previous_e);
         }
 
         if (!is_readable($this->file)) {
             throw new FilesystemException(tr('The:type file ":file" cannot be read', [
                 ':type' => ($type ? '' : ' ' . $type),
                 ':file' => $this->file
-            ]), previous: $previous_e);
+            ]), $previous_e);
         }
 
         if ($previous_e) {
@@ -224,7 +224,7 @@ class FileBasics implements Stringable
 //            throw new FilesystemException(tr('The:type file ":file" cannot be read because of an unknown error', [
 //                ':type' => ($type ? '' : ' ' . $type),
 //                ':file' => $this->file
-//            ]), previous: $previous_e);
+//            ]), $previous_e);
         }
 
         return $this;
@@ -258,20 +258,20 @@ class FileBasics implements Stringable
                     ':type' => ($type ? '' : ' ' . $type),
                     ':file' => $this->file,
                     ':path' => dirname($this->file)
-                ]), previous: $previous_e);
+                ]), $previous_e);
             }
 
             throw new FilesystemException(tr('The:type file ":file" cannot be written because it does not exist', [
                 ':type' => ($type ? '' : ' ' . $type),
                 ':file' => $this->file
-            ]), previous: $previous_e);
+            ]), $previous_e);
         }
 
         if (!is_readable($this->file)) {
             throw new FilesystemException(tr('The:type file ":file" cannot be written', [
                 ':type' => ($type ? '' : ' ' . $type),
                 ':file' => $this->file
-            ]), previous: $previous_e);
+            ]), $previous_e);
         }
 
         return $this;

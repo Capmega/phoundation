@@ -45,6 +45,7 @@ use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Routing\Route;
 use Phoundation\Web\Routing\RoutingParameters;
+use Stringable;
 use Throwable;
 
 
@@ -55,7 +56,7 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
 class Page
@@ -668,14 +669,14 @@ class Page
 
 
     /**
-     * Will throw an AccessDeniedException if the current session user does not have ALL of the specified rights
+     * Will throw an AccessDeniedException if the current session user does not have ALL the specified rights
      *
-     * @param array|string $rights
+     * @param array|Stringable|string $rights
      * @param string|int|null $missing_rights_target
      * @param string|int|null $guest_target
      * @return void
      */
-    public static function requiresAllRights(array|string $rights, string|int|null $missing_rights_target = 403, string|int|null $guest_target = 401): void
+    public static function requiresAllRights(array|Stringable|string $rights, string|int|null $missing_rights_target = 403, string|int|null $guest_target = 401): void
     {
         static::requiresNotGuest();
 

@@ -45,7 +45,7 @@ use Throwable;
  * @see \Phoundation\Data\DataEntry\DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Notification
  */
 class Notification extends DataEntry
@@ -248,10 +248,10 @@ class Notification extends DataEntry
             static $sending = false;
 
             if ($sending) {
-                throw new NotificationBusyException(tr('The notifications system is already busy sending another notification and cannot send the new ":title" notification with message ":message"', [
+                throw NotificationBusyException::new(tr('The notifications system is already busy sending another notification and cannot send the new ":title" notification with message ":message"', [
                     ':title'   => $this->getTitle(),
                     ':message' => $this->getMessage()
-                ]), $this->data);
+                ]))->$this->setData($this->data);
             }
 
             $sending = true;
@@ -325,32 +325,35 @@ class Notification extends DataEntry
             case DisplayMode::danger:
                 Log::error($this->getTitle());
                 Log::error($this->getMessage());
-                Log::error($this->getDetails());
                 break;
 
             case DisplayMode::warning:
                 Log::warning($this->getTitle());
                 Log::warning($this->getMessage());
-                Log::warning($this->getDetails());
                 break;
 
             case DisplayMode::success:
                 Log::success($this->getTitle());
                 Log::success($this->getMessage());
-                Log::success($this->getDetails());
                 break;
 
             case DisplayMode::info:
                 Log::information($this->getTitle());
                 Log::information($this->getMessage());
-                Log::information($this->getDetails());
                 break;
 
             default:
                 Log::notice($this->getTitle());
                 Log::notice($this->getMessage());
-                Log::notice($this->getDetails());
                 break;
+        }
+
+        Log::information(tr('Details'));
+
+        foreach ($this->getDetails() as $key => $value) {
+            Log::write($key, 'debug');
+            Log::table($value);
+            Log::cli();
         }
 
         static::$logged = true;
@@ -418,11 +421,11 @@ class Notification extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @return DataEntryFieldDefinitionsInterface
+     * @param DataEntryFieldDefinitionsInterface $field_definitions
      */
-    protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
+    protected function initFieldDefinitions(DataEntryFieldDefinitionsInterface $field_definitions): void
     {
-        return DataEntryFieldDefinitions::new(static::getTable())
+        $field_definitions
             ->add(DataEntryFieldDefinition::new('users_id')
                 ->setVisible(false)
                 ->setInputType(InputTypeExtended::dbid)
