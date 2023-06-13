@@ -31,19 +31,21 @@ class Audio extends File
      */
     public function play(bool $background = false): static
     {
-        try {
-            $this->file = Filesystem::absolute($this->file, PATH_ROOT . 'data/audio');
-            $process    = Process::new('mplayer')->addArgument($this->file);
+        if (!NOSOUND) {
+            try {
+                $this->file = Filesystem::absolute($this->file, PATH_ROOT . 'data/audio');
+                $process = Process::new('mplayer')->addArgument($this->file);
 
-            if ($background) {
-                $process->executeBackground();
-            } else {
-                $process->executeNoReturn();
+                if ($background) {
+                    $process->executeBackground();
+                } else {
+                    $process->executeNoReturn();
+                }
+
+            } catch (FileNotExistException|ProcessesException $e) {
+                Log::warning(tr('Failed to play the requested audio file because of the following exception'));
+                Log::warning($e->getMessage());
             }
-
-        } catch (FileNotExistException|ProcessesException $e) {
-            Log::warning(tr('Failed to play the requested audio file because of the following exception'));
-            Log::warning($e->getMessage());
         }
 
         return $this;

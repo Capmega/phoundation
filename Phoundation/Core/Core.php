@@ -507,6 +507,7 @@ class Core {
             ->select('-O,--order-by', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(128)
             ->select('-P,--page', true)->isOptional(1)->isId()
             ->select('-Q,--quiet')->isOptional(false)->isBoolean()
+            ->select('-N,--no-sound')->isOptional(false)->isBoolean()
             ->select('-S,--status', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(16)
             ->select('-T,--test')->isOptional(false)->isBoolean()
             ->select('-U,--usage')->isOptional(false)->isBoolean()
@@ -575,6 +576,7 @@ class Core {
         define('ALL'     , $argv['all']);
         define('STATUS'  , $argv['status']);
         define('PAGE'    , $argv['page']);
+        define('NOSOUND' , $argv['no_sound']);
         define('LIMIT'   , get_null($argv['limit']) ?? Config::getNatural('paging.limit', 50));
 
         // Correct $_SERVER['PHP_SELF'], sometimes seems empty
