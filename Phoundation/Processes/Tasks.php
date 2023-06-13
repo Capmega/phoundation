@@ -2,7 +2,7 @@
 
 namespace Phoundation\Processes;
 
-use Phoundation\Data\DataEntry\DataListInterface;
+use Phoundation\Data\DataEntry\DataList;
 
 
 /**
@@ -15,7 +15,7 @@ use Phoundation\Data\DataEntry\DataListInterface;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
-class Tasks extends DataListInterface
+class Tasks extends DataList
 {
     /**
      * @inheritDoc

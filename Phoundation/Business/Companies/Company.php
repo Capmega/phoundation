@@ -7,7 +7,7 @@ namespace Phoundation\Business\Companies;
 use Phoundation\Business\Companies\Branches\Branches;
 use Phoundation\Business\Companies\Departments\Departments;
 use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\DataListInterface;
+use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\DataEntry\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
@@ -32,16 +32,16 @@ class Company extends DataEntry
     /**
      * The branches for this company
      *
-     * @var DataListInterface $branches
+     * @var DataList $branches
      */
-    protected DataListInterface $branches;
+    protected DataList $branches;
 
     /**
      * The departments for this company
      *
-     * @var DataListInterface $departments
+     * @var DataList $departments
      */
-    protected DataListInterface $departments;
+    protected DataList $departments;
 
 
     /**

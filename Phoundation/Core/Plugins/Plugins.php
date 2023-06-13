@@ -6,7 +6,7 @@ namespace Phoundation\Core\Plugins;
 
 use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\DataEntry\DataListInterface;
+use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Path;
 use Throwable;
@@ -22,7 +22,7 @@ use Throwable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
-class Plugins extends DataListInterface
+class Plugins extends DataList
 {
     /**
      * A cached list of enabled plugins

@@ -13,7 +13,7 @@ use Phoundation\Data\Interfaces\InterfaceDataEntry;
  *
  *
  *
- * @see \Phoundation\Data\DataEntry\DataListInterface
+ * @see \Phoundation\Data\DataEntry\DataList
  * @see \Phoundation\Data\DataEntry\Interfaces\DataListInterface
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

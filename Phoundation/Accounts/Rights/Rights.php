@@ -12,7 +12,7 @@ use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
-use Phoundation\Data\DataEntry\DataListInterface;
+use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Databases\Sql\QueryBuilder;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Web\Http\Html\Components\Input\Select;
@@ -23,13 +23,13 @@ use Phoundation\Web\Http\Html\Components\Input\Select;
  *
  *
  *
- * @see \Phoundation\Data\DataEntry\DataListInterface
+ * @see \Phoundation\Data\DataEntry\DataList
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
-class Rights extends DataListInterface implements RightsInterface
+class Rights extends DataList implements RightsInterface
 {
     /**
      * Rights class constructor

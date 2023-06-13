@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Categories;
 
-use Phoundation\Data\DataEntry\DataListInterface;
+use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Web\Http\Html\Components\Input\Select;
 use Phoundation\Web\Http\Html\Components\Table;
 
@@ -13,13 +13,13 @@ use Phoundation\Web\Http\Html\Components\Table;
  *
  *
  *
- * @see \Phoundation\Data\DataEntry\DataListInterface
+ * @see \Phoundation\Data\DataEntry\DataList
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-class Categories extends DataListInterface
+class Categories extends DataList
 {
     /**
      * Categories class constructor

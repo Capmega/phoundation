@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry;
 
 use Phoundation\Cli\Cli;
-use Phoundation\Data\DataEntry\Interfaces\InterfaceDataList;
+use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Exception\OutOfBoundsException;
@@ -25,7 +25,7 @@ use ReturnTypeWillChange;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
-abstract class DataList implements InterfaceDataList
+abstract class DataList implements DataListInterface
 {
     /**
      * The list parent
@@ -180,11 +180,11 @@ abstract class DataList implements InterfaceDataList
     /**
      * Returns a list of items that are specified, but not available in this DataList
      *
-     * @param InterfaceDataList|array|string $list
+     * @param DataList|array|string $list
      * @param string|null $always_match
      * @return array
      */
-    public function missesKeys(InterfaceDataList|array|string $list, string $always_match = null): array
+    public function missesKeys(DataList|array|string $list, string $always_match = null): array
     {
         if (is_string($list)) {
             $list = explode(',', $list);
@@ -213,12 +213,12 @@ abstract class DataList implements InterfaceDataList
     /**
      * Returns if all (or optionally any) of the specified entries are in this list
      *
-     * @param InterfaceDataList|array|string $list
+     * @param DataList|array|string $list
      * @param bool $all
      * @param string|null $always_match
      * @return bool
      */
-    public function containsKey(InterfaceDataList|array|string $list, bool $all = true, string $always_match = null): bool
+    public function containsKey(DataList|array|string $list, bool $all = true, string $always_match = null): bool
     {
         if (is_string($list)) {
             $list = explode(',', $list);
@@ -252,12 +252,12 @@ abstract class DataList implements InterfaceDataList
     /**
      * Returns if all (or optionally any) of the specified entries are in this list
      *
-     * @param InterfaceDataList|array|string $list
+     * @param DataList|array|string $list
      * @param bool $all
      * @param string|null $always_match
      * @return bool
      */
-    public function containsValue(InterfaceDataList|array|string $list, bool $all = true, string $always_match = null): bool
+    public function containsValue(DataList|array|string $list, bool $all = true, string $always_match = null): bool
     {
         if (is_string($list)) {
             $list = explode(',', $list);

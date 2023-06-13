@@ -125,9 +125,9 @@ abstract class DataEntry implements InterfaceDataEntry
     /**
      * A list with optional linked other DataEntry objects
      *
-     * @var DataListInterface|null
+     * @var DataList|null
      */
-    protected ?DataListInterface $list = null;
+    protected ?DataList $list = null;
 
     /**
      * What to do when a record state mismatch was detected

@@ -6,7 +6,7 @@ namespace Phoundation\Developer\Incidents;
 
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\User;
-use Phoundation\Data\DataEntry\DataListInterface;
+use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Web\Http\Html\Components\Table;
 
 /**
@@ -19,7 +19,7 @@ use Phoundation\Web\Http\Html\Components\Table;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Developer
  */
-class Incidents extends DataListInterface
+class Incidents extends DataList
 {
     /**
      * Users class constructor

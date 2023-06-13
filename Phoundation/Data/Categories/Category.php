@@ -10,6 +10,7 @@ use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
 use Phoundation\Exception\OutOfBoundsException;
 
+
 /**
  * Category class
  *
