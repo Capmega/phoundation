@@ -6,7 +6,8 @@ namespace Phoundation\Processes;
 
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
-use Phoundation\Data\DataEntry\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryName;
 use Phoundation\Data\DataEntry\Traits\DataEntryResults;
@@ -14,7 +15,6 @@ use Phoundation\Data\Interfaces\DataEntryInterface;
 use Phoundation\Data\Validator\Interfaces\InterfaceDataValidator;
 use Phoundation\Processes\Exception\TasksException;
 use Phoundation\Web\Http\Html\Enums\InputType;
-use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
 
 
 /**
@@ -187,22 +187,16 @@ class Task extends DataEntry
             ->add(Definition::new('arguments')
                 ->setLabel('Arguments')
                 ->setSize(12)
-                ->setMaxlength(65535))
+                ->setMaxlength(65_535))
             ->add(Definition::new('executed_command')
                 ->setLabel('Executed command')
                 ->setSize(12)
-                ->setMaxlength(65663))
+                ->setMaxlength(65_663))
             ->add(Definition::new('results')
                 ->setLabel('Results')
                 ->setSize(12)
                 ->setReadonly(true))
-            ->add(Definition::new('description')
-                ->setLabel('description')
-                ->setInputType(InputTypeExtended::description)
-                ->setSize(12)
-                ->setMaxlength(65535)
-                ->addValidationFunction(function(InterfaceDataValidator $validator) {
-                    $validator->isDescription();
-                }));
+            ->add(DefinitionFactory::new('description')
+                ->setHelpText(tr('A description for this task')));
     }
 }

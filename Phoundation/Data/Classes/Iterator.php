@@ -7,6 +7,7 @@ namespace Phoundation\Data\Classes;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Utils\Json;
 use ReturnTypeWillChange;
+use Stringable;
 
 
 /**
@@ -88,11 +89,23 @@ class Iterator implements \Phoundation\Data\Interfaces\Iterator
 
 
     /**
+     * Progresses the internal pointer to the previous entry
+     *
+     * @return static
+     */
+    #[ReturnTypeWillChange] public function previous(): static
+    {
+        prev($this->list);
+        return $this;
+    }
+
+
+    /**
      * Returns the current key for the current button
      *
-     * @return float|int|string
+     * @return string|float|int
      */
-    public function key(): float|int|string
+    public function key(): string|float|int
     {
         return key($this->list);
     }
@@ -137,11 +150,11 @@ class Iterator implements \Phoundation\Data\Interfaces\Iterator
     /**
      * Returns value for the specified key
      *
-     * @param string|float|int $key
+     * @param Stringable|string|float|int $key
      * @param bool $exception
      * @return mixed
      */
-    #[ReturnTypeWillChange] public function get(string|float|int $key, bool $exception = false): mixed
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = false): mixed
     {
         if ($exception) {
             if (!array_key_exists($key, $this->list)) {
@@ -201,10 +214,10 @@ class Iterator implements \Phoundation\Data\Interfaces\Iterator
     /**
      * Deletes the specified key
      *
-     * @param float|int|string $key
+     * @param string|float|int $key
      * @return static
      */
-    public function delete(float|int|string $key): static
+    public function delete(string|float|int $key): static
     {
         unset($this->list[$key]);
         return $this;
@@ -214,10 +227,10 @@ class Iterator implements \Phoundation\Data\Interfaces\Iterator
     /**
      * Returns if the specified key exists or not
      *
-     * @param float|int|string $key
+     * @param Stringable|string|float|int $key
      * @return bool
      */
-    public function exists(float|int|string $key): bool
+    public function exists(Stringable|string|float|int $key): bool
     {
         return array_key_exists($key, $this->list);
     }

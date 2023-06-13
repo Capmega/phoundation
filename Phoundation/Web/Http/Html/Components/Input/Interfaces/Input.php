@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http\Html\Components\Input\Interfaces;
 
 
-use Phoundation\Data\DataEntry\Interfaces\DefinitionInterface;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 
 /**
  * Interface Input

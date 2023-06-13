@@ -6,7 +6,7 @@ namespace Phoundation\Data\Interfaces;
 
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Meta\Meta;
-use Phoundation\Data\DataEntry\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Date\DateTime;
 use Phoundation\Web\Http\Html\Components\Interfaces\DataEntryFormInterface;
 

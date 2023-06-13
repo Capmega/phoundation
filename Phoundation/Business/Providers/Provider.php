@@ -8,7 +8,7 @@ use Phoundation\Business\Companies\Companies;
 use Phoundation\Core\Locale\Language\Languages;
 use Phoundation\Data\Categories\Categories;
 use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryAddress;
 use Phoundation\Data\DataEntry\Traits\DataEntryCategory;
 use Phoundation\Data\DataEntry\Traits\DataEntryCode;

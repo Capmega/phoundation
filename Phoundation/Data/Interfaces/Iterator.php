@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\Interfaces;
 
 use ReturnTypeWillChange;
+use Stringable;
 
 /**
  * Interface Iterator
@@ -68,9 +69,9 @@ interface Iterator extends \Iterator
     /**
      * Returns the current key for the current menu
      *
-     * @return float|int|string
+     * @return string|float|int
      */
-    function key(): float|int|string;
+    function key(): string|float|int;
 
     /**
      * Returns if the current pointer is valid or not
@@ -97,11 +98,11 @@ interface Iterator extends \Iterator
     /**
      * Returns value for the specified key
      *
-     * @param string|float|int $key
+     * @param Stringable|string|float|int $key
      * @param bool $exception
      * @return mixed
      */
-    #[ReturnTypeWillChange] function get(string|float|int $key, bool $exception = false): mixed;
+    #[ReturnTypeWillChange] function get(Stringable|string|float|int $key, bool $exception = false): mixed;
 
     /**
      * Returns the amount of elements contained in this object
@@ -135,7 +136,7 @@ interface Iterator extends \Iterator
     /**
      * Deletes the specified key
      *
-     * @param float|int|string $key
+     * @param string|float|int $key
      * @return mixed
      */
     function delete(string|float|int $key): static;
@@ -143,10 +144,10 @@ interface Iterator extends \Iterator
     /**
      * Returns if the specified field exists or not
      *
-     * @param float|int|string $key
+     * @param Stringable|string|float|int $key
      * @return bool
      */
-    function exists(float|int|string $key): bool;
+    function exists(Stringable|string|float|int $key): bool;
 
     /**
      * Returns true if the list is empty

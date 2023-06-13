@@ -9,6 +9,7 @@ use Phoundation\Data\Interfaces\DataEntryInterface;
 use Phoundation\Web\Http\Html\Components\DataTable;
 use Phoundation\Web\Http\Html\Components\Table;
 use ReturnTypeWillChange;
+use Stringable;
 
 
 /**
@@ -56,10 +57,10 @@ interface DataListInterface extends Iterator
     /**
      * Returns if the specified data entry exists in the data list
      *
-     * @param DataEntryInterface|int $entry
+     * @param Stringable|string|float|int $key
      * @return bool
      */
-    function exists(DataEntryInterface|int $entry): bool;
+    function exists(Stringable|string|float|int $key): bool;
 
     /**
      * Returns a list of items that are specified, but not available in this DataList
@@ -193,10 +194,11 @@ interface DataListInterface extends Iterator
     /**
      * Returns the item with the specified identifier
      *
-     * @param int $identifier
+     * @param Stringable|string|float|int $key
+     * @param bool $exception
      * @return DataEntryInterface|null
      */
-    #[ReturnTypeWillChange] function get(int $identifier): ?DataEntryInterface;
+    #[ReturnTypeWillChange] function get(Stringable|string|float|int $key, bool $exception = false): ?DataEntryInterface;
 
     /**
      * Returns the current item
@@ -222,9 +224,9 @@ interface DataListInterface extends Iterator
     /**
      * Returns the current iterator position
      *
-     * @return int
+     * @return string|float|int
      */
-    function key(): int;
+    public function key(): string|float|int;
 
     /**
      * Returns if the current element exists or not
@@ -281,7 +283,7 @@ interface DataListInterface extends Iterator
      * @param string|null $comments
      * @return int
      */
-    function delete(array $entries, ?string $comments = null): int;
+    function dbDelete(array $entries, ?string $comments = null): int;
 
     /**
      * Undelete the specified entries
@@ -290,7 +292,7 @@ interface DataListInterface extends Iterator
      * @param string|null $comments
      * @return int
      */
-    function undelete(array $entries, ?string $comments = null): int;
+    function dbUndelete(array $entries, ?string $comments = null): int;
 
     /**
      * Returns an array with all id's for the specified entry identifiers

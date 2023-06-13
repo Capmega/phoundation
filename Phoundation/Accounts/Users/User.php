@@ -18,8 +18,9 @@ use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
+use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Definitions;
-use Phoundation\Data\DataEntry\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryAddress;
 use Phoundation\Data\DataEntry\Traits\DataEntryCode;
 use Phoundation\Data\DataEntry\Traits\DataEntryComments;
@@ -50,7 +51,6 @@ use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\Html\Components\Form;
 use Phoundation\Web\Http\Html\Enums\InputElement;
 use Phoundation\Web\Http\Html\Enums\InputType;
-use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
 use Phoundation\Web\Http\UrlBuilder;
 
 
@@ -1854,19 +1854,10 @@ class User extends DataEntry implements UserInterface
                     $validator->isPrintable();
                     //$validator->sanitizeForceArray(' ')->each()->isWord()->sanitizeForceString()
                 }))
-            ->add(Definition::new('description')
-                ->setOptional(true)
-                ->setInputType(InputTypeExtended::description)
-                ->setMaxlength(65_535)
+            ->add(DefinitionFactory::new('description')
                 ->setSize(6)
-                ->setCliField('-d,--description')
-                ->setAutoComplete(true)
-                ->setLabel(tr('Description'))
                 ->setHelpGroup(tr('Account information'))
-                ->setHelpText(tr('A public description about this user'))
-                ->addValidationFunction(function ($validator) {
-                    $validator->isOptional()->isPrintable();
-                }))
+                ->setHelpText(tr('A public description about this user')))
             ->add(Definition::new('comments')
                 ->setOptional(true)
                 ->setElement(InputElement::textarea)

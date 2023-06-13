@@ -6,12 +6,11 @@ namespace Phoundation\Servers;
 
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
-use Phoundation\Data\DataEntry\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryUsername;
-use Phoundation\Data\Interfaces\DataEntryInterface;
 use Phoundation\Filesystem\Traits\DataRestrictions;
-use Phoundation\Web\Http\Html\Enums\InputElement;
 use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
 
 /**
@@ -86,13 +85,8 @@ class SshAccount extends DataEntry
     protected function initFieldDefinitions(DefinitionsInterface $field_definitions): void
     {
         $field_definitions
-            ->add(Definition::new('name')
-                ->setLabel(tr('Name'))
-                ->setInputType(InputTypeExtended::name)
-                ->setCliField(tr('-n,--name NAME'))
-                ->setAutoComplete(true)
+            ->add(DefinitionFactory::new('name')
                 ->setSize(6)
-                ->setMaxlength(64)
                 ->setHelpGroup(tr('Identification'))
                 ->setHelpText(tr('The name for this account')))
             ->add(Definition::new('seo_name')
@@ -106,12 +100,7 @@ class SshAccount extends DataEntry
                 ->setSize(6)
                 ->setMaxlength(64)
                 ->setHelpText(tr('The username on the server for this account')))
-            ->add(Definition::new('description')
-                ->setLabel(tr('Description'))
-                ->setCliField(tr('-d,--description DESCRIPTION'))
-                ->setInputType(InputTypeExtended::description)
-                ->setSize(12)
-                ->setMaxlength(65_535)
+            ->add(DefinitionFactory::new('description')
                 ->setHelpText(tr('The description for this account')))
             ->add(Definition::new('ssh_key')
                 ->setLabel(tr('SSH key'))

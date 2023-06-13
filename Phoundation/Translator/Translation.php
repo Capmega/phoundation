@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Translator;
 
 use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 
 /**
  * Class Translation

@@ -6,10 +6,9 @@ namespace Phoundation\Accounts\Rights;
 
 use Phoundation\Accounts\Interfaces\RightInterface;
 use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\Definitions\Definition;
-use Phoundation\Data\DataEntry\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
-use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
 
 
 /**
@@ -60,20 +59,10 @@ class Right extends DataEntry implements RightInterface
     protected function initFieldDefinitions(DefinitionsInterface $field_definitions): void
     {
         $field_definitions
-            ->add(Definition::new('name')
-                ->setLabel(tr('Name'))
-                ->setSize(12)
-                ->setMaxlength(64)
+            ->add(DefinitionFactory::new('name')
                 ->setHelpText(tr('The name for this right')))
-            ->add(Definition::new('seo_name')
-                ->setVisible(true)
-                ->setReadonly(true))
-            ->add(Definition::new('description')
-                ->setOptional(true)
-                ->setInputType(InputTypeExtended::description)
-                ->setLabel(tr('Description'))
-                ->setSize(12)
-                ->setMaxlength(65_535)
+            ->add(DefinitionFactory::new('seo_name'))
+            ->add(DefinitionFactory::new('description')
                 ->setHelpText(tr('The description for this right')));
     }
 }

@@ -6,15 +6,15 @@ namespace Phoundation\Developer\Incidents;
 
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
+use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Definitions;
-use Phoundation\Data\DataEntry\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryDetails;
 use Phoundation\Data\DataEntry\Traits\DataEntryException;
 use Phoundation\Data\DataEntry\Traits\DataEntryTitle;
 use Phoundation\Data\DataEntry\Traits\DataEntryType;
 use Phoundation\Data\DataEntry\Traits\DataEntryUrl;
-use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
 
 
 /**
@@ -78,14 +78,8 @@ class Incident extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->isName(16);
                 }))
-            ->add(Definition::new('title')
-                ->setReadonly(true)
-                ->setLabel('Title')
-                ->setSize(6)
-                ->setMaxlength(255)
-                ->addValidationFunction(function ($validator) {
-                    $validator->hasMaxCharacters(255)->isPrintable();
-                }))
+            ->add(DefinitionFactory::new('title')
+                ->setSize(6))
             ->add(Definition::new('url')
                 ->setReadonly(true)
                 ->setLabel('URL')
@@ -94,15 +88,7 @@ class Incident extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->isUrl();
                 }))
-            ->add(Definition::new('description')
-                ->setOptional(true)
-                ->setInputType(InputTypeExtended::description)
-                ->setLabel('Description')
-                ->setSize(12)
-                ->setMaxlength(255)
-                ->addValidationFunction(function ($validator) {
-                    $validator->isDescription();
-                }))
+            ->add(DefinitionFactory::new('description'))
             ->add(Definition::new('exception')
                 ->setReadonly(true)
                 ->setLabel('Exception')

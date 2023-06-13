@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Data\DataEntry\Interfaces;
+namespace Phoundation\Data\DataEntry\Definitions\Interfaces;
 
 use Phoundation\Data\Interfaces\Iterator;
+use Stringable;
 
 
 /**
@@ -74,9 +75,9 @@ interface DefinitionsInterface extends Iterator
     /**
      * Returns the current key for the current menu
      *
-     * @return float|int|string
+     * @return string|float|int
      */
-    public function key(): float|int|string;
+    public function key(): string|float|int;
 
     /**
      * Returns if the current pointer is valid or not
@@ -110,19 +111,19 @@ interface DefinitionsInterface extends Iterator
     /**
      * Returns the specified field
      *
-     * @param float|int|string $key
+     * @param Stringable|string|float|int $key
      * @param bool $exception
      * @return DefinitionInterface
      */
-    public function get(float|int|string $key, bool $exception = false): DefinitionInterface;
+    public function get(Stringable|string|float|int $key, bool $exception = false): DefinitionInterface;
 
     /**
      * Returns if the specified Definition exists or not
      *
-     * @param float|int|string $key
+     * @param Stringable|string|float|int $key
      * @return bool
      */
-    public function exists(float|int|string $key): bool;
+    function exists(Stringable|string|float|int $key): bool;
 
     /**
      * Returns the Definitions array
@@ -171,5 +172,5 @@ interface DefinitionsInterface extends Iterator
      *
      * @return $this
      */
-    public function delete(float|int|string $key): static;
+    public function delete(string|float|int $key): static;
 }

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Data\DataEntry\Interfaces;
+namespace Phoundation\Data\DataEntry\Definitions\Interfaces;
 
 use Phoundation\Data\Validator\Interfaces\InterfaceDataValidator;
 use Phoundation\Web\Http\Html\Components\Interfaces\InputElementInterface;

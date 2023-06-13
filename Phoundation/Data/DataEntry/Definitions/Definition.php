@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Definitions;
 
-use Phoundation\Data\DataEntry\Interfaces;
 use Phoundation\Data\Traits\UsesNewField;
 use Phoundation\Data\Validator\Interfaces\InterfaceDataValidator;
 use Phoundation\Exception\OutOfBoundsException;
@@ -26,7 +25,7 @@ use Phoundation\Web\Http\Html\Enums\InputType;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-class Definition implements Interfaces\DefinitionInterface
+class Definition implements \Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface
 {
     use UsesNewField;
 

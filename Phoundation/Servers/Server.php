@@ -10,12 +10,12 @@ use Phoundation\Business\Providers\Providers;
 use Phoundation\Data\Categories\Categories;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
-use Phoundation\Data\DataEntry\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryCustomer;
 use Phoundation\Data\DataEntry\Traits\DataEntryDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryHostnamePort;
 use Phoundation\Data\DataEntry\Traits\DataEntryProvider;
-use Phoundation\Data\Interfaces\DataEntryInterface;
 use Phoundation\Geo\Cities\Cities;
 use Phoundation\Geo\Countries\Countries;
 use Phoundation\Geo\States\States;
@@ -632,12 +632,7 @@ class Server extends DataEntry
                 ->setLabel(tr('Allow SSHD modification'))
                 ->setCliField('-s,--allow-sshd-modification')
                 ->setHelpText(tr('Sets if this server allows automated modification of SSH configuration')))
-            ->add(Definition::new('description')
-                ->setLabel(tr('Description'))
-                ->setInputType(InputTypeExtended::description)
-                ->setSize(12)
-                ->setCliField('-d,--description DESCRIPTION')
-                ->setMaxlength(65_535)
+            ->add(DefinitionFactory::new('description')
                 ->setHelpText(tr('A description for this server')));
     }
 }

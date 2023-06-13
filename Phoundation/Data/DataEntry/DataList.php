@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry;
 
 use Phoundation\Cli\Cli;
+use Phoundation\Data\Classes\Iterator;
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
 use Phoundation\Data\Interfaces\DataEntryInterface;
 use Phoundation\Databases\Sql\Sql;
@@ -13,6 +14,7 @@ use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Components\DataTable;
 use Phoundation\Web\Http\Html\Components\Table;
 use ReturnTypeWillChange;
+use Stringable;
 
 
 /**
@@ -25,7 +27,7 @@ use ReturnTypeWillChange;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
-abstract class DataList implements DataListInterface
+abstract class DataList extends Iterator implements DataListInterface
 {
     /**
      * The list parent
@@ -33,13 +35,6 @@ abstract class DataList implements DataListInterface
      * @var DataEntry|null $parent
      */
     protected ?DataEntryInterface $parent;
-
-    /**
-     * The data list
-     *
-     * @var array $list
-     */
-    protected array $list;
 
     /**
      * A list of filters that will filter the list data when being loaded
@@ -70,7 +65,7 @@ abstract class DataList implements DataListInterface
     protected string $html_query;
 
     /**
-     * The execute array for the HTML query
+     * The execution array for the HTML query
      *
      * @var array|null $html_execute
      */
@@ -100,14 +95,14 @@ abstract class DataList implements DataListInterface
     public function __construct(?DataEntryInterface $parent = null, ?string $id_column = null)
     {
         // Validate the entry class
-        if (isset($this->entry_class)) {
-            if (!is_subclass_of($this->entry_class, DataEntryInterface::class)) {
-                throw new OutOfBoundsException(tr('Specified entry_class is invalid. The class should be a sub class of DataEntry::class but is a ":class"', [
-                    ':class' => $this->entry_class
-                ]));
-            }
-        } else {
+        if (empty($this->entry_class)) {
             throw new OutOfBoundsException(tr('DataList class has not yet been set. The class should contain some DataEntry::class compatible class name'));
+        }
+
+        if (!is_subclass_of($this->entry_class, DataEntryInterface::class)) {
+            throw new OutOfBoundsException(tr('Specified entry_class is invalid. The class should be a sub class of DataEntry::class but is a ":is"', [
+                ':is' => $this->entry_class
+            ]));
         }
 
         $this->parent = $parent;
@@ -127,17 +122,6 @@ abstract class DataList implements DataListInterface
 
 
     /**
-     * Return the object contents in array format
-     *
-     * @return array
-     */
-    public function __toArray(): array
-    {
-        return $this->list;
-    }
-
-
-    /**
      * Returns new DataList object with an optional parent
      *
      * @param DataEntry|null $parent
@@ -151,29 +135,18 @@ abstract class DataList implements DataListInterface
 
 
     /**
-     * Returns the amount of items in this list
-     *
-     * @return int
-     */
-    public function getCount(): int
-    {
-        return count($this->list);
-    }
-
-
-    /**
      * Returns if the specified data entry exists in the data list
      *
-     * @param DataEntry|int $entry
+     * @param Stringable|string|float|int $key
      * @return bool
      */
-    public function exists(DataEntryInterface|int $entry): bool
+    public function exists(Stringable|string|float|int $key): bool
     {
-        if (is_integer($entry)) {
-            return array_key_exists($entry, $this->list);
+        if (is_integer($key)) {
+            return array_key_exists($key, $this->list);
         }
 
-        return array_key_exists($entry->getId(), $this->list);
+        return array_key_exists($key->getId(), $this->list);
     }
 
 
@@ -470,93 +443,25 @@ abstract class DataList implements DataListInterface
     /**
      * Returns the item with the specified identifier
      *
-     * @param int $identifier
+     * @param Stringable|string|float|int $key
+     * @param bool $exception
      * @return DataEntry|null
      */
-    #[ReturnTypeWillChange] public function get(int $identifier): ?DataEntryInterface
+    #[ReturnTypeWillChange] function get(Stringable|string|float|int $key, bool $exception = false): ?DataEntryInterface
     {
         // Does this entry exist?
-        if (!array_key_exists($identifier, $this->list)) {
+        if (!array_key_exists($key, $this->list)) {
             throw new OutOfBoundsException(tr('Key ":key" does not exist in this DataList', [
-                ':key' => $identifier
+                ':key' => $key
             ]));
         }
 
         // Is this entry loaded?
-        if (!is_object($this->list[$identifier])) {
-            $this->list[$identifier] = $this->entry_class::get($identifier);
+        if (!is_object($this->list[$key])) {
+            $this->list[$key] = $this->entry_class::get($key);
         }
 
-        return $this->list[$identifier];
-    }
-
-
-    /**
-     * Returns the current item
-     *
-     * @return DataEntry|null
-     */
-    #[ReturnTypeWillChange] public function current(): ?DataEntryInterface
-    {
-        return $this->get(key($this->list));
-    }
-
-
-    /**
-     * Jumps to the next element
-     *
-     * @return static
-     */
-    #[ReturnTypeWillChange] public function next(): static
-    {
-        next($this->list);
-        return $this;
-    }
-
-
-    /**
-     * Jumps to the next element
-     *
-     * @return static
-     */
-    #[ReturnTypeWillChange] public function previous(): static
-    {
-        prev($this->list);
-        return $this;
-    }
-
-
-    /**
-     * Returns the current iterator position
-     *
-     * @return int
-     */
-    public function key(): int
-    {
-        return key($this->list);
-    }
-
-
-    /**
-     * Returns if the current element exists or not
-     *
-     * @return bool
-     */
-    public function valid(): bool
-    {
-        return isset($this->list[key($this->list)]);
-    }
-
-
-    /**
-     * Rewinds the internal pointer to 0
-     *
-     * @return static
-     */
-    #[ReturnTypeWillChange] public function rewind(): static
-    {
-        reset($this->list);
-        return $this;
+        return $this->list[$key];
     }
 
 
@@ -637,7 +542,7 @@ abstract class DataList implements DataListInterface
      * @param string|null $comments
      * @return int
      */
-    public function delete(array $entries, ?string $comments = null): int
+    public function dbDelete(array $entries, ?string $comments = null): int
     {
 showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY FOR A SINGLE ROW!');
         return $this->setStatus('deleted', $entries, $comments);
@@ -651,7 +556,7 @@ showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY F
      * @param string|null $comments
      * @return int
      */
-    public function undelete(array $entries, ?string $comments = null): int
+    public function dbUndelete(array $entries, ?string $comments = null): int
     {
 showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY FOR A SINGLE ROW!');
         return $this->setStatus(null, $entries, $comments);
@@ -762,6 +667,17 @@ showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY F
 
 
     /**
+     * Returns the current item
+     *
+     * @return DataEntry|null
+     */
+    #[ReturnTypeWillChange] public function current(): ?DataEntryInterface
+    {
+        return $this->get(key($this->list));
+    }
+
+
+    /**
      * Load the id list from database
      *
      * @param string|null $id_column
@@ -775,6 +691,7 @@ showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY F
      *
      * @param array|string|null $columns
      * @param array $filters
+     * @param array $order_by
      * @return array
      */
     abstract protected function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array;

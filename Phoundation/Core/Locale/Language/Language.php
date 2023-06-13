@@ -6,7 +6,8 @@ namespace Phoundation\Core\Locale\Language;
 
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
-use Phoundation\Data\DataEntry\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
 
@@ -152,18 +153,10 @@ class Language extends DataEntry
     protected function initFieldDefinitions(DefinitionsInterface $field_definitions): void
     {
         $field_definitions
-            ->add(Definition::new('name')
+            ->add(DefinitionFactory::new('name')
                 ->setDisabled(true)
-                ->setLabel(tr('Name'))
-                ->setInputType(InputTypeExtended::name)
-                ->setCliField(tr('-n,--name NAME'))
-                ->setAutoComplete(true)
-                ->setSize(12)
-                ->setMaxlength(64)
                 ->setHelpText(tr('The name for this language')))
-            ->add(Definition::new('seo_name')
-                ->setVisible(false)
-                ->setReadonly(true))
+            ->add(DefinitionFactory::new('seo_name'))
             ->add(Definition::new('code_639_1')
                 ->setDisabled(true)
                 ->setInputType(InputTypeExtended::code)
@@ -196,12 +189,7 @@ class Language extends DataEntry
                 ->setSize(12)
                 ->setMaxlength(3)
                 ->setHelpText(tr('The ISO 639-3 code for this language')))
-            ->add(Definition::new('description')
-                ->setOptional(true)
-                ->setInputType(InputTypeExtended::description)
-                ->setLabel(tr('Description'))
-                ->setSize(12)
-                ->setMaxlength(65_535)
-                ->setHelpText(tr('The description for this right')));
+            ->add(DefinitionFactory::new('description')
+                ->setHelpText(tr('The description for this language')));
     }
 }

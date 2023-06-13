@@ -15,12 +15,12 @@ use Phoundation\Core\Meta\Meta;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\Definitions;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Enums\StateMismatchHandling;
 use Phoundation\Data\DataEntry\Exception\DataEntryAlreadyExistsException;
 use Phoundation\Data\DataEntry\Exception\DataEntryException;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntry\Exception\DataEntryStateMismatchException;
-use Phoundation\Data\DataEntry\Interfaces\DefinitionsInterface;
 use Phoundation\Data\Interfaces\DataEntryInterface;
 use Phoundation\Data\Traits\DataDebug;
 use Phoundation\Data\Validator\ArgvValidator;
@@ -34,6 +34,7 @@ use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Components\DataEntryForm;
 use Phoundation\Web\Http\Html\Components\Input\InputText;
 use Phoundation\Web\Http\Html\Components\Interfaces\DataEntryFormInterface;
+use Stringable;
 use Throwable;
 
 
@@ -47,7 +48,7 @@ use Throwable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
-abstract class DataEntry implements DataEntryInterface
+abstract class DataEntry implements DataEntryInterface, Stringable
 {
     use DataDebug;
 
@@ -1452,7 +1453,7 @@ abstract class DataEntry implements DataEntryInterface
      * null_readonly  boolean            false          If "value" for entry is null, then use this for "readonly"
      * null_type      boolean            false          If "value" for entry is null, then use this for "type"
      *
-     * @param Interfaces\DefinitionsInterface $field_definitions
+     * @param \Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface $field_definitions
      */
     abstract protected function initFieldDefinitions(DefinitionsInterface $field_definitions): void;
 }

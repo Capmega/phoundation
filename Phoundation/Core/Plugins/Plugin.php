@@ -9,14 +9,14 @@ use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
-use Phoundation\Data\DataEntry\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryPath;
 use Phoundation\Data\DataEntry\Traits\DataEntryPriority;
 use Phoundation\Data\Interfaces\DataEntryInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
-use Phoundation\Web\Http\Html\Enums\InputElement;
 use Phoundation\Web\Http\Html\Enums\InputType;
 use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
 
@@ -336,12 +336,9 @@ class Plugin extends DataEntry
                 ->setVirtual(true)
                 ->setVisible(false)
                 ->setCliField('-d,--disable'))
-            ->add(Definition::new('name')
+            ->add(DefinitionFactory::new('name')
                 ->setVisible(false))
-            ->add(Definition::new('name')
-                ->setLabel(tr('Name'))
-                ->setInputType(InputTypeExtended::name)
-                ->setMaxlength(64)
+            ->add(DefinitionFactory::new('name')
                 ->setSize(6)
                 ->setHelpText(tr('The name of this plugin')))
             ->add(Definition::new('priority')
@@ -384,14 +381,6 @@ class Plugin extends DataEntry
                 ->setMaxlength(128)
                 ->setSize(6)
                 ->setHelpText(tr('The filesystem path where this plugin is located')))
-            ->add(Definition::new('description')
-                ->setOptional(true)
-                ->setInputType(InputTypeExtended::description)
-                ->setLabel('Description')
-                ->setSize(12)
-                ->setMaxlength(16_777_215)
-                ->addValidationFunction(function ($validator) {
-                    $validator->isDescription();
-                }));
+            ->add(DefinitionFactory::new('description'));
     }
 }
