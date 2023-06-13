@@ -1009,7 +1009,7 @@ throw new UnderConstructionException();
     public function setNullDb(bool $value, string|float|int|null $default = null): static
     {
         $this->setKey('null_db'   , $value);
-        $this->setKey('default_db', $value);
+        $this->setKey('default_db', $default);
 
         return $this;
     }

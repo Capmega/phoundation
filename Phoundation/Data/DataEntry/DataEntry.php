@@ -1006,7 +1006,7 @@ abstract class DataEntry implements InterfaceDataEntry
                             //  By default, all columns with empty values will be pushed to NULL unless specified otherwise
                             if (!$this->field_definitions->get($field)->getNullDb()) {
                                 // Force the data value to NULL
-                                $value = null;
+                                $value = $this->field_definitions->get($field)->getDefaultDb();
                             }
                         }
 
