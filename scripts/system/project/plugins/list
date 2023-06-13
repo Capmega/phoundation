@@ -35,16 +35,14 @@ ARGUMENTS
 [-A / --all]                            List all plugins, not only the active ones');
 
 
-
 // Get command line arguments
 $argv = ArgvValidator::new()
     ->noArgumentsLeft()
     ->validate();
 
 
-
 // Display the plugins
-if ($argv['all']) {
+if (ALL) {
     Cli::displayTable(Plugins::getAvailable());
 } else {
     Cli::displayTable(Plugins::getEnabled());

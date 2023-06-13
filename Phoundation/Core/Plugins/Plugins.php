@@ -146,19 +146,24 @@ class Plugins extends DataList
      */
     public static function getAvailable(): array
     {
-        $return = sql()->list('SELECT   `id`, `status`, `name`, `enabled`, `priority`, `path`, `class` 
-                                     FROM     `core_plugins` 
-                                     ORDER BY `priority`');
+        $return = sql()->list('SELECT   `id`, 
+                                              `name`, 
+                                              IF(`status` IS NULL, "' . tr('Ok') . '"     , "' . tr('Failed') . '")   AS `status`, 
+                                              IF(`enabled` = 1   , "' . tr('Enabled') . '", "' . tr('Disabled') . '") AS `enabled`, 
+                                              `priority`, 
+                                              `class`, 
+                                              `path`
+                                     FROM     `core_plugins`
+                                     WHERE    `name` != "Phoundation" 
+                                     ORDER BY `priority` ASC');
 
         if (!$return) {
             // Phoundation plugin is ALWAYS enabled
-            return static::getPhoundationPluginEntry();
+            return [static::getPhoundationPluginEntry()];
         }
 
-        if (!array_key_exists('phoundation', $return)) {
-            // Phoundation plugin MUST always exist!
-            $return = array_merge(static::getPhoundationPluginEntry(), $return);
-        }
+        // Push Phoundation plugin to the front of the list
+        array_unshift($return, static::getPhoundationPluginEntry());
 
         return $return;
     }
@@ -171,21 +176,26 @@ class Plugins extends DataList
      */
     public static function getEnabled(): array
     {
-        $return = sql()->list('SELECT   `id`, `status`, `name`, `enabled`, `priority`, `path`, `class` 
+        $return = sql()->list('SELECT   `id`, 
+                                              `name`, 
+                                              IF(`status` IS NULL, "' . tr('Ok') . '"     , "' . tr('Failed') . '")   AS `status`, 
+                                              IF(`enabled` = 1   , "' . tr('Enabled') . '", "' . tr('Disabled') . '") AS `enabled`, 
+                                              `priority`, 
+                                              `class`, 
+                                              `path`
                                      FROM     `core_plugins` 
-                                     WHERE    `status`  IS NULL 
+                                     WHERE    `name`    != "Phoundation"
+                                     AND      `status`  IS NULL 
                                        AND    `enabled` != 0  
                                      ORDER BY `priority` ASC');
 
         if (!$return) {
             // Phoundation plugin is ALWAYS enabled
-            return static::getPhoundationPluginEntry();
+            return [static::getPhoundationPluginEntry()];
         }
 
-        if (!array_key_exists('phoundation', $return)) {
-            // Phoundation plugin MUST always exist!
-            $return = array_merge(static::getPhoundationPluginEntry(), $return);
-        }
+        // Push Phoundation plugin to the front of the list
+        array_unshift($return, static::getPhoundationPluginEntry());
 
         return $return;
     }
@@ -199,14 +209,12 @@ class Plugins extends DataList
     protected static function getPhoundationPluginEntry(): array
     {
         return [
-            0 => [
-                'name'     => 'Phoundation',
-                'path'     => PATH_ROOT . '/Plugins/Phoundation/',
-                'class'    => 'Plugins\Phoundation\Plugin',
-                'enabled'  => true,
-                'status'   => null,
-                'priority' => 0
-            ]
+            'name'     => 'Phoundation',
+            'status'   => tr('Ok'),
+            'enabled'  => tr('Enabled'),
+            'priority' => 0,
+            'class'    => 'Plugins\Phoundation\Plugin',
+            'path'     => PATH_ROOT . '/Plugins/Phoundation/',
         ];
     }
 

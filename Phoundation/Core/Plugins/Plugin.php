@@ -90,10 +90,10 @@ abstract class Plugin extends DataEntry
     /**
      * Sets if this plugin is enabled or not
      *
-     * @param bool|null $enabled
+     * @param int|bool|null $enabled
      * @return static
      */
-    public function setEnabled(bool|null $enabled): static
+    public function setEnabled(int|bool|null $enabled): static
     {
         if ($this->getName() === 'Phoundation') {
             if (!$enabled) {
@@ -383,7 +383,6 @@ abstract class Plugin extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->isDescription();
                 }));
-
 
 //        $data = $validator
 //            ->select($this->getAlternateValidationField('name'), true)->hasMaxCharacters()->isName()
