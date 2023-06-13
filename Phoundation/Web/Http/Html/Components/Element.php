@@ -7,7 +7,7 @@ namespace Phoundation\Web\Http\Html\Components;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Http\Html\Interfaces\InterfaceElement;
+use Phoundation\Web\Http\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Http\Html\Renderer;
 use Phoundation\Web\Page;
 
@@ -22,7 +22,7 @@ use Phoundation\Web\Page;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-abstract class Element implements InterfaceElement
+abstract class Element implements ElementInterface
 {
     use ElementAttributes;
 

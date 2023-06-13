@@ -7,7 +7,7 @@ namespace Phoundation\Geo\Continents;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
-use Phoundation\Data\Interfaces\InterfaceDataEntry;
+use Phoundation\Data\Interfaces\DataEntryInterface;
 use Phoundation\Geo\Timezones\Timezone;
 
 /**
@@ -28,11 +28,11 @@ class Continent extends DataEntry
     /**
      * Continent class constructor
      *
-     * @param InterfaceDataEntry|string|int|null $identifier
+     * @param DataEntryInterface|string|int|null $identifier
      */
-    public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null)
     {
-        static::$entry_name = 'geo continent';
+        $this->entry_name   = 'geo continent';
         $this->unique_field = 'seo_name';
 
         parent::__construct($identifier);

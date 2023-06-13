@@ -25,7 +25,7 @@ use Phoundation\Data\DataEntry\Traits\DataEntryTitle;
 use Phoundation\Data\DataEntry\Traits\DataEntryTrace;
 use Phoundation\Data\DataEntry\Traits\DataEntryUrl;
 use Phoundation\Data\DataEntry\Traits\DataEntryUsersId;
-use Phoundation\Data\Interfaces\InterfaceDataEntry;
+use Phoundation\Data\Interfaces\DataEntryInterface;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Exception\NotificationBusyException;
@@ -89,15 +89,16 @@ class Notification extends DataEntry
      */
     protected ?Throwable $e = null;
 
+
     /**
      * Notification class constructor
      *
-     * @param InterfaceDataEntry|string|int|null $identifier
+     * @param DataEntryInterface|string|int|null $identifier
      */
-    public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null)
     {
-        static::$auto_log   = Config::get('notifications.auto-log', true);
-        static::$entry_name = 'notification';
+        static::$auto_log = Config::get('notifications.auto-log', true);
+        $this->entry_name = 'notification';
 
         $this->data['mode']     = 'unknown';
         $this->data['priority'] = 1;
@@ -249,7 +250,7 @@ class Notification extends DataEntry
                 throw NotificationBusyException::new(tr('The notifications system is already busy sending another notification and cannot send the new ":title" notification with message ":message"', [
                     ':title'   => $this->getTitle(),
                     ':message' => $this->getMessage()
-                ]))->$this->setData($this->data);
+                ]))->setData($this->data);
             }
 
             $sending = true;

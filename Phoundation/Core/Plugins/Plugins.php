@@ -306,7 +306,7 @@ class Plugins extends DataList
      */
     protected function load(string|int|null $id_column = null): static
     {
-        $this->list = sql()->list('SELECT `core_plugins`.`id`, `core_plugins`.`name`, `core_plugins`.`status`, `core_plugins`.`priority`, `core_plugins`.`enabled` 
+        $this->list = sql()->list('SELECT `core_plugins`.`id`, `core_plugins`.`name` 
                                    FROM     `core_plugins` 
                                    WHERE    `core_plugins`.`status` IS NULL
                                    ORDER BY `core_plugins`.`name`' . sql()->getLimit());
@@ -320,7 +320,7 @@ class Plugins extends DataList
     /**
      * @inheritDoc
      */
-    protected function loadDetails(array|string|null $columns, array $filters = []): array
+    protected function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
     {
         // TODO: Implement loadDetails() method.
     }

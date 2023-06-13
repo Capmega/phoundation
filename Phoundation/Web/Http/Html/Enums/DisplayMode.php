@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html\Enums;
 
-use Phoundation\Web\Http\Html\Interfaces\InterfaceDisplayMode;
+use Phoundation\Web\Http\Html\Enums\Interfaces\DisplayModeInterface;
 
 /**
  * Enum DisplayMode
@@ -16,7 +16,7 @@ use Phoundation\Web\Http\Html\Interfaces\InterfaceDisplayMode;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-enum DisplayMode: string implements InterfaceDisplayMode
+enum DisplayMode: string implements DisplayModeInterface
 {
     case white     = 'white';
     case success   = 'success';

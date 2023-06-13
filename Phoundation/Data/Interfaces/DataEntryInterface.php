@@ -8,7 +8,7 @@ use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Meta\Meta;
 use Phoundation\Data\DataEntry\Interfaces\DefinitionsInterface;
 use Phoundation\Date\DateTime;
-use Phoundation\Web\Http\Html\Components\DataEntryForm;
+use Phoundation\Web\Http\Html\Components\Interfaces\DataEntryFormInterface;
 
 
 /**
@@ -21,7 +21,7 @@ use Phoundation\Web\Http\Html\Components\DataEntryForm;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
-interface InterfaceDataEntry
+interface DataEntryInterface
 {
     /**
      * Return the object contents in JSON string format
@@ -40,10 +40,10 @@ interface InterfaceDataEntry
     /**
      * Returns a new DataEntry object
      *
-     * @param InterfaceDataEntry|string|int|null $identifier
+     * @param DataEntryInterface|string|int|null $identifier
      * @return static
      */
-    static function new(InterfaceDataEntry|string|int|null $identifier = null): static;
+    static function new(DataEntryInterface|string|int|null $identifier = null): static;
 
     /**
      * Returns a help file generated from the DataEntry keys
@@ -79,10 +79,10 @@ interface InterfaceDataEntry
      * @note This method also accepts DataEntry objects, in which case it will simply return this object. This is to
      *       simplify "if this is not DataEntry object then this is new DataEntry object" into
      *       "PossibleDataEntryVariable is DataEntry::new(PossibleDataEntryVariable)"
-     * @param InterfaceDataEntry|string|int|null $identifier
+     * @param DataEntryInterface|string|int|null $identifier
      * @return static|null
      */
-    static function get(InterfaceDataEntry|string|int|null $identifier = null): ?static;
+    static function get(DataEntryInterface|string|int|null $identifier = null): ?static;
 
     /**
      * Returns a random DataEntry object
@@ -291,9 +291,9 @@ interface InterfaceDataEntry
     /**
      * Creates and returns an HTML for the data in this entry
      *
-     * @return DataEntryForm
+     * @return DataEntryFormInterface
      */
-    function getHtmlForm(): DataEntryForm;
+    public function getHtmlForm(): DataEntryFormInterface;
 
     /**
      * Modify the form keys

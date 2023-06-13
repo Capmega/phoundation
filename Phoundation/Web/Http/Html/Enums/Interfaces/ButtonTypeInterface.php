@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Web\Http\Html\Interfaces;
+namespace Phoundation\Web\Http\Html\Enums\Interfaces;
+
+use Phoundation\Web\Http\Html\Components\Interfaces\InputTypeInterface;
 
 /**
  * Interface ButtonTypeInterface

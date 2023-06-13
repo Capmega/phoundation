@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Web\Http\Html\Interfaces;
+namespace Phoundation\Web\Http\Html\Enums\Interfaces;
+
 
 /**
- * Interface InterfaceDisplaySize
+ * Interface InterfaceDisplayMode
  *
  *
  *
@@ -14,6 +15,6 @@ namespace Phoundation\Web\Http\Html\Interfaces;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-interface InterfaceDisplaySize
+interface DisplayModeInterface
 {
 }

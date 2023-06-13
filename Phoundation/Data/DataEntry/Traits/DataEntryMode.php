@@ -6,7 +6,8 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
-use Phoundation\Web\Http\Html\Interfaces\InterfaceDisplayMode;
+use Phoundation\Web\Http\Html\Enums\Interfaces\DisplayModeInterface;
+
 
 /**
  * Trait DataEntryMode
@@ -23,9 +24,9 @@ trait DataEntryMode
     /**
      * Returns the type of mode for the element or element block
      *
-     * @return InterfaceDisplayMode
+     * @return DisplayModeInterface
      */
-    public function getMode(): InterfaceDisplayMode
+    public function getMode(): DisplayModeInterface
     {
         return DisplayMode::from($this->getDataValue('string', 'mode', ''));
     }
@@ -34,10 +35,10 @@ trait DataEntryMode
     /**
      * Sets the type of mode for the element or element block
      *
-     * @param InterfaceDisplayMode $mode
+     * @param DisplayModeInterface $mode
      * @return static
      */
-    public function setMode(InterfaceDisplayMode $mode): static {
+    public function setMode(DisplayModeInterface $mode): static {
         // Convert aliases
         $mode = match ($mode) {
             DisplayMode::white       => DisplayMode::white,

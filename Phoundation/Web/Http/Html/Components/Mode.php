@@ -6,7 +6,6 @@ namespace Phoundation\Web\Http\Html\Components;
 
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
-use Phoundation\Web\Http\Html\Interfaces\InterfaceDisplayMode;
 
 /**
  * Mode trait
@@ -23,17 +22,17 @@ trait Mode
     /**
      * The type of mode for the element or element block
      *
-     * @var InterfaceDisplayMode $mode
+     * @var DisplayMode $mode
      */
-    protected InterfaceDisplayMode $mode = DisplayMode::primary;
+    protected DisplayMode $mode = DisplayMode::primary;
 
 
     /**
      * Returns the type of mode for the element or element block
      *
-     * @return InterfaceDisplayMode
+     * @return DisplayMode
      */
-    public function getMode(): InterfaceDisplayMode
+    public function getMode(): DisplayMode
     {
         return $this->mode;
     }
@@ -42,10 +41,10 @@ trait Mode
     /**
      * Sets the type of mode for the element or element block
      *
-     * @param InterfaceDisplayMode $mode
+     * @param DisplayMode $mode
      * @return static
      */
-    public function setMode(InterfaceDisplayMode $mode): static {
+    public function setMode(DisplayMode $mode): static {
         // Convert aliases
         $mode = match ($mode) {
             DisplayMode::white       => DisplayMode::white,

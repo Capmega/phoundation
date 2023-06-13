@@ -6,7 +6,7 @@ namespace Phoundation\Web\Http\Html\Layouts;
 
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Enums\DisplayTier;
-use Phoundation\Web\Http\Html\Interfaces\InterfaceDisplaySize;
+use Phoundation\Web\Http\Html\Enums\Interfaces\DisplaySizeInterface;
 use Phoundation\Web\Http\Html\Traits\UsesSize;
 use Phoundation\Web\Http\Html\Traits\UsesTier;
 use Stringable;
@@ -42,10 +42,10 @@ class GridColumn extends Layout
      * Sets the content of the grid
      *
      * @param Stringable|string|float|int|null $content
-     * @param InterfaceDisplaySize|int|null $size
+     * @param DisplaySizeInterface|int|null $size
      * @return static
      */
-    public function setContent(Stringable|string|float|int|null $content, InterfaceDisplaySize|int|null $size = null): static
+    public function setContent(Stringable|string|float|int|null $content, DisplaySizeInterface|int|null $size = null): static
     {
         if ($size !== null) {
             $this->setSize($size);
@@ -59,10 +59,10 @@ class GridColumn extends Layout
      * Adds the specified content to the content of the grid
      *
      * @param Stringable|string|float|int|null $content
-     * @param InterfaceDisplaySize|int|null $size $size
+     * @param DisplaySizeInterface|int|null $size $size
      * @return static
      */
-    public function addContent(Stringable|string|float|int|null $content, InterfaceDisplaySize|int|null $size = null): static
+    public function addContent(Stringable|string|float|int|null $content, DisplaySizeInterface|int|null $size = null): static
     {
         if ($size !== null) {
             $this->setSize($size);

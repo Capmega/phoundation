@@ -21,7 +21,7 @@ use Phoundation\Data\DataEntry\Exception\DataEntryException;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntry\Exception\DataEntryStateMismatchException;
 use Phoundation\Data\DataEntry\Interfaces\DefinitionsInterface;
-use Phoundation\Data\Interfaces\InterfaceDataEntry;
+use Phoundation\Data\Interfaces\DataEntryInterface;
 use Phoundation\Data\Traits\DataDebug;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\Interfaces\InterfaceDataValidator;
@@ -33,6 +33,7 @@ use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Components\DataEntryForm;
 use Phoundation\Web\Http\Html\Components\Input\InputText;
+use Phoundation\Web\Http\Html\Components\Interfaces\DataEntryFormInterface;
 use Throwable;
 
 
@@ -46,7 +47,7 @@ use Throwable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
-abstract class DataEntry implements InterfaceDataEntry
+abstract class DataEntry implements DataEntryInterface
 {
     use DataDebug;
 
@@ -57,7 +58,7 @@ abstract class DataEntry implements InterfaceDataEntry
      * @var string $entry_name
      */
     // TODO Check this, will likely go wrong as we have many sub classes of DataEntry
-    protected static string $entry_name;
+    protected string $entry_name;
 
     /**
      * The table name where this data entry is stored
@@ -162,11 +163,11 @@ abstract class DataEntry implements InterfaceDataEntry
     /**
      * DataEntry class constructor
      *
-     * @param InterfaceDataEntry|string|int|null $identifier
+     * @param DataEntryInterface|string|int|null $identifier
      */
-    public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null)
     {
-        if (empty(static::$entry_name)) {
+        if (empty($this->entry_name)) {
             throw new OutOfBoundsException(tr('No "entry_name" specified for class ":class"', [
                 ':class' => get_class($this)
             ]));
@@ -231,10 +232,10 @@ abstract class DataEntry implements InterfaceDataEntry
     /**
      * Returns a new DataEntry object
      *
-     * @param InterfaceDataEntry|string|int|null $identifier
+     * @param DataEntryInterface|string|int|null $identifier
      * @return static
      */
-    public static function new(InterfaceDataEntry|string|int|null $identifier = null): static
+    public static function new(DataEntryInterface|string|int|null $identifier = null): static
     {
         return new static($identifier);
     }
@@ -251,7 +252,7 @@ abstract class DataEntry implements InterfaceDataEntry
         $arguments = [];
 
         // Extract auto complete for cli parameters from field definitions
-        foreach (static::getFieldDefinitions() as $definitions) {
+        foreach (static::new()->getFieldDefinitions() as $definitions) {
             if ($definitions->getCliField() and $definitions->getAutoComplete()) {
                 $arguments[$definitions->getCliField()] = $definitions->getAutoComplete();
             }
@@ -305,11 +306,9 @@ abstract class DataEntry implements InterfaceDataEntry
             $help = preg_replace('/ARGUMENTS/', Color::apply(strtoupper(tr('ARGUMENTS')), 'white'), $help);
         }
 
-        $groups     = [];
-        $entry      = static::new();
-        $fields     = static::getFieldDefinitions();
-        $alternates = $entry->getCliFields();
-        $return     = PHP_EOL . PHP_EOL . PHP_EOL . PHP_EOL . Color::apply(strtoupper(tr('REQUIRED ARGUMENTS')), 'white');
+        $groups = [];
+        $fields = static::new()->getFieldDefinitions();
+        $return = PHP_EOL . PHP_EOL . PHP_EOL . PHP_EOL . Color::apply(strtoupper(tr('REQUIRED ARGUMENTS')), 'white');
 
         // Get the required fields and gather a list of available help groups
         foreach ($fields as $id => $definitions) {
@@ -359,10 +358,10 @@ abstract class DataEntry implements InterfaceDataEntry
      * @note This method also accepts DataEntry objects, in which case it will simply return this object. This is to
      *       simplify "if this is not DataEntry object then this is new DataEntry object" into
      *       "PossibleDataEntryVariable is DataEntry::new(PossibleDataEntryVariable)"
-     * @param InterfaceDataEntry|string|int|null $identifier
+     * @param DataEntryInterface|string|int|null $identifier
      * @return static|null
      */
-    public static function get(InterfaceDataEntry|string|int|null $identifier = null): ?static
+    public static function get(DataEntryInterface|string|int|null $identifier = null): ?static
     {
         if (!$identifier) {
             // No identifier specified, just return an empty object
@@ -388,7 +387,7 @@ abstract class DataEntry implements InterfaceDataEntry
         }
 
         throw DataEntryNotExistsException::new(tr('The ":label" entry ":identifier" does not exist', [
-            ':label'      => static::$entry_name,
+            ':label'      => static::class,
             ':identifier' => $identifier
         ]))->makeWarning();
     }
@@ -745,7 +744,7 @@ abstract class DataEntry implements InterfaceDataEntry
                     case StateMismatchHandling::ignore:
                         Log::warning(tr('Ignoring database and user meta state mismatch for ":type" type record with ID ":id"', [
                             ':id'   => $this->getId(),
-                            ':type' => static::$entry_name
+                            ':type' => $this->entry_name
                         ]));
                         break;
 
@@ -758,7 +757,7 @@ abstract class DataEntry implements InterfaceDataEntry
                     case StateMismatchHandling::restrict:
                         throw new DataEntryStateMismatchException(tr('Database and user meta state for ":type" type record with ID ":id" do not match', [
                             ':id'   => $this->getId(),
-                            ':type' => static::$entry_name
+                            ':type' => $this->entry_name
                         ]));
                 }
             }
@@ -1197,9 +1196,9 @@ abstract class DataEntry implements InterfaceDataEntry
     /**
      * Creates and returns an HTML for the data in this entry
      *
-     * @return DataEntryForm
+     * @return DataEntryFormInterface
      */
-    public function getHtmlForm(): DataEntryForm
+    public function getHtmlForm(): DataEntryFormInterface
     {
         return DataEntryForm::new()
             ->setSource($this->data)
@@ -1316,7 +1315,7 @@ abstract class DataEntry implements InterfaceDataEntry
     protected function load(string|int $identifier): void
     {
         if (is_numeric($identifier)) {
-            $data = sql()->get('SELECT * FROM `' . static::getTable() . '` WHERE `id`                          = :id'                     , [':id'                     => $identifier]);
+            $data = sql()->get('SELECT * FROM `' . static::getTable() . '` WHERE `id`                          = :id'                    , [':id'                   => $identifier]);
         } else {
             $data = sql()->get('SELECT * FROM `' . static::getTable() . '` WHERE `' . $this->unique_field . '` = :' . $this->unique_field, [':'. $this->unique_field => $identifier]);
         }
@@ -1356,7 +1355,7 @@ abstract class DataEntry implements InterfaceDataEntry
             ->add(Definition::new('created_on')->setDefinitions([
                 'meta'     => true,
                 'readonly' => true,
-                'type'     => 'datetime_local',
+                'type'     => 'datetime-local',
                 'size'     => 3,
                 'label'    => tr('Created on')
             ]))

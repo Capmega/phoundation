@@ -8,6 +8,7 @@ use PDO;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Http\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Http\Html\Components\ResourceElement;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
 
@@ -291,7 +292,7 @@ class Select extends ResourceElement
      * @see \Templates\AdminLte\Html\Components\Input\Select::render()
      * @see \Templates\AdminLte\Html\Components\Input\Select::renderHeaders()
      * @see ResourceElement::renderBody()
-     * @see InterfaceElement::render()
+     * @see ElementInterface::render()
      */
     public function renderBody(): ?string
     {
@@ -331,7 +332,7 @@ class Select extends ResourceElement
      *@see \Templates\AdminLte\Html\Components\Input\Select::render()
      * @see \Templates\AdminLte\Html\Components\Input\Select::renderHeaders()
      * @see ResourceElement::renderBody()
-     * @see InterfaceElement::render()
+     * @see ElementInterface::render()
      */
     protected function renderBodyArray(): ?string
     {
@@ -380,7 +381,7 @@ class Select extends ResourceElement
      * @see \Templates\AdminLte\Html\Components\Input\Select::render()
      * @see \Templates\AdminLte\Html\Components\Input\Select::renderHeaders()
      * @see ResourceElement::renderBody()
-     * @see InterfaceElement::render()
+     * @see ElementInterface::render()
      */
     protected function renderBodyQuery(): ?string
     {

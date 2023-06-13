@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Web\Http\Html\Interfaces;
+namespace Phoundation\Web\Http\Html\Components\Interfaces;
+
 use Phoundation\Web\Http\Html\Components\Form;
+use Phoundation\Web\Http\Html\Interfaces\ReturnTypeWillChange;
 use Stringable;
 
 
@@ -17,7 +19,7 @@ use Stringable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-interface InterfaceElementsBlock extends Stringable
+interface ElementsBlockInterface extends Stringable
 {
     /**
      * Returns the contents of this object as an array
@@ -99,7 +101,7 @@ interface InterfaceElementsBlock extends Stringable
      *       with Template AdminLte will be rendered by Templates\AdminLte\Html\Components\Input\InputText
      *
      * @return string|null
-     * @see InterfaceElement::render()
+     * @see ElementInterface::render()
      */
     public function render(): ?string;
 

@@ -5,16 +5,12 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http\Html\Components\FlashMessages;
 
 use Iterator;
-use JetBrains\PhpStorm\ExpectedValues;
-use Phoundation\Core\Exception\CoreException;
-use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\ElementsBlock;
 use Phoundation\Web\Http\Html\Components\Script;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
-use Phoundation\Web\Http\Html\Interfaces\InterfaceDisplayMode;
 
 /**
  * Class FlashMessages
@@ -54,12 +50,12 @@ class FlashMessages extends ElementsBlock implements Iterator
      *
      * @param FlashMessage|Exception|string|null $title
      * @param string|null $message
-     * @param InterfaceDisplayMode|null $mode
+     * @param DisplayMode|null $mode
      * @param string|null $icon
      * @param int|null $auto_close
      * @return $this
      */
-    public function add(FlashMessage|Exception|string|null $title, ?string $message = null, ?InterfaceDisplayMode $mode = null, string $icon = null, ?int $auto_close = null): static
+    public function add(FlashMessage|Exception|string|null $title, ?string $message = null, ?DisplayMode $mode = null, string $icon = null, ?int $auto_close = null): static
     {
         if ($title) {
             // a title was specified

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Data\DataEntry\Definitions;
 
 use Phoundation\Data\Classes\Iterator;
@@ -26,7 +28,7 @@ class Definitions extends Iterator implements Interfaces\DefinitionsInterface
     /**
      * Adds the specified Definition to the fields list
      *
-     * @param \Phoundation\Data\DataEntry\Definitions\Definition $field
+     * @param Definition $field
      * @return static
      */
     public function add(Interfaces\DefinitionInterface $field): static

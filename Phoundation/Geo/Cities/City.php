@@ -7,7 +7,7 @@ namespace Phoundation\Geo\Cities;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
-use Phoundation\Data\Interfaces\InterfaceDataEntry;
+use Phoundation\Data\Interfaces\DataEntryInterface;
 use Phoundation\Geo\Continents\Continent;
 use Phoundation\Geo\Counties\County;
 use Phoundation\Geo\Countries\Country;
@@ -33,11 +33,11 @@ class City extends DataEntry
     /**
      * City class constructor
      *
-     * @param InterfaceDataEntry|string|int|null $identifier
+     * @param DataEntryInterface|string|int|null $identifier
      */
-    public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null)
     {
-        static::$entry_name = 'city';
+        $this->entry_name   = 'city';
         $this->unique_field = 'seo_name';
 
         parent::__construct($identifier);

@@ -7,7 +7,7 @@ namespace Phoundation\Business\Companies\Employees;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
-use Phoundation\Data\Interfaces\InterfaceDataEntry;
+use Phoundation\Data\Interfaces\DataEntryInterface;
 
 
 /**
@@ -29,11 +29,11 @@ class Employee extends DataEntry
     /**
      * Employee class constructor
      *
-     * @param InterfaceDataEntry|string|int|null $identifier
+     * @param DataEntryInterface|string|int|null $identifier
      */
-    public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null)
     {
-        static::$entry_name = 'company employee';
+        $this->entry_name = 'company employee';
 
         parent::__construct($identifier);
     }

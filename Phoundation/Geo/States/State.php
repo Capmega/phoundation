@@ -7,7 +7,7 @@ namespace Phoundation\Geo\States;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
-use Phoundation\Data\Interfaces\InterfaceDataEntry;
+use Phoundation\Data\Interfaces\DataEntryInterface;
 use Phoundation\Geo\Continents\Continent;
 use Phoundation\Geo\Countries\Country;
 use Phoundation\Geo\Timezones\Timezone;
@@ -31,11 +31,11 @@ class State extends DataEntry
     /**
      * State class constructor
      *
-     * @param InterfaceDataEntry|string|int|null $identifier
+     * @param DataEntry|string|int|null $identifier
      */
-    public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
+    public function __construct(DataEntry|string|int|null $identifier = null)
     {
-        static::$entry_name = 'geo state';
+        $this->entry_name   = 'geo state';
         $this->unique_field = 'seo_name';
 
         parent::__construct($identifier);

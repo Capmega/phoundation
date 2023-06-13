@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Phoundation\Accounts\Rights;
 
 use Phoundation\Accounts\Interfaces\RightsInterface;
-use Phoundation\Accounts\Interfaces\InterfaceRole;
-use Phoundation\Accounts\Interfaces\InterfaceUser;
+use Phoundation\Accounts\Interfaces\RoleInterface;
+use Phoundation\Accounts\Interfaces\UserInterface;
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Arrays;
@@ -34,10 +34,10 @@ class Rights extends DataList implements RightsInterface
     /**
      * Rights class constructor
      *
-     * @param InterfaceUser|InterfaceRole|null $parent
+     * @param UserInterface|RoleInterface|null $parent
      * @param string|null $id_column
      */
-    public function __construct(InterfaceUser|InterfaceRole|null $parent = null, ?string $id_column = null)
+    public function __construct(UserInterface|RoleInterface|null $parent = null, ?string $id_column = null)
     {
         $this->entry_class = Right::class;
         self::$table       = Right::getTable();

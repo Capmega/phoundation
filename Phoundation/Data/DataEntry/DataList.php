@@ -6,7 +6,7 @@ namespace Phoundation\Data\DataEntry;
 
 use Phoundation\Cli\Cli;
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
-use Phoundation\Data\Interfaces\InterfaceDataEntry;
+use Phoundation\Data\Interfaces\DataEntryInterface;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Json;
@@ -32,7 +32,7 @@ abstract class DataList implements DataListInterface
      *
      * @var DataEntry|null $parent
      */
-    protected ?DataEntry $parent;
+    protected ?DataEntryInterface $parent;
 
     /**
      * The data list
@@ -94,14 +94,14 @@ abstract class DataList implements DataListInterface
     /**
      * DataList class constructor
      *
-     * @param InterfaceDataEntry|null $parent
+     * @param DataEntry|null $parent
      * @param string|null $id_column
      */
-    public function __construct(?InterfaceDataEntry $parent = null, ?string $id_column = null)
+    public function __construct(?DataEntryInterface $parent = null, ?string $id_column = null)
     {
         // Validate the entry class
         if (isset($this->entry_class)) {
-            if (!is_subclass_of($this->entry_class, DataEntry::class)) {
+            if (!is_subclass_of($this->entry_class, DataEntryInterface::class)) {
                 throw new OutOfBoundsException(tr('Specified entry_class is invalid. The class should be a sub class of DataEntry::class but is a ":class"', [
                     ':class' => $this->entry_class
                 ]));
@@ -140,11 +140,11 @@ abstract class DataList implements DataListInterface
     /**
      * Returns new DataList object with an optional parent
      *
-     * @param InterfaceDataEntry|null $parent
+     * @param DataEntry|null $parent
      * @param string|null $id_column
      * @return static
      */
-    public static function new(?InterfaceDataEntry $parent = null, ?string $id_column = null): static
+    public static function new(?DataEntryInterface $parent = null, ?string $id_column = null): static
     {
         return new static($parent, $id_column);
     }
@@ -164,10 +164,10 @@ abstract class DataList implements DataListInterface
     /**
      * Returns if the specified data entry exists in the data list
      *
-     * @param InterfaceDataEntry|int $entry
+     * @param DataEntry|int $entry
      * @return bool
      */
-    public function exists(InterfaceDataEntry|int $entry): bool
+    public function exists(DataEntryInterface|int $entry): bool
     {
         if (is_integer($entry)) {
             return array_key_exists($entry, $this->list);
@@ -471,9 +471,9 @@ abstract class DataList implements DataListInterface
      * Returns the item with the specified identifier
      *
      * @param int $identifier
-     * @return InterfaceDataEntry|null
+     * @return DataEntry|null
      */
-    #[ReturnTypeWillChange] public function get(int $identifier): ?InterfaceDataEntry
+    #[ReturnTypeWillChange] public function get(int $identifier): ?DataEntryInterface
     {
         // Does this entry exist?
         if (!array_key_exists($identifier, $this->list)) {
@@ -494,9 +494,9 @@ abstract class DataList implements DataListInterface
     /**
      * Returns the current item
      *
-     * @return InterfaceDataEntry|null
+     * @return DataEntry|null
      */
-    #[ReturnTypeWillChange] public function current(): ?InterfaceDataEntry
+    #[ReturnTypeWillChange] public function current(): ?DataEntryInterface
     {
         return $this->get(key($this->list));
     }
@@ -689,10 +689,10 @@ showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY F
     /**
      * Add the specified data entry to the data list
      *
-     * @param InterfaceDataEntry|null $entry
+     * @param DataEntry|null $entry
      * @return static
      */
-    protected function addEntry(?InterfaceDataEntry $entry): static
+    protected function addEntry(?DataEntryInterface $entry): static
     {
         if ($entry) {
             $this->list[$entry->getId()] = $entry;
@@ -705,10 +705,10 @@ showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY F
     /**
      * Remove the specified data entry from the data list
      *
-     * @param InterfaceDataEntry|int|null $entry
+     * @param DataEntry|int|null $entry
      * @return static
      */
-    protected function removeEntry(InterfaceDataEntry|int|null $entry): static
+    protected function removeEntry(DataEntryInterface|int|null $entry): static
     {
         if ($entry) {
             if (is_object($entry)) {
@@ -777,7 +777,7 @@ showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY F
      * @param array $filters
      * @return array
      */
-    abstract protected function loadDetails(array|string|null $columns, array $filters = []): array;
+    abstract protected function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array;
 
 
     /**

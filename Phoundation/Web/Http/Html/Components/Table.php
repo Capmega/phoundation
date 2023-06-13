@@ -6,10 +6,10 @@ namespace Phoundation\Web\Http\Html\Components;
 
 use PDO;
 use Phoundation\Core\Arrays;
-use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Input\InputCheckbox;
+use Phoundation\Web\Http\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
 use Phoundation\Web\Http\UrlBuilder;
 use Stringable;
@@ -641,7 +641,7 @@ class Table extends ResourceElement
      *@see \Templates\AdminLte\Html\Components\Table::render()
      * @see \Templates\AdminLte\Html\Components\Table::renderHeaders()
      * @see ResourceElement::renderBody()
-     * @see InterfaceElement::render()
+     * @see ElementInterface::render()
      */
     protected function renderBodyArray(): ?string
     {
@@ -701,7 +701,7 @@ class Table extends ResourceElement
      *@see \Templates\AdminLte\Html\Components\Table::render()
      * @see \Templates\AdminLte\Html\Components\Table::renderHeaders()
      * @see ResourceElement::renderBody()
-     * @see InterfaceElement::render()
+     * @see ElementInterface::render()
      */
     protected function renderBodyQuery(): ?string
     {

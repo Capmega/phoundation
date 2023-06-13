@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 use Phoundation\Core\Plugins\Plugin;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Web\Http\Html\Components\BreadCrumbs;
@@ -25,7 +24,7 @@ $plugin = Plugin::get($_GET['id']);
 // Build the buttons
 $buttons = Buttons::new()
     ->addButton('Submit')
-    ->addButton('Back', 'secondary', '/development/plugins.html', true);
+    ->addButton('Back', DisplayMode::secondary, '/development/plugins.html', true);
 
 
 // Build the plugin form
@@ -73,5 +72,5 @@ Page::setHeaderSubTitle($plugin->getName());
 Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                         => tr('Home'),
     '/development/plugins.html' => tr('Plugins'),
-    ''                          => $plugin->getDisplayName()
+    ''                          => $plugin->getName()
 ]));

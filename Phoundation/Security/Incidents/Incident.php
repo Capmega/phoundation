@@ -12,7 +12,7 @@ use Phoundation\Data\DataEntry\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryDetails;
 use Phoundation\Data\DataEntry\Traits\DataEntryTitle;
 use Phoundation\Data\DataEntry\Traits\DataEntryType;
-use Phoundation\Data\Interfaces\InterfaceDataEntry;
+use Phoundation\Data\Interfaces\DataEntryInterface;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
 use Phoundation\Web\Http\Html\Enums\InputElement;
 
@@ -47,11 +47,11 @@ class Incident extends DataEntry
     /**
      * Incident class constructor
      *
-     * @param InterfaceDataEntry|string|int|null $identifier
+     * @param DataEntry|string|int|null $identifier
      */
-    public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
+    public function __construct(DataEntry|string|int|null $identifier = null)
     {
-        static::$entry_name = 'incident';
+        $this->entry_name   = 'incident';
         $this->unique_field = 'id';
 
         parent::__construct($identifier);

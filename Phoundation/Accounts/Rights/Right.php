@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Rights;
 
-use Phoundation\Accounts\Interfaces\InterfaceRight;
+use Phoundation\Accounts\Interfaces\RightInterface;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
-use Phoundation\Data\Interfaces\InterfaceDataEntry;
+use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
 
 
 /**
@@ -23,7 +23,7 @@ use Phoundation\Data\Interfaces\InterfaceDataEntry;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
-class Right extends DataEntry implements InterfaceRight
+class Right extends DataEntry implements RightInterface
 {
     use DataEntryNameDescription;
 
@@ -31,11 +31,11 @@ class Right extends DataEntry implements InterfaceRight
     /**
      * Right class constructor
      *
-     * @param InterfaceDataEntry|string|int|null $identifier
+     * @param DataEntry|string|int|null $identifier
      */
-    public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
+    public function __construct(DataEntry|string|int|null $identifier = null)
     {
-        static::$entry_name = 'right';
+        $this->entry_name   = 'right';
 
         parent::__construct($identifier);
     }
@@ -70,6 +70,7 @@ class Right extends DataEntry implements InterfaceRight
                 ->setReadonly(true))
             ->add(Definition::new('description')
                 ->setOptional(true)
+                ->setInputType(InputTypeExtended::description)
                 ->setLabel(tr('Description'))
                 ->setSize(12)
                 ->setMaxlength(65_535)

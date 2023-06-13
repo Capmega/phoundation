@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Roles;
 
-use Phoundation\Accounts\Interfaces\InterfaceRole;
+use Phoundation\Accounts\Interfaces\RoleInterface;
 use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Accounts\Users\Users;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
-use Phoundation\Data\Interfaces\InterfaceDataEntry;
 use Phoundation\Web\Http\Html\Components\Form;
+use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
 
 
 /**
@@ -26,7 +26,7 @@ use Phoundation\Web\Http\Html\Components\Form;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
-class Role extends DataEntry implements InterfaceRole
+class Role extends DataEntry implements RoleInterface
 {
     use DataEntryNameDescription;
 
@@ -34,11 +34,11 @@ class Role extends DataEntry implements InterfaceRole
     /**
      * Role class constructor
      *
-     * @param InterfaceDataEntry|string|int|null $identifier
+     * @param DataEntry|string|int|null $identifier
      */
-    public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
+    public function __construct(DataEntry|string|int|null $identifier = null)
     {
-        static::$entry_name = 'role';
+        $this->entry_name   = 'role';
 
         parent::__construct($identifier);
     }
@@ -122,6 +122,7 @@ class Role extends DataEntry implements InterfaceRole
                 ->setReadonly(true))
             ->add(Definition::new('description')
                 ->setOptional(true)
+                ->setInputType(InputTypeExtended::description)
                 ->setLabel(tr('Description'))
                 ->setSize(12)
                 ->setMaxlength(65_535)

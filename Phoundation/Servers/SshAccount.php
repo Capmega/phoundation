@@ -9,7 +9,7 @@ use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryUsername;
-use Phoundation\Data\Interfaces\InterfaceDataEntry;
+use Phoundation\Data\Interfaces\DataEntryInterface;
 use Phoundation\Filesystem\Traits\DataRestrictions;
 use Phoundation\Web\Http\Html\Enums\InputElement;
 use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
@@ -34,11 +34,11 @@ class SshAccount extends DataEntry
     /**
      * User class constructor
      *
-     * @param InterfaceDataEntry|string|int|null $identifier
+     * @param DataEntry|string|int|null $identifier
      */
-    public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
+    public function __construct(DataEntry|string|int|null $identifier = null)
     {
-        static::$entry_name = 'SSH account';
+        $this->entry_name   = 'SSH account';
 
         parent::__construct($identifier);
     }
@@ -109,7 +109,7 @@ class SshAccount extends DataEntry
             ->add(Definition::new('description')
                 ->setLabel(tr('Description'))
                 ->setCliField(tr('-d,--description DESCRIPTION'))
-                ->setElement(InputElement::textarea)
+                ->setInputType(InputTypeExtended::description)
                 ->setSize(12)
                 ->setMaxlength(65_535)
                 ->setHelpText(tr('The description for this account')))

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Processes;
 
 use Phoundation\Data\DataEntry\DataEntry;
@@ -8,10 +10,11 @@ use Phoundation\Data\DataEntry\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryName;
 use Phoundation\Data\DataEntry\Traits\DataEntryResults;
-use Phoundation\Data\Interfaces\InterfaceDataEntry;
+use Phoundation\Data\Interfaces\DataEntryInterface;
 use Phoundation\Data\Validator\Interfaces\InterfaceDataValidator;
 use Phoundation\Processes\Exception\TasksException;
 use Phoundation\Web\Http\Html\Enums\InputType;
+use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
 
 
 /**
@@ -34,11 +37,11 @@ class Task extends DataEntry
     /**
      * Country class constructor
      *
-     * @param InterfaceDataEntry|string|int|null $identifier
+     * @param DataEntryInterface|string|int|null $identifier
      */
-    public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null)
     {
-        static::$entry_name = 'process task';
+        $this->entry_name   = 'process task';
 
         parent::__construct($identifier);
     }
@@ -195,6 +198,7 @@ class Task extends DataEntry
                 ->setReadonly(true))
             ->add(Definition::new('description')
                 ->setLabel('description')
+                ->setInputType(InputTypeExtended::description)
                 ->setSize(12)
                 ->setMaxlength(65535)
                 ->addValidationFunction(function(InterfaceDataValidator $validator) {

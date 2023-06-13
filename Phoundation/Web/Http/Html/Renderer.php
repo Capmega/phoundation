@@ -7,6 +7,9 @@ namespace Phoundation\Web\Http\Html;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Element;
 use Phoundation\Web\Http\Html\Components\ElementsBlock;
+use Phoundation\Web\Http\Html\Components\Interfaces\ElementInterface;
+use Phoundation\Web\Http\Html\Components\Interfaces\ElementsBlockInterface;
+
 
 /**
  * Class Renderer
@@ -30,9 +33,9 @@ class Renderer
     /**
      * The element to render
      *
-     * @var ElementsBlock|Element $element
+     * @var ElementsBlockInterface|ElementInterface $element
      */
-    protected ElementsBlock|Element $element;
+    protected ElementsBlockInterface|ElementInterface $element;
 
     /**
      * The parent render function
@@ -45,9 +48,9 @@ class Renderer
     /**
      * Renderer class element
      *
-     * @param ElementsBlock|Element $element
+     * @param ElementsBlockInterface|ElementInterface $element
      */
-    public function __construct(ElementsBlock|Element $element)
+    public function __construct(ElementsBlockInterface|ElementInterface $element)
     {
         $this->element = $element;
     }
@@ -92,10 +95,10 @@ class Renderer
     /**
      * Sets the element to be rendered
      *
-     * @param ElementsBlock|Element $element
+     * @param ElementsBlockInterface|ElementInterface $element
      * @return static
      */
-    public function setElement(ElementsBlock|Element $element): static
+    public function setElement(ElementsBlockInterface|ElementInterface $element): static
     {
         $this->element = $element;
         return $this;
@@ -105,9 +108,9 @@ class Renderer
     /**
      * Returns the element to be rendered
      *
-     * @return ElementsBlock|Element
+     * @return ElementsBlockInterface|ElementInterface
      */
-    public function getElement(): ElementsBlock|Element
+    public function getElement(): ElementsBlockInterface|ElementInterface
     {
         return $this->element;
     }

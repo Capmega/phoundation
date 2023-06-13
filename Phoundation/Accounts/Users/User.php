@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Users;
 
-use Phoundation\Accounts\Interfaces\InterfaceUser;
+use Phoundation\Accounts\Interfaces\UserInterface;
 use Phoundation\Accounts\Passwords;
 use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Accounts\Roles\Roles;
@@ -33,7 +33,6 @@ use Phoundation\Data\DataEntry\Traits\DataEntryPicture;
 use Phoundation\Data\DataEntry\Traits\DataEntryTimezone;
 use Phoundation\Data\DataEntry\Traits\DataEntryType;
 use Phoundation\Data\DataEntry\Traits\DataEntryUrl;
-use Phoundation\Data\Interfaces\InterfaceDataEntry;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Date\DateTime;
 use Phoundation\Exception\NotSupportedException;
@@ -51,6 +50,7 @@ use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\Html\Components\Form;
 use Phoundation\Web\Http\Html\Enums\InputElement;
 use Phoundation\Web\Http\Html\Enums\InputType;
+use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
 use Phoundation\Web\Http\UrlBuilder;
 
 
@@ -65,7 +65,7 @@ use Phoundation\Web\Http\UrlBuilder;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
-class User extends DataEntry implements InterfaceUser
+class User extends DataEntry implements UserInterface
 {
     use DataEntryGeo;
     use DataEntryUrl;
@@ -107,11 +107,11 @@ class User extends DataEntry implements InterfaceUser
     /**
      * User class constructor
      *
-     * @param InterfaceDataEntry|string|int|null $identifier
+     * @param DataEntry|string|int|null $identifier
      */
-    public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
+    public function __construct(DataEntry|string|int|null $identifier = null)
     {
-        static::$entry_name = 'user';
+        $this->entry_name   = 'user';
         $this->unique_field = 'email';
 
         parent::__construct($identifier);
@@ -1856,6 +1856,7 @@ class User extends DataEntry implements InterfaceUser
                 }))
             ->add(Definition::new('description')
                 ->setOptional(true)
+                ->setInputType(InputTypeExtended::description)
                 ->setMaxlength(65_535)
                 ->setSize(6)
                 ->setCliField('-d,--description')

@@ -13,9 +13,10 @@ use Phoundation\Data\DataEntry\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryPath;
 use Phoundation\Data\DataEntry\Traits\DataEntryPriority;
-use Phoundation\Data\Interfaces\InterfaceDataEntry;
+use Phoundation\Data\Interfaces\DataEntryInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
+use Phoundation\Web\Http\Html\Enums\InputElement;
 use Phoundation\Web\Http\Html\Enums\InputType;
 use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
 
@@ -31,7 +32,7 @@ use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
-abstract class Plugin extends DataEntry
+class Plugin extends DataEntry
 {
     use DataEntryNameDescription;
     use DataEntryPath;
@@ -43,11 +44,11 @@ abstract class Plugin extends DataEntry
     /**
      * Plugin class constructor
      *
-     * @param InterfaceDataEntry|string|int|null $identifier
+     * @param DataEntryInterface|string|int|null $identifier
      */
-    public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null)
     {
-        static::$entry_name  = 'plugin';
+        $this->entry_name  = 'plugin';
         $this->unique_field  = 'name';
 
         parent::__construct($identifier);
@@ -66,10 +67,14 @@ abstract class Plugin extends DataEntry
 
 
     /**
+     * Execute the required code to start the plugin
+     *
      * @return void
      */
     // TODO Use hooks after startup!
-    abstract public static function start(): void;
+    public static function start(): void
+    {
+    }
 
 
     /**
@@ -329,6 +334,7 @@ abstract class Plugin extends DataEntry
             ->add(Definition::new('disabled')
                 ->setOptional(true)
                 ->setVirtual(true)
+                ->setVisible(false)
                 ->setCliField('-d,--disable'))
             ->add(Definition::new('name')
                 ->setVisible(false))
@@ -336,7 +342,7 @@ abstract class Plugin extends DataEntry
                 ->setLabel(tr('Name'))
                 ->setInputType(InputTypeExtended::name)
                 ->setMaxlength(64)
-                ->setSize(9)
+                ->setSize(6)
                 ->setHelpText(tr('The name of this plugin')))
             ->add(Definition::new('priority')
                 ->setOptional(true)
@@ -355,7 +361,7 @@ abstract class Plugin extends DataEntry
             ->add(Definition::new('enabled')
                 ->setOptional(true)
                 ->setInputType(InputType::checkbox)
-                ->setSize(4)
+                ->setSize(3)
                 ->setCliField('-e,--enabled')
                 ->setLabel(tr('Enabled'))
                 ->setDefault(true)
@@ -368,37 +374,24 @@ abstract class Plugin extends DataEntry
                 ->setInputType(InputTypeExtended::name)
                 ->setMaxlength(255)
                 ->setSize(6)
-                ->setHelpText(tr('The base class path of this plugin')))
+                ->setHelpText(tr('The base class path of this plugin'))
+                ->addValidationFunction(function ($validator) {
+                    $validator->hasMaxCharacters(2048)->matchesRegex('/Plugins\\[a-z0-9]+\\Plugin/');
+                }))
             ->add(Definition::new('path')
-                ->setLabel(tr('Name'))
-                ->setInputType(InputTypeExtended::name)
+                ->setLabel(tr('Path'))
+                ->setInputType(InputTypeExtended::path)
                 ->setMaxlength(128)
                 ->setSize(6)
                 ->setHelpText(tr('The filesystem path where this plugin is located')))
             ->add(Definition::new('description')
                 ->setOptional(true)
+                ->setInputType(InputTypeExtended::description)
                 ->setLabel('Description')
                 ->setSize(12)
                 ->setMaxlength(16_777_215)
                 ->addValidationFunction(function ($validator) {
                     $validator->isDescription();
                 }));
-
-//        $data = $validator
-//            ->select($this->getAlternateValidationField('name'), true)->hasMaxCharacters()->isName()
-//            ->select($this->getAlternateValidationField('priority'), true)->isOptional(0)->isBetween(0, 9)
-//            ->select($this->getAlternateValidationField('enabled'), true)->isBoolean()
-//            ->select($this->getAlternateValidationField('file'), true)->isPath()
-//            ->select($this->getAlternateValidationField('class'), true)->hasMaxCharacters(2048)->matchesRegex('/Plugins\\[a-z0-9]+\\Plugin/')
-//            ->select($this->getAlternateValidationField('description'), true)->isOptional()->hasMaxCharacters(65_530)->isPrintable()
-//            ->noArgumentsLeft($no_arguments_left)
-//            ->validate();
-//
-//        // Ensure the name doesn't exist yet as it is a unique identifier
-//        if ($data['name']) {
-//            static::notExists($data['name'], $this->getId(), true);
-//        }
-//
-//        return $data;
     }
 }

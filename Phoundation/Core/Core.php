@@ -432,6 +432,7 @@ class Core {
         define('QUIET'   , (getenv('QUIET')   ? 'QUIET'   : false));
         define('TEST'    , (getenv('TEST')    ? 'TEST'    : false));
         define('VERBOSE' , (getenv('VERBOSE') ? 'VERBOSE' : false));
+        define('NOAUDIO' , (getenv('NOAUDIO') ? 'NOAUDIO' : false));
         define('LIMIT'   , (getenv('LIMIT')   ? 'LIMIT'   : Config::getNatural('paging.limit', 50)));
 
         // Check HEAD and OPTIONS requests. If HEAD was requested, just return basic HTTP headers
@@ -576,7 +577,7 @@ class Core {
         define('ALL'     , $argv['all']);
         define('STATUS'  , $argv['status']);
         define('PAGE'    , $argv['page']);
-        define('NOSOUND' , $argv['no_sound']);
+        define('NOAUDIO' , $argv['no_sound']);
         define('LIMIT'   , get_null($argv['limit']) ?? Config::getNatural('paging.limit', 50));
 
         // Correct $_SERVER['PHP_SELF'], sometimes seems empty

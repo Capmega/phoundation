@@ -6,8 +6,8 @@ namespace Phoundation\Web\Http\Html\Components\Captcha;
 
 use Phoundation\Core\Config;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Http\Html\Components\Captcha\Interfaces\CaptchaInterface;
 use Phoundation\Web\Http\Html\Components\ElementsBlock;
-use Phoundation\Web\Http\Html\Interfaces\InterfaceCaptcha;
 
 
 /**
@@ -20,7 +20,7 @@ use Phoundation\Web\Http\Html\Interfaces\InterfaceCaptcha;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-abstract class Captcha extends ElementsBlock implements InterfaceCaptcha
+abstract class Captcha extends ElementsBlock implements CaptchaInterface
 {
     /**
      * Returns a new Captcha for the configured provider

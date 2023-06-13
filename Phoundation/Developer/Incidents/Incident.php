@@ -14,7 +14,7 @@ use Phoundation\Data\DataEntry\Traits\DataEntryException;
 use Phoundation\Data\DataEntry\Traits\DataEntryTitle;
 use Phoundation\Data\DataEntry\Traits\DataEntryType;
 use Phoundation\Data\DataEntry\Traits\DataEntryUrl;
-use Phoundation\Data\Interfaces\InterfaceDataEntry;
+use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
 
 
 /**
@@ -41,11 +41,11 @@ class Incident extends DataEntry
     /**
      * Plugin class constructor
      *
-     * @param InterfaceDataEntry|string|int|null $identifier
+     * @param DataEntry|string|int|null $identifier
      */
-    public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
+    public function __construct(DataEntry|string|int|null $identifier = null)
     {
-        static::$entry_name  = 'incident';
+        $this->entry_name  = 'incident';
 
         parent::__construct($identifier);
     }
@@ -96,6 +96,7 @@ class Incident extends DataEntry
                 }))
             ->add(Definition::new('description')
                 ->setOptional(true)
+                ->setInputType(InputTypeExtended::description)
                 ->setLabel('Description')
                 ->setSize(12)
                 ->setMaxlength(255)

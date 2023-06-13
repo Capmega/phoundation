@@ -6,7 +6,7 @@ namespace Phoundation\Web\Http\Html\Layouts;
 
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\ElementsBlock;
-use Phoundation\Web\Http\Html\Interfaces\InterfaceDisplaySize;
+use Phoundation\Web\Http\Html\Enums\Interfaces\DisplaySizeInterface;
 
 
 /**
@@ -73,10 +73,10 @@ class Grid extends Container
      * Add the specified row to this grid
      *
      * @param GridRow|GridColumn|ElementsBlock|null $row
-     * @param InterfaceDisplaySize|null $column_size
+     * @param DisplaySizeInterface|null $column_size
      * @return static
      */
-    public function addRow(GridRow|GridColumn|ElementsBlock|null $row = null, ?InterfaceDisplaySize $column_size = null): static
+    public function addRow(GridRow|GridColumn|ElementsBlock|null $row = null, ?DisplaySizeInterface $column_size = null): static
     {
         if (!$row) {
             // Just add an empty row
@@ -128,10 +128,10 @@ class Grid extends Container
      * Set the columns for the current row in this grid
      *
      * @param array $columns
-     * @param InterfaceDisplaySize|int|null $size $size
+     * @param DisplaySizeInterface|int|null $size $size
      * @return static
      */
-    public function setColumns(array $columns, InterfaceDisplaySize|int|null $size = null): static
+    public function setColumns(array $columns, DisplaySizeInterface|int|null $size = null): static
     {
         $this->getCurrentRow()->clearColumns();
         return $this->addColumns($columns, $size);
@@ -142,10 +142,10 @@ class Grid extends Container
      * Add the specified column to the current row in this grid
      *
      * @param array $columns
-     * @param InterfaceDisplaySize|int|null $size $size
+     * @param DisplaySizeInterface|int|null $size $size
      * @return static
      */
-    public function addColumns(array $columns, InterfaceDisplaySize|int|null $size = null): static
+    public function addColumns(array $columns, DisplaySizeInterface|int|null $size = null): static
     {
         foreach ($columns as $column) {
             $this->addColumn($column, $size);
@@ -159,10 +159,10 @@ class Grid extends Container
      * Add the specified column to the current row in this grid
      *
      * @param object|string|null $column
-     * @param InterfaceDisplaySize|int|null $size $size
+     * @param DisplaySizeInterface|int|null $size $size
      * @return static
      */
-    public function addColumn(object|string|null $column, InterfaceDisplaySize|int|null $size = null): static
+    public function addColumn(object|string|null $column, DisplaySizeInterface|int|null $size = null): static
     {
         // Get a row
         if ($this->source) {

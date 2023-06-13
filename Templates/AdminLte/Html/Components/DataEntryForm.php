@@ -12,6 +12,8 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Input\InputMultiButtonText;
 use Phoundation\Web\Http\Html\Components\Input\Select;
 use Phoundation\Web\Http\Html\Components\Input\TextArea;
+use Phoundation\Web\Http\Html\Components\Interfaces\ElementInterface;
+use Phoundation\Web\Http\Html\Components\Interfaces\ElementsBlockInterface;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Html\Renderer;
@@ -31,8 +33,10 @@ class DataEntryForm extends Renderer
 {
     /**
      * DataEntryForm class constructor
+     *
+     * @param ElementsBlockInterface|ElementInterface $element
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\DataEntryForm $element)
+    public function __construct(ElementsBlockInterface|ElementInterface $element)
     {
         parent::__construct($element);
     }
@@ -41,16 +45,17 @@ class DataEntryForm extends Renderer
     /**
      * Standard DataEntryForm object does not render any HTML, this requires a Template class
      *
+     * @todo Refactor this method
      * @return string|null
      */
     public function render(): ?string
     {
-        if (!$this->element->getFields()) {
-            throw new OutOfBoundsException(tr('Cannot render DataEntryForm, no form keys specified'));
+        if (!$this->element->getFieldDefinitions()) {
+            throw new OutOfBoundsException(tr('Cannot render DataEntryForm, no fields specified'));
         }
 
         $source = $this->element->getSource();
-        $keys   = $this->element->getFields();
+        $keys   = $this->element->getFieldDefinitions();
 
 
         /*
@@ -110,10 +115,6 @@ class DataEntryForm extends Renderer
                 // This is a new Definition object, get the definitions from there
                 // TODO Use the Definition class all here,
                 $data = $data->getDefinitions();
-            }
-
-            if (!isset_get($data['visible'], true)) {
-                continue;
             }
 
             // Set defaults
@@ -427,7 +428,8 @@ class DataEntryForm extends Renderer
             $col_size -= $data['size'];
 
             if ($col_size < 0) {
-                throw new OutOfBoundsException(tr('Cannot add column ":label", the row would surpass size 12', [
+                throw new OutOfBoundsException(tr('Cannot add column ":label" for ":class" form, the row would surpass size 12', [
+                    ':class' => get_class($this->element),
                     ':label' => $data['label']
                 ]));
             }

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http\Html\Traits;
 
 use Phoundation\Web\Http\Html\Enums\DisplayTier;
-use Phoundation\Web\Http\Html\Interfaces\InterfaceDisplayTier;
 
 
 /**
@@ -23,18 +22,18 @@ trait UsesTier
     /**
      * Container value for this container
      *
-     * @var InterfaceDisplayTier $tier
+     * @var DisplayTier $tier
      */
-    protected InterfaceDisplayTier $tier = DisplayTier::xxl;
+    protected DisplayTier $tier = DisplayTier::xxl;
 
     
     /**
      * Sets the type for this container
      *
-     * @param InterfaceDisplayTier $tier
+     * @param DisplayTier $tier
      * @return static
      */
-    public function setTier(InterfaceDisplayTier $tier): static
+    public function setTier(DisplayTier $tier): static
     {
         $this->tier = $tier;
         return $this;
@@ -44,9 +43,9 @@ trait UsesTier
     /**
      * Returns the type for this container
      *
-     * @return InterfaceDisplayTier
+     * @return DisplayTier
      */
-    public function getTier(): InterfaceDisplayTier
+    public function getTier(): DisplayTier
     {
         return $this->tier;
     }

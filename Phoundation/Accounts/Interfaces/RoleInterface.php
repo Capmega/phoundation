@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Interfaces;
 
-use Phoundation\Data\Interfaces\InterfaceDataEntry;
+use Phoundation\Data\Interfaces\DataEntryInterface;
 
 
 /**
@@ -19,6 +19,6 @@ use Phoundation\Data\Interfaces\InterfaceDataEntry;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
-interface InterfaceRole extends InterfaceDataEntry
+interface RoleInterface extends DataEntryInterface
 {
 }

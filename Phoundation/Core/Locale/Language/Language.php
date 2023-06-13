@@ -8,7 +8,6 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
-use Phoundation\Data\Interfaces\InterfaceDataEntry;
 use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
 
 
@@ -31,11 +30,11 @@ class Language extends DataEntry
     /**
      * Language class constructor
      *
-     * @param InterfaceDataEntry|string|int|null $identifier
+     * @param DataEntry|string|int|null $identifier
      */
-    public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
+    public function __construct(DataEntry|string|int|null $identifier = null)
     {
-        static::$entry_name = 'language';
+        $this->entry_name   = 'language';
         $this->unique_field = 'code_639_1';
 
         parent::__construct($identifier);

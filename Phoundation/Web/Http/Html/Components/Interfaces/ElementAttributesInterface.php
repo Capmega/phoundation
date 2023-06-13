@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Web\Http\Html\Interfaces;
+namespace Phoundation\Web\Http\Html\Components\Interfaces;
 
 
 use Stringable;
@@ -17,7 +17,7 @@ use Stringable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-interface InterfaceElementAttributes
+interface ElementAttributesInterface
 {
     /**
      * ElementsAttributes class constructor

@@ -15,7 +15,7 @@ use Phoundation\Data\DataEntry\Traits\DataEntryCustomer;
 use Phoundation\Data\DataEntry\Traits\DataEntryDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryHostnamePort;
 use Phoundation\Data\DataEntry\Traits\DataEntryProvider;
-use Phoundation\Data\Interfaces\InterfaceDataEntry;
+use Phoundation\Data\Interfaces\DataEntryInterface;
 use Phoundation\Geo\Cities\Cities;
 use Phoundation\Geo\Countries\Countries;
 use Phoundation\Geo\States\States;
@@ -46,11 +46,11 @@ class Server extends DataEntry
     /**
      * Server class constructor
      *
-     * @param InterfaceDataEntry|string|int|null $identifier
+     * @param DataEntry|string|int|null $identifier
      */
-    public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
+    public function __construct(DataEntry|string|int|null $identifier = null)
     {
-        static::$entry_name = 'server';
+        $this->entry_name   = 'server';
         $this->unique_field = 'seo_hostname';
 
         parent::__construct($identifier);
@@ -634,6 +634,7 @@ class Server extends DataEntry
                 ->setHelpText(tr('Sets if this server allows automated modification of SSH configuration')))
             ->add(Definition::new('description')
                 ->setLabel(tr('Description'))
+                ->setInputType(InputTypeExtended::description)
                 ->setSize(12)
                 ->setCliField('-d,--description DESCRIPTION')
                 ->setMaxlength(65_535)

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http\Html\Components;
 
 use Phoundation\Data\DataEntry\Definitions\Definitions;
+use Phoundation\Web\Http\Html\Components\Interfaces\DataEntryFormInterface;
 
 
 /**
@@ -17,7 +18,7 @@ use Phoundation\Data\DataEntry\Definitions\Definitions;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Web
  */
-class DataEntryForm extends ElementsBlock
+class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
 {
     /**
      * The key metadata for the specified data
@@ -112,7 +113,7 @@ class DataEntryForm extends ElementsBlock
      *
      * @return Definitions
      */
-    public function getFields(): Definitions
+    public function getFieldDefinitions(): Definitions
     {
         return $this->fields;
     }

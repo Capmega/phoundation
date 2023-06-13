@@ -102,7 +102,7 @@ class SignIns extends DataList
         // TODO: Implement save() method.
     }
 
-    protected function loadDetails(array|string|null $columns, array $filters = []): array
+    protected function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
     {
         // TODO: Implement loadDetails() method.
     }

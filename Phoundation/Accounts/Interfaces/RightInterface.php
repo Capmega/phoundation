@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Interfaces;
 
-use Phoundation\Data\Interfaces\InterfaceDataEntry;
+use Phoundation\Data\Interfaces\DataEntryInterface;
 
 
 /**
- * Interface InterfaceUser
+ * Interface InterfaceRight
  *
  *
  *
@@ -19,7 +19,7 @@ use Phoundation\Data\Interfaces\InterfaceDataEntry;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
-interface InterfaceUser extends InterfaceDataEntry
+interface RightInterface extends DataEntryInterface
 {
 
 }

@@ -9,10 +9,11 @@ use Phoundation\Data\Traits\UsesNewField;
 use Phoundation\Data\Validator\Interfaces\InterfaceDataValidator;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Web\Http\Html\Components\Interfaces\InputElementInterface;
+use Phoundation\Web\Http\Html\Components\Interfaces\InputTypeExtendedInterface;
+use Phoundation\Web\Http\Html\Components\Interfaces\InputTypeInterface;
+use Phoundation\Web\Http\Html\Enums\InputElement;
 use Phoundation\Web\Http\Html\Enums\InputType;
-use Phoundation\Web\Http\Html\Interfaces\InputElementInterface;
-use Phoundation\Web\Http\Html\Interfaces\InputTypeExtendedInterface;
-use Phoundation\Web\Http\Html\Interfaces\InputTypeInterface;
 
 
 /**
@@ -406,6 +407,24 @@ class Definition implements Interfaces\DefinitionInterface
 
                         break;
 
+                    case 'path':
+                        $value = InputType::text;
+
+                        $this->addValidationFunction(function ($validator) {
+                            $validator->isPath();
+                        });
+
+                        break;
+
+                    case 'file':
+                        $value = InputType::text;
+
+                        $this->addValidationFunction(function ($validator) {
+                            $validator->isFile();
+                        });
+
+                        break;
+
                     case 'code':
                         $value = InputType::text;
 
@@ -416,13 +435,15 @@ class Definition implements Interfaces\DefinitionInterface
                         break;
 
                     case 'description':
-                        $value = InputType::text;
+                        $this->setElement(InputElement::textarea);
+                        $value = null;
 
                         $this->addValidationFunction(function ($validator) {
                             $validator->isDescription();
                         });
 
-                        break;
+                        // Don't set the value, textarea does not have an input type
+                        return $this;
                 }
             }
 
@@ -1415,7 +1436,7 @@ throw new UnderConstructionException();
         if ($this->definitions['element'] !== 'input') {
             throw new OutOfBoundsException(tr('Cannot set :key ":value" for field ":field" as the element must be input (or empty, default) but is ":element"', [
                 ':key'     => $key,
-                ':type'    => $value,
+                ':value'   => $value,
                 ':field'   => $this->field,
                 ':element' => $this->definitions['element']
             ]));

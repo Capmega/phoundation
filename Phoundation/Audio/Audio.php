@@ -31,7 +31,7 @@ class Audio extends File
      */
     public function play(bool $background = false): static
     {
-        if (!NOSOUND) {
+        if (!NOAUDIO) {
             try {
                 $this->file = Filesystem::absolute($this->file, PATH_ROOT . 'data/audio');
                 $process = Process::new('mplayer')->addArgument($this->file);

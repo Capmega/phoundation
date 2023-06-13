@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http\Html\Layouts;
 
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Http\Html\Interfaces\InterfaceDisplaySize;
+use Phoundation\Web\Http\Html\Enums\Interfaces\DisplaySizeInterface;
 
 
 /**
@@ -47,10 +47,10 @@ class GridRow extends Layout
      * Set the source for this row
      *
      * @param array $source
-     * @param InterfaceDisplaySize|int|null $size $size
+     * @param DisplaySizeInterface|int|null $size $size
      * @return static
      */
-    public function setColumns(array $source, InterfaceDisplaySize|int|null $size = null): static
+    public function setColumns(array $source, DisplaySizeInterface|int|null $size = null): static
     {
         $this->source = [];
         return $this->addColumns($source, $size);
@@ -61,10 +61,10 @@ class GridRow extends Layout
      * Add the specified source to this row
      *
      * @param array $source
-     * @param InterfaceDisplaySize|int|null $size
+     * @param DisplaySizeInterface|int|null $size
      * @return static
      */
-    public function addColumns(array $source, InterfaceDisplaySize|int|null $size = null): static
+    public function addColumns(array $source, DisplaySizeInterface|int|null $size = null): static
     {
         // Validate source
         foreach ($source as $column) {
@@ -85,10 +85,10 @@ class GridRow extends Layout
      * Add the specified column to this row
      *
      * @param object|string|null $column
-     * @param InterfaceDisplaySize|int|null $size $size
+     * @param DisplaySizeInterface|int|null $size $size
      * @return static
      */
-    public function addColumn(object|string|null $column, InterfaceDisplaySize|int|null $size = null): static
+    public function addColumn(object|string|null $column, DisplaySizeInterface|int|null $size = null): static
     {
         if ($column) {
             if (is_object($column) and !($column instanceof GridColumn)) {

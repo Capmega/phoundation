@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html\Components\Input\Traits;
 
+use Phoundation\Web\Http\Html\Components\Interfaces\InputTypeInterface;
 use Phoundation\Web\Http\Html\Components\Mode;
 use Phoundation\Web\Http\Html\Enums\InputType;
-use Phoundation\Web\Http\Html\Interfaces\InputTypeInterface;
 use Stringable;
 
 

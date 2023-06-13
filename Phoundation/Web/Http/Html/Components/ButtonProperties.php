@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html\Components;
 
-use Phoundation\Web\Http\Html\Interfaces\InputTypeInterface;
+use Phoundation\Web\Http\Html\Components\Interfaces\InputTypeInterface;
 use Phoundation\Web\Http\Html\Traits\UsesSize;
 use Phoundation\Web\Http\UrlBuilder;
 use Stringable;

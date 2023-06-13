@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html\Enums;
 
-use Phoundation\Web\Http\Html\Interfaces\ButtonTypeInterface;
+use Phoundation\Web\Http\Html\Enums\Interfaces\ButtonTypeInterface;
 
 /**
  * Enum ButtonTypes

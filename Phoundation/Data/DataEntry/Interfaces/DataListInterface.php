@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Interfaces;
 
 use Iterator;
-use Phoundation\Data\Interfaces\InterfaceDataEntry;
+use Phoundation\Data\Interfaces\DataEntryInterface;
 use Phoundation\Web\Http\Html\Components\DataTable;
 use Phoundation\Web\Http\Html\Components\Table;
 use ReturnTypeWillChange;
@@ -40,11 +40,11 @@ interface DataListInterface extends Iterator
     /**
      * Returns new DataList object with an optional parent
      *
-     * @param InterfaceDataEntry|null $parent
+     * @param DataEntryInterface|null $parent
      * @param string|null $id_column
      * @return static
      */
-    public static function new(?InterfaceDataEntry $parent = null, ?string $id_column = null): static;
+    public static function new(?DataEntryInterface $parent = null, ?string $id_column = null): static;
 
     /**
      * Returns the amount of items in this list
@@ -56,10 +56,10 @@ interface DataListInterface extends Iterator
     /**
      * Returns if the specified data entry exists in the data list
      *
-     * @param InterfaceDataEntry|int $entry
+     * @param DataEntryInterface|int $entry
      * @return bool
      */
-    function exists(InterfaceDataEntry|int $entry): bool;
+    function exists(DataEntryInterface|int $entry): bool;
 
     /**
      * Returns a list of items that are specified, but not available in this DataList
@@ -194,16 +194,16 @@ interface DataListInterface extends Iterator
      * Returns the item with the specified identifier
      *
      * @param int $identifier
-     * @return InterfaceDataEntry|null
+     * @return DataEntryInterface|null
      */
-    #[ReturnTypeWillChange] function get(int $identifier): ?InterfaceDataEntry;
+    #[ReturnTypeWillChange] function get(int $identifier): ?DataEntryInterface;
 
     /**
      * Returns the current item
      *
-     * @return InterfaceDataEntry|null
+     * @return DataEntryInterface|null
      */
-    #[ReturnTypeWillChange] function current(): ?InterfaceDataEntry;
+    #[ReturnTypeWillChange] function current(): ?DataEntryInterface;
 
     /**
      * Jumps to the next element
