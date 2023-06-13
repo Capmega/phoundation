@@ -9,9 +9,8 @@ use Phoundation\Business\Customers\Customers;
 use Phoundation\Business\Providers\Providers;
 use Phoundation\Data\Categories\Categories;
 use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\DataEntryFieldDefinition;
-use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
+use Phoundation\Data\DataEntry\Definitions\Definition;
+use Phoundation\Data\DataEntry\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryCustomer;
 use Phoundation\Data\DataEntry\Traits\DataEntryDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryHostnamePort;
@@ -19,14 +18,11 @@ use Phoundation\Data\DataEntry\Traits\DataEntryProvider;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
 use Phoundation\Geo\Cities\Cities;
 use Phoundation\Geo\Countries\Countries;
-use Phoundation\Geo\Countries\Country;
-use Phoundation\Geo\States\State;
 use Phoundation\Geo\States\States;
 use Phoundation\Processes\Process;
 use Phoundation\Servers\Traits\DataEntrySshAccount;
 use Phoundation\Web\Http\Html\Enums\InputType;
 use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
-use Phoundation\Web\Http\Html\Interfaces\InputTypeExtendedInterface;
 
 /**
  * Server class
@@ -313,15 +309,15 @@ class Server extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @param DataEntryFieldDefinitionsInterface $field_definitions
+     * @param DefinitionsInterface $field_definitions
      */
-    protected function initFieldDefinitions(DataEntryFieldDefinitionsInterface $field_definitions): void
+    protected function initFieldDefinitions(DefinitionsInterface $field_definitions): void
     {
         $field_definitions
-            ->add(DataEntryFieldDefinition::new('seo_hostname')
+            ->add(Definition::new('seo_hostname')
                 ->setVirtual(true)
                 ->setReadonly(true))
-            ->add(DataEntryFieldDefinition::new('ssh_account')
+            ->add(Definition::new('ssh_account')
                 ->setVirtual(true)
                 ->setInputType(InputTypeExtended::name)
                 ->setCliField('-a,--account ACCOUNT-NAME')
@@ -332,7 +328,7 @@ class Server extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->xor('ssh_accounts_id')->setColumnFromQuery('ssh_accounts_id', 'SELECT `id` FROM `ssh_accounts` WHERE `name` = :name AND `status` IS NULL', [':name' => '$ssh_account']);
                 }))
-            ->add(DataEntryFieldDefinition::new('category')
+            ->add(Definition::new('category')
                 ->setOptional(true)
                 ->setVirtual(true)
                 ->setCliField('--category CATEGORY-NAME')
@@ -343,7 +339,7 @@ class Server extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->xor('categories_id')->setColumnFromQuery('categories_id', 'SELECT `id` FROM `categories` WHERE `name` = :name AND `status` IS NULL', [':name' => '$category']);
                 }))
-            ->add(DataEntryFieldDefinition::new('provider')
+            ->add(Definition::new('provider')
                 ->setOptional(true)
                 ->setVirtual(true)
                 ->setCliField('--provider PROVIDER-NAME')
@@ -354,7 +350,7 @@ class Server extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->xor('providers_id')->setColumnFromQuery('providers_id', 'SELECT `id` FROM `business_providers` WHERE `name` = :name AND `status` IS NULL', [':name' => '$provider']);
                 }))
-            ->add(DataEntryFieldDefinition::new('customer')
+            ->add(Definition::new('customer')
                 ->setOptional(true)
                 ->setVirtual(true)
                 ->setCliField('--customer CUSTOMER-NAME')
@@ -365,7 +361,7 @@ class Server extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->xor('customers_id')->setColumnFromQuery('customers_id', 'SELECT `id` FROM `business_customers` WHERE `name` = :name AND `status` IS NULL', [':name' => '$customer']);
                 }))
-            ->add(DataEntryFieldDefinition::new('country')
+            ->add(Definition::new('country')
                 ->setOptional(true)
                 ->setVirtual(true)
                 ->setInputType(InputType::text)
@@ -378,7 +374,7 @@ class Server extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->xor('countries_id')->setColumnFromQuery('countries_id', 'SELECT `id` FROM `geo_countries` WHERE `name` = :name AND `status` IS NULL', [':name' => '$country']);
                 }))
-            ->add(DataEntryFieldDefinition::new('state')
+            ->add(Definition::new('state')
                 ->setOptional(true)
                 ->setVirtual(true)
                 ->setInputType(InputType::text)
@@ -391,7 +387,7 @@ class Server extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->xor('states_id')->setColumnFromQuery('states_id', 'SELECT `id` FROM `geo_states` WHERE `name` = :name AND `status` IS NULL', [':name' => '$state']);
                 }))
-            ->add(DataEntryFieldDefinition::new('city')
+            ->add(Definition::new('city')
                 ->setOptional(true)
                 ->setVirtual(true)
                 ->setInputType(InputType::text)
@@ -404,7 +400,7 @@ class Server extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->xor('cities_id')->setColumnFromQuery('cities_id', 'SELECT `id` FROM `geo_cities` WHERE `name` = :name AND `status` IS NULL', [':name' => '$city']);
                 }))
-            ->add(DataEntryFieldDefinition::new('hostname')
+            ->add(Definition::new('hostname')
                 ->setInputType(InputType::text)
                 ->setMaxlength(128)
                 ->setSize(4)
@@ -413,7 +409,7 @@ class Server extends DataEntry
                 ->setHelpGroup(tr('Identification and network'))
                 ->setHelpText(tr('The unique hostname for this server'))
                 ->setAutoComplete(true))
-            ->add(DataEntryFieldDefinition::new('account')
+            ->add(Definition::new('account')
                 ->setVirtual(true)
                 ->setInputType(InputTypeExtended::name)
                 ->setLabel(tr('account'))
@@ -427,7 +423,7 @@ class Server extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->xor('ssh_accounts_id')->setColumnFromQuery('ssh_accounts_id', 'SELECT `id` FROM `ssh_accounts` WHERE `name` = :name AND `status` IS NULL', [':name' => '$ssh_account']);
                 }))
-            ->add(DataEntryFieldDefinition::new('ssh_accounts_id')
+            ->add(Definition::new('ssh_accounts_id')
                 ->setInputType(InputTypeExtended::dbid)
                 ->setSize(4)
                 ->setLabel(tr('Account'))
@@ -439,7 +435,7 @@ class Server extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->isColumnFromQuery('ssh_accounts_id', 'SELECT `id` FROM `ssh_accounts` WHERE `name` = :name AND `status` IS NULL', [':name' => '$ssh_account']);
                 }))
-            ->add(DataEntryFieldDefinition::new('port')
+            ->add(Definition::new('port')
                 ->setOptional(true)
                 ->setInputType(InputTypeExtended::integer)
                 ->setMin(1)
@@ -449,7 +445,7 @@ class Server extends DataEntry
                 ->setCliField('-p,--port PORT (1 - 65535)')
                 ->setHelpGroup(tr('Identification and network'))
                 ->setHelpText(tr('The port where one can connect to the servers SSH service')))
-            ->add(DataEntryFieldDefinition::new('code')
+            ->add(Definition::new('code')
                 ->setOptional(true)
                 ->setInputType(InputType::text)
                 ->setMin(1)
@@ -463,7 +459,7 @@ class Server extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->isAlphaNumeric();
                 }))
-            ->add(DataEntryFieldDefinition::new('code')
+            ->add(Definition::new('code')
                 ->setOptional(true)
                 ->setInputType(InputTypeExtended::float)
                 ->setMin(0)
@@ -473,7 +469,7 @@ class Server extends DataEntry
                 ->setCliField('--cost CURRENCY')
                 ->setHelpGroup(tr('Payment'))
                 ->setHelpText(tr('The cost per interval for this server')))
-            ->add(DataEntryFieldDefinition::new('bill_due_date')
+            ->add(Definition::new('bill_due_date')
                 ->setOptional(true)
                 ->setInputType(InputType::date)
                 ->setMin(0)
@@ -483,7 +479,7 @@ class Server extends DataEntry
                 ->setCliField('-b,--bill-due-date DATE')
                 ->setHelpGroup(tr('Payment'))
                 ->setHelpText(tr('The next date when payment for this server is due')))
-            ->add(DataEntryFieldDefinition::new('interval')
+            ->add(Definition::new('interval')
                 ->setOptional(true)
                 ->setInputType(InputType::date)
                 ->setSize(4)
@@ -501,7 +497,7 @@ class Server extends DataEntry
                 ])
                 ->setHelpGroup(tr('Payment'))
                 ->setHelpText(tr('The interval for when this server must be paid')))
-            ->add(DataEntryFieldDefinition::new('categories_id')
+            ->add(Definition::new('categories_id')
                 ->setOptional(true)
                 ->setCliField('--categories-id CATEGORIES-ID')
                 ->setInputType(InputTypeExtended::dbid)
@@ -514,7 +510,7 @@ class Server extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->xor('category')->isColumnFromQuery('SELECT `id` FROM `categories` WHERE `id` = :id AND `status` IS NULL', [':name' => '$categories_id']);
                 }))
-            ->add(DataEntryFieldDefinition::new('providers_id')
+            ->add(Definition::new('providers_id')
                 ->setOptional(true)
                 ->setCliField('--providers-id PROVIDERS-ID')
                 ->setInputType(InputTypeExtended::dbid)
@@ -527,7 +523,7 @@ class Server extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->xor('provider')->isColumnFromQuery('SELECT `id` FROM `business_providers` WHERE `id` = :id AND `status` IS NULL', [':name' => '$providers_id']);
                 }))
-            ->add(DataEntryFieldDefinition::new('customers_id')
+            ->add(Definition::new('customers_id')
                 ->setOptional(true)
                 ->setCliField('--customers-id CUSTOMERS-ID')
                 ->setInputType(InputTypeExtended::dbid)
@@ -540,7 +536,7 @@ class Server extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->xor('customer')->isColumnFromQuery('SELECT `id` FROM `business_customers` WHERE `id` = :id AND `status` IS NULL', [':name' => '$customers_id']);
                 }))
-            ->add(DataEntryFieldDefinition::new('countries_id')
+            ->add(Definition::new('countries_id')
                 ->setOptional(true)
                 ->setCliField('--countries-id COUNTRIES-ID')
                 ->setInputType(InputTypeExtended::dbid)
@@ -554,7 +550,7 @@ class Server extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->xor('country')->isColumnFromQuery('SELECT `id` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':name' => '$countries_id']);
                 }))
-            ->add(DataEntryFieldDefinition::new('states_id')
+            ->add(Definition::new('states_id')
                 ->setOptional(true)
                 ->setCliField('--states-id STATES-ID')
                 ->setInputType(InputTypeExtended::dbid)
@@ -568,7 +564,7 @@ class Server extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->xor('state')->isColumnFromQuery('SELECT `id` FROM `geo_states` WHERE `id` = :id AND `status` IS NULL', [':name' => '$states_id']);
                 }))
-            ->add(DataEntryFieldDefinition::new('cities_id')
+            ->add(Definition::new('cities_id')
                 ->setOptional(true)
                 ->setCliField('--cities-id CITIES-ID')
                 ->setInputType(InputTypeExtended::dbid)
@@ -580,7 +576,7 @@ class Server extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->xor('city')->isColumnFromQuery('SELECT `id` FROM `geo_cities` WHERE `id` = :id AND `status` IS NULL', [':name' => '$cities_id']);
                 }))
-            ->add(DataEntryFieldDefinition::new('os_name')
+            ->add(Definition::new('os_name')
                 ->setOptional(true)
                 ->setInputType(InputType::text)
                 ->setSize(9)
@@ -600,7 +596,7 @@ class Server extends DataEntry
                     'other'     => tr('Other')
                 ])
                 ->setHelpText(tr('The name of the operating system installed on this server')))
-            ->add(DataEntryFieldDefinition::new('os_version')
+            ->add(Definition::new('os_version')
                 ->setOptional(true)
                 ->setInputType(InputType::text)
                 ->setSize(9)
@@ -608,35 +604,35 @@ class Server extends DataEntry
                 ->setLabel(tr('Operating system version'))
                 ->setCliField('-v,--os-version VERSION')
                 ->setHelpText(tr('The current version of the installed operating system')))
-            ->add(DataEntryFieldDefinition::new('web_services')
+            ->add(Definition::new('web_services')
                 ->setOptional(true)
                 ->setInputType(InputType::checkbox)
                 ->setSize(3)
                 ->setLabel(tr('Web services'))
                 ->setCliField('-w,--web-services')
                 ->setHelpText(tr('Sets if this server manages web services')))
-            ->add(DataEntryFieldDefinition::new('mail_services')
+            ->add(Definition::new('mail_services')
                 ->setOptional(true)
                 ->setInputType(InputType::checkbox)
                 ->setSize(3)
                 ->setLabel(tr('Email services'))
                 ->setCliField('-m,--mail-services')
                 ->setHelpText(tr('Sets if this server manages mail services')))
-            ->add(DataEntryFieldDefinition::new('database_services')
+            ->add(Definition::new('database_services')
                 ->setOptional(true)
                 ->setInputType(InputType::checkbox)
                 ->setSize(3)
                 ->setLabel(tr('Database services'))
                 ->setCliField('-e,--database-services')
                 ->setHelpText(tr('Sets if this server manages database services')))
-            ->add(DataEntryFieldDefinition::new('mail_services')
+            ->add(Definition::new('mail_services')
                 ->setOptional(true)
                 ->setInputType(InputType::checkbox)
                 ->setSize(3)
                 ->setLabel(tr('Allow SSHD modification'))
                 ->setCliField('-s,--allow-sshd-modification')
                 ->setHelpText(tr('Sets if this server allows automated modification of SSH configuration')))
-            ->add(DataEntryFieldDefinition::new('description')
+            ->add(Definition::new('description')
                 ->setLabel(tr('Description'))
                 ->setSize(12)
                 ->setCliField('-d,--description DESCRIPTION')

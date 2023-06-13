@@ -6,8 +6,7 @@ namespace Phoundation\Data\Interfaces;
 
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Meta\Meta;
-use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
+use Phoundation\Data\DataEntry\Interfaces\DefinitionsInterface;
 use Phoundation\Date\DateTime;
 use Phoundation\Web\Http\Html\Components\DataEntryForm;
 
@@ -126,9 +125,9 @@ interface InterfaceDataEntry
     /**
      * Returns the definitions for the fields in this table
      *
-     * @return DataEntryFieldDefinitionsInterface
+     * @return DefinitionsInterface
      */
-    function getFieldDefinitions(): DataEntryFieldDefinitionsInterface;
+    function getFieldDefinitions(): DefinitionsInterface;
 
     /**
      * Returns true if this is a new entry that hasn't been written to the database yet

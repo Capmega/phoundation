@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http\Html\Components\Input\Interfaces;
 
 
-use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinition;
+use Phoundation\Data\DataEntry\Interfaces\DefinitionInterface;
 
 /**
  * Interface Input
@@ -27,10 +27,10 @@ interface Input
     /**
      * Returns a new input element from
      *
-     * @param DataEntryFieldDefinition $field
+     * @param DefinitionInterface $field
      * @return static
      */
-    public static function newFromDAtaEntryField(DataEntryFieldDefinition $field): static;
+    public static function newFromDAtaEntryField(DefinitionInterface $field): static;
 
     /**
      * Render and return the HTML for this Input Element

@@ -7,9 +7,8 @@ namespace Phoundation\Business\Companies;
 use Phoundation\Business\Companies\Branches\Branches;
 use Phoundation\Business\Companies\Departments\Departments;
 use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
-use Phoundation\Data\DataEntry\DataList;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
+use Phoundation\Data\DataEntry\DataListInterface;
+use Phoundation\Data\DataEntry\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
 
@@ -33,16 +32,16 @@ class Company extends DataEntry
     /**
      * The branches for this company
      *
-     * @var DataList $branches
+     * @var DataListInterface $branches
      */
-    protected DataList $branches;
+    protected DataListInterface $branches;
 
     /**
      * The departments for this company
      *
-     * @var DataList $departments
+     * @var DataListInterface $departments
      */
-    protected DataList $departments;
+    protected DataListInterface $departments;
 
 
     /**
@@ -112,9 +111,9 @@ class Company extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @param DataEntryFieldDefinitionsInterface $field_definitions
+     * @param DefinitionsInterface $field_definitions
      */
-    protected function initFieldDefinitions(DataEntryFieldDefinitionsInterface $field_definitions): void
+    protected function initFieldDefinitions(DefinitionsInterface $field_definitions): void
     {
         $field_definitions;
     }

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Phoundation\Exception;
 
 use Phoundation\Core\Arrays;
-use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Developer\Incidents\Incident;
@@ -13,6 +12,7 @@ use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Json;
 use RuntimeException;
 use Throwable;
+
 
 /**
  * Class Exception
@@ -24,7 +24,7 @@ use Throwable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Exception
  */
-class Exception extends RuntimeException
+class Exception extends RuntimeException implements Interfaces\ExceptionInterface
 {
     /**
      * Exception data, if available
@@ -136,9 +136,9 @@ class Exception extends RuntimeException
      * Set the exception data
      *
      * @param mixed $data
-     * @return CoreException $this
+     * @return static
      */
-    public function setData(mixed $data): Exception
+    public function setData(mixed $data): static
     {
         $this->data = $data;
         return $this;
@@ -162,7 +162,7 @@ class Exception extends RuntimeException
      * @param array $messages
      * @return Exception
      */
-    public function addMessages(array $messages): Exception
+    public function addMessages(array $messages): static
     {
         foreach ($messages as $message) {
             $this->messages[] = $message;
@@ -189,7 +189,7 @@ class Exception extends RuntimeException
      * @param string|int|null $code
      * @return Exception
      */
-    public function setCode(string|int|null $code = null): Exception
+    public function setCode(string|int|null $code = null): static
     {
         $this->code = $code;
         return $this;
@@ -203,7 +203,7 @@ class Exception extends RuntimeException
      * @param bool $warning True if this exception is a warning, false if not
      * @return Exception
      */
-    public function setWarning(bool $warning): Exception
+    public function setWarning(bool $warning): static
     {
         if (defined('NOWARNINGS') and NOWARNINGS) {
             $warning = false;
@@ -220,7 +220,7 @@ class Exception extends RuntimeException
      * @note This method returns $this, allowing chaining
      * @return Exception
      */
-    public function makeWarning(): Exception
+    public function makeWarning(): static
     {
         return $this->setWarning(true);
     }

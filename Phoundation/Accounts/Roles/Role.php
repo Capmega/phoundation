@@ -8,9 +8,8 @@ use Phoundation\Accounts\Interfaces\InterfaceRole;
 use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Accounts\Users\Users;
 use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\DataEntryFieldDefinition;
-use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
+use Phoundation\Data\DataEntry\Definitions\Definition;
+use Phoundation\Data\DataEntry\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
 use Phoundation\Web\Http\Html\Components\Form;
@@ -108,20 +107,20 @@ class Role extends DataEntry implements InterfaceRole
     /**
      * Sets the available data keys for this entry
      *
-     * @param DataEntryFieldDefinitionsInterface $field_definitions
+     * @param DefinitionsInterface $field_definitions
      */
-    protected function initFieldDefinitions(DataEntryFieldDefinitionsInterface $field_definitions): void
+    protected function initFieldDefinitions(DefinitionsInterface $field_definitions): void
     {
         $field_definitions
-            ->add(DataEntryFieldDefinition::new('name')
+            ->add(Definition::new('name')
                 ->setLabel(tr('Name'))
                 ->setSize(12)
                 ->setMaxlength(64)
                 ->setHelpText(tr('The name for this right')))
-            ->add(DataEntryFieldDefinition::new('seo_name')
+            ->add(Definition::new('seo_name')
                 ->setVisible(true)
                 ->setReadonly(true))
-            ->add(DataEntryFieldDefinition::new('description')
+            ->add(Definition::new('description')
                 ->setOptional(true)
                 ->setLabel(tr('Description'))
                 ->setSize(12)

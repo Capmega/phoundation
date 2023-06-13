@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Routing;
 
 use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
+use Phoundation\Data\DataEntry\Interfaces\DefinitionsInterface;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
 
 
@@ -50,9 +49,9 @@ class StaticRoute extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @param DataEntryFieldDefinitionsInterface $field_definitions
+     * @param DefinitionsInterface $field_definitions
      */
-    protected function initFieldDefinitions(DataEntryFieldDefinitionsInterface $field_definitions): void
+    protected function initFieldDefinitions(DefinitionsInterface $field_definitions): void
     {
         $field_definitions;
    }

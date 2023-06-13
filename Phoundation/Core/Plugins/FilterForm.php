@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Phoundation\Core\Plugins;
 
 
-use Phoundation\Data\DataEntry\DataEntryFieldDefinition;
-use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
+use Phoundation\Data\DataEntry\Definitions\Definition;
+use Phoundation\Data\DataEntry\Definitions\Definitions;
 use Phoundation\Web\Http\Html\Enums\InputElement;
 
 /**
@@ -28,8 +28,8 @@ class FilterForm extends \Phoundation\Web\Http\Html\Components\FilterForm
     {
         parent::__construct();
 
-        $this->fields = DataEntryFieldDefinitions::new()
-            ->add(DataEntryFieldDefinition::new('type[]')
+        $this->fields = Definitions::new()
+            ->add(Definition::new('type[]')
                 ->setLabel(tr('Type'))
                 ->setSize(6)
                 ->setElement(InputElement::select)
@@ -38,7 +38,7 @@ class FilterForm extends \Phoundation\Web\Http\Html\Components\FilterForm
                     'enabled'  => tr('Enabled plugins'),
                     'disabled' => tr('Disabled plugins')
                 ]))
-            ->add(DataEntryFieldDefinition::new('filter[]')
+            ->add(Definition::new('filter[]')
                 ->setLabel(tr('Filter'))
                 ->setSize(6));
     }

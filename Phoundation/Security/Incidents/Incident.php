@@ -7,9 +7,8 @@ namespace Phoundation\Security\Incidents;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\DataEntryFieldDefinition;
-use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
+use Phoundation\Data\DataEntry\Definitions\Definition;
+use Phoundation\Data\DataEntry\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryDetails;
 use Phoundation\Data\DataEntry\Traits\DataEntryTitle;
 use Phoundation\Data\DataEntry\Traits\DataEntryType;
@@ -175,18 +174,18 @@ class Incident extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @param DataEntryFieldDefinitionsInterface $field_definitions
+     * @param DefinitionsInterface $field_definitions
      */
-    protected function initFieldDefinitions(DataEntryFieldDefinitionsInterface $field_definitions): void
+    protected function initFieldDefinitions(DefinitionsInterface $field_definitions): void
     {
         $field_definitions
-            ->add(DataEntryFieldDefinition::new('type')
+            ->add(Definition::new('type')
                 ->setLabel(tr('Incident type'))
                 ->setDisabled(true)
                 ->setDefault(tr('Unknown'))
                 ->setSize(6)
                 ->setMaxlength(6))
-            ->add(DataEntryFieldDefinition::new('severity')
+            ->add(Definition::new('severity')
                 ->setElement(InputElement::select)
                 ->setLabel(tr('Severity'))
                 ->setDisabled(true)
@@ -199,13 +198,13 @@ class Incident extends DataEntry
                     Severity::high->value   => tr('High'),
                     Severity::severe->value => tr('Severe')
                 ]))
-            ->add(DataEntryFieldDefinition::new('title')
+            ->add(Definition::new('title')
                 ->setLabel(tr('Title'))
                 ->setDisabled(true)
                 ->setSize(12)
                 ->setMaxlength(4)
                 ->setMaxlength(255))
-            ->add(DataEntryFieldDefinition::new('details')
+            ->add(Definition::new('details')
                 ->setElement(InputElement::textarea)
                 ->setLabel(tr('Details'))
                 ->setDisabled(true)

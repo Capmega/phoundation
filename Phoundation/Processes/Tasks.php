@@ -2,9 +2,7 @@
 
 namespace Phoundation\Processes;
 
-use Phoundation\Data\DataEntry\DataEntryFieldDefinition;
-use Phoundation\Data\DataEntry\DataList;
-use Phoundation\Web\Http\Html\Enums\InputType;
+use Phoundation\Data\DataEntry\DataListInterface;
 
 
 /**
@@ -17,7 +15,7 @@ use Phoundation\Web\Http\Html\Enums\InputType;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
-class Tasks extends DataList
+class Tasks extends DataListInterface
 {
     /**
      * @inheritDoc

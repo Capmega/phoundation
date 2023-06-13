@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html\Components;
 
-use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
+use Phoundation\Data\DataEntry\Definitions\Definitions;
 
 
 /**
@@ -22,9 +22,9 @@ class DataEntryForm extends ElementsBlock
     /**
      * The key metadata for the specified data
      *
-     * @var DataEntryFieldDefinitions $fields
+     * @var Definitions $fields
      */
-    protected DataEntryFieldDefinitions $fields;
+    protected Definitions $fields;
 
     /**
      * The form specific metadata for the keys for the specified data
@@ -110,9 +110,9 @@ class DataEntryForm extends ElementsBlock
     /**
      * Returns the data fields for this DataEntryForm
      *
-     * @return DataEntryFieldDefinitions
+     * @return Definitions
      */
-    public function getFields(): DataEntryFieldDefinitions
+    public function getFields(): Definitions
     {
         return $this->fields;
     }
@@ -121,10 +121,10 @@ class DataEntryForm extends ElementsBlock
     /**
      * Set the data source for this DataEntryForm
      *
-     * @param DataEntryFieldDefinitions $fields
+     * @param Definitions $fields
      * @return static
      */
-    public function setFieldDefinitions(DataEntryFieldDefinitions $fields): static
+    public function setFieldDefinitions(Definitions $fields): static
     {
         $this->fields = $fields;
         return $this;

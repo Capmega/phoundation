@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace Phoundation\Servers;
 
 use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\DataEntryFieldDefinition;
-use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
+use Phoundation\Data\DataEntry\Definitions\Definition;
+use Phoundation\Data\DataEntry\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryUsername;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
@@ -82,12 +81,12 @@ class SshAccount extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @param DataEntryFieldDefinitionsInterface $field_definitions
+     * @param DefinitionsInterface $field_definitions
      */
-    protected function initFieldDefinitions(DataEntryFieldDefinitionsInterface $field_definitions): void
+    protected function initFieldDefinitions(DefinitionsInterface $field_definitions): void
     {
         $field_definitions
-            ->add(DataEntryFieldDefinition::new('name')
+            ->add(Definition::new('name')
                 ->setLabel(tr('Name'))
                 ->setInputType(InputTypeExtended::name)
                 ->setCliField(tr('-n,--name NAME'))
@@ -96,10 +95,10 @@ class SshAccount extends DataEntry
                 ->setMaxlength(64)
                 ->setHelpGroup(tr('Identification'))
                 ->setHelpText(tr('The name for this account')))
-            ->add(DataEntryFieldDefinition::new('seo_name')
+            ->add(Definition::new('seo_name')
                 ->setVisible(false)
                 ->setReadonly(true))
-            ->add(DataEntryFieldDefinition::new('username')
+            ->add(Definition::new('username')
                 ->setLabel(tr('Username'))
                 ->setInputType(InputTypeExtended::username)
                 ->setCliField(tr('-u,--username NAME'))
@@ -107,14 +106,14 @@ class SshAccount extends DataEntry
                 ->setSize(6)
                 ->setMaxlength(64)
                 ->setHelpText(tr('The username on the server for this account')))
-            ->add(DataEntryFieldDefinition::new('description')
+            ->add(Definition::new('description')
                 ->setLabel(tr('Description'))
                 ->setCliField(tr('-d,--description DESCRIPTION'))
                 ->setElement(InputElement::textarea)
                 ->setSize(12)
                 ->setMaxlength(65_535)
                 ->setHelpText(tr('The description for this account')))
-            ->add(DataEntryFieldDefinition::new('ssh_key')
+            ->add(Definition::new('ssh_key')
                 ->setLabel(tr('SSH key'))
                 ->setCliField(tr('-i,--ssh-key-file FILE'))
                 ->setAutoComplete(true)

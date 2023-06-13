@@ -13,12 +13,14 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Meta;
 use Phoundation\Core\Strings;
+use Phoundation\Data\DataEntry\Definitions\Definition;
+use Phoundation\Data\DataEntry\Definitions\Definitions;
 use Phoundation\Data\DataEntry\Enums\StateMismatchHandling;
 use Phoundation\Data\DataEntry\Exception\DataEntryAlreadyExistsException;
 use Phoundation\Data\DataEntry\Exception\DataEntryException;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntry\Exception\DataEntryStateMismatchException;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
+use Phoundation\Data\DataEntry\Interfaces\DefinitionsInterface;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
 use Phoundation\Data\Traits\DataDebug;
 use Phoundation\Data\Validator\ArgvValidator;
@@ -74,9 +76,9 @@ abstract class DataEntry implements InterfaceDataEntry
     /**
      * Meta information about the keys in this DataEntry
      *
-     * @var DataEntryFieldDefinitions|null $field_definitions
+     * @var Definitions|null $field_definitions
      */
-    protected ?DataEntryFieldDefinitions $field_definitions = null;
+    protected ?Definitions $field_definitions = null;
 
      /**
      * The unique column identifier, next to id
@@ -123,9 +125,9 @@ abstract class DataEntry implements InterfaceDataEntry
     /**
      * A list with optional linked other DataEntry objects
      *
-     * @var DataList|null
+     * @var DataListInterface|null
      */
-    protected ?DataList $list = null;
+    protected ?DataListInterface $list = null;
 
     /**
      * What to do when a record state mismatch was detected
@@ -1328,9 +1330,9 @@ abstract class DataEntry implements InterfaceDataEntry
     /**
      * Returns the definitions for the fields in this table
      *
-     * @return DataEntryFieldDefinitionsInterface
+     * @return DefinitionsInterface
      */
-    public function getFieldDefinitions(): DataEntryFieldDefinitionsInterface
+    public function getFieldDefinitions(): DefinitionsInterface
     {
         return $this->field_definitions;
     }
@@ -1343,22 +1345,22 @@ abstract class DataEntry implements InterfaceDataEntry
      */
     protected function initMetaFieldDefinitions(): void
     {
-        $this->field_definitions = DataEntryFieldDefinitions::new(static::getTable())
-            ->add(DataEntryFieldDefinition::new('id')->setDefinitions([
+        $this->field_definitions = Definitions::new(static::getTable())
+            ->add(Definition::new('id')->setDefinitions([
                 'meta'     => true,
                 'readonly' => true,
                 'type'     => 'numeric',
                 'size'     => 3,
                 'label'    => tr('Database ID')
             ]))
-            ->add(DataEntryFieldDefinition::new('created_on')->setDefinitions([
+            ->add(Definition::new('created_on')->setDefinitions([
                 'meta'     => true,
                 'readonly' => true,
                 'type'     => 'datetime_local',
                 'size'     => 3,
                 'label'    => tr('Created on')
             ]))
-            ->add(DataEntryFieldDefinition::new('created_by')->setDefinitions([
+            ->add(Definition::new('created_by')->setDefinitions([
                 'meta'     => true,
                 'readonly' => true,
                 'content'  => function (string $key, array $data, array $source) {
@@ -1378,17 +1380,17 @@ abstract class DataEntry implements InterfaceDataEntry
                 'size'     => 3,
                 'label'    => tr('Created by'),
             ]))
-            ->add(DataEntryFieldDefinition::new('meta_id')->setDefinitions([
+            ->add(Definition::new('meta_id')->setDefinitions([
                 'meta'     => true,
                 'visible'  => false,
                 'readonly' => true,
             ]))
-            ->add(DataEntryFieldDefinition::new('meta_state')->setDefinitions([
+            ->add(Definition::new('meta_state')->setDefinitions([
                 'meta'     => true,
                 'visible'  => false,
                 'readonly' => true,
             ]))
-            ->add(DataEntryFieldDefinition::new('status')->setDefinitions([
+            ->add(Definition::new('status')->setDefinitions([
                 'meta'     => true,
                 'readonly' => true,
                 'label'    => tr('Status'),
@@ -1451,7 +1453,7 @@ abstract class DataEntry implements InterfaceDataEntry
      * null_readonly  boolean            false          If "value" for entry is null, then use this for "readonly"
      * null_type      boolean            false          If "value" for entry is null, then use this for "type"
      *
-     * @param Interfaces\DataEntryFieldDefinitionsInterface $field_definitions
+     * @param Interfaces\DefinitionsInterface $field_definitions
      */
-    abstract protected function initFieldDefinitions(DataEntryFieldDefinitionsInterface $field_definitions): void;
+    abstract protected function initFieldDefinitions(DefinitionsInterface $field_definitions): void;
 }

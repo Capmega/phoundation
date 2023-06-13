@@ -7,8 +7,7 @@ namespace Templates\AdminLte\Html\Components;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Strings;
-use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinition;
+use Phoundation\Data\DataEntry\Interfaces\DefinitionInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Input\InputMultiButtonText;
 use Phoundation\Web\Http\Html\Components\Input\Select;
@@ -55,7 +54,7 @@ class DataEntryForm extends Renderer
 
 
         /*
-         * $data field keys: (Or just use DataEntryFieldDefinitions class)
+         * $data field keys: (Or just use Definitions class)
          *
          * FIELD          DATATYPE           DEFAULT VALUE  DESCRIPTION
          * value          mixed              null           The value for this entry
@@ -101,15 +100,15 @@ class DataEntryForm extends Renderer
         // Go over each key and add it to the form
         foreach ($keys as $key => $data) {
             if (!is_array($data)) {
-                if (!is_object($data) and !($data instanceof DataEntryFieldDefinition)) {
-                    throw new OutOfBoundsException(tr('Data key definition for key ":key" is invalid. Iit should be an array or DataEntryFieldDefinition type  but contains ":data"', [
+                if (!is_object($data) and !($data instanceof DefinitionInterface)) {
+                    throw new OutOfBoundsException(tr('Data key definition for key ":key" is invalid. Iit should be an array or Definition type  but contains ":data"', [
                         ':key'  => $key,
                         ':data' => gettype($data) . ': ' . $data
                     ]));
                 }
 
-                // This is a new DataEntryFieldDefinition object, get the definitions from there
-                // TODO Use the DataEntryFieldDefinition class all here,
+                // This is a new Definition object, get the definitions from there
+                // TODO Use the Definition class all here,
                 $data = $data->getDefinitions();
             }
 

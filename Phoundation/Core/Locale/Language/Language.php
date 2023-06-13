@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace Phoundation\Core\Locale\Language;
 
 use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\DataEntryFieldDefinition;
-use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
+use Phoundation\Data\DataEntry\Definitions\Definition;
+use Phoundation\Data\DataEntry\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\Interfaces\InterfaceDataEntry;
 use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
@@ -149,12 +148,12 @@ class Language extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @param DataEntryFieldDefinitionsInterface $field_definitions
+     * @param DefinitionsInterface $field_definitions
      */
-    protected function initFieldDefinitions(DataEntryFieldDefinitionsInterface $field_definitions): void
+    protected function initFieldDefinitions(DefinitionsInterface $field_definitions): void
     {
         $field_definitions
-            ->add(DataEntryFieldDefinition::new('name')
+            ->add(Definition::new('name')
                 ->setDisabled(true)
                 ->setLabel(tr('Name'))
                 ->setInputType(InputTypeExtended::name)
@@ -163,10 +162,10 @@ class Language extends DataEntry
                 ->setSize(12)
                 ->setMaxlength(64)
                 ->setHelpText(tr('The name for this language')))
-            ->add(DataEntryFieldDefinition::new('seo_name')
+            ->add(Definition::new('seo_name')
                 ->setVisible(false)
                 ->setReadonly(true))
-            ->add(DataEntryFieldDefinition::new('code_639_1')
+            ->add(Definition::new('code_639_1')
                 ->setDisabled(true)
                 ->setInputType(InputTypeExtended::code)
                 ->setLabel(tr('ISO 639-1 code'))
@@ -174,7 +173,7 @@ class Language extends DataEntry
                 ->setSize(12)
                 ->setMaxlength(2)
                 ->setHelpText(tr('The ISO 639-1 code for this language')))
-            ->add(DataEntryFieldDefinition::new('code_639_2_t')
+            ->add(Definition::new('code_639_2_t')
                 ->setDisabled(true)
                 ->setInputType(InputTypeExtended::code)
                 ->setLabel(tr('ISO 639-2/T code'))
@@ -182,7 +181,7 @@ class Language extends DataEntry
                 ->setSize(12)
                 ->setMaxlength(3)
                 ->setHelpText(tr('The ISO 639-2/T code for this language')))
-            ->add(DataEntryFieldDefinition::new('code_639_2_b')
+            ->add(Definition::new('code_639_2_b')
                 ->setDisabled(true)
                 ->setInputType(InputTypeExtended::code)
                 ->setLabel(tr('ISO 639-2/B code'))
@@ -190,7 +189,7 @@ class Language extends DataEntry
                 ->setSize(12)
                 ->setMaxlength(3)
                 ->setHelpText(tr('The ISO 639-2/B code for this language')))
-            ->add(DataEntryFieldDefinition::new('code_639_3')
+            ->add(Definition::new('code_639_3')
                 ->setDisabled(true)
                 ->setInputType(InputTypeExtended::code)
                 ->setLabel(tr('ISO 639-3 code'))
@@ -198,7 +197,7 @@ class Language extends DataEntry
                 ->setSize(12)
                 ->setMaxlength(3)
                 ->setHelpText(tr('The ISO 639-3 code for this language')))
-            ->add(DataEntryFieldDefinition::new('description')
+            ->add(Definition::new('description')
                 ->setOptional(true)
                 ->setInputType(InputTypeExtended::description)
                 ->setLabel(tr('Description'))

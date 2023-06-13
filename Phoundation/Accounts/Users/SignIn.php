@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace Phoundation\Accounts\Users;
 
 use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\DataEntryFieldDefinition;
-use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
+use Phoundation\Data\DataEntry\Definitions\Definition;
+use Phoundation\Data\DataEntry\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryIpAddress;
 use Phoundation\Data\DataEntry\Traits\DataEntryTimezone;
 use Phoundation\Data\DataEntry\Traits\DataEntryUserAgent;
@@ -16,8 +15,8 @@ use Phoundation\Data\Traits\DataGeoIp;
 use Phoundation\Geo\Countries\Countries;
 use Phoundation\Geo\GeoIp\GeoIp;
 use Phoundation\Geo\Timezones\Timezones;
-use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
 use Phoundation\Web\Http\Html\Enums\InputType;
+use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
 
 /**
  * SignIn class
@@ -79,27 +78,27 @@ class SignIn extends DataEntry
     /**
      * Sets the available data keys for the User class
      *
-     * @param DataEntryFieldDefinitionsInterface $field_definitions
+     * @param DefinitionsInterface $field_definitions
      */
-    protected function initFieldDefinitions(DataEntryFieldDefinitionsInterface $field_definitions): void
+    protected function initFieldDefinitions(DefinitionsInterface $field_definitions): void
     {
         $field_definitions
-            ->add(DataEntryFieldDefinition::new('ip_address')
+            ->add(Definition::new('ip_address')
                 ->setVisible(false))
-            ->add(DataEntryFieldDefinition::new('net_len')
+            ->add(Definition::new('net_len')
                 ->setVisible(false))
-            ->add(DataEntryFieldDefinition::new('ip_address_human')
+            ->add(Definition::new('ip_address_human')
                 ->setReadonly(true)
                 ->setSize(6)
                 ->setMaxlength(48)
                 ->setLabel(tr('IP Address')))
-            ->add(DataEntryFieldDefinition::new('user_agent')
+            ->add(Definition::new('user_agent')
                 ->setOptional(true)
                 ->setReadonly(true)
                 ->setSize(6)
                 ->setMaxlength(2040)
                 ->setLabel(tr('User agent')))
-            ->add(DataEntryFieldDefinition::new('latitude')
+            ->add(Definition::new('latitude')
                 ->setOptional(true)
                 ->setReadonly(true)
                 ->setInputType(InputType::numeric)
@@ -108,7 +107,7 @@ class SignIn extends DataEntry
                 ->setMax(90)
                 ->setStep('any')
                 ->setLabel(tr('Latitude')))
-            ->add(DataEntryFieldDefinition::new('longitude')
+            ->add(Definition::new('longitude')
                 ->setOptional(true)
                 ->setReadonly(true)
                 ->setInputType(InputType::numeric)
@@ -117,7 +116,7 @@ class SignIn extends DataEntry
                 ->setMax(180)
                 ->setStep('any')
                 ->setLabel(tr('Longitude')))
-            ->add(DataEntryFieldDefinition::new('countries_id')
+            ->add(Definition::new('countries_id')
                 ->setOptional(true)
                 ->setReadonly(true)
                 ->setInputType(InputTypeExtended::dbid)
@@ -132,7 +131,7 @@ class SignIn extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->xor('country')->isQueryColumn('SELECT `name` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':id' => '$countries_id']);
                 }))
-            ->add(DataEntryFieldDefinition::new('timezones_id')
+            ->add(Definition::new('timezones_id')
                 ->setOptional(true)
                 ->setReadonly(true)
                 ->setInputType(InputTypeExtended::dbid)

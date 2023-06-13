@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Phoundation\Developer\Incidents;
 
 use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\DataEntryFieldDefinition;
-use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
+use Phoundation\Data\DataEntry\Definitions\Definition;
+use Phoundation\Data\DataEntry\Definitions\Definitions;
+use Phoundation\Data\DataEntry\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryDetails;
 use Phoundation\Data\DataEntry\Traits\DataEntryException;
@@ -65,12 +65,12 @@ class Incident extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @return DataEntryFieldDefinitions
+     * @return Definitions
      */
-    protected function initFieldDefinitions(DataEntryFieldDefinitionsInterface $field_definitions): void
+    protected function initFieldDefinitions(DefinitionsInterface $field_definitions): void
     {
         $field_definitions
-            ->add(DataEntryFieldDefinition::new('type')
+            ->add(Definition::new('type')
                 ->setReadonly(true)
                 ->setLabel('Type')
                 ->setSize(6)
@@ -78,7 +78,7 @@ class Incident extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->isName(16);
                 }))
-            ->add(DataEntryFieldDefinition::new('title')
+            ->add(Definition::new('title')
                 ->setReadonly(true)
                 ->setLabel('Title')
                 ->setSize(6)
@@ -86,7 +86,7 @@ class Incident extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->hasMaxCharacters(255)->isPrintable();
                 }))
-            ->add(DataEntryFieldDefinition::new('url')
+            ->add(Definition::new('url')
                 ->setReadonly(true)
                 ->setLabel('URL')
                 ->setSize(12)
@@ -94,7 +94,7 @@ class Incident extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->isUrl();
                 }))
-            ->add(DataEntryFieldDefinition::new('description')
+            ->add(Definition::new('description')
                 ->setOptional(true)
                 ->setLabel('Description')
                 ->setSize(12)
@@ -102,7 +102,7 @@ class Incident extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->isDescription();
                 }))
-            ->add(DataEntryFieldDefinition::new('exception')
+            ->add(Definition::new('exception')
                 ->setReadonly(true)
                 ->setLabel('Exception')
                 ->setSize(12)
@@ -110,7 +110,7 @@ class Incident extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->isPrintable();
                 }))
-            ->add(DataEntryFieldDefinition::new('data')
+            ->add(Definition::new('data')
                 ->setReadonly(true)
                 ->setElement('text')
                 ->setLabel('Data')

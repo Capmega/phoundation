@@ -11,9 +11,8 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\DataEntryFieldDefinition;
-use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
+use Phoundation\Data\DataEntry\Definitions\Definition;
+use Phoundation\Data\DataEntry\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryCode;
 use Phoundation\Data\DataEntry\Traits\DataEntryDetails;
 use Phoundation\Data\DataEntry\Traits\DataEntryFile;
@@ -30,7 +29,6 @@ use Phoundation\Data\Interfaces\InterfaceDataEntry;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Exception\NotificationBusyException;
-use Phoundation\Web\Http\Html\Components\Mode;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Html\Enums\InputElement;
 use Phoundation\Web\Http\Html\Enums\InputType;
@@ -421,18 +419,18 @@ class Notification extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @param DataEntryFieldDefinitionsInterface $field_definitions
+     * @param DefinitionsInterface $field_definitions
      */
-    protected function initFieldDefinitions(DataEntryFieldDefinitionsInterface $field_definitions): void
+    protected function initFieldDefinitions(DefinitionsInterface $field_definitions): void
     {
         $field_definitions
-            ->add(DataEntryFieldDefinition::new('users_id')
+            ->add(Definition::new('users_id')
                 ->setVisible(false)
                 ->setInputType(InputTypeExtended::dbid)
                 ->addValidationFunction(function ($validator) {
                     $validator->isId()->isQueryColumn('SELECT `id` FROM `accounts_users` WHERE `id` = :id', [':id' => '$id']);
                 }))
-            ->add(DataEntryFieldDefinition::new('code')
+            ->add(Definition::new('code')
                 ->setOptional(true)
                 ->setReadonly(true)
                 ->setLabel(tr('Code'))
@@ -442,7 +440,7 @@ class Notification extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->isPrintable();
                 }))
-            ->add(DataEntryFieldDefinition::new('mode')
+            ->add(Definition::new('mode')
                 ->setReadonly(true)
                 ->setLabel(tr('Mode'))
                 ->setSize(4)
@@ -450,10 +448,10 @@ class Notification extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->isMode()->isInArray(DisplayMode::cases());
                 }))
-            ->add(DataEntryFieldDefinition::new('icon')
+            ->add(Definition::new('icon')
                 ->setVisible(false)
                 ->setInputType(InputType::url))
-            ->add(DataEntryFieldDefinition::new('priority')
+            ->add(Definition::new('priority')
                 ->setReadonly(true)
                 ->setInputType(InputTypeExtended::integer)
                 ->setLabel(tr('Priority'))
@@ -461,7 +459,7 @@ class Notification extends DataEntry
                 ->setMin(1)
                 ->setMax(9)
                 ->setSize(4))
-            ->add(DataEntryFieldDefinition::new('title')
+            ->add(Definition::new('title')
                 ->setReadonly(true)
                 ->setLabel(tr('Title'))
                 ->setMaxlength(255)
@@ -469,7 +467,7 @@ class Notification extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->isPrintable();
                 }))
-            ->add(DataEntryFieldDefinition::new('message')
+            ->add(Definition::new('message')
                 ->setReadonly(true)
                 ->setElement(InputElement::textarea)
                 ->setLabel(tr('Message'))
@@ -478,25 +476,25 @@ class Notification extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->isPrintable();
                 }))
-            ->add(DataEntryFieldDefinition::new('file')
+            ->add(Definition::new('file')
                 ->setReadonly(true)
                 ->setInputType(InputType::file)
                 ->setLabel(tr('File'))
                 ->setMaxlength(255)
                 ->setSize(8))
-            ->add(DataEntryFieldDefinition::new('line')
+            ->add(Definition::new('line')
                 ->setReadonly(true)
                 ->setInputType(InputTypeExtended::natural)
                 ->setLabel(tr('File'))
                 ->setMin(1)
                 ->setSize(4))
-            ->add(DataEntryFieldDefinition::new('url')
+            ->add(Definition::new('url')
                 ->setReadonly(true)
                 ->setInputType(InputType::url)
                 ->setLabel(tr('URL'))
                 ->setMaxlength(2048)
                 ->setSize(12))
-            ->add(DataEntryFieldDefinition::new('trace')
+            ->add(Definition::new('trace')
                 ->setReadonly(true)
                 ->setElement(InputElement::textarea)
                 ->setLabel(tr('Trace'))
@@ -506,7 +504,7 @@ class Notification extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->isJson();
                 }))
-            ->add(DataEntryFieldDefinition::new('details')
+            ->add(Definition::new('details')
                 ->setReadonly(true)
                 ->setElement(InputElement::textarea)
                 ->setLabel(tr('Details'))

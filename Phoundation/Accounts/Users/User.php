@@ -17,9 +17,9 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\DataEntryFieldDefinition;
-use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
+use Phoundation\Data\DataEntry\Definitions\Definition;
+use Phoundation\Data\DataEntry\Definitions\Definitions;
+use Phoundation\Data\DataEntry\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryAddress;
 use Phoundation\Data\DataEntry\Traits\DataEntryCode;
 use Phoundation\Data\DataEntry\Traits\DataEntryComments;
@@ -1313,12 +1313,12 @@ class User extends DataEntry implements InterfaceUser
     /**
      * Sets the available data keys for the User class
      *
-     * @return DataEntryFieldDefinitions
+     * @return Definitions
      */
-    protected function initFieldDefinitions(DataEntryFieldDefinitionsInterface $field_definitions): void
+    protected function initFieldDefinitions(DefinitionsInterface $field_definitions): void
     {
         $field_definitions
-            ->add(DataEntryFieldDefinition::new('email')
+            ->add(Definition::new('email')
                 ->setInputType(InputType::email)
                 ->setMaxlength(128)
                 ->setCliField('-e,--email')
@@ -1332,7 +1332,7 @@ class User extends DataEntry implements InterfaceUser
                         return static::notExists($value, isset_get($source['id']));
                     }, tr('This email address already exists'));
                 }))
-            ->add(DataEntryFieldDefinition::new('country')
+            ->add(Definition::new('country')
                 ->setOptional(true)
                 ->setVirtual(true)
                 ->setCliField('--country COUNTRY NAME')
@@ -1343,7 +1343,7 @@ class User extends DataEntry implements InterfaceUser
                 ->addValidationFunction(function ($validator) {
                     $validator->or('countries_id')->isName(200)->setColumnFromQuery('countries_id', 'SELECT `id` FROM `geo_countries` WHERE `name` = :name AND `status` IS NULL', [':name' => '$country']);
                 }))
-            ->add(DataEntryFieldDefinition::new('state')
+            ->add(Definition::new('state')
                 ->setOptional(true)
                 ->setVirtual(true)
                 ->setCliField('--state STATE-NAME')
@@ -1354,7 +1354,7 @@ class User extends DataEntry implements InterfaceUser
                 ->addValidationFunction(function ($validator) {
                     $validator->or('states_id')->isName()->setColumnFromQuery('states_id', 'SELECT `name` FROM `geo_states` WHERE `name` = :name AND `countries_id` = :countries_id AND `status` IS NULL', [':name' => '$state', ':countries_id' => '$countries_id']);
                 }))
-            ->add(DataEntryFieldDefinition::new('city')
+            ->add(Definition::new('city')
                 ->setOptional(true)
                 ->setVirtual(true)
                 ->setCliField('--city CITY-NAME')
@@ -1365,7 +1365,7 @@ class User extends DataEntry implements InterfaceUser
                 ->addValidationFunction(function ($validator) {
                     $validator->or('cities_id')->isName()->setColumnFromQuery('cities_id', 'SELECT `name` FROM `geo_cities` WHERE `name` = :name AND `states_name`  = :states_id    AND `status` IS NULL', [':name' => '$city', ':states_id' => '$states_id']);
                 }))
-            ->add(DataEntryFieldDefinition::new('language')
+            ->add(Definition::new('language')
                 ->setOptional(true)
                 ->setVirtual(true)
                 ->setMaxlength(32)
@@ -1377,7 +1377,7 @@ class User extends DataEntry implements InterfaceUser
                 ->addValidationFunction(function ($validator) {
                     $validator->or('languages_id')->isName()->setColumnFromQuery('languages_id', 'SELECT `code_639_1` FROM `core_languages` WHERE `code_639_1` = :code AND `status` IS NULL', [':code' => '$language']);
                 }))
-            ->add(DataEntryFieldDefinition::new('timezone')
+            ->add(Definition::new('timezone')
                 ->setOptional(true)
                 ->setVirtual(true)
                 ->setCliField('--timezone TIMEZONE-NAME')
@@ -1388,7 +1388,7 @@ class User extends DataEntry implements InterfaceUser
                 ->addValidationFunction(function ($validator) {
                     $validator->isTimezone();
                 }))
-            ->add(DataEntryFieldDefinition::new('timezones_id')
+            ->add(Definition::new('timezones_id')
                 ->setOptional(true)
                 ->setInputType(InputType::numeric)
                 ->setContent(function (string $key, array $data, array $source) {
@@ -1408,19 +1408,19 @@ class User extends DataEntry implements InterfaceUser
                         return Timezone::exists($value);
                     }, tr('The specified timezone does not exist'));
                 }))
-            ->add(DataEntryFieldDefinition::new('picture')
+            ->add(Definition::new('picture')
                 // TODO Implement
                 ->setOptional(true)
                 ->setVisible(false))
-            ->add(DataEntryFieldDefinition::new('verification_code')
+            ->add(Definition::new('verification_code')
                 ->setOptional(true)
                 ->setVisible(false)
                 ->setReadonly(true))
-            ->add(DataEntryFieldDefinition::new('fingerprint')
+            ->add(Definition::new('fingerprint')
                 // TODO Implement
                 ->setOptional(true)
                 ->setVisible(false))
-            ->add(DataEntryFieldDefinition::new('password')
+            ->add(Definition::new('password')
                 ->setVisible(false)
                 ->setReadonly(true)
                 ->setOptional(true)
@@ -1432,7 +1432,7 @@ class User extends DataEntry implements InterfaceUser
                 ->addValidationFunction(function ($validator) {
                     $validator->isStrongPassword();
                 }))
-            ->add(DataEntryFieldDefinition::new('last_sign_in')
+            ->add(Definition::new('last_sign_in')
                 ->setOptional(true)
                 ->setReadonly(true)
                 ->setInputType(InputType::datetime_local)
@@ -1440,20 +1440,20 @@ class User extends DataEntry implements InterfaceUser
                 ->setSize(3)
                 ->setDefault('-')
                 ->setLabel('Last sign in'))
-            ->add(DataEntryFieldDefinition::new('sign_in_count')
+            ->add(Definition::new('sign_in_count')
                 ->setOptional(true, 0)
                 ->setReadonly(true)
                 ->setInputType(InputType::numeric)
                 ->setSize(3)
                 ->setLabel(tr('Sign in count')))
-            ->add(DataEntryFieldDefinition::new('authentication_failures')
+            ->add(Definition::new('authentication_failures')
                 ->setOptional(true, 0)
                 ->setReadonly(true)
                 ->setInputType(InputType::numeric)
                 ->setNullDb(false, 0)
                 ->setSize(3)
                 ->setLabel(tr('Authentication failures')))
-            ->add(DataEntryFieldDefinition::new('locked_until')
+            ->add(Definition::new('locked_until')
                 ->setOptional(true)
                 ->setReadonly(true)
                 ->setInputType(InputType::datetime_local)
@@ -1461,7 +1461,7 @@ class User extends DataEntry implements InterfaceUser
                 ->setSize(3)
                 ->setDefault(tr('Not locked'))
                 ->setLabel(tr('Locked until')))
-            ->add(DataEntryFieldDefinition::new('domain')
+            ->add(Definition::new('domain')
                 ->setOptional(true)
                 ->setMaxlength(128)
                 ->setSize(3)
@@ -1472,7 +1472,7 @@ class User extends DataEntry implements InterfaceUser
                 ->addValidationFunction(function ($validator) {
                     $validator->isDomain();
                 }))
-            ->add(DataEntryFieldDefinition::new('username')
+            ->add(Definition::new('username')
                 ->setOptional(true)
                 ->setMaxLength(64)
                 ->setSize(3)
@@ -1484,7 +1484,7 @@ class User extends DataEntry implements InterfaceUser
                 ->addValidationFunction(function ($validator) {
                     $validator->isName();
                 }))
-            ->add(DataEntryFieldDefinition::new('nickname')
+            ->add(Definition::new('nickname')
                 ->setOptional(true)
                 ->setMaxLength(64)
                 ->setSize(3)
@@ -1496,7 +1496,7 @@ class User extends DataEntry implements InterfaceUser
                 ->addValidationFunction(function ($validator) {
                     $validator->isName();
                 }))
-            ->add(DataEntryFieldDefinition::new('first_names')
+            ->add(Definition::new('first_names')
                 ->setOptional(true)
                 ->setMaxLength(127)
                 ->setSize(3)
@@ -1508,7 +1508,7 @@ class User extends DataEntry implements InterfaceUser
                 ->addValidationFunction(function ($validator) {
                     $validator->isName();
                 }))
-            ->add(DataEntryFieldDefinition::new('last_names')
+            ->add(Definition::new('last_names')
                 ->setOptional(true)
                 ->setMaxLength(127)
                 ->setSize(3)
@@ -1520,7 +1520,7 @@ class User extends DataEntry implements InterfaceUser
                 ->addValidationFunction(function ($validator) {
                     $validator->isName();
                 }))
-            ->add(DataEntryFieldDefinition::new('title')
+            ->add(Definition::new('title')
                 ->setOptional(true)
                 ->setMaxLength(24)
                 ->setSize(3)
@@ -1532,7 +1532,7 @@ class User extends DataEntry implements InterfaceUser
                 ->addValidationFunction(function ($validator) {
                     $validator->isName();
                 }))
-            ->add(DataEntryFieldDefinition::new('gender')
+            ->add(Definition::new('gender')
                 ->setOptional(true)
                 ->setElement(InputElement::select)
                 ->setSize(3)
@@ -1553,7 +1553,7 @@ class User extends DataEntry implements InterfaceUser
                 ->addValidationFunction(function ($validator) {
                     $validator->hasMaxCharacters(6);
                 }))
-            ->add(DataEntryFieldDefinition::new('phones')
+            ->add(Definition::new('phones')
                 ->setOptional(true)
                 ->setMinlength(10)
                 ->setMaxLength(64)
@@ -1567,7 +1567,7 @@ class User extends DataEntry implements InterfaceUser
                     $validator->isPhoneNumbers();
                     // $validator->sanitizeForceArray(',')->each()->isPhone()->sanitizeForceString()
                 }))
-            ->add(DataEntryFieldDefinition::new('code')
+            ->add(Definition::new('code')
                 ->setOptional(true)
                 ->setCliField('--code')
                 ->setAutoComplete(true)
@@ -1577,7 +1577,7 @@ class User extends DataEntry implements InterfaceUser
                 ->addValidationFunction(function ($validator) {
                     $validator->isCode();
                 }))
-            ->add(DataEntryFieldDefinition::new('type')
+            ->add(Definition::new('type')
                 ->setOptional(true)
                 ->setMaxLength(16)
                 ->setSize(6)
@@ -1589,7 +1589,7 @@ class User extends DataEntry implements InterfaceUser
                 ->addValidationFunction(function ($validator) {
                     $validator->isName();
                 }))
-            ->add(DataEntryFieldDefinition::new('birthdate')
+            ->add(Definition::new('birthdate')
                 ->setOptional(true)
                 ->setInputType(InputType::date)
                 ->setSize(3)
@@ -1601,7 +1601,7 @@ class User extends DataEntry implements InterfaceUser
                 ->addValidationFunction(function ($validator) {
                     $validator->isDate()->isPast();
                 }))
-            ->add(DataEntryFieldDefinition::new('priority')
+            ->add(Definition::new('priority')
                 ->setOptional(true)
                 ->setInputType(InputType::numeric)
                 ->setSize(3)
@@ -1614,7 +1614,7 @@ class User extends DataEntry implements InterfaceUser
                 ->addValidationFunction(function ($validator) {
                     $validator->isInteger();
                 }))
-            ->add(DataEntryFieldDefinition::new('countries_id')
+            ->add(Definition::new('countries_id')
                 ->setOptional(true)
                 ->setInputType(InputType::numeric)
                 ->setContent(function (string $key, array $data, array $source) {
@@ -1631,7 +1631,7 @@ class User extends DataEntry implements InterfaceUser
                 ->addValidationFunction(function ($validator) {
                     $validator->or('country')->isId()->isQueryColumn('SELECT `id` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':id' => '$countries_id']);
                 }))
-            ->add(DataEntryFieldDefinition::new('states_id')
+            ->add(Definition::new('states_id')
                 ->setOptional(true)
                 ->setInputType(InputType::numeric)
                 ->setContent(function (string $key, array $data, array $source) {
@@ -1648,7 +1648,7 @@ class User extends DataEntry implements InterfaceUser
                 ->addValidationFunction(function ($validator) {
                     $validator->or('state')->isId()->isQueryColumn('SELECT `id` FROM `geo_states` WHERE `id` = :id AND `countries_id` = :countries_id AND `status` IS NULL', [':id' => '$states_id', ':countries_id' => '$countries_id']);
                 }))
-            ->add(DataEntryFieldDefinition::new('cities_id')
+            ->add(Definition::new('cities_id')
                 ->setOptional(true)
                 ->setInputType(InputType::numeric)
                 ->setContent(function (string $key, array $data, array $source) {
@@ -1667,7 +1667,7 @@ class User extends DataEntry implements InterfaceUser
                 ->addValidationFunction(function ($validator) {
                     $validator->or('city')->isId()->isQueryColumn('SELECT `id` FROM `geo_cities` WHERE `id` = :id AND `states_name`  = :states_id    AND `status` IS NULL', [':id' => '$cities_id', ':states_id' => '$states_id']);
                 }))
-            ->add(DataEntryFieldDefinition::new('address')
+            ->add(Definition::new('address')
                 ->setOptional(true)
                 ->setMaxlength(255)
                 ->setSize(3)
@@ -1679,7 +1679,7 @@ class User extends DataEntry implements InterfaceUser
                 ->addValidationFunction(function ($validator) {
                     $validator->isPrintable();
                 }))
-            ->add(DataEntryFieldDefinition::new('zipcode')
+            ->add(Definition::new('zipcode')
                 ->setOptional(true)
                 ->setMinlength(4)
                 ->setMaxlength(8)
@@ -1692,7 +1692,7 @@ class User extends DataEntry implements InterfaceUser
                 ->addValidationFunction(function ($validator) {
                     $validator->isPrintable();
                 }))
-            ->add(DataEntryFieldDefinition::new('languages_id')
+            ->add(Definition::new('languages_id')
                 ->setOptional(true)
                 ->setInputType(InputType::numeric)
                 ->setContent(function (string $key, array $data, array $source) {
@@ -1709,7 +1709,7 @@ class User extends DataEntry implements InterfaceUser
                 ->addValidationFunction(function ($validator) {
                     $validator->or('language')->isId()->isQueryColumn('SELECT `id` FROM `core_languages` WHERE `id` = :id AND `status` IS NULL', [':id' => '$languages_id']);
                 }))
-            ->add(DataEntryFieldDefinition::new('latitude')
+            ->add(Definition::new('latitude')
                 ->setOptional(true)
                 ->setInputType(InputType::numeric)
                 ->setSize(2)
@@ -1721,7 +1721,7 @@ class User extends DataEntry implements InterfaceUser
                 ->addValidationFunction(function ($validator) {
                     $validator->isLatitude();
                 }))
-            ->add(DataEntryFieldDefinition::new('longitude')
+            ->add(Definition::new('longitude')
                 ->setOptional(true)
                 ->setInputType(InputType::numeric)
                 ->setSize(2)
@@ -1733,7 +1733,7 @@ class User extends DataEntry implements InterfaceUser
                 ->addValidationFunction(function ($validator) {
                     $validator->isLongitude();
                 }))
-            ->add(DataEntryFieldDefinition::new('accuracy')
+            ->add(Definition::new('accuracy')
                 ->setOptional(true)
                 ->setInputType(InputType::numeric)
                 ->setSize(2)
@@ -1747,7 +1747,7 @@ class User extends DataEntry implements InterfaceUser
                 ->addValidationFunction(function ($validator) {
                     $validator->isFloat();
                 }))
-            ->add(DataEntryFieldDefinition::new('offset_latitude')
+            ->add(Definition::new('offset_latitude')
                 ->setOptional(true)
                 ->setReadonly(true)
                 ->setInputType(InputType::numeric)
@@ -1756,7 +1756,7 @@ class User extends DataEntry implements InterfaceUser
                 ->setLabel(tr('Offset latitude'))
                 ->setHelpGroup(tr('Location information'))
                 ->setHelpText(tr('The latitude location for this user with a random offset within the configured range')))
-            ->add(DataEntryFieldDefinition::new('offset_longitude')
+            ->add(Definition::new('offset_longitude')
                 ->setOptional(true)
                 ->setReadonly(true)
                 ->setInputType(InputType::numeric)
@@ -1765,7 +1765,7 @@ class User extends DataEntry implements InterfaceUser
                 ->setLabel(tr('Offset longitude'))
                 ->setHelpGroup(tr('Location information'))
                 ->setHelpText(tr('The longitude location for this user with a random offset within the configured range')))
-            ->add(DataEntryFieldDefinition::new('is_leader')
+            ->add(Definition::new('is_leader')
                 ->setOptional(true)
                 ->setInputType(InputType::checkbox)
                 ->setSize(2)
@@ -1777,7 +1777,7 @@ class User extends DataEntry implements InterfaceUser
                 ->addValidationFunction(function ($validator) {
                     $validator->isBoolean();
                 }))
-            ->add(DataEntryFieldDefinition::new('leader')
+            ->add(Definition::new('leader')
                 ->setOptional(true)
                 ->setVirtual(true)
                 ->setCliField('--leader LEADER-EMAIL')
@@ -1789,7 +1789,7 @@ class User extends DataEntry implements InterfaceUser
                 ->addValidationFunction(function ($validator) {
                     $validator->or('leaders_id')->isEmail()->setColumnFromQuery('leaders_id', 'SELECT `id` FROM `accounts_users` WHERE `email` = :email AND `status` IS NULL', [':email' => '$leader']);
                 }))
-            ->add(DataEntryFieldDefinition::new('leaders_id')
+            ->add(Definition::new('leaders_id')
                 ->setOptional(true)
                 ->setInputType(InputType::numeric)
                 ->setContent(function (string $key, array $data, array $source) {
@@ -1806,7 +1806,7 @@ class User extends DataEntry implements InterfaceUser
                 ->addValidationFunction(function ($validator) {
                     $validator->or('leader')->isId()->isQueryColumn('SELECT `id` FROM `accounts_users` WHERE `id` = :id AND `status` IS NULL', [':id' => '$leaders_id']);
                 }))
-            ->add(DataEntryFieldDefinition::new('verified_on')
+            ->add(Definition::new('verified_on')
                 ->setReadonly(true)
                 ->setOptional(true)
                 ->setInputType(InputType::datetime_local)
@@ -1816,7 +1816,7 @@ class User extends DataEntry implements InterfaceUser
                 ->setLabel(tr('Account verified on'))
                 ->setHelpGroup(tr('Account information'))
                 ->setHelpText(tr('The date when this user was email verified. Empty if not yet verified')))
-            ->add(DataEntryFieldDefinition::new('redirect')
+            ->add(Definition::new('redirect')
                 ->setOptional(true)
                 ->setInputType(InputType::url)
                 ->setMaxlength(255)
@@ -1828,7 +1828,7 @@ class User extends DataEntry implements InterfaceUser
                 ->addValidationFunction(function ($validator) {
                     $validator->isOptional()->isUrl();
                 }))
-            ->add(DataEntryFieldDefinition::new('url')
+            ->add(Definition::new('url')
                 ->setOptional(true)
                 ->setInputType(InputType::url)
                 ->setMaxlength(2048)
@@ -1841,7 +1841,7 @@ class User extends DataEntry implements InterfaceUser
                 ->addValidationFunction(function ($validator) {
                     $validator->isOptional()->isUrl();
                 }))
-            ->add(DataEntryFieldDefinition::new('keywords')
+            ->add(Definition::new('keywords')
                 ->setOptional(true)
                 ->setMaxlength(255)
                 ->setSize(12)
@@ -1854,7 +1854,7 @@ class User extends DataEntry implements InterfaceUser
                     $validator->isPrintable();
                     //$validator->sanitizeForceArray(' ')->each()->isWord()->sanitizeForceString()
                 }))
-            ->add(DataEntryFieldDefinition::new('description')
+            ->add(Definition::new('description')
                 ->setOptional(true)
                 ->setMaxlength(65_535)
                 ->setSize(6)
@@ -1866,7 +1866,7 @@ class User extends DataEntry implements InterfaceUser
                 ->addValidationFunction(function ($validator) {
                     $validator->isOptional()->isPrintable();
                 }))
-            ->add(DataEntryFieldDefinition::new('comments')
+            ->add(Definition::new('comments')
                 ->setOptional(true)
                 ->setElement(InputElement::textarea)
                 ->setMaxlength(16_777_200)

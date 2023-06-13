@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Rights;
 
-use Phoundation\Accounts\Interfaces\InterfaceRights;
+use Phoundation\Accounts\Interfaces\RightsInterface;
 use Phoundation\Accounts\Interfaces\InterfaceRole;
 use Phoundation\Accounts\Interfaces\InterfaceUser;
 use Phoundation\Accounts\Roles\Role;
@@ -12,7 +12,7 @@ use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
-use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Data\DataEntry\DataListInterface;
 use Phoundation\Databases\Sql\QueryBuilder;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Web\Http\Html\Components\Input\Select;
@@ -23,13 +23,13 @@ use Phoundation\Web\Http\Html\Components\Input\Select;
  *
  *
  *
- * @see \Phoundation\Data\DataEntry\DataList
+ * @see \Phoundation\Data\DataEntry\DataListInterface
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
-class Rights extends DataList implements InterfaceRights
+class Rights extends DataListInterface implements RightsInterface
 {
     /**
      * Rights class constructor

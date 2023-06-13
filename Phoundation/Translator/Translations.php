@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Translator;
 
-use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Data\DataEntry\DataListInterface;
 
 /**
  * Class Translations
@@ -16,7 +16,7 @@ use Phoundation\Data\DataEntry\DataList;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Translator
  */
-class Translations extends DataList
+class Translations extends DataListInterface
 {
 
     /**

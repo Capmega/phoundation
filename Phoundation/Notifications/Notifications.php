@@ -7,7 +7,7 @@ namespace Phoundation\Notifications;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
-use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Data\DataEntry\DataListInterface;
 use Phoundation\Databases\Sql\QueryBuilder;
 use Phoundation\Databases\Sql\Sql;
 
@@ -16,13 +16,13 @@ use Phoundation\Databases\Sql\Sql;
  *
  *
  *
- * @see \Phoundation\Data\DataEntry\DataList
+ * @see \Phoundation\Data\DataEntry\DataListInterface
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundations\Notifications
  */
-class Notifications extends DataList
+class Notifications extends DataListInterface
 {
     /**
      * Notifications class constructor

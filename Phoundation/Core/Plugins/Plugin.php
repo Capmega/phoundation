@@ -8,8 +8,8 @@ use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\DataEntryFieldDefinition;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
+use Phoundation\Data\DataEntry\Definitions\Definition;
+use Phoundation\Data\DataEntry\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryPath;
 use Phoundation\Data\DataEntry\Traits\DataEntryPriority;
@@ -321,24 +321,24 @@ abstract class Plugin extends DataEntry
     /**
      * Sets the available data keys for the User class
      *
-     * @param DataEntryFieldDefinitionsInterface $field_definitions
+     * @param DefinitionsInterface $field_definitions
      */
-    protected function initFieldDefinitions(DataEntryFieldDefinitionsInterface $field_definitions): void
+    protected function initFieldDefinitions(DefinitionsInterface $field_definitions): void
     {
         $field_definitions
-            ->add(DataEntryFieldDefinition::new('disabled')
+            ->add(Definition::new('disabled')
                 ->setOptional(true)
                 ->setVirtual(true)
                 ->setCliField('-d,--disable'))
-            ->add(DataEntryFieldDefinition::new('name')
+            ->add(Definition::new('name')
                 ->setVisible(false))
-            ->add(DataEntryFieldDefinition::new('name')
+            ->add(Definition::new('name')
                 ->setLabel(tr('Name'))
                 ->setInputType(InputTypeExtended::name)
                 ->setMaxlength(64)
                 ->setSize(9)
                 ->setHelpText(tr('The name of this plugin')))
-            ->add(DataEntryFieldDefinition::new('priority')
+            ->add(Definition::new('priority')
                 ->setOptional(true)
                 ->setInputType(InputType::numeric)
                 ->setNullDb(false, 5)
@@ -352,7 +352,7 @@ abstract class Plugin extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->isInteger();
                 }))
-            ->add(DataEntryFieldDefinition::new('enabled')
+            ->add(Definition::new('enabled')
                 ->setOptional(true)
                 ->setInputType(InputType::checkbox)
                 ->setSize(4)
@@ -363,19 +363,19 @@ abstract class Plugin extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->isInteger();
                 }))
-            ->add(DataEntryFieldDefinition::new('class')
+            ->add(Definition::new('class')
                 ->setLabel(tr('Class'))
                 ->setInputType(InputTypeExtended::name)
                 ->setMaxlength(255)
                 ->setSize(6)
                 ->setHelpText(tr('The base class path of this plugin')))
-            ->add(DataEntryFieldDefinition::new('path')
+            ->add(Definition::new('path')
                 ->setLabel(tr('Name'))
                 ->setInputType(InputTypeExtended::name)
                 ->setMaxlength(128)
                 ->setSize(6)
                 ->setHelpText(tr('The filesystem path where this plugin is located')))
-            ->add(DataEntryFieldDefinition::new('description')
+            ->add(Definition::new('description')
                 ->setOptional(true)
                 ->setLabel('Description')
                 ->setSize(12)
