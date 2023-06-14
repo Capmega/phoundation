@@ -7,6 +7,7 @@ namespace Phoundation\Data\DataEntry\Traits;
 use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
 
+
 /**
  * Trait DataEntryMessage
  *

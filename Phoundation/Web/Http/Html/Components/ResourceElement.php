@@ -6,6 +6,7 @@ namespace Phoundation\Web\Http\Html\Components;
 
 use PDOStatement;
 use Phoundation\Web\Http\Html\Components\Input\Traits\InputElement;
+use Phoundation\Web\Http\Html\Components\Interfaces\ResourceElementInterface;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
 
 
@@ -19,7 +20,7 @@ use Phoundation\Web\Http\Html\Exception\HtmlException;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-abstract class ResourceElement extends Element
+abstract class ResourceElement extends Element implements ResourceElementInterface
 {
     use InputElement;
 
@@ -41,9 +42,9 @@ abstract class ResourceElement extends Element
     /**
      * The text displayed when the specified resource is empty
      *
-     * @var int|null $hide_empty
+     * @var bool $hide_empty
      */
-    protected ?int $hide_empty = null;
+    protected bool $hide_empty = false;
 
     /**
      * The source array
@@ -96,7 +97,7 @@ abstract class ResourceElement extends Element
      * @param string|null $none
      * @return static
      */
-    public function setNone(?string $none): self
+    public function setNone(?string $none): static
     {
         $this->none = $none;
         return $this;
@@ -131,7 +132,7 @@ abstract class ResourceElement extends Element
      * @param string|null $empty
      * @return static
      */
-    public function setEmpty(?string $empty): self
+    public function setEmpty(?string $empty): static
     {
         $this->empty = $empty;
         return $this;
@@ -155,7 +156,7 @@ abstract class ResourceElement extends Element
      * @param bool $cache
      * @return static
      */
-    public function setCache(bool $cache): self
+    public function setCache(bool $cache): static
     {
         $this->cache = $cache;
         return $this;
@@ -168,7 +169,7 @@ abstract class ResourceElement extends Element
      * @param bool $hide_empty
      * @return static
      */
-    public function setHideEmpty(bool $hide_empty): self
+    public function setHideEmpty(bool $hide_empty): static
     {
         $this->hide_empty = $hide_empty;
         return $this;
@@ -193,7 +194,7 @@ abstract class ResourceElement extends Element
      * @param array|string|null $execute
      * @return static
      */
-    public function setSource(PDOStatement|array|string|null $source, array|string|null $execute = null): self
+    public function setSource(PDOStatement|array|string|null $source, array|string|null $execute = null): static
     {
         if (is_array($source)) {
             return $this->setSourceArray($source);
@@ -209,7 +210,7 @@ abstract class ResourceElement extends Element
      * @param array $source_array
      * @return static
      */
-    public function setSourceArray(array $source_array): self
+    public function setSourceArray(array $source_array): static
     {
         if ($this->source_query) {
             throw new HtmlException(tr('Cannot specify source array, a source query was already specified'));
@@ -238,7 +239,7 @@ abstract class ResourceElement extends Element
      * @param array|string|null $execute
      * @return static
      */
-    public function setSourceQuery(PDOStatement|string|null $source_query, array|string|null $execute = null): self
+    public function setSourceQuery(PDOStatement|string|null $source_query, array|string|null $execute = null): static
     {
         if ($this->source_array) {
             throw new HtmlException(tr('Cannot specify source query, a source was already specified'));
@@ -273,7 +274,7 @@ abstract class ResourceElement extends Element
      * @param array $source_data
      * @return static
      */
-    public function setSourceData(array $source_data): self
+    public function setSourceData(array $source_data): static
     {
         $this->source_data = $source_data;
         return $this;

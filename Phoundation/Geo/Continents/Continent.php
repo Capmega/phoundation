@@ -10,6 +10,7 @@ use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\Interfaces\DataEntryInterface;
 use Phoundation\Geo\Timezones\Timezone;
 
+
 /**
  * Class Continent
  *
@@ -32,7 +33,7 @@ class Continent extends DataEntry
      */
     public function __construct(DataEntryInterface|string|int|null $identifier = null)
     {
-        $this->entry_name   = 'geo continent';
+        static::$entry_name   = 'geo continent';
         $this->unique_field = 'seo_name';
 
         parent::__construct($identifier);
@@ -64,11 +65,11 @@ class Continent extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @param DefinitionsInterface $field_definitions
+     * @param DefinitionsInterface $definitions
      */
-    protected function initFieldDefinitions(DefinitionsInterface $field_definitions): void
+    protected function initDefinitions(DefinitionsInterface $definitions): void
     {
-        $field_definitions;
+        $definitions;
 
 //        throw new UnderConstructionException();
 //

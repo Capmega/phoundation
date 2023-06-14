@@ -6,12 +6,13 @@ namespace Phoundation\Servers;
 
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
-use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
+use Phoundation\Data\DataEntry\Definitions\DefinitionDefaults;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryUsername;
 use Phoundation\Filesystem\Traits\DataRestrictions;
 use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
+
 
 /**
  * SshAccount class
@@ -37,7 +38,7 @@ class SshAccount extends DataEntry
      */
     public function __construct(DataEntry|string|int|null $identifier = null)
     {
-        $this->entry_name   = 'SSH account';
+        static::$entry_name   = 'SSH account';
 
         parent::__construct($identifier);
     }
@@ -80,12 +81,12 @@ class SshAccount extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @param DefinitionsInterface $field_definitions
+     * @param DefinitionsInterface $definitions
      */
-    protected function initFieldDefinitions(DefinitionsInterface $field_definitions): void
+    protected function initDefinitions(DefinitionsInterface $definitions): void
     {
-        $field_definitions
-            ->add(DefinitionFactory::new('name')
+        $definitions
+            ->add(DefinitionDefaults::getName()
                 ->setSize(6)
                 ->setHelpGroup(tr('Identification'))
                 ->setHelpText(tr('The name for this account')))
@@ -100,7 +101,7 @@ class SshAccount extends DataEntry
                 ->setSize(6)
                 ->setMaxlength(64)
                 ->setHelpText(tr('The username on the server for this account')))
-            ->add(DefinitionFactory::new('description')
+            ->add(DefinitionDefaults::getDescription()
                 ->setHelpText(tr('The description for this account')))
             ->add(Definition::new('ssh_key')
                 ->setLabel(tr('SSH key'))

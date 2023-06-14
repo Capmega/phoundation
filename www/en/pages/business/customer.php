@@ -31,8 +31,7 @@ if (Page::isPostRequestMethod()) {
 //
 //        // Update customer
 //        $customer = Customer::get($_GET['id']);
-//        $customer->modify($_POST);
-//        $customer->save();
+//        $customer->apply()->save();
 //
 //        // Go back to where we came from
 //        Page::getFlashMessages()->add(tr('Success'), tr('Customer ":customer" has been updated', [':customer' => $customer->getName()]), DisplayMode::success);
@@ -41,7 +40,7 @@ if (Page::isPostRequestMethod()) {
     } catch (ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
         Page::getFlashMessages()->add($e);
-        $customer->modify($_POST);
+        $customer->forceApply();
     }
 }
 

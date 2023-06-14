@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Validator;
 
+use Phoundation\Core\Log\Log;
 
-use Phoundation\Core\Strings;
-use Phoundation\Data\Validator\Exception\ValidationFailedException;
 
 /**
  * ArrayValidator class
@@ -20,7 +19,7 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
-class ArrayValidator extends Validator
+class ArrayValidator extends ValidatorInterface
 {
     /**
      * Validator constructor.
@@ -29,9 +28,9 @@ class ArrayValidator extends Validator
      * @note Keys in $data that are not validated will automatically be removed
      *
      * @param array|null $source The data array that must be validated.
-     * @param Validator|null $parent If specified, this is actually a child validator to the specified parent
+     * @param ValidatorInterface|null $parent If specified, this is actually a child validator to the specified parent
      */
-    public function __construct(?array &$source = [], ?Validator $parent = null) {
+    public function __construct(?array &$source = [], ?ValidatorInterface $parent = null) {
         $this->construct($parent, $source);
     }
 
@@ -40,10 +39,10 @@ class ArrayValidator extends Validator
      * Returns a new array data Validator object
      *
      * @param array $source
-     * @param Validator|null $parent
+     * @param ValidatorInterface|null $parent
      * @return static
      */
-    public static function new(array &$source, ?Validator $parent = null): static
+    public static function new(array &$source, ?ValidatorInterface $parent = null): static
     {
         return new static($source, $parent);
     }
@@ -58,5 +57,29 @@ class ArrayValidator extends Validator
     public function select(int|string $field): static
     {
         return $this->standardSelect($field);
+    }
+
+
+    /**
+     * Force a return of all POST data without check
+     *
+     * @return array|null
+     */
+    public function extract(): ?array
+    {
+        Log::warning(tr('Liberated all $array data without data validation!'));
+        return $this->source;
+    }
+
+
+    /**
+     * Force a return of a single POST key value
+     *
+     * @return array
+     */
+    public function extractKey(string $key): mixed
+    {
+        Log::warning(tr('Liberated $array[:key] without data validation!', [':key' => $key]));
+        return isset_get($this->source[$key]);
     }
 }

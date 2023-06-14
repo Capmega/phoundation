@@ -50,7 +50,7 @@ class Incident extends DataEntry
      */
     public function __construct(DataEntry|string|int|null $identifier = null)
     {
-        $this->entry_name   = 'incident';
+        static::$entry_name   = 'incident';
         $this->unique_field = 'id';
 
         parent::__construct($identifier);
@@ -173,11 +173,11 @@ class Incident extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @param DefinitionsInterface $field_definitions
+     * @param DefinitionsInterface $definitions
      */
-    protected function initFieldDefinitions(DefinitionsInterface $field_definitions): void
+    protected function initDefinitions(DefinitionsInterface $definitions): void
     {
-        $field_definitions
+        $definitions
             ->add(Definition::new('type')
                 ->setLabel(tr('Incident type'))
                 ->setDisabled(true)

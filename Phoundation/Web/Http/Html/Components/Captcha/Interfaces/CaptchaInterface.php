@@ -7,6 +7,7 @@ namespace Phoundation\Web\Http\Html\Components\Captcha\Interfaces;
 
 use Phoundation\Web\Http\Html\Components\Interfaces\ElementsBlockInterface;
 
+
 /**
  * Interface Captcha
  *

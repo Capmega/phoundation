@@ -20,11 +20,15 @@ use Phoundation\Data\DataEntry\Enums\StateMismatchHandling;
 use Phoundation\Data\DataEntry\Exception\DataEntryAlreadyExistsException;
 use Phoundation\Data\DataEntry\Exception\DataEntryException;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
+use Phoundation\Data\DataEntry\Exception\DataEntryReadonlyException;
 use Phoundation\Data\DataEntry\Exception\DataEntryStateMismatchException;
 use Phoundation\Data\Interfaces\DataEntryInterface;
 use Phoundation\Data\Traits\DataDebug;
+use Phoundation\Data\Traits\DataReadonly;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Data\Validator\Interfaces\InterfaceDataValidator;
+use Phoundation\Data\Validator\ArrayValidator;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\Interfaces\DataValidatorInterface;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Date\DateTime;
@@ -51,6 +55,7 @@ use Throwable;
 abstract class DataEntry implements DataEntryInterface, Stringable
 {
     use DataDebug;
+    use DataReadonly;
 
 
     /**
@@ -59,7 +64,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      * @var string $entry_name
      */
     // TODO Check this, will likely go wrong as we have many sub classes of DataEntry
-    protected string $entry_name;
+    protected static string $entry_name;
 
     /**
      * The table name where this data entry is stored
@@ -78,9 +83,9 @@ abstract class DataEntry implements DataEntryInterface, Stringable
     /**
      * Meta information about the keys in this DataEntry
      *
-     * @var Definitions|null $field_definitions
+     * @var DefinitionsInterface|null $definitions
      */
-    protected ?Definitions $field_definitions = null;
+    protected ?DefinitionsInterface $definitions = null;
 
      /**
      * The unique column identifier, next to id
@@ -160,6 +165,20 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      */
     protected bool $user_modifying = false;
 
+    /**
+     * If true, this DataEntry will allow creation of new entries
+     *
+     * @var bool $allow_create
+     */
+    protected bool $allow_create = true;
+
+    /**
+     * If true, this DataEntry will allow modification of existing entries
+     *
+     * @var bool $allow_modify
+     */
+    protected bool $allow_modify = true;
+
 
     /**
      * DataEntry class constructor
@@ -168,7 +187,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      */
     public function __construct(DataEntryInterface|string|int|null $identifier = null)
     {
-        if (empty($this->entry_name)) {
+        if (empty(static::$entry_name)) {
             throw new OutOfBoundsException(tr('No "entry_name" specified for class ":class"', [
                 ':class' => get_class($this)
             ]));
@@ -187,8 +206,8 @@ abstract class DataEntry implements DataEntryInterface, Stringable
         }
 
         // Set up the fields for this object
-        $this->initMetaFieldDefinitions();
-        $this->initFieldDefinitions($this->field_definitions);
+        $this->initMetaDefinitions();
+        $this->initDefinitions($this->definitions);
 
         if ($identifier) {
             if (is_numeric($identifier)) {
@@ -243,6 +262,54 @@ abstract class DataEntry implements DataEntryInterface, Stringable
 
 
     /**
+     * Returns id for this database entry that can be used in logs
+     *
+     * @return bool
+     */
+    public function getAllowCreate(): bool
+    {
+        return $this->allow_create;
+    }
+
+
+    /**
+     * Returns id for this database entry that can be used in logs
+     *
+     * @param bool $allow_create
+     * @return static
+     */
+    public function setAllowCreate(bool $allow_create): static
+    {
+        $this->allow_create = $allow_create;
+        return $this;
+    }
+
+
+    /**
+     * Returns id for this database entry that can be used in logs
+     *
+     * @return bool
+     */
+    public function getAllowModify(): bool
+    {
+        return $this->allow_modify;
+    }
+
+
+    /**
+     * Returns id for this database entry that can be used in logs
+     *
+     * @param bool $allow_modify
+     * @return static
+     */
+    public function setAllowModify(bool $allow_modify): static
+    {
+        $this->allow_modify = $allow_modify;
+        return $this;
+    }
+
+
+    /**
      * Returns a help file generated from the DataEntry keys
      *
      * @param array $auto_complete
@@ -253,7 +320,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
         $arguments = [];
 
         // Extract auto complete for cli parameters from field definitions
-        foreach (static::new()->getFieldDefinitions() as $definitions) {
+        foreach (static::new()->getDefinitions() as $definitions) {
             if ($definitions->getCliField() and $definitions->getAutoComplete()) {
                 $arguments[$definitions->getCliField()] = $definitions->getAutoComplete();
             }
@@ -279,7 +346,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
         if (!$return) {
             $return = [];
 
-            foreach ($this->field_definitions as $field => $definitions) {
+            foreach ($this->definitions as $field => $definitions) {
                 if ($definitions->getCliField()) {
                     $return[$field] = $definitions->getCliField();
                 }
@@ -308,7 +375,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
         }
 
         $groups = [];
-        $fields = static::new()->getFieldDefinitions();
+        $fields = static::new()->getDefinitions();
         $return = PHP_EOL . PHP_EOL . PHP_EOL . PHP_EOL . Color::apply(strtoupper(tr('REQUIRED ARGUMENTS')), 'white');
 
         // Get the required fields and gather a list of available help groups
@@ -388,7 +455,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
         }
 
         throw DataEntryNotExistsException::new(tr('The ":label" entry ":identifier" does not exist', [
-            ':label'      => static::class,
+            ':label'      => static::$entry_name,
             ':identifier' => $identifier
         ]))->makeWarning();
     }
@@ -609,6 +676,30 @@ abstract class DataEntry implements DataEntryInterface, Stringable
 
 
     /**
+     * Returns the prefix string
+     *
+     * @return ?string
+     */
+    public function getPrefix(): ?string
+    {
+        return $this->definitions->getPrefix();
+    }
+
+
+    /**
+     * Sets the prefix string
+     *
+     * @param string|null $prefix
+     * @return $this
+     */
+    public function setPrefix(?string $prefix): static
+    {
+        $this->definitions->setPrefix($prefix);
+        return $this;
+    }
+
+
+    /**
      * Returns the object that created this data entry
      *
      * @note Returns NULL if this class has no support for created_by information or has not been written to disk yet
@@ -686,58 +777,104 @@ abstract class DataEntry implements DataEntryInterface, Stringable
 
 
     /**
-     * Create the data for this object with the new specified data
+     * Modify the data for this object with the new specified data
      *
-     * @param array|null $data
+     * @param DataValidatorInterface|array|null $data
      * @param bool $no_arguments_left
      * @return static
      */
-    public function create(?array $data = null, bool $no_arguments_left = false): static
+    public function apply(DataValidatorInterface|array|null $data = null, bool $no_arguments_left = false): static
     {
-        $this->user_modifying = true;
-
-        // Autofill the data from either POST or CLI
-        if (!is_object($data)) {
-            if (PLATFORM_HTTP) {
-                // Validator was specified,
-                $data = $this->validate(PostValidator::new(), $no_arguments_left, false);
-            } else {
-                // Validator was specified,
-                $data = $this->validate(ArgvValidator::new(), $no_arguments_left, false);
+        // Are we allowed to create or modify this DataEntry?
+        if ($this->getId()) {
+            if (!$this->allow_modify) {
+                // auto modify not allowed, sorry!
+                throw new ValidationFailedException(tr('Cannot modify :entry', [
+                    ':entry' => static::$entry_name
+                ]));
+            }
+        } else {
+            if (!$this->allow_create) {
+                // auto create not allowed, sorry!
+                throw new ValidationFailedException(tr('Cannot create new :entry', [
+                    ':entry' => static::$entry_name
+                ]));
             }
         }
 
+        $this->user_modifying = true;
+
+        // Select the correct data source and validate the source data. Specified data may be a DataValidator, an array
+        // or null. After selecting a data source it will be a DataValidator object which we will then give to the
+        // DataEntry::validate() method
+        $data = $this->selectDataSource($data);
+        $data = $this->validate($data, $no_arguments_left);
+
         $this
+            ->validateMetaState($data)
             ->setDiff($data)
-            ->setData($data)
+            ->setData($data, true)
             ->user_modifying = false;
 
-        return $this->save();
+        return $this;
     }
 
 
     /**
-     * Modify the data for this object with the new specified data
+     * Forcibly modify the data for this object with the new specified data, putting the object in readonly mode
      *
-     * @param array|null $data
-     * @param bool $no_arguments_left
+     * @note In readonly mode this object will no longer be able to write its data!
+     * @param DataValidatorInterface|array|null $data
      * @return static
      */
-    public function modify(?array $data = null, bool $no_arguments_left = false): static
+    public function forceApply(DataValidatorInterface|array|null $data = null): static
     {
-        $this->user_modifying = true;
+        $data = $this->selectDataSource($data);
 
-        if (!is_object($data)) {
+        return $this
+                ->setReadonly(true)
+                ->setData($data->extract(), true);
+    }
+
+
+    /**
+     * Validates the source data and returns it
+     *
+     * @param DataValidatorInterface|array|null $data
+     * @return DataValidatorInterface
+     */
+    public function selectDataSource(DataValidatorInterface|array|null $data = null): DataValidatorInterface
+    {
+        // Determine data source for this modification
+        if (!$data) {
+            // Use default data depending on platform
             if (PLATFORM_HTTP) {
-                // Validator was specified,
-                $data = $this->validate(PostValidator::new(), $no_arguments_left, true);
-            } else {
-                // Validator was specified,
-                $data = $this->validate(ArgvValidator::new(), $no_arguments_left, true);
+                return PostValidator::new();
             }
+
+            // This is the default for the CLI platform
+            return ArgvValidator::new();
         }
 
-        // Check meta state
+        if (is_object($data)) {
+            // The specified data source is a DataValidatorInterface type validator
+            return $data;
+        }
+
+        // Data source is an array, put it in an ArrayValidator
+        return ArrayValidator::new($data);
+    }
+
+
+    /**
+     * Validates the source data and returns it
+     *
+     * @param DataValidatorInterface|array|null $data
+     * @return static
+     */
+    public function validateMetaState(DataValidatorInterface|array|null $data = null): static
+    {
+        // Check entry meta state. If this entry was modified in the meantime, can we update?
         if ($this->getMetaState()) {
             if (isset_get($data['meta_state']) !== $this->getMetaState()) {
                 // State mismatch! This means that somebody else updated this record while we were modifying it.
@@ -745,7 +882,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
                     case StateMismatchHandling::ignore:
                         Log::warning(tr('Ignoring database and user meta state mismatch for ":type" type record with ID ":id"', [
                             ':id'   => $this->getId(),
-                            ':type' => $this->entry_name
+                            ':type' => static::$entry_name
                         ]));
                         break;
 
@@ -758,18 +895,13 @@ abstract class DataEntry implements DataEntryInterface, Stringable
                     case StateMismatchHandling::restrict:
                         throw new DataEntryStateMismatchException(tr('Database and user meta state for ":type" type record with ID ":id" do not match', [
                             ':id'   => $this->getId(),
-                            ':type' => $this->entry_name
+                            ':type' => static::$entry_name
                         ]));
                 }
             }
         }
 
-        $this
-            ->setDiff($data)
-            ->setData($data, true)
-            ->user_modifying = false;
-
-        return $this->save();
+        return $this;
     }
 
 
@@ -794,7 +926,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
                 ];
 
                 // Check all keys and register changes
-                foreach ($this->field_definitions as $key => $definition) {
+                foreach ($this->definitions as $key => $definition) {
                     if ($definition->getReadonly() or $definition->getDisabled() or $definition->getMeta()) {
                         continue;
                     }
@@ -836,17 +968,17 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      * Sets all data for this data entry at once with an array of information
      *
      * @param array|null $data The data for this DataEntry object
-     * @param bool $modify     If true, then
+     * @param bool $modify
      * @return static
      */
-    protected function setData(?array $data, bool $modify = false): static
+    protected function setData(?array $data, bool $modify): static
     {
         if ($data === null) {
             // No data set
             return $this;
         }
 
-        if ($this->field_definitions->isEmpty()) {
+        if ($this->definitions->isEmpty()) {
             throw new OutOfBoundsException(tr('Data keys were not defined for this ":class" class', [
                 ':class' => get_class($this)
             ]));
@@ -868,14 +1000,15 @@ abstract class DataEntry implements DataEntryInterface, Stringable
                     $this->setPasswordDirectly($value);
                     continue 2;
 
-                case $this->unique_field:
-                    // Store this data directly
-                    if ($modify) {
-                        continue 2;
-                    }
-
-                    $this->setDataValue($this->unique_field, $value);
-                    continue 2;
+// TODO Check WHY this was done? This causes the system to be unable to create records
+//                case $this->unique_field:
+//                    // Store this data directly
+//                    if ($modify) {
+//                        continue 2;
+//                    }
+//
+//                    $this->setDataValue($this->unique_field, $value);
+//                    continue 2;
             }
 
             // Store this data through the methods to ensure datatype and filtering is done correctly
@@ -963,7 +1096,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
             return $this;
         }
 
-        if ($this->field_definitions->isEmpty()) {
+        if ($this->definitions->isEmpty()) {
             throw new OutOfBoundsException(tr('Data keys were not defined for this ":class" class', [
                 ':class' => get_class($this)
             ]));
@@ -994,19 +1127,19 @@ abstract class DataEntry implements DataEntryInterface, Stringable
     protected function setDataValue(string $field, mixed $value, bool $force = false): static
     {
         // Only save values that are defined for this object
-        if ($this->field_definitions->exists($field)) {
+        if ($this->definitions->exists($field)) {
             // Skip all meta fields like id, created_on, meta_id, etc etc etc..
             if (!in_array($field, $this->meta_fields)) {
                 // If the key is defined as readonly or disabled, it cannot be updated!
-                if ($force or (!$this->user_modifying or !$this->field_definitions->get($field)->getReadonly() and !$this->field_definitions->get($field)->getDisabled())) {
+                if ($force or (!$this->user_modifying or !$this->definitions->get($field)->getReadonly() and !$this->definitions->get($field)->getDisabled())) {
                     // Don't update keys with NULL values
                     if ($value !== null) {
                         // If the value is considered empty, however, it might be forced to NULL
                         if (!$value) {
                             //  By default, all columns with empty values will be pushed to NULL unless specified otherwise
-                            if (!$this->field_definitions->get($field)->getNullDb()) {
+                            if (!$this->definitions->get($field)->getNullDb()) {
                                 // Force the data value to NULL
-                                $value = $this->field_definitions->get($field)->getDefaultDb();
+                                $value = $this->definitions->get($field)->getDefaultDb();
                             }
                         }
 
@@ -1014,7 +1147,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
                     }
                 }
             }
-        } elseif ($this->field_definitions->isEmpty()) {
+        } elseif ($this->definitions->isEmpty()) {
             throw new DataEntryException(tr('The ":class" class has no fields defined yet', [
                 ':class' => get_class($this)
             ]));
@@ -1104,7 +1237,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
     {
         $return = [];
 
-        foreach ($this->field_definitions as $definitions) {
+        foreach ($this->definitions as $definitions) {
             $field = $definitions->getField();
 
             if ($definitions->getVirtual()) {
@@ -1152,6 +1285,12 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      */
     public function save(?string $comments = null): static
     {
+        if ($this->readonly) {
+            throw new DataEntryReadonlyException(tr('Cannot save this ":name" object, the object is readonly', [
+                ':name' => static::$entry_name
+            ]));
+        }
+
         // Apply defaults
         $this->applyDefaults();
 
@@ -1203,50 +1342,53 @@ abstract class DataEntry implements DataEntryInterface, Stringable
     {
         return DataEntryForm::new()
             ->setSource($this->data)
-            ->setFieldDefinitions($this->field_definitions)
+            ->setDefinitions($this->definitions)
             ->setKeysDisplay($this->field_display);
     }
 
 
+//    /**
+//     * Modify the form keys
+//     *
+//     * @param string $field
+//     * @param array $settings
+//     * @return static
+//     */
+//    public function modifyDefinitions(string $field, array $settings): static
+//    {
+//        if (!$this->definitions->exists($field)) {
+//            throw new OutOfBoundsException(tr('Specified form key ":key" does not exist', [
+//                ':key' => $field
+//            ]));
+//        }
+//
+//        foreach ($settings as $settings_key => $settings_value) {
+//            if ($settings_key === 'size') {
+//                $this->field_display[$field] = $settings_value;
+//            } else {
+//                $this->fields[$field][$settings_key] = $settings_value;
+//            }
+//        }
+//
+//        return $this;
+//    }
+
+
     /**
-     * Modify the form keys
+     * Validate all fields for this DataEntry
      *
-     * @param string $field
-     * @param array $settings
-     * @return static
-     */
-    public function modifyDefinitions(string $field, array $settings): static
-    {
-        if (!$this->field_definitions->exists($field)) {
-            throw new OutOfBoundsException(tr('Specified form key ":key" does not exist', [
-                ':key' => $field
-            ]));
-        }
-
-        foreach ($settings as $settings_key => $settings_value) {
-            if ($settings_key === 'size') {
-                $this->field_display[$field] = $settings_value;
-            } else {
-                $this->fields[$field][$settings_key] = $settings_value;
-            }
-        }
-
-        return $this;
-    }
-
-
-    /**
-     * Generate a validator
-     *
-     * @param InterfaceDataValidator $validator
+     * @param DataValidatorInterface $validator
      * @param bool $no_arguments_left
-     * @param bool $modify
      * @return array
      */
-    protected function validate(InterfaceDataValidator $validator, bool $no_arguments_left, bool $modify): array
+    protected function validate(DataValidatorInterface $validator, bool $no_arguments_left): array
     {
-        foreach ($this->field_definitions as $definition) {
-            $definition->validate($validator);
+        // Is this DataEntry using field name prefixes?
+        $prefix = $this->definitions->getPrefix();
+
+        foreach ($this->definitions as $definition) {
+            // Let the field definition do the validation, as it knows the specs
+            $definition->validate($validator, $prefix);
         }
 
         $validator->noArgumentsLeft($no_arguments_left);
@@ -1263,13 +1405,13 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      */
     protected function getAlternateValidationField(string $field): string
     {
-        if (!$this->field_definitions->exists($field)) {
+        if (!$this->definitions->exists($field)) {
             throw new OutOfBoundsException(tr('Specified field name ":field" does not exist', [
                 ':field' => $field
             ]));
         }
 
-        $alt = $this->field_definitions->get($field)->getCliField();
+        $alt = $this->definitions->get($field)->getCliField();
         $alt = Strings::until($alt, ' ');
         $alt = trim($alt);
 
@@ -1284,7 +1426,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      */
     protected function applyDefaults(): static
     {
-        foreach ($this->field_definitions as $definition) {
+        foreach ($this->definitions as $definition) {
             if ($definition->getMeta()) {
                 continue;
             }
@@ -1292,13 +1434,6 @@ abstract class DataEntry implements DataEntryInterface, Stringable
             $field = $definition->getField();
 
             if (empty($this->data[$field])) {
-                if (!$definition->getOptional()) {
-                    throw new OutOfBoundsException(tr('Required field ":field" has not been set for class ":class"', [
-                        ':class' => get_class($this),
-                        ':field' => $field
-                    ]));
-                }
-
                 $this->data[$field] = $definition->getDefault();
             }
         }
@@ -1323,7 +1458,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
 
         // Store all data in the object
         $this->setMetaData($data);
-        $this->setData($data);
+        $this->setData($data, false);
     }
 
 
@@ -1332,9 +1467,9 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      *
      * @return DefinitionsInterface
      */
-    public function getFieldDefinitions(): DefinitionsInterface
+    public function getDefinitions(): DefinitionsInterface
     {
-        return $this->field_definitions;
+        return $this->definitions;
     }
 
 
@@ -1343,13 +1478,13 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      *
      * @return void
      */
-    protected function initMetaFieldDefinitions(): void
+    protected function initMetaDefinitions(): void
     {
-        $this->field_definitions = Definitions::new(static::getTable())
+        $this->definitions = Definitions::new(static::getTable())
             ->add(Definition::new('id')->setDefinitions([
                 'meta'     => true,
                 'readonly' => true,
-                'type'     => 'numeric',
+                'type'     => 'number',
                 'size'     => 3,
                 'label'    => tr('Database ID')
             ]))
@@ -1453,7 +1588,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      * null_readonly  boolean            false          If "value" for entry is null, then use this for "readonly"
      * null_type      boolean            false          If "value" for entry is null, then use this for "type"
      *
-     * @param \Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface $field_definitions
+     * @param \Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface $definitions
      */
-    abstract protected function initFieldDefinitions(DefinitionsInterface $field_definitions): void;
+    abstract protected function initDefinitions(DefinitionsInterface $definitions): void;
 }

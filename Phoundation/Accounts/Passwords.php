@@ -11,8 +11,9 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
-use Phoundation\Data\Validator\Validator;
+use Phoundation\Data\Validator\ValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
+
 
 /**
  * Class Passwords
@@ -54,7 +55,7 @@ class Passwords
                 }
             }
         } catch (ValidationFailedException $e) {
-            if (!Validator::disabled()) {
+            if (!ValidatorInterface::disabled()) {
                 throw $e;
             }
         }
@@ -73,7 +74,7 @@ class Passwords
         $strength = static::getStrength($password, $email);
         $weak     = ($strength < Config::get('security.password.strength', 50));
 
-        if ($weak and Validator::disabled()) {
+        if ($weak and ValidatorInterface::disabled()) {
             Log::warning(tr('Ignoring weak password because validation is disabled'));
             return false;
         }

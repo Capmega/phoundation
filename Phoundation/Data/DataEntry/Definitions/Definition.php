@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Definitions;
 
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\Traits\UsesNewField;
-use Phoundation\Data\Validator\Interfaces\InterfaceDataValidator;
+use Phoundation\Data\Validator\Interfaces\DataValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Web\Http\Html\Components\Interfaces\InputElementInterface;
@@ -13,6 +14,7 @@ use Phoundation\Web\Http\Html\Components\Interfaces\InputTypeExtendedInterface;
 use Phoundation\Web\Http\Html\Components\Interfaces\InputTypeInterface;
 use Phoundation\Web\Http\Html\Enums\InputElement;
 use Phoundation\Web\Http\Html\Enums\InputType;
+use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
 
 
 /**
@@ -25,7 +27,7 @@ use Phoundation\Web\Http\Html\Enums\InputType;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-class Definition implements \Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface
+class Definition implements DefinitionInterface
 {
     use UsesNewField;
 
@@ -51,7 +53,7 @@ class Definition implements \Phoundation\Data\DataEntry\Definitions\Interfaces\D
         'hidden',
         'image',
         'month',
-        'numeric',
+        'number',
         'password',
         'radio',
         'range',
@@ -351,18 +353,9 @@ class Definition implements \Phoundation\Data\DataEntry\Definitions\Interfaces\D
         if ($value) {
             if ($value instanceof InputTypeExtendedInterface) {
                 // This is an extended virtual input type, adjust it to an existing input type.
-                switch ($value->value) {
-                    case 'dbid':
-                        $value = InputType::numeric;
-
-                        $this->addValidationFunction(function ($validator) {
-                            $validator->isDbId();
-                        });
-
-                        break;
-
-                    case 'natural':
-                        $value = InputType::numeric;
+                switch ($value) {
+                    case InputTypeExtended::dbid:
+                        $value = InputType::number;
 
                         $this->addValidationFunction(function ($validator) {
                             $validator->isNatural();
@@ -370,8 +363,17 @@ class Definition implements \Phoundation\Data\DataEntry\Definitions\Interfaces\D
 
                         break;
 
-                    case 'integer':
-                        $value = InputType::numeric;
+                    case InputTypeExtended::natural:
+                        $value = InputType::number;
+
+                        $this->addValidationFunction(function ($validator) {
+                            $validator->isNatural();
+                        });
+
+                        break;
+
+                    case InputTypeExtended::integer:
+                        $value = InputType::number;
 
                         $this->addValidationFunction(function ($validator) {
                             $validator->isInteger();
@@ -379,8 +381,8 @@ class Definition implements \Phoundation\Data\DataEntry\Definitions\Interfaces\D
 
                         break;
 
-                    case 'float':
-                        $value = InputType::numeric;
+                    case InputTypeExtended::float:
+                        $value = InputType::number;
 
                         $this->addValidationFunction(function ($validator) {
                             $validator->isFloat();
@@ -388,7 +390,7 @@ class Definition implements \Phoundation\Data\DataEntry\Definitions\Interfaces\D
 
                         break;
 
-                    case 'name':
+                    case InputTypeExtended::name:
                         $value = InputType::text;
 
                         $this->addValidationFunction(function ($validator) {
@@ -397,7 +399,7 @@ class Definition implements \Phoundation\Data\DataEntry\Definitions\Interfaces\D
 
                         break;
 
-                    case 'username':
+                    case InputTypeExtended::username:
                         $value = InputType::text;
 
                         $this->addValidationFunction(function ($validator) {
@@ -406,7 +408,7 @@ class Definition implements \Phoundation\Data\DataEntry\Definitions\Interfaces\D
 
                         break;
 
-                    case 'path':
+                    case InputTypeExtended::path:
                         $value = InputType::text;
 
                         $this->addValidationFunction(function ($validator) {
@@ -415,7 +417,7 @@ class Definition implements \Phoundation\Data\DataEntry\Definitions\Interfaces\D
 
                         break;
 
-                    case 'file':
+                    case InputTypeExtended::file:
                         $value = InputType::text;
 
                         $this->addValidationFunction(function ($validator) {
@@ -424,7 +426,7 @@ class Definition implements \Phoundation\Data\DataEntry\Definitions\Interfaces\D
 
                         break;
 
-                    case 'code':
+                    case InputTypeExtended::code:
                         $value = InputType::text;
 
                         $this->addValidationFunction(function ($validator) {
@@ -433,7 +435,7 @@ class Definition implements \Phoundation\Data\DataEntry\Definitions\Interfaces\D
 
                         break;
 
-                    case 'description':
+                    case InputTypeExtended::description:
                         $this->setElement(InputElement::textarea);
                         $value = null;
 
@@ -446,8 +448,8 @@ class Definition implements \Phoundation\Data\DataEntry\Definitions\Interfaces\D
                 }
             }
 
-            switch ($value->value) {
-                case 'numeric':
+            switch ($value) {
+                case InputType::number:
                     // Numbers should never be longer than this
                     $this->setMaxlength(16);
             }
@@ -865,7 +867,7 @@ throw new UnderConstructionException();
      */
     public function getMin(): float|int|null
     {
-        return isset_get_typed('float|int', $this->definitions['min'], 0);
+        return isset_get_typed('float|int', $this->definitions['min']);
     }
 
 
@@ -913,7 +915,7 @@ throw new UnderConstructionException();
      */
     public function getStep(): string|float|int|null
     {
-        return isset_get_typed('string|float|int', $this->definitions['step'], 1);
+        return isset_get_typed('string|float|int', $this->definitions['step']);
     }
 
 
@@ -1204,22 +1206,28 @@ throw new UnderConstructionException();
     /**
      * Validate this field according to the field definitions
      *
-     * @param InterfaceDataValidator $validator
+     * @param DataValidatorInterface $validator
+     * @param string|null $prefix
      * @return void
      */
-    public function validate(InterfaceDataValidator $validator): void
+    public function validate(DataValidatorInterface $validator, ?string $prefix): void
     {
         if ($this->getReadonly() or $this->getDisabled() or $this->getMeta()) {
             // This field cannot be modified, plain ignore it.
             return;
         }
 
-        // Checkbox inputs always are boolean
-        $bool = ($this->getType() === 'checkbox');
+        // Checkbox inputs always are boolean and does this field have a prefix?
+        $bool  = ($this->getType() === 'checkbox');
+        $field = $prefix . $this->getCliField();
+
+        // Field name prefix is an HTML form array prefix? Then close the array
+        if (str_ends_with((string) $prefix, '[')) {
+            $field .= ']';
+        }
 
         // Select the field
-//show($this->getCliField() . ' ' . ($bool ? 'BOOL' : 'NEXT'));
-        $validator->select($this->getCliField(), !$bool);
+        $validator->select($field, !$bool);
 
         // Apply default validations
         if ($this->getOptional()) {
@@ -1269,7 +1277,7 @@ throw new UnderConstructionException();
                             $validator->isDateTime();
                             break;
 
-                        case 'numeric':
+                        case 'number':
                         case 'year':
                         case 'month':
                         case 'week':
@@ -1389,7 +1397,7 @@ throw new UnderConstructionException();
         }
 
         switch (isset_get($this->definitions['type'], 'text')) {
-            case 'numeric':
+            case 'number':
                 // no break
             case 'range':
                 // no break
@@ -1442,7 +1450,7 @@ throw new UnderConstructionException();
         }
 
         if (!$this->inputTypeSupported($value)) {
-            throw new OutOfBoundsException(tr('Cannot set :key ":value" for field ":field", only the types ":types" are supported', [
+            throw new OutOfBoundsException(tr('Cannot set ":key" ":value" for field ":field", only the types ":types" are supported', [
                 ':key'   => $key,
                 ':value' => $value,
                 ':field' => $this->field,

@@ -6,6 +6,7 @@ namespace Phoundation\Databases\Sql\Schema;
 
 use Phoundation\Core\Arrays;
 
+
 /**
  * TableAlter class
  *

@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Phoundation\Data\Categories;
 
 use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 use Phoundation\Web\Http\Html\Components\Input\Select;
 use Phoundation\Web\Http\Html\Components\Table;
+
 
 /**
  * Class Categories
@@ -54,19 +56,20 @@ class Categories extends DataList
     }
 
 
+
+
     /**
-     * Returns an HTML <select> object with all available categories
+     * Returns an HTML select component object containing the entries in this list
      *
-     * @param string $name
-     * @return Select
+     * @return SelectInterface
      */
-    public static function getHtmlSelect(string $name = 'categories_id'): Select
+    public function getHtmlSelect(): SelectInterface
     {
         return Select::new()
             ->setSourceQuery('SELECT `id`, `name` 
                                           FROM  `categories` 
                                           WHERE `status` IS NULL ORDER BY `name`')
-            ->setName($name)
+            ->setName('categories_id')
             ->setNone(tr('Please select a category'))
             ->setEmpty(tr('No categories available'));
     }

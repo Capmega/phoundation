@@ -31,7 +31,7 @@ class Timezone extends DataEntry
      */
     public function __construct(DataEntry|string|int|null $identifier = null)
     {
-        $this->entry_name   = 'geo timezone';
+        static::$entry_name   = 'geo timezone';
         $this->unique_field = 'seo_name';
 
         parent::__construct($identifier);
@@ -52,11 +52,11 @@ class Timezone extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @param DefinitionsInterface $field_definitions
+     * @param DefinitionsInterface $definitions
      */
-    protected function initFieldDefinitions(DefinitionsInterface $field_definitions): void
+    protected function initDefinitions(DefinitionsInterface $definitions): void
     {
-        $field_definitions;
+        $definitions;
 
 //        throw new UnderConstructionException();
 //

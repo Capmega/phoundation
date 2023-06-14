@@ -63,7 +63,7 @@ if ($argv['rights']) {
 
 
 // Create provider and save it
-$provider = Provider::new()->create($argv)->save();
+$provider = Provider::new()->apply($argv)->save();
 
 
 

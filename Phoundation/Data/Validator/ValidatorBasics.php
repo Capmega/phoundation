@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Validator;
 
-use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Exception\NoKeySelectedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
@@ -102,9 +101,9 @@ trait ValidatorBasics
      * The ->validate() call will NOT cause an exception but instead will send the failures list to the parent and then
      * return the parent element
      *
-     * @var Validator|null
+     * @var ValidatorInterface|null
      */
-    protected ?Validator $parent = null;
+    protected ?ValidatorInterface $parent = null;
 
     /**
      * If set, all field failure keys will show the parent field as well
@@ -271,9 +270,8 @@ trait ValidatorBasics
         } else {
             // The currently selected field does not exist, the specified field MUST exist
             if (!isset_get($this->source[$field])) {
-                $this->addFailure(tr('Neither fields ":field" and ":selected_field" were set, where either one of them must be set', [
-                    ':field' => $field,
-                    ':selected_field' => $this->selected_field
+                $this->addFailure(tr('nor ":field" were set, where either one of them must be set', [
+                    ':field' => $field
                 ]));
 
             } else {

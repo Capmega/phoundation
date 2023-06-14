@@ -6,8 +6,10 @@ namespace Phoundation\Business\Customers;
 
 use Phoundation\Business\Companies\Company;
 use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 use Phoundation\Web\Http\Html\Components\Input\Select;
 use Phoundation\Web\Http\Html\Components\Table;
+
 
 /**
  * Customers class
@@ -55,20 +57,21 @@ class Customers extends DataList
     }
 
 
+
+
     /**
-     * Returns an HTML <select> object with all available customers
+     * Returns an HTML select component object containing the entries in this list
      *
-     * @param string $name
-     * @return Select
+     * @return SelectInterface
      */
-    public static function getHtmlSelect(string $name = 'customers_id'): Select
+    public function getHtmlSelect(): SelectInterface
     {
         return Select::new()
             ->setSourceQuery('SELECT    `id`, `name` 
                                           FROM     `business_customers`
                                           WHERE    `status` IS NULL 
                                           ORDER BY `name`')
-            ->setName($name)
+            ->setName('customers_id')
             ->setNone(tr('Please select a customer'))
             ->setEmpty(tr('No customers available'));
     }

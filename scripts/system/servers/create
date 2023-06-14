@@ -31,7 +31,7 @@ ARGUMENTS'));
 
 
 // Create server.
-$server = Server::new()->create();
+$server = Server::new()->apply()->save();
 
 
 // Done!

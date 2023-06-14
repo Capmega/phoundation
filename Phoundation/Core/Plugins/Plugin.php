@@ -9,7 +9,7 @@ use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
-use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
+use Phoundation\Data\DataEntry\Definitions\DefinitionDefaults;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryPath;
@@ -48,7 +48,7 @@ class Plugin extends DataEntry
      */
     public function __construct(DataEntryInterface|string|int|null $identifier = null)
     {
-        $this->entry_name  = 'plugin';
+        static::$entry_name  = 'plugin';
         $this->unique_field  = 'name';
 
         parent::__construct($identifier);
@@ -326,24 +326,24 @@ class Plugin extends DataEntry
     /**
      * Sets the available data keys for the User class
      *
-     * @param DefinitionsInterface $field_definitions
+     * @param DefinitionsInterface $definitions
      */
-    protected function initFieldDefinitions(DefinitionsInterface $field_definitions): void
+    protected function initDefinitions(DefinitionsInterface $definitions): void
     {
-        $field_definitions
+        $definitions
             ->add(Definition::new('disabled')
                 ->setOptional(true)
                 ->setVirtual(true)
                 ->setVisible(false)
                 ->setCliField('-d,--disable'))
-            ->add(DefinitionFactory::new('name')
+            ->add(DefinitionDefaults::getName()
                 ->setVisible(false))
-            ->add(DefinitionFactory::new('name')
+            ->add(DefinitionDefaults::getName()
                 ->setSize(6)
                 ->setHelpText(tr('The name of this plugin')))
             ->add(Definition::new('priority')
                 ->setOptional(true)
-                ->setInputType(InputType::numeric)
+                ->setInputType(InputType::number)
                 ->setNullDb(false, 5)
                 ->setSize(3)
                 ->setCliField('--priority')
@@ -381,6 +381,6 @@ class Plugin extends DataEntry
                 ->setMaxlength(128)
                 ->setSize(6)
                 ->setHelpText(tr('The filesystem path where this plugin is located')))
-            ->add(DefinitionFactory::new('description'));
+            ->add(DefinitionDefaults::getDescription());
     }
 }

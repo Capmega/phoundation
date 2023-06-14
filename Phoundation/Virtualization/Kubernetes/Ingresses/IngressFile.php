@@ -7,6 +7,7 @@ namespace Phoundation\Virtualization\Kubernetes\Ingresses;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Virtualization\Kubernetes\ObjectFile;
 
+
 /**
  * Class IngressFile
  *

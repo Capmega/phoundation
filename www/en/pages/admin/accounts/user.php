@@ -34,7 +34,7 @@ if (Page::isPostRequestMethod()) {
         switch (PostValidator::getSubmitButton()) {
             case tr('Submit'):
                 // Update user
-                $user->modify();
+                $user->apply()->save();
 
                 // Go back to where we came from
 // TODO Implement timers
@@ -62,7 +62,7 @@ if (Page::isPostRequestMethod()) {
     } catch (IncidentsException|ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
         Page::getFlashMessages()->add($e);
-        $user->modify($_POST);
+        $user->forceApply();
     }
 }
 

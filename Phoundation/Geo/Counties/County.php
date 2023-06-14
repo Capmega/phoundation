@@ -13,6 +13,7 @@ use Phoundation\Geo\Countries\Country;
 use Phoundation\Geo\States\State;
 use Phoundation\Geo\Timezones\Timezone;
 
+
 /**
  * Class County
  *
@@ -35,7 +36,7 @@ class County extends DataEntry
      */
     public function __construct(DataEntryInterface|string|int|null $identifier = null)
     {
-        $this->entry_name   = 'geo county';
+        static::$entry_name   = 'geo county';
         $this->unique_field = 'seo_name';
 
         parent::__construct($identifier);
@@ -100,11 +101,11 @@ class County extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @param DefinitionsInterface $field_definitions
+     * @param DefinitionsInterface $definitions
      */
-    protected function initFieldDefinitions(DefinitionsInterface $field_definitions): void
+    protected function initDefinitions(DefinitionsInterface $definitions): void
     {
-        $field_definitions;
+        $definitions;
 
 //        throw new UnderConstructionException();
 //

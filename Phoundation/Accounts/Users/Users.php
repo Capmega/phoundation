@@ -11,7 +11,9 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Databases\Sql\QueryBuilder;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 use Phoundation\Web\Http\Html\Components\Input\Select;
+
 
 /**
  * Class Users
@@ -46,18 +48,17 @@ class Users extends DataList
 
 
     /**
-     * Returns an HTML <select> object with all available users
+     * Returns an HTML select component object containing the entries in this list
      *
-     * @param string $name
-     * @return Select
+     * @return SelectInterface
      */
-    public static function getHtmlSelect(string $name = 'users_id'): Select
+    public function getHtmlSelect(): SelectInterface
     {
         return Select::new()
             ->setSourceQuery('SELECT COALESCE(NULLIF(TRIM(CONCAT_WS(" ", `first_names`, `last_names`)), ""), `nickname`, `username`, `email`, "' . tr('System') . '") AS `name` 
                                           FROM  `accounts_users`
                                           WHERE `status` IS NULL ORDER BY `name`')
-            ->setName($name)
+            ->setName('users_id')
             ->setNone(tr('Please select a user'))
             ->setEmpty(tr('No users available'));
     }

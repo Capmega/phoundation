@@ -12,6 +12,7 @@ use Phoundation\Databases\Sql\Sql;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Components\DataTable;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 use Phoundation\Web\Http\Html\Components\Table;
 use ReturnTypeWillChange;
 use Stringable;
@@ -504,6 +505,14 @@ abstract class DataList extends Iterator implements DataListInterface
             ->setSourceQuery($this->html_query, $this->html_execute)
             ->setCheckboxSelectors(true);
     }
+
+
+    /**
+     * Returns an HTML <select> for the available object entries
+     *
+     * @return SelectInterface
+     */
+    abstract public function getHtmlSelect(): SelectInterface;
 
 
     /**

@@ -24,8 +24,7 @@ if (Page::isPostRequestMethod()) {
 
         // Update hawb
         $quiz = Hawb::get($_GET['id']);
-        $quiz->modify($_POST);
-        $quiz->save();
+        $quiz->->apply()->save();
 
         // Go back to where we came from
 // TODO Implement timers
@@ -37,7 +36,7 @@ if (Page::isPostRequestMethod()) {
     } catch (ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
         Page::getFlashMessages()->add($e);
-        $quiz->modify($_POST);
+        $quiz->forceApply();
     }
 }
 

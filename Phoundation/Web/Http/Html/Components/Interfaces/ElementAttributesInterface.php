@@ -7,6 +7,7 @@ namespace Phoundation\Web\Http\Html\Components\Interfaces;
 
 use Stringable;
 
+
 /**
  * Interface ElementAttributes
  *

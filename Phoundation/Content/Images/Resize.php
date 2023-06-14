@@ -9,6 +9,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\FileBasics;
 use Phoundation\Processes\Process;
 
+
 /**
  * Class Resize
  *

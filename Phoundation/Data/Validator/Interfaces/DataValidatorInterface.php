@@ -19,7 +19,7 @@ use Phoundation\Filesystem\Restrictions;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
-interface InterfaceDataValidator extends ValidatorBasics
+interface DataValidatorInterface extends ValidatorBasics
 {
     /**
      * Returns if all validations are disabled or not
@@ -882,12 +882,12 @@ interface InterfaceDataValidator extends ValidatorBasics
      *
      * @return array|null
      */
-    static function extract(): ?array;
+    function extract(): ?array;
 
     /**
      * Force a return of a single POST key value
      *
      * @return array
      */
-    static function extractKey(string $key): mixed;
+    function extractKey(string $key): mixed;
 }

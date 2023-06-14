@@ -8,6 +8,7 @@ use PDO;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 use Phoundation\Web\Http\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Http\Html\Components\ResourceElement;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
@@ -23,7 +24,7 @@ use Phoundation\Web\Http\Html\Exception\HtmlException;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class Select extends ResourceElement
+class Select extends ResourceElement implements SelectInterface
 {
     /**
      * The class for the <option> elements within the <select> element
@@ -84,7 +85,7 @@ class Select extends ResourceElement
      */
     public function getMultiple(): bool
     {
-        return (bool) array_key_exists('multiple', $this->attributes);
+        return array_key_exists('multiple', $this->attributes);
     }
 
 

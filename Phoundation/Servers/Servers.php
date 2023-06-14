@@ -9,8 +9,10 @@ use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Databases\Sql\QueryBuilder;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 use Phoundation\Web\Http\Html\Components\Input\Select;
 use Phoundation\Web\Http\Html\Components\Table;
+
 
 /**
  * Servers class
@@ -58,20 +60,21 @@ class Servers extends DataList
     }
 
 
+
+
     /**
-     * Returns an HTML <select> object with all available servers
+     * Returns an HTML select component object containing the entries in this list
      *
-     * @param string $name
-     * @return Select
+     * @return SelectInterface
      */
-    public static function getHtmlSelect(string $name = 'servers_id'): Select
+    public function getHtmlSelect(): SelectInterface
     {
         return Select::new()
             ->setSourceQuery('SELECT    `id`, `name` 
                                           FROM     `servers`
                                           WHERE    `status` IS NULL 
                                           ORDER BY `name`')
-            ->setName($name)
+            ->setName('servers_id')
             ->setNone(tr('Please select a server'))
             ->setEmpty(tr('No servers available'));
     }

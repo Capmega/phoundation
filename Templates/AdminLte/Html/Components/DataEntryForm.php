@@ -50,12 +50,14 @@ class DataEntryForm extends Renderer
      */
     public function render(): ?string
     {
-        if (!$this->element->getFieldDefinitions()) {
+        if (!$this->element->getDefinitions()) {
             throw new OutOfBoundsException(tr('Cannot render DataEntryForm, no fields specified'));
         }
 
-        $source = $this->element->getSource();
-        $keys   = $this->element->getFieldDefinitions();
+        $source      = $this->element->getSource();
+        $definitions = $this->element->getDefinitions();
+        $prefix      = $this->element->getDefinitions()->getPrefix();
+        $array       = str_ends_with((string) $prefix, '[');
 
 
         /*
@@ -103,48 +105,56 @@ class DataEntryForm extends Renderer
         // If form key definitions are available, reorder the keys as in the form key definitions
 
         // Go over each key and add it to the form
-        foreach ($keys as $key => $data) {
-            if (!is_array($data)) {
-                if (!is_object($data) and !($data instanceof DefinitionInterface)) {
-                    throw new OutOfBoundsException(tr('Data key definition for key ":key" is invalid. Iit should be an array or Definition type  but contains ":data"', [
-                        ':key'  => $key,
-                        ':data' => gettype($data) . ': ' . $data
+        foreach ($definitions as $field => $definition) {
+            // Add field name prefix
+            $field = $prefix . $field;
+
+            if ($array) {
+                // The field name prefix is an HTML form array prefix, close that array
+                $field .= ']';
+            }
+
+            if (!is_array($definition)) {
+                if (!is_object($definition) and !($definition instanceof DefinitionInterface)) {
+                    throw new OutOfBoundsException(tr('Data key definition for field ":field" is invalid. Iit should be an array or Definition type  but contains ":data"', [
+                        ':field' => $field,
+                        ':data'  => gettype($definition) . ': ' . $definition
                     ]));
                 }
 
                 // This is a new Definition object, get the definitions from there
                 // TODO Use the Definition class all here,
-                $data = $data->getDefinitions();
+                $definition = $definition->getDefinitions();
             }
 
             // Set defaults
-            Arrays::default($data, 'size'        , 12);
-            Arrays::default($data, 'type'        , 'text');
-            Arrays::default($data, 'label'       , null);
-            Arrays::default($data, 'disabled'    , false);
-            Arrays::default($data, 'readonly'    , false);
-            Arrays::default($data, 'visible'     , true);
-            Arrays::default($data, 'readonly'    , false);
-            Arrays::default($data, 'title'       , null);
-            Arrays::default($data, 'placeholder' , null);
-            Arrays::default($data, 'pattern'     , null);
-            Arrays::default($data, 'maxlength'   , 0);
-            Arrays::default($data, 'min'         , 0);
-            Arrays::default($data, 'max'         , 0);
-            Arrays::default($data, 'step'        , 0);
+            Arrays::default($definition, 'size'        , 12);
+            Arrays::default($definition, 'type'        , 'text');
+            Arrays::default($definition, 'label'       , null);
+            Arrays::default($definition, 'disabled'    , false);
+            Arrays::default($definition, 'readonly'    , false);
+            Arrays::default($definition, 'visible'     , true);
+            Arrays::default($definition, 'readonly'    , false);
+            Arrays::default($definition, 'title'       , null);
+            Arrays::default($definition, 'placeholder' , null);
+            Arrays::default($definition, 'pattern'     , null);
+            Arrays::default($definition, 'maxlength'   , 0);
+            Arrays::default($definition, 'min'         , 0);
+            Arrays::default($definition, 'max'         , 0);
+            Arrays::default($definition, 'step'        , 0);
 
-            if (!$data['visible']) {
+            if (!$definition['visible']) {
                 // This element shouldn't be shown, continue
                 continue;
             }
 
             // Ensure password is never sent in the form
-            switch ($key) {
+            switch ($field) {
                 case 'password':
-                    $source[$key] = '';
+                    $source[$field] = '';
             }
 
-            $execute = isset_get($data['execute']);
+            $execute = isset_get($definition['execute']);
 
             if (is_string($execute)) {
                 // Build the source execute array from the specified column
@@ -157,74 +167,74 @@ class DataEntryForm extends Renderer
             }
 
             // Select default element
-            if (!isset_get($data['element'])) {
-                if (isset_get($data['source'])) {
+            if (!isset_get($definition['element'])) {
+                if (isset_get($definition['source'])) {
                     // Default element for form items with a source is "select"
-                    $data['element'] = 'select';
+                    $definition['element'] = 'select';
                 } else {
                     // Default element for form items "text input"
-                    $data['element'] = 'input';
+                    $definition['element'] = 'input';
                 }
             }
 
             // Set default value and override key entry values if value is null
-            if (isset_get($source[$key]) === null) {
-                if (isset_get($data['null_element'])) {
-                    $data['element'] = $data['null_element'];
+            if (isset_get($source[$field]) === null) {
+                if (isset_get($definition['null_element'])) {
+                    $definition['element'] = $definition['null_element'];
                 }
 
-                if (isset_get($data['null_type'])) {
-                    $data['type'] = $data['null_type'];
+                if (isset_get($definition['null_type'])) {
+                    $definition['type'] = $definition['null_type'];
                 }
 
-                if (isset_get($data['null_disabled'])) {
-                    $data['disabled'] = $data['null_disabled'];
+                if (isset_get($definition['null_disabled'])) {
+                    $definition['disabled'] = $definition['null_disabled'];
                 }
 
-                if (isset_get($data['null_readonly'])) {
-                    $data['readonly'] = $data['null_readonly'];
+                if (isset_get($definition['null_readonly'])) {
+                    $definition['readonly'] = $definition['null_readonly'];
                 }
 
-                $source[$key] = isset_get($data['default']);
+                $source[$field] = isset_get($definition['default']);
             }
 
             // Set value to value specified in $data
-            if (isset($data['value'])) {
-                $source[$key] = $data['value'];
+            if (isset($definition['value'])) {
+                $source[$field] = $definition['value'];
 
                 // Apply variables
                 foreach ($source as $source_key => $source_value) {
-                    $source[$key] = str_replace(':' . $source_key, (string) $source_value, $source[$key]);
+                    $source[$field] = str_replace(':' . $source_key, (string) $source_value, $source[$field]);
                 }
             }
 
             // Build the form elements
-            switch ($data['element']) {
+            switch ($definition['element']) {
                 case 'input':
-                    $data['type'] = isset_get($data['type'], 'text');
+                    $definition['type'] = isset_get($definition['type'], 'text');
 
-                    if (!$data['type']) {
+                    if (!$definition['type']) {
                         throw new OutOfBoundsException(tr('No input type specified for key ":key"', [
-                            ':key' => $key
+                            ':key' => $field
                         ]));
                     }
 
-                    if (!$this->element->inputTypeSupported($data['type'])) {
+                    if (!$this->element->inputTypeSupported($definition['type'])) {
                         throw new OutOfBoundsException(tr('Unknown input type ":type" specified for key ":key"', [
-                            ':key'  => $key,
-                            ':type' => $data['type']
+                            ':key'  => $field,
+                            ':type' => $definition['type']
                         ]));
                     }
 
                     // If we have a source query specified, then get the actual value from the query
-                    if (isset_get($data['source'])) {
-                        $source[$key] = sql()->getColumn($data['source'], $execute);
+                    if (isset_get($definition['source'])) {
+                        $source[$field] = sql()->getColumn($definition['source'], $execute);
                     }
 
                     // Build the element class path and load the required class file
-                    $type = match ($data['type']) {
+                    $type = match ($definition['type']) {
                         'datetime-local' => 'DateTimeLocal',
-                        default          => Strings::capitalize($data['type']),
+                        default          => Strings::capitalize($definition['type']),
                     };
 
                     $element = '\\Phoundation\\Web\\Http\\Html\\Components\\Input\\Input' . $type;
@@ -232,41 +242,51 @@ class DataEntryForm extends Renderer
                     include_once($file);
 
                     // Depending on input type we might need different code
-                    switch ($data['type']) {
+                    switch ($definition['type']) {
                         case 'checkbox':
                             // Render the HTML for this element
                             $html = $element::new()
-                                ->setDisabled((bool) $data['disabled'])
-                                ->setReadOnly((bool) $data['readonly'])
-                                ->setName($key)
+                                ->setDisabled((bool) $definition['disabled'])
+                                ->setReadOnly((bool) $definition['readonly'])
+                                ->setName($field)
                                 ->setValue('1')
-                                ->setChecked((bool) $source[$key])
+                                ->setChecked((bool) $source[$field])
                                 ->render();
                             break;
 
                         case 'number':
+                            // Render the HTML for this element
+                            $html = $element::new()
+                                ->setDisabled((bool) $definition['disabled'])
+                                ->setReadOnly((bool) $definition['readonly'])
+                                ->setMin(isset_get($definition['min']))
+                                ->setMax(isset_get($definition['max']))
+                                ->setStep(isset_get($definition['step']))
+                                ->setName($field)
+                                ->setValue($source[$field])
+                                ->render();
 
                         case 'text':
-
+                            // no break
                         default:
                             // Render the HTML for this element
                             $html = $element::new()
-                                ->setDisabled((bool) $data['disabled'])
-                                ->setReadOnly((bool) $data['readonly'])
-                                ->setName($key)
-                                ->setValue($source[$key])
+                                ->setDisabled((bool) $definition['disabled'])
+                                ->setReadOnly((bool) $definition['readonly'])
+                                ->setName($field)
+                                ->setValue($source[$field])
                                 ->render();
                     }
 
-                    $this->render .= $this->renderItem($key, $html, $data);
+                    $this->render .= $this->renderItem($field, $html, $definition);
                     break;
 
                 case 'text':
                     // no-break
                 case 'textarea':
                     // If we have a source query specified, then get the actual value from the query
-                    if (isset_get($data['source'])) {
-                        $source[$key] = sql()->getColumn($data['source'], $execute);
+                    if (isset_get($definition['source'])) {
+                        $source[$field] = sql()->getColumn($definition['source'], $execute);
                     }
 
                     // Build the element class path and load the required class file
@@ -275,24 +295,24 @@ class DataEntryForm extends Renderer
                     include_once($file);
 
                     $html = TextArea::new()
-                        ->setDisabled((bool) $data['disabled'])
-                        ->setReadOnly((bool) $data['readonly'])
-                        ->setRows((int) isset_get($data['rows'], 5))
-                        ->setName($key)
-                        ->setContent(isset_get($source[$key]))
+                        ->setDisabled((bool) $definition['disabled'])
+                        ->setReadOnly((bool) $definition['readonly'])
+                        ->setRows((int) isset_get($definition['rows'], 5))
+                        ->setName($field)
+                        ->setContent(isset_get($source[$field]))
                         ->render();
 
-                    $this->render .= $this->renderItem($key, $html, $data);
+                    $this->render .= $this->renderItem($field, $html, $definition);
                     break;
 
                 case 'div':
                     // no break;
                 case 'span':
-                    $element = Strings::capitalize($data['element']);
+                    $element = Strings::capitalize($definition['element']);
 
                     // If we have a source query specified, then get the actual value from the query
-                    if (isset_get($data['source'])) {
-                        $source[$key] = sql()->getColumn($data['source'], $execute);
+                    if (isset_get($definition['source'])) {
+                        $source[$field] = sql()->getColumn($definition['source'], $execute);
                     }
 
                     // Build the element class path and load the required class file
@@ -301,11 +321,11 @@ class DataEntryForm extends Renderer
                     include_once($file);
 
                     $html = $element::new()
-                        ->setName($key)
-                        ->setContent(isset_get($source[$key]))
+                        ->setName($field)
+                        ->setContent(isset_get($source[$field]))
                         ->render();
 
-                    $this->render .= $this->renderItem($key, $html, $data);
+                    $this->render .= $this->renderItem($field, $html, $definition);
                     break;
 
                 case 'select':
@@ -315,14 +335,14 @@ class DataEntryForm extends Renderer
                     include_once($file);
 
                     $html = Select::new()
-                        ->setSource(isset_get($data['source']), $execute)
-                        ->setDisabled((bool) $data['disabled'])
-                        ->setReadOnly((bool) $data['readonly'])
-                        ->setName($key)
-                        ->setSelected(isset_get($source[$key]))
+                        ->setSource(isset_get($definition['source']), $execute)
+                        ->setDisabled((bool) $definition['disabled'])
+                        ->setReadOnly((bool) $definition['readonly'])
+                        ->setName($field)
+                        ->setSelected(isset_get($source[$field]))
                         ->render();
 
-                    $this->render .= $this->renderItem($key, $html, $data);
+                    $this->render .= $this->renderItem($field, $html, $definition);
                     break;
 
                 case 'inputmultibuttontext':
@@ -332,38 +352,38 @@ class DataEntryForm extends Renderer
                     include_once($file);
 
                     $input = InputMultiButtonText::new()
-                        ->setSource($data['source']);
+                        ->setSource($definition['source']);
 
                     $input->getButton()
-                        ->setMode(DisplayMode::from(isset_get($data['mode'])))
-                        ->setContent(isset_get($data['label']));
+                        ->setMode(DisplayMode::from(isset_get($definition['mode'])))
+                        ->setContent(isset_get($definition['label']));
 
                     $input->getInput()
-                        ->setDisabled((bool) $data['disabled'])
-                        ->setReadOnly((bool) $data['readonly'])
-                        ->setName($key)
-                        ->setValue($source[$key])
-                        ->setContent(isset_get($source[$key]));
+                        ->setDisabled((bool) $definition['disabled'])
+                        ->setReadOnly((bool) $definition['readonly'])
+                        ->setName($field)
+                        ->setValue($source[$field])
+                        ->setContent(isset_get($source[$field]));
 
-                    $this->render .= $this->renderItem($key, $input->render(), $data);
+                    $this->render .= $this->renderItem($field, $input->render(), $definition);
                     break;
 
                 case '':
                     throw new OutOfBoundsException(tr('No element specified for key ":key"', [
-                        ':key' => $key
+                        ':key' => $field
                     ]));
 
                 default:
-                    if (!is_callable($data['element'])) {
+                    if (!is_callable($definition['element'])) {
                         throw new OutOfBoundsException(tr('Unknown element ":element" specified for key ":key"', [
-                            ':element' => isset_get($data['element'], 'input'),
-                            ':key'     => $key
+                            ':element' => isset_get($definition['element'], 'input'),
+                            ':key'     => $field
                         ]));
                     }
 
                     // Execute this to get the element
-                    $html = $data['element']($key, $data, $source);
-                    $this->render .= $this->renderItem($key, $html, $data);
+                    $html = $definition['element']($field, $definition, $source);
+                    $this->render .= $this->renderItem($field, $html, $definition);
             }
         }
 
@@ -428,9 +448,10 @@ class DataEntryForm extends Renderer
             $col_size -= $data['size'];
 
             if ($col_size < 0) {
-                throw new OutOfBoundsException(tr('Cannot add column ":label" for ":class" form, the row would surpass size 12', [
+                throw new OutOfBoundsException(tr('Cannot add column ":label" for ":class" form, the row would surpass size 12 by ":count"', [
                     ':class' => get_class($this->element),
-                    ':label' => $data['label']
+                    ':label' => $data['label'] . ' [' . $id . ']',
+                    ':count' => abs($col_size)
                 ]));
             }
         }

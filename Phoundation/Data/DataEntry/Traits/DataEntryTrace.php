@@ -6,6 +6,7 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Utils\Json;
 
+
 /**
  * Trait DataEntryTrace
  *

@@ -6,6 +6,7 @@ namespace Phoundation\Processes\Exception;
 
 use Phoundation\Exception\Exception;
 
+
 /**
  * Class ProcessesException
  *

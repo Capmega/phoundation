@@ -7,6 +7,7 @@ namespace Phoundation\Servers\Traits;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Servers\SshAccount;
 
+
 /**
  * Trait DataEntrySshAccount
  *

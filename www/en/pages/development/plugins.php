@@ -86,7 +86,7 @@ echo $grid->render();
 
 
 // Set page meta data
-Page::setHeaderTitle(tr('Development plugins'));
+Page::setHeaderTitle(tr('Plugins'));
 Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/' => tr('Home'),
     ''  => tr('Plugins')

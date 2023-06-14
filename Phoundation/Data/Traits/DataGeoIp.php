@@ -8,6 +8,7 @@ use Phoundation\Data\DataEntry\Traits\DataEntryGeo;
 use Phoundation\Data\DataEntry\Traits\DataEntryLongLat;
 use Phoundation\Geo\GeoIp\GeoIp;
 
+
 /**
  * Trait DataEntryGeoIp
  *

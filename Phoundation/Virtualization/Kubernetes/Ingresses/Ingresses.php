@@ -6,6 +6,7 @@ namespace Phoundation\Virtualization\Kubernetes\Ingresses;
 
 use Phoundation\Virtualization\Kubernetes\KubernetesObjects;
 
+
 /**
  * Class Ingresses
  *

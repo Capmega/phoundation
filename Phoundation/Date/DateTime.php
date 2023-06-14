@@ -7,6 +7,7 @@ namespace Phoundation\Date;
 use DateTimeInterface;
 use Exception;
 
+
 /**
  * Class DateTime
  *
@@ -17,7 +18,7 @@ use Exception;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Date
  */
-class DateTime extends \DateTime
+class DateTime extends \DateTime implements DateTimeInterface
 {
     /**
      * Returns a new DateTime object

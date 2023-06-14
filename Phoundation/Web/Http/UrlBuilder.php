@@ -100,10 +100,10 @@ class UrlBuilder implements Stringable
     /**
      * Returns true if the specified URL is the same as the current URL
      *
-     * @param UrlBuilder|string $url
+     * @param UrlBuilder|Stringable|string $url
      * @return bool
      */
-    public static function isCurrent(UrlBuilder|string $url): bool
+    public static function isCurrent(UrlBuilder|Stringable|string $url): bool
     {
         return (string) $url === (string) static::getCurrent();
     }
@@ -132,12 +132,14 @@ class UrlBuilder implements Stringable
     /**
      * Returns a CDN URL
      *
-     * @param string $url
+     * @param Stringable|string $url
      * @param string|null $extension
      * @return static
      */
-    public static function getCdn(string $url, ?string $extension = null): static
+    public static function getCdn(Stringable|string $url, ?string $extension = null): static
     {
+        $url = (string) $url;
+
         if (Url::isValid($url)) {
             return new UrlBuilder($url);
         }
@@ -237,11 +239,13 @@ class UrlBuilder implements Stringable
     /**
      * Returns the referer (previous) URL
      *
-     * @param string|null $url
+     * @param Stringable|string|null $url
      * @return static
      */
-    public static function getReferer(?string $url = null): static
+    public static function getReferer(Stringable|string|null $url = null): static
     {
+        $url = (string) $url;
+
         // The previous page; Assume we came from the HTTP_REFERER page
         $referer = isset_get($_SERVER['HTTP_REFERER']);
 
@@ -263,13 +267,15 @@ class UrlBuilder implements Stringable
     /**
      * Returns an ajax URL
      *
-     * @param string $url The URL to build
+     * @param Stringable|string $url The URL to build
      * @param bool $use_configured_root If true, the builder will not use the root URI from the routing parameters but
      *                                  from the static configuration
      * @return static
      */
-    public static function getAjax(string $url, bool $use_configured_root = false): static
+    public static function getAjax(Stringable|string $url, bool $use_configured_root = false): static
     {
+        $url = (string) $url;
+
         if (!$url) {
             throw new OutOfBoundsException(tr('No URL specified'));
         }
@@ -281,13 +287,15 @@ class UrlBuilder implements Stringable
     /**
      * Returns an api URL
      *
-     * @param string $url The URL to build
+     * @param Stringable|string $url The URL to build
      * @param bool $use_configured_root If true, the builder will not use the root URI from the routing parameters but
      *                                  from the static configuration
      * @return static
      */
-    public static function getApi(string $url, bool $use_configured_root = false): static
+    public static function getApi(Stringable|string $url, bool $use_configured_root = false): static
     {
+        $url = (string) $url;
+
         if (!$url) {
             throw new OutOfBoundsException(tr('No URL specified'));
         }
@@ -299,11 +307,13 @@ class UrlBuilder implements Stringable
     /**
      * Returns a CSS URL
      *
-     * @param string $url
+     * @param Stringable|string $url
      * @return static
      */
-    public static function getCss(string $url): static
+    public static function getCss(Stringable|string $url): static
     {
+        $url = (string) $url;
+
         if (Url::isValid($url)) {
             return new UrlBuilder($url);
         }
@@ -315,11 +325,13 @@ class UrlBuilder implements Stringable
     /**
      * Returns a Javascript URL
      *
-     * @param string $url
+     * @param Stringable|string $url
      * @return static
      */
-    public static function getJs(string $url): static
+    public static function getJs(Stringable|string $url): static
     {
+        $url = (string) $url;
+
         if (Url::isValid($url)) {
             return new UrlBuilder($url);
         }
@@ -331,14 +343,14 @@ class UrlBuilder implements Stringable
     /**
      * Returns an image URL
      *
-     * @param Image|string $url
+     * @param Stringable|string $url
      * @return static
      */
-    public static function getImg(Image|string $url): static
+    public static function getImg(Stringable|string $url): static
     {
-        if (is_object($url)) {
-            $url->getHtmlElement()->getSrc();
-        } elseif (Url::isValid($url)) {
+        $url = (string) $url;
+
+        if (Url::isValid($url)) {
             return new UrlBuilder($url);
         }
 
@@ -573,18 +585,15 @@ class UrlBuilder implements Stringable
     /**
      * Builds and returns the domain prefix
      *
-     * @param UrlBuilder|string $url
+     * @param Stringable|string $url
      * @param string|null $prefix
      * @param bool $use_configured_root If true, the builder will not use the root URI from the routing parameters but
      *                                  from the static configuration
      * @return static
      */
-    protected static function buildUrl(UrlBuilder|string $url, ?string $prefix, bool $use_configured_root): static
+    protected static function buildUrl(Stringable|string $url, ?string $prefix, bool $use_configured_root): static
     {
-        if (is_object($url)) {
-            // Extract URL from object
-            $url = $url->__toString();
-        }
+        $url = (string) $url;
 
         if (Url::isValid($url)) {
             return new UrlBuilder($url);
@@ -605,13 +614,15 @@ class UrlBuilder implements Stringable
      * Returns a CDN URL
      *
      * @todo Clean URL strings, escape HTML characters, " etc.
-     * @param string $url
+     * @param Stringable|string $url
      * @param string|null $extension
      * @return static
      * @throws OutOfBoundsException If no URL was specified
      */
-    protected static function buildCdn(string $url, ?string $extension = null): static
+    protected static function buildCdn(Stringable|string $url, ?string $extension = null): static
     {
+        $url = (string) $url;
+
         if (!$url) {
             throw new OutOfBoundsException(tr('No URL specified'));
         }
@@ -633,16 +644,18 @@ class UrlBuilder implements Stringable
     /**
      * Apply predefined URL names
      *
-     * @param UrlBuilder|string $url
-     * @return UrlBuilder|string
+     * @param Stringable|string $url
+     * @return UrlBuilder
      */
-    protected static function applyPredefined(UrlBuilder|string $url): UrlBuilder|string
+    protected static function applyPredefined(Stringable|string $url): UrlBuilder
     {
-        return match ((string) $url) {
+        $url = (string) $url;
+
+        return match ($url) {
             'self', 'this' , 'here'       => static::getCurrent(),
             'root'                        => static::getCurrentDomainRootUrl(),
             'prev', 'previous', 'referer' => static::getReferer(),
-            default => $url,
+            default                       => new UrlBuilder($url),
         };
 
     }

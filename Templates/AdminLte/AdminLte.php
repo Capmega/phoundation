@@ -8,6 +8,7 @@ namespace Templates\AdminLte;
 use Phoundation\Web\Http\Html\Template\Template;
 use Templates\AdminLte\Html\Components\Menu;
 
+
 /**
  * Class AdminLte
  *

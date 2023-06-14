@@ -17,7 +17,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntry\Exception\DataEntryStatusException;
 use Phoundation\Data\Validator\PostValidator;
-use Phoundation\Data\Validator\Validator;
+use Phoundation\Data\Validator\ValidatorInterface;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\OutOfBoundsException;
@@ -34,6 +34,7 @@ use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 use Throwable;
+
 
 /**
  * Class Session
@@ -170,10 +171,10 @@ class Session
     /**
      * Validate sign in data
      *
-     * @param Validator|null $validator
+     * @param ValidatorInterface|null $validator
      * @return void
      */
-    public static function validateSignIn(Validator $validator = null): void
+    public static function validateSignIn(ValidatorInterface $validator = null): void
     {
         if (!$validator) {
             $validator = PostValidator::new();

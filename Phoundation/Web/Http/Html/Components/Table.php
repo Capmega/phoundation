@@ -14,6 +14,7 @@ use Phoundation\Web\Http\Html\Exception\HtmlException;
 use Phoundation\Web\Http\UrlBuilder;
 use Stringable;
 
+
 /**
  * Class Table
  *

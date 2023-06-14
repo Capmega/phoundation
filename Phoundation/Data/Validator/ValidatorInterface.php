@@ -14,7 +14,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Exception\KeyAlreadySelectedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
-use Phoundation\Data\Validator\Interfaces\InterfaceDataValidator;
+use Phoundation\Data\Validator\Interfaces\DataValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Restrictions;
@@ -36,7 +36,7 @@ use UnitEnum;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
-abstract class Validator implements InterfaceDataValidator
+abstract class ValidatorInterface implements DataValidatorInterface
 {
     use ValidatorBasics;
 
@@ -2639,11 +2639,11 @@ abstract class Validator implements InterfaceDataValidator
     /**
      * Constructor for all validator types
      *
-     * @param Validator|null $parent
+     * @param ValidatorInterface|null $parent
      * @param array|null $source
      * @return void
      */
-    protected function construct(?Validator $parent = null, ?array &$source = []): void
+    protected function construct(?ValidatorInterface $parent = null, ?array &$source = []): void
     {
         // Ensure the source is an array
         if ($source === null) {

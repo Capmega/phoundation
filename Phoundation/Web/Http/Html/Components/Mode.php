@@ -7,6 +7,7 @@ namespace Phoundation\Web\Http\Html\Components;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 
+
 /**
  * Mode trait
  *

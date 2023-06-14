@@ -33,7 +33,7 @@ class Employee extends DataEntry
      */
     public function __construct(DataEntryInterface|string|int|null $identifier = null)
     {
-        $this->entry_name = 'company employee';
+        static::$entry_name = 'company employee';
 
         parent::__construct($identifier);
     }
@@ -53,10 +53,10 @@ class Employee extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @param DefinitionsInterface $field_definitions
+     * @param DefinitionsInterface $definitions
      */
-    protected function initFieldDefinitions(DefinitionsInterface $field_definitions): void
+    protected function initDefinitions(DefinitionsInterface $definitions): void
     {
-        $field_definitions;
+        $definitions;
     }
 }

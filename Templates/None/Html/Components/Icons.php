@@ -7,6 +7,7 @@ namespace Templates\None\Html\Components;
 
 use Phoundation\Web\Http\Html\Renderer;
 
+
 /**
  * None Plugin Icons class
  *

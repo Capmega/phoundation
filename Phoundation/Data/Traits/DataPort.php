@@ -7,6 +7,7 @@ namespace Phoundation\Data\Traits;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 
+
 /**
  * Trait DataPort
  *

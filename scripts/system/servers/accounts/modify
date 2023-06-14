@@ -62,7 +62,7 @@ if ($argv['ssh_key_file']) {
 
 
 // Modify and save the SSH account
-$account->modify();
+$account->apply()->save();
 
 
 // Done!

@@ -24,7 +24,7 @@ class FilterForm extends \Phoundation\Web\Http\Html\Components\FilterForm
     {
         parent::__construct();
 
-        $this->fields = [
+        $this->definitions = [
             'type[]'   => [
                 'element' => 'inputmultibuttontext',
                 'mode'    => 'info',

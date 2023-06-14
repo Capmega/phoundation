@@ -9,6 +9,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 
+
 /**
  * GetValidator class
  *
@@ -21,7 +22,7 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
-class GetValidator extends Validator
+class GetValidator extends ValidatorInterface
 {
     /**
      * Internal $_GET array until validation has been completed
@@ -38,9 +39,9 @@ class GetValidator extends Validator
      * @note Keys that do not exist in $data that are validated will automatically be created
      * @note Keys in $data that are not validated will automatically be removed
      *
-     * @param Validator|null $parent If specified, this is actually a child validator to the specified parent
+     * @param ValidatorInterface|null $parent If specified, this is actually a child validator to the specified parent
      */
-    public function __construct(?Validator $parent = null) {
+    public function __construct(?ValidatorInterface $parent = null) {
         $this->construct($parent, static::$get);
     }
 
@@ -48,10 +49,10 @@ class GetValidator extends Validator
     /**
      * Returns a new $_GET data Validator object
      *
-     * @param Validator|null $parent
+     * @param ValidatorInterface|null $parent
      * @return static
      */
-    public static function new(?Validator $parent = null): static
+    public static function new(?ValidatorInterface $parent = null): static
     {
         return new static($parent);
     }
@@ -137,7 +138,7 @@ class GetValidator extends Validator
      *
      * @return array|null
      */
-    public static function extract(): ?array
+    public function extract(): ?array
     {
         Log::warning(tr('Liberated all $_GET data without data validation!'));
         return static::$get;
@@ -149,7 +150,7 @@ class GetValidator extends Validator
      *
      * @return array
      */
-    public static function extractKey(string $key): mixed
+    public function extractKey(string $key): mixed
     {
         Log::warning(tr('Liberated $_GET[:key] without data validation!', [':key' => $key]));
         return isset_get(static::$get[$key]);

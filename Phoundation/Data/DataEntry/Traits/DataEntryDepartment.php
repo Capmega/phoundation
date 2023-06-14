@@ -7,6 +7,7 @@ namespace Phoundation\Data\DataEntry\Traits;
 use Phoundation\Business\Companies\Departments\Department;
 use Phoundation\Exception\OutOfBoundsException;
 
+
 /**
  * Trait DataEntryDepartment
  *

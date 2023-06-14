@@ -23,9 +23,9 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
     /**
      * The key metadata for the specified data
      *
-     * @var Definitions $fields
+     * @var Definitions $definitions
      */
-    protected Definitions $fields;
+    protected Definitions $definitions;
 
     /**
      * The form specific metadata for the keys for the specified data
@@ -57,7 +57,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
         'hidden',
         'image',
         'month',
-        'numeric',
+        'number',
         'password',
         'radio',
         'range',
@@ -113,21 +113,21 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
      *
      * @return Definitions
      */
-    public function getFieldDefinitions(): Definitions
+    public function getDefinitions(): Definitions
     {
-        return $this->fields;
+        return $this->definitions;
     }
 
 
     /**
      * Set the data source for this DataEntryForm
      *
-     * @param Definitions $fields
+     * @param Definitions $definitions
      * @return static
      */
-    public function setFieldDefinitions(Definitions $fields): static
+    public function setDefinitions(Definitions $definitions): static
     {
-        $this->fields = $fields;
+        $this->definitions = $definitions;
         return $this;
     }
 

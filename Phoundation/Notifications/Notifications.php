@@ -10,6 +10,8 @@ use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Databases\Sql\QueryBuilder;
 use Phoundation\Databases\Sql\Sql;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
+
 
 /**
  * Notifications class
@@ -154,5 +156,16 @@ class Notifications extends DataList
     public function save(): static
     {
         // TODO: Implement save() method.
+    }
+
+
+    /**
+     * Returns an HTML select component object containing the entries in this list
+     *
+     * @return SelectInterface
+     */
+    public function getHtmlSelect(): SelectInterface
+    {
+        // TODO: Implement getHtmlSelect() method.
     }
 }

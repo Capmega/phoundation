@@ -31,8 +31,7 @@ if (Page::isPostRequestMethod()) {
 //
 //        // Update provider
 //        $provider = Provider::get($_GET['id']);
-//        $provider->modify($_POST);
-//        $provider->save();
+//        $provider->apply()->save();
 //
 //        // Go back to where we came from
 //        Page::getFlashMessages()->add(tr('Success'), tr('Provider ":provider" has been updated', [':provider' => $provider->getName()]), DisplayMode::success);
@@ -41,7 +40,7 @@ if (Page::isPostRequestMethod()) {
     } catch (ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
         Page::getFlashMessages()->add($e);
-        $provider->modify($_POST);
+        $provider->forceApply();
     }
 }
 

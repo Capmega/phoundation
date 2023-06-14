@@ -8,6 +8,7 @@ namespace Templates\AdminLte\Html\Components;
 use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Html\Renderer;
 
+
 /**
  * AdminLte Plugin Icons class
  *

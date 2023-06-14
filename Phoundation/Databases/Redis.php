@@ -12,6 +12,7 @@ use Phoundation\Databases\Exception\RedisException;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Utils\Json;
 
+
 /**
  * Class Redis
  *

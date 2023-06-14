@@ -908,8 +908,10 @@ Class Log {
                 }
 
                 // Log the initial exception message
-                static::write('Encountered "' . get_class($messages) . '" class exception in "' . $messages->getFile() . '@' . $messages->getLine() . '" (Main script "' . basename(isset_get($_SERVER['SCRIPT_FILENAME'])) . '")', $class, $threshold);
-                static::write('"' . get_class($messages) . '" Exception message: [' . ($messages->getCode() ?? 'N/A') . '] ' . $messages->getMessage(), $class, $threshold, false);
+                static::write('Main script: "' . basename(isset_get($_SERVER['SCRIPT_FILENAME'])) . '"', $class, $threshold);
+                static::write('Exception class: "' . get_class($messages) . '"', $class, $threshold);
+                static::write('Exception location: "' . $messages->getFile() . '@' . $messages->getLine() . '"', $class, $threshold);
+                static::write('Exception message: [' . ($messages->getCode() ?? 'N/A') . '] ' . $messages->getMessage(), $class, $threshold, false);
 
                 // Log the exception data
                 if ($messages instanceof Exception) {
@@ -926,7 +928,7 @@ Class Log {
                         }
                     } else {
                         // Dump the error data completely
-                        Log::printr($messages->getData());
+                        static::write(print_r($messages->getData(), true), 'debug', $threshold, false);
                     }
                 }
 
@@ -936,8 +938,8 @@ Class Log {
                     $trace = $messages->getTrace();
 
                     if ($trace) {
-                        static::write(tr('Backtrace:'), 'debug', $threshold);
-                        static::dumpTrace($messages->getTrace());
+                        static::write(tr('Backtrace:'), $class, $threshold);
+                        static::dumpTrace($messages->getTrace(), class: $class);
                     }
 
                     // Log all previous exceptions as well
@@ -1062,13 +1064,13 @@ Class Log {
      *                          Log::BACKTRACE_DISPLAY_FUNCTION or Log::BACKTRACE_DISPLAY_BOTH.
      * @return int The amount of lines that were logged. -1 in case of an exception while trying to log the backtrace.
      */
-    protected static function dumpTrace(array $backtrace, int $threshold = 9, ?int $display = null): int
+    protected static function dumpTrace(array $backtrace, int $threshold = 9, ?int $display = null, string $class = 'debug'): int
     {
         try {
             $lines = self::formatTrace($backtrace, $threshold, $display);
 
             foreach ($lines as $line) {
-                static::write($line, 'debug', $threshold, false);
+                static::write($line, $class, $threshold, false);
             }
 
             return count($lines);

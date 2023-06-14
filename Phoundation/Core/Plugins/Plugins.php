@@ -9,6 +9,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Path;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 use Throwable;
 
 
@@ -220,13 +221,17 @@ class Plugins extends DataList
 
 
     /**
-     * Clears all plugins from only the database
+     * Purges all plugins from both database and the PATH_ROOT/Plugins path
      *
-     * @return void
+     * @return static
      */
-    public static function clear(): void
+    public function clear(): static
     {
-        sql()->query('DELETE FROM `core_plugins`');
+        $path = PATH_ROOT . 'Plugins/';
+
+        self::clear();
+        File::new($path)->delete();
+        Path::new($path)->ensure();
     }
 
 
@@ -235,7 +240,7 @@ class Plugins extends DataList
      *
      * @return void
      */
-    public static function purge(): void
+    public function purge(): void
     {
         $path = PATH_ROOT . 'Plugins/';
 
@@ -332,5 +337,16 @@ class Plugins extends DataList
     public function save(): static
     {
         // TODO: Implement save() method.
+    }
+
+
+    /**
+     * Returns an HTML select component object containing the entries in this list
+     *
+     * @return SelectInterface
+     */
+    public function getHtmlSelect(): SelectInterface
+    {
+        // TODO: Implement getHtmlSelect() method.
     }
 }

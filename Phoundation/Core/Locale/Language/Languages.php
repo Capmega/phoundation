@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Phoundation\Core\Locale\Language;
 
 use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 use Phoundation\Web\Http\Html\Components\Input\Select;
+
 
 /**
  * Languages class
@@ -40,17 +42,18 @@ class Languages extends DataList
     }
 
 
+
+
     /**
-     * Returns an HTML <select> object with all available languages
+     * Returns an HTML select component object containing the entries in this list
      *
-     * @param string $name
-     * @return Select
+     * @return SelectInterface
      */
-    public static function getHtmlSelect(string $name = 'languages_id'): Select
+    public function getHtmlSelect(): SelectInterface
     {
         return Select::new()
             ->setSourceQuery('SELECT `id`, `name` FROM `core_languages` WHERE `status` IS NULL ORDER BY `name`')
-            ->setName($name)
+            ->setName('languages_id')
             ->setNone(tr('Please select a language'))
             ->setEmpty(tr('No languages available'));
     }

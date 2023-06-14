@@ -35,6 +35,7 @@ use Phoundation\Web\Http\Html\Enums\InputType;
 use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
 use Throwable;
 
+
 /**
  * Class Notification
  *
@@ -98,7 +99,7 @@ class Notification extends DataEntry
     public function __construct(DataEntryInterface|string|int|null $identifier = null)
     {
         static::$auto_log = Config::get('notifications.auto-log', true);
-        $this->entry_name = 'notification';
+        static::$entry_name = 'notification';
 
         $this->data['mode']     = 'unknown';
         $this->data['priority'] = 1;
@@ -351,7 +352,7 @@ class Notification extends DataEntry
 
         foreach ($this->getDetails() as $key => $value) {
             Log::write($key, 'debug');
-            Log::table($value);
+            Log::table(Arrays::force($value));
             Log::cli();
         }
 
@@ -420,11 +421,11 @@ class Notification extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @param DefinitionsInterface $field_definitions
+     * @param DefinitionsInterface $definitions
      */
-    protected function initFieldDefinitions(DefinitionsInterface $field_definitions): void
+    protected function initDefinitions(DefinitionsInterface $definitions): void
     {
-        $field_definitions
+        $definitions
             ->add(Definition::new('users_id')
                 ->setVisible(false)
                 ->setInputType(InputTypeExtended::dbid)

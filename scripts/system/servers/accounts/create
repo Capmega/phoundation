@@ -43,7 +43,7 @@ if ($argv['ssh_key_file']) {
 
 
 // Create account
-$account = SshAccount::new()->create();
+$account = SshAccount::new()->apply()->save();
 $account->setSshKey($argv['ssh_key']);
 
 

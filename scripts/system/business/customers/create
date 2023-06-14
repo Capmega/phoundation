@@ -63,7 +63,7 @@ if ($argv['rights']) {
 
 
 // Create customer and save it
-$customer = Customer::new()->create($argv)->save();
+$customer = Customer::new()->apply($argv)->save();
 
 
 

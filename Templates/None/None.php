@@ -8,6 +8,7 @@ namespace Templates\None;
 use Phoundation\Web\Http\Html\Template\Template;
 use Templates\None\Html\Components\Menu;
 
+
 /**
  * Class None
  *

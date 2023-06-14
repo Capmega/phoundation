@@ -6,8 +6,9 @@ namespace Phoundation\Web\Http\Html\Components\Input;
 
 use Phoundation\Web\Http\Html\Enums\InputType;
 
+
 /**
- * Class InputNumeric
+ * Class InputNumber
  *
  *
  *
@@ -16,14 +17,14 @@ use Phoundation\Web\Http\Html\Enums\InputType;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class InputNumeric extends Input
+class InputNumber extends Input
 {
     /**
      * InputNumeric class constructor
      */
     public function __construct()
     {
-        $this->type = InputType::numeric;
+        $this->type = InputType::number;
         parent::__construct();
     }
 

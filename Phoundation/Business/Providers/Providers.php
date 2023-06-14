@@ -6,8 +6,10 @@ namespace Phoundation\Business\Providers;
 
 use Phoundation\Business\Companies\Company;
 use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 use Phoundation\Web\Http\Html\Components\Input\Select;
 use Phoundation\Web\Http\Html\Components\Table;
+
 
 /**
  * Providers class
@@ -55,20 +57,21 @@ class Providers extends DataList
     }
 
 
+
+
     /**
-     * Returns an HTML <select> object with all available providers
+     * Returns an HTML select component object containing the entries in this list
      *
-     * @param string $name
-     * @return Select
+     * @return SelectInterface
      */
-    public static function getHtmlSelect(string $name = 'providers_id'): Select
+    public function getHtmlSelect(): SelectInterface
     {
         return Select::new()
             ->setSourceQuery('SELECT    `id`, `name` 
                                           FROM     `business_providers`
                                           WHERE    `status` IS NULL 
                                           ORDER BY `name`')
-            ->setName($name)
+            ->setName('providers_id')
             ->setNone(tr('Please select a provider'))
             ->setEmpty(tr('No providers available'));
     }

@@ -6,6 +6,7 @@ namespace Phoundation\Core\Hooks\Exception;
 
 use Phoundation\Core\Exception\CoreException;
 
+
 /**
  * Class HooksException
  *

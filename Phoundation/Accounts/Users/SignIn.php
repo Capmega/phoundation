@@ -18,6 +18,7 @@ use Phoundation\Geo\Timezones\Timezones;
 use Phoundation\Web\Http\Html\Enums\InputType;
 use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
 
+
 /**
  * SignIn class
  *
@@ -44,7 +45,7 @@ class SignIn extends DataEntry
      */
     public function __construct(DataEntryInterface|string|int|null $identifier = null)
     {
-        $this->entry_name  = 'signin';
+        static::$entry_name  = 'signin';
 
         parent::__construct($identifier);
     }
@@ -78,11 +79,11 @@ class SignIn extends DataEntry
     /**
      * Sets the available data keys for the User class
      *
-     * @param DefinitionsInterface $field_definitions
+     * @param DefinitionsInterface $definitions
      */
-    protected function initFieldDefinitions(DefinitionsInterface $field_definitions): void
+    protected function initDefinitions(DefinitionsInterface $definitions): void
     {
-        $field_definitions
+        $definitions
             ->add(Definition::new('ip_address')
                 ->setVisible(false))
             ->add(Definition::new('net_len')
@@ -101,7 +102,7 @@ class SignIn extends DataEntry
             ->add(Definition::new('latitude')
                 ->setOptional(true)
                 ->setReadonly(true)
-                ->setInputType(InputType::numeric)
+                ->setInputType(InputType::number)
                 ->setSize(6)
                 ->setMin(-90)
                 ->setMax(90)
@@ -110,7 +111,7 @@ class SignIn extends DataEntry
             ->add(Definition::new('longitude')
                 ->setOptional(true)
                 ->setReadonly(true)
-                ->setInputType(InputType::numeric)
+                ->setInputType(InputType::number)
                 ->setSize(6)
                 ->setMin(-180)
                 ->setMax(180)

@@ -7,6 +7,7 @@ namespace Phoundation\Databases\Sql\Schema;
 use Phoundation\Core\Log\Log;
 use Phoundation\Databases\Sql\Sql;
 
+
 /**
  * Table class
  *

@@ -7,6 +7,7 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Core\Strings;
 
+
 /**
  * Trait DataEntryPhones
  *

@@ -29,7 +29,7 @@ enum InputType: string implements InputTypeInterface
     case hidden         = 'hidden';
     case image          = 'image';
     case month          = 'month';
-    case numeric        = 'numeric';
+    case number         = 'number';
     case password       = 'password';
     case radio          = 'radio';
     case range          = 'range';

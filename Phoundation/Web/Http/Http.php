@@ -11,6 +11,7 @@ use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Exception\HttpException;
 
+
 /**
  * Class Http
  *

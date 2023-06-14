@@ -6,6 +6,7 @@ namespace Phoundation\Data\Traits;
 
 use Phoundation\Web\Http\Html\Enums\BrowserEvent;
 
+
 /**
  * Trait DataEvent
  *

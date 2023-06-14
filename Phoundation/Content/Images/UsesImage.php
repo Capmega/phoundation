@@ -6,6 +6,7 @@ namespace Phoundation\Content\Images;
 
 use Phoundation\Servers\Traits\UsesRestrictions;
 
+
 /**
  * Phoundation UsesImage trait
  *

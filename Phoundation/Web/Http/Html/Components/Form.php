@@ -6,6 +6,7 @@ namespace Phoundation\Web\Http\Html\Components;
 
 use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Core\Config;
+use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\UrlBuilder;
 

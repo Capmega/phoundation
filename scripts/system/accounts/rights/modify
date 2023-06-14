@@ -54,7 +54,7 @@ if ($argv['name']) {
     Right::notExists($argv['name'], $right->getId(), true);
 }
 
-$right->modify($argv)->save();
+$right->apply($argv)->save();
 
 
 

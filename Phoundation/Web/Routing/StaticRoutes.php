@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Phoundation\Web\Routing;
 
 use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
+
 
 /**
  * Class StaticRoutes
@@ -62,5 +64,16 @@ class StaticRoutes extends DataList
     public function save(): static
     {
         // TODO: Implement save() method.
+    }
+
+
+    /**
+     * Returns an HTML select component object containing the entries in this list
+     *
+     * @return SelectInterface
+     */
+    public function getHtmlSelect(): SelectInterface
+    {
+        // TODO: Implement getHtmlSelect() method.
     }
 }

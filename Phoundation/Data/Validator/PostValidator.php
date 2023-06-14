@@ -21,7 +21,7 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
-class PostValidator extends Validator
+class PostValidator extends ValidatorInterface
 {
     /**
      * Internal $_POST array until validation has been completed
@@ -40,9 +40,9 @@ class PostValidator extends Validator
      * @note Keys that do not exist in $data that are validated will automatically be created
      * @note Keys in $data that are not validated will automatically be removed
      *
-     * @param Validator|null $parent If specified, this is actually a child validator to the specified parent
+     * @param ValidatorInterface|null $parent If specified, this is actually a child validator to the specified parent
      */
-    public function __construct(?Validator $parent = null) {
+    public function __construct(?ValidatorInterface $parent = null) {
         $this->construct($parent, static::$post);
     }
 
@@ -50,10 +50,10 @@ class PostValidator extends Validator
     /**
      * Returns a new $_POST data Validator object
      *
-     * @param Validator|null $parent
+     * @param ValidatorInterface|null $parent
      * @return static
      */
-    public static function new(?Validator $parent = null): static
+    public static function new(?ValidatorInterface $parent = null): static
     {
         return new static($parent);
     }
@@ -135,11 +135,22 @@ class PostValidator extends Validator
 
 
     /**
+     * Returns the submitted array keys
+     *
+     * @return array|null
+     */
+    public static function getKeys(): ?array
+    {
+        return array_keys(static::$post);
+    }
+
+
+    /**
      * Force a return of all POST data without check
      *
      * @return array|null
      */
-    public static function extract(): ?array
+    public function extract(): ?array
     {
         Log::warning(tr('Liberated all $_POST data without data validation!'));
         return static::$post;
@@ -151,7 +162,7 @@ class PostValidator extends Validator
      *
      * @return array
      */
-    public static function extractKey(string $key): mixed
+    public function extractKey(string $key): mixed
     {
         Log::warning(tr('Liberated $_POST[:key] without data validation!', [':key' => $key]));
         return isset_get(static::$post[$key]);

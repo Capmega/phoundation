@@ -9,6 +9,7 @@ use Phoundation\Geo\Cities\City;
 use Phoundation\Geo\Countries\Country;
 use Phoundation\Geo\States\State;
 
+
 /**
  * Trait DataEntryGeo
  *

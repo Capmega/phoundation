@@ -26,7 +26,7 @@ use Phoundation\Exception\OutOfBoundsException;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
-class ArgvValidator extends Validator
+class ArgvValidator extends ValidatorInterface
 {
     /**
      * Internal $argv array until validation has been completed
@@ -45,9 +45,9 @@ class ArgvValidator extends Validator
      * @note Keys that do not exist in $data that are validated will automatically be created
      * @note Keys in $data that are not validated will automatically be removed
      *
-     * @param Validator|null $parent If specified, this is actually a child validator to the specified parent
+     * @param ValidatorInterface|null $parent If specified, this is actually a child validator to the specified parent
      */
-    public function __construct(?Validator $parent = null) {
+    public function __construct(?ValidatorInterface $parent = null) {
         global $argv;
         $this->construct($parent, $argv);
     }
@@ -56,10 +56,10 @@ class ArgvValidator extends Validator
     /**
      * Returns a new Command Line Arguments data Validator object
      *
-     * @param Validator|null $parent
+     * @param ValidatorInterface|null $parent
      * @return static
      */
-    public static function new(?Validator $parent = null): static
+    public static function new(?ValidatorInterface $parent = null): static
     {
         return new static($parent);
     }
@@ -542,7 +542,7 @@ class ArgvValidator extends Validator
      *
      * @return array|null
      */
-    public static function extract(): ?array
+    public function extract(): ?array
     {
         Log::warning(tr('Liberated all $argv data without data validation!'));
         return static::$argv;
@@ -554,7 +554,7 @@ class ArgvValidator extends Validator
      *
      * @return array
      */
-    public static function extractKey(string $key): mixed
+    public function extractKey(string $key): mixed
     {
         Log::warning(tr('Liberated $argv[:key] without data validation!', [':key' => $key]));
         return isset_get(static::$argv[$key]);

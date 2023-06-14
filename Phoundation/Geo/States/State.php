@@ -12,6 +12,7 @@ use Phoundation\Geo\Countries\Country;
 use Phoundation\Geo\Timezones\Timezone;
 use Phoundation\Web\Http\Html\Components\Input\Select;
 
+
 /**
  * Class State
  *
@@ -34,7 +35,7 @@ class State extends DataEntry
      */
     public function __construct(DataEntry|string|int|null $identifier = null)
     {
-        $this->entry_name   = 'geo state';
+        static::$entry_name   = 'geo state';
         $this->unique_field = 'seo_name';
 
         parent::__construct($identifier);
@@ -108,11 +109,11 @@ class State extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @param DefinitionsInterface $field_definitions
+     * @param DefinitionsInterface $definitions
      */
-    protected function initFieldDefinitions(DefinitionsInterface $field_definitions): void
+    protected function initDefinitions(DefinitionsInterface $definitions): void
     {
-        $field_definitions;
+        $definitions;
 
 //        throw new UnderConstructionException();
 //

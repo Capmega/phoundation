@@ -46,6 +46,21 @@ interface DataEntryInterface
     static function new(DataEntryInterface|string|int|null $identifier = null): static;
 
     /**
+     * Returns the prefix string
+     *
+     * @return ?string
+     */
+    public function getPrefix(): ?string;
+
+    /**
+     * Sets the prefix string
+     *
+     * @param string|null $prefix
+     * @return $this
+     */
+    public function setPrefix(?string $prefix): static;
+
+    /**
      * Returns a help file generated from the DataEntry keys
      *
      * @param array $auto_complete
@@ -127,7 +142,7 @@ interface DataEntryInterface
      *
      * @return DefinitionsInterface
      */
-    function getFieldDefinitions(): DefinitionsInterface;
+    function getDefinitions(): DefinitionsInterface;
 
     /**
      * Returns true if this is a new entry that hasn't been written to the database yet
@@ -236,22 +251,13 @@ interface DataEntryInterface
     function getDiff(): ?string;
 
     /**
-     * Create the data for this object with the new specified data
-     *
-     * @param array|null $data
-     * @param bool $no_arguments_left
-     * @return static
-     */
-    function create(?array $data = null, bool $no_arguments_left = false): static;
-
-    /**
      * Modify the data for this object with the new specified data
      *
      * @param array|null $data
      * @param bool $no_arguments_left
      * @return static
      */
-    function modify(?array $data = null, bool $no_arguments_left = false): static;
+    function apply(?array $data = null, bool $no_arguments_left = false): static;
 
     /**
      * Returns all data for this data entry at once with an array of information
@@ -294,13 +300,4 @@ interface DataEntryInterface
      * @return DataEntryFormInterface
      */
     public function getHtmlForm(): DataEntryFormInterface;
-
-    /**
-     * Modify the form keys
-     *
-     * @param string $field
-     * @param array $settings
-     * @return static
-     */
-    function modifyDefinitions(string $field, array $settings): static;
  }

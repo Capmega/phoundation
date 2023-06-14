@@ -26,6 +26,7 @@ use Phoundation\Geo\Countries\Country;
 use Phoundation\Geo\States\State;
 use Phoundation\Geo\States\States;
 
+
 /**
  * Customer class
  *
@@ -59,7 +60,7 @@ class Customer extends DataEntry
      */
     public function __construct(DataEntry|string|int|null $identifier = null)
     {
-        $this->entry_name  = 'customer';
+        static::$entry_name  = 'customer';
         $this->unique_field  = 'seo_name';
 
         parent::__construct($identifier);
@@ -126,11 +127,11 @@ class Customer extends DataEntry
     /**
      * Sets the available data keys for the User class
      *
-     * @param DefinitionsInterface $field_definitions
+     * @param DefinitionsInterface $definitions
      */
-    protected function initFieldDefinitions(DefinitionsInterface $field_definitions): void
+    protected function initDefinitions(DefinitionsInterface $definitions): void
     {
-        $field_definitions;
+        $definitions;
 
         return [
             'country' => [

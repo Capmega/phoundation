@@ -22,6 +22,7 @@ use Phoundation\Processes\Exception\ProcessException;
 use Phoundation\Servers\Server;
 use Stringable;
 
+
 /**
  * Trait ProcessVariables
  *

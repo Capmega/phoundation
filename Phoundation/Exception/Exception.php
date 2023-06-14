@@ -50,10 +50,24 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
     /**
      * Exception code
      *
+     * @note Not sure what datatype PHP has for this, but it doesn't allow datatype specification here
      * @var string $code
      */
     protected $code = 0;
 
+    /**
+     * The file where this exception occurred.
+     *
+     * @var string $file
+     */
+    protected string $file;
+
+    /**
+     * The line where this exception occurred.
+     *
+     * @var int $line
+     */
+    protected int $line;
 
     /**
      * CoreException __constructor
@@ -397,5 +411,31 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
         }
 
         return $trace;
+    }
+
+
+    /**
+     * Sets the file where the exception occurred
+     *
+     * @param string $file
+     * @return $this
+     */
+    public function setFile(string $file): static
+    {
+        $this->file = $file;
+        return $this;
+    }
+
+
+    /**
+     * Sets the line where the exception occurred
+     *
+     * @param int $line
+     * @return $this
+     */
+    public function setLine(int $line): static
+    {
+        $this->line = $line;
+        return $this;
     }
 }

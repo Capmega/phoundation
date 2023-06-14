@@ -63,7 +63,7 @@ if ($argv['roles']) {
 
 
 // Create user and set users roles
-$user = User::new()->create();
+$user = User::new()->apply()->save();
 $user->roles()->add($argv['roles']);
 
 

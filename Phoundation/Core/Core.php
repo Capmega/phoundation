@@ -17,7 +17,7 @@ use Phoundation\Core\Exception\NoProjectException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
-use Phoundation\Data\Validator\Validator;
+use Phoundation\Data\Validator\ValidatorInterface;
 use Phoundation\Date\Date;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\AccessDeniedException;
@@ -630,11 +630,11 @@ class Core {
         }
 
         if ($argv['no_validation']) {
-            Validator::disable();
+            ValidatorInterface::disable();
         }
 
         if ($argv['no_password_validation']) {
-            Validator::disablePasswords();
+            ValidatorInterface::disablePasswords();
         }
 
         // Remove the command itself from the argv array
@@ -1296,20 +1296,22 @@ class Core {
     public static function phpErrorHandler(int $errno, string $errstr, string $errfile, int $errline): void
     {
         if (static::startupState()) {
-            // Wut? We're not even ready to go! Likely we don't have configuration available so we cannot even send out
+            // Wut? We're not even ready to go! Likely we don't have configuration available, so we cannot even send out
             // notifications. Just crash with a standard PHP exception
-            $e = new PhpException('Core startup PHP ERROR [' . $errno . '] "' . $errstr . '" in "' . $errfile . '@' . $errline . '"');
-            $e->setCode($errno);
-            throw $e;
+            throw PhpException::new('Core startup PHP ERROR "' . $errstr . '"')
+                ->setCode($errno)
+                ->setFile($errfile)
+                ->setLine($errline);
         }
 
         $trace = Debug::backtrace();
         unset($trace[0]);
         unset($trace[1]);
 
-        $e = new PhpException('PHP ERROR [' .$errno . '] "' . $errstr . '" in "' . $errfile . '@' . $errline . '"');
-        $e->setCode($errno);
-        throw $e;
+        throw PhpException::new('PHP ERROR "' . $errstr . '"')
+            ->setCode($errno)
+            ->setFile($errfile)
+            ->setLine($errline);
     }
 
 
@@ -1520,8 +1522,13 @@ class Core {
 
                         Log::error(tr('Exception data:'));
                         Log::error($e);
-                        Log::printr($e->getTrace());
-                        Log::printr(debug_backtrace());
+//                        Log::error();
+//                        Log::write(tr('Extended trace:'), 'debug', 10, false);
+//                        Log::write(print_r($e->getTrace(), true), 'debug', 10, false);
+//                        Log::error();
+//                        Log::write(tr('Super extended trace:'), 'debug', 10, false);
+//                        Log::write(print_r(debug_backtrace(), true), 'debug', 10, false);
+//                        Log::printr(debug_backtrace());
                         Script::die(1);
 
                     case 'http':
@@ -1649,6 +1656,9 @@ class Core {
                                         }
                                         table.debug .debug-header{
                                             display: none;
+                                        }
+                                        pre {
+                                            white-space: break-spaces;
                                         }
                                         </style>
                                         <table class="exception">

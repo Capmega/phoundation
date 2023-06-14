@@ -9,6 +9,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Processes\Process;
 
+
 /**
  * Trait GitProcess
  *

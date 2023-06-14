@@ -153,10 +153,10 @@ class Img extends Element
     /**
      * Sets the HTML src element attribute
      *
-     * @param File|Stringable|string|null $src
+     * @param Stringable|string|null $src
      * @return Img
      */
-    public function setSrc(File|Stringable|string|null $src): static
+    public function setSrc(Stringable|string|null $src): static
     {
 //        // Get a built src string. If $built_src is equal to specified $src then it wasn't changed and so it's an
 //        $domain         = Url::getDomain($src);
@@ -205,10 +205,6 @@ class Img extends Element
 //            $file_src = '/pub'.Strings::startsWith($src, '/');
 //            $src      = UrlBuilder::getImg($src);
 //        }
-
-        if (is_object($src)) {
-            $src = $src->getFile();
-        }
 
         $this->src = UrlBuilder::getImg($src);
         return $this;

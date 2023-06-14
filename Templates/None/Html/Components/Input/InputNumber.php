@@ -9,7 +9,7 @@ use Phoundation\Web\Http\Html\Renderer;
 
 
 /**
- * Class InputNumeric
+ * Class InputNumber
  *
  *
  *
@@ -18,12 +18,12 @@ use Phoundation\Web\Http\Html\Renderer;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\None
  */
-class InputNumeric extends Renderer
+class InputNumber extends Renderer
 {
     /**
      * InputNumeric class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\Input\InputNumeric $element)
+    public function __construct(\Phoundation\Web\Http\Html\Components\Input\InputNumber $element)
     {
         $element->addClass( 'form-control');
         parent::__construct($element);

@@ -8,7 +8,7 @@ use Phoundation\Accounts\Interfaces\RoleInterface;
 use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Accounts\Users\Users;
 use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
+use Phoundation\Data\DataEntry\Definitions\DefinitionDefaults;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Web\Http\Html\Components\Form;
@@ -37,7 +37,7 @@ class Role extends DataEntry implements RoleInterface
      */
     public function __construct(DataEntry|string|int|null $identifier = null)
     {
-        $this->entry_name   = 'role';
+        static::$entry_name   = 'role';
 
         parent::__construct($identifier);
     }
@@ -106,15 +106,15 @@ class Role extends DataEntry implements RoleInterface
     /**
      * Sets the available data keys for this entry
      *
-     * @param DefinitionsInterface $field_definitions
+     * @param DefinitionsInterface $definitions
      */
-    protected function initFieldDefinitions(DefinitionsInterface $field_definitions): void
+    protected function initDefinitions(DefinitionsInterface $definitions): void
     {
-        $field_definitions
-            ->add(DefinitionFactory::new('name')
+        $definitions
+            ->add(DefinitionDefaults::getName()
                 ->setHelpText(tr('The name for this role')))
-            ->add(DefinitionFactory::new('seo_name'))
-            ->add(DefinitionFactory::new('description')
+            ->add(DefinitionDefaults::getSeoName())
+            ->add(DefinitionDefaults::getDescription()
                 ->setHelpText(tr('The description for this role')));
     }
 }

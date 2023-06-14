@@ -498,8 +498,9 @@ class Sql
 
                         case 1146:
                             // Base table or view not found
-                            throw new SqlException(tr('Query ":query" refers to a base table or view that does not exist', [
-                                ':query' => self::buildQueryString($query, $execute, true)
+                            throw new SqlException(tr('Query ":query" refers to a base table or view that does not exist: :message', [
+                                ':query'   => self::buildQueryString($query, $execute, true),
+                                ':message' => $e->getMessage()
                             ]), $e);
                     }
             }

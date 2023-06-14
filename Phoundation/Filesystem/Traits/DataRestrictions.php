@@ -7,6 +7,7 @@ namespace Phoundation\Filesystem\Traits;
 use Phoundation\Core\Core;
 use Phoundation\Filesystem\Restrictions;
 
+
 /**
  * Trait Restrictions
  *

@@ -22,6 +22,7 @@ use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Page;
 
+
 /**
  * Class Debug
  *
@@ -475,6 +476,9 @@ class Debug {
                 }
                 table.debug td.value{
                     word-break: break-all;
+                }
+                pre {
+                    white-space: break-spaces;
                 }
                </style>';
         } else {

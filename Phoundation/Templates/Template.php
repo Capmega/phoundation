@@ -7,6 +7,7 @@ namespace Phoundation\Templates;
 use Phoundation\Core\Session;
 use Phoundation\Web\Http\UrlBuilder;
 
+
 /**
  * Class Template
  *

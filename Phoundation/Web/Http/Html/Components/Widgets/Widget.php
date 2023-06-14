@@ -8,6 +8,7 @@ use Phoundation\Web\Http\Html\Components\Background;
 use Phoundation\Web\Http\Html\Components\ElementsBlock;
 use Phoundation\Web\Http\Html\Components\Mode;
 
+
 /**
  * Widget class
  *

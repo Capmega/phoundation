@@ -6,6 +6,7 @@ namespace Phoundation\Virtualization\Kubernetes\KubernetesNamespaces;
 
 use Phoundation\Virtualization\Kubernetes\ObjectFile;
 
+
 /**
  * Class KubernetesNamespaceFile
  *

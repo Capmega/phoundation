@@ -47,15 +47,15 @@ interface DataEntryFormInterface extends ElementsBlockInterface
      *
      * @return Definitions
      */
-    public function getFieldDefinitions(): Definitions;
+    public function getDefinitions(): Definitions;
 
     /**
      * Set the data source for this DataEntryForm
      *
-     * @param Definitions $fields
+     * @param Definitions $definitions
      * @return static
      */
-    public function setFieldDefinitions(Definitions $fields): static;
+    public function setDefinitions(Definitions $definitions): static;
 
     /**
      * Returns the data source for this DataEntryForm

@@ -10,6 +10,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\Sql;
 
+
 /**
  * TableDefine class
  *

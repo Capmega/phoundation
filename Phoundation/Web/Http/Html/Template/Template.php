@@ -11,6 +11,7 @@ use Phoundation\Web\Http\Html\Components\ElementsBlock;
 use Phoundation\Web\Http\Html\Template\Exception\TemplateException;
 use Plugins\Phoundation\Components\Menu;
 
+
 /**
  * Class Template
  *

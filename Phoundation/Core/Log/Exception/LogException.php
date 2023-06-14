@@ -6,6 +6,7 @@ namespace Phoundation\Core\Log\Exception;
 
 use Phoundation\Core\Exception\CoreException;
 
+
 /**
  * Class LogException
  *

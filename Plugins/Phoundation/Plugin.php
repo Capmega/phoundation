@@ -9,6 +9,7 @@ use Phoundation\Web\Http\Html\Components\Menu;
 use Phoundation\Web\Page;
 use Plugins\Phoundation\Components\ProfileImageMenu;
 
+
 /**
  * Class Plugin
  *

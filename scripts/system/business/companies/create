@@ -63,7 +63,7 @@ if ($argv['rights']) {
 
 
 // Create company and save it
-$company = Company::new()->create($argv)->save();
+$company = Company::new()->apply($argv)->save();
 
 
 

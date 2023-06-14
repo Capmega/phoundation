@@ -6,7 +6,9 @@ namespace Phoundation\Geo\Cities;
 
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Geo\States\State;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 use Phoundation\Web\Http\Html\Components\Table;
+
 
 /**
  * Cities class
@@ -78,5 +80,16 @@ class Cities extends DataList
     public function save(): static
     {
         // TODO: Implement save() method.
+    }
+
+
+    /**
+     * Returns an HTML select component object containing the entries in this list
+     *
+     * @return SelectInterface
+     */
+    public function getHtmlSelect(): SelectInterface
+    {
+        // TODO: Implement getHtmlSelect() method.
     }
 }

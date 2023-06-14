@@ -18,7 +18,7 @@ use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
-use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
+use Phoundation\Data\DataEntry\Definitions\DefinitionDefaults;
 use Phoundation\Data\DataEntry\Definitions\Definitions;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryAddress;
@@ -111,7 +111,7 @@ class User extends DataEntry implements UserInterface
      */
     public function __construct(DataEntry|string|int|null $identifier = null)
     {
-        $this->entry_name   = 'user';
+        static::$entry_name = 'user';
         $this->unique_field = 'email';
 
         parent::__construct($identifier);
@@ -1315,9 +1315,9 @@ class User extends DataEntry implements UserInterface
      *
      * @return Definitions
      */
-    protected function initFieldDefinitions(DefinitionsInterface $field_definitions): void
+    protected function initDefinitions(DefinitionsInterface $definitions): void
     {
-        $field_definitions
+        $definitions
             ->add(Definition::new('email')
                 ->setInputType(InputType::email)
                 ->setMaxlength(128)
@@ -1390,7 +1390,7 @@ class User extends DataEntry implements UserInterface
                 }))
             ->add(Definition::new('timezones_id')
                 ->setOptional(true)
-                ->setInputType(InputType::numeric)
+                ->setInputType(InputType::number)
                 ->setContent(function (string $key, array $data, array $source) {
                     return Timezones::getHtmlSelect($key)
                         ->setSelected(isset_get($source['timezones_id']))
@@ -1443,13 +1443,13 @@ class User extends DataEntry implements UserInterface
             ->add(Definition::new('sign_in_count')
                 ->setOptional(true, 0)
                 ->setReadonly(true)
-                ->setInputType(InputType::numeric)
+                ->setInputType(InputType::number)
                 ->setSize(3)
                 ->setLabel(tr('Sign in count')))
             ->add(Definition::new('authentication_failures')
                 ->setOptional(true, 0)
                 ->setReadonly(true)
-                ->setInputType(InputType::numeric)
+                ->setInputType(InputType::number)
                 ->setNullDb(false, 0)
                 ->setSize(3)
                 ->setLabel(tr('Authentication failures')))
@@ -1603,7 +1603,7 @@ class User extends DataEntry implements UserInterface
                 }))
             ->add(Definition::new('priority')
                 ->setOptional(true)
-                ->setInputType(InputType::numeric)
+                ->setInputType(InputType::number)
                 ->setSize(3)
                 ->setCliField('--priority')
                 ->setAutoComplete(true)
@@ -1616,7 +1616,7 @@ class User extends DataEntry implements UserInterface
                 }))
             ->add(Definition::new('countries_id')
                 ->setOptional(true)
-                ->setInputType(InputType::numeric)
+                ->setInputType(InputType::number)
                 ->setContent(function (string $key, array $data, array $source) {
                     return Countries::getHtmlCountriesSelect($key)
                         ->setSelected(isset_get($source['countries_id']))
@@ -1633,7 +1633,7 @@ class User extends DataEntry implements UserInterface
                 }))
             ->add(Definition::new('states_id')
                 ->setOptional(true)
-                ->setInputType(InputType::numeric)
+                ->setInputType(InputType::number)
                 ->setContent(function (string $key, array $data, array $source) {
                     return Country::get($source['countries_id'])->getHtmlStatesSelect($key)
                         ->setSelected(isset_get($source['states_id']))
@@ -1650,7 +1650,7 @@ class User extends DataEntry implements UserInterface
                 }))
             ->add(Definition::new('cities_id')
                 ->setOptional(true)
-                ->setInputType(InputType::numeric)
+                ->setInputType(InputType::number)
                 ->setContent(function (string $key, array $data, array $source) {
                     return State::get($source['states_id'])->getHtmlCitiesSelect($key)
                         ->setSelected(isset_get($source['cities_id']))
@@ -1694,7 +1694,7 @@ class User extends DataEntry implements UserInterface
                 }))
             ->add(Definition::new('languages_id')
                 ->setOptional(true)
-                ->setInputType(InputType::numeric)
+                ->setInputType(InputType::number)
                 ->setContent(function (string $key, array $data, array $source) {
                     return Languages::getHtmlSelect($key)
                         ->setSelected(isset_get($source['languages_id']))
@@ -1711,7 +1711,7 @@ class User extends DataEntry implements UserInterface
                 }))
             ->add(Definition::new('latitude')
                 ->setOptional(true)
-                ->setInputType(InputType::numeric)
+                ->setInputType(InputType::number)
                 ->setSize(2)
                 ->setCliField('--latitude')
                 ->setAutoComplete(true)
@@ -1723,7 +1723,7 @@ class User extends DataEntry implements UserInterface
                 }))
             ->add(Definition::new('longitude')
                 ->setOptional(true)
-                ->setInputType(InputType::numeric)
+                ->setInputType(InputType::number)
                 ->setSize(2)
                 ->setCliField('--longitude')
                 ->setAutoComplete(true)
@@ -1735,7 +1735,7 @@ class User extends DataEntry implements UserInterface
                 }))
             ->add(Definition::new('accuracy')
                 ->setOptional(true)
-                ->setInputType(InputType::numeric)
+                ->setInputType(InputType::number)
                 ->setSize(2)
                 ->setMin(0)
                 ->setMax(10)
@@ -1750,7 +1750,7 @@ class User extends DataEntry implements UserInterface
             ->add(Definition::new('offset_latitude')
                 ->setOptional(true)
                 ->setReadonly(true)
-                ->setInputType(InputType::numeric)
+                ->setInputType(InputType::number)
                 ->setSize(2)
                 ->setAutoComplete(true)
                 ->setLabel(tr('Offset latitude'))
@@ -1759,7 +1759,7 @@ class User extends DataEntry implements UserInterface
             ->add(Definition::new('offset_longitude')
                 ->setOptional(true)
                 ->setReadonly(true)
-                ->setInputType(InputType::numeric)
+                ->setInputType(InputType::number)
                 ->setSize(2)
                 ->setAutoComplete(true)
                 ->setLabel(tr('Offset longitude'))
@@ -1791,7 +1791,7 @@ class User extends DataEntry implements UserInterface
                 }))
             ->add(Definition::new('leaders_id')
                 ->setOptional(true)
-                ->setInputType(InputType::numeric)
+                ->setInputType(InputType::number)
                 ->setContent(function (string $key, array $data, array $source) {
                     return Users::getHtmlSelect($key)
                         ->setSelected(isset_get($source['leaders_id']))
@@ -1854,22 +1854,12 @@ class User extends DataEntry implements UserInterface
                     $validator->isPrintable();
                     //$validator->sanitizeForceArray(' ')->each()->isWord()->sanitizeForceString()
                 }))
-            ->add(DefinitionFactory::new('description')
+            ->add(DefinitionDefaults::getDescription()
                 ->setSize(6)
                 ->setHelpGroup(tr('Account information'))
                 ->setHelpText(tr('A public description about this user')))
-            ->add(Definition::new('comments')
-                ->setOptional(true)
-                ->setElement(InputElement::textarea)
-                ->setMaxlength(16_777_200)
-                ->setSize(6)
-                ->setCliField('-c,--comments')
-                ->setAutoComplete(true)
-                ->setLabel(tr('Comments'))
+            ->add(DefinitionDefaults::getComments()
                 ->setHelpGroup(tr('Account information'))
-                ->setHelpText(tr('Comments about this user by leaders or administrators that are not visible to the user'))
-                ->addValidationFunction(function ($validator) {
-                    $validator->isOptional()->isPrintable();
-                }));
+                ->setHelpText(tr('Comments about this user by leaders or administrators that are not visible to the user')));
     }
 }

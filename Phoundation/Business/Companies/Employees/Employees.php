@@ -6,6 +6,8 @@ namespace Phoundation\Business\Companies\Employees;
 
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
+
 
 /**
  * Class Employees
@@ -63,5 +65,16 @@ class Employees extends DataList
     protected function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
     {
         // TODO: Implement loadDetails() method.
+    }
+
+
+    /**
+     * Returns an HTML select component object containing the entries in this list
+     *
+     * @return SelectInterface
+     */
+    public function getHtmlSelect(): SelectInterface
+    {
+        // TODO: Implement getHtmlSelect() method.
     }
 }

@@ -7,7 +7,9 @@ namespace Phoundation\Developer\Incidents;
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 use Phoundation\Web\Http\Html\Components\Table;
+
 
 /**
  * Incidents class
@@ -89,5 +91,16 @@ class Incidents extends DataList
     public function save(): static
     {
         // TODO: Implement save() method.
+    }
+
+
+    /**
+     * Returns an HTML select component object containing the entries in this list
+     *
+     * @return SelectInterface
+     */
+    public function getHtmlSelect(): SelectInterface
+    {
+        // TODO: Implement getHtmlSelect() method.
     }
 }

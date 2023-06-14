@@ -6,8 +6,10 @@ namespace Phoundation\Business\Companies;
 
 use Phoundation\Business\Customers\Customer;
 use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 use Phoundation\Web\Http\Html\Components\Input\Select;
 use Phoundation\Web\Http\Html\Components\Table;
+
 
 /**
  * Class Companies
@@ -55,19 +57,20 @@ class Companies extends DataList
     }
 
 
+
+
     /**
-     * Returns an HTML <select> object with all available companies
+     * Returns an HTML select component object containing the entries in this list
      *
-     * @param string $name
-     * @return Select
+     * @return SelectInterface
      */
-    public static function getHtmlSelect(string $name = 'companies_id'): Select
+    public function getHtmlSelect(): SelectInterface
     {
         return Select::new()
             ->setSourceQuery('SELECT `id`, `name` 
                                           FROM  `business_companies` 
                                           WHERE `status` IS NULL ORDER BY `name`')
-            ->setName($name)
+            ->setName('companies_id')
             ->setNone(tr('Please select a company'))
             ->setEmpty(tr('No companies available'));
     }
@@ -76,7 +79,7 @@ class Companies extends DataList
     /**
      *
      *
-     * @param string|null $id_column
+     * @param string|int|null $id_column
      * @return $this
      */
     protected function load(string|int|null $id_column = null): static

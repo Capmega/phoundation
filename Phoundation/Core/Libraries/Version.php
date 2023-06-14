@@ -7,6 +7,7 @@ namespace Phoundation\Core\Libraries;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 
+
 /**
  * Version class
  *

@@ -6,7 +6,7 @@ namespace Phoundation\Developer\Incidents;
 
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
-use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
+use Phoundation\Data\DataEntry\Definitions\DefinitionDefaults;
 use Phoundation\Data\DataEntry\Definitions\Definitions;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryDescription;
@@ -45,7 +45,7 @@ class Incident extends DataEntry
      */
     public function __construct(DataEntry|string|int|null $identifier = null)
     {
-        $this->entry_name  = 'incident';
+        static::$entry_name  = 'incident';
 
         parent::__construct($identifier);
     }
@@ -67,9 +67,9 @@ class Incident extends DataEntry
      *
      * @return Definitions
      */
-    protected function initFieldDefinitions(DefinitionsInterface $field_definitions): void
+    protected function initDefinitions(DefinitionsInterface $definitions): void
     {
-        $field_definitions
+        $definitions
             ->add(Definition::new('type')
                 ->setReadonly(true)
                 ->setLabel('Type')
@@ -78,7 +78,7 @@ class Incident extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->isName(16);
                 }))
-            ->add(DefinitionFactory::new('title')
+            ->add(DefinitionDefaults::getTitle()
                 ->setSize(6))
             ->add(Definition::new('url')
                 ->setReadonly(true)
@@ -88,7 +88,7 @@ class Incident extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->isUrl();
                 }))
-            ->add(DefinitionFactory::new('description'))
+            ->add(DefinitionDefaults::getDescription())
             ->add(Definition::new('exception')
                 ->setReadonly(true)
                 ->setLabel('Exception')

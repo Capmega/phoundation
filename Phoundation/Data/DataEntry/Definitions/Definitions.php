@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Definitions;
 
 use Phoundation\Data\Classes\Iterator;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\Traits\DataPrefix;
 use Phoundation\Data\Traits\UsesNewTable;
 use Stringable;
 
@@ -19,9 +22,10 @@ use Stringable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-class Definitions extends Iterator implements \Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface
+class Definitions extends Iterator implements DefinitionsInterface
 {
     use UsesNewTable;
+    use DataPrefix;
 
 
     /**
@@ -30,8 +34,12 @@ class Definitions extends Iterator implements \Phoundation\Data\DataEntry\Defini
      * @param Definition $field
      * @return static
      */
-    public function add(\Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface $field): static
+    public function add(DefinitionInterface $field): static
     {
+        if ($this->prefix) {
+            $field->setField($this->prefix . $field->getField());
+        }
+
         $this->list[$field->getField()] = $field;
         return $this;
     }
@@ -40,9 +48,9 @@ class Definitions extends Iterator implements \Phoundation\Data\DataEntry\Defini
     /**
      * Returns the current Definition object
      *
-     * @return \Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface
+     * @return DefinitionInterface
      */
-    public function current(): \Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface
+    public function current(): DefinitionInterface
     {
         return current($this->list);
     }
@@ -53,9 +61,9 @@ class Definitions extends Iterator implements \Phoundation\Data\DataEntry\Defini
      *
      * @param Stringable|string|float|int $key
      * @param bool $exception
-     * @return \Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface
+     * @return DefinitionInterface
      */
-    public function get(Stringable|string|float|int $key, bool $exception = false): \Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface
+    public function get(Stringable|string|float|int $key, bool $exception = false): DefinitionInterface
     {
         return $this->list[$key];
     }
@@ -64,9 +72,9 @@ class Definitions extends Iterator implements \Phoundation\Data\DataEntry\Defini
     /**
      * Returns the first Definition entry
      *
-     * @return \Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface
+     * @return DefinitionInterface
      */
-    public function getFirst(): \Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface
+    public function getFirst(): DefinitionInterface
     {
         return array_first($this->list);
     }
@@ -75,9 +83,9 @@ class Definitions extends Iterator implements \Phoundation\Data\DataEntry\Defini
     /**
      * Returns the last Definition entry
      *
-     * @return \Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface
+     * @return DefinitionInterface
      */
-    public function getLast(): \Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface
+    public function getLast(): DefinitionInterface
     {
         return array_last($this->list);
     }

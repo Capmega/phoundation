@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Definitions\Interfaces;
 
-use Phoundation\Data\Validator\Interfaces\InterfaceDataValidator;
+use Phoundation\Data\Validator\Interfaces\DataValidatorInterface;
 use Phoundation\Web\Http\Html\Components\Interfaces\InputElementInterface;
 use Phoundation\Web\Http\Html\Enums\InputType;
 
@@ -573,8 +573,9 @@ Interface DefinitionInterface
     /**
      * Validate this field according to the field definitions
      *
-     * @param InterfaceDataValidator $validator
+     * @param DataValidatorInterface $validator
+     * @param ?string $prefix
      * @return void
      */
-    public function validate(InterfaceDataValidator $validator): void;
+    public function validate(DataValidatorInterface $validator, ?string $prefix): void;
 }

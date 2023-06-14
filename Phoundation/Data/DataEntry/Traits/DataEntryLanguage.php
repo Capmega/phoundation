@@ -7,6 +7,7 @@ namespace Phoundation\Data\DataEntry\Traits;
 use Phoundation\Core\Locale\Language\Language;
 use Phoundation\Exception\OutOfBoundsException;
 
+
 /**
  * Trait DataEntryLanguage
  *

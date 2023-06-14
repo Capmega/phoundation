@@ -7,6 +7,7 @@ namespace Phoundation\Data\Interfaces;
 use ReturnTypeWillChange;
 use Stringable;
 
+
 /**
  * Interface Iterator
  *

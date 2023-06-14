@@ -14,6 +14,7 @@ use Phoundation\Web\Http\Html\Modals\SignInModal;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
+
 /**
  * AdminLte template class
  *
@@ -86,7 +87,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
         ], null, true);
 
         // Set basic page details
-        Page::setPageTitle(tr('Phoundation platform'));
+        Page::setPageTitle(Config::get('project.name', tr('Phoundation platform')) . ' (' . Page::getHeaderTitle() . ')');
         Page::setFavIcon('favicon/' . Page::getProjectName() . '/project.png');
 
         return Page::buildHeaders();

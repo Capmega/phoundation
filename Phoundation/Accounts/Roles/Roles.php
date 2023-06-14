@@ -11,7 +11,9 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Databases\Sql\QueryBuilder;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 use Phoundation\Web\Http\Html\Components\Input\Select;
+
 
 /**
  * Class Roles
@@ -423,11 +425,11 @@ class Roles extends DataList
 
 
     /**
-     * Returns a select with the available roles
+     * Returns an HTML select component object containing the entries in this list
      *
-     * @return Select
+     * @return SelectInterface
      */
-    public function getHtmlSelect(): Select
+    public function getHtmlSelect(): SelectInterface
     {
         return Select::new()
             ->setNone(tr('Select a role'))

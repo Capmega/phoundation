@@ -8,6 +8,7 @@ use Phoundation\Accounts\Rights\Right;
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Core\Locale\Language\Import;
 
+
 /**
  * Updates class
  *

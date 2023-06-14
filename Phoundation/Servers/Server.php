@@ -10,7 +10,7 @@ use Phoundation\Business\Providers\Providers;
 use Phoundation\Data\Categories\Categories;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
-use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
+use Phoundation\Data\DataEntry\Definitions\DefinitionDefaults;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryCustomer;
 use Phoundation\Data\DataEntry\Traits\DataEntryDescription;
@@ -23,6 +23,7 @@ use Phoundation\Processes\Process;
 use Phoundation\Servers\Traits\DataEntrySshAccount;
 use Phoundation\Web\Http\Html\Enums\InputType;
 use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
+
 
 /**
  * Server class
@@ -50,7 +51,7 @@ class Server extends DataEntry
      */
     public function __construct(DataEntry|string|int|null $identifier = null)
     {
-        $this->entry_name   = 'server';
+        static::$entry_name   = 'server';
         $this->unique_field = 'seo_hostname';
 
         parent::__construct($identifier);
@@ -309,11 +310,11 @@ class Server extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @param DefinitionsInterface $field_definitions
+     * @param DefinitionsInterface $definitions
      */
-    protected function initFieldDefinitions(DefinitionsInterface $field_definitions): void
+    protected function initDefinitions(DefinitionsInterface $definitions): void
     {
-        $field_definitions
+        $definitions
             ->add(Definition::new('seo_hostname')
                 ->setVirtual(true)
                 ->setReadonly(true))
@@ -448,8 +449,6 @@ class Server extends DataEntry
             ->add(Definition::new('code')
                 ->setOptional(true)
                 ->setInputType(InputType::text)
-                ->setMin(1)
-                ->setMax(65535)
                 ->setSize(2)
                 ->setMaxlength(16)
                 ->setLabel(tr('Code'))
@@ -632,7 +631,7 @@ class Server extends DataEntry
                 ->setLabel(tr('Allow SSHD modification'))
                 ->setCliField('-s,--allow-sshd-modification')
                 ->setHelpText(tr('Sets if this server allows automated modification of SSH configuration')))
-            ->add(DefinitionFactory::new('description')
+            ->add(DefinitionDefaults::getDescription()
                 ->setHelpText(tr('A description for this server')));
     }
 }

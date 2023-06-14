@@ -7,6 +7,7 @@ namespace Phoundation\Data\Validator;
 
 use Phoundation\Exception\OutOfBoundsException;
 
+
 /**
  * FileValidator class
  *
@@ -28,9 +29,9 @@ class FileValidator
      * FileValidator constructor
      *
      * @param string $source
-     * @param Validator|null $parent
+     * @param ValidatorInterface|null $parent
      */
-    public function __construct(string $source, ?Validator $parent = null)
+    public function __construct(string $source, ?ValidatorInterface $parent = null)
     {
         if (!$source) {
             throw new OutOfBoundsException(tr('No source file specified'));

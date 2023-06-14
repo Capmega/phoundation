@@ -6,6 +6,7 @@ namespace Phoundation\Web\Http\Html\Enums\Interfaces;
 
 use Phoundation\Web\Http\Html\Components\Interfaces\InputTypeInterface;
 
+
 /**
  * Interface ButtonTypeInterface
  *
