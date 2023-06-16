@@ -17,7 +17,7 @@ use Phoundation\Core\Exception\NoProjectException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
-use Phoundation\Data\Validator\ValidatorInterface;
+use Phoundation\Data\Validator\Validator;
 use Phoundation\Date\Date;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\AccessDeniedException;
@@ -630,11 +630,11 @@ class Core {
         }
 
         if ($argv['no_validation']) {
-            ValidatorInterface::disable();
+            Validator::disable();
         }
 
         if ($argv['no_password_validation']) {
-            ValidatorInterface::disablePasswords();
+            Validator::disablePasswords();
         }
 
         // Remove the command itself from the argv array

@@ -15,7 +15,7 @@ namespace Phoundation\Data\Validator\Interfaces;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
-interface ValidatorBasics
+interface ValidatorBasicsInterface
 {
     /**
      * Returns the maximum string size that this Validator will touch

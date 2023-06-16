@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Rights;
 
-use Phoundation\Accounts\Interfaces\RightInterface;
+use Phoundation\Accounts\Rights\Interfaces\RightInterface;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\DefinitionDefaults;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 
 
@@ -30,9 +31,9 @@ class Right extends DataEntry implements RightInterface
     /**
      * Right class constructor
      *
-     * @param DataEntry|string|int|null $identifier
+     * @param DataEntryInterface|string|int|null $identifier
      */
-    public function __construct(DataEntry|string|int|null $identifier = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null)
     {
         static::$entry_name   = 'right';
 

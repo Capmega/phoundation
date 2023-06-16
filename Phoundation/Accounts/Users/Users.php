@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Users;
 
-use Phoundation\Accounts\Rights\Right;
-use Phoundation\Accounts\Roles\Role;
+use Phoundation\Accounts\Rights\Interfaces\RightInterface;
+use Phoundation\Accounts\Roles\Interfaces\RoleInterface;
+use Phoundation\Accounts\Users\Interfaces\UserInterface;
+use Phoundation\Accounts\Users\Interfaces\UsersInterface;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
@@ -26,15 +28,15 @@ use Phoundation\Web\Http\Html\Components\Input\Select;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
-class Users extends DataList
+class Users extends DataList implements UsersInterface
 {
     /**
      * Users class constructor
      *
-     * @param Role|User|null $parent
+     * @param RoleInterface|UserInterface|null $parent
      * @param string|null $id_column
      */
-    public function __construct(Role|User|null $parent = null, ?string $id_column = null)
+    public function __construct(RoleInterface|UserInterface|null $parent = null, ?string $id_column = null)
     {
         $this->entry_class = User::class;
         self::$table       = User::getTable();
@@ -101,10 +103,10 @@ class Users extends DataList
     /**
      * Add the specified data entry to the data list
      *
-     * @param User|array|string|int|null $user
+     * @param UserInterface|array|string|int|null $user
      * @return static
      */
-    public function add(User|array|string|int|null $user): static
+    public function add(UserInterface|array|string|int|null $user): static
     {
         $this->ensureParent('add entry to parent');
 
@@ -122,7 +124,7 @@ class Users extends DataList
                 // Already exists?
                 if (!array_key_exists($user->getId(), $this->list)) {
                     // Add entry to parent, Role or Right
-                    if ($this->parent instanceof Role) {
+                    if ($this->parent instanceof RoleInterface) {
                         Log::action(tr('Adding role ":role" to user ":user"', [
                             ':role' => $this->parent->getLogId(),
                             ':user' => $user->getLogId()
@@ -135,7 +137,7 @@ class Users extends DataList
 
                         // Add right to internal list
                         $this->addEntry($user);
-                    } elseif ($this->parent instanceof Right) {
+                    } elseif ($this->parent instanceof RightInterface) {
                         Log::action(tr('Adding right ":right" to user ":user"', [
                             ':right' => $this->parent->getLogId(),
                             ':user'  => $user->getLogId()
@@ -162,10 +164,10 @@ class Users extends DataList
     /**
      * Remove the specified data entry from the data list
      *
-     * @param User|array|int|null $user
+     * @param UserInterface|array|int|null $user
      * @return static
      */
-    public function remove(User|array|int|null $user): static
+    public function remove(UserInterface|array|int|null $user): static
     {
         $this->ensureParent('remove entry from parent');
 
@@ -180,7 +182,7 @@ class Users extends DataList
                 // Add single user. Since this is a User object, the entry already exists in the database
                 $user = User::get($user);
 
-                if ($this->parent instanceof Role) {
+                if ($this->parent instanceof RoleInterface) {
                     Log::action(tr('Removing role ":role" from user ":user"', [
                         ':role' => $this->parent->getLogId(),
                         ':user' => $user->getLogId()
@@ -193,7 +195,7 @@ class Users extends DataList
 
                     // Add right to internal list
                     $this->removeEntry($user);
-                } elseif ($this->parent instanceof Right) {
+                } elseif ($this->parent instanceof RightInterface) {
                     Log::action(tr('Removing right ":right" from user ":user"', [
                         ':right' => $this->parent->getLogId(),
                         ':user'  => $user->getLogId()
@@ -223,7 +225,7 @@ class Users extends DataList
     {
         $this->ensureParent('clear all entries from parent');
 
-        if ($this->parent instanceof Role) {
+        if ($this->parent instanceof RoleInterface) {
             Log::action(tr('Removing role ":role" from all users', [
                 ':right' => $this->parent->getLogId(),
             ]));
@@ -232,7 +234,7 @@ class Users extends DataList
                 'roles_id' => $this->parent->getId()
             ]);
 
-        } elseif ($this->parent instanceof Right) {
+        } elseif ($this->parent instanceof RightInterface) {
             Log::action(tr('Removing right ":right" from all users', [
                 ':right' => $this->parent->getLogId(),
             ]));
@@ -259,14 +261,14 @@ class Users extends DataList
         }
 
         if ($this->parent) {
-            if ($this->parent instanceof Role) {
+            if ($this->parent instanceof RoleInterface) {
                 $this->list = sql()->list('SELECT `accounts_users_roles`.`users_id` 
                                            FROM   `accounts_users_roles` 
                                            WHERE  `accounts_users_roles`.`roles_id` = :roles_id', [
                     ':roles_id' => $this->parent->getId()
                 ]);
 
-            } elseif ($this->parent instanceof Right) {
+            } elseif ($this->parent instanceof RightInterface) {
                 $this->list = sql()->list('SELECT `accounts_users_rights`.`users_id` 
                                            FROM   `accounts_users_rights` 
                                            WHERE  `accounts_users_rights`.`rights_id` = :rights_id', [
@@ -389,7 +391,7 @@ class Users extends DataList
     {
         $this->ensureParent('save parent entries');
 
-        if ($this->parent instanceof Role) {
+        if ($this->parent instanceof RoleInterface) {
             // Delete the current list
             sql()->query('DELETE FROM `accounts_users_roles` 
                                 WHERE       `accounts_users_roles`.`roles_id` = :roles_id', [
@@ -404,7 +406,7 @@ class Users extends DataList
                 ]);
             }
 
-        } elseif ($this->parent instanceof Right) {
+        } elseif ($this->parent instanceof RightInterface) {
             // Delete the current list
             sql()->query('DELETE FROM `accounts_users_rights` 
                                 WHERE       `accounts_users_rights`.`rights_id` = :rights_id', [

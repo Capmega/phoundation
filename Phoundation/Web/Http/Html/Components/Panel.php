@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http\Html\Components;
 
 use Phoundation\Content\Images\Image;
+use Phoundation\Content\Images\Interfaces\ImageInterface;
 
 
 /**
@@ -92,10 +93,10 @@ abstract class Panel extends ElementsBlock
     /**
      * Sets the panel profile image
      *
-     * @param Image|string $logo
+     * @param ImageInterface|string $logo
      * @return static
      */
-    public function setLogo(Image|string $logo): static
+    public function setLogo(ImageInterface|string $logo): static
     {
         if (is_string($logo)) {
             $logo = Image::new($logo);

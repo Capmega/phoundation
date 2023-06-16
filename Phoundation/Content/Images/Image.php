@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Content\Images;
 
 use Phoundation\Content\Content;
+use Phoundation\Content\Images\Interfaces\ImageInterface;
 use Phoundation\Core\Exception\ImagesException;
 use Phoundation\Core\Strings;
 use Phoundation\Filesystem\File;
@@ -21,7 +22,7 @@ use Phoundation\Web\Http\Html\Components\Img;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Content
  */
-class Image extends Content
+class Image extends Content implements ImageInterface
 {
     /**
      * The name of the image file
@@ -56,9 +57,9 @@ class Image extends Content
      * Sets the image description
      *
      * @param string|null $description
-     * @return static
+     * @return ImageInterface
      */
-    public function setDescription(?string $description): static
+    public function setDescription(?string $description): ImageInterface
     {
         $this->description = $description;
         return $this;

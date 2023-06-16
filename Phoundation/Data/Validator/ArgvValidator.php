@@ -13,6 +13,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Exception\KeyAlreadySelectedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
+use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 
 
@@ -26,7 +27,7 @@ use Phoundation\Exception\OutOfBoundsException;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
-class ArgvValidator extends ValidatorInterface
+class ArgvValidator extends Validator
 {
     /**
      * Internal $argv array until validation has been completed
@@ -545,7 +546,7 @@ class ArgvValidator extends ValidatorInterface
     public function extract(): ?array
     {
         Log::warning(tr('Liberated all $argv data without data validation!'));
-        return static::$argv;
+        return $this->source;
     }
 
 
@@ -557,6 +558,6 @@ class ArgvValidator extends ValidatorInterface
     public function extractKey(string $key): mixed
     {
         Log::warning(tr('Liberated $argv[:key] without data validation!', [':key' => $key]));
-        return isset_get(static::$argv[$key]);
+        return isset_get($this->source[$key]);
     }
 }

@@ -5,7 +5,12 @@ declare(strict_types=1);
 namespace Phoundation\Date;
 
 use DateTimeInterface;
+use DateTimeZone;
 use Exception;
+use Phoundation\Core\Config;
+use Phoundation\Core\Log\Log;
+use Phoundation\Core\Session;
+use Stringable;
 
 
 /**
@@ -18,22 +23,37 @@ use Exception;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Date
  */
-class DateTime extends \DateTime implements DateTimeInterface
+class DateTime extends \DateTime implements DateTimeInterface, Stringable
 {
     /**
      * Returns a new DateTime object
      *
-     * @param $datetime
-     * @param $timezone
-     * @return DateTime
+     * @param Date|DateTime|string $datetime
+     * @param DateTimeZone|string|null $timezone
+     * @return static
      * @throws Exception
      */
-    public static function new(
-        #[LanguageLevelTypeAware(['8.0' => 'string'], default: '')] $datetime = 'now',
-        #[LanguageLevelTypeAware(['8.0' => 'DateTimeZone|null'], default: 'DateTimeZone')] $timezone = null
-    ): DateTime
+    public static function new(Date|DateTime|string $datetime = 'now', DateTimeZone|string|null $timezone = null): static
     {
+        if (!is_object($timezone)) {
+            switch ($timezone) {
+
+            }
+        }
+
         return new DateTime($datetime, $timezone);
+    }
+
+
+    /**
+     * Returns a new DateTime object with the specified timezone
+     *
+     * @return $this
+     */
+    public function setTimezone(DateTimeZone|string|null $timezone = null): static
+    {
+        parent::setTimezone($timezone);
+        return $this;
     }
 
 
@@ -57,7 +77,6 @@ class DateTime extends \DateTime implements DateTimeInterface
     public function format(?string $format = null): string
     {
         switch (strtolower($format)) {
-            case 'mysql':
             case 'mysql':
                 $format = 'Y-m-d H:i:s';
                 break;

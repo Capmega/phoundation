@@ -19,6 +19,7 @@ use Phoundation\Web\Http\Html\Components\Interfaces\InputTypeExtendedInterface;
  */
 enum InputTypeExtended: string implements InputTypeExtendedInterface
 {
+    case url         = 'url';
     case dbid        = 'dbid';
     case float       = 'float';
     case integer     = 'integer';
@@ -27,6 +28,8 @@ enum InputTypeExtended: string implements InputTypeExtendedInterface
     case file        = 'file';
     case path        = 'path';
     case name        = 'name';
+    case phone       = 'phone';
+    case phones      = 'phones';
     case username    = 'username';
     case description = 'description';
 }

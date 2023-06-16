@@ -6,7 +6,7 @@ namespace Phoundation\Virtualization\Kubernetes;
 
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Strings;
-use Phoundation\Data\Classes\Iterator;
+use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\UsesNew;
 use Phoundation\Processes\Process;
 use Phoundation\Virtualization\Kubernetes\Traits\UsesKubeCtl;

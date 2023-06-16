@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Phoundation\Data\Traits;
 
 
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
+
 /**
  * Trait UsesNewField
  *
@@ -36,9 +38,9 @@ trait UsesNewField
      * Returns a new static object
      *
      * @param string|null $field
-     * @return static
+     * @return DefinitionInterface
      */
-    public static function new(?string $field = null): static
+    public static function new(?string $field = null): DefinitionInterface
     {
         return new static($field);
     }

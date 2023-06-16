@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace Phoundation\Accounts\Users;
 
 
+use Phoundation\Data\DataEntry\Definitions\Definition;
+use Phoundation\Data\DataEntry\Definitions\Definitions;
+use Phoundation\Web\Http\Html\Enums\InputElement;
+
 /**
  * Class FilterForm
  *
@@ -24,25 +28,15 @@ class FilterForm extends \Phoundation\Web\Http\Html\Components\FilterForm
     {
         parent::__construct();
 
-        $this->definitions = [
-            'type[]'   => [
-                'label'    => tr('Type'),
-                'element'  => 'select',
-                'source'   => [
-                    'email'  => tr('Email'),
-                    'phones' => tr('Phone number')
-                ],
-            ],
-            'filter[]' => [
-                'label'    => tr('Filter'),
-
-            ],
-        ];
-
-        $this->keys_display = [
-            'type[]'   => 6,
-            'filter[]' => 6,
-        ];
+        $this->definitions = Definitions::new()
+            ->add(Definition::new('type[]')
+                ->setLabel(tr('Type'))
+                ->setSize(6)
+                ->setElement(InputElement::select)
+                ->setSource([]))
+            ->add(Definition::new('filter[]')
+                ->setLabel(tr('Filter'))
+                ->setSize(6));
     }
 
 

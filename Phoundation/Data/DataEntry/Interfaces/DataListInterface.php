@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Interfaces;
 
-use Iterator;
-use Phoundation\Data\Interfaces\DataEntryInterface;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Web\Http\Html\Components\DataTable;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 use Phoundation\Web\Http\Html\Components\Table;
 use ReturnTypeWillChange;
 use Stringable;
@@ -22,22 +22,8 @@ use Stringable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
-interface DataListInterface extends Iterator
+interface DataListInterface extends IteratorInterface
 {
-    /**
-     * Return the object contents in JSON string format
-     *
-     * @return string
-     */
-    function __toString(): string;
-
-    /**
-     * Return the object contents in array format
-     *
-     * @return array
-     */
-    function __toArray(): array;
-
     /**
      * Returns new DataList object with an optional parent
      *
@@ -308,4 +294,11 @@ interface DataListInterface extends Iterator
      * @return static
      */
     function save(): static;
+
+    /**
+     * Returns an HTML <select> for the available object entries
+     *
+     * @return SelectInterface
+     */
+    function getHtmlSelect(): SelectInterface;
 }

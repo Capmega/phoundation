@@ -4,23 +4,25 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Users;
 
-use Phoundation\Accounts\Interfaces\UserInterface;
+use DateTimeInterface;
 use Phoundation\Accounts\Passwords;
+use Phoundation\Accounts\Rights\Interfaces\RightsInterface;
 use Phoundation\Accounts\Rights\Rights;
+use Phoundation\Accounts\Roles\Interfaces\RolesInterface;
 use Phoundation\Accounts\Roles\Roles;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\Exception\PasswordNotChangedException;
 use Phoundation\Accounts\Users\Exception\UsersException;
+use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Core\Arrays;
-use Phoundation\Core\Locale\Language\Languages;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionDefaults;
-use Phoundation\Data\DataEntry\Definitions\Definitions;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryAddress;
 use Phoundation\Data\DataEntry\Traits\DataEntryCode;
 use Phoundation\Data\DataEntry\Traits\DataEntryComments;
@@ -38,13 +40,6 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Date\DateTime;
 use Phoundation\Exception\NotSupportedException;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Geo\Cities\Cities;
-use Phoundation\Geo\Countries\Countries;
-use Phoundation\Geo\Countries\Country;
-use Phoundation\Geo\States\State;
-use Phoundation\Geo\States\States;
-use Phoundation\Geo\Timezones\Timezone;
-use Phoundation\Geo\Timezones\Timezones;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Security\Incidents\Severity;
 use Phoundation\Web\Http\Domains;
@@ -85,16 +80,16 @@ class User extends DataEntry implements UserInterface
     /**
      * The roles for this user
      *
-     * @var Roles $roles
+     * @var RolesInterface $roles
      */
-    protected Roles $roles;
+    protected RolesInterface $roles;
 
     /**
      * The rights for this user
      *
-     * @var Rights $rights
+     * @var RightsInterface $rights
      */
-    protected Rights $rights;
+    protected RightsInterface $rights;
 
     /**
      * Columns that will NOT be inserted
@@ -107,9 +102,9 @@ class User extends DataEntry implements UserInterface
     /**
      * User class constructor
      *
-     * @param DataEntry|string|int|null $identifier
+     * @param DataEntryInterface|string|int|null $identifier
      */
-    public function __construct(DataEntry|string|int|null $identifier = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null)
     {
         static::$entry_name = 'user';
         $this->unique_field = 'email';
@@ -447,9 +442,9 @@ class User extends DataEntry implements UserInterface
     /**
      * Returns the fingerprint datetime for this user
      *
-     * @return DateTime|null
+     * @return DateTimeInterface|null
      */
-    public function getFingerprint(): ?DateTime
+    public function getFingerprint(): ?DateTimeInterface
     {
         $fingerprint = $this->getDataValue('string', 'fingerprint');
         return new DateTime($fingerprint);
@@ -459,10 +454,10 @@ class User extends DataEntry implements UserInterface
     /**
      * Sets the fingerprint datetime for this user
      *
-     * @param DateTime|string|int|null $fingerprint
+     * @param DateTimeInterface|string|int|null $fingerprint
      * @return static
      */
-    public function setFingerprint(DateTime|string|int|null $fingerprint): static
+    public function setFingerprint(DateTimeInterface|string|int|null $fingerprint): static
     {
         if ($fingerprint) {
             if (!is_object($fingerprint)) {
@@ -851,9 +846,9 @@ class User extends DataEntry implements UserInterface
     /**
      * Returns the birthdate for this user
      *
-     * @return DateTime|null
+     * @return DateTimeInterface|null
      */
-    public function getBirthday(): ?DateTime
+    public function getBirthday(): ?DateTimeInterface
     {
         $birthdate = $this->getDataValue('string', 'birthdate');
 
@@ -868,10 +863,10 @@ class User extends DataEntry implements UserInterface
     /**
      * Sets the birthdate for this user
      *
-     * @param string|null $birthdate
+     * @param DateTimeInterface|string|null $birthdate
      * @return static
      */
-    public function setBirthday(?string $birthdate): static
+    public function setBirthday(DateTimeInterface|string|null $birthdate): static
     {
         return $this->setDataValue('birthdate', $birthdate);
     }
@@ -1007,9 +1002,9 @@ class User extends DataEntry implements UserInterface
     /**
      * Returns the roles for this user
      *
-     * @return Roles
+     * @return RolesInterface
      */
-    public function roles(): Roles
+    public function roles(): RolesInterface
     {
         if (!isset($this->roles)) {
             if (!$this->getId()) {
@@ -1026,9 +1021,9 @@ class User extends DataEntry implements UserInterface
     /**
      * Returns the roles for this user
      *
-     * @return Rights
+     * @return RightsInterface
      */
-    public function rights(): Rights
+    public function rights(): RightsInterface
     {
         if (!isset($this->rights)) {
             $this->rights = Rights::new($this, 'seo_name');
@@ -1313,125 +1308,12 @@ class User extends DataEntry implements UserInterface
     /**
      * Sets the available data keys for the User class
      *
-     * @return Definitions
+     * @param DefinitionsInterface $definitions
+     * @return void
      */
     protected function initDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->add(Definition::new('email')
-                ->setInputType(InputType::email)
-                ->setMaxlength(128)
-                ->setCliField('-e,--email')
-                ->setAutoComplete(true)
-                ->setLabel(tr('Email address'))
-                ->setHelpGroup(tr('Personal information'))
-                ->setHelpText(tr('The email address for this user. This is also the unique identifier for the user'))
-                ->addValidationFunction(function ($validator) {
-                    $validator->isEmail()->isTrue(function ($value, $source) {
-                        // This email may NOT yet exist, unless its THIS user.
-                        return static::notExists($value, isset_get($source['id']));
-                    }, tr('This email address already exists'));
-                }))
-            ->add(Definition::new('country')
-                ->setOptional(true)
-                ->setVirtual(true)
-                ->setCliField('--country COUNTRY NAME')
-                ->setAutoComplete([
-                    'word'   => function($word) { return Countries::new()->filteredList($word); },
-                    'noword' => function()      { return Countries::new()->list(); },
-                ])
-                ->addValidationFunction(function ($validator) {
-                    $validator->or('countries_id')->isName(200)->setColumnFromQuery('countries_id', 'SELECT `id` FROM `geo_countries` WHERE `name` = :name AND `status` IS NULL', [':name' => '$country']);
-                }))
-            ->add(Definition::new('state')
-                ->setOptional(true)
-                ->setVirtual(true)
-                ->setCliField('--state STATE-NAME')
-                ->setAutoComplete([
-                    'word'   => function($word) { return States::new()->filteredList($word); },
-                    'noword' => function()      { return States::new()->list(); },
-                ])
-                ->addValidationFunction(function ($validator) {
-                    $validator->or('states_id')->isName()->setColumnFromQuery('states_id', 'SELECT `name` FROM `geo_states` WHERE `name` = :name AND `countries_id` = :countries_id AND `status` IS NULL', [':name' => '$state', ':countries_id' => '$countries_id']);
-                }))
-            ->add(Definition::new('city')
-                ->setOptional(true)
-                ->setVirtual(true)
-                ->setCliField('--city CITY-NAME')
-                ->setAutoComplete([
-                    'word'   => function($word) { return Cities::new()->filteredList($word); },
-                    'noword' => function()      { return Cities::new()->list(); },
-                ])
-                ->addValidationFunction(function ($validator) {
-                    $validator->or('cities_id')->isName()->setColumnFromQuery('cities_id', 'SELECT `name` FROM `geo_cities` WHERE `name` = :name AND `states_name`  = :states_id    AND `status` IS NULL', [':name' => '$city', ':states_id' => '$states_id']);
-                }))
-            ->add(Definition::new('language')
-                ->setOptional(true)
-                ->setVirtual(true)
-                ->setMaxlength(32)
-                ->setCliField('-l,--language LANGUAGE-NAME')
-                ->setAutoComplete([
-                    'word'   => function($word) { return Languages::new()->filteredList($word); },
-                    'noword' => function()      { return Languages::new()->list(); },
-                ])
-                ->addValidationFunction(function ($validator) {
-                    $validator->or('languages_id')->isName()->setColumnFromQuery('languages_id', 'SELECT `code_639_1` FROM `core_languages` WHERE `code_639_1` = :code AND `status` IS NULL', [':code' => '$language']);
-                }))
-            ->add(Definition::new('timezone')
-                ->setOptional(true)
-                ->setVirtual(true)
-                ->setCliField('--timezone TIMEZONE-NAME')
-                ->setAutoComplete([
-                    'word'   => function($word) { return Timezones::new()->filteredList($word); },
-                    'noword' => function()      { return Timezones::new()->list(); },
-                ])
-                ->addValidationFunction(function ($validator) {
-                    $validator->isTimezone();
-                }))
-            ->add(Definition::new('timezones_id')
-                ->setOptional(true)
-                ->setInputType(InputType::number)
-                ->setContent(function (string $key, array $data, array $source) {
-                    return Timezones::getHtmlSelect($key)
-                        ->setSelected(isset_get($source['timezones_id']))
-                        ->render();
-                })
-                ->setCliField('--timezones-id')
-                ->setAutoComplete(true)
-                ->setSize(3)
-                ->setLabel(tr('Timezone'))
-                ->setHelpGroup(tr('Location information'))
-                ->setHelpText(tr('The timezone where this user resides'))
-                ->addValidationFunction(function ($validator) {
-                    $validator->isId()->isTrue(function ($value) {
-                        // This timezone must exist.
-                        return Timezone::exists($value);
-                    }, tr('The specified timezone does not exist'));
-                }))
-            ->add(Definition::new('picture')
-                // TODO Implement
-                ->setOptional(true)
-                ->setVisible(false))
-            ->add(Definition::new('verification_code')
-                ->setOptional(true)
-                ->setVisible(false)
-                ->setReadonly(true))
-            ->add(Definition::new('fingerprint')
-                // TODO Implement
-                ->setOptional(true)
-                ->setVisible(false))
-            ->add(Definition::new('password')
-                ->setVisible(false)
-                ->setReadonly(true)
-                ->setOptional(true)
-                ->setAutoComplete(true)
-                ->setInputType(InputType::password)
-                ->setMaxlength(64)
-                ->setNullDb(false)
-                ->setHelpText(tr('The password for this user'))
-                ->addValidationFunction(function ($validator) {
-                    $validator->isStrongPassword();
-                }))
             ->add(Definition::new('last_sign_in')
                 ->setOptional(true)
                 ->setReadonly(true)
@@ -1461,6 +1343,10 @@ class User extends DataEntry implements UserInterface
                 ->setSize(3)
                 ->setDefault(tr('Not locked'))
                 ->setLabel(tr('Locked until')))
+            ->add(DefinitionDefaults::getEmail()
+                ->setSize(3)
+                ->setHelpGroup(tr('Personal information'))
+                ->setHelpText(tr('The email address for this user. This is also the unique identifier for the user')))
             ->add(Definition::new('domain')
                 ->setOptional(true)
                 ->setMaxlength(128)
@@ -1484,54 +1370,24 @@ class User extends DataEntry implements UserInterface
                 ->addValidationFunction(function ($validator) {
                     $validator->isName();
                 }))
-            ->add(Definition::new('nickname')
-                ->setOptional(true)
-                ->setMaxLength(64)
-                ->setSize(3)
-                ->setCliField('--nickname')
-                ->setAutoComplete(true)
+            ->add(DefinitionDefaults::getName('nickname')
                 ->setLabel(tr('Nickname'))
+                ->setCliField('--nickname NAME')
                 ->setHelpGroup(tr('Personal information'))
-                ->setHelpText(tr('The nickname for this user'))
-                ->addValidationFunction(function ($validator) {
-                    $validator->isName();
-                }))
-            ->add(Definition::new('first_names')
-                ->setOptional(true)
-                ->setMaxLength(127)
-                ->setSize(3)
-                ->setCliField('-f,--first-names')
-                ->setAutoComplete(true)
+                ->setHelpText(tr('The nickname for this user')))
+            ->add(DefinitionDefaults::getName('first_names')
+                ->setCliField('-f,--first-names NAMES')
                 ->setLabel(tr('First names'))
                 ->setHelpGroup(tr('Personal information'))
-                ->setHelpText(tr('The firstnames for this user'))
-                ->addValidationFunction(function ($validator) {
-                    $validator->isName();
-                }))
-            ->add(Definition::new('last_names')
-                ->setOptional(true)
-                ->setMaxLength(127)
-                ->setSize(3)
+                ->setHelpText(tr('The firstnames for this user')))
+            ->add(DefinitionDefaults::getName('last_names')
                 ->setCliField('-n,--last-names')
-                ->setAutoComplete(true)
                 ->setLabel(tr('Last names'))
                 ->setHelpGroup(tr('Personal information'))
-                ->setHelpText(tr('The lastnames / surnames for this user'))
-                ->addValidationFunction(function ($validator) {
-                    $validator->isName();
-                }))
-            ->add(Definition::new('title')
-                ->setOptional(true)
-                ->setMaxLength(24)
-                ->setSize(3)
-                ->setCliField('-t,--title')
-                ->setAutoComplete(true)
-                ->setLabel(tr('Title'))
+                ->setHelpText(tr('The lastnames / surnames for this user')))
+            ->add(DefinitionDefaults::getTitle()
                 ->setHelpGroup(tr('Personal information'))
-                ->setHelpText(tr('The title added to this users name'))
-                ->addValidationFunction(function ($validator) {
-                    $validator->isName();
-                }))
+                ->setHelpText(tr('The title added to this users name')))
             ->add(Definition::new('gender')
                 ->setOptional(true)
                 ->setElement(InputElement::select)
@@ -1553,124 +1409,21 @@ class User extends DataEntry implements UserInterface
                 ->addValidationFunction(function ($validator) {
                     $validator->hasMaxCharacters(6);
                 }))
-            ->add(Definition::new('phones')
-                ->setOptional(true)
-                ->setMinlength(10)
-                ->setMaxLength(64)
-                ->setSize(6)
-                ->setCliField('-p,--phones')
-                ->setAutoComplete(true)
-                ->setLabel(tr('Phones'))
-                ->setHelpGroup(tr('Personal information'))
-                ->setHelpText(tr('Phone numbers where this user can be reached'))
-                ->addValidationFunction(function ($validator) {
-                    $validator->isPhoneNumbers();
-                    // $validator->sanitizeForceArray(',')->each()->isPhone()->sanitizeForceString()
-                }))
-            ->add(Definition::new('code')
-                ->setOptional(true)
-                ->setCliField('--code')
-                ->setAutoComplete(true)
-                ->setLabel(tr('Code'))
-                ->setHelpGroup(tr('Personal information'))
-                ->setHelpText(tr(''))
-                ->addValidationFunction(function ($validator) {
-                    $validator->isCode();
-                }))
-            ->add(Definition::new('type')
-                ->setOptional(true)
-                ->setMaxLength(16)
-                ->setSize(6)
-                ->setCliField('--type')
-                ->setAutoComplete(true)
-                ->setLabel(tr('Type'))
-                ->setHelpGroup(tr('Personal information'))
-                ->setHelpText(tr(''))
-                ->addValidationFunction(function ($validator) {
-                    $validator->isName();
-                }))
-            ->add(Definition::new('birthdate')
-                ->setOptional(true)
-                ->setInputType(InputType::date)
-                ->setSize(3)
+            ->add(DefinitionDefaults::getDate('birthdate')
+                ->setLabel(tr('Birthdate'))
                 ->setCliField('-b,--birthdate')
-                ->setAutoComplete(true)
-                ->setLabel(tr('Birthday'))
                 ->setHelpGroup(tr('Personal information'))
                 ->setHelpText(tr('The birthdate for this user'))
                 ->addValidationFunction(function ($validator) {
                     $validator->isDate()->isPast();
                 }))
-            ->add(Definition::new('priority')
-                ->setOptional(true)
-                ->setInputType(InputType::number)
-                ->setSize(3)
-                ->setCliField('--priority')
-                ->setAutoComplete(true)
-                ->setLabel(tr('Priority'))
-                ->setMin(1)
-                ->setMax(9)
-                ->setHelpText(tr('The priority for this user, between 1 and 9'))
-                ->addValidationFunction(function ($validator) {
-                    $validator->isInteger();
-                }))
-            ->add(Definition::new('countries_id')
-                ->setOptional(true)
-                ->setInputType(InputType::number)
-                ->setContent(function (string $key, array $data, array $source) {
-                    return Countries::getHtmlCountriesSelect($key)
-                        ->setSelected(isset_get($source['countries_id']))
-                        ->render();
-                })
-                ->setSize(3)
-                ->setCliField('--countries-id')
-                ->setAutoComplete(true)
-                ->setLabel(tr('Country'))
-                ->setHelpGroup(tr('Location information'))
-                ->setHelpText(tr('The country where this user resides'))
-                ->addValidationFunction(function ($validator) {
-                    $validator->or('country')->isId()->isQueryColumn('SELECT `id` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':id' => '$countries_id']);
-                }))
-            ->add(Definition::new('states_id')
-                ->setOptional(true)
-                ->setInputType(InputType::number)
-                ->setContent(function (string $key, array $data, array $source) {
-                    return Country::get($source['countries_id'])->getHtmlStatesSelect($key)
-                        ->setSelected(isset_get($source['states_id']))
-                        ->render();
-                })
-                ->setSize(3)
-                ->setCliField('--states-id')
-                ->setAutoComplete(true)
-                ->setLabel(tr('State'))
-                ->setHelpGroup(tr('Location information'))
-                ->setHelpText(tr('The state where this user resides'))
-                ->addValidationFunction(function ($validator) {
-                    $validator->or('state')->isId()->isQueryColumn('SELECT `id` FROM `geo_states` WHERE `id` = :id AND `countries_id` = :countries_id AND `status` IS NULL', [':id' => '$states_id', ':countries_id' => '$countries_id']);
-                }))
-            ->add(Definition::new('cities_id')
-                ->setOptional(true)
-                ->setInputType(InputType::number)
-                ->setContent(function (string $key, array $data, array $source) {
-                    return State::get($source['states_id'])->getHtmlCitiesSelect($key)
-                        ->setSelected(isset_get($source['cities_id']))
-                        ->render();
-                })
-                ->setSize(3)
-                ->setCliField('--cities-id')
-                ->setAutoComplete(true)
-                ->setLabel(tr('City'))
-                ->setMin(1)
-                ->setMax(10)
-                ->setHelpGroup(tr('Location information'))
-                ->setHelpText(tr('The city where this user resides'))
-                ->addValidationFunction(function ($validator) {
-                    $validator->or('city')->isId()->isQueryColumn('SELECT `id` FROM `geo_cities` WHERE `id` = :id AND `states_name`  = :states_id    AND `status` IS NULL', [':id' => '$cities_id', ':states_id' => '$states_id']);
-                }))
+            ->add(DefinitionDefaults::getPhones()
+                ->setHelpGroup(tr('Personal information'))
+                ->setHelpText(tr('Multiple phone numbers where this user may be contacted')))
             ->add(Definition::new('address')
                 ->setOptional(true)
                 ->setMaxlength(255)
-                ->setSize(3)
+                ->setSize(6)
                 ->setCliField('-a,--address')
                 ->setAutoComplete(true)
                 ->setLabel(tr('Address'))
@@ -1692,27 +1445,22 @@ class User extends DataEntry implements UserInterface
                 ->addValidationFunction(function ($validator) {
                     $validator->isPrintable();
                 }))
-            ->add(Definition::new('languages_id')
-                ->setOptional(true)
-                ->setInputType(InputType::number)
-                ->setContent(function (string $key, array $data, array $source) {
-                    return Languages::getHtmlSelect($key)
-                        ->setSelected(isset_get($source['languages_id']))
-                        ->render();
-                })
-                ->setSize(3)
-                ->setCliField('--languages-id')
-                ->setAutoComplete(true)
-                ->setLabel(tr('Language'))
+            ->add(DefinitionDefaults::getCountry()
                 ->setHelpGroup(tr('Location information'))
-                ->setHelpText(tr('The language in which the site will be displayed to the user'))
-                ->addValidationFunction(function ($validator) {
-                    $validator->or('language')->isId()->isQueryColumn('SELECT `id` FROM `core_languages` WHERE `id` = :id AND `status` IS NULL', [':id' => '$languages_id']);
-                }))
+                ->setHelpText(tr('The country where this user resides')))
+            ->add(DefinitionDefaults::getCountriesId())
+            ->add(DefinitionDefaults::getState()
+                ->setHelpGroup(tr('Location information'))
+                ->setHelpText(tr('The state where this user resides')))
+            ->add(DefinitionDefaults::getStatesId())
+            ->add(DefinitionDefaults::getCity()
+                ->setHelpGroup(tr('Location information'))
+                ->setHelpText(tr('The city where this user resides')))
+            ->add(DefinitionDefaults::getCitiesId())
             ->add(Definition::new('latitude')
                 ->setOptional(true)
                 ->setInputType(InputType::number)
-                ->setSize(2)
+                ->setSize(3)
                 ->setCliField('--latitude')
                 ->setAutoComplete(true)
                 ->setLabel(tr('Latitude'))
@@ -1724,7 +1472,7 @@ class User extends DataEntry implements UserInterface
             ->add(Definition::new('longitude')
                 ->setOptional(true)
                 ->setInputType(InputType::number)
-                ->setSize(2)
+                ->setSize(3)
                 ->setCliField('--longitude')
                 ->setAutoComplete(true)
                 ->setLabel(tr('Longitude'))
@@ -1733,10 +1481,28 @@ class User extends DataEntry implements UserInterface
                 ->addValidationFunction(function ($validator) {
                     $validator->isLongitude();
                 }))
+            ->add(Definition::new('offset_latitude')
+                ->setOptional(true)
+                ->setReadonly(true)
+                ->setInputType(InputType::number)
+                ->setSize(3)
+                ->setAutoComplete(true)
+                ->setLabel(tr('Offset latitude'))
+                ->setHelpGroup(tr('Location information'))
+                ->setHelpText(tr('The latitude location for this user with a random offset within the configured range')))
+            ->add(Definition::new('offset_longitude')
+                ->setOptional(true)
+                ->setReadonly(true)
+                ->setInputType(InputType::number)
+                ->setSize(3)
+                ->setAutoComplete(true)
+                ->setLabel(tr('Offset longitude'))
+                ->setHelpGroup(tr('Location information'))
+                ->setHelpText(tr('The longitude location for this user with a random offset within the configured range')))
             ->add(Definition::new('accuracy')
                 ->setOptional(true)
                 ->setInputType(InputType::number)
-                ->setSize(2)
+                ->setSize(3)
                 ->setMin(0)
                 ->setMax(10)
                 ->setCliField('--accuracy')
@@ -1747,28 +1513,43 @@ class User extends DataEntry implements UserInterface
                 ->addValidationFunction(function ($validator) {
                     $validator->isFloat();
                 }))
-            ->add(Definition::new('offset_latitude')
-                ->setOptional(true)
-                ->setReadonly(true)
-                ->setInputType(InputType::number)
-                ->setSize(2)
-                ->setAutoComplete(true)
-                ->setLabel(tr('Offset latitude'))
+            ->add(DefinitionDefaults::getTimezone()
                 ->setHelpGroup(tr('Location information'))
-                ->setHelpText(tr('The latitude location for this user with a random offset within the configured range')))
-            ->add(Definition::new('offset_longitude')
-                ->setOptional(true)
-                ->setReadonly(true)
-                ->setInputType(InputType::number)
-                ->setSize(2)
-                ->setAutoComplete(true)
-                ->setLabel(tr('Offset longitude'))
+                ->setHelpText(tr('The timezone where this user resides')))
+            ->add(DefinitionDefaults::getTimezonesId())
+            ->add(DefinitionDefaults::getLanguage()
                 ->setHelpGroup(tr('Location information'))
-                ->setHelpText(tr('The longitude location for this user with a random offset within the configured range')))
+                ->setHelpText(tr('The display language for this user')))
+            ->add(DefinitionDefaults::getLanguagesId())
+            ->add(Definition::new('type')
+                ->setOptional(true)
+                ->setMaxLength(16)
+                ->setSize(3)
+                ->setCliField('--type')
+                ->setAutoComplete(true)
+                ->setLabel(tr('Type'))
+                ->setHelpGroup(tr(''))
+                ->setHelpText(tr('The type classification for this user'))
+                ->addValidationFunction(function ($validator) {
+                    $validator->isName();
+                }))
+            ->add(DefinitionDefaults::getUser('leader')
+                ->setCliField('--leader USER-EMAIL')
+                ->addValidationFunction(function ($validator) {
+                    $validator->or('leaders_id')->isEmail()->setColumnFromQuery('leaders_id', 'SELECT `id` FROM `accounts_users` WHERE `email` = :email AND `status` IS NULL', [':email' => '$leader']);
+                }))
+            ->add(DefinitionDefaults::getUsersId('leaders_id')
+                ->setCliField('--leaders-id USERS-DATABASE-ID')
+                ->setLabel(tr('Leader'))
+                ->setHelpGroup(tr('Hierarchical information'))
+                ->setHelpText(tr('The user that is the leader for this user'))
+                ->addValidationFunction(function ($validator) {
+                    $validator->or('leader');
+                }))
             ->add(Definition::new('is_leader')
                 ->setOptional(true)
                 ->setInputType(InputType::checkbox)
-                ->setSize(2)
+                ->setSize(3)
                 ->setCliField('--is-leader')
                 ->setAutoComplete(true)
                 ->setLabel(tr('Is leader'))
@@ -1777,74 +1558,26 @@ class User extends DataEntry implements UserInterface
                 ->addValidationFunction(function ($validator) {
                     $validator->isBoolean();
                 }))
-            ->add(Definition::new('leader')
-                ->setOptional(true)
-                ->setVirtual(true)
-                ->setCliField('--leader LEADER-EMAIL')
-                ->setMaxlength(128)
-                ->setAutoComplete([
-                    'word'   => function($word) { return Users::new()->filterby('is_leader', true)->filteredList($word); },
-                    'noword' => function()      { return Users::new()->filterby('is_leader', true)->list(); },
-                ])
-                ->addValidationFunction(function ($validator) {
-                    $validator->or('leaders_id')->isEmail()->setColumnFromQuery('leaders_id', 'SELECT `id` FROM `accounts_users` WHERE `email` = :email AND `status` IS NULL', [':email' => '$leader']);
-                }))
-            ->add(Definition::new('leaders_id')
+            ->add(DefinitionDefaults::getCode()
+                ->setHelpGroup(tr('Personal information'))
+                ->setHelpText(tr('The code associated with this user')))
+            ->add(Definition::new('priority')
                 ->setOptional(true)
                 ->setInputType(InputType::number)
-                ->setContent(function (string $key, array $data, array $source) {
-                    return Users::getHtmlSelect($key)
-                        ->setSelected(isset_get($source['leaders_id']))
-                        ->render();
-                })
-                ->setSize(2)
-                ->setCliField('--leaders-id')
+                ->setSize(3)
+                ->setCliField('--priority')
                 ->setAutoComplete(true)
-                ->setLabel(tr('Leader'))
-                ->setHelpGroup(tr('Hierarchical information'))
-                ->setHelpText(tr('The user that is the leader for this user'))
+                ->setLabel(tr('Priority'))
+                ->setMin(1)
+                ->setMax(9)
+                ->setHelpText(tr('The priority for this user, between 1 and 9'))
                 ->addValidationFunction(function ($validator) {
-                    $validator->or('leader')->isId()->isQueryColumn('SELECT `id` FROM `accounts_users` WHERE `id` = :id AND `status` IS NULL', [':id' => '$leaders_id']);
-                }))
-            ->add(Definition::new('verified_on')
-                ->setReadonly(true)
-                ->setOptional(true)
-                ->setInputType(InputType::datetime_local)
-                ->setSize(2)
-                ->setNullInputType(InputType::text)
-                ->setDefault(tr('Not verified'))
-                ->setLabel(tr('Account verified on'))
-                ->setHelpGroup(tr('Account information'))
-                ->setHelpText(tr('The date when this user was email verified. Empty if not yet verified')))
-            ->add(Definition::new('redirect')
-                ->setOptional(true)
-                ->setInputType(InputType::url)
-                ->setMaxlength(255)
-                ->setSize(6)
-                ->setCliField('--redirect')
-                ->setLabel(tr('Account verified on'))
-                ->setHelpGroup(tr('Account information'))
-                ->setHelpText(tr('The URL where this user will be redirected to upon sign in'))
-                ->addValidationFunction(function ($validator) {
-                    $validator->isOptional()->isUrl();
-                }))
-            ->add(Definition::new('url')
-                ->setOptional(true)
-                ->setInputType(InputType::url)
-                ->setMaxlength(2048)
-                ->setSize(6)
-                ->setCliField('--url')
-                ->setAutoComplete(true)
-                ->setLabel(tr('Website'))
-                ->setHelpGroup(tr('Account information'))
-                ->setHelpText(tr('A URL specified by the user, usually containing more information about the user'))
-                ->addValidationFunction(function ($validator) {
-                    $validator->isOptional()->isUrl();
+                    $validator->isInteger();
                 }))
             ->add(Definition::new('keywords')
                 ->setOptional(true)
                 ->setMaxlength(255)
-                ->setSize(12)
+                ->setSize(3)
                 ->setCliField('-k,--keywords')
                 ->setAutoComplete(true)
                 ->setLabel(tr('Keywords'))
@@ -1854,12 +1587,54 @@ class User extends DataEntry implements UserInterface
                     $validator->isPrintable();
                     //$validator->sanitizeForceArray(' ')->each()->isWord()->sanitizeForceString()
                 }))
+            ->add(DefinitionDefaults::getDateTime('verified_on')
+                ->setReadonly(true)
+                ->setNullInputType(InputType::text)
+                ->setDefault(tr('Not verified'))
+                ->setLabel(tr('Account verified on'))
+                ->setHelpGroup(tr('Account information'))
+                ->setHelpText(tr('The date when this user was email verified. Empty if not yet verified')))
+            ->add(DefinitionDefaults::getUrl('redirect')
+                ->setSize(6)
+                ->setLabel(tr('Redirect URL'))
+                ->setHelpGroup(tr('Account information'))
+                ->setHelpText(tr('The URL where this user will be redirected to upon sign in')))
+            ->add(Definition::new('url')
+                ->setCliField('--url')
+                ->setLabel(tr('Website URL'))
+                ->setHelpGroup(tr('Account information'))
+                ->setHelpText(tr('A URL specified by the user, usually containing more information about the user')))
             ->add(DefinitionDefaults::getDescription()
                 ->setSize(6)
                 ->setHelpGroup(tr('Account information'))
                 ->setHelpText(tr('A public description about this user')))
             ->add(DefinitionDefaults::getComments()
+                ->setSize(6)
                 ->setHelpGroup(tr('Account information'))
-                ->setHelpText(tr('Comments about this user by leaders or administrators that are not visible to the user')));
+                ->setHelpText(tr('Comments about this user by leaders or administrators that are not visible to the user')))
+            ->add(Definition::new('verification_code')
+                ->setOptional(true)
+                ->setVisible(false)
+                ->setReadonly(true))
+            ->add(Definition::new('fingerprint')
+                // TODO Implement
+                ->setOptional(true)
+                ->setVisible(false))
+            ->add(Definition::new('password')
+                ->setVisible(false)
+                ->setReadonly(true)
+                ->setOptional(true)
+                ->setAutoComplete(true)
+                ->setInputType(InputType::password)
+                ->setMaxlength(64)
+                ->setNullDb(false)
+                ->setHelpText(tr('The password for this user'))
+                ->addValidationFunction(function ($validator) {
+                    $validator->isStrongPassword();
+                }))
+            ->add(Definition::new('picture')
+                // TODO Implement
+                ->setOptional(true)
+                ->setVisible(false));
     }
 }

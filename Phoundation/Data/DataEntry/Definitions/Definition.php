@@ -6,7 +6,7 @@ namespace Phoundation\Data\DataEntry\Definitions;
 
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\Traits\UsesNewField;
-use Phoundation\Data\Validator\Interfaces\DataValidatorInterface;
+use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Web\Http\Html\Components\Interfaces\InputElementInterface;
@@ -187,7 +187,7 @@ class Definition implements DefinitionInterface
      * @note Defaults to true
      * @param bool|null $value
      * @return static
-     *@see Definition::setVirtual()
+     * @see Definition::setVirtual()
      */
     public function setVisible(?bool $value): static
     {
@@ -223,7 +223,7 @@ class Definition implements DefinitionInterface
      * @note Defaults to false
      * @param bool $value
      * @return static
-     *@see Definition::setVisible()
+     * @see Definition::setVisible()
      */
     public function setMeta(bool $value): static
     {
@@ -262,7 +262,7 @@ class Definition implements DefinitionInterface
      * @note Defaults to false
      * @param bool|null $value
      * @return static
-     *@see Definition::setVisible()
+     * @see Definition::setVisible()
      */
     public function setVirtual(?bool $value): static
     {
@@ -395,6 +395,40 @@ class Definition implements DefinitionInterface
 
                         $this->addValidationFunction(function ($validator) {
                             $validator->isName();
+                        });
+
+                        break;
+
+                    case InputType::email:
+                        $this->setMaxlength(128)->addValidationFunction(function ($validator) {
+                            $validator->isEmail();
+                        });
+
+                        break;
+
+                    case InputTypeExtended::url:
+                        $value = InputType::text;
+
+                        $this->addValidationFunction(function ($validator) {
+                            $validator->isUrl();
+                        });
+
+                        break;
+
+                    case InputTypeExtended::phone:
+                        $value = InputType::tel;
+
+                        $this->addValidationFunction(function ($validator) {
+                            $validator->isPhone();
+                        });
+
+                        break;
+
+                    case InputTypeExtended::phones:
+                        $value = InputType::text;
+
+                        $this->addValidationFunction(function ($validator) {
+                            $validator->isPhones();
                         });
 
                         break;
@@ -609,10 +643,6 @@ class Definition implements DefinitionInterface
             if (is_string($value)) {
 throw new UnderConstructionException();
             }
-
-            $this->addValidationFunction(function ($validator) use ($value) {
-                $validator->isInArray(array_keys($value));
-            });
         }
 
         return $this->setKey('source', $value);
@@ -707,12 +737,18 @@ throw new UnderConstructionException();
     /**
      * Returns the alternative CLI field names for this field
      *
-     * @return string
+     * @return string|null
      */
-    public function getCliField(): string
+    public function getCliField(): ?string
     {
-        if (empty($this->definitions['cli_field'])) {
+        if (PLATFORM_HTTP) {
+            // We're not on CLI, we're on HTTP. Return the HTTP field instead
             return $this->field;
+        }
+
+        if (empty($this->definitions['cli_field'])) {
+            // This field cannot be modified on the command line, no definition available
+            return null;
         }
 
         return isset_get_typed('string', $this->definitions['cli_field']);
@@ -735,11 +771,11 @@ throw new UnderConstructionException();
      * Returns if this field is optional or not
      *
      * @note Defaults to false
-     * @return bool|null
+     * @return bool
      */
-    public function getOptional(): ?bool
+    public function getOptional(): bool
     {
-        return isset_get_typed('bool', $this->definitions['optional']);
+        return isset_get_typed('bool', $this->definitions['optional'], false);
     }
 
 
@@ -1206,11 +1242,11 @@ throw new UnderConstructionException();
     /**
      * Validate this field according to the field definitions
      *
-     * @param DataValidatorInterface $validator
+     * @param ValidatorInterface $validator
      * @param string|null $prefix
      * @return void
      */
-    public function validate(DataValidatorInterface $validator, ?string $prefix): void
+    public function validate(ValidatorInterface $validator, ?string $prefix): void
     {
         if ($this->getReadonly() or $this->getDisabled() or $this->getMeta()) {
             // This field cannot be modified, plain ignore it.
@@ -1228,6 +1264,11 @@ throw new UnderConstructionException();
 
         // Select the field
         $validator->select($field, !$bool);
+
+        // Force the entry to be NULL for the database?
+        if ($this->getNullDb()) {
+//            $validator->forceNull();
+        }
 
         // Apply default validations
         if ($this->getOptional()) {
@@ -1314,14 +1355,14 @@ throw new UnderConstructionException();
             if ($source) {
                 if (is_array($source)) {
                     // The value must be in the specified source
-                    $validator->isInArray($source);
+                    $validator->isInArray(array_keys($source));
                 }
             }
         }
 
         // All other validations
         foreach ($this->validations as $validation) {
-            $validation($validator, );
+            $validation($validator);
         }
     }
 

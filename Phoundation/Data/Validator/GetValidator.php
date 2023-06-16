@@ -8,6 +8,7 @@ namespace Phoundation\Data\Validator;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 
 
 /**
@@ -22,7 +23,7 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
-class GetValidator extends ValidatorInterface
+class GetValidator extends Validator
 {
     /**
      * Internal $_GET array until validation has been completed
@@ -30,7 +31,6 @@ class GetValidator extends ValidatorInterface
      * @var array|null $get
      */
     protected static ?array $get = null;
-
 
 
     /**
@@ -141,7 +141,7 @@ class GetValidator extends ValidatorInterface
     public function extract(): ?array
     {
         Log::warning(tr('Liberated all $_GET data without data validation!'));
-        return static::$get;
+        return $this->source;
     }
 
 
@@ -153,7 +153,7 @@ class GetValidator extends ValidatorInterface
     public function extractKey(string $key): mixed
     {
         Log::warning(tr('Liberated $_GET[:key] without data validation!', [':key' => $key]));
-        return isset_get(static::$get[$key]);
+        return isset_get($this->source[$key]);
     }
 
 

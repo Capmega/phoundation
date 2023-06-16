@@ -6,7 +6,7 @@ namespace Phoundation\Web\Routing;
 
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 
 
 /**

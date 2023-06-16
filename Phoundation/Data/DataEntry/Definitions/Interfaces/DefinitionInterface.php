@@ -1,16 +1,16 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Phoundation\Data\DataEntry\Definitions\Interfaces;
 
-use Phoundation\Data\Validator\Interfaces\DataValidatorInterface;
+
+use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Web\Http\Html\Components\Interfaces\InputElementInterface;
+use Phoundation\Web\Http\Html\Components\Interfaces\InputTypeExtendedInterface;
+use Phoundation\Web\Http\Html\Components\Interfaces\InputTypeInterface;
 use Phoundation\Web\Http\Html\Enums\InputType;
 
-
 /**
- * Interface Definition
+ * Class Definition
  *
  * Contains the definitions for a single DataEntry object field
  *
@@ -19,45 +19,14 @@ use Phoundation\Web\Http\Html\Enums\InputType;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-Interface DefinitionInterface
+interface DefinitionInterface
 {
-    /**
-     * Definition class constructor
-     *
-     * @param string|null $field
-     */
-    public function __construct(?string $field = null);
-
-    /**
-     * Returns a new static object
-     *
-     * @param string|null $field
-     * @return static
-     */
-    public static function new(?string $field = null): static;
-
-    /**
-     * Returns the field
-     *
-     * @return string|null
-     */
-    public function getField(): ?string;
-
-    /**
-     * Sets the field
-     *
-     * @param string|null $field
-     * @return static
-     */
-    public function setField(?string $field): static;
-
     /**
      * Returns the internal definitions for this field
      *
      * @return array
      */
-    function getDefinitions(): array;
-
+    public function getDefinitions(): array;
 
     /**
      * Sets all the internal definitions for this field in one go
@@ -80,9 +49,9 @@ Interface DefinitionInterface
      *
      * @param string $key
      * @param string|float|int|bool|null $value
-     * @return $this
+     * @return static
      */
-    function setKey(string $key, callable|string|float|int|bool|null $value): static;
+    public function setKey(string $key, callable|array|string|float|int|bool|null $value): static;
 
     /**
      * Returns if this field is visible in HTML clients
@@ -91,7 +60,7 @@ Interface DefinitionInterface
      *
      * @note Defaults to true
      * @return bool|null
-     * @see \Phoundation\Data\DataEntry\Definitions\Definition::getVirtual()
+     * @see Definition::getVirtual()
      */
     public function getVisible(): ?bool;
 
@@ -102,35 +71,33 @@ Interface DefinitionInterface
      *
      * @note Defaults to true
      * @param bool|null $value
-     * @return $this
-     *@see \Phoundation\Data\DataEntry\Definitions\Definition::setVirtual()
+     * @return static
+     * @see Definition::setVirtual()
      */
-    function setVisible(?bool $value): static;
+    public function setVisible(?bool $value): static;
 
     /**
-     * Returns if this field is virtual
+     * Return if this field is a meta field
      *
-     * If this field is virtual, it will be visible and can be manipulated but will have no direct database entry.
-     * Instead, it will modify a different field. This is (for example) used in an entry that uses countries_id which
-     * will be invisible whilst the virtual field "country" will modify countries_id
+     * If this field is a meta field, it will be readonly for user actions
      *
      * @note Defaults to false
      * @return bool
+     * @see Definition::getVisible()
      */
     public function getMeta(): bool;
 
     /**
-     * Sets if this field is virtual
+     * Sets if this field is a meta field
      *
-     * If this field is virtual, it will be visible and can be manipulated but will have no direct database entry.
-     * Instead, it will modify a different field. This is (for example) used in an entry that uses countries_id which
-     * will be invisible whilst the virtual field "country" will modify countries_id
+     * If this field is a meta field, it will be readonly for user actions
      *
      * @note Defaults to false
      * @param bool $value
-     * @return $this
+     * @return static
+     * @see Definition::setVisible()
      */
-    function setMeta(bool $value): static;
+    public function setMeta(bool $value): static;
 
     /**
      * Returns if this field is virtual
@@ -141,7 +108,7 @@ Interface DefinitionInterface
      *
      * @note Defaults to false
      * @return bool|null
-     * @see \Phoundation\Data\DataEntry\Definitions\Definition::getVisible()
+     * @see Definition::getVisible()
      */
     public function getVirtual(): ?bool;
 
@@ -152,12 +119,12 @@ Interface DefinitionInterface
      * Instead, it will modify a different field. This is (for example) used in an entry that uses countries_id which
      * will be invisible whilst the virtual field "country" will modify countries_id
      *
-     * @param bool|null $value
-     * @return $this
-     *@see \Phoundation\Data\DataEntry\Definitions\Definition::setVisible()
      * @note Defaults to false
+     * @param bool|null $value
+     * @return static
+     * @see Definition::setVisible()
      */
-    function setVirtual(?bool $value): static;
+    public function setVirtual(?bool $value): static;
 
     /**
      * Returns the HTML client element to be used for this field
@@ -167,12 +134,12 @@ Interface DefinitionInterface
     public function getElement(): string|null;
 
     /**
-     * SEts the HTML client element to be used for this field
+     * Sets the HTML client element to be used for this field
      *
      * @param InputElementInterface|null $value
-     * @return $this
+     * @return static
      */
-    function setElement(InputElementInterface|null $value): static;
+    public function setElement(InputElementInterface|null $value): static;
 
     /**
      * Returns the HTML client element to be used for this field
@@ -199,11 +166,10 @@ Interface DefinitionInterface
     /**
      * Sets the type of input element.
      *
-     * @param InputType|null $value
-     * @return $this
+     * @param InputTypeInterface|InputTypeExtendedInterface|null $value
+     * @return static
      */
-    function setInputType(?InputType $value): static;
-
+    public function setInputType(InputTypeInterface|InputTypeExtendedInterface|null $value): static;
 
     /**
      * Returns if the value cannot be modified and this element will be shown as disabled on HTML clients
@@ -218,9 +184,9 @@ Interface DefinitionInterface
      *
      * @note Defaults to false
      * @param bool|null $value
-     * @return $this
+     * @return static
      */
-    function setReadonly(?bool $value): static;
+    public function setReadonly(?bool $value): static;
 
     /**
      * Returns if the value cannot be modified and this element will be shown as disabled on HTML clients
@@ -235,9 +201,9 @@ Interface DefinitionInterface
      *
      * @note Defaults to false
      * @param bool|null $value
-     * @return $this
+     * @return static
      */
-    function setDisabled(?bool $value): static;
+    public function setDisabled(?bool $value): static;
 
     /**
      * The label to be shown on HTML clients
@@ -250,9 +216,9 @@ Interface DefinitionInterface
      * The label to be shown on HTML clients
      *
      * @param string|null $value
-     * @return $this
+     * @return static
      */
-    function setLabel(?string $value): static;
+    public function setLabel(?string $value): static;
 
     /**
      * Returns the boilerplate col size for this field, must be integer number between 1 and 12
@@ -265,9 +231,9 @@ Interface DefinitionInterface
      * Sets the boilerplate col size for this field, must be integer number between 1 and 12
      *
      * @param int|null $value
-     * @return $this
+     * @return static
      */
-    function setSize(?int $value): static;
+    public function setSize(?int $value): static;
 
     /**
      * Returns a data source for the HTML client element contents of this field
@@ -284,9 +250,9 @@ Interface DefinitionInterface
      * The data source may be specified as a query string or a key => value array
      *
      * @param array|string|null $value
-     * @return $this
+     * @return static
      */
-    function setSource(array|string|null $value): static;
+    public function setSource(array|string|null $value): static;
 
     /**
      * Returns a query execute bound variables execute array for the specified query string source
@@ -300,10 +266,10 @@ Interface DefinitionInterface
      * Sets a query execute bound variables execute array for the specified query string source
      *
      * @note Requires "source" to be a query string
-     * @param array|null $value
-     * @return $this
+     * @param array|string|null $value
+     * @return static
      */
-    function setExecute(?array $value): static;
+    public function setExecute(array|string|null $value): static;
 
     /**
      * Returns the cli auto-completion queries for this field
@@ -316,9 +282,9 @@ Interface DefinitionInterface
      * Sets the cli auto-completion queries for this field
      *
      * @param array|bool|null $value
-     * @return $this
+     * @return static
      */
-    function setAutoComplete(array|bool|null $value): static;
+    public function setAutoComplete(array|bool|null $value): static;
 
     /**
      * Returns the alternative CLI field names for this field
@@ -331,27 +297,27 @@ Interface DefinitionInterface
      * Sets the alternative CLI field names for this field
      *
      * @param string|null $value
-     * @return $this
+     * @return static
      */
-    function setCliField(?string $value): static;
+    public function setCliField(?string $value): static;
 
     /**
      * Returns if this field is optional or not
      *
      * @note Defaults to false
-     * @return bool|null
+     * @return bool
      */
-    public function getOptional(): ?bool;
+    public function getOptional(): bool;
 
     /**
      * Sets if this field is optional or not
      *
      * @note Defaults to false
-     * @param bool $value
+     * @param bool|null $value
      * @param string|float|int|bool|null $default
-     * @return $this
+     * @return static
      */
-    function setOptional(?bool $value, string|float|int|bool|null $default = null): static;
+    public function setOptional(?bool $value, string|float|int|bool|null $default = null): static;
 
     /**
      * Returns the placeholder for this field
@@ -364,9 +330,9 @@ Interface DefinitionInterface
      * Sets the placeholder for this field
      *
      * @param string|null $value
-     * @return $this
+     * @return static
      */
-    function setPlaceholder(?string $value): static;
+    public function setPlaceholder(?string $value): static;
 
     /**
      * Returns the minlength for this textarea or text input field
@@ -374,6 +340,14 @@ Interface DefinitionInterface
      * @return int|null
      */
     public function getMinlength(): ?int;
+
+    /**
+     * Sets the minlength for this textarea or text input field
+     *
+     * @param int|null $value
+     * @return static
+     */
+    public function setMinlength(?int $value): static;
 
     /**
      * Returns the maxlength for this textarea or text ibput field
@@ -386,9 +360,9 @@ Interface DefinitionInterface
      * Sets the maxlength for this textarea or text input field
      *
      * @param int|null $value
-     * @return $this
+     * @return static
      */
-    function setMaxlength(?int $value): static;
+    public function setMaxlength(?int $value): static;
 
     /**
      * Returns the pattern for this textarea or text input field
@@ -401,9 +375,9 @@ Interface DefinitionInterface
      * Sets the pattern for this textarea or text input field
      *
      * @param string|null $value
-     * @return $this
+     * @return static
      */
-    function setPattern(?string $value): static;
+    public function setPattern(?string $value): static;
 
     /**
      * Returns the minimum value for number input elements
@@ -416,9 +390,9 @@ Interface DefinitionInterface
      * Set the minimum value for number input elements
      *
      * @param float|int|null $value
-     * @return $this
+     * @return static
      */
-    function setMin(float|int|null $value): static;
+    public function setMin(float|int|null $value): static;
 
     /**
      * Returns the maximum value for number input elements
@@ -431,9 +405,9 @@ Interface DefinitionInterface
      * Set the maximum value for number input elements
      *
      * @param float|int|null $value
-     * @return $this
+     * @return static
      */
-    function setMax(float|int|null $value): static;
+    public function setMax(float|int|null $value): static;
 
     /**
      * Return the step value for number input elements
@@ -446,9 +420,9 @@ Interface DefinitionInterface
      * Set the step value for number input elements
      *
      * @param string|float|int|null $value
-     * @return $this
+     * @return static
      */
-    function setStep(string|float|int|null $value): static;
+    public function setStep(string|float|int|null $value): static;
 
     /**
      * Returns the rows value for textarea elements
@@ -466,19 +440,19 @@ Interface DefinitionInterface
     public function setRows(int|null $value): static;
 
     /**
-     * Returns the default value for this field for display
+     * Returns the default value for this field
      *
      * @return string|float|int|bool|null
      */
     public function getDefault(): string|float|int|bool|null;
 
     /**
-     * Sets the default value for this field for display
+     * Sets the default value for this field
      *
      * @param string|float|int|bool|null $value
-     * @return $this
+     * @return static
      */
-    function setDefault(string|float|int|bool|null $value): static;
+    public function setDefault(string|float|int|bool|null $value): static;
 
     /**
      * Returns the default value for this field in the database
@@ -491,9 +465,9 @@ Interface DefinitionInterface
      * Sets the default value for this field in the database
      *
      * @param string|float|int|null $value
-     * @return $this
+     * @return static
      */
-    function setDefaultDb(string|float|int|null $value): static;
+    public function setDefaultDb(string|float|int|null $value): static;
 
     /**
      * Returns if this field should be stored with NULL in the database if empty
@@ -526,9 +500,9 @@ Interface DefinitionInterface
      *
      * @note Defaults to false
      * @param bool|null $value
-     * @return $this
+     * @return static
      */
-    function setNullDisabled(?bool $value): static;
+    public function setNullDisabled(?bool $value): static;
 
     /**
      * Returns if this field should be readonly if the value is NULL
@@ -543,9 +517,9 @@ Interface DefinitionInterface
      *
      * @note Defaults to false
      * @param bool|null $value
-     * @return $this
+     * @return static
      */
-    function setNullReadonly(?bool $value): static;
+    public function setNullReadonly(?bool $value): static;
 
     /**
      * Returns the type for this element if the value is NULL
@@ -558,9 +532,54 @@ Interface DefinitionInterface
      * Sets the type for this element if the value is NULL
      *
      * @param InputType|null $value
-     * @return $this
+     * @return static
      */
-    function setNullInputType(?InputType $value): static;
+    public function setNullInputType(?InputType $value): static;
+
+    /**
+     * Returns the type for this element if the value is NULL
+     *
+     * @return array|null
+     */
+    public function getValidationFunctions(): ?array;
+
+    /**
+     * Sets the type for this element if the value is NULL
+     *
+     * @param callable $function
+     * @return static
+     */
+    public function addValidationFunction(callable $function): static;
+
+    /**
+     * Returns the help text for this field
+     *
+     * @return string|null
+     */
+    public function getHelpText(): ?string;
+
+    /**
+     * Sets the help text for this field
+     *
+     * @param string|null $value
+     * @return static
+     */
+    public function setHelpText(?string $value): static;
+
+    /**
+     * Returns the help text group for this field
+     *
+     * @return string|null
+     */
+    public function getHelpGroup(): ?string;
+
+    /**
+     * Sets the help text group for this field
+     *
+     * @param string|null $value
+     * @return static
+     */
+    public function setHelpGroup(?string $value): static;
 
     /**
      * Returns true if the specified input type is supported
@@ -568,14 +587,14 @@ Interface DefinitionInterface
      * @param string $type
      * @return bool
      */
-    function inputTypeSupported(string $type): bool;
+    public function inputTypeSupported(string $type): bool;
 
     /**
      * Validate this field according to the field definitions
      *
-     * @param DataValidatorInterface $validator
-     * @param ?string $prefix
+     * @param ValidatorInterface $validator
+     * @param string|null $prefix
      * @return void
      */
-    public function validate(DataValidatorInterface $validator, ?string $prefix): void;
+    public function validate(ValidatorInterface $validator, ?string $prefix): void;
 }

@@ -17,6 +17,7 @@ use Phoundation\Web\Http\Html\Components\Interfaces\ElementsBlockInterface;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Html\Renderer;
+use Throwable;
 
 
 /**
@@ -134,6 +135,7 @@ class DataEntryForm extends Renderer
             Arrays::default($definition, 'disabled'    , false);
             Arrays::default($definition, 'readonly'    , false);
             Arrays::default($definition, 'visible'     , true);
+            Arrays::default($definition, 'virtual'     , false);
             Arrays::default($definition, 'readonly'    , false);
             Arrays::default($definition, 'title'       , null);
             Arrays::default($definition, 'placeholder' , null);
@@ -143,7 +145,7 @@ class DataEntryForm extends Renderer
             Arrays::default($definition, 'max'         , 0);
             Arrays::default($definition, 'step'        , 0);
 
-            if (!$definition['visible']) {
+            if (!$definition['visible'] or $definition['virtual']) {
                 // This element shouldn't be shown, continue
                 continue;
             }
@@ -405,6 +407,8 @@ class DataEntryForm extends Renderer
     protected function renderItem(string|int|null $id, ?string $html, ?array $data): ?string
     {
         static $col_size = 12;
+        static $cols     = [];
+
         $return = '';
 
         if ($data === null) {
@@ -417,6 +421,8 @@ class DataEntryForm extends Renderer
             $col_size = 0;
 
         } else {
+            $cols[] = isset_get($data['label']) . '[' . $id . ']';
+
             // Keep track of column size, close each row when size 12 is reached
             if ($col_size === 12) {
                 // Open a new row
@@ -448,18 +454,19 @@ class DataEntryForm extends Renderer
             $col_size -= $data['size'];
 
             if ($col_size < 0) {
-                throw new OutOfBoundsException(tr('Cannot add column ":label" for ":class" form, the row would surpass size 12 by ":count"', [
+                throw OutOfBoundsException::new(tr('Cannot add column ":label" for ":class" form, the row would surpass size 12 by ":count"', [
                     ':class' => get_class($this->element),
                     ':label' => $data['label'] . ' [' . $id . ']',
-                    ':count' => abs($col_size)
-                ]));
+                    ':count' => abs($col_size),
+                ]))->setData(['Columns on this row' => $cols]);
             }
         }
 
         if ($col_size == 0) {
             // Close the row
             $col_size = 12;
-            $return  .= '</div>';
+            $cols = [];
+            $return .= '</div>';
         }
 
         return $return;

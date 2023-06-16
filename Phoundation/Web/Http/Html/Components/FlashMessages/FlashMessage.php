@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html\Components\FlashMessages;
 
-use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Content\Images\Image;
+use Phoundation\Content\Images\Interfaces\ImageInterface;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\ElementsBlock;
 use Phoundation\Web\Http\Html\Components\Mode;
 use Phoundation\Web\Http\Html\Components\Script;
-use Phoundation\Web\Page;
 
 
 /**
@@ -67,7 +66,7 @@ class FlashMessage extends ElementsBlock
     /**
      * Image to show with the flash message
      *
-     * @var Image|null $image
+     * @var ImageInterface|null $image
      */
     protected ?Image $image = null;
 
@@ -191,9 +190,9 @@ class FlashMessage extends ElementsBlock
     /**
      * Returns the flash image contents
      *
-     * @return Image
+     * @return ImageInterface
      */
-    public function getImage(): Image
+    public function getImage(): ImageInterface
     {
         return $this->image;
     }
@@ -202,11 +201,11 @@ class FlashMessage extends ElementsBlock
     /**
      * Sets the flash image contents
      *
-     * @param Image|string|null $image
+     * @param ImageInterface|string|null $image
      * @param string|null $alt
      * @return $this
      */
-    public function setImage(Image|string|null $image, ?string $alt = null): static
+    public function setImage(ImageInterface|string|null $image, ?string $alt = null): static
     {
         if ($image) {
             if ($this->icon) {

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http\Html\Components;
 
 use Phoundation\Content\Images\Image;
+use Phoundation\Content\Images\Interfaces\ImageInterface;
 use Phoundation\Core\Session;
 use Phoundation\Web\Page;
 
@@ -44,10 +45,10 @@ class ProfileImage extends ImageMenu
     /**
      * ProfileImage class constructor
      *
-     * @param Image|string|null $image
+     * @param ImageInterface|string|null $image
      * @return ProfileImage
      */
-    public function setImage(Image|string|null $image = null): static
+    public function setImage(ImageInterface|string|null $image = null): static
     {
         // Ensure we have a default profile image
         if (!is_object($image)) {

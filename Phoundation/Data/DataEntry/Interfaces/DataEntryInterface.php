@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Data\Interfaces;
+namespace Phoundation\Data\DataEntry\Interfaces;
 
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Meta\Meta;
@@ -300,4 +300,12 @@ interface DataEntryInterface
      * @return DataEntryFormInterface
      */
     public function getHtmlForm(): DataEntryFormInterface;
- }
+
+    /**
+     * Load all data from the specified array
+     *
+     * @param array $data
+     * @return $this
+     */
+    function load(array $data): static;
+}

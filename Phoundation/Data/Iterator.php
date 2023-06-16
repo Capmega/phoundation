@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Data\Classes;
+namespace Phoundation\Data;
 
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Utils\Json;
 use ReturnTypeWillChange;
@@ -33,7 +34,7 @@ use Stringable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-class Iterator implements \Phoundation\Data\Interfaces\Iterator
+class Iterator implements IteratorInterface
 {
     /**
      * The list that stores all entries
@@ -81,7 +82,7 @@ class Iterator implements \Phoundation\Data\Interfaces\Iterator
      *
      * @return static
      */
-    public function next(): static
+    #[ReturnTypeWillChange] public function next(): static
     {
         next($this->list);
         return $this;

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Definitions;
 
-use Phoundation\Data\Classes\Iterator;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\DataPrefix;
 use Phoundation\Data\Traits\UsesNewTable;
 use Stringable;
@@ -31,7 +31,7 @@ class Definitions extends Iterator implements DefinitionsInterface
     /**
      * Adds the specified Definition to the fields list
      *
-     * @param Definition $field
+     * @param DefinitionInterface $field
      * @return static
      */
     public function add(DefinitionInterface $field): static

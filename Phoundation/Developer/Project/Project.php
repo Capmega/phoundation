@@ -9,7 +9,8 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
-use Phoundation\Data\Validator\ValidatorInterface;
+use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
+use Phoundation\Data\Validator\Validator;
 use Phoundation\Developer\Phoundation\Phoundation;
 use Phoundation\Developer\Project\Exception\EnvironmentExists;
 use Phoundation\Developer\Versioning\Git\Traits\Git;
@@ -326,11 +327,9 @@ class Project
      * Validate the specified project information
      *
      * @param ValidatorInterface $validator
-     * @param bool $no_arguments_left
-     * @param bool $modify
-     * @return array
+     * @return void
      */
-    protected function validate(DataValidator $validator, bool $no_arguments_left, bool $modify): array
+    public static function validate(ValidatorInterface $validator): void
     {
         $validator
             ->select('admin_email')->isEmail()

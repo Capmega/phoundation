@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Rights;
 
-use Phoundation\Accounts\Interfaces\RightsInterface;
-use Phoundation\Accounts\Interfaces\RoleInterface;
-use Phoundation\Accounts\Interfaces\UserInterface;
-use Phoundation\Accounts\Roles\Role;
+use Phoundation\Accounts\Rights\Interfaces\RightsInterface;
+use Phoundation\Accounts\Roles\Interfaces\RoleInterface;
+use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
@@ -109,7 +108,7 @@ class Rights extends DataList implements RightsInterface
                 // Already exists?
                 if (!array_key_exists($right->getId(), $this->list)) {
                     // Add entry to parent, User or Role
-                    if ($this->parent instanceof User) {
+                    if ($this->parent instanceof UserInterface) {
                         Log::action(tr('Adding right ":right" to user ":user"', [
                             ':user'  => $this->parent->getLogId(),
                             ':right' => $right->getLogId()
@@ -125,7 +124,7 @@ class Rights extends DataList implements RightsInterface
                         // Add right to internal list
                         $this->addEntry($right);
 
-                    } elseif ($this->parent instanceof Role) {
+                    } elseif ($this->parent instanceof RoleInterface) {
                         Log::action(tr('Adding right ":right" to role ":role"', [
                             ':role' => $this->parent->getLogId(),
                             ':right' => $right->getLogId()
@@ -173,7 +172,7 @@ class Rights extends DataList implements RightsInterface
                 // Add single right. Since this is a Right object, the entry already exists in the database
                 $right = Right::get($right);
 
-                if ($this->parent instanceof User) {
+                if ($this->parent instanceof UserInterface) {
                     Log::action(tr('Removing right ":right" from user ":user"', [
                         ':user'  => $this->parent->getLogId(),
                         ':right' => $right->getLogId()
@@ -186,7 +185,7 @@ class Rights extends DataList implements RightsInterface
 
                     // Add right to internal list
                     $this->removeEntry($right);
-                } elseif ($this->parent instanceof Role) {
+                } elseif ($this->parent instanceof RoleInterface) {
                     Log::action(tr('Removing right ":right" from role ":role"', [
                         ':role' => $this->parent->getLogId(),
                         ':right' => $right->getLogId()
@@ -221,7 +220,7 @@ class Rights extends DataList implements RightsInterface
     {
         $this->ensureParent('clear all entries from parent');
 
-        if ($this->parent instanceof User) {
+        if ($this->parent instanceof UserInterface) {
             Log::action(tr('Removing all rights from user ":user"', [
                 ':user' => $this->parent->getLogId(),
             ]));
@@ -230,7 +229,7 @@ class Rights extends DataList implements RightsInterface
                 'users_id'  => $this->parent->getId()
             ]);
 
-        } elseif ($this->parent instanceof Role) {
+        } elseif ($this->parent instanceof RoleInterface) {
             Log::action(tr('Removing all rights from role ":role"', [
                 ':role' => $this->parent->getLogId(),
             ]));
@@ -258,14 +257,14 @@ class Rights extends DataList implements RightsInterface
 
         if ($this->parent) {
             // Load only rights for specified parent
-            if ($this->parent instanceof User) {
+            if ($this->parent instanceof UserInterface) {
                 $this->list = sql()->list('SELECT `accounts_users_rights`.`' . $id_column . '` 
                                                FROM   `accounts_users_rights` 
                                                WHERE  `accounts_users_rights`.`users_id` = :users_id', [
                     ':users_id' => $this->parent->getId()
                 ]);
 
-            } elseif ($this->parent instanceof Role) {
+            } elseif ($this->parent instanceof RoleInterface) {
                 $this->list = sql()->list('SELECT `accounts_roles_rights`.`' . $id_column . '` 
                                            FROM   `accounts_roles_rights` 
                                            WHERE  `accounts_roles_rights`.`roles_id` = :roles_id', [
@@ -415,7 +414,7 @@ class Rights extends DataList implements RightsInterface
     {
         $this->ensureParent('save parent entries');
 
-        if ($this->parent instanceof User) {
+        if ($this->parent instanceof UserInterface) {
             // Delete the current list
             sql()->query('DELETE FROM `accounts_users_rights` 
                                 WHERE       `accounts_users_rights`.`users_id` = :users_id', [
@@ -434,7 +433,7 @@ class Rights extends DataList implements RightsInterface
                 ]);
             }
 
-        } elseif ($this->parent instanceof Role) {
+        } elseif ($this->parent instanceof RoleInterface) {
             // Delete the current list
             sql()->query('DELETE FROM `accounts_roles_rights` 
                                 WHERE       `accounts_roles_rights`.`roles_id` = :roles_id', [

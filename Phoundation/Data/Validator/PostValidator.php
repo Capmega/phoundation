@@ -7,6 +7,7 @@ namespace Phoundation\Data\Validator;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 
 
 /**
@@ -21,7 +22,7 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
-class PostValidator extends ValidatorInterface
+class PostValidator extends Validator
 {
     /**
      * Internal $_POST array until validation has been completed
@@ -153,7 +154,7 @@ class PostValidator extends ValidatorInterface
     public function extract(): ?array
     {
         Log::warning(tr('Liberated all $_POST data without data validation!'));
-        return static::$post;
+        return $this->source;
     }
 
 
@@ -165,7 +166,7 @@ class PostValidator extends ValidatorInterface
     public function extractKey(string $key): mixed
     {
         Log::warning(tr('Liberated $_POST[:key] without data validation!', [':key' => $key]));
-        return isset_get(static::$post[$key]);
+        return isset_get($this->source[$key]);
     }
 
 

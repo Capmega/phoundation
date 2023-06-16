@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Phoundation\Data\Interfaces;
 
 use ReturnTypeWillChange;
@@ -9,14 +7,10 @@ use Stringable;
 
 
 /**
- * Interface Iterator
+ * Class Iterator
  *
  * This is a slightly extended interface to the default PHP iterator class. This class also requires the following
  * methods:
- *
- * - list() Returns all values with their keys in this object
- *
- * - get() Returns value for the specified key
  *
  * - getCount() Returns the amount of elements contained in this object
  *
@@ -35,44 +29,49 @@ use Stringable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-interface Iterator extends \Iterator
+interface IteratorInterface extends \Iterator, Stringable
 {
     /**
-     * Returns the contents of this iterator object as a JSON string
+     * Return the object contents in JSON string format
      *
      * @return string
      */
     function __toString(): string;
 
-
     /**
-     * Returns the contents of this iterator object as an array
+     * Return the object contents in array format
      *
      * @return array
      */
     function __toArray(): array;
-
 
     /**
      * Returns the current entry
      *
      * @return mixed
      */
-    #[ReturnTypeWillChange] function current(): mixed;
+    #[ReturnTypeWillChange] public function current(): mixed;
 
     /**
-     * Progresses the internal pointer to the next button
+     * Progresses the internal pointer to the next entry
      *
      * @return static
      */
-    #[ReturnTypeWillChange] function next(): static;
+    #[ReturnTypeWillChange] public function next(): static;
 
     /**
-     * Returns the current key for the current menu
+     * Progresses the internal pointer to the previous entry
+     *
+     * @return static
+     */
+    #[ReturnTypeWillChange] public function previous(): static;
+
+    /**
+     * Returns the current key for the current button
      *
      * @return string|float|int
      */
-    function key(): string|float|int;
+    public function key(): string|float|int;
 
     /**
      * Returns if the current pointer is valid or not
@@ -80,21 +79,21 @@ interface Iterator extends \Iterator
      * @todo Is this really really required? Since we're using internal array pointers anyway, it always SHOULD be valid
      * @return bool
      */
-    function valid(): bool;
+    public function valid(): bool;
 
     /**
      * Rewinds the internal pointer
      *
      * @return static
      */
-    #[ReturnTypeWillChange] function rewind(): static;
+    #[ReturnTypeWillChange] public function rewind(): static;
 
     /**
-     * Returns all values with their keys in this object
+     * Returns a list of all internal values with their keys
      *
-     * @return array
+     * @return mixed
      */
-    function getList(): array;
+    public function getList(): array;
 
     /**
      * Returns value for the specified key
@@ -103,57 +102,56 @@ interface Iterator extends \Iterator
      * @param bool $exception
      * @return mixed
      */
-    #[ReturnTypeWillChange] function get(Stringable|string|float|int $key, bool $exception = false): mixed;
+    public function get(Stringable|string|float|int $key, bool $exception = false): mixed;
 
     /**
-     * Returns the amount of elements contained in this object
+     * Returns the amount of items contained in this object
      *
      * @return int
      */
-    function getCount(): int;
+    public function getCount(): int;
 
     /**
      * Returns the first element contained in this object without changing the internal pointer
      *
      * @return mixed
      */
-    #[ReturnTypeWillChange] function getFirst(): mixed;
-
+    public function getFirst(): mixed;
 
     /**
      * Returns the last element contained in this object without changing the internal pointer
      *
      * @return mixed
      */
-    #[ReturnTypeWillChange] function getLast(): mixed;
+    public function getLast(): mixed;
 
     /**
      * Clears all the internal content for this object
      *
      * @return mixed
      */
-    function clear(): static;
+    public function clear(): static;
 
     /**
      * Deletes the specified key
      *
      * @param string|float|int $key
-     * @return mixed
+     * @return static
      */
-    function delete(string|float|int $key): static;
+    public function delete(string|float|int $key): static;
 
     /**
-     * Returns if the specified field exists or not
+     * Returns if the specified key exists or not
      *
      * @param Stringable|string|float|int $key
      * @return bool
      */
-    function exists(Stringable|string|float|int $key): bool;
+    public function exists(Stringable|string|float|int $key): bool;
 
     /**
-     * Returns true if the list is empty
+     * Returns if the list is empty or not
      *
      * @return bool
      */
-    function isEmpty(): bool;
+    public function isEmpty(): bool;
 }

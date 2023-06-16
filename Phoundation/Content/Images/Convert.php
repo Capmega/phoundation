@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Content\Images;
 
+use Phoundation\Content\Images\Interfaces\ImageInterface;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Path;
 use Phoundation\Processes\Commands\Command;
@@ -24,7 +25,7 @@ class Convert extends Command
     /**
      * The image source file that will be converted
      *
-     * @var Image $source
+     * @var ImageInterface $source
      */
     protected Image $source;
 
@@ -78,10 +79,10 @@ class Convert extends Command
     /**
      * Sets the source image on which the conversions will be applied
      *
-     * @param Image $source
+     * @param ImageInterface $source
      * @return Convert
      */
-    public function setSource(Image $source): Convert
+    public function setSource(ImageInterface $source): Convert
     {
         // TODO Validate the format
         $this->source = $source;
@@ -92,9 +93,9 @@ class Convert extends Command
     /**
      * Returns the source image on which the conversions will be applied
      *
-     * @return Image
+     * @return ImageInterface
      */
-    public function getSource(): Image
+    public function getSource(): ImageInterface
     {
         return $this->source;
     }

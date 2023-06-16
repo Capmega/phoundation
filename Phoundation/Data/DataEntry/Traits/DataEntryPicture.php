@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Content\Images\Image;
+use Phoundation\Content\Images\Interfaces\ImageInterface;
 use Phoundation\Core\Strings;
 
 
@@ -23,9 +24,9 @@ trait DataEntryPicture
     /**
      * Returns the picture for this entry
      *
-     * @return Image
+     * @return ImageInterface
      */
-    public function getPicture(): Image
+    public function getPicture(): ImageInterface
     {
         if (!$this->getDataValue('string', 'picture')) {
             $this->setDataValue('picture', 'img/profiles/default.png', true);
@@ -39,10 +40,10 @@ trait DataEntryPicture
     /**
      * Sets the picture for this entry
      *
-     * @param Image|string|null $picture
+     * @param ImageInterface|string|null $picture
      * @return static
      */
-    public function setPicture(Image|string|null $picture): static
+    public function setPicture(ImageInterface|string|null $picture): static
     {
         return $this->setDataValue('picture', Strings::from($picture?->getFile(), PATH_CDN));
     }

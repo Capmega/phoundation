@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Phoundation\Content;
 
 use Phoundation\Content\Exception\ContentException;
+use Phoundation\Content\Interfaces\ContentInterface;
 use Phoundation\Core\Strings;
 use Phoundation\Filesystem\File;
-use Phoundation\Processes\Commands\Command;
 use Phoundation\Processes\Process;
 
 
@@ -21,7 +21,7 @@ use Phoundation\Processes\Process;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Content
  */
-class Content extends File
+class Content extends File implements ContentInterface
 {
     /**
      * View the object file

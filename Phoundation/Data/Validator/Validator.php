@@ -14,7 +14,8 @@ use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Exception\KeyAlreadySelectedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
-use Phoundation\Data\Validator\Interfaces\DataValidatorInterface;
+use Phoundation\Data\Validator\Interfaces\ValidatorBasicsInterface;
+use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Restrictions;
@@ -36,7 +37,7 @@ use UnitEnum;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
-abstract class ValidatorInterface implements DataValidatorInterface
+abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
 {
     use ValidatorBasics;
 
@@ -115,7 +116,7 @@ abstract class ValidatorInterface implements DataValidatorInterface
      * $this->process_values
      *
      * @return static
-     *@see DataValidator::select()
+     * @see DataValidator::select()
      * @see DataValidator::self()
      */
     public function each(): static
@@ -141,7 +142,7 @@ abstract class ValidatorInterface implements DataValidatorInterface
      * $this->process_values
      *
      * @return static
-     *@see DataValidator::select()
+     * @see DataValidator::select()
      * @see DataValidator::each()
      */
     public function single(): static
@@ -200,18 +201,18 @@ abstract class ValidatorInterface implements DataValidatorInterface
     public function isBoolean(): static
     {
         return $this->validateValues(function(&$value) {
-            $this->checkIsOptional($value);
+            if (!$this->checkIsOptional($value)) {
+                if (Strings::toBoolean($value, false) === null) {
+                    if ($value !== null) {
+                        $this->addFailure(tr('must have a boolean value'));
+                    }
 
-            if (Strings::toBoolean($value, false) === null) {
-                if ($value !== null) {
-                    $this->addFailure(tr('must have a boolean value'));
+                    $value = false;
                 }
 
-                $value = false;
+                // Sanitize value, must be a boolean
+                $value = Strings::toBoolean($value);
             }
-
-            // Sanitize value, must be a boolean
-            $value = Strings::toBoolean($value);
         });
     }
 
@@ -226,18 +227,18 @@ abstract class ValidatorInterface implements DataValidatorInterface
     public function isInteger(): static
     {
         return $this->validateValues(function(&$value) {
-            $this->checkIsOptional($value);
+            if (!$this->checkIsOptional($value)) {
+                if (!is_integer($value)) {
+                    if (is_string($value) and (((int)$value) == $value)) {
+                        // This integer value was specified as a numeric string
+                        $value = (int)$value;
+                    } else {
+                        if ($value !== null) {
+                            $this->addFailure(tr('must have an integer value'));
+                        }
 
-            if (!is_integer($value)) {
-                if (is_string($value) and (((int) $value) == $value)) {
-                    // This integer value was specified as a numeric string
-                    $value = (int) $value;
-                } else {
-                    if ($value !== null) {
-                        $this->addFailure(tr('must have an integer value'));
+                        $value = 0;
                     }
-
-                    $value = 0;
                 }
             }
         });
@@ -254,19 +255,19 @@ abstract class ValidatorInterface implements DataValidatorInterface
     public function isFloat(): static
     {
         return $this->validateValues(function(&$value) {
-            $this->checkIsOptional($value);
-
-            if (!is_float($value)) {
-                if (is_string($value) and ((float) $value == $value)) {
-                    // This float value was specified as a numeric string
+            if (!$this->checkIsOptional($value)) {
+                if (!is_float($value)) {
+                    if (is_string($value) and ((float)$value == $value)) {
+                        // This float value was specified as a numeric string
 // TODO Test this! There may be slight inaccuracies here due to how floats work, so maybe we should check within a range?
-                    $value = (float) $value;
-                } else {
-                    if ($value !== null) {
-                        $this->addFailure(tr('must have a float value'));
-                    }
+                        $value = (float) $value;
+                    } else {
+                        if ($value !== null) {
+                            $this->addFailure(tr('must have a float value'));
+                        }
 
-                    $value = 0.0;
+                        $value = 0.0;
+                    }
                 }
             }
         });
@@ -283,14 +284,14 @@ abstract class ValidatorInterface implements DataValidatorInterface
     public function isNumeric(): static
     {
         return $this->validateValues(function(&$value) {
-            $this->checkIsOptional($value);
+            if (!$this->checkIsOptional($value)) {
+                if (!is_numeric($value)) {
+                    if ($value !== null) {
+                        $this->addFailure(tr('must have a numeric value'));
+                    }
 
-            if (!is_numeric($value)) {
-                if ($value !== null) {
-                    $this->addFailure(tr('must have a numeric value'));
+                    $value = 0;
                 }
-
-                $value = 0;
             }
         });
     }
@@ -404,7 +405,7 @@ abstract class ValidatorInterface implements DataValidatorInterface
      * This method ensures that the specified array key is positive
      *
      * @param int|float $amount
-     * @param bool $equal        If true, it is more than or equal to, instead of only more than
+     * @param bool $equal If true, it is more than or equal to, instead of only more than
      * @return static
      */
     public function isMoreThan(int|float $amount, bool $equal = false): static
@@ -437,7 +438,7 @@ abstract class ValidatorInterface implements DataValidatorInterface
      * This method ensures that the specified array key is positive
      *
      * @param int|float $amount
-     * @param bool $equal        If true, it is less than or equal to, instead of only less than
+     * @param bool $equal If true, it is less than or equal to, instead of only less than
      * @return static
      */
     public function isLessThan(int|float $amount, bool $equal = false): static
@@ -553,14 +554,14 @@ abstract class ValidatorInterface implements DataValidatorInterface
     public function isScalar(): static
     {
         return $this->validateValues(function(&$value) {
-            $this->checkIsOptional($value);
+            if (!$this->checkIsOptional($value)) {
+                if (!is_scalar($value)) {
+                    if ($value !== null) {
+                        $this->addFailure(tr('must have a scalar value'));
+                    }
 
-            if (!is_scalar($value)) {
-                if ($value !== null) {
-                    $this->addFailure(tr('must have a scalar value'));
+                    $value = '';
                 }
-
-                $value = '';
             }
         });
     }
@@ -579,6 +580,12 @@ abstract class ValidatorInterface implements DataValidatorInterface
         return $this->validateValues(function(&$value) use ($array) {
             // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
             $this->isScalar();
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return;
+            }
+
             $this->hasMaxCharacters(Arrays::getLongestValueSize($array));
 
             if ($this->process_value_failed) {
@@ -817,14 +824,14 @@ abstract class ValidatorInterface implements DataValidatorInterface
     public function isString(): static
     {
         return $this->validateValues(function(&$value) {
-            $this->checkIsOptional($value);
+            if (!$this->checkIsOptional($value)) {
+                if (!is_string($value)) {
+                    if ($value !== null) {
+                        $this->addFailure(tr('must have a string value'));
+                    }
 
-            if (!is_string($value)) {
-                if ($value !== null) {
-                    $this->addFailure(tr('must have a string value'));
+                    $value = '';
                 }
-
-                $value = '';
             }
         });
     }
@@ -1061,7 +1068,7 @@ abstract class ValidatorInterface implements DataValidatorInterface
                 return;
             }
 
-            if (!ctype_print($value)) {
+            if (!ctype_print(str_replace(["\t", "\r", "\l", '\n'], ' ', $value))) {
                 $this->addFailure(tr('must contain only printable characters'));
             }
         });
@@ -1525,14 +1532,14 @@ abstract class ValidatorInterface implements DataValidatorInterface
     public function isArray(): static
     {
         return $this->validateValues(function(&$value) {
-            $this->checkIsOptional($value);
+            if (!$this->checkIsOptional($value)) {
+                if (!is_array($value)) {
+                    if ($value !== null) {
+                        $this->addFailure(tr('must have an array value'));
+                    }
 
-            if (!is_array($value)) {
-                if ($value !== null) {
-                    $this->addFailure(tr('must have an array value'));
+                    $value = [];
                 }
-
-                $value = [];
             }
         });
     }
@@ -2103,8 +2110,8 @@ abstract class ValidatorInterface implements DataValidatorInterface
     /**
      * Validates if the selected field is a valid JSON string
      *
-     * @copyright The used JSON regex validation taken from a twitter post by @Fish_CTO
      * @return static
+     * @copyright The used JSON regex validation taken from a twitter post by @Fish_CTO
      * @see static::isCsv()
      * @see static::isBase58()
      * @see static::isBase64()
@@ -2298,9 +2305,9 @@ abstract class ValidatorInterface implements DataValidatorInterface
     /**
      * Sanitize the selected value by trimming whitespace
      *
-     * @todo CURRENTLY NOT WORKING, FIX!
      * @param string $characters
      * @return static
+     * @todo CURRENTLY NOT WORKING, FIX!
      * @see trim()
      */
     public function sanitizeTrim(string $characters = "\t\n\r\0\x0B"): static
@@ -2607,9 +2614,9 @@ abstract class ValidatorInterface implements DataValidatorInterface
     /**
      * Sanitize the selected value by making it a string
      *
-     * @todo KNOWN BUG: THIS DOESNT WORK
      * @param string $characters
      * @return static
+     * @todo KNOWN BUG: THIS DOESNT WORK
      * @see static::sanitizeDecodeBase58()
      * @see static::sanitizeDecodeBase64()
      * @see static::sanitizeDecodeCsv()

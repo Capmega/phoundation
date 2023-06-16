@@ -1,24 +1,21 @@
 <?php
 
-declare(strict_types=1);
+namespace Phoundation\Accounts\Rights\Interfaces;
 
-namespace Phoundation\Accounts\Interfaces;
-
-use Phoundation\Data\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 
 
 /**
- * Interface InterfaceRole
+ * Interface RightInterface
  *
  *
  *
  * @see \Phoundation\Data\DataEntry\DataEntry
- * @see \Phoundation\Data\DataEntry\Interfaces\InterfaceDataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
-interface RoleInterface extends DataEntryInterface
+interface RightInterface extends DataEntryInterface
 {
 }

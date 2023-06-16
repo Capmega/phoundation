@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Roles;
 
-use Phoundation\Accounts\Interfaces\RoleInterface;
+use Phoundation\Accounts\Rights\Interfaces\RightsInterface;
 use Phoundation\Accounts\Rights\Rights;
+use Phoundation\Accounts\Roles\Interfaces\RoleInterface;
+use Phoundation\Accounts\Users\Interfaces\UsersInterface;
 use Phoundation\Accounts\Users\Users;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\DefinitionDefaults;
@@ -57,9 +59,9 @@ class Role extends DataEntry implements RoleInterface
     /**
      * Add the specified rights to this role
      *
-     * @return Rights
+     * @return RightsInterface
      */
-    public function rights(): Rights
+    public function rights(): RightsInterface
     {
         if (!$this->list) {
             $this->list = new Rights($this);
@@ -72,9 +74,9 @@ class Role extends DataEntry implements RoleInterface
     /**
      * Returns the users that are linked to this role
      *
-     * @return Users
+     * @return UsersInterface
      */
-    public function users(): Users
+    public function users(): UsersInterface
     {
         return new Users($this);
     }

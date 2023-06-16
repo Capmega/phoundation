@@ -9,7 +9,7 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
-use Phoundation\Data\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Databases\Databases;
 use Phoundation\Databases\Mc;
 use Phoundation\Databases\Mongo;

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Content\Images;
 
+use Phoundation\Content\Images\Interfaces\ImageInterface;
 use Phoundation\Servers\Traits\UsesRestrictions;
 
 
@@ -26,7 +27,7 @@ trait UsesImage
     /**
      * The image
      *
-     * @var Image $image
+     * @var ImageInterface $image
      */
     protected Image $image;
 
@@ -34,9 +35,9 @@ trait UsesImage
     /**
      * Returns the image for this File object
      *
-     * @return Image
+     * @return ImageInterface
      */
-    public function getImage(): Image
+    public function getImage(): ImageInterface
     {
         return $this->image;
     }
@@ -45,10 +46,10 @@ trait UsesImage
     /**
      * Sets the image for this File object
      *
-     * @param Image|string|null $image
+     * @param ImageInterface|string|null $image
      * @return static
      */
-    public function setImage(Image|string|null $image = null): static
+    public function setImage(ImageInterface|string|null $image = null): static
     {
         if (!is_object($image)) {
             $image = new Image($image, $this->restrictions);

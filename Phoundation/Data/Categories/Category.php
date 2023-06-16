@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace Phoundation\Data\Categories;
 
 use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntry\Definitions\Definition;
+use Phoundation\Data\DataEntry\Definitions\DefinitionDefaults;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
-use Phoundation\Data\Interfaces\DataEntryInterface;
+use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 
 
@@ -123,56 +126,44 @@ class Category extends DataEntry
      * Sets the available data keys for this entry
      *
      * @param DefinitionsInterface $definitions
+     * @return void
      */
     protected function initDefinitions(DefinitionsInterface $definitions): void
     {
-        $definitions;
-
-        return [
-            'parents_id' => [
-                'element'  => function (string $key, array $data, array $source) {
-                    return Categories::getHtmlSelect($key)
-                        ->setParentsId(null)
-                        ->setSelected(isset_get($source['parents_id']))
+        $definitions
+            ->add(Definition::new('parents_id')
+                ->setOptional(true)
+                ->setContent(function (string $key, array $data, array $source) {
+                    return Categories::new()->getHtmlSelect()
+                        ->setName($key)
+                        ->setSelected(isset_get($source[$key]))
                         ->render();
-                },
-                'source' => [],
-                'label'  => tr('Parent'),
-                'size'   => 4,
-                'help'   => tr('The parent category for this category'),
-            ],
-            'name' => [
-                'label'     => tr('Name'),
-                'maxlength' => 64,
-                'size'      => 12,
-                'help'      => tr('The name for this category'),
-            ],
-            'seo_name' => [
-                'visible'  => false,
-                'readonly' => true,
-            ],
-            'description' => [
-                'element'   => 'text',
-                'label'     => tr('Description'),
-                'maxlength' => 65535,
-                'size'      => 12,
-                'help'      => tr('The description for this category'),
-            ],
-        ];
-
-//        $data = $validator
-//            ->select($this->getAlternateValidationField('name'), true)->hasMaxCharacters(64)->isName()
-//            ->select($this->getAlternateValidationField('description'), true)->isOptional()->hasMaxCharacters(65_530)->isPrintable()
-//            ->select($this->getAlternateValidationField('parent'), true)->or('parents_id')->isName()->isQueryColumn('SELECT `name` FROM `categories` WHERE `name` = :name AND `status` IS NULL', [':name' => '$parent'])
-//            ->select($this->getAlternateValidationField('parents_id'), true)->or('parent')->isId()->isQueryColumn  ('SELECT `id`   FROM `categories` WHERE `id`   = :id   AND `status` IS NULL', [':id'   => '$parents_id'])
-//            ->noArgumentsLeft($no_arguments_left)
-//            ->validate();
-//
-//        // Ensure the name doesn't exist yet as it is a unique identifier
-//        if ($data['name']) {
-//            static::notExists($data['name'], $this->getId(), true);
-//        }
-//
-//        return $data;
+                })
+                ->setSize(6)
+                ->setLabel(tr('Parent category'))
+                ->addValidationFunction(function ($validator) {
+                    // Ensure parents_id exists and that its or parent
+                    $validator->or('parent')->isId()->isQueryColumn('SELECT `id` FROM `categories` WHERE `id` = :id AND `status` IS NULL', [':id' => '$parents_id']);
+                }))
+            ->add(Definition::new('parent')
+                ->setOptional(true)
+                ->setVirtual(true)
+                ->setCliField('--parent PARENT CATEGORY NAME')
+                ->setAutoComplete([
+                    'word'   => function($word) { return Categories::new()->filteredList($word); },
+                    'noword' => function()      { return Categories::new()->list(); },
+                ])
+                ->addValidationFunction(function ($validator) {
+                    // Ensure parent exists and that its or parents_id
+                    $validator->or('parents_id')->isName(64)->setColumnFromQuery('parents_id', 'SELECT `id` FROM `categories` WHERE `name` = :name AND `status` IS NULL', [':name' => '$parent']);
+                }))
+            ->add(DefinitionDefaults::getName()
+                ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->isFalse(function($value, $source) {
+                        Category::exists($value, isset_get($source['id']));
+                    }, tr('already exists'));
+                }))
+            ->add(DefinitionDefaults::getSeoName())
+            ->add(DefinitionDefaults::getDescription());
     }
 }

@@ -12,7 +12,9 @@ use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Filesystem;
+use Phoundation\Filesystem\Interfaces\FileInterface;
 use Phoundation\Filesystem\Restrictions;
+use Stringable;
 
 
 /**
@@ -412,9 +414,9 @@ Log::checkpoint();
      * @param string $url             The URL of the file to be downloaded
      * @param callable|null $callback If specified, download will execute this callback with either the filename or file
      *                                contents (depending on $section)
-     * @return string|null            The path to the downloaded file or NULL if a callback was specified
+     * @return FileInterface|null     The path to the downloaded file or NULL if a callback was specified
      */
-    public function download(string $url, callable $callback = null): ?string
+    public function download(string $url, callable $callback = null): FileInterface|null
     {
         // Set temp file and download data
         $file = Filesystem::createTempFile()->getFile();
@@ -423,11 +425,13 @@ Log::checkpoint();
         // Write data to the temp file
         file_put_contents($file, $data);
 
-        if ($callback) {
-            // Execute the callbacks before returning the data, delete the temporary file after
-            $callback($file);
-            \Phoundation\Filesystem\File::new($file, $this->restrictions)->delete();
+        if (!$callback) {
+            return \Phoundation\Filesystem\File::new($file, $this->restrictions);
         }
+
+        // Execute the callbacks before returning the data, delete the temporary file after
+        $file = $callback($file);
+        \Phoundation\Filesystem\File::new($file, $this->restrictions)->delete();
 
         return $file;
     }

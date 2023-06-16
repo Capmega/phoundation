@@ -31,7 +31,7 @@ class Timezone extends DataEntry
      */
     public function __construct(DataEntry|string|int|null $identifier = null)
     {
-        static::$entry_name   = 'geo timezone';
+        static::$entry_name = 'geo timezone';
         $this->unique_field = 'seo_name';
 
         parent::__construct($identifier);

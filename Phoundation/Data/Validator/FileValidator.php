@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\Validator;
 
 
+use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 
 

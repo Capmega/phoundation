@@ -16,6 +16,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\Sha256MismatchException;
+use Phoundation\Filesystem\Interfaces\FileInterface;
 use Phoundation\Processes\Commands\FilesystemCommands;
 use Throwable;
 
@@ -31,7 +32,7 @@ use Throwable;
  * @category Function reference
  * @package Phoundation\Filesystem
  */
-class File extends FileBasics
+class File extends FileBasics implements FileInterface
 {
     /**
      * The default size of the file buffer
@@ -91,7 +92,7 @@ class File extends FileBasics
      * Append specified data string to the end of the object file
      *
      * @param string $data
-     * @return File
+     * @return static
      * @throws FilesystemException
      */
     public function append(string $data): static
@@ -104,7 +105,7 @@ class File extends FileBasics
      * Append specified data string to the end of the object file
      *
      * @param string $data
-     * @return File
+     * @return static
      * @throws FilesystemException
      */
     public function create(string $data): static
@@ -117,7 +118,7 @@ class File extends FileBasics
      * Concatenates a list of files to a target file
      *
      * @param string|array $sources The source files
-     * @return File
+     * @return static
      */
     public function appendFiles(string|array $sources): static
     {
@@ -371,9 +372,9 @@ class File extends FileBasics
      * would not be readable (ie, the file exists, and can be read accessed), it will throw an exception with the
      * previous exception attached to it
      *
-     * @param string|null $type             This is the label that will be added in the exception indicating what type
+     * @param string|null $type This is the label that will be added in the exception indicating what type
      *                                      of file it is
-     * @param Throwable|null $previous_e    If the file is okay, but this exception was specified, this exception will
+     * @param Throwable|null $previous_e If the file is okay, but this exception was specified, this exception will
      *                                      be thrown
      * @return static
      */
@@ -405,7 +406,7 @@ class File extends FileBasics
      * would not be readable (ie, the file exists, and can be read accessed), it will throw an exception with the
      * previous exception attached to it
      *
-     * @param string|null $type          This is the label that will be added in the exception indicating what type of
+     * @param string|null $type This is the label that will be added in the exception indicating what type of
      *                                   file it is
      * @param Throwable|null $previous_e If the file is okay, but this exception was specified, this exception will be
      *                                   thrown
@@ -1315,7 +1316,7 @@ class File extends FileBasics
     /**
      * Tars this file and returns a file object for the tar file
      *
-     * @return File
+     * @return static
      */
     public function tar(): static
     {

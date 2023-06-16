@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Users;
 
-use Phoundation\Data\Interfaces\DataEntryInterface;
+use Phoundation\Accounts\Users\Interfaces\GuestUserInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 
 
 /**
@@ -17,7 +18,7 @@ use Phoundation\Data\Interfaces\DataEntryInterface;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
-class GuestUser extends User
+class GuestUser extends User implements GuestUserInterface
 {
     /**
      * GuestUser class constructor
@@ -26,7 +27,7 @@ class GuestUser extends User
      */
     public function __construct(DataEntryInterface|string|int|null $identifier = null)
     {
-        parent::__construct(null);
+        parent::__construct($identifier);
         $this->id = -1;
         $this->setNickname('Guest');
     }

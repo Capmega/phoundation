@@ -12,6 +12,7 @@ use Phoundation\Filesystem\Exception\FileExistsException;
 use Phoundation\Filesystem\Exception\FileNotWritableException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\PathNotExistsException;
+use Phoundation\Filesystem\Interfaces\FileBasicsInterface;
 use Phoundation\Processes\Exception\ProcessesException;
 use Phoundation\Processes\Process;
 use Phoundation\Servers\Traits\UsesRestrictions;
@@ -30,7 +31,7 @@ use Throwable;
  * @category Function reference
  * @package Phoundation\Filesystem
  */
-class FileBasics implements Stringable
+class FileBasics implements Stringable, FileBasicsInterface
 {
     use UsesRestrictions;
 
@@ -183,9 +184,9 @@ class FileBasics implements Stringable
      * would not be readable (ie, the file exists, and can be read accessed), it will throw an exception with the
      * previous exception attached to it
      *
-     * @param string|null $type             This is the label that will be added in the exception indicating what type
+     * @param string|null $type This is the label that will be added in the exception indicating what type
      *                                      of file it is
-     * @param Throwable|null $previous_e    If the file is okay, but this exception was specified, this exception will
+     * @param Throwable|null $previous_e If the file is okay, but this exception was specified, this exception will
      *                                      be thrown
      * @return static
      */
@@ -240,7 +241,7 @@ class FileBasics implements Stringable
      * would not be readable (ie, the file exists, and can be read accessed), it will throw an exception with the
      * previous exception attached to it
      *
-     * @param string|null $type          This is the label that will be added in the exception indicating what type of
+     * @param string|null $type This is the label that will be added in the exception indicating what type of
      *                                   file it is
      * @param Throwable|null $previous_e If the file is okay, but this exception was specified, this exception will be
      *                                   thrown
@@ -536,8 +537,8 @@ class FileBasics implements Stringable
      * @param boolean $clean_path If specified true, all directories above each specified pattern will be deleted as
      *                            well as long as they are empty. This way, no empty directories will be left lying
      *                            around
-     * @param boolean $sudo       If specified true, the rm command will be executed using sudo
-     * @param bool $escape        If true, will escape the filename. This may cause issues when using wildcards, for
+     * @param boolean $sudo If specified true, the rm command will be executed using sudo
+     * @param bool $escape If true, will escape the filename. This may cause issues when using wildcards, for
      *                            example
      * @return static
      * @see Restrictions::check() This function uses file location restrictions
@@ -677,13 +678,13 @@ class FileBasics implements Stringable
     /**
      * Update the object file owner and group
      *
-     * @see $this->chmod()
-     *
-     * @note This function ALWAYS requires sudo as chown is a root only filesystem command
      * @param string|null $user
      * @param string|null $group
      * @param bool $recursive
      * @return static
+     * @see $this->chmod()
+     *
+     * @note This function ALWAYS requires sudo as chown is a root only filesystem command
      */
     public function chown(?string $user = null, ?string $group = null, bool $recursive = false): static
     {
@@ -716,13 +717,13 @@ class FileBasics implements Stringable
     /**
      * Change file mode, optionally recursively
      *
-     * @see $this->chown()
-     *
      * @param string|int $mode The mode to apply to the specified path (and all files below if recursive is specified)
      * @param boolean $recursive If set to true, apply specified mode to the specified path and all files below by
      *                           recursion
      * @param bool $sudo
      * @return static
+     * @see $this->chown()
+     *
      */
     public function chmod(string|int $mode, bool $recursive = false, bool $sudo = false): static
     {

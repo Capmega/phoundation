@@ -8,6 +8,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Exception\NoKeySelectedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
+use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use ReflectionProperty;
 
 
@@ -62,9 +63,16 @@ trait ValidatorBasics
     /**
      * If not NULL, the currently selected field may be non-existent or NULL, it will receive this default value
      *
-     * @var mixed $selected_optional
+     * @var array|string|float|int|bool|null $selected_optional
      */
-    protected mixed $selected_optional;
+    protected array|string|float|int|bool|null $selected_optional;
+
+    /**
+     * If true, the value is optional
+     *
+     * @var bool $selected_is_optional
+     */
+    protected bool $selected_is_optional;
 
     /**
      * The value(s) that actually will be tested. This most of the time will be an array with a single reference to
@@ -103,7 +111,7 @@ trait ValidatorBasics
      *
      * @var ValidatorInterface|null
      */
-    protected ?ValidatorInterface $parent = null;
+    protected ?Validator $parent = null;
 
     /**
      * If set, all field failure keys will show the parent field as well
@@ -130,6 +138,7 @@ trait ValidatorBasics
     /**
      * Required to test if selected_optional property is initialized or not
      *
+     * @todo Check if we can get rid of this reflectionproperty stuff, its very hacky
      * @var ReflectionProperty $reflection_selected_optional
      */
     protected ReflectionProperty $reflection_selected_optional;
@@ -137,6 +146,7 @@ trait ValidatorBasics
     /**
      * Required to test if process_value property is initialized or not
      *
+     * @todo Check if we can get rid of this reflectionproperty stuff, its very hacky
      * @var ReflectionProperty $reflection_process_value
      */
     protected ReflectionProperty $reflection_process_value;
@@ -210,14 +220,15 @@ trait ValidatorBasics
      * This means that either it may not exist, or it's contents may be NULL
      *
      * @param array|string|float|int|bool|null $default
-     * @return static
+     * @return ValidatorInterface
      *
      * @see Validator::xor()
      * @see Validator::or()
      */
     public function isOptional(array|string|float|int|bool|null $default = null): static
     {
-        $this->selected_optional = $default;
+        $this->selected_is_optional = true;
+        $this->selected_optional    = $default;
         return $this;
     }
 
@@ -243,7 +254,7 @@ trait ValidatorBasics
      *
      * @param string $field
      * @param bool $rename
-     * @return static
+     * @return ValidatorInterface
      *
      * @see Validator::isOptional()
      * @see Validator::or()
@@ -289,7 +300,7 @@ trait ValidatorBasics
      *
      * @param string $field
      * @param mixed $default
-     * @return static
+     * @return ValidatorInterface
      *
      * @see Validator::isOptional()
      * @see Validator::xor()
@@ -320,7 +331,7 @@ trait ValidatorBasics
      * @param string $field
      * @param bool $strict If true will execute a strict comparison where the datatype must match as well (so 1 would
      *                     not be the same as "1") for example
-     * @return static
+     * @return ValidatorInterface
      * @see Validator::isOptional()
      */
     public function isEqualTo(string $field, bool $strict = false): static
@@ -349,7 +360,7 @@ trait ValidatorBasics
     /**
      * Recurse into a sub array and return another validator object for that sub array
      *
-     * @return static
+     * @return ValidatorInterface
      */
     public function recurse(): static
     {
@@ -436,8 +447,10 @@ trait ValidatorBasics
 
 
     /**
-     * Return if this field is optional or not
+     * Return true if this field was empty and now has the specified optional value and does not require validation
      *
+     * @note This process will set the self::process_value_failed to true when the optional value is applied to stop
+     *       further testing.
      * @param mixed $value The value to test
      * @return bool
      */
@@ -453,22 +466,20 @@ trait ValidatorBasics
 //        show($value);
 
         if (!$value) {
-            if (($value !== 0) and ($value !== "0")) {
-                if (!$this->reflection_selected_optional->isInitialized($this)){
-                    // At this point we know we MUST have a value, so we're bad here
-                    $this->addFailure(tr('is required'));
-                    return false;
-                }
-
-                // If value is set or not doesn't matter, it's okay
-                $value = $this->selected_optional;
-                $this->process_value_failed = true;
-                return false;
+            if (!$this->selected_is_optional) {
+                // At this point we know we MUST have a value, so we're bad here
+                $this->addFailure(tr('is required'));
+                return true;
             }
+
+            // If value is set or not doesn't matter, it's okay
+            $value = $this->selected_optional;
+            $this->process_value_failed = true;
+            return true;
         }
 
         // Field has a value, we're okay
-        return true;
+        return false;
     }
 
 

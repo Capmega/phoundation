@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Definitions\Interfaces;
 
-use Phoundation\Data\Interfaces\Iterator;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Stringable;
 
 
@@ -18,7 +18,7 @@ use Stringable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-interface DefinitionsInterface extends Iterator
+interface DefinitionsInterface extends IteratorInterface
 {
     /**
      * UsesNewTable class constructor
@@ -107,7 +107,7 @@ interface DefinitionsInterface extends Iterator
      *
      * @return static
      */
-    public function rewind(): static;
+    #[ReturnTypeWillChange] public function rewind(): static;
 
     /**
      * Returns the Definitions fields array in a JSON string

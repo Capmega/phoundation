@@ -53,15 +53,16 @@ ARGUMENTS
                                         set up project and start a new project from scratch');
 
 
-
 // Get command line arguments
 $argv = ArgvValidator::new()
     ->select('--no-password-validation')->isOptional(false)->isBoolean()
     ->select('--project')->isOptional(false)->isBoolean()
     ->select('--import')->isOptional(false)->isBoolean()
+    ->select('--demo')->isOptional(false)->isBoolean()
+    ->select('--min', true)->isOptional(0)->isNatural()
+    ->select('--max', true)->isOptional(100)->isNatural()
     ->noArgumentsLeft()
     ->validate();
-
 
 
 // Validate and create project
@@ -77,7 +78,6 @@ if (!Project::projectFileExists()) {
 } else {
     Project::load();
 }
-
 
 
 // Get setup variables
@@ -101,10 +101,8 @@ $config['admin_pass1']    = Cli::readPassword('Please specify the administrator 
 $config['admin_pass2']    = Cli::readPassword('Please repeat the administrator password:');
 
 
-
 // Validate setup parameters
 Project::validate(ArrayValidator::new($config));
-
 
 
 // Create the project and set the environment
@@ -113,7 +111,6 @@ if (isset($create)) {
 }
 
 Project::setEnvironment($config['environment']);
-
 
 
 // Yay! We can safely set up this environment. Create a basic configuration file from a few basic questions.
@@ -128,14 +125,12 @@ $configuration->getDatabase()->setUser($config['database_user']);
 $configuration->getDatabase()->setPass($config['database_pass1']);
 
 
-
 // Run setup
 Project::setup();
 Plugins::setup();
 
 
-
 // Run import?
 if ($argv['import']) {
-    Project::import();
+    Project::import($argv['demo'], $argv['min'], $argv['max']);
 }

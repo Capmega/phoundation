@@ -5,11 +5,7 @@ declare(strict_types=1);
 
 namespace Templates\AdminLte\Html\Components;
 
-use Phoundation\Content\Images\Image;
-use Phoundation\Core\Session;
-use Phoundation\Web\Http\Html\Components\DropDownMenu;
 use Phoundation\Web\Http\Html\Renderer;
-use Phoundation\Web\Page;
 
 
 /**

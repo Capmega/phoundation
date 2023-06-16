@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\Validator;
 
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 
 
 /**
@@ -19,7 +20,7 @@ use Phoundation\Core\Log\Log;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
-class ArrayValidator extends ValidatorInterface
+class ArrayValidator extends Validator
 {
     /**
      * Validator constructor.
