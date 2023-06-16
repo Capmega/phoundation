@@ -600,10 +600,10 @@ class User extends DataEntry implements UserInterface
     /**
      * Sets the is_leader for this user
      *
-     * @param bool|null $is_leader
+     * @param int|bool|null $is_leader
      * @return static
      */
-    public function setIsLeader(?bool $is_leader): static
+    public function setIsLeader(int|bool|null $is_leader): static
     {
         return $this->setDataValue('is_leader', (bool) $is_leader);
     }
@@ -1409,6 +1409,47 @@ class User extends DataEntry implements UserInterface
                 ->addValidationFunction(function ($validator) {
                     $validator->hasMaxCharacters(6);
                 }))
+            ->add(DefinitionDefaults::getUser('leader')
+                ->setCliField('--leader USER-EMAIL')
+                ->addValidationFunction(function ($validator) {
+                    $validator->or('leaders_id')->isEmail()->setColumnFromQuery('leaders_id', 'SELECT `id` FROM `accounts_users` WHERE `email` = :email AND `status` IS NULL', [':email' => '$leader']);
+                }))
+            ->add(DefinitionDefaults::getUsersId('leaders_id')
+                ->setCliField('--leaders-id USERS-DATABASE-ID')
+                ->setLabel(tr('Leader'))
+                ->setHelpGroup(tr('Hierarchical information'))
+                ->setHelpText(tr('The user that is the leader for this user'))
+                ->addValidationFunction(function ($validator) {
+                    $validator->or('leader');
+                }))
+            ->add(Definition::new('is_leader')
+                ->setOptional(true)
+                ->setInputType(InputType::checkbox)
+                ->setSize(3)
+                ->setCliField('--is-leader')
+                ->setAutoComplete(true)
+                ->setLabel(tr('Is leader'))
+                ->setHelpGroup(tr('Hierarchical information'))
+                ->setHelpText(tr('Sets if this user is a leader itself'))
+                ->addValidationFunction(function ($validator) {
+                    $validator->isBoolean();
+                }))
+            ->add(DefinitionDefaults::getCode()
+                ->setHelpGroup(tr('Personal information'))
+                ->setHelpText(tr('The code associated with this user')))
+            ->add(Definition::new('priority')
+                ->setOptional(true)
+                ->setInputType(InputType::number)
+                ->setSize(3)
+                ->setCliField('--priority')
+                ->setAutoComplete(true)
+                ->setLabel(tr('Priority'))
+                ->setMin(1)
+                ->setMax(9)
+                ->setHelpText(tr('The priority for this user, between 1 and 9'))
+                ->addValidationFunction(function ($validator) {
+                    $validator->isInteger();
+                }))
             ->add(DefinitionDefaults::getDate('birthdate')
                 ->setLabel(tr('Birthdate'))
                 ->setCliField('-b,--birthdate')
@@ -1513,14 +1554,6 @@ class User extends DataEntry implements UserInterface
                 ->addValidationFunction(function ($validator) {
                     $validator->isFloat();
                 }))
-            ->add(DefinitionDefaults::getTimezone()
-                ->setHelpGroup(tr('Location information'))
-                ->setHelpText(tr('The timezone where this user resides')))
-            ->add(DefinitionDefaults::getTimezonesId())
-            ->add(DefinitionDefaults::getLanguage()
-                ->setHelpGroup(tr('Location information'))
-                ->setHelpText(tr('The display language for this user')))
-            ->add(DefinitionDefaults::getLanguagesId())
             ->add(Definition::new('type')
                 ->setOptional(true)
                 ->setMaxLength(16)
@@ -1533,47 +1566,14 @@ class User extends DataEntry implements UserInterface
                 ->addValidationFunction(function ($validator) {
                     $validator->isName();
                 }))
-            ->add(DefinitionDefaults::getUser('leader')
-                ->setCliField('--leader USER-EMAIL')
-                ->addValidationFunction(function ($validator) {
-                    $validator->or('leaders_id')->isEmail()->setColumnFromQuery('leaders_id', 'SELECT `id` FROM `accounts_users` WHERE `email` = :email AND `status` IS NULL', [':email' => '$leader']);
-                }))
-            ->add(DefinitionDefaults::getUsersId('leaders_id')
-                ->setCliField('--leaders-id USERS-DATABASE-ID')
-                ->setLabel(tr('Leader'))
-                ->setHelpGroup(tr('Hierarchical information'))
-                ->setHelpText(tr('The user that is the leader for this user'))
-                ->addValidationFunction(function ($validator) {
-                    $validator->or('leader');
-                }))
-            ->add(Definition::new('is_leader')
-                ->setOptional(true)
-                ->setInputType(InputType::checkbox)
-                ->setSize(3)
-                ->setCliField('--is-leader')
-                ->setAutoComplete(true)
-                ->setLabel(tr('Is leader'))
-                ->setHelpGroup(tr('Hierarchical information'))
-                ->setHelpText(tr('Sets if this user is a leader itself'))
-                ->addValidationFunction(function ($validator) {
-                    $validator->isBoolean();
-                }))
-            ->add(DefinitionDefaults::getCode()
-                ->setHelpGroup(tr('Personal information'))
-                ->setHelpText(tr('The code associated with this user')))
-            ->add(Definition::new('priority')
-                ->setOptional(true)
-                ->setInputType(InputType::number)
-                ->setSize(3)
-                ->setCliField('--priority')
-                ->setAutoComplete(true)
-                ->setLabel(tr('Priority'))
-                ->setMin(1)
-                ->setMax(9)
-                ->setHelpText(tr('The priority for this user, between 1 and 9'))
-                ->addValidationFunction(function ($validator) {
-                    $validator->isInteger();
-                }))
+            ->add(DefinitionDefaults::getTimezone()
+                ->setHelpGroup(tr('Location information'))
+                ->setHelpText(tr('The timezone where this user resides')))
+            ->add(DefinitionDefaults::getTimezonesId())
+            ->add(DefinitionDefaults::getLanguage()
+                ->setHelpGroup(tr('Location information'))
+                ->setHelpText(tr('The display language for this user')))
+            ->add(DefinitionDefaults::getLanguagesId())
             ->add(Definition::new('keywords')
                 ->setOptional(true)
                 ->setMaxlength(255)

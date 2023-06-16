@@ -114,6 +114,8 @@ class ArgvValidator extends Validator
         unset($this->selected_value);
 
         $this->process_value_failed = false;
+        $this->selected_is_optional = false;
+        $this->selected_is_default  = false;
 
         $clean_field = null;
         $field       = null;

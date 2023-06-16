@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
-use DateTimeZone;
 use Phoundation\Core\Log\Log;
+use Phoundation\Date\DateTimeZone;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Geo\Timezones\Timezone;
 
@@ -81,18 +81,18 @@ trait DataEntryTimezone
                 $timezone = Timezone::get($timezone);
             }
 
+            // Make sure this timezone is compatible with PHP!
+            if (!in_array($timezone, DateTimeZone::listAbbreviations())) {
+                Log::warning(tr('Specified timezone ":timezone" is not compatible with PHP, falling back to UTC', [
+                    ':timezone' => $timezone
+                ]));
+
+                $timezone = TimeZone::new('UTC');
+            }
+
             if (is_object($timezone)) {
                 $timezone = $timezone->getId();
             }
-        }
-
-        // Make sure this timezone is compatible with PHP!
-        if (!in_array($timezone, DateTimeZone::listAbbreviations())) {
-            Log::warning(tr('Specified timezone ":timezone" is not compatible with PHP, falling back to UTC', [
-                ':timezone' => $timezone
-            ]));
-
-            $timezone = 'UTC';
         }
 
         return $this->setTimezonesId(get_null($timezone));

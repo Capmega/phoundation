@@ -19,7 +19,12 @@ use Phoundation\Core\Session;
  */
 class DateTimeZone extends \DateTimeZone
 {
-    protected function getObject(): static
+    /**
+     * Ensures we have a valid DateTimeZone object, even when "system" or "user" or a timezone name string was specified
+     *
+     * @param \DateTimeZone|DateTimeZone|string|null $timezone
+     */
+    public function __construct(\DateTimeZone|DateTimeZone|string|null $timezone)
     {
         if (!is_object($timezone)) {
             switch ($timezone) {
@@ -41,8 +46,33 @@ class DateTimeZone extends \DateTimeZone
                 $timezone = 'UTC';
             }
 
-            $timezone = new DateTimeZone($timezone);
+        } elseif (!($timezone instanceof DateTimeZone)) {
+            $timezone = $timezone->getName();
         }
 
+        parent::__construct($timezone);
+    }
+
+
+    /**
+     * Returns a new DateTimeZone object
+     *
+     * @param \DateTimeZone|DateTimeZone|string|null $timezone
+     * @return static
+     */
+    public static function new(\DateTimeZone|DateTimeZone|string|null $timezone): static
+    {
+        return new DateTimeZone($timezone);
+    }
+
+
+    /**
+     * Returns a PHP DateTimeZone object from this Phoundation DateTimeZone object
+     *
+     * @return \DateTimeZone
+     */
+    public function getPhpDateTimeZone(): \DateTimeZone
+    {
+        return new \DateTimeZone($this->getName());
     }
 }

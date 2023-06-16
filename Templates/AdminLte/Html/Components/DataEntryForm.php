@@ -60,7 +60,6 @@ class DataEntryForm extends Renderer
         $prefix      = $this->element->getDefinitions()->getPrefix();
         $array       = str_ends_with((string) $prefix, '[');
 
-
         /*
          * $data field keys: (Or just use Definitions class)
          *
@@ -108,18 +107,19 @@ class DataEntryForm extends Renderer
         // Go over each key and add it to the form
         foreach ($definitions as $field => $definition) {
             // Add field name prefix
-            $field = $prefix . $field;
+            $field_name = $prefix . $field;
 
             if ($array) {
                 // The field name prefix is an HTML form array prefix, close that array
-                $field .= ']';
+                $field_name .= ']';
             }
 
             if (!is_array($definition)) {
                 if (!is_object($definition) and !($definition instanceof DefinitionInterface)) {
-                    throw new OutOfBoundsException(tr('Data key definition for field ":field" is invalid. Iit should be an array or Definition type  but contains ":data"', [
-                        ':field' => $field,
-                        ':data'  => gettype($definition) . ': ' . $definition
+                    throw new OutOfBoundsException(tr('Data key definition for field ":field / :field_name" is invalid. Iit should be an array or Definition type  but contains ":data"', [
+                        ':field'      => $field,
+                        ':field_name' => $field_name,
+                        ':data'       => gettype($definition) . ': ' . $definition
                     ]));
                 }
 
@@ -216,15 +216,17 @@ class DataEntryForm extends Renderer
                     $definition['type'] = isset_get($definition['type'], 'text');
 
                     if (!$definition['type']) {
-                        throw new OutOfBoundsException(tr('No input type specified for key ":key"', [
-                            ':key' => $field
+                        throw new OutOfBoundsException(tr('No input type specified for field ":field / field_name"', [
+                            ':field_name' => $field_name,
+                            ':field'      => $field
                         ]));
                     }
 
                     if (!$this->element->inputTypeSupported($definition['type'])) {
-                        throw new OutOfBoundsException(tr('Unknown input type ":type" specified for key ":key"', [
-                            ':key'  => $field,
-                            ':type' => $definition['type']
+                        throw new OutOfBoundsException(tr('Unknown input type ":type" specified for field ":field / :field_name"', [
+                            ':field_name' => $field_name,
+                            ':field'      => $field,
+                            ':type'       => $definition['type']
                         ]));
                     }
 
@@ -250,7 +252,7 @@ class DataEntryForm extends Renderer
                             $html = $element::new()
                                 ->setDisabled((bool) $definition['disabled'])
                                 ->setReadOnly((bool) $definition['readonly'])
-                                ->setName($field)
+                                ->setName($field_name)
                                 ->setValue('1')
                                 ->setChecked((bool) $source[$field])
                                 ->render();
@@ -264,7 +266,7 @@ class DataEntryForm extends Renderer
                                 ->setMin(isset_get($definition['min']))
                                 ->setMax(isset_get($definition['max']))
                                 ->setStep(isset_get($definition['step']))
-                                ->setName($field)
+                                ->setName($field_name)
                                 ->setValue($source[$field])
                                 ->render();
 
@@ -275,7 +277,7 @@ class DataEntryForm extends Renderer
                             $html = $element::new()
                                 ->setDisabled((bool) $definition['disabled'])
                                 ->setReadOnly((bool) $definition['readonly'])
-                                ->setName($field)
+                                ->setName($field_name)
                                 ->setValue($source[$field])
                                 ->render();
                     }
@@ -300,7 +302,7 @@ class DataEntryForm extends Renderer
                         ->setDisabled((bool) $definition['disabled'])
                         ->setReadOnly((bool) $definition['readonly'])
                         ->setRows((int) isset_get($definition['rows'], 5))
-                        ->setName($field)
+                        ->setName($field_name)
                         ->setContent(isset_get($source[$field]))
                         ->render();
 
@@ -323,7 +325,7 @@ class DataEntryForm extends Renderer
                     include_once($file);
 
                     $html = $element::new()
-                        ->setName($field)
+                        ->setName($field_name)
                         ->setContent(isset_get($source[$field]))
                         ->render();
 
@@ -340,7 +342,7 @@ class DataEntryForm extends Renderer
                         ->setSource(isset_get($definition['source']), $execute)
                         ->setDisabled((bool) $definition['disabled'])
                         ->setReadOnly((bool) $definition['readonly'])
-                        ->setName($field)
+                        ->setName($field_name)
                         ->setSelected(isset_get($source[$field]))
                         ->render();
 
@@ -363,7 +365,7 @@ class DataEntryForm extends Renderer
                     $input->getInput()
                         ->setDisabled((bool) $definition['disabled'])
                         ->setReadOnly((bool) $definition['readonly'])
-                        ->setName($field)
+                        ->setName($field_name)
                         ->setValue($source[$field])
                         ->setContent(isset_get($source[$field]));
 
@@ -391,7 +393,6 @@ class DataEntryForm extends Renderer
 
         // Add one empty element to (if required) close any rows
         $this->render .= $this->renderItem(null, null, null);
-
         return parent::render();
     }
 

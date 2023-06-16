@@ -168,8 +168,10 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
             $this->ensureSelected();
 
             if ($this->process_value_failed) {
-                // In the span of multiple tests on one value, one test failed, don't execute the rest of the tests
-                return $this;
+                if (!$this->selected_is_default) {
+                    // In the span of multiple tests on one value, one test failed, don't execute the rest of the tests
+                    return $this;
+                }
             }
 
             foreach ($this->process_values as $key => &$value) {
@@ -177,6 +179,7 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
                 $this->process_key          = $key;
                 $this->process_value        = &$value;
                 $this->process_value_failed = false;
+                $this->selected_is_default  = false;
 
                 $function($this->process_value);
             }
@@ -229,9 +232,9 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
         return $this->validateValues(function(&$value) {
             if (!$this->checkIsOptional($value)) {
                 if (!is_integer($value)) {
-                    if (is_string($value) and (((int)$value) == $value)) {
+                    if (is_string($value) and (((int) $value) == $value)) {
                         // This integer value was specified as a numeric string
-                        $value = (int)$value;
+                        $value = (int) $value;
                     } else {
                         if ($value !== null) {
                             $this->addFailure(tr('must have an integer value'));
@@ -257,7 +260,7 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
         return $this->validateValues(function(&$value) {
             if (!$this->checkIsOptional($value)) {
                 if (!is_float($value)) {
-                    if (is_string($value) and ((float)$value == $value)) {
+                    if (is_string($value) and ((float) $value == $value)) {
                         // This float value was specified as a numeric string
 // TODO Test this! There may be slight inaccuracies here due to how floats work, so maybe we should check within a range?
                         $value = (float) $value;
@@ -332,7 +335,14 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
      */
     public function isNatural(bool $allow_zero = true): static
     {
-        return $this->isInteger()->isPositive($allow_zero);
+        $this->isInteger();
+
+        if ($this->process_value_failed) {
+            // Validation already failed, don't test anything more
+            return $this;
+        }
+
+        return $this->isPositive($allow_zero);
     }
 
 
@@ -345,7 +355,14 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
      */
     public function isLatitude(): static
     {
-        return $this->isFloat()->isBetween(-90, 90);
+        $this->isFloat();
+
+        if ($this->process_value_failed) {
+            // Validation already failed, don't test anything more
+            return $this;
+        }
+
+        return $this->isBetween(-90, 90);
     }
 
 
@@ -358,7 +375,14 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
      */
     public function isLongitude(): static
     {
-        return $this->isFloat()->isBetween(0, 180);
+        $this->isFloat();
+
+        if ($this->process_value_failed) {
+            // Validation already failed, don't test anything more
+            return $this;
+        }
+
+        return $this->isBetween(0, 180);
     }
 
 
@@ -372,7 +396,14 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
      */
     public function isId(bool $allow_zero = false): static
     {
-        return $this->isInteger()->isPositive($allow_zero);
+        $this->isInteger();
+
+        if ($this->process_value_failed) {
+            // Validation already failed, don't test anything more
+            return $this;
+        }
+
+        return $this->isPositive($allow_zero);
     }
 
 
@@ -1068,7 +1099,7 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
                 return;
             }
 
-            if (!ctype_print(str_replace(["\t", "\r", "\l", '\n'], ' ', $value))) {
+            if (!ctype_print(str_replace(["\t", "\r", "\n"], ' ', $value))) {
                 $this->addFailure(tr('must contain only printable characters'));
             }
         });
@@ -1220,7 +1251,7 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
     public function isDate(): static
     {
         return $this->validateValues(function(&$value) {
-            $this->isString()->hasMaxCharacters(32); // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+            $this->hasMaxCharacters(32); // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -1255,18 +1286,18 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
     public function isTime(): static
     {
         return $this->validateValues(function(&$value) {
-            $this->isString()->hasMaxCharacters(32); // Sort-of arbitrary max size, just to ensure regex won't receive a 2MB string
+            $this->hasMaxCharacters(15); // 00:00:00.000000
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
 
-            if (preg_match('/?=((?: |^)[0-2]?d[:. ]?[0-5]d(?:[:. ]?[0-5]d)?(?:[ ]?.?m?.?)?(?: |$)/', $value)){
-                return;
+            if (!is_object(DateTime::createFromFormat('h:i a', $value))){
+                if (!is_object(DateTime::createFromFormat('h:i', $value))){
+                    $this->addFailure(tr('must be a valid time'));
+                }
             }
-
-            $this->addFailure(tr('must be a valid time'));
         });
     }
 
@@ -1280,7 +1311,7 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
     public function isDateTime(): static
     {
         return $this->validateValues(function(&$value) {
-            $this->isString()->hasMaxCharacters(32); // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+            $this->hasMaxCharacters(32); // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -1315,7 +1346,7 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
     public function isPast(?DateTime $before = null): static
     {
         return $this->validateValues(function(&$value) {
-            $this->isString()->hasMaxCharacters(32); // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+            $this->hasMaxCharacters(32); // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -1339,7 +1370,7 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
     public function isFuture(?DateTime $after = null): static
     {
         return $this->validateValues(function(&$value) {
-            $this->isString()->hasMaxCharacters(32); // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+            $this->hasMaxCharacters(32); // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -1368,7 +1399,7 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
     public function isCreditCard(): static
     {
         return $this->validateValues(function(&$value) {
-            $this->isString()->hasMaxCharacters(32); // Sort-of arbitrary max size, just to ensure regex won't receive a 2MB string
+            $this->hasMaxCharacters(32); // Sort-of arbitrary max size, just to ensure regex won't receive a 2MB string
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -1413,7 +1444,7 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
     public function isMode(): static
     {
         return $this->validateValues(function(&$value) {
-            $this->isString()->hasMaxCharacters(12); // Sort-of arbitrary max size, just to ensure regex won't receive a 2MB string
+            $this->hasMaxCharacters(12); // Sort-of arbitrary max size, just to ensure regex won't receive a 2MB string
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -1462,14 +1493,14 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
     public function isTimezone(): static
     {
         return $this->validateValues(function(&$value) {
-            $this->isString()->hasMaxCharacters(32); // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+            $this->hasMaxCharacters(64); // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
 
-            $this->hasMaxCharacters(64)->isQueryColumn('SELECT `id` FROM `geo_timezones` WHERE `name` = :name', [':name' => $value]);
+            $this->isQueryColumn('SELECT `id` FROM `geo_timezones` WHERE `name` = :name', [':name' => $value]);
         });
     }
 
@@ -2316,8 +2347,10 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
             $this->hasMinCharacters(3)->hasMaxCharacters();
 
             if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
-                return;
+                if (!$this->selected_is_default) {
+                    // Validation already failed, don't test anything more
+                    return;
+                }
             }
 
             return trim($value, $characters);
@@ -2338,8 +2371,10 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
             $this->hasMinCharacters(3)->hasMaxCharacters();
 
             if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
-                return;
+                if (!$this->selected_is_default) {
+                    // Validation already failed, don't test anything more
+                    return;
+                }
             }
 
             try {
@@ -2364,8 +2399,10 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
             $this->hasMinCharacters(3)->hasMaxCharacters();
 
             if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
-                return;
+                if (!$this->selected_is_default) {
+                    // Validation already failed, don't test anything more
+                    return;
+                }
             }
 
             try {
@@ -2392,8 +2429,10 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
             $this->hasMinCharacters(3)->hasMaxCharacters();
 
             if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
-                return;
+                if (!$this->selected_is_default) {
+                    // Validation already failed, don't test anything more
+                    return;
+                }
             }
 
             if ($regex) {
@@ -2424,8 +2463,10 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
             $this->hasMinCharacters(3)->hasMaxCharacters();
 
             if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
-                return;
+                if (!$this->selected_is_default) {
+                    // Validation already failed, don't test anything more
+                    return;
+                }
             }
 
             try {
@@ -2456,8 +2497,10 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
     {
         return $this->validateValues(function(&$value) use ($separator, $enclosure, $escape) {
             if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
-                return;
+                if (!$this->selected_is_default) {
+                    // Validation already failed, don't test anything more
+                    return;
+                }
             }
 
             try {
@@ -2486,8 +2529,10 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
     {
         return $this->validateValues(function(&$value) {
             if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
-                return;
+                if (!$this->selected_is_default) {
+                    // Validation already failed, don't test anything more
+                    return;
+                }
             }
 
             try {
@@ -2513,8 +2558,10 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
             $this->hasMinCharacters(3)->hasMaxCharacters();
 
             if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
-                return;
+                if (!$this->selected_is_default) {
+                    // Validation already failed, don't test anything more
+                    return;
+                }
             }
 
             try {
@@ -2542,8 +2589,10 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
     {
         return $this->validateValues(function(&$value) {
             if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
-                return;
+                if (!$this->selected_is_default) {
+                    // Validation already failed, don't test anything more
+                    return;
+                }
             }
 
             try {
@@ -2570,8 +2619,10 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
     {
         return $this->validateValues(function(&$value) {
             if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
-                return;
+                if (!$this->selected_is_default) {
+                    // Validation already failed, don't test anything more
+                    return;
+                }
             }
 
             try {
@@ -2598,8 +2649,10 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
     {
         return $this->validateValues(function(&$value) {
             if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
-                return;
+                if (!$this->selected_is_default) {
+                    // Validation already failed, don't test anything more
+                    return;
+                }
             }
 
             try {
@@ -2629,8 +2682,10 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
     {
         return $this->validateValues(function(&$value) use ($characters) {
             if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
-                return;
+                if (!$this->selected_is_default) {
+                    // Validation already failed, don't test anything more
+                    return;
+                }
             }
 
             try {
@@ -2639,6 +2694,40 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
             } catch (Throwable) {
                 $this->addFailure(tr('cannot be processed'));
             }
+        });
+    }
+
+
+    /**
+     * Sanitize the selected value by decoding the specified CSV
+     *
+     * @param string|null $pre
+     * @param string|null $post
+     * @return static
+     */
+    public function sanitizePrePost(?string $pre, ?string $post): static
+    {
+        return $this->validateValues(function(&$value) use ($pre, $post) {
+            if ($pre or $post) {
+                if ($this->process_value_failed) {
+                    if (!$this->selected_is_default) {
+                        // Validation already failed, don't test anything more
+                        return $this;
+                    }
+
+                    // This field contains the default
+                }
+
+                if (!is_scalar($this->selected_value)) {
+                    throw new ValidatorException(tr('Cannot sanitize pre / post string data for field ":field", the field contains a non scalar value', [
+                        ':field' => $this->selected_field
+                    ]));
+                }
+
+                $value = $pre . $value . $post;
+            }
+
+            return $this;
         });
     }
 
@@ -2679,6 +2768,7 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
         unset($this->selected_value);
 
         $this->process_value_failed = false;
+        $this->selected_is_default  = false;
 
         if (!$field) {
             throw new OutOfBoundsException(tr('No field specified'));

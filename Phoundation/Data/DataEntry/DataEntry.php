@@ -554,7 +554,12 @@ abstract class DataEntry implements DataEntryInterface, Stringable
         $exists = static::new($identifier)->getId();
 
         if ($exists) {
-            if ($id !== $exists) {
+            // Requested user exists, check if identifier should be skipped though.
+            if ($id and ($id === $exists)) {
+                // We found the user with the specified ID, so this is a NO.
+                $exists = !$exists;
+
+            } else {
                 if ($throw_exception) {
                     throw DataEntryAlreadyExistsException::new(tr('The ":type" type data entry with identifier ":id" already exists', [
                         ':type' => self::$entry_name,
@@ -1470,8 +1475,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
     public function load(array $data): static
     {
         // Store all data in the object
-        $this->setMetaData($data);
-        $this->setData($data, false);
+        return $this->setMetaData($data)->setData($data, false);
     }
 
 
@@ -1490,8 +1494,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
         }
 
         // Store all data in the object
-        $this->setMetaData($data);
-        $this->setData($data, false);
+        $this->setMetaData($data)->setData($data, false);
     }
 
 

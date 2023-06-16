@@ -2,6 +2,7 @@
 
 namespace Phoundation\Data\DataEntry\Definitions;
 
+use Phoundation\Accounts\Users\User;
 use Phoundation\Accounts\Users\Users;
 use Phoundation\Business\Companies\Companies;
 use Phoundation\Business\Customers\Customers;
@@ -623,10 +624,7 @@ class DefinitionDefaults
             ->setOptional(true)
             ->setInputType(InputType::datetime_local)
             ->setSize(3)
-            ->setLabel(tr('Date time'))
-            ->addValidationFunction(function ($validator) {
-                $validator->isDateTime();
-            });
+            ->setLabel(tr('Date time'));
     }
 
 
@@ -643,10 +641,24 @@ class DefinitionDefaults
             ->setInputType(InputType::date)
             ->setSize(3)
             ->setAutoComplete(true)
-            ->setLabel(tr('Date'))
-            ->addValidationFunction(function ($validator) {
-                $validator->isDate();
-            });
+            ->setLabel(tr('Date'));
+    }
+
+
+    /**
+     * Returns Definition object for column date
+     *
+     * @param string $column_name
+     * @return DefinitionInterface
+     */
+    public static function getTime(string $column_name = 'time'): DefinitionInterface
+    {
+        return Definition::new($column_name)
+            ->setOptional(true)
+            ->setInputType(InputType::time)
+            ->setSize(3)
+            ->setAutoComplete(true)
+            ->setLabel(tr('Time'));
     }
 
 
@@ -711,7 +723,7 @@ class DefinitionDefaults
             ->addValidationFunction(function ($validator) {
                 $validator->isEmail()->isTrue(function ($value, $source) {
                     // This email may NOT yet exist, unless its THIS user.
-                    return static::notExists($value, isset_get($source['id']));
+                    return User::notExists($value, isset_get($source['id']));
                 }, tr('This email address already exists'));
             });
     }

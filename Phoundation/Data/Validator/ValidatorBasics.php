@@ -104,6 +104,13 @@ trait ValidatorBasics
     protected bool $process_value_failed = false;
 
     /**
+     * If true, then the current field has the default value
+     *
+     * @var bool $selected_is_default
+     */
+    protected bool $selected_is_default = false;
+
+    /**
      * If specified, this is a child element to a parent.
      *
      * The ->validate() call will NOT cause an exception but instead will send the failures list to the parent and then
@@ -458,7 +465,7 @@ trait ValidatorBasics
     {
         if ($this->process_value_failed) {
             // Value processing already failed anyway, so always fail
-            return false;
+            return true;
         }
 
 // DEBUG CODE: In case of errors with validation, its very useful to have these debugged here
@@ -474,6 +481,7 @@ trait ValidatorBasics
 
             // If value is set or not doesn't matter, it's okay
             $value = $this->selected_optional;
+            $this->selected_is_default  = true;
             $this->process_value_failed = true;
             return true;
         }
@@ -537,7 +545,7 @@ trait ValidatorBasics
 
         // Store the failure
         $this->process_value_failed = true;
-        $this->failures[$field] = $failure;
+        $this->failures[$field]     = $failure;
     }
 
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http\Html\Components;
 
 use Iterator;
+use Phoundation\Seo\Seo;
 use Phoundation\Web\Http\Html\Components\Interfaces\InputTypeInterface;
 use Phoundation\Web\Http\Html\Enums\ButtonType;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
@@ -76,6 +77,13 @@ class Buttons extends ElementsBlock implements Iterator
     public function addButton(Button|string|null $button, DisplayMode $mode = DisplayMode::primary, InputTypeInterface|string $type_or_anchor_url = ButtonType::button, bool $outline = false, bool $right = false): static
     {
         if (is_string($button)) {
+            if ($button === tr('Submit')) {
+                $type_or_anchor_url = ButtonType::submit;
+                $name               = 'submit';
+            } else {
+                $name = Seo::string($button);
+            }
+
             // Button was specified as string, create a button first
             $button = Button::new()
                 ->setWrapping($this->wrapping)
@@ -84,8 +92,10 @@ class Buttons extends ElementsBlock implements Iterator
                 ->addClasses($this->classes)
                 ->setOutlined($outline)
                 ->setContent($button)
+                ->setValue($button)
                 ->setRight($right)
-                ->setMode($mode);
+                ->setMode($mode)
+                ->setName($name);
 
             switch ($type_or_anchor_url) {
                 case ButtonType::submit:

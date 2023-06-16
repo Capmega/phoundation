@@ -296,10 +296,10 @@ interface UserInterface extends DataEntryInterface
     /**
      * Sets the is_leader for this user
      *
-     * @param bool|null $is_leader
+     * @param int|bool|null $is_leader
      * @return static
      */
-    public function setIsLeader(?bool $is_leader): static;
+    public function setIsLeader(int|bool|null $is_leader): static;
 
     /**
      * Returns the leader for this user

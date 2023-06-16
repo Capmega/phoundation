@@ -322,20 +322,22 @@ class Sql
             }
 
             // Log all queries?
-            if (self::debug()) {
+            if (Config::getBoolean('databases.sql.debug', false)) {
                 $query = ' ' . $query;
             }
 
-            Log::sql('(' . $this->uniqueid . ') ' . $query, $execute, ($query[0] == ' ') ? 10 : 1);
+            Log::sql('(' . $this->uniqueid . ') ' . $query, $execute, str_starts_with($query, ' ') ? 10 : 1);
             Timers::get('query')->startLap();
 
             if (!$execute) {
-                // Just execute plain SQL query string.
+                // Just execute plain SQL query string. Only return ASSOC data.
                 $pdo_statement = $this->pdo->query($query);
+                $pdo_statement->setFetchMode(PDO::FETCH_ASSOC);
 
             } else {
-                // Execute the query with the specified $execute variables
+                // Execute the query with the specified $execute variables. Only return ASSOC data.
                 $pdo_statement = $this->pdo->prepare($query);
+                $pdo_statement->setFetchMode(PDO::FETCH_ASSOC);
 
                 try {
                     $pdo_statement->execute($execute);
@@ -367,6 +369,7 @@ class Sql
             }
 
             $retry = 0;
+
             return $pdo_statement;
 
         } catch (Throwable $e) {
@@ -643,7 +646,7 @@ class Sql
             Meta::get($row['meta_id'])->action($action, $comments, $diff);
             $row['meta_state'] = Strings::random(16);
 
-            // Never update meta information
+            // Never update the other meta information
             unset($row['status']);
             unset($row['meta_id']);
             unset($row['created_by']);
@@ -656,9 +659,9 @@ class Sql
 
         $this->query('UPDATE `' . $table . '` 
                             SET     ' . $update  . '
-                            WHERE   `id` = :id', $values);
+                            WHERE  `id` = :id', $values);
 
-        return $this->pdo->lastInsertId();
+        return (int) $this->pdo->lastInsertId();
     }
 
 

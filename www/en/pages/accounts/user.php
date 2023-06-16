@@ -13,6 +13,7 @@ use Phoundation\Web\Http\Html\Components\Button;
 use Phoundation\Web\Http\Html\Components\Buttons;
 use Phoundation\Web\Http\Html\Components\Img;
 use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
+use Phoundation\Web\Http\Html\Enums\ButtonType;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Html\Layouts\Grid;
 use Phoundation\Web\Http\Html\Layouts\GridColumn;
@@ -92,7 +93,7 @@ $user_card = Card::new()
     ->setTitle(tr('Edit data for user :name', [':name' => $user->getDisplayName()]))
     ->setContent($user->getHtmlForm()->render())
     ->setButtons(Buttons::new()
-        ->addButton(tr('Submit'))
+        ->addButton(tr('Submit'), type_or_anchor_url: ButtonType::submit)
         ->addButton(tr('Back'), DisplayMode::secondary, '/accounts/users.html', true)
         ->addButton(tr('Audit'), DisplayMode::green, '/audit/meta-' . $user->getMeta() . '.html', false, true)
         ->addButton(isset_get($delete))

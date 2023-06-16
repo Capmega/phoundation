@@ -45,6 +45,11 @@ trait DataEntryPicture
      */
     public function setPicture(ImageInterface|string|null $picture): static
     {
-        return $this->setDataValue('picture', Strings::from($picture?->getFile(), PATH_CDN));
+        if ($picture) {
+            // Make sure we have an Image object
+            $picture = Image::new($picture);
+        }
+
+        return $this->setDataValue('picture', Strings::from(get_null($picture)?->getFile(), PATH_CDN));
     }
 }

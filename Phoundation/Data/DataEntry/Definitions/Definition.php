@@ -38,6 +38,20 @@ class Definition implements DefinitionInterface
     protected array $validations = [];
 
     /**
+     * The prefix that is automatically added to this value, after validation
+     *
+     * @var string|null $prefix
+     */
+    protected ?string $prefix = null;
+
+    /**
+     * The postfix that is automatically added to this value, after validation
+     *
+     * @var string|null $postfix
+     */
+    protected ?string $postfix = null;
+
+    /**
      * Supported input element types
      *
      * @var array[] $supported_input_types
@@ -134,6 +148,54 @@ class Definition implements DefinitionInterface
     public function setDefinitions(array $definitions): static
     {
         $this->definitions = $definitions;
+        return $this;
+    }
+
+
+    /**
+     * Returns the prefix that is automatically added to this value, after validation
+     *
+     * @return string|null
+     */
+    public function getPrefix(): ?string
+    {
+        return $this->prefix;
+    }
+
+
+    /**
+     * Sets the prefix that is automatically added to this value, after validation
+     *
+     * @param string|null $prefix
+     * @return static
+     */
+    public function setPrefix(?string $prefix): static
+    {
+        $this->prefix = $prefix;
+        return $this;
+    }
+
+
+    /**
+     * Returns the postfix that is automatically added to this value, after validation
+     *
+     * @return string|null
+     */
+    public function getPostfix(): ?string
+    {
+        return $this->postfix;
+    }
+
+
+    /**
+     * Sets the postfix that is automatically added to this value, after validation
+     *
+     * @param string|null $postfix
+     * @return static
+     */
+    public function setPostfix(?string $postfix): static
+    {
+        $this->postfix = $postfix;
         return $this;
     }
 
@@ -1265,11 +1327,6 @@ throw new UnderConstructionException();
         // Select the field
         $validator->select($field, !$bool);
 
-        // Force the entry to be NULL for the database?
-        if ($this->getNullDb()) {
-//            $validator->forceNull();
-        }
-
         // Apply default validations
         if ($this->getOptional()) {
             $validator->isOptional($this->getDefault());
@@ -1364,6 +1421,9 @@ throw new UnderConstructionException();
         foreach ($this->validations as $validation) {
             $validation($validator);
         }
+
+        // Apply optional prefix / postfix data
+        $validator->sanitizePrePost($this->prefix, $this->postfix, true);
     }
 
 

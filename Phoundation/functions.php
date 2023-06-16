@@ -311,9 +311,10 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
             }
         }
 
-        throw OutOfBoundsException::new(tr('isset_get_typed(): Specified variable has datatype ":has" but it should be one of ":types"', [
-            ':has'   => gettype($variable),
-            ':types' => $types,
+        throw OutOfBoundsException::new(tr('isset_get_typed(): Specified variable ":variable" has datatype ":has" but it should be one of ":types"', [
+            ':variable' => $variable,
+            ':has'      => gettype($variable),
+            ':types'    => $types,
         ]))->setData(['variable' => $variable]);
     }
 
