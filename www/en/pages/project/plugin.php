@@ -25,7 +25,7 @@ $plugin = Plugin::get($_GET['id']);
 // Build the buttons
 $buttons = Buttons::new()
     ->addButton('Submit')
-    ->addButton('Back', 'secondary', '/project/plugins.html', true);
+    ->addButton('Back', DisplayMode::secondary, '/project/plugins.html', true);
 
 
 // Build the plugin form

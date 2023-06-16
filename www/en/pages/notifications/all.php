@@ -50,7 +50,7 @@ $notifications = Card::new()
     ->setContent($table->render())
     ->useForm(true)
     ->setButtons(Buttons::new()
-        ->addButton(tr('Mark all as read'), 'primary'));
+        ->addButton(tr('Mark all as read')));
 
 $notifications->getForm()
         ->setAction(UrlBuilder::getCurrent())

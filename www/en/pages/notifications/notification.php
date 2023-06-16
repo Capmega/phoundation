@@ -30,7 +30,7 @@ $notification_card = Card::new()
     ->setTitle(tr('Edit data for notification :name', [':name' => $notification->getTitle()]))
     ->setContent($notification->getHtmlForm()->render())
     ->setButtons(Buttons::new()
-        ->addButton(tr('Back'), 'secondary', '/accounts/notifications.html', true)
+        ->addButton(tr('Back'), DisplayMode::secondary, '/accounts/notifications.html', true)
         ->addButton(isset_get($delete))
         ->addButton(isset_get($impersonate)));
 

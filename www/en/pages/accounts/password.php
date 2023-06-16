@@ -51,7 +51,7 @@ if (Page::isPostRequestMethod()) {
 // Build the buttons
 $buttons = Buttons::new()
     ->addButton('Submit')
-    ->addButton(tr('Back'), 'secondary', '/accounts/users.html', true);
+    ->addButton(tr('Back'), DisplayMode::secondary, '/accounts/users.html', true);
 
 
 // Build the user form

@@ -25,7 +25,7 @@ $incident = Incident::get($_GET['id']);
 // Build the buttons
 $buttons = Buttons::new()
     ->addButton('Submit')
-    ->addButton(tr('Back'), 'secondary', '/development/incidents.html', true);
+    ->addButton(tr('Back'), DisplayMode::secondary, '/development/incidents.html', true);
 
 
 // Build the incident form

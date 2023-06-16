@@ -56,7 +56,7 @@ $plugins = Card::new()
     ->setSwitches('reload')
     ->setContent($table->render())
     ->useForm(true)
-    ->setButtons(Buttons::new()->addButton(tr('Scan'), 'primary'));
+    ->setButtons(Buttons::new()->addButton(tr('Scan')));
 
 $plugins->getForm()
         ->setAction(UrlBuilder::getCurrent())
