@@ -233,11 +233,6 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
                         return $variable;
                     }
 
-                    // Allow hard casting for numbers
-                    if (is_numeric($variable)) {
-                        return (string) $variable;
-                    }
-
                     break;
 
                 case 'int':
