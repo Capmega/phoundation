@@ -1,0 +1,72 @@
+#!/usr/bin/php
+<?php
+
+declare(strict_types=1);
+
+use Phoundation\Accounts\Roles\Role;
+use Phoundation\Accounts\Users\User;
+use Phoundation\Cli\Documentation;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
+use Phoundation\Data\Validator\ArgvValidator;
+
+
+/**
+ * Script accounts/roles/add-right
+ *
+ * This script will create a new role with the specified properties
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Scripts
+ */
+Documentation::usage('./pho accounts roles add-right NAME "RIGHT[,RIGHT,RIGHT,...]"
+./pho system accounts roles add-right -n test -d "This is a test role!"');
+
+Documentation::help('This script allows you to add rights to the specified role
+
+
+
+ARGUMENTS
+
+
+
+NAME                                    The identifier name of the role to which the rights shoudl be added
+
+RIGHT[,RIGHT,RIGHT,...]                 The rights linked with the role. Each user that gets this role assigned will 
+                                        also get these rights assigned');
+
+
+
+// Validate arguments
+$argv = ArgvValidator::new()
+    ->select('user', true)->isName()
+    ->select('roles', true)->sanitizeForceArray()->each()->isName()
+    ->noArgumentsLeft()
+    ->validate();
+
+
+
+try {
+    // Ensure that specified roles exist
+    if ($argv['roles']) {
+        foreach ($argv['roles'] as &$role) {
+            $role = Role::get($role);
+        }
+
+        unset($role);
+    }
+
+    // Get role and add rights
+    $user = User::get($argv['user']);
+    $user->roles()->remove($argv['roles']);
+
+}catch (DataEntryNotExistsException $e) {
+    throw $e->makeWarning();
+}
+
+
+
+// Done!
+Log::success(tr('Modified user ":user"', [':user' => $user->getName()]));

@@ -1,0 +1,44 @@
+#!/usr/bin/php
+<?php
+
+declare(strict_types=1);
+
+use Phoundation\Cli\Cli;
+use Phoundation\Cli\Documentation;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+
+
+/**
+ * Script tools/textsize
+ *
+ *
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Scripts
+ */
+Documentation::usage('./pho tools textsize');
+Documentation::help('The textsize tool script will display the size of the specified text');
+
+ArgvValidator::new()->noArgumentsLeft()->validate();
+
+$text    = '';
+$message = tr('Please paste string to calculate size and finish with a double <enter>:');
+
+while (true) {
+    $input   = Cli::readInput($message);
+    $message = '';
+
+    if (!$input) {
+        break;
+    }
+
+    $text .= $input;
+}
+
+$text = trim($text);
+Log::cli(strlen($text));
+
+
