@@ -33,6 +33,8 @@ class DateTimeZone extends \DateTimeZone
                     break;
 
                 case 'user':
+                    // no break
+                case 'display':
                     $timezone = Session::getUser()->getTimezone();
                     break;
             }

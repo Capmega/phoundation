@@ -19,7 +19,7 @@ use Stringable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Date
  */
-class DateTime extends \DateTime implements DateTimeInterface, Stringable
+class DateTimeImmutable extends \DateTimeImmutable implements DateTimeInterface, Stringable
 {
     /**
      * Returns this DateTime object as a string in ISO 8601 format without switching timezone
@@ -46,9 +46,7 @@ class DateTime extends \DateTime implements DateTimeInterface, Stringable
         }
 
         $datetime = new static($datetime);
-        $datetime->setTimezone($timezone);
-
-        return $datetime;
+        return $datetime->setTimezone($timezone);
     }
 
 
@@ -67,7 +65,7 @@ class DateTime extends \DateTime implements DateTimeInterface, Stringable
 
 
     /**
-     * Returns a new DateTime object
+     * Returns a new DateTime object for today
      *
      * @param \DateTimeZone|DateTimeZone|string|null $timezone
      * @return static
@@ -95,14 +93,13 @@ class DateTime extends \DateTime implements DateTimeInterface, Stringable
     /**
      * Returns a new DateTime object for yesterday
      *
-     * @param Date|DateTime|string $datetime
      * @param \DateTimeZone|DateTimeZone|string|null $timezone
      * @return static
      * @throws Exception
      */
-    public static function yesterday(Date|DateTime|string $datetime = 'yesterday 00:00:00', \DateTimeZone|DateTimeZone|string|null $timezone = null): static
+    public static function yesterday(\DateTimeZone|DateTimeZone|string|null $timezone = null): static
     {
-        return new static('yesterday 00:00:00', DateTimeZone::new($timezone));
+        return new static(' 00:00:00', DateTimeZone::new($timezone));
     }
 
 
