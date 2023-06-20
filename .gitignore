@@ -4,9 +4,6 @@ config/default.yaml
 *~
 *.kate-swp
 .idea
-/www/*
-!/www/dev
-!/www/en
 data/sources/synonyms/thesaurus_en.txt
 /www/en/libs/external
 www/en/data
