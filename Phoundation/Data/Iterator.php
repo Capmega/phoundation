@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data;
 
+use PDOStatement;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Utils\Json;
@@ -39,9 +40,16 @@ class Iterator implements IteratorInterface
     /**
      * The list that stores all entries
      *
-     * @var array $list
+     * @var array $source
      */
-    protected array $list = [];
+    protected array $source = [];
+
+    /**
+     * Callback functions that, if specified, will be executed for each row in the list
+     *
+     * @var array $callbacks
+     */
+    protected array $callbacks = [];
 
 
     /**
@@ -51,7 +59,7 @@ class Iterator implements IteratorInterface
      */
     public function __toString(): string
     {
-        return Json::encode($this->list);
+        return Json::encode($this->source);
     }
 
 
@@ -62,7 +70,50 @@ class Iterator implements IteratorInterface
      */
     public function __toArray(): array
     {
-        return $this->list;
+        return $this->source;
+    }
+
+
+    /**
+     * Iterator class constructor
+     *
+     * @param IteratorInterface|PDOStatement|array|string|null $source
+     * @param array|null $execute
+     */
+    public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null)
+    {
+        if (is_array($source)) {
+            // This is a standard array, load it into the source
+            $this->source = $source;
+        } elseif (is_string($source)) {
+            // This must be a query. Execute it and get a list of all entries from the result
+            $this->source = sql()->list($source, $execute);
+
+        } elseif ($source instanceof PDOStatement) {
+            // Get a list of all entries from the specified query PDOStatement
+            $this->source = sql()->list($source);
+
+        } elseif ($source instanceof IteratorInterface) {
+            // This is another iterator object, get the data from it
+            $this->source = $source->getSource();
+
+        } else {
+            // NULL was specified
+            $this->source = [];
+        }
+    }
+
+
+    /**
+     * Returns a new Iterator object
+     *
+     * @param IteratorInterface|PDOStatement|array|string|null $source
+     * @param array|null $execute
+     * @return static
+     */
+    public static function new(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static
+    {
+        return new static($source, $execute);
     }
 
 
@@ -73,7 +124,7 @@ class Iterator implements IteratorInterface
      */
     #[ReturnTypeWillChange] public function current(): mixed
     {
-        return current($this->list);
+        return current($this->source);
     }
 
 
@@ -84,7 +135,7 @@ class Iterator implements IteratorInterface
      */
     #[ReturnTypeWillChange] public function next(): static
     {
-        next($this->list);
+        next($this->source);
         return $this;
     }
 
@@ -96,7 +147,7 @@ class Iterator implements IteratorInterface
      */
     #[ReturnTypeWillChange] public function previous(): static
     {
-        prev($this->list);
+        prev($this->source);
         return $this;
     }
 
@@ -108,7 +159,7 @@ class Iterator implements IteratorInterface
      */
     public function key(): string|float|int
     {
-        return key($this->list);
+        return key($this->source);
     }
 
 
@@ -120,7 +171,7 @@ class Iterator implements IteratorInterface
      */
     public function valid(): bool
     {
-        return isset($this->list[key($this->list)]);
+        return isset($this->source[key($this->source)]);
     }
 
 
@@ -131,7 +182,7 @@ class Iterator implements IteratorInterface
      */
     #[ReturnTypeWillChange] public function rewind(): static
     {
-        reset($this->list);
+        reset($this->source);
         return $this;
 
     }
@@ -142,9 +193,33 @@ class Iterator implements IteratorInterface
      *
      * @return mixed
      */
-    public function getList(): array
+    public function getSource(): array
     {
-        return $this->list;
+        return $this->source;
+    }
+
+
+    /**
+     * Sets the internal source directly
+     *
+     * @param array $source
+     * @return mixed
+     */
+    public function setSource(array $source): static
+    {
+        $this->source = $source;
+        return $this;
+    }
+
+
+    /**
+     * Returns a list of all internal definition keys
+     *
+     * @return mixed
+     */
+    public function getKeys(): array
+    {
+        return array_keys($this->source);
     }
 
 
@@ -158,12 +233,12 @@ class Iterator implements IteratorInterface
     #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = false): mixed
     {
         if ($exception) {
-            if (!array_key_exists($key, $this->list)) {
+            if (!array_key_exists($key, $this->source)) {
                 throw new NotExistsException(tr('The key ":key" does not exist in this object', [':key' => $key]));
             }
         }
 
-        return isset_get($this->list[$key]);
+        return isset_get($this->source[$key]);
     }
 
 
@@ -174,7 +249,7 @@ class Iterator implements IteratorInterface
      */
     public function getCount(): int
     {
-        return count($this->list);
+        return count($this->source);
     }
 
 
@@ -185,7 +260,7 @@ class Iterator implements IteratorInterface
      */
     #[ReturnTypeWillChange] public function getFirst(): mixed
     {
-        return $this->list[array_key_first($this->list)];
+        return $this->source[array_key_first($this->source)];
     }
 
 
@@ -196,7 +271,7 @@ class Iterator implements IteratorInterface
      */
     #[ReturnTypeWillChange] public function getLast(): mixed
     {
-        return $this->list[array_key_last($this->list)];
+        return $this->source[array_key_last($this->source)];
     }
 
 
@@ -207,7 +282,7 @@ class Iterator implements IteratorInterface
      */
     public function clear(): static
     {
-        $this->list = [];
+        $this->source = [];
         return $this;
     }
 
@@ -220,7 +295,7 @@ class Iterator implements IteratorInterface
      */
     public function delete(string|float|int $key): static
     {
-        unset($this->list[$key]);
+        unset($this->source[$key]);
         return $this;
     }
 
@@ -233,7 +308,7 @@ class Iterator implements IteratorInterface
      */
     public function exists(Stringable|string|float|int $key): bool
     {
-        return array_key_exists($key, $this->list);
+        return array_key_exists((string) $key, $this->source);
     }
 
 
@@ -244,6 +319,47 @@ class Iterator implements IteratorInterface
      */
     public function isEmpty(): bool
     {
-        return !count($this->list);
+        return !count($this->source);
+    }
+
+
+    /**
+     * Add a callback for each row
+     *
+     * @param callable $callback
+     * @return $this
+     */
+    public function addItemCallback(callable $callback): static
+    {
+        $this->callbacks[] = $callback;
+        return $this;
+    }
+
+
+    /**
+     * Returns the row callbacks
+     *
+     * @return array
+     */
+    public function getItemCallbacks(): array
+    {
+        return $this->callbacks;
+    }
+
+
+    /**
+     * Execute the specified callbacks for each row
+     *
+     * @return $this
+     */
+    public function executeItemCallbacks(): static
+    {
+        foreach ($this->source as $item) {
+            foreach ($this->callbacks as $callback) {
+                $callback($item);
+            }
+        }
+
+        return $this;
     }
 }

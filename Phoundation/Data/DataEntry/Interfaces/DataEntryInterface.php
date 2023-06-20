@@ -288,9 +288,9 @@ interface DataEntryInterface
      * Will save the data from this data entry to database
      *
      * @param string|null $comments
-     * @return bool
+     * @return static
      */
-    function save(?string $comments = null): bool;
+    function save(?string $comments = null): static;
 
     /**
      * Creates and returns a CLI table for the data in this entry

@@ -2,8 +2,8 @@
 
 namespace Phoundation\Web\Http\Html\Components\Interfaces;
 
-
 use PDOStatement;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Web\Http\Html\Components\ResourceElement;
 
 
@@ -80,63 +80,20 @@ interface ResourceElementInterface extends ElementInterface
     public function getHideEmpty(): bool;
 
     /**
-     * Sets the source either as array or query
+     * Returns the resource element source
      *
-     * @param PDOStatement|array|string|null $source
+     * @return IteratorInterface|null
+     */
+    public function getSource(): ?IteratorInterface;
+
+    /**
+     * Sets the resource element source
+     *
+     * @param IteratorInterface|PDOStatement|array|string|null $source
      * @param array|string|null $execute
      * @return static
      */
-    public function setSource(PDOStatement|array|string|null $source, array|string|null $execute = null): static;
-
-    /**
-     * Sets the array source
-     *
-     * @param array $source_array
-     * @return static
-     */
-    public function setSourceArray(array $source_array): static;
-
-    /**
-     * Returns the array source
-     *
-     * @return array|null
-     */
-    public function getSourceArray(): ?array;
-
-    /**
-     * Sets the query source
-     *
-     * @param PDOStatement|string|null $source_query
-     * @param array|string|null $execute
-     * @return static
-     */
-    public function setSourceQuery(PDOStatement|string|null $source_query, array|string|null $execute = null): static;
-
-    /**
-     * Returns the query source
-     *
-     * @return PDOStatement|null
-     */
-    public function getSourceQuery(): ?PDOStatement;
-
-    /**
-     * Sets the source for "data-*" attributes where the data key matches the source key
-     *
-     * @note The format should be as follows: [id => [key => value, key => value], id => [...] ...] This format will
-     *       then add the specified keys to each option where the value matches the id
-     * @param array $source_data
-     * @return static
-     */
-    public function setSourceData(array $source_data): static;
-
-    /**
-     * Returns the source for "data-*" attributes where the data key matches the source key
-     *
-     * @note The format should be as follows: [id => [key => value, key => value], id => [...] ...] This format will
-     *       then add the specified keys to each option where the value matches the id
-     * @return array
-     */
-    public function getSourceData(): array;
+    public function setSource(IteratorInterface|PDOStatement|array|string|null $source, array|string|null $execute = null): static;
 
     /**
      * Generates and returns the HTML string for this resource element

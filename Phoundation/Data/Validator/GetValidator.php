@@ -9,6 +9,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
+use Phoundation\Utils\Json;
 
 
 /**
@@ -90,13 +91,12 @@ class GetValidator extends Validator
         if (!$apply) {
             return $this;
         }
-
-        if (empty(static::$get)) {
+        if (count($this->selected_fields) === count(static::$get)) {
             return $this;
         }
 
-        throw ValidationFailedException::new(tr('Invalid GET fields ":arguments" encountered', [
-            ':arguments' => Strings::force(static::$get, ', ')
+        throw ValidationFailedException::new(tr('Unknown fields ":arguments" encountered', [
+            ':arguments' => Json::encode(static::$get)
         ]))->makeWarning();
     }
 

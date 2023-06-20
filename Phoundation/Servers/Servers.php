@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Phoundation\Servers;
 
+use PDOStatement;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Sql\QueryBuilder;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 use Phoundation\Web\Http\Html\Components\Input\Select;
@@ -30,19 +32,19 @@ class Servers extends DataList
     /**
      * Servers class constructor
      *
-     * @param DataEntry|null $parent
-     * @param string|null $id_column
+     * @param IteratorInterface|PDOStatement|array|string|null $source
+     * @param array|null $execute
      */
-    public function __construct(?DataEntry $parent = null, ?string $id_column = null)
+    public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null)
     {
         $this->entry_class = Server::class;
         $this->table       = 'servers';
 
-        $this->setHtmlQuery('SELECT   `id`, `name`, `code`, `email`, `status`, `created_on` 
+        $this->setQuery('SELECT   `id`, `name`, `code`, `email`, `status`, `created_on` 
                                    FROM     `servers` 
                                    WHERE    `status` IS NULL 
                                    ORDER BY `name`');
-        parent::__construct($parent, $id_column);
+        parent::__construct($source, $execute);
     }
 
 
@@ -83,15 +85,15 @@ class Servers extends DataList
     /**
      * @inheritDoc
      */
-    protected function load(string|int|null $id_column = null): static
+    public function load(?string $id_column = null): static
     {
-        $this->list = sql()->list('SELECT `servers`.`id`, `servers`.`hostname`, `servers`.`created_on`, `servers`.`status` 
+        $this->source = sql()->list('SELECT `servers`.`id`, `servers`.`hostname`, `servers`.`created_on`, `servers`.`status` 
                                    FROM     `servers` 
                                    WHERE    `servers`.`status` IS NULL
                                    ORDER BY `servers`.`hostname`' . sql()->getLimit());
 
         // The keys contain the ids...
-        $this->list = array_flip($this->list);
+        $this->source = array_flip($this->source);
         return $this;
     }
 
@@ -99,7 +101,7 @@ class Servers extends DataList
     /**
      * @inheritDoc
      */
-    public function save(): bool
+    public function save(): static
     {
         // TODO: Implement save() method.
     }
@@ -112,7 +114,7 @@ class Servers extends DataList
      * @param array $filters
      * @return array
      */
-    protected function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
+    public function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
     {
         // Default columns
         if (!$columns) {
@@ -130,12 +132,12 @@ class Servers extends DataList
 
         // Build query
         $builder = new QueryBuilder();
-        $builder->addSelect('SELECT ' . $columns);
-        $builder->addFrom('FROM `servers`');
+        $builder->addSelect($columns);
+        $builder->addFrom('`servers`');
 
         // Add ordering
         foreach ($order_by as $column => $direction) {
-            $builder->addOrderBy('ORDER BY `' . $column . '` ' . ($direction ? 'DESC' : 'ASC'));
+            $builder->addOrderBy('`' . $column . '` ' . ($direction ? 'DESC' : 'ASC'));
         }
 
         // Build filters

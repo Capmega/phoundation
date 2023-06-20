@@ -30,6 +30,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\File;
+use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Processes\Commands\Command;
@@ -552,10 +553,10 @@ class Sql
      * @param array $update_row
      * @param string|null $comments
      * @param string|null $diff
-     * @return int|null
+     * @return int
      * @throws Exception
      */
-    public function write(string $table, array $insert_row, array $update_row, ?string $comments, ?string $diff): ?int
+    public function write(string $table, array $insert_row, array $update_row, ?string $comments, ?string $diff): int
     {
         if (empty($update_row['id'])) {
             // New entry, insert
@@ -573,6 +574,10 @@ class Sql
                     }
 
                     // Duplicate entry, try with a different random number
+                    Log::warning(tr('Duplicate ID entry ":id" encountered for insert in table ":table", retrying', [
+                        ':id'    => $insert_row['id'],
+                        ':table' => $table
+                    ]));
                 }
             }
 
@@ -621,7 +626,13 @@ class Sql
 
         $this->query('INSERT INTO `' . $table . '` (' . $columns . ') VALUES (' . $keys . ')', $values);
 
-        return (int) $this->pdo->lastInsertId();
+        if (empty($row['id'])) {
+            // No row id specified, get the insert id from SQL driver
+            return (int) $this->pdo->lastInsertId();
+        }
+
+        // Use the given row id
+        return $row['id'];
     }
 
 
@@ -1085,10 +1096,10 @@ class Sql
      * Import data from specified file
      *
      * @param string $file
-     * @param Restrictions|array|string|null $restrictions
+     * @param RestrictionsInterface|array|string|null $restrictions
      * @return void
      */
-    public function import(string $file, Restrictions|array|string|null $restrictions): void
+    public function import(string $file, RestrictionsInterface|array|string|null $restrictions): void
     {
         throw new UnderConstructionException();
 

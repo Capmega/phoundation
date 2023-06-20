@@ -50,7 +50,7 @@ class Incident extends DataEntry
      * @param DataEntryInterface|string|int|null $identifier
      * @param bool $init
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = false)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = true)
     {
         $this->table        = 'security_incidents';
         $this->entry_name   = 'incident';
@@ -115,9 +115,9 @@ class Incident extends DataEntry
      * Saves the incident to database
      *
      * @param string|null $comments
-     * @return bool
+     * @return static
      */
-    public function save(?string $comments = null): bool
+    public function save(?string $comments = null): static
     {
         if ($this->log) {
             $severity = strtolower($this->getSeverity());

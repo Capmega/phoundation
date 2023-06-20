@@ -30,18 +30,18 @@ interface RightsInterface extends DataListInterface
     /**
      * Add the specified data entry to the data list
      *
-     * @param Right|array|string|int|null $right
+     * @param RightInterface|array|string|int|null $right
      * @return static
      */
-    public function add(Right|array|string|int|null $right): static;
+    public function add(RightInterface|array|string|int|null $right): static;
 
     /**
      * Remove the specified data entry from the data list
      *
-     * @param Right|array|int|null $right
+     * @param RightInterface|array|int|null $right
      * @return static
      */
-    public function remove(Right|array|int|null $right): static;
+    public function remove(RightInterface|array|int|null $right): static;
 
     /**
      * Remove all rights for this role
@@ -61,7 +61,7 @@ interface RightsInterface extends DataListInterface
     /**
      * Save the data for this rights list in the database
      *
-     * @return bool
+     * @return static
      */
-    public function save(): bool;
+    public function save(): static;
 }

@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Phoundation\Servers;
 
+use PDOStatement;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Sql\QueryBuilder;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 use Phoundation\Web\Http\Html\Components\Input\Select;
@@ -30,19 +32,19 @@ class SshAccounts extends DataList
     /**
      * SshAccounts class constructor
      *
-     * @param DataEntry|null $parent
-     * @param string|null $id_column
+     * @param IteratorInterface|PDOStatement|array|string|null $source
+     * @param array|null $execute
      */
-    public function __construct(?DataEntry $parent = null, ?string $id_column = null)
+    public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null)
     {
         $this->entry_class = SshAccount::class;
         $this->table       = 'ssh_accounts';
 
-        $this->setHtmlQuery('SELECT   `id`, `name`, `created_on` 
+        $this->setQuery('SELECT   `id`, `name`, `created_on` 
                                    FROM     `ssh_accounts` 
                                    WHERE    `status` IS NULL 
                                    ORDER BY `name`');
-        parent::__construct($parent, $id_column);
+        parent::__construct($source, $execute);
     }
 
 
@@ -83,7 +85,7 @@ class SshAccounts extends DataList
     /**
      * @inheritDoc
      */
-    protected function load(string|int|null $id_column = null): static
+    public function load(?string $id_column = null): static
     {
         // TODO: Implement load() method.
     }
@@ -92,7 +94,7 @@ class SshAccounts extends DataList
     /**
      * @inheritDoc
      */
-    public function save(): bool
+    public function save(): static
     {
         // TODO: Implement save() method.
     }
@@ -105,7 +107,7 @@ class SshAccounts extends DataList
      * @param array $filters
      * @return array
      */
-    protected function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
+    public function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
     {
         // Default columns
         if (!$columns) {
@@ -123,12 +125,12 @@ class SshAccounts extends DataList
 
         // Build query
         $builder = new QueryBuilder();
-        $builder->addSelect('SELECT ' . $columns);
-        $builder->addFrom('FROM `ssh_accounts`');
+        $builder->addSelect($columns);
+        $builder->addFrom('`ssh_accounts`');
 
         // Add ordering
         foreach ($order_by as $column => $direction) {
-            $builder->addOrderBy('ORDER BY `' . $column . '` ' . ($direction ? 'DESC' : 'ASC'));
+            $builder->addOrderBy('`' . $column . '` ' . ($direction ? 'DESC' : 'ASC'));
         }
 
         // Build filters

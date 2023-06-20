@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Security\Incidents;
 
+use PDOStatement;
 use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 
@@ -26,26 +28,26 @@ class Incidents extends DataList
     /**
      * Incidents class constructor
      *
-     * @param Incident|null $parent
-     * @param string|null $id_column
+     * @param IteratorInterface|PDOStatement|array|string|null $source
+     * @param array|null $execute
      */
-    public function __construct(?Incident $parent = null, ?string $id_column = null)
+    public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null)
     {
         $this->entry_class = Incident::class;
         $this->table       = 'security_incidents';
 
-        $this->setHtmlQuery('SELECT   `id`, `type`, `severity`, `title` 
+        $this->setQuery('SELECT   `id`, `type`, `severity`, `title` 
                                    FROM     `security_incidents` 
                                    WHERE    `status` IS NULL 
                                    ORDER BY `created_on` DESC');
-        parent::__construct($parent, $id_column);
+        parent::__construct($source, $execute);
     }
 
 
     /**
      * @inheritDoc
      */
-    protected function load(string|int|null $id_column = null): static
+    public function load(?string $id_column = null): static
     {
         // TODO: Implement load() method.
     }
@@ -54,7 +56,7 @@ class Incidents extends DataList
     /**
      * @inheritDoc
      */
-    protected function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
+    public function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
     {
         // TODO: Implement loadDetails() method.
     }
@@ -63,7 +65,7 @@ class Incidents extends DataList
     /**
      * @inheritDoc
      */
-    public function save(): bool
+    public function save(): static
     {
         // TODO: Implement save() method.
     }

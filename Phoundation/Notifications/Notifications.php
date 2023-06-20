@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Phoundation\Notifications;
 
+use PDOStatement;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Sql\QueryBuilder;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
@@ -29,21 +31,21 @@ class Notifications extends DataList
     /**
      * Notifications class constructor
      *
-     * @param Notification|null $parent
-     * @param string|null $id_column
+     * @param IteratorInterface|PDOStatement|array|string|null $source
+     * @param array|null $execute
      */
-    public function __construct(?Notification $parent = null, ?string $id_column = null)
+    public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null)
     {
         $this->entry_class = Notification::class;
         $this->table       = 'notifications';
 
-        $this->setHtmlQuery('SELECT   `id`, `title`, `mode` AS `severity`, `priority`, `created_on` 
+        $this->setQuery('SELECT   `id`, `title`, `mode` AS `severity`, `priority`, `created_on` 
                                    FROM     `notifications` 
                                    WHERE    `users_id` = :users_id 
                                      AND    `status` IS NULL 
                                    ORDER BY `title`', [':users_id' => Session::getUser()->getId()]);
 
-        parent::__construct($parent, $id_column);
+        parent::__construct($source, $execute);
     }
 
 
@@ -58,7 +60,7 @@ class Notifications extends DataList
      */
     public function loadList(array|string|null $columns = null, array $filters = [], array $order_by = []): void
     {
-        $this->list = $this->loadDetails($columns, $filters, $order_by);
+        $this->source = $this->loadDetails($columns, $filters, $order_by);
     }
 
 
@@ -79,7 +81,7 @@ class Notifications extends DataList
 
         $return = 1;
 
-        foreach ($this->list as $entry) {
+        foreach ($this->source as $entry) {
             $priority = isset_get($list[isset_get($entry['mode'])]);
 
             if ($priority > $return) {
@@ -94,9 +96,9 @@ class Notifications extends DataList
     /**
      * @inheritDoc
      */
-    protected function load(string|int|null $id_column = null): static
+    public function load(?string $id_column = null): static
     {
-        $this->list = sql()->list('SELECT `notifications`.`id`, `notifications`.`title`  
+        $this->source = sql()->list('SELECT `notifications`.`id`, `notifications`.`title`  
                                    FROM     `notifications` 
                                    WHERE    `notifications`.`status` IS NULL
                                    ORDER BY `created_on`');
@@ -108,7 +110,7 @@ class Notifications extends DataList
     /**
      * @inheritDoc
      */
-    protected function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
+    public function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
     {
         // Default columns
         if (!$columns) {
@@ -125,12 +127,12 @@ class Notifications extends DataList
 
         // Build query
         $builder = new QueryBuilder();
-        $builder->addSelect('SELECT ' . $columns);
-        $builder->addFrom('FROM `notifications`');
+        $builder->addSelect($columns);
+        $builder->addFrom('`notifications`');
 
         // Add ordering
         foreach ($order_by as $column => $direction) {
-            $builder->addOrderBy('ORDER BY `' . $column . '` ' . ($direction ? 'DESC' : 'ASC'));
+            $builder->addOrderBy('`' . $column . '` ' . ($direction ? 'DESC' : 'ASC'));
         }
 
         // Build filters
@@ -153,7 +155,7 @@ class Notifications extends DataList
     /**
      * @inheritDoc
      */
-    public function save(): bool
+    public function save(): static
     {
         // TODO: Implement save() method.
     }

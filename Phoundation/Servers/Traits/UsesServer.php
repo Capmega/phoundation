@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Servers\Traits;
 
 use Phoundation\Core\Core;
+use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Restrictions;
 
 
@@ -43,10 +44,10 @@ trait UsesServer
     /**
      * Sets the server and filesystem restrictions for this File object
      *
-     * @param Restrictions|array|string|null $restrictions
+     * @param RestrictionsInterface|array|string|null $restrictions
      * @return static
      */
-    public function setRestrictions(Restrictions|array|string|null $restrictions = null): static
+    public function setRestrictions(RestrictionsInterface|array|string|null $restrictions = null): static
     {
         $this->restrictions = Core::ensureRestrictions($restrictions);
         return $this;

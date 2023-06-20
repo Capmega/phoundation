@@ -12,6 +12,7 @@ use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Filesystem;
+use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\Html\Template\Template;
@@ -375,9 +376,9 @@ class RoutingParameters
     /**
      * Returns the server restrictions
      *
-     * @return Restrictions|array|string|null
+     * @return RestrictionsInterface|array|string|null
      */
-    public function getRestrictions(): Restrictions|array|string|null
+    public function getRestrictions(): RestrictionsInterface|array|string|null
     {
         if (!isset($this->restrictions)) {
             // Set default server restrictions
@@ -391,10 +392,10 @@ class RoutingParameters
     /**
      * Sets the server restrictions
      *
-     * @param Restrictions|array|string|null $restrictions
+     * @param RestrictionsInterface|array|string|null $restrictions
      * @return static
      */
-    public function setRestrictions(Restrictions|array|string|null $restrictions): static
+    public function setRestrictions(RestrictionsInterface|array|string|null $restrictions): static
     {
         $this->restrictions = Core::ensureRestrictions($restrictions, PATH_WWW, 'Route');
         return $this;

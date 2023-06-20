@@ -47,7 +47,7 @@ class Plugin extends DataEntry
      * @param DataEntryInterface|string|int|null $identifier
      * @param bool $init
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = false)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = true)
     {
         $this->table        = 'core_plugins';
         $this->entry_name   = 'plugin';

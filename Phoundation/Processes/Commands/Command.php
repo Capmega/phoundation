@@ -7,6 +7,7 @@ namespace Phoundation\Processes\Commands;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Core;
 use Phoundation\Exception\Exception;
+use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Commands\Exception\CommandsException;
 use Phoundation\Processes\Exception\ProcessFailedException;
@@ -35,11 +36,11 @@ class Command
     /**
      * Command class constructor
      *
-     * @param Restrictions|array|string|null $restrictions
+     * @param RestrictionsInterface|array|string|null $restrictions
      * @param bool $write
      * @param string|null $label
      */
-    public function __construct(Restrictions|array|string|null $restrictions = null, bool $write = false, ?string $label = null)
+    public function __construct(RestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null)
     {
         $this->process = Process::new()->setRestrictions($restrictions, $write, $label);
     }
@@ -59,12 +60,12 @@ class Command
     /**
      * Returns a new Images object
      *
-     * @param Restrictions|array|string|null $restrictions
+     * @param RestrictionsInterface|array|string|null $restrictions
      * @param bool $write
      * @param string|null $label
      * @return static
      */
-    public static function new(Restrictions|array|string|null $restrictions = null, bool $write = false, ?string $label = null): static
+    public static function new(RestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): static
     {
         return new static($restrictions, $write, $label);
     }

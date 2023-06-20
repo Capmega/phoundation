@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Definitions;
 
+use PDOStatement;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\DataPrefix;
-use Phoundation\Data\Traits\UsesNewTable;
+use Phoundation\Data\Traits\DataTable;
+use Phoundation\Exception\OutOfBoundsException;
 use Stringable;
 
 
@@ -24,10 +27,24 @@ use Stringable;
  */
 class Definitions extends Iterator implements DefinitionsInterface
 {
-    use UsesNewTable;
+    use DataTable;
     use DataPrefix {
         getPrefix as getFieldPrefix;
         setPrefix as setFieldPrefix;
+    }
+
+
+    /**
+     * Iterator class constructor
+     *
+     * @param IteratorInterface|PDOStatement|array|string|null $source
+     * @param array|null $execute
+     */
+    public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null)
+    {
+        if ($source or $execute) {
+            throw new OutOfBoundsException(tr('Definitions class constructor should not receive any parameters'));
+        }
     }
 
 
@@ -43,7 +60,7 @@ class Definitions extends Iterator implements DefinitionsInterface
             $field->setField($this->prefix . $field->getField());
         }
 
-        $this->list[$field->getField()] = $field;
+        $this->source[$field->getField()] = $field;
         return $this;
     }
 
@@ -55,7 +72,7 @@ class Definitions extends Iterator implements DefinitionsInterface
      */
     public function current(): DefinitionInterface
     {
-        return current($this->list);
+        return current($this->source);
     }
 
 
@@ -68,7 +85,7 @@ class Definitions extends Iterator implements DefinitionsInterface
      */
     public function get(Stringable|string|float|int $key, bool $exception = false): DefinitionInterface
     {
-        return $this->list[$key];
+        return $this->source[$key];
     }
 
 
@@ -79,7 +96,7 @@ class Definitions extends Iterator implements DefinitionsInterface
      */
     public function getFirst(): DefinitionInterface
     {
-        return array_first($this->list);
+        return array_first($this->source);
     }
 
 
@@ -90,6 +107,6 @@ class Definitions extends Iterator implements DefinitionsInterface
      */
     public function getLast(): DefinitionInterface
     {
-        return array_last($this->list);
+        return array_last($this->source);
     }
 }

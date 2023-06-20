@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Locale\Language;
 
+use PDOStatement;
 use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 use Phoundation\Web\Http\Html\Components\Input\Select;
 
@@ -25,19 +27,19 @@ class Languages extends DataList
     /**
      * Languages class constructor
      *
-     * @param Language|null $parent
-     * @param string|null $id_column
+     * @param IteratorInterface|PDOStatement|array|string|null $source
+     * @param array|null $execute
      */
-    public function __construct(?Language $parent = null, ?string $id_column = null)
+    public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null)
     {
         $this->entry_class = Language::class;
         $this->table       = 'core_languages';
 
-        $this->setHtmlQuery('SELECT   `id`, `code_639_1`, `name`, `status`, `created_on` 
+        $this->setQuery('SELECT   `id`, `code_639_1`, `name`, `status`, `created_on` 
                              FROM     `core_languages` 
                              WHERE    `status` IS NULL 
                              ORDER BY `name`');
-        parent::__construct($parent, $id_column);
+        parent::__construct($source, $execute);
         $this->load($id_column);
     }
 
@@ -64,24 +66,24 @@ class Languages extends DataList
      * @return $this
      * @throws \Throwable
      */
-    protected function load(string|int|null $id_column = null): static
+    public function load(?string $id_column = null): static
     {
-        $this->list = sql()->list('SELECT `core_languages`.`id`, substring_index(substring_index(`core_languages`.`name`, "(", 1), ",", 1) AS `name` 
+        $this->source = sql()->list('SELECT `core_languages`.`id`, substring_index(substring_index(`core_languages`.`name`, "(", 1), ",", 1) AS `name` 
                                    FROM     `core_languages` 
                                    WHERE    `core_languages`.`status` IS NULL
                                    ORDER BY `name`');
 
         // The keys contain the ids...
-        $this->list = array_flip($this->list);
+        $this->source = array_flip($this->source);
         return $this;
     }
 
-    protected function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
+    public function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
     {
         // TODO: Implement loadDetails() method.
     }
 
-    public function save(): bool
+    public function save(): static
     {
         // TODO: Implement save() method.
     }

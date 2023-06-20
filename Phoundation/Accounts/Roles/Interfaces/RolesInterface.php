@@ -61,9 +61,9 @@ interface RolesInterface extends DataListInterface
     /**
      * Save the data for this roles list in the database
      *
-     * @return bool
+     * @return static
      */
-    public function save(): bool;
+    public function save(): static;
 
     /**
      * Returns an HTML select component object containing the entries in this list

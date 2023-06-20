@@ -32,7 +32,7 @@ class Employee extends DataEntry
      * @param DataEntryInterface|string|int|null $identifier
      * @param bool $init
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = false)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = true)
     {
         $this->table      = 'business_employees';
         $this->entry_name = 'company employee';

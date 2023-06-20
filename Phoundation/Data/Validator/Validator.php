@@ -18,7 +18,7 @@ use Phoundation\Data\Validator\Interfaces\ValidatorBasicsInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Url;
@@ -161,7 +161,7 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
      */
     protected function validateValues(callable $function): static
     {
-        if ($this->reflection_process_value->isInitialized($this)){
+        if ($this->reflection_process_value->isInitialized($this)) {
             // A single value was selected, test only this value
             $function($this->process_value);
         } else {
@@ -178,7 +178,8 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
                 // Process all process_values
                 $this->process_key          = $key;
                 $this->process_value        = &$value;
-                $this->process_value_failed = false;
+// TODO TEST THIS! IF next line is enabled then multiple tests after each other will continue, even if the previous failed!!
+//                $this->process_value_failed = false;
                 $this->selected_is_default  = false;
 
                 $function($this->process_value);
@@ -1259,7 +1260,7 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
             }
 
             // Must match regex
-            if (preg_match('/(?=((?:(?:(?:0[1-9]|1[0-2]|[1-9])(?:3[0-1]|0[1-9]|[1-2]d|[1-9])|(?:3[0-1]|0[1-9]|[1-2]d|[1-9])(?:0[1-9]|1[0-2]|[1-9]))(?:19|20)?d{2}(?!:)|(?:19|20)?d{2}(?:0[1-9]|1d|[1-9])(?:3[0-1]|0[1-9]|[1-2]d|[1-9](?!d)))))/', $value)) {
+            if (strtotime($value)) {
                 // Must be able to create date object without failure
                 try {
                     if (strtotime($value) !== false) {
@@ -1323,7 +1324,7 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
             }
 
             // Must match regex
-            if (preg_match('/(?=((?:(?:(?:0[1-9]|1[0-2]|[1-9])(?:3[0-1]|0[1-9]|[1-2]d|[1-9])|(?:3[0-1]|0[1-9]|[1-2]d|[1-9])(?:0[1-9]|1[0-2]|[1-9]))(?:19|20)?d{2}(?!:)|(?:19|20)?d{2}(?:0[1-9]|1d|[1-9])(?:3[0-1]|0[1-9]|[1-2]d|[1-9](?!d)))))\s+?=((?: |^)[0-2]?d[:. ]?[0-5]d(?:[:. ]?[0-5]d)?(?:[ ]?.?m?.?)?(?: |$)/', $value)) {
+            if (strtotime($value)) {
                 // Must be able to create date object without failure
                 try {
                     if (strtotime($value) !== false) {
@@ -1336,7 +1337,7 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
                 }
             }
 
-            $this->addFailure(tr('must be a valid date'));
+            $this->addFailure(tr('must be a valid date time'));
         });
     }
 
@@ -1842,10 +1843,10 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
      * Validates if the selected field is a valid directory
      *
      * @param string|null $exists_in_path
-     * @param Restrictions|array|string|null $restrictions
+     * @param RestrictionsInterface|array|string|null $restrictions
      * @return static
      */
-    public function isPath(?string $exists_in_path = null, Restrictions|array|string|null $restrictions = null): static
+    public function isPath(?string $exists_in_path = null, RestrictionsInterface|array|string|null $restrictions = null): static
     {
         return $this->validateValues(function(&$value) use($exists_in_path, $restrictions) {
             $this->hasMinCharacters(1)->hasMaxCharacters(2048);
@@ -1866,10 +1867,10 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
      * Validates if the selected field is a valid directory
      *
      * @param string|bool|null $exists_in_path
-     * @param Restrictions|array|string|null $restrictions
+     * @param RestrictionsInterface|array|string|null $restrictions
      * @return static
      */
-    public function isDirectory(string|bool $exists_in_path = null, Restrictions|array|string|null $restrictions = null): static
+    public function isDirectory(string|bool $exists_in_path = null, RestrictionsInterface|array|string|null $restrictions = null): static
     {
         return $this->validateValues(function(&$value) use($exists_in_path, $restrictions) {
             $this->hasMinCharacters(1)->hasMaxCharacters(2048);
@@ -1890,10 +1891,10 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
      * Validates if the selected field is a valid file
      *
      * @param string|bool $exists_in_path
-     * @param Restrictions|array|string|null $restrictions
+     * @param RestrictionsInterface|array|string|null $restrictions
      * @return static
      */
-    public function isFile(string|bool $exists_in_path = null, Restrictions|array|string|null $restrictions = null): static
+    public function isFile(string|bool $exists_in_path = null, RestrictionsInterface|array|string|null $restrictions = null): static
     {
         return $this->validateValues(function(&$value) use($exists_in_path, $restrictions) {
             $this->hasMinCharacters(1)->hasMaxCharacters(2048);
@@ -1915,11 +1916,11 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
      *
      * @param string|bool $value
      * @param string|null $exists_in_path
-     * @param Restrictions|array|string|null $restrictions
+     * @param RestrictionsInterface|array|string|null $restrictions
      * @param bool $directory
      * @return void
      */
-    protected function checkFile(string|bool $value, ?string $exists_in_path = null, Restrictions|array|string|null $restrictions = null, ?bool $directory = false): void
+    protected function checkFile(string|bool $value, ?string $exists_in_path = null, RestrictionsInterface|array|string|null $restrictions = null, ?bool $directory = false): void
     {
         if ($directory) {
             $type = 'directory';

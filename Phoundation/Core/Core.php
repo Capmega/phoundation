@@ -25,6 +25,7 @@ use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpException;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
@@ -423,7 +424,7 @@ class Core {
         define('ADMIN'   , '');
         define('PWD'     , Strings::slash(isset_get($_SERVER['PWD'])));
         define('STARTDIR', Strings::slash(getcwd()));
-        define('PAGE'    , isset_get($_GET['page'], 1));
+        define('PAGE'    , $_GET['page'] ?? 1);
         define('ALL'     , (getenv('ALL')     ? 'ALL'     : false));
         define('DELETED' , (getenv('DELETED') ? 'DELETED' : false));
         define('FORCE'   , (getenv('FORCE')   ? 'FORCE'   : false));
@@ -523,7 +524,36 @@ class Core {
             ->select('--show-passwords')->isOptional(false)->isBoolean()
             ->select('--no-validation')->isOptional(false)->isBoolean()
             ->select('--no-password-validation')->isOptional(false)->isBoolean()
-            ->validate();
+            ->validate(false);
+
+//        $argv = [
+//            'all' => false,
+//            'no_color' => false,
+//            'debug' => false,
+//            'environment' => null,
+//            'force' => false,
+//            'help' => false,
+//            'log_level' => false,
+//            'order_by' => false,
+//            'page' => 1,
+//            'quiet' => false,
+//            'no_sound' => false,
+//            'status' => false,
+//            'test' => false,
+//            'usage' => false,
+//            'verbose' => false,
+//            'no_warnings' => false,
+//            'system_language' => false,
+//            'deleted' => false,
+//            'version' => false,
+//            'limit' => false,
+//            'timezone' => null,
+//            'auto_complete' => null,
+//            'show_passwords' => false,
+//            'no_validation' => false,
+//            'no_password_validation' => false
+//    ];
+
 
         if ($argv['auto_complete']) {
             // We're in auto complete mode. Show only direct output, don't use any color
@@ -2295,7 +2325,7 @@ class Core {
      * With this, availability of restrictions is guaranteed, even if a function did not receive restrictions. If Core
      * restrictions are returned, these core restrictions are the ones that apply
      *
-     * @param Restrictions|array|string|null $restrictions  The restriction data that must be ensured to be a
+     * @param RestrictionsInterface|array|string|null $restrictions  The restriction data that must be ensured to be a
      *                                                      Restrictions object
      * @param bool $write                                   If $restrictions is not specified as a Restrictions class,
      *                                                      but as a path string, or array of path strings, then this
@@ -2310,7 +2340,7 @@ class Core {
      *                                                      specified ($restrictions was null or an empty string), the
      *                                                      Core restrictions will be returned instead
      */
-    public static function ensureRestrictions(Restrictions|array|string|null $restrictions = null, bool $write = false, ?string $label = null): Restrictions
+    public static function ensureRestrictions(RestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): Restrictions
     {
         if ($restrictions) {
             if (!is_object($restrictions)) {

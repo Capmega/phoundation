@@ -323,7 +323,7 @@ class Libraries
         // Create and return the table
         return Table::new()
             ->setColumnHeaders([tr('Library'), tr('Version'), tr('Description')])
-            ->setSourceArray(static::listLibraries());
+            ->setSource(static::listLibraries());
     }
 
 

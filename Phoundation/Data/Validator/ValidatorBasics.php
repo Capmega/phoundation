@@ -73,7 +73,7 @@ trait ValidatorBasics
      *
      * @var bool $selected_is_optional
      */
-    protected bool $selected_is_optional;
+    protected bool $selected_is_optional = false;
 
     /**
      * The value(s) that actually will be tested. This most of the time will be an array with a single reference to
@@ -174,6 +174,20 @@ trait ValidatorBasics
      * @var bool $password_disabled
      */
     protected static bool $password_disabled = false;
+
+
+    /**
+     * Manually set one of the internal fields to the specified value
+     *
+     * @param string $key
+     * @param array|string|int|float|bool|null $value
+     * @return static
+     */
+    public function setField(string $key, array|string|int|float|bool|null $value): static
+    {
+        $this->source[$key] = $value;
+        return $this;
+    }
 
 
     /**

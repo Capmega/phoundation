@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Categories;
 
+use PDOStatement;
 use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 use Phoundation\Web\Http\Html\Components\Input\Select;
 use Phoundation\Web\Http\Html\Components\Table;
@@ -26,19 +28,19 @@ class Categories extends DataList
     /**
      * Categories class constructor
      *
-     * @param Category|null $parent
-     * @param string|null $id_column
+     * @param IteratorInterface|PDOStatement|array|string|null $source
+     * @param array|null $execute
      */
-    public function __construct(?Category $parent = null, ?string $id_column = null)
+    public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null)
     {
         $this->entry_class = Category::class;
         $this->table       = 'categories';
 
-        $this->setHtmlQuery('SELECT   `id`, `name`, `status`, `created_on` 
+        $this->setQuery('SELECT   `id`, `name`, `status`, `created_on` 
                                    FROM     `categories` 
                                    WHERE    `status` IS NULL 
                                    ORDER BY `name`');
-        parent::__construct($parent, $id_column);
+        parent::__construct($source, $execute);
     }
 
 
@@ -78,7 +80,7 @@ class Categories extends DataList
     /**
      * @inheritDoc
      */
-    protected function load(string|int|null $id_column = null): static
+    public function load(?string $id_column = null): static
     {
         // TODO: Implement load() method.
     }
@@ -87,7 +89,7 @@ class Categories extends DataList
     /**
      * @inheritDoc
      */
-    protected function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
+    public function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
     {
         // TODO: Implement loadDetails() method.
     }
@@ -96,7 +98,7 @@ class Categories extends DataList
     /**
      * @inheritDoc
      */
-    public function save(): bool
+    public function save(): static
     {
         // TODO: Implement save() method.
     }

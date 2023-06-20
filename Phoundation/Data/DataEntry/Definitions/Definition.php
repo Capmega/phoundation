@@ -1296,6 +1296,12 @@ throw new UnderConstructionException();
         $bool  = ($this->getType() === 'checkbox');
         $field = $prefix . $this->getCliField();
 
+        if (!$field) {
+            // This field name is empty. Coming from self::getCliField() this means that this field should NOT be
+            // validated
+            return;
+        }
+
         // Field name prefix is an HTML form array prefix? Then close the array
         if (str_ends_with((string) $prefix, '[')) {
             $field .= ']';

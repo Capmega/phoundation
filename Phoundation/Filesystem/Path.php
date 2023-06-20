@@ -687,8 +687,9 @@ class Path extends FileBasics
     {
         if (!static::$temp_path) {
             static::$temp_path = PATH_TMP . 'process-' . posix_getpid() . '/';
+            $restrictions      = Restrictions::new(PATH_TMP, true);
 
-            static::$temp_path = Path::new(static::$temp_path, Restrictions::new(static::$temp_path, true))
+            static::$temp_path = Path::new(static::$temp_path, $restrictions)
                 ->delete()
                 ->ensureWritable();
         }
@@ -698,7 +699,7 @@ class Path extends FileBasics
             link(PATH_PUBTMP . 'p-' . posix_getpid() . '/', static::$temp_path);
         }
 
-        return Path::new(static::$temp_path);
+        return Path::new(static::$temp_path, $restrictions);
     }
 
 

@@ -2,6 +2,7 @@
 
 namespace Phoundation\Data\Interfaces;
 
+use PDOStatement;
 use ReturnTypeWillChange;
 use Stringable;
 
@@ -44,6 +45,23 @@ interface IteratorInterface extends \Iterator, Stringable
      * @return array
      */
     function __toArray(): array;
+
+    /**
+     * Iterator class constructor
+     *
+     * @param IteratorInterface|PDOStatement|array|string|null $source
+     * @param array|null $execute
+     */
+    public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null);
+
+    /**
+     * Returns a new Iterator object
+     *
+     * @param IteratorInterface|PDOStatement|array|string|null $source
+     * @param array|null $execute
+     * @return static
+     */
+    public static function new(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static;
 
     /**
      * Returns the current entry
@@ -93,7 +111,15 @@ interface IteratorInterface extends \Iterator, Stringable
      *
      * @return mixed
      */
-    public function getList(): array;
+    public function getSource(): array;
+
+    /**
+     * Sets the internal source directly
+     *
+     * @param array $source
+     * @return mixed
+     */
+    public function setSource(array $source): static;
 
     /**
      * Returns value for the specified key
@@ -154,4 +180,26 @@ interface IteratorInterface extends \Iterator, Stringable
      * @return bool
      */
     public function isEmpty(): bool;
+
+    /**
+     * Execute the specified callback for each row
+     *
+     * @param callable $callback
+     * @return $this
+     */
+    public function addItemCallback(callable $callback): static;
+
+    /**
+     * Returns the row callbacks
+     *
+     * @return array
+     */
+    public function getItemCallbacks(): array;
+
+    /**
+     * Execute the specified callbacks for each row
+     *
+     * @return $this
+     */
+    public function executeItemCallbacks(): static;
 }

@@ -93,11 +93,11 @@ class PostValidator extends Validator
             return $this;
         }
 
-        if (empty(static::$post)) {
+        if (count($this->selected_fields) === count(static::$get)) {
             return $this;
         }
 
-        throw ValidationFailedException::new(tr('Invalid POST fields ":arguments" encountered', [
+        throw ValidationFailedException::new(tr('Unknown fields ":arguments" encountered', [
             ':arguments' => Strings::force(static::$post, ', ')
         ]))->makeWarning();
     }

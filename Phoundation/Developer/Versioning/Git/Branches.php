@@ -30,9 +30,9 @@ class Branches extends Iterator
      *
      * @return array
      */
-    public function getList(): array
+    public function getSource(): array
     {
-        if (!$this->list) {
+        if (!$this->source) {
             $results = Process::new('git')->setExecutionPath($this->path)
                 ->addArgument('branch')
                 ->addArgument('--quiet')
@@ -41,14 +41,14 @@ class Branches extends Iterator
 
             foreach ($results as $line) {
                 if (str_starts_with($line, '*')) {
-                    $this->list[substr($line, 2)] = true;
+                    $this->source[substr($line, 2)] = true;
                 } else {
-                    $this->list[substr($line, 2)] = false;
+                    $this->source[substr($line, 2)] = false;
                 }
             }
         }
 
-        return $this->list;
+        return $this->source;
     }
 
 
@@ -61,7 +61,7 @@ class Branches extends Iterator
     {
         $list = [];
 
-        foreach ($this->getList() as $branch => $selected) {
+        foreach ($this->getSource() as $branch => $selected) {
             $list[$branch] = ['selected' => $selected ? '*' : ''];
         }
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Interfaces;
 
+use PDOStatement;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Web\Http\Html\Components\DataTable;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
@@ -25,13 +26,21 @@ use Stringable;
 interface DataListInterface extends IteratorInterface
 {
     /**
-     * Returns new DataList object with an optional parent
+     * Iterator class constructor
      *
-     * @param DataEntryInterface|null $parent
-     * @param string|null $id_column
+     * @param IteratorInterface|PDOStatement|array|string|null $source
+     * @param array|null $execute
+     */
+    public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null);
+
+    /**
+     * Returns a new Iterator object
+     *
+     * @param IteratorInterface|PDOStatement|array|string|null $source
+     * @param array|null $execute
      * @return static
      */
-    public static function new(?DataEntryInterface $parent = null, ?string $id_column = null): static;
+    public static function new(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static;
 
     /**
      * Returns the amount of items in this list
@@ -43,10 +52,10 @@ interface DataListInterface extends IteratorInterface
     /**
      * Returns if the specified data entry exists in the data list
      *
-     * @param Stringable|string|float|int $key
+     * @param DataEntryInterface|Stringable|string|float|int $key
      * @return bool
      */
-    function exists(Stringable|string|float|int $key): bool;
+    function exists(DataEntryInterface|Stringable|string|float|int $key): bool;
 
     /**
      * Returns a list of items that are specified, but not available in this DataList
@@ -55,7 +64,7 @@ interface DataListInterface extends IteratorInterface
      * @param string|null $always_match
      * @return array
      */
-    function missesKeys(DataListInterface|array|string $list, string $always_match = null): array;
+    function getMissingKeys(DataListInterface|array|string $list, string $always_match = null): array;
 
     /**
      * Returns if all (or optionally any) of the specified entries are in this list
@@ -65,7 +74,7 @@ interface DataListInterface extends IteratorInterface
      * @param string|null $always_match
      * @return bool
      */
-    function containsKey(DataListInterface|array|string $list, bool $all = true, string $always_match = null): bool;
+    function containsKeys(DataListInterface|array|string $list, bool $all = true, string $always_match = null): bool;
 
     /**
      * Returns if all (or optionally any) of the specified entries are in this list
@@ -75,7 +84,7 @@ interface DataListInterface extends IteratorInterface
      * @param string|null $always_match
      * @return bool
      */
-    function containsValue(DataListInterface|array|string $list, bool $all = true, string $always_match = null): bool;
+    function containsValues(DataListInterface|array|string $list, bool $all = true, string $always_match = null): bool;
 
     /**
      * Returns the entire internal list
@@ -97,14 +106,7 @@ interface DataListInterface extends IteratorInterface
      *
      * @return array
      */
-    function idList(): array;
-
-    /**
-     * Returns all configured filters to apply when loading the data list
-     *
-     * @return array
-     */
-    function getFilters(): array;
+    function getKeys(): array;
 
     /**
      * Set the query for this object when shown as HTML table
@@ -113,14 +115,14 @@ interface DataListInterface extends IteratorInterface
      * @param array|null $execute
      * @return static
      */
-    function setHtmlQuery(string $query, ?array $execute = null): static;
+    function setQuery(string $query, ?array $execute = null): static;
 
     /**
      * Returns the query for this object when shown as HTML table
      *
      * @return string
      */
-    function getHtmlQuery(): string;
+    function getQuery(): string;
 
     /**
      * Returns the table name that is the source for this DataList object
@@ -130,52 +132,11 @@ interface DataListInterface extends IteratorInterface
     function getTable(): string;
 
     /**
-     * Add a filter to apply when loading the data list
-     *
-     * @param string $key
-     * @return static
-     */
-    function removeFilter(string $key): static;
-
-    /**
      * Returns the schema Table object for the table that is the source for this DataList object
      *
      * @return \Phoundation\Databases\Sql\Schema\Table
      */
     function getTableSchema(): \Phoundation\Databases\Sql\Schema\Table;
-
-    /**
-     * Clears multiple filters to apply when loading the data list
-     *
-     * @return static
-     */
-    function clearFilters(): static;
-
-    /**
-     * Set multiple filters to apply when loading the data list
-     *
-     * @note This will clear all already defined filters
-     * @param array $filters
-     * @return static
-     */
-    function setFilters(array $filters): static;
-
-    /**
-     * Add multiple filters to apply when loading the data list
-     *
-     * @param array $filters
-     * @return static
-     */
-    function addFilters(array $filters): static;
-
-    /**
-     * Add a filter to apply when loading the data list
-     *
-     * @param string $key
-     * @param array|string|int|null $value
-     * @return static
-     */
-    function addFilter(string $key, array|string|int|null $value): static;
 
     /**
      * Returns the item with the specified identifier
@@ -291,9 +252,9 @@ interface DataListInterface extends IteratorInterface
     /**
      * Save the data list elements to database
      *
-     * @return bool
+     * @return static
      */
-    function save(): bool;
+    function save(): static;
 
     /**
      * Returns an HTML <select> for the available object entries

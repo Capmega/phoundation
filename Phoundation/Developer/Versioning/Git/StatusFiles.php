@@ -58,7 +58,7 @@ class StatusFiles extends Iterator
      */
     public function scanChanges(): static
     {
-        $this->list = [];
+        $this->source = [];
 
         $files = $this->git_process
             ->clearArguments()
@@ -78,7 +78,7 @@ class StatusFiles extends Iterator
                 $file   = Strings::until($file, ' -> ');
             }
 
-            $this->list[$file] = StatusFile::new($status, $file, $target);
+            $this->source[$file] = StatusFile::new($status, $file, $target);
         }
 
         return $this;
@@ -94,7 +94,7 @@ class StatusFiles extends Iterator
     {
         $list = [];
 
-        foreach ($this->getList() as $file => $status) {
+        foreach ($this->getSource() as $file => $status) {
             if (trim(substr($status->getStatus(), 0, 1))) {
                 $status = Color::apply($status->getStatus()->getReadable(), 'green');
             } else {

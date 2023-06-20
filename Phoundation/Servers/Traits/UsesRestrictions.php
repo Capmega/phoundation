@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Servers\Traits;
 
 use Phoundation\Core\Core;
+use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Restrictions;
 
 
@@ -43,7 +44,7 @@ trait UsesRestrictions
     /**
      * Sets the server and filesystem restrictions for this File object
      *
-     * @param Restrictions|array|string|null $restrictions  The file restrictions to apply to this object
+     * @param RestrictionsInterface|array|string|null $restrictions  The file restrictions to apply to this object
      * @param bool $write                                   If $restrictions is not specified as a Restrictions class,
      *                                                      but as a path string, or array of path strings, then this
      *                                                      method will convert that into a Restrictions object and this
@@ -54,7 +55,7 @@ trait UsesRestrictions
      *                                                      is the $label modifier for that object
      * @return static
      */
-    public function setRestrictions(Restrictions|array|string|null $restrictions = null, bool $write = false, ?string $label = null): static
+    public function setRestrictions(RestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): static
     {
         $this->restrictions = Core::ensureRestrictions($restrictions, $write, $label);
         return $this;

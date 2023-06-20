@@ -24,7 +24,7 @@ class Translations extends DataList
     /**
      * @inheritDoc
      */
-    protected function load(string|int|null $id_column = null): static
+    public function load(?string $id_column = null): static
     {
         // TODO: Implement load() method.
     }
@@ -33,7 +33,7 @@ class Translations extends DataList
     /**
      * @inheritDoc
      */
-    protected function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
+    public function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
     {
         // TODO: Implement loadDetails() method.
     }
@@ -42,7 +42,7 @@ class Translations extends DataList
     /**
      * @inheritDoc
      */
-    public function save(): bool
+    public function save(): static
     {
         // TODO: Implement save() method.
     }

@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Plugins;
 
+use PDOStatement;
 use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Path;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
@@ -36,18 +38,19 @@ class Plugins extends DataList
     /**
      * Providers class constructor
      *
-     * @param Plugin|null $parent
-     * @param string|null $id_column
+     * @param IteratorInterface|PDOStatement|array|string|null $source
+     * @param array|null $execute
      */
-    public function __construct(?Plugin $parent = null, ?string $id_column = null)
+    public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null)
     {
         $this->entry_class = Plugin::class;
         $this->table       = 'core_plugins';
 
-        $this->setHtmlQuery('SELECT   `id`, `name`, IFNULL(`status`, "' . tr('Ok') . '") AS `status`, IF(`enabled`, "' . tr('Enabled') . '", "' . tr('Disabled') . '") AS `enabled`, `priority`, `description` 
-                                   FROM     `core_plugins` 
-                                   ORDER BY `name`');
-        parent::__construct($parent, $id_column);
+        $this->setQuery('SELECT   `id`, `name`, IFNULL(`status`, "' . tr('Ok') . '") AS `status`, IF(`enabled`, "' . tr('Enabled') . '", "' . tr('Disabled') . '") AS `enabled`, `priority`, `description` 
+                               FROM     `core_plugins` 
+                               ORDER BY `name`');
+
+        parent::__construct($source, $execute);
     }
 
 
@@ -101,9 +104,9 @@ class Plugins extends DataList
      */
     public static function start(): void
     {
-        foreach (self::getEnabled() as $name => $plugin) {
+        foreach (self::getEnabled() as $plugin) {
             if ($plugin['enabled']) {
-                Log::action(tr('Starting plugin ":plugin"', [':plugin' => $name]), 3);
+                Log::action(tr('Starting plugin ":plugin"', [':plugin' => $plugin['name']]), 9);
                 include_once($plugin['path'] . 'Plugin.php');
                 $plugin['class']::start();
             }
@@ -309,15 +312,15 @@ class Plugins extends DataList
     /**
      * @inheritDoc
      */
-    protected function load(string|int|null $id_column = null): static
+    public function load(string|int|null $id_column = null): static
     {
-        $this->list = sql()->list('SELECT `core_plugins`.`id`, `core_plugins`.`name` 
-                                   FROM     `core_plugins` 
-                                   WHERE    `core_plugins`.`status` IS NULL
-                                   ORDER BY `core_plugins`.`name`' . sql()->getLimit());
+        $this->source = sql()->list('SELECT   `core_plugins`.`id`, `core_plugins`.`name` 
+                                           FROM     `core_plugins` 
+                                           WHERE    `core_plugins`.`status` IS NULL
+                                           ORDER BY `core_plugins`.`name`' . sql()->getLimit());
 
         // The keys contain the ids...
-        $this->list = array_flip($this->list);
+        $this->source = array_flip($this->source);
         return $this;
     }
 
@@ -325,7 +328,7 @@ class Plugins extends DataList
     /**
      * @inheritDoc
      */
-    protected function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
+    public function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
     {
         // TODO: Implement loadDetails() method.
     }
@@ -334,7 +337,7 @@ class Plugins extends DataList
     /**
      * @inheritDoc
      */
-    public function save(): bool
+    public function save(): static
     {
         // TODO: Implement save() method.
     }

@@ -35,7 +35,7 @@ class KubernetesObjects extends Iterator
     public function __construct()
     {
         $format            = [];
-        $this->list        = [];
+        $this->source        = [];
         $this->kind        = Strings::fromReverse(get_class($this), '\\');
         $this->get_command = strtolower($this->kind);
 
@@ -55,7 +55,7 @@ class KubernetesObjects extends Iterator
                 continue;
             }
 
-            $this->list[] = Arrays::format($line, $format);
+            $this->source[] = Arrays::format($line, $format);
         }
     }
 }

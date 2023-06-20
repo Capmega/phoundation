@@ -218,6 +218,7 @@ Class Log {
                     ]));
                 }
             }
+
         } catch (Throwable $e) {
             // Crap, we could not get a Log instance
             static::$fail = true;
@@ -226,6 +227,7 @@ Class Log {
             error_log($e->getMessage());
         }
 
+        // TODO self::$instance might not be assigned at this point, if there was an exception. What then?
         return self::$instance;
     }
 
@@ -979,7 +981,7 @@ Class Log {
             }
 
             // Add coloring for easier reading
-            $messages = Color::apply($messages, $class);
+            $messages = Color::apply((string) $messages, $class);
 
             // Build the message to be logged, clean it and log
             // The log line format is DATE LEVEL PID GLOBALID/LOCALID MESSAGE EOL

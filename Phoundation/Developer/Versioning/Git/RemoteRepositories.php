@@ -34,7 +34,7 @@ class RemoteRepositories extends Iterator
     public function __construct(string $path)
     {
         $this->construct($path);
-        $this->list = Process::new('git')
+        $this->source = Process::new('git')
             ->setExecutionPath($this->path)
             ->addArgument('remote')
             ->addArgument('show')
@@ -51,7 +51,7 @@ class RemoteRepositories extends Iterator
     {
         $list = [];
 
-        foreach ($this->getList() as $repository) {
+        foreach ($this->getSource() as $repository) {
             $list[$repository] = [];
         }
 
@@ -68,7 +68,7 @@ class RemoteRepositories extends Iterator
      */
     public function get(string|float|int $key, bool $exception = false): ?RemoteRepository
     {
-        if (!array_key_exists($key, $this->list)) {
+        if (!array_key_exists($key, $this->source)) {
             if ($exception) {
                 throw new NotExistsException(tr('The repository ":key" does not exist in this object', [
                     ':key' => $key

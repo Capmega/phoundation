@@ -300,7 +300,7 @@ class Select extends ResourceElement implements SelectInterface
         $return = null;
         $none   = null;
 
-        if (($this->source_array === null) and ($this->source_query === null)) {
+        if (($this->source === null) and ($this->source_query === null)) {
             throw new HtmlException(tr('No source specified'));
         }
 
@@ -310,7 +310,7 @@ class Select extends ResourceElement implements SelectInterface
 
         if ($this->source_query) {
             $return .= $this->renderBodyQuery();
-        } elseif ($this->source_array) {
+        } elseif ($this->source) {
             $return .= $this->renderBodyArray();
         }
 
@@ -337,19 +337,19 @@ class Select extends ResourceElement implements SelectInterface
      */
     protected function renderBodyArray(): ?string
     {
-        if (!$this->source_array) {
+        if (!$this->source) {
             return null;
         }
 
         $return = '';
 
-        if ($this->auto_select and ((count($this->source_array) == 1) and !$this->none)) {
+        if ($this->auto_select and ((count($this->source) == 1) and !$this->none)) {
             // Auto select the only available element
             // TODO implement
         }
 
         // Process array resource
-        foreach ($this->source_array as $key => $value) {
+        foreach ($this->source as $key => $value) {
             $this->count++;
             $option_data = '';
 
@@ -412,7 +412,7 @@ class Select extends ResourceElement implements SelectInterface
 
             if ($this->cache) {
                 // Store the data in array
-                $this->source_array[$key] = $value;
+                $this->source[$key] = $value;
             }
 
             if (!$key) {

@@ -39,7 +39,7 @@ class Role extends DataEntry implements RoleInterface
      * @param DataEntryInterface|string|int|null $identifier
      * @param bool $init
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = false)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = true)
     {
         $this->table        = 'accounts_roles';
         $this->entry_name   = 'role';
@@ -56,7 +56,7 @@ class Role extends DataEntry implements RoleInterface
     public function rights(): RightsInterface
     {
         if (!$this->list) {
-            $this->list = new Rights($this);
+            $this->list = Rights::new()->setParent($this);
         }
 
         return $this->list;
@@ -70,7 +70,7 @@ class Role extends DataEntry implements RoleInterface
      */
     public function users(): UsersInterface
     {
-        return new Users($this);
+        return Users::new()->setParent($this);
     }
 
 

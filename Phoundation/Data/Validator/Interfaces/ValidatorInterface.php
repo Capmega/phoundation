@@ -5,6 +5,7 @@ namespace Phoundation\Data\Validator\Interfaces;
 use DateTime;
 use PDOStatement;
 use Phoundation\Core\Strings;
+use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Restrictions;
 use UnitEnum;
 
@@ -602,28 +603,28 @@ interface ValidatorInterface
      * Validates if the selected field is a valid directory
      *
      * @param string|null $exists_in_path
-     * @param Restrictions|array|string|null $restrictions
+     * @param RestrictionsInterface|array|string|null $restrictions
      * @return static
      */
-    public function isPath(?string $exists_in_path = null, Restrictions|array|string|null $restrictions = null): static;
+    public function isPath(?string $exists_in_path = null, RestrictionsInterface|array|string|null $restrictions = null): static;
 
     /**
      * Validates if the selected field is a valid directory
      *
      * @param string|bool|null $exists_in_path
-     * @param Restrictions|array|string|null $restrictions
+     * @param RestrictionsInterface|array|string|null $restrictions
      * @return static
      */
-    public function isDirectory(string|bool $exists_in_path = null, Restrictions|array|string|null $restrictions = null): static;
+    public function isDirectory(string|bool $exists_in_path = null, RestrictionsInterface|array|string|null $restrictions = null): static;
 
     /**
      * Validates if the selected field is a valid file
      *
      * @param string|bool $exists_in_path
-     * @param Restrictions|array|string|null $restrictions
+     * @param RestrictionsInterface|array|string|null $restrictions
      * @return static
      */
-    public function isFile(string|bool $exists_in_path = null, Restrictions|array|string|null $restrictions = null): static;
+    public function isFile(string|bool $exists_in_path = null, RestrictionsInterface|array|string|null $restrictions = null): static;
 
     /**
      * Validates if the selected field is a valid description

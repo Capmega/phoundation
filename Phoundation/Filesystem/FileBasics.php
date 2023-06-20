@@ -13,6 +13,7 @@ use Phoundation\Filesystem\Exception\FileNotWritableException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\PathNotExistsException;
 use Phoundation\Filesystem\Interfaces\FileBasicsInterface;
+use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Processes\Exception\ProcessesException;
 use Phoundation\Processes\Process;
 use Phoundation\Servers\Traits\UsesRestrictions;
@@ -65,9 +66,9 @@ class FileBasics implements Stringable, FileBasicsInterface
      * File class constructor
      *
      * @param FileBasics|Stringable|string|null $file
-     * @param Restrictions|array|string|null $restrictions_restrictions
+     * @param RestrictionsInterface|array|string|null $restrictions_restrictions
      */
-    public function __construct(FileBasics|Stringable|string|null $file = null, Restrictions|array|string|null $restrictions_restrictions = null)
+    public function __construct(FileBasics|Stringable|string|null $file = null, RestrictionsInterface|array|string|null $restrictions_restrictions = null)
     {
         // Specified file was actually a File or Path object, get the file from there
         if (is_object($file)) {
@@ -96,10 +97,10 @@ class FileBasics implements Stringable, FileBasicsInterface
      * Returns a new File object with the specified restrictions
      *
      * @param FileBasics|Stringable|string|null $file
-     * @param Restrictions|array|string|null $restrictions_restrictions
+     * @param RestrictionsInterface|array|string|null $restrictions_restrictions
      * @return static
      */
-    public static function new(FileBasics|Stringable|string|null $file = null, Restrictions|array|string|null $restrictions_restrictions = null): static
+    public static function new(FileBasics|Stringable|string|null $file = null, RestrictionsInterface|array|string|null $restrictions_restrictions = null): static
     {
         return new static($file, $restrictions_restrictions);
     }
@@ -569,11 +570,11 @@ class FileBasics implements Stringable, FileBasicsInterface
     /**
      * Moves this file to the specified target, will try to ensure target path exists
      *
-     * @param string $target
+     * @param Stringable|string $target
      * @param bool $ensure_path
      * @return $this
      */
-    public function move(string $target, bool $ensure_path = true): static
+    public function move(Stringable|string $target, bool $ensure_path = true): static
     {
         // Ensure target is absolute
         $target = Filesystem::absolute($target, must_exist: false);
@@ -842,7 +843,7 @@ class FileBasics implements Stringable, FileBasicsInterface
         }
 
         // As of here we know the file doesn't exist. Attempt to create it. First ensure the parent path exists.
-        Path::new(dirname($this->file), $this->restrictions)->ensure();
+        Path::new(dirname($this->file), $this->restrictions->getParent())->ensure();
 
         return false;
     }

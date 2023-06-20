@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Rights;
 
+use PDOStatement;
+use Phoundation\Accounts\Rights\Interfaces\RightInterface;
 use Phoundation\Accounts\Rights\Interfaces\RightsInterface;
 use Phoundation\Accounts\Roles\Interfaces\RoleInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
@@ -12,6 +14,7 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Sql\QueryBuilder;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Web\Http\Html\Components\Input\Select;
@@ -31,22 +34,23 @@ use Phoundation\Web\Http\Html\Components\Input\Select;
 class Rights extends DataList implements RightsInterface
 {
     /**
-     * Rights class constructor
+     * Roles class constructor
      *
-     * @param UserInterface|RoleInterface|null $parent
-     * @param string|null $id_column
+     * @param IteratorInterface|PDOStatement|array|string|null $source
+     * @param array|null $execute
      */
-    public function __construct(UserInterface|RoleInterface|null $parent = null, ?string $id_column = null)
+    public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null)
     {
-        $this->entry_class = Right::class;
-        $this->table       = 'accounts_rights';
+        $this->unique_column = 'seo_name';
+        $this->entry_class   = Right::class;
+        $this->table         = 'accounts_rights';
 
-        $this->setHtmlQuery('SELECT   `id`, `name`, `description` 
-                                   FROM     `accounts_rights` 
-                                   WHERE    `status` IS NULL 
-                                   ORDER BY `name`');
+        $this->setQuery('SELECT   `id`, `name`, `description` 
+                               FROM     `accounts_rights` 
+                               WHERE    `status` IS NULL 
+                               ORDER BY `name`');
 
-        parent::__construct($parent, $id_column);
+        parent::__construct($source, $execute);
     }
 
 
@@ -69,7 +73,7 @@ class Rights extends DataList implements RightsInterface
             }
 
             // Get a list of what we have to add and remove to get the same list, and apply
-            $diff = Arrays::valueDiff($this->list, $rights_list);
+            $diff = Arrays::valueDiff($this->source, $rights_list);
 
             foreach ($diff['add'] as $right) {
                 $this->parent->rights()->add($right);
@@ -87,10 +91,10 @@ class Rights extends DataList implements RightsInterface
     /**
      * Add the specified data entry to the data list
      *
-     * @param Right|array|string|int|null $right
+     * @param RightInterface|array|string|int|null $right
      * @return static
      */
-    public function add(Right|array|string|int|null $right): static
+    public function add(RightInterface|array|string|int|null $right): static
     {
         $this->ensureParent('add entry to parent');
 
@@ -106,7 +110,7 @@ class Rights extends DataList implements RightsInterface
                 $right = Right::get($right);
 
                 // Already exists?
-                if (!array_key_exists($right->getId(), $this->list)) {
+                if (!array_key_exists($right->getId(), $this->source)) {
                     // Add entry to parent, User or Role
                     if ($this->parent instanceof UserInterface) {
                         Log::action(tr('Adding right ":right" to user ":user"', [
@@ -154,10 +158,10 @@ class Rights extends DataList implements RightsInterface
     /**
      * Remove the specified data entry from the data list
      *
-     * @param Right|array|int|null $right
+     * @param RightInterface|array|int|null $right
      * @return static
      */
-    public function remove(Right|array|int|null $right): static
+    public function remove(RightInterface|array|int|null $right): static
     {
         $this->ensureParent('remove entry from parent');
 
@@ -258,16 +262,20 @@ class Rights extends DataList implements RightsInterface
         if ($this->parent) {
             // Load only rights for specified parent
             if ($this->parent instanceof UserInterface) {
-                $this->list = sql()->list('SELECT `accounts_users_rights`.`' . $id_column . '` 
-                                               FROM   `accounts_users_rights` 
-                                               WHERE  `accounts_users_rights`.`users_id` = :users_id', [
+                $this->source = sql()->list('SELECT `accounts_rights`.`seo_name` AS `key`, `accounts_rights`.*
+                                                   FROM   `accounts_users_rights` 
+                                                   JOIN   `accounts_rights` 
+                                                   ON     `accounts_users_rights`.`rights_id` = `accounts_rights`.`id`
+                                                   WHERE  `accounts_users_rights`.`users_id`  = :users_id', [
                     ':users_id' => $this->parent->getId()
                 ]);
 
             } elseif ($this->parent instanceof RoleInterface) {
-                $this->list = sql()->list('SELECT `accounts_roles_rights`.`' . $id_column . '` 
-                                           FROM   `accounts_roles_rights` 
-                                           WHERE  `accounts_roles_rights`.`roles_id` = :roles_id', [
+                $this->source = sql()->list('SELECT `accounts_rights`.`seo_name` AS `key`, `accounts_rights`.* 
+                                                   FROM   `accounts_roles_rights` 
+                                                   JOIN   `accounts_rights` 
+                                                   ON     `accounts_roles_rights`.`rights_id` = `accounts_rights`.`id`
+                                                   WHERE  `accounts_roles_rights`.`roles_id`  = :roles_id', [
                     ':roles_id' => $this->parent->getId()
                 ]);
 
@@ -275,11 +283,9 @@ class Rights extends DataList implements RightsInterface
 
         } else {
             // Load all
-            $this->list = sql()->list('SELECT `id` FROM `accounts_rights`');
+            $this->source = sql()->list('SELECT `id` FROM `accounts_rights`');
         }
 
-        // The keys contain the ids...
-        $this->list = array_flip($this->list);
         return $this;
     }
 
@@ -315,7 +321,7 @@ class Rights extends DataList implements RightsInterface
      * @param array $filters
      * @return array
      */
-    protected function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
+    public function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
     {
         // Default columns
         if (!$columns) {
@@ -335,12 +341,12 @@ class Rights extends DataList implements RightsInterface
 
         // Build query
         $builder = new QueryBuilder();
-        $builder->addSelect('SELECT ' . $columns);
-        $builder->addFrom('FROM `accounts_rights`');
+        $builder->addSelect($columns);
+        $builder->addFrom('`accounts_rights`');
 
         // Add ordering
         foreach ($order_by as $column => $direction) {
-            $builder->addOrderBy('ORDER BY `' . $column . '` ' . ($direction ? 'DESC' : 'ASC'));
+            $builder->addOrderBy('`' . $column . '` ' . ($direction ? 'DESC' : 'ASC'));
         }
 
         // Build filters
@@ -408,9 +414,9 @@ class Rights extends DataList implements RightsInterface
     /**
      * Save the data for this rights list in the database
      *
-     * @return bool
+     * @return static
      */
-    public function save(): bool
+    public function save(): static
     {
         $this->ensureParent('save parent entries');
 
@@ -422,7 +428,7 @@ class Rights extends DataList implements RightsInterface
             ]);
 
             // Add the new list
-            foreach ($this->list as $id) {
+            foreach ($this->source as $id) {
                 $right = new Right($id);
 
                 sql()->insert('accounts_users_rights', [
@@ -441,7 +447,7 @@ class Rights extends DataList implements RightsInterface
             ]);
 
             // Add the new list
-            foreach ($this->list as $id) {
+            foreach ($this->source as $id) {
                 sql()->insert('accounts_roles_rights', [
                     'roles_id'  => $this->parent->getId(),
                     'rights_id' => $id

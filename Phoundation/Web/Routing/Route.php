@@ -183,7 +183,7 @@ class Route
      *
      * @return RoutingParametersList
      */
-    public static function parameters(): RoutingParametersList
+    public static function getParameters(): RoutingParametersList
     {
         static::getInstance();
 
@@ -644,7 +644,7 @@ class Route
                         }
 
                         Core::unregisterShutdown('route[postprocess]');
-                        Page::setRoutingParameters(static::parameters()->select(static::$uri));
+                        Page::setRoutingParameters(static::getParameters()->select(static::$uri));
                         Page::redirect(UrlBuilder::getWww($route)->addQueries($_GET), (int) $http_code);
 
                     case 'S':
@@ -760,7 +760,7 @@ class Route
                             ]));
 
                             Core::unregisterShutdown('route[postprocess]');
-                            Page::setRoutingParameters(static::parameters()->select(static::$uri));
+                            Page::setRoutingParameters(static::getParameters()->select(static::$uri));
                             Page::redirect($domain);
                     }
                 }
@@ -1072,7 +1072,7 @@ class Route
 
         // Route the requested system page. The called method will die(), so the following die() call is there more to
         // make the static analyzers shut up :)
-        RouteSystem::new(static::parameters()->select(static::$uri, true))->$method();
+        RouteSystem::new(static::getParameters()->select(static::$uri, true))->$method();
         die();
     }
 
@@ -1088,7 +1088,7 @@ class Route
     {
         // Get routing parameters and find the correct target page
         if (!$parameters) {
-            $parameters = static::parameters()->select(static::$uri);
+            $parameters = static::getParameters()->select(static::$uri);
         }
 
         $target = Filesystem::absolute($parameters->getRootPath() . Strings::unslash($target));

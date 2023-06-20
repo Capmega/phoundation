@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Definitions\Interfaces;
 
+use PDOStatement;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Stringable;
 
@@ -21,19 +22,21 @@ use Stringable;
 interface DefinitionsInterface extends IteratorInterface
 {
     /**
-     * UsesNewTable class constructor
+     * Iterator class constructor
      *
-     * @param string|null $table
+     * @param IteratorInterface|PDOStatement|array|string|null $source
+     * @param array|null $execute
      */
-    public function __construct(?string $table = null);
+    public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null);
 
     /**
-     * Returns a new static object
+     * Returns a new Iterator object
      *
-     * @param string|null $table
+     * @param IteratorInterface|PDOStatement|array|string|null $source
+     * @param array|null $execute
      * @return static
      */
-    public static function new(?string $table = null): static;
+    public static function new(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static;
 
     /**
      * Returns the table
@@ -145,7 +148,7 @@ interface DefinitionsInterface extends IteratorInterface
      *
      * @return array
      */
-    public function getList(): array;
+    public function getSource(): array;
 
     /**
      * Returns the amount of Definitions

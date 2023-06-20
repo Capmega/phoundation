@@ -10,6 +10,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Filesystem;
+use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Commands\Command;
@@ -39,10 +40,10 @@ Class Process
      * Processes constructor.
      *
      * @param string|null $command
-     * @param Restrictions|array|string|null $restrictions
+     * @param RestrictionsInterface|array|string|null $restrictions
      * @param string|null $packages
      */
-    public function __construct(?string $command = null, Restrictions|array|string|null $restrictions = null, ?string $packages = null)
+    public function __construct(?string $command = null, RestrictionsInterface|array|string|null $restrictions = null, ?string $packages = null)
     {
         // Ensure that the run files directory is available
         Path::new(PATH_ROOT . 'data/run/', $restrictions)->ensure();
@@ -63,11 +64,11 @@ Class Process
      * Create a new process factory
      *
      * @param string|null $command
-     * @param Restrictions|array|string|null $restrictions
+     * @param RestrictionsInterface|array|string|null $restrictions
      * @param string|null $packages
      * @return static
      */
-    public static function new(?string $command = null, Restrictions|array|string|null $restrictions = null, ?string $packages = null): static
+    public static function new(?string $command = null, RestrictionsInterface|array|string|null $restrictions = null, ?string $packages = null): static
     {
         return new static($command, $restrictions, $packages);
     }
@@ -77,11 +78,11 @@ Class Process
      * Create a new CLI script process factory
      *
      * @param string|null $command
-     * @param Restrictions|array|string|null $restrictions
+     * @param RestrictionsInterface|array|string|null $restrictions
      * @param string|null $packages
      * @return static
      */
-    public static function newCliScript(?string $command = null, Restrictions|array|string|null $restrictions = null, ?string $packages = null): static
+    public static function newCliScript(?string $command = null, RestrictionsInterface|array|string|null $restrictions = null, ?string $packages = null): static
     {
         $process = static::new('cli', $restrictions, $packages);
         $process->addArguments(Arrays::force($command, ' '));

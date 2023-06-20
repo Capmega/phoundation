@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Roles;
 
+use PDOStatement;
 use Phoundation\Accounts\Rights\Interfaces\RightInterface;
 use Phoundation\Accounts\Roles\Interfaces\RoleInterface;
 use Phoundation\Accounts\Roles\Interfaces\RolesInterface;
@@ -13,6 +14,7 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Sql\QueryBuilder;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 use Phoundation\Web\Http\Html\Components\Input\Select;
@@ -34,19 +36,21 @@ class Roles extends DataList implements RolesInterface
     /**
      * Roles class constructor
      *
-     * @param UserInterface|RoleInterface|null $parent
-     * @param string|null $id_column
+     * @param IteratorInterface|PDOStatement|array|string|null $source
+     * @param array|null $execute
      */
-    public function __construct(UserInterface|RoleInterface|null $parent = null, ?string $id_column = null)
+    public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null)
     {
-        $this->entry_class = Role::class;
-        $this->table       = 'accounts_roles';
+        $this->unique_column = 'seo_name';
+        $this->entry_class   = Role::class;
+        $this->table         = 'accounts_roles';
 
-        $this->setHtmlQuery('SELECT   `id`, `name`, `description` 
-                                   FROM     `accounts_roles` 
-                                   WHERE    `status` IS NULL 
-                                   ORDER BY `name`');
-        parent::__construct($parent, $id_column);
+        $this->setQuery('SELECT   `id`, `name`, `description` 
+                               FROM     `accounts_roles` 
+                               WHERE    `status` IS NULL 
+                               ORDER BY `name`');
+
+        parent::__construct($source, $execute);
     }
 
 
@@ -69,7 +73,7 @@ class Roles extends DataList implements RolesInterface
             }
 
             // Get a list of what we have to add and remove to get the same list, and apply
-            $diff = Arrays::valueDiff(array_keys($this->list), $rights_list);
+            $diff = Arrays::valueDiff(array_keys($this->source), $rights_list);
 
             foreach ($diff['add'] as $right) {
                 $this->parent->roles()->add($right);
@@ -106,7 +110,7 @@ class Roles extends DataList implements RolesInterface
                 $role = Role::get($role);
 
                 // Already exists?
-                if (!array_key_exists($role->getId(), $this->list)) {
+                if (!array_key_exists($role->getId(), $this->source)) {
                     // Add entry to parent, User or Right
                     if ($this->parent instanceof UserInterface) {
                         Log::action(tr('Adding role ":role" to user ":user"', [
@@ -265,27 +269,29 @@ class Roles extends DataList implements RolesInterface
 
         if ($this->parent) {
             if ($this->parent instanceof UserInterface) {
-                $this->list = sql()->list('SELECT `accounts_users_roles`.`roles_id`
-                                           FROM   `accounts_users_roles` 
-                                           WHERE  `accounts_users_roles`.`users_id` = :users_id', [
+                $this->source = sql()->list('SELECT `accounts_roles`.`seo_name` AS `key`, `accounts_roles`.*
+                                                   FROM   `accounts_users_roles` 
+                                                   JOIN   `accounts_roles` 
+                                                   ON     `accounts_users_roles`.`roles_id`  = `accounts_roles`.`id`
+                                                   WHERE  `accounts_users_roles`.`users_id` = :users_id', [
                     ':users_id' => $this->parent->getId()
                 ]);
 
             } elseif ($this->parent instanceof RightInterface) {
-                $this->list = sql()->list('SELECT `accounts_roles_rights`.`roles_id` 
-                                           FROM   `accounts_roles_rights` 
-                                           WHERE  `accounts_roles_rights`.`rights_id` = :rights_id', [
+                $this->source = sql()->list('SELECT `accounts_roles`.`seo_name` AS `key`, `accounts_roles`.* 
+                                                   FROM   `accounts_roles_rights` 
+                                                   JOIN   `accounts_roles` 
+                                                   ON     `accounts_roles_rights`.`roles_id`  = `accounts_roles`.`id`
+                                                   WHERE  `accounts_roles_rights`.`rights_id` = :rights_id', [
                     ':rights_id' => $this->parent->getId()
                 ]);
 
             }
 
         } else {
-            $this->list = sql()->list('SELECT `id` FROM `accounts_rights`');
+            $this->source = sql()->list('SELECT `id` FROM `accounts_rights`');
         }
 
-        // The keys contain the ids...
-        $this->list = array_flip($this->list);
         return $this;
     }
 
@@ -297,7 +303,7 @@ class Roles extends DataList implements RolesInterface
      * @param array $filters
      * @return array
      */
-    protected function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
+    public function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
     {
         // Default columns
         if (!$columns) {
@@ -317,12 +323,12 @@ class Roles extends DataList implements RolesInterface
 
         // Build query
         $builder = new QueryBuilder();
-        $builder->addSelect('SELECT ' . $columns);
-        $builder->addFrom('FROM `accounts_roles`');
+        $builder->addSelect($columns);
+        $builder->addFrom('`accounts_roles`');
 
         // Add ordering
         foreach ($order_by as $column => $direction) {
-            $builder->addOrderBy('ORDER BY `' . $column . '` ' . ($direction ? 'DESC' : 'ASC'));
+            $builder->addOrderBy($column . '` ' . ($direction ? 'DESC' : 'ASC'));
         }
 
         // Build filters
@@ -390,9 +396,9 @@ class Roles extends DataList implements RolesInterface
     /**
      * Save the data for this roles list in the database
      *
-     * @return bool
+     * @return static
      */
-    public function save(): bool
+    public function save(): static
     {
         $this->ensureParent('save parent entries');
 

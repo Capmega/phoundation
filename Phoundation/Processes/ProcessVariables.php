@@ -11,6 +11,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
+use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Commands\Command;
@@ -245,9 +246,9 @@ trait ProcessVariables
     /**
      * Process class constructor
      *
-     * @param Restrictions|array|string|null $restrictions
+     * @param RestrictionsInterface|array|string|null $restrictions
      */
-    public function __construct(Restrictions|array|string|null $restrictions)
+    public function __construct(RestrictionsInterface|array|string|null $restrictions)
     {
         // Set server filesystem restrictions
         $this->setRestrictions($restrictions);
@@ -378,24 +379,29 @@ trait ProcessVariables
     /**
      * Returns if the process will first CD to this directory before continuing
      *
-     * @return string
+     * @return Path
      */
-    public function getExecutionPath(): string
+    public function getExecutionPath(): Path
     {
-        return $this->execution_path;
+        return Path::new($this->execution_path);
     }
 
 
     /**
      * Sets if the process will first CD to this directory before continuing
      *
-     * @param Stringable|string|null $execution_path
+     * @param Path|Stringable|string|null $execution_path
+     * @param RestrictionsInterface|array|string|null $restrictions
      * @return static This process so that multiple methods can be chained
      */
-    public function setExecutionPath(Stringable|string|null $execution_path): static
+    public function setExecutionPath(Path|Stringable|string|null $execution_path, RestrictionsInterface|array|string|null $restrictions = null): static
     {
         $this->cached_command_line = null;
         $this->execution_path      = (string) $execution_path;
+
+        if ($restrictions) {
+            $this->restrictions = $restrictions;
+        }
 
         return $this;
     }
@@ -409,7 +415,10 @@ trait ProcessVariables
      */
     public function setExecutionPathToTemp(bool $public = false): static
     {
-        $this->setExecutionPath(Path::getTemporary($public));
+        $path               = Path::getTemporary($public);
+        $this->restrictions = $path->getRestrictions();
+
+        $this->setExecutionPath($path, $path->getRestrictions());
         return $this;
     }
 
@@ -695,12 +704,12 @@ trait ProcessVariables
      * Set the server on which the command should be executed for this process
      *
      * @note NULL means this local server
-     * @param Restrictions|array|string|null $restrictions
+     * @param RestrictionsInterface|array|string|null $restrictions
      * @param bool $write
      * @param string|null $label
      * @return static
      */
-    public function setRestrictions(Restrictions|array|string|null $restrictions = null, bool $write = false, ?string $label = null): static
+    public function setRestrictions(RestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): static
     {
         $this->cached_command_line = null;
         $this->restrictions        = Core::ensureRestrictions($restrictions, $write, $label);

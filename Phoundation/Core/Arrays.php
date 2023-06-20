@@ -121,11 +121,10 @@ class Arrays {
      * @param array $source The source array in which will be searched
      * @param mixed $current_value The value for which will be searched
      * @param bool $delete If true, will delete the specified $current_value and found next value
-     * @param bool $restart
      * @return mixed
-     * @throws OutOfBoundsException ?????
+     * @throws OutOfBoundsException thrown if the $current_value was found at the end of the array
      */
-    public static function nextValue(array &$source, mixed $current_value, bool $delete = false, bool $restart = false): mixed
+    public static function nextValue(array &$source, mixed $current_value, bool $delete = false): mixed
     {
         foreach ($source as $key => $value) {
             if (isset($next)) {
@@ -145,15 +144,14 @@ class Arrays {
             }
         }
 
-        if (!$restart) {
+        if (isset($next)) {
             // The current value was found, but it was at the end of the array
             throw new OutOfBoundsException(tr('Option ":value" does not have a value specified', [
                 ':value' => $current_value
             ]));
         }
 
-        reset($source);
-        return current($source);
+        return null;
     }
 
 

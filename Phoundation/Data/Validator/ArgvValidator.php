@@ -49,8 +49,9 @@ class ArgvValidator extends Validator
      * @param ValidatorInterface|null $parent If specified, this is actually a child validator to the specified parent
      */
     public function __construct(?ValidatorInterface $parent = null) {
-        global $argv;
-        $this->construct($parent, $argv);
+        // NOTE: ArgValidator does NOT pass $argv to the parent constructor, the $argv values are manually copied to
+        // static::source!
+        $this->construct($parent);
     }
 
 
@@ -108,6 +109,13 @@ class ArgvValidator extends Validator
             ]));
         }
 
+        if (!$fields) {
+            throw new OutOfBoundsException(tr('No field specified'));
+        }
+
+        // Make sure the fields value doesn't have any extras like -e,--email EMAIL <<< The EMAIL part is extra
+        $fields = Strings::until($fields, ' ');
+
         // Unset various values first to ensure the byref link is broken
         unset($this->process_value);
         unset($this->process_values);
@@ -119,10 +127,6 @@ class ArgvValidator extends Validator
 
         $clean_field = null;
         $field       = null;
-
-        if (!$fields) {
-            throw new OutOfBoundsException(tr('No field specified'));
-        }
 
         // Determine the correct clean field name for the specified argument field
         foreach (Arrays::force($fields, ',') as $field) {
@@ -138,7 +142,7 @@ class ArgvValidator extends Validator
             }
 
             if (str_starts_with($clean_field, '-')) {
-                // This is the short form argument, won't  be a variable name unless there is no alternative
+                // This is the short form argument, won't be a variable name unless there is no alternative
                 $clean_field = Strings::startsNotWith($clean_field, '-');
                 $clean_field = str_replace('-', '_', $clean_field);
                 continue;
@@ -160,8 +164,9 @@ class ArgvValidator extends Validator
         // Get the value from the arguments list
         try {
             $value = static::argument($fields, $next);
+
         } catch (OutOfBoundsException) {
-            // ???
+            // The field was not specified
             $value = null;
         }
 
@@ -421,7 +426,8 @@ class ArgvValidator extends Validator
                     if (str_starts_with($argv_value, '-')) {
                         // Encountered a new option, stop!
                         break;
-                    }
+                    }        show(self::$argv);
+
 
                     // Add this argument to the list
                     $value[] = $argv_value;
@@ -446,19 +452,19 @@ class ArgvValidator extends Validator
             return array_shift(static::$argv);
         }
 
-        //Detect multiple key options for the same command, but ensure only one is specified
-        if (is_array($keys) or ((is_string($keys)) and str_contains($keys, ','))) {
-            $keys = Arrays::force($keys);
+        // Detect multiple key options for the same command, but ensure only one is specified
+        if (is_array($keys) or (is_string($keys) and str_contains($keys, ','))) {
+            $keys    = Arrays::force($keys);
             $results = [];
 
             foreach ($keys as $key) {
                 if ($next === 'all') {
                     // We're requesting all values for all specified keys. It will return null in case the specified key
                     // does not exist
-                    $value = static::argument($key, 'all', null);
+                    $value = static::argument($key, 'all');
 
                     if (is_array($value)) {
-                        $found = true;
+                        $found   = true;
                         $results = array_merge($results, $value);
                     }
                 } else {
@@ -547,6 +553,8 @@ class ArgvValidator extends Validator
      */
     public function forceRead(): ?array
     {
+show(static::$argv);
+show($this->source);
         Log::warning(tr('Forceably returned all $argv data without data validation!'));
         return $this->source;
     }

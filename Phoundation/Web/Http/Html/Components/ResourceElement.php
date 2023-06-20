@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http\Html\Components;
 
 use PDOStatement;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Iterator;
 use Phoundation\Web\Http\Html\Components\Input\Traits\InputElement;
 use Phoundation\Web\Http\Html\Components\Interfaces\ResourceElementInterface;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
@@ -49,9 +51,9 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
     /**
      * The source array
      *
-     * @var array|null $source_array
+     * @var IteratorInterface|null $source
      */
-    protected ?array $source_array = null;
+    protected ?IteratorInterface $source = null;
 
     /**
      * The query that will generate the source data
@@ -188,35 +190,30 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
 
 
     /**
-     * Sets the source either as array or query
+     * Returns the array source
      *
-     * @param PDOStatement|array|string|null $source
-     * @param array|string|null $execute
-     * @return static
+     * @return IteratorInterface|null
      */
-    public function setSource(PDOStatement|array|string|null $source, array|string|null $execute = null): static
+    public function getSource(): ?IteratorInterface
     {
-        if (is_array($source)) {
-            return $this->setSourceArray($source);
-        }
-
-        return $this->setSourceQuery($source, $execute);
+        return $this->source;
     }
 
 
     /**
      * Sets the array source
      *
-     * @param array $source_array
+     * @param IteratorInterface|PDOStatement|array|string|null $source
+     * @param array|string|null $execute
      * @return static
      */
-    public function setSourceArray(array $source_array): static
+    public function setSource(IteratorInterface|PDOStatement|array|string|null $source, array|string|null $execute = null): static
     {
         if ($this->source_query) {
-            throw new HtmlException(tr('Cannot specify source array, a source query was already specified'));
+            throw new HtmlException(tr('Cannot specify source, a source query was already specified'));
         }
 
-        $this->source_array = $source_array;
+        $this->source = Iterator::new($source, $execute);
         return $this;
     }
 
@@ -224,24 +221,23 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
     /**
      * Returns the array source
      *
-     * @return array|null
+     * @return PDOStatement|null
      */
-    public function getSourceArray(): ?array
+    public function getSourceQuery(): ?PDOStatement
     {
-        return $this->source_array;
+        return $this->source_query;
     }
 
-
     /**
-     * Sets the query source
+     * Sets a query source
      *
      * @param PDOStatement|string|null $source_query
      * @param array|string|null $execute
-     * @return static
+     * @return $this
      */
     public function setSourceQuery(PDOStatement|string|null $source_query, array|string|null $execute = null): static
     {
-        if ($this->source_array) {
+        if ($this->source) {
             throw new HtmlException(tr('Cannot specify source query, a source was already specified'));
         }
 
@@ -252,18 +248,7 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
 
         $this->source_query = $source_query;
         return $this;
-    }
-
-
-    /**
-     * Returns the query source
-     *
-     * @return PDOStatement|null
-     */
-    public function getSourceQuery(): ?PDOStatement
-    {
-        return $this->source_query;
-    }
+     }
 
 
     /**

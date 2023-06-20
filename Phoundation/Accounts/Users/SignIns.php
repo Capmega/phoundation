@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Users;
 
+use PDOStatement;
 use Phoundation\Core\Session;
 use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 use Phoundation\Web\Http\Html\Components\Input\Select;
 use Phoundation\Web\Http\Html\Components\Table;
@@ -27,30 +29,30 @@ class SignIns extends DataList
     /**
      * SignIns class constructor
      *
-     * @param SignIn|null $parent
-     * @param string|null $id_column
+     * @param IteratorInterface|PDOStatement|array|string|null $source
+     * @param array|null $execute
      */
-    public function __construct(?SignIn $parent = null, ?string $id_column = null)
+    public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null)
     {
         $this->entry_class = SignIn::class;
         $this->table       = 'accounts_signins';
 
-        $this->setHtmlQuery('SELECT    `accounts_signins`.`id`,
-                                             `accounts_signins`.`created_on`,
-                                             `accounts_signins`.`ip_address`, 
-                                             `accounts_signins`.`longitude`, 
-                                             `accounts_signins`.`latitude`, 
-                                             `geo_countries`.`name` AS `country`,  
-                                             `geo_cities`.`name`    AS `city`  
-                                   FROM      `accounts_signins` 
-                                   LEFT JOIN `geo_countries`
-                                   ON        `accounts_signins`.`countries_id` = `geo_countries`.`id` 
-                                   LEFT JOIN `geo_cities`
-                                   ON        `accounts_signins`.`cities_id`    = `geo_cities`.`id` 
-                                   WHERE     `accounts_signins`.`created_by`   = :created_by 
-                                   ORDER BY  `created_on`', [':created_by' => Session::getUser()->getId()]);
+        $this->setQuery('SELECT    `accounts_signins`.`id`,
+                                         `accounts_signins`.`created_on`,
+                                         `accounts_signins`.`ip_address`, 
+                                         `accounts_signins`.`longitude`, 
+                                         `accounts_signins`.`latitude`, 
+                                         `geo_countries`.`name` AS `country`,  
+                                         `geo_cities`.`name`    AS `city`  
+                               FROM      `accounts_signins` 
+                               LEFT JOIN `geo_countries`
+                               ON        `accounts_signins`.`countries_id` = `geo_countries`.`id` 
+                               LEFT JOIN `geo_cities`
+                               ON        `accounts_signins`.`cities_id`    = `geo_cities`.`id` 
+                               WHERE     `accounts_signins`.`created_by`   = :created_by 
+                               ORDER BY  `created_on`', [':created_by' => Session::getUser()->getId()]);
 
-        parent::__construct($parent, $id_column);
+        parent::__construct($source, $execute);
     }
 
 
@@ -88,7 +90,7 @@ class SignIns extends DataList
     /**
      * @inheritDoc
      */
-     protected function load(string|int|null $id_column = null): static
+     public function load(?string $id_column = null): static
     {
         // TODO: Implement load() method.
     }
@@ -97,12 +99,12 @@ class SignIns extends DataList
     /**
      * @inheritDoc
      */
-    public function save(): bool
+    public function save(): static
     {
         // TODO: Implement save() method.
     }
 
-    protected function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
+    public function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
     {
         // TODO: Implement loadDetails() method.
     }

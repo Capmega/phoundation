@@ -34,7 +34,7 @@ class Right extends DataEntry implements RightInterface
      * @param DataEntryInterface|string|int|null $identifier
      * @param bool $init
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = false)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = true)
     {
         $this->table        = 'accounts_rights';
         $this->entry_name   = 'right';

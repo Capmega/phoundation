@@ -31,7 +31,7 @@ class Feature extends DataEntry
      * @param DataEntryInterface|string|int|null $identifier
      * @param bool $init
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = false)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = true)
     {
         $this->table        = 'geo_features';
         $this->entry_name   = 'geo feature';

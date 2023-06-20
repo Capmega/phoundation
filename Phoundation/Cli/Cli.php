@@ -110,7 +110,7 @@ class Cli
     {
         if (is_object($source)) {
             // This is an Iterator object, get the array source
-            $source = $source->getList();
+            $source = $source->getSource();
         }
 
         if (!is_natural($column_spacing)) {

@@ -134,6 +134,6 @@ class MetaList
                 tr('Comments'),
                 tr('Data'),
             ])
-            ->setSourceArray($source);
+            ->setSource($source);
     }
 }

@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases\Sql;
 
+use PDOStatement;
 use Phoundation\Core\Strings;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
+use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Exception\OutOfBoundsException;
-
 
 
 /**
@@ -19,35 +22,35 @@ use Phoundation\Exception\OutOfBoundsException;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Databases
  */
-class QueryBuilder
+class QueryBuilder implements QueryBuilderInterface
 {
     /**
      * Select part of query
      *
      * @var string $select
      */
-    protected string $select = '';
+    protected array $select = [];
 
     /**
      * Delete part of query
      *
-     * @var string $delete
+     * @var array $delete
      */
-    protected string $delete = '';
+    protected array $delete = [];
 
     /**
      * Update part of query
      *
-     * @var string $update
+     * @var array $update
      */
-    protected string $update = '';
+    protected array $update = [];
 
     /**
      * From part of query
      *
-     * @var string $from
+     * @var array $from
      */
-    protected string $from = '';
+    protected array $from = [];
 
     /**
      * Join part of query
@@ -92,6 +95,30 @@ class QueryBuilder
     protected array $execute = [];
 
     /**
+     * If specified, the query builder will attempt to update the internal loading query for this object
+     *
+     * @var DataEntryInterface|DataListInterface|null $parent
+     */
+    protected DataEntryInterface|DataListInterface|null $parent;
+
+
+    /**
+     * QueryBuilder class constructor
+     *
+     * @param DataEntryInterface|DataListInterface|null $parent
+     */
+    public function __construct(DataEntryInterface|DataListInterface|null $parent = null)
+    {
+        $this->parent = $parent;
+
+        if ($this->parent) {
+            // The first from will be the table from the parent class
+            $this->addFrom($parent->getTable());
+        }
+    }
+
+
+    /**
      * Make this a SELECT query by adding the select clause here
      *
      * @param string $select
@@ -108,7 +135,11 @@ class QueryBuilder
             throw new OutOfBoundsException(tr('UPDATE part of query has already been added, cannot add SELECT'));
         }
 
-        $this->select .= $select;
+        if (!$this->select) {
+            $select = 'SELECT ' . $select;
+        }
+
+        $this->select[] = $select;
         return $this->addExecuteArray($execute);
     }
 
@@ -130,7 +161,11 @@ class QueryBuilder
             throw new OutOfBoundsException(tr('UPDATE part of query has already been added, cannot add DELETE'));
         }
 
-        $this->delete .= $delete;
+        if (!$this->delete) {
+            $delete = 'DELETE ' . $delete;
+        }
+
+        $this->delete[] = $delete;
         return $this->addExecuteArray($execute);
     }
 
@@ -152,7 +187,7 @@ class QueryBuilder
             throw new OutOfBoundsException(tr('DELETE part of query has already been added, cannot add UPDATE'));
         }
 
-        $this->update .= $update;
+        $this->update[] = $update;
         return $this->addExecuteArray($execute);
     }
 
@@ -166,11 +201,7 @@ class QueryBuilder
      */
     public function addFrom(string $from, ?array $execute = null): static
     {
-        if ($this->update) {
-            throw new OutOfBoundsException(tr('This is an UPDATE query, cannot add FROM'));
-        }
-
-        $this->from .= $from;
+        $this->from[] = $from;
 
         return $this->addExecuteArray($execute);
     }
@@ -331,16 +362,14 @@ class QueryBuilder
         $query = ($debug ? ' ' : '');
 
         if ($this->select) {
-            $query .= $this->select . ' ';
-
-        } elseif ($this->update) {
-            $query .= $this->update . ' ';
+            $query .= implode(', ', $this->select) . ' FROM ' . implode(', ', $this->from) . ' ';
 
         } elseif ($this->delete) {
-            $query .= $this->update . ' ';
-        }
+            $query .= implode(', ', $this->delete) . ' FROM ' . implode(', ', $this->from) . ' ';
 
-        $query .= $this->from . ' ';
+        } elseif ($this->update) {
+            $query .= 'UPDATE ' . implode(', ', $this->from) . ' SET ' . implode(', ', $this->update);
+        }
 
         foreach ($this->joins as $join) {
             $query .= $join . ' ';
@@ -350,16 +379,16 @@ class QueryBuilder
             $query .= ' WHERE ' . implode(' AND ', $this->wheres);
         }
 
-        foreach ($this->group_by as $group_by) {
-            $query .= $group_by . ' ';
+        if ($this->group_by) {
+            $query .= ' GROUP BY ' . implode(' AND ', $this->group_by);
         }
 
-        foreach ($this->having as $having) {
-            $query .= $having . ' ';
+        if ($this->having) {
+            $query .= ' HAVING ' . implode(' AND ', $this->having);
         }
 
-        foreach ($this->order_by as $order_by) {
-            $query .= $order_by . ' ';
+        if ($this->order_by) {
+            $query .= ' ORDER BY ' . implode(', ', $this->order_by);
         }
 
         return $query;
@@ -374,6 +403,17 @@ class QueryBuilder
     public function getExecute(): array
     {
         return $this->execute;
+    }
+
+
+    /**
+     * Executes the query and returns a PDO statement
+     *
+     * @return PDOStatement
+     */
+    public function execute(bool $debug = false): PDOStatement
+    {
+        return sql()->query($this->getQuery($debug), $this->getExecute());
     }
 
 
@@ -403,5 +443,27 @@ class QueryBuilder
     public function list(): array
     {
         return sql()->list($this->getQuery(), $this->getExecute());
+    }
+
+
+    /**
+     * Execute the built query and return the required single row as an array
+     *
+     * @return array|null
+     */
+    public function get(): ?array
+    {
+        return sql()->get($this->getQuery(), $this->getExecute());
+    }
+
+
+    /**
+     * Execute the built query and return the required single row as an array
+     *
+     * @return string|float|int|null
+     */
+    public function getColumn(): string|float|int|null
+    {
+        return sql()->getColumn($this->getQuery(), $this->getExecute());
     }
 }

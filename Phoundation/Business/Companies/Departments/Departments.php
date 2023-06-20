@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Business\Companies\Departments;
 
+use PDOStatement;
 use Phoundation\Business\Companies\Company;
 use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 
 
@@ -25,26 +27,26 @@ class Departments extends DataList
     /**
      * Departments class constructor
      *
-     * @param Company|null $parent
-     * @param string|null $id_column
+     * @param IteratorInterface|PDOStatement|array|string|null $source
+     * @param array|null $execute
      */
-    public function __construct(?Company $parent = null, ?string $id_column = null)
+    public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null)
     {
         $this->entry_class = Department::class;
         $this->table       = 'business_departments';
 
-        $this->setHtmlQuery('SELECT   `id`, `name`, `email`, `status`, `created_on` 
+        $this->setQuery('SELECT   `id`, `name`, `email`, `status`, `created_on` 
                                    FROM     `business_departments` 
                                    WHERE    `status` IS NULL 
                                    ORDER BY `name`');
-        parent::__construct($parent, $id_column);
+        parent::__construct($source, $execute);
     }
 
 
     /**
      * @inheritDoc
      */
-     protected function load(string|int|null $id_column = null): static
+     public function load(?string $id_column = null): static
     {
         // TODO: Implement load() method.
     }
@@ -53,7 +55,7 @@ class Departments extends DataList
     /**
      * @inheritDoc
      */
-    public function save(): bool
+    public function save(): static
     {
         // TODO: Implement save() method.
     }
@@ -62,7 +64,7 @@ class Departments extends DataList
     /**
      * @inheritDoc
      */
-    protected function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
+    public function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
     {
         // TODO: Implement loadDetails() method.
     }

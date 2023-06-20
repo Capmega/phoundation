@@ -92,9 +92,9 @@ class KubernetesObject
     /**
      * Save the current deployment data
      *
-     * @return bool
+     * @return static
      */
-    public function save(): bool
+    public function save(): static
     {
         $this->getObjectFile()->save();
 
@@ -174,7 +174,7 @@ class KubernetesObject
      *
      * @return static
      */
-    protected function load(string|int|null $id_column = null): static
+    public function load(?string $id_column = null): static
     {
         if ($this->getName()) {
             $output = Process::new('kubectl')

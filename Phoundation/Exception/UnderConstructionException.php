@@ -17,7 +17,7 @@ use Throwable;
  */
 class UnderConstructionException extends Exception
 {
-    public function __construct(Throwable|array|string|null $messages, ?Throwable $previous = null)
+    public function __construct(Throwable|array|string|null $messages = null, ?Throwable $previous = null)
     {
         if (!$messages) {
             $messages = tr(':location IS UNDER CONSTRUCTION', [':location' => Debug::currentLocation(1)]);

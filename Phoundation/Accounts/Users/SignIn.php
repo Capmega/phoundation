@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Users;
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
@@ -13,6 +14,7 @@ use Phoundation\Data\DataEntry\Traits\DataEntryTimezone;
 use Phoundation\Data\DataEntry\Traits\DataEntryUserAgent;
 use Phoundation\Data\Traits\DataGeoIp;
 use Phoundation\Geo\Countries\Countries;
+use Phoundation\Geo\GeoIp\Exception\GeoIpException;
 use Phoundation\Geo\GeoIp\GeoIp;
 use Phoundation\Geo\Timezones\Timezones;
 use Phoundation\Web\Http\Html\Enums\InputType;
@@ -44,7 +46,7 @@ class SignIn extends DataEntry
      * @param DataEntryInterface|string|int|null $identifier
      * @param bool $init
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = false)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = true)
     {
         $this->table       = 'accounts_signins';
         $this->entry_name  = 'signin';
@@ -54,16 +56,25 @@ class SignIn extends DataEntry
 
 
     /**
-     * Detects signin information automatically
+     * Detects sign-in information automatically
      *
-     * @return $this
+     * @return static
      */
     public static function detect(): static
     {
-        return SignIn::new()
+        $signin = static::new()
             ->setIpAddress($_SERVER['REMOTE_ADDR'])
-            ->setUserAgent($_SERVER['HTTP_USER_AGENT'])
-            ->setGeoIp(GeoIp::detect($_SERVER['REMOTE_ADDR']));
+            ->setUserAgent($_SERVER['HTTP_USER_AGENT']);
+
+        try {
+            $signin->setGeoIp(GeoIp::detect($_SERVER['REMOTE_ADDR']));
+
+        } catch (GeoIpException $e) {
+            Log::error('Failed to detect GeoIP location information with following exception');
+            Log::error($e);
+        }
+
+        return $signin;
     }
 
 

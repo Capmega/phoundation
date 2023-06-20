@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\SlowPages;
 
+use PDOStatement;
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\User;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Developer\Incidents\Incidents;
 
 
@@ -24,18 +26,18 @@ class SlowProcesses extends Incidents
     /**
      * Users class constructor
      *
-     * @param Role|User|null $parent
-     * @param string|null $id_column
+     * @param IteratorInterface|PDOStatement|array|string|null $source
+     * @param array|null $execute
      */
-    public function __construct(Role|User|null $parent = null, ?string $id_column = null)
+    public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null)
     {
         $this->entry_class = SlowProcess::class;
         $this->table       = 'processes_slow';
 
-        $this->setHtmlQuery('SELECT   `id`, `created_on`, `status`, `title` 
+        $this->setQuery('SELECT   `id`, `created_on`, `status`, `title` 
                                    FROM     `processes_slow` 
                                    WHERE    `type` = "slow_page" AND `status` IS NULL 
                                    ORDER BY `created_on`');
-        parent::__construct($parent, $id_column);
+        parent::__construct($source, $execute);
     }
 }

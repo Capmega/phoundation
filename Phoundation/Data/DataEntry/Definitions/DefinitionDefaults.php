@@ -69,7 +69,7 @@ class DefinitionDefaults
     {
         return Definition::new($column_name)
             ->setOptional(true)
-            ->setSize(6)
+            ->setVirtual(true)
             ->setCliField('-t,--category CATEGORY-NAME')
             ->setLabel(tr('Category'))
             ->setAutoComplete([
@@ -123,7 +123,7 @@ class DefinitionDefaults
     {
         return Definition::new($column_name)
             ->setOptional(true)
-            ->setSize(6)
+            ->setVirtual(true)
             ->setCliField('--company COMPANY-NAME')
             ->setLabel(tr('Company'))
             ->setAutoComplete([
@@ -721,7 +721,7 @@ class DefinitionDefaults
             ->setAutoComplete(true)
             ->setLabel(tr('Email address'))
             ->addValidationFunction(function ($validator) {
-                $validator->isEmail()->isTrue(function ($value, $source) {
+                $validator->isTrue(function ($value, $source) {
                     // This email may NOT yet exist, unless its THIS user.
                     return User::notExists($value, isset_get($source['id']));
                 }, tr('This email address already exists'));
