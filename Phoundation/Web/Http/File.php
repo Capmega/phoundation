@@ -13,6 +13,7 @@ use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Interfaces\FileInterface;
+use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Restrictions;
 use Stringable;
 
@@ -100,9 +101,9 @@ class File
     /**
      * File class constructor
      *
-     * @param Restrictions|array|string|null $restrictions
+     * @param RestrictionsInterface|array|string|null $restrictions
      */
-    public function __construct(Restrictions|array|string|null $restrictions = null)
+    public function __construct(RestrictionsInterface|array|string|null $restrictions = null)
     {
         $this->setRestrictions($restrictions);
         $this->compression = Config::get('web.http.download.compression', 'auto');
@@ -112,10 +113,10 @@ class File
     /**
      * Returns a new File object with the specified restrictions
      *
-     * @param Restrictions|array|string|null $restrictions
+     * @param RestrictionsInterface|array|string|null $restrictions
      * @return static
      */
-    public static function new(Restrictions|array|string|null $restrictions = null): static
+    public static function new(RestrictionsInterface|array|string|null $restrictions = null): static
     {
         return new static($restrictions);
     }
@@ -124,10 +125,10 @@ class File
     /**
      * Sets the file access restrictions
      *
-     * @param Restrictions|array|string|null $restrictions
+     * @param RestrictionsInterface|array|string|null $restrictions
      * @return static
      */
-    public function setRestrictions(Restrictions|array|string|null $restrictions = null): static
+    public function setRestrictions(RestrictionsInterface|array|string|null $restrictions = null): static
     {
         $this->restrictions = Core::ensureRestrictions($restrictions);
         return $this;
