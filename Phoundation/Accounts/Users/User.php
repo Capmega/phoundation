@@ -105,7 +105,7 @@ class User extends DataEntry implements UserInterface
      * @param DataEntryInterface|string|int|null $identifier
      * @param bool $init
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = false)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = true)
     {
         $this->table        = 'accounts_users';
         $this->entry_name   = 'user';
@@ -122,7 +122,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getLogId(): string
     {
-        $id = $this->getDataValue('string', 'id');
+        $id = $this->getDataValue('int', 'id');
 
         if (!$id) {
             // This is a guest user
@@ -885,12 +885,13 @@ class User extends DataEntry implements UserInterface
     /**
      * Sets the password for this user
      *
-     * @param string $password
+     * @param string|null $password
      * @return static
      */
-    protected function setPasswordDirectly(string $password): static
+    protected function setPasswordDirectly(?string $password): static
     {
-        return $this->setDataValue('password', $password);
+        $this->data['password'] = $password;
+        return $this;
     }
 
 
@@ -1002,7 +1003,7 @@ class User extends DataEntry implements UserInterface
                 throw new OutOfBoundsException(tr('Cannot access user roles without saving user first'));
             }
 
-            $this->roles = Roles::new($this);
+            $this->roles = Roles::new($this)->setParent($this);
         }
 
         return $this->roles;
@@ -1017,7 +1018,11 @@ class User extends DataEntry implements UserInterface
     public function rights(): RightsInterface
     {
         if (!isset($this->rights)) {
-            $this->rights = Rights::new($this, 'seo_name');
+            if (!$this->getId()) {
+                throw new OutOfBoundsException(tr('Cannot access user roles without saving user first'));
+            }
+
+            $this->rights = Rights::new()->setParent($this)->load();
         }
 
         return $this->rights;
@@ -1036,7 +1041,7 @@ class User extends DataEntry implements UserInterface
             return true;
         }
 
-        return $this->rights()->containsKey($rights, true, 'god');
+        return $this->rights()->containsKeys($rights, true, 'god');
     }
 
 
@@ -1052,7 +1057,7 @@ class User extends DataEntry implements UserInterface
             return [];
         }
 
-        return $this->rights()->missesKeys($rights, 'god');
+        return $this->rights()->getMissingKeys($rights, 'god');
     }
 
 
@@ -1068,7 +1073,7 @@ class User extends DataEntry implements UserInterface
             return true;
         }
 
-        return $this->rights()->containsKey($rights, false, 'god');
+        return $this->rights()->containsKeys($rights, false, 'god');
     }
 
 
@@ -1101,9 +1106,9 @@ class User extends DataEntry implements UserInterface
      * Save the user to database
      *
      * @param string|null $comments
-     * @return bool
+     * @return static
      */
-    public function save(?string $comments = null): bool
+    public function save(?string $comments = null): static
     {
         Log::action(tr('Saving user ":user"', [':user' => $this->getDisplayName()]));
 
@@ -1285,8 +1290,8 @@ class User extends DataEntry implements UserInterface
         if (!$test) {
             Incident::new()
                 ->setType('Incorrect password')->setSeverity(Severity::low)
-                ->setTitle(tr('The specified password for user ":user" is incorrect', [':user' => $user]))
-                ->setDetails([':user' => $user])
+                ->setTitle(tr('The specified pasThe specified password for usersword for user ":user" is incorrect', [':user' => $user->getLogId()]))
+                ->setDetails([':user' => $user->getLogId()])
                 ->save();
         }
 
