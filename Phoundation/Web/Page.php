@@ -2090,7 +2090,7 @@ class Page
      * @return void
      * @throws Exception
      */
-    protected static function startup(string $target): void
+    protected static function startup(string &$target): void
     {
         // Ensure we have flash messages available
         if (!isset(static::$flash_messages)) {
@@ -2107,14 +2107,18 @@ class Page
             usleep(random_int(1, 500));
         }
 
+        // Ensure we have an absolute target
+        $target = static::getAbsoluteTarget($target);
+
         // Set the page hash and check if we have access to this page?
         static::$hash   = sha1($_SERVER['REQUEST_URI']);
-        static::$target = $target;
-        static::$restrictions->check($target, false);
+        static::$target = static::getAbsoluteTarget($target);
+
+        static::$restrictions->check(static::$target, false);
 
         // Check user access rights. Routing parameters should be able to tell us what rights are required now
         if (Core::stateIs('script')) {
-            Page::hasRightsOrRedirects(static::$parameters->getRequiredRights($target), $target);
+            Page::hasRightsOrRedirects(static::$parameters->getRequiredRights(static::$target), static::$target);
         }
     }
 
@@ -2243,5 +2247,17 @@ class Page
         }
 
         static::die();
+    }
+
+
+    /**
+     * Returns an absolute target for the specified target
+     *
+     * @param string $target
+     * @return string
+     */
+    protected static function getAbsoluteTarget(string $target): string
+    {
+        return Filesystem::absolute($target, PATH_WWW . 'pages/');
     }
 }
