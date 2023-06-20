@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Geo\GeoIp;
 
+use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Restrictions;
+use Stringable;
 
 
 /**
@@ -28,17 +30,17 @@ abstract class GeoIpImport extends Import
      *       https://www.maxmind.com/en/accounts/YOUR_ACCOUNT_ID/license-key and configured in the configuration path
      *       geo.ip.max-mind.api-key
      *
-     * @return string
+     * @return Stringable|string
      */
-    abstract public static function download(): string;
+    abstract public static function download(): Stringable|string;
 
     /**
      * Process downloaded GeoIP files
      *
-     * @param string $source_path
-     * @param string|null $target_path
-     * @param Restrictions|array|string|null $restrictions
+     * @param Stringable|string $source_path
+     * @param Stringable|string|null $target_path
+     * @param RestrictionsInterface|array|string|null $restrictions
      * @return string
      */
-    abstract public static function process(string $source_path, ?string $target_path = null, Restrictions|array|string|null $restrictions = null): string;
+    abstract public static function process(Stringable|string $source_path, Stringable|string|null $target_path = null, RestrictionsInterface|array|string|null $restrictions = null): string;
 }

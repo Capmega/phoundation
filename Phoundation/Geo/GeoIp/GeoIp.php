@@ -10,6 +10,8 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Geo\GeoIp\Exception\GeoIpException;
+use Throwable;
 
 
 /**
@@ -40,7 +42,14 @@ class GeoIp
      */
     public static function detect(?string $ip_address): ?static
     {
-        return self::getProvider()?->detect($ip_address);
+        try {
+            return self::getProvider()?->detect($ip_address);
+
+        } catch (Throwable $e) {
+            throw new GeoIpException(tr('Failed to detect Geo location from IP ":ip"', [
+                ':ip' => $ip_address
+            ]), $e);
+        }
     }
 
 
