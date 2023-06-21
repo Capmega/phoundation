@@ -1,12 +1,13 @@
 <?php
 
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
+use Phoundation\Core\Log\Log;
 use Phoundation\Core\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
-
 
 
 // Only show sign-in page if we're a guest user
@@ -15,20 +16,19 @@ if (!Session::getUser()->isGuest()) {
 }
 
 
-
 // Validate sign in data and sign in
 if (Page::isPostRequestMethod()) {
     try {
         $post = Session::validateSignIn();
         Session::signIn($post['email'], $post['password']);
-        Page::redirect('/');
+        Page::redirect('prev');
+
     } catch (ValidationFailedException) {
-        Page::getFlashMessages()->add(tr('Access denied'), tr('Please specify a valid email and password'), DisplayMode::warning);
+        Page::getFlashMessages()->addFlashMessage(tr('Access denied'), tr('Please specify a valid email and password'), DisplayMode::warning);
     } catch (AuthenticationException) {
-        Page::getFlashMessages()->add(tr('Access denied'), tr('The specified email or password was incorrect'), DisplayMode::warning);
+        Page::getFlashMessages()->addFlashMessage(tr('Access denied'), tr('The specified email or password was incorrect'), DisplayMode::warning);
     }
 }
-
 
 
 // This page will build its own body
@@ -40,7 +40,7 @@ Page::setBuildBody(false);
       <!-- /.login-logo -->
       <div class="card card-outline card-primary">
         <div class="card-header text-center">
-          <a href="https://medinet.ca" class="h1"><b>Medinet</b> Mediweb</a>
+          <a href="https://medinet.ca" class="h1"><b>Medi</b> web</a>
         </div>
         <div class="card-body">
           <p class="login-box-msg"><?= tr('Please sign in to start your session') ?></p>
@@ -125,6 +125,6 @@ Page::setBuildBody(false);
 </body>
 <?php
 
+
 // Set page meta data
 Page::setPageTitle(tr('Setup Phoundation'));
-

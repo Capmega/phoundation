@@ -1001,7 +1001,7 @@ class Page
         $system = basename($system);
 
         if ($system === 'system') {
-            // Hurrah, its a bo.. system page!
+            // Hurrah, its a bo.. system page! System pages require no rights, everyone can see a 404, 500, etc...
             return;
         }
 
@@ -1010,6 +1010,9 @@ class Page
             if (!$guest_redirect) {
                 $guest_redirect = '/sign-in.html';
             }
+
+            $guest_redirect = (string) UrlBuilder::getWww($guest_redirect)
+                                    ->addQueries('redirect=' . urlencode((string) UrlBuilder::getCurrent()));
 
             Incident::new()
                 ->setType('401 - unauthorized')->setSeverity(Severity::low)
@@ -1112,7 +1115,7 @@ class Page
             Core::writeRegister($target, 'system', 'script_file');
             ob_start();
 
-            // Execute the specified target
+            // Execute the specified targetwww
             // Build the headers, cache output and headers together, then send the headers
             // TODO Work on the HTTP headers, lots of issues here still, like content-length!
             $output  = self::executeTarget($target);
@@ -1139,14 +1142,14 @@ class Page
             Log::warning('Page did not catch the following "ValidationFailedException" warning, showing "system/400"');
             Log::warning($e);
 
-            static::getFlashMessages()->add($e);
+            static::getFlashMessages()->addFlashMessage($e);
             Route::executeSystem(400);
 
         } catch (AuthenticationException $e) {
             Log::warning('Page did not catch the following "AuthenticationException" warning, showing "system/401"');
             Log::warning($e);
 
-            static::getFlashMessages()->add($e);
+            static::getFlashMessages()->addFlashMessage($e);
             Route::executeSystem(401);
 
         } catch (IncidentsException $e) {
@@ -1154,7 +1157,7 @@ class Page
             Log::warning('Page did not catch the following "IncidentsException" warning, showing "system/401"');
             Log::warning($e);
 
-            static::getFlashMessages()->add($e);
+            static::getFlashMessages()->addFlashMessage($e);
             Route::executeSystem(403);
 
         } catch (DataEntryNotExistsException $e) {
