@@ -9,6 +9,9 @@ use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
+use Phoundation\Data\Validator\ArrayValidator;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
@@ -236,7 +239,7 @@ class UrlBuilder implements Stringable
 
 
     /**
-     * Returns the referer (previous) URL
+     * Returns the "redirect" or referer (previous) URL
      *
      * @param Stringable|string|null $url
      * @return static
@@ -245,21 +248,46 @@ class UrlBuilder implements Stringable
     {
         $url = (string) $url;
 
-        // The previous page; Assume we came from the HTTP_REFERER page
-        $referer = isset_get($_SERVER['HTTP_REFERER']);
+        // Try to get a "redirect" via GET
+        try {
+            $get = GetValidator::new()
+                ->select('redirect')->isOptional()->isUrl()
+                ->validate(false);
 
-        if (!$referer) {
-            // No referer available, try the specified URL
-            if ($url) {
-                $referer = $url;
+        } catch (ValidationFailedException) {
+            Log::warning(tr('Validation for redirect url ":url" failed, ignoring', [
+                ':url' => GetValidator::new()->forceReadKey('redirect')
+            ]));
+        }
 
-            } else {
-                // No referer or url, just go to the root page
-                $referer = static::getCurrentDomainRootUrl();
+        if (isset_get($get['redirect'])) {
+            // Use the redirect URL
+            $url = $get['redirect'];
+
+        } else {
+            // Try referer
+            try {
+                $server = ArrayValidator::new($_SERVER)
+                    ->select('HTTP_REFERER')->isOptional()->isUrl()
+                    ->validate(false);
+
+            } catch (ValidationFailedException) {
+                Log::warning(tr('Validation for HTTP_REFERRER ":url" failed, ignoring', [
+                    ':url' => $_SERVER['HTTP_REFERER']
+                ]));
+            }
+
+            if (isset_get($server['HTTP_REFERER'])) {
+                // Use the referer
+                $url = $server['HTTP_REFERER'];
+
+            } elseif (empty($url)) {
+                // No url specified either, just go to the root page
+                $url = static::getCurrentDomainRootUrl();
             }
         }
 
-        return new UrlBuilder($referer);
+        return new UrlBuilder($url);
     }
 
 
@@ -490,10 +518,8 @@ class UrlBuilder implements Stringable
      * @param string $query [$query] ... All the queries to add to this URL
      * @return static
      */
-    public function addQueries(): static
+    public function addQueries(...$queries): static
     {
-        $queries = func_get_args();
-
         if (!$queries) {
             throw new OutOfBoundsException(tr('No queries specified to add to the specified URL'));
         }
