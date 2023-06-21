@@ -64,8 +64,8 @@ class TopPanel extends Renderer
                               <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
                             </li>';
 
-        if ($this->element->getSourceEntry('menu')) {
-            foreach ($this->element->getSourceEntry('menu') as $url => $label) {
+        if ($this->element->exists('menu')) {
+            foreach ($this->element->get('menu') as $label => $url) {
                 $left_menu .= ' <li class="nav-item d-none d-sm-inline-block">
                                   <a href="' . Html::safe($url) . '" class="nav-link">' . Html::safe($label) . '</a>
                                 </li>';

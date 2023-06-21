@@ -213,7 +213,7 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
             throw new HtmlException(tr('Cannot specify source, a source query was already specified'));
         }
 
-        $this->source = Iterator::new($source, $execute);
+        $this->source = Iterator::new();
         return $this;
     }
 

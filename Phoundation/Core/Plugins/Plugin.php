@@ -322,17 +322,17 @@ class Plugin extends DataEntry
     protected function initDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->add(Definition::new('disabled')
+            ->addDefinition(Definition::new('disabled')
                 ->setOptional(true)
                 ->setVirtual(true)
                 ->setVisible(false)
                 ->setCliField('-d,--disable'))
-            ->add(DefinitionDefaults::getName()
+            ->addDefinition(DefinitionDefaults::getName()
                 ->setVisible(false))
-            ->add(DefinitionDefaults::getName()
+            ->addDefinition(DefinitionDefaults::getName()
                 ->setSize(6)
                 ->setHelpText(tr('The name of this plugin')))
-            ->add(Definition::new('priority')
+            ->addDefinition(Definition::new('priority')
                 ->setOptional(true)
                 ->setInputType(InputType::number)
                 ->setNullDb(false, 5)
@@ -346,7 +346,7 @@ class Plugin extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->isInteger();
                 }))
-            ->add(Definition::new('enabled')
+            ->addDefinition(Definition::new('enabled')
                 ->setOptional(true)
                 ->setInputType(InputType::checkbox)
                 ->setSize(3)
@@ -357,7 +357,7 @@ class Plugin extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->isInteger();
                 }))
-            ->add(Definition::new('class')
+            ->addDefinition(Definition::new('class')
                 ->setLabel(tr('Class'))
                 ->setInputType(InputTypeExtended::name)
                 ->setMaxlength(255)
@@ -366,12 +366,12 @@ class Plugin extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->hasMaxCharacters(2048)->matchesRegex('/Plugins\\[a-z0-9]+\\Plugin/');
                 }))
-            ->add(Definition::new('path')
+            ->addDefinition(Definition::new('path')
                 ->setLabel(tr('Path'))
                 ->setInputType(InputTypeExtended::path)
                 ->setMaxlength(128)
                 ->setSize(6)
                 ->setHelpText(tr('The filesystem path where this plugin is located')))
-            ->add(DefinitionDefaults::getDescription());
+            ->addDefinition(DefinitionDefaults::getDescription());
     }
 }

@@ -37,11 +37,8 @@ class Plugins extends DataList
 
     /**
      * Providers class constructor
-     *
-     * @param IteratorInterface|PDOStatement|array|string|null $source
-     * @param array|null $execute
      */
-    public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null)
+    public function __construct()
     {
         $this->entry_class = Plugin::class;
         $this->table       = 'core_plugins';
@@ -50,7 +47,7 @@ class Plugins extends DataList
                                FROM     `core_plugins` 
                                ORDER BY `name`');
 
-        parent::__construct($source, $execute);
+        parent::__construct();
     }
 
 

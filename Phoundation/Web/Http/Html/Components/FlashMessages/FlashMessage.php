@@ -9,6 +9,7 @@ use Phoundation\Content\Images\Interfaces\ImageInterface;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\ElementsBlock;
+use Phoundation\Web\Http\Html\Components\FlashMessages\Interfaces\FlashMessageInterface;
 use Phoundation\Web\Http\Html\Components\Mode;
 use Phoundation\Web\Http\Html\Components\Script;
 
@@ -23,7 +24,7 @@ use Phoundation\Web\Http\Html\Components\Script;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class FlashMessage extends ElementsBlock
+class FlashMessage extends ElementsBlock implements FlashMessageInterface
 {
     use Mode;
 

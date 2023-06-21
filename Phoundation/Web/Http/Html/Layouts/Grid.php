@@ -22,18 +22,6 @@ use Phoundation\Web\Http\Html\Enums\Interfaces\DisplaySizeInterface;
 class Grid extends Container
 {
     /**
-     * Clear the rows in this grid
-     *
-     * @return static
-     */
-    public function clearRows(): static
-    {
-        $this->source = [];
-        return $this;
-    }
-
-
-    /**
      * Set the rows for this grid
      *
      * @param array $rows
@@ -102,29 +90,6 @@ class Grid extends Container
 
 
     /**
-     * Returns the rows for this grid
-     *
-     * @return array
-     */
-    public function getRows(): array
-    {
-        return $this->source;
-    }
-
-
-    /**
-     * Clears the columns for the current row in this grid
-     *
-     * @return static
-     */
-    public function clearColumns(): static
-    {
-        $this->getCurrentRow()->clearColumns();
-        return $this;
-    }
-
-
-    /**
      * Set the columns for the current row in this grid
      *
      * @param array $columns
@@ -133,7 +98,7 @@ class Grid extends Container
      */
     public function setColumns(array $columns, DisplaySizeInterface|int|null $size = null): static
     {
-        $this->getCurrentRow()->clearColumns();
+        $this->getCurrentRow()->clear();
         return $this->addColumns($columns, $size);
     }
 

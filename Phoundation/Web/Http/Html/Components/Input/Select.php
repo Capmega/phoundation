@@ -7,6 +7,7 @@ namespace Phoundation\Web\Http\Html\Components\Input;
 use PDO;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Iterator;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 use Phoundation\Web\Http\Html\Components\Interfaces\ElementInterface;
@@ -412,7 +413,11 @@ class Select extends ResourceElement implements SelectInterface
 
             if ($this->cache) {
                 // Store the data in array
-                $this->source[$key] = $value;
+                if (empty($this->source)) {
+                    $this->source = new Iterator();
+                }
+
+                $this->source->add($value, $key);
             }
 
             if (!$key) {

@@ -422,13 +422,13 @@ class Notification extends DataEntry
     protected function initDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->add(Definition::new('users_id')
+            ->addDefinition(Definition::new('users_id')
                 ->setVisible(false)
                 ->setInputType(InputTypeExtended::dbid)
                 ->addValidationFunction(function ($validator) {
                     $validator->isId()->isQueryColumn('SELECT `id` FROM `accounts_users` WHERE `id` = :id', [':id' => '$id']);
                 }))
-            ->add(Definition::new('code')
+            ->addDefinition(Definition::new('code')
                 ->setOptional(true)
                 ->setReadonly(true)
                 ->setLabel(tr('Code'))
@@ -438,7 +438,7 @@ class Notification extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->isPrintable();
                 }))
-            ->add(Definition::new('mode')
+            ->addDefinition(Definition::new('mode')
                 ->setReadonly(true)
                 ->setLabel(tr('Mode'))
                 ->setSize(4)
@@ -446,10 +446,10 @@ class Notification extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->isMode()->isInArray(DisplayMode::cases());
                 }))
-            ->add(Definition::new('icon')
+            ->addDefinition(Definition::new('icon')
                 ->setVisible(false)
                 ->setInputType(InputType::url))
-            ->add(Definition::new('priority')
+            ->addDefinition(Definition::new('priority')
                 ->setReadonly(true)
                 ->setInputType(InputTypeExtended::integer)
                 ->setLabel(tr('Priority'))
@@ -457,7 +457,7 @@ class Notification extends DataEntry
                 ->setMin(1)
                 ->setMax(9)
                 ->setSize(4))
-            ->add(Definition::new('title')
+            ->addDefinition(Definition::new('title')
                 ->setReadonly(true)
                 ->setLabel(tr('Title'))
                 ->setMaxlength(255)
@@ -465,7 +465,7 @@ class Notification extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->isPrintable();
                 }))
-            ->add(Definition::new('message')
+            ->addDefinition(Definition::new('message')
                 ->setReadonly(true)
                 ->setElement(InputElement::textarea)
                 ->setLabel(tr('Message'))
@@ -474,25 +474,25 @@ class Notification extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->isPrintable();
                 }))
-            ->add(Definition::new('file')
+            ->addDefinition(Definition::new('file')
                 ->setReadonly(true)
                 ->setInputType(InputType::file)
                 ->setLabel(tr('File'))
                 ->setMaxlength(255)
                 ->setSize(8))
-            ->add(Definition::new('line')
+            ->addDefinition(Definition::new('line')
                 ->setReadonly(true)
                 ->setInputType(InputTypeExtended::natural)
                 ->setLabel(tr('File'))
                 ->setMin(1)
                 ->setSize(4))
-            ->add(Definition::new('url')
+            ->addDefinition(Definition::new('url')
                 ->setReadonly(true)
                 ->setInputType(InputType::url)
                 ->setLabel(tr('URL'))
                 ->setMaxlength(2048)
                 ->setSize(12))
-            ->add(Definition::new('trace')
+            ->addDefinition(Definition::new('trace')
                 ->setReadonly(true)
                 ->setElement(InputElement::textarea)
                 ->setLabel(tr('Trace'))
@@ -502,7 +502,7 @@ class Notification extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->isJson();
                 }))
-            ->add(Definition::new('details')
+            ->addDefinition(Definition::new('details')
                 ->setReadonly(true)
                 ->setElement(InputElement::textarea)
                 ->setLabel(tr('Details'))

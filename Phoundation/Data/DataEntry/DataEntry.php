@@ -227,7 +227,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
                 $this->data[$this->unique_field] = $identifier;
             }
 
-            $this->loadFromDb($identifier, $init);
+            $this->load($identifier, $init);
         } elseif ($init) {
             $this->setMetaData();
         }
@@ -1186,9 +1186,6 @@ abstract class DataEntry implements DataEntryInterface, Stringable
         if ($this->definitions->exists($field)) {
             // Skip all meta fields like id, created_on, meta_id, etc etc etc..
             if (!in_array($field, $this->meta_fields)) {
-                // Start with assumption we'll modify this value
-                $is_modified = true;
-
                 // If the key is defined as readonly or disabled, it cannot be updated unless it's a new object.
                 if ($force or !$this->getId() or (!$this->definitions->get($field)->getReadonly() and !$this->definitions->get($field)->getDisabled())) {
                     $definition = $this->definitions->get($field);
@@ -1196,25 +1193,24 @@ abstract class DataEntry implements DataEntryInterface, Stringable
 
                     // What to do if we don't have a value? Data should already have been validated, so we know the
                     // value is optional (would not have passed validation otherwise) so it either defaults or NULL
-                    if ($value === null) {
+                    if (!$value) {
                         //  By default, all columns with empty values will be pushed to NULL unless specified otherwise
                         $value = $default;
+                    }
+
+                    // Value may be set with default value while field was empty, which is the same. Make value empty
+                    if ((isset_get($this->data[$field]) === null) and ($value === $default)) {
+                        // If the previous value was empty and the current value is the same as the default value
+                        // then there was no modification, it just defaulted
                     } else {
-                        // Value may be set with default value while field was empty, which is the same. Make value empty
-                        if ((isset_get($this->data[$field]) === null) and ($value === $default)) {
-                            // If the previous value was empty and the current value is the same as the default value
-                            // then there was no modification, it just defaulted
-                            $is_modified = false;
+                        // The DataEntry::is_modified can only be modified if it is not TRUE already.
+                        // The DataEntry is considered modified if user is modifying and the entry changed
+                        if (!$this->is_modified and !$definition->getReadonly() and !$definition->getIgnoreModify()) {
+                            $this->is_modified = (isset_get($this->data[$field]) !== $value);
                         }
                     }
 
-                    // The DataEntry::is_modified can only be modified if it is not TRUE already.
-                    // The DataEntry is considered modified if user is modifying and the entry changed
-                    if ($is_modified and !$this->is_modified) {
-                        $this->is_modified = (isset_get($this->data[$field]) !== $value);
-                    }
-
-//show($field . ' "' . isset_get($this->data[$field]) . '" [' . gettype(isset_get($this->data[$field])) . '] > "' . $value . '" [' . gettype($value) . '] > ' . Strings::fromBoolean($this->is_modified));
+// show($field . ' "' . isset_get($this->data[$field]) . '" [' . gettype(isset_get($this->data[$field])) . '] > "' . $value . '" [' . gettype($value) . '] > ' . Strings::fromBoolean($this->is_modified));
 
                     // Update the field value
                     $this->data[$field] = $value;
@@ -1467,19 +1463,36 @@ abstract class DataEntry implements DataEntryInterface, Stringable
     /**
      * Validate all fields for this DataEntry
      *
+     * @note This method will also fix field names in case field prefix was specified
+     *
      * @param ValidatorInterface $validator
      * @param bool $clear_source
      * @return array
      */
     protected function validate(ValidatorInterface $validator, bool $clear_source): array
     {
+        $prefix = $this->definitions->getFieldPrefix();
+
         foreach ($this->definitions as $definition) {
             // Let the field definition do the validation, as it knows the specs
-            $definition->validate($validator, $this->definitions->getFieldPrefix());
+            $definition->validate($validator, $prefix);
         }
 
         $validator->noArgumentsLeft($clear_source);
-        return $validator->validate($clear_source);
+        $source = $validator->validate($clear_source);
+
+        // Fix field names if prefix was specified
+        if ($prefix) {
+            $return = [];
+
+            foreach ($source as $key => $value) {
+                $return[Strings::from($key, $prefix)] = $value;
+            }
+
+            return $return;
+        }
+
+        return $source;
     }
 
 
@@ -1508,17 +1521,17 @@ abstract class DataEntry implements DataEntryInterface, Stringable
     /**
      * Load all data directly from the specified array
      *
-     * @param array $data
+     * @param array $source
      * @param bool $init
      * @return $this
      */
-    public function load(array $data, bool $init = false): static
+    public function setSource(array $source, bool $init = false): static
     {
         if ($init) {
             // Load data with object init
-            $this->setMetaData($data)->setData($data, false);
+            $this->setMetaData($source)->setData($source, false);
         } else {
-            $this->data = $data;
+            $this->data = $source;
         }
 
         return $this;
@@ -1532,7 +1545,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      * @param bool $init
      * @return void
      */
-    protected function loadFromDb(string|int $identifier, bool $init = true): void
+    protected function load(string|int $identifier, bool $init = true): void
     {
         if (is_numeric($identifier)) {
             $data = sql()->get('SELECT * FROM `' . $this->table . '` WHERE `id`                          = :id'                    , [':id'                   => $identifier]);
@@ -1579,21 +1592,21 @@ abstract class DataEntry implements DataEntryInterface, Stringable
     {
         $this->definitions = Definitions::new()
             ->setTable($this->table)
-            ->add(Definition::new('id')->setDefinitions([
+            ->addDefinition(Definition::new('id')->setDefinitions([
                 'meta'     => true,
                 'readonly' => true,
                 'type'     => 'number',
                 'size'     => 3,
                 'label'    => tr('Database ID')
             ]))
-            ->add(Definition::new('created_on')->setDefinitions([
+            ->addDefinition(Definition::new('created_on')->setDefinitions([
                 'meta'     => true,
                 'readonly' => true,
                 'type'     => 'datetime-local',
                 'size'     => 3,
                 'label'    => tr('Created on')
             ]))
-            ->add(Definition::new('created_by')->setDefinitions([
+            ->addDefinition(Definition::new('created_by')->setDefinitions([
                 'meta'     => true,
                 'readonly' => true,
                 'content'  => function (string $key, array $data, array $source) {
@@ -1613,17 +1626,17 @@ abstract class DataEntry implements DataEntryInterface, Stringable
                 'size'     => 3,
                 'label'    => tr('Created by'),
             ]))
-            ->add(Definition::new('meta_id')->setDefinitions([
+            ->addDefinition(Definition::new('meta_id')->setDefinitions([
                 'meta'     => true,
                 'visible'  => false,
                 'readonly' => true,
             ]))
-            ->add(Definition::new('meta_state')->setDefinitions([
+            ->addDefinition(Definition::new('meta_state')->setDefinitions([
                 'meta'     => true,
                 'visible'  => false,
                 'readonly' => true,
             ]))
-            ->add(Definition::new('status')->setDefinitions([
+            ->addDefinition(Definition::new('status')->setDefinitions([
                 'meta'     => true,
                 'readonly' => true,
                 'label'    => tr('Status'),

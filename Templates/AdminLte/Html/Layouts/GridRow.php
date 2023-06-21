@@ -42,14 +42,14 @@ class GridRow extends Renderer
             // Return content rendered in a form
             $render = '';
 
-            foreach ($this->element->getColumns() as $column) {
+            foreach ($this->element->getSource() as $column) {
                 $render .= $column->render();
             }
 
             $this->render .= $this->element->getForm()->setContent($render)->render();
             $this->element->setForm(null);
         } else {
-            foreach ($this->element->getColumns() as $column) {
+            foreach ($this->element->getSource() as $column) {
                 $this->render .= $column->render();
             }
         }

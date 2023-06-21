@@ -289,9 +289,10 @@ interface ElementAttributesInterface
     /**
      * Sets the HTML class element attribute
      *
+     * @param bool $auto_focus
      * @return static
      */
-    function setAutofocus(): static;
+    public function setAutofocus(bool $auto_focus): static;
 
     /**
      * Returns the HTML class element attribute

@@ -122,7 +122,7 @@ class Category extends DataEntry
     protected function initDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->add(Definition::new('parents_id')
+            ->addDefinition(Definition::new('parents_id')
                 ->setOptional(true)
                 ->setContent(function (string $key, array $data, array $source) {
                     return Categories::new()->getHtmlSelect()
@@ -136,25 +136,25 @@ class Category extends DataEntry
                     // Ensure parents_id exists and that its or parent
                     $validator->or('parent')->isId()->isQueryColumn('SELECT `id` FROM `categories` WHERE `id` = :id AND `status` IS NULL', [':id' => '$parents_id']);
                 }))
-            ->add(Definition::new('parent')
+            ->addDefinition(Definition::new('parent')
                 ->setOptional(true)
                 ->setVirtual(true)
                 ->setCliField('--parent PARENT CATEGORY NAME')
                 ->setAutoComplete([
                     'word'   => function($word) { return Categories::new()->filteredList($word); },
-                    'noword' => function()      { return Categories::new()->list(); },
+                    'noword' => function()      { return Categories::new()->getSource(); },
                 ])
                 ->addValidationFunction(function ($validator) {
                     // Ensure parent exists and that its or parents_id
                     $validator->or('parents_id')->isName(64)->setColumnFromQuery('parents_id', 'SELECT `id` FROM `categories` WHERE `name` = :name AND `status` IS NULL', [':name' => '$parent']);
                 }))
-            ->add(DefinitionDefaults::getName()
+            ->addDefinition(DefinitionDefaults::getName()
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isFalse(function($value, $source) {
                         Category::exists($value, isset_get($source['id']));
                     }, tr('already exists'));
                 }))
-            ->add(DefinitionDefaults::getSeoName())
-            ->add(DefinitionDefaults::getDescription());
+            ->addDefinition(DefinitionDefaults::getSeoName())
+            ->addDefinition(DefinitionDefaults::getDescription());
     }
 }

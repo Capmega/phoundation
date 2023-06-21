@@ -30,11 +30,8 @@ class Notifications extends DataList
 {
     /**
      * Notifications class constructor
-     *
-     * @param IteratorInterface|PDOStatement|array|string|null $source
-     * @param array|null $execute
      */
-    public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null)
+    public function __construct()
     {
         $this->entry_class = Notification::class;
         $this->table       = 'notifications';
@@ -45,7 +42,7 @@ class Notifications extends DataList
                                      AND    `status` IS NULL 
                                    ORDER BY `title`', [':users_id' => Session::getUser()->getId()]);
 
-        parent::__construct($source, $execute);
+        parent::__construct();
     }
 
 

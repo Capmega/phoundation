@@ -130,12 +130,24 @@ class PostValidator extends Validator
     /**
      * Force a return of all POST data without check
      *
+     * @param string|null $prefix
      * @return array|null
      */
-    public function forceRead(): ?array
+    public function &forceRead(?string $prefix = null): ?array
     {
-        Log::warning(tr('Forceably returned all $_POST data without data validation!'));
-        return $this->source;
+        if (!$prefix) {
+            return $this->source;
+        }
+
+        $return = [];
+
+        foreach ($this->source as $key => $value) {
+            if (str_starts_with($key, $prefix)) {
+                $return[Strings::from($key, $prefix)] = $value;
+            }
+        }
+
+        return $return;
     }
 
 
@@ -167,11 +179,27 @@ class PostValidator extends Validator
      * Return the submit method
      *
      * @param string $submit
+     * @param bool $prefix
      * @return string|null
      */
-    public static function getSubmitButton(string $submit = 'submit'): ?string
+    public static function getSubmitButton(string $submit = 'submit', bool $prefix = false, bool $return_key = false): ?string
     {
-        $button = trim((string) isset_get(self::$post[$submit]));
+        if ($prefix) {
+            // Find the specified prefix code for the button
+            $button = null;
+
+            foreach (self::$post as $key => $value) {
+                if (str_starts_with($key, $submit)) {
+                    $submit = $key;
+                    $button = trim((string) $value);
+                    break;
+                }
+            }
+
+        } else {
+            // Button must be an exact match
+            $button = trim((string) isset_get(self::$post[$submit]));
+        }
 
         unset(self::$post[$submit]);
 
@@ -183,6 +211,10 @@ class PostValidator extends Validator
             throw ValidationFailedException::new(tr('Invalid submit button specified'))->setData([
                 'submit' => tr('The specified submit button is invalid'),
             ]);
+        }
+
+        if ($return_key) {
+            return $submit;
         }
 
         return $button;

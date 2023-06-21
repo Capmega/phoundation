@@ -21,29 +21,6 @@ use Phoundation\Web\Http\Html\Enums\Interfaces\DisplaySizeInterface;
 class GridRow extends Layout
 {
     /**
-     * Clear the source in this row
-     *
-     * @return static
-     */
-    public function clearColumns(): static
-    {
-        $this->source = [];
-        return $this;
-    }
-
-
-    /**
-     * Returns the source for this row
-     *
-     * @return array
-     */
-    public function getColumns(): array
-    {
-        return $this->source;
-    }
-
-
-    /**
      * Set the source for this row
      *
      * @param array $source

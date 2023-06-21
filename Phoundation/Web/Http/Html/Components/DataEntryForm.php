@@ -42,6 +42,13 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
     protected string $input_class;
 
     /**
+     * If set, the screen focus will automatically go to the specified element
+     *
+     * @var string|null $auto_focus_id
+     */
+    protected ?string $auto_focus_id = null;
+
+    /**
      * Supported input element types
      *
      * @var array[] $supported_input
@@ -70,6 +77,30 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
         'url',
         'week'
     ];
+
+
+    /**
+     * Returns the element that will receive autofocus
+     *
+     * @return string|null
+     */
+    public function getAutoFocusId(): ?string
+    {
+        return $this->auto_focus_id;
+    }
+
+
+    /**
+     * Sets the element that will receive autofocus
+     *
+     * @param string|null $auto_focus_id
+     * @return $this
+     */
+    public function setAutoFocusId(?string $auto_focus_id): static
+    {
+        $this->auto_focus_id = $auto_focus_id;
+        return $this;
+    }
 
 
     /**

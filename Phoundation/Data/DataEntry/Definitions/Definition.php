@@ -263,6 +263,36 @@ class Definition implements DefinitionInterface
 
 
     /**
+     * Returns if this field will not set the DataEntry to "modified" state when changed
+     *
+     * @note Defaults to true
+     * @return bool|null
+     */
+    public function getIgnoreModify(): ?bool
+    {
+        return isset_get_typed('bool', $this->definitions['ignore_modify'], false);
+    }
+
+
+    /**
+     * Sets if this field will not set the DataEntry to "modified" state when changed
+     *
+     * @note Defaults to false
+     * @param bool|null $value
+     * @return static
+     */
+    public function setIgnoreModify(?bool $value): static
+    {
+        if ($value === null) {
+            // Default
+            $value = false;
+        }
+
+        return $this->setKey('ignore_modify', $value);
+    }
+
+
+    /**
      * Return if this field is a meta field
      *
      * If this field is a meta field, it will be readonly for user actions
@@ -1365,11 +1395,11 @@ throw new UnderConstructionException();
                         case 'day':
                             // Validate numbers
                             if ($this->getMin()) {
-                                $validator->isMoreThan($this->getMin());
+                                $validator->isMoreThan($this->getMin(), true);
                             }
 
                             if ($this->getMax()) {
-                                $validator->isLessThan($this->getMax());
+                                $validator->isLessThan($this->getMax(), true);
                             }
 
                             break;

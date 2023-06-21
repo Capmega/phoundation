@@ -311,9 +311,9 @@ interface DataEntryInterface
     /**
      * Load all data directly from the specified array
      *
-     * @param array $data
+     * @param array $source
      * @param bool $init
      * @return $this
      */
-    public function load(array $data, bool $init = false): static;
+    public function setSource(array $source, bool $init = false): static;
 }

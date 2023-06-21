@@ -33,7 +33,7 @@ interface RightsInterface extends DataListInterface
      * @param RightInterface|array|string|int|null $right
      * @return static
      */
-    public function add(RightInterface|array|string|int|null $right): static;
+    public function addRight(RightInterface|array|string|int|null $right): static;
 
     /**
      * Remove the specified data entry from the data list

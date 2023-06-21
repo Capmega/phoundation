@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html\Menus;
 
-use Iterator;
-use Phoundation\Core\Core;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Iterator;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Web\Http\Html\Components\Menu;
 
@@ -20,7 +20,7 @@ use Phoundation\Web\Http\Html\Components\Menu;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation/Web
  */
-class Menus implements Iterator
+class Menus extends Iterator implements IteratorInterface
 {
     /**
      * @var array $menus
@@ -136,40 +136,6 @@ class Menus implements Iterator
 
 
     /**
-     * Returns the amount of menus available
-     *
-     * @return int
-     */
-    public function getCount(): int
-    {
-        return count($this->menus);
-    }
-
-
-    /**
-     * Returns the internal menus array
-     *
-     * @return array
-     */
-    public function list(): array
-    {
-        return $this->menus;
-    }
-
-
-    /**
-     * Clears the menus from memory
-     *
-     * @return static
-     */
-    public function clear(): static
-    {
-        $this->menus = [];
-        return $this;
-    }
-
-
-    /**
      * Load the menu contents from database
      *
      * @return static
@@ -198,61 +164,5 @@ class Menus implements Iterator
 //        } else {
 //            $this->secondary_menu = $this->menus->getSecondaryMenu();
 //        }
-    }
-
-
-    /**
-     * Returns the current menu
-     *
-     * @return Menu
-     */
-    public function current(): Menu
-    {
-        return current($this->menus);
-    }
-
-
-    /**
-     * Progresses the internal pointer to the next menu
-     *
-     * @return void
-     */
-    public function next(): void
-    {
-        next($this->menus);
-    }
-
-
-    /**
-     * Returns the current key for the current menu
-     *
-     * @return string
-     */
-    public function key(): string
-    {
-        return key($this->menus);
-    }
-
-
-    /**
-     * Returns if the current pointer is valid or not
-     *
-     * @todo Is this really really required? Since we're using internal array pointers anyway, it always SHOULD be valid
-     * @return bool
-     */
-    public function valid(): bool
-    {
-        return isset($this->menus[key($this->menus)]);
-    }
-
-
-    /**
-     * Rewinds the internal pointer
-     *
-     * @return void
-     */
-    public function rewind(): void
-    {
-        reset($this->menus);
     }
 }

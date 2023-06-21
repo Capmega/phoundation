@@ -230,7 +230,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
         $panel = SidePanel::new();
         $panel->setMenu(Page::getMenus()->getPrimaryMenu());
         $panel->getModals()
-            ->add('sign-in', $sign_in);
+            ->addModal('sign-in', $sign_in);
 
         return $panel->render();
     }

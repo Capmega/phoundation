@@ -42,14 +42,14 @@ class Grid extends Renderer
             // Return content rendered in a form
             $render = '';
 
-            foreach ($this->element->getRows() as $row) {
+            foreach ($this->element->getSource() as $row) {
                 $render .= $row->render();
             }
 
             $this->render .= $this->element->getForm()->setContent($render)->render();
             $this->element->setForm(null);
         } else {
-            foreach ($this->element->getRows() as $row) {
+            foreach ($this->element->getSource() as $row) {
                 $this->render .= $row->render();
             }
         }

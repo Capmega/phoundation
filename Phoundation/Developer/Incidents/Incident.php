@@ -62,7 +62,7 @@ class Incident extends DataEntry
     protected function initDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->add(Definition::new('type')
+            ->addDefinition(Definition::new('type')
                 ->setReadonly(true)
                 ->setLabel('Type')
                 ->setSize(6)
@@ -70,9 +70,9 @@ class Incident extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->isName(16);
                 }))
-            ->add(DefinitionDefaults::getTitle()
+            ->addDefinition(DefinitionDefaults::getTitle()
                 ->setSize(6))
-            ->add(Definition::new('url')
+            ->addDefinition(Definition::new('url')
                 ->setReadonly(true)
                 ->setLabel('URL')
                 ->setSize(12)
@@ -80,8 +80,8 @@ class Incident extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->isUrl();
                 }))
-            ->add(DefinitionDefaults::getDescription())
-            ->add(Definition::new('exception')
+            ->addDefinition(DefinitionDefaults::getDescription())
+            ->addDefinition(Definition::new('exception')
                 ->setReadonly(true)
                 ->setLabel('Exception')
                 ->setSize(12)
@@ -89,7 +89,7 @@ class Incident extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->isPrintable();
                 }))
-            ->add(Definition::new('data')
+            ->addDefinition(Definition::new('data')
                 ->setReadonly(true)
                 ->setElement('text')
                 ->setLabel('Data')

@@ -28,12 +28,12 @@ interface RolesInterface extends DataListInterface
     public function set(?array $list): static;
 
     /**
-     * Add the specified data entry to the data list
+     * Add the specified role to the data list
      *
      * @param RoleInterface|array|string|int|null $role
      * @return static
      */
-    public function add(RoleInterface|array|string|int|null $role): static;
+    public function addRole(RoleInterface|array|string|int|null $role): static;
 
     /**
      * Remove the specified role from the roles list

@@ -48,20 +48,15 @@ interface IteratorInterface extends \Iterator, Stringable
 
     /**
      * Iterator class constructor
-     *
-     * @param IteratorInterface|PDOStatement|array|string|null $source
-     * @param array|null $execute
      */
-    public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null);
+    public function __construct();
 
     /**
      * Returns a new Iterator object
      *
-     * @param IteratorInterface|PDOStatement|array|string|null $source
-     * @param array|null $execute
      * @return static
      */
-    public static function new(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static;
+    public static function new(): static;
 
     /**
      * Returns the current entry
@@ -87,9 +82,9 @@ interface IteratorInterface extends \Iterator, Stringable
     /**
      * Returns the current key for the current button
      *
-     * @return string|float|int
+     * @return string|float|int|null
      */
-    public function key(): string|float|int;
+    public function key(): string|float|int|null;
 
     /**
      * Returns if the current pointer is valid or not
@@ -107,6 +102,23 @@ interface IteratorInterface extends \Iterator, Stringable
     #[ReturnTypeWillChange] public function rewind(): static;
 
     /**
+     * Add the specified value to the iterator array
+     *
+     * @param mixed $value
+     * @param string|float|int|null $key
+     * @return static
+     */
+    public function add(mixed $value, string|float|int|null $key = null): static;
+
+    /**
+     * Adds the specified source to the internal source
+     *
+     * @param array|null $source
+     * @return $this
+     */
+    public function addSource(?array $source): static;
+
+    /**
      * Returns a list of all internal values with their keys
      *
      * @return mixed
@@ -116,10 +128,11 @@ interface IteratorInterface extends \Iterator, Stringable
     /**
      * Sets the internal source directly
      *
-     * @param array $source
-     * @return mixed
+     * @param IteratorInterface|PDOStatement|array|string|null $source
+     * @param array|null $execute
+     * @return static
      */
-    public function setSource(array $source): static;
+    public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static;
 
     /**
      * Returns value for the specified key
@@ -154,17 +167,17 @@ interface IteratorInterface extends \Iterator, Stringable
     /**
      * Clears all the internal content for this object
      *
-     * @return mixed
+     * @return static
      */
     public function clear(): static;
 
     /**
-     * Deletes the specified key
+     * Deletes the specified key(s)
      *
-     * @param string|float|int $key
+     * @param array|string|float|int $keys
      * @return static
      */
-    public function delete(string|float|int $key): static;
+    public function delete(array|string|float|int $keys): static;
 
     /**
      * Returns if the specified key exists or not
@@ -187,19 +200,20 @@ interface IteratorInterface extends \Iterator, Stringable
      * @param callable $callback
      * @return $this
      */
-    public function addItemCallback(callable $callback): static;
+    public function addCallback(callable $callback): static;
 
     /**
      * Returns the row callbacks
      *
      * @return array
      */
-    public function getItemCallbacks(): array;
+    public function getCallbacks(): array;
 
     /**
      * Execute the specified callbacks for each row
      *
+     * @param array $row
      * @return $this
      */
-    public function executeItemCallbacks(): static;
+    public function executeCallbacks(array &$row): static;
 }

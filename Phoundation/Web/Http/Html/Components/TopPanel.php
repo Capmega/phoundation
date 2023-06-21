@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html\Components;
 
+use PDOStatement;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Developer\Debug;
 use Phoundation\Web\Http\UrlBuilder;
 

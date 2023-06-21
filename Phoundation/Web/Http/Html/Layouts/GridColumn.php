@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html\Layouts;
 
+use PDOStatement;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Enums\DisplayTier;
 use Phoundation\Web\Http\Html\Enums\Interfaces\DisplaySizeInterface;

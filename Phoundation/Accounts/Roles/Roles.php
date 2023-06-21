@@ -35,11 +35,8 @@ class Roles extends DataList implements RolesInterface
 {
     /**
      * Roles class constructor
-     *
-     * @param IteratorInterface|PDOStatement|array|string|null $source
-     * @param array|null $execute
      */
-    public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null)
+    public function __construct()
     {
         $this->unique_column = 'seo_name';
         $this->entry_class   = Role::class;
@@ -50,7 +47,7 @@ class Roles extends DataList implements RolesInterface
                                WHERE    `status` IS NULL 
                                ORDER BY `name`');
 
-        parent::__construct($source, $execute);
+        parent::__construct();
     }
 
 
@@ -89,12 +86,12 @@ class Roles extends DataList implements RolesInterface
 
 
     /**
-     * Add the specified data entry to the data list
+     * Add the specified role to the data list
      *
      * @param RoleInterface|array|string|int|null $role
      * @return static
      */
-    public function add(RoleInterface|array|string|int|null $role): static
+    public function addRole(RoleInterface|array|string|int|null $role): static
     {
         $this->ensureParent('add entry to parent');
 
@@ -124,7 +121,7 @@ class Roles extends DataList implements RolesInterface
                         ]);
 
                         // Add right to internal list
-                        $this->addEntry($role);
+                        $this->addDataEntry($role);
 
                         // Add rights to the user
                         foreach ($role->rights() as $right) {
@@ -143,7 +140,7 @@ class Roles extends DataList implements RolesInterface
                         ]);
 
                         // Add right to internal list
-                        $this->addEntry($role);
+                        $this->addDataEntry($role);
 
                         // Update all users with this right to get the new right as well!
                         foreach ($this->parent->users() as $user) {
@@ -191,7 +188,7 @@ class Roles extends DataList implements RolesInterface
                     ]);
 
                     // Add right to internal list
-                    $this->removeEntry($role);
+                    $this->deleteEntry($role);
 
                     foreach ($role->rights() as $right) {
                         $this->parent->rights()->remove($right);
@@ -209,7 +206,7 @@ class Roles extends DataList implements RolesInterface
                     ]);
 
                     // Add right to internal list
-                    $this->removeEntry($role);
+                    $this->deleteEntry($role);
 
                     // Update all users with this right to remove the new right as well!
                     foreach ($this->parent->users() as $user) {
@@ -251,7 +248,7 @@ class Roles extends DataList implements RolesInterface
             ]);
         }
 
-        return parent::clearEntries();
+        return parent::clear();
     }
 
 

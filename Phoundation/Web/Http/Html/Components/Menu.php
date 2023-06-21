@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html\Components;
 
+use PDOStatement;
 use Phoundation\Core\Session;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Web\Http\UrlBuilder;
 
 
@@ -23,10 +25,11 @@ class Menu extends ElementsBlock
     /**
      * Set the menu source and ensure all URL's are absolute
      *
-     * @param array|null $source
+     * @param IteratorInterface|PDOStatement|array|string|null $source
+     * @param array|null $execute
      * @return $this
      */
-    public function setSource(?array $source): static
+    public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static
     {
         $source = $this->makeUrlsAbsolute($source);
         return parent::setSource($source);

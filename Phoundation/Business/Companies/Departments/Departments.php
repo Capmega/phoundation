@@ -26,11 +26,8 @@ class Departments extends DataList
 {
     /**
      * Departments class constructor
-     *
-     * @param IteratorInterface|PDOStatement|array|string|null $source
-     * @param array|null $execute
      */
-    public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null)
+    public function __construct()
     {
         $this->entry_class = Department::class;
         $this->table       = 'business_departments';
@@ -39,7 +36,7 @@ class Departments extends DataList
                                    FROM     `business_departments` 
                                    WHERE    `status` IS NULL 
                                    ORDER BY `name`');
-        parent::__construct($source, $execute);
+        parent::__construct();
     }
 
 

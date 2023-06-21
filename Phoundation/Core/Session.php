@@ -214,8 +214,8 @@ class Session
 
             Incident::new()
                 ->setType('User sign in')->setSeverity(Severity::notice)
-                ->setTitle(tr('The user ":user" signed in', [':user' => static::$user]))
-                ->setDetails([':user' => static::$user])
+                ->setTitle(tr('The user ":user" signed in', [':user' => static::$user->getLogId()]))
+                ->setDetails([':user' => static::$user->getLogId()])
                 ->save();
 
             $_SESSION['user']['id'] = static::$user->getId();
@@ -407,16 +407,20 @@ class Session
 
             return false;
         }
-
+//show(session_get_cookie_params());
+//show('IMPLEMENT LONG SESSIONS SUPPORT');
+//show('IMPLEMENT MYSQL SESSIONS SUPPORT');
+//show('IMPLEMENT MEMCACHED SUPPORT WITH FALLBACK TO MYSQL');
+//showdie('IMPLEMENT RETURN TO PREVIOUS PAGE AFTER LOGOUT SUPPORT');
         // What handler to use?
         switch (Config::get('web.sessions.handler', 'files')) {
             case 'files':
-                $path = Path::new(Config::get('web.sessions.path', PATH_DATA), Restrictions::new([PATH_DATA . 'sessions/', '/var/lib/php/sessions/'], true, 'system/sessions'))->ensure();
+                $path = Path::new(Config::get('web.sessions.path', PATH_DATA . 'sessions/'), Restrictions::new([PATH_DATA, '/var/lib/php/sessions/'], true, 'system/sessions'))->ensure();
                 session_save_path($path);
                 break;
 
             case 'memcached':
-                // no-break
+
             case 'redis':
                 // no-break
             case 'mongo':
@@ -574,7 +578,7 @@ Log::warning('RESTART SESSION');
             unset($_SESSION['user']['impersonate_id']);
             unset($_SESSION['user']['impersonate_url']);
 
-            Page::getFlashMessages()->add(tr('Success'), tr('You have stopped impersonating user ":user"', [':user' => User::get($users_id)]), DisplayMode::success);
+            Page::getFlashMessages()->addFlashMessage(tr('Success'), tr('You have stopped impersonating user ":user"', [':user' => User::get($users_id)]), DisplayMode::success);
             Page::redirect($url);
         }
 

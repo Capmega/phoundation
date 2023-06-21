@@ -20,6 +20,21 @@ use Phoundation\Data\DataEntry\Definitions\Definitions;
 interface DataEntryFormInterface extends ElementsBlockInterface
 {
     /**
+     * Returns the element that will receive autofocus
+     *
+     * @return string|null
+     */
+    public function getAutoFocusId(): ?string;
+
+    /**
+     * Sets the element that will receive autofocus
+     *
+     * @param string|null $auto_focus_id
+     * @return $this
+     */
+    public function setAutoFocusId(?string $auto_focus_id): static;
+
+    /**
      * Returns true if the specified input type is supported
      *
      * @param string $input

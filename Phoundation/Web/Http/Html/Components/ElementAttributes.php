@@ -6,7 +6,9 @@ namespace Phoundation\Web\Http\Html\Components;
 
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Strings;
+use Phoundation\Data\Traits\UsesNew;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Json;
 use Stringable;
 
 
@@ -22,6 +24,9 @@ use Stringable;
  */
 trait ElementAttributes
 {
+    use UsesNew;
+
+
     /**
      * The HTML id element attribute
      *
@@ -154,25 +159,6 @@ trait ElementAttributes
      * @var bool $right
      */
     protected bool $right = false;
-
-
-    /**
-     * ElementsAttributes class constructor
-     */
-    public function __construct()
-    {
-    }
-
-
-    /**
-     * Return new Templated HTML Element object using the current Page template
-     *
-     * return static
-     */
-    public static function new(): static
-    {
-        return new static();
-    }
 
 
     /**
@@ -632,25 +618,39 @@ trait ElementAttributes
     /**
      * Sets the HTML class element attribute
      *
+     * @param bool $auto_focus
      * @return static
      */
-    public function setAutofocus(): static
+    public function setAutofocus(bool $auto_focus): static
     {
-        if (static::$autofocus) {
-            throw new OutOfBoundsException(tr('Cannot set autofocus on element ":id", its already being used by id ":already"', [
-                ':id'      => $this->id,
-                ':already' => static::$autofocus
-            ]));
+        if ($auto_focus) {
+            if (static::$autofocus) {
+                if (static::$autofocus !== $this->id) {
+                    throw new OutOfBoundsException(tr('Cannot set autofocus on element ":id", its already being used by id ":already"', [
+                        ':id'      => $this->id,
+                        ':already' => static::$autofocus
+                    ]));
+                }
+            }
+
+            if (!$this->id) {
+                throw new OutOfBoundsException(tr('Cannot set autofocus on element, it has no id specified yet'));
+            }
+
+            static::$autofocus = $this->id;
+
+        } else {
+            // Unset autofocus? Only if this is the element that had it in the first place!
+            if (static::$autofocus === $this->id) {
+                throw new OutOfBoundsException(tr('Cannot remove autofocus from element ":id", it does not have autofocus', [
+                    ':id' => $this->id
+                ]));
+            }
+
+            static::$autofocus = null;
         }
 
-        if (!$this->id) {
-            throw new OutOfBoundsException(tr('Cannot set autofocus on this element, it has no "id" specified yet', [
-                ':id'      => $this->id,
-                ':already' => static::$autofocus
-            ]));
-        }
 
-        static::$autofocus = $this->id;
         return $this;
     }
 

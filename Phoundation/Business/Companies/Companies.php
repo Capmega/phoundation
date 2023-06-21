@@ -28,11 +28,8 @@ class Companies extends DataList
 {
     /**
      * Companies class constructor
-     *
-     * @param IteratorInterface|PDOStatement|array|string|null $source
-     * @param array|null $execute
      */
-    public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null)
+    public function __construct()
     {
         $this->unique_column = 'seo_name';
         $this->entry_class   = Company::class;
@@ -43,7 +40,7 @@ class Companies extends DataList
                                WHERE    `status` IS NULL 
                                ORDER BY `name`');
 
-        parent::__construct($source, $execute);
+        parent::__construct();
     }
 
 

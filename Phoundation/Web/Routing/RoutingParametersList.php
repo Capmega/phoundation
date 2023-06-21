@@ -118,11 +118,12 @@ class RoutingParametersList
                 if (!preg_match_all($pattern, $uri, $matches)) {
                     continue;
                 }
+
             } catch (Exception $e) {
-                throw new RouteException(tr('Routing regular expression pattern ":regex" failed with error ":e"', [
+                throw RouteException::new(tr('Routing regular expression pattern ":regex" failed with error ":e"', [
                     ':e'     => $e->getMessage(),
                     ':regex' => $pattern
-                ]), ['failed_pattern' => $pattern], 0, $e);
+                ]), $e)->setData(['failed_pattern' => $pattern]);
             }
 
             $parameters

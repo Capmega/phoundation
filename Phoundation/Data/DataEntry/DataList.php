@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry;
 
-use PDOStatement;
 use Phoundation\Cli\Cli;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
-use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\DataParent;
+use Phoundation\Data\Traits\UsesNew;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\QueryBuilder;
 use Phoundation\Databases\Sql\Sql;
@@ -112,11 +111,8 @@ abstract class DataList extends Iterator implements DataListInterface
 
     /**
      * Iterator class constructor
-     *
-     * @param IteratorInterface|PDOStatement|array|string|null $source
-     * @param array|null $execute
      */
-    public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null)
+    public function __construct()
     {
         parent::__construct();
     }
@@ -124,14 +120,10 @@ abstract class DataList extends Iterator implements DataListInterface
 
     /**
      * Returns a new Iterator object
-     *
-     * @param IteratorInterface|PDOStatement|array|string|null $source
-     * @param array|null $execute
-     * @return static
      */
-    public static function new(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static
+    public static function new(): static
     {
-        return new static($source, $execute);
+        return new static();
     }
 
 
@@ -144,7 +136,7 @@ abstract class DataList extends Iterator implements DataListInterface
     public function exists(DataEntryInterface|Stringable|string|float|int $key): bool
     {
         if ($key instanceof DataEntryInterface) {
-            return array_key_exists($key->getId(), $this->source);
+            $key = $key->getId();
         }
 
         return parent::exists($key);
@@ -263,17 +255,6 @@ abstract class DataList extends Iterator implements DataListInterface
 
 
     /**
-     * Returns the entire internal list
-     *
-     * @return array
-     */
-    public function list(): array
-    {
-        return array_flip($this->source);
-    }
-
-
-    /**
      * Returns the internal list filtered by the specified keyword
      *
      * @param string|null $keyword
@@ -284,7 +265,7 @@ abstract class DataList extends Iterator implements DataListInterface
         $return = [];
         $keyword = strtolower((string) $keyword);
 
-        foreach ($this->list() as $value) {
+        foreach ($this->getSource() as $value) {
             if (!$keyword or str_contains(strtolower(trim($value)), $keyword)) {
                 $return[] = $value;
             }
@@ -350,7 +331,7 @@ abstract class DataList extends Iterator implements DataListInterface
      * @param bool $exception
      * @return DataEntry|null
      */
-    #[ReturnTypeWillChange] function get(Stringable|string|float|int $key, bool $exception = false): ?DataEntryInterface
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = false): ?DataEntryInterface
     {
         // Does this entry exist?
         if (!array_key_exists($key, $this->source)) {
@@ -359,28 +340,7 @@ abstract class DataList extends Iterator implements DataListInterface
             ]));
         }
 
-        // Is this entry available as a DataEntry already?
-        if (!is_object($this->source[$key])) {
-            $this->source[$key] = $this->entry_class::new()->load($this->source[$key]);
-        }
-
-        return $this->source[$key];
-    }
-
-
-    /**
-     * Creates and returns an HTML table for the data in this list
-     *
-     * @return Table
-     */
-    public function getHtmlTable(): Table
-    {
-        $this->selectQuery();
-
-        // Create and return the table
-        return Table::new()
-            ->setSourceQuery($this->query, $this->execute)
-            ->setCheckboxSelectors(true);
+        return $this->ensureDataEntry($key);
     }
 
 
@@ -400,6 +360,23 @@ abstract class DataList extends Iterator implements DataListInterface
 
 
     /**
+     * Creates and returns an HTML table for the data in this list
+     *
+     * @return Table
+     */
+    public function getHtmlTable(): Table
+    {
+        $this->selectQuery();
+
+        // Create and return the table
+        return Table::new()
+            ->setSourceQuery($this->query, $this->execute)
+            ->setCallbacks($this->callbacks)
+            ->setCheckboxSelectors(true);
+    }
+
+
+    /**
      * Creates and returns a fancy HTML data table for the data in this list
      *
      * @return DataTable
@@ -412,6 +389,7 @@ abstract class DataList extends Iterator implements DataListInterface
         return DataTable::new()
             ->setId($this->table)
             ->setSourceQuery($this->query, $this->execute)
+            ->setCallbacks($this->callbacks)
             ->setCheckboxSelectors(true);
     }
 
@@ -497,25 +475,13 @@ showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY F
     }
 
 
-//    /**
-//     * Erase the specified entries
-//     *
-//     * @param array $entries
-//     * @return int
-//     */
-//    public function erase(array $entries): int
-//    {
-//        return sql()->erase($this->table_name, $entries);
-//    }
-
-
     /**
      * Add the specified data entry to the data list
      *
      * @param DataEntry|null $entry
      * @return static
      */
-    protected function addEntry(?DataEntryInterface $entry): static
+    public function addDataEntry(?DataEntryInterface $entry): static
     {
         if ($entry) {
             $this->source[$entry->getId()] = $entry;
@@ -526,34 +492,51 @@ showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY F
 
 
     /**
-     * Remove the specified data entry from the data list
+     * Remove the specified key(s) from the data list
      *
-     * @param DataEntry|int|null $entry
+     * @param DataEntryInterface|array|string|float|int $keys
      * @return static
      */
-    protected function removeEntry(DataEntryInterface|int|null $entry): static
+    public function delete(DataEntryInterface|array|string|float|int $keys): static
     {
-        if ($entry) {
-            if (is_object($entry)) {
-                $entry = $entry->getId();
-            }
-
-            unset($this->source[$entry]);
+        if (is_object($keys)) {
+            $keys = $keys->getId();
         }
 
-        return $this;
+        return $this->delete($keys);
     }
 
 
     /**
-     * Remove all the entries from the DataList
+     * Returns the current item
      *
-     * @return static
+     * @return DataEntry|null
      */
-    protected function clearEntries(): static
+    #[ReturnTypeWillChange] public function current(): ?DataEntryInterface
     {
-        $this->source = [];
-        return $this;
+        return $this->ensureDataEntry(key($this->source));
+    }
+
+
+    /**
+     * Returns the first element contained in this object without changing the internal pointer
+     *
+     * @return DataEntryInterface|null
+     */
+    #[ReturnTypeWillChange] public function getFirst(): ?DataEntryInterface
+    {
+        return $this->ensureDataEntry(array_key_first($this->source));
+    }
+
+
+    /**
+     * Returns the last element contained in this object without changing the internal pointer
+     *
+     * @return DataEntryInterface|null
+     */
+    #[ReturnTypeWillChange] public function getLast(): ?DataEntryInterface
+    {
+        return $this->ensureDataEntry(array_key_last($this->source));
     }
 
 
@@ -567,6 +550,23 @@ showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY F
         if (!isset($this->source)) {
             $this->load();
         }
+    }
+
+
+    /**
+     * Ensure the entry we're going to return is from DataEntryInterface interface
+     *
+     * @param string|float|int $key
+     * @return DataEntryInterface
+     */
+    protected function ensureDataEntry(string|float|int $key): DataEntryInterface
+    {
+        // Ensure the source key is of DataEntryInterface
+        if (!$this->source[$key] instanceof DataEntryInterface) {
+            $this->source[$key] = $this->entry_class::new()->setSource($this->source[$key]);
+        }
+
+        return $this->source[$key];
     }
 
 
@@ -601,17 +601,6 @@ showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY F
                 ':class' => get_class($this)
             ]));
         }
-    }
-
-
-    /**
-     * Returns the current item
-     *
-     * @return DataEntry|null
-     */
-    #[ReturnTypeWillChange] public function current(): ?DataEntryInterface
-    {
-        return $this->get(key($this->source));
     }
 
 

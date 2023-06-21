@@ -145,11 +145,11 @@ class Language extends DataEntry
     protected function initDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->add(DefinitionDefaults::getName()
+            ->addDefinition(DefinitionDefaults::getName()
                 ->setDisabled(true)
                 ->setHelpText(tr('The name for this language')))
-            ->add(DefinitionDefaults::getSeoName())
-            ->add(Definition::new('code_639_1')
+            ->addDefinition(DefinitionDefaults::getSeoName())
+            ->addDefinition(Definition::new('code_639_1')
                 ->setDisabled(true)
                 ->setInputType(InputTypeExtended::code)
                 ->setLabel(tr('ISO 639-1 code'))
@@ -157,7 +157,7 @@ class Language extends DataEntry
                 ->setSize(12)
                 ->setMaxlength(2)
                 ->setHelpText(tr('The ISO 639-1 code for this language')))
-            ->add(Definition::new('code_639_2_t')
+            ->addDefinition(Definition::new('code_639_2_t')
                 ->setDisabled(true)
                 ->setInputType(InputTypeExtended::code)
                 ->setLabel(tr('ISO 639-2/T code'))
@@ -165,7 +165,7 @@ class Language extends DataEntry
                 ->setSize(12)
                 ->setMaxlength(3)
                 ->setHelpText(tr('The ISO 639-2/T code for this language')))
-            ->add(Definition::new('code_639_2_b')
+            ->addDefinition(Definition::new('code_639_2_b')
                 ->setDisabled(true)
                 ->setInputType(InputTypeExtended::code)
                 ->setLabel(tr('ISO 639-2/B code'))
@@ -173,7 +173,7 @@ class Language extends DataEntry
                 ->setSize(12)
                 ->setMaxlength(3)
                 ->setHelpText(tr('The ISO 639-2/B code for this language')))
-            ->add(Definition::new('code_639_3')
+            ->addDefinition(Definition::new('code_639_3')
                 ->setDisabled(true)
                 ->setInputType(InputTypeExtended::code)
                 ->setLabel(tr('ISO 639-3 code'))
@@ -181,7 +181,7 @@ class Language extends DataEntry
                 ->setSize(12)
                 ->setMaxlength(3)
                 ->setHelpText(tr('The ISO 639-3 code for this language')))
-            ->add(DefinitionDefaults::getDescription()
+            ->addDefinition(DefinitionDefaults::getDescription()
                 ->setHelpText(tr('The description for this language')));
     }
 }

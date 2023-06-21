@@ -36,12 +36,12 @@ interface UsersInterface extends DataListInterface
     public function set(?array $list): static;
 
     /**
-     * Add the specified data entry to the data list
+     * Add the specified user to the data list
      *
      * @param User|array|string|int|null $user
      * @return static
      */
-    public function add(User|array|string|int|null $user): static;
+    public function addUser(User|array|string|int|null $user): static;
 
     /**
      * Remove the specified data entry from the data list

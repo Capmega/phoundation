@@ -25,11 +25,8 @@ class Messages extends DataList
 {
     /**
      * Messages class constructor
-     *
-     * @param IteratorInterface|PDOStatement|array|string|null $source
-     * @param array|null $execute
      */
-    public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null)
+    public function __construct()
     {
         $this->entry_class = Message::class;
         $this->table       = 'messages';
@@ -38,7 +35,7 @@ class Messages extends DataList
                                    FROM     `messages` 
                                    WHERE    `status` IS NULL 
                                    ORDER BY `title`');
-        parent::__construct($source, $execute);
+        parent::__construct();
     }
 
 

@@ -35,26 +35,12 @@ class Definitions extends Iterator implements DefinitionsInterface
 
 
     /**
-     * Iterator class constructor
-     *
-     * @param IteratorInterface|PDOStatement|array|string|null $source
-     * @param array|null $execute
-     */
-    public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null)
-    {
-        if ($source or $execute) {
-            throw new OutOfBoundsException(tr('Definitions class constructor should not receive any parameters'));
-        }
-    }
-
-
-    /**
      * Adds the specified Definition to the fields list
      *
      * @param DefinitionInterface $field
      * @return static
      */
-    public function add(DefinitionInterface $field): static
+    public function addDefinition(DefinitionInterface $field): static
     {
         if ($this->prefix) {
             $field->setField($this->prefix . $field->getField());

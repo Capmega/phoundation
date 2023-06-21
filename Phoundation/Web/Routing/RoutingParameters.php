@@ -566,7 +566,7 @@ class RoutingParameters
     {
         if (is_object($rights)) {
             if ($rights instanceof Rights) {
-                $rights = $rights->list();
+                $rights = $rights->getSource();
             } else {
                 $rights = $rights->getSeoName();
             }

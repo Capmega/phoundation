@@ -28,11 +28,8 @@ class Providers extends DataList
 {
     /**
      * Providers class constructor
-     *
-     * @param IteratorInterface|PDOStatement|array|string|null $source
-     * @param array|null $execute
      */
-    public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null)
+    public function __construct()
     {
         $this->entry_class = Provider::class;
         $this->table       = 'business_providers';
@@ -41,7 +38,7 @@ class Providers extends DataList
                                    FROM     `business_providers` 
                                    WHERE    `status` IS NULL 
                                    ORDER BY `name`');
-        parent::__construct($source, $execute);
+        parent::__construct();
     }
 
 

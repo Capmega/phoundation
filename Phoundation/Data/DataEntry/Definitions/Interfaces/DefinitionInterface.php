@@ -54,6 +54,23 @@ interface DefinitionInterface
     public function setKey(string $key, callable|array|string|float|int|bool|null $value): static;
 
     /**
+     * Returns if this field will not set the DataEntry to "modified" state when changed
+     *
+     * @note Defaults to true
+     * @return bool|null
+     */
+    public function getIgnoreModify(): ?bool;
+
+    /**
+     * Sets if this field will not set the DataEntry to "modified" state when changed
+     *
+     * @note Defaults to false
+     * @param bool|null $value
+     * @return static
+     */
+    public function setIgnoreModify(?bool $value): static;
+
+    /**
      * Returns if this field is visible in HTML clients
      *
      * If false, the field will not be displayed and typically will be modified through a virtual field instead.

@@ -6,6 +6,9 @@ declare(strict_types=1);
 namespace Plugins\Phoundation\Components;
 
 
+use PDOStatement;
+use Phoundation\Data\Interfaces\IteratorInterface;
+
 /**
  * TemplateMenus class
  *
@@ -18,6 +21,9 @@ namespace Plugins\Phoundation\Components;
  */
 class Menu extends \Phoundation\Web\Http\Html\Components\Menu
 {
+    /**
+     * Menu class constructor
+     */
     public function __construct()
     {
         parent::__construct();

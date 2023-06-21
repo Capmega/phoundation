@@ -35,7 +35,7 @@ class Modals extends ElementsBlock
      * @param Modal $modal
      * @return $this
      */
-    public function add(string $identifier, Modal $modal): static
+    public function addModal(string $identifier, Modal $modal): static
     {
         $this->source[$identifier] = $modal;
         return $this;

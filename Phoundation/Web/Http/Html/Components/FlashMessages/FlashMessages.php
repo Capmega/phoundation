@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html\Components\FlashMessages;
 
-use Iterator;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
@@ -23,7 +23,7 @@ use Phoundation\Web\Http\Html\Enums\DisplayMode;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class FlashMessages extends ElementsBlock implements Iterator
+class FlashMessages extends ElementsBlock implements IteratorInterface
 {
     /**
      * This method will move all messages from the specified FlashMessages object here.
@@ -56,7 +56,7 @@ class FlashMessages extends ElementsBlock implements Iterator
      * @param int|null $auto_close
      * @return $this
      */
-    public function add(FlashMessage|Exception|string|null $title, ?string $message = null, ?DisplayMode $mode = null, string $icon = null, ?int $auto_close = null): static
+    public function addFlashMessage(FlashMessage|Exception|string|null $title, ?string $message = null, ?DisplayMode $mode = null, string $icon = null, ?int $auto_close = null): static
     {
         if ($title) {
             // a title was specified

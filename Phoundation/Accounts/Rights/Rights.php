@@ -35,11 +35,8 @@ class Rights extends DataList implements RightsInterface
 {
     /**
      * Roles class constructor
-     *
-     * @param IteratorInterface|PDOStatement|array|string|null $source
-     * @param array|null $execute
      */
-    public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null)
+    public function __construct()
     {
         $this->unique_column = 'seo_name';
         $this->entry_class   = Right::class;
@@ -50,7 +47,7 @@ class Rights extends DataList implements RightsInterface
                                WHERE    `status` IS NULL 
                                ORDER BY `name`');
 
-        parent::__construct($source, $execute);
+        parent::__construct();
     }
 
 
@@ -94,7 +91,7 @@ class Rights extends DataList implements RightsInterface
      * @param RightInterface|array|string|int|null $right
      * @return static
      */
-    public function add(RightInterface|array|string|int|null $right): static
+    public function addRight(RightInterface|array|string|int|null $right): static
     {
         $this->ensureParent('add entry to parent');
 
@@ -126,7 +123,7 @@ class Rights extends DataList implements RightsInterface
                         ]);
 
                         // Add right to internal list
-                        $this->addEntry($right);
+                        $this->addDataEntry($right);
 
                     } elseif ($this->parent instanceof RoleInterface) {
                         Log::action(tr('Adding right ":right" to role ":role"', [
@@ -140,7 +137,7 @@ class Rights extends DataList implements RightsInterface
                         ]);
 
                         // Add right to internal list
-                        $this->addEntry($right);
+                        $this->addDataEntry($right);
 
                         // Update all users with this role to get the new right as well!
                         foreach ($this->parent->users() as $user) {
@@ -188,7 +185,7 @@ class Rights extends DataList implements RightsInterface
                     ]);
 
                     // Add right to internal list
-                    $this->removeEntry($right);
+                    $this->deleteEntry($right);
                 } elseif ($this->parent instanceof RoleInterface) {
                     Log::action(tr('Removing right ":right" from role ":role"', [
                         ':role' => $this->parent->getLogId(),
@@ -206,7 +203,7 @@ class Rights extends DataList implements RightsInterface
                     }
 
                     // Add right to internal list
-                    $this->removeEntry($right);
+                    $this->deleteEntry($right);
                 }
             }
         }
@@ -243,7 +240,7 @@ class Rights extends DataList implements RightsInterface
             ]);
         }
 
-        return parent::clearEntries();
+        return parent::clear();
     }
 
 

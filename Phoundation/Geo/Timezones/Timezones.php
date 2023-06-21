@@ -27,11 +27,8 @@ class Timezones extends DataList
 {
     /**
      * Timezones class constructor
-     *
-     * @param IteratorInterface|PDOStatement|array|string|null $source
-     * @param array|null $execute
      */
-    public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null)
+    public function __construct()
     {
         $this->entry_class = Timezone::class;
         $this->table       = 'geo_timezones';
@@ -40,7 +37,7 @@ class Timezones extends DataList
                                    FROM     `geo_timezones` 
                                    WHERE    `status` IS NULL 
                                    ORDER BY `name`');
-        parent::__construct($source, $execute);
+        parent::__construct();
     }
 
 

@@ -100,14 +100,14 @@ class AutoComplete
             '-W,--no-warnings'         => false,
             '--system-language'        => [
                 'word'   => function($word) { return Languages::new()->filteredList($word); },
-                'noword' => function()      { return Languages::new()->list(); },
+                'noword' => function()      { return Languages::new()->getSource(); },
             ],
             '--deleted'                => false,
             '--version'                => false,
             '--limit'                  => true,
             '--timezone'               => [
                 'word'   => function($word) { return Timezones::new()->filteredList($word); },
-                'noword' => function()      { return Timezones::new()->list(); },
+                'noword' => function()      { return Timezones::new()->getSource(); },
             ],
             '--show-passwords'         => false,
             '--no-validation'          => false,

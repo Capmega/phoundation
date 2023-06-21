@@ -26,11 +26,8 @@ class Languages extends DataList
 {
     /**
      * Languages class constructor
-     *
-     * @param IteratorInterface|PDOStatement|array|string|null $source
-     * @param array|null $execute
      */
-    public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null)
+    public function __construct()
     {
         $this->entry_class = Language::class;
         $this->table       = 'core_languages';
@@ -39,7 +36,7 @@ class Languages extends DataList
                              FROM     `core_languages` 
                              WHERE    `status` IS NULL 
                              ORDER BY `name`');
-        parent::__construct($source, $execute);
+        parent::__construct();
         $this->load($id_column);
     }
 

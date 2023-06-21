@@ -7,6 +7,7 @@ namespace Phoundation\Web\Http\Html\Components;
 use PDO;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Strings;
+use Phoundation\Data\Traits\DataCallbacks;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Input\InputCheckbox;
 use Phoundation\Web\Http\Html\Components\Interfaces\ElementInterface;
@@ -27,6 +28,9 @@ use Stringable;
  */
 class Table extends ResourceElement
 {
+    use DataCallbacks;
+
+
     /**
      * The class for the <row> elements within the <table> element
      *
@@ -673,6 +677,8 @@ class Table extends ResourceElement
             $first = true;
 
             foreach ($row_values as $column => $value) {
+                $this->executeCallbacks($value);
+
                 if ($first) {
                     // Convert first column to checkboxes?
                     $value = $this->renderCheckboxColumn($column, $value);
@@ -714,8 +720,9 @@ class Table extends ResourceElement
         }
 
         // Process SQL resource
-        while ($row_values = $this->source_query->fetch(PDO::FETCH_ASSOC)) {
-            $return .= $this->renderRow($row_values);
+        while ($row = $this->source_query->fetch(PDO::FETCH_ASSOC)) {
+            $this->executeCallbacks($row);
+            $return .= $this->renderRow($row);
         }
 
         return $return . '</tbody>';

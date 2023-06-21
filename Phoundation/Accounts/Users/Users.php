@@ -34,11 +34,8 @@ class Users extends DataList implements UsersInterface
 {
     /**
      * Users class constructor
-     *
-     * @param IteratorInterface|PDOStatement|array|string|null $source
-     * @param array|null $execute
      */
-    public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null)
+    public function __construct()
     {
         $this->unique_column = 'email';
         $this->entry_class   = User::class;
@@ -49,7 +46,7 @@ class Users extends DataList implements UsersInterface
                                WHERE    `status` IS NULL 
                                ORDER BY `name`');
 
-        parent::__construct($source, $execute);
+        parent::__construct();
     }
 
 
@@ -105,12 +102,12 @@ class Users extends DataList implements UsersInterface
 
 
     /**
-     * Add the specified data entry to the data list
+     * Add the specified user to the data list
      *
      * @param UserInterface|array|string|int|null $user
      * @return static
      */
-    public function add(UserInterface|array|string|int|null $user): static
+    public function addUser(UserInterface|array|string|int|null $user): static
     {
         $this->ensureParent('add entry to parent');
 
@@ -140,7 +137,7 @@ class Users extends DataList implements UsersInterface
                         ]);
 
                         // Add right to internal list
-                        $this->addEntry($user);
+                        $this->addDataEntry($user);
                     } elseif ($this->parent instanceof RightInterface) {
                         Log::action(tr('Adding right ":right" to user ":user"', [
                             ':right' => $this->parent->getLogId(),
@@ -155,7 +152,7 @@ class Users extends DataList implements UsersInterface
                         ]);
 
                         // Add right to internal list
-                        $this->addEntry($user);
+                        $this->addDataEntry($user);
                     }
                 }
             }
@@ -198,7 +195,7 @@ class Users extends DataList implements UsersInterface
                     ]);
 
                     // Add right to internal list
-                    $this->removeEntry($user);
+                    $this->deleteEntry($user);
                 } elseif ($this->parent instanceof RightInterface) {
                     Log::action(tr('Removing right ":right" from user ":user"', [
                         ':right' => $this->parent->getLogId(),
@@ -211,7 +208,7 @@ class Users extends DataList implements UsersInterface
                     ]);
 
                     // Add right to internal list
-                    $this->removeEntry($user);
+                    $this->deleteEntry($user);
                 }
             }
         }
@@ -248,7 +245,7 @@ class Users extends DataList implements UsersInterface
             ]);
         }
 
-        return parent::clearEntries();
+        return parent::clear();
     }
 
 

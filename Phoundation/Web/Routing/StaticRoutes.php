@@ -25,11 +25,8 @@ class StaticRoutes extends DataList
 {
     /**
      * StaticRoutes class constructor
-     *
-     * @param IteratorInterface|PDOStatement|array|string|null $source
-     * @param array|null $execute
      */
-    public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null)
+    public function __construct()
     {
         $this->entry_class = StaticRoute::class;
         $this->table       = 'static_routes';
@@ -38,7 +35,7 @@ class StaticRoutes extends DataList
                                    FROM     `static_routes` 
                                    WHERE    `status` IS NULL 
                                    ORDER BY `created_on` DESC');
-        parent::__construct($source, $execute);
+        parent::__construct();
     }
 
 

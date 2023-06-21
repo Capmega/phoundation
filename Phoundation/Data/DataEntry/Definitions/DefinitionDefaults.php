@@ -77,7 +77,7 @@ class DefinitionDefaults
                     return Categories::new()->filteredList($word);
                 },
                 'noword' => function () {
-                    return Categories::new()->list();
+                    return Categories::new()->getSource();
                 },
             ])
             ->addValidationFunction(function ($validator) {
@@ -131,7 +131,7 @@ class DefinitionDefaults
                     return Companies::new()->filteredList($word);
                 },
                 'noword' => function () {
-                    return Companies::new()->list();
+                    return Companies::new()->getSource();
                 },
             ])
             ->addValidationFunction(function ($validator) {
@@ -191,7 +191,7 @@ class DefinitionDefaults
                     return Languages::new()->filteredList($word);
                 },
                 'noword' => function () {
-                    return Languages::new()->list();
+                    return Languages::new()->getSource();
                 },
             ])
             ->addValidationFunction(function ($validator) {
@@ -245,7 +245,7 @@ class DefinitionDefaults
                     return Providers::new()->filteredList($word);
                 },
                 'noword' => function () {
-                    return Providers::new()->list();
+                    return Providers::new()->getSource();
                 },
             ])
             ->addValidationFunction(function ($validator) {
@@ -299,7 +299,7 @@ class DefinitionDefaults
                     return Customers::new()->filteredList($word);
                 },
                 'noword' => function () {
-                    return Customers::new()->list();
+                    return Customers::new()->getSource();
                 },
             ])
             ->addValidationFunction(function ($validator) {
@@ -358,7 +358,7 @@ class DefinitionDefaults
                     return Timezones::new()->filteredList($word);
                 },
                 'noword' => function () {
-                    return Timezones::new()->list();
+                    return Timezones::new()->getSource();
                 },
             ])
             ->addValidationFunction(function ($validator) {
@@ -415,7 +415,7 @@ class DefinitionDefaults
                     return Countries::new()->filteredList($word);
                 },
                 'noword' => function () {
-                    return Countries::new()->list();
+                    return Countries::new()->getSource();
                 },
             ])
             ->addValidationFunction(function ($validator) {
@@ -472,7 +472,7 @@ class DefinitionDefaults
                     return States::new()->filteredList($word);
                 },
                 'noword' => function () {
-                    return States::new()->list();
+                    return States::new()->getSource();
                 },
             ])
             ->addValidationFunction(function ($validator) {
@@ -529,7 +529,7 @@ class DefinitionDefaults
                     return Cities::new()->filteredList($word);
                 },
                 'noword' => function () {
-                    return Cities::new()->list();
+                    return Cities::new()->getSource();
                 },
             ])
             ->addValidationFunction(function ($validator) {
@@ -583,7 +583,7 @@ class DefinitionDefaults
                     return Users::new()->filteredList($word);
                 },
                 'noword' => function () {
-                    return Users::new()->list();
+                    return Users::new()->getSource();
                 },
             ])
             ->addValidationFunction(function ($validator) {

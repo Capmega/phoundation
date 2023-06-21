@@ -10,6 +10,7 @@ use Phoundation\Data\DataEntry\Definitions\DefinitionDefaults;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
+use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
 
 
 /**
@@ -51,10 +52,13 @@ class Right extends DataEntry implements RightInterface
     protected function initDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->add(DefinitionDefaults::getName()
+            ->addDefinition(DefinitionDefaults::getName()
+                ->setInputType(InputTypeExtended::name)
+                ->setSize(12)
+                ->setMaxlength(64)
                 ->setHelpText(tr('The name for this right')))
-            ->add(DefinitionDefaults::getSeoName())
-            ->add(DefinitionDefaults::getDescription()
+            ->addDefinition(DefinitionDefaults::getSeoName())
+            ->addDefinition(DefinitionDefaults::getDescription()
                 ->setHelpText(tr('The description for this right')));
     }
 }

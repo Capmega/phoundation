@@ -25,6 +25,6 @@ class SidePanel extends Panel
     public function __construct()
     {
         parent::__construct();
-        $this->getModals()->add('sign-in', new SignInModal());
+        $this->getModals()->addModal('sign-in', new SignInModal());
     }
 }

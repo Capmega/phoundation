@@ -24,12 +24,9 @@ use Phoundation\Developer\Incidents\Incidents;
 class SlowProcesses extends Incidents
 {
     /**
-     * Users class constructor
-     *
-     * @param IteratorInterface|PDOStatement|array|string|null $source
-     * @param array|null $execute
+     * SlowProcesses class constructor
      */
-    public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null)
+    public function __construct()
     {
         $this->entry_class = SlowProcess::class;
         $this->table       = 'processes_slow';
@@ -38,6 +35,6 @@ class SlowProcesses extends Incidents
                                    FROM     `processes_slow` 
                                    WHERE    `type` = "slow_page" AND `status` IS NULL 
                                    ORDER BY `created_on`');
-        parent::__construct($source, $execute);
+        parent::__construct();
     }
 }

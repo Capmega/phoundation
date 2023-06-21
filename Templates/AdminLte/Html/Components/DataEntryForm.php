@@ -55,10 +55,11 @@ class DataEntryForm extends Renderer
             throw new OutOfBoundsException(tr('Cannot render DataEntryForm, no fields specified'));
         }
 
-        $source      = $this->element->getSource();
-        $definitions = $this->element->getDefinitions();
-        $prefix      = $this->element->getDefinitions()->getPrefix();
-        $array       = str_ends_with((string) $prefix, '[');
+        $source        = $this->element->getSource();
+        $definitions   = $this->element->getDefinitions();
+        $prefix        = $this->element->getDefinitions()->getPrefix();
+        $auto_focus_id = $this->element->getAutofocusId();
+        $array         = str_ends_with((string) $prefix, '[');
 
         /*
          * $data field keys: (Or just use Definitions class)
@@ -107,7 +108,13 @@ class DataEntryForm extends Renderer
         // Go over each key and add it to the form
         foreach ($definitions as $field => $definition) {
             // Add field name prefix
+            $auto_focus = false;
             $field_name = $prefix . $field;
+
+            if ($field_name === $auto_focus_id) {
+                // This field has autofocus
+                $auto_focus = true;
+            }
 
             if ($array) {
                 // The field name prefix is an HTML form array prefix, close that array
@@ -255,6 +262,7 @@ class DataEntryForm extends Renderer
                                 ->setName($field_name)
                                 ->setValue('1')
                                 ->setChecked((bool) $source[$field])
+                                ->setAutoFocus($auto_focus)
                                 ->render();
                             break;
 
@@ -268,6 +276,7 @@ class DataEntryForm extends Renderer
                                 ->setStep(isset_get($definition['step']))
                                 ->setName($field_name)
                                 ->setValue($source[$field])
+                                ->setAutoFocus($auto_focus)
                                 ->render();
                             break;
 
@@ -280,6 +289,7 @@ class DataEntryForm extends Renderer
                                 ->setReadOnly((bool) $definition['readonly'])
                                 ->setName($field_name)
                                 ->setValue($source[$field])
+                                ->setAutoFocus($auto_focus)
                                 ->render();
                     }
 
@@ -305,6 +315,7 @@ class DataEntryForm extends Renderer
                         ->setRows((int) isset_get($definition['rows'], 5))
                         ->setName($field_name)
                         ->setContent(isset_get($source[$field]))
+                        ->setAutoFocus($auto_focus)
                         ->render();
 
                     $this->render .= $this->renderItem($field, $html, $definition);
@@ -328,6 +339,7 @@ class DataEntryForm extends Renderer
                     $html = $element::new()
                         ->setName($field_name)
                         ->setContent(isset_get($source[$field]))
+                        ->setAutoFocus($auto_focus)
                         ->render();
 
                     $this->render .= $this->renderItem($field, $html, $definition);
@@ -345,6 +357,7 @@ class DataEntryForm extends Renderer
                         ->setReadOnly((bool) $definition['readonly'])
                         ->setName($field_name)
                         ->setSelected(isset_get($source[$field]))
+                        ->setAutoFocus($auto_focus)
                         ->render();
 
                     $this->render .= $this->renderItem($field, $html, $definition);
@@ -368,7 +381,8 @@ class DataEntryForm extends Renderer
                         ->setReadOnly((bool) $definition['readonly'])
                         ->setName($field_name)
                         ->setValue($source[$field])
-                        ->setContent(isset_get($source[$field]));
+                        ->setContent(isset_get($source[$field]))
+                        ->setAutoFocus($auto_focus);
 
                     $this->render .= $this->renderItem($field, $input->render(), $definition);
                     break;
