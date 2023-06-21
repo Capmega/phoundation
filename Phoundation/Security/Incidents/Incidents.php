@@ -32,7 +32,7 @@ class Incidents extends DataList
     public function __construct(?Incident $parent = null, ?string $id_column = null)
     {
         $this->entry_class = Incident::class;
-        self::$table       = Incident::getTable();
+        $this->table       = 'security_incidents';
 
         $this->setHtmlQuery('SELECT   `id`, `type`, `severity`, `title` 
                                    FROM     `security_incidents` 
@@ -63,7 +63,7 @@ class Incidents extends DataList
     /**
      * @inheritDoc
      */
-    public function save(): static
+    public function save(): bool
     {
         // TODO: Implement save() method.
     }

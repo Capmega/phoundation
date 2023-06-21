@@ -30,7 +30,7 @@ class StaticRoutes extends DataList
     public function __construct(?StaticRoute $parent = null, ?string $id_column = null)
     {
         $this->entry_class = StaticRoute::class;
-        self::$table       = StaticRoute::getTable();
+        $this->table       = 'static_routes';
 
         $this->setHtmlQuery('SELECT   `id`, `type`, `severity`, `title` 
                                    FROM     `static_routes` 
@@ -61,7 +61,7 @@ class StaticRoutes extends DataList
     /**
      * @inheritDoc
      */
-    public function save(): static
+    public function save(): bool
     {
         // TODO: Implement save() method.
     }

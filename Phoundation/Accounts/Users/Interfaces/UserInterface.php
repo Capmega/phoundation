@@ -532,9 +532,9 @@ interface UserInterface extends DataEntryInterface
      * Save the user to database
      *
      * @param string|null $comments
-     * @return static
+     * @return bool
      */
-    public function save(?string $comments = null): static;
+    public function save(?string $comments = null): bool;
 
     /**
      * Update this session so that it impersonates this person

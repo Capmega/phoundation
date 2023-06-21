@@ -39,7 +39,7 @@ class Rights extends DataList implements RightsInterface
     public function __construct(UserInterface|RoleInterface|null $parent = null, ?string $id_column = null)
     {
         $this->entry_class = Right::class;
-        self::$table       = Right::getTable();
+        $this->table       = 'accounts_rights';
 
         $this->setHtmlQuery('SELECT   `id`, `name`, `description` 
                                    FROM     `accounts_rights` 
@@ -408,9 +408,9 @@ class Rights extends DataList implements RightsInterface
     /**
      * Save the data for this rights list in the database
      *
-     * @return static
+     * @return bool
      */
-    public function save(): static
+    public function save(): bool
     {
         $this->ensureParent('save parent entries');
 

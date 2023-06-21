@@ -31,7 +31,7 @@ class Employees extends DataList
     public function __construct(?DataEntry $parent = null, ?string $id_column = null)
     {
         $this->entry_class = Employee::class;
-        self::$table       = Employee::getTable();
+        $this->table       = 'business_employees';
 
         $this->setHtmlQuery('SELECT   `id`, `name`, `email`, `status`, `created_on` 
                                    FROM     `business_employees` 
@@ -53,7 +53,7 @@ class Employees extends DataList
     /**
      * @inheritDoc
      */
-    public function save(): static
+    public function save(): bool
     {
         return $this;
     }

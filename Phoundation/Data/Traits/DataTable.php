@@ -22,7 +22,7 @@ trait DataTable
      *
      * @var string|null $table
      */
-    protected static ?string $table;
+    protected ?string $table;
 
 
     /**
@@ -32,7 +32,7 @@ trait DataTable
      */
     public function getTable(): ?string
     {
-        return self::$table;
+        return $this->table;
     }
 
 
@@ -44,7 +44,7 @@ trait DataTable
      */
     public function setTable(?string $table): static
     {
-        self::$table = $table;
+        $this->table = $table;
         return $this;
     }
 }

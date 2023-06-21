@@ -24,22 +24,13 @@ class SlowProcess extends Incident
      * SlowPage class constructor
      *
      * @param DataEntryInterface|string|int|null $identifier
+     * @param bool $init
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = false)
     {
-        static::$entry_name  = 'incident';
+        $this->table       = 'processes_slow';
+        $this->entry_name  = 'slow process';
 
-        parent::__construct($identifier);
-    }
-
-
-    /**
-     * Returns the table name used by this object
-     *
-     * @return string
-     */
-    public static function getTable(): string
-    {
-        return 'developer_slow_processes';
+        parent::__construct($identifier, $init);
     }
 }

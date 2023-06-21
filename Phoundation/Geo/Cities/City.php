@@ -34,24 +34,15 @@ class City extends DataEntry
      * City class constructor
      *
      * @param DataEntryInterface|string|int|null $identifier
+     * @param bool $init
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = false)
     {
-        static::$entry_name   = 'city';
+        $this->table        = 'geo_cities';
+        $this->entry_name   = 'city';
         $this->unique_field = 'seo_name';
 
-        parent::__construct($identifier);
-    }
-
-
-    /**
-     * Returns the table name used by this object
-     *
-     * @return string
-     */
-    public static function getTable(): string
-    {
-        return 'geo_cities';
+        parent::__construct($identifier, $init);
     }
 
 

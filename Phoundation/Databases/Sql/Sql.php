@@ -876,7 +876,11 @@ class Sql
             default:
                 // Multiple results, this is always bad for a function that should only return one result!
                 $this->ensureShowSelect($query, $execute);
-                throw new SqlMultipleResultsException(tr('Failed for query ":query" to fetch single row, specified query result contains not 1 but ":count" results', [':count' => $result->rowCount(), ':query' => self::buildQueryString($result->queryString, $execute)]));
+
+                throw new SqlMultipleResultsException(tr('Failed for query ":query" to fetch single row, specified query result contains not 1 but ":count" results', [
+                    ':count' => $result->rowCount(),
+                    ':query' => self::buildQueryString($result->queryString, $execute)
+                ]));
         }
     }
 
@@ -1623,7 +1627,9 @@ class Sql
         $query = strtolower(substr(trim($query), 0, 10));
 
         if (!str_starts_with($query, 'select') and !str_starts_with($query, 'show')) {
-            throw new SqlException('Query "' . Strings::log(Log::sql('(' . $this->uniqueid . ') ' . $query, $execute, true), 4096) . '" is not a SELECT or SHOW query and as such cannot return results');
+            throw new SqlException(tr('Query ":query" is not a SELECT or SHOW query and as such cannot return results', [
+                ':query' => Strings::log(Log::sql('(' . $this->uniqueid . ') ' . $query, $execute), 4096)
+            ]));
         }
     }
 
@@ -1962,11 +1968,16 @@ class Sql
                         $registered = ssh_host_is_known($restrictions['hostname'], $restrictions['port']);
 
                         if ($registered === false) {
-                            throw new SqlException(tr('sql_connect(): Connection refused for host ":hostname" because the tunnel process was canceled due to missing server fingerprints in the PATH_ROOT/data/ssh/known_hosts file and `ssh_fingerprints` table. Please register the server first', array(':hostname' => $this->configuration['ssh_tunnel']['domain'])), $e);
+                            throw new SqlException(tr('Connection refused for host ":hostname" because the tunnel process was canceled due to missing server fingerprints in the PATH_ROOT/data/ssh/known_hosts file and `ssh_fingerprints` table. Please register the server first', [
+                                ':hostname' => $this->configuration['ssh_tunnel']['domain']
+                            ]), $e);
                         }
 
                         if ($registered === true) {
-                            throw new SqlException(tr('sql_connect(): Connection refused for host ":hostname" on local port ":port" because the tunnel process either started too late or already died. The server has its SSH fingerprints registered in the PATH_ROOT/data/ssh/known_hosts file.', array(':hostname' => $this->configuration['ssh_tunnel']['domain'], ':port' => $this->configuration['port'])), $e);
+                            throw new SqlException(tr('Connection refused for host ":hostname" on local port ":port" because the tunnel process either started too late or already died. The server has its SSH fingerprints registered in the PATH_ROOT/data/ssh/known_hosts file.', [
+                                ':hostname' => $this->configuration['ssh_tunnel']['domain'],
+                                ':port'     => $this->configuration['port']
+                            ]), $e);
                         }
 
                         // The server was not registerd in the PATH_ROOT/data/ssh/known_hosts file, but was registered in the
@@ -1976,7 +1987,10 @@ class Sql
                     }
 
 //:TODO: SSH to the server and check if the msyql process is up!
-                    throw new SqlException(tr('sql_connect(): Connection refused for SSH tunnel requiring host ":hostname::port". The tunnel process is available, maybe the MySQL on the target server is down?', array(':hostname' => $this->configuration['host'], ':port' => $this->configuration['port'])), $e);
+                    throw new SqlException(tr('sql_connect(): Connection refused for SSH tunnel requiring host ":hostname::port". The tunnel process is available, maybe the MySQL on the target server is down?', [
+                        ':hostname' => $this->configuration['host'],
+                        ':port'     => $this->configuration['port']
+                    ]), $e);
 
                 case 2006:
                     /*

@@ -14,14 +14,13 @@ use Plugins\Phoundation\Components\Menu;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
-Session::validateSignIn();
+$post = Session::validateSignIn();
 
 // Attempt to sign in and if all okay, return an updated profile image with menu
-$user  = Session::signIn($_POST['email'], $_POST['password']);
-
+$user  = Session::signIn($post['email'], $post['password']);
 $menu  = Menu::getPrimaryMenu();
 
 $image = ProfileImage::new()

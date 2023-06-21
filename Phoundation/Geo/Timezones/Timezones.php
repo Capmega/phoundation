@@ -32,10 +32,10 @@ class Timezones extends DataList
     public function __construct(?Timezone $parent = null, ?string $id_column = null)
     {
         $this->entry_class = Timezone::class;
-        self::$table       = Timezone::getTable();
+        $this->table       = 'geo_timezones';
 
         $this->setHtmlQuery('SELECT   `id`, `name`, `status`, `created_on` 
-                                   FROM     `geo_states` 
+                                   FROM     `geo_timezones` 
                                    WHERE    `status` IS NULL 
                                    ORDER BY `name`');
         parent::__construct($parent, $id_column);
@@ -95,7 +95,7 @@ class Timezones extends DataList
     /**
      * @inheritDoc
      */
-    public function save(): static
+    public function save(): bool
     {
         // TODO: Implement save() method.
     }

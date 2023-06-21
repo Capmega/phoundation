@@ -33,7 +33,7 @@ class Customers extends DataList
     public function __construct(?Company $parent = null, ?string $id_column = null)
     {
         $this->entry_class = Customer::class;
-        self::$table       = Customer::getTable();
+        $this->table       = 'business_customers';
 
         $this->setHtmlQuery('SELECT   `id`, `name`, `code`, `email`, `status`, `created_on` 
                                    FROM     `business_customers` 
@@ -89,7 +89,7 @@ class Customers extends DataList
     /**
      * @inheritDoc
      */
-    public function save(): static
+    public function save(): bool
     {
         // TODO: Implement save() method.
     }

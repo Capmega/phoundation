@@ -34,7 +34,7 @@ if (Page::isPostRequestMethod()) {
 $filters_content = FilterForm::new();
 
 $filters = Card::new()
-    ->setHasCollapseSwitch(true)
+    ->setCollapseSwitch(true)
     ->setTitle('Notificactions filters')
     ->setContent($filters_content->render())
     ->useForm(true);

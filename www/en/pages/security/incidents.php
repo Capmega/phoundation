@@ -20,7 +20,7 @@ use Phoundation\Web\Page;
 $filters_content = FilterForm::new();
 
 $filters = Card::new()
-    ->setHasCollapseSwitch(true)
+    ->setCollapseSwitch(true)
     ->setTitle('Incidents filters')
     ->setContent($filters_content->render())
     ->useForm(true);

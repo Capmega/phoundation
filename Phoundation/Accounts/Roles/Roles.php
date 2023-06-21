@@ -40,7 +40,7 @@ class Roles extends DataList implements RolesInterface
     public function __construct(UserInterface|RoleInterface|null $parent = null, ?string $id_column = null)
     {
         $this->entry_class = Role::class;
-        self::$table       = Role::getTable();
+        $this->table       = 'accounts_roles';
 
         $this->setHtmlQuery('SELECT   `id`, `name`, `description` 
                                    FROM     `accounts_roles` 
@@ -390,9 +390,9 @@ class Roles extends DataList implements RolesInterface
     /**
      * Save the data for this roles list in the database
      *
-     * @return static
+     * @return bool
      */
-    public function save(): static
+    public function save(): bool
     {
         $this->ensureParent('save parent entries');
 

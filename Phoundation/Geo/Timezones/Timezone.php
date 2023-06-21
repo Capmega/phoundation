@@ -6,6 +6,7 @@ namespace Phoundation\Geo\Timezones;
 
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 
 
@@ -27,25 +28,16 @@ class Timezone extends DataEntry
     /**
      * Timezone class constructor
      *
-     * @param DataEntry|string|int|null $identifier
+     * @param DataEntryInterface|string|int|null $identifier
+     * @param bool $init
      */
-    public function __construct(DataEntry|string|int|null $identifier = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = false)
     {
-        static::$entry_name = 'geo timezone';
+        $this->table        = 'geo_timezones';
+        $this->entry_name   = 'geo timezone';
         $this->unique_field = 'seo_name';
 
-        parent::__construct($identifier);
-    }
-
-
-    /**
-     * Returns the table name used by this object
-     *
-     * @return string
-     */
-    public static function getTable(): string
-    {
-        return 'geo_timezones';
+        parent::__construct($identifier, $init);
     }
 
 

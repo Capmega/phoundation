@@ -28,62 +28,57 @@ class Dependencies
      */
     function ensure_installed($params)
     {
-        try {
-            Arrays::ensure($params);
+        Arrays::ensure($params);
 
-            /*
-             * Check if specified library is installed
-             */
-            if (!isset($params['name'])) {
-                throw new OutOfBoundsException(tr('No name specified for library'));
-            }
+        /*
+         * Check if specified library is installed
+         */
+        if (!isset($params['name'])) {
+            throw new OutOfBoundsException(tr('No name specified for library'));
+        }
 
-            /*
-             * Test available files
-             */
-            if (isset($params['checks'])) {
-                foreach (Arrays::force($params['checks']) as $path) {
-                    if (!file_exists($path)) {
-                        $fail = 'path ' . $path;
-                        break;
-                    }
+        /*
+         * Test available files
+         */
+        if (isset($params['checks'])) {
+            foreach (Arrays::force($params['checks']) as $path) {
+                if (!file_exists($path)) {
+                    $fail = 'path ' . $path;
+                    break;
                 }
             }
+        }
 
-            /*
-             * Test available functions
-             */
-            if (isset($params['functions']) and !isset($fail)) {
-                foreach (Arrays::force($params['functions']) as $function) {
-                    if (!function_exists($function)) {
-                        $fail = 'function ' . $function;
-                        break;
-                    }
+        /*
+         * Test available functions
+         */
+        if (isset($params['functions']) and !isset($fail)) {
+            foreach (Arrays::force($params['functions']) as $function) {
+                if (!function_exists($function)) {
+                    $fail = 'function ' . $function;
+                    break;
                 }
             }
+        }
 
-            /*
-             * Test available functions
-             */
-            if (isset($params['which']) and !isset($fail)) {
-                foreach (Arrays::force($params['which']) as $program) {
-                    if (!file_which($program)) {
-                        $fail = 'which ' . $program;
-                        break;
-                    }
+        /*
+         * Test available functions
+         */
+        if (isset($params['which']) and !isset($fail)) {
+            foreach (Arrays::force($params['which']) as $program) {
+                if (!file_which($program)) {
+                    $fail = 'which ' . $program;
+                    break;
                 }
             }
+        }
 
-            /*
-             * If a test failed, run the installer for this function
-             */
-            if (!empty($fail)) {
-                log_file(tr('Installation test ":test" failed, running installer ":installer"', array(':test' => $fail, ':installer' => $params['callback'])), 'ensure-installed', 'yellow');
-                return $params['callback']($params);
-            }
-
-        } catch (Exception $e) {
-            throw new OutOfBoundsException(tr('ensure_installed(): Failed'), $e);
+        /*
+         * If a test failed, run the installer for this function
+         */
+        if (!empty($fail)) {
+            log_file(tr('Installation test ":test" failed, running installer ":installer"', array(':test' => $fail, ':installer' => $params['callback'])), 'ensure-installed', 'yellow');
+            return $params['callback']($params);
         }
     }
 }

@@ -115,7 +115,7 @@ class DataEntryForm extends Renderer
             }
 
             if (!is_array($definition)) {
-                if (!is_object($definition) and !($definition instanceof DefinitionInterface)) {
+                if (!is_object($definition) or !($definition instanceof DefinitionInterface)) {
                     throw new OutOfBoundsException(tr('Data key definition for field ":field / :field_name" is invalid. Iit should be an array or Definition type  but contains ":data"', [
                         ':field'      => $field,
                         ':field_name' => $field_name,
@@ -269,6 +269,7 @@ class DataEntryForm extends Renderer
                                 ->setName($field_name)
                                 ->setValue($source[$field])
                                 ->render();
+                            break;
 
                         case 'text':
                             // no break

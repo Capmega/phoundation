@@ -19,8 +19,8 @@ if (!Session::getUser()->isGuest()) {
 // Validate sign in data and sign in
 if (Page::isPostRequestMethod()) {
     try {
-        Session::validateSignIn();
-        Session::signIn($_POST['email'], $_POST['password']);
+        $post = Session::validateSignIn();
+        Session::signIn($post['email'], $post['password']);
         Page::redirect('/');
     } catch (ValidationFailedException) {
         Page::getFlashMessages()->add(tr('Access denied'), tr('Please specify a valid email and password'), DisplayMode::warning);
@@ -35,12 +35,12 @@ if (Page::isPostRequestMethod()) {
 Page::setBuildBody(false);
 ?>
 <?= Page::getFlashMessages()->render() ?>
-<body class="hold-transition login-page" style="background: url(<?= UrlBuilder::getImg('img/backgrounds/' . Page::getProjectName() . '/project.jpg') ?>); background-position: center; background-repeat: no-repeat; background-size: cover;">
+<body class="hold-transition login-page" style="background: url(<?= UrlBuilder::getImg('img/backgrounds/' . Page::getProjectName() . '/signin.jpg') ?>); background-position: center; background-repeat: no-repeat; background-size: cover;">
     <div class="login-box">
       <!-- /.login-logo -->
       <div class="card card-outline card-primary">
         <div class="card-header text-center">
-          <a href="http://phoundation.org" class="h1"><b>Ph</b>oundation</a>
+          <a href="https://medinet.ca" class="h1"><b>Medinet</b> Mediweb</a>
         </div>
         <div class="card-body">
           <p class="login-box-msg"><?= tr('Please sign in to start your session') ?></p>

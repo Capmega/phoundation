@@ -36,7 +36,7 @@ class Servers extends DataList
     public function __construct(?DataEntry $parent = null, ?string $id_column = null)
     {
         $this->entry_class = Server::class;
-        self::$table       = Server::getTable();
+        $this->table       = 'servers';
 
         $this->setHtmlQuery('SELECT   `id`, `name`, `code`, `email`, `status`, `created_on` 
                                    FROM     `servers` 
@@ -99,7 +99,7 @@ class Servers extends DataList
     /**
      * @inheritDoc
      */
-    public function save(): static
+    public function save(): bool
     {
         // TODO: Implement save() method.
     }

@@ -12,6 +12,7 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionDefaults;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryAddress;
 use Phoundation\Data\DataEntry\Traits\DataEntryCategory;
 use Phoundation\Data\DataEntry\Traits\DataEntryCode;
@@ -60,25 +61,16 @@ class Customer extends DataEntry
     /**
      * Customer class constructor
      *
-     * @param DataEntry|string|int|null $identifier
+     * @param DataEntryInterface|string|int|null $identifier
+     * @param bool $init
      */
-    public function __construct(DataEntry|string|int|null $identifier = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = false)
     {
-        static::$entry_name  = 'customer';
-        $this->unique_field  = 'seo_name';
+        $this->table        = 'business_customers';
+        $this->entry_name   = 'customer';
+        $this->unique_field = 'seo_name';
 
-        parent::__construct($identifier);
-    }
-
-
-    /**
-     * Returns the table name used by this object
-     *
-     * @return string
-     */
-    public static function getTable(): string
-    {
-        return 'business_customers';
+        parent::__construct($identifier, $init);
     }
 
 

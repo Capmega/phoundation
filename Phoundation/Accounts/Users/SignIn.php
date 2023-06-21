@@ -42,23 +42,14 @@ class SignIn extends DataEntry
      * SignIn class constructor
      *
      * @param DataEntryInterface|string|int|null $identifier
+     * @param bool $init
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = false)
     {
-        static::$entry_name  = 'signin';
+        $this->table       = 'accounts_signins';
+        $this->entry_name  = 'signin';
 
-        parent::__construct($identifier);
-    }
-
-
-    /**
-     * Returns the table name used by this object
-     *
-     * @return string
-     */
-    public static function getTable(): string
-    {
-        return 'accounts_signins';
+        parent::__construct($identifier, $init);
     }
 
 

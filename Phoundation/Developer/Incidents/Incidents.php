@@ -32,24 +32,13 @@ class Incidents extends DataList
     public function __construct(Role|User|null $parent = null, ?string $id_column = null)
     {
         $this->entry_class = Incident::class;
-        self::$table       = Incident::getTable();
+        $this->table       = 'developer_incidents';
 
         $this->setHtmlQuery('SELECT   `id`, `created_on`, `status`, `type`, `title` 
                                    FROM     `developer_incidents` 
                                    WHERE    `status` IS NULL 
                                    ORDER BY `created_on`');
         parent::__construct($parent, $id_column);
-    }
-
-
-    /**
-     * Returns the table name used by this object
-     *
-     * @return string
-     */
-    public static function getTable(): string
-    {
-        return 'accounts_signins';
     }
 
 
@@ -88,7 +77,7 @@ class Incidents extends DataList
     /**
      * @inheritDoc
      */
-    public function save(): static
+    public function save(): bool
     {
         // TODO: Implement save() method.
     }

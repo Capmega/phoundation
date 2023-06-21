@@ -34,23 +34,14 @@ class Category extends DataEntry
      * Category class constructor
      *
      * @param DataEntryInterface|string|int|null $identifier
+     * @param bool $init
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = false)
     {
-        static::$entry_name   = 'category';
+        $this->table        = 'categories';
+        $this->entry_name   = 'category';
 
-        parent::__construct($identifier);
-    }
-
-
-    /**
-     * Returns the table name used by this object
-     *
-     * @return string
-     */
-    public static function getTable(): string
-    {
-        return 'categories';
+        parent::__construct($identifier, $init);
     }
 
 

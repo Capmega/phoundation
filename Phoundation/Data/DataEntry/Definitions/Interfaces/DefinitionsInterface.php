@@ -51,19 +51,19 @@ interface DefinitionsInterface extends IteratorInterface
     public function setTable(?string $table): static;
 
     /**
-     * Returns the prefix string
+     * Returns the field prefix string
      *
      * @return ?string
      */
-    public function getPrefix(): ?string;
+    public function getFieldPrefix(): ?string;
 
     /**
-     * Sets the prefix string
+     * Sets the field prefix string
      *
      * @param string|null $prefix
      * @return $this
      */
-    public function setPrefix(?string $prefix): static;
+    public function setFieldPrefix(?string $prefix): static;
 
     /**
      * Adds the specified Definition to the fields list

@@ -33,24 +33,15 @@ class County extends DataEntry
      * County class constructor
      *
      * @param DataEntryInterface|string|int|null $identifier
+     * @param bool $init
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = false)
     {
-        static::$entry_name   = 'geo county';
+        $this->table        = 'geo_countries';
+        $this->entry_name   = 'geo county';
         $this->unique_field = 'seo_name';
 
-        parent::__construct($identifier);
-    }
-
-
-    /**
-     * Returns the table name used by this object
-     *
-     * @return string
-     */
-    public static function getTable(): string
-    {
-        return 'geo_counties';
+        parent::__construct($identifier, $init);
     }
 
 

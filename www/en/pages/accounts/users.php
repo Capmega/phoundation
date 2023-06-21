@@ -22,7 +22,7 @@ $users = Users::new();
 // Button clicked?
 if (Page::isPostRequestMethod()) {
     // Validate POST
-    PostValidator::new()
+    $post = PostValidator::new()
         ->select('id')->isOptional()->isArray()->each()->isId()
         ->validate();
 
@@ -31,7 +31,7 @@ if (Page::isPostRequestMethod()) {
         switch (PostValidator::getSubmitButton()) {
             case tr('Delete'):
                 // Delete selected users
-                $count = $users->delete($_POST['id']);
+                $count = $users->delete($post['id']);
 
                 Page::getFlashMessages()->add(tr('Success'), tr('Deleted ":count" users', [':count' => $count]), DisplayMode::success);
                 Page::redirect('this');
@@ -39,7 +39,7 @@ if (Page::isPostRequestMethod()) {
 
             case tr('Undelete'):
                 // Undelete selected users
-                $count = $users->undelete($_POST['id']);
+                $count = $users->undelete($post['id']);
 
                 Page::getFlashMessages()->add(tr('Success'), tr('Undeleted ":count" users', [':count' => $count]), DisplayMode::success);
                 Page::redirect('this');
@@ -60,7 +60,7 @@ if (Page::isPostRequestMethod()) {
 $filters_content = FilterForm::new();
 
 $filters = Card::new()
-    ->setHasCollapseSwitch(true)
+    ->setCollapseSwitch(true)
     ->setTitle('Users filters')
     ->setContent($filters_content->render())
     ->useForm(true);
@@ -74,7 +74,7 @@ $buttons = Buttons::new()
 $table = $users->getHtmlDataTable()
     ->setRowUrl('/accounts/user-:ROW.html');
 // TODO Automatically re-select items if possible
-//    ->select($_POST['id']);
+//    ->select($post['id']);
 
 $users = Card::new()
     ->setTitle('Active users')

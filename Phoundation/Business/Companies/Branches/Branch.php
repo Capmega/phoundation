@@ -6,6 +6,7 @@ namespace Phoundation\Business\Companies\Branches;
 
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 
 
@@ -28,24 +29,15 @@ class Branch extends DataEntry
     /**
      * Department class constructor
      *
-     * @param DataEntry|string|int|null $identifier
+     * @param DataEntryInterface|string|int|null $identifier
+     * @param bool $init
      */
-    public function __construct(DataEntry|string|int|null $identifier = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = false)
     {
-        static::$entry_name   = 'company branch';
+        $this->table        = 'business_branches';
+        $this->entry_name   = 'company branch';
 
-        parent::__construct($identifier);
-    }
-
-
-    /**
-     * Returns the table name used by this object
-     *
-     * @return string
-     */
-    public static function getTable(): string
-    {
-        return 'business_branches';
+        parent::__construct($identifier, $init);
     }
 
 

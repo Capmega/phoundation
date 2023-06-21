@@ -36,7 +36,7 @@ class SshAccounts extends DataList
     public function __construct(?DataEntry $parent = null, ?string $id_column = null)
     {
         $this->entry_class = SshAccount::class;
-        self::$table       = SshAccounts::getTable();
+        $this->table       = 'ssh_accounts';
 
         $this->setHtmlQuery('SELECT   `id`, `name`, `created_on` 
                                    FROM     `ssh_accounts` 
@@ -92,7 +92,7 @@ class SshAccounts extends DataList
     /**
      * @inheritDoc
      */
-    public function save(): static
+    public function save(): bool
     {
         // TODO: Implement save() method.
     }

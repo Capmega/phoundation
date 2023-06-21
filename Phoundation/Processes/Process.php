@@ -139,10 +139,10 @@ Class Process
             }
 
             // The command finished with an error
-            throw new ProcessFailedException(tr('The command ":command" failed with exit code ":code"', [
+            throw ProcessFailedException::new(tr('The command ":command" failed with exit code ":code"', [
                 ':command' => $this->command,
                 ':code'    => $exit_code
-            ]), [
+            ]))->setCode($exit_code)->setData([
                 'command'              => $this->command,
                 'full_command'         => $this->getFullCommandLine(),
                 'pipe'                 => $this->pipe?->getFullCommandLine(),
@@ -160,7 +160,7 @@ Class Process
                 'execution_time'       => $this->getExecutionTime(),
                 'execution_stop_time'  => $this->getExecutionStopTime(),
                 'execution_start_time' => $this->getExecutionStartTime(),
-            ], $exit_code);
+            ]);
         }
 
         // All okay, yay!

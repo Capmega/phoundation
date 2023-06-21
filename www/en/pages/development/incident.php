@@ -16,11 +16,11 @@ use Phoundation\Web\Page;
 
 
 // Validate GET
-GetValidator::new()
+$get = GetValidator::new()
     ->select('id')->isOptional()->isId()
     ->validate();
 
-$incident = Incident::get($_GET['id']);
+$incident = Incident::get($get['id']);
 
 // Build the buttons
 $buttons = Buttons::new()
@@ -30,7 +30,7 @@ $buttons = Buttons::new()
 
 // Build the incident form
 $incident_card = Card::new()
-    ->setHasCollapseSwitch(true)
+    ->setCollapseSwitch(true)
     ->setTitle(tr('Edit data for Incident :name', [':name' => $incident->getTitle()]))
     ->setContent($incident->getHtmlForm()->render())
     ->setButtons($buttons);

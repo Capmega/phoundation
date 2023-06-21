@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Validator;
 
+use Phoundation\Core\Arrays;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Exception\NoKeySelectedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
@@ -394,16 +395,19 @@ trait ValidatorBasics
      *
      * This method will check the failures array and if any failures were registered, it will throw an exception
      *
+     * @param bool $clear_source
      * @return array
      */
-    public function validate(): array
+    public function validate(bool $clear_source = true): array
     {
         // Remove all unselected and all failed fields
         foreach ($this->source as $field => $value) {
             // Unprocessed fields
-            if (!in_array($field, $this->selected_fields)) {
-                unset($this->source[$field]);
-                continue;
+            if ($clear_source) {
+                if (!in_array($field, $this->selected_fields)) {
+                    unset($this->source[$field]);
+                    continue;
+                }
             }
 
             // Failed fields
@@ -420,6 +424,7 @@ trait ValidatorBasics
 
             // Clear the contents of this object to avoid stuck references
             $this->clear();
+            // TODO Fix parent support
             return $this->parent;
         }
 
@@ -429,7 +434,7 @@ trait ValidatorBasics
                 ->makeWarning();
         }
 
-        return $this->source;
+        return Arrays::extract($this->source, $this->selected_fields);
     }
 
 

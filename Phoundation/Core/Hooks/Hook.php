@@ -22,17 +22,6 @@ use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 class Hook extends DataEntry
 {
     /**
-     * Returns the table name used by this object
-     *
-     * @return string
-     */
-    public static function getTable(): string
-    {
-        return 'core_hooks';
-    }
-
-
-    /**
      * Sets the available data keys for this entry
      *
      * @param DefinitionsInterface $definitions

@@ -16,11 +16,11 @@ use Phoundation\Web\Page;
 
 
 // Validate GET
-GetValidator::new()
+$get = GetValidator::new()
     ->select('id')->isOptional()->isId()
     ->validate();
 
-$plugin = Plugin::get($_GET['id']);
+$plugin = Plugin::get($get['id']);
 
 // Build the buttons
 $buttons = Buttons::new()
@@ -30,7 +30,7 @@ $buttons = Buttons::new()
 
 // Build the plugin form
 $plugin_card = Card::new()
-    ->setHasCollapseSwitch(true)
+    ->setCollapseSwitch(true)
     ->setTitle(tr('Edit data for Plugin :name', [':name' => $plugin->getName()]))
     ->setContent($plugin->getHtmlForm()->render())
     ->setButtons($buttons);

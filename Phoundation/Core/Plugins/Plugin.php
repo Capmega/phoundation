@@ -45,24 +45,15 @@ class Plugin extends DataEntry
      * Plugin class constructor
      *
      * @param DataEntryInterface|string|int|null $identifier
+     * @param bool $init
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = false)
     {
-        static::$entry_name  = 'plugin';
-        $this->unique_field  = 'name';
+        $this->table        = 'core_plugins';
+        $this->entry_name   = 'plugin';
+        $this->unique_field = 'name';
 
-        parent::__construct($identifier);
-    }
-
-
-    /**
-     * Returns the table name used by this object
-     *
-     * @return string
-     */
-    public static function getTable(): string
-    {
-        return 'core_plugins';
+        parent::__construct($identifier, $init);
     }
 
 

@@ -37,21 +37,21 @@ class Card extends Renderer
     {
         $this->render = '   <div class="card ' . ($this->element->getClass() ? $this->element->getClass() . ' ' : null) . ($this->element->getGradient() ? 'gradient-' . Html::safe($this->element->getGradient()) : '') . ($this->element->getMode()->value ? 'card-' . Html::safe($this->element->getMode()->value) : '') . ($this->element->getBackground() ? 'bg-' . Html::safe($this->element->getBackground()) : '') . '">';
 
-        if ($this->element->hasReloadSwitch() or $this->element->hasMaximizeSwitch() or $this->element->hasCollapseSwitch() or $this->element->hasCloseSwitch() or $this->element->getTitle() or $this->element->getHeaderContent()) {
+        if ($this->element->getReloadSwitch() or $this->element->getMaximizeSwitch() or $this->element->getCollapseSwitch() or $this->element->getCloseSwitch() or $this->element->getTitle() or $this->element->getHeaderContent()) {
             $this->render .= '  <div class="card-header">
                                     <h3 class="card-title">' . Html::safe($this->element->getTitle()) . '</h3>
                                     <div class="card-tools">
                                       ' . $this->element->getHeaderContent() . '
-                                      ' . ($this->element->hasReloadSwitch() ? '   <button type="button" class="btn btn-tool" data-card-widget="card-refresh" data-source="widgets.html" data-source-selector="#card-refresh-content" data-load-on-init="false">
+                                      ' . ($this->element->getReloadSwitch() ? '   <button type="button" class="btn btn-tool" data-card-widget="card-refresh" data-source="widgets.html" data-source-selector="#card-refresh-content" data-load-on-init="false">
                                                                                     <i class="fas fa-sync-alt"></i>
                                                                                   </button>' : '') . '
-                                      ' . ($this->element->hasMaximizeSwitch() ? ' <button type="button" class="btn btn-tool" data-card-widget="maximize">
+                                      ' . ($this->element->getMaximizeSwitch() ? ' <button type="button" class="btn btn-tool" data-card-widget="maximize">
                                                                                     <i class="fas fa-expand"></i>
                                                                                   </button>' : '') . '
-                                      ' . ($this->element->hasCollapseSwitch() ? ' <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                                                                    <i class="fas fa-minus"></i>
+                                      ' . ($this->element->getCollapseSwitch() ? ' <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                                                                    <i class="fas fa-' . ($this->element->getCollapsed() ? 'plus' : 'minus') . '"></i>
                                                                                   </button>' : '') . '
-                                      ' . ($this->element->hasCloseSwitch() ? '    <button type="button" class="btn btn-tool" data-card-widget="remove">
+                                      ' . ($this->element->getCloseSwitch() ? '    <button type="button" class="btn btn-tool" data-card-widget="remove">
                                                                                     <i class="fas fa-times"></i>
                                                                                   </button>' : '') . '                              
                                     </div>

@@ -25,7 +25,10 @@ use Stringable;
 class Definitions extends Iterator implements DefinitionsInterface
 {
     use UsesNewTable;
-    use DataPrefix;
+    use DataPrefix {
+        getPrefix as getFieldPrefix;
+        setPrefix as setFieldPrefix;
+    }
 
 
     /**

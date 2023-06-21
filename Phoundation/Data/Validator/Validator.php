@@ -1295,7 +1295,11 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
 
             if (!is_object(DateTime::createFromFormat('h:i a', $value))){
                 if (!is_object(DateTime::createFromFormat('h:i', $value))){
-                    $this->addFailure(tr('must be a valid time'));
+                    if (!is_object(DateTime::createFromFormat('h:i:s a', $value))){
+                        if (!is_object(DateTime::createFromFormat('h:i:s', $value))){
+                            $this->addFailure(tr('must be a valid time'));
+                        }
+                    }
                 }
             }
         });
@@ -2338,7 +2342,6 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
      *
      * @param string $characters
      * @return static
-     * @todo CURRENTLY NOT WORKING, FIX!
      * @see trim()
      */
     public function sanitizeTrim(string $characters = "\t\n\r\0\x0B"): static
@@ -2353,7 +2356,113 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
                 }
             }
 
-            return trim($value, $characters);
+            $value = trim($value, $characters);
+        });
+    }
+
+
+    /**
+     * Sanitize the selected value by starting the value from the specified needle
+     *
+     * @param string $needle
+     * @return static
+     * @see String::from()
+     * @see Validator::sanitizeUntil()
+     * @see Validator::sanitizeFromReverse()
+     */
+    public function sanitizeFrom(string $needle): static
+    {
+        return $this->validateValues(function(&$value) use ($needle) {
+            $this->isString();
+
+            if ($this->process_value_failed) {
+                if (!$this->selected_is_default) {
+                    // Validation already failed, don't test anything more
+                    return;
+                }
+            }
+
+            $value = Strings::from($value, $needle);
+        });
+    }
+
+
+    /**
+     * Sanitize the selected value by ending the value at the specified needle
+     *
+     * @param string $needle
+     * @return static
+     * @see String::until()
+     * @see Validator::sanitizeFrom()
+     * @see Validator::sanitizeUntilReverse()
+     */
+    public function sanitizeUntil(string $needle): static
+    {
+        return $this->validateValues(function(&$value) use ($needle) {
+            $this->isString();
+
+            if ($this->process_value_failed) {
+                if (!$this->selected_is_default) {
+                    // Validation already failed, don't test anything more
+                    return;
+                }
+            }
+
+            $value = Strings::until($value, $needle);
+        });
+    }
+
+
+    /**
+     * Sanitize the selected value by starting the value from the specified needle, but starting search from the end of
+     * the string
+     *
+     * @param string $needle
+     * @return static
+     * @see String::fromReverse()
+     * @see Validator::sanitizeFrom()
+     * @see Validator::sanitizeUntilReverse()
+     */
+    public function sanitizeFromReverse(string $needle): static
+    {
+        return $this->validateValues(function(&$value) use ($needle) {
+            $this->isString();
+
+            if ($this->process_value_failed) {
+                if (!$this->selected_is_default) {
+                    // Validation already failed, don't test anything more
+                    return;
+                }
+            }
+
+            $value = Strings::fromReverse($value, $needle);
+        });
+    }
+
+
+    /**
+     * Sanitize the selected value by ending the value at the specified needle, but starting search from the end of the
+     * string
+     *
+     * @param string $needle
+     * @return static
+     * @see String::untilReverse()
+     * @see Validator::sanitizeUntil()
+     * @see Validator::sanitizeFromReverse()
+     */
+    public function sanitizeUntilReverse(string $needle): static
+    {
+        return $this->validateValues(function(&$value) use ($needle) {
+            $this->isString();
+
+            if ($this->process_value_failed) {
+                if (!$this->selected_is_default) {
+                    // Validation already failed, don't test anything more
+                    return;
+                }
+            }
+
+            $value = Strings::untilReverse($value, $needle);
         });
     }
 

@@ -856,7 +856,7 @@ throw new UnderConstructionException();
             $value = false;
         }
 
-        $this->setKey('default', $default);
+        $this->setKey('default' , $default);
         $this->setKey('optional', $value);
 
         return $this;
@@ -1084,29 +1084,6 @@ throw new UnderConstructionException();
 
 
     /**
-     * Returns the default value for this field in the database
-     *
-     * @return string|float|int|null
-     */
-    public function getDefaultDb(): string|float|int|null
-    {
-        return isset_get_typed('string|float|int', $this->definitions['default_db']);
-    }
-
-
-    /**
-     * Sets the default value for this field in the database
-     *
-     * @param string|float|int|null $value
-     * @return static
-     */
-    public function setDefaultDb(string|float|int|null $value): static
-    {
-        return $this->setKey('default_db', $value);
-    }
-
-
-    /**
      * Returns if this field should be stored with NULL in the database if empty
      *
      * @note Defaults to false
@@ -1128,8 +1105,8 @@ throw new UnderConstructionException();
      */
     public function setNullDb(bool $value, string|float|int|null $default = null): static
     {
-        $this->setKey('null_db'   , $value);
-        $this->setKey('default_db', $default);
+        $this->setKey('null_db', $value);
+        $this->setKey('default', $default);
 
         return $this;
     }
@@ -1421,9 +1398,6 @@ throw new UnderConstructionException();
         foreach ($this->validations as $validation) {
             $validation($validator);
         }
-
-        // Apply optional prefix / postfix data
-        $validator->sanitizePrePost($this->prefix, $this->postfix, true);
     }
 
 

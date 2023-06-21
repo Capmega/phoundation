@@ -9,6 +9,7 @@ use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionDefaults;
 use Phoundation\Data\DataEntry\Definitions\Definitions;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryDetails;
 use Phoundation\Data\DataEntry\Traits\DataEntryException;
@@ -41,24 +42,15 @@ class Incident extends DataEntry
     /**
      * Plugin class constructor
      *
-     * @param DataEntry|string|int|null $identifier
+     * @param DataEntryInterface|string|int|null $identifier
+     * @param bool $init
      */
-    public function __construct(DataEntry|string|int|null $identifier = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = false)
     {
-        static::$entry_name  = 'incident';
+        $this->table       = 'developer_incidents';
+        $this->entry_name  = 'incident';
 
-        parent::__construct($identifier);
-    }
-
-
-    /**
-     * Returns the table name used by this object
-     *
-     * @return string
-     */
-    public static function getTable(): string
-    {
-        return 'developer_incidents';
+        parent::__construct($identifier, $init);
     }
 
 

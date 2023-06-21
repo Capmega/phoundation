@@ -42,7 +42,7 @@ class Plugins extends DataList
     public function __construct(?Plugin $parent = null, ?string $id_column = null)
     {
         $this->entry_class = Plugin::class;
-        self::$table       = Plugin::getTable();
+        $this->table       = 'core_plugins';
 
         $this->setHtmlQuery('SELECT   `id`, `name`, IFNULL(`status`, "' . tr('Ok') . '") AS `status`, IF(`enabled`, "' . tr('Enabled') . '", "' . tr('Disabled') . '") AS `enabled`, `priority`, `description` 
                                    FROM     `core_plugins` 
@@ -334,7 +334,7 @@ class Plugins extends DataList
     /**
      * @inheritDoc
      */
-    public function save(): static
+    public function save(): bool
     {
         // TODO: Implement save() method.
     }

@@ -53,7 +53,7 @@ trait DataEntryHostnamePort
         if ($hostname === null) {
             $this->setDataValue('seo_hostname', null);
         } else {
-            $seo_hostname = Seo::unique($hostname, static::getTable(), $this->getDataValue('int', 'id'), $this->unique_field);
+            $seo_hostname = Seo::unique($hostname, $this->table, $this->getDataValue('int', 'id'), $this->unique_field);
             $this->setDataValue('seo_hostname', $seo_hostname);
         }
 

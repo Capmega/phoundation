@@ -24,10 +24,12 @@ class GuestUser extends User implements GuestUserInterface
      * GuestUser class constructor
      *
      * @param DataEntryInterface|string|int|null $identifier
+     * @param bool $init
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = false)
     {
-        parent::__construct($identifier);
+        parent::__construct($identifier, $init);
+
         $this->id = -1;
         $this->setNickname('Guest');
     }

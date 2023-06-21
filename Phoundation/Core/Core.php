@@ -683,7 +683,7 @@ class Core {
             $language = not_empty($argv['language'], Config::get('language.default', 'en'));
 
             if (Config::get('language.default', ['en']) and Config::exists('language.supported.' . $language)) {
-                throw new CoreException(tr('Unknown language ":language" specified', array(':language' => $language)), 'unknown');
+                throw new CoreException(tr('Unknown language ":language" specified', [':language' => $language]));
             }
 
             define('LANGUAGE', $language);
@@ -1326,7 +1326,14 @@ class Core {
      */
     #[NoReturn] public static function uncaughtException(Throwable $e, bool $die = true): never
     {
-        Audio::new('data/audio/critical.mp3')->play(true);
+        try {
+            Audio::new('data/audio/critical.mp3')->play(true);
+
+        } catch (Throwable $e) {
+            Log::warning(tr('Failed to play uncaught exception audio because ":e"', [
+                ':e' => $e->getMessage()
+            ]));
+        }
 
         //if (!headers_sent()) {header_remove('Content-Type'); header('Content-Type: text/html', true);} echo "<pre>\nEXCEPTION CODE: "; print_r($e->getCode()); echo "\n\nEXCEPTION:\n"; print_r($e); echo "\n\nBACKTRACE:\n"; print_r(debug_backtrace()); die();
         /*

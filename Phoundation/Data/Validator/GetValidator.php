@@ -115,32 +115,13 @@ class GetValidator extends Validator
 
 
     /**
-     * Validate GET data and liberate GET data if all went well.
-     *
-     * @return array
-     */
-    public function validate(): array
-    {
-        try {
-            parent::validate();
-            return $this->liberateData();
-
-        } catch (ValidationFailedException $e) {
-            // Failed data will have been filtered, liberate data!
-            $this->liberateData();
-            throw $e;
-        }
-    }
-
-
-    /**
      * Force a return of all GET data without check
      *
      * @return array|null
      */
-    public function extract(): ?array
+    public function forceRead(): ?array
     {
-        Log::warning(tr('Liberated all $_GET data without data validation!'));
+        Log::warning(tr('Forceably returned all $_GET data without data validation!'));
         return $this->source;
     }
 
@@ -150,9 +131,9 @@ class GetValidator extends Validator
      *
      * @return array
      */
-    public function extractKey(string $key): mixed
+    public function forceReadKey(string $key): mixed
     {
-        Log::warning(tr('Liberated $_GET[:key] without data validation!', [':key' => $key]));
+        Log::warning(tr('Forceably returned $_GET[:key] without data validation!', [':key' => $key]));
         return isset_get($this->source[$key]);
     }
 
@@ -166,21 +147,5 @@ class GetValidator extends Validator
     public function select(int|string $field): static
     {
         return $this->standardSelect($field);
-    }
-
-
-    /**
-     * Gives free and full access to $_GET data, now that it has been validated
-     *
-     * @return array
-     */
-    protected function liberateData(): array
-    {
-        global $_GET;
-
-        $_GET = static::$get;
-        static::$get = null;
-
-        return $_GET;
     }
 }

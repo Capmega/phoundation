@@ -15,13 +15,13 @@ use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
 
 
 // Validate
-GetValidator::new()
+$get = GetValidator::new()
     ->select('id')->isId()
     ->validate();
 
 
 // Build the page content
-$incident = Incident::get($_GET['id']);
+$incident = Incident::get($get['id']);
 $form     = $incident->getHtmlForm();
 $card     = Card::new()
     ->setTitle(tr('Edit data for incident :name', [':name' => $incident->getTitle()]))

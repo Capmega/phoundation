@@ -117,25 +117,6 @@ class PostValidator extends Validator
 
 
     /**
-     * Validate GET data and liberate GET data if all went well.
-     *
-     * @return array
-     */
-    public function validate(): array
-    {
-        try {
-            parent::validate();
-            return $this->liberateData();
-
-        } catch (ValidationFailedException $e) {
-            // Failed data will have been filtered, liberate data!
-            $this->liberateData();
-            throw $e;
-        }
-    }
-
-
-    /**
      * Returns the submitted array keys
      *
      * @return array|null
@@ -151,9 +132,9 @@ class PostValidator extends Validator
      *
      * @return array|null
      */
-    public function extract(): ?array
+    public function forceRead(): ?array
     {
-        Log::warning(tr('Liberated all $_POST data without data validation!'));
+        Log::warning(tr('Forceably returned all $_POST data without data validation!'));
         return $this->source;
     }
 
@@ -163,9 +144,9 @@ class PostValidator extends Validator
      *
      * @return array
      */
-    public function extractKey(string $key): mixed
+    public function forceReadKey(string $key): mixed
     {
-        Log::warning(tr('Liberated $_POST[:key] without data validation!', [':key' => $key]));
+        Log::warning(tr('Forceably returned $_POST[:key] without data validation!', [':key' => $key]));
         return isset_get($this->source[$key]);
     }
 
@@ -205,21 +186,5 @@ class PostValidator extends Validator
         }
 
         return $button;
-    }
-
-
-    /**
-     * Gives free and full access to $_POST data, now that it has been validated
-     *
-     * @return array
-     */
-    protected function liberateData(): array
-    {
-        global $_POST;
-
-        $_POST = static::$post;
-        static::$post = null;
-
-        return $_POST;
     }
 }

@@ -31,7 +31,7 @@ class Branches extends DataList
     public function __construct(?Company $parent = null, ?string $id_column = null)
     {
         $this->entry_class = Branch::class;
-        self::$table       = Branch::getTable();
+        $this->table       = 'business_departments';
 
         $this->setHtmlQuery('SELECT   `id`, `name`, `email`, `status`, `created_on` 
                                    FROM     `business_departments` 
@@ -53,7 +53,7 @@ class Branches extends DataList
     /**
      * @inheritDoc
      */
-    public function save(): static
+    public function save(): bool
     {
         // TODO: Implement save() method.
     }

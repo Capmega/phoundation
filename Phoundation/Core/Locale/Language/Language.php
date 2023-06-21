@@ -8,6 +8,7 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionDefaults;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
 
@@ -31,25 +32,16 @@ class Language extends DataEntry
     /**
      * Language class constructor
      *
-     * @param DataEntry|string|int|null $identifier
+     * @param DataEntryInterface|string|int|null $identifier
+     * @param bool $init
      */
-    public function __construct(DataEntry|string|int|null $identifier = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = false)
     {
-        static::$entry_name   = 'language';
+        $this->table        = 'core_languages';
+        $this->entry_name   = 'language';
         $this->unique_field = 'code_639_1';
 
-        parent::__construct($identifier);
-    }
-
-
-    /**
-     * Returns the table name used by this object
-     *
-     * @return string
-     */
-    public static function getTable(): string
-    {
-        return 'core_languages';
+        parent::__construct($identifier, $init);
     }
 
 

@@ -53,24 +53,15 @@ class Provider extends DataEntry
      * Provider class constructor
      *
      * @param DataEntryInterface|string|int|null $identifier
+     * @param bool $init
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = false)
     {
-        static::$entry_name   = 'provider';
+        $this->table        = 'business_providers';
+        $this->entry_name   = 'provider';
         $this->unique_field = 'seo_name';
 
-        parent::__construct($identifier);
-    }
-
-
-    /**
-     * Returns the table name used by this object
-     *
-     * @return string
-     */
-    public static function getTable(): string
-    {
-        return 'business_providers';
+        parent::__construct($identifier, $init);
     }
 
 

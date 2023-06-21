@@ -6,6 +6,7 @@ namespace Phoundation\Geo\Countries;
 
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Geo\Continents\Continent;
 use Phoundation\Geo\Timezones\Timezone;
@@ -30,25 +31,16 @@ class Country extends DataEntry
     /**
      * Country class constructor
      *
-     * @param DataEntry|string|int|null $identifier
+     * @param DataEntryInterface|string|int|null $identifier
+     * @param bool $init
      */
-    public function __construct(DataEntry|string|int|null $identifier = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = false)
     {
-        static::$entry_name   = 'geo country';
+        $this->table        = 'geo_countries';
+        $this->entry_name   = 'geo country';
         $this->unique_field = 'seo_name';
 
-        parent::__construct($identifier);
-    }
-
-
-    /**
-     * Returns the table name used by this object
-     *
-     * @return string
-     */
-    public static function getTable(): string
-    {
-        return 'geo_counties';
+        parent::__construct($identifier, $init);
     }
 
 

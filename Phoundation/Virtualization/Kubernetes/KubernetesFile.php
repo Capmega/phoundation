@@ -43,9 +43,9 @@ abstract class KubernetesFile
     /**
      * Save the data from this deployment to the yaml configuration file
      *
-     * @return $this
+     * @return bool
      */
-    public function save(): static
+    public function save(): bool
     {
         $data = $this->buildConfiguration();
         $data = yaml_emit($data);

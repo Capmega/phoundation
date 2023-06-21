@@ -366,7 +366,9 @@ class Script extends Element
                             break;
 
                         default:
-                            throw new HtmlException(tr('html_script(): Unknown event value ":value" specified', array(':value' => $script['event'])), 'unknown');
+                            throw new HtmlException(tr('Unknown event value ":value" specified', [
+                                ':value' => $script['event']
+                            ]));
                     }
 
                 } else {

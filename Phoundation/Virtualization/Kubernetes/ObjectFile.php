@@ -45,9 +45,9 @@ abstract class ObjectFile
     /**
      * Save the data from this deployment to the yaml configuration file
      *
-     * @return static
+     * @return bool
      */
-    public function save(): static
+    public function save(): bool
     {
         if (!$this->object->getName()) {
             throw new OutOfBoundsException(tr('Cannot save ":kind" kind kubernetes object, no name specified', [

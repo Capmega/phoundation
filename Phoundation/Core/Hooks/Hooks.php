@@ -28,7 +28,7 @@ class Hooks extends \Phoundation\Data\DataEntry\DataList
     /**
      * @inheritDoc
      */
-    public function save(): static
+    public function save(): bool
     {
         // TODO: Implement save() method.
     }

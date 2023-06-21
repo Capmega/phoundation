@@ -32,7 +32,7 @@ class States extends DataList
     public function __construct(?Country $parent = null, ?string $id_column = null)
     {
         $this->entry_class = State::class;
-        self::$table       = State::getTable();
+        $this->table       = 'geo_states';
 
         $this->setHtmlQuery('SELECT   `id`, `name`, `status`, `created_on` 
                                    FROM     `geo_states` 
@@ -77,7 +77,7 @@ class States extends DataList
     /**
      * @inheritDoc
      */
-    public function save(): static
+    public function save(): bool
     {
         // TODO: Implement save() method.
     }

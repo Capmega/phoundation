@@ -29,24 +29,14 @@ class Department extends DataEntry
      * Department class constructor
      *
      * @param DataEntryInterface|string|int|null $identifier
+     * @param bool $init
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = false)
     {
-        static::$entry_name   = 'company department';
-        self::$table        = Department::getTable();
+        $this->table        = 'business_departments';
+        $this->entry_name   = 'company department';
 
-        parent::__construct($identifier);
-    }
-
-
-    /**
-     * Returns the table name used by this object
-     *
-     * @return string
-     */
-    public static function getTable(): string
-    {
-        return 'business_departments';
+        parent::__construct($identifier, $init);
     }
 
 

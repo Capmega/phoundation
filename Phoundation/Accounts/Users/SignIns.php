@@ -33,7 +33,7 @@ class SignIns extends DataList
     public function __construct(?SignIn $parent = null, ?string $id_column = null)
     {
         $this->entry_class = SignIn::class;
-        self::$table       = SignIn::getTable();
+        $this->table       = 'accounts_signins';
 
         $this->setHtmlQuery('SELECT    `accounts_signins`.`id`,
                                              `accounts_signins`.`created_on`,
@@ -97,7 +97,7 @@ class SignIns extends DataList
     /**
      * @inheritDoc
      */
-    public function save(): static
+    public function save(): bool
     {
         // TODO: Implement save() method.
     }

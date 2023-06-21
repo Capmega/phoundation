@@ -173,15 +173,15 @@ class Session
      * Validate sign in data
      *
      * @param ValidatorInterface|null $validator
-     * @return void
+     * @return array
      */
-    public static function validateSignIn(ValidatorInterface $validator = null): void
+    public static function validateSignIn(ValidatorInterface $validator = null): array
     {
         if (!$validator) {
             $validator = PostValidator::new();
         }
 
-        $validator
+        return $validator
             ->select('email')->isEmail()
             ->select('password')->isPassword()
             ->validate();
@@ -810,7 +810,10 @@ Log::warning('RESTART SESSION');
 
             } else {
                 if (!is_writable(session_save_path())) {
-                    throw new SessionException('Session startup failed because the session path ":path" is not writable for platform ":platform"', array(':path' => session_save_path(), ':platform' => PLATFORM), $e);
+                    throw new SessionException('Session startup failed because the session path ":path" is not writable for platform ":platform"', [
+                        ':path'     => session_save_path(),
+                        ':platform' => PLATFORM
+                    ], $e);
                 }
 
                 throw new SessionException('Session startup failed', $e);

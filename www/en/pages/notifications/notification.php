@@ -17,16 +17,16 @@ use Phoundation\Web\Page;
 
 
 // Validate GET
-GetValidator::new()
+$get = GetValidator::new()
     ->select('id')->isOptional()->isId()
     ->validate();
 
-$notification = Notification::get($_GET['id']);
+$notification = Notification::get($get['id']);
 $notification->setStatus('READ');
 
 // Build the notification form
 $notification_card = Card::new()
-    ->setHasCollapseSwitch(true)
+    ->setCollapseSwitch(true)
     ->setTitle(tr('Edit data for notification :name', [':name' => $notification->getTitle()]))
     ->setContent($notification->getHtmlForm()->render())
     ->setButtons(Buttons::new()

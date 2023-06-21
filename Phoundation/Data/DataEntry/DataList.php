@@ -77,7 +77,7 @@ abstract class DataList extends Iterator implements DataListInterface
      *
      * @var string
      */
-    protected static string $table;
+    protected string $table;
 
     /**
      * The unique column identifier, next to id
@@ -350,7 +350,7 @@ abstract class DataList extends Iterator implements DataListInterface
      */
     public function getTable(): string
     {
-        return self::$table;
+        return $this->table;
     }
 
 
@@ -374,7 +374,7 @@ abstract class DataList extends Iterator implements DataListInterface
      */
     public function getTableSchema(): \Phoundation\Databases\Sql\Schema\Table
     {
-        return sql()->schema()->table(self::$table);
+        return sql()->schema()->table($this->table);
     }
 
 
@@ -501,7 +501,7 @@ abstract class DataList extends Iterator implements DataListInterface
 
         // Create and return the table
         return DataTable::new()
-            ->setId(self::$table)
+            ->setId($this->table)
             ->setSourceQuery($this->html_query, $this->html_execute)
             ->setCheckboxSelectors(true);
     }
@@ -540,7 +540,7 @@ abstract class DataList extends Iterator implements DataListInterface
      */
     public function setStatus(?string $status, array $entries, ?string $comments = null): int
     {
-        return sql()->setStatus($status, self::$table, $entries, $comments);
+        return sql()->setStatus($status, $this->table, $entries, $comments);
     }
 
 
@@ -583,7 +583,7 @@ showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY F
         $in = Sql::in($identifiers);
 
         return sql()->list('SELECT `id` 
-                                  FROM   `' . self::$table . '` 
+                                  FROM   `' . $this->table . '` 
                                   WHERE  `' . $this->unique_column . '` IN (' . implode(', ', array_keys($in)) . ')', $in);
     }
 
@@ -596,7 +596,7 @@ showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY F
 //     */
 //    public function erase(array $entries): int
 //    {
-//        return sql()->erase(self::$table_name, $entries);
+//        return sql()->erase($this->table_name, $entries);
 //    }
 
 
@@ -709,7 +709,7 @@ showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY F
     /**
      * Save the data list elements to database
      *
-     * @return static
+     * @return bool
      */
-    abstract public function save(): static;
+    abstract public function save(): bool;
 }

@@ -15,7 +15,7 @@ namespace Phoundation\Data\Interfaces;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-interface NewObject
+interface NewObjectInterface
 {
     public static function new(): static;
 }

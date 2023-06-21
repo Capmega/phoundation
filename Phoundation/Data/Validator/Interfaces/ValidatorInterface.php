@@ -4,6 +4,7 @@ namespace Phoundation\Data\Validator\Interfaces;
 
 use DateTime;
 use PDOStatement;
+use Phoundation\Core\Strings;
 use Phoundation\Filesystem\Restrictions;
 use UnitEnum;
 
@@ -768,10 +769,55 @@ interface ValidatorInterface
      *
      * @param string $characters
      * @return static
-     * @todo CURRENTLY NOT WORKING, FIX!
      * @see trim()
      */
     public function sanitizeTrim(string $characters = "\t\n\r\0\x0B"): static;
+
+    /**
+     * Sanitize the selected value by starting the value from the specified needle
+     *
+     * @param string $needle
+     * @return static
+     * @see String::from()
+     * @see Validator::sanitizeUntil()
+     * @see Validator::sanitizeFromReverse()
+     */
+    public function sanitizeFrom(string $needle): static;
+
+    /**
+     * Sanitize the selected value by ending the value at the specified needle
+     *
+     * @param string $needle
+     * @return static
+     * @see String::until()
+     * @see Validator::sanitizeFrom()
+     * @see Validator::sanitizeUntilReverse()
+     */
+    public function sanitizeUntil(string $needle): static;
+
+    /**
+     * Sanitize the selected value by starting the value from the specified needle, but starting search from the end of
+     * the string
+     *
+     * @param string $needle
+     * @return static
+     * @see String::fromReverse()
+     * @see Validator::sanitizeFrom()
+     * @see Validator::sanitizeUntilReverse()
+     */
+    public function sanitizeFromReverse(string $needle): static;
+
+    /**
+     * Sanitize the selected value by ending the value at the specified needle, but starting search from the end of the
+     * string
+     *
+     * @param string $needle
+     * @return static
+     * @see String::untilReverse()
+     * @see Validator::sanitizeUntil()
+     * @see Validator::sanitizeFromReverse()
+     */
+    public function sanitizeUntilReverse(string $needle): static;
 
     /**
      * Sanitize the selected value by making the entire string uppercase

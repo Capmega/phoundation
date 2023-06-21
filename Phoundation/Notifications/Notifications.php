@@ -35,7 +35,7 @@ class Notifications extends DataList
     public function __construct(?Notification $parent = null, ?string $id_column = null)
     {
         $this->entry_class = Notification::class;
-        self::$table       = Notification::getTable();
+        $this->table       = 'notifications';
 
         $this->setHtmlQuery('SELECT   `id`, `title`, `mode` AS `severity`, `priority`, `created_on` 
                                    FROM     `notifications` 
@@ -153,7 +153,7 @@ class Notifications extends DataList
     /**
      * @inheritDoc
      */
-    public function save(): static
+    public function save(): bool
     {
         // TODO: Implement save() method.
     }

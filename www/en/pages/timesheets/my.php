@@ -2,37 +2,31 @@
 
 declare(strict_types=1);
 
-
-use Phoundation\Accounts\Rights\Right;
-use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Web\Http\Html\Components\BreadCrumbs;
+use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
-use Phoundation\Web\Http\Html\Components\BreadCrumbs;
-use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
+use Plugins\Medinet\Timesheet\Timesheets;
 
 
-// Validate
-$get = GetValidator::new()
-    ->select('id')->isId()
-    ->validate();
+// Build timesheets table
+$table = Timesheets::new()->getHtmlDataTable();
 
-
-// Build the page content
-$right = Right::get($get['id']);
-$form  = $right->getHtmlForm();
-$card  = Card::new()
-    ->setTitle(tr('Edit data for right :name', [':name' => $right->getName()]))
-    ->setContent($form->render());
+$timesheets = Card::new()
+    ->setTitle('My timesheets')
+    ->setSwitches('reload')
+    ->setContent($table->render())
+    ->useForm(true);
 
 
 // Build relevant links
 $relevant = Card::new()
     ->setMode(DisplayMode::info)
     ->setTitle(tr('Relevant links'))
-    ->setContent('<a href="' . UrlBuilder::getWww('/accounts/users.html') . '">' . tr('Users management') . '</a><br>
-                         <a href="' . UrlBuilder::getWww('/accounts/roles.html') . '">' . tr('Roles management') . '</a>');
+    ->setContent('<a href="' . UrlBuilder::getWww('/timesheets/today.html') . '">' . tr('Today\'s timesheet') . '</a><br>
+                         <a href="' . UrlBuilder::getWww('/security/security.html') . '">' . tr('Security management') . '</a>');
 
 
 // Build documentation
@@ -44,16 +38,15 @@ $documentation = Card::new()
 
 // Build and render the grid
 $grid = Grid::new()
-    ->addColumn($card, 9)
+    ->addColumn($timesheets->render(), 9)
     ->addColumn($relevant->render() . $documentation->render(), 3);
 
 echo $grid->render();
 
+
 // Set page meta data
-Page::setHeaderTitle(tr('Right'));
-Page::setHeaderSubTitle($right->getName());
+Page::setHeaderTitle(tr('Timesheets'));
 Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'                     => tr('Home'),
-    '/accounts/rights.html' => tr('Rights'),
-    ''                      => $right->getName()
+    '/' => tr('Home'),
+    ''  => tr('Timesheets')
 ]));

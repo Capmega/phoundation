@@ -50,7 +50,7 @@ trait DataEntryName
     public function setName(?string $name): static
     {
         if ($name !== null) {
-            $seo_name = Seo::unique($name, static::getTable(), $this->getDataValue('int', 'id'), $this->unique_field);
+            $seo_name = Seo::unique($name, $this->table, $this->getDataValue('int', 'id'), $this->unique_field);
             $this->setDataValue('seo_name', $seo_name);
         }
 

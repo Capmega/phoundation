@@ -28,7 +28,7 @@ trait UsesNewTable
      */
     public function __construct(?string $table = null)
     {
-        self::$table = $table;
+        $this->table = $table;
     }
 
 

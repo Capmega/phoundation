@@ -95,27 +95,19 @@ class Notification extends DataEntry
      * Notification class constructor
      *
      * @param DataEntryInterface|string|int|null $identifier
+     * @param bool $init
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = false)
     {
         static::$auto_log = Config::get('notifications.auto-log', true);
-        static::$entry_name = 'notification';
+
+        $this->table      = 'notifications';
+        $this->entry_name = 'notification';
 
         $this->data['mode']     = 'unknown';
         $this->data['priority'] = 1;
 
-        parent::__construct($identifier);
-    }
-
-
-    /**
-     * Returns the table name used by this object
-     *
-     * @return string
-     */
-    public static function getTable(): string
-    {
-        return 'notifications';
+        parent::__construct($identifier, $init);
     }
 
 
@@ -267,17 +259,17 @@ class Notification extends DataEntry
 
             if (!$this->getTitle()) {
                 $sending = false;
-                throw new OutOfBoundsException(tr('Cannot send notification, no notification title specified'));
+                throw new OutOfBoundsException(tr('Cannot send notification, no title specified'));
             }
 
             if (!$this->getMessage()) {
                 $sending = false;
-                throw new OutOfBoundsException(tr('Cannot send notification, no notification message specified'));
+                throw new OutOfBoundsException(tr('Cannot send notification, no message specified'));
             }
 
             if (!$this->getRoles() and !$this->getUsersId()) {
                 $sending = false;
-                throw new OutOfBoundsException(tr('Cannot send notification, no notification roles or target users id specified'));
+                throw new OutOfBoundsException(tr('Cannot send notification, no roles or target users id specified'));
             }
 
             // Save and send this notification to the assigned user
@@ -350,10 +342,14 @@ class Notification extends DataEntry
 
         Log::information(tr('Details'));
 
-        foreach ($this->getDetails() as $key => $value) {
-            Log::write($key, 'debug');
-            Log::table(Arrays::force($value));
-            Log::cli();
+        $details = $this->getDetails();
+
+        if ($details) {
+            foreach ($details as $key => $value) {
+                Log::write($key, 'debug');
+                Log::table(Arrays::force($value));
+                Log::cli();
+            }
         }
 
         static::$logged = true;

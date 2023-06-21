@@ -92,9 +92,9 @@ class KubernetesObject
     /**
      * Save the current deployment data
      *
-     * @return static
+     * @return bool
      */
-    public function save(): static
+    public function save(): bool
     {
         $this->getObjectFile()->save();
 

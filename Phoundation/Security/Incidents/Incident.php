@@ -9,6 +9,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryDetails;
 use Phoundation\Data\DataEntry\Traits\DataEntryTitle;
 use Phoundation\Data\DataEntry\Traits\DataEntryType;
@@ -46,25 +47,16 @@ class Incident extends DataEntry
     /**
      * Incident class constructor
      *
-     * @param DataEntry|string|int|null $identifier
+     * @param DataEntryInterface|string|int|null $identifier
+     * @param bool $init
      */
-    public function __construct(DataEntry|string|int|null $identifier = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = false)
     {
-        static::$entry_name   = 'incident';
+        $this->table        = 'security_incidents';
+        $this->entry_name   = 'incident';
         $this->unique_field = 'id';
 
-        parent::__construct($identifier);
-    }
-
-
-    /**
-     * Returns the table name used by this object
-     *
-     * @return string
-     */
-    public static function getTable(): string
-    {
-        return 'security_incidents';
+        parent::__construct($identifier, $init);
     }
 
 
@@ -122,9 +114,10 @@ class Incident extends DataEntry
     /**
      * Saves the incident to database
      *
-     * @return $this
+     * @param string|null $comments
+     * @return bool
      */
-    public function save(?string $comments = null): static
+    public function save(?string $comments = null): bool
     {
         if ($this->log) {
             $severity = strtolower($this->getSeverity());

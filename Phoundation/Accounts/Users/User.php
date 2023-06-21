@@ -103,24 +103,15 @@ class User extends DataEntry implements UserInterface
      * User class constructor
      *
      * @param DataEntryInterface|string|int|null $identifier
+     * @param bool $init
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = false)
     {
-        static::$entry_name = 'user';
+        $this->table        = 'accounts_users';
+        $this->entry_name   = 'user';
         $this->unique_field = 'email';
 
-        parent::__construct($identifier);
-    }
-
-
-    /**
-     * Returns the table name used by this object
-     *
-     * @return string
-     */
-    public static function getTable(): string
-    {
-        return 'accounts_users';
+        parent::__construct($identifier, $init);
     }
 
 
@@ -1110,9 +1101,9 @@ class User extends DataEntry implements UserInterface
      * Save the user to database
      *
      * @param string|null $comments
-     * @return static
+     * @return bool
      */
-    public function save(?string $comments = null): static
+    public function save(?string $comments = null): bool
     {
         Log::action(tr('Saving user ":user"', [':user' => $this->getDisplayName()]));
 

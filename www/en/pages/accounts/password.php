@@ -19,23 +19,23 @@ use Phoundation\Web\Page;
 
 
 // Validate GET
-GetValidator::new()
+$get = GetValidator::new()
     ->select('id')->isOptional()->isId()
     ->validate();
 
-$user = User::get($_GET['id']);
+$user = User::get($get['id']);
 
 // Validate POST and submit
 if (Page::isPostRequestMethod()) {
     try {
-        PostValidator::new()
+        $post = PostValidator::new()
             ->select('password1')->isPassword()
             ->select('password2')->isPassword()
-        ->validate();
+            ->validate();
 
         // Update user password
-        $user = User::get($_GET['id']);
-        $user->setPassword($_POST['password1'] ,$_POST['password2']);
+        $user = User::get($get['id']);
+        $user->setPassword($post['password1'] ,$post['password2']);
 
         Page::getFlashMessages()->add(tr('Success'), tr('The password for user ":user" has been updated', [':user' => $user->getDisplayName()]), DisplayMode::success);
         Page::redirect('this');
@@ -56,7 +56,7 @@ $buttons = Buttons::new()
 
 // Build the user form
 $card = Card::new()
-    ->setHasCollapseSwitch(true)
+    ->setCollapseSwitch(true)
     ->setTitle(tr('Edit data for User :name', [':name' => $user->getDisplayName()]))
     ->setContent($user->getHtmlForm()->render())
     ->setButtons($buttons);

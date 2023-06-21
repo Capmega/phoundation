@@ -22,11 +22,11 @@ use Phoundation\Web\Page;
 
 
 // Validate GET
-GetValidator::new()
+$get = GetValidator::new()
     ->select('id')->isOptional()->isId()
     ->validate();
 
-$user = User::get($_GET['id']);
+$user = User::get($get['id']);
 
 
 // Validate POST and submit
@@ -89,7 +89,7 @@ if (!$user->canBeStatusChanged()) {
 
 // Build the user form
 $user_card = Card::new()
-    ->setHasCollapseSwitch(true)
+    ->setCollapseSwitch(true)
     ->setTitle(tr('Edit data for user :name', [':name' => $user->getDisplayName()]))
     ->setContent($user->getHtmlForm()->render())
     ->setButtons(Buttons::new()

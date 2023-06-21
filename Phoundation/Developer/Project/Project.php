@@ -327,11 +327,11 @@ class Project
      * Validate the specified project information
      *
      * @param ValidatorInterface $validator
-     * @return void
+     * @return array
      */
-    public static function validate(ValidatorInterface $validator): void
+    public static function validate(ValidatorInterface $validator): array
     {
-        $validator
+        return $validator
             ->select('admin_email')->isEmail()
             ->select('admin_pass1')->isPassword()
             ->select('admin_pass2')->isPassword()->isEqualTo('admin_pass1')

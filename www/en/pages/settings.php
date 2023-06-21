@@ -44,7 +44,7 @@ $user
 
 // Build the form
 $card = Card::new()
-    ->setHasCollapseSwitch(true)
+    ->setCollapseSwitch(true)
     ->setTitle(tr('Manage your settings here'))
     ->setContent('')
     ->setButtons($buttons);

@@ -44,7 +44,7 @@ $user
 
 // Build the form
 $card = Card::new()
-    ->setHasCollapseSwitch(true)
+    ->setCollapseSwitch(true)
     ->setTitle(tr('Manage your API access here'))
     ->setContent('')
     ->setButtons($buttons);

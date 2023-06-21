@@ -455,21 +455,6 @@ interface DefinitionInterface
     public function setDefault(string|float|int|bool|null $value): static;
 
     /**
-     * Returns the default value for this field in the database
-     *
-     * @return string|float|int|null
-     */
-    public function getDefaultDb(): string|float|int|null;
-
-    /**
-     * Sets the default value for this field in the database
-     *
-     * @param string|float|int|null $value
-     * @return static
-     */
-    public function setDefaultDb(string|float|int|null $value): static;
-
-    /**
      * Returns if this field should be stored with NULL in the database if empty
      *
      * @note Defaults to false

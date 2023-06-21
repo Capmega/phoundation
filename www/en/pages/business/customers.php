@@ -21,7 +21,7 @@ $filters_content = FilterForm::new();
 
 $filters = Card::new()
     ->setTitle('Customers filters')
-    ->setHasCollapseSwitch(true)
+    ->setCollapseSwitch(true)
     ->setContent($filters_content->render())
     ->useForm(true);
 
@@ -45,7 +45,7 @@ $customers->getForm()
 $relevant = Card::new()
     ->setMode(DisplayMode::info)
     ->setTitle(tr('Relevant links'))
-    ->setHasCollapseSwitch(true)
+    ->setCollapseSwitch(true)
     ->setContent('<a href="' . UrlBuilder::getWww('/business/providers.html') . '">' . tr('Providers management') . '</a><br>
                          <a href="' . UrlBuilder::getWww('/business/companies.html') . '">' . tr('Companies management') . '</a>');
 
@@ -54,7 +54,7 @@ $relevant = Card::new()
 $documentation = Card::new()
     ->setMode(DisplayMode::info)
     ->setTitle(tr('Documentation'))
-    ->setHasCollapseSwitch(true)
+    ->setCollapseSwitch(true)
     ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
 
 

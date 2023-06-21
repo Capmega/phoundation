@@ -339,11 +339,11 @@ class Img extends Element
 //                notify(array('code'    => 'not-specified',
 //                    'groups'  => 'developers',
 //                    'title'   => tr('No image src specified'),
-//                    'message' => tr('html_img(): No src for image with alt text ":alt"', array(':alt' => $params['alt']))));
+//                    'message' => tr('No src for image with alt text ":alt"', [':alt' => $params['alt']])));
 //                return '';
 //            }
 //
-//            throw new CoreException(tr('html_img(): No src for image with alt text ":alt"', array(':alt' => $params['alt'])), 'no-image');
+//            throw new CoreException(tr('No src for image with alt text ":alt"', [':alt' => $params['alt']]));
 //        }
 //
 //        if (!Debug::production()) {
@@ -817,7 +817,7 @@ class Img extends Element
 //                                break;
 //
 //                            default:
-//                                throw new CoreException(tr('html_img(): Unknown lazy_img option ":key" specified. Please check the $_CONFIG[lazy_img] configuration!', array(':key' => $key)), 'unknown');
+//                                throw new CoreException(tr('Unknown lazy_img option ":key" specified. Please check the $_CONFIG[lazy_img] configuration!', [':key' => $key]));
 //                        }
 //                    }
 //

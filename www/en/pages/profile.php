@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 use Phoundation\Core\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
@@ -16,41 +15,85 @@ use Phoundation\Web\Http\Html\Layouts\GridColumn;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
-// Get the user
-$user = Session::getUser();
+
+// Get the user and alter the default user form
+$user        = Session::getUser();
+$definitions = $user->getDefinitions();
+
+$definitions->get('last_sign_in')
+    ->setSize(4);
+
+$definitions->get('sign_in_count')
+    ->setSize(4);
+
+$definitions->get('authentication_failures')
+    ->setSize(4);
+
+$definitions->get('locked_until')
+    ->setVisible(false);
+
+$definitions->get('username')
+    ->setReadonly(true);
+
+$definitions->get('comments')
+    ->setReadonly(true)
+    ->setVisible(false);
+
+$definitions->get('is_leader')
+    ->setReadonly(true)
+    ->setVisible(false);
+
+$definitions->get('leaders_id')
+    ->setReadonly(true)
+    ->setVisible(false);
+
+$definitions->get('code')
+    ->setReadonly(true)
+    ->setVisible(false);
+
+$definitions->get('type')
+    ->setReadonly(true)
+    ->setVisible(false);
+
+$definitions->get('priority')
+    ->setReadonly(true)
+    ->setVisible(false);
+
+$definitions->get('offset_latitude')
+    ->setReadonly(true)
+    ->setVisible(false);
+
+$definitions->get('email')
+    ->setReadonly(true);
+
+$definitions->get('offset_longitude')
+    ->setReadonly(true)
+    ->setVisible(false);
+
+$definitions->get('domain')
+    ->setReadonly(true)
+    ->setVisible(false);
+
+$definitions->get('verified_on')
+    ->setVisible(false);
+
+$definitions->get('keywords')
+    ->setSize(6);
+
+$definitions->get('url')
+    ->setSize(6);
+
+$definitions->get('redirect')
+    ->setVisible(false)
+    ->setReadonly(true);
+
+$definitions->get('description')
+    ->setSize(12);
 
 
 // Validate POST and submit
 if (Page::isPostRequestMethod()) {
     try {
-        PostValidator::new()
-            ->select('username')->isOptional()->isName()
-            ->select('domain')->isOptional()->isDomain()
-            ->select('title')->isOptional()->isName()
-            ->select('first_names')->isOptional()->isName()
-            ->select('last_names')->isOptional()->isName()
-            ->select('nickname')->isOptional()->isName()
-            ->select('email')->isEmail()
-            ->select('type')->isOptional()->isName()
-            ->select('keywords')->isOptional()->sanitizeForceArray(' ')->each()->isWord()
-            ->select('phones')->isOptional()->sanitizeForceArray(',')->each()->isPhoneNumber()->sanitizeForceString()
-            ->select('address')->isOptional()->isPrintable()
-            ->select('priority')->isOptional()->isNatural()->isBetween(1, 10)
-            ->select('latitude')->isOptional()->isLatitude()
-            ->select('longitude')->isOptional()->isLongitude()
-            ->select('accuracy')->isOptional()->isFloat()->isBetween(0, 10)
-            ->select('countries_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':id' => '$countries_id'])
-            ->select('states_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_states` WHERE `id` = :id AND `countries_id` = :countries_id AND `status` IS NULL', [':id' => 'states_id', ':countries_id' => '$countries_id'])
-            ->select('cities_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_cities` WHERE `id` = :id AND `states_id`    = :states_id    AND `status` IS NULL', [':id' => 'cities_id', ':states_id'    => '$states_id'])
-            ->select('languages_id')->isQueryColumn('SELECT `id` FROM `languages` WHERE `id` = :id AND `status` IS NULL', [':id' => '$languages_id'])
-            ->select('gender')->isOptional()->isInArray(['unknown', 'male', 'female', 'other'])
-            ->select('redirect')->isOptional()->isUrl()
-            ->select('birthday')->isOptional()->isDate()
-            ->select('description')->isOptional()->isPrintable()->hasMaxCharacters(65_530)
-            ->select('website')->isOptional()->isUrl()
-            ->select('timezone')->isOptional()->isTimezone()
-        ->validate();
-
         // Update user
         $user->apply()->save();
 
@@ -74,16 +117,9 @@ $buttons = Buttons::new()
     ->addButton('Submit');
 
 
-// Alter the default user form
-$user
-    ->modifyDefinitions('comments'  , ['visible'  => false])
-    ->modifyDefinitions('is_leader' , ['disabled' => true])
-    ->modifyDefinitions('leaders_id', ['disabled' => true]);
-
-
 // Build the user form
 $card = Card::new()
-    ->setHasCollapseSwitch(true)
+    ->setCollapseSwitch(true)
     ->setTitle(tr('Manage your profile information here'))
     ->setContent($user->getHtmlForm()->render())
     ->setButtons($buttons);

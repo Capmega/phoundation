@@ -593,6 +593,28 @@ class Arrays {
 
 
     /**
+     * Removes all entries from the byref source array in the specified $keys and returns those in the result array
+     *
+     * @param array $source
+     * @param string|array $keys
+     * @return array
+     */
+    public static function extract(array &$source, string|array $keys): array
+    {
+        $return = [];
+
+        foreach (Arrays::force($keys) as $key) {
+            if (array_key_exists($key, $source)) {
+                $return[$key] = $source[$key];
+                unset($source[$key]);
+            }
+        }
+
+        return $return;
+    }
+
+
+    /**
      * Return all array parts from (but without) the specified key
      *
      * @param array $source

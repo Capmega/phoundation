@@ -31,7 +31,7 @@ class Departments extends DataList
     public function __construct(?Company $parent = null, ?string $id_column = null)
     {
         $this->entry_class = Department::class;
-        self::$table       = Department::getTable();
+        $this->table       = 'business_departments';
 
         $this->setHtmlQuery('SELECT   `id`, `name`, `email`, `status`, `created_on` 
                                    FROM     `business_departments` 
@@ -53,7 +53,7 @@ class Departments extends DataList
     /**
      * @inheritDoc
      */
-    public function save(): static
+    public function save(): bool
     {
         // TODO: Implement save() method.
     }

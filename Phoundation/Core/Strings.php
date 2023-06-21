@@ -1245,6 +1245,10 @@ throw new UnderConstructionException();
         $source = (string) $source;
         $string = (string) $string;
 
+        if (!$string) {
+            throw new OutOfBoundsException(tr('Cannot ensure source starts with string, empty string specified'));
+        }
+
         if (mb_substr($source, 0, mb_strlen($string)) == $string) {
             return $source;
         }
@@ -1264,6 +1268,10 @@ throw new UnderConstructionException();
     {
         $source = (string) $source;
         $string = (string) $string;
+
+        if (!$string) {
+            throw new OutOfBoundsException(tr('Cannot ensure source starts not with string, empty string specified'));
+        }
 
         while (mb_substr($source, 0, mb_strlen($string)) == $string) {
             $source = mb_substr($source, mb_strlen($string));
@@ -1285,6 +1293,10 @@ throw new UnderConstructionException();
         $source = (string) $source;
         $string = (string) $string;
         $length = mb_strlen($string);
+
+        if (!$string) {
+            throw new OutOfBoundsException(tr('Cannot ensure source ends with string, empty string specified'));
+        }
 
         if (mb_substr($source, -$length, $length) == $string) {
             return $source;
@@ -1316,6 +1328,10 @@ throw new UnderConstructionException();
                 foreach ($strings as $string) {
                     $strings = (string) $strings;
                     $new     = Strings::endsNotWith($source, $string, true);
+
+                    if (!$string) {
+                        throw new OutOfBoundsException(tr('Cannot ensure source not ends with string, empty string specified'));
+                    }
 
                     if ($new != $source) {
                         // A change was made, we have to rerun over it.

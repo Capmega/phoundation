@@ -9,6 +9,7 @@ use Phoundation\Business\Companies\Departments\Departments;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 
 
@@ -46,24 +47,15 @@ class Company extends DataEntry
     /**
      * Company class constructor
      *
-     * @param DataEntry|string|int|null $identifier
+     * @param DataEntryInterface|string|int|null $identifier
+     * @param bool $init
      */
-    public function __construct(DataEntry|string|int|null $identifier = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = false)
     {
-        static::$entry_name   = 'company';
+        $this->table        = 'business_companies';
+        $this->entry_name   = 'company';
 
-        parent::__construct($identifier);
-    }
-
-
-    /**
-     * Returns the table name used by this object
-     *
-     * @return string
-     */
-    public static function getTable(): string
-    {
-        return 'business_companies';
+        parent::__construct($identifier, $init);
     }
 
 
@@ -101,7 +93,7 @@ class Company extends DataEntry
     /**
      * @inheritDoc
      */
-    public function save(?string $comments = null): static
+    public function save(?string $comments = null): bool
     {
         // TODO: Implement save() method.
     }

@@ -50,7 +50,7 @@ interface DataEntryInterface
      *
      * @return ?string
      */
-    public function getPrefix(): ?string;
+    public function getFieldPrefix(): ?string;
 
     /**
      * Sets the prefix string
@@ -58,7 +58,7 @@ interface DataEntryInterface
      * @param string|null $prefix
      * @return $this
      */
-    public function setPrefix(?string $prefix): static;
+    public function setFieldPrefix(?string $prefix): static;
 
     /**
      * Returns a help file generated from the DataEntry keys
@@ -131,11 +131,18 @@ interface DataEntryInterface
     static function notExists(string|int $identifier = null, ?int $id = null, bool $throw_exception = false): bool;
 
     /**
-     * Returns the table name used by this object
+     * Returns the class name of this DataEntry object
      *
      * @return string
      */
-    static function getTable(): string;
+    public static function getClassName(): string;
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public function getDataEntryName(): string;
 
     /**
      * Returns the definitions for the fields in this table
@@ -253,11 +260,11 @@ interface DataEntryInterface
     /**
      * Modify the data for this object with the new specified data
      *
-     * @param array|null $data
-     * @param bool $no_arguments_left
+     * @param bool $clear_source
+     * @param array|null $source
      * @return static
      */
-    function apply(?array $data = null, bool $no_arguments_left = false): static;
+    function apply(bool $clear_source = false, ?array $source = null): static;
 
     /**
      * Returns all data for this data entry at once with an array of information
@@ -281,9 +288,9 @@ interface DataEntryInterface
      * Will save the data from this data entry to database
      *
      * @param string|null $comments
-     * @return static
+     * @return bool
      */
-    function save(?string $comments = null): static;
+    function save(?string $comments = null): bool;
 
     /**
      * Creates and returns a CLI table for the data in this entry
@@ -302,10 +309,11 @@ interface DataEntryInterface
     public function getHtmlForm(): DataEntryFormInterface;
 
     /**
-     * Load all data from the specified array
+     * Load all data directly from the specified array
      *
      * @param array $data
+     * @param bool $init
      * @return $this
      */
-    function load(array $data): static;
+    public function load(array $data, bool $init = false): static;
 }

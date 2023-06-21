@@ -18,11 +18,11 @@ use Phoundation\Web\Page;
 
 
 // Validate GET
-GetValidator::new()
+$get = GetValidator::new()
     ->select('id')->isOptional()->isId()
     ->validate();
 
-$provider = Provider::get($_GET['id']);
+$provider = Provider::get($get['id']);
 
 // Validate POST and submit
 if (Page::isPostRequestMethod()) {
@@ -30,7 +30,7 @@ if (Page::isPostRequestMethod()) {
 //        Provider::validate(PostValidator::new());
 //
 //        // Update provider
-//        $provider = Provider::get($_GET['id']);
+//        $provider = Provider::get($get['id']);
 //        $provider->apply()->save();
 //
 //        // Go back to where we came from
@@ -53,7 +53,7 @@ $buttons = Buttons::new()
 
 // Build the provider form
 $provider_card = Card::new()
-    ->setHasCollapseSwitch(true)
+    ->setCollapseSwitch(true)
     ->setTitle(tr('Edit data for provider :name', [':name' => $provider->getName()]))
     ->setContent($provider->getHtmlForm()->render())
     ->setButtons($buttons);

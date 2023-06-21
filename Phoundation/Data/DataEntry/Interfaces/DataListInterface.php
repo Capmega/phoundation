@@ -291,9 +291,9 @@ interface DataListInterface extends IteratorInterface
     /**
      * Save the data list elements to database
      *
-     * @return static
+     * @return bool
      */
-    function save(): static;
+    function save(): bool;
 
     /**
      * Returns an HTML <select> for the available object entries

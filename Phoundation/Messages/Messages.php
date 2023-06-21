@@ -30,7 +30,7 @@ class Messages extends DataList
     public function __construct(?Message $parent = null, ?string $id_column = null)
     {
         $this->entry_class = Message::class;
-        self::$table       = Message::getTable();
+        $this->table       = 'messages';
 
         $this->setHtmlQuery('SELECT   `id`, `title`, `status`, `created_on` 
                                    FROM     `messages` 
@@ -61,7 +61,7 @@ class Messages extends DataList
     /**
      * @inheritDoc
      */
-    public function save(): static
+    public function save(): bool
     {
         // TODO: Implement save() method.
     }

@@ -545,9 +545,9 @@ class ArgvValidator extends Validator
      *
      * @return array|null
      */
-    public function extract(): ?array
+    public function forceRead(): ?array
     {
-        Log::warning(tr('Liberated all $argv data without data validation!'));
+        Log::warning(tr('Forceably returned all $argv data without data validation!'));
         return $this->source;
     }
 
@@ -557,9 +557,9 @@ class ArgvValidator extends Validator
      *
      * @return array
      */
-    public function extractKey(string $key): mixed
+    public function forceReadKey(string $key): mixed
     {
-        Log::warning(tr('Liberated $argv[:key] without data validation!', [':key' => $key]));
+        Log::warning(tr('Forceably returned $argv[:key] without data validation!', [':key' => $key]));
         return isset_get($this->source[$key]);
     }
 }

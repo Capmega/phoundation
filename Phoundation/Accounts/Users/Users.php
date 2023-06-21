@@ -39,7 +39,7 @@ class Users extends DataList implements UsersInterface
     public function __construct(RoleInterface|UserInterface|null $parent = null, ?string $id_column = null)
     {
         $this->entry_class = User::class;
-        self::$table       = User::getTable();
+        $this->table       = 'accounts_users';
 
         $this->setHtmlQuery('SELECT   `id`, TRIM(CONCAT(`first_names`, " ", `last_names`)) AS `name`, `nickname`, `email`, `status`, `created_on`
                                    FROM     `accounts_users` 
@@ -385,9 +385,9 @@ class Users extends DataList implements UsersInterface
     /**
      * Save the data for this rights list in the database
      *
-     * @return static
+     * @return bool
      */
-    public function save(): static
+    public function save(): bool
     {
         $this->ensureParent('save parent entries');
 

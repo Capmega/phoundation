@@ -69,7 +69,7 @@ interface UsersInterface extends DataListInterface
     /**
      * Save the data for this rights list in the database
      *
-     * @return static
+     * @return bool
      */
-    public function save(): static;
+    public function save(): bool;
 }

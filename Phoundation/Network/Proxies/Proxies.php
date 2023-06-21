@@ -49,8 +49,11 @@ class Proxies
             throw new NetworkException(tr('Proxy returned no data. Is proxy correctly configured? Proxy domain resolves correctly?'));
         }
 
-        if (substr($data['data'], 0, 12) !== 'PROXY_RESULT') {
-            throw new NetworkException(tr('curl_get_proxy(): Proxy returned invalid data ":data" from proxy ":proxy". Is proxy correctly configured? Proxy domain resolves correctly?', array(':data' => Strings::Log($data), ':proxy' => Strings::cut(Strings::Log($restrictionsurl), '://', '/'))), 'not-specified');
+        if (!str_starts_with($data['data'], 'PROXY_RESULT')) {
+            throw new NetworkException(tr('curl_get_proxy(): Proxy returned invalid data ":data" from proxy ":proxy". Is proxy correctly configured? Proxy domain resolves correctly?', [
+                ':data'  => Strings::Log($data),
+                ':proxy' => Strings::cut(Strings::Log($restrictionsurl), '://', '/')
+            ]));
         }
 
         $data         = substr($data['data'], 12);
@@ -106,8 +109,11 @@ class Proxies
                 throw new NetworkException(tr('Proxy returned no data. Is proxy correctly configured? Proxy domain resolves correctly?'));
             }
 
-            if (substr($data['data'], 0, 12) !== 'PROXY_RESULT') {
-                throw new NetworkException(tr('curl_get_proxy(): Proxy returned invalid data ":data" from proxy ":proxy". Is proxy correctly configured? Proxy domain resolves correctly?', array(':data' => Strings::Log($data), ':proxy' => Strings::cut(Strings::Log($restrictionsurl), '://', '/'))), 'not-specified');
+            if (!str_starts_with($data['data'], 'PROXY_RESULT')) {
+                throw new NetworkException(tr('curl_get_proxy(): Proxy returned invalid data ":data" from proxy ":proxy". Is proxy correctly configured? Proxy domain resolves correctly?', [
+                    ':data'  => Strings::Log($data),
+                    ':proxy' => Strings::cut(Strings::Log($restrictionsurl), '://', '/')
+                ]));
             }
 
             $data         = substr($data['data'], 12);

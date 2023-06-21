@@ -33,7 +33,7 @@ class Providers extends DataList
     public function __construct(?Company $parent = null, ?string $id_column = null)
     {
         $this->entry_class = Provider::class;
-        self::$table       = Provider::getTable();
+        $this->table       = 'business_providers';
 
         $this->setHtmlQuery('SELECT   `id`, `name`, `code`, `email`, `status`, `created_on` 
                                    FROM     `business_providers` 
@@ -89,7 +89,7 @@ class Providers extends DataList
     /**
      * @inheritDoc
      */
-    public function save(): static
+    public function save(): bool
     {
         // TODO: Implement save() method.
     }

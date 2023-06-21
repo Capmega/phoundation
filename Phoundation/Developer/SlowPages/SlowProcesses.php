@@ -30,10 +30,10 @@ class SlowProcesses extends Incidents
     public function __construct(Role|User|null $parent = null, ?string $id_column = null)
     {
         $this->entry_class = SlowProcess::class;
-        self::$table       = SlowProcess::getTable();
+        $this->table       = 'processes_slow';
 
         $this->setHtmlQuery('SELECT   `id`, `created_on`, `status`, `title` 
-                                   FROM     `accounts_users` 
+                                   FROM     `processes_slow` 
                                    WHERE    `type` = "slow_page" AND `status` IS NULL 
                                    ORDER BY `created_on`');
         parent::__construct($parent, $id_column);

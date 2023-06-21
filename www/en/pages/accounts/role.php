@@ -14,13 +14,13 @@ use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
 
 
 // Validate
-GetValidator::new()
+$get = GetValidator::new()
     ->select('id')->isId()
     ->validate();
 
 
 // Build the page content
-$role = Role::get($_GET['id']);
+$role = Role::get($get['id']);
 $form = $role->getHtmlForm();
 $card = Card::new()
     ->setTitle(tr('Edit data for role :name', [':name' => $role->getName()]))
