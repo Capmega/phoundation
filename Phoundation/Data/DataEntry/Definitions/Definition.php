@@ -52,6 +52,20 @@ class Definition implements DefinitionInterface
     protected ?string $postfix = null;
 
     /**
+     * These keys should not ever be processed
+     *
+     * @var array $meta_fields
+     */
+    protected static array $meta_fields = [
+        'id',
+        'created_by',
+        'created_on',
+        'status',
+        'meta_id',
+        'meta_state',
+    ];
+
+    /**
      * Supported input element types
      *
      * @var array[] $supported_input_types
@@ -303,27 +317,7 @@ class Definition implements DefinitionInterface
      */
     public function getMeta(): bool
     {
-        return isset_get_typed('bool', $this->definitions['meta'], false);
-    }
-
-
-    /**
-     * Sets if this field is a meta field
-     *
-     * If this field is a meta field, it will be readonly for user actions
-     *
-     * @note Defaults to false
-     * @param bool $value
-     * @return static
-     * @see Definition::setVisible()
-     */
-    public function setMeta(bool $value): static
-    {
-        if ($value) {
-            $this->setReadonly(true);
-        }
-
-        return $this->setKey('meta', $value);
+        return in_array($this->field, self::$meta_fields);
     }
 
 
@@ -595,7 +589,7 @@ class Definition implements DefinitionInterface
      */
     public function getReadonly(): ?bool
     {
-        return isset_get_typed('bool', $this->definitions['readonly']);
+        return in_array($this->field, self::$meta_fields) or isset_get_typed('bool', $this->definitions['readonly']);
     }
 
 
@@ -625,7 +619,7 @@ class Definition implements DefinitionInterface
      */
     public function getDisabled(): ?bool
     {
-        return isset_get_typed('bool', $this->definitions['disabled']);
+        return in_array($this->field, self::$meta_fields) or isset_get_typed('bool', $this->definitions['disabled']);
     }
 
 

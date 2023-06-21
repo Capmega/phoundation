@@ -1142,14 +1142,14 @@ class Page
             Log::warning('Page did not catch the following "ValidationFailedException" warning, showing "system/400"');
             Log::warning($e);
 
-            static::getFlashMessages()->addFlashMessage($e);
+            static::getFlashMessages()->addMessage($e);
             Route::executeSystem(400);
 
         } catch (AuthenticationException $e) {
             Log::warning('Page did not catch the following "AuthenticationException" warning, showing "system/401"');
             Log::warning($e);
 
-            static::getFlashMessages()->addFlashMessage($e);
+            static::getFlashMessages()->addMessage($e);
             Route::executeSystem(401);
 
         } catch (IncidentsException $e) {
@@ -1157,7 +1157,7 @@ class Page
             Log::warning('Page did not catch the following "IncidentsException" warning, showing "system/401"');
             Log::warning($e);
 
-            static::getFlashMessages()->addFlashMessage($e);
+            static::getFlashMessages()->addMessage($e);
             Route::executeSystem(403);
 
         } catch (DataEntryNotExistsException $e) {

@@ -173,7 +173,7 @@ trait ElementAttributes
         $this->real_id = Strings::until($id, '[');
 
         // By default, name and id should be equal
-        if (empty($this->name)) {
+        if (($id !== null) and ($this->name === null)) {
             $this->setName($id);
         }
 
@@ -204,7 +204,7 @@ trait ElementAttributes
         $this->real_name = Strings::until($name, '[');
 
         // By default, name and id should be equal
-        if (empty($this->id)) {
+        if (($name !== null) and ($this->id === null)) {
             $this->setId($name);
         }
 
@@ -624,7 +624,7 @@ trait ElementAttributes
     public function setAutofocus(bool $auto_focus): static
     {
         if ($auto_focus) {
-            if (static::$autofocus) {
+            if (static::$autofocus !== null) {
                 if (static::$autofocus !== $this->id) {
                     throw new OutOfBoundsException(tr('Cannot set autofocus on element ":id", its already being used by id ":already"', [
                         ':id'      => $this->id,
@@ -641,13 +641,16 @@ trait ElementAttributes
 
         } else {
             // Unset autofocus? Only if this is the element that had it in the first place!
-            if (static::$autofocus === $this->id) {
-                throw new OutOfBoundsException(tr('Cannot remove autofocus from element ":id", it does not have autofocus', [
-                    ':id' => $this->id
-                ]));
-            }
+            if (static::$autofocus !== null) {
+                // Some element has auto focus, is it this one?
+                if (static::$autofocus === $this->id) {
+                    throw new OutOfBoundsException(tr('Cannot remove autofocus from element ":id", it does not have autofocus', [
+                        ':id' => $this->id
+                    ]));
+                }
 
-            static::$autofocus = null;
+                static::$autofocus = null;
+            }
         }
 
 

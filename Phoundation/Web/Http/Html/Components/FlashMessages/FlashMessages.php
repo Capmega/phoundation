@@ -56,24 +56,10 @@ class FlashMessages extends ElementsBlock implements IteratorInterface
      * @param int|null $auto_close
      * @return $this
      */
-    public function addFlashMessage(FlashMessage|Exception|string|null $title, ?string $message = null, ?DisplayMode $mode = null, string $icon = null, ?int $auto_close = null): static
+    public function addMessage(FlashMessage|Exception|string|null $title, ?string $message = null, ?DisplayMode $mode = null, string $icon = null, ?int $auto_close = null): static
     {
         if ($title) {
-            // a title was specified
-            if (is_string($title)) {
-                // Title was specified as a string, make it a flash message
-                if (!$message) {
-                    throw new OutOfBoundsException(tr('No message specified for this flash message'));
-                }
-
-                $title = FlashMessage::new()
-                    ->setAutoClose($auto_close)
-                    ->setMessage($message)
-                    ->setTitle($title)
-                    ->setMode($mode)
-                    ->setIcon($icon);
-
-            } elseif ($title instanceof ValidationFailedException) {
+            if ($title instanceof ValidationFailedException) {
                 // Title was specified as an exception, add each validation failure as a separate flash message
                 if ($title->getData()) {
                     $count = 0;
@@ -84,7 +70,7 @@ class FlashMessages extends ElementsBlock implements IteratorInterface
                         }
 
                         $count++;
-                        $this->add(tr('Information validation failure'), $message, DisplayMode::warning, null, 5000);
+                        $this->addMessage(tr('Information validation failure'), $message, DisplayMode::warning, null, 5000);
                     }
 
                     if (!$count) {
@@ -92,24 +78,39 @@ class FlashMessages extends ElementsBlock implements IteratorInterface
                             ':e' => $title
                         ]));
                     }
-                }
 
-                return $this;
+                    return $this;
+                }
 
             } elseif ($title instanceof Exception) {
                 // Title was specified as an exception, add each validation failure as a separate flash
                 // message
                 if ($title->getMessages()) {
                     foreach ($title->getMessages() as $message) {
-                        $this->add(tr('Problem encountered!'), $message, DisplayMode::warning, null, 5000);
+                        $this->addMessage(tr('Problem encountered!'), $message, DisplayMode::warning, null, 5000);
                     }
-                }
 
-                return $this;
+                    return $this;
+                }
             }
+
+            // Title was specified as a string, make it a flash message
+            if (!$message) {
+                throw new OutOfBoundsException(tr('No message specified for the flash message ":title"', [
+                    ':title' => $title
+                ]));
+            }
+
+            $title = FlashMessage::new()
+                ->setAutoClose($auto_close)
+                ->setMessage($message)
+                ->setTitle($title)
+                ->setMode($mode)
+                ->setIcon($icon);
+
+            $this->source[] = $title;
         }
 
-        $this->source[] = $title;
         return $this;
     }
 

@@ -10,7 +10,7 @@ use Phoundation\Business\Providers\Providers;
 use Phoundation\Data\Categories\Categories;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
-use Phoundation\Data\DataEntry\Definitions\DefinitionDefaults;
+use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryCustomer;
@@ -623,7 +623,7 @@ class Server extends DataEntry
                 ->setLabel(tr('Allow SSHD modification'))
                 ->setCliField('-s,--allow-sshd-modification')
                 ->setHelpText(tr('Sets if this server allows automated modification of SSH configuration')))
-            ->addDefinition(DefinitionDefaults::getDescription()
+            ->addDefinition(DefinitionFactory::getDescription()
                 ->setHelpText(tr('A description for this server')));
     }
 }

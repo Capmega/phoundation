@@ -11,6 +11,7 @@ use Phoundation\Web\Http\Html\Components\BreadCrumbs;
 use Phoundation\Web\Http\Html\Components\Buttons;
 use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
+use Phoundation\Web\Http\Html\Enums\DisplaySize;
 use Phoundation\Web\Http\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
@@ -22,7 +23,7 @@ if (Page::isPostRequestMethod()) {
     if (PostValidator::getSubmitButton() === tr('Mark all as read')) {
 //        $notifications->setStatus('READ');
         sql()->query('UPDATE `notifications` SET `status` = "READ" WHERE `users_id` = :users_id', [':users_id' => Session::getUser()->getId()]);
-        Page::getFlashMessages()->add(tr('Success'), tr('All your notifications have been marked as read'), DisplayMode::success);
+        Page::getFlashMessages()->addMessage(tr('Success'), tr('All your notifications have been marked as read'), DisplayMode::success);
         Page::redirect();
     }
 }
@@ -73,8 +74,8 @@ $documentation = Card::new()
 
 // Build and render the grid
 $grid = Grid::new()
-    ->addColumn($filters->render() . $notifications->render(), 9)
-    ->addColumn($relevant->render() . $documentation->render(), 3);
+    ->addColumn($filters->render() . $notifications->render(), DisplaySize::nine)
+    ->addColumn($relevant->render() . $documentation->render(), DisplaySize::three);
 
 echo $grid->render();
 

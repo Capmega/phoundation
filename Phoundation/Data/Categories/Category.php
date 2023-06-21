@@ -6,7 +6,7 @@ namespace Phoundation\Data\Categories;
 
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
-use Phoundation\Data\DataEntry\Definitions\DefinitionDefaults;
+use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
@@ -148,13 +148,13 @@ class Category extends DataEntry
                     // Ensure parent exists and that its or parents_id
                     $validator->or('parents_id')->isName(64)->setColumnFromQuery('parents_id', 'SELECT `id` FROM `categories` WHERE `name` = :name AND `status` IS NULL', [':name' => '$parent']);
                 }))
-            ->addDefinition(DefinitionDefaults::getName()
+            ->addDefinition(DefinitionFactory::getName()
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isFalse(function($value, $source) {
                         Category::exists($value, isset_get($source['id']));
                     }, tr('already exists'));
                 }))
-            ->addDefinition(DefinitionDefaults::getSeoName())
-            ->addDefinition(DefinitionDefaults::getDescription());
+            ->addDefinition(DefinitionFactory::getSeoName())
+            ->addDefinition(DefinitionFactory::getDescription());
     }
 }

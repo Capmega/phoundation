@@ -6,6 +6,7 @@ declare(strict_types=1);
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
+use Phoundation\Web\Http\Html\Enums\DisplaySize;
 use Phoundation\Web\Http\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
@@ -53,9 +54,9 @@ $rights = Card::new()
 
 // Build and render the grid
 $grid = Grid::new()
-    ->addColumn($card, 9)
-    ->addColumn($relevant->render() . $documentation->render(), 3)
-    ->addRow($rights, 9);
+    ->addColumn($card, DisplaySize::nine)
+    ->addColumn($relevant->render() . $documentation->render(), DisplaySize::three)
+    ->addRow($rights, DisplaySize::nine);
 
 echo $grid->render();
 

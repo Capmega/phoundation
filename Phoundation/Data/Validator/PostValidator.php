@@ -93,13 +93,24 @@ class PostValidator extends Validator
             return $this;
         }
 
-        if (count($this->selected_fields) === count(static::$get)) {
+        if (count($this->selected_fields) === count(static::$post)) {
             return $this;
         }
 
-        throw ValidationFailedException::new(tr('Unknown fields ":arguments" encountered', [
-            ':arguments' => Strings::force(static::$post, ', ')
-        ]))->makeWarning();
+        $fields = [];
+        $post   = array_keys(static::$post);
+
+        foreach ($post as $field) {
+            if (!in_array($field, $this->selected_fields)) {
+                $fields[] = tr('Unknown field ":field" encountered', [
+                    ':field' => $field
+                ]);
+            }
+        }
+
+        throw ValidationFailedException::new(tr('Unknown POST fields ":fields" encountered', [
+            ':fields' => Strings::force($post, ', ')
+        ]))->setData($fields)->makeWarning();
     }
 
 

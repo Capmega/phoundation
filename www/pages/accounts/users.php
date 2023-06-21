@@ -11,6 +11,7 @@ use Phoundation\Web\Http\Html\Components\BreadCrumbs;
 use Phoundation\Web\Http\Html\Components\Buttons;
 use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
+use Phoundation\Web\Http\Html\Enums\DisplaySize;
 use Phoundation\Web\Http\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
@@ -33,7 +34,7 @@ if (Page::isPostRequestMethod()) {
                 // Delete selected users
                 $count = $users->delete($post['id']);
 
-                Page::getFlashMessages()->add(tr('Success'), tr('Deleted ":count" users', [':count' => $count]), DisplayMode::success);
+                Page::getFlashMessages()->addMessage(tr('Success'), tr('Deleted ":count" users', [':count' => $count]), DisplayMode::success);
                 Page::redirect('this');
                 break;
 
@@ -41,14 +42,14 @@ if (Page::isPostRequestMethod()) {
                 // Undelete selected users
                 $count = $users->undelete($post['id']);
 
-                Page::getFlashMessages()->add(tr('Success'), tr('Undeleted ":count" users', [':count' => $count]), DisplayMode::success);
+                Page::getFlashMessages()->addMessage(tr('Success'), tr('Undeleted ":count" users', [':count' => $count]), DisplayMode::success);
                 Page::redirect('this');
                 break;
         }
 
     } catch (ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
-        Page::getFlashMessages()->add($e);
+        Page::getFlashMessages()->addMessage($e);
     }
 }
 
@@ -105,8 +106,8 @@ $documentation = Card::new()
 
 // Build and render the grid
 $grid = Grid::new()
-    ->addColumn($filters->render() . $users->render(), 9)
-    ->addColumn($relevant->render() . $documentation->render(), 3);
+    ->addColumn($filters->render() . $users->render(), DisplaySize::nine)
+    ->addColumn($relevant->render() . $documentation->render(), DisplaySize::three);
 
 echo $grid->render();
 

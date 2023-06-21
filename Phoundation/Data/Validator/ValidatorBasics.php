@@ -66,7 +66,7 @@ trait ValidatorBasics
      *
      * @var array|string|float|int|bool|null $selected_optional
      */
-    protected array|string|float|int|bool|null $selected_optional;
+    protected array|string|float|int|bool|null $selected_optional = null;
 
     /**
      * If true, the value is optional

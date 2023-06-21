@@ -6,7 +6,7 @@ namespace Phoundation\Developer\Incidents;
 
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
-use Phoundation\Data\DataEntry\Definitions\DefinitionDefaults;
+use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Definitions;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
@@ -70,7 +70,7 @@ class Incident extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->isName(16);
                 }))
-            ->addDefinition(DefinitionDefaults::getTitle()
+            ->addDefinition(DefinitionFactory::getTitle()
                 ->setSize(6))
             ->addDefinition(Definition::new('url')
                 ->setReadonly(true)
@@ -80,7 +80,7 @@ class Incident extends DataEntry
                 ->addValidationFunction(function ($validator) {
                     $validator->isUrl();
                 }))
-            ->addDefinition(DefinitionDefaults::getDescription())
+            ->addDefinition(DefinitionFactory::getDescription())
             ->addDefinition(Definition::new('exception')
                 ->setReadonly(true)
                 ->setLabel('Exception')

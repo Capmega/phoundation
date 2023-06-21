@@ -9,7 +9,7 @@ use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
-use Phoundation\Data\DataEntry\Definitions\DefinitionDefaults;
+use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
@@ -327,9 +327,9 @@ class Plugin extends DataEntry
                 ->setVirtual(true)
                 ->setVisible(false)
                 ->setCliField('-d,--disable'))
-            ->addDefinition(DefinitionDefaults::getName()
+            ->addDefinition(DefinitionFactory::getName()
                 ->setVisible(false))
-            ->addDefinition(DefinitionDefaults::getName()
+            ->addDefinition(DefinitionFactory::getName()
                 ->setSize(6)
                 ->setHelpText(tr('The name of this plugin')))
             ->addDefinition(Definition::new('priority')
@@ -372,6 +372,6 @@ class Plugin extends DataEntry
                 ->setMaxlength(128)
                 ->setSize(6)
                 ->setHelpText(tr('The filesystem path where this plugin is located')))
-            ->addDefinition(DefinitionDefaults::getDescription());
+            ->addDefinition(DefinitionFactory::getDescription());
     }
 }

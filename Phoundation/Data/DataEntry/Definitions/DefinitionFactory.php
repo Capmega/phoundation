@@ -31,7 +31,7 @@ use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-class DefinitionDefaults
+class DefinitionFactory
 {
     /**
      * Returns Definition object for column categories_id
@@ -692,7 +692,6 @@ class DefinitionDefaults
     public static function getName(string $column_name = 'name'): DefinitionInterface
     {
         return Definition::new($column_name)
-            ->setOptional(true)
             ->setMaxLength(64)
             ->setSize(3)
             ->setLabel(tr('Name'))

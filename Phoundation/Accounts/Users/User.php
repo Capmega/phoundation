@@ -20,7 +20,7 @@ use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
-use Phoundation\Data\DataEntry\Definitions\DefinitionDefaults;
+use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryAddress;
@@ -1342,7 +1342,7 @@ class User extends DataEntry implements UserInterface
                 ->setSize(3)
                 ->setDefault(tr('Not locked'))
                 ->setLabel(tr('Locked until')))
-            ->addDefinition(DefinitionDefaults::getEmail()
+            ->addDefinition(DefinitionFactory::getEmail()
                 ->setSize(3)
                 ->setHelpGroup(tr('Personal information'))
                 ->setHelpText(tr('The email address for this user. This is also the unique identifier for the user')))
@@ -1369,22 +1369,22 @@ class User extends DataEntry implements UserInterface
                 ->addValidationFunction(function ($validator) {
                     $validator->isName();
                 }))
-            ->addDefinition(DefinitionDefaults::getName('nickname')
+            ->addDefinition(DefinitionFactory::getName('nickname')
                 ->setLabel(tr('Nickname'))
                 ->setCliField('--nickname NAME')
                 ->setHelpGroup(tr('Personal information'))
                 ->setHelpText(tr('The nickname for this user')))
-            ->addDefinition(DefinitionDefaults::getName('first_names')
+            ->addDefinition(DefinitionFactory::getName('first_names')
                 ->setCliField('-f,--first-names NAMES')
                 ->setLabel(tr('First names'))
                 ->setHelpGroup(tr('Personal information'))
                 ->setHelpText(tr('The firstnames for this user')))
-            ->addDefinition(DefinitionDefaults::getName('last_names')
+            ->addDefinition(DefinitionFactory::getName('last_names')
                 ->setCliField('-n,--last-names')
                 ->setLabel(tr('Last names'))
                 ->setHelpGroup(tr('Personal information'))
                 ->setHelpText(tr('The lastnames / surnames for this user')))
-            ->addDefinition(DefinitionDefaults::getTitle()
+            ->addDefinition(DefinitionFactory::getTitle()
                 ->setHelpGroup(tr('Personal information'))
                 ->setHelpText(tr('The title added to this users name')))
             ->addDefinition(Definition::new('gender')
@@ -1408,12 +1408,12 @@ class User extends DataEntry implements UserInterface
                 ->addValidationFunction(function ($validator) {
                     $validator->hasMaxCharacters(6);
                 }))
-            ->addDefinition(DefinitionDefaults::getUser('leader')
+            ->addDefinition(DefinitionFactory::getUser('leader')
                 ->setCliField('--leader USER-EMAIL')
                 ->addValidationFunction(function ($validator) {
                     $validator->or('leaders_id')->isEmail()->setColumnFromQuery('leaders_id', 'SELECT `id` FROM `accounts_users` WHERE `email` = :email AND `status` IS NULL', [':email' => '$leader']);
                 }))
-            ->addDefinition(DefinitionDefaults::getUsersId('leaders_id')
+            ->addDefinition(DefinitionFactory::getUsersId('leaders_id')
                 ->setCliField('--leaders-id USERS-DATABASE-ID')
                 ->setLabel(tr('Leader'))
                 ->setHelpGroup(tr('Hierarchical information'))
@@ -1433,7 +1433,7 @@ class User extends DataEntry implements UserInterface
                 ->addValidationFunction(function ($validator) {
                     $validator->isBoolean();
                 }))
-            ->addDefinition(DefinitionDefaults::getCode()
+            ->addDefinition(DefinitionFactory::getCode()
                 ->setHelpGroup(tr('Personal information'))
                 ->setHelpText(tr('The code associated with this user')))
             ->addDefinition(Definition::new('priority')
@@ -1449,7 +1449,7 @@ class User extends DataEntry implements UserInterface
                 ->addValidationFunction(function ($validator) {
                     $validator->isInteger();
                 }))
-            ->addDefinition(DefinitionDefaults::getDate('birthdate')
+            ->addDefinition(DefinitionFactory::getDate('birthdate')
                 ->setLabel(tr('Birthdate'))
                 ->setCliField('-b,--birthdate')
                 ->setHelpGroup(tr('Personal information'))
@@ -1457,7 +1457,7 @@ class User extends DataEntry implements UserInterface
                 ->addValidationFunction(function ($validator) {
                     $validator->isDate()->isPast();
                 }))
-            ->addDefinition(DefinitionDefaults::getPhones()
+            ->addDefinition(DefinitionFactory::getPhones()
                 ->setHelpGroup(tr('Personal information'))
                 ->setHelpText(tr('Multiple phone numbers where this user may be contacted')))
             ->addDefinition(Definition::new('address')
@@ -1485,18 +1485,18 @@ class User extends DataEntry implements UserInterface
                 ->addValidationFunction(function ($validator) {
                     $validator->isPrintable();
                 }))
-            ->addDefinition(DefinitionDefaults::getCountry()
+            ->addDefinition(DefinitionFactory::getCountry()
                 ->setHelpGroup(tr('Location information'))
                 ->setHelpText(tr('The country where this user resides')))
-            ->addDefinition(DefinitionDefaults::getCountriesId())
-            ->addDefinition(DefinitionDefaults::getState()
+            ->addDefinition(DefinitionFactory::getCountriesId())
+            ->addDefinition(DefinitionFactory::getState()
                 ->setHelpGroup(tr('Location information'))
                 ->setHelpText(tr('The state where this user resides')))
-            ->addDefinition(DefinitionDefaults::getStatesId())
-            ->addDefinition(DefinitionDefaults::getCity()
+            ->addDefinition(DefinitionFactory::getStatesId())
+            ->addDefinition(DefinitionFactory::getCity()
                 ->setHelpGroup(tr('Location information'))
                 ->setHelpText(tr('The city where this user resides')))
-            ->addDefinition(DefinitionDefaults::getCitiesId())
+            ->addDefinition(DefinitionFactory::getCitiesId())
             ->addDefinition(Definition::new('latitude')
                 ->setOptional(true)
                 ->setInputType(InputType::number)
@@ -1565,14 +1565,14 @@ class User extends DataEntry implements UserInterface
                 ->addValidationFunction(function ($validator) {
                     $validator->isName();
                 }))
-            ->addDefinition(DefinitionDefaults::getTimezone()
+            ->addDefinition(DefinitionFactory::getTimezone()
                 ->setHelpGroup(tr('Location information'))
                 ->setHelpText(tr('The timezone where this user resides')))
-            ->addDefinition(DefinitionDefaults::getTimezonesId())
-            ->addDefinition(DefinitionDefaults::getLanguage()
+            ->addDefinition(DefinitionFactory::getTimezonesId())
+            ->addDefinition(DefinitionFactory::getLanguage()
                 ->setHelpGroup(tr('Location information'))
                 ->setHelpText(tr('The display language for this user')))
-            ->addDefinition(DefinitionDefaults::getLanguagesId())
+            ->addDefinition(DefinitionFactory::getLanguagesId())
             ->addDefinition(Definition::new('keywords')
                 ->setOptional(true)
                 ->setMaxlength(255)
@@ -1586,14 +1586,14 @@ class User extends DataEntry implements UserInterface
                     $validator->isPrintable();
                     //$validator->sanitizeForceArray(' ')->each()->isWord()->sanitizeForceString()
                 }))
-            ->addDefinition(DefinitionDefaults::getDateTime('verified_on')
+            ->addDefinition(DefinitionFactory::getDateTime('verified_on')
                 ->setReadonly(true)
                 ->setNullInputType(InputType::text)
                 ->setDefault(tr('Not verified'))
                 ->setLabel(tr('Account verified on'))
                 ->setHelpGroup(tr('Account information'))
                 ->setHelpText(tr('The date when this user was email verified. Empty if not yet verified')))
-            ->addDefinition(DefinitionDefaults::getUrl('redirect')
+            ->addDefinition(DefinitionFactory::getUrl('redirect')
                 ->setSize(6)
                 ->setLabel(tr('Redirect URL'))
                 ->setHelpGroup(tr('Account information'))
@@ -1603,11 +1603,11 @@ class User extends DataEntry implements UserInterface
                 ->setLabel(tr('Website URL'))
                 ->setHelpGroup(tr('Account information'))
                 ->setHelpText(tr('A URL specified by the user, usually containing more information about the user')))
-            ->addDefinition(DefinitionDefaults::getDescription()
+            ->addDefinition(DefinitionFactory::getDescription()
                 ->setSize(6)
                 ->setHelpGroup(tr('Account information'))
                 ->setHelpText(tr('A public description about this user')))
-            ->addDefinition(DefinitionDefaults::getComments()
+            ->addDefinition(DefinitionFactory::getComments()
                 ->setSize(6)
                 ->setHelpGroup(tr('Account information'))
                 ->setHelpText(tr('Comments about this user by leaders or administrators that are not visible to the user')))

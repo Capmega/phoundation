@@ -77,11 +77,8 @@ class Buttons extends ElementsBlock implements Iterator
     public function addButton(Button|string|null $button, DisplayMode $mode = DisplayMode::primary, InputTypeInterface|string $type_or_anchor_url = ButtonType::button, bool $outline = false, bool $right = false): static
     {
         if (is_string($button)) {
-            if ($button === tr('Submit')) {
+            if ($button === tr('Save')) {
                 $type_or_anchor_url = ButtonType::submit;
-                $name               = 'submit';
-            } else {
-                $name = Seo::string($button);
             }
 
             // Button was specified as string, create a button first
@@ -95,7 +92,7 @@ class Buttons extends ElementsBlock implements Iterator
                 ->setValue($button)
                 ->setRight($right)
                 ->setMode($mode)
-                ->setName($name);
+                ->setName('submit');
 
             switch ($type_or_anchor_url) {
                 case ButtonType::submit:

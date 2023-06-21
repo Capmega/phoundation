@@ -10,6 +10,7 @@ use Phoundation\Web\Http\Html\Components\BreadCrumbs;
 use Phoundation\Web\Http\Html\Components\Buttons;
 use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
+use Phoundation\Web\Http\Html\Enums\DisplaySize;
 use Phoundation\Web\Http\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
@@ -22,13 +23,13 @@ if (Page::isPostRequestMethod()) {
         switch (PostValidator::getSubmitButton()) {
             case tr('Scan'):
                 $count = Plugins::scan();
-                Page::getFlashMessages()->add(tr('Success'), tr('Finished scanning for libraries, found and registered ":count" new libraries', [':count' => $count]), DisplayMode::success);
+                Page::getFlashMessages()->addMessage(tr('Success'), tr('Finished scanning for libraries, found and registered ":count" new libraries', [':count' => $count]), DisplayMode::success);
                 Page::redirect('this');
         }
 
     } catch (ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
-        Page::getFlashMessages()->add($e);
+        Page::getFlashMessages()->addMessage($e);
     }
 }
 
@@ -79,8 +80,8 @@ $documentation = Card::new()
 
 // Build and render the grid
 $grid = Grid::new()
-    ->addColumn($filters->render() . $plugins->render(), 9)
-    ->addColumn($relevant->render() . $documentation->render(), 3);
+    ->addColumn($filters->render() . $plugins->render(), DisplaySize::nine)
+    ->addColumn($relevant->render() . $documentation->render(), DisplaySize::three);
 
 echo $grid->render();
 

@@ -62,13 +62,16 @@ class GridColumn extends Layout
      *
      * @param Stringable|string|float|int|null $content
      * @param DisplaySizeInterface|int|null $size $size
+     * @param bool $use_form
      * @return static
      */
-    public function addContent(Stringable|string|float|int|null $content, DisplaySizeInterface|int|null $size = null): static
+    public function addContent(Stringable|string|float|int|null $content, DisplaySizeInterface|int|null $size = null, bool $use_form = false): static
     {
         if ($size !== null) {
             $this->setSize($size);
         }
+
+        $this->useForm($use_form);
 
         return parent::addContent($content);
     }

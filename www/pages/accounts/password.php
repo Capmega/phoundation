@@ -12,6 +12,7 @@ use Phoundation\Web\Http\Html\Components\Buttons;
 use Phoundation\Web\Http\Html\Components\Img;
 use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
+use Phoundation\Web\Http\Html\Enums\DisplaySize;
 use Phoundation\Web\Http\Html\Layouts\Grid;
 use Phoundation\Web\Http\Html\Layouts\GridColumn;
 use Phoundation\Web\Http\UrlBuilder;
@@ -37,12 +38,12 @@ if (Page::isPostRequestMethod()) {
         $user = User::get($get['id']);
         $user->setPassword($post['password1'] ,$post['password2']);
 
-        Page::getFlashMessages()->add(tr('Success'), tr('The password for user ":user" has been updated', [':user' => $user->getDisplayName()]), DisplayMode::success);
+        Page::getFlashMessages()->addMessage(tr('Success'), tr('The password for user ":user" has been updated', [':user' => $user->getDisplayName()]), DisplayMode::success);
         Page::redirect('this');
 
     } catch (ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
-        Page::getFlashMessages()->add($e);
+        Page::getFlashMessages()->addMessage($e);
         $user->forceApply();
     }
 }
@@ -108,7 +109,7 @@ $documentation = Card::new()
 // Build and render the grid
 $grid = Grid::new()
     ->addColumn($column)
-    ->addColumn($picture->render() . $relevant->render() . $documentation->render(), 3);
+    ->addColumn($picture->render() . $relevant->render() . $documentation->render(), DisplaySize::three);
 
 echo $grid->render();
 

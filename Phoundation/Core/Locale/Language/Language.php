@@ -6,7 +6,7 @@ namespace Phoundation\Core\Locale\Language;
 
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
-use Phoundation\Data\DataEntry\Definitions\DefinitionDefaults;
+use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
@@ -145,10 +145,10 @@ class Language extends DataEntry
     protected function initDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->addDefinition(DefinitionDefaults::getName()
+            ->addDefinition(DefinitionFactory::getName()
                 ->setDisabled(true)
                 ->setHelpText(tr('The name for this language')))
-            ->addDefinition(DefinitionDefaults::getSeoName())
+            ->addDefinition(DefinitionFactory::getSeoName())
             ->addDefinition(Definition::new('code_639_1')
                 ->setDisabled(true)
                 ->setInputType(InputTypeExtended::code)
@@ -181,7 +181,7 @@ class Language extends DataEntry
                 ->setSize(12)
                 ->setMaxlength(3)
                 ->setHelpText(tr('The ISO 639-3 code for this language')))
-            ->addDefinition(DefinitionDefaults::getDescription()
+            ->addDefinition(DefinitionFactory::getDescription()
                 ->setHelpText(tr('The description for this language')));
     }
 }

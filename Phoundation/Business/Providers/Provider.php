@@ -6,7 +6,7 @@ namespace Phoundation\Business\Providers;
 
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
-use Phoundation\Data\DataEntry\Definitions\DefinitionDefaults;
+use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryAddress;
@@ -120,21 +120,21 @@ class Provider extends DataEntry
     protected function initDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->addDefinition(DefinitionDefaults::getCategoriesId())
-            ->addDefinition(DefinitionDefaults::getCategory())
-            ->addDefinition(DefinitionDefaults::getCompaniesId())
-            ->addDefinition(DefinitionDefaults::getCompany())
-            ->addDefinition(DefinitionDefaults::getName()
+            ->addDefinition(DefinitionFactory::getCategoriesId())
+            ->addDefinition(DefinitionFactory::getCategory())
+            ->addDefinition(DefinitionFactory::getCompaniesId())
+            ->addDefinition(DefinitionFactory::getCompany())
+            ->addDefinition(DefinitionFactory::getName()
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isFalse(function($value, $source) {
                         Provider::exists($value, isset_get($source['id']));
                     }, tr('already exists'));
                 }))
-            ->addDefinition(DefinitionDefaults::getSeoName())
-            ->addDefinition(DefinitionDefaults::getCode())
-            ->addDefinition(DefinitionDefaults::getEmail())
-            ->addDefinition(DefinitionDefaults::getLanguagesId())
-            ->addDefinition(DefinitionDefaults::getLanguage())
+            ->addDefinition(DefinitionFactory::getSeoName())
+            ->addDefinition(DefinitionFactory::getCode())
+            ->addDefinition(DefinitionFactory::getEmail())
+            ->addDefinition(DefinitionFactory::getLanguagesId())
+            ->addDefinition(DefinitionFactory::getLanguage())
             ->addDefinition(Definition::new('address1')
                 ->setOptional(true)
                 ->setAutoComplete(true)
@@ -167,15 +167,15 @@ class Provider extends DataEntry
                 ->setSize(6)
                 ->setLabel(tr('Postal code / Zipcode'))
                 ->setHelpText(tr('Postal code (zipcode) information for this provider')))
-            ->addDefinition(DefinitionDefaults::getCountriesId())
-            ->addDefinition(DefinitionDefaults::getCountry())
-            ->addDefinition(DefinitionDefaults::getStatesId())
-            ->addDefinition(DefinitionDefaults::getState())
-            ->addDefinition(DefinitionDefaults::getCitiesId())
-            ->addDefinition(DefinitionDefaults::getCity())
-            ->addDefinition(DefinitionDefaults::getPhones())
-            ->addDefinition(DefinitionDefaults::getUrl())
-            ->addDefinition(DefinitionDefaults::getDescription())
+            ->addDefinition(DefinitionFactory::getCountriesId())
+            ->addDefinition(DefinitionFactory::getCountry())
+            ->addDefinition(DefinitionFactory::getStatesId())
+            ->addDefinition(DefinitionFactory::getState())
+            ->addDefinition(DefinitionFactory::getCitiesId())
+            ->addDefinition(DefinitionFactory::getCity())
+            ->addDefinition(DefinitionFactory::getPhones())
+            ->addDefinition(DefinitionFactory::getUrl())
+            ->addDefinition(DefinitionFactory::getDescription())
             ->addDefinition(Definition::new('picture')
                 ->setVirtual(true)
                 ->setVisible(false));

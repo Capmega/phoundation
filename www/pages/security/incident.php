@@ -7,6 +7,7 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Web\Http\Html\Components\Buttons;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
+use Phoundation\Web\Http\Html\Enums\DisplaySize;
 use Phoundation\Web\Http\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
@@ -46,8 +47,8 @@ $documentation = Card::new()
 
 // Build and render the grid
 $grid = Grid::new()
-    ->addColumn($card, 9)
-    ->addColumn($relevant->render() . $documentation->render(), 3);
+    ->addColumn($card, DisplaySize::nine)
+    ->addColumn($relevant->render() . $documentation->render(), DisplaySize::three);
 
 echo $grid->render();
 

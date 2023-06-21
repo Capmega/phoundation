@@ -6,7 +6,7 @@ namespace Phoundation\Accounts\Rights;
 
 use Phoundation\Accounts\Rights\Interfaces\RightInterface;
 use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\Definitions\DefinitionDefaults;
+use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
@@ -52,13 +52,13 @@ class Right extends DataEntry implements RightInterface
     protected function initDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->addDefinition(DefinitionDefaults::getName()
+            ->addDefinition(DefinitionFactory::getName()
                 ->setInputType(InputTypeExtended::name)
                 ->setSize(12)
                 ->setMaxlength(64)
                 ->setHelpText(tr('The name for this right')))
-            ->addDefinition(DefinitionDefaults::getSeoName())
-            ->addDefinition(DefinitionDefaults::getDescription()
+            ->addDefinition(DefinitionFactory::getSeoName())
+            ->addDefinition(DefinitionFactory::getDescription()
                 ->setHelpText(tr('The description for this right')));
     }
 }

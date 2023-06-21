@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 use Phoundation\Accounts\Users\User;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
@@ -15,6 +14,7 @@ use Phoundation\Web\Http\Html\Components\Img;
 use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Http\Html\Enums\ButtonType;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
+use Phoundation\Web\Http\Html\Enums\DisplaySize;
 use Phoundation\Web\Http\Html\Layouts\Grid;
 use Phoundation\Web\Http\Html\Layouts\GridColumn;
 use Phoundation\Web\Http\UrlBuilder;
@@ -33,7 +33,7 @@ $user = User::get($get['id']);
 if (Page::isPostRequestMethod()) {
     try {
         switch (PostValidator::getSubmitButton()) {
-            case tr('Submit'):
+            case tr('Save'):
                 // Update user
                 $user->apply()->save();
 
@@ -41,28 +41,28 @@ if (Page::isPostRequestMethod()) {
 // TODO Implement timers
 //showdie(Timers::get('query'));
 
-                Page::getFlashMessages()->add(tr('Success'), tr('User ":user" has been updated', [':user' => $user->getDisplayName()]), DisplayMode::success);
+                Page::getFlashMessages()->addMessage(tr('Success'), tr('User ":user" has been updated', [':user' => $user->getDisplayName()]), DisplayMode::success);
                 Page::redirect('referer');
 
             case tr('Impersonate'):
                 $user->impersonate();
-                Page::getFlashMessages()->add(tr('Success'), tr('You are now impersonating ":user"', [':user' => $user->getDisplayName()]), DisplayMode::success);
+                Page::getFlashMessages()->addMessage(tr('Success'), tr('You are now impersonating ":user"', [':user' => $user->getDisplayName()]), DisplayMode::success);
                 Page::redirect('root');
 
             case tr('Delete'):
                 $user->delete();
-                Page::getFlashMessages()->add(tr('Success'), tr('The user ":user" has been deleted', [':user' => $user->getDisplayName()]), DisplayMode::success);
+                Page::getFlashMessages()->addMessage(tr('Success'), tr('The user ":user" has been deleted', [':user' => $user->getDisplayName()]), DisplayMode::success);
                 Page::redirect();
 
             case tr('Undelete'):
                 $user->undelete();
-                Page::getFlashMessages()->add(tr('Success'), tr('The user ":user" has been undeleted', [':user' => $user->getDisplayName()]), DisplayMode::success);
+                Page::getFlashMessages()->addMessage(tr('Success'), tr('The user ":user" has been undeleted', [':user' => $user->getDisplayName()]), DisplayMode::success);
                 Page::redirect();
         }
 
     } catch (IncidentsException|ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
-        Page::getFlashMessages()->add($e);
+        Page::getFlashMessages()->addMessage($e);
         $user->forceApply();
     }
 }
@@ -93,7 +93,7 @@ $user_card = Card::new()
     ->setTitle(tr('Edit data for user :name', [':name' => $user->getDisplayName()]))
     ->setContent($user->getHtmlForm()->render())
     ->setButtons(Buttons::new()
-        ->addButton(tr('Submit'), type_or_anchor_url: ButtonType::submit)
+        ->addButton(tr('Save'), type_or_anchor_url: ButtonType::submit)
         ->addButton(tr('Back'), DisplayMode::secondary, '/accounts/users.html', true)
         ->addButton(tr('Audit'), DisplayMode::green, '/audit/meta-' . $user->getMeta() . '.html', false, true)
         ->addButton(isset_get($delete))
@@ -109,7 +109,7 @@ if ($user->getId()) {
             ->setMethod('POST')
             ->render())
         ->setButtons(Buttons::new()
-            ->addButton(tr('Submit'))
+            ->addButton(tr('Save'))
             ->addButton(tr('Back'), DisplayMode::secondary, '/accounts/users.html', true));
 }
 
@@ -150,7 +150,7 @@ $documentation = Card::new()
 // Build and render the grid
 $grid = Grid::new()
     ->addColumn($column)
-    ->addColumn($picture->render() . $relevant->render() . $documentation->render(), 3);
+    ->addColumn($picture->render() . $relevant->render() . $documentation->render(), DisplaySize::three);
 
 echo $grid->render();
 

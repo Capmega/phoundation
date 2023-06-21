@@ -11,6 +11,7 @@ use Phoundation\Web\Http\Html\Components\Buttons;
 use Phoundation\Web\Http\Html\Components\Img;
 use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
+use Phoundation\Web\Http\Html\Enums\DisplaySize;
 use Phoundation\Web\Http\Html\Layouts\Grid;
 use Phoundation\Web\Http\Html\Layouts\GridColumn;
 use Phoundation\Web\Http\UrlBuilder;
@@ -34,12 +35,12 @@ if (Page::isPostRequestMethod()) {
 //        $customer->apply()->save();
 //
 //        // Go back to where we came from
-//        Page::getFlashMessages()->add(tr('Success'), tr('Customer ":customer" has been updated', [':customer' => $customer->getName()]), DisplayMode::success);
+//        Page::getFlashMessages()->addFlashMessage(tr('Success'), tr('Customer ":customer" has been updated', [':customer' => $customer->getName()]), DisplayMode::success);
 //        Page::redirect('referer');
 
     } catch (ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
-        Page::getFlashMessages()->add($e);
+        Page::getFlashMessages()->addMessage($e);
         $customer->forceApply();
     }
 }
@@ -95,7 +96,7 @@ $documentation = Card::new()
 // Build and render the grid
 $grid = Grid::new()
     ->addColumn($column)
-    ->addColumn($picture->render() . $relevant->render() . $documentation->render(), 3);
+    ->addColumn($picture->render() . $relevant->render() . $documentation->render(), DisplaySize::three);
 
 echo $grid->render();
 

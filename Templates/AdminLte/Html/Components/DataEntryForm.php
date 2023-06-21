@@ -130,6 +130,11 @@ class DataEntryForm extends Renderer
                     ]));
                 }
 
+                if ($definition->getMeta() or $definition->getVirtual() or $definition->getDisabled() or $definition->getReadonly()) {
+                    // This is an unmutable meta field, virtual field, or readonly field. don't put a name
+                    $field_name = '';
+                }
+
                 // This is a new Definition object, get the definitions from there
                 // TODO Use the Definition class all here,
                 $definition = $definition->getDefinitions();

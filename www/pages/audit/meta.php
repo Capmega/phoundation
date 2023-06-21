@@ -8,6 +8,7 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Web\Http\Html\Components\BreadCrumbs;
 use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
+use Phoundation\Web\Http\Html\Enums\DisplaySize;
 use Phoundation\Web\Http\Html\Layouts\Grid;
 use Phoundation\Web\Page;
 
@@ -35,8 +36,8 @@ $documentation = Card::new()
 
 // Build and render the grid
 $grid = Grid::new()
-    ->addColumn($card->render(), 9)
-    ->addColumn($documentation->render(), 3);
+    ->addColumn($card->render(), DisplaySize::nine)
+    ->addColumn($documentation->render(), DisplaySize::three);
 
 echo $grid->render();
 

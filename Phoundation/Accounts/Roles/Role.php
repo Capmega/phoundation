@@ -10,7 +10,7 @@ use Phoundation\Accounts\Roles\Interfaces\RoleInterface;
 use Phoundation\Accounts\Users\Interfaces\UsersInterface;
 use Phoundation\Accounts\Users\Users;
 use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\Definitions\DefinitionDefaults;
+use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
@@ -106,13 +106,13 @@ class Role extends DataEntry implements RoleInterface
     protected function initDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->addDefinition(DefinitionDefaults::getName()
+            ->addDefinition(DefinitionFactory::getName()
                 ->setInputType(InputTypeExtended::name)
                 ->setSize(12)
                 ->setMaxlength(64)
                 ->setHelpText(tr('The name for this role')))
-            ->addDefinition(DefinitionDefaults::getSeoName())
-            ->addDefinition(DefinitionDefaults::getDescription()
+            ->addDefinition(DefinitionFactory::getSeoName())
+            ->addDefinition(DefinitionFactory::getDescription()
                 ->setHelpText(tr('The description for this role')));
     }
 }

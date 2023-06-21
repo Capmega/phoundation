@@ -95,9 +95,20 @@ class GetValidator extends Validator
             return $this;
         }
 
-        throw ValidationFailedException::new(tr('Unknown fields ":arguments" encountered', [
-            ':arguments' => Json::encode(static::$get)
-        ]))->makeWarning();
+        $fields = [];
+        $get    = array_keys(static::$get);
+
+        foreach ($get as $field) {
+            if (!in_array($field, $this->selected_fields)) {
+                $fields[] = tr('Unknown field ":field" encountered', [
+                    ':field' => $field
+                ]);
+            }
+        }
+
+        throw ValidationFailedException::new(tr('Unknown GET fields ":fields" encountered', [
+            ':fields' => Strings::force($get, ', ')
+        ]))->setData($fields)->makeWarning();
     }
 
 

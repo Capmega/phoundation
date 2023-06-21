@@ -113,7 +113,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      *
      * @var array $meta_fields
      */
-    protected array $meta_fields = [
+    protected static array $meta_fields = [
         'id',
         'created_by',
         'created_on',
@@ -1037,7 +1037,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
 
         foreach ($this->definitions->getKeys() as $key) {
             // Meta keys cannot be set through DataEntry::setData()
-            if (in_array($key, $this->meta_fields)) {
+            if (in_array($key, self::$meta_fields)) {
                 continue;
             }
 
@@ -1143,7 +1143,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
     protected function setMetaData(?array $data = null): static
     {
         // Reset meta fields
-        foreach ($this->meta_fields as $field) {
+        foreach (self::$meta_fields as $field) {
             $this->data[$field] = null;
         }
 
@@ -1160,7 +1160,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
 
         foreach ($data as $key => $value) {
             // Only these keys will be set through setMetaData()
-            if (!in_array($key, $this->meta_fields)) {
+            if (!in_array($key, self::$meta_fields)) {
                 continue;
             }
 
@@ -1185,7 +1185,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
         // Only save values that are defined for this object
         if ($this->definitions->exists($field)) {
             // Skip all meta fields like id, created_on, meta_id, etc etc etc..
-            if (!in_array($field, $this->meta_fields)) {
+            if (!in_array($field, self::$meta_fields)) {
                 // If the key is defined as readonly or disabled, it cannot be updated unless it's a new object.
                 if ($force or !$this->getId() or (!$this->definitions->get($field)->getReadonly() and !$this->definitions->get($field)->getDisabled())) {
                     $definition = $this->definitions->get($field);

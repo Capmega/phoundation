@@ -4,14 +4,11 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Definitions;
 
-use PDOStatement;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\DataPrefix;
 use Phoundation\Data\Traits\DataTable;
-use Phoundation\Exception\OutOfBoundsException;
 use Stringable;
 
 

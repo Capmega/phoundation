@@ -7,6 +7,7 @@ namespace Phoundation\Web\Http\Html\Modals;
 use Phoundation\Core\Config;
 use Phoundation\Web\Http\Html\Components\Modal;
 use Phoundation\Web\Http\Html\Components\Script;
+use Phoundation\Web\Http\Html\Enums\DisplaySize;
 use Phoundation\Web\Http\Html\Forms\SignInForm;
 use Phoundation\Web\Http\Html\Layouts\Grid;
 use Phoundation\Web\Http\Html\Layouts\GridColumn;
@@ -49,9 +50,9 @@ class MetaModal extends Modal
         // Build the layout
         $layout = Grid::new()
             ->addRow(GridRow::new()
-                ->addColumn(GridColumn::new()->setSize(3))
-                ->addColumn(GridColumn::new()->setSize(6)->setContent($form))
-                ->addColumn(GridColumn::new()->setSize(3))
+                ->addColumn(GridColumn::new()->setSize(DisplaySize::three))
+                ->addColumn(GridColumn::new()->setSize(DisplaySize::six)->setContent($form))
+                ->addColumn(GridColumn::new()->setSize(DisplaySize::three))
             );
 
         // Set defaults

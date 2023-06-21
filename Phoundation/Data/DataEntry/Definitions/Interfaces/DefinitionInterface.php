@@ -105,18 +105,6 @@ interface DefinitionInterface
     public function getMeta(): bool;
 
     /**
-     * Sets if this field is a meta field
-     *
-     * If this field is a meta field, it will be readonly for user actions
-     *
-     * @note Defaults to false
-     * @param bool $value
-     * @return static
-     * @see Definition::setVisible()
-     */
-    public function setMeta(bool $value): static;
-
-    /**
      * Returns if this field is virtual
      *
      * If this field is virtual, it will be visible and can be manipulated but will have no direct database entry.

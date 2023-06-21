@@ -6,7 +6,7 @@ namespace Phoundation\Processes;
 
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
-use Phoundation\Data\DataEntry\Definitions\DefinitionDefaults;
+use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryDescription;
@@ -187,7 +187,7 @@ class Task extends DataEntry
                 ->setLabel('Results')
                 ->setSize(12)
                 ->setReadonly(true))
-            ->addDefinition(DefinitionDefaults::getDescription()
+            ->addDefinition(DefinitionFactory::getDescription()
                 ->setHelpText(tr('A description for this task')));
     }
 }

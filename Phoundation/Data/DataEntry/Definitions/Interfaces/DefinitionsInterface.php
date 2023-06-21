@@ -2,8 +2,9 @@
 
 namespace Phoundation\Data\DataEntry\Definitions\Interfaces;
 
-
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Stringable;
+
 
 /**
  * Class Definitions
@@ -15,7 +16,7 @@ use Stringable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-interface DefinitionsInterface
+interface DefinitionsInterface extends IteratorInterface
 {
     /**
      * Adds the specified Definition to the fields list
@@ -31,6 +32,13 @@ interface DefinitionsInterface
      * @return DefinitionInterface
      */
     public function current(): DefinitionInterface;
+
+    /**
+     * Returns the current key for the current button
+     *
+     * @return string|float|int|null
+     */
+    public function key(): string|float|int|null;
 
     /**
      * Returns the specified field

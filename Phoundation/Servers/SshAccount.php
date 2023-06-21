@@ -6,7 +6,7 @@ namespace Phoundation\Servers;
 
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
-use Phoundation\Data\DataEntry\Definitions\DefinitionDefaults;
+use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
@@ -78,7 +78,7 @@ class SshAccount extends DataEntry
     protected function initDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->addDefinition(DefinitionDefaults::getName()
+            ->addDefinition(DefinitionFactory::getName()
                 ->setSize(6)
                 ->setHelpGroup(tr('Identification'))
                 ->setHelpText(tr('The name for this account')))
@@ -93,7 +93,7 @@ class SshAccount extends DataEntry
                 ->setSize(6)
                 ->setMaxlength(64)
                 ->setHelpText(tr('The username on the server for this account')))
-            ->addDefinition(DefinitionDefaults::getDescription()
+            ->addDefinition(DefinitionFactory::getDescription()
                 ->setHelpText(tr('The description for this account')))
             ->addDefinition(Definition::new('ssh_key')
                 ->setLabel(tr('SSH key'))
