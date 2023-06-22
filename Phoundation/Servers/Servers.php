@@ -68,11 +68,7 @@ class Servers extends DataList
      */
     public function getHtmlSelect(): SelectInterface
     {
-        return Select::new()
-            ->setSourceQuery('SELECT    `id`, `name` 
-                                          FROM     `servers`
-                                          WHERE    `status` IS NULL 
-                                          ORDER BY `name`')
+        return parent::getHtmlSelect()
             ->setName('servers_id')
             ->setNone(tr('Please select a server'))
             ->setEmpty(tr('No servers available'));

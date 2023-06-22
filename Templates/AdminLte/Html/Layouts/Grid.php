@@ -38,18 +38,18 @@ class Grid extends Renderer
     {
         $this->render = '<div class="container-fluid">';
 
-        if ($this->element->getForm()) {
+        if ($this->render_object->getForm()) {
             // Return content rendered in a form
             $render = '';
 
-            foreach ($this->element->getSource() as $row) {
+            foreach ($this->render_object->getSource() as $row) {
                 $render .= $row->render();
             }
 
-            $this->render .= $this->element->getForm()->setContent($render)->render();
-            $this->element->setForm(null);
+            $this->render .= $this->render_object->getForm()->setContent($render)->render();
+            $this->render_object->setForm(null);
         } else {
-            foreach ($this->element->getSource() as $row) {
+            foreach ($this->render_object->getSource() as $row) {
                 $this->render .= $row->render();
             }
         }

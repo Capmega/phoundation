@@ -91,11 +91,20 @@ class UrlBuilder implements Stringable
     /**
      * Returns the current URL
      *
+     * @param string|int|null $id
      * @return static
      */
-    public static function getCurrent(): static
+    public static function getCurrent(string|int|null $id = null): static
     {
-        return static::getCurrentDomainUrl();
+        $url = static::getCurrentDomainUrl();
+
+        if ($id) {
+            // Inject the ID in the URL
+            $url = substr((string) $url, 0, -5) . '-' . $id . '.html';
+            $url = new UrlBuilder($url);
+        }
+
+        return $url;
     }
 
 

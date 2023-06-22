@@ -21,13 +21,6 @@ use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 interface UsersInterface extends DataListInterface
 {
     /**
-     * Returns an HTML select component object containing the entries in this list
-     *
-     * @return SelectInterface
-     */
-    public function getHtmlSelect(): SelectInterface;
-
-    /**
      * Set the entries to the specified list
      *
      * @param array|null $list

@@ -65,11 +65,7 @@ class Providers extends DataList
      */
     public function getHtmlSelect(): SelectInterface
     {
-        return Select::new()
-            ->setSourceQuery('SELECT    `id`, `name` 
-                                          FROM     `business_providers`
-                                          WHERE    `status` IS NULL 
-                                          ORDER BY `name`')
+        return parent::getHtmlSelect()
             ->setName('providers_id')
             ->setNone(tr('Please select a provider'))
             ->setEmpty(tr('No providers available'));

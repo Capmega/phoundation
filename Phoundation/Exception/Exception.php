@@ -292,7 +292,12 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
      */
     public function log(): static
     {
-        Log::warning($this);
+        if ($this->warning) {
+            Log::warning($this);
+        } else {
+            Log::error($this);
+        }
+
         return $this;
     }
 

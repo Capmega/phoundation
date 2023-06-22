@@ -24,7 +24,7 @@ class InputText extends Input
      */
     public function __construct()
     {
-        $this->type = InputType::text;
+        $this->type = $this->type ?? InputType::text;
         parent::__construct();
     }
 

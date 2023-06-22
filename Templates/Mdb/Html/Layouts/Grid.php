@@ -38,7 +38,7 @@ class Grid extends Renderer
     {
         $this->render = '';
 
-        foreach ($this->element->getSource() as $row) {
+        foreach ($this->render_object->getSource() as $row) {
             $this->render .= $row->render();
         }
 

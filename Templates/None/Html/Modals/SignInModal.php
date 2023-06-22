@@ -44,7 +44,7 @@ class SignInModal extends Renderer
     public function render(): ?string
     {
         // Build the form
-        $form = $this->element->getForm()->render();
+        $form = $this->render_object->getForm()->render();
 
         // Build the layout
         $layout = Grid::new()
@@ -55,7 +55,7 @@ class SignInModal extends Renderer
             );
 
         // Set defaults
-        $this->element
+        $this->render_object
             ->setId('signinModal')
             ->setSize('lg')
             ->setTitle(tr('Sign in'))

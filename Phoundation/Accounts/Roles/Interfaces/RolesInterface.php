@@ -64,11 +64,4 @@ interface RolesInterface extends DataListInterface
      * @return static
      */
     public function save(): static;
-
-    /**
-     * Returns an HTML select component object containing the entries in this list
-     *
-     * @return SelectInterface
-     */
-    public function getHtmlSelect(): SelectInterface;
 }

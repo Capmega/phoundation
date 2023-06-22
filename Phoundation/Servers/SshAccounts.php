@@ -68,11 +68,7 @@ class SshAccounts extends DataList
      */
     public function getHtmlSelect(): SelectInterface
     {
-        return Select::new()
-            ->setSourceQuery('SELECT    `id`, `name` 
-                                          FROM     `ssh_accounts`
-                                          WHERE    `status` IS NULL 
-                                          ORDER BY `name`')
+        return parent::getHtmlSelect()
             ->setName('ssh_accounts_id')
             ->setNone(tr('Please select an SSH account'))
             ->setEmpty(tr('No SSH accounts available'));

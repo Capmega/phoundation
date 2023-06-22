@@ -38,7 +38,7 @@ class Menu extends Renderer
      */
     public function render(): ?string
     {
-        return $this->renderMenu($this->element->getSource(), 0);
+        return $this->renderMenu($this->render_object->getSource(), 0);
     }
 
 

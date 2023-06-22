@@ -31,11 +31,11 @@ class Renderer
     protected ?string $render = null;
 
     /**
-     * The element to render
+     * The object to render
      *
-     * @var ElementsBlockInterface|ElementInterface $element
+     * @var ElementsBlockInterface|ElementInterface $render_object
      */
-    protected ElementsBlockInterface|ElementInterface $element;
+    protected ElementsBlockInterface|ElementInterface $render_object;
 
     /**
      * The parent render function
@@ -48,11 +48,11 @@ class Renderer
     /**
      * Renderer class element
      *
-     * @param ElementsBlockInterface|ElementInterface $element
+     * @param ElementsBlockInterface|ElementInterface $render_object
      */
-    public function __construct(ElementsBlockInterface|ElementInterface $element)
+    public function __construct(ElementsBlockInterface|ElementInterface $render_object)
     {
-        $this->element = $element;
+        $this->render_object = $render_object;
     }
 
 
@@ -95,12 +95,12 @@ class Renderer
     /**
      * Sets the element to be rendered
      *
-     * @param ElementsBlockInterface|ElementInterface $element
+     * @param ElementsBlockInterface|ElementInterface $render_object
      * @return static
      */
-    public function setElement(ElementsBlockInterface|ElementInterface $element): static
+    public function setRenderobject(ElementsBlockInterface|ElementInterface $render_object): static
     {
-        $this->element = $element;
+        $this->render_object = $render_object;
         return $this;
     }
 
@@ -110,9 +110,9 @@ class Renderer
      *
      * @return ElementsBlockInterface|ElementInterface
      */
-    public function getElement(): ElementsBlockInterface|ElementInterface
+    public function getRenderobject(): ElementsBlockInterface|ElementInterface
     {
-        return $this->element;
+        return $this->render_object;
     }
 
 

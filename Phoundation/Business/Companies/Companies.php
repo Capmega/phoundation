@@ -67,10 +67,7 @@ class Companies extends DataList
      */
     public function getHtmlSelect(): SelectInterface
     {
-        return Select::new()
-            ->setSourceQuery('SELECT `id`, `name` 
-                                          FROM  `business_companies` 
-                                          WHERE `status` IS NULL ORDER BY `name`')
+        return parent::getHtmlSelect()
             ->setName('companies_id')
             ->setNone(tr('Please select a company'))
             ->setEmpty(tr('No companies available'));

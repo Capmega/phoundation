@@ -40,7 +40,7 @@ class Menu extends Renderer
      */
     public function render(): ?string
     {
-        return $this->renderMenu($this->element->getSource(), 'nav navbar-nav me-auto mb-2 mb-lg-0');
+        return $this->renderMenu($this->render_object->getSource(), 'nav navbar-nav me-auto mb-2 mb-lg-0');
     }
 
 

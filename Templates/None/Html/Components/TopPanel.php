@@ -45,10 +45,10 @@ class TopPanel extends Renderer
 
         // If impersonated, change top panel color and add impersonation message
         if (Session::isImpersonated()) {
-            $this->element->setMode(DisplayMode::danger);
+            $this->render_object->setMode(DisplayMode::danger);
             $message = tr('(Impersonated by ":user")', [':user' => Session::getRealUser()->getDisplayName()]);
         } else {
-            $this->element->setMode(DisplayMode::white);
+            $this->render_object->setMode(DisplayMode::white);
         }
 
         // Top level message?
@@ -70,7 +70,7 @@ class TopPanel extends Renderer
                           </ul>';
 
         // Build the panel
-        $this->render = ' <nav class="main-header navbar navbar-expand navbar-' . Html::safe($this->element->getMode()->value) . ' navbar-light">
+        $this->render = ' <nav class="main-header navbar navbar-expand navbar-' . Html::safe($this->render_object->getMode()->value) . ' navbar-light">
                             <!-- Left navbar links -->
                             ' . $left_menu . '                    
                             <!-- Right navbar links -->
@@ -100,14 +100,14 @@ class TopPanel extends Renderer
                                
                               <!-- Messages Dropdown Menu -->
                               <li class="nav-item dropdown">
-                                ' . $this->element->getMessagesDropDown()?->render() . '
+                                ' . $this->render_object->getMessagesDropDown()?->render() . '
                               </li>
                               <!-- Notifications Dropdown Menu -->
                               <li class="nav-item dropdown">
-                                ' . $this->element->getNotificationsDropDown()?->render() . '
+                                ' . $this->render_object->getNotificationsDropDown()?->render() . '
                               </li>
                               <li class="nav-item dropdown">                                  
-                                  ' . $this->element->getLanguagesDropDown()?->render() . '
+                                  ' . $this->render_object->getLanguagesDropDown()?->render() . '
                               </li>
                               <li class="nav-item">
                                 <a class="nav-link" data-widget="fullscreen" href="#" role="button">

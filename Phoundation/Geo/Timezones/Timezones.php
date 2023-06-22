@@ -107,6 +107,9 @@ class Timezones extends DataList
      */
     public function getHtmlSelect(): SelectInterface
     {
-        // TODO: Implement getHtmlSelect() method.
+        return parent::getHtmlSelect()
+            ->setName('timezones_id')
+            ->setNone(tr('Please select a timezone'))
+            ->setEmpty(tr('No timezones available'));
     }
 }

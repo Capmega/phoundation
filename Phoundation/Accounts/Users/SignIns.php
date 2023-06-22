@@ -67,23 +67,6 @@ class SignIns extends DataList
     }
 
 
-
-
-    /**
-     * Returns an HTML select component object containing the entries in this list
-     *
-     * @return SelectInterface
-     */
-    public function getHtmlSelect(): SelectInterface
-    {
-        return Select::new()
-            ->setSourceQuery('SELECT    `accounts_signins`.`id`,
-                                                   `accounts_signins`.`created_on`,
-                                         WHERE     `created_by` = :created_by 
-                                         ORDER BY  `created_on`', [':created_by' => Session::getUser()->getId()]);
-    }
-
-
     /**
      * @inheritDoc
      */
@@ -104,5 +87,23 @@ class SignIns extends DataList
     public function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
     {
         // TODO: Implement loadDetails() method.
+    }
+
+
+    /**
+     * Returns an HTML <select> for the available object entries
+     *
+     * @return SelectInterface
+     */
+    public function getHtmlSelect(): SelectInterface
+    {
+        return Select::new()
+            ->setSourceQuery('SELECT    `accounts_signins`.`id`,
+                                                   `accounts_signins`.`created_on`,
+                                         WHERE     `created_by` = :created_by 
+                                         ORDER BY  `created_on`', [':created_by' => Session::getUser()->getId()])
+            ->setName('sign_ins_id')
+            ->setNone(tr('Please select a sign-in'))
+            ->setEmpty(tr('No sign-ins available'));
     }
 }

@@ -42,7 +42,7 @@ class DataTable extends Renderer
      */
     public function render(): ?string
     {
-        if (!$this->element->getId()) {
+        if (!$this->render_object->getId()) {
             throw new OutOfBoundsException(tr('Cannot render DataTable, no table id specified'));
         }
 
@@ -65,7 +65,7 @@ class DataTable extends Renderer
         Page::loadCss('adminlte/plugins/datatables-responsive/css/responsive.bootstrap4');
         Page::loadCss('adminlte/plugins/datatables-buttons/css/buttons.bootstrap4');
 
-        $id    = $this->element->getId();
+        $id    = $this->render_object->getId();
         $table = GridRow::new()->addColumn(parent::render());
 
         $this->render  = '<div id="' . Html::safe($id) . '_wrapper" class="dataTables_wrapper dt-bootstrap4">' .

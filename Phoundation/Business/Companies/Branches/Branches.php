@@ -74,6 +74,9 @@ class Branches extends DataList
      */
     public function getHtmlSelect(): SelectInterface
     {
-        // TODO: Implement getHtmlSelect() method.
+        return parent::getHtmlSelect()
+            ->setName('branches_id')
+            ->setNone(tr('Please select a branch'))
+            ->setEmpty(tr('No branches available'));
     }
 }

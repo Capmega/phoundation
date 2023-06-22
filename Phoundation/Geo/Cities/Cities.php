@@ -89,6 +89,9 @@ class Cities extends DataList
      */
     public function getHtmlSelect(): SelectInterface
     {
-        // TODO: Implement getHtmlSelect() method.
+        return parent::getHtmlSelect()
+            ->setName('cities_id')
+            ->setNone(tr('Please select a city'))
+            ->setEmpty(tr('No cities available'));
     }
 }

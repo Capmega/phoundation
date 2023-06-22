@@ -11,6 +11,7 @@ use Phoundation\Data\Categories\Categories;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryCustomer;
@@ -493,8 +494,8 @@ class Server extends DataEntry
                 ->setCliField('--categories-id CATEGORIES-ID')
                 ->setInputType(InputTypeExtended::dbid)
                 ->setHelpText(tr('The category for this server'))
-                ->setContent(function (string $key, array $data, array $source) {
-                    return Categories::getHtmlSelect($key)
+                ->setContent(function (DefinitionInterface $definition, string $key, array $source) {
+                    return Categories::new()->getHtmlSelect($key)
                         ->setSelected(isset_get($source['categories_id']))
                         ->render();
                 })
@@ -506,8 +507,8 @@ class Server extends DataEntry
                 ->setCliField('--providers-id PROVIDERS-ID')
                 ->setInputType(InputTypeExtended::dbid)
                 ->setHelpText(tr('The service provider where this server is hosted'))
-                ->setContent(function (string $key, array $data, array $source) {
-                    return Categories::getHtmlSelect($key)
+                ->setContent(function (DefinitionInterface $definition, string $key, array $source) {
+                    return Categories::new()->getHtmlSelect($key)
                         ->setSelected(isset_get($source['providers_id']))
                         ->render();
                 })
@@ -519,8 +520,8 @@ class Server extends DataEntry
                 ->setCliField('--customers-id CUSTOMERS-ID')
                 ->setInputType(InputTypeExtended::dbid)
                 ->setHelpText(tr('The client using this server'))
-                ->setContent(function (string $key, array $data, array $source) {
-                    return Categories::getHtmlSelect($key)
+                ->setContent(function (DefinitionInterface $definition, string $key, array $source) {
+                    return Categories::new()->getHtmlSelect($key)
                         ->setSelected(isset_get($source['customers_id']))
                         ->render();
                 })
@@ -533,8 +534,8 @@ class Server extends DataEntry
                 ->setInputType(InputTypeExtended::dbid)
                 ->setHelpGroup(tr('Location'))
                 ->setHelpText(tr('The country where this server is hosted'))
-                ->setContent(function (string $key, array $data, array $source) {
-                    return Categories::getHtmlSelect($key)
+                ->setContent(function (DefinitionInterface $definition, string $key, array $source) {
+                    return Categories::new()->getHtmlSelect($key)
                         ->setSelected(isset_get($source['countries_id']))
                         ->render();
                 })
@@ -547,8 +548,8 @@ class Server extends DataEntry
                 ->setInputType(InputTypeExtended::dbid)
                 ->setHelpGroup(tr('Location'))
                 ->setHelpText(tr('The state where this server is hosted'))
-                ->setContent(function (string $key, array $data, array $source) {
-                    return Categories::getHtmlSelect($key)
+                ->setContent(function (DefinitionInterface $definition, string $key, array $source) {
+                    return Categories::new()->getHtmlSelect($key)
                         ->setSelected(isset_get($source['states_id']))
                         ->render();
                 })
@@ -559,8 +560,8 @@ class Server extends DataEntry
                 ->setOptional(true)
                 ->setCliField('--cities-id CITIES-ID')
                 ->setInputType(InputTypeExtended::dbid)
-                ->setContent(function (string $key, array $data, array $source) {
-                    return Categories::getHtmlSelect($key)
+                ->setContent(function (DefinitionInterface $definition, string $key, array $source) {
+                    return Categories::new()->getHtmlSelect($key)
                         ->setSelected(isset_get($source['cities_id']))
                         ->render();
                 })

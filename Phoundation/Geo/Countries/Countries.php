@@ -107,6 +107,9 @@ class Countries extends DataList
      */
     public function getHtmlSelect(): SelectInterface
     {
-        // TODO: Implement getHtmlSelect() method.
+        return parent::getHtmlSelect()
+            ->setName('countries_id')
+            ->setNone(tr('Please select a country'))
+            ->setEmpty(tr('No countries available'));
     }
 }

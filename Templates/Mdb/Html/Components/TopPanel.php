@@ -72,7 +72,7 @@ class TopPanel extends Renderer
                                         ])
                                         ->render(). '
                                   </a>
-                                  ' . $this->element->getMenu()->render() . '
+                                  ' . $this->render_object->getMenu()->render() . '
                                 </div>
                                 <!-- Collapsible wrapper -->
                             
@@ -111,7 +111,7 @@ class TopPanel extends Renderer
                                       </li>
                                     </ul>
                                   </div>
-                                  ' . $this->element->getProfileImage()->render() . '
+                                  ' . $this->render_object->getProfileImage()->render() . '
                                 </div>
                                 <!-- Right elements -->
                               </div>
@@ -119,7 +119,7 @@ class TopPanel extends Renderer
                             </nav>
                             <!-- Navbar -->';
 
-        $this->render .= $this->element->getModals()->render() . PHP_EOL;
+        $this->render .= $this->render_object->getModals()->render() . PHP_EOL;
 
         return parent::render();
     }

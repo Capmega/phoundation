@@ -7,6 +7,7 @@ namespace Phoundation\Accounts\Users;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryIpAddress;
@@ -123,7 +124,7 @@ class SignIn extends DataEntry
                 ->setOptional(true)
                 ->setReadonly(true)
                 ->setInputType(InputTypeExtended::dbid)
-                ->setContent(function (string $key, array $data, array $source) {
+                ->setContent(function (DefinitionInterface $definition, string $key, array $source) {
                     return Countries::getHtmlCountriesSelect($key)
                         ->setDisabled(true)
                         ->setSelected(isset_get($source['countries_id']))
@@ -138,8 +139,8 @@ class SignIn extends DataEntry
                 ->setOptional(true)
                 ->setReadonly(true)
                 ->setInputType(InputTypeExtended::dbid)
-                ->setContent(function (string $key, array $data, array $source) {
-                    return Timezones::getHtmlSelect($key)
+                ->setContent(function (DefinitionInterface $definition, string $key, array $source) {
+                    return Timezones::new()->getHtmlSelect($key)
                         ->setDisabled(true)
                         ->setSelected(isset_get($source['timezones_id']))
                         ->render();

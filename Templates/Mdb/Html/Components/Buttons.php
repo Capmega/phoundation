@@ -39,15 +39,15 @@ class Buttons extends Renderer
     {
         $this->render = '';
 
-        if ($this->element->getGroup()) {
+        if ($this->render_object->getGroup()) {
             $this->render .= '<div class="btn-group" role="group" aria-label="Button group">';
         }
 
-        foreach ($this->element->getSource() as $button) {
+        foreach ($this->render_object->getSource() as $button) {
             $this->render .= $button->render();
         }
 
-        if ($this->element->getGroup()) {
+        if ($this->render_object->getGroup()) {
             $this->render .= '</div>';
         }
 

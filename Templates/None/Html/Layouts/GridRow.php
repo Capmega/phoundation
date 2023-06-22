@@ -38,18 +38,18 @@ class GridRow extends Renderer
     {
         $this->render = '<div class="row">';
 
-        if ($this->element->getForm()) {
+        if ($this->render_object->getForm()) {
             // Return content rendered in a form
             $render = '';
 
-            foreach ($this->element->getSource() as $column) {
+            foreach ($this->render_object->getSource() as $column) {
                 $render .= $column->render();
             }
 
-            $this->render .= $this->element->getForm()->setContent($render)->render();
-            $this->element->setForm(null);
+            $this->render .= $this->render_object->getForm()->setContent($render)->render();
+            $this->render_object->setForm(null);
         } else {
-            foreach ($this->element->getSource() as $column) {
+            foreach ($this->render_object->getSource() as $column) {
                 $this->render .= $column->render();
             }
         }

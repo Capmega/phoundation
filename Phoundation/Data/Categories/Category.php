@@ -7,6 +7,7 @@ namespace Phoundation\Data\Categories;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
@@ -124,7 +125,7 @@ class Category extends DataEntry
         $definitions
             ->addDefinition(Definition::new('parents_id')
                 ->setOptional(true)
-                ->setContent(function (string $key, array $data, array $source) {
+                ->setContent(function (DefinitionInterface $definition, string $key, array $source) {
                     return Categories::new()->getHtmlSelect()
                         ->setName($key)
                         ->setSelected(isset_get($source[$key]))

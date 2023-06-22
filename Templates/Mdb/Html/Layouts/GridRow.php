@@ -40,7 +40,7 @@ class GridRow extends Renderer
         $return = '<div class="row">';
         $size   = 0;
 
-        foreach ($this->element->getSource() as $column) {
+        foreach ($this->render_object->getSource() as $column) {
             $size   += $column->getSize()->value;
             $return .= $column->render();
         }

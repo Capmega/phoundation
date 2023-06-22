@@ -12,9 +12,12 @@ use Phoundation\Cli\Color;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Meta;
+use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\Definitions\Definition;
+use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Definitions;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Enums\StateMismatchHandling;
 use Phoundation\Data\DataEntry\Exception\DataEntryAlreadyExistsException;
@@ -38,6 +41,8 @@ use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Components\DataEntryForm;
 use Phoundation\Web\Http\Html\Components\Input\InputText;
 use Phoundation\Web\Http\Html\Components\Interfaces\DataEntryFormInterface;
+use Phoundation\Web\Http\Html\Enums\InputType;
+use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
 use Stringable;
 use Throwable;
 
@@ -184,6 +189,13 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      * @var bool $is_saved
      */
     protected bool $is_saved = false;
+
+    /**
+     * If true, this DataEntry is new and not loaded from database
+     *
+     * @var bool $is_new
+     */
+    protected bool $is_new = true;
 
 
     /**
@@ -621,7 +633,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      */
     public function isNew(): bool
     {
-        return !$this->getDataValue('int', 'id');
+        return $this->is_new;
     }
 
 
@@ -1534,6 +1546,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
             $this->data = $source;
         }
 
+        $this->is_new = false;
         return $this;
     }
 
@@ -1567,6 +1580,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
         }
 
         // Reset state
+        $this->is_new      = false;
         $this->is_saved    = false;
         $this->is_modified = false;
     }
@@ -1592,57 +1606,63 @@ abstract class DataEntry implements DataEntryInterface, Stringable
     {
         $this->definitions = Definitions::new()
             ->setTable($this->table)
-            ->addDefinition(Definition::new('id')->setDefinitions([
-                'meta'     => true,
-                'readonly' => true,
-                'type'     => 'number',
-                'size'     => 3,
-                'label'    => tr('Database ID')
-            ]))
-            ->addDefinition(Definition::new('created_on')->setDefinitions([
-                'meta'     => true,
-                'readonly' => true,
-                'type'     => 'datetime-local',
-                'size'     => 3,
-                'label'    => tr('Created on')
-            ]))
-            ->addDefinition(Definition::new('created_by')->setDefinitions([
-                'meta'     => true,
-                'readonly' => true,
-                'content'  => function (string $key, array $data, array $source) {
-                    if ($source['created_by']) {
-                        return Users::getHtmlSelect($key)
-                            ->setSelected(isset_get($source['created_by']))
+            ->addDefinition(Definition::new('id')
+                ->setReadonly(true)
+                ->setInputType(InputTypeExtended::dbid)
+                ->setSize(3)
+                ->setAutoComplete(true)
+                ->setLabel(tr('Database ID')))
+            ->addDefinition(Definition::new('created_on')
+                ->setReadonly(true)
+                ->setInputType(InputType::datetime_local)
+                ->setNullInputType(InputType::text)
+                ->setSize(3)
+                ->setLabel(tr('Created on')))
+            ->addDefinition(Definition::new('created_by')
+                ->setReadonly(true)
+                ->setSize(3)
+                ->setLabel(tr('Created by'))
+                ->setContent(function (DefinitionInterface $definition, string $key, array $source) {
+                    if ($this->isNew()) {
+                        // This is a new DataEntry object, so the creator is.. well, you!
+                        return InputText::new()
                             ->setDisabled(true)
+                            ->setValue(Session::getUser()->getDisplayName())
                             ->render();
                     } else {
-                        return InputText::new()
-                            ->setName($key)
-                            ->setDisabled(true)
-                            ->setValue(tr('System'))
-                            ->render();
+                        // This is created by a user or by the system user
+                        if ($source[$key]) {
+                            return InputText::new()
+                                ->setDisabled(true)
+                                ->setValue(User::get($source[$key])->getDisplayName())
+                                ->render();
+                        } else {
+                            return InputText::new()
+                                ->setDisabled(true)
+                                ->setValue(tr('System'))
+                                ->render();
+                        }
                     }
-                },
-                'size'     => 3,
-                'label'    => tr('Created by'),
-            ]))
-            ->addDefinition(Definition::new('meta_id')->setDefinitions([
-                'meta'     => true,
-                'visible'  => false,
-                'readonly' => true,
-            ]))
-            ->addDefinition(Definition::new('meta_state')->setDefinitions([
-                'meta'     => true,
-                'visible'  => false,
-                'readonly' => true,
-            ]))
-            ->addDefinition(Definition::new('status')->setDefinitions([
-                'meta'     => true,
-                'readonly' => true,
-                'label'    => tr('Status'),
-                'size'     => 3,
-                'default'  => null,
-            ]));
+                }))
+            ->addDefinition(Definition::new('meta_id')
+                ->setReadonly(true)
+                ->setVisible(false)
+                ->setInputType(InputTypeExtended::dbid)
+                ->setNullInputType(InputType::text)
+                ->setSize(3)
+                ->setLabel(tr('Meta ID')))
+            ->addDefinition(Definition::new('meta_state')
+                ->setReadonly(true)
+                ->setVisible(false)
+                ->setInputType(InputType::text)
+                ->setSize(3)
+                ->setLabel(tr('Meta state')))
+            ->addDefinition(Definition::new('status')
+                ->setOptional(true)
+                ->setReadonly(true)
+                ->setInputType(InputType::text)
+                ->setSize(3)
+                ->setLabel(tr('Status')));
     }
 
 

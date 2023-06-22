@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html\Components\Input\Traits;
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Web\Http\Html\Components\Interfaces\InputTypeInterface;
 use Phoundation\Web\Http\Html\Components\Mode;
 use Phoundation\Web\Http\Html\Enums\InputType;
@@ -30,7 +31,7 @@ trait InputElement
      *
      * @var InputTypeInterface|null $type
      */
-    protected ?InputTypeInterface $type = InputType::text;
+    protected ?InputTypeInterface $type = null;
 
     /**
      * Input element value

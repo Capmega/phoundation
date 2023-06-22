@@ -16,6 +16,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Components\DataTable;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
+use Phoundation\Web\Http\Html\Components\Input\Select;
 use Phoundation\Web\Http\Html\Components\Table;
 use ReturnTypeWillChange;
 use Stringable;
@@ -84,6 +85,13 @@ abstract class DataList extends Iterator implements DataListInterface
      * @var QueryBuilderInterface
      */
     protected QueryBuilderInterface $query_builder;
+
+    /**
+     * If true it means that this data list has data loaded from a database
+     *
+     * @var bool $is_loaded
+     */
+    protected bool $is_loaded = false;
 
 
     /**
@@ -398,7 +406,24 @@ abstract class DataList extends Iterator implements DataListInterface
      *
      * @return SelectInterface
      */
-    abstract public function getHtmlSelect(): SelectInterface;
+    public function getHtmlSelect(): SelectInterface
+    {
+        $select = Select::new();
+
+        if ($this->is_loaded or count($this->source)) {
+            // Data was either loaded from DB or manually added
+            $select->setSource($this);
+
+        } else {
+            // No data was loaded from DB or manually added
+            $select->setSourceQuery('SELECT   `id`, `name` 
+                                                FROM     `' . $this->table . '` 
+                                                WHERE    `status` IS NULL 
+                                                ORDER BY `name` ASC');
+        }
+
+        return $select;
+    }
 
 
     /**
@@ -536,19 +561,6 @@ showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY F
     #[ReturnTypeWillChange] public function getLast(): ?DataEntryInterface
     {
         return $this->ensureDataEntry(array_key_last($this->source));
-    }
-
-
-    /**
-     * If the list has not yet loaded its content, do so now
-     *
-     * @return void
-     */
-    protected function ensureLoaded(): void
-    {
-        if (!isset($this->source)) {
-            $this->load();
-        }
     }
 
 

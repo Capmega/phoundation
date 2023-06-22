@@ -18,7 +18,7 @@ use Phoundation\Web\Http\Html\Traits\UsesAttributeMultiple;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class InputTel extends Input
+class InputTel extends InputText
 {
     use UsesAttributeMultiple;
 

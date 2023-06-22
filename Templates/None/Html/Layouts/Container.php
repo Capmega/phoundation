@@ -37,6 +37,6 @@ class Container extends Renderer
      */
     public function render(): ?string
     {
-        return '<div class="container' . ($this->element->getTier()->value ? '-' . Html::safe($this->element->getTier()->value) : null) . '">' . $this->element->getContent() . '</div>';
+        return '<div class="container' . ($this->render_object->getTier()->value ? '-' . Html::safe($this->render_object->getTier()->value) : null) . '">' . $this->render_object->getContent() . '</div>';
     }
 }

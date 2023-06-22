@@ -37,11 +37,11 @@ class Icons extends Renderer
      */
     public function render(): ?string
     {
-        if (preg_match('/[a-z0-9-_]*]/i', $this->element->getContent())) {
+        if (preg_match('/[a-z0-9-_]*]/i', $this->render_object->getContent())) {
             // icon names should only have letters, numbers and dashes and underscores
-            return $this->element->getContent();
+            return $this->render_object->getContent();
         }
 
-        return '<i class="fas fa-' . $this->element->getContent() . ($this->element->getTier()->value ? ' fa-' . $this->element->getTier()->value : '') .'"></i>';
+        return '<i class="fas fa-' . $this->render_object->getContent() . ($this->render_object->getTier()->value ? ' fa-' . $this->render_object->getTier()->value : '') .'"></i>';
     }
 }

@@ -347,6 +347,9 @@ class Plugins extends DataList
      */
     public function getHtmlSelect(): SelectInterface
     {
-        // TODO: Implement getHtmlSelect() method.
+        return parent::getHtmlSelect()
+            ->setName('plugins_id')
+            ->setNone(tr('Please select a plugin'))
+            ->setEmpty(tr('No plugins available'));
     }
 }

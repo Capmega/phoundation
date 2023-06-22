@@ -64,10 +64,7 @@ class Categories extends DataList
      */
     public function getHtmlSelect(): SelectInterface
     {
-        return Select::new()
-            ->setSourceQuery('SELECT `id`, `name` 
-                                          FROM  `categories` 
-                                          WHERE `status` IS NULL ORDER BY `name`')
+        return parent::getHtmlSelect()
             ->setName('categories_id')
             ->setNone(tr('Please select a category'))
             ->setEmpty(tr('No categories available'));

@@ -192,8 +192,8 @@ class ArgvValidator extends Validator
         $this->selected_fields[] = $clean_field;
         $this->selected_value    = &$this->source[$clean_field];
         $this->process_values    = [null => &$this->selected_value];
+        $this->selected_optional = null;
 
-        unset($this->selected_optional);
         return $this;
     }
 

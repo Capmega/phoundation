@@ -50,8 +50,7 @@ class Languages extends DataList
      */
     public function getHtmlSelect(): SelectInterface
     {
-        return Select::new()
-            ->setSourceQuery('SELECT `id`, `name` FROM `core_languages` WHERE `status` IS NULL ORDER BY `name`')
+        return parent::getHtmlSelect()
             ->setName('languages_id')
             ->setNone(tr('Please select a language'))
             ->setEmpty(tr('No languages available'));

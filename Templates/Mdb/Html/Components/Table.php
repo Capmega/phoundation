@@ -43,8 +43,8 @@ class Table extends Renderer
 
         // Render the section around it
         $return = Section::new()
-            ->addClass($this->element->getFullWidth() ? 'w-100' : null)
-            ->addClass($this->element->getResponsive() ? 'table-responsive' : null)
+            ->addClass($this->render_object->getFullWidth() ? 'w-100' : null)
+            ->addClass($this->render_object->getResponsive() ? 'table-responsive' : null)
             ->setContent($table)
             ->render();
 
@@ -63,20 +63,20 @@ class Table extends Renderer
         // Render the title and header section around it
         $content = '';
 
-        if ($this->element->getTitle()) {
-            $content .= '<h2 class="mb-4">' . htmlentities($this->element->getTitle()) . '</h2>';
+        if ($this->render_object->getTitle()) {
+            $content .= '<h2 class="mb-4">' . htmlentities($this->render_object->getTitle()) . '</h2>';
         }
 
-        if ($this->element->getHeaderText()) {
-            $content .= '<p>' . htmlentities($this->element->getHeaderText()) . '</p>';
+        if ($this->render_object->getHeaderText()) {
+            $content .= '<p>' . htmlentities($this->render_object->getHeaderText()) . '</p>';
         }
         
         if ($content) {
             $section = Section::new()
                 ->setContent($content . $return);
 
-            if ($this->element->getId()) {
-                $section->setId('section-' . $this->element->getId());
+            if ($this->render_object->getId()) {
+                $section->setId('section-' . $this->render_object->getId());
             }
 
             return $section->render();

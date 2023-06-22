@@ -2906,8 +2906,7 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
         $this->selected_fields[] = $field;
         $this->selected_value    = &$this->source[$field];
         $this->process_values    = [null => &$this->selected_value];
-
-        unset($this->selected_optional);
+        $this->selected_optional = null;
 
         return $this;
     }
@@ -2924,8 +2923,14 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
         foreach ($execute as &$value) {
             if (is_string($value)) {
                 if (str_starts_with($value, '$')) {
+                    if (!array_key_exists(substr($value, 1), $this->source)) {
+                        throw new OutOfBoundsException(tr('Specified execution variable ":value" does not exist in the specified source', [
+                            ':value' => $value
+                        ]));
+                    }
+
                     // Replace this value with key from the array
-                    $value = isset_get($this->source[substr($value, 1)]);
+                    $value = $this->source[substr($value, 1)];
                 }
             }
         }

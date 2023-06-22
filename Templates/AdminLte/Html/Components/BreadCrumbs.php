@@ -41,10 +41,10 @@ class BreadCrumbs extends Renderer
     {
         $this->render = ' <ol class="breadcrumb float-sm-right">';
 
-        if ($this->element->getSource()) {
-            $count = count($this->element->getSource());
+        if ($this->render_object->getSource()) {
+            $count = count($this->render_object->getSource());
 
-            foreach ($this->element->getSource() as $url => $label) {
+            foreach ($this->render_object->getSource() as $url => $label) {
                 $label = Strings::truncate($label, 48);
 
                 if (!--$count) {

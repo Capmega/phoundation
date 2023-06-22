@@ -37,15 +37,15 @@ class GridColumn extends Renderer
      */
     public function render(): ?string
     {
-        if ($this->element->getForm()) {
+        if ($this->render_object->getForm()) {
             // Return content rendered in a form
-            $this->render = '<div class="col' . ($this->element->getTier()->value ? '-' . Html::safe($this->element->getTier()->value) : '') . '-' . Html::safe($this->element->getSize()->value) . '">' . $this->element->getForm()->setContent($this->element->getContent())->render() . '</div>';
-            $this->element->setForm(null);
+            $this->render = '<div class="col' . ($this->render_object->getTier()->value ? '-' . Html::safe($this->render_object->getTier()->value) : '') . '-' . Html::safe($this->render_object->getSize()->value) . '">' . $this->render_object->getForm()->setContent($this->render_object->getContent())->render() . '</div>';
+            $this->render_object->setForm(null);
 
             return parent::render();
         }
 
-        $this->render = '<div class="col' . ($this->element->getTier()->value ? '-' . Html::safe($this->element->getTier()->value) : '') . '-' . Html::safe($this->element->getSize()->value) . '">' . $this->element->getContent() . '</div>';
+        $this->render = '<div class="col' . ($this->render_object->getTier()->value ? '-' . Html::safe($this->render_object->getTier()->value) : '') . '-' . Html::safe($this->render_object->getSize()->value) . '">' . $this->render_object->getContent() . '</div>';
         return parent::render();
     }
 }

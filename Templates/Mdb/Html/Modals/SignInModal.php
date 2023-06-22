@@ -34,7 +34,7 @@ class SignInModal extends Modal
     public function __construct(\Phoundation\Web\Http\Html\Modals\SignInModal $element)
     {
         parent::__construct($element);
-        $this->element->setForm(SignInForm::new());
+        $this->render_object->setForm(SignInForm::new());
     }
 
 
@@ -46,8 +46,8 @@ class SignInModal extends Modal
     public function render(): ?string
     {
         // Build the form
-        $form = $this->element->getForm()->render();
-        $this->element->setForm(null);
+        $form = $this->render_object->getForm()->render();
+        $this->render_object->setForm(null);
 
         // Build the layout
         $layout = Grid::new()
@@ -58,7 +58,7 @@ class SignInModal extends Modal
             );
 
         // Set defaults
-        $this->element
+        $this->render_object
             ->setId('signinModal')
             ->setSize('lg')
             ->setTitle(tr('Sign in'))

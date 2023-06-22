@@ -74,6 +74,9 @@ class Departments extends DataList
      */
     public function getHtmlSelect(): SelectInterface
     {
-        // TODO: Implement getHtmlSelect() method.
+        return parent::getHtmlSelect()
+            ->setName('departments_id')
+            ->setNone(tr('Please select a department'))
+            ->setEmpty(tr('No departments available'));
     }
 }

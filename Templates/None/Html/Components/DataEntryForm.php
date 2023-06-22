@@ -48,12 +48,12 @@ class DataEntryForm extends Renderer
      */
     public function render(): ?string
     {
-        if (!$this->element->getDefinitions()) {
+        if (!$this->render_object->getDefinitions()) {
             throw new OutOfBoundsException(tr('Cannot render DataEntryForm, no form keys specified'));
         }
 
-        $source = $this->element->getSource();
-        $keys   = $this->element->getDefinitions();
+        $source = $this->render_object->getSource();
+        $keys   = $this->render_object->getDefinitions();
 
         // Possible $data contents:
         //
@@ -148,7 +148,7 @@ class DataEntryForm extends Renderer
                         ]));
                     }
 
-                    if (!$this->element->inputTypeSupported($data['type'])) {
+                    if (!$this->render_object->inputTypeSupported($data['type'])) {
                         throw new OutOfBoundsException(tr('Unknown input type ":type" specified for key ":key"', [
                             ':key'  => $key,
                             ':type' => $data['type']
@@ -345,7 +345,7 @@ class DataEntryForm extends Renderer
 
             if ($col_size < 0) {
                 throw new OutOfBoundsException(tr('Cannot add column ":label" for ":class" form, the row would surpass size 12 by ":count"', [
-                    ':class' => get_class($this->element->getDefinitions()->getTable()),
+                    ':class' => get_class($this->render_object->getDefinitions()->getTable()),
                     ':label' => $data['label'] . ' [' . $id . ']',
                     ':count' => abs($col_size)
                 ]));

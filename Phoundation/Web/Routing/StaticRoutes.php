@@ -8,6 +8,7 @@ use PDOStatement;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
+use Phoundation\Web\Http\Html\Components\Input\Select;
 
 
 /**
@@ -73,6 +74,10 @@ class StaticRoutes extends DataList
      */
     public function getHtmlSelect(): SelectInterface
     {
-        // TODO: Implement getHtmlSelect() method.
+        return Select::new()
+            ->setSourceQuery('SELECT `id`, `label` FROM `' . $this->table . '` WHERE `status` IS NULL ORDER BY `created_on` ASC')
+            ->setName('routes_id')
+            ->setNone(tr('Please select a static route'))
+            ->setEmpty(tr('No static routes available'));
     }
 }

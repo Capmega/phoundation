@@ -6,6 +6,7 @@ namespace Phoundation\Translator;
 
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
+use Phoundation\Web\Http\Html\Components\Input\Select;
 
 
 /**
@@ -55,6 +56,10 @@ class Translations extends DataList
      */
     public function getHtmlSelect(): SelectInterface
     {
-        // TODO: Implement getHtmlSelect() method.
+        return Select::new()
+            ->setSourceQuery('SELECT `id`, `translation` FROM `' . $this->table . '` WHERE `status` IS NULL ORDER BY `created_on` ASC')
+            ->setName('translations_id')
+            ->setNone(tr('Please select a translation'))
+            ->setEmpty(tr('No translations available'));
     }
 }

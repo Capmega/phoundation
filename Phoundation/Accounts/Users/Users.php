@@ -51,23 +51,6 @@ class Users extends DataList implements UsersInterface
 
 
     /**
-     * Returns an HTML select component object containing the entries in this list
-     *
-     * @return SelectInterface
-     */
-    public function getHtmlSelect(): SelectInterface
-    {
-        return Select::new()
-            ->setSourceQuery('SELECT COALESCE(NULLIF(TRIM(CONCAT_WS(" ", `first_names`, `last_names`)), ""), `nickname`, `username`, `email`, "' . tr('System') . '") AS `name` 
-                                          FROM  `accounts_users`
-                                          WHERE `status` IS NULL ORDER BY `name`')
-            ->setName('users_id')
-            ->setNone(tr('Please select a user'))
-            ->setEmpty(tr('No users available'));
-    }
-
-
-    /**
      * Set the entries to the specified list
      *
      * @param array|null $list
@@ -430,5 +413,22 @@ class Users extends DataList implements UsersInterface
         }
 
         return $this;
+    }
+
+
+    /**
+     * Returns an HTML <select> for the available object entries
+     *
+     * @return SelectInterface
+     */
+    public function getHtmlSelect(): SelectInterface
+    {
+        return Select::new()
+            ->setSourceQuery('SELECT COALESCE(NULLIF(TRIM(CONCAT_WS(" ", `first_names`, `last_names`)), ""), `nickname`, `username`, `email`, "' . tr('System') . '") AS `name` 
+                                          FROM  `accounts_users`
+                                          WHERE `status` IS NULL ORDER BY `name`')
+            ->setName('users_id')
+            ->setNone(tr('Please select a user'))
+            ->setEmpty(tr('No users available'));
     }
 }

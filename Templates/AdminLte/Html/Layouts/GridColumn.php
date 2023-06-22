@@ -37,14 +37,14 @@ class GridColumn extends Renderer
      */
     public function render(): ?string
     {
-        $this->render = '   <div class="col' . (Html::safe($this->element->getTier()->value) ? '-' . Html::safe($this->element->getTier()->value) : '') . '-' . Html::safe($this->element->getSize()->value) . '">';
+        $this->render = '   <div class="col' . (Html::safe($this->render_object->getTier()->value) ? '-' . Html::safe($this->render_object->getTier()->value) : '') . '-' . Html::safe($this->render_object->getSize()->value) . '">';
 
-        if ($this->element->getForm()) {
+        if ($this->render_object->getForm()) {
             // Return column content rendered in a form
-            $this->render .= $this->element->getForm()->setContent($this->element->getContent())->render();
-            $this->element->setForm(null);
+            $this->render .= $this->render_object->getForm()->setContent($this->render_object->getContent())->render();
+            $this->render_object->setForm(null);
         } else {
-            $this->render .= $this->element->getContent();
+            $this->render .= $this->render_object->getContent();
         }
 
         $this->render .= '</div>';

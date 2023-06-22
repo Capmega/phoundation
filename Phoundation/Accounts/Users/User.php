@@ -28,8 +28,11 @@ use Phoundation\Data\DataEntry\Traits\DataEntryCode;
 use Phoundation\Data\DataEntry\Traits\DataEntryComments;
 use Phoundation\Data\DataEntry\Traits\DataEntryDomain;
 use Phoundation\Data\DataEntry\Traits\DataEntryEmail;
+use Phoundation\Data\DataEntry\Traits\DataEntryFile;
+use Phoundation\Data\DataEntry\Traits\DataEntryFirstNames;
 use Phoundation\Data\DataEntry\Traits\DataEntryGeo;
 use Phoundation\Data\DataEntry\Traits\DataEntryLanguage;
+use Phoundation\Data\DataEntry\Traits\DataEntryLastNames;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryPhones;
 use Phoundation\Data\DataEntry\Traits\DataEntryPicture;
@@ -74,6 +77,8 @@ class User extends DataEntry implements UserInterface
     use DataEntryLanguage;
     use DataEntryComments;
     use DataEntryTimezone;
+    use DataEntryLastNames;
+    use DataEntryFirstNames;
     use DataEntryNameDescription;
 
 
@@ -230,52 +235,6 @@ class User extends DataEntry implements UserInterface
     public function setName(?string $name): static
     {
         throw new NotSupportedException(tr('The Accounts\User class does not support the User::setName() method. Please use User::setFirstNames() and User::setLastNames() instead'));
-    }
-
-
-    /**
-     * Returns the first_names for this user
-     *
-     * @return string|null
-     */
-    public function getFirstNames(): ?string
-    {
-        return $this->getDataValue('string', 'first_names');
-    }
-
-
-    /**
-     * Sets the first_names for this user
-     *
-     * @param string|null $first_names
-     * @return static
-     */
-    public function setFirstNames(?string $first_names): static
-    {
-        return $this->setDataValue('first_names', $first_names);
-    }
-
-
-    /**
-     * Returns the last_names for this user
-     *
-     * @return string|null
-     */
-    public function getLastNames(): ?string
-    {
-        return $this->getDataValue('string', 'last_names');
-    }
-
-
-    /**
-     * Sets the last_names for this user
-     *
-     * @param string|null $lastnames
-     * @return static
-     */
-    public function setLastNames(?string $lastnames): static
-    {
-        return $this->setDataValue('last_names', $lastnames);
     }
 
 

@@ -37,18 +37,18 @@ class InfoBoxBg extends Renderer
      */
     public function render(): ?string
     {
-        $this->render = '   <div class="info-box bg-' . Html::safe($this->element->getMode()->value) . '">
-                              <span class="info-box-icon"><i class="far ' . Html::safe($this->element->getIcon()) . '"></i></span>
+        $this->render = '   <div class="info-box bg-' . Html::safe($this->render_object->getMode()->value) . '">
+                              <span class="info-box-icon"><i class="far ' . Html::safe($this->render_object->getIcon()) . '"></i></span>
                 
                               <div class="info-box-content">
-                                <span class="info-box-text">' . Html::safe($this->element->getTitle()) . '</span>
-                                <span class="info-box-number">' . Html::safe($this->element->getValue()) . '</span>
+                                <span class="info-box-text">' . Html::safe($this->render_object->getTitle()) . '</span>
+                                <span class="info-box-number">' . Html::safe($this->render_object->getValue()) . '</span>
                 
-                                ' . (($this->element->getProgress() !== null) ? ' <div class="progress">
-                                                                                    <div class="progress-bar" style="width: ' . Html::safe($this->element->getProgress()) . '%"></div>
+                                ' . (($this->render_object->getProgress() !== null) ? ' <div class="progress">
+                                                                                    <div class="progress-bar" style="width: ' . Html::safe($this->render_object->getProgress()) . '%"></div>
                                                                                   </div>' : '') . '
                                 <span class="progress-description">
-                                  ' . Html::safe($this->element->getDescription()) . '
+                                  ' . Html::safe($this->render_object->getDescription()) . '
                                 </span>
                               </div>
                               <!-- /.info-box-content -->

@@ -8,6 +8,7 @@ use PDOStatement;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
+use Phoundation\Web\Http\Html\Components\Input\Select;
 
 
 /**
@@ -73,6 +74,10 @@ class Messages extends DataList
      */
     public function getHtmlSelect(): SelectInterface
     {
-        // TODO: Implement getHtmlSelect() method.
+        return Select::new()
+            ->setSourceQuery('SELECT `id`, `title` FROM `' . $this->table . '` WHERE `status` IS NULL ORDER BY `title` ASC')
+            ->setName('messages_id')
+            ->setNone(tr('Please select a message'))
+            ->setEmpty(tr('No messages available'));
     }
 }

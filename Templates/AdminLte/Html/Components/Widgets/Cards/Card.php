@@ -35,23 +35,23 @@ class Card extends Renderer
      */
     public function render(): ?string
     {
-        $this->render = '   <div class="card ' . ($this->element->getClass() ? $this->element->getClass() . ' ' : null) . ($this->element->getGradient() ? 'gradient-' . Html::safe($this->element->getGradient()) : '') . ($this->element->getMode()->value ? 'card-' . Html::safe($this->element->getMode()->value) : '') . ($this->element->getBackground() ? 'bg-' . Html::safe($this->element->getBackground()) : '') . '">';
+        $this->render = '   <div class="card ' . ($this->render_object->getClass() ? $this->render_object->getClass() . ' ' : null) . ($this->render_object->getGradient() ? 'gradient-' . Html::safe($this->render_object->getGradient()) : '') . ($this->render_object->getMode()->value ? 'card-' . Html::safe($this->render_object->getMode()->value) : '') . ($this->render_object->getBackground() ? 'bg-' . Html::safe($this->render_object->getBackground()) : '') . '">';
 
-        if ($this->element->getReloadSwitch() or $this->element->getMaximizeSwitch() or $this->element->getCollapseSwitch() or $this->element->getCloseSwitch() or $this->element->getTitle() or $this->element->getHeaderContent()) {
+        if ($this->render_object->getReloadSwitch() or $this->render_object->getMaximizeSwitch() or $this->render_object->getCollapseSwitch() or $this->render_object->getCloseSwitch() or $this->render_object->getTitle() or $this->render_object->getHeaderContent()) {
             $this->render .= '  <div class="card-header">
-                                    <h3 class="card-title">' . Html::safe($this->element->getTitle()) . '</h3>
+                                    <h3 class="card-title">' . Html::safe($this->render_object->getTitle()) . '</h3>
                                     <div class="card-tools">
-                                      ' . $this->element->getHeaderContent() . '
-                                      ' . ($this->element->getReloadSwitch() ? '   <button type="button" class="btn btn-tool" data-card-widget="card-refresh" data-source="widgets.html" data-source-selector="#card-refresh-content" data-load-on-init="false">
+                                      ' . $this->render_object->getHeaderContent() . '
+                                      ' . ($this->render_object->getReloadSwitch() ? '   <button type="button" class="btn btn-tool" data-card-widget="card-refresh" data-source="widgets.html" data-source-selector="#card-refresh-content" data-load-on-init="false">
                                                                                     <i class="fas fa-sync-alt"></i>
                                                                                   </button>' : '') . '
-                                      ' . ($this->element->getMaximizeSwitch() ? ' <button type="button" class="btn btn-tool" data-card-widget="maximize">
+                                      ' . ($this->render_object->getMaximizeSwitch() ? ' <button type="button" class="btn btn-tool" data-card-widget="maximize">
                                                                                     <i class="fas fa-expand"></i>
                                                                                   </button>' : '') . '
-                                      ' . ($this->element->getCollapseSwitch() ? ' <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                                                                    <i class="fas fa-' . ($this->element->getCollapsed() ? 'plus' : 'minus') . '"></i>
+                                      ' . ($this->render_object->getCollapseSwitch() ? ' <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                                                                    <i class="fas fa-' . ($this->render_object->getCollapsed() ? 'plus' : 'minus') . '"></i>
                                                                                   </button>' : '') . '
-                                      ' . ($this->element->getCloseSwitch() ? '    <button type="button" class="btn btn-tool" data-card-widget="remove">
+                                      ' . ($this->render_object->getCloseSwitch() ? '    <button type="button" class="btn btn-tool" data-card-widget="remove">
                                                                                     <i class="fas fa-times"></i>
                                                                                   </button>' : '') . '                              
                                     </div>
@@ -60,12 +60,12 @@ class Card extends Renderer
 
         $this->render .= '      <!-- /.card-header -->
                                 <div class="card-body">
-                                    ' . $this->element->getContent(). '
+                                    ' . $this->render_object->getContent(). '
                                 </div>';
 
-        if ($this->element->getButtons()) {
+        if ($this->render_object->getButtons()) {
             $this->render .= '  <div class="card-footer">
-                                  ' . $this->element->getButtons()->render() . '           
+                                  ' . $this->render_object->getButtons()->render() . '           
                                 </div>';
         }
 

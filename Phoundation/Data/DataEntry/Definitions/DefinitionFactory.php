@@ -44,7 +44,7 @@ class DefinitionFactory
     {
         return Definition::new($column_name)
             ->setOptional(true)
-            ->setContent(function (string $key, array $data, array $source) use ($filters) {
+            ->setContent(function (DefinitionInterface $definition, string $key, array $source) use ($filters) {
                 return Categories::new()->getHtmlSelect()
                     ->setName($key)
                     ->setSelected(isset_get($source[$key]))
@@ -98,7 +98,7 @@ class DefinitionFactory
     {
         return Definition::new($column_name)
             ->setOptional(true)
-            ->setContent(function (string $key, array $data, array $source) use ($filters) {
+            ->setContent(function (DefinitionInterface $definition, string $key, array $source) use ($filters) {
                 return Companies::new()->getHtmlSelect()
                     ->setName($key)
                     ->setSelected(isset_get($source[$key]))
@@ -153,7 +153,7 @@ class DefinitionFactory
         return Definition::new($column_name)
             ->setOptional(true)
             ->setInputType(InputType::number)
-            ->setContent(function (string $key, array $data, array $source) use ($filters) {
+            ->setContent(function (DefinitionInterface $definition, string $key, array $source) use ($filters) {
                 return Languages::new()->getHtmlSelect()
                     ->setName($key)
                     ->setSelected(isset_get($source[$key]))
@@ -212,7 +212,7 @@ class DefinitionFactory
     {
         return Definition::new($column_name)
             ->setOptional(true)
-            ->setContent(function (string $key, array $data, array $source) use ($filters) {
+            ->setContent(function (DefinitionInterface $definition, string $key, array $source) use ($filters) {
                 return Providers::new()->getHtmlSelect()
                     ->setName($key)
                     ->setSelected(isset_get($source[$key]))
@@ -266,7 +266,7 @@ class DefinitionFactory
     {
         return Definition::new($column_name)
             ->setOptional(true)
-            ->setContent(function (string $key, array $data, array $source) use ($filters) {
+            ->setContent(function (DefinitionInterface $definition, string $key, array $source) use ($filters) {
                 return Customers::new()->getHtmlSelect()
                     ->setName($key)
                     ->setSelected(isset_get($source[$key]))
@@ -321,8 +321,8 @@ class DefinitionFactory
         return Definition::new($column_name)
             ->setOptional(true)
             ->setInputType(InputType::number)
-            ->setContent(function (string $key, array $data, array $source) use ($filters) {
-                return Timezones::getHtmlSelect($key)
+            ->setContent(function (DefinitionInterface $definition, string $key, array $source) use ($filters) {
+                return Timezones::new()->getHtmlSelect($key)
                     ->setSelected(isset_get($source['timezones_id']))
                     ->render();
             })
@@ -380,7 +380,7 @@ class DefinitionFactory
         return Definition::new($column_name)
             ->setOptional(true)
             ->setInputType(InputType::number)
-            ->setContent(function (string $key, array $data, array $source) use ($filters) {
+            ->setContent(function (DefinitionInterface $definition, string $key, array $source) use ($filters) {
                 return Countries::getHtmlCountriesSelect()
                     ->setName($key)
                     ->setSelected(isset_get($source[$key]))
@@ -437,7 +437,7 @@ class DefinitionFactory
         return Definition::new($column_name)
             ->setOptional(true)
             ->setInputType(InputType::number)
-            ->setContent(function (string $key, array $data, array $source) use ($filters) {
+            ->setContent(function (DefinitionInterface $definition, string $key, array $source) use ($filters) {
                 return Country::get($source['countries_id'])->getHtmlStatesSelect($key)
                     ->setName($key)
                     ->setSelected(isset_get($source[$key]))
@@ -494,7 +494,7 @@ class DefinitionFactory
         return Definition::new($column_name)
             ->setOptional(true)
             ->setInputType(InputType::number)
-            ->setContent(function (string $key, array $data, array $source) use ($filters) {
+            ->setContent(function (DefinitionInterface $definition, string $key, array $source) use ($filters) {
                 return State::get($source['states_id'])->getHtmlCitiesSelect($key)
                     ->setName($key)
                     ->setSelected(isset_get($source[$key]))
@@ -553,7 +553,7 @@ class DefinitionFactory
             ->setInputType(InputTypeExtended::dbid)
             ->setSize(3)
             ->setAutoComplete(true)
-            ->setContent(function (string $key, array $data, array $source) use ($filters) {
+            ->setContent(function (DefinitionInterface $definition, string $key, array $source) use ($filters) {
                 return Users::new()->getHtmlSelect($filters)
                     ->setSelected(isset_get($source[$key]))
                     ->render();
@@ -603,6 +603,7 @@ class DefinitionFactory
         return Definition::new($column_name)
             ->setOptional(true)
             ->setSize(3)
+            ->setMaxlength(16)
             ->setCliField('-c,--code CODE')
             ->setAutoComplete(true)
             ->setLabel(tr('Code'))
@@ -786,7 +787,7 @@ class DefinitionFactory
             ->setHelpText(tr('Phone numbers where this user can be reached'))
             ->addValidationFunction(function ($validator) {
                 $validator->isPhoneNumbers();
-                // $validator->sanitizeForceArray(',')->each()->isPhone()->sanitizeForceString()
+                // $validator->sanitizeForceArray(',')->each()->isPhoneNumber()->sanitizeForceString()
             });
     }
 

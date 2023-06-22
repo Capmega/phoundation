@@ -431,15 +431,15 @@ class Roles extends DataList implements RolesInterface
 
 
     /**
-     * Returns an HTML select component object containing the entries in this list
+     * Returns an HTML <select> for the available object entries
      *
      * @return SelectInterface
      */
     public function getHtmlSelect(): SelectInterface
     {
-        return Select::new()
-            ->setNone(tr('Select a role'))
-            ->setEmpty(tr('No roles available'))
-            ->setSourceQuery('SELECT `seo_name`, `name` FROM `accounts_roles` WHERE `status` IS NULL');
+        return parent::getHtmlSelect()
+            ->setName('roles_id')
+            ->setNone(tr('Please select a role'))
+            ->setEmpty(tr('No roles available'));
     }
 }

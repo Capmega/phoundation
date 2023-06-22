@@ -73,6 +73,9 @@ class Employees extends DataList
      */
     public function getHtmlSelect(): SelectInterface
     {
-        // TODO: Implement getHtmlSelect() method.
+        return parent::getHtmlSelect()
+            ->setName('employees_id')
+            ->setNone(tr('Please select a employee'))
+            ->setEmpty(tr('No employees available'));
     }
 }

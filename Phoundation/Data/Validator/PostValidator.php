@@ -102,15 +102,16 @@ class PostValidator extends Validator
 
         foreach ($post as $field) {
             if (!in_array($field, $this->selected_fields)) {
-                $fields[] = tr('Unknown field ":field" encountered', [
+                $fields[]   = $field;
+                $messages[] = tr('Unknown field ":field" encountered', [
                     ':field' => $field
                 ]);
             }
         }
 
         throw ValidationFailedException::new(tr('Unknown POST fields ":fields" encountered', [
-            ':fields' => Strings::force($post, ', ')
-        ]))->setData($fields)->makeWarning();
+            ':fields' => Strings::force($fields, ', ')
+        ]))->setData($messages)->makeWarning()->log();
     }
 
 

@@ -38,12 +38,12 @@ class MessagesDropDown extends Renderer
      */
     public function render(): ?string
     {
-        if (!$this->element->getMessagesUrl()) {
+        if (!$this->render_object->getMessagesUrl()) {
             throw new OutOfBoundsException(tr('No messages page URL specified'));
         }
 
-        if ($this->element->getMessages()) {
-            $count = $this->element->getMessages()->count();
+        if ($this->render_object->getMessages()) {
+            $count = $this->render_object->getMessages()->count();
         } else {
             $count = 0;
         }
@@ -57,7 +57,7 @@ class MessagesDropDown extends Renderer
                                   <div class="dropdown-divider"></div>';
 
         if ($count) {
-            foreach ($this->element->getMessages() as $message) {
+            foreach ($this->render_object->getMessages() as $message) {
                 $this->render . -'<a href="' . Html::safe($message->getUrl()) . '" class="dropdown-item">
                                     <!-- Message Start -->
                                     <div class="media">
@@ -78,7 +78,7 @@ class MessagesDropDown extends Renderer
         }
 
         $this->render .= '        
-                                  <a href="' . Html::safe($this->element->getMessagesUrl()) . '" class="dropdown-item dropdown-footer">' . tr('See All Messages') . '</a>
+                                  <a href="' . Html::safe($this->render_object->getMessagesUrl()) . '" class="dropdown-item dropdown-footer">' . tr('See All Messages') . '</a>
                                 </div>';
 
         return parent::render();

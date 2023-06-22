@@ -38,13 +38,13 @@ class InfoBox extends Renderer
     public function render(): ?string
     {
         $this->render = '   <div class="info-box shadow-none">
-                              <span class="info-box-icon bg-' . Html::safe($this->element->getMode()->value) . '"><i class="far ' . Html::safe($this->element->getIcon()) . '"></i></span>
+                              <span class="info-box-icon bg-' . Html::safe($this->render_object->getMode()->value) . '"><i class="far ' . Html::safe($this->render_object->getIcon()) . '"></i></span>
                 
                               <div class="info-box-content">
-                                <span class="info-box-text">' . Html::safe($this->element->getTitle()) . '</span>
-                                <span class="info-box-number">' . Html::safe($this->element->getValue()) . '</span>
+                                <span class="info-box-text">' . Html::safe($this->render_object->getTitle()) . '</span>
+                                <span class="info-box-number">' . Html::safe($this->render_object->getValue()) . '</span>
                               </div>
-                              ' . Html::safe($this->element->getDescription()) . '
+                              ' . Html::safe($this->render_object->getDescription()) . '
                             </div>';
 
         return parent::render();

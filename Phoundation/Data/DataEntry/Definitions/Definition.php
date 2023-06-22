@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Definitions;
 
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Traits\UsesNewField;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
@@ -95,7 +96,6 @@ class Definition implements DefinitionInterface
         'week'
     ];
 
-
     /**
      * Definitions for this Definition
      *
@@ -140,6 +140,37 @@ class Definition implements DefinitionInterface
      * @var array
      */
     protected array $definitions = [];
+
+    /**
+     * The data entry linked to this definition
+     *
+     * @var DataEntryInterface|null $data_entry
+     */
+    protected ?DataEntryInterface $data_entry = null;
+
+
+    /**
+     * Returns the internal data_entry for this definition
+     *
+     * @return DataEntryInterface
+     */
+    public function getDataEntry(): DataEntryInterface
+    {
+        return $this->data_entry;
+    }
+
+
+    /**
+     * Sets the internal data_entry for this definition
+     *
+     * @param DataEntryInterface $data_entry
+     * @return static
+     */
+    public function setDataEntry(DataEntryInterface $data_entry): static
+    {
+        $this->data_entry = $data_entry;
+        return $this;
+    }
 
 
     /**
@@ -313,7 +344,7 @@ class Definition implements DefinitionInterface
      *
      * @note Defaults to false
      * @return bool
-     *@see Definition::getVisible()
+     * @see Definition::getVisible()
      */
     public function getMeta(): bool
     {
@@ -383,14 +414,14 @@ class Definition implements DefinitionInterface
         if (!empty($this->definitions['type'])) {
             if ($value !== 'input') {
                 throw new OutOfBoundsException(tr('Cannot set element ":value" for field ":field" as the element type has already been set to ":type" and typed fields can only have the element "input"', [
-                    ':value' => $value->value,
+                    ':value' => $value?->value,
                     ':field' => $this->field,
                     ':type'  => $this->definitions['element']
                 ]));
             }
         }
 
-        return $this->setKey('element', $value->value);
+        return $this->setKey('element', $value?->value);
     }
 
 
@@ -505,7 +536,7 @@ class Definition implements DefinitionInterface
                         $value = InputType::tel;
 
                         $this->addValidationFunction(function ($validator) {
-                            $validator->isPhone();
+                            $validator->isPhoneNumber();
                         });
 
                         break;
@@ -514,7 +545,7 @@ class Definition implements DefinitionInterface
                         $value = InputType::text;
 
                         $this->addValidationFunction(function ($validator) {
-                            $validator->isPhones();
+                            $validator->isPhoneNumbers();
                         });
 
                         break;
@@ -725,12 +756,6 @@ class Definition implements DefinitionInterface
      */
     public function setSource(array|string|null $value): static
     {
-        if ($value) {
-            if (is_string($value)) {
-throw new UnderConstructionException();
-            }
-        }
-
         return $this->setKey('source', $value);
     }
 

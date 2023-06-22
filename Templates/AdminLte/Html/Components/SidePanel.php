@@ -84,14 +84,14 @@ class SidePanel extends Renderer
                         
                               <!-- Sidebar Menu -->
                               <nav>
-                                ' . $this->element->getMenu()?->render() . '                                
+                                ' . $this->render_object->getMenu()?->render() . '                                
                               </nav>
                               <!-- /.sidebar-menu -->
                             </div>
                             <!-- /.sidebar -->
                           </aside>';
 
-        $this->render .= $this->element->getModals()?->render() . PHP_EOL;
+        $this->render .= $this->render_object->getModals()?->render() . PHP_EOL;
 
         return parent::render();
     }

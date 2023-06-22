@@ -98,9 +98,10 @@ class GetValidator extends Validator
         $fields = [];
         $get    = array_keys(static::$get);
 
-        foreach ($get as $field) {
+        foreach ($post as $field) {
             if (!in_array($field, $this->selected_fields)) {
-                $fields[] = tr('Unknown field ":field" encountered', [
+                $fields[]   = $field;
+                $messages[] = tr('Unknown field ":field" encountered', [
                     ':field' => $field
                 ]);
             }
@@ -108,7 +109,7 @@ class GetValidator extends Validator
 
         throw ValidationFailedException::new(tr('Unknown GET fields ":fields" encountered', [
             ':fields' => Strings::force($get, ', ')
-        ]))->setData($fields)->makeWarning();
+        ]))->setData($messages)->makeWarning()->log();
     }
 
 

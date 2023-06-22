@@ -65,11 +65,7 @@ class Customers extends DataList
      */
     public function getHtmlSelect(): SelectInterface
     {
-        return Select::new()
-            ->setSourceQuery('SELECT    `id`, `name` 
-                                          FROM     `business_customers`
-                                          WHERE    `status` IS NULL 
-                                          ORDER BY `name`')
+        return parent::getHtmlSelect()
             ->setName('customers_id')
             ->setNone(tr('Please select a customer'))
             ->setEmpty(tr('No customers available'));

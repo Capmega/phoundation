@@ -46,8 +46,8 @@ class TopMenu extends Renderer
                             <a href="' . Html::safe(UrlBuilder::getCurrent()) . '" class="nav-link">' . tr('Home') . '</a>
                         </li>';
 
-        if ($this->element->getSource()) {
-            foreach ($this->element->getSource() as $label => $entry) {
+        if ($this->render_object->getSource()) {
+            foreach ($this->render_object->getSource() as $label => $entry) {
                 if (is_string($entry))  {
                     $entry = ['url' => $entry];
                 }

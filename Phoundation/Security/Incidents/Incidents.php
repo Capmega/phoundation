@@ -75,6 +75,9 @@ class Incidents extends DataList
      */
     public function getHtmlSelect(): SelectInterface
     {
-        // TODO: Implement getHtmlSelect() method.
+        return parent::getHtmlSelect()
+            ->setName('incidents_id')
+            ->setNone(tr('Please select an incident'))
+            ->setEmpty(tr('No incidents available'));
     }
 }

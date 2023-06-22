@@ -89,6 +89,9 @@ class States extends DataList
      */
     public function getHtmlSelect(): SelectInterface
     {
-        // TODO: Implement getHtmlSelect() method.
+        return parent::getHtmlSelect()
+            ->setName('states_id')
+            ->setNone(tr('Please select a state'))
+            ->setEmpty(tr('No states available'));
     }
 }

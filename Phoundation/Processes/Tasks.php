@@ -6,6 +6,7 @@ namespace Phoundation\Processes;
 
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
+use Phoundation\Web\Http\Html\Components\Input\Select;
 
 
 /**
@@ -52,6 +53,10 @@ class Tasks extends DataList
      */
     public function getHtmlSelect(): SelectInterface
     {
-        // TODO: Implement getHtmlSelect() method.
+        return Select::new()
+            ->setSourceQuery('SELECT `id`, CONCAT(`command`, " [", `status`, "]") AS `command` FROM `' . $this->table . '` WHERE `status` IS NULL ORDER BY `created_on` ASC')
+            ->setName('tasks_id')
+            ->setNone(tr('Please select a task'))
+            ->setEmpty(tr('No tasks available'));
     }
 }
