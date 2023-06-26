@@ -326,7 +326,8 @@ class Debug {
                             Page::sendHttpHeaders(Page::buildHttpHeaders($value));
                         }
 
-                        $output = PHP_EOL . tr('DEBUG SHOW (:file@:line) [:size]', [
+                        $output = PHP_EOL . tr('DEBUG SHOW (:file@:line) [:type :size]', [
+                            ':type' => gettype($value),
                             ':file' => static::currentFile($trace_offset - 1),
                             ':line' => static::currentLine($trace_offset - 1),
                             ':size' => ($value === null ? 'NULL' : (is_scalar($value) ? strlen((string) $value) : count((array) $value)))
@@ -350,12 +351,13 @@ class Debug {
                 flush();
 
             } else {
-                echo PHP_EOL . tr('DEBUG SHOW (:file@:line) [:size]', [
+                echo PHP_EOL . tr('DEBUG SHOW (:file@:line) [:type :size]', [
+                    ':type' => gettype($value),
                     ':file' => static::currentFile($trace_offset),
                     ':line' => static::currentLine($trace_offset),
-                        ':size' => ($value === null ? 'NULL' : (is_scalar($value) ? strlen((string) $value) : count((array) $value)))
+                    ':size' => ($value === null ? 'NULL' : (is_scalar($value) ? strlen((string) $value) : count((array) $value)))
                 ]) . PHP_EOL;;
-                print_r($value) . PHP_EOL;;
+                print_r($value) . PHP_EOL;
                 flush();
                 ob_flush();
             }
@@ -370,7 +372,8 @@ class Debug {
 
             // Show output on CLI console
             if (is_scalar($value)) {
-                $return .= ($quiet ? '' : tr('DEBUG SHOW (:file@:line) [:size] ', [
+                $return .= ($quiet ? '' : tr('DEBUG SHOW (:file@:line) [:type :size] ', [
+                    ':type' => gettype($value),
                     ':file' => static::currentFile($trace_offset),
                     ':line' => static::currentLine($trace_offset),
                     ':size' => strlen((string) $value)
@@ -383,7 +386,8 @@ class Debug {
                 }
 
                 if (!$quiet) {
-                    $return .= tr('DEBUG SHOW (:file@:line) [:size]', [
+                    $return .= tr('DEBUG SHOW (:file@:line) [:type :size]', [
+                        ':type' => gettype($value),
                         ':file' => static::currentFile($trace_offset),
                         ':line' => static::currentLine($trace_offset),
                         ':size' => ($value === null ? 'NULL' : count((array) $value))
@@ -609,7 +613,7 @@ class Debug {
                         $exception .= htmlentities((string) $value->getMessage()) . '<br>';
                     }
 
-                    $exception .= '<br>' . tr('Location: ') . htmlentities((string) $value->getFile()) . '@' . $value->getLine() . '<br><br>' . tr('Backtrace: ') . '<br>';
+                    $exception .= '<br>' . tr('Location: ') . htmlentities($value->getFile()) . '@' . $value->getLine() . '<br><br>' . tr('Backtrace: ') . '<br>';
 
                     foreach (Debug::formatBacktrace($value->getTrace()) as $line) {
                         $exception .= htmlentities((string) $line) . '<br>';
