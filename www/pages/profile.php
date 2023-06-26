@@ -10,6 +10,7 @@ use Phoundation\Web\Http\Html\Components\Buttons;
 use Phoundation\Web\Http\Html\Components\Img;
 use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
+use Phoundation\Web\Http\Html\Enums\DisplaySize;
 use Phoundation\Web\Http\Html\Layouts\Grid;
 use Phoundation\Web\Http\Html\Layouts\GridColumn;
 use Phoundation\Web\Http\UrlBuilder;
@@ -51,6 +52,9 @@ $definitions->get('code')
     ->setReadonly(true)
     ->setVisible(false);
 
+$definitions->get('phones')
+    ->setSize(6);
+
 $definitions->get('type')
     ->setReadonly(true)
     ->setVisible(false);
@@ -78,14 +82,14 @@ $definitions->get('verified_on')
     ->setVisible(false);
 
 $definitions->get('keywords')
-    ->setSize(6);
-
-$definitions->get('url')
-    ->setSize(6);
+    ->setSize(3);
 
 $definitions->get('redirect')
     ->setVisible(false)
     ->setReadonly(true);
+
+$definitions->get('url')
+    ->setSize(12);
 
 $definitions->get('description')
     ->setSize(12);
@@ -101,12 +105,12 @@ if (Page::isPostRequestMethod()) {
 // TODO Implement timers
 //showdie(Timers::get('query'));
 
-        Page::getFlashMessages()->add(tr('Success'), tr('Your profile has been updated'), DisplayMode::success);
+        Page::getFlashMessages()->addMessage(tr('Success'), tr('Your profile has been updated'), DisplayMode::success);
         Page::redirect('referer');
 
     } catch (ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
-        Page::getFlashMessages()->add($e);
+        Page::getFlashMessages()->addMessage($e);
         $user->forceApply();
     }
 }
@@ -161,7 +165,7 @@ $documentation = Card::new()
 // Build and render the grid
 $grid = Grid::new()
     ->addColumn($column)
-    ->addColumn($picture->render() . $relevant->render() . $documentation->render(), 3);
+    ->addColumn($picture->render() . $relevant->render() . $documentation->render(), DisplaySize::three);
 
 echo $grid->render();
 
