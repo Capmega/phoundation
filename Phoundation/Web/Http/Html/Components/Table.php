@@ -655,6 +655,8 @@ class Table extends ResourceElement
 
         // Process array resource. Go over each row and in each row over each column
         foreach ($this->source as $key => $row_values) {
+            $this->executeCallbacks($row_values);
+
             if (!is_array($row_values)) {
                 if (!is_object($row_values) or !method_exists($row_values, '__toArray')) {
                     throw new OutOfBoundsException(tr('The specified table source array is invalid. Format should be [[header columns][row columns][row columns] ...], a ":type" was encountered instead', [
@@ -677,8 +679,6 @@ class Table extends ResourceElement
             $first = true;
 
             foreach ($row_values as $column => $value) {
-                $this->executeCallbacks($value);
-
                 if ($first) {
                     // Convert first column to checkboxes?
                     $value = $this->renderCheckboxColumn($column, $value);

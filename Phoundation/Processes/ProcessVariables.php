@@ -10,7 +10,6 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
@@ -20,6 +19,7 @@ use Phoundation\Processes\Commands\Exception\CommandsException;
 use Phoundation\Processes\Commands\SystemCommands;
 use Phoundation\Processes\Exception\ProcessesException;
 use Phoundation\Processes\Exception\ProcessException;
+use Phoundation\Processes\Interfaces\ProcessInterface;
 use Phoundation\Servers\Server;
 use Stringable;
 
@@ -242,6 +242,20 @@ trait ProcessVariables
      */
     protected ?float $stop = null;
 
+    /**
+     * If specified, this command will be executed before the main command
+     *
+     * @var Process|null $pre_exec
+     */
+    protected ?Process $pre_exec = null;
+
+    /**
+     * If specified, this command will be executed after the main command
+     *
+     * @var Process|null $post_exec
+     */
+    protected ?Process $post_exec = null;
+
 
     /**
      * Process class constructor
@@ -286,6 +300,54 @@ trait ProcessVariables
     public function getExecutionStopTime(): ?float
     {
         return $this->stop;
+    }
+
+
+    /**
+     * Returns the exact time that execution started
+     *
+     * @return ProcessInterface|null
+     */
+    public function getPreExecution(): ?ProcessInterface
+    {
+        return $this->pre_exec;
+    }
+
+
+    /**
+     * Sets the process to execute before the main process
+     *
+     * @param ProcessInterface|null $process
+     * @return static
+     */
+    public function setPreExecution(?ProcessInterface $process): static
+    {
+        $this->pre_exec = $process;
+        return $this;
+    }
+
+
+    /**
+     * Returns the process to execute after the main process
+     *
+     * @return ProcessInterface|null
+     */
+    public function getPostExecution(): ?ProcessInterface
+    {
+        return $this->post_exec;
+    }
+
+
+    /**
+     * Sets the process to execute after the main process
+     *
+     * @param ProcessInterface|null $process
+     * @return static
+     */
+    public function setPostExecution(?ProcessInterface $process): static
+    {
+        $this->post_exec = $process;
+        return $this;
     }
 
 

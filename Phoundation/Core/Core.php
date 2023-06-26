@@ -64,11 +64,11 @@ class Core {
     protected static ?Core $instance = null;
 
     /**
-     * The Core default server object
+     * The Core default restrictions object
      *
-     * @var Restrictions $restrictions
+     * @var Restrictions|null $restrictions
      */
-    protected static Restrictions $restrictions;
+    protected static ?Restrictions $restrictions = null;
 
     /**
      * The generic system register to store data
@@ -216,7 +216,6 @@ class Core {
         // Set timeout and request type, ensure safe PHP configuration, apply general server restrictions, set the
         // project name, platform and request type
         static::securePhpSettings();
-        static::setRestrictions();
         static::setProject();
         static::setPlatform();
         static::selectStartup();
@@ -497,7 +496,10 @@ class Core {
         // Hide all command line arguments
         ArgvValidator::hideData($GLOBALS['argv']);
 
-        // Validate system modifier arguments
+        // Validate system modifier arguments. Ensure that these variables get stored in the global $argv array because
+        // they may be used later down the line by (for example) Documenation class, for example!
+        global $argv;
+
         $argv = ArgvValidator::new()
             ->select('-A,--all')->isOptional(false)->isBoolean()
             ->select('-C,--no-color')->isOptional(false)->isBoolean()
@@ -509,7 +511,7 @@ class Core {
             ->select('-O,--order-by', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(128)
             ->select('-P,--page', true)->isOptional(1)->isId()
             ->select('-Q,--quiet')->isOptional(false)->isBoolean()
-            ->select('-N,--no-sound')->isOptional(false)->isBoolean()
+            ->select('-N,--no-audio')->isOptional(false)->isBoolean()
             ->select('-S,--status', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(16)
             ->select('-T,--test')->isOptional(false)->isBoolean()
             ->select('-U,--usage')->isOptional(false)->isBoolean()
@@ -553,7 +555,6 @@ class Core {
 //            'no_validation' => false,
 //            'no_password_validation' => false
 //    ];
-
 
         if ($argv['auto_complete']) {
             // We're in auto complete mode. Show only direct output, don't use any color
@@ -607,7 +608,7 @@ class Core {
         define('ALL'     , $argv['all']);
         define('STATUS'  , $argv['status']);
         define('PAGE'    , $argv['page']);
-        define('NOAUDIO' , $argv['no_sound']);
+        define('NOAUDIO' , $argv['no_audio']);
         define('LIMIT'   , get_null($argv['limit']) ?? Config::getNatural('paging.limit', 50));
 
         // Correct $_SERVER['PHP_SELF'], sometimes seems empty
@@ -838,14 +839,18 @@ class Core {
 
 
     /**
-     * Set general file access restrictions
+     * Returns Core general file access restrictions
      *
-     * @return void
+     * @return RestrictionsInterface
      */
-    protected static function setRestrictions(): void
+    protected static function getRestrictions(): RestrictionsInterface
     {
-        // Set up the Core restrictions object with default file access restrictions
-        static::$restrictions = Restrictions::new(PATH_DATA, false, 'Core');
+        if (!static::$restrictions) {
+            // Set up the Core restrictions object with default file access restrictions
+            static::$restrictions = Restrictions::new(PATH_DATA, false, 'Core');
+        }
+
+        return static::$restrictions;
     }
 
 
@@ -1251,7 +1256,7 @@ class Core {
     /**
      * This method will return the calltype for this call, as is stored in the private variable core::callType
      *
-     * @return string Returns core::callType
+     * @return string|null Returns core::callType
      */
     public static function getRequestType(): ?string
     {
@@ -1333,10 +1338,6 @@ class Core {
                 ->setFile($errfile)
                 ->setLine($errline);
         }
-
-        $trace = Debug::backtrace();
-        unset($trace[0]);
-        unset($trace[1]);
 
         throw PhpException::new('PHP ERROR "' . $errstr . '"')
             ->setCode($errno)
@@ -1704,7 +1705,7 @@ class Core {
                                                     '.tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', [
                                                         ':code'   => $e->getCode(),
                                                         ':script' => static::readRegister('system', 'script'),
-                                                        'type'    => Core::getRequestType()
+                                                        ':type'   => Core::getRequestType()
                                                     ]).'
                                                 </td>
                                             </thead>
@@ -1740,7 +1741,7 @@ class Core {
 
                             echo $return;
 
-                            if ($e instanceof CoreException) {
+                            if ($e instanceof Exception) {
                                 // Clean data
                                 $e->setData(Arrays::hide(Arrays::force($e->getData()), 'GLOBALS,%pass,ssh_key'));
                             }
@@ -2351,7 +2352,7 @@ class Core {
             return $restrictions;
         }
 
-        return static::$restrictions;
+        return static::getRestrictions();
     }
 
 

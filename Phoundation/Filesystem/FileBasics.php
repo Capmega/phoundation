@@ -724,7 +724,6 @@ class FileBasics implements Stringable, FileBasicsInterface
      * @param bool $sudo
      * @return static
      * @see $this->chown()
-     *
      */
     public function chmod(string|int $mode, bool $recursive = false, bool $sudo = false): static
     {
@@ -739,12 +738,14 @@ class FileBasics implements Stringable, FileBasicsInterface
         // Check filesystem restrictions
         $this->restrictions->check($this->file, true);
 
-        Process::new('chmod', $this->restrictions)
-            ->setSudo($sudo)
-            ->addArgument($recursive ? '-R' : null)
-            ->addArgument('0' . decoct($mode))
-            ->addArguments($this->file)
-            ->executeReturnArray();
+        if ($recursive) {
+            Process::new('chmod', $this->restrictions)
+                ->setSudo($sudo)
+                ->addArguments(['-R', '0' . decoct($mode), $this->file])
+                ->executeReturnArray();
+        } else {
+            chmod($this->file, $mode);
+        }
 
         return $this;
     }

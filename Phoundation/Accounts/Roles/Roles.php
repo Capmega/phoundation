@@ -17,7 +17,7 @@ use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Sql\QueryBuilder;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
-use Phoundation\Web\Http\Html\Components\Input\Select;
+use Phoundation\Web\Http\Html\Components\Input\InputSelect;
 
 
 /**
@@ -73,11 +73,11 @@ class Roles extends DataList implements RolesInterface
             $diff = Arrays::valueDiff(array_keys($this->source), $rights_list);
 
             foreach ($diff['add'] as $right) {
-                $this->parent->roles()->add($right);
+                $this->parent->getRoles()->addRole($right);
             }
 
             foreach ($diff['remove'] as $right) {
-                $this->parent->roles()->remove($right);
+                $this->parent->getRoles()->remove($right);
             }
         }
 
@@ -99,7 +99,7 @@ class Roles extends DataList implements RolesInterface
             if (is_array($role)) {
                 // Add multiple rights
                 foreach ($role as $entry) {
-                    $this->add($entry);
+                    $this->addRole($entry);
                 }
 
             } else {
@@ -124,8 +124,8 @@ class Roles extends DataList implements RolesInterface
                         $this->addDataEntry($role);
 
                         // Add rights to the user
-                        foreach ($role->rights() as $right) {
-                            $this->parent->rights()->add($right);
+                        foreach ($role->getRights() as $right) {
+                            $this->parent->getRights()->addRight($right);
                         }
 
                     } elseif ($this->parent instanceof RightInterface) {
@@ -143,8 +143,8 @@ class Roles extends DataList implements RolesInterface
                         $this->addDataEntry($role);
 
                         // Update all users with this right to get the new right as well!
-                        foreach ($this->parent->users() as $user) {
-                            User::get($user)->rights()->add($this->parent);
+                        foreach ($this->parent->getUsers() as $user) {
+                            User::get($user)->getRights()->addRight($this->parent);
                         }
                     }
                 }
@@ -190,8 +190,8 @@ class Roles extends DataList implements RolesInterface
                     // Add right to internal list
                     $this->deleteEntry($role);
 
-                    foreach ($role->rights() as $right) {
-                        $this->parent->rights()->remove($right);
+                    foreach ($role->getRights() as $right) {
+                        $this->parent->getRights()->remove($right);
                     }
 
                 } elseif ($this->parent instanceof RightInterface) {
@@ -209,8 +209,8 @@ class Roles extends DataList implements RolesInterface
                     $this->deleteEntry($role);
 
                     // Update all users with this right to remove the new right as well!
-                    foreach ($this->parent->users() as $user) {
-                        User::get($user)->rights()->remove($this->parent);
+                    foreach ($this->parent->getUsers() as $user) {
+                        User::get($user)->getRights()->remove($this->parent);
                     }
                 }
             }
@@ -325,7 +325,7 @@ class Roles extends DataList implements RolesInterface
 
         // Add ordering
         foreach ($order_by as $column => $direction) {
-            $builder->addOrderBy($column . '` ' . ($direction ? 'DESC' : 'ASC'));
+            $builder->addOrderBy('`' . $column . '` ' . ($direction ? 'DESC' : 'ASC'));
         }
 
         // Build filters
@@ -433,13 +433,15 @@ class Roles extends DataList implements RolesInterface
     /**
      * Returns an HTML <select> for the available object entries
      *
+     * @param string $value_column
+     * @param string $key_column
      * @return SelectInterface
      */
-    public function getHtmlSelect(): SelectInterface
+    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id'): SelectInterface
     {
-        return parent::getHtmlSelect()
+        return parent::getHtmlSelect($value_column, $key_column)
             ->setName('roles_id')
-            ->setNone(tr('Please select a role'))
+            ->setNone(tr('Select a role'))
             ->setEmpty(tr('No roles available'));
     }
 }

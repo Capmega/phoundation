@@ -17,6 +17,8 @@ use Phoundation\Processes\Commands\Command;
 use Phoundation\Processes\Enum\ExecuteMethod;
 use Phoundation\Processes\Exception\ProcessException;
 use Phoundation\Processes\Exception\ProcessFailedException;
+use Phoundation\Processes\Interfaces\ProcessInterface;
+use Phoundation\Processes\Interfaces\ProcessVariablesInterface;
 use Phoundation\Servers\Server;
 
 
@@ -31,7 +33,7 @@ use Phoundation\Servers\Server;
  * @package Phoundation\Processes
  * @uses \Phoundation\Processes\ProcessVariables
  */
-Class Process
+Class Process implements ProcessInterface, ProcessVariablesInterface
 {
     use ProcessVariables;
 
@@ -46,7 +48,7 @@ Class Process
     public function __construct(?string $command = null, RestrictionsInterface|array|string|null $restrictions = null, ?string $packages = null)
     {
         // Ensure that the run files directory is available
-        Path::new(PATH_ROOT . 'data/run/', $restrictions)->ensure();
+        Path::new(PATH_ROOT . 'data/run/', Restrictions::new(PATH_DATA . 'run', true))->ensure();
 
         $this->setRestrictions($restrictions);
 

@@ -45,12 +45,12 @@ abstract class Import
     /**
      * Import class constructor
      *
-     * @param bool $demo
+     * @param bool|null $demo
      * @param int|null $min
      * @param int|null $max
      * @throws Exception
      */
-    public function __construct(bool $demo = false, ?int $min = null, ?int $max = null)
+    public function __construct(?bool $demo = null, ?int $min = null, ?int $max = null)
     {
         $this->demo  = $demo;
         $this->count = random_int((int) $min, (int) $max);
@@ -60,13 +60,13 @@ abstract class Import
     /**
      * Returns a new Import object
      *
-     * @param bool $demo
-     * @param int $min
-     * @param int $max
+     * @param bool|null $demo
+     * @param int|null $min
+     * @param int|null $max
      * @return static
      * @throws Exception
      */
-    public static function new(bool $demo, int $min, int $max): static
+    public static function new(?bool $demo = null, ?int $min = null, ?int $max = null): static
     {
         return new static($demo, $min, $max);
     }

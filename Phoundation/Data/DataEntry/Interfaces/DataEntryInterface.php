@@ -109,26 +109,29 @@ interface DataEntryInterface
     /**
      * Returns true if an entry with the specified identifier exists
      *
+     * @param string $field
      * @param string|int|null $identifier The unique identifier, but typically not the database id, usually the
      *                                    seo_email, or seo_name
+     * @param int|null $not_id            If specified, the entry with NOT_ID will be ignored and seen as not existing
      * @param bool $throw_exception       If the entry does not exist, instead of returning false will throw a
      *                                    DataEntryNotExistsException
      * @return bool
      */
-    static function exists(string|int $identifier = null, bool $throw_exception = false): bool;
+    static function exists(string $field, string|int $identifier = null, ?int $not_id = null, bool $throw_exception = false): bool;
 
     /**
-     * Returns true if an entry with the specified identifier does not exists
+     * Returns true if an entry with the specified identifier does not exist
      *
+     * @param string $field
      * @param string|int|null $identifier The unique identifier, but typically not the database id, usually the
      *                                    seo_email, or seo_name
-     * @param int|null $id                If specified, will ignore the found entry if it has this ID as it will be THIS
+     * @param int|null $id If specified, will ignore the found entry if it has this ID as it will be THIS
      *                                    object
-     * @param bool $throw_exception       If the entry exists (and does not match id, if specified), instead of
+     * @param bool $throw_exception If the entry exists (and does not match id, if specified), instead of
      *                                    returning false will throw a DataEntryNotExistsException
      * @return bool
      */
-    static function notExists(string|int $identifier = null, ?int $id = null, bool $throw_exception = false): bool;
+    static function notExists(string $field, string|int $identifier = null, ?int $id = null, bool $throw_exception = false): bool;
 
     /**
      * Returns the class name of this DataEntry object

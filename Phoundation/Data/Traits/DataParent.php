@@ -22,7 +22,7 @@ trait DataParent
     /**
      * @var DataEntryInterface|null $parent
      */
-    protected ?DataEntryInterface $parent;
+    protected ?DataEntryInterface $parent = null;
 
 
     /**

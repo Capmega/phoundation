@@ -26,6 +26,7 @@ use Phoundation\Data\DataEntry\Traits\DataEntryTitle;
 use Phoundation\Data\DataEntry\Traits\DataEntryTrace;
 use Phoundation\Data\DataEntry\Traits\DataEntryUrl;
 use Phoundation\Data\DataEntry\Traits\DataEntryUsersId;
+use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Exception\NotificationBusyException;
@@ -281,7 +282,7 @@ class Notification extends DataEntry
             $roles = Roles::new()->listIds($this->getRoles());
 
             foreach ($roles as $role) {
-                $users = Role::get($role)->users();
+                $users = Role::get($role)->getUsers();
 
                 foreach ($users as $user) {
                     $this
@@ -425,7 +426,7 @@ class Notification extends DataEntry
             ->addDefinition(Definition::new('users_id')
                 ->setVisible(false)
                 ->setInputType(InputTypeExtended::dbid)
-                ->addValidationFunction(function ($validator) {
+                ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isId()->isQueryColumn('SELECT `id` FROM `accounts_users` WHERE `id` = :id', [':id' => '$id']);
                 }))
             ->addDefinition(Definition::new('code')
@@ -435,7 +436,7 @@ class Notification extends DataEntry
                 ->setDefault(tr('-'))
                 ->setSize(4)
                 ->setMaxlength(16)
-                ->addValidationFunction(function ($validator) {
+                ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isPrintable();
                 }))
             ->addDefinition(Definition::new('mode')
@@ -443,7 +444,7 @@ class Notification extends DataEntry
                 ->setLabel(tr('Mode'))
                 ->setSize(4)
                 ->setMaxlength(16)
-                ->addValidationFunction(function ($validator) {
+                ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isMode()->isInArray(DisplayMode::cases());
                 }))
             ->addDefinition(Definition::new('icon')
@@ -462,7 +463,7 @@ class Notification extends DataEntry
                 ->setLabel(tr('Title'))
                 ->setMaxlength(255)
                 ->setSize(4)
-                ->addValidationFunction(function ($validator) {
+                ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isPrintable();
                 }))
             ->addDefinition(Definition::new('message')
@@ -471,7 +472,7 @@ class Notification extends DataEntry
                 ->setLabel(tr('Message'))
                 ->setMaxlength(65_535)
                 ->setSize(12)
-                ->addValidationFunction(function ($validator) {
+                ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isPrintable();
                 }))
             ->addDefinition(Definition::new('file')
@@ -499,7 +500,7 @@ class Notification extends DataEntry
                 ->setMaxlength(65_535)
                 ->setRows(10)
                 ->setSize(12)
-                ->addValidationFunction(function ($validator) {
+                ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isJson();
                 }))
             ->addDefinition(Definition::new('details')

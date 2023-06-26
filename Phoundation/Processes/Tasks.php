@@ -6,7 +6,7 @@ namespace Phoundation\Processes;
 
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
-use Phoundation\Web\Http\Html\Components\Input\Select;
+use Phoundation\Web\Http\Html\Components\Input\InputSelect;
 
 
 /**
@@ -47,16 +47,25 @@ class Tasks extends DataList
 
 
     /**
-     * Returns an HTML select component object containing the entries in this list
+     * Returns an HTML <select> for the available object entries
      *
+     * @param string $value_column
+     * @param string $key_column
      * @return SelectInterface
      */
-    public function getHtmlSelect(): SelectInterface
+    public function getHtmlSelect(string $value_column = '', string $key_column = 'id'): SelectInterface
     {
-        return Select::new()
-            ->setSourceQuery('SELECT `id`, CONCAT(`command`, " [", `status`, "]") AS `command` FROM `' . $this->table . '` WHERE `status` IS NULL ORDER BY `created_on` ASC')
+        if (!$value_column) {
+            $value_column = 'CONCAT(`command`, " [", `status`, "]") AS command';
+        }
+
+        return InputSelect::new()
+            ->setSourceQuery('SELECT   `' . $key_column . '`, ' . $value_column . ' 
+                                         FROM     `' . $this->table . '` 
+                                         WHERE    `status` IS NULL 
+                                         ORDER BY `created_on` ASC')
             ->setName('tasks_id')
-            ->setNone(tr('Please select a task'))
+            ->setNone(tr('Select a task'))
             ->setEmpty(tr('No tasks available'));
     }
 }

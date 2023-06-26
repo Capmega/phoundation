@@ -10,7 +10,7 @@ use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Geo\Continents\Continent;
 use Phoundation\Geo\Timezones\Timezone;
-use Phoundation\Web\Http\Html\Components\Input\Select;
+use Phoundation\Web\Http\Html\Components\Input\InputSelect;
 
 
 /**
@@ -70,18 +70,18 @@ class Country extends DataEntry
      * Returns an HTML <select> object with all states available in this country
      *
      * @param string $name
-     * @return Select
+     * @return InputSelect
      */
-    public function getHtmlStatesSelect(string $name = 'states_id'): Select
+    public function getHtmlStatesSelect(string $name = 'states_id'): InputSelect
     {
-        return Select::new()
+        return InputSelect::new()
             ->setSourceQuery('SELECT `id`, `name` 
                                           FROM  `geo_states` 
                                           WHERE `countries_id` = :countries_id AND `status` IS NULL ORDER BY `name`', [
                 ':countries_id' => $this->getId()
             ])
             ->setName($name)
-            ->setNone(tr('Please select a state'))
+            ->setNone(tr('Select a state'))
             ->setEmpty(tr('No states available'));
     }
 

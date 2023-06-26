@@ -10,7 +10,7 @@ use Phoundation\Accounts\Users\User;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
-use Phoundation\Web\Http\Html\Components\Input\Select;
+use Phoundation\Web\Http\Html\Components\Input\InputSelect;
 use Phoundation\Web\Http\Html\Components\Table;
 
 
@@ -84,16 +84,21 @@ class Incidents extends DataList
 
 
     /**
-     * Returns an HTML select component object containing the entries in this list
+     * Returns an HTML <select> for the available object entries
      *
+     * @param string $value_column
+     * @param string $key_column
      * @return SelectInterface
      */
-    public function getHtmlSelect(): SelectInterface
+    public function getHtmlSelect(string $value_column = 'title', string $key_column = 'id'): SelectInterface
     {
-        return Select::new()
-            ->setSourceQuery('SELECT `id`, `title` FROM `' . $this->table . '` WHERE `status` IS NULL ORDER BY `title` ASC')
+        return InputSelect::new()
+            ->setSourceQuery('SELECT   `' . $key_column . '`, `' . $value_column . '` 
+                                         FROM     `' . $this->table . '` 
+                                         WHERE    `status` IS NULL 
+                                         ORDER BY `title` ASC')
             ->setName('incidents_id')
-            ->setNone(tr('Please select an incident'))
+            ->setNone(tr('Select an incident'))
             ->setEmpty(tr('No incidents available'));
     }
 }

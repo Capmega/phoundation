@@ -11,8 +11,9 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Core\Numbers;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Databases\Sql\Exception\SqlAccessDeniedException;
+use Phoundation\Databases\Sql\Exception\SqlDatabaseDoesNotExistException;
 use Phoundation\Developer\Debug;
-use Phoundation\Utils\Json;
 
 
 /**
@@ -29,23 +30,23 @@ Documentation::usage('./pho info');
 Documentation::help('The info script will show detailed information about the current framework, project, database and more');
 
 
-
-$argv = ArgvValidator::new()->noArgumentsLeft();
-
-
+$argv  = ArgvValidator::new()->noArgumentsLeft();
+$no_db =  false;
 
 try {
     Sql()->query('SELECT 1');
 
-}catch(Exception $e) {
-    if ($e->getCode() != '1049') {
-        throw $e;
-    }
+} catch (SqlDatabaseDoesNotExistException $e) {
+    $no_db = tr('Database does not exist');
 
-    $no_db = true;
+    define('FRAMEWORKDBVERSION', tr('Database ":db" does not exist', [':db' => Config::get('databases.sql.instances.system.name')]));
+    define('PROJECTDBVERSION'  , tr('Database ":db" does not exist', [':db' => Config::get('databases.sql.instances.system.name')]));
 
-    define('FRAMEWORKDBVERSION', tr('database ":db" does not exist', [':db' => Config::get('databases.system.name')]));
-    define('PROJECTDBVERSION'  , tr('database ":db" does not exist', [':db' => Config::get('databases.system.name')]));
+} catch (SqlAccessDeniedException $e) {
+    $no_db = tr('Access denied');
+
+    define('FRAMEWORKDBVERSION', tr('Access denied to server or database ":db"', [':db' => Config::get('databases.sql.instances.system.name')]));
+    define('PROJECTDBVERSION'  , tr('Access denied to server or database ":db"', [':db' => Config::get('databases.sql.instances.system.name')]));
 }
 
 $system_size    = 0;
@@ -60,14 +61,14 @@ Log::cli(Color::apply(Strings::size(tr('Platform:')     , 28), 'white') . ' ' . 
 Log::cli(Color::apply(Strings::size(tr('Environment:')  , 28), 'white') . ' ' . ENVIRONMENT);
 Log::cli(Color::apply(Strings::size(tr('Production:')   , 28), 'white') . ' ' . Strings::fromBoolean(Debug::production()));
 Log::cli(Color::apply(Strings::size(tr('Debug:')        , 28), 'white') . ' ' . Strings::fromBoolean(Debug::enabled()));
-Log::cli(Color::apply(Strings::size(tr('Core database:'), 28), 'white') . ' ' . Config::get('databases.sql.instances.system.name', 'unknown'));
+Log::cli(Color::apply(Strings::size(tr('Core database:'), 28), 'white') . ' ' . Config::get('databases.sql.instances.system.name', 'unknown') . ($no_db ? ' (' . Color::apply(tr('NOT CONNECTED BECAUSE ":reason"', [':reason' => $no_db]), 'red') : '') . ')');
 
 Log::cli();
 Log::cli(Color::apply(Strings::size(tr('System libraries:'), 28) . ' ' . Strings::size(tr('Code version'), 14) . Strings::size(tr('Database version'), 18) . Strings::size(tr('Size'), 14), 'white'));
 
 foreach (Libraries::listLibraries(true, false, false) as $library) {
     $system_size += $library->getSize();
-    Log::cli(Color::apply(Strings::size($library->getName(), 28), 'white') . ' ' . Strings::size($library->getCodeVersion() ?? '-', 14) . Strings::size($library->getDatabaseVersion() ?? '-', 18) . Strings::size(Numbers::getHumanReadableBytes($library->getSize()) ?? '-', 14));
+    Log::cli(Color::apply(Strings::size($library->getName(), 28), 'white') . ' ' . Strings::size($library->getCodeVersion() ?? '-', 14) . Strings::size(($no_db ? '?' : $library->getDatabaseVersion() ?? '-'), 18) . Strings::size(Numbers::getHumanReadableBytes($library->getSize()) ?? '-', 14));
 }
 
 Log::cli();
@@ -75,7 +76,7 @@ Log::cli(Color::apply(Strings::size(tr('Plugin libraries:'), 28) . ' ' . Strings
 
 foreach (Libraries::listLibraries(false, true, false) as $library) {
     $plugins_size += $library->getSize();
-    Log::cli(Color::apply(Strings::size($library->getName(), 28) . ' ' . Strings::size($library->getCodeVersion() ?? '-', 14) . Strings::size($library->getDatabaseVersion() ?? '-', 18) . Strings::size(Numbers::getHumanReadableBytes($library->getSize()) ?? '-', 14), 'white'));
+    Log::cli(Color::apply(Strings::size($library->getName(), 28) . ' ' . Strings::size($library->getCodeVersion() ?? '-', 14) . Strings::size(($no_db ? '?' : $library->getDatabaseVersion() ?? '-'), 18) . Strings::size(Numbers::getHumanReadableBytes($library->getSize()) ?? '-', 14), 'white'));
 }
 
 Log::cli();

@@ -17,7 +17,7 @@ use Phoundation\Web\Http\Html\Enums\InputType;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class InputDate extends Input
+class InputDate extends InputText
 {
     /**
      * InputDate class constructor

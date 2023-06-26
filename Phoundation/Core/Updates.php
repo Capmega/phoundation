@@ -302,7 +302,7 @@ class Updates extends Libraries\Updates
 
             // Add default rights
             foreach ($rights as $right) {
-                if (!Right::exists($right)) {
+                if (!Right::exists('name', $right)) {
                     Right::new()
                         ->setName($right)
                         ->save();
@@ -312,22 +312,24 @@ class Updates extends Libraries\Updates
 
             // Add default roles and assign the default rights to them
             foreach ($rights as $role) {
-                if (!Role::exists($role)) {
+                if (!Role::exists('name', $role)) {
                     Role::new()
                         ->setName($role)
-                        ->save();
+                        ->save()
+                        ->getRights()
+                            ->addRight($role);
                 }
-
-                Role::get($role)->rights()->add($role);
             }
 
             // Various rights go together...
-            Role::get('audit')->rights()->add('admin');
+            Role::get('audit')->getRights()->addRight('admin');
 
-            Role::get('security')->rights()->add('admin');
+            Role::get('security')->getRights()->addRight('admin');
 
-            Role::get('impersonate')->rights()->add('admin');
-            Role::get('impersonate')->rights()->add('accounts');
+            Role::get('impersonate')
+                ->getRights()
+                    ->addRight('admin')
+                    ->addRight('accounts');
         });
     }
 }

@@ -67,7 +67,7 @@ $role = Role::get($argv['role']);
 
 if ($argv['name']) {
     // If changing name, ensure it doesn't exist yet as its a unique identifier
-    Role::notExists($argv['name'], $role->getId(), true);
+    Role::notExists('name', $argv['name'], $role->getId(), true);
 }
 
 $role->apply($argv)->save();
@@ -75,7 +75,7 @@ $role->apply($argv)->save();
 
 
 // Set the rights for this role
-$role->rights()->set($argv['rights']);
+$role->getRights()->set($argv['rights']);
 
 
 

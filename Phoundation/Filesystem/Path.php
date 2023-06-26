@@ -12,6 +12,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FilesystemException;
+use Phoundation\Filesystem\Exception\PathException;
 use Phoundation\Filesystem\Exception\PathNotDirectoryException;
 use Phoundation\Filesystem\Exception\RestrictionsException;
 use Phoundation\Processes\Commands\FilesystemCommands;
@@ -187,7 +188,7 @@ class Path extends FileBasics
 
                 try {
                     // Make sure that the parent path is writable when creating the directory
-                    Path::new(dirname($this->file), $this->restrictions)->execute()
+                    Path::new(dirname($this->file), $this->restrictions->getParent())->execute()
                         ->setMode(0770)
                         ->onPathOnly(function() use ($mode) {
                             mkdir($this->file, $mode);
@@ -200,9 +201,9 @@ class Path extends FileBasics
                     // It sometimes happens that the specified path was created just in between the file_exists and
                     // mkdir
                     if (!file_exists($this->file)) {
-                        throw FilesystemException::new(tr('Failed to create directory ":path"', [
+                        throw PathException::new(tr('Failed to create directory ":path"', [
                             ':path' => $this->file
-                        ]), ['path' => $this->file], $e);
+                        ]), $e)->setData(['path' => $this->file]);
                     }
                 }
             }

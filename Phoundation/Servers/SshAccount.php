@@ -11,6 +11,7 @@ use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryUsername;
+use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Filesystem\Traits\DataRestrictions;
 use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
 
@@ -102,7 +103,7 @@ class SshAccount extends DataEntry
                 ->setSize(12)
                 ->setMaxlength(65_535)
                 ->setHelpText(tr('The SSH private key associated with this username'))
-                ->addValidationFunction(function ($validator) {
+                ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->matchesRegex('-----BEGIN .+? PRIVATE KEY-----.+?-----END .+? PRIVATE KEY-----');
                 }));
     }

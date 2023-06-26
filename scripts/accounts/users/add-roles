@@ -74,7 +74,7 @@ try {
 
     // Get role and add rights
     $user = User::get($argv['user']);
-    $user->roles()->add($argv['roles']);
+    $user->getRoles()->add($argv['roles']);
 
 }catch (DataEntryNotExistsException $e) {
     throw $e->makeWarning();

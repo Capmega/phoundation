@@ -39,17 +39,17 @@ interface ElementsBlockInterface extends Stringable
     /**
      * Returns the form of this objects block
      *
-     * @return Form|null
+     * @return FormInterface|null
      */
-    public function getForm(): ?Form;
+    public function getForm(): ?FormInterface;
 
     /**
      * Returns the form of this objects block
      *
-     * @param Form|null $form
+     * @param FormInterface|null $form
      * @return static
      */
-    public function setForm(?Form $form): static;
+    public function setForm(?FormInterface $form): static;
 
     /**
      * Renders and returns the HTML for this object using the template renderer if avaialable

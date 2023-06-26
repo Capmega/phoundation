@@ -14,6 +14,7 @@ use Phoundation\Data\DataEntry\Traits\DataEntryIpAddress;
 use Phoundation\Data\DataEntry\Traits\DataEntryTimezone;
 use Phoundation\Data\DataEntry\Traits\DataEntryUserAgent;
 use Phoundation\Data\Traits\DataGeoIp;
+use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Geo\Countries\Countries;
 use Phoundation\Geo\GeoIp\Exception\GeoIpException;
 use Phoundation\Geo\GeoIp\GeoIp;
@@ -124,30 +125,32 @@ class SignIn extends DataEntry
                 ->setOptional(true)
                 ->setReadonly(true)
                 ->setInputType(InputTypeExtended::dbid)
-                ->setContent(function (DefinitionInterface $definition, string $key, array $source) {
-                    return Countries::getHtmlCountriesSelect($key)
+                ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
+                    return Countries::getHtmlCountriesSelect()
                         ->setDisabled(true)
+                        ->setName($field_name)
                         ->setSelected(isset_get($source['countries_id']))
                         ->render();
                 })
                 ->setSize(6)
                 ->setLabel(tr('Country'))
-                ->addValidationFunction(function ($validator) {
+                ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->xor('country')->isQueryColumn('SELECT `name` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':id' => '$countries_id']);
                 }))
             ->addDefinition(Definition::new('timezones_id')
                 ->setOptional(true)
                 ->setReadonly(true)
                 ->setInputType(InputTypeExtended::dbid)
-                ->setContent(function (DefinitionInterface $definition, string $key, array $source) {
+                ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                     return Timezones::new()->getHtmlSelect($key)
                         ->setDisabled(true)
+                        ->setName($field_name)
                         ->setSelected(isset_get($source['timezones_id']))
                         ->render();
                 })
                 ->setSize(6)
                 ->setLabel(tr('Timezone'))
-                ->addValidationFunction(function ($validator) {
+                ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->xor('timezone')->isId()->isQueryColumn('SELECT `id` FROM `geo_timezones` WHERE `id` = :id AND `status` IS NULL', [':id' => '$timezones_id']);
                 }));
     }

@@ -10,6 +10,7 @@ use Phoundation\Core\Exception\CoreException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Utils\Json;
+use StephenHill\Base58;
 use Stringable;
 use Throwable;
 
@@ -280,7 +281,7 @@ class Strings
      * @param Stringable|string $source
      * @return string
      */
-    public static function safeBase64Decode(Stringable|string $source): string
+    public static function fromBase64(Stringable|string $source): string
     {
         $source = (string) $source;
 
@@ -289,6 +290,48 @@ class Strings
         }
 
         return base64_decode($source);
+    }
+
+
+    /**
+     * Returns a base64 encoded string
+     *
+     * @param Stringable|string $source
+     * @return string
+     */
+    public static function toBase64(Stringable|string $source): string
+    {
+        return base64_encode($source);
+    }
+
+
+    /**
+     * Returns decoded base58 strings
+     *
+     * @param Stringable|string $source
+     * @return string
+     */
+    public static function fromBase58(Stringable|string $source): string
+    {
+        $source = (string) $source;
+        $codec  = new Base58();
+
+        return $codec->decode($source);
+    }
+
+
+    /**
+     * Returns a base58 encoded string
+     *
+     * @param Stringable|string $source
+     * @return string
+     */
+    public static function toBase58(Stringable|string $source): string
+    {
+        $source = (string) $source;
+        $codec  = new Base58();
+
+        return $codec->encode($source);
     }
 
 
@@ -715,13 +758,13 @@ class Strings
     /**
      * Force the specified string to be the specified size.
      *
-     * @param Stringable|string|null $source
+     * @param Stringable|string|float|int|null $source
      * @param int $size
      * @param string $add
      * @param bool $prefix
      * @return string
      */
-    public static function size(Stringable|string|null $source, int $size, string $add = ' ', bool $prefix = false): string
+    public static function size(Stringable|string|float|int|null $source, int $size, string $add = ' ', bool $prefix = false): string
     {
         if ($size < 0) {
             throw new OutOfBoundsException(tr('Specified size ":size" is invalid, it must be 0 or higher', [

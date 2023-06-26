@@ -40,6 +40,7 @@ use Phoundation\Data\DataEntry\Traits\DataEntryTimezone;
 use Phoundation\Data\DataEntry\Traits\DataEntryType;
 use Phoundation\Data\DataEntry\Traits\DataEntryUrl;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Date\DateTime;
 use Phoundation\Exception\NotSupportedException;
 use Phoundation\Exception\OutOfBoundsException;
@@ -47,6 +48,7 @@ use Phoundation\Security\Incidents\Incident;
 use Phoundation\Security\Incidents\Severity;
 use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\Html\Components\Form;
+use Phoundation\Web\Http\Html\Components\Interfaces\FormInterface;
 use Phoundation\Web\Http\Html\Enums\InputElement;
 use Phoundation\Web\Http\Html\Enums\InputType;
 use Phoundation\Web\Http\UrlBuilder;
@@ -909,33 +911,31 @@ class User extends DataEntry implements UserInterface
      */
     function getDisplayName(): string
     {
-        if ($name = $this->getNickname()) {
-            return $name;
+        $postfix = null;
+
+        if ($this->getStatus() == 'deleted') {
+            $postfix = ' ' . tr('[deleted]');
         }
 
-        if ($name = $this->getName()) {
-            return $name;
-        }
+        if (!$name = $this->getNickname()) {
+            if (!$name = $this->getName()) {
+                if (!$name = $this->getUsername()) {
+                    if (!$name = $this->getEmail()) {
+                        if (!$name = $this->getId()) {
+                            if ($this->getId() === -1) {
+                                // This is the guest user
+                                $name = tr('Guest');
+                            }
+                        }
 
-        if ($name = $this->getUsername()) {
-            return $name;
-        }
-
-        if ($name = $this->getEmail()) {
-            return $name;
-        }
-
-        if ($name = $this->getId()) {
-            if ($this->getId() === -1) {
-                // This is a guest user
-                return tr('Guest');
+                        // This is a new user
+                        $name = tr('[NEW]');
+                    }
+                }
             }
-
-            return (string) $name;
         }
 
-        // This is a new user
-        return tr('[NEW]');
+        return $name . $postfix;
     }
 
 
@@ -955,13 +955,14 @@ class User extends DataEntry implements UserInterface
      *
      * @return RolesInterface
      */
-    public function roles(): RolesInterface
+    public function getRoles(): RolesInterface
     {
         if (!isset($this->roles)) {
             if ($this->getId()) {
                 $this->roles = Roles::new()->setParent($this)->load();
+
             } else {
-                $this->roles = Roles::new();
+                $this->roles = Roles::new()->setParent($this);
             }
 
         }
@@ -975,14 +976,14 @@ class User extends DataEntry implements UserInterface
      *
      * @return RightsInterface
      */
-    public function rights(): RightsInterface
+    public function getRights(): RightsInterface
     {
         if (!isset($this->rights)) {
             if ($this->getId()) {
                 $this->rights = Rights::new()->setParent($this)->load();
             } else {
                 // This is the guest user
-                $this->rights = Rights::new();
+                $this->rights = Rights::new()->setParent($this);
             }
 
         }
@@ -1003,7 +1004,7 @@ class User extends DataEntry implements UserInterface
             return true;
         }
 
-        return $this->rights()->containsKeys($rights, true, 'god');
+        return $this->getRights()->containsKeys($rights, true, 'god');
     }
 
 
@@ -1019,7 +1020,7 @@ class User extends DataEntry implements UserInterface
             return [];
         }
 
-        return $this->rights()->getMissingKeys($rights, 'god');
+        return $this->getRights()->getMissingKeys($rights, 'god');
     }
 
 
@@ -1035,19 +1036,19 @@ class User extends DataEntry implements UserInterface
             return true;
         }
 
-        return $this->rights()->containsKeys($rights, false, 'god');
+        return $this->getRights()->containsKeys($rights, false, 'god');
     }
 
 
     /**
      * Creates and returns an HTML for the fir
      *
-     * @return Form
+     * @return FormInterface
      */
-    public function getRolesHtmlForm(): Form
+    public function getRolesHtmlForm(): FormInterface
     {
         $form   = Form::new();
-        $roles  = $this->roles();
+        $roles  = $this->getRoles();
         $select = $roles->getHtmlSelect()->setCache(true);
 
         // Add extra entry with nothing selected
@@ -1304,7 +1305,13 @@ class User extends DataEntry implements UserInterface
             ->addDefinition(DefinitionFactory::getEmail()
                 ->setSize(3)
                 ->setHelpGroup(tr('Personal information'))
-                ->setHelpText(tr('The email address for this user. This is also the unique identifier for the user')))
+                ->setHelpText(tr('The email address for this user. This is also the unique identifier for the user'))
+                ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->isTrue(function ($value, $source) {
+                        // This email may NOT yet exist, unless its THIS user.
+                        return User::notExists('email', $value, isset_get($source['id']));
+                    }, tr('This email address is already registered'));
+                }))
             ->addDefinition(Definition::new('domain')
                 ->setOptional(true)
                 ->setMaxlength(128)
@@ -1313,7 +1320,7 @@ class User extends DataEntry implements UserInterface
                 ->setAutoComplete(true)
                 ->setLabel(tr('Restrict to domain'))
                 ->setHelpText(tr('The domain where this user will be able to sign in'))
-                ->addValidationFunction(function ($validator) {
+                ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isDomain();
                 }))
             ->addDefinition(Definition::new('username')
@@ -1325,20 +1332,23 @@ class User extends DataEntry implements UserInterface
                 ->setLabel(tr('Username'))
                 ->setHelpGroup(tr('Personal information'))
                 ->setHelpText(tr('The unique username for this user.'))
-                ->addValidationFunction(function ($validator) {
+                ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isName();
                 }))
             ->addDefinition(DefinitionFactory::getName('nickname')
+                ->setOptional(true)
                 ->setLabel(tr('Nickname'))
                 ->setCliField('--nickname NAME')
                 ->setHelpGroup(tr('Personal information'))
                 ->setHelpText(tr('The nickname for this user')))
             ->addDefinition(DefinitionFactory::getName('first_names')
+                ->setOptional(true)
                 ->setCliField('-f,--first-names NAMES')
                 ->setLabel(tr('First names'))
                 ->setHelpGroup(tr('Personal information'))
                 ->setHelpText(tr('The firstnames for this user')))
             ->addDefinition(DefinitionFactory::getName('last_names')
+                ->setOptional(true)
                 ->setCliField('-n,--last-names')
                 ->setLabel(tr('Last names'))
                 ->setHelpGroup(tr('Personal information'))
@@ -1364,12 +1374,12 @@ class User extends DataEntry implements UserInterface
                 ->setLabel(tr('Gender'))
                 ->setHelpGroup(tr('Personal information'))
                 ->setHelpText(tr('The gender for this user'))
-                ->addValidationFunction(function ($validator) {
+                ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->hasMaxCharacters(6);
                 }))
             ->addDefinition(DefinitionFactory::getUser('leader')
                 ->setCliField('--leader USER-EMAIL')
-                ->addValidationFunction(function ($validator) {
+                ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->or('leaders_id')->isEmail()->setColumnFromQuery('leaders_id', 'SELECT `id` FROM `accounts_users` WHERE `email` = :email AND `status` IS NULL', [':email' => '$leader']);
                 }))
             ->addDefinition(DefinitionFactory::getUsersId('leaders_id')
@@ -1377,7 +1387,7 @@ class User extends DataEntry implements UserInterface
                 ->setLabel(tr('Leader'))
                 ->setHelpGroup(tr('Hierarchical information'))
                 ->setHelpText(tr('The user that is the leader for this user'))
-                ->addValidationFunction(function ($validator) {
+                ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->or('leader');
                 }))
             ->addDefinition(Definition::new('is_leader')
@@ -1389,7 +1399,7 @@ class User extends DataEntry implements UserInterface
                 ->setLabel(tr('Is leader'))
                 ->setHelpGroup(tr('Hierarchical information'))
                 ->setHelpText(tr('Sets if this user is a leader itself'))
-                ->addValidationFunction(function ($validator) {
+                ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isBoolean();
                 }))
             ->addDefinition(DefinitionFactory::getCode()
@@ -1405,7 +1415,7 @@ class User extends DataEntry implements UserInterface
                 ->setMin(1)
                 ->setMax(9)
                 ->setHelpText(tr('The priority for this user, between 1 and 9'))
-                ->addValidationFunction(function ($validator) {
+                ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isInteger();
                 }))
             ->addDefinition(DefinitionFactory::getDate('birthdate')
@@ -1413,7 +1423,7 @@ class User extends DataEntry implements UserInterface
                 ->setCliField('-b,--birthdate')
                 ->setHelpGroup(tr('Personal information'))
                 ->setHelpText(tr('The birthdate for this user'))
-                ->addValidationFunction(function ($validator) {
+                ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isDate()->isPast();
                 }))
             ->addDefinition(DefinitionFactory::getPhones()
@@ -1428,7 +1438,7 @@ class User extends DataEntry implements UserInterface
                 ->setLabel(tr('Address'))
                 ->setHelpGroup(tr('Location information'))
                 ->setHelpText(tr('The address where this user resides'))
-                ->addValidationFunction(function ($validator) {
+                ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isPrintable();
                 }))
             ->addDefinition(Definition::new('zipcode')
@@ -1441,7 +1451,7 @@ class User extends DataEntry implements UserInterface
                 ->setLabel(tr('Zip code'))
                 ->setHelpGroup(tr('Location information'))
                 ->setHelpText(tr('The zip code (postal code) where this user resides'))
-                ->addValidationFunction(function ($validator) {
+                ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isPrintable();
                 }))
             ->addDefinition(DefinitionFactory::getCountry()
@@ -1465,7 +1475,7 @@ class User extends DataEntry implements UserInterface
                 ->setLabel(tr('Latitude'))
                 ->setHelpGroup(tr('Location information'))
                 ->setHelpText(tr('The latitude location for this user'))
-                ->addValidationFunction(function ($validator) {
+                ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isLatitude();
                 }))
             ->addDefinition(Definition::new('longitude')
@@ -1477,7 +1487,7 @@ class User extends DataEntry implements UserInterface
                 ->setLabel(tr('Longitude'))
                 ->setHelpGroup(tr('Location information'))
                 ->setHelpText(tr('The longitude location for this user'))
-                ->addValidationFunction(function ($validator) {
+                ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isLongitude();
                 }))
             ->addDefinition(Definition::new('offset_latitude')
@@ -1509,7 +1519,7 @@ class User extends DataEntry implements UserInterface
                 ->setLabel(tr('Accuracy'))
                 ->setHelpGroup(tr('Location information'))
                 ->setHelpText(tr('The accuracy of this users location'))
-                ->addValidationFunction(function ($validator) {
+                ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isFloat();
                 }))
             ->addDefinition(Definition::new('type')
@@ -1521,7 +1531,7 @@ class User extends DataEntry implements UserInterface
                 ->setLabel(tr('Type'))
                 ->setHelpGroup(tr(''))
                 ->setHelpText(tr('The type classification for this user'))
-                ->addValidationFunction(function ($validator) {
+                ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isName();
                 }))
             ->addDefinition(DefinitionFactory::getTimezone()
@@ -1535,13 +1545,13 @@ class User extends DataEntry implements UserInterface
             ->addDefinition(Definition::new('keywords')
                 ->setOptional(true)
                 ->setMaxlength(255)
-                ->setSize(3)
+                ->setSize(6)
                 ->setCliField('-k,--keywords')
                 ->setAutoComplete(true)
                 ->setLabel(tr('Keywords'))
                 ->setHelpGroup(tr('Account information'))
                 ->setHelpText(tr('The keywords for this user'))
-                ->addValidationFunction(function ($validator) {
+                ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isPrintable();
                     //$validator->sanitizeForceArray(' ')->each()->isWord()->sanitizeForceString()
                 }))
@@ -1558,6 +1568,7 @@ class User extends DataEntry implements UserInterface
                 ->setHelpGroup(tr('Account information'))
                 ->setHelpText(tr('The URL where this user will be redirected to upon sign in')))
             ->addDefinition(Definition::new('url')
+                ->setSize(6)
                 ->setCliField('--url')
                 ->setLabel(tr('Website URL'))
                 ->setHelpGroup(tr('Account information'))
@@ -1587,7 +1598,7 @@ class User extends DataEntry implements UserInterface
                 ->setMaxlength(64)
                 ->setNullDb(false)
                 ->setHelpText(tr('The password for this user'))
-                ->addValidationFunction(function ($validator) {
+                ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isStrongPassword();
                 }))
             ->addDefinition(Definition::new('picture')

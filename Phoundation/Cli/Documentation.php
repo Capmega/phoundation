@@ -33,7 +33,7 @@ class Documentation
     protected static bool $usage = false;
 
     /**
-     * Returns the help text
+     * Displays the help text
      *
      * @param string $help
      * @return void
@@ -51,7 +51,7 @@ class Documentation
 
 
     /**
-     * Sets the usage text
+     * Displays the usage text
      *
      * @param string $usage
      * @return void

@@ -15,6 +15,7 @@ use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryPath;
 use Phoundation\Data\DataEntry\Traits\DataEntryPriority;
+use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Web\Http\Html\Enums\InputType;
@@ -217,7 +218,7 @@ class Plugin extends DataEntry
         $plugin = static::new();
         $name   = $plugin->getName();
 
-        if (static::exists($name)) {
+        if (static::exists('name', $name)) {
             // This plugin is already registered
             Log::warning(tr('Not registering plugin ":plugin", it is already registered', [
                 ':plugin' => $name
@@ -343,7 +344,7 @@ class Plugin extends DataEntry
                 ->setMin(1)
                 ->setMax(9)
                 ->setHelpText(tr('The priority for this plugin, between 1 and 9'))
-                ->addValidationFunction(function ($validator) {
+                ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isInteger();
                 }))
             ->addDefinition(Definition::new('enabled')
@@ -354,7 +355,7 @@ class Plugin extends DataEntry
                 ->setLabel(tr('Enabled'))
                 ->setDefault(true)
                 ->setHelpText(tr('If enabled, this plugin will automatically start upon each page load or script execution'))
-                ->addValidationFunction(function ($validator) {
+                ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isInteger();
                 }))
             ->addDefinition(Definition::new('class')
@@ -363,7 +364,7 @@ class Plugin extends DataEntry
                 ->setMaxlength(255)
                 ->setSize(6)
                 ->setHelpText(tr('The base class path of this plugin'))
-                ->addValidationFunction(function ($validator) {
+                ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->hasMaxCharacters(2048)->matchesRegex('/Plugins\\[a-z0-9]+\\Plugin/');
                 }))
             ->addDefinition(Definition::new('path')

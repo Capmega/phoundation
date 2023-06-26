@@ -36,27 +36,14 @@ ARGUMENTS
 [-d / --description]                    The description for the right');
 
 
-
 // Validate arguments
 $argv = ArgvValidator::new()
     ->select('right', true)->isName()
-    ->select('-n,--name', true)->isOptional(null)->isName()
-    ->select('-d,--description', true)->isOptional(null)->isDescription()
-    ->noArgumentsLeft()
-    ->validate();
-
+    ->validate(false);
 
 
 // Get right, ensure new name doesn't exist yet, and modify it
-$right = Right::get($argv['right']);
-
-if ($argv['name']) {
-    // If changing name, ensure it doesn't exist yet as its a unique identifier
-    Right::notExists($argv['name'], $right->getId(), true);
-}
-
-$right->apply($argv)->save();
-
+$right = Right::get($argv['right'])->apply()->save();
 
 
 // Done!

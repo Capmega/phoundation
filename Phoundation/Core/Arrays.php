@@ -10,6 +10,7 @@ use Phoundation\Core\Interfaces\EnumMatchModeInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Stringable;
+use UnitEnum;
 
 
 /**

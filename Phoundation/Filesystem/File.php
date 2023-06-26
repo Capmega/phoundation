@@ -198,7 +198,7 @@ class File extends FileBasics implements FileInterface
 
         if (!move_uploaded_file($source, $destination . $real)) {
             throw new FilesystemException(tr('Failed to move file ":source" to destination ":destination"', [
-                ':source' => $source,
+                ':source'      => $source,
                 ':destination' => $destination
             ]));
         }
@@ -386,7 +386,7 @@ class File extends FileBasics implements FileInterface
             throw new FilesystemException(tr('The:type file ":file" cannot be read because it is a directory', [
                 ':type' => ($type ? '' : ' ' . $type),
                 ':file' => $this->file
-            ]), previous: $previous_e);
+            ]), $previous_e);
         }
 
         if ($previous_e) {
@@ -420,7 +420,7 @@ class File extends FileBasics implements FileInterface
             throw new FilesystemException(tr('The:type file ":file" cannot be written because it is a directory', [
                 ':type' => ($type ? '' : ' ' . $type),
                 ':file' => $this->file
-            ]), previous: $previous_e);
+            ]), $previous_e);
         }
 
         if ($previous_e) {

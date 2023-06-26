@@ -17,7 +17,8 @@ use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Sql\QueryBuilder;
 use Phoundation\Databases\Sql\Sql;
-use Phoundation\Web\Http\Html\Components\Input\Select;
+use Phoundation\Web\Http\Html\Components\Input\InputSelect;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 
 
 /**
@@ -73,11 +74,11 @@ class Rights extends DataList implements RightsInterface
             $diff = Arrays::valueDiff($this->source, $rights_list);
 
             foreach ($diff['add'] as $right) {
-                $this->parent->rights()->add($right);
+                $this->parent->getRights()->addRight($right);
             }
 
             foreach ($diff['remove'] as $right) {
-                $this->parent->rights()->remove($right);
+                $this->parent->getRights()->remove($right);
             }
         }
 
@@ -99,7 +100,7 @@ class Rights extends DataList implements RightsInterface
             if (is_array($right)) {
                 // Add multiple rights
                 foreach ($right as $entry) {
-                    $this->add($entry);
+                    $this->addRight($entry);
                 }
 
             } else {
@@ -140,8 +141,8 @@ class Rights extends DataList implements RightsInterface
                         $this->addDataEntry($right);
 
                         // Update all users with this role to get the new right as well!
-                        foreach ($this->parent->users() as $user) {
-                            User::get($user)->rights()->add($right);
+                        foreach ($this->parent->getUsers() as $user) {
+                            User::get($user)->getRights()->addRight($right);
                         }
                     }
                 }
@@ -198,8 +199,8 @@ class Rights extends DataList implements RightsInterface
                     ]);
 
                     // Update all users with this role to get the new right as well!
-                    foreach ($this->parent->users() as $user) {
-                        User::get($user)->rights()->remove($right);
+                    foreach ($this->parent->getUsers() as $user) {
+                        User::get($user)->getRights()->remove($right);
                     }
 
                     // Add right to internal list
@@ -459,13 +460,12 @@ class Rights extends DataList implements RightsInterface
     /**
      * Returns a select with the available rights
      *
-     * @return Select
+     * @return InputSelect
      */
-    public function getHtmlSelect(): Select
+    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'seo_name'): SelectInterface
     {
-        return Select::new()
+        return parent::getHtmlSelect($value_column, $key_column)
             ->setNone(tr('Select a right'))
-            ->setEmpty(tr('No rights available'))
-            ->setSourceQuery('SELECT `seo_name`, `name` FROM `accounts_rights` WHERE `status` IS NULL');
+            ->setEmpty(tr('No rights available'));
     }
 }

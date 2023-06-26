@@ -16,7 +16,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Components\DataTable;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
-use Phoundation\Web\Http\Html\Components\Input\Select;
+use Phoundation\Web\Http\Html\Components\Input\InputSelect;
 use Phoundation\Web\Http\Html\Components\Table;
 use ReturnTypeWillChange;
 use Stringable;
@@ -404,22 +404,24 @@ abstract class DataList extends Iterator implements DataListInterface
     /**
      * Returns an HTML <select> for the available object entries
      *
+     * @param string $value_column
+     * @param string $key_column
      * @return SelectInterface
      */
-    public function getHtmlSelect(): SelectInterface
+    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id'): SelectInterface
     {
-        $select = Select::new();
+        $select = InputSelect::new();
 
         if ($this->is_loaded or count($this->source)) {
             // Data was either loaded from DB or manually added
-            $select->setSource($this);
+            $select->setSource($this->ensureSourceObjects());
 
         } else {
             // No data was loaded from DB or manually added
-            $select->setSourceQuery('SELECT   `id`, `name` 
+            $select->setSourceQuery('SELECT   `' . $key_column . '`, `' . $value_column . '` 
                                                 FROM     `' . $this->table . '` 
                                                 WHERE    `status` IS NULL 
-                                                ORDER BY `name` ASC');
+                                                ORDER BY `' . $value_column . '` ASC');
         }
 
         return $select;
@@ -436,8 +438,7 @@ abstract class DataList extends Iterator implements DataListInterface
      */
     public function CliDisplayTable(?array $columns = null, array $filters = [], ?string $id_column = 'id'): void
     {
-        $list = $this->loadDetails($columns, $filters);
-        Cli::displayTable($list, $columns, $id_column);
+        Cli::displayTable($this->source, $columns, $id_column);
     }
 
 
@@ -587,11 +588,33 @@ showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY F
      * @param string $action
      * @return void
      */
-    protected function ensureParent(string $action): void
+    protected function ensureParent(string $action): static
     {
         if (!$this->parent) {
             throw new OutOfBoundsException(tr('Cannot ":action", no parent specified', [':action' => $action]));
         }
+
+        return $this;
+    }
+
+
+    /**
+     * Ensures that all objects in the source are entry_class objects
+     *
+     * @return $this
+     */
+    protected function ensureSourceObjects(): static
+    {
+        foreach ($this->source as &$value) {
+            if (is_object($value)) {
+                continue;
+            }
+
+            $value = $this->entry_class::new()->setSource($value);
+        }
+
+        unset($value);
+        return $this;
     }
 
 

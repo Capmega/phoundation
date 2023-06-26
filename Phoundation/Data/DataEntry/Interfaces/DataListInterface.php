@@ -123,9 +123,11 @@ interface DataListInterface extends IteratorInterface
     /**
      * Returns an HTML <select> for the available object entries
      *
+     * @param string $value_column
+     * @param string $key_column
      * @return SelectInterface
      */
-    public function getHtmlSelect(): SelectInterface;
+    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id'): SelectInterface;
 
     /**
      * Creates and returns a CLI table for the data in this list

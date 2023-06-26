@@ -9,7 +9,7 @@ use Phoundation\Core\Session;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
-use Phoundation\Web\Http\Html\Components\Input\Select;
+use Phoundation\Web\Http\Html\Components\Input\InputSelect;
 use Phoundation\Web\Http\Html\Components\Table;
 
 
@@ -93,17 +93,19 @@ class SignIns extends DataList
     /**
      * Returns an HTML <select> for the available object entries
      *
+     * @param string $value_column
+     * @param string $key_column
      * @return SelectInterface
      */
-    public function getHtmlSelect(): SelectInterface
+    public function getHtmlSelect(string $value_column = 'created_on', string $key_column = 'id'): SelectInterface
     {
-        return Select::new()
-            ->setSourceQuery('SELECT    `accounts_signins`.`id`,
-                                                   `accounts_signins`.`created_on`,
+        return InputSelect::new()
+            ->setSourceQuery('SELECT    `accounts_signins`.`' . $key_column . '`,
+                                                   `accounts_signins`.`' . $value_column . '`,
                                          WHERE     `created_by` = :created_by 
                                          ORDER BY  `created_on`', [':created_by' => Session::getUser()->getId()])
             ->setName('sign_ins_id')
-            ->setNone(tr('Please select a sign-in'))
+            ->setNone(tr('Select a sign-in'))
             ->setEmpty(tr('No sign-ins available'));
     }
 }

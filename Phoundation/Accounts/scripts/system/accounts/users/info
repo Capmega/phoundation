@@ -48,10 +48,10 @@ try {
     User::get($argv['user'])->getCliForm();
 
     Log::information('Roles assigned to this user:');
-    User::get($argv['user'])->roles()->CliDisplayTable();
+    User::get($argv['user'])->getRoles()->CliDisplayTable();
 
     Log::information('Roles assigned to this user through its roles:');
-    User::get($argv['user'])->rights()->CliDisplayTable();
+    User::get($argv['user'])->getRights()->CliDisplayTable();
 
 
 }catch (DataEntryNotExistsException $e) {

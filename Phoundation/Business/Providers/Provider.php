@@ -127,7 +127,7 @@ class Provider extends DataEntry
             ->addDefinition(DefinitionFactory::getName()
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isFalse(function($value, $source) {
-                        Provider::exists($value, isset_get($source['id']));
+                        Provider::exists('name', $value, isset_get($source['id']));
                     }, tr('already exists'));
                 }))
             ->addDefinition(DefinitionFactory::getSeoName())

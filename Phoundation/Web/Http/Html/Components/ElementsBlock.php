@@ -9,6 +9,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Iterator;
 use Phoundation\Web\Http\Html\Components\Interfaces\ElementsBlockInterface;
 use Phoundation\Web\Http\Html\Components\Interfaces\ElementInterface;
+use Phoundation\Web\Http\Html\Components\Interfaces\FormInterface;
 use Phoundation\Web\Http\Html\Renderer;
 use Phoundation\Web\Page;
 
@@ -96,9 +97,9 @@ abstract class ElementsBlock extends Iterator implements IteratorInterface, Elem
     /**
      * Returns the form of this objects block
      *
-     * @return Form|null
+     * @return FormInterface|null
      */
-    public function getForm(): ?Form
+    public function getForm(): ?FormInterface
     {
         return $this->form;
     }
@@ -107,10 +108,10 @@ abstract class ElementsBlock extends Iterator implements IteratorInterface, Elem
     /**
      * Returns the form of this objects block
      *
-     * @param Form|null $form
+     * @param FormInterface|null $form
      * @return static
      */
-    public function setForm(?Form $form): static
+    public function setForm(?FormInterface $form): static
     {
         $this->form = $form;
         return $this;

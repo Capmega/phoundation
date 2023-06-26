@@ -45,7 +45,7 @@ $argv = ArgvValidator::new()
 
 
 // Check if the right already exists
-Right::notExists($argv['name'], null, true);
+Right::notExists('name', $argv['name'], null, true);
 
 
 

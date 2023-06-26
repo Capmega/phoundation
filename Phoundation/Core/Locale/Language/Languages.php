@@ -8,7 +8,7 @@ use PDOStatement;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
-use Phoundation\Web\Http\Html\Components\Input\Select;
+use Phoundation\Web\Http\Html\Components\Input\InputSelect;
 
 
 /**
@@ -33,39 +33,40 @@ class Languages extends DataList
         $this->table       = 'core_languages';
 
         $this->setQuery('SELECT   `id`, `code_639_1`, `name`, `status`, `created_on` 
-                             FROM     `core_languages` 
-                             WHERE    `status` IS NULL 
-                             ORDER BY `name`');
+                               FROM     `core_languages` 
+                               WHERE    `status` IS NULL 
+                               ORDER BY `name`');
         parent::__construct();
-        $this->load($id_column);
     }
 
 
 
 
     /**
-     * Returns an HTML select component object containing the entries in this list
+     * Returns an HTML <select> for the available object entries
      *
+     * @param string $value_column
+     * @param string $key_column
      * @return SelectInterface
      */
-    public function getHtmlSelect(): SelectInterface
+    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id'): SelectInterface
     {
-        return parent::getHtmlSelect()
+        return parent::getHtmlSelect($value_column, $key_column)
             ->setName('languages_id')
-            ->setNone(tr('Please select a language'))
+            ->setNone(tr('Select a language'))
             ->setEmpty(tr('No languages available'));
     }
 
 
     /**
-     * @param string|int|null $id_column
+     * @param string|null $id_column
      * @return $this
      * @throws \Throwable
      */
     public function load(?string $id_column = null): static
     {
-        $this->source = sql()->list('SELECT `core_languages`.`id`, substring_index(substring_index(`core_languages`.`name`, "(", 1), ",", 1) AS `name` 
-                                   FROM     `core_languages` 
+        $this->source = sql()->list('SELECT `core_languages`.`id`, substring_index(substring_index(`core_languages`.`name`, "(", 1), ",", 1) AS `name`
+                                   FROM     `core_languages`
                                    WHERE    `core_languages`.`status` IS NULL
                                    ORDER BY `name`');
 

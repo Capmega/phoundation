@@ -11,7 +11,7 @@ use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
-use Phoundation\Web\Http\Html\Components\Input\Select;
+use Phoundation\Web\Http\Html\Components\Input\InputSelect;
 use Phoundation\Web\Http\Html\Enums\AttachJavascript;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
 use Phoundation\Web\Page;
@@ -28,7 +28,7 @@ use Throwable;
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
- * @see Select
+ * @see InputSelect
  */
 class Script extends Element
 {

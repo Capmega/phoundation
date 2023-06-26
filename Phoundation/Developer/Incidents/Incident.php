@@ -16,6 +16,7 @@ use Phoundation\Data\DataEntry\Traits\DataEntryException;
 use Phoundation\Data\DataEntry\Traits\DataEntryTitle;
 use Phoundation\Data\DataEntry\Traits\DataEntryType;
 use Phoundation\Data\DataEntry\Traits\DataEntryUrl;
+use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 
 
 /**
@@ -67,7 +68,7 @@ class Incident extends DataEntry
                 ->setLabel('Type')
                 ->setSize(6)
                 ->setMaxlength(255)
-                ->addValidationFunction(function ($validator) {
+                ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isName(16);
                 }))
             ->addDefinition(DefinitionFactory::getTitle()
@@ -77,7 +78,7 @@ class Incident extends DataEntry
                 ->setLabel('URL')
                 ->setSize(12)
                 ->setMaxlength(2048)
-                ->addValidationFunction(function ($validator) {
+                ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isUrl();
                 }))
             ->addDefinition(DefinitionFactory::getDescription())
@@ -86,7 +87,7 @@ class Incident extends DataEntry
                 ->setLabel('Exception')
                 ->setSize(12)
                 ->setMaxlength(16_777_200)
-                ->addValidationFunction(function ($validator) {
+                ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isPrintable();
                 }))
             ->addDefinition(Definition::new('data')

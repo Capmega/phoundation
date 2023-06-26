@@ -68,7 +68,7 @@ if ($argv['roles']) {
 
 // Get the user and modify, then update roles
 $user = User::get($argv['user'])->apply()->save();
-$user->roles()->set($argv['roles']);
+$user->getRoles()->set($argv['roles']);
 
 
 // Done!

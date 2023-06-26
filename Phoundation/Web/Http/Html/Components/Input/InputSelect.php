@@ -13,6 +13,7 @@ use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 use Phoundation\Web\Http\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Http\Html\Components\ResourceElement;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
+use Stringable;
 
 
 /**
@@ -25,7 +26,7 @@ use Phoundation\Web\Http\Html\Exception\HtmlException;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class Select extends ResourceElement implements SelectInterface
+class InputSelect extends ResourceElement implements SelectInterface
 {
     /**
      * The class for the <option> elements within the <select> element
@@ -118,7 +119,7 @@ class Select extends ResourceElement implements SelectInterface
      * Enables auto select
      *
      * @return static
-     * @see \Templates\AdminLte\Html\Components\Input\Select::setAutoSelect()
+     * @see \Templates\AdminLte\Html\Components\Input\InputSelect::setAutoSelect()
      */
     public function enableAutoSelect(): static
     {
@@ -131,7 +132,7 @@ class Select extends ResourceElement implements SelectInterface
      * Disables auto select
      *
      * @return static
-     * @see \Templates\AdminLte\Html\Components\Input\Select::setAutoSelect()
+     * @see \Templates\AdminLte\Html\Components\Input\InputSelect::setAutoSelect()
      */
     public function disableAutoSelect(): static
     {
@@ -291,8 +292,8 @@ class Select extends ResourceElement implements SelectInterface
      * Return the body HTML for a <select> list
      *
      * @return string|null The body HTML (all <option> tags) for a <select> tag
-     * @see \Templates\AdminLte\Html\Components\Input\Select::render()
-     * @see \Templates\AdminLte\Html\Components\Input\Select::renderHeaders()
+     * @see \Templates\AdminLte\Html\Components\Input\InputSelect::render()
+     * @see \Templates\AdminLte\Html\Components\Input\InputSelect::renderHeaders()
      * @see ResourceElement::renderBody()
      * @see ElementInterface::render()
      */
@@ -311,7 +312,9 @@ class Select extends ResourceElement implements SelectInterface
 
         if ($this->source_query) {
             $return .= $this->renderBodyQuery();
-        } elseif ($this->source) {
+        }
+
+        if ($this->source?->getCount()) {
             $return .= $this->renderBodyArray();
         }
 
@@ -331,8 +334,8 @@ class Select extends ResourceElement implements SelectInterface
      * Return the body HTML for a <select> list
      *
      * @return string|null The body HTML (all <option> tags) for a <select> tag
-     *@see \Templates\AdminLte\Html\Components\Input\Select::render()
-     * @see \Templates\AdminLte\Html\Components\Input\Select::renderHeaders()
+     *@see \Templates\AdminLte\Html\Components\Input\InputSelect::render()
+     * @see \Templates\AdminLte\Html\Components\Input\InputSelect::renderHeaders()
      * @see ResourceElement::renderBody()
      * @see ElementInterface::render()
      */
@@ -362,7 +365,13 @@ class Select extends ResourceElement implements SelectInterface
             }
 
             if (!is_scalar($value)) {
-                throw new OutOfBoundsException(tr('The specified select source array is invalid. Format should be [key => value, key => value, ...]'));
+                if (!($value instanceof Stringable)) {
+                    throw OutOfBoundsException::new(tr('The specified select source array is invalid. Format should be [key => value, key => value, ...]'))
+                        ->setData($this->source);
+                }
+
+                // So value is a stringable object. Force value to be a string
+                $value = (string) $value;
             }
 
             $return .= '<option' . $this->buildOptionClassString() . $this->buildSelectedString($key) . ' value="' . htmlentities((string) $key) . '"' . $option_data . '>' . htmlentities((string) $value) . '</option>';
@@ -380,8 +389,8 @@ class Select extends ResourceElement implements SelectInterface
      * Return the body HTML for a <select> list
      *
      * @return string|null The body HTML (all <option> tags) for a <select> tag
-     * @see \Templates\AdminLte\Html\Components\Input\Select::render()
-     * @see \Templates\AdminLte\Html\Components\Input\Select::renderHeaders()
+     * @see \Templates\AdminLte\Html\Components\Input\InputSelect::render()
+     * @see \Templates\AdminLte\Html\Components\Input\InputSelect::renderHeaders()
      * @see ResourceElement::renderBody()
      * @see ElementInterface::render()
      */

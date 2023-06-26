@@ -16,7 +16,7 @@ use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Sql\QueryBuilder;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
-use Phoundation\Web\Http\Html\Components\Input\Select;
+use Phoundation\Web\Http\Html\Components\Input\InputSelect;
 
 
 /**
@@ -72,11 +72,11 @@ class Users extends DataList implements UsersInterface
             $diff = Arrays::valueDiff($this->source, $rights_list);
 
             foreach ($diff['add'] as $right) {
-                $this->parent->roles()->add($right);
+                $this->parent->getRoles()->addRole($right);
             }
 
             foreach ($diff['remove'] as $right) {
-                $this->parent->roles()->remove($right);
+                $this->parent->getRoles()->remove($right);
             }
         }
 
@@ -98,7 +98,7 @@ class Users extends DataList implements UsersInterface
             if (is_array($user)) {
                 // Add multiple rights
                 foreach ($user as $entry) {
-                    $this->add($entry);
+                    $this->addUser($entry);
                 }
 
             } else {
@@ -419,16 +419,22 @@ class Users extends DataList implements UsersInterface
     /**
      * Returns an HTML <select> for the available object entries
      *
+     * @param string $value_column
+     * @param string $key_column
      * @return SelectInterface
      */
-    public function getHtmlSelect(): SelectInterface
+    public function getHtmlSelect(string $value_column = '', string $key_column = 'id'): SelectInterface
     {
-        return Select::new()
-            ->setSourceQuery('SELECT COALESCE(NULLIF(TRIM(CONCAT_WS(" ", `first_names`, `last_names`)), ""), `nickname`, `username`, `email`, "' . tr('System') . '") AS `name` 
+        if (!$value_column) {
+            $value_column = 'COALESCE(NULLIF(TRIM(CONCAT_WS(" ", `first_names`, `last_names`)), ""), `nickname`, `username`, `email`, "' . tr('System') . '") AS name';
+        }
+
+        return InputSelect::new()
+            ->setSourceQuery('SELECT `' . $key_column . '`, ' . $value_column . ' 
                                           FROM  `accounts_users`
-                                          WHERE `status` IS NULL ORDER BY `name`')
+                                          WHERE `status` IS NULL ORDER BY `' . Strings::fromReverse($value_column, ' ') . '`')
             ->setName('users_id')
-            ->setNone(tr('Please select a user'))
+            ->setNone(tr('Select a user'))
             ->setEmpty(tr('No users available'));
     }
 }

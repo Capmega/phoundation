@@ -140,6 +140,7 @@ class Template
                                             <h3><i class="fas fa-exclamation-triangle text-:type"></i> :h3</h3>
                                     
                                             <p>:p</p>
+                                            <p>' . tr('Click :here to go to the index page', [':here' => '<a href="' . UrlBuilder::getCurrentDomainRootUrl() . '">here</a>']) . '</p>
                                             <p>' . tr('Click :here to sign out', [':here' => '<a href="' . UrlBuilder::getWww('sign-out.html') . '">here</a>']) . '</p>';
 
                 if (!Session::getUser()->isGuest()) {

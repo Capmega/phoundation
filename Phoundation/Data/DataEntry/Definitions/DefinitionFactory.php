@@ -2,7 +2,6 @@
 
 namespace Phoundation\Data\DataEntry\Definitions;
 
-use Phoundation\Accounts\Users\User;
 use Phoundation\Accounts\Users\Users;
 use Phoundation\Business\Companies\Companies;
 use Phoundation\Business\Customers\Customers;
@@ -10,6 +9,7 @@ use Phoundation\Business\Providers\Providers;
 use Phoundation\Core\Locale\Language\Languages;
 use Phoundation\Data\Categories\Categories;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
+use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Geo\Cities\Cities;
 use Phoundation\Geo\Countries\Countries;
 use Phoundation\Geo\Countries\Country;
@@ -52,7 +52,7 @@ class DefinitionFactory
             })
             ->setSize(6)
             ->setLabel(tr('Category'))
-            ->addValidationFunction(function ($validator) {
+            ->addValidationFunction(function (ValidatorInterface $validator) {
                 // Ensure categories id exists and that its or category
                 $validator->or('category')->isId()->isQueryColumn('SELECT `id` FROM `categories` WHERE `id` = :id AND `status` IS NULL', [':id' => '$categories_id']);
             });
@@ -80,7 +80,7 @@ class DefinitionFactory
                     return Categories::new()->getSource();
                 },
             ])
-            ->addValidationFunction(function ($validator) {
+            ->addValidationFunction(function (ValidatorInterface $validator) {
                 // Ensure category exists and that its or category
                 $validator->or('categories_id')->isCategory();
             });
@@ -106,7 +106,7 @@ class DefinitionFactory
             })
             ->setSize(6)
             ->setLabel(tr('Company'))
-            ->addValidationFunction(function ($validator) {
+            ->addValidationFunction(function (ValidatorInterface $validator) {
                 // Ensure companies id exists and that its or company
                 $validator->or('company')->isId()->isQueryColumn('SELECT `id` FROM `business_companies` WHERE `id` = :id AND `status` IS NULL', [':id' => '$companies_id']);
             });
@@ -134,7 +134,7 @@ class DefinitionFactory
                     return Companies::new()->getSource();
                 },
             ])
-            ->addValidationFunction(function ($validator) {
+            ->addValidationFunction(function (ValidatorInterface $validator) {
                 // Ensure company exists and that its or company
                 $validator->or('companies_id')->isCompany();
             });
@@ -165,7 +165,7 @@ class DefinitionFactory
             ->setLabel(tr('Language'))
             ->setHelpGroup(tr('Location information'))
             ->setHelpText(tr('The language in which the site will be displayed to the user'))
-            ->addValidationFunction(function ($validator) {
+            ->addValidationFunction(function (ValidatorInterface $validator) {
                 $validator->or('language')->isId()->isQueryColumn('SELECT `id` FROM `core_languages` WHERE `id` = :id AND `status` IS NULL', [':id' => '$languages_id']);
             });
     }
@@ -194,7 +194,7 @@ class DefinitionFactory
                     return Languages::new()->getSource();
                 },
             ])
-            ->addValidationFunction(function ($validator) {
+            ->addValidationFunction(function (ValidatorInterface $validator) {
                 // Ensure language exists and that its or language
                 $validator->or('languages_id')->isName()->setColumnFromQuery('languages_id', 'SELECT `id` FROM `core_languages` WHERE `code_639_1` = :code AND `status` IS NULL', [':code' => '$language']);
             });
@@ -220,7 +220,7 @@ class DefinitionFactory
             })
             ->setSize(6)
             ->setLabel(tr('Provider'))
-            ->addValidationFunction(function ($validator) {
+            ->addValidationFunction(function (ValidatorInterface $validator) {
                 // Ensure providers id exists and that its or provider
                 $validator->or('provider')->isId()->isQueryColumn('SELECT `id` FROM `business_providers` WHERE `id` = :id AND `status` IS NULL', [':id' => '$providers_id']);
             });
@@ -248,7 +248,7 @@ class DefinitionFactory
                     return Providers::new()->getSource();
                 },
             ])
-            ->addValidationFunction(function ($validator) {
+            ->addValidationFunction(function (ValidatorInterface $validator) {
                 // Ensure provider exists and that its or provider
                 $validator->or('providers_id')->isProvider();
             });
@@ -274,7 +274,7 @@ class DefinitionFactory
             })
             ->setSize(6)
             ->setLabel(tr('Customer'))
-            ->addValidationFunction(function ($validator) {
+            ->addValidationFunction(function (ValidatorInterface $validator) {
                 // Ensure customers id exists and that its or customer
                 $validator->or('customer')->isId()->isQueryColumn('SELECT `id` FROM `business_customers` WHERE `id` = :id AND `status` IS NULL', [':id' => '$customers_id']);
             });
@@ -302,7 +302,7 @@ class DefinitionFactory
                     return Customers::new()->getSource();
                 },
             ])
-            ->addValidationFunction(function ($validator) {
+            ->addValidationFunction(function (ValidatorInterface $validator) {
                 // Ensure customer exists and that its or customer
                 $validator->or('customers_id')->isCustomer();
             });
@@ -322,7 +322,7 @@ class DefinitionFactory
             ->setOptional(true)
             ->setInputType(InputType::number)
             ->setContent(function (DefinitionInterface $definition, string $key, array $source) use ($filters) {
-                return Timezones::new()->getHtmlSelect($key)
+                return Timezones::new()->getHtmlSelect()
                     ->setSelected(isset_get($source['timezones_id']))
                     ->render();
             })
@@ -330,10 +330,10 @@ class DefinitionFactory
             ->setAutoComplete(true)
             ->setSize(3)
             ->setLabel(tr('Timezone'))
-            ->addValidationFunction(function ($validator) {
+            ->addValidationFunction(function (ValidatorInterface $validator) {
                 $validator->or('timezone')->isId()->isTrue(function ($value) {
                     // This timezone must exist.
-                    return Timezone::exists($value);
+                    return Timezone::exists('name', $value);
                 }, tr('The specified timezone does not exist'));
             });
     }
@@ -361,7 +361,7 @@ class DefinitionFactory
                     return Timezones::new()->getSource();
                 },
             ])
-            ->addValidationFunction(function ($validator) {
+            ->addValidationFunction(function (ValidatorInterface $validator) {
                 // Ensure timezone exists and that its or timezone
                 $validator->or('timezones_id')->isName()->setColumnFromQuery('timezones_id', 'SELECT `id` FROM `geo_timezones` WHERE `name` = :name AND `status` IS NULL', [':name' => '$timezone']);
             });
@@ -390,7 +390,7 @@ class DefinitionFactory
             ->setCliField('--countries-id COUNTRY-DATABASE-ID')
             ->setAutoComplete(true)
             ->setLabel(tr('Country'))
-            ->addValidationFunction(function ($validator) {
+            ->addValidationFunction(function (ValidatorInterface $validator) {
                 $validator->or('country')->isId()->isQueryColumn('SELECT `id` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':id' => '$countries_id']);
             });
     }
@@ -418,7 +418,7 @@ class DefinitionFactory
                     return Countries::new()->getSource();
                 },
             ])
-            ->addValidationFunction(function ($validator) {
+            ->addValidationFunction(function (ValidatorInterface $validator) {
                 // Ensure country exists and that its or countries_id
                 $validator->or('countries_id')->isName(200)->setColumnFromQuery('countries_id', 'SELECT `id` FROM `geo_countries` WHERE `name` = :name AND `status` IS NULL', [':name' => '$country']);
             });
@@ -447,7 +447,7 @@ class DefinitionFactory
             ->setCliField('--states-id STATE-DATABASE-ID')
             ->setAutoComplete(true)
             ->setLabel(tr('State'))
-            ->addValidationFunction(function ($validator) {
+            ->addValidationFunction(function (ValidatorInterface $validator) {
                 $validator->or('state')->isId()->isQueryColumn('SELECT `id` FROM `geo_states` WHERE `id` = :id AND `countries_id` = :countries_id AND `status` IS NULL', [':id' => '$states_id', ':countries_id' => '$countries_id']);
             });
     }
@@ -475,7 +475,7 @@ class DefinitionFactory
                     return States::new()->getSource();
                 },
             ])
-            ->addValidationFunction(function ($validator) {
+            ->addValidationFunction(function (ValidatorInterface $validator) {
                 // Ensure state exists and that its or states_id
                 $validator->or('states_id')->isName()->setColumnFromQuery('states_id', 'SELECT `name` FROM `geo_states` WHERE `name` = :name AND `countries_id` = :countries_id AND `status` IS NULL', [':name' => '$state', ':countries_id' => '$countries_id']);
             });
@@ -504,7 +504,7 @@ class DefinitionFactory
             ->setCliField('--cities-id CITY-DATABASE-ID')
             ->setAutoComplete(true)
             ->setLabel(tr('City'))
-            ->addValidationFunction(function ($validator) {
+            ->addValidationFunction(function (ValidatorInterface $validator) {
                 $validator->or('city')->isId()->isQueryColumn('SELECT `id` FROM `geo_cities` WHERE `id` = :id AND `states_name`  = :states_id    AND `status` IS NULL', [':id' => '$cities_id', ':states_id' => '$states_id']);
             });
     }
@@ -532,7 +532,7 @@ class DefinitionFactory
                     return Cities::new()->getSource();
                 },
             ])
-            ->addValidationFunction(function ($validator) {
+            ->addValidationFunction(function (ValidatorInterface $validator) {
                 // Ensure city exists and that its or cities_id
                 $validator->or('cities_id')->isName()->setColumnFromQuery('cities_id', 'SELECT `name` FROM `geo_cities` WHERE `name` = :name AND `states_name`  = :states_id    AND `status` IS NULL', [':name' => '$city', ':states_id' => '$states_id']);
             });
@@ -558,7 +558,7 @@ class DefinitionFactory
                     ->setSelected(isset_get($source[$key]))
                     ->render();
             })
-            ->addValidationFunction(function ($validator) {
+            ->addValidationFunction(function (ValidatorInterface $validator) {
                 $validator->isId()->isQueryColumn('SELECT `id` FROM `accounts_users` WHERE `id` = :id AND `status` IS NULL', [':id' => '$leaders_id']);
             });
     }
@@ -586,7 +586,7 @@ class DefinitionFactory
                     return Users::new()->getSource();
                 },
             ])
-            ->addValidationFunction(function ($validator) {
+            ->addValidationFunction(function (ValidatorInterface $validator) {
                 $validator->or('users_id')->setColumnFromQuery('users_id', 'SELECT `id` FROM `accounts_users` WHERE `email` = :email', [':email' => '$email']);
             });
     }
@@ -607,7 +607,7 @@ class DefinitionFactory
             ->setCliField('-c,--code CODE')
             ->setAutoComplete(true)
             ->setLabel(tr('Code'))
-            ->addValidationFunction(function ($validator) {
+            ->addValidationFunction(function (ValidatorInterface $validator) {
                 $validator->isCode();
             });
     }
@@ -678,7 +678,7 @@ class DefinitionFactory
             ->setCliField('-t,--title TITLE')
             ->setAutoComplete(true)
             ->setLabel(tr('Title'))
-            ->addValidationFunction(function ($validator) {
+            ->addValidationFunction(function (ValidatorInterface $validator) {
                 $validator->isName();
             });
     }
@@ -699,7 +699,7 @@ class DefinitionFactory
             ->setCliField(tr('-n,--name NAME'))
             ->setInputType(InputTypeExtended::name)
             ->setAutoComplete(true)
-            ->addValidationFunction(function ($validator) {
+            ->addValidationFunction(function (ValidatorInterface $validator) {
                 $validator->isName();
             });
     }
@@ -719,13 +719,7 @@ class DefinitionFactory
             ->setMaxlength(128)
             ->setCliField('-e,--email EMAIL')
             ->setAutoComplete(true)
-            ->setLabel(tr('Email address'))
-            ->addValidationFunction(function ($validator) {
-                $validator->isTrue(function ($value, $source) {
-                    // This email may NOT yet exist, unless its THIS user.
-                    return User::notExists($value, isset_get($source['id']));
-                }, tr('This email address already exists'));
-            });
+            ->setLabel(tr('Email address'));
     }
 
 
@@ -744,7 +738,7 @@ class DefinitionFactory
             ->setAutoComplete(true)
             ->setCliField('--w,--website WEBSITE-URL')
             ->setLabel(tr('Website URL'))
-            ->addValidationFunction(function ($validator) {
+            ->addValidationFunction(function (ValidatorInterface $validator) {
                 $validator->isOptional()->isUrl();
             });
     }
@@ -785,7 +779,7 @@ class DefinitionFactory
             ->setLabel(tr('Phone numbers'))
             ->setHelpGroup(tr('Personal information'))
             ->setHelpText(tr('Phone numbers where this user can be reached'))
-            ->addValidationFunction(function ($validator) {
+            ->addValidationFunction(function (ValidatorInterface $validator) {
                 $validator->isPhoneNumbers();
                 // $validator->sanitizeForceArray(',')->each()->isPhoneNumber()->sanitizeForceString()
             });

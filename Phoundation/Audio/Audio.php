@@ -8,6 +8,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
+use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Exception\ProcessesException;
 use Phoundation\Processes\Process;
 use Throwable;
@@ -34,8 +35,10 @@ class Audio extends File
     {
         if (!defined('NOAUDIO') or !NOAUDIO) {
             try {
-                $this->file = Filesystem::absolute($this->file, PATH_ROOT . 'data/audio');
-                $process = Process::new('mplayer')->addArgument($this->file);
+                $this->file = Filesystem::absolute($this->file, PATH_DATA . 'audio');
+                $process    = Process::new('mplayer')
+                    ->setRestrictions(Restrictions::new(PATH_DATA . 'audio', true))
+                    ->addArgument($this->file);
 
                 if ($background) {
                     $process->executeBackground();

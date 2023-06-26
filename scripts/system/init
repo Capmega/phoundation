@@ -82,24 +82,20 @@ $argv = ArgvValidator::new()
     ->validate();
 
 
-
 // Drop the database and start from scratch? DANGER!
 if ($argv['drop']) {
     Libraries::reset();
 }
 
 
-
 // Initialize the system
 Libraries::initialize($argv['system'], $argv['plugins'], $argv['templates'], $argv['comments'], $argv['library']);
-
 
 
 // Run import?
 if ($argv['import']) {
     Project::import($argv['demo'], $argv['min'], $argv['max'], $argv['libraries']);
 }
-
 
 
 //    // During init, force EMULATE_PREPARES because loads of init stuff will NOT work without

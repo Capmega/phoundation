@@ -58,10 +58,10 @@ Log::cli();
 Log::information('Roles assigned to this user:');
 Log::cli();
 
-User::get($argv['user'])->roles()->CliDisplayTable();
+User::get($argv['user'])->getRoles()->CliDisplayTable();
 
 Log::cli();
 Log::information('Rights assigned to this user through its roles:');
 Log::cli();
 
-User::get($argv['user'])->rights()->CliDisplayTable();
+User::get($argv['user'])->getRights()->CliDisplayTable();

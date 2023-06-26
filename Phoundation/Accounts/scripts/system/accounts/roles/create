@@ -47,7 +47,7 @@ $argv = ArgvValidator::new()
 
 
 // Check if the role already exists
-Role::notExists($argv['name'], null, true);
+Role::notExists('name', $argv['name'], null, true);
 
 
 

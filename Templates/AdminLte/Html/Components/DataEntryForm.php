@@ -11,7 +11,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Input\InputMultiButtonText;
-use Phoundation\Web\Http\Html\Components\Input\Select;
+use Phoundation\Web\Http\Html\Components\Input\InputSelect;
 use Phoundation\Web\Http\Html\Components\Input\TextArea;
 use Phoundation\Web\Http\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Http\Html\Components\Interfaces\ElementsBlockInterface;
@@ -168,10 +168,10 @@ class DataEntryForm extends Renderer
             Arrays::default($definition_array, 'title'       , null);
             Arrays::default($definition_array, 'placeholder' , null);
             Arrays::default($definition_array, 'pattern'     , null);
-            Arrays::default($definition_array, 'maxlength'   , 0);
-            Arrays::default($definition_array, 'min'         , 0);
-            Arrays::default($definition_array, 'max'         , 0);
-            Arrays::default($definition_array, 'step'        , 0);
+            Arrays::default($definition_array, 'maxlength'   , null);
+            Arrays::default($definition_array, 'min'         , null);
+            Arrays::default($definition_array, 'max'         , null);
+            Arrays::default($definition_array, 'step'        , null);
 
             if (!$definition_array['visible'] or $definition_array['virtual']) {
                 // This element shouldn't be shown, continue
@@ -293,9 +293,9 @@ class DataEntryForm extends Renderer
                                 $html = $element_class::new()
                                     ->setDisabled((bool) $definition_array['disabled'])
                                     ->setReadOnly((bool) $definition_array['readonly'])
-                                    ->setMin(isset_get($definition_array['min']))
-                                    ->setMax(isset_get($definition_array['max']))
-                                    ->setStep(isset_get($definition_array['step']))
+                                    ->setMin(isset_get_typed('integer', $definition_array['min']))
+                                    ->setMax(isset_get_typed('integer', $definition_array['max']))
+                                    ->setStep(isset_get_typed('integer', $definition_array['step']))
                                     ->setName($field_name)
                                     ->setValue($source[$field])
                                     ->setAutoFocus($auto_focus)
@@ -308,7 +308,7 @@ class DataEntryForm extends Renderer
                                 $html = $element_class::new()
                                     ->setDisabled((bool) $definition_array['disabled'])
                                     ->setReadOnly((bool) $definition_array['readonly'])
-                                    ->setMaxLength(get_null((int) $definition_array['maxlength']))
+                                    ->setMaxLength(isset_get_typed('integer', $definition_array['maxlength']))
                                     ->setName($field_name)
                                     ->setValue($source[$field])
                                     ->setAutoFocus($auto_focus)
@@ -334,8 +334,8 @@ class DataEntryForm extends Renderer
                         $html = TextArea::new()
                             ->setDisabled((bool) $definition_array['disabled'])
                             ->setReadOnly((bool) $definition_array['readonly'])
-                            ->setMaxLength(get_null((int) $definition_array['maxlength']))
-                            ->setRows((int) isset_get($definition_array['rows'], 5))
+                            ->setMaxLength(isset_get_typed('integer', $definition_array['maxlength']))
+                            ->setRows(isset_get_typed('integer', $definition_array['rows'], 5))
                             ->setName($field_name)
                             ->setContent(isset_get($source[$field]))
                             ->setAutoFocus($auto_focus)
@@ -370,16 +370,16 @@ class DataEntryForm extends Renderer
 
                     case 'select':
                         // Build the element class path and load the required class file
-                        $element_class = '\\Phoundation\\Web\\Http\\Html\\Components\\Input\\Select';
+                        $element_class = '\\Phoundation\\Web\\Http\\Html\\Components\\Input\\InputSelect';
                         $file          = Library::getClassFile($element_class);
                         include_once($file);
 
-                        $html = Select::new()
+                        $html = InputSelect::new()
                             ->setSource(isset_get($definition_array['source']), $execute)
                             ->setDisabled((bool) $definition_array['disabled'])
                             ->setReadOnly((bool) $definition_array['readonly'])
                             ->setName($field_name)
-                            ->setSelected(isset_get($source[$field]))
+                            ->setSelected(isset_get($source[$field_name]))
                             ->setAutoFocus($auto_focus)
                             ->render();
 
@@ -429,7 +429,7 @@ class DataEntryForm extends Renderer
                 }
 
             } else {
-                $html = $definition_array['content']($definition, $field, $source);
+                $html          = $definition_array['content']($definition, $field, $field_name, $source);
                 $this->render .= $this->renderItem($field, $html, $definition_array);
             }
         }
@@ -499,9 +499,9 @@ class DataEntryForm extends Renderer
 
             if ($col_size < 0) {
                 throw OutOfBoundsException::new(tr('Cannot add column ":label" for ":class" form with size ":size", the row would surpass size 12 by ":count"', [
-                    ':class' => get_class($this->render_object),
+                    ':class' => $this->render_object->getDefinitions()->getTable(),
                     ':label' => $data['label'] . ' [' . $id . ']',
-                    ':size' => abs($data['size']),
+                    ':size'  => abs($data['size']),
                     ':count' => abs($col_size),
                 ]))->setData(['Columns on this row' => $cols]);
             }

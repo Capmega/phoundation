@@ -835,7 +835,7 @@ Class Log {
      * @param bool $newline      If true, a newline will be appended at the end of the log line
      * @return bool              True if the line was written, false if it was dropped
      */
-    public static function write(mixed $messages = null, ?string $class = null, int $threshold = 10, bool $clean = true, bool $newline = true): bool
+    public static function write(mixed $messages = null, ?string $class = null, int $threshold = 10, bool $clean = true, bool $newline = true, bool $prefix = true): bool
     {
         if (static::$init) {
             // Do not log anything while locked, initialising, or while dealing with a Log internal failure
@@ -910,10 +910,14 @@ Class Log {
                 }
 
                 // Log the initial exception message
-                static::write('Main script: "' . basename(isset_get($_SERVER['SCRIPT_FILENAME'])) . '"', $class, $threshold);
-                static::write('Exception class: "' . get_class($messages) . '"', $class, $threshold);
-                static::write('Exception location: "' . $messages->getFile() . '@' . $messages->getLine() . '"', $class, $threshold);
-                static::write('Exception message: [' . ($messages->getCode() ?? 'N/A') . '] ' . $messages->getMessage(), $class, $threshold, false);
+                static::write('Main script: ', 'information', $threshold, true, false);
+                static::write(basename(isset_get($_SERVER['SCRIPT_FILENAME'])), $class, $threshold, true, true, false);
+                static::write('Exception class: ', 'information', $threshold, true, false);
+                static::write(get_class($messages), $class, $threshold, true, true, false);
+                static::write('Exception location: ', 'information', $threshold, true, false);
+                static::write($messages->getFile() . '@' . $messages->getLine(), $class, $threshold, true, true, false);
+                static::write('Exception message: ', 'information', $threshold, true, false);
+                static::write('[' . ($messages->getCode() ?? 'N/A') . '] ' . $messages->getMessage(), $class, $threshold, false, true, false);
 
                 // Log the exception data
                 if ($messages instanceof Exception) {
@@ -940,7 +944,7 @@ Class Log {
                     $trace = $messages->getTrace();
 
                     if ($trace) {
-                        static::write(tr('Backtrace:'), $class, $threshold);
+                        static::write(tr('Backtrace:'), 'information', $threshold);
                         static::dumpTrace($messages->getTrace(), class: $class);
                     }
 
@@ -948,7 +952,7 @@ Class Log {
                     $previous = $messages->getPrevious();
 
                     while ($previous) {
-                        static::write('Previous exception: ', $class, $threshold);
+                        static::write('Previous exception: ', 'information', $threshold);
                         static::write($previous, $class, $threshold, $clean);
 
                         $previous = $previous->getPrevious();
@@ -989,8 +993,11 @@ Class Log {
                 $messages = Strings::cleanWhiteSpace($messages);
             }
 
-            $line = date('Y-m-d H:i:s.') . substr(microtime(FALSE), 2, 3) . ' ' . ($threshold === 10 ? 10 : ' ' . $threshold) . ' ' . getmypid() . ' ' . static::$global_id . ' / ' . static::$local_id . ' ' . $messages . ($newline ? PHP_EOL : null);
-            fwrite(static::$handles[static::$file], $line);
+            if ($prefix) {
+                $messages = date('Y-m-d H:i:s.') . substr(microtime(FALSE), 2, 3) . ' ' . ($threshold === 10 ? 10 : ' ' . $threshold) . ' ' . getmypid() . ' ' . static::$global_id . ' / ' . static::$local_id . ' ' . $messages;
+            }
+
+            fwrite(static::$handles[static::$file], $messages . ($newline ? PHP_EOL : null));
 
             // In Command Line mode always log to the screen too, but not during PHPUnit test!
             if ((PHP_SAPI === 'cli')  and !Core::isPhpUnitTest()) {

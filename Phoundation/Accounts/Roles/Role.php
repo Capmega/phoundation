@@ -14,7 +14,10 @@ use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
+use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
+use Phoundation\Geo\Timezones\Timezone;
 use Phoundation\Web\Http\Html\Components\Form;
+use Phoundation\Web\Http\Html\Components\Interfaces\FormInterface;
 use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
 
 
@@ -54,10 +57,10 @@ class Role extends DataEntry implements RoleInterface
      *
      * @return RightsInterface
      */
-    public function rights(): RightsInterface
+    public function getRights(): RightsInterface
     {
         if (!$this->list) {
-            $this->list = Rights::new()->setParent($this);
+            $this->list = Rights::new()->setParent($this)->load();
         }
 
         return $this->list;
@@ -69,21 +72,21 @@ class Role extends DataEntry implements RoleInterface
      *
      * @return UsersInterface
      */
-    public function users(): UsersInterface
+    public function getUsers(): UsersInterface
     {
-        return Users::new()->setParent($this);
+        return Users::new()->setParent($this)->load();
     }
 
 
     /**
      * Creates and returns an HTML for the fir
      *
-     * @return Form
+     * @return FormInterface
      */
-    public function getRightsHtmlForm(): Form
+    public function getRightsHtmlForm(): FormInterface
     {
         $form   = Form::new();
-        $rights = $this->rights();
+        $rights = $this->getRights();
         $select = $rights->getHtmlSelect()->setCache(true);
 
         foreach ($rights as $right) {
@@ -110,7 +113,12 @@ class Role extends DataEntry implements RoleInterface
                 ->setInputType(InputTypeExtended::name)
                 ->setSize(12)
                 ->setMaxlength(64)
-                ->setHelpText(tr('The name for this role')))
+                ->setHelpText(tr('The name for this role'))
+                ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->isTrue(function ($value, $source) {
+                        return Role::notExist('name', $value, isset_get($source['id']));
+                    }, tr('value ":name" already exists', [':name' => $validator->getSourceValue()]));
+                }))
             ->addDefinition(DefinitionFactory::getSeoName())
             ->addDefinition(DefinitionFactory::getDescription()
                 ->setHelpText(tr('The description for this role')));

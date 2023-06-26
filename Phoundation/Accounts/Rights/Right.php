@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace Phoundation\Accounts\Rights;
 
 use Phoundation\Accounts\Rights\Interfaces\RightInterface;
+use Phoundation\Accounts\Roles\Role;
+use Phoundation\Accounts\Users\User;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
+use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
 
 
@@ -56,7 +59,12 @@ class Right extends DataEntry implements RightInterface
                 ->setInputType(InputTypeExtended::name)
                 ->setSize(12)
                 ->setMaxlength(64)
-                ->setHelpText(tr('The name for this right')))
+                ->setHelpText(tr('The name for this right'))
+                ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->isTrue(function ($value, $source) {
+                        return Right::notExists('name', $value, isset_get($source['id']));
+                    }, tr('value ":name" already exists', [':name' => $validator->getSourceValue()]));
+                }))
             ->addDefinition(DefinitionFactory::getSeoName())
             ->addDefinition(DefinitionFactory::getDescription()
                 ->setHelpText(tr('The description for this right')));

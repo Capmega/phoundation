@@ -80,15 +80,12 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
         if (is_object($messages)) {
             // The message actually is an Exception! Extract data and make this exception the previous
             $previous = $messages;
-            $code     = $messages->getCode();
 
             if ($messages instanceof Exception) {
                 // This is a Phoundation exception, get more information
-                $data     = $messages->getData();
                 $messages = $messages->getMessages();
             } else {
                 // This is a standard PHP exception
-                $data     = null;
                 $messages = [$messages->getMessage()];
             }
         } elseif (!is_array($messages)) {
@@ -97,6 +94,13 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
             }
 
             $messages = [$messages];
+        }
+
+        // Fix the location and backtrace due to Exception::new() usage?
+        if (isset($this->file) and ($this->file === __FILE__)) {
+            // Adjust the file and location pointers by 1, remove the top trace entry
+            $trace = $this->getTrace();
+            $this->setFile($trace[0]['file'])->setLine($trace[0]['line']);
         }
 
         $message = reset($messages);

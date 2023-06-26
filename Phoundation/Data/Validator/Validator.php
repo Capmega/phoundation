@@ -37,7 +37,7 @@ use UnitEnum;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
-abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
+abstract class Validator implements ValidatorInterface
 {
     use ValidatorBasics;
 
@@ -106,6 +106,32 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
     {
         static::$password_disabled = false;
     }
+
+
+    /**
+     * Forcibly set the specified key of this validator source to the specified value
+     *
+     * @param string|float|int $key
+     * @param mixed $value
+     * @return static
+     */
+    public function setSourceKey(string|float|int $key, mixed $value): static
+    {
+        $this->source[$key] = $value;
+        return $this;
+    }
+
+
+    /**
+     * Returns the currently selected value
+     *
+     * @return mixed
+     */
+    public function getSourceValue(): mixed
+    {
+        return $this->selected_value;
+    }
+
 
 
     /**
@@ -426,7 +452,7 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
                 return;
             }
 
-            $this->isPrintable();
+            $this->isPrintable()->isNotNumeric();
         });
     }
 
@@ -1013,6 +1039,28 @@ abstract class Validator implements ValidatorInterface, ValidatorBasicsInterface
 
             if (!ctype_alnum($value)) {
                 $this->addFailure(tr('must contain only letters and numbers'));
+            }
+        });
+    }
+
+
+    /**
+     * Validates that the selected field is not a number
+     *
+     * @return static
+     */
+    public function isNotNumeric(): static
+    {
+        return $this->validateValues(function(&$value) {
+            $this->isString();
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return;
+            }
+
+            if (is_numeric($value)) {
+                $this->addFailure(tr('cannot be a number'));
             }
         });
     }

@@ -6,6 +6,8 @@ namespace Phoundation\Accounts;
 
 use Phoundation\Accounts\Rights\Right;
 use Phoundation\Accounts\Roles\Role;
+use Phoundation\Accounts\Users\GuestUser;
+use Phoundation\Core\Session;
 
 
 /**
@@ -287,6 +289,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_accounts_roles_rights_rights_id` FOREIGN KEY (`rights_id`) REFERENCES `accounts_rights` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_accounts_roles_rights_roles_id` FOREIGN KEY (`roles_id`) REFERENCES `accounts_roles` (`id`) ON DELETE CASCADE
                 ')->create();
+
         })->addUpdate('0.0.5', function () {
             // Drop the tables to be sure we have a clean slate
             sql()->schema()->table('accounts_compromised_passwords')->drop();
@@ -371,6 +374,11 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_accounts_banned_passwords_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
                 ')->create();
 
+        })->addUpdate('0.0.6', function () {
+            // Ensure Guest user is available
+            GuestUser::new()
+                ->save();
+
             // Create default rights and roles
             $god = Right::new()
                 ->setName('God')
@@ -412,42 +420,41 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ->setName('God')
                 ->setDescription('This role will give the user the "God" right which will give it access to everything, everywhere')
                 ->save()
-                ->rights()
-                    ->add($god);
+                ->getRights()
+                    ->addRight($god);
 
             Role::new()
                 ->setName('Administrator')
                 ->setDescription('This role gives access to all the administrative pages except user account management')
                 ->save()
-                ->rights()
-                    ->add($admin)
-                    ->add($audit)
-                    ->add($security)
-                    ->add($phoundation);
+                ->getRights()
+                    ->addRight($admin)
+                    ->addRight($audit)
+                    ->addRight($security)
+                    ->addRight($phoundation);
 
             Role::new()
                 ->setName('Accounts administrator')
                 ->setDescription('This role gives access to only the administrative user account pages')
                 ->save()
-                ->rights()
-                    ->add($admin)
-                    ->add($accounts);
+                ->getRights()
+                    ->addRight($admin)
+                    ->addRight($accounts);
 
             Role::new()
                 ->setName('Developer')
                 ->setDescription('This role will give the user access to the developer pages of the site')
                 ->save()
-                ->rights()
-                    ->add($developer);
+                ->getRights()
+                    ->addRight($developer);
 
             Role::new()
                 ->setName('Moderator')
                 ->setDescription('This role will give the user basic access to the administrative pages of the site')
                 ->save()
-                ->rights()
-                    ->add($admin);
+                ->getRights()
+                    ->addRight($admin);
 
-        })->addUpdate('0.0.6', function () {
             // Drop the tables to be sure we have a clean slate
             sql()->schema()->table('accounts_signins')->drop();
 

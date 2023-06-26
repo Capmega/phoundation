@@ -125,15 +125,15 @@ class Category extends DataEntry
         $definitions
             ->addDefinition(Definition::new('parents_id')
                 ->setOptional(true)
-                ->setContent(function (DefinitionInterface $definition, string $key, array $source) {
+                ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                     return Categories::new()->getHtmlSelect()
-                        ->setName($key)
+                        ->setName($field_name)
                         ->setSelected(isset_get($source[$key]))
                         ->render();
                 })
                 ->setSize(6)
                 ->setLabel(tr('Parent category'))
-                ->addValidationFunction(function ($validator) {
+                ->addValidationFunction(function (ValidatorInterface $validator) {
                     // Ensure parents_id exists and that its or parent
                     $validator->or('parent')->isId()->isQueryColumn('SELECT `id` FROM `categories` WHERE `id` = :id AND `status` IS NULL', [':id' => '$parents_id']);
                 }))
@@ -145,14 +145,14 @@ class Category extends DataEntry
                     'word'   => function($word) { return Categories::new()->filteredList($word); },
                     'noword' => function()      { return Categories::new()->getSource(); },
                 ])
-                ->addValidationFunction(function ($validator) {
+                ->addValidationFunction(function (ValidatorInterface $validator) {
                     // Ensure parent exists and that its or parents_id
                     $validator->or('parents_id')->isName(64)->setColumnFromQuery('parents_id', 'SELECT `id` FROM `categories` WHERE `name` = :name AND `status` IS NULL', [':name' => '$parent']);
                 }))
             ->addDefinition(DefinitionFactory::getName()
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isFalse(function($value, $source) {
-                        Category::exists($value, isset_get($source['id']));
+                        Category::exists('name', $value, isset_get($source['id']));
                     }, tr('already exists'));
                 }))
             ->addDefinition(DefinitionFactory::getSeoName())

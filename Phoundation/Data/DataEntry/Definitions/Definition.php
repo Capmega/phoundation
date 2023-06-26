@@ -7,6 +7,7 @@ namespace Phoundation\Data\DataEntry\Definitions;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Traits\UsesNewField;
+use Phoundation\Data\Validator\Interfaces\ArgvValidatorInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
@@ -474,7 +475,7 @@ class Definition implements DefinitionInterface
                     case InputTypeExtended::dbid:
                         $value = InputType::number;
 
-                        $this->addValidationFunction(function ($validator) {
+                        $this->addValidationFunction(function (ValidatorInterface $validator) {
                             $validator->isNatural();
                         });
 
@@ -483,7 +484,9 @@ class Definition implements DefinitionInterface
                     case InputTypeExtended::natural:
                         $value = InputType::number;
 
-                        $this->addValidationFunction(function ($validator) {
+                        $this->setKey('type', $value->value);
+                        $this->setMin(0);
+                        $this->addValidationFunction(function (ValidatorInterface $validator) {
                             $validator->isNatural();
                         });
 
@@ -492,7 +495,7 @@ class Definition implements DefinitionInterface
                     case InputTypeExtended::integer:
                         $value = InputType::number;
 
-                        $this->addValidationFunction(function ($validator) {
+                        $this->addValidationFunction(function (ValidatorInterface $validator) {
                             $validator->isInteger();
                         });
 
@@ -501,7 +504,7 @@ class Definition implements DefinitionInterface
                     case InputTypeExtended::float:
                         $value = InputType::number;
 
-                        $this->addValidationFunction(function ($validator) {
+                        $this->addValidationFunction(function (ValidatorInterface $validator) {
                             $validator->isFloat();
                         });
 
@@ -510,14 +513,14 @@ class Definition implements DefinitionInterface
                     case InputTypeExtended::name:
                         $value = InputType::text;
 
-                        $this->addValidationFunction(function ($validator) {
+                        $this->addValidationFunction(function (ValidatorInterface $validator) {
                             $validator->isName();
                         });
 
                         break;
 
                     case InputType::email:
-                        $this->setMaxlength(128)->addValidationFunction(function ($validator) {
+                        $this->setMaxlength(128)->addValidationFunction(function (ValidatorInterface $validator) {
                             $validator->isEmail();
                         });
 
@@ -526,7 +529,7 @@ class Definition implements DefinitionInterface
                     case InputTypeExtended::url:
                         $value = InputType::text;
 
-                        $this->addValidationFunction(function ($validator) {
+                        $this->addValidationFunction(function (ValidatorInterface $validator) {
                             $validator->isUrl();
                         });
 
@@ -535,7 +538,7 @@ class Definition implements DefinitionInterface
                     case InputTypeExtended::phone:
                         $value = InputType::tel;
 
-                        $this->addValidationFunction(function ($validator) {
+                        $this->addValidationFunction(function (ValidatorInterface $validator) {
                             $validator->isPhoneNumber();
                         });
 
@@ -544,7 +547,7 @@ class Definition implements DefinitionInterface
                     case InputTypeExtended::phones:
                         $value = InputType::text;
 
-                        $this->addValidationFunction(function ($validator) {
+                        $this->addValidationFunction(function (ValidatorInterface $validator) {
                             $validator->isPhoneNumbers();
                         });
 
@@ -553,7 +556,7 @@ class Definition implements DefinitionInterface
                     case InputTypeExtended::username:
                         $value = InputType::text;
 
-                        $this->addValidationFunction(function ($validator) {
+                        $this->addValidationFunction(function (ValidatorInterface $validator) {
                             $validator->isUsername();
                         });
 
@@ -562,7 +565,7 @@ class Definition implements DefinitionInterface
                     case InputTypeExtended::path:
                         $value = InputType::text;
 
-                        $this->addValidationFunction(function ($validator) {
+                        $this->addValidationFunction(function (ValidatorInterface $validator) {
                             $validator->isPath();
                         });
 
@@ -571,7 +574,7 @@ class Definition implements DefinitionInterface
                     case InputTypeExtended::file:
                         $value = InputType::text;
 
-                        $this->addValidationFunction(function ($validator) {
+                        $this->addValidationFunction(function (ValidatorInterface $validator) {
                             $validator->isFile();
                         });
 
@@ -580,7 +583,7 @@ class Definition implements DefinitionInterface
                     case InputTypeExtended::code:
                         $value = InputType::text;
 
-                        $this->addValidationFunction(function ($validator) {
+                        $this->addValidationFunction(function (ValidatorInterface $validator) {
                             $validator->isCode();
                         });
 
@@ -590,7 +593,7 @@ class Definition implements DefinitionInterface
                         $this->setElement(InputElement::textarea);
                         $value = null;
 
-                        $this->addValidationFunction(function ($validator) {
+                        $this->addValidationFunction(function (ValidatorInterface $validator) {
                             $validator->isDescription();
                         });
 
@@ -848,21 +851,28 @@ class Definition implements DefinitionInterface
     /**
      * Returns the alternative CLI field names for this field
      *
+     * @param ValidatorInterface|null $validator
      * @return string|null
      */
-    public function getCliField(): ?string
+    public function getCliField(?ValidatorInterface $validator = null): ?string
     {
         if (PLATFORM_HTTP) {
             // We're not on CLI, we're on HTTP. Return the HTTP field instead
             return $this->field;
         }
 
-        if (empty($this->definitions['cli_field'])) {
-            // This field cannot be modified on the command line, no definition available
-            return null;
+        // We're on the command line
+        if ($validator instanceof ArgvValidatorInterface) {
+            // We're working with data from the $argv command line
+            if (empty($this->definitions['cli_field'])) {
+                // This field cannot be modified on the command line, no definition available
+                return null;
+            }
+
+            return isset_get_typed('string', $this->definitions['cli_field']);
         }
 
-        return isset_get_typed('string', $this->definitions['cli_field']);
+        return $this->field;
     }
 
 
@@ -1343,7 +1353,7 @@ class Definition implements DefinitionInterface
 
         // Checkbox inputs always are boolean and does this field have a prefix?
         $bool  = ($this->getType() === 'checkbox');
-        $field = $prefix . $this->getCliField();
+        $field = $prefix . $this->getCliField($validator);
 
         if (!$field) {
             // This field name is empty. Coming from self::getCliField() this means that this field should NOT be

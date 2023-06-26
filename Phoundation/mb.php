@@ -9,8 +9,8 @@ use Phoundation\Exception\PhpModuleNotAvailableException;
  * Extra mb functions
  *
  * The main secret, the core of the magic is...
- *    utf8_decode($str);
- *    utf8_encode($str);
+ *    mb_convert_encoding((string) $string, 'UTF-8', 'ISO-8859-1');
+ *    mb_convert_encoding((string) $string, 'ISO-8859-1', 'UTF-8');
  *
  * @todo Maybe get rid of this library file?
  * @note Taken from https://code.google.com/archive/p/mbfunctions/downloads, code updated to PHP8 standards by Sven Olaf Oostenbrink
@@ -24,7 +24,7 @@ use Phoundation\Exception\PhpModuleNotAvailableException;
 
 
 define('UTF8_ENCODED_CHARLIST','ÀÁÂÃÄÅàáâãäåÒÓÔÕÖØòóôõöøÈÉÊËéèêëÇçÌÍÎÏìíîïÙÚÛÜùúûüÿÑñ');
-define('UTF8_DECODED_CHARLIST', utf8_decode('ÀÁÂÃÄÅàáâãäåÒÓÔÕÖØòóôõöøÈÉÊËéèêëÇçÌÍÎÏìíîïÙÚÛÜùúûüÿÑñ'));
+define('UTF8_DECODED_CHARLIST', mb_convert_encoding('ÀÁÂÃÄÅàáâãäåÒÓÔÕÖØòóôõöøÈÉÊËéèêëÇçÌÍÎÏìíîïÙÚÛÜùúûüÿÑñ', 'UTF-8', 'ISO-8859-1'));
 
 
 /**
@@ -41,7 +41,7 @@ if (!function_exists('mb_init')) {
             throw new PhpModuleNotAvailableException(tr('php module "mbstring" appears not to be installed. Please install the modules first. On Ubuntu and alikes, use "sudo apt-get -y install php-mbstring; sudo php5enmod mbstring" to install and enable the module., on Redhat and alikes use ""sudo yum -y install php-mbstring" to install the module. After this, a restart of your webserver or php-fpm server might be needed'));
         }
 
-        if (!utf8_decode('xml')) {
+        if (!extension_loaded('xml')) {
             throw new PhpModuleNotAvailableException(tr('php module "xml" appears not to be installed. Please install the modules first. On Ubuntu and alikes, use "sudo apt-get -y install php-xml; sudo php5enmod xml" to install and enable the module., on Redhat and alikes use ""sudo yum -y install php-xml" to install the module. After this, a restart of your webserver or php-fpm server might be needed'));
         }
 
@@ -64,7 +64,7 @@ if (!function_exists('mb_init')) {
 if (!function_exists('mb_ucfirst')) {
     function mb_ucfirst(string $source): string
     {
-        return utf8_encode(ucfirst(utf8_decode($source)));
+        return mb_convert_encoding(ucfirst(mb_convert_encoding($source, 'UTF-8', 'ISO-8859-1')), 'ISO-8859-1', 'UTF-8');
     }
 }
 
@@ -75,7 +75,7 @@ if (!function_exists('mb_ucfirst')) {
 if (!function_exists('mb_lcfirst')) {
     function mb_lcfirst(string $source): string
     {
-        return utf8_encode(lcfirst(utf8_decode($source)));
+        return mb_convert_encoding(lcfirst(mb_convert_encoding($source, 'UTF-8', 'ISO-8859-1')), 'ISO-8859-1', 'UTF-8');
     }
 }
 
@@ -106,17 +106,17 @@ if (!function_exists('mb_strip_accents')) {
  *
  */
 if (!function_exists('mb_strtr')) {
-    function mb_strtr(string $str, array|string $from, $to = null): string
+    function mb_strtr(string $source, array|string $from, $to = null): string
     {
         if (is_array($from))
         {
-            foreach($from as $k => $v)
+            foreach($from as $key => $value)
             {
-                $utf8_from[utf8_decode((string) $k)] = utf8_decode((string) $v);
+                $utf8_from[mb_convert_encoding((string) $key, 'UTF-8', 'ISO-8859-1')] = mb_convert_encoding((string) $value, 'UTF-8', 'ISO-8859-1');
             }
-            return utf8_encode(strtr(utf8_decode($str), $utf8_from));
+            return mb_convert_encoding(strtr(mb_convert_encoding($source, 'UTF-8', 'ISO-8859-1'), $utf8_from), 'ISO-8859-1', 'UTF-8');
         }
-        return utf8_encode(strtr(utf8_decode($str), utf8_decode($from), utf8_decode($to)));
+        return mb_convert_encoding(strtr(mb_convert_encoding($source, 'UTF-8', 'ISO-8859-1'), mb_convert_encoding($from, 'UTF-8', 'ISO-8859-1'), mb_convert_encoding($to, 'UTF-8', 'ISO-8859-1')), 'ISO-8859-1', 'UTF-8');
     }
 }
 
@@ -130,31 +130,31 @@ if (!function_exists('mb_preg_replace')) {
         if (is_array($pattern)) {
             $utf8_pattern = [];
 
-            foreach ($pattern as $k => $v) {
-                $utf8_pattern[utf8_decode((string) $k)] = utf8_decode((string) $v);
+            foreach ($pattern as $key => $value) {
+                $utf8_pattern[mb_convert_encoding((string) $key, 'UTF-8', 'ISO-8859-1')] = mb_convert_encoding((string) $value, 'UTF-8', 'ISO-8859-1');
             }
         } else {
-            $utf8_pattern = utf8_decode($pattern);
+            $utf8_pattern = mb_convert_encoding($pattern, 'UTF-8', 'ISO-8859-1');
         }
 
         if (is_array($replacement)) {
             $utf8_replacement = [];
 
-            foreach ($replacement as $k => $v)
-                $utf8_replacement[utf8_decode((string) $k)] = utf8_decode((string) $v);
+            foreach ($replacement as $key => $value)
+                $utf8_replacement[mb_convert_encoding((string) $key, 'UTF-8', 'ISO-8859-1')] = mb_convert_encoding((string) $value, 'UTF-8', 'ISO-8859-1');
         } else {
-            $utf8_replacement = utf8_decode($replacement);
+            $utf8_replacement = mb_convert_encoding($replacement, 'UTF-8', 'ISO-8859-1');
         }
 
         if (is_array($subject)) {
             $utf8_subject = [];
 
-            foreach ($subject as $k => $v) {
-                $utf8_subject[utf8_decode((string) $k)] = utf8_decode((string) $v);
+            foreach ($subject as $key => $value) {
+                $utf8_subject[mb_convert_encoding((string) $key, 'UTF-8', 'ISO-8859-1')] = mb_convert_encoding((string) $value, 'UTF-8', 'ISO-8859-1');
             }
 
         } else {
-            $utf8_subject = utf8_decode($subject);
+            $utf8_subject = mb_convert_encoding((string) $subject, 'UTF-8', 'ISO-8859-1');
         }
 
         $r = preg_replace($utf8_pattern, $utf8_replacement, $utf8_subject, $limit, $count);
@@ -162,12 +162,12 @@ if (!function_exists('mb_preg_replace')) {
         if (is_array($r)) {
             $return = [];
 
-            foreach ($r as $k => $v) {
-                $return[utf8_encode((string) $k)] = utf8_encode((string) $v);
+            foreach ($r as $key => $value) {
+                $return[mb_convert_encoding((string) $key, 'ISO-8859-1', 'UTF-8')] = mb_convert_encoding((string) $value, 'ISO-8859-1', 'UTF-8');
             }
 
         } else {
-            $return = utf8_encode($r);
+            $return = mb_convert_encoding($r, 'ISO-8859-1', 'UTF-8');
         }
 
         return $return;
@@ -186,7 +186,7 @@ if (!function_exists('mb_str_word_count')) {
         // 1 - returns an array containing all the words found inside the string
         // 2 - returns an associative array, where the key is the numeric position of the word inside the string and the
         //     value is the actual word itself
-        $r = str_word_count(utf8_decode($string), $format, $charlist);
+        $r = str_word_count(mb_convert_encoding((string) $string, 'UTF-8', 'ISO-8859-1'), $format, $charlist);
 
         if ($format == 1 || $format == 2)
         {
@@ -194,7 +194,7 @@ if (!function_exists('mb_str_word_count')) {
 
             foreach($r as $k => $v)
             {
-                $u[$k] = utf8_encode((string) $v);
+                $u[$k] = mb_convert_encoding((string) $v, 'ISO-8859-1', 'UTF-8');
             }
 
             return $u;
@@ -234,10 +234,10 @@ if (!function_exists('mb_trim')) {
     function mb_trim(string $string, ?string $charlist = null): string
     {
         if (!$charlist) {
-            return utf8_encode(trim(utf8_decode($string)));
+            return mb_convert_encoding(trim(mb_convert_encoding((string) $string, 'UTF-8', 'ISO-8859-1')), 'ISO-8859-1', 'UTF-8');
         }
 
-        return utf8_encode(trim(utf8_decode($string), utf8_decode($charlist)));
+        return mb_convert_encoding(trim(mb_convert_encoding((string) $string, 'UTF-8', 'ISO-8859-1'), mb_convert_encoding((string) $charlist, 'UTF-8', 'ISO-8859-1')), 'ISO-8859-1', 'UTF-8');
     }
 }
 

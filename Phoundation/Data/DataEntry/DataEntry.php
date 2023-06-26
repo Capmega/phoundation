@@ -6,7 +6,6 @@ namespace Phoundation\Data\DataEntry;
 
 use Exception;
 use Phoundation\Accounts\Users\User;
-use Phoundation\Accounts\Users\Users;
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\Color;
 use Phoundation\Core\Arrays;
@@ -15,7 +14,6 @@ use Phoundation\Core\Meta\Meta;
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\Definitions\Definition;
-use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Definitions;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
@@ -197,6 +195,13 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      */
     protected bool $is_new = true;
 
+    /**
+     * If true, the data in this DataEntry has been validated
+     *
+     * @var bool $is_validated
+     */
+    protected bool $is_validated = false;
+
 
     /**
      * DataEntry class constructor
@@ -240,6 +245,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
             }
 
             $this->load($identifier, $init);
+
         } elseif ($init) {
             $this->setMetaData();
         }
@@ -289,6 +295,17 @@ abstract class DataEntry implements DataEntryInterface, Stringable
     public function isModified(): bool
     {
         return $this->is_modified;
+    }
+
+
+    /**
+     * Returns true if the data in this DataEntry has been validated
+     *
+     * @return bool
+     */
+    public function isValidated(): bool
+    {
+        return $this->is_validated;
     }
 
 
@@ -523,13 +540,15 @@ abstract class DataEntry implements DataEntryInterface, Stringable
     /**
      * Returns true if an entry with the specified identifier exists
      *
+     * @param string $field
      * @param string|int|null $identifier The unique identifier, but typically not the database id, usually the
      *                                    seo_email, or seo_name
+     * @param int|null $not_id
      * @param bool $throw_exception       If the entry does not exist, instead of returning false will throw a
      *                                    DataEntryNotExistsException
      * @return bool
      */
-    public static function exists(string|int $identifier = null, bool $throw_exception = false): bool
+    public static function exists(string $field, string|int $identifier = null, ?int $not_id = null, bool $throw_exception = false): bool
     {
         if (!$identifier) {
             throw new OutOfBoundsException(tr('Cannot check if ":class" class DataEntry exists, no identifier specified', [
@@ -537,15 +556,23 @@ abstract class DataEntry implements DataEntryInterface, Stringable
             ]));
         }
 
-        $exists = static::new($identifier)->getId();
+        $execute = [':identifier' => $identifier];
 
-        if (!$exists) {
-            if ($throw_exception) {
-                throw DataEntryAlreadyExistsException::new(tr('The ":type" type data entry with identifier ":id" already exists', [
-                    ':type' => static::getClassName(),
-                    ':id'   => $identifier
-                ]))->makeWarning();
-            }
+        if ($not_id) {
+            $execute[':id'] = $not_id;
+        }
+
+        $exists  = sql()->getColumn('SELECT `id` 
+                                           FROM   `' . static::new()->getTable() . '` 
+                                           WHERE  `' . $field . '` = :identifier
+                                           ' . ($not_id ? 'AND `id` != :id' : '') . ' 
+                                           LIMIT  1', $execute);
+
+        if (!$exists and $throw_exception) {
+            throw DataEntryAlreadyExistsException::new(tr('The ":type" type data entry with identifier ":id" already exists', [
+                ':type' => static::getClassName(),
+                ':id' => $identifier
+            ]))->makeWarning();
         }
 
         return (bool) $exists;
@@ -555,15 +582,16 @@ abstract class DataEntry implements DataEntryInterface, Stringable
     /**
      * Returns true if an entry with the specified identifier does not exist
      *
+     * @param string $field
      * @param string|int|null $identifier The unique identifier, but typically not the database id, usually the
      *                                    seo_email, or seo_name
-     * @param int|null $id                If specified, will ignore the found entry if it has this ID as it will be THIS
+     * @param int|null $id If specified, will ignore the found entry if it has this ID as it will be THIS
      *                                    object
-     * @param bool $throw_exception       If the entry exists (and does not match id, if specified), instead of
+     * @param bool $throw_exception If the entry exists (and does not match id, if specified), instead of
      *                                    returning false will throw a DataEntryNotExistsException
      * @return bool
      */
-    public static function notExists(string|int $identifier = null, ?int $id = null, bool $throw_exception = false): bool
+    public static function notExists(string $field, string|int $identifier = null, ?int $id = null, bool $throw_exception = false): bool
     {
         if (!$identifier) {
             throw new OutOfBoundsException(tr('Cannot check if ":class" class DataEntry not exists, no identifier specified', [
@@ -571,22 +599,23 @@ abstract class DataEntry implements DataEntryInterface, Stringable
             ]));
         }
 
-        $exists = static::new($identifier)->getId();
+        $execute = [':identifier' => $identifier];
 
-        if ($exists) {
-            // Requested user exists, check if identifier should be skipped though.
-            if ($id and ($id === $exists)) {
-                // We found the user with the specified ID, so this is a NO.
-                $exists = !$exists;
+        if ($id) {
+            $execute[':id'] = $id;
+        }
 
-            } else {
-                if ($throw_exception) {
-                    throw DataEntryAlreadyExistsException::new(tr('The ":type" type data entry with identifier ":id" already exists', [
-                        ':type' => static::getClassName(),
-                        ':id'   => $identifier
-                    ]))->makeWarning();
-                }
-            }
+        $exists  = sql()->getColumn('SELECT `id` 
+                                           FROM   `' . static::new()->getTable() . '` 
+                                           WHERE  `' . $field . '` = :identifier
+                                           ' . ($id ? 'AND `id` != :id' : '') . ' 
+                                           LIMIT  1', $execute);
+
+        if ($exists and $throw_exception) {
+            throw DataEntryAlreadyExistsException::new(tr('The ":type" type data entry with identifier ":id" already exists', [
+                ':type' => static::getClassName(),
+                ':id'   => $identifier
+            ]))->makeWarning();
         }
 
         return !$exists;
@@ -870,7 +899,8 @@ abstract class DataEntry implements DataEntryInterface, Stringable
             }
         }
 
-        $this->is_saved = false;
+        $this->is_validated = false;
+        $this->is_saved     = false;
 
         // Select the correct data source and validate the source data. Specified data may be a DataValidator, an array
         // or null. After selecting a data source it will be a DataValidator object which we will then give to the
@@ -948,9 +978,11 @@ abstract class DataEntry implements DataEntryInterface, Stringable
                 // State mismatch! This means that somebody else updated this record while we were modifying it.
                 switch ($this->state_mismatch_handling) {
                     case StateMismatchHandling::ignore:
-                        Log::warning(tr('Ignoring database and user meta state mismatch for ":type" type record with ID ":id"', [
+                        Log::warning(tr('Ignoring database and user meta state mismatch for ":type" type record with ID ":id" and old state ":old" and new state ":new"', [
                             ':id'   => $this->getId(),
-                            ':type' => $this->entry_name
+                            ':type' => $this->entry_name,
+                            ':old'  => $this->getMetaState(),
+                            ':new'  => $data['meta_state'],
                         ]));
                         break;
 
@@ -1047,6 +1079,9 @@ abstract class DataEntry implements DataEntryInterface, Stringable
             ]));
         }
 
+        // Setting fields will make $this->is_validated false, so store the current value;
+        $validated = $this->is_validated;
+
         foreach ($this->definitions->getKeys() as $key) {
             // Meta keys cannot be set through DataEntry::setData()
             if (in_array($key, self::$meta_fields)) {
@@ -1088,6 +1123,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
             }
         }
 
+        $this->is_validated = $validated;
         return $this;
     }
 
@@ -1226,6 +1262,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
 
                     // Update the field value
                     $this->data[$field] = $value;
+                    $this->is_validated = false;
                 }
             }
 
@@ -1386,33 +1423,44 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      */
     public function save(?string $comments = null): static
     {
-        if ($this->is_modified) {
-            if ($this->readonly) {
-                throw new DataEntryReadonlyException(tr('Cannot save this ":name" object, the object is readonly', [
-                    ':name' => $this->entry_name
-                ]));
-            }
-
-            // Debug this specific entry?
-            if ($this->debug) {
-                $debug = Sql::debug(true);
-            }
-
-            // Write the entry
-            $this->data['id'] = sql()->write($this->table, $this->getInsertColumns(), $this->getUpdateColumns(), $comments, $this->diff);
-
-            // Return debug mode if required
-            if (isset($debug)) {
-                Sql::debug($debug);
-            }
-
-            // Write the list, if set
-            $this->list?->save();
-
-            // Done!
-            $this->is_modified = false;
-            $this->is_saved    = true;
+        if (!$this->is_modified) {
+            // Nothing changed, no reason to save
+            return $this;
         }
+
+        if (!$this->is_validated) {
+            // The data in this object hasn't been validated yet! Do so now...
+//show($this->data);
+//            $this->data = $this->validate(ArrayValidator::new($this->data), true);
+//showdie($this->data);
+
+        }
+
+        if ($this->readonly) {
+            throw new DataEntryReadonlyException(tr('Cannot save this ":name" object, the object is readonly', [
+                ':name' => $this->entry_name
+            ]));
+        }
+
+        // Debug this specific entry?
+        if ($this->debug) {
+            $debug = Sql::debug(true);
+        }
+
+        // Write the entry
+        $this->data['id'] = sql()->write($this->table, $this->getInsertColumns(), $this->getUpdateColumns(), $comments, $this->diff);
+
+        // Return debug mode if required
+        if (isset($debug)) {
+            Sql::debug($debug);
+        }
+
+        // Write the list, if set
+        $this->list?->save();
+
+        // Done!
+        $this->is_modified = false;
+        $this->is_saved    = true;
 
         return $this;
     }
@@ -1504,6 +1552,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
             return $return;
         }
 
+        $this->is_validated = true;
         return $source;
     }
 
@@ -1546,7 +1595,9 @@ abstract class DataEntry implements DataEntryInterface, Stringable
             $this->data = $source;
         }
 
-        $this->is_new = false;
+        $this->is_new      = false;
+        $this->is_modified = false;
+        $this->is_saved    = false;
         return $this;
     }
 
@@ -1622,7 +1673,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
                 ->setReadonly(true)
                 ->setSize(3)
                 ->setLabel(tr('Created by'))
-                ->setContent(function (DefinitionInterface $definition, string $key, array $source) {
+                ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                     if ($this->isNew()) {
                         // This is a new DataEntry object, so the creator is.. well, you!
                         return InputText::new()

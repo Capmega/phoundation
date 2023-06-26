@@ -2,13 +2,11 @@
 
 namespace Phoundation\Data\Validator\Interfaces;
 
+
 use DateTime;
 use PDOStatement;
-use Phoundation\Core\Strings;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
-use Phoundation\Filesystem\Restrictions;
 use UnitEnum;
-
 
 /**
  * Validator class
@@ -20,8 +18,17 @@ use UnitEnum;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
-interface ValidatorInterface
+interface ValidatorInterface extends ValidatorBasicsInterface
 {
+    /**
+     * Forcibly set the specified key of this validator source to the specified value
+     *
+     * @param string|float|int $key
+     * @param mixed $value
+     * @return static
+     */
+    public function setSourceKey(string|float|int $key, mixed $value): static;
+
     /**
      * Allow the validator to check each element in a list of values.
      *
@@ -354,6 +361,13 @@ interface ValidatorInterface
      * @return static
      */
     public function isAlphaNumeric(): static;
+
+    /**
+     * Validates that the selected field is not a number
+     *
+     * @return static
+     */
+    public function isNotNumeric(): static;
 
     /**
      * Validates that the selected field contains only lowercase letters
@@ -955,6 +969,15 @@ interface ValidatorInterface
      * @see static::sanitizeForceArray()
      */
     public function sanitizeForceString(string $characters = ','): static;
+
+    /**
+     * Sanitize the selected value by decoding the specified CSV
+     *
+     * @param string|null $pre
+     * @param string|null $post
+     * @return static
+     */
+    public function sanitizePrePost(?string $pre, ?string $post): static;
 
     /**
      * Selects the specified key within the array that we are validating

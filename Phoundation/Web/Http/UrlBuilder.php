@@ -15,6 +15,7 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Web\Http\Interfaces\UrlBuilderInterface;
 use Phoundation\Web\Page;
 use Stringable;
 
@@ -29,7 +30,7 @@ use Stringable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Http
  */
-class UrlBuilder implements Stringable
+class UrlBuilder implements UrlBuilderInterface
 {
     /**
      * Will be true if the current URL as-is is cloaked
@@ -49,9 +50,9 @@ class UrlBuilder implements Stringable
     /**
      * UrlBuilder class constructor
      *
-     * @param UrlBuilder|string|null $url
+     * @param Stringable|string|null $url
      */
-    protected function __construct(UrlBuilder|string|null $url = null)
+    protected function __construct(Stringable|string|null $url = null)
     {
         $url = trim((string) $url);
 
@@ -101,7 +102,7 @@ class UrlBuilder implements Stringable
         if ($id) {
             // Inject the ID in the URL
             $url = substr((string) $url, 0, -5) . '-' . $id . '.html';
-            $url = new UrlBuilder($url);
+            $url = new static($url);
         }
 
         return $url;
@@ -111,10 +112,10 @@ class UrlBuilder implements Stringable
     /**
      * Returns true if the specified URL is the same as the current URL
      *
-     * @param UrlBuilder|Stringable|string $url
+     * @param Stringable|string $url
      * @return bool
      */
-    public static function isCurrent(UrlBuilder|Stringable|string $url): bool
+    public static function isCurrent(Stringable|string $url): bool
     {
         return (string) $url === (string) static::getCurrent();
     }
@@ -152,7 +153,7 @@ class UrlBuilder implements Stringable
         $url = (string) $url;
 
         if (Url::isValid($url)) {
-            return new UrlBuilder($url);
+            return new static($url);
         }
 
         return static::buildCdn($url, $extension);
@@ -166,7 +167,7 @@ class UrlBuilder implements Stringable
      */
     public static function getCurrentDomainRootUrl(): static
     {
-        return new UrlBuilder(Page::getRootUrl());
+        return new static(Page::getRootUrl());
     }
 
 
@@ -177,7 +178,7 @@ class UrlBuilder implements Stringable
      */
     public static function getCurrentDomainUrl(): static
     {
-        return new UrlBuilder(Page::getUrl());
+        return new static(Page::getUrl());
     }
 
 
@@ -188,7 +189,7 @@ class UrlBuilder implements Stringable
      */
     public static function getParentDomainRootUrl(): static
     {
-        return new UrlBuilder(Domains::from()->getParent() . Page::getRootUri());
+        return new static(Domains::from()->getParent() . Page::getRootUri());
     }
 
 
@@ -199,7 +200,7 @@ class UrlBuilder implements Stringable
      */
     public static function getParentDomainUrl(): static
     {
-        return new UrlBuilder(Domains::from()->getParent() . Page::getUri());
+        return new static(Domains::from()->getParent() . Page::getUri());
     }
 
 
@@ -210,7 +211,7 @@ class UrlBuilder implements Stringable
      */
     public static function getRootDomainRootUrl(): static
     {
-        return new UrlBuilder(Domains::from()->getRoot() . Page::getRootUri());
+        return new static(Domains::from()->getRoot() . Page::getRootUri());
     }
 
 
@@ -221,7 +222,7 @@ class UrlBuilder implements Stringable
      */
     public static function getRootDomainUrl(): static
     {
-        return new UrlBuilder(Domains::from()->getRoot() . Page::getUri());
+        return new static(Domains::from()->getRoot() . Page::getUri());
     }
 
 
@@ -232,7 +233,7 @@ class UrlBuilder implements Stringable
      */
     public static function getPrimaryDomainRootUrl(): static
     {
-        return new UrlBuilder(Domains::getPrimary() . Page::getRootUri());
+        return new static(Domains::getPrimary() . Page::getRootUri());
     }
 
 
@@ -243,7 +244,7 @@ class UrlBuilder implements Stringable
      */
     public static function getPrimaryDomainUrl(): static
     {
-        return new UrlBuilder(Domains::getPrimary() . Page::getUri());
+        return new static(Domains::getPrimary() . Page::getUri());
     }
 
 
@@ -296,7 +297,7 @@ class UrlBuilder implements Stringable
             }
         }
 
-        return new UrlBuilder($url);
+        return new static($url);
     }
 
 
@@ -351,7 +352,7 @@ class UrlBuilder implements Stringable
         $url = (string) $url;
 
         if (Url::isValid($url)) {
-            return new UrlBuilder($url);
+            return new static($url);
         }
 
         return static::buildCdn($url, 'css');
@@ -369,7 +370,7 @@ class UrlBuilder implements Stringable
         $url = (string) $url;
 
         if (Url::isValid($url)) {
-            return new UrlBuilder($url);
+            return new static($url);
         }
 
         return static::buildCdn($url, 'js');
@@ -387,7 +388,7 @@ class UrlBuilder implements Stringable
         $url = (string) $url;
 
         if (Url::isValid($url)) {
-            return new UrlBuilder($url);
+            return new static($url);
         }
 
 //        if ($path) {
@@ -395,7 +396,7 @@ class UrlBuilder implements Stringable
 //            // Return the local filesystem path instead of a public URL
 //            if (Url::isValid($url)) {
 //                // This is an external URL, there is no local file
-//                return new UrlBuilder($url);
+//                return new static($url);
 //            }
 //
 //            $path = Strings::startsNotWith($this->url, '/');
@@ -630,7 +631,7 @@ class UrlBuilder implements Stringable
         $url = (string) $url;
 
         if (Url::isValid($url)) {
-            return new UrlBuilder($url);
+            return new static($url);
         }
 
         // Get the base URL configuration for the domain
@@ -640,7 +641,7 @@ class UrlBuilder implements Stringable
         $url  = $prefix . $url;
         $url  = str_replace(':LANGUAGE', Session::getLanguage(), $base . $url);
 
-        return new UrlBuilder($url);
+        return new static($url);
     }
 
 
@@ -662,7 +663,7 @@ class UrlBuilder implements Stringable
         }
 
         if (Url::isValid($url)) {
-            return new UrlBuilder($url);
+            return new static($url);
         }
 
         $base = Domains::getConfigurationKey(Domains::getCurrent(), 'cdn', $_SERVER['REQUEST_SCHEME'] . '://cdn.' . Domains::getCurrent() . '/:LANGUAGE/');
@@ -671,7 +672,7 @@ class UrlBuilder implements Stringable
         $url .= static::addExtension($extension);
         $url  = str_replace(':LANGUAGE', Session::getLanguage(), $base . $url);
 
-        return new UrlBuilder($url);
+        return new static($url);
     }
 
 
@@ -689,7 +690,7 @@ class UrlBuilder implements Stringable
             'self', 'this' , 'here'       => static::getCurrent(),
             'root'                        => static::getCurrentDomainRootUrl(),
             'prev', 'previous', 'referer' => static::getReferer(),
-            default                       => new UrlBuilder($url),
+            default                       => new static($url),
         };
 
     }

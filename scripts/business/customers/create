@@ -47,7 +47,7 @@ $argv = ArgvValidator::new()
 
 
 // Check if the customer already exists
-Customer::notExists($argv['name'], null, true);
+Customer::notExists('name', $argv['name'], null, true);
 
 
 

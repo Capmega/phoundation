@@ -52,7 +52,7 @@ interface SelectInterface extends ResourceElementInterface
      * Enables auto select
      *
      * @return static
-     * @see \Templates\AdminLte\Html\Components\Input\Select::setAutoSelect()
+     * @see \Templates\AdminLte\Html\Components\Input\InputSelect::setAutoSelect()
      */
     public function enableAutoSelect(): static;
 
@@ -60,7 +60,7 @@ interface SelectInterface extends ResourceElementInterface
      * Disables auto select
      *
      * @return static
-     * @see \Templates\AdminLte\Html\Components\Input\Select::setAutoSelect()
+     * @see \Templates\AdminLte\Html\Components\Input\InputSelect::setAutoSelect()
      */
     public function disableAutoSelect(): static;
 
@@ -147,8 +147,8 @@ interface SelectInterface extends ResourceElementInterface
      * Return the body HTML for a <select> list
      *
      * @return string|null The body HTML (all <option> tags) for a <select> tag
-     * @see \Templates\AdminLte\Html\Components\Input\Select::render()
-     * @see \Templates\AdminLte\Html\Components\Input\Select::renderHeaders()
+     * @see \Templates\AdminLte\Html\Components\Input\InputSelect::render()
+     * @see \Templates\AdminLte\Html\Components\Input\InputSelect::renderHeaders()
      * @see ResourceElement::renderBody()
      * @see ElementInterface::render()
      */

@@ -13,6 +13,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Exception\KeyAlreadySelectedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
+use Phoundation\Data\Validator\Interfaces\ArgvValidatorInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 
@@ -27,7 +28,7 @@ use Phoundation\Exception\OutOfBoundsException;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
-class ArgvValidator extends Validator
+class ArgvValidator extends Validator implements ArgvValidatorInterface
 {
     /**
      * Internal $argv array until validation has been completed

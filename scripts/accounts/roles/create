@@ -47,7 +47,7 @@ $argv = ArgvValidator::new()
 
 
 // Check if the role already exists
-Role::notExists($argv['name'], null, true);
+Role::notExists('name', $argv['name'], null, true);
 
 
 
@@ -68,7 +68,7 @@ $role = Role::new()->apply($argv)->save();
 
 
 // Set the rights for this role
-$role->rights()->set($argv['rights']);
+$role->getRights()->set($argv['rights']);
 
 
 

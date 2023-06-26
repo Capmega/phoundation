@@ -8,6 +8,7 @@ use Exception;
 use PDO;
 use PDOException;
 use PDOStatement;
+use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\Script;
 use Phoundation\Core\Arrays;
@@ -22,8 +23,11 @@ use Phoundation\Core\Strings;
 use Phoundation\Core\Timers;
 use Phoundation\Databases\Sql\Exception\SqlAccessDeniedException;
 use Phoundation\Databases\Sql\Exception\SqlColumnDoesNotExistsException;
+use Phoundation\Databases\Sql\Exception\SqlDatabaseDoesNotExistException;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
+use Phoundation\Databases\Sql\Exception\SqlNoTimezonesException;
+use Phoundation\Databases\Sql\Interfaces\SqlInterface;
 use Phoundation\Databases\Sql\Schema\Schema;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
@@ -50,7 +54,7 @@ use Throwable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Databases
  */
-class Sql
+class Sql implements SqlInterface
 {
     /**
      * Dynamic database configurations
@@ -114,6 +118,7 @@ class Sql
      * @var bool $debug
      */
     protected static bool $debug = false;
+
 
     /**
      * Sql constructor
@@ -567,17 +572,31 @@ class Sql
                     // Set a random ID and insert the row
                     $insert_row = Arrays::prepend($insert_row, 'id', random_int(1, PHP_INT_MAX));
                     return $this->insert($table, $insert_row, $comments, $diff);
+
                 } catch (SqlException $e) {
                     if ($e->getCode() !== 1062) {
                         // Some different error, keep throwing
                         throw $e;
                     }
 
-                    // Duplicate entry, try with a different random number
-                    Log::warning(tr('Duplicate ID entry ":id" encountered for insert in table ":table", retrying', [
-                        ':id'    => $insert_row['id'],
-                        ':table' => $table
-                    ]));
+                    // Duplicate entry, which?
+                    $column = $e->getMessage();
+                    $column = Strings::until(Strings::fromReverse($column, 'key \''), '\'');
+                    $column = Strings::from($column, '.');
+                    $column = trim($column);
+
+                    if ($column === 'id') {
+                        // Duplicate ID, try with a different random number
+                        Log::warning(tr('Duplicate ID entry ":id" encountered for insert in table ":table", retrying', [
+                            ':id'    => $insert_row['id'],
+                            ':table' => $table
+                        ]));
+
+                        continue;
+                    }
+
+                    // Duplicate other column, continue throwing
+                    throw $e;
                 }
             }
 
@@ -1847,14 +1866,25 @@ class Sql
                     break;
 
                 } catch (Exception $e) {
-                    if ($e->getCode() === 1045) {
-                        // Access  denied!
-                        throw new SqlAccessDeniedException(tr('(:id) Failed to connect to database instance ":instance" with connection string ":string" and user ":user", access was denied by the database server', [
-                            ':id'       => $this->uniqueid,
-                            ':instance' => $this->instance,
-                            ':string'   => $connect_string,
-                            ':user'     => $this->configuration['user']
-                        ]));
+                    switch ($e->getCode()) {
+                        case 1045:
+                            // Access  denied!
+                            throw new SqlAccessDeniedException(tr('(:id) Failed to connect to database instance ":instance" with connection string ":string" and user ":user", access was denied by the database server', [
+                                ':id'       => $this->uniqueid,
+                                ':instance' => $this->instance,
+                                ':string'   => $connect_string,
+                                ':user'     => $this->configuration['user']
+                            ]));
+
+                        case 1049:
+                            // Database doesn't exist!
+                            throw new SqlDatabaseDoesNotExistException(tr('(:id) Failed to connect to database instance ":instance" with connection string ":string" and user ":user" because the database ":database" does not exist', [
+                                ':id'       => $this->uniqueid,
+                                ':instance' => $this->instance,
+                                ':string'   => $connect_string,
+                                ':database' => $this->configuration['name'],
+                                ':user'     => $this->configuration['user']
+                            ]));
                     }
 
                     Log::error(tr('(:id) Failed to connect to instance ":instance" with PDO connect string ":string", error follows below', [
@@ -1917,8 +1947,7 @@ class Sql
                 // Indicate that time_zone settings failed (this will subsequently be used by the init system to
                 // automatically initialize that as well)
                 // TODO Write somewhere else than Core "system" register as that will be readonly
-                Core::deleteRegister('system', 'no_time_zone');
-                Core::writeRegister(true, 'system', 'time_zone_fail');
+                throw new SqlNoTimezonesException(tr('MySQL has not yet loaded any timezones'));
             }
 
             if (!empty($this->configuration['mode'])) {
@@ -1946,7 +1975,7 @@ class Sql
                 }
             }
 
-            Log::Warning(tr('(:id) Encountered exception ":e" while connecting to database server, attempting to resolve', [
+            Log::Warning(tr('(:id) Encountered exception ":e" while connecting to database server', [
                 ':id' => $this->uniqueid,
                 ':e'  => $e->getMessage()
             ]));
@@ -2060,9 +2089,7 @@ class Sql
 // :TODO: Implement further error handling.. From here on, appearently inet_telnet() did NOT cause an exception, so we have a result.. We can check the result for mysql server data and with that confirm that it is working, but what would.. well, cause a problem, because if everything worked we would not be here...
 
                 default:
-                    throw new SqlException(tr('Failed to connect to the SQL connector ":instance"', [
-                        ':instance' => $this->instance
-                    ]), previous: $e);
+                    throw $e;
             }
         }
     }
@@ -2287,38 +2314,38 @@ class Sql
 //    }
 
 
-//    /**
-//     *
-//     *
-//     * @todo Reimplement this without $params
-//     * @param $array
-//     * @param $columns
-//     * @param string $table
-//     * @return array
-//     */
-//    public function filters(array $array, string|array $columns, string $table = ''): array
-//    {
-//        $return = [
-//            'filters' => [],
-//            'execute' => []
-//        ];
-//
-//        $filters = Arrays::keep($array, $columns);
-//
-//        foreach ($filters as $key => $value) {
-//            $safe_key = str_replace('`.`', '_', $key);
-//
-//            if ($value === null) {
-//                $return['filters'][] = ($table ? '`' . $table . '`.' : '') . '`' . $key . '` IS NULL';
-//
-//            } else {
-//                $return['filters'][] = ($table ? '`' . $table . '`.' : '') . '`' . $key . '` = :' . $safe_key;
-//                $return['execute'][':' . $safe_key] = $value;
-//            }
-//        }
-//
-//        return $return;
-//    }
+    /**
+     *
+     *
+     * @todo Reimplement this without $params
+     * @param $array
+     * @param $columns
+     * @param string $table
+     * @return array
+     */
+    public function filters(array $array, string|array $columns, string $table = ''): array
+    {
+        $return = [
+            'filters' => [],
+            'execute' => []
+        ];
+
+        $filters = Arrays::keep($array, $columns);
+
+        foreach ($filters as $key => $value) {
+            $safe_key = str_replace('`.`', '_', $key);
+
+            if ($value === null) {
+                $return['filters'][] = ($table ? '`' . $table . '`.' : '') . '`' . $key . '` IS NULL';
+
+            } else {
+                $return['filters'][] = ($table ? '`' . $table . '`.' : '') . '`' . $key . '` = :' . $safe_key;
+                $return['execute'][':' . $safe_key] = $value;
+            }
+        }
+
+        return $return;
+    }
 
 
     /**

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http\Html\Components;
 
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Web\Http\Html\Components\Input\Select;
+use Phoundation\Web\Http\Html\Components\Input\InputSelect;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
 
 
@@ -19,7 +19,7 @@ use Phoundation\Web\Http\Html\Exception\HtmlException;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class SelectSubmit extends Select
+class InputSelectSubmit extends InputSelect
 {
     /**
      * Generates and returns the HTML string for a <select> control

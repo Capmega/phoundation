@@ -10,6 +10,7 @@ use GeoIP;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\GuestUser;
 use Phoundation\Accounts\Users\SignIn;
+use Phoundation\Accounts\Users\SystemUser;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Exception\ConfigException;
 use Phoundation\Core\Exception\SessionException;
@@ -445,7 +446,7 @@ class Session
         }
 
         // Check for extended sessions
-        // TODO Are we still doing this?
+        // TODO Why are we still doing this? We shoudl be able to do extended sessions better
         static::checkExtended();
 
         Log::success(tr('Started session for user ":user" from IP ":ip"', [
@@ -1076,8 +1077,14 @@ Log::warning('RESTART SESSION');
                 }
 
             } else {
-                // There is no user, this is a guest session
-                static::$user = new GuestUser();
+                // TODO What if we run setup from HTTP? Change this to some sort of system flag
+                if (PLATFORM_HTTP) {
+                    // There is no user, this is a guest session
+                    static::$user = new GuestUser();
+                }
+
+                // There is no user, this is a system session
+                static::$user = new SystemUser();
             }
         }
 

@@ -336,7 +336,7 @@ class AutoComplete
      */
     public static function ensureAvailable(): void
     {
-        $file = Filesystem::absolute('~/.bash_completion');
+        $file = Filesystem::absolute('~/.bash_completion', must_exist: false);
 
         if (file_exists($file)) {
             // Check if it contains the setup for Phoundation
@@ -365,6 +365,7 @@ COMPREPLY+=($(compgen -W "$PHO"));
 complete -F _phoundation pho');
 
         Log::information('Setup auto complete for Phoundation in ~/.bash_completion');
+        Log::information('You may need to logout and login again for auto complete to work correctly');
     }
 
 

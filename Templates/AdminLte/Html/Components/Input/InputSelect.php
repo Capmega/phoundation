@@ -18,12 +18,12 @@ use Phoundation\Web\Http\Html\Renderer;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\AdminLte
  */
-class Select extends Renderer
+class InputSelect extends Renderer
 {
     /**
      * Select class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\Input\Select $element)
+    public function __construct(\Phoundation\Web\Http\Html\Components\Input\InputSelect $element)
     {
         $element->addClass( 'form-control');
         parent::__construct($element);

@@ -8,7 +8,7 @@ use PDOStatement;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
-use Phoundation\Web\Http\Html\Components\Input\Select;
+use Phoundation\Web\Http\Html\Components\Input\InputSelect;
 use Phoundation\Web\Http\Html\Components\Table;
 
 
@@ -59,16 +59,16 @@ class Timezones extends DataList
      * Returns an HTML <select> object with all states available in this timezone
      *
      * @param string $name
-     * @return Select
+     * @return InputSelect
      */
-    public static function getHtmlTimezonesSelect(string $name = 'timezones_id'): Select
+    public static function getHtmlTimezonesSelect(string $name = 'timezones_id'): InputSelect
     {
-        return Select::new()
+        return InputSelect::new()
             ->setSourceQuery('SELECT `id`, `name` 
                                           FROM  `geo_timezones` 
                                           WHERE `status` IS NULL ORDER BY `name`')
             ->setName($name)
-            ->setNone(tr('Please select a timezone'))
+            ->setNone(tr('Select a timezone'))
             ->setEmpty(tr('No timezones available'));
     }
 
@@ -101,15 +101,17 @@ class Timezones extends DataList
 
 
     /**
-     * Returns an HTML select component object containing the entries in this list
+     * Returns an HTML <select> for the available object entries
      *
+     * @param string $value_column
+     * @param string $key_column
      * @return SelectInterface
      */
-    public function getHtmlSelect(): SelectInterface
+    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id'): SelectInterface
     {
-        return parent::getHtmlSelect()
+        return parent::getHtmlSelect($value_column, $key_column)
             ->setName('timezones_id')
-            ->setNone(tr('Please select a timezone'))
+            ->setNone(tr('Select a timezone'))
             ->setEmpty(tr('No timezones available'));
     }
 }

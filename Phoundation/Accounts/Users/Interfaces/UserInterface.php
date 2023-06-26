@@ -9,6 +9,7 @@ use Phoundation\Accounts\Users\User;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Date\DateTime;
 use Phoundation\Web\Http\Html\Components\Form;
+use Phoundation\Web\Http\Html\Components\Interfaces\FormInterface;
 
 
 /**
@@ -488,14 +489,14 @@ interface UserInterface extends DataEntryInterface
      *
      * @return RolesInterface
      */
-    public function roles(): RolesInterface;
+    public function getRoles(): RolesInterface;
 
     /**
      * Returns the roles for this user
      *
      * @return RightsInterface
      */
-    public function rights(): RightsInterface;
+    public function getRights(): RightsInterface;
 
     /**
      * Returns true if the user has ALL the specified rights
@@ -524,9 +525,9 @@ interface UserInterface extends DataEntryInterface
     /**
      * Creates and returns an HTML for the fir
      *
-     * @return Form
+     * @return FormInterface
      */
-    public function getRolesHtmlForm(): Form;
+    public function getRolesHtmlForm(): FormInterface;
 
     /**
      * Save the user to database

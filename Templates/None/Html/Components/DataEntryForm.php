@@ -10,7 +10,7 @@ use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Input\InputMultiButtonText;
-use Phoundation\Web\Http\Html\Components\Input\Select;
+use Phoundation\Web\Http\Html\Components\Input\InputSelect;
 use Phoundation\Web\Http\Html\Components\Input\TextArea;
 use Phoundation\Web\Http\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Http\Html\Components\Interfaces\ElementsBlockInterface;
@@ -222,11 +222,11 @@ class DataEntryForm extends Renderer
 
                 case 'select':
                     // Build the element class path and load the required class file
-                    $element = '\\Phoundation\\Web\\Http\\Html\\Components\\Input\\Select';
+                    $element = '\\Phoundation\\Web\\Http\\Html\\Components\\Input\\InputSelect';
                     $file    = Library::getClassFile($element);
                     include_once($file);
 
-                    $html = Select::new()
+                    $html = InputSelect::new()
                         ->setSource(isset_get($data['source']), $execute)
                         ->setDisabled((bool) $data['disabled'])
                         ->setReadOnly((bool) $data['readonly'])
@@ -345,7 +345,7 @@ class DataEntryForm extends Renderer
 
             if ($col_size < 0) {
                 throw new OutOfBoundsException(tr('Cannot add column ":label" for ":class" form, the row would surpass size 12 by ":count"', [
-                    ':class' => get_class($this->render_object->getDefinitions()->getTable()),
+                    ':class' => $this->render_object->getDefinitions()->getTable(),
                     ':label' => $data['label'] . ' [' . $id . ']',
                     ':count' => abs($col_size)
                 ]));

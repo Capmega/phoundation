@@ -55,7 +55,7 @@ class Seo
      */
     // :TODO: Update to use bound variable queries
     // :TODO: Add WAY more comments in code, I can barely figure out whats going on there
-    public static function unique(array|string $source, string $table, array|int|null $ownid = null, string $column = 'seoname', string $replace = '-', $first_suffix = null, ?string $connector_name = null): string|null
+    public static function unique(array|string $source, string $table, array|int|null $ownid = null, string $column = 'seoname', string $replace = '-', $first_suffix = null): string|null
     {
         // Prepare string
         $id = 0;
@@ -135,7 +135,7 @@ class Seo
                     }
                 }
 
-                $exists = sql($connector_name)->get('SELECT COUNT(*) AS `count` FROM `' . $table . '` WHERE `' . Arrays::implodeWithKeys($source, '" AND `', '` = "', true) . '"' . $ownid . ';');
+                $exists = sql()->get('SELECT COUNT(*) AS `count` FROM `' . $table . '` WHERE `' . Arrays::implodeWithKeys($source, '" AND `', '` = "', true) . '"' . $ownid . ';');
 
                 if (!$exists) {
                     return $source[key($first)];
@@ -156,7 +156,7 @@ class Seo
                     }
                 }
 
-                $exists = sql($connector_name)->get('SELECT `' . $column . '` FROM `' . $table . '` WHERE `' . $column . '` = "' . $return . '"' . $ownid . ';');
+                $exists = sql()->get('SELECT `' . $column . '` FROM `' . $table . '` WHERE `' . $column . '` = "' . $return . '"' . $ownid . ';');
 
                 if (!$exists) {
                     return $return;

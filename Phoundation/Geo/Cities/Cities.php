@@ -83,15 +83,17 @@ class Cities extends DataList
 
 
     /**
-     * Returns an HTML select component object containing the entries in this list
+     * Returns an HTML <select> for the available object entries
      *
+     * @param string $value_column
+     * @param string $key_column
      * @return SelectInterface
      */
-    public function getHtmlSelect(): SelectInterface
+    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id'): SelectInterface
     {
-        return parent::getHtmlSelect()
+        return parent::getHtmlSelect($value_column, $key_column)
             ->setName('cities_id')
-            ->setNone(tr('Please select a city'))
+            ->setNone(tr('Select a city'))
             ->setEmpty(tr('No cities available'));
     }
 }

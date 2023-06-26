@@ -37,7 +37,6 @@ NOTE: This script is interactive as it asks the password for the user on the com
 EXTRA INFORMATION
 
 
-
 [--roles ROLE[,ROLE,ROLE]               A comma separated list of the roles that this user has on this system. The roles 
 [--role  ROLE[,ROLE,ROLE]               must already exist. These roles will grant the user rights which will give him 
 [-r      ROLE[,ROLE,ROLE]               or her access to the various parts of the system
@@ -64,7 +63,7 @@ if ($argv['roles']) {
 
 // Create user and set users roles
 $user = User::new()->apply()->save();
-$user->roles()->add($argv['roles']);
+$user->getRoles()->addRole($argv['roles']);
 
 
 // Get update the users password

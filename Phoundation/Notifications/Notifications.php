@@ -13,7 +13,7 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Sql\QueryBuilder;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
-use Phoundation\Web\Http\Html\Components\Input\Select;
+use Phoundation\Web\Http\Html\Components\Input\InputSelect;
 
 
 /**
@@ -160,16 +160,21 @@ class Notifications extends DataList
 
 
     /**
-     * Returns an HTML select component object containing the entries in this list
+     * Returns an HTML <select> for the available object entries
      *
+     * @param string $value_column
+     * @param string $key_column
      * @return SelectInterface
      */
-    public function getHtmlSelect(): SelectInterface
+    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id'): SelectInterface
     {
-        return Select::new()
-            ->setSourceQuery('SELECT `id`, `title` FROM `' . $this->table . '` WHERE `status` IS NULL ORDER BY `title` ASC')
+        return InputSelect::new()
+            ->setSourceQuery('SELECT   `' . $key_column . '`, `' . $value_column . '` 
+                                         FROM     `' . $this->table . '` 
+                                         WHERE    `status` IS NULL 
+                                         ORDER BY `title` ASC')
             ->setName('notifications_id')
-            ->setNone(tr('Please select a notification'))
+            ->setNone(tr('Select a notification'))
             ->setEmpty(tr('No notifications available'));
     }
 }
