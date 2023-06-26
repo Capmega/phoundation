@@ -2314,38 +2314,38 @@ class Sql implements SqlInterface
 //    }
 
 
-    /**
-     *
-     *
-     * @todo Reimplement this without $params
-     * @param $array
-     * @param $columns
-     * @param string $table
-     * @return array
-     */
-    public function filters(array $array, string|array $columns, string $table = ''): array
-    {
-        $return = [
-            'filters' => [],
-            'execute' => []
-        ];
-
-        $filters = Arrays::keep($array, $columns);
-
-        foreach ($filters as $key => $value) {
-            $safe_key = str_replace('`.`', '_', $key);
-
-            if ($value === null) {
-                $return['filters'][] = ($table ? '`' . $table . '`.' : '') . '`' . $key . '` IS NULL';
-
-            } else {
-                $return['filters'][] = ($table ? '`' . $table . '`.' : '') . '`' . $key . '` = :' . $safe_key;
-                $return['execute'][':' . $safe_key] = $value;
-            }
-        }
-
-        return $return;
-    }
+//    /**
+//     *
+//     *
+//     * @todo Reimplement this without $params
+//     * @param $array
+//     * @param $columns
+//     * @param string $table
+//     * @return array
+//     */
+//    public function filters(array $array, string|array $columns, string $table = ''): array
+//    {
+//        $return = [
+//            'filters' => [],
+//            'execute' => []
+//        ];
+//
+//        $filters = Arrays::keep($array, $columns);
+//
+//        foreach ($filters as $key => $value) {
+//            $safe_key = str_replace('`.`', '_', $key);
+//
+//            if ($value === null) {
+//                $return['filters'][] = ($table ? '`' . $table . '`.' : '') . '`' . $key . '` IS NULL';
+//
+//            } else {
+//                $return['filters'][] = ($table ? '`' . $table . '`.' : '') . '`' . $key . '` = :' . $safe_key;
+//                $return['execute'][':' . $safe_key] = $value;
+//            }
+//        }
+//
+//        return $return;
+//    }
 
 
     /**

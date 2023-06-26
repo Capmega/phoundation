@@ -44,7 +44,7 @@ class DefinitionFactory
     {
         return Definition::new($column_name)
             ->setOptional(true)
-            ->setContent(function (DefinitionInterface $definition, string $key, array $source) use ($filters) {
+            ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) use ($filters) {
                 return Categories::new()->getHtmlSelect()
                     ->setName($key)
                     ->setSelected(isset_get($source[$key]))
@@ -98,7 +98,7 @@ class DefinitionFactory
     {
         return Definition::new($column_name)
             ->setOptional(true)
-            ->setContent(function (DefinitionInterface $definition, string $key, array $source) use ($filters) {
+            ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) use ($filters) {
                 return Companies::new()->getHtmlSelect()
                     ->setName($key)
                     ->setSelected(isset_get($source[$key]))
@@ -153,7 +153,7 @@ class DefinitionFactory
         return Definition::new($column_name)
             ->setOptional(true)
             ->setInputType(InputType::number)
-            ->setContent(function (DefinitionInterface $definition, string $key, array $source) use ($filters) {
+            ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) use ($filters) {
                 return Languages::new()->getHtmlSelect()
                     ->setName($key)
                     ->setSelected(isset_get($source[$key]))
@@ -212,7 +212,7 @@ class DefinitionFactory
     {
         return Definition::new($column_name)
             ->setOptional(true)
-            ->setContent(function (DefinitionInterface $definition, string $key, array $source) use ($filters) {
+            ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) use ($filters) {
                 return Providers::new()->getHtmlSelect()
                     ->setName($key)
                     ->setSelected(isset_get($source[$key]))
@@ -266,7 +266,7 @@ class DefinitionFactory
     {
         return Definition::new($column_name)
             ->setOptional(true)
-            ->setContent(function (DefinitionInterface $definition, string $key, array $source) use ($filters) {
+            ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) use ($filters) {
                 return Customers::new()->getHtmlSelect()
                     ->setName($key)
                     ->setSelected(isset_get($source[$key]))
@@ -321,7 +321,7 @@ class DefinitionFactory
         return Definition::new($column_name)
             ->setOptional(true)
             ->setInputType(InputType::number)
-            ->setContent(function (DefinitionInterface $definition, string $key, array $source) use ($filters) {
+            ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) use ($filters) {
                 return Timezones::new()->getHtmlSelect()
                     ->setSelected(isset_get($source['timezones_id']))
                     ->render();
@@ -380,7 +380,7 @@ class DefinitionFactory
         return Definition::new($column_name)
             ->setOptional(true)
             ->setInputType(InputType::number)
-            ->setContent(function (DefinitionInterface $definition, string $key, array $source) use ($filters) {
+            ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) use ($filters) {
                 return Countries::getHtmlCountriesSelect()
                     ->setName($key)
                     ->setSelected(isset_get($source[$key]))
@@ -437,7 +437,7 @@ class DefinitionFactory
         return Definition::new($column_name)
             ->setOptional(true)
             ->setInputType(InputType::number)
-            ->setContent(function (DefinitionInterface $definition, string $key, array $source) use ($filters) {
+            ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) use ($filters) {
                 return Country::get($source['countries_id'])->getHtmlStatesSelect($key)
                     ->setName($key)
                     ->setSelected(isset_get($source[$key]))
@@ -494,7 +494,7 @@ class DefinitionFactory
         return Definition::new($column_name)
             ->setOptional(true)
             ->setInputType(InputType::number)
-            ->setContent(function (DefinitionInterface $definition, string $key, array $source) use ($filters) {
+            ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) use ($filters) {
                 return State::get($source['states_id'])->getHtmlCitiesSelect($key)
                     ->setName($key)
                     ->setSelected(isset_get($source[$key]))
@@ -553,7 +553,7 @@ class DefinitionFactory
             ->setInputType(InputTypeExtended::dbid)
             ->setSize(3)
             ->setAutoComplete(true)
-            ->setContent(function (DefinitionInterface $definition, string $key, array $source) use ($filters) {
+            ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) use ($filters) {
                 return Users::new()->getHtmlSelect($filters)
                     ->setSelected(isset_get($source[$key]))
                     ->render();

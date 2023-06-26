@@ -394,15 +394,4 @@ interface SqlInterface
      * @return array
      */
     public function applyConfigurationTemplate(array $configuration): array;
-
-    /**
-     *
-     *
-     * @param $array
-     * @param $columns
-     * @param string $table
-     * @return array
-     * @todo Reimplement this without $params
-     */
-    public function filters(array $array, string|array $columns, string $table = ''): array;
 }
