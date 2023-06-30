@@ -12,6 +12,7 @@ use Phoundation\Accounts\Users\GuestUser;
 use Phoundation\Accounts\Users\SignIn;
 use Phoundation\Accounts\Users\SystemUser;
 use Phoundation\Accounts\Users\User;
+use Phoundation\Core\Enums\EnumRequestTypes;
 use Phoundation\Core\Exception\ConfigException;
 use Phoundation\Core\Exception\SessionException;
 use Phoundation\Core\Log\Log;
@@ -304,7 +305,7 @@ class Session
         }
 
         // No supported language found, set the default language
-        return Config::get('languages.default', 'en');
+        return Config::getString('languages.default', 'en');
     }
 
 
@@ -394,9 +395,16 @@ class Session
             return false;
         }
 
-        if (Core::isCallType('api')) {
-            // Do not send cookies to API's!
-            return false;
+        switch(Core::getRequestType()) {
+            case EnumRequestTypes::api:
+                // API's don't do cookies at all
+                return false;
+
+            case EnumRequestTypes::ajax:
+                // AJAX requests only do readonly cookies, they won't emit cookies
+                if (array_key_exists(Config::getString('web.sessions.cookies.name', 'phoundation'), $_COOKIE)) {
+
+                }
         }
 
         if (isset_get(Core::readRegister('session', 'client')['type']) === 'crawler') {
@@ -414,9 +422,9 @@ class Session
 //show('IMPLEMENT MEMCACHED SUPPORT WITH FALLBACK TO MYSQL');
 //showdie('IMPLEMENT RETURN TO PREVIOUS PAGE AFTER LOGOUT SUPPORT');
         // What handler to use?
-        switch (Config::get('web.sessions.handler', 'files')) {
+        switch (Config::getString('web.sessions.handler', 'files')) {
             case 'files':
-                $path = Path::new(Config::get('web.sessions.path', PATH_DATA . 'sessions/'), Restrictions::new([PATH_DATA, '/var/lib/php/sessions/'], true, 'system/sessions'))->ensure();
+                $path = Path::new(Config::getString('web.sessions.path', PATH_DATA . 'sessions/'), Restrictions::new([PATH_DATA, '/var/lib/php/sessions/'], true, 'system/sessions'))->ensure();
                 session_save_path($path);
                 break;
 
@@ -433,7 +441,7 @@ class Session
 
             default:
                 throw new ConfigException(tr('Unknown session handler ":handler" specified in configuration path "web.sessions.handler"', [
-                    ':handler' => Config::get('web.sessions.handler', 'files')
+                    ':handler' => Config::getString('web.sessions.handler', 'files')
                 ]));
         }
 
@@ -455,9 +463,9 @@ class Session
         ]));
 
         // check and set last activity
-        if (Config::get('web.sessions.cookies.lifetime', 0)) {
+        if (Config::getInteger('web.sessions.cookies.lifetime', 0)) {
             // Session cookie timed out?
-            if (isset($_SESSION['last_activity']) and (time() - $_SESSION['last_activity'] > Config::get('web.sessions.cookies.lifetime', 0))) {
+            if (isset($_SESSION['last_activity']) and (time() - $_SESSION['last_activity'] > Config::getInteger('web.sessions.cookies.lifetime', 0))) {
                 // Session expired!
                 session_unset();
                 session_destroy();
@@ -470,7 +478,7 @@ Log::warning('RESTART SESSION');
         $_SESSION['last_activity'] = microtime(true);
 
         // Euro cookie check, can we do cookies at all?
-        if (Config::get('web.sessions.cookies.europe', true) and !Config::get('web.sessions.cookies.name', 'phoundation')) {
+        if (Config::getBoolean('web.sessions.cookies.europe', true) and !Config::getString('web.sessions.cookies.name', 'phoundation')) {
             if (GeoIP::new()->isEuropean()) {
                 // All first visits to european countries require cookie permissions given!
                 $_SESSION['euro_cookie'] = true;
@@ -478,14 +486,14 @@ Log::warning('RESTART SESSION');
             }
         }
 
-        if (Config::get('security.url-cloaking.enabled', false) and Config::get('security.url-cloaking.strict', false)) {
+        if (Config::getBoolean('security.url-cloaking.enabled', false) and Config::getBoolean('security.url-cloaking.strict', false)) {
             /*
              * URL cloaking was enabled and requires strict checking.
              *
              * Ensure that we have a cloaked URL users_id and that it matches the sessions users_id
              * Only check cloaking rules if we are NOT displaying a system page
              */
-            if (!Core::getRequestType('system')) {
+            if (!Core::isRequestType(EnumRequestTypes::system)) {
                 if (empty($core->register['url_cloak_users_id'])) {
                     throw new SessionException(tr('Failed cloaked URL strict checking, no cloaked URL users_id registered'));
                 }
@@ -499,9 +507,9 @@ Log::warning('RESTART SESSION');
             }
         }
 
-        if (Config::get('web.sessions.regenerate-id', false)) {
+        if (Config::getBoolean('web.sessions.regenerate-id', false)) {
             // Regenerate session identifier
-            if (isset($_SESSION['created']) and (time() - $_SESSION['created'] > Config::get('web.sessions.regenerate_id', false))) {
+            if (isset($_SESSION['created']) and (time() - $_SESSION['created'] > Config::getBoolean('web.sessions.regenerate_id', false))) {
                 // Use "created" to monitor session id age and refresh it periodically to mitigate
                 // attacks on sessions like session fixation
                 session_regenerate_id(true);
@@ -731,7 +739,7 @@ Log::warning('RESTART SESSION');
     {
         // Check the cookie domain configuration to see if it's valid.
         // NOTE: In case whitelabel domains are used, $_CONFIG[cookie][domain] must be one of "auto" or ".auto"
-        switch (Config::get('web.sessions.cookies.domain', '.auto')) {
+        switch (Config::getBoolString('web.sessions.cookies.domain', '.auto')) {
             case false:
                 // This domain has no cookies
                 break;
@@ -753,11 +761,11 @@ Log::warning('RESTART SESSION');
                  * If the configured cookie domain is different from the current domain then all cookie will inexplicably fail without warning,
                  * so this must be detected to avoid lots of hair pulling and throwing arturo off the balcony incidents :)
                  */
-                if (Config::get('web.sessions.cookies.domain')[0] == '.') {
+                if (Config::getBoolString('web.sessions.cookies.domain')[0] == '.') {
                     $test = substr(Config::get('web.sessions.cookies.domain'), 1);
 
                 } else {
-                    $test = Config::get('web.sessions.cookies.domain');
+                    $test = Config::getBoolString('web.sessions.cookies.domain');
                 }
 
                 if (!str_contains(static::$domain, $test)) {
@@ -767,44 +775,44 @@ Log::warning('RESTART SESSION');
                         ->setRoles('developers')
                         ->setTitle(tr('Invalid cookie domain'))
                         ->setMessage(tr('Specified cookie domain ":cookie_domain" is invalid for current domain ":current_domain". Please fix $_CONFIG[cookie][domain]! Redirecting to ":domain"', [
-                            ':domain'         => Strings::startsNotWith(Config::get('web.sessions.cookies.domain'), '.'),
-                            ':cookie_domain'  => Config::get('web.sessions.cookies.domain'),
+                            ':domain'         => Strings::startsNotWith(Config::getBoolString('web.sessions.cookies.domain'), '.'),
+                            ':cookie_domain'  => Config::getBoolString('web.sessions.cookies.domain'),
                             ':current_domain' => static::$domain
                         ]))->send();
 
-                    Page::redirect(PROTOCOL.Strings::startsNotWith(Config::get('web.sessions.cookies.domain'), '.'));
+                    Page::redirect(PROTOCOL.Strings::startsNotWith(Config::getBoolString('web.sessions.cookies.domain'), '.'));
                 }
 
-                ini_set('session.cookie_domain', Config::get('web.sessions.cookies.domain'));
+                ini_set('session.cookie_domain', Config::getBoolString('web.sessions.cookies.domain'));
                 unset($test);
                 unset($length);
         }
 
         // Set session and cookie parameters
         try {
-            if (Config::get('web.sessions.enabled', true)) {
+            if (Config::getBoolean('web.sessions.enabled', true)) {
                 // Force session cookie configuration
-                ini_set('session.gc_maxlifetime' , Config::get('web.sessions.timeout'            , true));
-                ini_set('session.cookie_lifetime', Config::get('web.sessions.cookies.lifetime'   , 0));
-                ini_set('session.use_strict_mode', Config::get('web.sessions.cookies.strict_mode', true));
-                ini_set('session.name'           , Config::get('web.sessions.cookies.name'       , 'phoundation'));
-                ini_set('session.cookie_httponly', Config::get('web.sessions.cookies.http-only'  , true));
-                ini_set('session.cookie_secure'  , Config::get('web.sessions.cookies.secure'     , true));
-                ini_set('session.cookie_samesite', Config::get('web.sessions.cookies.same-site'  , true));
-                ini_set('session.save_handler'   , Config::get('sessions.handler'                , 'files'));
-                ini_set('session.save_path'      , Config::get('sessions.path'                   , PATH_DATA . 'data/sessions/'));
+                ini_set('session.gc_maxlifetime' , Config::getBoolString('web.sessions.timeout'         , true));
+                ini_set('session.cookie_lifetime', Config::getInteger('web.sessions.cookies.lifetime'   , 0));
+                ini_set('session.use_strict_mode', Config::getBoolean('web.sessions.cookies.strict_mode', true));
+                ini_set('session.name'           , Config::getString('web.sessions.cookies.name'        , 'phoundation'));
+                ini_set('session.cookie_httponly', Config::getBoolean('web.sessions.cookies.http-only'  , true));
+                ini_set('session.cookie_secure'  , Config::getBoolean('web.sessions.cookies.secure'     , true));
+                ini_set('session.cookie_samesite', Config::getBoolean('web.sessions.cookies.same-site'  , true));
+                ini_set('session.save_handler'   , Config::getString('sessions.handler'                 , 'files'));
+                ini_set('session.save_path'      , Config::getString('sessions.path'                    , PATH_DATA . 'data/sessions/'));
 
-                if (Config::get('web.sessions.check-referrer', true)) {
+                if (Config::getBoolean('web.sessions.check-referrer', true)) {
                     ini_set('session.referer_check', static::$domain);
                 }
 
-                if (Debug::enabled() or !Config::get('cache.http.enabled', true)) {
+                if (Debug::enabled() or !Config::getBoolean('cache.http.enabled', true)) {
                     ini_set('session.cache_limiter', 'nocache');
 
                 } else {
-                    if (Config::get('cache.http.enabled', true) === 'auto') {
-                        ini_set('session.cache_limiter', Config::get('cache.http.php-cache-limiter'         , true));
-                        ini_set('session.cache_expire' , Config::get('cache.http.php-cache-php-cache-expire', true));
+                    if (Config::getBoolean('cache.http.enabled', true) === 'auto') {
+                        ini_set('session.cache_limiter', Config::getBoolean('cache.http.php-cache-limiter'         , true));
+                        ini_set('session.cache_expire' , Config::getBoolean('cache.http.php-cache-php-cache-expire', true));
                     }
                 }
             }
@@ -852,7 +860,7 @@ Log::warning('RESTART SESSION');
 
         } else {
             // This is not the registered domain!
-            switch (Config::get('web.domains.whitelabels', false)) {
+            switch (Config::getBoolean('web.domains.whitelabels', false)) {
                 case '':
                     // White label domains are disabled, so the requested domain MUST match the configured domain
                     Log::warning(tr('Whitelabels are disabled, redirecting domain ":source" to ":target"', [
@@ -988,7 +996,7 @@ Log::warning('RESTART SESSION');
 
         // Set users timezone
         if (empty($_SESSION['user']['timezone'])) {
-            $_SESSION['user']['timezone'] = Config::get('timezone.display', 0);
+            $_SESSION['user']['timezone'] = Config::get('timezone.display', 'UTC');
 
         } else {
             try {
@@ -996,7 +1004,7 @@ Log::warning('RESTART SESSION');
 
             }catch(Exception $e) {
                 // Timezone invalid for this user. Notification developers, and fix timezone for user
-                $_SESSION['user']['timezone'] = Config::get('timezone.display', 0);
+                $_SESSION['user']['timezone'] = Config::get('timezone.display', 'UTC');
 
                 Notification::new()
                     ->setException(SessionException::new(tr('Reset timezone for user ":user" to ":timezone"', [
