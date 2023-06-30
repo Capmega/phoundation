@@ -13,7 +13,7 @@ use Phoundation\Exception\OutOfBoundsException;
 
 
 /**
- * queryBuilder class
+ * QueryBuilder class
  *
  * This class helps building queries with multiple variables
  *
@@ -316,7 +316,7 @@ class QueryBuilder implements QueryBuilderInterface
     public function compareQuery(string $column, array|string|int|null $value): string
     {
         switch (gettype($value)) {
-            case 'null':
+            case 'NULL':
                 return ' IS NULL ';
 
             case 'string':
