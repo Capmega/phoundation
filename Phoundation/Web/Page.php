@@ -14,6 +14,7 @@ use Phoundation\Cache\Cache;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
+use Phoundation\Core\Enums\EnumRequestTypes;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
@@ -1142,13 +1143,23 @@ class Page
             Log::warning('Page did not catch the following "ValidationFailedException" warning, showing "system/400"');
             Log::warning($e);
 
-            static::getFlashMessages()->addMessage($e);
-            Route::executeSystem(400);
+            switch (Core::getRequestType()) {
+                case EnumRequestTypes::ajax:
+                    // no break
+                case EnumRequestTypes::api:
+                    Page::setHttpCode(400);
+                    Json::reply($e->getData());
+
+                default:
+                    static::getFlashMessages()->addMessage($e);
+                    Route::executeSystem(400);
+            }
 
         } catch (AuthenticationException $e) {
             Log::warning('Page did not catch the following "AuthenticationException" warning, showing "system/401"');
             Log::warning($e);
 
+            // Todo: Remove AJAX flash messages from general flash messages! Might require tagging flash messages with request types?
             static::getFlashMessages()->addMessage($e);
             Route::executeSystem(401);
 
@@ -1157,6 +1168,7 @@ class Page
             Log::warning('Page did not catch the following "IncidentsException" warning, showing "system/401"');
             Log::warning($e);
 
+            // Todo: Remove AJAX flash messages from general flash messages! Might require tagging flash messages with request types?
             static::getFlashMessages()->addMessage($e);
             Route::executeSystem(403);
 
@@ -1170,7 +1182,7 @@ class Page
         } catch (Exception $e) {
             Notification::new()
                 ->setTitle(tr('Failed to execute ":type" page ":page" with language ":language"', [
-                    ':type'     => Core::getRequestType(),
+                    ':type'     => Core::getRequestType()->value,
                     ':page'     => $target,
                     ':language' => LANGUAGE
                 ]))
@@ -1742,9 +1754,9 @@ class Page
             }
         }
 
-        // Add noidex, nofollow and nosnipped headers for non production environments and non normal HTTP pages.
+        // Add noindex, nofollow and nosnipped headers for non production environments and non normal HTTP pages.
         // These pages should NEVER be indexed
-        if (!Debug::production() or !Core::getRequestType('http') or Config::get('web.noindex', false)) {
+        if (!Debug::production() or !Core::isRequestType(EnumRequestTypes::html) or Config::get('web.noindex', false)) {
             $headers[] = 'X-Robots-Tag: noindex, nofollow, nosnippet, noarchive, noydir';
         }
 
@@ -1945,11 +1957,11 @@ class Page
             } else {
                 // Send caching headers. Ajax, API, and admin calls do not have proxy caching
                 switch (Core::getRequestType()) {
-                    case 'api':
+                    case EnumRequestTypes::api:
                         // no-break
-                    case 'ajax':
+                    case EnumRequestTypes::ajax:
                         // no-break
-                    case 'admin':
+                    case EnumRequestTypes::admin:
                         break;
 
                     default:
@@ -2008,7 +2020,7 @@ class Page
             return false;
         }
 
-        if (Core::getRequestType('ajax') or Core::getRequestType('api')) {
+        if (Core::isRequestType(EnumRequestTypes::ajax) or Core::isRequestType(EnumRequestTypes::api)) {
             return false;
         }
 
@@ -2034,7 +2046,7 @@ class Page
     protected static function cacheEtag(): bool
     {
         // ETAG requires HTTP caching enabled. Ajax and API calls do not use ETAG
-        if (!Config::get('web.cache.enabled', 'auto') or Core::getRequestType('ajax') or Core::getRequestType('api')) {
+        if (!Config::get('web.cache.enabled', 'auto') or Core::isRequestType(EnumRequestTypes::ajax) or Core::isRequestType(EnumRequestTypes::api)) {
             static::$etag = null;
             return false;
         }
@@ -2043,7 +2055,7 @@ class Page
         static::$etag = sha1(PROJECT.$_SERVER['SCRIPT_FILENAME'].filemtime($_SERVER['SCRIPT_FILENAME']) . Core::readRegister('etag'));
 
 // :TODO: Document why we are trimming with an empty character mask... It doesn't make sense but something tells me we're doing this for a good reason...
-        if (trim(isset_get($_SERVER['HTTP_IF_NONE_MATCH']), '') == static::$etag) {
+        if (trim((string) isset_get($_SERVER['HTTP_IF_NONE_MATCH']), '') == static::$etag) {
             if (empty($core->register['flash'])) {
                 // The client sent an etag which is still valid, no body (or anything else) necessary
                 http_response_code(304);
@@ -2100,14 +2112,17 @@ class Page
             static::$flash_messages = FlashMessages::new();
         }
 
-        // Start the session
+        // Start the session if Core hasn't failed so far
         if (!Core::getFailed()) {
-            Session::startup();
+            // But not for API's! API's have to handle a different session management
+            if (!Core::isRequestType(EnumRequestTypes::api)) {
+                Session::startup();
+            }
         }
 
         if (Strings::fromReverse(dirname($target), '/') === 'system') {
-            // Wait a small random time to avoid timing attacks on system pages
-            usleep(random_int(1, 500));
+            // Wait a small random time (0S - 100mS) to avoid timing attacks on system pages
+            usleep(random_int(1, 100000));
         }
 
         // Ensure we have an absolute target
@@ -2198,9 +2213,9 @@ class Page
             ]));
 
             switch (Core::getRequestType()) {
-                case 'api':
+                case EnumRequestTypes::api:
                     // no-break
-                case 'ajax':
+                case EnumRequestTypes::ajax:
                     static::$api_interface = new ApiInterface();
                     $output = static::$api_interface->execute($target);
                     break;
@@ -2218,8 +2233,8 @@ class Page
             ]));
 
             $output = match (Core::getRequestType()) {
-                'api', 'ajax' => static::$api_interface->execute($new_target),
-                default       => static::$template_page->execute($new_target),
+                EnumRequestTypes::api, EnumRequestTypes::ajax => static::$api_interface->execute($new_target),
+                default                                       => static::$template_page->execute($new_target),
             };
         }
 

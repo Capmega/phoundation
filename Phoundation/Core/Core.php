@@ -12,6 +12,8 @@ use Phoundation\Cli\Cli;
 use Phoundation\Cli\Exception\MethodNotFoundException;
 use Phoundation\Cli\Exception\NoMethodSpecifiedException;
 use Phoundation\Cli\Script;
+use Phoundation\Core\Enums\EnumRequestTypes;
+use Phoundation\Core\Enums\Interfaces\EnumRequestTypesInterface;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Exception\NoProjectException;
 use Phoundation\Core\Log\Log;
@@ -80,9 +82,9 @@ class Core {
     /**
      * The type of call for this process. One of http, admin, cli, mobile, ajax, api, amp (deprecated), system
      *
-     * @var string|null
+     * @var EnumRequestTypesInterface
      */
-    protected static ?string $request_type = null;
+    protected static EnumRequestTypesInterface $request_type = EnumRequestTypes::unknown;
 
     /**
      *
@@ -491,7 +493,7 @@ class Core {
      */
     protected static function startupCli(): void
     {
-        static::$request_type = 'cli';
+        static::$request_type = EnumRequestTypes::cli;
 
         // Hide all command line arguments
         ArgvValidator::hideData($GLOBALS['argv']);
@@ -509,7 +511,7 @@ class Core {
             ->select('-H,--help')->isOptional(false)->isBoolean()
             ->select('-L,--log-level', true)->isOptional()->isInteger()->isBetween(1, 10)
             ->select('-O,--order-by', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(128)
-            ->select('-P,--page', true)->isOptional(1)->isId()
+            ->select('-P,--page', true)->isOptional(1)->isDbId()
             ->select('-Q,--quiet')->isOptional(false)->isBoolean()
             ->select('-N,--no-audio')->isOptional(false)->isBoolean()
             ->select('-S,--status', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(16)
@@ -915,34 +917,34 @@ class Core {
 
             // Autodetect what http call type we're on from the script being executed
             if (str_contains($file, '/admin/')) {
-                static::$request_type = 'admin';
+                static::$request_type = EnumRequestTypes::admin;
 
             } elseif (str_contains($file, '/ajax/')) {
-                static::$request_type = 'ajax';
+                static::$request_type = EnumRequestTypes::ajax;
 
             } elseif (str_contains($file, '/api/')) {
-                static::$request_type = 'api';
+                static::$request_type = EnumRequestTypes::api;
 
             } elseif ((str_starts_with($_SERVER['SERVER_NAME'], 'api')) and preg_match('/^api(?:-[0-9]+)?\./', $_SERVER['SERVER_NAME'])) {
-                static::$request_type = 'api';
+                static::$request_type = EnumRequestTypes::api;
 
             } elseif ((str_starts_with($_SERVER['SERVER_NAME'], 'cdn')) and preg_match('/^cdn(?:-[0-9]+)?\./', $_SERVER['SERVER_NAME'])) {
-                static::$request_type = 'api';
+                static::$request_type = EnumRequestTypes::api;
 
             } elseif (Config::get('web.html.amp.enabled', false) and !empty($_GET['amp'])) {
-                static::$request_type = 'amp';
+                static::$request_type = EnumRequestTypes::amp;
 
             } elseif (is_numeric(substr($file, -3, 3))) {
                 static::$register['http']['code'] = substr($file, -3, 3);
-                static::$request_type = 'system';
+                static::$request_type = EnumRequestTypes::system;
 
             } else {
-                static::$request_type = 'http';
+                static::$request_type = EnumRequestTypes::html;
             }
 
         } else {
             // We're running on the command line
-            static::$request_type = 'cli';
+            static::$request_type = EnumRequestTypes::cli;
         }
     }
 
@@ -1254,11 +1256,11 @@ class Core {
 
 
     /**
-     * This method will return the calltype for this call, as is stored in the private variable core::callType
+     * This method will return the request type for this call, as is stored in the private variable core::request_type
      *
-     * @return string|null Returns core::callType
+     * @return EnumRequestTypesInterface
      */
-    public static function getRequestType(): ?string
+    public static function getRequestType(): EnumRequestTypesInterface
     {
         return static::$request_type;
     }
@@ -1267,10 +1269,10 @@ class Core {
     /**
      * Will return true if $call_type is equal to core::callType, false if not.
      *
-     * @param string $type The call type you wish to compare to
+     * @param EnumRequestTypesInterface $type The call type you wish to compare to
      * @return bool This function will return true if $type matches core::callType, or false if it does not.
      */
-    public static function isCallType(string $type): bool
+    public static function isRequestType(EnumRequestTypesInterface $type): bool
     {
         return (static::$request_type === $type);
     }
@@ -1442,7 +1444,7 @@ class Core {
                     // System crashed before platform detection.
                     Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', [
                         ':code'   => $e->getCode(),
-                        ':type'   => static::getRequestType(),
+                        ':type'   => static::getRequestType()->value,
                         ':script' => static::readRegister('system', 'script')
                     ]));
 
@@ -1552,7 +1554,7 @@ class Core {
 
                         Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE CLI SCRIPT ":script" WITH ENVIRONMENT ":environment" DURING CORE STATE ":state" ***', [
                             ':code'        => $e->getCode(),
-                            ':type'        => static::getRequestType(),
+                            ':type'        => static::getRequestType()->value,
                             ':state'       => static::$state,
                             ':script'      => static::readRegister('system', 'script'),
                             ':environment' => (defined('ENVIRONMENT') ? ENVIRONMENT : null)
@@ -1585,7 +1587,7 @@ class Core {
                             // Log exception data
                             Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE WEB SCRIPT ":script" WITH ENVIRONMENT ":environment" DURING CORE STATE ":state" ***', [
                                 ':code'        => $e->getCode(),
-                                ':type'        => static::getRequestType(),
+                                ':type'        => static::getRequestType()->value,
                                 ':state'       => static::$state,
                                 ':script'      => static::readRegister('system', 'script'),
                                 ':environment' => (defined('ENVIRONMENT') ? ENVIRONMENT : null)
@@ -1649,9 +1651,9 @@ class Core {
 
                         if (Debug::enabled()) {
                             switch (Core::getRequestType()) {
-                                case 'api':
+                                case EnumRequestTypes::api:
                                     // no-break
-                                case 'ajax':
+                                case EnumRequestTypes::ajax:
                                     echo "UNCAUGHT EXCEPTION\n\n";
                                     showdie($e);
                             }
@@ -1705,7 +1707,7 @@ class Core {
                                                     '.tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', [
                                                         ':code'   => $e->getCode(),
                                                         ':script' => static::readRegister('system', 'script'),
-                                                        ':type'   => Core::getRequestType()
+                                                        ':type'   => Core::getRequestType()->value
                                                     ]).'
                                                 </td>
                                             </thead>
@@ -1755,9 +1757,9 @@ class Core {
                             ->send();
 
                         switch (Core::getRequestType()) {
-                            case 'api':
+                            case EnumRequestTypes::api:
                                 // no-break
-                            case 'ajax':
+                            case EnumRequestTypes::ajax:
                                 if ($e instanceof CoreException) {
                                     Json::message($e->getCode(), ['reason' => ($e->isWarning() ? trim(Strings::from($e->getMessage(), ':')) : '')]);
                                 }
@@ -2123,7 +2125,7 @@ class Core {
      * @param int|null $error_code
      * @return void
      */
-    public static function shutdown(?int $error_code = null): void
+    #[NoReturn] public static function shutdown(?int $error_code = null): void
     {
         try {
             static::$state = 'shutdown';
@@ -2259,6 +2261,8 @@ class Core {
             // Uncaught exception handler for shutdown
             Core::uncaughtException($e);
         }
+
+        die();
     }
 
 
