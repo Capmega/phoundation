@@ -906,13 +906,32 @@ abstract class DataEntry implements DataEntryInterface, Stringable
         // or null. After selecting a data source it will be a DataValidator object which we will then give to the
         // DataEntry::validate() method
         $source = $this->selectDataSource($source);
+
+        if ($this->debug) {
+            show('APPLY ' . $this->entry_name . ' (' . get_class($this) . ')');
+            show('CURRENT DATA');
+            show($this->data);
+            show('SOURCE');
+            show($source);
+        }
+
         $source = $this->validate($source, $clear_source);
+
+        if ($this->debug) {
+            show('APPLYING DATA');
+            show($source);
+        }
 
         // Ensure DataEntry Meta state is okay, then generate the diff data and copy data array to internal data
         $this
             ->validateMetaState($source)
             ->setDiff($source)
             ->setData($source, true);
+
+        if ($this->debug) {
+            show('NEW DATA');
+            show($this->data);
+        }
 
         return $this;
     }
@@ -1117,6 +1136,10 @@ abstract class DataEntry implements DataEntryInterface, Stringable
             // Store this data through the methods to ensure datatype and filtering is done correctly
             $method = $this->convertFieldToSetMethod($key);
 
+            if ($this->debug) {
+                show('KEY: ' . $key . ' / METHOD: ' . $method . '(' . Strings::fromBoolean(method_exists($this, $method)) . ')');
+            }
+
             // Only apply if a method exist for this variable
             if (method_exists($this, $method)){
                 $this->$method($value);
@@ -1230,14 +1253,16 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      */
     protected function setDataValue(string $field, mixed $value, bool $force = false): static
     {
+//        show('REQUEST FIELD: ' . $field . ' "' . $this->definitions->get($field)->getReadonly() . '"');
         // Only save values that are defined for this object
         if ($this->definitions->exists($field)) {
             // Skip all meta fields like id, created_on, meta_id, etc etc etc..
             if (!in_array($field, self::$meta_fields)) {
                 // If the key is defined as readonly or disabled, it cannot be updated unless it's a new object.
-                if ($force or !$this->getId() or (!$this->definitions->get($field)->getReadonly() and !$this->definitions->get($field)->getDisabled())) {
-                    $definition = $this->definitions->get($field);
-                    $default    = $definition->getDefault();
+                $definition = $this->definitions->get($field);
+
+                if ($force or !$this->getId() or (!$definition->getReadonly() and !$definition->getDisabled())) {
+                    $default = $definition->getDefault();
 
                     // What to do if we don't have a value? Data should already have been validated, so we know the
                     // value is optional (would not have passed validation otherwise) so it either defaults or NULL
@@ -1258,11 +1283,13 @@ abstract class DataEntry implements DataEntryInterface, Stringable
                         }
                     }
 
-// show($field . ' "' . isset_get($this->data[$field]) . '" [' . gettype(isset_get($this->data[$field])) . '] > "' . $value . '" [' . gettype($value) . '] > ' . Strings::fromBoolean($this->is_modified));
-
                     // Update the field value
                     $this->data[$field] = $value;
                     $this->is_validated = false;
+
+                    if ($this->debug) {
+                        show('FIELD: ' . $field . ' FROM "' . isset_get($this->data[$field]) . '" [' . gettype(isset_get($this->data[$field])) . '] TO "' . $value . '" [' . gettype($value) . '] > MODIFIED: ' . Strings::fromBoolean($this->is_modified));
+                    }
                 }
             }
 
