@@ -305,7 +305,20 @@ abstract class DataList extends Iterator implements DataListInterface
      */
     public function getQuery(): string
     {
+        $this->selectQuery();
         return $this->query;
+    }
+
+
+    /**
+     * Returns the execute array for the query for this object when generating internal content
+     *
+     * @return array|null
+     */
+    public function getExecute(): ?array
+    {
+        $this->selectQuery();
+        return $this->execute;
     }
 
 
@@ -641,29 +654,14 @@ showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY F
     /**
      * Load the id list from database
      *
-     * @deprecated This function will be replaced by the QueryBuilder. DO NOT USE
      * @param string|null $id_column
      * @return static
      */
-    abstract public function load(?string $id_column = null): static;
+    public function load(?string $id_column = null): static
+    {
+        $this->selectQuery();
+        $this->source = sql()->list($this->query, $this->execute);
 
-
-    /**
-     * Load the data list elements from database
-     *
-     * @deprecated This function will be replaced by the QueryBuilder. DO NOT USE
-     * @param array|string|null $columns
-     * @param array $filters
-     * @param array $order_by
-     * @return array
-     */
-    abstract public function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array;
-
-
-    /**
-     * Save the data list elements to database
-     *
-     * @return static
-     */
-    abstract public function save(): static;
+        return $this;
+    }
 }
