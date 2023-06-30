@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Templates\AdminLte\Html\Components;
 
+use PDOStatement;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Log;
@@ -18,6 +19,8 @@ use Phoundation\Web\Http\Html\Components\Interfaces\ElementsBlockInterface;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Html\Renderer;
+use Phoundation\Web\Http\Interfaces\UrlBuilderInterface;
+use Stringable;
 use Throwable;
 
 
@@ -135,7 +138,7 @@ class DataEntryForm extends Renderer
                     ]));
                 }
 
-                if ($definition->getMeta() or $definition->getVirtual() or $definition->getDisabled() or $definition->getReadonly()) {
+                if ($definition->getMeta()) {
                     // This is an unmutable meta field, virtual field, or readonly field.
                     // In creation mode we're not even going to show this, in edit mode don't put a field name because
                     // users aren't even supposed to be able to submit this
@@ -146,7 +149,12 @@ class DataEntryForm extends Renderer
                     $field_name = '';
                 }
 
-                if ($definition->getVirtual() or $definition->getDisabled() or $definition->getReadonly()) {
+                if ($definition->getVirtual() or !$definition->getVisible()) {
+                    // This element shouldn't be shown, continue
+                    continue;
+                }
+
+                if ($definition->getDisabled() or $definition->getReadonly()) {
                     // This is an unmutable field. Don't add a field names as users aren't supposed to submit this.
                     $field_name = '';
                 }
@@ -157,26 +165,21 @@ class DataEntryForm extends Renderer
             }
 
             // Set defaults
-            Arrays::default($definition_array, 'size'        , 12);
-            Arrays::default($definition_array, 'type'        , 'text');
-            Arrays::default($definition_array, 'label'       , null);
             Arrays::default($definition_array, 'disabled'    , false);
-            Arrays::default($definition_array, 'readonly'    , false);
-            Arrays::default($definition_array, 'visible'     , true);
-            Arrays::default($definition_array, 'virtual'     , false);
-            Arrays::default($definition_array, 'readonly'    , false);
-            Arrays::default($definition_array, 'title'       , null);
-            Arrays::default($definition_array, 'placeholder' , null);
-            Arrays::default($definition_array, 'pattern'     , null);
+            Arrays::default($definition_array, 'label'       , null);
+            Arrays::default($definition_array, 'max'         , null);
             Arrays::default($definition_array, 'maxlength'   , null);
             Arrays::default($definition_array, 'min'         , null);
-            Arrays::default($definition_array, 'max'         , null);
+            Arrays::default($definition_array, 'pattern'     , null);
+            Arrays::default($definition_array, 'placeholder' , null);
+            Arrays::default($definition_array, 'readonly'    , false);
+            Arrays::default($definition_array, 'size'        , 12);
+            Arrays::default($definition_array, 'source'      , null);
             Arrays::default($definition_array, 'step'        , null);
-
-            if (!$definition_array['visible'] or $definition_array['virtual']) {
-                // This element shouldn't be shown, continue
-                continue;
-            }
+            Arrays::default($definition_array, 'type'        , 'text');
+            Arrays::default($definition_array, 'virtual'     , false);
+            Arrays::default($definition_array, 'visible'     , true);
+            Arrays::default($definition_array, 'title'       , null);
 
             // Ensure password is never sent in the form
             switch ($field) {
@@ -261,12 +264,24 @@ class DataEntryForm extends Renderer
 
                         // If we have a source query specified, then get the actual value from the query
                         if (isset_get($definition_array['source'])) {
-                            $source[$field] = sql()->getColumn($definition_array['source'], $execute);
+                            if (is_array($definition_array['source'])) {
+                                $definition_array['source'] = $definition_array['source'];
+
+                            } elseif (is_string($definition_array['source'])) {
+                                $definition_array['source'] = $definition_array['source'];
+
+                            } elseif ($definition_array['source'] instanceof Stringable) {
+                                $definition_array['source'] = (string) $definition_array['source'];
+
+                            } elseif ($definition_array['source'] instanceof PDOStatement) {
+                                $definition_array['source'] = sql()->getColumn($definition_array['source'], $execute);
+                            }
                         }
 
                         // Build the element class path and load the required class file
                         $type = match ($definition_array['type']) {
                             'datetime-local' => 'DateTimeLocal',
+                            'auto-suggest'   => 'AutoSuggest',
                             default          => Strings::capitalize($definition_array['type']),
                         };
 
@@ -302,12 +317,27 @@ class DataEntryForm extends Renderer
                                     ->render();
                                 break;
 
-                            default:
-// Log::debug($field . ': ' . $element_class);
+                            case 'auto-suggest':
                                 // Render the HTML for this element
                                 $html = $element_class::new()
                                     ->setDisabled((bool) $definition_array['disabled'])
                                     ->setReadOnly((bool) $definition_array['readonly'])
+                                    ->setMinLength(isset_get_typed('integer', $definition_array['minlength']))
+                                    ->setMaxLength(isset_get_typed('integer', $definition_array['maxlength']))
+                                    ->setSourceUrl(isset_get_typed('string', $definition_array['source']))
+                                    ->setVariables($definition->getVariables())
+                                    ->setName($field_name)
+                                    ->setValue($source[$field])
+                                    ->setAutoFocus($auto_focus)
+                                    ->render();
+                                break;
+
+                            default:
+                                // Render the HTML for this element
+                                $html = $element_class::new()
+                                    ->setDisabled((bool) $definition_array['disabled'])
+                                    ->setReadOnly((bool) $definition_array['readonly'])
+                                    ->setMinLength(isset_get_typed('integer', $definition_array['minlength']))
                                     ->setMaxLength(isset_get_typed('integer', $definition_array['maxlength']))
                                     ->setName($field_name)
                                     ->setValue($source[$field])
@@ -379,7 +409,7 @@ class DataEntryForm extends Renderer
                             ->setDisabled((bool) $definition_array['disabled'])
                             ->setReadOnly((bool) $definition_array['readonly'])
                             ->setName($field_name)
-                            ->setSelected(isset_get($source[$field_name]))
+                            ->setSelected(isset_get($source[$field]))
                             ->setAutoFocus($auto_focus)
                             ->render();
 

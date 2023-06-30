@@ -30,6 +30,30 @@ class InputText extends Input
 
 
     /**
+     * Returns the minimum length this text input
+     *
+     * @return int|null
+     */
+    public function getMinLength(): ?int
+    {
+        return isset_get($this->attributes['minlength']);
+    }
+
+
+    /**
+     * Returns the minimum length this text input
+     *
+     * @param int|null $minlength
+     * @return $this
+     */
+    public function setMinLength(?int $minlength): static
+    {
+        $this->attributes['minlength'] = $minlength;
+        return $this;
+    }
+
+
+    /**
      * Returns the maximum length this text input
      *
      * @return int|null

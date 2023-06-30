@@ -75,7 +75,8 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
         'text',
         'time',
         'url',
-        'week'
+        'week',
+        'auto-suggest'
     ];
 
 

@@ -9,6 +9,7 @@ use PDOStatement;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
+use Phoundation\Core\Enums\EnumRequestTypes;
 use Phoundation\Core\Exception\ConfigException;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Log\Log;
@@ -318,20 +319,21 @@ class Debug {
         if (Core::readyState() and PLATFORM_HTTP) {
             if (empty($core->register['debug_plain'])) {
                 switch (Core::getRequestType()) {
-                    case 'api':
+                    case EnumRequestTypes::api:
                         // no-break
-                    case 'ajax':
-                        if (!headers_sent()) {
-                            Page::setContentType('text/html');
-                            Page::sendHttpHeaders(Page::buildHttpHeaders($value));
-                        }
-
+                    case EnumRequestTypes::ajax:
                         $output = PHP_EOL . tr('DEBUG SHOW (:file@:line) [:type :size]', [
                             ':type' => gettype($value),
                             ':file' => static::currentFile($trace_offset - 1),
                             ':line' => static::currentLine($trace_offset - 1),
                             ':size' => ($value === null ? 'NULL' : (is_scalar($value) ? strlen((string) $value) : count((array) $value)))
                         ]) . PHP_EOL . print_r($value, true) . PHP_EOL;
+
+                        if (!headers_sent()) {
+                            Page::setContentType('text/html');
+                            Page::sendHttpHeaders(Page::buildHttpHeaders($output));
+                        }
+
                         break;
 
                     default:
@@ -514,20 +516,20 @@ class Debug {
         switch ($type) {
             case 'string':
                 if (is_numeric($value)) {
-                    $type = tr('numeric');
-
                     if (is_integer($value)) {
-                        $type .= tr(' (integer)');
+                        $type = tr('integer');
 
                     } elseif (is_float($value)) {
-                        $type .= tr(' (float)');
+                        $type = tr('float');
 
                     } elseif (is_string($value)) {
-                        $type .= tr(' (string)');
+                        $type = tr('string');
 
                     } else {
-                        $type .= tr(' (unknown)');
+                        $type = tr('unknown');
                     }
+
+                    $type .= ' ' . tr('(numeric)');
 
                 } else {
                     $type = tr('string');

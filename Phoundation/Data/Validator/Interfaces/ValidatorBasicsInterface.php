@@ -115,10 +115,10 @@ interface ValidatorBasicsInterface
      *
      * This method will check the failures array and if any failures were registered, it will throw an exception
      *
-     * @param bool $clear_source
+     * @param bool $clean_source
      * @return array
      */
-    function validate(bool $clear_source = true): array;
+    function validate(bool $clean_source = true): array;
 
     /**
      * Resets the class for a new validation

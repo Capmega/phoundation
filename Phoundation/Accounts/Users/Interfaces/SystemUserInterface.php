@@ -4,7 +4,7 @@ namespace Phoundation\Accounts\Users\Interfaces;
 
 
 /**
- * Class GuestUser
+ * Interface SystemUserInterface
  *
  *
  *
@@ -13,6 +13,6 @@ namespace Phoundation\Accounts\Users\Interfaces;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
-interface SystemUserInterface
+interface SystemUserInterface extends UserInterface
 {
 }

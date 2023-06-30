@@ -71,7 +71,7 @@ if (Page::isPostRequestMethod()) {
         return;
 
     } catch (EnvironmentExists|ValidationFailedException|SqlAccessDeniedException $e) {
-        Page::getFlashMessages()->add($e);
+        Page::getFlashMessages()->addMessage($e);
     }
 }
 
@@ -105,7 +105,7 @@ Page::setBuildBody(false);
               </div>
               <div class="mb-3">
                   <select name="environment" type="text" class="form-control">
-                      <option value="">Please select an environment</option>
+                      <option value="">Select an environment</option>
                       <option<?= (isset_get($post['environment']) ? ' selected' : null) ?> value="local">Local</option>
                       <option<?= (isset_get($post['environment']) ? ' selected' : null) ?> value="public_trial">Public trial</option>
                       <option<?= (isset_get($post['environment']) ? ' selected' : null) ?> value="private_trial">Private trial</option>

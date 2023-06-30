@@ -1424,7 +1424,7 @@ class User extends DataEntry implements UserInterface
                 ->setHelpGroup(tr('Personal information'))
                 ->setHelpText(tr('The birthdate for this user'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->isDate()->isPast();
+                    $validator->isDate()->isBefore();
                 }))
             ->addDefinition(DefinitionFactory::getPhones()
                 ->setHelpGroup(tr('Personal information'))
@@ -1563,12 +1563,12 @@ class User extends DataEntry implements UserInterface
                 ->setHelpGroup(tr('Account information'))
                 ->setHelpText(tr('The date when this user was email verified. Empty if not yet verified')))
             ->addDefinition(DefinitionFactory::getUrl('redirect')
-                ->setSize(6)
+                ->setSize(3)
                 ->setLabel(tr('Redirect URL'))
                 ->setHelpGroup(tr('Account information'))
                 ->setHelpText(tr('The URL where this user will be redirected to upon sign in')))
             ->addDefinition(Definition::new('url')
-                ->setSize(6)
+                ->setSize(12)
                 ->setCliField('--url')
                 ->setLabel(tr('Website URL'))
                 ->setHelpGroup(tr('Account information'))

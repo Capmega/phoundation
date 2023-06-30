@@ -142,7 +142,7 @@ class SignIn extends DataEntry
                 ->setReadonly(true)
                 ->setInputType(InputTypeExtended::dbid)
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
-                    return Timezones::new()->getHtmlSelect($key)
+                    return Timezones::new()->getHtmlSelect()
                         ->setDisabled(true)
                         ->setName($field_name)
                         ->setSelected(isset_get($source['timezones_id']))
@@ -151,7 +151,7 @@ class SignIn extends DataEntry
                 ->setSize(6)
                 ->setLabel(tr('Timezone'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->xor('timezone')->isId()->isQueryColumn('SELECT `id` FROM `geo_timezones` WHERE `id` = :id AND `status` IS NULL', [':id' => '$timezones_id']);
+                    $validator->xor('timezone')->isDbId()->isQueryColumn('SELECT `id` FROM `geo_timezones` WHERE `id` = :id AND `status` IS NULL', [':id' => '$timezones_id']);
                 }));
     }
 }

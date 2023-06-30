@@ -95,6 +95,30 @@ class TextArea extends Input
 
 
     /**
+     * Returns the minimum length this text area
+     *
+     * @return int|null
+     */
+    public function getMinLength(): ?int
+    {
+        return isset_get($this->attributes['minlength']);
+    }
+
+
+    /**
+     * Sets the minimum length this text area
+     *
+     * @param int|null $minlength
+     * @return $this
+     */
+    public function setMinLength(?int $minlength): static
+    {
+        $this->attributes['minlength'] = $minlength;
+        return $this;
+    }
+
+
+    /**
      * Returns the maximum length this text area
      *
      * @return int|null

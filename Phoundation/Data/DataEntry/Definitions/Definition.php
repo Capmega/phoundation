@@ -4,19 +4,20 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Definitions;
 
+use PDOStatement;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Traits\UsesNewField;
 use Phoundation\Data\Validator\Interfaces\ArgvValidatorInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Web\Http\Html\Components\Interfaces\InputElementInterface;
 use Phoundation\Web\Http\Html\Components\Interfaces\InputTypeExtendedInterface;
 use Phoundation\Web\Http\Html\Components\Interfaces\InputTypeInterface;
 use Phoundation\Web\Http\Html\Enums\InputElement;
 use Phoundation\Web\Http\Html\Enums\InputType;
 use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
+use Stringable;
 
 
 /**
@@ -94,7 +95,8 @@ class Definition implements DefinitionInterface
         'text',
         'time',
         'url',
-        'week'
+        'week',
+        'auto-suggest'
     ];
 
     /**
@@ -250,9 +252,9 @@ class Definition implements DefinitionInterface
      * Add specified value for the specified key for this DataEntry field
      *
      * @param string $key
-     * @return callable|string|float|int|bool|null
+     * @return callable|PDOStatement|Stringable|array|string|float|int|bool|null
      */
-    public function getKey(string $key): callable|string|float|int|bool|null
+    public function getKey(string $key): callable|PDOStatement|Stringable|array|string|float|int|bool|null
     {
         return isset_get($this->definitions[$key]);
     }
@@ -262,10 +264,10 @@ class Definition implements DefinitionInterface
      * Add specified value for the specified key for this DataEntry field
      *
      * @param string $key
-     * @param string|float|int|bool|null $value
+     * @param callable|PDOStatement|Stringable|array|string|float|int|bool|null $value
      * @return static
      */
-    public function setKey(string $key, callable|array|string|float|int|bool|null $value): static
+    public function setKey(string $key, callable|PDOStatement|Stringable|array|string|float|int|bool|null $value): static
     {
         $this->definitions[$key] = $value;
         return $this;
@@ -283,7 +285,7 @@ class Definition implements DefinitionInterface
      */
     public function getVisible(): ?bool
     {
-        return isset_get_typed('bool', $this->definitions['visible']);
+        return isset_get_typed('bool', $this->definitions['visible'], true);
     }
 
 
@@ -591,7 +593,6 @@ class Definition implements DefinitionInterface
 
                     case InputTypeExtended::description:
                         $this->setElement(InputElement::textarea);
-                        $value = null;
 
                         $this->addValidationFunction(function (ValidatorInterface $validator) {
                             $validator->isDescription();
@@ -741,11 +742,11 @@ class Definition implements DefinitionInterface
      *
      * The data source may be specified as a query string or a key => value array
      *
-     * @return array|string|null
+     * @return array|PDOStatement|Stringable|null
      */
-    public function getSource(): array|string|null
+    public function getSource(): array|PDOStatement|Stringable|null
     {
-        return isset_get_typed('array|string', $this->definitions['source']);
+        return isset_get_typed('array|PDOStatement|Stringable|null', $this->definitions['source']);
     }
 
 
@@ -754,12 +755,49 @@ class Definition implements DefinitionInterface
      *
      * The data source may be specified as a query string or a key => value array
      *
-     * @param array|string|null $value
+     * @param array|PDOStatement|Stringable|null $value
      * @return static
      */
-    public function setSource(array|string|null $value): static
+    public function setSource(array|PDOStatement|Stringable|null $value): static
     {
         return $this->setKey('source', $value);
+    }
+
+
+    /**
+     * Returns variables for the component
+     *
+     * Format should be like
+     *
+     * [
+     *     'countries_id' => '$("#countries_id").val()',
+     *     'states_id'    => '$("#states_id").val()'
+     * ]
+     *
+     * @return array|null
+     */
+    public function getVariables(): array|null
+    {
+        return isset_get_typed('array', $this->definitions['variables']);
+    }
+
+
+    /**
+     * Sets variables for the component
+     *
+     * Format should be like
+     *
+     * [
+     *     'countries_id' => '$("#countries_id").val()',
+     *     'states_id'    => '$("#states_id").val()'
+     * ]
+     *
+     * @param array|null $value
+     * @return static
+     */
+    public function setVariables(array|null $value): static
+    {
+        return $this->setKey('variables', $value);
     }
 
 
@@ -1459,7 +1497,7 @@ class Definition implements DefinitionInterface
             }
         }
 
-        // All other validations
+        // Apply all other validations
         foreach ($this->validations as $validation) {
             $validation($validator);
         }

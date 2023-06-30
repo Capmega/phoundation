@@ -496,7 +496,7 @@ class Server extends DataEntry
                 ->setInputType(InputTypeExtended::dbid)
                 ->setHelpText(tr('The category for this server'))
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
-                    return Categories::new()->getHtmlSelect($key)
+                    return Categories::new()->getHtmlSelect()
                         ->setName($field_name)
                         ->setSelected(isset_get($source['categories_id']))
                         ->render();
@@ -510,7 +510,7 @@ class Server extends DataEntry
                 ->setInputType(InputTypeExtended::dbid)
                 ->setHelpText(tr('The service provider where this server is hosted'))
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
-                    return Categories::new()->getHtmlSelect($key)
+                    return Categories::new()->getHtmlSelect()
                         ->setName($field_name)
                         ->setSelected(isset_get($source['providers_id']))
                         ->render();
@@ -524,7 +524,7 @@ class Server extends DataEntry
                 ->setInputType(InputTypeExtended::dbid)
                 ->setHelpText(tr('The client using this server'))
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
-                    return Categories::new()->getHtmlSelect($key)
+                    return Categories::new()->getHtmlSelect()
                         ->setName($field_name)
                         ->setSelected(isset_get($source['customers_id']))
                         ->render();
@@ -539,7 +539,7 @@ class Server extends DataEntry
                 ->setHelpGroup(tr('Location'))
                 ->setHelpText(tr('The country where this server is hosted'))
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
-                    return Categories::new()->getHtmlSelect($key)
+                    return Categories::new()->getHtmlSelect()
                         ->setName($field_name)
                         ->setSelected(isset_get($source['countries_id']))
                         ->render();
@@ -554,7 +554,7 @@ class Server extends DataEntry
                 ->setHelpGroup(tr('Location'))
                 ->setHelpText(tr('The state where this server is hosted'))
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
-                    return Categories::new()->getHtmlSelect($key)
+                    return Categories::new()->getHtmlSelect()
                         ->setName($field_name)
                         ->setSelected(isset_get($source['states_id']))
                         ->render();
@@ -567,7 +567,7 @@ class Server extends DataEntry
                 ->setCliField('--cities-id CITIES-ID')
                 ->setInputType(InputTypeExtended::dbid)
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
-                    return Categories::new()->getHtmlSelect($key)
+                    return Categories::new()->getHtmlSelect()
                         ->setName($field_name)
                         ->setSelected(isset_get($source['cities_id']))
                         ->render();

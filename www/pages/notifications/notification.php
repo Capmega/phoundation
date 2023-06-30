@@ -19,7 +19,7 @@ use Phoundation\Web\Page;
 
 // Validate GET
 $get = GetValidator::new()
-    ->select('id')->isOptional()->isId()
+    ->select('id')->isOptional()->isDbId()
     ->validate();
 
 $notification = Notification::get($get['id']);

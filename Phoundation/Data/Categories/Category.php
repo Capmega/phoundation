@@ -135,7 +135,7 @@ class Category extends DataEntry
                 ->setLabel(tr('Parent category'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     // Ensure parents_id exists and that its or parent
-                    $validator->or('parent')->isId()->isQueryColumn('SELECT `id` FROM `categories` WHERE `id` = :id AND `status` IS NULL', [':id' => '$parents_id']);
+                    $validator->or('parent')->isDbId()->isQueryColumn('SELECT `id` FROM `categories` WHERE `id` = :id AND `status` IS NULL', [':id' => '$parents_id']);
                 }))
             ->addDefinition(Definition::new('parent')
                 ->setOptional(true)

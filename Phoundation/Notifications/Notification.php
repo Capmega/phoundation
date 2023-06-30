@@ -427,7 +427,7 @@ class Notification extends DataEntry
                 ->setVisible(false)
                 ->setInputType(InputTypeExtended::dbid)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->isId()->isQueryColumn('SELECT `id` FROM `accounts_users` WHERE `id` = :id', [':id' => '$id']);
+                    $validator->isDbId()->isQueryColumn('SELECT `id` FROM `accounts_users` WHERE `id` = :id', [':id' => '$id']);
                 }))
             ->addDefinition(Definition::new('code')
                 ->setOptional(true)
@@ -445,7 +445,7 @@ class Notification extends DataEntry
                 ->setSize(4)
                 ->setMaxlength(16)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->isMode()->isInArray(DisplayMode::cases());
+                    $validator->isDisplayMode()->isInArray(DisplayMode::cases());
                 }))
             ->addDefinition(Definition::new('icon')
                 ->setVisible(false)

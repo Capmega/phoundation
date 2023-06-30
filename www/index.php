@@ -113,22 +113,23 @@ Route::getParameters()
         ->setRootUrl('http://:DOMAIN/:LANGUAGE/')
         ->setTemplate(AdminLte::class)
         ->setRightsExceptions('sign-in.php,sign-out.php')
-        ->setRights('admin'))
+        ->setRights('mediweb'))
 
     ->add(RoutingParameters::new() // Routing parameters for default english system pages
-        ->setTemplate(Mdb::class)
+        ->setTemplate(AdminLte::class)
         ->setRootPath('pages/')
         ->setSystemPagesOnly(true));
 
 
 
 // AdminLte based admin page routes
-Route::try('/^(\w{2})\/ajax\/(.+?).html$/'                            , 'ajax/$2.php');                      // Execute the requested AJAX page
-Route::try('/^(\w{2})\/([a-z0-9-]+)\/([a-z0-9-]+)-([a-z0-9-]+).html$/', 'pages/$2/$3.php?id=$4');            // Show the requested table page
-Route::try('/^(\w{2})\/([a-z0-9-\/]+).html$/'                         , 'pages/$2.php');                     // Show the requested form page
-Route::try('/^(\w{2})\/?$/'                                           , '/index.html', 'R301');         // Redirect to index page
-Route::try('/^$/'                                                     , '/index.html', 'R301');         // Redirect to index page
-Route::try('/^(\w{2})\/timesheets\/(\d{4}\/\d{2}\/\d{2}).html$/'      , 'pages/timesheets/day.php?date=$2'); // Timesheet page
+Route::try('/^(\w{2})\/ajax\/(.+?).json$/'                          , 'ajax/$2.php', 'Q');            // Execute the requested AJAX page
+Route::try('/^(\w{2})\/([a-z0-9-\/]+)\/([a-z0-9-]+)-([0-9]+).html$/', 'pages/$2/$3.php?id=$4');            // Show the requested form page
+Route::try('/^(\w{2})\/([a-z0-9-\/]+)\/([a-z0-9-]+).html$/'         , 'pages/$2/$3.php');                  // Show the requested table page
+Route::try('/^(\w{2})\/([a-z0-9-]+).html$/'                         , 'pages/$2.php');                     // Show the requested page
+Route::try('/^(\w{2})\/?$/'                                         , '/index.html', 'R301');         // Redirect to index page
+Route::try('/^$/'                                                   , '/index.html', 'R301');         // Redirect to index page
+Route::try('/^(\w{2})\/timesheets\/(\d{4}\/\d{2}\/\d{2}).html$/'    , 'pages/timesheets/day.php?date=$2'); // Timesheet page
 
 
 

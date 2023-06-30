@@ -160,9 +160,12 @@ class DateInterval extends \DateInterval implements Stringable
     public function roundUp(): static
     {
         // PHP can make shitty rounding issues in the microseconds range, try and fix those
-        if ($this->f) {
+        if ($this->f < 0.5) {
+            // Too small, ignore it
             $this->f = 0;
 
+        } else {
+            $this->f = 0;
             $this->s++;
 
             // Limit seconds to 60

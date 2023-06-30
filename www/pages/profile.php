@@ -52,9 +52,6 @@ $definitions->get('code')
     ->setReadonly(true)
     ->setVisible(false);
 
-$definitions->get('phones')
-    ->setSize(6);
-
 $definitions->get('type')
     ->setReadonly(true)
     ->setVisible(false);
@@ -89,7 +86,7 @@ $definitions->get('redirect')
     ->setReadonly(true);
 
 $definitions->get('url')
-    ->setSize(12);
+    ->setSize(9);
 
 $definitions->get('description')
     ->setSize(12);

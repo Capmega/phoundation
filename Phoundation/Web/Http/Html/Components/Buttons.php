@@ -74,7 +74,7 @@ class Buttons extends ElementsBlock implements Iterator
      * @param bool $right
      * @return static
      */
-    public function addButton(Button|string|null $button, DisplayMode $mode = DisplayMode::primary, InputTypeInterface|string $type_or_anchor_url = ButtonType::button, bool $outline = false, bool $right = false): static
+    public function addButton(Button|string|null $button, DisplayMode $mode = DisplayMode::primary, InputTypeInterface|string $type_or_anchor_url = ButtonType::submit, bool $outline = false, bool $right = false): static
     {
         if (is_string($button)) {
             if ($button === tr('Save')) {

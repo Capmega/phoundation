@@ -238,9 +238,10 @@ class Iterator implements IteratorInterface
         if (is_array($source)) {
             // This is a standard array, load it into the source
             $this->source = $source;
+
         } elseif (is_string($source)) {
             // This must be a query. Execute it and get a list of all entries from the result
-            $this->source = sql()->list();
+            $this->source = sql()->list($source, $execute);
 
         } elseif ($source instanceof PDOStatement) {
             // Get a list of all entries from the specified query PDOStatement

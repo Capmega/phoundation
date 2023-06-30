@@ -49,7 +49,7 @@ abstract class Element implements ElementInterface
      */
     public function __toString(): string
     {
-        return $this->render();
+        return (string) $this->render();
     }
 
 

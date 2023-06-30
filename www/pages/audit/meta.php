@@ -15,7 +15,7 @@ use Phoundation\Web\Page;
 
 // Validate GET
 $get = GetValidator::new()
-    ->select('id')->sanitizeForceArray('-')->each()->isId()
+    ->select('id')->sanitizeForceArray('-')->each()->isDbId()
     ->validate();
 
 

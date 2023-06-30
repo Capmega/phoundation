@@ -262,6 +262,7 @@ abstract class Validator implements ValidatorInterface
                     if (is_string($value) and (((int) $value) == $value)) {
                         // This integer value was specified as a numeric string
                         $value = (int) $value;
+
                     } else {
                         if ($value !== null) {
                             $this->addFailure(tr('must have an integer value'));
@@ -421,7 +422,7 @@ abstract class Validator implements ValidatorInterface
      * @param bool $allow_zero
      * @return static
      */
-    public function isId(bool $allow_zero = false): static
+    public function isDbId(bool $allow_zero = false): static
     {
         $this->isInteger();
 
@@ -452,7 +453,7 @@ abstract class Validator implements ValidatorInterface
                 return;
             }
 
-            $this->isPrintable()->isNotNumeric();
+            $this->isPrintable();
         });
     }
 
@@ -771,10 +772,19 @@ abstract class Validator implements ValidatorInterface
                 return;
             }
 
-            $execute = $this->applyExecuteVariables($execute);
-            $column  = sql()->getColumn($query, $execute);
+            $execute        = $this->applyExecuteVariables($execute);
+            $validate_value = sql()->getColumn($query, $execute);
 
-            $this->isValue($column, $ignore_case);
+            if ($ignore_case) {
+                $compare_value  = strtolower((string) $value);
+                $validate_value = strtolower((string) $validate_value);
+            } else {
+                $compare_value  = $value;
+            }
+
+            if ($compare_value != $validate_value) {
+                $this->addFailure(tr('does not exist'));
+            }
         });
     }
 
@@ -801,19 +811,14 @@ abstract class Validator implements ValidatorInterface
                 return;
             }
 
-            if (array_key_exists($column, $this->source)) {
-                $this->addFailure(tr('column ":column" already exists', [':column' => $column]));
+            $execute = $this->applyExecuteVariables($execute);
+            $value   = sql()->getColumn($query, $execute);
 
-            } else {
-                $execute = $this->applyExecuteVariables($execute);
-                $value   = sql()->getColumn($query, $execute);
-
-                if (!$value) {
-                    $this->addFailure(tr('value ":value" does not exists', [':value' => $column]));
-                }
-
-                $this->source[$column] = $value;
+            if (!$value) {
+                $this->addFailure(tr('value ":value" does not exists', [':value' => $column]));
             }
+
+            $this->source[$column] = $value;
         });
     }
 
@@ -912,7 +917,7 @@ abstract class Validator implements ValidatorInterface
             }
 
             if (strlen($value) != $characters) {
-                $this->addFailure(tr('must have ":count" characters or more', [':count' => $characters]));
+                $this->addFailure(tr('must have exactly ":count" characters', [':count' => $characters]));
             }
         });
     }
@@ -1275,11 +1280,13 @@ abstract class Validator implements ValidatorInterface
                 }
 
                 if ($ignore_case) {
-                    $value          = strtolower((string) $value);
+                    $compare_value  = strtolower((string) $value);
                     $validate_value = strtolower((string) $validate_value);
+                } else {
+                    $compare_value  = $value;
                 }
 
-                if ($value != $validate_value) {
+                if ($compare_value != $validate_value) {
                     if ($secret) {
                         $this->addFailure(tr('must be value ":value"', [':value' => $value]));
                     } else {
@@ -1396,7 +1403,7 @@ abstract class Validator implements ValidatorInterface
      * @param DateTime|null $before
      * @return static
      */
-    public function isPast(?DateTime $before = null): static
+    public function isBefore(?DateTime $before = null): static
     {
         return $this->validateValues(function(&$value) {
             $this->hasMaxCharacters(32); // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
@@ -1420,7 +1427,7 @@ abstract class Validator implements ValidatorInterface
      * @param DateTime|null $after
      * @return static
      */
-    public function isFuture(?DateTime $after = null): static
+    public function isAfter(?DateTime $after = null): static
     {
         return $this->validateValues(function(&$value) {
             $this->hasMaxCharacters(32); // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
@@ -1490,11 +1497,11 @@ abstract class Validator implements ValidatorInterface
 
 
     /**
-     * Validates that the selected field is a valid mode
+     * Validates that the selected field is a valid display mode
      *
      * @return static
      */
-    public function isMode(): static
+    public function isDisplayMode(): static
     {
         return $this->validateValues(function(&$value) {
             $this->hasMaxCharacters(12); // Sort-of arbitrary max size, just to ensure regex won't receive a 2MB string
@@ -1554,54 +1561,6 @@ abstract class Validator implements ValidatorInterface
             }
 
             $this->isQueryColumn('SELECT `id` FROM `geo_timezones` WHERE `name` = :name', [':name' => $value]);
-        });
-    }
-
-
-    /**
-     * Validates that the selected date field is older than the specified date
-     *
-     * @param DateTime $date_time
-     * @return static
-     */
-    public function isOlderThan(DateTime $date_time): static
-    {
-        return $this->validateValues(function(&$value) use ($date_time) {
-            $this->isDate();
-
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
-                return;
-            }
-
-// TODO Implement
-//            if (!preg_match($regex, $value)) {
-//                $this->addFailure(tr('must match ":regex"', [':regex' => $regex]));
-//            }
-        });
-    }
-
-
-    /**
-     * Validates that the selected date field is younger than the specified date
-     *
-     * @param DateTime $date_time
-     * @return static
-     */
-    public function isYoungerThan(DateTime $date_time): static
-    {
-        return $this->validateValues(function(&$value) use ($date_time) {
-            $this->isDate();
-
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
-                return;
-            }
-
-// TODO Implement
-//            if (!preg_match($regex, $value)) {
-//                $this->addFailure(tr('must match ":regex"', [':regex' => $regex]));
-//            }
         });
     }
 
@@ -1814,14 +1773,14 @@ abstract class Validator implements ValidatorInterface
     public function isName(int $characters = 64): static
     {
         return $this->validateValues(function(&$value) use ($characters) {
-            $this->hasMinCharacters(2)->hasMaxCharacters($characters);
+            $this->hasMinCharacters(1)->hasMaxCharacters($characters);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
 
-            $this->isPrintable();
+            $this->isPrintable()->isNotNumeric();
         });
     }
 
@@ -1842,7 +1801,7 @@ abstract class Validator implements ValidatorInterface
                 return;
             }
 
-            $this->isAlphaNumeric();
+            $this->isAlphaNumeric()->isNotNumeric();
         });
     }
 
@@ -2084,7 +2043,7 @@ abstract class Validator implements ValidatorInterface
      * @param int $characters
      * @return static
      */
-    public function isColor(): static
+    public function isColor(int $characters = 6): static
     {
         return $this->validateValues(function(&$value) use ($characters) {
             $this->hasMinCharacters(3)->hasMaxCharacters($characters);
@@ -2094,9 +2053,8 @@ abstract class Validator implements ValidatorInterface
                 return;
             }
 
-            if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
-                $this->addFailure(tr('must contain a valid email'));
-            }
+            // Color (for the moment) is only accepted in hexadecimal format
+            $this->isHexadecimal();
         });
     }
 
@@ -2927,6 +2885,7 @@ abstract class Validator implements ValidatorInterface
 
         $this->process_value_failed = false;
         $this->selected_is_default  = false;
+        $this->selected_is_optional = false;
 
         if (!$field) {
             throw new OutOfBoundsException(tr('No field specified'));

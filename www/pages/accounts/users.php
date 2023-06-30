@@ -24,7 +24,7 @@ $users = Users::new();
 if (Page::isPostRequestMethod()) {
     // Validate POST
     $post = PostValidator::new()
-        ->select('id')->isOptional()->isArray()->each()->isId()
+        ->select('id')->isOptional()->isArray()->each()->isDbId()
         ->validate();
 
     try {

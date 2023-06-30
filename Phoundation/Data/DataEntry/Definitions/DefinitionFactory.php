@@ -54,7 +54,7 @@ class DefinitionFactory
             ->setLabel(tr('Category'))
             ->addValidationFunction(function (ValidatorInterface $validator) {
                 // Ensure categories id exists and that its or category
-                $validator->or('category')->isId()->isQueryColumn('SELECT `id` FROM `categories` WHERE `id` = :id AND `status` IS NULL', [':id' => '$categories_id']);
+                $validator->or('category')->isDbId()->isQueryColumn('SELECT `id` FROM `categories` WHERE `id` = :id AND `status` IS NULL', [':id' => '$categories_id']);
             });
     }
 
@@ -108,7 +108,7 @@ class DefinitionFactory
             ->setLabel(tr('Company'))
             ->addValidationFunction(function (ValidatorInterface $validator) {
                 // Ensure companies id exists and that its or company
-                $validator->or('company')->isId()->isQueryColumn('SELECT `id` FROM `business_companies` WHERE `id` = :id AND `status` IS NULL', [':id' => '$companies_id']);
+                $validator->or('company')->isDbId()->isQueryColumn('SELECT `id` FROM `business_companies` WHERE `id` = :id AND `status` IS NULL', [':id' => '$companies_id']);
             });
     }
 
@@ -166,7 +166,7 @@ class DefinitionFactory
             ->setHelpGroup(tr('Location information'))
             ->setHelpText(tr('The language in which the site will be displayed to the user'))
             ->addValidationFunction(function (ValidatorInterface $validator) {
-                $validator->or('language')->isId()->isQueryColumn('SELECT `id` FROM `core_languages` WHERE `id` = :id AND `status` IS NULL', [':id' => '$languages_id']);
+                $validator->or('language')->isDbId()->isQueryColumn('SELECT `id` FROM `core_languages` WHERE `id` = :id AND `status` IS NULL', [':id' => '$languages_id']);
             });
     }
 
@@ -222,7 +222,7 @@ class DefinitionFactory
             ->setLabel(tr('Provider'))
             ->addValidationFunction(function (ValidatorInterface $validator) {
                 // Ensure providers id exists and that its or provider
-                $validator->or('provider')->isId()->isQueryColumn('SELECT `id` FROM `business_providers` WHERE `id` = :id AND `status` IS NULL', [':id' => '$providers_id']);
+                $validator->or('provider')->isDbId()->isQueryColumn('SELECT `id` FROM `business_providers` WHERE `id` = :id AND `status` IS NULL', [':id' => '$providers_id']);
             });
     }
 
@@ -276,7 +276,7 @@ class DefinitionFactory
             ->setLabel(tr('Customer'))
             ->addValidationFunction(function (ValidatorInterface $validator) {
                 // Ensure customers id exists and that its or customer
-                $validator->or('customer')->isId()->isQueryColumn('SELECT `id` FROM `business_customers` WHERE `id` = :id AND `status` IS NULL', [':id' => '$customers_id']);
+                $validator->or('customer')->isDbId()->isQueryColumn('SELECT `id` FROM `business_customers` WHERE `id` = :id AND `status` IS NULL', [':id' => '$customers_id']);
             });
     }
 
@@ -331,7 +331,7 @@ class DefinitionFactory
             ->setSize(3)
             ->setLabel(tr('Timezone'))
             ->addValidationFunction(function (ValidatorInterface $validator) {
-                $validator->or('timezone')->isId()->isTrue(function ($value) {
+                $validator->or('timezone')->isDbId()->isTrue(function ($value) {
                     // This timezone must exist.
                     return Timezone::exists('name', $value);
                 }, tr('The specified timezone does not exist'));
@@ -391,7 +391,7 @@ class DefinitionFactory
             ->setAutoComplete(true)
             ->setLabel(tr('Country'))
             ->addValidationFunction(function (ValidatorInterface $validator) {
-                $validator->or('country')->isId()->isQueryColumn('SELECT `id` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':id' => '$countries_id']);
+                $validator->or('country')->isDbId()->isQueryColumn('SELECT `id` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':id' => '$countries_id']);
             });
     }
 
@@ -448,7 +448,7 @@ class DefinitionFactory
             ->setAutoComplete(true)
             ->setLabel(tr('State'))
             ->addValidationFunction(function (ValidatorInterface $validator) {
-                $validator->or('state')->isId()->isQueryColumn('SELECT `id` FROM `geo_states` WHERE `id` = :id AND `countries_id` = :countries_id AND `status` IS NULL', [':id' => '$states_id', ':countries_id' => '$countries_id']);
+                $validator->or('state')->isDbId()->isQueryColumn('SELECT `id` FROM `geo_states` WHERE `id` = :id AND `countries_id` = :countries_id AND `status` IS NULL', [':id' => '$states_id', ':countries_id' => '$countries_id']);
             });
     }
 
@@ -505,7 +505,7 @@ class DefinitionFactory
             ->setAutoComplete(true)
             ->setLabel(tr('City'))
             ->addValidationFunction(function (ValidatorInterface $validator) {
-                $validator->or('city')->isId()->isQueryColumn('SELECT `id` FROM `geo_cities` WHERE `id` = :id AND `states_name`  = :states_id    AND `status` IS NULL', [':id' => '$cities_id', ':states_id' => '$states_id']);
+                $validator->or('city')->isDbId()->isQueryColumn('SELECT `id` FROM `geo_cities` WHERE `id` = :id AND `states_name`  = :states_id    AND `status` IS NULL', [':id' => '$cities_id', ':states_id' => '$states_id']);
             });
     }
 
@@ -554,12 +554,12 @@ class DefinitionFactory
             ->setSize(3)
             ->setAutoComplete(true)
             ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) use ($filters) {
-                return Users::new()->getHtmlSelect($filters)
+                return Users::new()->getHtmlSelect()
                     ->setSelected(isset_get($source[$key]))
                     ->render();
             })
             ->addValidationFunction(function (ValidatorInterface $validator) {
-                $validator->isId()->isQueryColumn('SELECT `id` FROM `accounts_users` WHERE `id` = :id AND `status` IS NULL', [':id' => '$leaders_id']);
+                $validator->isDbId()->isQueryColumn('SELECT `id` FROM `accounts_users` WHERE `id` = :id AND `status` IS NULL', [':id' => '$leaders_id']);
             });
     }
 

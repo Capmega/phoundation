@@ -86,6 +86,13 @@ interface DataListInterface extends IteratorInterface
     public function getQuery(): string;
 
     /**
+     * Returns the execute array for the query for this object when generating internal content
+     *
+     * @return array|null
+     */
+    public function getExecute(): ?array;
+
+    /**
      * Returns the table name that is the source for this DataList object
      *
      * @return string
@@ -229,22 +236,4 @@ interface DataListInterface extends IteratorInterface
      * @deprecated This function will be replaced by the QueryBuilder. DO NOT USE
      */
     public function load(?string $id_column = null): static;
-
-    /**
-     * Load the data list elements from database
-     *
-     * @param array|string|null $columns
-     * @param array $filters
-     * @param array $order_by
-     * @return array
-     * @deprecated This function will be replaced by the QueryBuilder. DO NOT USE
-     */
-    public function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array;
-
-    /**
-     * Save the data list elements to database
-     *
-     * @return static
-     */
-    public function save(): static;
 }

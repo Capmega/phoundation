@@ -409,16 +409,17 @@ trait ValidatorBasics
      *
      * This method will check the failures array and if any failures were registered, it will throw an exception
      *
-     * @param bool $clear_source
+     * @param bool $clean_source
      * @return array
      */
-    public function validate(bool $clear_source = true): array
+    public function validate(bool $clean_source = true): array
     {
         // Remove all unselected and all failed fields
         foreach ($this->source as $field => $value) {
             // Unprocessed fields
-            if ($clear_source) {
+            if ($clean_source) {
                 if (!in_array($field, $this->selected_fields)) {
+                    $unclean[$field] = tr('The field ":field" is unknown', [':field' => $field]);
                     unset($this->source[$field]);
                     continue;
                 }
@@ -445,6 +446,12 @@ trait ValidatorBasics
         if ($this->failures) {
             throw ValidationFailedException::new(tr('Data validation failed with the following issues:'))
                 ->setData($this->failures)
+                ->makeWarning();
+        }
+
+        if (isset($unclean)) {
+            throw ValidationFailedException::new(tr('Data validation failed because of the following unknown fields'))
+                ->setData($unclean)
                 ->makeWarning();
         }
 

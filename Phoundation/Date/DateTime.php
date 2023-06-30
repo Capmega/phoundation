@@ -19,7 +19,7 @@ use Stringable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Date
  */
-class DateTime extends \DateTime implements Stringable, \Phoundation\DateInterfaces\DateTimeInterface
+class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInterface
 {
     /**
      * Returns this DateTime object as a string in ISO 8601 format without switching timezone

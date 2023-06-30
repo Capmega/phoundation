@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Api;
 
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Web\Page;
 
 

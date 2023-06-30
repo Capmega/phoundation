@@ -1,10 +1,9 @@
 <?php
 
-namespace Phoundation\DateInterfaces;
+namespace Phoundation\Date\Interfaces;
 
 
 use Phoundation\Date\DateInterval;
-use Phoundation\Date\DateTime;
 use Phoundation\Date\DateTimeZone;
 
 /**

@@ -3,11 +3,14 @@
 namespace Phoundation\Data\DataEntry\Definitions\Interfaces;
 
 
+use PDOStatement;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Web\Http\Html\Components\Interfaces\InputElementInterface;
 use Phoundation\Web\Http\Html\Components\Interfaces\InputTypeExtendedInterface;
 use Phoundation\Web\Http\Html\Components\Interfaces\InputTypeInterface;
 use Phoundation\Web\Http\Html\Enums\InputType;
+use Phoundation\Web\Http\UrlBuilder;
+use Stringable;
 
 /**
  * Class Definition
@@ -21,6 +24,39 @@ use Phoundation\Web\Http\Html\Enums\InputType;
  */
 interface DefinitionInterface
 {
+    /**
+     * UsesNewField class constructor
+     *
+     * @param string|null $field
+     */
+    public function __construct(?string $field = null);
+
+
+    /**
+     * Returns a new static object
+     *
+     * @param string|null $field
+     * @return DefinitionInterface
+     */
+    public static function new(?string $field = null): DefinitionInterface;
+
+
+    /**
+     * Returns the field
+     *
+     * @return string|null
+     */
+    public function getField(): ?string;
+
+
+    /**
+     * Sets the field
+     *
+     * @param string|null $field
+     * @return DefinitionInterface
+     */
+    public function setField(?string $field): DefinitionInterface;
+
     /**
      * Returns the internal definitions for this field
      *
@@ -40,18 +76,18 @@ interface DefinitionInterface
      * Add specified value for the specified key for this DataEntry field
      *
      * @param string $key
-     * @return callable|string|float|int|bool|null
+     * @return callable|PDOStatement|Stringable|array|string|float|int|bool|null
      */
-    public function getKey(string $key): callable|string|float|int|bool|null;
+    public function getKey(string $key): callable|PDOStatement|Stringable|array|string|float|int|bool|null;
 
     /**
      * Add specified value for the specified key for this DataEntry field
      *
      * @param string $key
-     * @param string|float|int|bool|null $value
+     * @param callable|PDOStatement|Stringable|array|string|float|int|bool|null $value
      * @return static
      */
-    public function setKey(string $key, callable|array|string|float|int|bool|null $value): static;
+    public function setKey(string $key, callable|PDOStatement|Stringable|array|string|float|int|bool|null $value): static;
 
     /**
      * Returns if this field will not set the DataEntry to "modified" state when changed
@@ -245,19 +281,19 @@ interface DefinitionInterface
      *
      * The data source may be specified as a query string or a key => value array
      *
-     * @return array|string|null
+     * @return array|PDOStatement|Stringable|null
      */
-    public function getSource(): array|string|null;
+    public function getSource(): array|PDOStatement|Stringable|null;
 
     /**
      * Sets a data source for the HTML client element contents of this field
      *
      * The data source may be specified as a query string or a key => value array
      *
-     * @param array|string|null $value
+     * @param array|PDOStatement|Stringable|null $value
      * @return static
      */
-    public function setSource(array|string|null $value): static;
+    public function setSource(array|PDOStatement|Stringable|null $value): static;
 
     /**
      * Returns a query execute bound variables execute array for the specified query string source
@@ -588,4 +624,33 @@ interface DefinitionInterface
      * @return void
      */
     public function validate(ValidatorInterface $validator, ?string $prefix): void;
+
+    /**
+     * Returns variables for the component
+     *
+     * Format should be like
+     *
+     * [
+     *     'countries_id' => '$("#countries_id").val()',
+     *     'states_id'    => '$("#states_id").val()'
+     * ]
+     *
+     * @return array|null
+     */
+    public function getVariables(): array|null;
+
+    /**
+     * Sets variables for the component
+     *
+     * Format should be like
+     *
+     * [
+     *     'countries_id' => '$("#countries_id").val()',
+     *     'states_id'    => '$("#states_id").val()'
+     * ]
+     *
+     * @param array|null $value
+     * @return static
+     */
+    public function setVariables(array|null $value): static;
 }

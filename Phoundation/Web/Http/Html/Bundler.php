@@ -7,6 +7,7 @@ namespace Phoundation\Web\Http\Html;
 use Phoundation\Cdn\Cdn;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
+use Phoundation\Core\Enums\EnumRequestTypes;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Developer\Debug;
@@ -199,7 +200,7 @@ class Bundler
      */
     protected function newBundle(array $files, string $extension): void
     {
-        $admin_path = (Core::getRequestType('admin') ? 'admin/' : '');
+        $admin_path = (Core::isRequestType(EnumRequestTypes::admin) ? 'admin/' : '');
 
         $this->extension   = (Config::get('web.minify', true) ? '.min.' . $extension : '.' . $extension);
         $this->path        =  PATH_WWW . LANGUAGE . '/' . $admin_path . 'pub/' . $extension.'/';

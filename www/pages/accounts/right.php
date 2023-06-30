@@ -16,7 +16,7 @@ use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
 
 // Validate
 $get = GetValidator::new()
-    ->select('id')->isId()
+    ->select('id')->isDbId()
     ->validate();
 
 

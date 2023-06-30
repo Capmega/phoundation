@@ -121,7 +121,7 @@ class Task extends DataEntry
                 ->setSize(4)
                 ->setMaxlength(17)
                 ->addValidationFunction(function(ValidatorInterface $validator) {
-                    $validator->isId();
+                    $validator->isDbId();
                 }))
             ->addDefinition(Definition::new('parents_id')
                 ->setInputType(InputType::select)
@@ -130,7 +130,7 @@ class Task extends DataEntry
                 ->setSize(4)
                 ->setMaxlength(17)
                 ->addValidationFunction(function(ValidatorInterface $validator) {
-                    $validator->isId();
+                    $validator->isDbId();
                 }))
             ->addDefinition(Definition::new('time_limit')
                 ->setInputType(InputType::number)
@@ -169,7 +169,7 @@ class Task extends DataEntry
                 ->setDisabled(true)
                 ->setSize(4)
                 ->addValidationFunction(function(ValidatorInterface $validator) {
-                    $validator->isId();
+                    $validator->isDbId();
                 }))
             ->addDefinition(Definition::new('command')
                 ->setLabel('Command')

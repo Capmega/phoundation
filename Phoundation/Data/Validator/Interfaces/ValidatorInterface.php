@@ -137,7 +137,7 @@ interface ValidatorInterface extends ValidatorBasicsInterface
      * @param bool $allow_zero
      * @return static
      */
-    public function isId(bool $allow_zero = false): static;
+    public function isDbId(bool $allow_zero = false): static;
 
     /**
      * Validates the datatype for the selected field
@@ -468,7 +468,7 @@ interface ValidatorInterface extends ValidatorBasicsInterface
      * @param DateTime|null $before
      * @return static
      */
-    public function isPast(?DateTime $before = null): static;
+    public function isBefore(?DateTime $before = null): static;
 
     /**
      * Validates that the selected field is in the past
@@ -476,7 +476,7 @@ interface ValidatorInterface extends ValidatorBasicsInterface
      * @param DateTime|null $after
      * @return static
      */
-    public function isFuture(?DateTime $after = null): static;
+    public function isAfter(?DateTime $after = null): static;
 
     /**
      * Validates that the selected field is a credit card
@@ -496,7 +496,7 @@ interface ValidatorInterface extends ValidatorBasicsInterface
      *
      * @return static
      */
-    public function isMode(): static;
+    public function isDisplayMode(): static;
 
     /**
      * Validates that the selected field is a timezone
@@ -504,22 +504,6 @@ interface ValidatorInterface extends ValidatorBasicsInterface
      * @return static
      */
     public function isTimezone(): static;
-
-    /**
-     * Validates that the selected date field is older than the specified date
-     *
-     * @param DateTime $date_time
-     * @return static
-     */
-    public function isOlderThan(DateTime $date_time): static;
-
-    /**
-     * Validates that the selected date field is younger than the specified date
-     *
-     * @param DateTime $date_time
-     * @return static
-     */
-    public function isYoungerThan(DateTime $date_time): static;
 
     /**
      * Validates the datatype for the selected field

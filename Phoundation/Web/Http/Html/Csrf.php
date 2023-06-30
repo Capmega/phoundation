@@ -7,6 +7,7 @@ namespace Phoundation\Web\Http\Html;
 use DateTime;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
+use Phoundation\Core\Enums\EnumRequestTypes;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
@@ -84,7 +85,7 @@ class Csrf
                 return false;
             }
 
-            if (!Core::getRequestType('http') and !Core::getRequestType('admin')) {
+            if (!Core::isRequestType(EnumRequestTypes::html) and !Core::isRequestType(EnumRequestTypes::admin)) {
                 // CSRF only works for HTTP or ADMIN requests
                 return false;
             }
@@ -103,7 +104,7 @@ class Csrf
                 throw OutOfBoundsException::new(tr('No CSRF field specified'))->makeWarning();
             }
 
-            if (Core::getRequestType('ajax')) {
+            if (Core::isRequestType(EnumRequestTypes::ajax)) {
                 if (substr($_POST['csrf'], 0, 5) != 'ajax_') {
                     // Invalid CSRF code is sppokie, don't make this a warning
                     throw OutOfBoundsException::new(tr('Specified CSRF ":code" is invalid'))->makeWarning();
@@ -131,7 +132,7 @@ class Csrf
                 }
             }
 
-            if (Core::getRequestType('ajax')) {
+            if (Core::isRequestType(EnumRequestTypes::ajax)) {
                 // Send new CSRF code with the AJAX return payload
                 $core->register['ajax_csrf'] = set_csrf('ajax_');
             }
@@ -147,7 +148,7 @@ class Csrf
             }
 
             Log::warning('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb');
-            Log::warning(Core::getRequestType('http'));
+            Log::warning(Core::isRequestType(EnumRequestTypes::html));
             Log::warning($e);
             Page::flash()->add(tr('The form data was too old, please try again'), 'warning');
         }
