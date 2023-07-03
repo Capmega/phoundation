@@ -466,10 +466,10 @@ class Sql implements SqlInterface
                                 ]), $e);
                             }
 
-                            throw new SqlException(tr('Query ":query" has a syntax error: ":error"', [
+                            throw SqlException::new(tr('Query ":query" has a syntax error: ":error"', [
                                 ':query' => self::buildQueryString($query, $execute),
                                 ':error' => Strings::from($error[2], 'syntax; ')
-                            ], false), $e);
+                            ], false), $e)->setData(['query' => $query, 'execute' => $execute]);
 
                         case 1072:
                             // Adding index error, index probably does not exist

@@ -21,39 +21,25 @@ use Phoundation\Exception\OutOfBoundsException;
 trait DataEntryCompany
 {
     /**
-     * The company for this object
-     *
-     * @var Company|null $company
-     */
-    protected ?Company $company;
-
-
-    /**
      * Returns the companies_id for this object
      *
      * @return int|null
      */
     public function getCompaniesId(): ?int
     {
-        return $this->getDataValue('string', 'companies_id');
+        return $this->getDataValue('int', 'companies_id');
     }
 
 
     /**
      * Sets the companies_id for this object
      *
-     * @param string|int|null $companies_id
+     * @param int|null $companies_id
      * @return static
      */
-    public function setCompaniesId(string|int|null $companies_id): static
+    public function setCompaniesId(int|null $companies_id): static
     {
-        if ($companies_id and !is_natural($companies_id)) {
-            throw new OutOfBoundsException(tr('Specified companies_id ":id" is not numeric', [
-                ':id' => $companies_id
-            ]));
-        }
-
-        return $this->setDataValue('companies_id', get_null(isset_get_typed('integer', $companies_id)));
+        return $this->setDataValue('companies_id', $companies_id);
     }
 
 
@@ -75,23 +61,24 @@ trait DataEntryCompany
 
 
     /**
-     * Sets the companies_id for this object
+     * Returns the companies_name for this object
      *
-     * @param Company|string|int|null $company
+     * @return Company|null
+     */
+    public function getCompaniesName(): ?Company
+    {
+        return $this->getDataValue('string', 'companies_name');
+    }
+
+
+    /**
+     * Sets the companies_name for this object
+     *
+     * @param string|null $companies_name
      * @return static
      */
-    public function setCompany(Company|string|int|null $company): static
+    public function setCompaniesName(string|null $companies_name): static
     {
-        if ($company) {
-            if (!is_numeric($company)) {
-                $company = Company::get($company);
-            }
-
-            if (is_object($company)) {
-                $company = $company->getId();
-            }
-        }
-
-        return $this->setCompaniesId(get_null($company));
+        return $this->setDataValue('companies_name', $companies_name);
     }
 }

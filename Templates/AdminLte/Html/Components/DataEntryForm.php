@@ -149,7 +149,7 @@ class DataEntryForm extends Renderer
                     $field_name = '';
                 }
 
-                if ($definition->getVirtual() or !$definition->getVisible()) {
+                if (!$definition->getVisible()) {
                     // This element shouldn't be shown, continue
                     continue;
                 }
@@ -161,7 +161,7 @@ class DataEntryForm extends Renderer
 
                 // This is a new Definition object, get the definitions from there
                 // TODO Use the Definition class all here,
-                $definition_array = $definition->getDefinitions();
+                $definition_array = $definition->getRules();
             }
 
             // Set defaults

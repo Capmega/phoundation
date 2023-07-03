@@ -21,14 +21,6 @@ use Phoundation\Exception\OutOfBoundsException;
 trait DataEntryDepartment
 {
     /**
-     * The department for this object
-     *
-     * @var Department|null $department
-     */
-    protected ?Department $department;
-
-
-    /**
      * Returns the departments_id for this object
      *
      * @return int|null
@@ -42,18 +34,12 @@ trait DataEntryDepartment
     /**
      * Sets the departments_id for this object
      *
-     * @param string|int|null $departments_id
+     * @param int|null $departments_id
      * @return static
      */
-    public function setDepartmentsId(string|int|null $departments_id): static
+    public function setDepartmentsId(int|null $departments_id): static
     {
-        if ($departments_id and !is_natural($departments_id)) {
-            throw new OutOfBoundsException(tr('Specified departments_id ":id" is not numeric', [
-                ':id' => $departments_id
-            ]));
-        }
-
-        return $this->setDataValue('departments_id', get_null(isset_get_typed('integer', $departments_id)));
+        return $this->setDataValue('departments_id', $departments_id);
     }
 
 
@@ -75,23 +61,24 @@ trait DataEntryDepartment
 
 
     /**
+     * Returns the departments_id for this object
+     *
+     * @return string|null
+     */
+    public function getDepartmentsName(): ?string
+    {
+        return $this->getDataValue('departments_name');
+    }
+
+
+    /**
      * Sets the departments_id for this object
      *
-     * @param Department|string|int|null $department
+     * @param string|null $departments_name
      * @return static
      */
-    public function setDepartment(Department|string|int|null $department): static
+    public function setDepartmentsName(string|null $departments_name): static
     {
-        if ($department) {
-            if (!is_numeric($department)) {
-                $department = Department::get($department);
-            }
-
-            if (is_object($department)) {
-                $department = $department->getId();
-            }
-        }
-
-        return $this->setDepartmentsId(get_null($department));
+        return $this->setDataValue('departments_name', $departments_name);
     }
 }

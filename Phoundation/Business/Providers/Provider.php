@@ -53,15 +53,15 @@ class Provider extends DataEntry
      * Provider class constructor
      *
      * @param DataEntryInterface|string|int|null $identifier
-     * @param bool $init
+     * @param string|null $column
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = true)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null)
     {
         $this->table        = 'business_providers';
         $this->entry_name   = 'provider';
         $this->unique_field = 'seo_name';
 
-        parent::__construct($identifier, $init);
+        parent::__construct($identifier, $column);
     }
 
 
@@ -120,22 +120,22 @@ class Provider extends DataEntry
     protected function initDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->addDefinition(DefinitionFactory::getCategoriesId())
-            ->addDefinition(DefinitionFactory::getCategory())
-            ->addDefinition(DefinitionFactory::getCompaniesId())
-            ->addDefinition(DefinitionFactory::getCompany())
-            ->addDefinition(DefinitionFactory::getName()
+            ->addDefinition(DefinitionFactory::getCategoriesId($this))
+            ->addDefinition(DefinitionFactory::getCategory($this))
+            ->addDefinition(DefinitionFactory::getCompaniesId($this))
+            ->addDefinition(DefinitionFactory::getCompany($this))
+            ->addDefinition(DefinitionFactory::getName($this)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isFalse(function($value, $source) {
                         Provider::exists('name', $value, isset_get($source['id']));
                     }, tr('already exists'));
                 }))
-            ->addDefinition(DefinitionFactory::getSeoName())
-            ->addDefinition(DefinitionFactory::getCode())
-            ->addDefinition(DefinitionFactory::getEmail())
-            ->addDefinition(DefinitionFactory::getLanguagesId())
-            ->addDefinition(DefinitionFactory::getLanguage())
-            ->addDefinition(Definition::new('address1')
+            ->addDefinition(DefinitionFactory::getSeoName($this))
+            ->addDefinition(DefinitionFactory::getCode($this))
+            ->addDefinition(DefinitionFactory::getEmail($this))
+            ->addDefinition(DefinitionFactory::getLanguagesId($this))
+            ->addDefinition(DefinitionFactory::getLanguage($this))
+            ->addDefinition(Definition::new($this, 'address1')
                 ->setOptional(true)
                 ->setAutoComplete(true)
                 ->setCliField('--address1 ADDRESS')
@@ -143,7 +143,7 @@ class Provider extends DataEntry
                 ->setSize(12)
                 ->setLabel(tr('Address 1'))
                 ->setHelpText(tr('Address information for this provider')))
-            ->addDefinition(Definition::new('address2')
+            ->addDefinition(Definition::new($this, 'address2')
                 ->setOptional(true)
                 ->setAutoComplete(true)
                 ->setCliField('--address2 ADDRESS')
@@ -151,7 +151,7 @@ class Provider extends DataEntry
                 ->setSize(12)
                 ->setLabel(tr('Address 2'))
                 ->setHelpText(tr('Additional address information for this provider')))
-            ->addDefinition(Definition::new('address3')
+            ->addDefinition(Definition::new($this, 'address3')
                 ->setOptional(true)
                 ->setAutoComplete(true)
                 ->setCliField('--address3 ADDRESS')
@@ -159,7 +159,7 @@ class Provider extends DataEntry
                 ->setSize(12)
                 ->setLabel(tr('Address 3'))
                 ->setHelpText(tr('Additional address information for this provider')))
-            ->addDefinition(Definition::new('zipcode')
+            ->addDefinition(Definition::new($this, 'zipcode')
                 ->setOptional(true)
                 ->setAutoComplete(true)
                 ->setCliField('--zip-code ZIPCODE (POSTAL CODE)')
@@ -167,16 +167,16 @@ class Provider extends DataEntry
                 ->setSize(6)
                 ->setLabel(tr('Postal code / Zipcode'))
                 ->setHelpText(tr('Postal code (zipcode) information for this provider')))
-            ->addDefinition(DefinitionFactory::getCountriesId())
-            ->addDefinition(DefinitionFactory::getCountry())
-            ->addDefinition(DefinitionFactory::getStatesId())
-            ->addDefinition(DefinitionFactory::getState())
-            ->addDefinition(DefinitionFactory::getCitiesId())
-            ->addDefinition(DefinitionFactory::getCity())
-            ->addDefinition(DefinitionFactory::getPhones())
-            ->addDefinition(DefinitionFactory::getUrl())
-            ->addDefinition(DefinitionFactory::getDescription())
-            ->addDefinition(Definition::new('picture')
+            ->addDefinition(DefinitionFactory::getCountriesId($this))
+            ->addDefinition(DefinitionFactory::getCountry($this))
+            ->addDefinition(DefinitionFactory::getStatesId($this))
+            ->addDefinition(DefinitionFactory::getState($this))
+            ->addDefinition(DefinitionFactory::getCitiesId($this))
+            ->addDefinition(DefinitionFactory::getCity($this))
+            ->addDefinition(DefinitionFactory::getPhones($this))
+            ->addDefinition(DefinitionFactory::getUrl($this))
+            ->addDefinition(DefinitionFactory::getDescription($this))
+            ->addDefinition(Definition::new($this, 'picture')
                 ->setVirtual(true)
                 ->setVisible(false));
     }

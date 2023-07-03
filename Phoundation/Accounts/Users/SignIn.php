@@ -46,14 +46,14 @@ class SignIn extends DataEntry
      * SignIn class constructor
      *
      * @param DataEntryInterface|string|int|null $identifier
-     * @param bool $init
+     * @param string|null $column
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = true)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null)
     {
         $this->table       = 'accounts_signins';
         $this->entry_name  = 'signin';
 
-        parent::__construct($identifier, $init);
+        parent::__construct($identifier, $column);
     }
 
 
@@ -88,22 +88,22 @@ class SignIn extends DataEntry
     protected function initDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->addDefinition(Definition::new('ip_address')
+            ->addDefinition(Definition::new($this, 'ip_address')
                 ->setVisible(false))
-            ->addDefinition(Definition::new('net_len')
+            ->addDefinition(Definition::new($this, 'net_len')
                 ->setVisible(false))
-            ->addDefinition(Definition::new('ip_address_human')
+            ->addDefinition(Definition::new($this, 'ip_address_human')
                 ->setReadonly(true)
                 ->setSize(6)
                 ->setMaxlength(48)
                 ->setLabel(tr('IP Address')))
-            ->addDefinition(Definition::new('user_agent')
+            ->addDefinition(Definition::new($this, 'user_agent')
                 ->setOptional(true)
                 ->setReadonly(true)
                 ->setSize(6)
                 ->setMaxlength(2040)
                 ->setLabel(tr('User agent')))
-            ->addDefinition(Definition::new('latitude')
+            ->addDefinition(Definition::new($this, 'latitude')
                 ->setOptional(true)
                 ->setReadonly(true)
                 ->setInputType(InputType::number)
@@ -112,7 +112,7 @@ class SignIn extends DataEntry
                 ->setMax(90)
                 ->setStep('any')
                 ->setLabel(tr('Latitude')))
-            ->addDefinition(Definition::new('longitude')
+            ->addDefinition(Definition::new($this, 'longitude')
                 ->setOptional(true)
                 ->setReadonly(true)
                 ->setInputType(InputType::number)
@@ -121,7 +121,7 @@ class SignIn extends DataEntry
                 ->setMax(180)
                 ->setStep('any')
                 ->setLabel(tr('Longitude')))
-            ->addDefinition(Definition::new('countries_id')
+            ->addDefinition(Definition::new($this, 'countries_id')
                 ->setOptional(true)
                 ->setReadonly(true)
                 ->setInputType(InputTypeExtended::dbid)
@@ -137,7 +137,7 @@ class SignIn extends DataEntry
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->xor('country')->isQueryColumn('SELECT `name` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':id' => '$countries_id']);
                 }))
-            ->addDefinition(Definition::new('timezones_id')
+            ->addDefinition(Definition::new($this, 'timezones_id')
                 ->setOptional(true)
                 ->setReadonly(true)
                 ->setInputType(InputTypeExtended::dbid)

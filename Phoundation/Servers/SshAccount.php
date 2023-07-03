@@ -37,14 +37,14 @@ class SshAccount extends DataEntry
      * User class constructor
      *
      * @param DataEntryInterface|string|int|null $identifier
-     * @param bool $init
+     * @param string|null $column
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = true)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null)
     {
         $this->table        = 'ssh_accounts';
         $this->entry_name   = 'SSH account';
 
-        parent::__construct($identifier, $init);
+        parent::__construct($identifier, $column);
     }
 
 
@@ -79,14 +79,14 @@ class SshAccount extends DataEntry
     protected function initDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->addDefinition(DefinitionFactory::getName()
+            ->addDefinition(DefinitionFactory::getName($this)
                 ->setSize(6)
                 ->setHelpGroup(tr('Identification'))
                 ->setHelpText(tr('The name for this account')))
-            ->addDefinition(Definition::new('seo_name')
+            ->addDefinition(Definition::new($this, 'seo_name')
                 ->setVisible(false)
                 ->setReadonly(true))
-            ->addDefinition(Definition::new('username')
+            ->addDefinition(Definition::new($this, 'username')
                 ->setLabel(tr('Username'))
                 ->setInputType(InputTypeExtended::username)
                 ->setCliField(tr('-u,--username NAME'))
@@ -94,9 +94,9 @@ class SshAccount extends DataEntry
                 ->setSize(6)
                 ->setMaxlength(64)
                 ->setHelpText(tr('The username on the server for this account')))
-            ->addDefinition(DefinitionFactory::getDescription()
+            ->addDefinition(DefinitionFactory::getDescription($this)
                 ->setHelpText(tr('The description for this account')))
-            ->addDefinition(Definition::new('ssh_key')
+            ->addDefinition(Definition::new($this, 'ssh_key')
                 ->setLabel(tr('SSH key'))
                 ->setCliField(tr('-i,--ssh-key-file FILE'))
                 ->setAutoComplete(true)

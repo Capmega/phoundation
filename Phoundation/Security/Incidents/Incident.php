@@ -48,15 +48,15 @@ class Incident extends DataEntry
      * Incident class constructor
      *
      * @param DataEntryInterface|string|int|null $identifier
-     * @param bool $init
+     * @param string|null $column
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = true)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null)
     {
         $this->table        = 'security_incidents';
         $this->entry_name   = 'incident';
         $this->unique_field = 'id';
 
-        parent::__construct($identifier, $init);
+        parent::__construct($identifier, $column);
     }
 
 
@@ -171,13 +171,13 @@ class Incident extends DataEntry
     protected function initDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->addDefinition(Definition::new('type')
+            ->addDefinition(Definition::new($this, 'type')
                 ->setLabel(tr('Incident type'))
                 ->setDisabled(true)
                 ->setDefault(tr('Unknown'))
                 ->setSize(6)
                 ->setMaxlength(6))
-            ->addDefinition(Definition::new('severity')
+            ->addDefinition(Definition::new($this, 'severity')
                 ->setElement(InputElement::select)
                 ->setLabel(tr('Severity'))
                 ->setDisabled(true)
@@ -190,13 +190,13 @@ class Incident extends DataEntry
                     Severity::high->value   => tr('High'),
                     Severity::severe->value => tr('Severe')
                 ]))
-            ->addDefinition(Definition::new('title')
+            ->addDefinition(Definition::new($this, 'title')
                 ->setLabel(tr('Title'))
                 ->setDisabled(true)
                 ->setSize(12)
                 ->setMaxlength(4)
                 ->setMaxlength(255))
-            ->addDefinition(Definition::new('details')
+            ->addDefinition(Definition::new($this, 'details')
                 ->setElement(InputElement::textarea)
                 ->setLabel(tr('Details'))
                 ->setDisabled(true)

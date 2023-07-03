@@ -812,13 +812,13 @@ abstract class Validator implements ValidatorInterface
             }
 
             $execute = $this->applyExecuteVariables($execute);
-            $value   = sql()->getColumn($query, $execute);
+            $result  = sql()->getColumn($query, $execute);
 
-            if (!$value) {
+            if (!$result) {
                 $this->addFailure(tr('value ":value" does not exists', [':value' => $column]));
+            } else {
+                $this->source[$column] = $result;
             }
-
-            $this->source[$column] = $value;
         });
     }
 

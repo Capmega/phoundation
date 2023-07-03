@@ -2,6 +2,7 @@
 
 namespace Phoundation\Data\DataEntry\Definitions\Interfaces;
 
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Stringable;
 
@@ -18,6 +19,21 @@ use Stringable;
  */
 interface DefinitionsInterface extends IteratorInterface
 {
+    /**
+     * Returns the data entry
+     *
+     * @return DataEntryInterface
+     */
+    public function getDataEntry(): DataEntryInterface;
+
+    /**
+     * Sets the data entry
+     *
+     * @param DataEntryInterface $data_entry
+     * @return static
+     */
+    public function setDataEntry(DataEntryInterface $data_entry): static;
+
     /**
      * Adds the specified Definition to the fields list
      *

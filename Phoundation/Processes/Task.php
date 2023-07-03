@@ -38,14 +38,14 @@ class Task extends DataEntry
      * Country class constructor
      *
      * @param DataEntryInterface|string|int|null $identifier
-     * @param bool $init
+     * @param string|null $column
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = true)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null)
     {
         $this->table        = 'processes_tasks';
         $this->entry_name   = 'process task';
 
-        parent::__construct($identifier, $init);
+        parent::__construct($identifier, $column);
     }
 
 
@@ -74,7 +74,7 @@ class Task extends DataEntry
     protected function initDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->addDefinition(Definition::new('name')
+            ->addDefinition(Definition::new($this, 'name')
                 ->setLabel(tr('Name'))
                 ->setOptional(true)
                 ->setSize(4)
@@ -82,15 +82,15 @@ class Task extends DataEntry
                 ->addValidationFunction(function(ValidatorInterface $validator) {
                     $validator->isName();
                 }))
-            ->addDefinition(Definition::new('seo_name')
+            ->addDefinition(Definition::new($this, 'seo_name')
                 ->setVisible(false))
-            ->addDefinition(Definition::new('send_to')
+            ->addDefinition(Definition::new($this, 'send_to')
                 ->setVisible(false)
                 ->setMaxlength(128)
                 ->addValidationFunction(function(ValidatorInterface $validator) {
                     $validator->isEmail();
                 }))
-            ->addDefinition(Definition::new('execute_after')
+            ->addDefinition(Definition::new($this, 'execute_after')
                 ->setInputType(InputType::datetime_local)
                 ->setLabel('Execute after')
                 ->setSize(4)
@@ -98,7 +98,7 @@ class Task extends DataEntry
                 ->addValidationFunction(function(ValidatorInterface $validator) {
                     $validator->isDateTime();
                 }))
-            ->addDefinition(Definition::new('execute_on')
+            ->addDefinition(Definition::new($this, 'execute_on')
                 ->setInputType(InputType::datetime_local)
                 ->setLabel('Executed on')
                 ->setSize(4)
@@ -106,7 +106,7 @@ class Task extends DataEntry
                 ->addValidationFunction(function(ValidatorInterface $validator) {
                     $validator->isDateTime();
                 }))
-            ->addDefinition(Definition::new('finished_on')
+            ->addDefinition(Definition::new($this, 'finished_on')
                 ->setInputType(InputType::datetime_local)
                 ->setLabel('Finished on')
                 ->setSize(4)
@@ -114,7 +114,7 @@ class Task extends DataEntry
                 ->addValidationFunction(function(ValidatorInterface $validator) {
                     $validator->isDateTime();
                 }))
-            ->addDefinition(Definition::new('send_to_id')
+            ->addDefinition(Definition::new($this, 'send_to_id')
                 ->setInputType(InputType::select)
                 ->setLabel('Send to user')
                 ->setSource('SELECT `id`, CONCAT(`email`, " <", `firstnames`, " ", `lastnames`, ">") FROM `accounts_users` WHERE `status` IS NULL')
@@ -123,7 +123,7 @@ class Task extends DataEntry
                 ->addValidationFunction(function(ValidatorInterface $validator) {
                     $validator->isDbId();
                 }))
-            ->addDefinition(Definition::new('parents_id')
+            ->addDefinition(Definition::new($this, 'parents_id')
                 ->setInputType(InputType::select)
                 ->setLabel('Parent task')
                 ->setSource('SELECT `id`, CONCAT(`email`, " (", `name`, ")") FROM `processes_tasks` WHERE `status` IS NULL')
@@ -132,7 +132,7 @@ class Task extends DataEntry
                 ->addValidationFunction(function(ValidatorInterface $validator) {
                     $validator->isDbId();
                 }))
-            ->addDefinition(Definition::new('time_limit')
+            ->addDefinition(Definition::new($this, 'time_limit')
                 ->setInputType(InputType::number)
                 ->setLabel('Time limit')
                 ->setSize(4)
@@ -140,7 +140,7 @@ class Task extends DataEntry
                 ->addValidationFunction(function(ValidatorInterface $validator) {
                     $validator->isPositive(true);
                 }))
-            ->addDefinition(Definition::new('time_spent')
+            ->addDefinition(Definition::new($this, 'time_spent')
                 ->setInputType(InputType::number)
                 ->setLabel('Time spent')
                 ->setDisabled(true)
@@ -149,21 +149,21 @@ class Task extends DataEntry
                 ->addValidationFunction(function(ValidatorInterface $validator) {
                     $validator->isPositive(true);
                 }))
-            ->addDefinition(Definition::new('parallel')
+            ->addDefinition(Definition::new($this, 'parallel')
                 ->setInputType(InputType::checkbox)
                 ->setLabel('Execute parallel')
                 ->setSize(4)
                 ->addValidationFunction(function(ValidatorInterface $validator) {
                     $validator->isBoolean();
                 }))
-            ->addDefinition(Definition::new('Verbose')
+            ->addDefinition(Definition::new($this, 'Verbose')
                 ->setInputType(InputType::checkbox)
                 ->setLabel('Verbose output')
                 ->setSize(4)
                 ->addValidationFunction(function(ValidatorInterface $validator) {
                     $validator->isBoolean();
                 }))
-            ->addDefinition(Definition::new('pid')
+            ->addDefinition(Definition::new($this, 'pid')
                 ->setInputType(InputType::number)
                 ->setLabel('Process ID')
                 ->setDisabled(true)
@@ -171,23 +171,23 @@ class Task extends DataEntry
                 ->addValidationFunction(function(ValidatorInterface $validator) {
                     $validator->isDbId();
                 }))
-            ->addDefinition(Definition::new('command')
+            ->addDefinition(Definition::new($this, 'command')
                 ->setLabel('Command')
                 ->setSize(12)
                 ->setMaxlength(128))
-            ->addDefinition(Definition::new('arguments')
+            ->addDefinition(Definition::new($this, 'arguments')
                 ->setLabel('Arguments')
                 ->setSize(12)
                 ->setMaxlength(65_535))
-            ->addDefinition(Definition::new('executed_command')
+            ->addDefinition(Definition::new($this, 'executed_command')
                 ->setLabel('Executed command')
                 ->setSize(12)
                 ->setMaxlength(65_663))
-            ->addDefinition(Definition::new('results')
+            ->addDefinition(Definition::new($this, 'results')
                 ->setLabel('Results')
                 ->setSize(12)
                 ->setReadonly(true))
-            ->addDefinition(DefinitionFactory::getDescription()
+            ->addDefinition(DefinitionFactory::getDescription($this)
                 ->setHelpText(tr('A description for this task')));
     }
 }

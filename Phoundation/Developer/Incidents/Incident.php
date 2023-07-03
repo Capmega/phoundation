@@ -44,14 +44,14 @@ class Incident extends DataEntry
      * Plugin class constructor
      *
      * @param DataEntryInterface|string|int|null $identifier
-     * @param bool $init
+     * @param string|null $column
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = true)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null)
     {
         $this->table       = 'developer_incidents';
         $this->entry_name  = 'incident';
 
-        parent::__construct($identifier, $init);
+        parent::__construct($identifier, $column);
     }
 
 
@@ -63,7 +63,7 @@ class Incident extends DataEntry
     protected function initDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->addDefinition(Definition::new('type')
+            ->addDefinition(Definition::new($this, 'type')
                 ->setReadonly(true)
                 ->setLabel('Type')
                 ->setSize(6)
@@ -71,9 +71,9 @@ class Incident extends DataEntry
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isName(16);
                 }))
-            ->addDefinition(DefinitionFactory::getTitle()
+            ->addDefinition(DefinitionFactory::getTitle($this)
                 ->setSize(6))
-            ->addDefinition(Definition::new('url')
+            ->addDefinition(Definition::new($this, 'url')
                 ->setReadonly(true)
                 ->setLabel('URL')
                 ->setSize(12)
@@ -81,8 +81,8 @@ class Incident extends DataEntry
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isUrl();
                 }))
-            ->addDefinition(DefinitionFactory::getDescription())
-            ->addDefinition(Definition::new('exception')
+            ->addDefinition(DefinitionFactory::getDescription($this))
+            ->addDefinition(Definition::new($this, 'exception')
                 ->setReadonly(true)
                 ->setLabel('Exception')
                 ->setSize(12)
@@ -90,7 +90,7 @@ class Incident extends DataEntry
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isPrintable();
                 }))
-            ->addDefinition(Definition::new('data')
+            ->addDefinition(Definition::new($this, 'data')
                 ->setReadonly(true)
                 ->setElement('text')
                 ->setLabel('Data')

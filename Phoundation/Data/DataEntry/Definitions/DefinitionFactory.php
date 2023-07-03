@@ -9,6 +9,7 @@ use Phoundation\Business\Providers\Providers;
 use Phoundation\Core\Locale\Language\Languages;
 use Phoundation\Data\Categories\Categories;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Geo\Cities\Cities;
 use Phoundation\Geo\Countries\Countries;
@@ -36,13 +37,14 @@ class DefinitionFactory
     /**
      * Returns Definition object for column categories_id
      *
-     * @param string $column_name
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
      * @param array|null $filters
      * @return DefinitionInterface
      */
-    public static function getCategoriesId(string $column_name = 'categories_id', array $filters = null): DefinitionInterface
+    public static function getCategoriesId(DataEntryInterface $data_entry, ?string $field = 'categories_id', array $filters = null): DefinitionInterface
     {
-        return Definition::new($column_name)
+        return Definition::new($data_entry, $field)
             ->setOptional(true)
             ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) use ($filters) {
                 return Categories::new()->getHtmlSelect()
@@ -62,12 +64,13 @@ class DefinitionFactory
     /**
      * Returns Definition object for column category
      *
-     * @param string $column_name
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
      * @return DefinitionInterface
      */
-    public static function getCategory(string $column_name = 'category'): DefinitionInterface
+    public static function getCategory(DataEntryInterface $data_entry, ?string $field = 'category'): DefinitionInterface
     {
-        return Definition::new($column_name)
+        return Definition::new($data_entry, $field)
             ->setOptional(true)
             ->setVirtual(true)
             ->setCliField('-t,--category CATEGORY-NAME')
@@ -90,13 +93,14 @@ class DefinitionFactory
     /**
      * Returns Definition object for column companies_id
      *
-     * @param string $column_name
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
      * @param array|null $filters
      * @return DefinitionInterface
      */
-    public static function getCompaniesId(string $column_name = 'companies_id', array $filters = null): DefinitionInterface
+    public static function getCompaniesId(DataEntryInterface $data_entry, ?string $field = 'companies_id', array $filters = null): DefinitionInterface
     {
-        return Definition::new($column_name)
+        return Definition::new($data_entry, $field)
             ->setOptional(true)
             ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) use ($filters) {
                 return Companies::new()->getHtmlSelect()
@@ -116,12 +120,13 @@ class DefinitionFactory
     /**
      * Returns Definition object for column company
      *
-     * @param string $column_name
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
      * @return DefinitionInterface
      */
-    public static function getCompany(string $column_name = 'company'): DefinitionInterface
+    public static function getCompany(DataEntryInterface $data_entry, ?string $field = 'company'): DefinitionInterface
     {
-        return Definition::new($column_name)
+        return Definition::new($data_entry, $field)
             ->setOptional(true)
             ->setVirtual(true)
             ->setCliField('--company COMPANY-NAME')
@@ -144,13 +149,14 @@ class DefinitionFactory
     /**
      * Returns Definition object for column languages_id
      *
-     * @param string $column_name
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
      * @param array|null $filters
      * @return DefinitionInterface
      */
-    public static function getLanguagesId(string $column_name = 'languages_id', array $filters = null): DefinitionInterface
+    public static function getLanguagesId(DataEntryInterface $data_entry, ?string $field = 'languages_id', array $filters = null): DefinitionInterface
     {
-        return Definition::new($column_name)
+        return Definition::new($data_entry, $field)
             ->setOptional(true)
             ->setInputType(InputType::number)
             ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) use ($filters) {
@@ -174,12 +180,13 @@ class DefinitionFactory
     /**
      * Returns Definition object for column language
      *
-     * @param string $column_name
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
      * @return DefinitionInterface
      */
-    public static function getLanguage(string $column_name = 'language'): DefinitionInterface
+    public static function getLanguage(DataEntryInterface $data_entry, ?string $field = 'language'): DefinitionInterface
     {
-        return Definition::new($column_name)
+        return Definition::new($data_entry, $field)
             ->setOptional(true)
             ->setVirtual(true)
             ->setVisible(false)
@@ -204,13 +211,14 @@ class DefinitionFactory
     /**
      * Returns Definition object for column providers_id
      *
-     * @param string $column_name
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
      * @param array|null $filters
      * @return DefinitionInterface
      */
-    public static function getProvidersId(string $column_name = 'providers_id', array $filters = null): DefinitionInterface
+    public static function getProvidersId(DataEntryInterface $data_entry, ?string $field = 'providers_id', array $filters = null): DefinitionInterface
     {
-        return Definition::new($column_name)
+        return Definition::new($data_entry, $field)
             ->setOptional(true)
             ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) use ($filters) {
                 return Providers::new()->getHtmlSelect()
@@ -230,12 +238,13 @@ class DefinitionFactory
     /**
      * Returns Definition object for column provider
      *
-     * @param string $column_name
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
      * @return DefinitionInterface
      */
-    public static function getProvider(string $column_name = 'provider'): DefinitionInterface
+    public static function getProvider(DataEntryInterface $data_entry, ?string $field = 'provider'): DefinitionInterface
     {
-        return Definition::new($column_name)
+        return Definition::new($data_entry, $field)
             ->setOptional(true)
             ->setSize(6)
             ->setCliField('--provider PROVIDER-NAME')
@@ -258,13 +267,14 @@ class DefinitionFactory
     /**
      * Returns Definition object for column customers_id
      *
-     * @param string $column_name
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
      * @param array|null $filters
      * @return DefinitionInterface
      */
-    public static function getCustomersId(string $column_name = 'customers_id', array $filters = null): DefinitionInterface
+    public static function getCustomersId(DataEntryInterface $data_entry, ?string $field = 'customers_id', array $filters = null): DefinitionInterface
     {
-        return Definition::new($column_name)
+        return Definition::new($data_entry, $field)
             ->setOptional(true)
             ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) use ($filters) {
                 return Customers::new()->getHtmlSelect()
@@ -284,12 +294,13 @@ class DefinitionFactory
     /**
      * Returns Definition object for column customer
      *
-     * @param string $column_name
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
      * @return DefinitionInterface
      */
-    public static function getCustomer(string $column_name = 'customer'): DefinitionInterface
+    public static function getCustomer(DataEntryInterface $data_entry, ?string $field = 'customer'): DefinitionInterface
     {
-        return Definition::new($column_name)
+        return Definition::new($data_entry, $field)
             ->setOptional(true)
             ->setSize(6)
             ->setCliField('--customer CUSTOMER-NAME')
@@ -312,13 +323,14 @@ class DefinitionFactory
     /**
      * Returns Definition object for column timezones_id
      *
-     * @param string $column_name
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
      * @param array|null $filters
      * @return DefinitionInterface
      */
-    public static function getTimezonesId(string $column_name = 'timezones_id', array $filters = null): DefinitionInterface
+    public static function getTimezonesId(DataEntryInterface $data_entry, ?string $field = 'timezones_id', array $filters = null): DefinitionInterface
     {
-        return Definition::new($column_name)
+        return Definition::new($data_entry, $field)
             ->setOptional(true)
             ->setInputType(InputType::number)
             ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) use ($filters) {
@@ -342,12 +354,13 @@ class DefinitionFactory
     /**
      * Returns Definition object for column timezone
      *
-     * @param string $column_name
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
      * @return DefinitionInterface
      */
-    public static function getTimezone(string $column_name = 'timezone'): DefinitionInterface
+    public static function getTimezone(DataEntryInterface $data_entry, ?string $field = 'timezone'): DefinitionInterface
     {
-        return Definition::new($column_name)
+        return Definition::new($data_entry, $field)
             ->setOptional(true)
             ->setVirtual(true)
             ->setVisible(false)
@@ -371,13 +384,14 @@ class DefinitionFactory
     /**
      * Returns Definition object for column countries_id
      *
-     * @param string $column_name
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
      * @param array|null $filters
      * @return DefinitionInterface
      */
-    public static function getCountriesId(string $column_name = 'countries_id', array $filters = null): DefinitionInterface
+    public static function getCountriesId(DataEntryInterface $data_entry, ?string $field = 'countries_id', array $filters = null): DefinitionInterface
     {
-        return Definition::new($column_name)
+        return Definition::new($data_entry, $field)
             ->setOptional(true)
             ->setInputType(InputType::number)
             ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) use ($filters) {
@@ -399,12 +413,13 @@ class DefinitionFactory
     /**
      * Returns Definition object for column timezone
      *
-     * @param string $column_name
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
      * @return DefinitionInterface
      */
-    public static function getCountry(string $column_name = 'country'): DefinitionInterface
+    public static function getCountry(DataEntryInterface $data_entry, ?string $field = 'country'): DefinitionInterface
     {
-        return Definition::new($column_name)
+        return Definition::new($data_entry, $field)
             ->setOptional(true)
             ->setVisible(false)
             ->setVirtual(true)
@@ -428,13 +443,14 @@ class DefinitionFactory
     /**
      * Returns Definition object for column states_id
      *
-     * @param string $column_name
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
      * @param array|null $filters
      * @return DefinitionInterface
      */
-    public static function getStatesId(string $column_name = 'states_id', array $filters = null): DefinitionInterface
+    public static function getStatesId(DataEntryInterface $data_entry, ?string $field = 'states_id', array $filters = null): DefinitionInterface
     {
-        return Definition::new($column_name)
+        return Definition::new($data_entry, $field)
             ->setOptional(true)
             ->setInputType(InputType::number)
             ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) use ($filters) {
@@ -456,12 +472,13 @@ class DefinitionFactory
     /**
      * Returns Definition object for column timezone
      *
-     * @param string $column_name
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
      * @return DefinitionInterface
      */
-    public static function getState(string $column_name = 'state'): DefinitionInterface
+    public static function getState(DataEntryInterface $data_entry, ?string $field = 'state'): DefinitionInterface
     {
-        return Definition::new($column_name)
+        return Definition::new($data_entry, $field)
             ->setOptional(true)
             ->setVisible(false)
             ->setVirtual(true)
@@ -485,13 +502,14 @@ class DefinitionFactory
     /**
      * Returns Definition object for column cities_id
      *
-     * @param string $column_name
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
      * @param array|null $filters
      * @return DefinitionInterface
      */
-    public static function getCitiesId(string $column_name = 'cities_id', array $filters = null): DefinitionInterface
+    public static function getCitiesId(DataEntryInterface $data_entry, ?string $field = 'cities_id', array $filters = null): DefinitionInterface
     {
-        return Definition::new($column_name)
+        return Definition::new($data_entry, $field)
             ->setOptional(true)
             ->setInputType(InputType::number)
             ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) use ($filters) {
@@ -513,12 +531,13 @@ class DefinitionFactory
     /**
      * Returns Definition object for column timezone
      *
-     * @param string $column_name
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
      * @return DefinitionInterface
      */
-    public static function getCity(string $column_name = 'city'): DefinitionInterface
+    public static function getCity(DataEntryInterface $data_entry, ?string $field = 'city'): DefinitionInterface
     {
-        return Definition::new($column_name)
+        return Definition::new($data_entry, $field)
             ->setOptional(true)
             ->setVisible(false)
             ->setVirtual(true)
@@ -542,13 +561,14 @@ class DefinitionFactory
     /**
      * Returns Definition object for column users_id
      *
-     * @param string $column_name
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
      * @param array|null $filters
      * @return DefinitionInterface
      */
-    public static function getUsersId(string $column_name = 'users_id', array $filters = null): DefinitionInterface
+    public static function getUsersId(DataEntryInterface $data_entry, ?string $field = 'users_id', array $filters = null): DefinitionInterface
     {
-        return Definition::new($column_name)
+        return Definition::new($data_entry, $field)
             ->setOptional(true)
             ->setInputType(InputTypeExtended::dbid)
             ->setSize(3)
@@ -567,12 +587,13 @@ class DefinitionFactory
     /**
      * Returns Definition object for column users_id
      *
-     * @param string $column_name
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
      * @return DefinitionInterface
      */
-    public static function getUser(string $column_name = 'email'): DefinitionInterface
+    public static function getUser(DataEntryInterface $data_entry, ?string $field = 'email'): DefinitionInterface
     {
-        return Definition::new($column_name)
+        return Definition::new($data_entry, $field)
             ->setOptional(true)
             ->setVirtual(true)
             ->setInputType(InputType::email)
@@ -595,12 +616,13 @@ class DefinitionFactory
     /**
      * Returns Definition object for column code
      *
-     * @param string $column_name
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
      * @return DefinitionInterface
      */
-    public static function getCode(string $column_name = 'code'): DefinitionInterface
+    public static function getCode(DataEntryInterface $data_entry, ?string $field = 'code'): DefinitionInterface
     {
-        return Definition::new($column_name)
+        return Definition::new($data_entry, $field)
             ->setOptional(true)
             ->setSize(3)
             ->setMaxlength(16)
@@ -616,12 +638,13 @@ class DefinitionFactory
     /**
      * Returns Definition object for column datetime
      *
-     * @param string $column_name
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
      * @return DefinitionInterface
      */
-    public static function getDateTime(string $column_name = 'datetime'): DefinitionInterface
+    public static function getDateTime(DataEntryInterface $data_entry, ?string $field = 'datetime'): DefinitionInterface
     {
-        return Definition::new($column_name)
+        return Definition::new($data_entry, $field)
             ->setOptional(true)
             ->setInputType(InputType::datetime_local)
             ->setSize(3)
@@ -632,12 +655,13 @@ class DefinitionFactory
     /**
      * Returns Definition object for column date
      *
-     * @param string $column_name
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
      * @return DefinitionInterface
      */
-    public static function getDate(string $column_name = 'date'): DefinitionInterface
+    public static function getDate(DataEntryInterface $data_entry, ?string $field = 'date'): DefinitionInterface
     {
-        return Definition::new($column_name)
+        return Definition::new($data_entry, $field)
             ->setOptional(true)
             ->setInputType(InputType::date)
             ->setSize(3)
@@ -649,12 +673,13 @@ class DefinitionFactory
     /**
      * Returns Definition object for column date
      *
-     * @param string $column_name
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
      * @return DefinitionInterface
      */
-    public static function getTime(string $column_name = 'time'): DefinitionInterface
+    public static function getTime(DataEntryInterface $data_entry, ?string $field = 'time'): DefinitionInterface
     {
-        return Definition::new($column_name)
+        return Definition::new($data_entry, $field)
             ->setOptional(true)
             ->setInputType(InputType::time)
             ->setSize(3)
@@ -666,12 +691,13 @@ class DefinitionFactory
     /**
      * Returns Definition object for column title
      *
-     * @param string $column_name
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
      * @return DefinitionInterface
      */
-    public static function getTitle(string $column_name = 'title'): DefinitionInterface
+    public static function getTitle(DataEntryInterface $data_entry, ?string $field = 'title'): DefinitionInterface
     {
-        return Definition::new($column_name)
+        return Definition::new($data_entry, $field)
             ->setOptional(true)
             ->setMaxLength(24)
             ->setSize(3)
@@ -687,12 +713,13 @@ class DefinitionFactory
     /**
      * Returns Definition object for column name
      *
-     * @param string $column_name
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
      * @return DefinitionInterface
      */
-    public static function getName(string $column_name = 'name'): DefinitionInterface
+    public static function getName(DataEntryInterface $data_entry, ?string $field = 'name'): DefinitionInterface
     {
-        return Definition::new($column_name)
+        return Definition::new($data_entry, $field)
             ->setMaxLength(64)
             ->setSize(3)
             ->setLabel(tr('Name'))
@@ -708,12 +735,13 @@ class DefinitionFactory
     /**
      * Returns Definition object for column email
      *
-     * @param string $column_name
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
      * @return DefinitionInterface
      */
-    public static function getEmail(string $column_name = 'email'): DefinitionInterface
+    public static function getEmail(DataEntryInterface $data_entry, ?string $field = 'email'): DefinitionInterface
     {
-        return Definition::new($column_name)
+        return Definition::new($data_entry, $field)
             ->setOptional(true)
             ->setInputType(InputType::email)
             ->setMaxlength(128)
@@ -726,12 +754,13 @@ class DefinitionFactory
     /**
      * Returns Definition object for column url
      *
-     * @param string $column_name
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
      * @return DefinitionInterface
      */
-    public static function getUrl(string $column_name = 'url'): DefinitionInterface
+    public static function getUrl(DataEntryInterface $data_entry, ?string $field = 'url'): DefinitionInterface
     {
-        return Definition::new($column_name)
+        return Definition::new($data_entry, $field)
             ->setOptional(true)
             ->setInputType(InputType::url)
             ->setMaxlength(2048)
@@ -747,12 +776,13 @@ class DefinitionFactory
     /**
      * Returns Definition object for column phone
      *
-     * @param string $column_name
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
      * @return DefinitionInterface
      */
-    public static function getPhone(string $column_name = 'phone'): DefinitionInterface
+    public static function getPhone(DataEntryInterface $data_entry, ?string $field = 'phone'): DefinitionInterface
     {
-        return Definition::new($column_name)
+        return Definition::new($data_entry, $field)
             ->setOptional(true)
             ->setInputType(InputTypeExtended::phone)
             ->setLabel(tr('Phone number'))
@@ -764,12 +794,13 @@ class DefinitionFactory
     /**
      * Returns Definition object for column phones
      *
-     * @param string $column_name
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
      * @return DefinitionInterface
      */
-    public static function getPhones(string $column_name = 'phones'): DefinitionInterface
+    public static function getPhones(DataEntryInterface $data_entry, ?string $field = 'phones'): DefinitionInterface
     {
-        return Definition::new($column_name)
+        return Definition::new($data_entry, $field)
             ->setOptional(true)
             ->setMinlength(10)
             ->setMaxLength(64)
@@ -789,12 +820,13 @@ class DefinitionFactory
     /**
      * Returns Definition object for column seo_name
      *
-     * @param string $column_name
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
      * @return DefinitionInterface
      */
-    public static function getSeoName(string $column_name = 'seo_name'): DefinitionInterface
+    public static function getSeoName(DataEntryInterface $data_entry, ?string $field = 'seo_name'): DefinitionInterface
     {
-        return Definition::new($column_name)
+        return Definition::new($data_entry, $field)
             ->setOptional(true)
             ->setVisible(false)
             ->setReadonly(true);
@@ -804,12 +836,13 @@ class DefinitionFactory
     /**
      * Returns Definition object for column description
      *
-     * @param string $column_name
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
      * @return DefinitionInterface
      */
-    public static function getDescription(string $column_name = 'description'): DefinitionInterface
+    public static function getDescription(DataEntryInterface $data_entry, ?string $field = 'description'): DefinitionInterface
     {
-        return Definition::new($column_name)
+        return Definition::new($data_entry, $field)
             ->setOptional(true)
             ->setInputType(InputTypeExtended::description)
             ->setSize(12)
@@ -823,12 +856,13 @@ class DefinitionFactory
     /**
      * Returns Definition object for column comments
      *
-     * @param string $column_name
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
      * @return DefinitionInterface
      */
-    public static function getComments(string $column_name = 'comments'): DefinitionInterface
+    public static function getComments(DataEntryInterface $data_entry, ?string $field = 'comments'): DefinitionInterface
     {
-        return Definition::new($column_name)
+        return Definition::new($data_entry, $field)
             ->setOptional(true)
             ->setInputType(InputTypeExtended::description)
             ->setSize(12)

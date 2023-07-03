@@ -31,6 +31,8 @@ use Phoundation\Data\Validator\ArrayValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
+use Phoundation\Databases\Sql\QueryBuilder;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Date\DateTime;
 use Phoundation\Exception\OutOfBoundsException;
@@ -202,54 +204,12 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      */
     protected bool $is_validated = false;
 
-
     /**
-     * DataEntry class constructor
+     * Query builder to create the load query
      *
-     * @param DataEntryInterface|string|int|null $identifier
-     * @param bool $init
+     * @var QueryBuilder|null
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = true)
-    {
-        if (empty($this->entry_name)) {
-            throw new OutOfBoundsException(tr('No "entry_name" specified for class ":class"', [
-                ':class' => get_class($this)
-            ]));
-        }
-
-        if (!$this->table) {
-            throw new OutOfBoundsException(tr('No table specified for class ":class"', [
-                ':class' => get_class($this)
-            ]));
-        }
-
-        if (empty($this->unique_field)) {
-            throw new OutOfBoundsException(tr('No unique_column specified for class ":class"', [
-                ':class' => get_class($this)
-            ]));
-        }
-
-        // Set up the fields for this object
-        $this->initMetaDefinitions();
-        $this->initDefinitions($this->definitions);
-
-        if ($identifier) {
-            if (is_numeric($identifier)) {
-                $this->data['id'] = $identifier;
-
-            } elseif (is_object($identifier)) {
-                $this->data['id'] = $identifier->getId();
-
-            } else {
-                $this->data[$this->unique_field] = $identifier;
-            }
-
-            $this->load($identifier, $init);
-
-        } elseif ($init) {
-            $this->setMetaData();
-        }
-    }
+    protected ?QueryBuilder $query_builder = null;
 
 
     /**
@@ -275,15 +235,96 @@ abstract class DataEntry implements DataEntryInterface, Stringable
 
 
     /**
+     * DataEntry class constructor
+     *
+     * @param DataEntryInterface|string|int|null $identifier
+     * @param string|null $column
+     */
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null)
+    {
+        if (empty($this->entry_name)) {
+            throw new OutOfBoundsException(tr('No "entry_name" specified for class ":class"', [
+                ':class' => get_class($this)
+            ]));
+        }
+
+        if (!$this->table) {
+            throw new OutOfBoundsException(tr('No table specified for class ":class"', [
+                ':class' => get_class($this)
+            ]));
+        }
+
+        if (empty($this->unique_field)) {
+            throw new OutOfBoundsException(tr('No unique_column specified for class ":class"', [
+                ':class' => get_class($this)
+            ]));
+        }
+
+        if (!$column) {
+            // If the column on which to select wasn't specified, assume `id` for numeric identifiers, or the unique
+            // field otherwise
+            $column = (is_numeric($identifier) ? 'id' : $this->unique_field);
+        }
+
+        // Set up the fields for this object
+        $this->initMetaDefinitions();
+        $this->initDefinitions($this->definitions);
+
+        if ($identifier) {
+            if (is_numeric($identifier)) {
+                $this->data['id'] = $identifier;
+
+            } elseif (is_object($identifier)) {
+                $this->data['id'] = $identifier->getId();
+
+            } else {
+                $this->data[$this->unique_field] = $identifier;
+            }
+
+            $this->load($identifier, $column);
+
+        } else {
+            $this->setMetaData();
+        }
+    }
+
+
+    /**
      * Returns a new DataEntry object
      *
      * @param DataEntryInterface|string|int|null $identifier
-     * @param bool $init
+     * @param string|null $column
      * @return static
      */
-    public static function new(DataEntryInterface|string|int|null $identifier = null, bool $init = false): static
+    public static function new(DataEntryInterface|string|int|null $identifier = null, ?string $column = null): static
     {
         return new static($identifier);
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string
+     */
+    public function getUniqueField(): string
+    {
+        return $this->unique_field;
+    }
+
+
+    /**
+     * Returns the query builder for this data entry
+     *
+     * @return QueryBuilderInterface
+     */
+    public function getQueryBuilder(): QueryBuilderInterface
+    {
+        if (!$this->query_builder) {
+            $this->query_builder = QueryBuilder::new($this);
+        }
+
+        return $this->query_builder;
     }
 
 
@@ -481,10 +522,10 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      *       simplify "if this is not DataEntry object then this is new DataEntry object" into
      *       "PossibleDataEntryVariable is DataEntry::new(PossibleDataEntryVariable)"
      * @param DataEntryInterface|string|int|null $identifier
-     * @param bool $init
+     * @param string|null $column
      * @return static|null
      */
-    public static function get(DataEntryInterface|string|int|null $identifier = null, bool $init = false): ?static
+    public static function get(DataEntryInterface|string|int|null $identifier = null, ?string $column = null): ?static
     {
         if (!$identifier) {
             // No identifier specified, just return an empty object
@@ -503,7 +544,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
             return $identifier;
         }
 
-        $entry = new static($identifier, $init);
+        $entry = new static($identifier, $column);
 
         if ($entry->getId()) {
             return $entry;
@@ -519,16 +560,15 @@ abstract class DataEntry implements DataEntryInterface, Stringable
     /**
      * Returns a random DataEntry object
      *
-     * @param bool $init
      * @return static|null
      */
-    public static function getRandom(bool $init = false): ?static
+    public static function getRandom(): ?static
     {
         $table      = static::new()->getTable();
         $identifier = sql()->getInteger('SELECT `id` FROM `' . $table . '` ORDER BY RAND() LIMIT 1;');
 
         if ($identifier) {
-            return static::get($identifier, $init);
+            return static::get($identifier);
         }
 
         throw new OutOfBoundsException(tr('Cannot select random record for table ":table", no records found', [
@@ -913,6 +953,8 @@ abstract class DataEntry implements DataEntryInterface, Stringable
             show($this->data);
             show('SOURCE');
             show($source);
+            show('SOURCE DATA');
+            show($source->forceRead());
         }
 
         $source = $this->validate($source, $clear_source);
@@ -1137,7 +1179,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
             $method = $this->convertFieldToSetMethod($key);
 
             if ($this->debug) {
-                show('KEY: ' . $key . ' / METHOD: ' . $method . '(' . Strings::fromBoolean(method_exists($this, $method)) . ')');
+                show('KEY: ' . $key . ' / METHOD: ' . $method . '(' . Strings::fromBoolean(method_exists($this, $method)) . ') WITH VALUE "' . Strings::log($value). '"');
             }
 
             // Only apply if a method exist for this variable
@@ -1633,29 +1675,19 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      * Load all object data from database
      *
      * @param string|int $identifier
-     * @param bool $init
+     * @param string|null $column
      * @return void
      */
-    protected function load(string|int $identifier, bool $init = true): void
+    protected function load(string|int $identifier, ?string $column = 'id'): void
     {
-        if (is_numeric($identifier)) {
-            $data = sql()->get('SELECT * FROM `' . $this->table . '` WHERE `id`                          = :id'                    , [':id'                   => $identifier]);
-        } else {
-            $data = sql()->get('SELECT * FROM `' . $this->table . '` WHERE `' . $this->unique_field . '` = :' . $this->unique_field, [':'. $this->unique_field => $identifier]);
-        }
+        // Get the data using the query builder
+        $data = $this->getQueryBuilder()
+            ->addSelect('`' . $this->table . '`.*')
+            ->addWhere('`' . $this->table . '`.`' . $column . '` = :identifier', [':identifier' => $identifier])
+            ->get();
 
-        if ($data) {
-            // Store all data in the object
-            if ($init) {
-                // Load data with object init.
-                $this->setMetaData($data)->setData($data, false);
-            } else {
-                // Fast load data into internal array
-                $this->data = $data;
-            }
-        } else {
-            $this->data = [];
-        }
+        // Store all data in the object
+        $this->setMetaData((array) $data)->setData((array) $data, false);
 
         // Reset state
         $this->is_new      = false;
@@ -1684,19 +1716,19 @@ abstract class DataEntry implements DataEntryInterface, Stringable
     {
         $this->definitions = Definitions::new()
             ->setTable($this->table)
-            ->addDefinition(Definition::new('id')
+            ->addDefinition(Definition::new($this, 'id')
                 ->setReadonly(true)
                 ->setInputType(InputTypeExtended::dbid)
                 ->setSize(3)
                 ->setAutoComplete(true)
                 ->setLabel(tr('Database ID')))
-            ->addDefinition(Definition::new('created_on')
+            ->addDefinition(Definition::new($this, 'created_on')
                 ->setReadonly(true)
                 ->setInputType(InputType::datetime_local)
                 ->setNullInputType(InputType::text)
                 ->setSize(3)
                 ->setLabel(tr('Created on')))
-            ->addDefinition(Definition::new('created_by')
+            ->addDefinition(Definition::new($this, 'created_by')
                 ->setReadonly(true)
                 ->setSize(3)
                 ->setLabel(tr('Created by'))
@@ -1722,20 +1754,18 @@ abstract class DataEntry implements DataEntryInterface, Stringable
                         }
                     }
                 }))
-            ->addDefinition(Definition::new('meta_id')
+            ->addDefinition(Definition::new($this, 'meta_id')
                 ->setReadonly(true)
                 ->setVisible(false)
                 ->setInputType(InputTypeExtended::dbid)
                 ->setNullInputType(InputType::text)
-                ->setSize(3)
                 ->setLabel(tr('Meta ID')))
-            ->addDefinition(Definition::new('meta_state')
+            ->addDefinition(Definition::new($this, 'meta_state')
                 ->setReadonly(true)
                 ->setVisible(false)
                 ->setInputType(InputType::text)
-                ->setSize(3)
                 ->setLabel(tr('Meta state')))
-            ->addDefinition(Definition::new('status')
+            ->addDefinition(Definition::new($this, 'status')
                 ->setOptional(true)
                 ->setReadonly(true)
                 ->setInputType(InputType::text)

@@ -34,18 +34,12 @@ trait DataEntryLanguage
     /**
      * Sets the languages_id for this object
      *
-     * @param string|int|null $languages_id
+     * @param int|null $languages_id
      * @return static
      */
-    public function setLanguagesId(string|int|null $languages_id): static
+    public function setLanguagesId(int|null $languages_id): static
     {
-        if ($languages_id and !is_natural($languages_id)) {
-            throw new OutOfBoundsException(tr('Specified languages_id ":id" is not a natural number', [
-                ':id' => $languages_id
-            ]));
-        }
-
-        return $this->setDataValue('languages_id', get_null(isset_get_typed('integer', $languages_id)));
+        return $this->setDataValue('languages_id', $languages_id);
     }
 
 
@@ -67,23 +61,24 @@ trait DataEntryLanguage
 
 
     /**
-     * Sets the languages_id for this user
+     * Returns the languages_name for this user
      *
-     * @param Language|string|int|null $language
+     * @return string|null
+     */
+    public function getLanguagesName(): ?string
+    {
+        return $this->getDataValue('string', 'languages_name');
+    }
+
+
+    /**
+     * Sets the languages_name for this user
+     *
+     * @param string|null $languages_name
      * @return static
      */
-    public function setLanguage(Language|string|int|null $language): static
+    public function setLanguagesName(string|null $languages_name): static
     {
-        if ($language) {
-            if (!is_numeric($language)) {
-                $language = Language::get($language);
-            }
-
-            if (is_object($language)) {
-                $language = $language->getId();
-            }
-        }
-
-        return $this->setLanguagesId(get_null($language));
+        return $this->setDataValue('languages_name', $languages_name);
     }
 }

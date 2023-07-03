@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Business\Companies\Branches;
 
 use PDOStatement;
+use Phoundation\Business\Companies\Branches\Interfaces\BranchesInterface;
 use Phoundation\Business\Companies\Company;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\Interfaces\IteratorInterface;
@@ -22,7 +23,7 @@ use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Companies
  */
-class Branches extends DataList
+class Branches extends DataList implements BranchesInterface
 {
     /**
      * Branches class constructor
@@ -37,33 +38,6 @@ class Branches extends DataList
                                    WHERE    `status` IS NULL 
                                    ORDER BY `name`');
         parent::__construct();
-    }
-
-
-    /**
-     * @inheritDoc
-     */
-     public function load(?string $id_column = null): static
-    {
-        // TODO: Implement load() method.
-    }
-
-
-    /**
-     * @inheritDoc
-     */
-    public function save(): static
-    {
-        // TODO: Implement save() method.
-    }
-
-
-    /**
-     * @inheritDoc
-     */
-    public function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
-    {
-        // TODO: Implement loadDetails() method.
     }
 
 

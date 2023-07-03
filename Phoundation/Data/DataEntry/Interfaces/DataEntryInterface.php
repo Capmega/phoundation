@@ -7,6 +7,7 @@ namespace Phoundation\Data\DataEntry\Interfaces;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Meta\Meta;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Date\DateTime;
 use Phoundation\Web\Http\Html\Components\Interfaces\DataEntryFormInterface;
 
@@ -38,12 +39,28 @@ interface DataEntryInterface
     function __toArray(): array;
 
     /**
+     * DataEntry class constructor
+     *
+     * @param DataEntryInterface|string|int|null $identifier
+     * @param string|null $column
+     */
+    function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null);
+
+    /**
      * Returns a new DataEntry object
      *
      * @param DataEntryInterface|string|int|null $identifier
+     * @param string|null $column
      * @return static
      */
-    static function new(DataEntryInterface|string|int|null $identifier = null): static;
+    static function new(DataEntryInterface|string|int|null $identifier = null, ?string $column = null): static;
+
+    /**
+     * Returns the query builder for this data entry
+     *
+     * @return QueryBuilderInterface
+     */
+    public function getQueryBuilder(): QueryBuilderInterface;
 
     /**
      * Returns the prefix string
@@ -95,9 +112,10 @@ interface DataEntryInterface
      *       simplify "if this is not DataEntry object then this is new DataEntry object" into
      *       "PossibleDataEntryVariable is DataEntry::new(PossibleDataEntryVariable)"
      * @param DataEntryInterface|string|int|null $identifier
+     * @param string|null $column
      * @return static|null
      */
-    static function get(DataEntryInterface|string|int|null $identifier = null): ?static;
+    static function get(DataEntryInterface|string|int|null $identifier = null, ?string $column = null): ?static;
 
     /**
      * Returns a random DataEntry object

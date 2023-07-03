@@ -30,7 +30,7 @@ class FilterForm extends \Phoundation\Web\Http\Html\Components\FilterForm
         parent::__construct();
 
         $this->definitions = Definitions::new()
-            ->addDefinition(Definition::new('type[]')
+            ->addDefinition(Definition::new($this, 'type[]')
                 ->setLabel(tr('Type'))
                 ->setSize(6)
                 ->setElement(InputElement::select)
@@ -39,7 +39,7 @@ class FilterForm extends \Phoundation\Web\Http\Html\Components\FilterForm
                     'enabled'  => tr('Enabled plugins'),
                     'disabled' => tr('Disabled plugins')
                 ]))
-            ->addDefinition(Definition::new('filter[]')
+            ->addDefinition(Definition::new($this, 'filter[]')
                 ->setLabel(tr('Filter'))
                 ->setSize(6));
     }

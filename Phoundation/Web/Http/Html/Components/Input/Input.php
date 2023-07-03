@@ -46,7 +46,7 @@ abstract class Input extends Element implements Interfaces\Input
     public static function newFromDAtaEntryField(DefinitionInterface $field): static
     {
         $element    = new static();
-        $attributes = $field->getDefinitions();
+        $attributes = $field->getRules();
 
         // Set all attributes from the definitions file
         foreach($attributes as $key => $value) {

@@ -33,17 +33,51 @@ trait DataEntryUsersId
     /**
      * Sets the users_id for this object
      *
-     * @param string|int|null $users_id
+     * @param int|null $users_id
      * @return static
      */
-    public function setUsersId(string|int|null $users_id): static
+    public function setUsersId(int|null $users_id): static
     {
-        if ($users_id and !is_natural($users_id)) {
-            throw new OutOfBoundsException(tr('Specified users_id ":id" is not a natural number', [
-                ':id' => $users_id
-            ]));
+        return $this->setDataValue('users_id', $users_id);
+    }
+
+
+    /**
+     * Returns the users_id for this user
+     *
+     * @return User|null
+     */
+    public function getUser(): ?User
+    {
+        $users_id = $this->getDataValue('int', 'users_id');
+
+        if ($users_id) {
+            return new User($users_id);
         }
 
-        return $this->setDataValue('users_id', get_null(isset_get_typed('integer', $users_id)));
+        return null;
+    }
+
+
+    /**
+     * Returns the users_email for this user
+     *
+     * @return string|null
+     */
+    public function getUsersEmail(): ?string
+    {
+        return $this->getDataValue('string', 'users_email');
+    }
+
+
+    /**
+     * Sets the users_email for this user
+     *
+     * @param string|null $users_email
+     * @return static
+     */
+    public function setUsersEmail(string|null $users_email): static
+    {
+        return $this->setDataValue('users_email', $users_email);
     }
 }

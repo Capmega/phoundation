@@ -36,18 +36,12 @@ trait DataEntryTimezone
     /**
      * Sets the timezones_id for this user
      *
-     * @param string|int|null $timezones_id
+     * @param int|null $timezones_id
      * @return static
      */
-    public function setTimezonesId(string|int|null $timezones_id): static
+    public function setTimezonesId(int|null $timezones_id): static
     {
-        if ($timezones_id and !is_natural($timezones_id)) {
-            throw new OutOfBoundsException(tr('Specified timezones_id ":id" is not a natural number', [
-                ':id' => $timezones_id
-            ]));
-        }
-
-        return $this->setDataValue('timezones_id', get_null(isset_get_typed('integer', $timezones_id)));
+        return $this->setDataValue('timezones_id', $timezones_id);
     }
 
 
@@ -69,32 +63,24 @@ trait DataEntryTimezone
 
 
     /**
-     * Sets the timezones_id for this user
+     * Returns the timezones_name for this user
      *
-     * @param Timezone|string|int|null $timezone
+     * @return string|null
+     */
+    public function getTimezonesName(): ?string
+    {
+        return $this->getDataValue('string', 'timezones_name');
+    }
+
+
+    /**
+     * Sets the timezones_name for this user
+     *
+     * @param string|null $timezones_name
      * @return static
      */
-    public function setTimezone(Timezone|string|int|null $timezone): static
+    public function setTimezonesName(string|null $timezones_name): static
     {
-        if ($timezone) {
-            if (!is_numeric($timezone)) {
-                $timezone = Timezone::get($timezone);
-            }
-
-            // Make sure this timezone is compatible with PHP!
-            if (!in_array($timezone, DateTimeZone::listAbbreviations())) {
-                Log::warning(tr('Specified timezone ":timezone" is not compatible with PHP, falling back to UTC', [
-                    ':timezone' => $timezone
-                ]));
-
-                $timezone = TimeZone::new('UTC');
-            }
-
-            if (is_object($timezone)) {
-                $timezone = $timezone->getId();
-            }
-        }
-
-        return $this->setTimezonesId(get_null($timezone));
+        return $this->getDataValue('timezones_name', $timezones_name);
     }
 }

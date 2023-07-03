@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Phoundation\Business\Companies;
 
 use Phoundation\Business\Companies\Branches\Branches;
+use Phoundation\Business\Companies\Branches\Interfaces\BranchesInterface;
 use Phoundation\Business\Companies\Departments\Departments;
+use Phoundation\Business\Companies\Departments\Interfaces\DepartmentsInterface;
+use Phoundation\Business\Companies\Interfaces\CompanyInterface;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
@@ -24,7 +27,7 @@ use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Companies
  */
-class Company extends DataEntry
+class Company extends DataEntry implements CompanyInterface
 {
     use DataEntryNameDescription;
 
@@ -32,39 +35,39 @@ class Company extends DataEntry
     /**
      * The branches for this company
      *
-     * @var DataList $branches
+     * @var BranchesInterface $branches
      */
-    protected DataList $branches;
+    protected BranchesInterface $branches;
 
     /**
      * The departments for this company
      *
-     * @var DataList $departments
+     * @var DepartmentsInterface $departments
      */
-    protected DataList $departments;
+    protected DepartmentsInterface $departments;
 
 
     /**
      * Company class constructor
      *
      * @param DataEntryInterface|string|int|null $identifier
-     * @param bool $init
+     * @param string|null $column
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = true)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null)
     {
         $this->table        = 'business_companies';
         $this->entry_name   = 'company';
 
-        parent::__construct($identifier, $init);
+        parent::__construct($identifier, $column);
     }
 
 
     /**
      * Access company branches
      *
-     * @return Branches
+     * @return BranchesInterface
      */
-    public function branches(): Branches
+    public function getBranches(): BranchesInterface
     {
         if (!isset($this->branches)) {
             $this->branches = Branches::new($this);
@@ -78,24 +81,15 @@ class Company extends DataEntry
     /**
      * Access company branches
      *
-     * @return Departments
+     * @return DepartmentsInterface
      */
-    public function departments(): Departments
+    public function getDepartments(): DepartmentsInterface
     {
         if (!isset($this->departments)) {
             $this->departments = Departments::new($this);
         }
 
         return $this->departments;
-    }
-
-
-    /**
-     * @inheritDoc
-     */
-    public function save(?string $comments = null): static
-    {
-        // TODO: Implement save() method.
     }
 
 

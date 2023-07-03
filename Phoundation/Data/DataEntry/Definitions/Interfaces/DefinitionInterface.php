@@ -4,12 +4,13 @@ namespace Phoundation\Data\DataEntry\Definitions\Interfaces;
 
 
 use PDOStatement;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
+use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Web\Http\Html\Components\Interfaces\InputElementInterface;
 use Phoundation\Web\Http\Html\Components\Interfaces\InputTypeExtendedInterface;
 use Phoundation\Web\Http\Html\Components\Interfaces\InputTypeInterface;
 use Phoundation\Web\Http\Html\Enums\InputType;
-use Phoundation\Web\Http\UrlBuilder;
 use Stringable;
 
 /**
@@ -27,19 +28,35 @@ interface DefinitionInterface
     /**
      * UsesNewField class constructor
      *
+     * @param DataEntryInterface $data_entry
      * @param string|null $field
      */
-    public function __construct(?string $field = null);
+    public function __construct(DataEntryInterface $data_entry, ?string $field = null);
 
 
     /**
      * Returns a new static object
      *
+     * @param DataEntryInterface $data_entry
      * @param string|null $field
      * @return DefinitionInterface
      */
-    public static function new(?string $field = null): DefinitionInterface;
+    public static function new(DataEntryInterface $data_entry, ?string $field = null): DefinitionInterface;
 
+    /**
+     * Returns the query builder
+     *
+     * @return QueryBuilderInterface
+     */
+    public function getQueryBuilder(): QueryBuilderInterface;
+
+    /**
+     * Modify the contents of the query builder through a callback function
+     *
+     * @param callable $callback
+     * @return $this
+     */
+    public function modifyQueryBuilder(callable $callback): static;
 
     /**
      * Returns the field
@@ -62,15 +79,15 @@ interface DefinitionInterface
      *
      * @return array
      */
-    public function getDefinitions(): array;
+    public function getRules(): array;
 
     /**
-     * Sets all the internal definitions for this field in one go
+     * Sets all the internal rules for this field in one go
      *
-     * @param array $definitions
+     * @param array $rules
      * @return static
      */
-    public function setDefinitions(array $definitions): static;
+    public function setRules(array $rules): static;
 
     /**
      * Add specified value for the specified key for this DataEntry field

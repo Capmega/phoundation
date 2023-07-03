@@ -1175,6 +1175,7 @@ class Page
         } catch (DataEntryNotExistsException $e) {
             Log::warning('Page did not catch the following "DataEntryNotExistsException" warning, showing "system/404"');
             Log::warning($e);
+            Log::printr($e->getTrace());
 
             // Show a 404 page instead
             Route::executeSystem(404);

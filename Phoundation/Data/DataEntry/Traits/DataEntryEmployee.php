@@ -21,14 +21,6 @@ use Phoundation\Exception\OutOfBoundsException;
 trait DataEntryEmployee
 {
     /**
-     * The branch for this object
-     *
-     * @var Employee|null $employee
-     */
-    protected ?Employee $employee;
-
-
-    /**
      * Returns the employees_id for this object
      *
      * @return int|null
@@ -42,23 +34,17 @@ trait DataEntryEmployee
     /**
      * Sets the employees_id for this object
      *
-     * @param string|int|null $employees_id
+     * @param int|null $employees_id
      * @return static
      */
-    public function setEmployeesId(string|int|null $employees_id): static
+    public function setEmployeesId(int|null $employees_id): static
     {
-        if ($employees_id and !is_natural($employees_id)) {
-            throw new OutOfBoundsException(tr('Specified employees_id ":id" is not numeric', [
-                ':id' => $employees_id
-            ]));
-        }
-
-        return $this->setDataValue('employees_id', get_null(isset_get_typed('integer', $employees_id)));
+        return $this->setDataValue('employees_id', $employees_id);
     }
 
 
     /**
-     * Returns the employees_id for this object
+     * Returns the employee for this object
      *
      * @return Employee|null
      */
@@ -75,23 +61,24 @@ trait DataEntryEmployee
 
 
     /**
-     * Sets the employees_id for this object
+     * Returns the employees_name for this object
      *
-     * @param Employee|string|int|null $employee
+     * @return string|null
+     */
+    public function getEmployeesName(): ?string
+    {
+        return $this->getDataValue('string', 'employees_name');
+    }
+
+
+    /**
+     * Sets the employees_name for this object
+     *
+     * @param string|null $employees_name
      * @return static
      */
-    public function setEmployee(Employee|string|int|null $employee): static
+    public function setEmployeesName(string|null $employees_name): static
     {
-        if ($employee) {
-            if (!is_numeric($employee)) {
-                $employee = Employee::get($employee);
-            }
-
-            if (is_object($employee)) {
-                $employee = $employee->getId();
-            }
-        }
-
-        return $this->setEmployeesId(get_null($employee));
+        return $this->setDataValue('employees_name', $employees_name);
     }
 }

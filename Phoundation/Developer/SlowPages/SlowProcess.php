@@ -24,13 +24,13 @@ class SlowProcess extends Incident
      * SlowPage class constructor
      *
      * @param DataEntryInterface|string|int|null $identifier
-     * @param bool $init
+     * @param string|null $column
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = true)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null)
     {
         $this->table       = 'processes_slow';
         $this->entry_name  = 'slow process';
 
-        parent::__construct($identifier, $init);
+        parent::__construct($identifier, $column);
     }
 }

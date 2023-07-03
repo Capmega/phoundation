@@ -90,9 +90,9 @@ class QueryBuilder implements QueryBuilderInterface
     /**
      * The build variables
      *
-     * @var array $execute
+     * @var array|null $execute
      */
-    protected array $execute = [];
+    protected ?array $execute = null;
 
     /**
      * If specified, the query builder will attempt to update the internal loading query for this object
@@ -115,6 +115,18 @@ class QueryBuilder implements QueryBuilderInterface
             // The first from will be the table from the parent class
             $this->addFrom($parent->getTable());
         }
+    }
+
+
+    /**
+     * QueryBuilder class constructor
+     *
+     * @param DataEntryInterface|DataListInterface|null $parent
+     * @return QueryBuilderInterface
+     */
+    public static function new(DataEntryInterface|DataListInterface|null $parent = null): QueryBuilderInterface
+    {
+        return new QueryBuilder($parent);
     }
 
 
@@ -301,6 +313,10 @@ class QueryBuilder implements QueryBuilderInterface
      */
     public function addExecute(string $column, string|int|null $value): static
     {
+        if (!$this->execute) {
+            $this->execute = [];
+        }
+
         $this->execute[Strings::startsWith($column, ':')] = $value;
         return $this;
     }
@@ -398,9 +414,9 @@ class QueryBuilder implements QueryBuilderInterface
     /**
      * Returns the bound variables execute array
      *
-     * @return array
+     * @return array|null
      */
-    public function getExecute(): array
+    public function getExecute(): ?array
     {
         return $this->execute;
     }
@@ -409,11 +425,47 @@ class QueryBuilder implements QueryBuilderInterface
     /**
      * Executes the query and returns a PDO statement
      *
+     * @param bool $debug
      * @return PDOStatement
      */
     public function execute(bool $debug = false): PDOStatement
     {
-        return sql()->query($this->getQuery($debug), $this->getExecute());
+        return sql()->query($this->getQuery($debug), $this->execute);
+    }
+
+
+    /**
+     * Executes the query and returns the single result
+     *
+     * @param bool $debug
+     * @return array|null
+     */
+    public function get(bool $debug = false): ?array
+    {
+        return sql()->get($this->getQuery($debug), $this->execute);
+    }
+
+    /**
+     * Executes the query and returns the single column from the single result
+     *
+     * @param bool $debug
+     * @return string|float|int|bool|null
+     */
+    public function getColumn(bool $debug = false): string|float|int|bool|null
+    {
+        return sql()->getColumn($this->getQuery($debug), $this->execute);
+    }
+
+
+    /**
+     * Executes the query and returns the list of results
+     *
+     * @param bool $debug
+     * @return array
+     */
+    public function list(bool $debug = false): array
+    {
+        return sql()->list($this->getQuery($debug), $this->execute);
     }
 
 
@@ -432,38 +484,5 @@ class QueryBuilder implements QueryBuilderInterface
         }
 
         return $this;
-    }
-
-
-    /**
-     * Execute the built query and return the results as an array
-     *
-     * @return array
-     */
-    public function list(): array
-    {
-        return sql()->list($this->getQuery(), $this->getExecute());
-    }
-
-
-    /**
-     * Execute the built query and return the required single row as an array
-     *
-     * @return array|null
-     */
-    public function get(): ?array
-    {
-        return sql()->get($this->getQuery(), $this->getExecute());
-    }
-
-
-    /**
-     * Execute the built query and return the required single row as an array
-     *
-     * @return string|float|int|null
-     */
-    public function getColumn(): string|float|int|null
-    {
-        return sql()->getColumn($this->getQuery(), $this->getExecute());
     }
 }

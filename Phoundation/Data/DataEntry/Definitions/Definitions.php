@@ -7,6 +7,7 @@ namespace Phoundation\Data\DataEntry\Definitions;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\Iterator;
+use Phoundation\Data\Traits\DataDataEntry;
 use Phoundation\Data\Traits\DataPrefix;
 use Phoundation\Data\Traits\DataTable;
 use Stringable;
@@ -24,6 +25,7 @@ use Stringable;
  */
 class Definitions extends Iterator implements DefinitionsInterface
 {
+    use DataDataEntry;
     use DataTable;
     use DataPrefix {
         getPrefix as getFieldPrefix;

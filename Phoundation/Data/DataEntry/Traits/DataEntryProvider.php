@@ -27,25 +27,19 @@ trait DataEntryProvider
      */
     public function getProvidersId(): ?int
     {
-        return $this->getDataValue('string', 'providers_id');
+        return $this->getDataValue('int', 'providers_id');
     }
 
 
     /**
      * Sets the providers_id for this object
      *
-     * @param string|int|null $providers_id
+     * @param int|null $providers_id
      * @return static
      */
-    public function setProvidersId(string|int|null $providers_id): static
+    public function setProvidersId(int|null $providers_id): static
     {
-        if ($providers_id and !is_natural($providers_id)) {
-            throw new OutOfBoundsException(tr('Specified providers_id ":id" is not a natural number', [
-                ':id' => $providers_id
-            ]));
-        }
-
-        return $this->setDataValue('providers_id', get_null(isset_get_typed('integer', $providers_id)));
+        return $this->setDataValue('providers_id', $providers_id);
     }
 
 
@@ -67,23 +61,24 @@ trait DataEntryProvider
 
 
     /**
-     * Sets the providers_id for this user
+     * Returns the providers_name for this user
      *
-     * @param Provider|string|int|null $provider
+     * @return string|null
+     */
+    public function getProvidersName(): ?string
+    {
+        return $this->getDataValue('string', 'providers_name');
+    }
+
+
+    /**
+     * Sets the providers_name for this user
+     *
+     * @param string|null $providers_name
      * @return static
      */
-    public function setProvider(Provider|string|int|null $provider): static
+    public function setProvidersName(string|null $providers_name): static
     {
-        if ($provider) {
-            if (!is_numeric($provider)) {
-                $provider = Provider::get($provider);
-            }
-
-            if (is_object($provider)) {
-                $provider = $provider->getId();
-            }
-        }
-
-        return $this->setProvidersId(get_null($provider));
+        return $this->setDataValue('providers_name', $providers_name);
     }
 }

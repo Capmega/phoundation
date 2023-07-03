@@ -3,6 +3,8 @@
 namespace Phoundation\Databases\Sql\Interfaces;
 
 
+use PDOStatement;
+
 /**
  * queryBuilder class
  *
@@ -125,9 +127,41 @@ interface QueryBuilderInterface
     /**
      * Returns the bound variables execute array
      *
+     * @return array|null
+     */
+    public function getExecute(): ?array;
+
+    /**
+     * Executes the query and returns a PDO statement
+     *
+     * @param bool $debug
+     * @return PDOStatement
+     */
+    public function execute(bool $debug = false): PDOStatement;
+
+    /**
+     * Executes the query and returns the single result
+     *
+     * @param bool $debug
+     * @return array|null
+     */
+    public function get(bool $debug = false): ?array;
+
+    /**
+     * Executes the query and returns the single column from the single result
+     *
+     * @param bool $debug
+     * @return mixed
+     */
+    public function getColumn(bool $debug = false): mixed;
+
+    /**
+     * Executes the query and returns the list of results
+     *
+     * @param bool $debug
      * @return array
      */
-    public function getExecute(): array;
+    public function list(bool $debug = false): array;
 
     /**
      * Add the specified execute array to the internal execute array
@@ -136,11 +170,4 @@ interface QueryBuilderInterface
      * @return static
      */
     public function addExecuteArray(?array $execute): static;
-
-    /**
-     * Execute the built query and return the results as an array
-     *
-     * @return array
-     */
-    public function list(): array;
 }

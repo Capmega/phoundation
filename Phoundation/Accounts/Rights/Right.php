@@ -36,14 +36,14 @@ class Right extends DataEntry implements RightInterface
      * Right class constructor
      *
      * @param DataEntryInterface|string|int|null $identifier
-     * @param bool $init
+     * @param string|null $column
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = true)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null)
     {
         $this->table        = 'accounts_rights';
         $this->entry_name   = 'right';
 
-        parent::__construct($identifier, $init);
+        parent::__construct($identifier, $column);
     }
 
 
@@ -55,7 +55,7 @@ class Right extends DataEntry implements RightInterface
     protected function initDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->addDefinition(DefinitionFactory::getName()
+            ->addDefinition(DefinitionFactory::getName($this)
                 ->setInputType(InputTypeExtended::name)
                 ->setSize(12)
                 ->setMaxlength(64)
@@ -65,8 +65,8 @@ class Right extends DataEntry implements RightInterface
                         return Right::notExists('name', $value, isset_get($source['id']));
                     }, tr('value ":name" already exists', [':name' => $validator->getSourceValue()]));
                 }))
-            ->addDefinition(DefinitionFactory::getSeoName())
-            ->addDefinition(DefinitionFactory::getDescription()
+            ->addDefinition(DefinitionFactory::getSeoName($this))
+            ->addDefinition(DefinitionFactory::getDescription($this)
                 ->setHelpText(tr('The description for this right')));
     }
 }

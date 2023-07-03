@@ -312,25 +312,32 @@ interface UserInterface extends DataEntryInterface
     /**
      * Sets the leader for this user
      *
-     * @param string|int|null $leaders_id
+     * @param int|null $leaders_id
      * @return static
      */
-    public function setLeadersId(string|int|null $leaders_id): static;
+    public function setLeadersId(int|null $leaders_id): static;
 
     /**
      * Returns the leader for this user
      *
-     * @return User|null
+     * @return UserInterface|null
      */
-    public function getLeader(): ?User;
+    public function getLeader(): ?UserInterface;
+
+    /**
+     * Returns the leader for this user
+     *
+     * @return string|null
+     */
+    public function getLeadersName(): ?string;
 
     /**
      * Sets the leader for this user
      *
-     * @param User|string|int|null $leader
+     * @param string|null $leaders_name
      * @return static
      */
-    public function setLeader(User|string|int|null $leader): static;
+    public function setLeadersName(string|null $leaders_name): static;
 
     /**
      * Returns the latitude for this user

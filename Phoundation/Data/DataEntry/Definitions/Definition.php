@@ -7,9 +7,10 @@ namespace Phoundation\Data\DataEntry\Definitions;
 use PDOStatement;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Data\Traits\UsesNewField;
+use Phoundation\Data\Traits\DataField;
 use Phoundation\Data\Validator\Interfaces\ArgvValidatorInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
+use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Interfaces\InputElementInterface;
 use Phoundation\Web\Http\Html\Components\Interfaces\InputTypeExtendedInterface;
@@ -32,8 +33,15 @@ use Stringable;
  */
 class Definition implements DefinitionInterface
 {
-    use UsesNewField;
+    use DataField;
 
+
+    /**
+     * The data entry where this definition belongs to
+     *
+     * @var DataEntryInterface $data_entry
+     */
+    protected DataEntryInterface $data_entry;
 
     /**
      * Validations to execute to ensure
@@ -142,36 +150,55 @@ class Definition implements DefinitionInterface
      *
      * @var array
      */
-    protected array $definitions = [];
-
-    /**
-     * The data entry linked to this definition
-     *
-     * @var DataEntryInterface|null $data_entry
-     */
-    protected ?DataEntryInterface $data_entry = null;
+    protected array $rules = [];
 
 
     /**
-     * Returns the internal data_entry for this definition
+     * UsesNewField class constructor
      *
-     * @return DataEntryInterface
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
      */
-    public function getDataEntry(): DataEntryInterface
+    public function __construct(DataEntryInterface $data_entry, ?string $field = null)
     {
-        return $this->data_entry;
+        $this->data_entry = $data_entry;
+        $this->field      = $field;
     }
 
 
     /**
-     * Sets the internal data_entry for this definition
+     * Returns a new static object
      *
      * @param DataEntryInterface $data_entry
-     * @return static
+     * @param string|null $field
+     * @return DefinitionInterface
      */
-    public function setDataEntry(DataEntryInterface $data_entry): static
+    public static function new(DataEntryInterface $data_entry, ?string $field = null): DefinitionInterface
     {
-        $this->data_entry = $data_entry;
+        return new static($data_entry, $field);
+    }
+
+
+    /**
+     * Returns the query builder from the data entry
+     *
+     * @return QueryBuilderInterface
+     */
+    public function getQueryBuilder(): QueryBuilderInterface
+    {
+        return $this->data_entry->getQueryBuilder();
+    }
+
+
+    /**
+     * Modify the contents of the query builder through a callback function
+     *
+     * @param callable $callback
+     * @return $this
+     */
+    public function modifyQueryBuilder(callable $callback): static
+    {
+        $callback($this->data_entry->getQueryBuilder());
         return $this;
     }
 
@@ -181,21 +208,21 @@ class Definition implements DefinitionInterface
      *
      * @return array
      */
-    public function getDefinitions(): array
+    public function getRules(): array
     {
-        return $this->definitions;
+        return $this->rules;
     }
 
 
     /**
      * Sets all the internal definitions for this field in one go
      *
-     * @param array $definitions
+     * @param array $rules
      * @return static
      */
-    public function setDefinitions(array $definitions): static
+    public function setRules(array $rules): static
     {
-        $this->definitions = $definitions;
+        $this->rules = $rules;
         return $this;
     }
 
@@ -256,7 +283,7 @@ class Definition implements DefinitionInterface
      */
     public function getKey(string $key): callable|PDOStatement|Stringable|array|string|float|int|bool|null
     {
-        return isset_get($this->definitions[$key]);
+        return isset_get($this->rules[$key]);
     }
 
 
@@ -269,7 +296,7 @@ class Definition implements DefinitionInterface
      */
     public function setKey(string $key, callable|PDOStatement|Stringable|array|string|float|int|bool|null $value): static
     {
-        $this->definitions[$key] = $value;
+        $this->rules[$key] = $value;
         return $this;
     }
 
@@ -285,7 +312,7 @@ class Definition implements DefinitionInterface
      */
     public function getVisible(): ?bool
     {
-        return isset_get_typed('bool', $this->definitions['visible'], true);
+        return isset_get_typed('bool', $this->rules['visible'], true);
     }
 
 
@@ -318,7 +345,7 @@ class Definition implements DefinitionInterface
      */
     public function getIgnoreModify(): ?bool
     {
-        return isset_get_typed('bool', $this->definitions['ignore_modify'], false);
+        return isset_get_typed('bool', $this->rules['ignore_modify'], false);
     }
 
 
@@ -368,7 +395,7 @@ class Definition implements DefinitionInterface
      */
     public function getVirtual(): ?bool
     {
-        return isset_get_typed('bool', $this->definitions['virtual']);
+        return isset_get_typed('bool', $this->rules['virtual']);
     }
 
 
@@ -402,7 +429,7 @@ class Definition implements DefinitionInterface
      */
     public function getElement(): string|null
     {
-        return isset_get_typed('string', $this->definitions['element']);
+        return isset_get_typed('string', $this->rules['element']);
     }
 
 
@@ -414,12 +441,12 @@ class Definition implements DefinitionInterface
      */
     public function setElement(InputElementInterface|null $value): static
     {
-        if (!empty($this->definitions['type'])) {
+        if (!empty($this->rules['type'])) {
             if ($value !== 'input') {
                 throw new OutOfBoundsException(tr('Cannot set element ":value" for field ":field" as the element type has already been set to ":type" and typed fields can only have the element "input"', [
                     ':value' => $value?->value,
                     ':field' => $this->field,
-                    ':type'  => $this->definitions['element']
+                    ':type'  => $this->rules['element']
                 ]));
             }
         }
@@ -435,7 +462,7 @@ class Definition implements DefinitionInterface
      */
     public function getContent(): callable|string|null
     {
-        return isset_get_typed('callable|string', $this->definitions['element']);
+        return isset_get_typed('callable|string', $this->rules['element']);
     }
 
 
@@ -458,7 +485,7 @@ class Definition implements DefinitionInterface
      */
     public function getType(): ?string
     {
-        return isset_get_typed('string', $this->definitions['type']);
+        return isset_get_typed('string', $this->rules['type']);
     }
 
 
@@ -624,7 +651,7 @@ class Definition implements DefinitionInterface
      */
     public function getReadonly(): ?bool
     {
-        return in_array($this->field, self::$meta_fields) or isset_get_typed('bool', $this->definitions['readonly']);
+        return in_array($this->field, self::$meta_fields) or isset_get_typed('bool', $this->rules['readonly']);
     }
 
 
@@ -654,7 +681,7 @@ class Definition implements DefinitionInterface
      */
     public function getDisabled(): ?bool
     {
-        return in_array($this->field, self::$meta_fields) or isset_get_typed('bool', $this->definitions['disabled']);
+        return in_array($this->field, self::$meta_fields) or isset_get_typed('bool', $this->rules['disabled']);
     }
 
 
@@ -683,7 +710,7 @@ class Definition implements DefinitionInterface
      */
     public function getLabel(): ?string
     {
-        return isset_get_typed('string', $this->definitions['label']);
+        return isset_get_typed('string', $this->rules['label']);
     }
 
 
@@ -706,7 +733,7 @@ class Definition implements DefinitionInterface
      */
     public function getSize(): ?int
     {
-        return isset_get_typed('int', $this->definitions['size']);
+        return isset_get_typed('int', $this->rules['size']);
     }
 
 
@@ -719,8 +746,8 @@ class Definition implements DefinitionInterface
     public function setSize(?int $value): static
     {
         if ($value) {
-            if ($this->getVirtual()) {
-                throw new OutOfBoundsException(tr('Cannot define size for field ":field", this field is virtual and will not be displayed', [
+            if (!$this->getVisible()) {
+                throw new OutOfBoundsException(tr('Cannot define size for field ":field", this field is not visible and will not be displayed', [
                     ':field' => $this->field,
                 ]));
             }
@@ -746,7 +773,7 @@ class Definition implements DefinitionInterface
      */
     public function getSource(): array|PDOStatement|Stringable|null
     {
-        return isset_get_typed('array|PDOStatement|Stringable|null', $this->definitions['source']);
+        return isset_get_typed('array|PDOStatement|Stringable|null', $this->rules['source']);
     }
 
 
@@ -778,7 +805,7 @@ class Definition implements DefinitionInterface
      */
     public function getVariables(): array|null
     {
-        return isset_get_typed('array', $this->definitions['variables']);
+        return isset_get_typed('array', $this->rules['variables']);
     }
 
 
@@ -809,7 +836,7 @@ class Definition implements DefinitionInterface
      */
     public function getExecute(): ?array
     {
-        return isset_get_typed('array', $this->definitions['execute']);
+        return isset_get_typed('array', $this->rules['execute']);
     }
 
 
@@ -822,14 +849,14 @@ class Definition implements DefinitionInterface
      */
     public function setExecute(array|string|null $value): static
     {
-        if (!array_key_exists('source', $this->definitions)) {
+        if (!array_key_exists('source', $this->rules)) {
             throw new OutOfBoundsException(tr('Cannot specify execute array ":value" for field ":field", a data query string source must be specified first', [
                 ':field' => $this->field,
                 ':value' => $value
             ]));
         }
 
-        if (is_array($this->definitions['source'])) {
+        if (is_array($this->rules['source'])) {
             throw new OutOfBoundsException(tr('Cannot specify execute array ":value" for field ":field", the "source" must be a string query but is an array instead', [
                 ':field' => $this->field,
                 ':value' => $value
@@ -847,7 +874,7 @@ class Definition implements DefinitionInterface
      */
     public function getAutoComplete(): array|bool|null
     {
-        return isset_get_typed('array|bool', $this->definitions['auto_complete']);
+        return isset_get_typed('array|bool', $this->rules['auto_complete']);
     }
 
 
@@ -902,12 +929,12 @@ class Definition implements DefinitionInterface
         // We're on the command line
         if ($validator instanceof ArgvValidatorInterface) {
             // We're working with data from the $argv command line
-            if (empty($this->definitions['cli_field'])) {
+            if (empty($this->rules['cli_field'])) {
                 // This field cannot be modified on the command line, no definition available
                 return null;
             }
 
-            return isset_get_typed('string', $this->definitions['cli_field']);
+            return isset_get_typed('string', $this->rules['cli_field']);
         }
 
         return $this->field;
@@ -934,7 +961,7 @@ class Definition implements DefinitionInterface
      */
     public function getOptional(): bool
     {
-        return isset_get_typed('bool', $this->definitions['optional'], false);
+        return isset_get_typed('bool', $this->rules['optional'], false);
     }
 
 
@@ -967,7 +994,7 @@ class Definition implements DefinitionInterface
      */
     public function getPlaceholder(): ?string
     {
-        return isset_get_typed('string', $this->definitions['placeholder']);
+        return isset_get_typed('string', $this->rules['placeholder']);
     }
 
 
@@ -991,7 +1018,7 @@ class Definition implements DefinitionInterface
      */
     public function getMinlength(): ?int
     {
-        return isset_get_typed('int', $this->definitions['minlength']);
+        return isset_get_typed('int', $this->rules['minlength']);
     }
 
 
@@ -1015,7 +1042,7 @@ class Definition implements DefinitionInterface
      */
     public function getMaxlength(): ?int
     {
-        return isset_get_typed('int', $this->definitions['maxlength']);
+        return isset_get_typed('int', $this->rules['maxlength']);
     }
 
 
@@ -1038,7 +1065,7 @@ class Definition implements DefinitionInterface
      */
     public function getPattern(): ?string
     {
-        return isset_get_typed('string', $this->definitions['pattern']);
+        return isset_get_typed('string', $this->rules['pattern']);
     }
 
 
@@ -1062,7 +1089,7 @@ class Definition implements DefinitionInterface
      */
     public function getMin(): float|int|null
     {
-        return isset_get_typed('float|int', $this->definitions['min']);
+        return isset_get_typed('float|int', $this->rules['min']);
     }
 
 
@@ -1086,7 +1113,7 @@ class Definition implements DefinitionInterface
      */
     public function getMax(): float|int|null
     {
-        return isset_get_typed('float|int', $this->definitions['max']);
+        return isset_get_typed('float|int', $this->rules['max']);
     }
 
 
@@ -1110,7 +1137,7 @@ class Definition implements DefinitionInterface
      */
     public function getStep(): string|float|int|null
     {
-        return isset_get_typed('string|float|int', $this->definitions['step']);
+        return isset_get_typed('string|float|int', $this->rules['step']);
     }
 
 
@@ -1134,7 +1161,7 @@ class Definition implements DefinitionInterface
      */
     public function getRows(): int|null
     {
-        return isset_get_typed('int', $this->definitions['rows']);
+        return isset_get_typed('int', $this->rules['rows']);
     }
 
 
@@ -1146,7 +1173,7 @@ class Definition implements DefinitionInterface
      */
     public function setRows(int|null $value): static
     {
-        if (isset_get($this->definitions['element']) !== 'textarea') {
+        if (isset_get($this->rules['element']) !== 'textarea') {
             throw new OutOfBoundsException(tr('Cannot define rows for field ":field", the element is a ":element" but should be a "textarea', [
                 ':field'   => $this->field,
                 ':element' => $value,
@@ -1164,7 +1191,7 @@ class Definition implements DefinitionInterface
      */
     public function getDefault(): string|float|int|bool|null
     {
-        return isset_get_typed('string|float|int|bool', $this->definitions['default']);
+        return isset_get_typed('string|float|int|bool', $this->rules['default']);
     }
 
 
@@ -1188,7 +1215,7 @@ class Definition implements DefinitionInterface
      */
     public function getNullDb(): bool
     {
-        return isset_get_typed('bool', $this->definitions['null_db'], true);
+        return isset_get_typed('bool', $this->rules['null_db'], true);
     }
 
 
@@ -1217,7 +1244,7 @@ class Definition implements DefinitionInterface
      */
     public function getNullDisabled(): bool
     {
-        return isset_get_typed('bool', $this->definitions['null_disabled'], false);
+        return isset_get_typed('bool', $this->rules['null_disabled'], false);
     }
 
 
@@ -1247,7 +1274,7 @@ class Definition implements DefinitionInterface
      */
     public function getNullReadonly(): bool
     {
-        return isset_get_typed('bool', $this->definitions['null_readonly'], false);
+        return isset_get_typed('bool', $this->rules['null_readonly'], false);
     }
 
 
@@ -1276,7 +1303,7 @@ class Definition implements DefinitionInterface
      */
     public function getNullType(): ?string
     {
-        return isset_get_typed('string', $this->definitions['null_type']);
+        return isset_get_typed('string', $this->rules['null_type']);
     }
 
 
@@ -1300,7 +1327,7 @@ class Definition implements DefinitionInterface
      */
     public function getValidationFunctions(): ?array
     {
-        return isset_get_typed('array', $this->definitions['validation_functions']);
+        return isset_get_typed('array', $this->rules['validation_functions']);
     }
 
 
@@ -1324,7 +1351,7 @@ class Definition implements DefinitionInterface
      */
     public function getHelpText(): ?string
     {
-        return isset_get_typed('string', $this->definitions['help_text']);
+        return isset_get_typed('string', $this->rules['help_text']);
     }
 
 
@@ -1347,7 +1374,7 @@ class Definition implements DefinitionInterface
      */
     public function getHelpGroup(): ?string
     {
-        return isset_get_typed('string', $this->definitions['help_group']);
+        return isset_get_typed('string', $this->rules['help_group']);
     }
 
 
@@ -1513,12 +1540,12 @@ class Definition implements DefinitionInterface
      */
     protected function validateTextTypeElement(string $key, string|float|int|null $value): void
     {
-        if (is_callable(isset_get($this->definitions['element']))) {
+        if (is_callable(isset_get($this->rules['element']))) {
             // We can't validate data types for this since it's a callback function
             return;
         }
 
-        switch (isset_get($this->definitions['element'])) {
+        switch (isset_get($this->rules['element'])) {
             case 'textarea':
                 // no break
             case 'select':
@@ -1527,14 +1554,14 @@ class Definition implements DefinitionInterface
             case null:
                 // This is the default, so "input"
             case 'input':
-                if (!array_key_exists('type', $this->definitions) or in_array($this->definitions['type'], ['text', 'email', 'url', 'password'])) {
+                if (!array_key_exists('type', $this->rules) or in_array($this->rules['type'], ['text', 'email', 'url', 'password'])) {
                     break;
                 }
 
                 throw new OutOfBoundsException(tr('Cannot set :attribute ":value" for field ":field", it is an ":type" type input element, :attribute can only be used for textarea elements or input elements with "text" type', [
                     ':attribute' => $key,
                     ':field'     => $this->field,
-                    ':type'      => $this->definitions['type'] ?? 'text',
+                    ':type'      => $this->rules['type'] ?? 'text',
                       ':value'     => $value
                 ]));
 
@@ -1542,7 +1569,7 @@ class Definition implements DefinitionInterface
                 throw new OutOfBoundsException(tr('Cannot set :attribute ":value" for field ":field", it is an ":element" element, :attribute can only be used for textarea elements or input elements with "text" type', [
                     ':attribute' => $key,
                     ':field'     => $this->field,
-                    ':element'   => $this->definitions['element'],
+                    ':element'   => $this->rules['element'],
                     ':value'     => $value
                 ]));
         }
@@ -1560,21 +1587,21 @@ class Definition implements DefinitionInterface
      */
     protected function validateNumberTypeInput(string $key, string|float|int $value): void
     {
-        if (is_callable(isset_get($this->definitions['element']))) {
+        if (is_callable(isset_get($this->rules['element']))) {
             // We can't validate data types for this since it's a callback function
             return;
         }
 
-        if (isset_get($this->definitions['element'], 'input') !== 'input') {
+        if (isset_get($this->rules['element'], 'input') !== 'input') {
             throw new OutOfBoundsException(tr('Cannot set :attribute ":value" for field ":field", it is an ":element" element, :attribute can only be used for "number" type input elements', [
                 ':attribute' => $key,
                 ':field'     => $this->field,
-                ':element'   => $this->definitions['element'],
+                ':element'   => $this->rules['element'],
                 ':value'     => $value
             ]));
         }
 
-        switch (isset_get($this->definitions['type'], 'text')) {
+        switch (isset_get($this->rules['type'], 'text')) {
             case 'number':
                 // no break
             case 'range':
@@ -1594,7 +1621,7 @@ class Definition implements DefinitionInterface
                 throw new OutOfBoundsException(tr('Cannot set :attribute ":value" for field ":field", it is an ":type" type input element, :attribute can only be used for "number" type input elements', [
                     ':attribute' => $key,
                     ':field'     => $this->field,
-                    ':type'      => $this->definitions['type'] ?? 'text',
+                    ':type'      => $this->rules['type'] ?? 'text',
                     ':value'     => $value
                 ]));
         }
@@ -1614,16 +1641,16 @@ class Definition implements DefinitionInterface
             $value = 'text';
         }
 
-        if (empty($this->definitions['element'])) {
-            $this->definitions['element'] = 'input';
+        if (empty($this->rules['element'])) {
+            $this->rules['element'] = 'input';
         }
 
-        if ($this->definitions['element'] !== 'input') {
+        if ($this->rules['element'] !== 'input') {
             throw new OutOfBoundsException(tr('Cannot set :key ":value" for field ":field" as the element must be input (or empty, default) but is ":element"', [
                 ':key'     => $key,
                 ':value'   => $value,
                 ':field'   => $this->field,
-                ':element' => $this->definitions['element']
+                ':element' => $this->rules['element']
             ]));
         }
 

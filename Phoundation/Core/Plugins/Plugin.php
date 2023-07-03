@@ -46,15 +46,15 @@ class Plugin extends DataEntry
      * Plugin class constructor
      *
      * @param DataEntryInterface|string|int|null $identifier
-     * @param bool $init
+     * @param string|null $column
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = true)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null)
     {
         $this->table        = 'core_plugins';
         $this->entry_name   = 'plugin';
         $this->unique_field = 'name';
 
-        parent::__construct($identifier, $init);
+        parent::__construct($identifier, $column);
     }
 
 
@@ -323,17 +323,17 @@ class Plugin extends DataEntry
     protected function initDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->addDefinition(Definition::new('disabled')
+            ->addDefinition(Definition::new($this, 'disabled')
                 ->setOptional(true)
                 ->setVirtual(true)
                 ->setVisible(false)
                 ->setCliField('-d,--disable'))
-            ->addDefinition(DefinitionFactory::getName()
+            ->addDefinition(DefinitionFactory::getName($this)
                 ->setVisible(false))
-            ->addDefinition(DefinitionFactory::getName()
+            ->addDefinition(DefinitionFactory::getName($this)
                 ->setSize(6)
                 ->setHelpText(tr('The name of this plugin')))
-            ->addDefinition(Definition::new('priority')
+            ->addDefinition(Definition::new($this, 'priority')
                 ->setOptional(true)
                 ->setInputType(InputType::number)
                 ->setNullDb(false, 5)
@@ -347,7 +347,7 @@ class Plugin extends DataEntry
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isInteger();
                 }))
-            ->addDefinition(Definition::new('enabled')
+            ->addDefinition(Definition::new($this, 'enabled')
                 ->setOptional(true)
                 ->setInputType(InputType::checkbox)
                 ->setSize(3)
@@ -358,7 +358,7 @@ class Plugin extends DataEntry
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isInteger();
                 }))
-            ->addDefinition(Definition::new('class')
+            ->addDefinition(Definition::new($this, 'class')
                 ->setLabel(tr('Class'))
                 ->setInputType(InputTypeExtended::name)
                 ->setMaxlength(255)
@@ -367,12 +367,12 @@ class Plugin extends DataEntry
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->hasMaxCharacters(2048)->matchesRegex('/Plugins\\[a-z0-9]+\\Plugin/');
                 }))
-            ->addDefinition(Definition::new('path')
+            ->addDefinition(Definition::new($this, 'path')
                 ->setLabel(tr('Path'))
                 ->setInputType(InputTypeExtended::path)
                 ->setMaxlength(128)
                 ->setSize(6)
                 ->setHelpText(tr('The filesystem path where this plugin is located')))
-            ->addDefinition(DefinitionFactory::getDescription());
+            ->addDefinition(DefinitionFactory::getDescription($this));
     }
 }

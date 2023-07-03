@@ -25,11 +25,11 @@ class SystemUser extends User implements SystemUserInterface
      * GuestUser class constructor
      *
      * @param DataEntryInterface|string|int|null $identifier
-     * @param bool $init
+     * @param string|null $column
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, bool $init = false)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null)
     {
-        parent::__construct($identifier, $init);
+        parent::__construct($identifier, $column);
 
         $this->data['id'] = null;
         $this->setNickname('System');
