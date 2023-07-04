@@ -47,6 +47,76 @@ class FlashMessages extends ElementsBlock implements IteratorInterface
 
 
     /**
+     * Add a "Success!" flash message
+     *
+     * @param string|null $message
+     * @param string|null $icon
+     * @param int|null $auto_close
+     * @return $this
+     */
+    public function addSuccessMessage(?string $message = null, string $icon = null, ?int $auto_close = 5): static
+    {
+        return $this->addMessage(tr('Success'), $message, DisplayMode::success, $icon, $auto_close);
+    }
+
+
+    /**
+     * Add a "Warning!" flash message
+     *
+     * @param string|null $message
+     * @param string|null $icon
+     * @param int|null $auto_close
+     * @return $this
+     */
+    public function addWarningMessage(?string $message = null, string $icon = null, ?int $auto_close = 5): static
+    {
+        return $this->addMessage(tr('Warning'), $message, DisplayMode::warning, $icon, $auto_close);
+    }
+
+
+    /**
+     * Add a "Validation failed" flash message
+     *
+     * @param string|null $message
+     * @param string|null $icon
+     * @param int|null $auto_close
+     * @return $this
+     */
+    public function addValidationFailedMessage(?string $message = null, string $icon = null, ?int $auto_close = 5): static
+    {
+        return $this->addMessage(tr('Validation failed'), $message, DisplayMode::warning, $icon, $auto_close);
+    }
+
+
+    /**
+     * Add an "Error!" flash message
+     *
+     * @param string|null $message
+     * @param string|null $icon
+     * @param int|null $auto_close
+     * @return $this
+     */
+    public function addErrorMessage(?string $message = null, string $icon = null, ?int $auto_close = 5): static
+    {
+        return $this->addMessage(tr('Error'), $message, DisplayMode::error, $icon, $auto_close);
+    }
+
+
+    /**
+     * Add a "Notice!" flash message
+     *
+     * @param string|null $message
+     * @param string|null $icon
+     * @param int|null $auto_close
+     * @return $this
+     */
+    public function addNoticeMessage(?string $message = null, string $icon = null, ?int $auto_close = 5): static
+    {
+        return $this->addMessage(tr('Notice'), $message, DisplayMode::notice, $icon, $auto_close);
+    }
+
+
+    /**
      * Add a flash message
      *
      * @param FlashMessage|Exception|string|null $title
@@ -56,7 +126,7 @@ class FlashMessages extends ElementsBlock implements IteratorInterface
      * @param int|null $auto_close
      * @return $this
      */
-    public function addMessage(FlashMessage|Exception|string|null $title, ?string $message = null, ?DisplayMode $mode = null, string $icon = null, ?int $auto_close = null): static
+    public function addMessage(FlashMessage|Exception|string|null $title, ?string $message = null, ?DisplayMode $mode = null, string $icon = null, ?int $auto_close = 5): static
     {
         if ($title) {
             if ($title instanceof ValidationFailedException) {

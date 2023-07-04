@@ -253,9 +253,9 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
     /**
      * Returns if the flash message is shown at the top of the screen
      *
-     * @return string
+     * @return bool
      */
-    public function getTop(): string
+    public function getTop(): bool
     {
         return $this->top;
     }
@@ -264,10 +264,10 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
     /**
      * Sets if the flash message is shown at the top of the screen
      *
-     * @param string $top
+     * @param bool $top
      * @return $this
      */
-    public function setTop(string $top): static
+    public function setTop(bool $top): static
     {
         $this->top = $top;
         return $this;
