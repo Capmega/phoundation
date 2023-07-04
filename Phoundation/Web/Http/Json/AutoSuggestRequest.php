@@ -31,19 +31,29 @@ class AutoSuggestRequest
 
     /**
      * AutoSuggestRequest class constructor
+     *
+     * @param bool $term_optional
      */
-    protected static function ensureGet()
+    protected static function ensureGet(bool $term_optional = false): void
     {
         if (isset(self::$get)) {
             return;
         }
 
         // Validate request data
-        self::$get = GetValidator::new()
+        $validator = GetValidator::new()
             ->select('callback')->hasMaxCharacters(48)->matchesRegex('/jQuery\d+_\d+/')
-            ->select('term')->hasMaxCharacters(255)->isPrintable()
-            ->select('_')->isNatural()
-            ->validate(false);
+            ->select('_')->isNatural();
+
+        if ($term_optional) {
+            $validator->select('term')->isOptional('')->hasMaxCharacters(255)->isPrintable();
+
+        } else {
+            $validator->select('term')->hasMaxCharacters(255)->isPrintable();
+        }
+
+
+        self::$get = $validator->validate(false);
     }
 
 
@@ -51,11 +61,12 @@ class AutoSuggestRequest
      * Will already execute the GET data validation so that subsequent GET data validations that might clear GET will
      * not cause the loss of auto suggest data
      *
+     * @param bool $term_optional
      * @return void
      */
-    public static function init(): void
+    public static function init(bool $term_optional = false): void
     {
-        self::ensureGet();
+        self::ensureGet($term_optional);
     }
 
 
