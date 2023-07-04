@@ -70,11 +70,16 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
         Page::setViewport('width=device-width, initial-scale=1');
 
         // Load basic MDB and fonts CSS
-        Page::loadCss('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
-        Page::loadCss('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap');
-        Page::loadCss('css/mdb');
-        Page::loadCss('css/mdb-fix');
-        Page::loadCss('css/phoundation');
+        Page::loadCss([
+            'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css',
+            'https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap',
+            'css/mdb',
+            'css/mdb-fix',
+            'css/phoundation',
+        ], true);
+
+        // Load configured CSS files
+        Page::loadCss(Config::getArray('web.page.css', []));
 
         // Load basic MDB amd jQuery javascript libraries
         Page::loadJavascript('js/mdb,js/jquery/jquery');

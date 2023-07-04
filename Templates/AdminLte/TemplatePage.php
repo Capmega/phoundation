@@ -77,6 +77,9 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
             'adminlte/css/phoundation'
         ], true);
 
+        // Load configured CSS files
+        Page::loadCss(Config::getArray('web.page.css', []));
+
         // Load basic MDB amd jQuery javascript libraries
         Page::loadJavascript([
             'adminlte/plugins/jquery/jquery',
