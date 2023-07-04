@@ -71,19 +71,4 @@ interface DataEntryFormInterface extends ElementsBlockInterface
      * @return static
      */
     public function setDefinitions(Definitions $definitions): static;
-
-    /**
-     * Returns the data source for this DataEntryForm
-     *
-     * @return array
-     */
-    public function getKeysDisplay(): array;
-
-    /**
-     * Set the data source for this DataEntryForm
-     *
-     * @param array $keys_display
-     * @return static
-     */
-    public function setKeysDisplay(array $keys_display): static;
 }

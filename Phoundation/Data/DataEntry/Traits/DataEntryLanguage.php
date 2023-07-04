@@ -81,4 +81,27 @@ trait DataEntryLanguage
     {
         return $this->setDataValue('languages_name', $languages_name);
     }
+
+
+    /**
+     * Returns the languages_code for this user
+     *
+     * @return string|null
+     */
+    public function getLanguagesCode(): ?string
+    {
+        return $this->getDataValue('string', 'languages_code');
+    }
+
+
+    /**
+     * Sets the languages_code for this user
+     *
+     * @param string|null $languages_code
+     * @return static
+     */
+    public function setLanguagesCode(string|null $languages_code): static
+    {
+        return $this->setDataValue('languages_code', $languages_code);
+    }
 }

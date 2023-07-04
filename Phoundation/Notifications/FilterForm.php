@@ -39,10 +39,5 @@ class FilterForm extends \Phoundation\Web\Http\Html\Components\FilterForm
 
             ],
         ];
-
-        $this->keys_display = [
-            'type[]'   => 6,
-            'filter[]' => 6,
-        ];
     }
 }

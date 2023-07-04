@@ -107,13 +107,6 @@ abstract class DataEntry implements DataEntryInterface, Stringable
     protected array $protected_fields = ['password', 'key'];
 
     /**
-     * Meta information about how the keys will be displayed on forms
-     *
-     * @var array $field_display
-     */
-    protected array $field_display = [];
-
-    /**
      * These keys should not ever be processed
      *
      * @var array $meta_fields
@@ -1113,7 +1106,8 @@ abstract class DataEntry implements DataEntryInterface, Stringable
             } catch (Exception|Throwable $e) {
                 // Just in case the truncated JSON encoding somehow failed, make sure we can continue!
                 Notification::new($e)
-                    ->log()->send();
+                    ->log()
+                    ->send();
 
                 $this->diff = tr('FAILED TO ENCODE DATA DIFF, SEE SYSTEM LOGS');
             }
@@ -1557,36 +1551,8 @@ abstract class DataEntry implements DataEntryInterface, Stringable
     {
         return DataEntryForm::new()
             ->setSource($this->data)
-            ->setDefinitions($this->definitions)
-            ->setKeysDisplay($this->field_display);
+            ->setDefinitions($this->definitions);
     }
-
-
-//    /**
-//     * Modify the form keys
-//     *
-//     * @param string $field
-//     * @param array $settings
-//     * @return static
-//     */
-//    public function modifyDefinitions(string $field, array $settings): static
-//    {
-//        if (!$this->definitions->exists($field)) {
-//            throw new OutOfBoundsException(tr('Specified form key ":key" does not exist', [
-//                ':key' => $field
-//            ]));
-//        }
-//
-//        foreach ($settings as $settings_key => $settings_value) {
-//            if ($settings_key === 'size') {
-//                $this->field_display[$field] = $settings_value;
-//            } else {
-//                $this->fields[$field][$settings_key] = $settings_value;
-//            }
-//        }
-//
-//        return $this;
-//    }
 
 
     /**
@@ -1827,7 +1793,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      * null_readonly  boolean            false          If "value" for entry is null, then use this for "readonly"
      * null_type      boolean            false          If "value" for entry is null, then use this for "type"
      *
-     * @param \Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface $definitions
+     * @param DefinitionsInterface $definitions
      */
     abstract protected function initDefinitions(DefinitionsInterface $definitions): void;
 }

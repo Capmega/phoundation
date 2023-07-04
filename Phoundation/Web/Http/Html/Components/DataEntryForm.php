@@ -28,13 +28,6 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
     protected Definitions $definitions;
 
     /**
-     * The form specific metadata for the keys for the specified data
-     *
-     * @var array $keys_display
-     */
-    protected array $keys_display;
-
-    /**
      * Optional class for input elements
      *
      * @var string $input_class
@@ -160,30 +153,6 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
     public function setDefinitions(Definitions $definitions): static
     {
         $this->definitions = $definitions;
-        return $this;
-    }
-
-
-    /**
-     * Returns the data source for this DataEntryForm
-     *
-     * @return array
-     */
-    public function getKeysDisplay(): array
-    {
-        return $this->keys_display;
-    }
-
-
-    /**
-     * Set the data source for this DataEntryForm
-     *
-     * @param array $keys_display
-     * @return static
-     */
-    public function setKeysDisplay(array $keys_display): static
-    {
-        $this->keys_display = $keys_display;
         return $this;
     }
 }
