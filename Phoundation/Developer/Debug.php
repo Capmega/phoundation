@@ -359,7 +359,7 @@ class Debug {
                     ':line' => static::currentLine($trace_offset),
                     ':size' => ($value === null ? 'NULL' : (is_scalar($value) ? strlen((string) $value) : count((array) $value)))
                 ]) . PHP_EOL;;
-                print_r($value) . PHP_EOL;
+                print_r($value, true) . PHP_EOL;
                 flush();
                 ob_flush();
             }

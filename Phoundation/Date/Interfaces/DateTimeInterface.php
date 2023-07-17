@@ -26,7 +26,7 @@ interface DateTimeInterface extends \DateTimeInterface
      * @param bool $absolute
      * @return DateInterval
      */
-    public function diff(\DateTimeInterface $targetObject, bool $absolute = false): DateInterval;
+    public function diff($targetObject, $absolute = false): DateInterval;
 
     /**
      * Returns a new DateTime object with the specified timezone

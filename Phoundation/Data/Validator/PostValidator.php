@@ -44,7 +44,7 @@ class PostValidator extends Validator
      *
      * @param ValidatorInterface|null $parent If specified, this is actually a child validator to the specified parent
      */
-    public function __construct(?ValidatorInterface $parent = null) {
+    protected function __construct(?ValidatorInterface $parent = null) {
         $this->construct($parent, static::$post);
     }
 
@@ -53,9 +53,9 @@ class PostValidator extends Validator
      * Returns a new $_POST data Validator object
      *
      * @param ValidatorInterface|null $parent
-     * @return static
+     * @return PostValidator
      */
-    public static function new(?ValidatorInterface $parent = null): static
+    public static function new(?ValidatorInterface $parent = null): PostValidator
     {
         return new static($parent);
     }

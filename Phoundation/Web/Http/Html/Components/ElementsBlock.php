@@ -156,7 +156,7 @@ abstract class ElementsBlock extends Iterator implements IteratorInterface, Elem
         // The template component does not exist, return the basic Phoundation version
         Log::warning(tr('No template render class found for block component ":component", rendering basic HTML', [
             ':component' => get_class($this)
-        ]));
+        ]), 3);
 
         return $render_function($this->render);
     }

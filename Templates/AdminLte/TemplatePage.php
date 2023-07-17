@@ -18,7 +18,7 @@ use Phoundation\Web\Page;
 /**
  * AdminLte template class
  *
- * 
+ *
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -64,13 +64,15 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     public function buildHtmlHeader(): ?string
     {
         // Set head meta data
-        Page::setFavIcon('img/favicons/project.png');
+        Page::setFavIcon();
         Page::setViewport('width=device-width, initial-scale=1');
 
         // Load basic MDB and fonts CSS
         Page::loadCss([
             'https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback',
-            'adminlte/plugins/fontawesome-free/css/all',
+            'adminlte/plugins/fontawesome-free-6.4.0-web/css/all',
+            'adminlte/plugins/fontawesome-free-6.4.0-web/css/regular',
+            'adminlte/plugins/fontawesome-free-6.4.0-web/css/v4-shim',
             'adminlte/css/adminlte',
             'adminlte/css/phoundation',
             'adminlte/plugins/overlayScrollbars/css/OverlayScrollbars',
@@ -91,7 +93,6 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
 
         // Set basic page details
         Page::setPageTitle(Config::get('project.name', tr('Phoundation platform')) . ' (' . Page::getHeaderTitle() . ')');
-        Page::setFavIcon('favicon/' . Page::getProjectName() . '/project.png');
 
         return Page::buildHeaders();
     }
@@ -104,7 +105,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
      */
     public function buildPageHeader(): ?string
     {
-        return '<body class="sidebar-mini" style="height: auto;">    
+        return '<body class="sidebar-mini" style="height: auto;">
                     <div class="wrapper">
                         ' . Page::getFlashMessages()->render() . '
                         ' . $this->buildTopPanel() . '
@@ -164,7 +165,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
         $body = parent::buildBody($target);
 
         if (Page::getBuildBody()) {
-            $body = '   <div class="content-wrapper" style="min-height: 1518.06px;">                   
+            $body = '   <div class="content-wrapper" style="min-height: 1518.06px;">
                            ' . $this->buildBodyHeader() . '
                             <section class="content">
                                 <div class="container-fluid">
@@ -254,7 +255,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
                           <div class="col-sm-6">
                             <h1>
                               ' . Page::getHeaderTitle() . '
-                              ' . ($sub_title ? '<small>' . Html::safe($sub_title) . '</small>' : '') . '                          
+                              ' . ($sub_title ? '<small>' . Html::safe($sub_title) . '</small>' : '') . '
                             </h1>
                           </div>
                           <div class="col-sm-6">

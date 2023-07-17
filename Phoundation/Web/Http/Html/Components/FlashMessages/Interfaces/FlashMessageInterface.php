@@ -97,17 +97,17 @@ interface FlashMessageInterface
     /**
      * Returns if the flash message is shown on the left side of the screen
      *
-     * @return string
+     * @return bool
      */
-    public function getLeft(): string;
+    public function getLeft(): bool;
 
     /**
      * Sets if the flash message is shown on the right side of the screen
      *
-     * @param string $left
+     * @param bool $left
      * @return $this
      */
-    public function setLeft(string $left): static;
+    public function setLeft(bool $left): static;
 
     /**
      * Returns if the flash message is shown at the top of the screen

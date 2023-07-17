@@ -260,9 +260,10 @@ class Plugins extends DataList
     {
         $path = PATH_ROOT . 'Plugins/';
 
-        self::clear();
         File::new($path)->delete();
         Path::new($path)->ensure();
+
+        return parent::clear();
     }
 
 
@@ -343,9 +344,9 @@ class Plugins extends DataList
     public function load(string|int|null $id_column = null): static
     {
         $this->source = sql()->list('SELECT   `core_plugins`.`id`, `core_plugins`.`name` 
-                                           FROM     `core_plugins` 
-                                           WHERE    `core_plugins`.`status` IS NULL
-                                           ORDER BY `core_plugins`.`name`' . sql()->getLimit());
+                                     FROM     `core_plugins` 
+                                     WHERE    `core_plugins`.`status` IS NULL
+                                     ORDER BY `core_plugins`.`name`' . sql()->getLimit());
 
         // The keys contain the ids...
         $this->source = array_flip($this->source);

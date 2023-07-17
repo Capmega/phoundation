@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Filesystem;
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FileNotExistException;
@@ -248,11 +249,13 @@ class Filesystem
                     case 'css':
                         $prefix = PATH_CDN . LANGUAGE . '/css/';
                         break;
+
                     case 'js':
                         // no-break
                     case 'javascript':
                         $prefix = PATH_CDN . LANGUAGE . '/js/';
                         break;
+
                     case 'img':
                         // no-break
                     case 'image':
@@ -260,11 +263,13 @@ class Filesystem
                     case 'images':
                         $prefix = PATH_CDN . LANGUAGE . '/img/';
                         break;
+
                     case 'font':
                         // no-break
                     case 'fonts':
                         $prefix = PATH_CDN . LANGUAGE . '/fonts/';
                         break;
+
                     case 'video':
                         // no-break
                     case 'videos':
@@ -283,6 +288,9 @@ class Filesystem
             }
         } else {
             if ($must_exist) {
+                Log::warning($path);
+                Log::warning($prefix);
+                showdie($prefix);
                 throw new FileNotExistException(tr('The specified file or path ":path" does not exist', [
                     ':path' => $path
                 ]));

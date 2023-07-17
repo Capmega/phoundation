@@ -237,10 +237,11 @@ interface DataEntryInterface
      * Forcibly modify the data for this object with the new specified data, putting the object in readonly mode
      *
      * @note In readonly mode this object will no longer be able to write its data!
-     * @param ValidatorInterface|array|null $data
+     * @param bool $clear_source
+     * @param ValidatorInterface|array|null $source
      * @return static
      */
-    public function forceApply(ValidatorInterface|array|null $data = null): static;
+    public function forceApply(bool $clear_source = true, ValidatorInterface|array|null &$source = null): static;
 
     /**
      * Validates the source data and returns it

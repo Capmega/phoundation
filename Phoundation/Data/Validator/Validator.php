@@ -2921,40 +2921,6 @@ abstract class Validator implements ValidatorInterface
 
 
     /**
-     * Returns the entire source for this validator object
-     *
-     * @return array|null
-     */
-    public function getSource(): ?array
-    {
-        return $this->source;
-    }
-
-
-    /**
-     * Returns the value for the specified key, or null if not
-     *
-     * @return array
-     */
-    public function getSourceKey(string $key): mixed
-    {
-        return array_get_safe($this->source, $key);
-    }
-
-
-    /**
-     * Returns true if the specified key exists
-     *
-     * @param string $key
-     * @return bool
-     */
-    public function sourceKeyExists(string $key): bool
-    {
-        return array_key_exists($key, $this->source);
-    }
-
-
-    /**
      * Constructor for all validator types
      *
      * @param ValidatorInterface|null $parent

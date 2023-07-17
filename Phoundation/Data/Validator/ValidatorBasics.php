@@ -137,7 +137,7 @@ trait ValidatorBasics
      *
      * @var ValidatorInterface|null
      */
-    protected ?Validator $parent = null;
+    protected ?ValidatorInterface $parent = null;
 
     /**
      * If set, all field failure keys will show the parent field as well
@@ -193,6 +193,47 @@ trait ValidatorBasics
      */
     protected static bool $password_disabled = false;
 
+    /**
+     * If true, failed fields will be cleared on validation
+     *
+     * @var bool $clear_failed_fields
+     */
+    protected bool $clear_failed_fields = false;
+
+
+    /**
+     * Returns the entire source for this validator object
+     *
+     * @return array|null
+     */
+    public function getSource(): ?array
+    {
+        return $this->source;
+    }
+
+
+    /**
+     * Returns the value for the specified key, or null if not
+     *
+     * @return array
+     */
+    public function getSourceKey(string $key): mixed
+    {
+        return array_get_safe($this->source, $key);
+    }
+
+
+    /**
+     * Returns true if the specified key exists
+     *
+     * @param string $key
+     * @return bool
+     */
+    public function sourceKeyExists(string $key): bool
+    {
+        return array_key_exists($key, $this->source);
+    }
+
 
     /**
      * Manually set one of the internal fields to the specified value
@@ -204,6 +245,30 @@ trait ValidatorBasics
     public function setField(string $key, array|string|int|float|bool|null $value): static
     {
         $this->source[$key] = $value;
+        return $this;
+    }
+
+
+    /**
+     * Returns if failed fields will be cleared on validation
+     *
+     * @return bool
+     */
+    public function getClearFailedFields(): bool
+    {
+        return $this->clear_failed_fields;
+    }
+
+
+    /**
+     * Sets if failed fields will be cleared on validation
+     *
+     * @param bool $clear_failed_fields
+     * @return static
+     */
+    public function setClearFailedFields(bool $clear_failed_fields): static
+    {
+        $this->clear_failed_fields = $clear_failed_fields;
         return $this;
     }
 
@@ -445,7 +510,10 @@ trait ValidatorBasics
 
             // Failed fields
             if (array_key_exists($field, $this->failures)) {
-                unset($this->source[$field]);
+                if ($this->clear_failed_fields) {
+show('CLEAR ' . $field);
+                    unset($this->source[$field]);
+                }
             }
         }
 
@@ -572,7 +640,16 @@ trait ValidatorBasics
             }
         }
 
-//show('FAILURE (' . $this->parent_field . ' / ' . $selected_field . ' / ' . $this->process_key . '): ' . $failure);
+        Log::warning(tr('Validation failed on field ":field" with value ":value" because ":failure"', [
+            ':field'   => ($this->parent_field ?? '-') . ' / ' . $selected_field . ' / ' . ($this->process_key ?? '-'),
+            ':failure' => $failure,
+            ':value'   => $this->source[$selected_field],
+        ]));
+
+        if (Debug::enabled()) {
+            Log::backtrace();
+        }
+
         // Build up the failure string
         if (is_numeric($this->process_key)) {
             if (is_numeric($selected_field)) {
@@ -601,15 +678,6 @@ trait ValidatorBasics
         // Store the failure
         $this->process_value_failed = true;
         $this->failures[$field]     = $failure;
-
-        Log::warning(tr('Validation failed on field ":field" with value ":value"', [
-            ':field' => $field,
-            ':value' => $this->source[$selected_field],
-        ]));
-
-        if (Debug::enabled()) {
-            Log::backtrace();
-        }
     }
 
 
@@ -621,6 +689,17 @@ trait ValidatorBasics
     public function getFailures(): array
     {
         return $this->failures;
+    }
+
+
+    /**
+     * Returns if the currently selected field failed or not
+     *
+     * @return bool
+     */
+    public function getSelectedFieldHasFailed(): bool
+    {
+        return $this->fieldHasFailed($this->selected_field);
     }
 
 

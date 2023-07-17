@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html\Components\FlashMessages;
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Exception\Exception;
@@ -54,7 +55,7 @@ class FlashMessages extends ElementsBlock implements IteratorInterface
      * @param int|null $auto_close
      * @return $this
      */
-    public function addSuccessMessage(?string $message = null, string $icon = null, ?int $auto_close = 5): static
+    public function addSuccessMessage(?string $message = null, string $icon = null, ?int $auto_close = 10000): static
     {
         return $this->addMessage(tr('Success!'), $message, DisplayMode::success, $icon, $auto_close);
     }
@@ -68,9 +69,9 @@ class FlashMessages extends ElementsBlock implements IteratorInterface
      * @param int|null $auto_close
      * @return $this
      */
-    public function addWarningMessage(?string $message = null, string $icon = null, ?int $auto_close = 5): static
+    public function addWarningMessage(?string $message = null, string $icon = null, ?int $auto_close = 0): static
     {
-        return $this->addMessage(tr('Warning!'), $message, DisplayMode::warning, $icon, $auto_close);
+        return $this->addMessage(tr('Warning'), $message, DisplayMode::warning, $icon, $auto_close);
     }
 
 
@@ -82,9 +83,9 @@ class FlashMessages extends ElementsBlock implements IteratorInterface
      * @param int|null $auto_close
      * @return $this
      */
-    public function addValidationFailedMessage(?string $message = null, string $icon = null, ?int $auto_close = 5): static
+    public function addValidationFailedMessage(?string $message = null, string $icon = null, ?int $auto_close = 10000): static
     {
-        return $this->addMessage(tr('Validation failed!'), $message, DisplayMode::warning, $icon, $auto_close);
+        return $this->addMessage(tr('Validation failed'), $message, DisplayMode::warning, $icon, $auto_close);
     }
 
 
@@ -96,9 +97,9 @@ class FlashMessages extends ElementsBlock implements IteratorInterface
      * @param int|null $auto_close
      * @return $this
      */
-    public function addErrorMessage(?string $message = null, string $icon = null, ?int $auto_close = 5): static
+    public function addErrorMessage(?string $message = null, string $icon = null, ?int $auto_close = 0): static
     {
-        return $this->addMessage(tr('Error!'), $message, DisplayMode::error, $icon, $auto_close);
+        return $this->addMessage(tr('Something went wrong'), $message, DisplayMode::error, $icon, $auto_close);
     }
 
 
@@ -110,7 +111,7 @@ class FlashMessages extends ElementsBlock implements IteratorInterface
      * @param int|null $auto_close
      * @return $this
      */
-    public function addNoticeMessage(?string $message = null, string $icon = null, ?int $auto_close = 5): static
+    public function addNoticeMessage(?string $message = null, string $icon = null, ?int $auto_close = 10000): static
     {
         return $this->addMessage(tr('Notice'), $message, DisplayMode::notice, $icon, $auto_close);
     }
@@ -126,7 +127,7 @@ class FlashMessages extends ElementsBlock implements IteratorInterface
      * @param int|null $auto_close
      * @return $this
      */
-    public function addMessage(FlashMessage|Exception|string|null $title, ?string $message = null, ?DisplayMode $mode = null, string $icon = null, ?int $auto_close = 5): static
+    public function addMessage(FlashMessage|Exception|string|null $title, ?string $message = null, ?DisplayMode $mode = null, string $icon = null, ?int $auto_close = 5000): static
     {
         if ($title) {
             if ($title instanceof ValidationFailedException) {
@@ -140,7 +141,7 @@ class FlashMessages extends ElementsBlock implements IteratorInterface
                         }
 
                         $count++;
-                        $this->addMessage(tr('Information validation failure'), $message, DisplayMode::warning, null, 5000);
+                        $this->addValidationFailedMessage($message);
                     }
 
                     if (!$count) {
@@ -157,7 +158,7 @@ class FlashMessages extends ElementsBlock implements IteratorInterface
                 // message
                 if ($title->getMessages()) {
                     foreach ($title->getMessages() as $message) {
-                        $this->addMessage(tr('Problem encountered!'), $message, DisplayMode::warning, null, 5000);
+                        $this->addErrorMessage($message);
                     }
 
                     return $this;

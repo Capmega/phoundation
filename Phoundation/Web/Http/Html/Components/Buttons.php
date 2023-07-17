@@ -76,6 +76,11 @@ class Buttons extends ElementsBlock implements Iterator
      */
     public function addButton(Button|string|null $button, DisplayMode $mode = DisplayMode::primary, InputTypeInterface|string $type_or_anchor_url = ButtonType::submit, bool $outline = false, bool $right = false): static
     {
+        if (!$button) {
+            // Don't add anything
+            return $this;
+        }
+
         if (is_string($button)) {
             if ($button === tr('Save')) {
                 $type_or_anchor_url = ButtonType::submit;
@@ -111,10 +116,7 @@ class Buttons extends ElementsBlock implements Iterator
 
         }
 
-        if ($button) {
-            $this->source[] = $button;
-        }
-
+        $this->source[] = $button;
         return $this;
     }
 

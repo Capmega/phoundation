@@ -237,7 +237,7 @@ function array_get_safe(array $source, string|float|int|null $key, mixed $defaul
  * @param mixed $default (optional) The value to return in case the specified $variable did not exist or was NULL.*
  * @return mixed
  */
-function isset_get_typed(array|string $types, mixed &$variable, mixed $default = null): mixed
+function isset_get_typed(array|string $types, mixed &$variable, mixed $default = null, bool $exception = true): mixed
 {
     // The variable exists
     if (isset($variable)) {
@@ -329,11 +329,16 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
             }
         }
 
-        throw OutOfBoundsException::new(tr('isset_get_typed(): Specified variable ":variable" has datatype ":has" but it should be one of ":types"', [
-            ':variable' => $variable,
-            ':has'      => gettype($variable),
-            ':types'    => $types,
-        ]))->setData(['variable' => $variable]);
+        if ($exception) {
+            throw OutOfBoundsException::new(tr('isset_get_typed(): Specified variable ":variable" has datatype ":has" but it should be one of ":types"', [
+                ':variable' => $variable,
+                ':has'      => gettype($variable),
+                ':types'    => $types,
+            ]))->setData(['variable' => $variable]);
+        }
+
+        // Don't throw an exception, return null instead.
+        return null;
     }
 
     // The previous isset would have actually set the variable with null, unset it to ensure it won't exist
@@ -626,9 +631,12 @@ function showhex(mixed $source = null, int $trace_offset = 1, bool $quiet = fals
  * @param bool $quiet
  * @return mixed
  */
-function showbacktrace(mixed $source = null, int $trace_offset = 1, bool $quiet = false): mixed
+function showbacktrace(int $count = 0, int $trace_offset = 1, bool $quiet = false): mixed
 {
-    return show(Debug::backtrace(), $trace_offset, $quiet);
+    $backtrace = Debug::backtrace();
+    $backtrace = Arrays::limit($backtrace, $count);
+
+    return show($backtrace, $trace_offset, $quiet);
 }
 
 
@@ -745,6 +753,7 @@ function execute_script(string $__file): void
 {
     try {
         include($__file);
+
     } catch (Throwable $e) {
         // Did this fail because the specified file does not exist?
         File::new($__file, PATH_SCRIPTS)->checkReadable('script', $e);

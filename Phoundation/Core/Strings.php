@@ -8,6 +8,7 @@ use Exception;
 use Phoundation\Cli\Color;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Utils\Json;
 use StephenHill\Base58;
@@ -346,9 +347,16 @@ class Strings
     {
         try {
             static::fromBase58($source);
+
             return true;
 
-        } catch (Throwable) {
+        } catch (Throwable $e) {
+            $message = strtolower($e->getMessage());
+
+            if (str_contains($message, 'bc math') or str_contains($message, 'gmp')) {
+                throw PhpModuleNotAvailableException::new('The PHP BC Math and / or GMP modules are not installed or available');
+            }
+
             return false;
         }
     }
@@ -1155,15 +1163,15 @@ throw new UnderConstructionException();
      * Return the given string from the specified needle
      *
      * @param Stringable|string|int|null $source
-     * @param Stringable|string|int $needle
+     * @param Stringable|string|int|null $needle
      * @param int $more
      * @param bool $require
      * @return string
      */
-    public static function from(Stringable|string|int|null $source, Stringable|string|int $needle, int $more = 0, bool $require = false): string
+    public static function from(Stringable|string|int|null $source, Stringable|string|int|null $needle, int $more = 0, bool $require = false): string
     {
         if (!$needle) {
-            throw new OutOfBoundsException('No needle specified');
+            return $source;
         }
 
         $needle = (string) $needle;
@@ -1186,7 +1194,7 @@ throw new UnderConstructionException();
      * Return the given string from 0 until the specified needle
      *
      * @param Stringable|string|int|null $source
-     * @param Stringable|string|int $needle
+     * @param Stringable|string|int|null $needle
      * @param int $more
      * @param int $start
      * @param bool $require
@@ -1195,7 +1203,7 @@ throw new UnderConstructionException();
     public static function until(Stringable|string|int|null $source, Stringable|string|int $needle, int $more = 0, int $start = 0, bool $require = false): string
     {
         if (!$needle) {
-            throw new OutOfBoundsException('No needle specified');
+            return $source;
         }
 
         $needle = (string) $needle;
@@ -1218,14 +1226,14 @@ throw new UnderConstructionException();
      * Return the given string from the specified needle, starting from the end
      *
      * @param Stringable|string|int|null $source
-     * @param Stringable|string|int $needle
+     * @param Stringable|string|int|null $needle
      * @param int $more
      * @return string
      */
     public static function fromReverse(Stringable|string|int|null $source, Stringable|string|int $needle, int $more = 0): string
     {
         if (!$needle) {
-            throw new OutOfBoundsException('No needle specified');
+            return $source;
         }
 
         $needle = (string) $needle;
@@ -1242,7 +1250,7 @@ throw new UnderConstructionException();
      * Return the given string from 0 until the specified needle, starting from the end
      *
      * @param Stringable|string|int|null $source
-     * @param Stringable|string|int $needle
+     * @param Stringable|string|int|null $needle
      * @param int $more
      * @param int $start
      * @return string
@@ -1250,7 +1258,7 @@ throw new UnderConstructionException();
     public static function untilReverse(Stringable|string|int|null $source, Stringable|string|int $needle, int $more = 0, int $start = 0): string
     {
         if (!$needle) {
-            throw new OutOfBoundsException('No needle specified');
+            return $source;
         }
 
         $needle = (string) $needle;
@@ -1269,7 +1277,7 @@ throw new UnderConstructionException();
      * Return the given string from the specified needle having been skipped $count times
      *
      * @param Stringable|string|int|null $source
-     * @param Stringable|string|int $needle
+     * @param Stringable|string|int|null $needle
      * @param int $count
      * @param bool $required
      * @return string
@@ -1277,7 +1285,7 @@ throw new UnderConstructionException();
     public static function skip(Stringable|string|int|null $source, Stringable|string|int $needle, int $count, bool $required = false): string
     {
         if (!$needle) {
-            throw new OutOfBoundsException(tr('No needle specified'));
+            return $source;
         }
 
         if ($count < 1) {
@@ -1300,14 +1308,14 @@ throw new UnderConstructionException();
      * string
      *
      * @param Stringable|string|int|null $source
-     * @param Stringable|string|int $needle
+     * @param Stringable|string|int|null $needle
      * @param int $count
      * @return string
      */
-    public static function skipReverse(Stringable|string|int|null $source, Stringable|string|int $needle, int $count): string
+    public static function skipReverse(Stringable|string|int|null $source, Stringable|string|int $needle, int $count, int $more = 0): string
     {
         if (!$needle) {
-            throw new OutOfBoundsException(tr('No needle specified'));
+            return $source;
         }
 
         if ($count < 1) {
@@ -1316,12 +1324,16 @@ throw new UnderConstructionException();
 
         $needle = (string) $needle;
         $source = (string) $source;
+        $result = [];
 
-        for ($i = 0; $i < $count; $i++) {
-            $source = Strings::fromReverse($source, $needle, 0);
+        for ($i = 0; $i <= $count; $i++) {
+            $result[] = Strings::fromReverse($source, $needle, $more);
+            $source   = Strings::untilReverse($source, $needle, $more);
         }
 
-        return $source;
+        $result = array_reverse($result);
+
+        return implode($needle, $result);
     }
 
 

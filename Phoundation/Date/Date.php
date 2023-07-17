@@ -24,6 +24,7 @@ use Throwable;
  *
  * This class contains various date handling methods
  *
+ * @deprecated Use Phoundation\Date\DateTime instead
  */
 class Date
 {

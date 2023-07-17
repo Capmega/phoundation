@@ -21,6 +21,21 @@ use UnitEnum;
 interface ValidatorInterface extends ValidatorBasicsInterface
 {
     /**
+     * Returns if failed fields will be cleared on validation
+     *
+     * @return bool
+     */
+    public function getClearFailedFields(): bool;
+
+    /**
+     * Sets if failed fields will be cleared on validation
+     *
+     * @param bool $clear_failed_fields
+     * @return void
+     */
+    public function setClearFailedFields(bool $clear_failed_fields): static;
+
+    /**
      * Returns the field prefix value
      *
      * @return string|null
@@ -1020,6 +1035,13 @@ interface ValidatorInterface extends ValidatorBasicsInterface
      * @return bool
      */
     public function fieldHasFailed(string $field): bool;
+
+    /**
+     * Returns if the currently selected field failed or not
+     *
+     * @return bool
+     */
+    public function getSelectedFieldHasFailed(): bool;
 
     /**
      * Returns the entire source for this validator object

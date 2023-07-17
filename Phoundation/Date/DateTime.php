@@ -27,28 +27,52 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      * @return string
      */
     public function __toString() {
-        return $this->format('Y-m-d H:i:s.v');
+        return $this->format('Y-m-d H:i:s.v.u');
     }
 
 
     /**
      * Returns a new DateTime object
      *
-     * @param Date|DateTime|string $datetime
-     * @param \DateTimeZone|DateTimeZone|string|null $timezone
+     * @param DateTime|string|null $datetime
+     * @param \DateTimeZone|string|null $timezone
+     * @throws Exception
+     */
+    public function __construct(DateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null)
+    {
+        // Ensure we have NULL or datetimezone object for parent constructor
+        $timezone = get_null($timezone);
+
+        if (is_string($timezone)) {
+            $timezone = new DateTimeZone($timezone);
+        }
+
+        // Return Phoundation DateTime object for whatever given $datetime
+        if (is_object($datetime)) {
+            // Return a new DateTime object with the specified date in the specified timezone
+            parent::__construct($datetime->format('Y-m-d H:i:s.vu'), $timezone);
+        }
+
+        parent::__construct($datetime, $timezone);
+    }
+
+
+    /**
+     * Returns a new DateTime object
+     *
+     * @param DateTime|string|null $datetime
+     * @param \DateTimeZone|string|null $timezone
      * @return static
      * @throws Exception
      */
-    public static function new(Date|DateTime|string $datetime = 'now', \DateTimeZone|DateTimeZone|string|null $timezone = null): static
+    public static function new(DateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): static
     {
         if (is_object($datetime)) {
-            return $datetime->setTimezone($timezone);
+            // Return a new DateTime object with the specified date in the specified timezone
+            return new static($datetime->format('Y-m-d H:i:s.vu'), $timezone);
         }
 
-        $datetime = new static($datetime);
-        $datetime->setTimezone($timezone);
-
-        return $datetime;
+        return new static($datetime, $timezone);
     }
 
 
@@ -60,7 +84,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      * @param bool $absolute
      * @return DateInterval
      */
-    public function diff(DateTimeInterface $targetObject, bool $absolute = false): DateInterval
+    public function diff($targetObject, $absolute = false): DateInterval
     {
         return new DateInterval(parent::diff($targetObject, $absolute));
     }
@@ -69,26 +93,26 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
     /**
      * Returns a new DateTime object
      *
-     * @param \DateTimeZone|DateTimeZone|string|null $timezone
+     * @param \DateTimeZone|string|null $timezone
      * @return static
      * @throws Exception
      */
-    public static function today(\DateTimeZone|DateTimeZone|string|null $timezone = null): static
+    public static function today(\DateTimeZone|string|null $timezone = null): static
     {
-        return new static('today 00:00:00', DateTimeZone::new($timezone));
+        return new static('today', DateTimeZone::new($timezone));
     }
 
 
     /**
      * Returns a new DateTime object for tomorrow
      *
-     * @param \DateTimeZone|DateTimeZone|string|null $timezone
+     * @param \DateTimeZone|string|null $timezone
      * @return static
      * @throws Exception
      */
-    public static function tomorrow(\DateTimeZone|DateTimeZone|string|null $timezone = null): static
+    public static function tomorrow(\DateTimeZone|string|null $timezone = null): static
     {
-        return new static('tomorrow 00:00:00', DateTimeZone::new($timezone));
+        return new static('tomorrow', DateTimeZone::new($timezone));
     }
 
 
@@ -102,7 +126,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      */
     public static function yesterday(Date|DateTime|string $datetime = 'yesterday 00:00:00', \DateTimeZone|DateTimeZone|string|null $timezone = null): static
     {
-        return new static('yesterday 00:00:00', DateTimeZone::new($timezone));
+        return new static('yesterday', DateTimeZone::new($timezone));
     }
 
 

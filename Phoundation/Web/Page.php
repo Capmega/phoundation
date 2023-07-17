@@ -532,11 +532,7 @@ class Page
      */
     public static function getDomain(): string
     {
-        if (PLATFORM_HTTP) {
-            return $_SERVER['HTTP_HOST'];
-        }
-
-        return Domains::getPrimary();
+        return $_SERVER['HTTP_HOST'];
     }
 
 
@@ -547,11 +543,7 @@ class Page
      */
     public static function getProtocol(): string
     {
-        if (PLATFORM_HTTP) {
-            return $_SERVER['SERVER_PROTOCOL'];
-        }
-
-        return Domains::getPrimary();
+        return $_SERVER['SERVER_PROTOCOL'];
     }
 
 
@@ -563,11 +555,7 @@ class Page
      */
     public static function getUrl(bool $no_queries = false): string
     {
-        if (PLATFORM_HTTP) {
-            return $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . static::getUri($no_queries);
-        }
-
-        return static::$parameters->getRootUrl();
+        return $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . static::getUri($no_queries);
     }
 
 
@@ -580,22 +568,19 @@ class Page
      */
     public static function getUri(bool $no_queries = false): string
     {
-        if (PLATFORM_HTTP) {
-            return ($no_queries ? Strings::until($_SERVER['REQUEST_URI'], '?') : $_SERVER['REQUEST_URI']);
-        }
-
-        return static::$parameters->getUri();
+        return ($no_queries ? Strings::until($_SERVER['REQUEST_URI'], '?') : $_SERVER['REQUEST_URI']);
     }
 
 
     /**
      * Return the complete request URL for this page (WITH domain)
      *
+     * @param string $type
      * @return string
      */
-    public static function getRootUrl(): string
+    public static function getRootUrl(string $type = 'www'): string
     {
-        return static::$parameters->getRootUrl();
+        return static::$parameters->getRootUrl($type);
     }
 
 
@@ -1511,17 +1496,30 @@ class Page
     /**
      * Set the favicon for this page
      *
-     * @param string $url
+     * @param string|null $url
      * @return void
      */
-    public static function setFavIcon(string $url): void
+    public static function setFavIcon(?string $url = null): void
     {
         try {
-            static::$headers['link'][$url] = [
-                'rel'  => 'icon',
-                'href' => UrlBuilder::getImg($url),
-                'type' => File::new(Filesystem::absolute($url, 'img'), PATH_CDN . LANGUAGE . '/img')->mimetype()
-            ];
+            if (!$url) {
+                $url  = 'img/favicons/' . Page::getProjectName() . '/project.png';
+                $file = Filesystem::absolute(LANGUAGE . '/' . $url, PATH_CDN);
+
+                static::$headers['link'][$url] = [
+                    'rel'  => 'icon',
+                    'href' => UrlBuilder::getImg($url),
+                    'type' => File::new($file)->mimetype()
+                ];
+            } else {
+                // Unknown (likely remote?) link
+                static::$headers['link'][$url] = [
+                    'rel'  => 'icon',
+                    'href' => UrlBuilder::getImg($url),
+                    'type' => 'image/' . Strings::fromReverse($url, '.')
+                ];
+            }
+
         } catch (FilesystemException $e) {
             Log::warning('Failed to find favicon, see next message for more information');
             Log::warning($e->makeWarning());

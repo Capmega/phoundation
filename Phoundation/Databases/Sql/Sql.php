@@ -528,7 +528,7 @@ class Sql implements SqlInterface
                 DRIVER ERROR    : "' . $error[1] . '"
                 ERROR MESSAGE   : "' . $error[2] . '"
                 query           : "' . Strings::Log(self::buildQueryString($query, $execute, true)) . '"
-                date            : "' . date('d m y h:i:s'))
+                date            : "' . date('Y-m-d H:i:s'))
                 ->setDetails([
                     '$argv'     => $argv,
                     '$_GET'     => $_GET,

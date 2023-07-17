@@ -41,12 +41,18 @@ class DateTimeImmutable extends \DateTimeImmutable implements Stringable, Interf
      */
     public static function new(Date|DateTime|string $datetime = 'now', \DateTimeZone|DateTimeZone|string|null $timezone = null): static
     {
-        if (is_object($datetime)) {
-            return $datetime->setTimezone($timezone);
+        $timezone = get_null($timezone);
+
+        if (is_string($timezone)) {
+            $timezone = new DateTimeZone($timezone);
         }
 
-        $datetime = new static($datetime);
-        return $datetime->setTimezone($timezone);
+        if (is_object($datetime)) {
+            // Return a new DateTime object with the specified date in the specified timezone
+            return new static($datetime->format('Y-m-d H:i:s.v.u'), $timezone);
+        }
+
+        return new static($datetime, $timezone);
     }
 
 

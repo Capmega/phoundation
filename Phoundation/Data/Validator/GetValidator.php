@@ -52,9 +52,9 @@ class GetValidator extends Validator
      * Returns a new $_GET data Validator object
      *
      * @param ValidatorInterface|null $parent
-     * @return static
+     * @return GetValidator
      */
-    public static function new(?ValidatorInterface $parent = null): static
+    public static function new(?ValidatorInterface $parent = null): GetValidator
     {
         return new static($parent);
     }

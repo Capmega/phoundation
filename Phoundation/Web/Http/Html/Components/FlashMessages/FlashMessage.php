@@ -229,9 +229,9 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
     /**
      * Returns if the flash message is shown on the left side of the screen
      *
-     * @return string
+     * @return bool
      */
-    public function getLeft(): string
+    public function getLeft(): bool
     {
         return $this->left;
     }
@@ -240,10 +240,10 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
     /**
      * Sets if the flash message is shown on the right side of the screen
      *
-     * @param string $left
+     * @param bool $left
      * @return $this
      */
-    public function setLeft(string $left): static
+    public function setLeft(bool $left): static
     {
         $this->left = $left;
         return $this;

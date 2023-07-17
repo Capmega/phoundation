@@ -193,7 +193,7 @@ class Core {
         define('PATH_ROOT'   , realpath(__DIR__ . '/../..') . '/');
         define('PATH_WWW'    , PATH_ROOT . 'www/');
         define('PATH_DATA'   , PATH_ROOT . 'data/');
-        define('PATH_CDN'    , PATH_DATA . 'cdn/');
+        define('PATH_CDN'    , PATH_DATA . 'content/cdn/');
         define('PATH_TMP'    , PATH_DATA . 'tmp/');
         define('PATH_PUBTMP' , PATH_DATA . 'content/cdn/tmp/');
         define('PATH_SCRIPTS', PATH_ROOT . 'scripts/');
