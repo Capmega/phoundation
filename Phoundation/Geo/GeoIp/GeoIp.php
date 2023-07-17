@@ -113,7 +113,7 @@ class GeoIp
      * @param string|null $ip_address
      * @return static
      */
-    public function setIpAddress(string|null $ip_address): static
+    public function setIpAddress(?string $ip_address): static
     {
         $this->ip_address = $ip_address;
         return $this;

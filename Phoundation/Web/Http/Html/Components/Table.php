@@ -530,7 +530,7 @@ class Table extends ResourceElement
      * @param string|null $row_url
      * @return static
      */
-    public function setRowUrl(string|null $row_url): static
+    public function setRowUrl(?string $row_url): static
     {
         $this->row_url = $row_url;
         return $this;

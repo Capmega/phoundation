@@ -41,22 +41,22 @@ if (Page::isPostRequestMethod()) {
 // TODO Implement timers
 //showdie(Timers::get('query'));
 
-                Page::getFlashMessages()->addMessage(tr('Success'), tr('User ":user" has been updated', [':user' => $user->getDisplayName()]), DisplayMode::success);
+                Page::getFlashMessages()->addSuccessMessage(tr('User ":user" has been updated', [':user' => $user->getDisplayName()]));
                 Page::redirect('referer');
 
             case tr('Impersonate'):
                 $user->impersonate();
-                Page::getFlashMessages()->addMessage(tr('Success'), tr('You are now impersonating ":user"', [':user' => $user->getDisplayName()]), DisplayMode::success);
+                Page::getFlashMessages()->addSuccessMessage(tr('You are now impersonating ":user"', [':user' => $user->getDisplayName()]));
                 Page::redirect('root');
 
             case tr('Delete'):
                 $user->delete();
-                Page::getFlashMessages()->addMessage(tr('Success'), tr('The user ":user" has been deleted', [':user' => $user->getDisplayName()]), DisplayMode::success);
+                Page::getFlashMessages()->addSuccessMessage(tr('The user ":user" has been deleted', [':user' => $user->getDisplayName()]));
                 Page::redirect();
 
             case tr('Undelete'):
                 $user->undelete();
-                Page::getFlashMessages()->addMessage(tr('Success'), tr('The user ":user" has been undeleted', [':user' => $user->getDisplayName()]), DisplayMode::success);
+                Page::getFlashMessages()->addSuccessMessage(tr('The user ":user" has been undeleted', [':user' => $user->getDisplayName()]));
                 Page::redirect();
         }
 
@@ -83,6 +83,7 @@ if (!$user->canBeStatusChanged()) {
     $delete = Button::new()
         ->setRight(true)
         ->setMode(DisplayMode::warning)
+        ->setOutlined(true)
         ->setContent(tr('Delete'));
 }
 
@@ -95,7 +96,7 @@ $user_card = Card::new()
     ->setButtons(Buttons::new()
         ->addButton(tr('Save'), type_or_anchor_url: ButtonType::submit)
         ->addButton(tr('Back'), DisplayMode::secondary, '/accounts/users.html', true)
-        ->addButton(tr('Audit'), DisplayMode::green, '/audit/meta-' . $user->getMeta() . '.html', false, true)
+        ->addButton(tr('Audit'), DisplayMode::information, '/audit/meta-' . $user->getMeta() . '.html', false, true)
         ->addButton(isset_get($delete))
         ->addButton(isset_get($impersonate)));
 

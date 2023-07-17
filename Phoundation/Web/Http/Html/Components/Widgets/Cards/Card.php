@@ -232,7 +232,7 @@ class Card extends Widget
      * @param string|null $header_content
      * @return static
      */
-    public function setHeaderContent(string|null $header_content): static
+    public function setHeaderContent(?string $header_content): static
     {
         $this->header_content = $header_content;
         return $this;

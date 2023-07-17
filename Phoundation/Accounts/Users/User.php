@@ -107,18 +107,35 @@ class User extends DataEntry implements UserInterface
 
 
     /**
-     * User class constructor
+     * Returns the table name used by this object
      *
-     * @param DataEntryInterface|string|int|null $identifier
-     * @param string|null $column
+     * @return string
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null)
+    public static function getTable(): string
     {
-        $this->table        = 'accounts_users';
-        $this->entry_name   = 'user';
-        $this->unique_field = 'email';
+        return 'accounts_users';
+    }
 
-        parent::__construct($identifier, $column);
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getDataEntryName(): string
+    {
+        return tr('User');
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return 'email';
     }
 
 
@@ -136,7 +153,7 @@ class User extends DataEntry implements UserInterface
             return tr('Guest');
         }
 
-        return $id . ' / ' . $this->getDataValue('string', $this->unique_field);
+        return $id . ' / ' . $this->getDataValue('string', static::getUniqueField());
     }
 
 
@@ -190,7 +207,18 @@ class User extends DataEntry implements UserInterface
      */
     public function isGuest(): bool
     {
-        return !isset_get($this->data['id']);
+        return array_get_safe($this->data, 'email') === 'guest';
+    }
+
+
+    /**
+     * Returns true if this user object is the guest user
+     *
+     * @return bool
+     */
+    public function isSystem(): bool
+    {
+        return array_get_safe($this->data, 'id') === null;
     }
 
 
@@ -578,7 +606,7 @@ class User extends DataEntry implements UserInterface
      * @param int|null $leaders_id
      * @return static
      */
-    public function setLeadersId(int|null $leaders_id): static
+    public function setLeadersId(?int $leaders_id): static
     {
         return $this->setDataValue('leaders_id', $leaders_id);
     }
@@ -591,7 +619,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getLeader(): ?UserInterface
     {
-        $leaders_id = $this->getDataValue('string', 'leaders_id');
+        $leaders_id = $this->getDataValue('int', 'leaders_id');
 
         if ($leaders_id) {
             return new static($leaders_id);
@@ -618,7 +646,7 @@ class User extends DataEntry implements UserInterface
      * @param string|null $leaders_name
      * @return static
      */
-    public function setLeadersName(string|null $leaders_name): static
+    public function setLeadersName(?string $leaders_name): static
     {
         return $this->setDataValue('leaders_name', $leaders_name);
     }
@@ -941,7 +969,7 @@ class User extends DataEntry implements UserInterface
      */
     function getDisplayId(): string
     {
-        return $this->getDataValue('string', 'id') . ' / ' . $this->getDisplayName();
+        return $this->getDataValue('int', 'id') . ' / ' . $this->getDisplayName();
     }
 
 
@@ -1302,17 +1330,15 @@ class User extends DataEntry implements UserInterface
                 ->setHelpGroup(tr('Personal information'))
                 ->setHelpText(tr('The email address for this user. This is also the unique identifier for the user'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->isTrue(function ($value, $source) {
-                        // This email may NOT yet exist, unless its THIS user.
-                        return User::notExists('email', $value, isset_get($source['id']));
-                    }, tr('This email address is already registered'));
+                    // Validate the programs name
+                    $validator->isUnique(tr('This email address is already registered'));
                 }))
             ->addDefinition(Definition::new($this, 'domain')
                 ->setOptional(true)
                 ->setMaxlength(128)
                 ->setSize(3)
                 ->setCliField('--domain')
-                ->setAutoComplete(true)
+                ->setCliAutoComplete(true)
                 ->setLabel(tr('Restrict to domain'))
                 ->setHelpText(tr('The domain where this user will be able to sign in'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -1320,15 +1346,14 @@ class User extends DataEntry implements UserInterface
                 }))
             ->addDefinition(Definition::new($this, 'username')
                 ->setOptional(true)
-                ->setMaxLength(64)
                 ->setSize(3)
                 ->setCliField('-u,--username')
-                ->setAutoComplete(true)
+                ->setCliAutoComplete(true)
                 ->setLabel(tr('Username'))
                 ->setHelpGroup(tr('Personal information'))
                 ->setHelpText(tr('The unique username for this user.'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->isName();
+                    $validator->isName(64);
                 }))
             ->addDefinition(DefinitionFactory::getName($this, 'nickname')
                 ->setOptional(true)
@@ -1362,7 +1387,7 @@ class User extends DataEntry implements UserInterface
                     'female' => tr('Female'),
                     'other'  => tr('Other')
                 ])
-                ->setAutoComplete([
+                ->setCliAutoComplete([
                     'word'   => function (string $word) { return Arrays::filterValues([tr('Male'), tr('Female'), tr('Other')], $word); },
                     'noword' => function ()             { return [tr('Male'), tr('Female'), tr('Other')]; },
                 ])
@@ -1372,10 +1397,11 @@ class User extends DataEntry implements UserInterface
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->hasMaxCharacters(6);
                 }))
-            ->addDefinition(DefinitionFactory::getUser($this, 'leader')
+            ->addDefinition(DefinitionFactory::getUsersEmail($this, 'leaders_email')
                 ->setCliField('--leader USER-EMAIL')
+                ->clearValidationFunctions()
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->or('leaders_id')->isEmail()->setColumnFromQuery('leaders_id', 'SELECT `id` FROM `accounts_users` WHERE `email` = :email AND `status` IS NULL', [':email' => '$leader']);
+                    $validator->or('leaders_id')->isEmail()->setColumnFromQuery('leaders_id', 'SELECT `id` FROM `accounts_users` WHERE `email` = :email AND `status` IS NULL', [':email' => '$leaders_email']);
                 }))
             ->addDefinition(DefinitionFactory::getUsersId($this, 'leaders_id')
                 ->setCliField('--leaders-id USERS-DATABASE-ID')
@@ -1383,14 +1409,14 @@ class User extends DataEntry implements UserInterface
                 ->setHelpGroup(tr('Hierarchical information'))
                 ->setHelpText(tr('The user that is the leader for this user'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->or('leader');
+                    $validator->or('leaders_email')->isDbId()->isQueryResult('SELECT `id` FROM `accounts_users` WHERE `id` = :id AND `status` IS NULL', [':id' => '$leaders_id']);
                 }))
             ->addDefinition(Definition::new($this, 'is_leader')
                 ->setOptional(true)
                 ->setInputType(InputType::checkbox)
                 ->setSize(3)
                 ->setCliField('--is-leader')
-                ->setAutoComplete(true)
+                ->setCliAutoComplete(true)
                 ->setLabel(tr('Is leader'))
                 ->setHelpGroup(tr('Hierarchical information'))
                 ->setHelpText(tr('Sets if this user is a leader itself'))
@@ -1405,7 +1431,7 @@ class User extends DataEntry implements UserInterface
                 ->setInputType(InputType::number)
                 ->setSize(3)
                 ->setCliField('--priority')
-                ->setAutoComplete(true)
+                ->setCliAutoComplete(true)
                 ->setLabel(tr('Priority'))
                 ->setMin(1)
                 ->setMax(9)
@@ -1429,7 +1455,7 @@ class User extends DataEntry implements UserInterface
                 ->setMaxlength(255)
                 ->setSize(6)
                 ->setCliField('-a,--address')
-                ->setAutoComplete(true)
+                ->setCliAutoComplete(true)
                 ->setLabel(tr('Address'))
                 ->setHelpGroup(tr('Location information'))
                 ->setHelpText(tr('The address where this user resides'))
@@ -1442,7 +1468,7 @@ class User extends DataEntry implements UserInterface
                 ->setMaxlength(8)
                 ->setSize(3)
                 ->setCliField('-z,--zipcode')
-                ->setAutoComplete(true)
+                ->setCliAutoComplete(true)
                 ->setLabel(tr('Zip code'))
                 ->setHelpGroup(tr('Location information'))
                 ->setHelpText(tr('The zip code (postal code) where this user resides'))
@@ -1466,7 +1492,7 @@ class User extends DataEntry implements UserInterface
                 ->setInputType(InputType::number)
                 ->setSize(3)
                 ->setCliField('--latitude')
-                ->setAutoComplete(true)
+                ->setCliAutoComplete(true)
                 ->setLabel(tr('Latitude'))
                 ->setHelpGroup(tr('Location information'))
                 ->setHelpText(tr('The latitude location for this user'))
@@ -1478,7 +1504,7 @@ class User extends DataEntry implements UserInterface
                 ->setInputType(InputType::number)
                 ->setSize(3)
                 ->setCliField('--longitude')
-                ->setAutoComplete(true)
+                ->setCliAutoComplete(true)
                 ->setLabel(tr('Longitude'))
                 ->setHelpGroup(tr('Location information'))
                 ->setHelpText(tr('The longitude location for this user'))
@@ -1490,7 +1516,7 @@ class User extends DataEntry implements UserInterface
                 ->setReadonly(true)
                 ->setInputType(InputType::number)
                 ->setSize(3)
-                ->setAutoComplete(true)
+                ->setCliAutoComplete(true)
                 ->setLabel(tr('Offset latitude'))
                 ->setHelpGroup(tr('Location information'))
                 ->setHelpText(tr('The latitude location for this user with a random offset within the configured range')))
@@ -1499,7 +1525,7 @@ class User extends DataEntry implements UserInterface
                 ->setReadonly(true)
                 ->setInputType(InputType::number)
                 ->setSize(3)
-                ->setAutoComplete(true)
+                ->setCliAutoComplete(true)
                 ->setLabel(tr('Offset longitude'))
                 ->setHelpGroup(tr('Location information'))
                 ->setHelpText(tr('The longitude location for this user with a random offset within the configured range')))
@@ -1510,7 +1536,7 @@ class User extends DataEntry implements UserInterface
                 ->setMin(0)
                 ->setMax(10)
                 ->setCliField('--accuracy')
-                ->setAutoComplete(true)
+                ->setCliAutoComplete(true)
                 ->setLabel(tr('Accuracy'))
                 ->setHelpGroup(tr('Location information'))
                 ->setHelpText(tr('The accuracy of this users location'))
@@ -1522,7 +1548,7 @@ class User extends DataEntry implements UserInterface
                 ->setMaxLength(16)
                 ->setSize(3)
                 ->setCliField('--type')
-                ->setAutoComplete(true)
+                ->setCliAutoComplete(true)
                 ->setLabel(tr('Type'))
                 ->setHelpGroup(tr(''))
                 ->setHelpText(tr('The type classification for this user'))
@@ -1542,7 +1568,7 @@ class User extends DataEntry implements UserInterface
                 ->setMaxlength(255)
                 ->setSize(6)
                 ->setCliField('-k,--keywords')
-                ->setAutoComplete(true)
+                ->setCliAutoComplete(true)
                 ->setLabel(tr('Keywords'))
                 ->setHelpGroup(tr('Account information'))
                 ->setHelpText(tr('The keywords for this user'))
@@ -1588,7 +1614,7 @@ class User extends DataEntry implements UserInterface
                 ->setVisible(false)
                 ->setReadonly(true)
                 ->setOptional(true)
-                ->setAutoComplete(true)
+                ->setCliAutoComplete(true)
                 ->setInputType(InputType::password)
                 ->setMaxlength(64)
                 ->setNullDb(false)

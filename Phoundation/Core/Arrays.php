@@ -1887,4 +1887,140 @@ class Arrays {
 
         return $array;
     }
+
+
+    /**
+     * Extracts entries with the specified prefix from the keys from the given source
+     *
+     * This function will return an array with all keys that have the specified prefix. If no prefix has been specified,
+     * the function will try to detect a prefix. A prefix is presumed to be a string of at least one character ending
+     * with an underscore, so entries like "230984_name" will have presumed to have the prefix "230984_"
+     *
+     * @example :
+     * [
+     *   $keya         => $value,
+     *   $prefix_$key1 => $value,
+     *   $prefix_$key2 => $value
+     * ]
+     *
+     * Will return
+     * [
+     *   $prefix_$key1 => $value,
+     *   $prefix_$key2 => $value
+     * ]
+     *
+     * @example :
+     * [
+     *   25346_name        => $value,
+     *   25346_description => $value,
+     *   information       => $value
+     * ]
+     *
+     * will return
+     * [
+     *   25346_name        => $value,
+     *   25346_description => $value
+     * ]
+     *
+     * @note The id in the specified keys must be the same
+     *
+     * @param array $source
+     * @param string|null $prefix
+     * @return array
+     */
+    public static function extractPrefix(array $source, ?string $prefix = null): array
+    {
+        $return = [];
+
+        foreach ($source as $key => $value) {
+            if ($prefix === null) {
+                // Auto detect class
+                $prefix = Strings::until($key, '_', require: true);
+
+                if (!$prefix) {
+                    // No class found, continue to the next entry
+                    $prefix = null;
+                    continue;
+                }
+
+                $prefix .= '_';
+            }
+
+            $key = Strings::from($key, $prefix, require: true);
+
+            if (!$key) {
+                // This key didn't have the specified class
+                continue;
+            }
+
+            $return[$key] = $value;
+        }
+
+        return $return;
+    }
+
+
+
+
+    /**
+     * Finds and returns a prefix code in array keys
+     *
+     * This function will find and return the first prefix code that it can find. A prefix is presumed to be a string of
+     * at least one character ending with an underscore, so entries like "230984_name" will have presumed to have the
+     * prefix "230984_". Returns NULL if no prefix was found.
+     *
+     * @example :
+     * [
+     *   $keya         => $value,
+     *   $prefix_$key1 => $value,
+     *   $prefix_$key2 => $value
+     * ]
+     *
+     * Will return
+     * $prefix
+     *
+     * @example :
+     * [
+     *   25346_name        => $value,
+     *   25346_description => $value,
+     *   information       => $value
+     * ]
+     *
+     * will return
+     * "25346"
+     *
+     * @example :
+     * [
+     *   name        => $value,
+     *   description => $value
+     * ]
+     *
+     * will return
+     * NULL
+     *
+     * @example :
+     * [
+     *   name         => $value,
+     *   _description => $value,
+     *   _information => $value
+     * ]
+     *
+     * will return
+     * NULL
+     *
+     * @param array $source
+     * @return string|float|int|null
+     */
+    public static function findPrefix(array $source): string|float|int|null
+    {
+        foreach ($source as $key => $value) {
+            $prefix = Strings::until($key, '_', require: true);
+
+            if ($prefix) {
+                return (int) $prefix;
+            }
+        }
+
+        return null;
+    }
 }

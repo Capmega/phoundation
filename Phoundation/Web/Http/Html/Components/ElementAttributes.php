@@ -165,16 +165,17 @@ trait ElementAttributes
      * Sets the HTML id element attribute
      *
      * @param string|null $id
+     * @param bool $name_too
      * @return static
      */
-    public function setId(?string $id): static
+    public function setId(?string $id, bool $name_too = true): static
     {
         $this->id      = $id;
         $this->real_id = Strings::until($id, '[');
 
         // By default, name and id should be equal
-        if (($id !== null) and ($this->name === null)) {
-            $this->setName($id);
+        if ($name_too) {
+            $this->setName($id, false);
         }
 
         return $this;
@@ -196,16 +197,17 @@ trait ElementAttributes
      * Sets the HTML name element attribute
      *
      * @param string|null $name
+     * @param bool $id_too
      * @return static
      */
-    public function setName(?string $name): static
+    public function setName(?string $name, bool $id_too = true): static
     {
         $this->name      = $name;
         $this->real_name = Strings::until($name, '[');
 
         // By default, name and id should be equal
-        if (($name !== null) and ($this->id === null)) {
-            $this->setId($name);
+        if ($id_too) {
+            $this->setId($name, false);
         }
 
         return $this;

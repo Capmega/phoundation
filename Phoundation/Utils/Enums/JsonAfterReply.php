@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Utils\Enums;
 
 use Phoundation\Utils\Enums\Interfaces\JsonAfterReplyInterface;

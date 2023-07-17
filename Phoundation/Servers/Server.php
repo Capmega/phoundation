@@ -47,19 +47,37 @@ class Server extends DataEntry
     use DataEntryProvider;
     use DataEntrySshAccount;
 
+    
     /**
-     * Server class constructor
+     * Returns the table name used by this object
      *
-     * @param DataEntryInterface|string|int|null $identifier
-     * @param string|null $column
+     * @return string
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null)
+    public static function getTable(): string
     {
-        $this->table        = 'servers';
-        $this->entry_name   = 'server';
-        $this->unique_field = 'seo_hostname';
+        return 'servers';
+    }
 
-        parent::__construct($identifier, $column);
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getDataEntryName(): string
+    {
+        return 'server';
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return 'seo_hostname';
     }
 
 
@@ -316,7 +334,7 @@ class Server extends DataEntry
                 ->setVirtual(true)
                 ->setInputType(InputTypeExtended::name)
                 ->setCliField('-a,--account ACCOUNT-NAME')
-                ->setAutoComplete([
+                ->setCliAutoComplete([
                     'word'   => function($word) { return SshAccounts::new()->filteredList($word); },
                     'noword' => function()      { return SshAccounts::new()->getSource(); },
                 ])
@@ -327,7 +345,7 @@ class Server extends DataEntry
                 ->setOptional(true)
                 ->setVirtual(true)
                 ->setCliField('--category CATEGORY-NAME')
-                ->setAutoComplete([
+                ->setCliAutoComplete([
                     'word'   => function($word) { return Categories::new()->filteredList($word); },
                     'noword' => function()      { return Categories::new()->getSource(); },
                 ])
@@ -338,7 +356,7 @@ class Server extends DataEntry
                 ->setOptional(true)
                 ->setVirtual(true)
                 ->setCliField('--provider PROVIDER-NAME')
-                ->setAutoComplete([
+                ->setCliAutoComplete([
                     'word'   => function($word) { return Providers::new()->filteredList($word); },
                     'noword' => function()      { return Providers::new()->getSource(); },
                 ])
@@ -349,7 +367,7 @@ class Server extends DataEntry
                 ->setOptional(true)
                 ->setVirtual(true)
                 ->setCliField('--customer CUSTOMER-NAME')
-                ->setAutoComplete([
+                ->setCliAutoComplete([
                     'word'   => function($word) { return Customers::new()->filteredList($word); },
                     'noword' => function()      { return Customers::new()->getSource(); },
                 ])
@@ -362,7 +380,7 @@ class Server extends DataEntry
                 ->setInputType(InputType::text)
                 ->setMaxlength(200)
                 ->setCliField('--country COUNTRY-NAME')
-                ->setAutoComplete([
+                ->setCliAutoComplete([
                     'word'   => function($word) { return Countries::new()->filteredList($word); },
                     'noword' => function()      { return Countries::new()->getSource(); },
                 ])
@@ -375,7 +393,7 @@ class Server extends DataEntry
                 ->setInputType(InputType::text)
                 ->setMaxlength(200)
                 ->setCliField('--state STATE-NAME')
-                ->setAutoComplete([
+                ->setCliAutoComplete([
                     'word'   => function($word) { return States::new()->filteredList($word); },
                     'noword' => function()      { return States::new()->getSource(); },
                 ])
@@ -388,7 +406,7 @@ class Server extends DataEntry
                 ->setInputType(InputType::text)
                 ->setMaxlength(200)
                 ->setCliField('--city STATE-NAME')
-                ->setAutoComplete([
+                ->setCliAutoComplete([
                     'word'   => function($word) { return Cities::new()->filteredList($word); },
                     'noword' => function()      { return Cities::new()->getSource(); },
                 ])
@@ -403,7 +421,7 @@ class Server extends DataEntry
                 ->setCliField('-h,--hostname HOSTNAME')
                 ->setHelpGroup(tr('Identification and network'))
                 ->setHelpText(tr('The unique hostname for this server'))
-                ->setAutoComplete(true))
+                ->setCliAutoComplete(true))
             ->addDefinition(Definition::new($this, 'account')
                 ->setVirtual(true)
                 ->setInputType(InputTypeExtended::name)
@@ -411,7 +429,7 @@ class Server extends DataEntry
                 ->setCliField('--accounts-id DATABASE-ID')
                 ->setHelpGroup(tr('Identification and network'))
                 ->setHelpText(tr('The unique hostname for this server'))
-                ->setAutoComplete([
+                ->setCliAutoComplete([
                     'word'   => function($word) { return SshAccounts::new()->filteredList($word); },
                     'noword' => function()      { return SshAccounts::new()->getSource(); },
                 ])
@@ -423,7 +441,7 @@ class Server extends DataEntry
                 ->setSize(4)
                 ->setLabel(tr('Account'))
                 ->setHelpText(tr('The unique hostname for this server'))
-                ->setAutoComplete([
+                ->setCliAutoComplete([
                     'word'   => function($word) { return SshAccounts::new()->filteredList($word); },
                     'noword' => function()      { return SshAccounts::new()->getSource(); },
                 ])
@@ -581,7 +599,7 @@ class Server extends DataEntry
                 ->setSize(9)
                 ->setLabel(tr('Operating system'))
                 ->setCliField('-o,--os-name OPERATING-SYSTEM-NAME')
-                ->setAutoComplete(true)
+                ->setCliAutoComplete(true)
                 ->setSource([
                     'debian'    => tr('Debian'),
                     'ubuntu'    => tr('Ubuntu'),

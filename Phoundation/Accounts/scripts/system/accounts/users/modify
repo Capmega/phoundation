@@ -33,7 +33,7 @@ Documentation::autoComplete(User::getAutoComplete([
 Documentation::usage('./pho system accounts users modify USER [OPTIONS]
 ./cli system users modify USER -l -i --to ENVIRONMENT');
 
-Documentation::help(User::getHelp('This script allows you to modify users
+Documentation::help(User::getHelpText('This script allows you to modify users
 
 This script allows you to modify all user data, with the exception of the password or status. If you wish to change the 
 status, please use the "delete", "undelete" or "status" commands. To change the users password please use the "password" 

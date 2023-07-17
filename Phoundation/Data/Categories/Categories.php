@@ -7,6 +7,7 @@ namespace Phoundation\Data\Categories;
 use PDOStatement;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Messages\Message;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 use Phoundation\Web\Http\Html\Components\Input\InputSelect;
 use Phoundation\Web\Http\Html\Components\Table;
@@ -30,14 +31,44 @@ class Categories extends DataList
      */
     public function __construct()
     {
-        $this->entry_class = Category::class;
-        $this->table       = 'categories';
-
         $this->setQuery('SELECT   `id`, `name`, `status`, `created_on` 
                                    FROM     `categories` 
                                    WHERE    `status` IS NULL 
                                    ORDER BY `name`');
         parent::__construct();
+    }
+
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'categories';
+    }
+
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getEntryClass(): string
+    {
+        return Category::class;
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return null;
     }
 
 
@@ -70,32 +101,5 @@ class Categories extends DataList
             ->setName('categories_id')
             ->setNone(tr('Select a category'))
             ->setEmpty(tr('No categories available'));
-    }
-
-
-    /**
-     * @inheritDoc
-     */
-    public function load(?string $id_column = null): static
-    {
-        // TODO: Implement load() method.
-    }
-
-
-    /**
-     * @inheritDoc
-     */
-    public function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
-    {
-        // TODO: Implement loadDetails() method.
-    }
-
-
-    /**
-     * @inheritDoc
-     */
-    public function save(): static
-    {
-        // TODO: Implement save() method.
     }
 }

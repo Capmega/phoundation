@@ -65,8 +65,8 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `meta_id` bigint NOT NULL,
                     `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
-                    `name` varchar(64) DEFAULT NULL,
-                    `seo_name` varchar(64) DEFAULT NULL,
+                    `name` varchar(128) DEFAULT NULL,
+                    `seo_name` varchar(128) DEFAULT NULL,
                     `code` varchar(64) DEFAULT NULL,
                     `email` varchar(128) DEFAULT NULL,
                     `phones` varchar(64) CHARACTER SET latin1 DEFAULT NULL,
@@ -115,8 +115,8 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `meta_id` bigint NOT NULL,
                     `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
-                    `name` varchar(64) DEFAULT NULL,
-                    `seo_name` varchar(64) DEFAULT NULL,
+                    `name` varchar(128) DEFAULT NULL,
+                    `seo_name` varchar(128) DEFAULT NULL,
                     `code` varchar(64) DEFAULT NULL,
                     `email` varchar(128) DEFAULT NULL,
                     `phones` varchar(64) CHARACTER SET latin1 DEFAULT NULL,
@@ -160,8 +160,8 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `categories_id` bigint DEFAULT NULL,
                     `customers_id` bigint DEFAULT NULL,
                     `providers_id` bigint DEFAULT NULL,
-                    `name` varchar(64) DEFAULT NULL,
-                    `seo_name` varchar(64) DEFAULT NULL,
+                    `name` varchar(128) DEFAULT NULL,
+                    `seo_name` varchar(128) DEFAULT NULL,
                     `description` varchar(2047) DEFAULT NULL
                 ')->setIndices('
                     PRIMARY KEY (`id`),
@@ -192,8 +192,8 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `companies_id` bigint NOT NULL,
-                    `name` varchar(64) DEFAULT NULL,
-                    `seo_name` varchar(64) DEFAULT NULL,
+                    `name` varchar(128) DEFAULT NULL,
+                    `seo_name` varchar(128) DEFAULT NULL,
                     `description` varchar(2047) DEFAULT NULL
                 ')->setIndices('
                     PRIMARY KEY (`id`),
@@ -221,8 +221,8 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `companies_id` bigint NOT NULL,
                     `branches_id` bigint DEFAULT NULL,
-                    `name` varchar(64) DEFAULT NULL,
-                    `seo_name` varchar(64) DEFAULT NULL,
+                    `name` varchar(128) DEFAULT NULL,
+                    `seo_name` varchar(128) DEFAULT NULL,
                     `description` varchar(2047) DEFAULT NULL
                 ')->setIndices('
                     PRIMARY KEY (`id`),
@@ -254,8 +254,8 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `branches_id` bigint DEFAULT NULL,
                     `departments_id` bigint DEFAULT NULL,
                     `users_id` bigint DEFAULT NULL,
-                    `name` varchar(64) DEFAULT NULL,
-                    `seo_name` varchar(64) DEFAULT NULL,
+                    `name` varchar(128) DEFAULT NULL,
+                    `seo_name` varchar(128) DEFAULT NULL,
                     `description` varchar(2047) DEFAULT NULL
                 ')->setIndices('
                     PRIMARY KEY (`id`),

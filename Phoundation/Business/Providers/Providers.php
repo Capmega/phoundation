@@ -6,6 +6,7 @@ namespace Phoundation\Business\Providers;
 
 use PDOStatement;
 use Phoundation\Business\Companies\Company;
+use Phoundation\Business\Customers\Customer;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
@@ -31,14 +32,44 @@ class Providers extends DataList
      */
     public function __construct()
     {
-        $this->entry_class = Provider::class;
-        $this->table       = 'business_providers';
-
         $this->setQuery('SELECT   `id`, `name`, `code`, `email`, `status`, `created_on` 
                                    FROM     `business_providers` 
                                    WHERE    `status` IS NULL 
                                    ORDER BY `name`');
         parent::__construct();
+    }
+
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'business_providers';
+    }
+
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getEntryClass(): string
+    {
+        return Provider::class;
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return 'seo_name';
     }
 
 
@@ -71,28 +102,5 @@ class Providers extends DataList
             ->setName('providers_id')
             ->setNone(tr('Select a provider'))
             ->setEmpty(tr('No providers available'));
-    }
-
-
-    /**
-     * @inheritDoc
-     */
-     public function load(?string $id_column = null): static
-    {
-        // TODO: Implement load() method.
-    }
-
-
-    /**
-     * @inheritDoc
-     */
-    public function save(): static
-    {
-        // TODO: Implement save() method.
-    }
-
-    public function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
-    {
-        // TODO: Implement loadDetails() method.
     }
 }

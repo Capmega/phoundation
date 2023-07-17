@@ -30,14 +30,44 @@ class States extends DataList
      */
     public function __construct()
     {
-        $this->entry_class = State::class;
-        $this->table       = 'geo_states';
-
         $this->setQuery('SELECT   `id`, `name`, `status`, `created_on` 
-                                   FROM     `geo_states` 
-                                   WHERE    `status` IS NULL 
-                                   ORDER BY `name`');
+                               FROM     `geo_states` 
+                               WHERE    `status` IS NULL 
+                               ORDER BY `name`');
         parent::__construct();
+    }
+
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'geo_states';
+    }
+
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getEntryClass(): string
+    {
+        return State::class;
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return null;
     }
 
 
@@ -52,33 +82,6 @@ class States extends DataList
         $table->setCheckboxSelectors(true);
 
         return $table;
-    }
-
-
-    /**
-     * @inheritDoc
-     */
-    public function load(?string $id_column = null): static
-    {
-        // TODO: Implement load() method.
-    }
-
-
-    /**
-     * @inheritDoc
-     */
-    public function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
-    {
-        // TODO: Implement loadDetails() method.
-    }
-
-
-    /**
-     * @inheritDoc
-     */
-    public function save(): static
-    {
-        // TODO: Implement save() method.
     }
 
 

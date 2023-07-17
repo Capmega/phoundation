@@ -313,8 +313,10 @@ class Sql implements SqlInterface
             // PDO statement can be specified instead of a query
             if (is_object($query)) {
                 if (Config::getBoolean('databases.sql.debug', false) or ($query->queryString[0] == ' ')) {
-                    // Log query
-                    Log::sql('(' . $this->uniqueid . ') ' . $query, $execute);
+                    if (!PLATFORM_CLI or !Script::isScript('init')) {
+                        // Log query
+                        Log::sql('(' . $this->uniqueid . ') ' . $query, $execute);
+                    }
                 }
 
                 Timers::get('query')->startLap($query->queryString);
@@ -329,7 +331,9 @@ class Sql implements SqlInterface
 
             // Log all queries?
             if (Config::getBoolean('databases.sql.debug', false)) {
-                $query = ' ' . $query;
+                if (!PLATFORM_CLI or !Script::isScript('system/init', true)) {
+                    $query = ' ' . $query;
+                }
             }
 
             Log::sql('(' . $this->uniqueid . ') ' . $query, $execute, str_starts_with($query, ' ') ? 10 : 1);
@@ -1463,10 +1467,10 @@ class Sql implements SqlInterface
     public function rowExists(string $table, string $column, int|string|null $value, ?int $id = null): bool
     {
         if ($id) {
-            return $this->getBoolean('SELECT `' . $column . '` FROM `' . $table . '` WHERE `' . $column . '` = :' . $column . ' AND `id` != :id', [$column => $value, ':id' => $id]);
+            return (bool) $this->get('SELECT `' . $column . '` FROM `' . $table . '` WHERE `' . $column . '` = :' . $column . ' AND `id` != :id', [$column => $value, ':id' => $id]);
         }
 
-        return $this->getBoolean('SELECT `' . $column . '` FROM `' . $table . '` WHERE `' . $column . '` = :' . $column, [$column => $value]);
+        return (bool) $this->get('SELECT `' . $column . '` FROM `' . $table . '` WHERE `' . $column . '` = :' . $column, [$column => $value]);
     }
 
 

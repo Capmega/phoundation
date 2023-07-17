@@ -7,6 +7,7 @@ namespace Phoundation\Developer\Incidents;
 use PDOStatement;
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\User;
+use Phoundation\Data\Categories\Category;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
@@ -31,14 +32,44 @@ class Incidents extends DataList
      */
     public function __construct()
     {
-        $this->entry_class = Incident::class;
-        $this->table       = 'developer_incidents';
-
         $this->setQuery('SELECT   `id`, `created_on`, `status`, `type`, `title` 
                                    FROM     `developer_incidents` 
                                    WHERE    `status` IS NULL 
                                    ORDER BY `created_on`');
         parent::__construct();
+    }
+
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'developer_incidents';
+    }
+
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getEntryClass(): string
+    {
+        return Incident::class;
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return null;
     }
 
 
@@ -57,33 +88,6 @@ class Incidents extends DataList
 
 
     /**
-     * @inheritDoc
-     */
-    public function load(?string $id_column = null): static
-    {
-        // TODO: Implement load() method.
-    }
-
-
-    /**
-     * @inheritDoc
-     */
-    public function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
-    {
-        // TODO: Implement loadDetails() method.
-    }
-
-
-    /**
-     * @inheritDoc
-     */
-    public function save(): static
-    {
-        // TODO: Implement save() method.
-    }
-
-
-    /**
      * Returns an HTML <select> for the available object entries
      *
      * @param string $value_column
@@ -94,7 +98,7 @@ class Incidents extends DataList
     {
         return InputSelect::new()
             ->setSourceQuery('SELECT   `' . $key_column . '`, `' . $value_column . '` 
-                                         FROM     `' . $this->table . '` 
+                                         FROM     `' . static::getTable() . '` 
                                          WHERE    `status` IS NULL 
                                          ORDER BY `title` ASC')
             ->setName('incidents_id')

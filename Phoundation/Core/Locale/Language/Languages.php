@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Core\Locale\Language;
 
 use PDOStatement;
+use Phoundation\Business\Providers\Provider;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
@@ -29,9 +30,6 @@ class Languages extends DataList
      */
     public function __construct()
     {
-        $this->entry_class = Language::class;
-        $this->table       = 'core_languages';
-
         $this->setQuery('SELECT   `id`, `code_639_1`, `name`, `status`, `created_on` 
                                FROM     `core_languages` 
                                WHERE    `status` IS NULL 
@@ -40,6 +38,37 @@ class Languages extends DataList
     }
 
 
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'core_languages';
+    }
+
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getEntryClass(): string
+    {
+        return Language::class;
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return 'code_639_1';
+    }
 
 
     /**
@@ -73,15 +102,5 @@ class Languages extends DataList
         // The keys contain the ids...
         $this->source = array_flip($this->source);
         return $this;
-    }
-
-    public function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
-    {
-        // TODO: Implement loadDetails() method.
-    }
-
-    public function save(): static
-    {
-        // TODO: Implement save() method.
     }
 }

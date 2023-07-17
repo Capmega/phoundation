@@ -37,7 +37,7 @@ trait DataEntryBranch
      * @param int|null $branches_id
      * @return static
      */
-    public function setBranchesId(int|null $branches_id): static
+    public function setBranchesId(?int $branches_id): static
     {
         return $this->setDataValue('branches_id', $branches_id);
     }
@@ -50,7 +50,7 @@ trait DataEntryBranch
      */
     public function getBranch(): ?Branch
     {
-        $branches_id = $this->getDataValue('string', 'branches_id');
+        $branches_id = $this->getDataValue('int', 'branches_id');
 
         if ($branches_id) {
             return new Branch($branches_id);
@@ -77,7 +77,7 @@ trait DataEntryBranch
      * @param string|null $branches_name
      * @return static
      */
-    public function setBranchesName(string|null $branches_name): static
+    public function setBranchesName(?string $branches_name): static
     {
         return $this->setDataValue('branches_name', $branches_name);
     }

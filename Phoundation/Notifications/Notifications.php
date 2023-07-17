@@ -34,9 +34,6 @@ class Notifications extends DataList
      */
     public function __construct()
     {
-        $this->entry_class = Notification::class;
-        $this->table       = 'notifications';
-
         $this->setQuery('SELECT   `id`, `title`, `mode` AS `severity`, `priority`, `created_on` 
                                    FROM     `notifications` 
                                    WHERE    `users_id` = :users_id 
@@ -44,6 +41,39 @@ class Notifications extends DataList
                                    ORDER BY `title`', [':users_id' => Session::getUser()->getId()]);
 
         parent::__construct();
+    }
+
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'notifications';
+    }
+
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getEntryClass(): string
+    {
+        return Notification::class;
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return null;
     }
 
 
@@ -151,15 +181,6 @@ class Notifications extends DataList
 
 
     /**
-     * @inheritDoc
-     */
-    public function save(): static
-    {
-        // TODO: Implement save() method.
-    }
-
-
-    /**
      * Returns an HTML <select> for the available object entries
      *
      * @param string $value_column
@@ -170,7 +191,7 @@ class Notifications extends DataList
     {
         return InputSelect::new()
             ->setSourceQuery('SELECT   `' . $key_column . '`, `' . $value_column . '` 
-                                         FROM     `' . $this->table . '` 
+                                         FROM     `' . static::getTable() . '` 
                                          WHERE    `status` IS NULL 
                                          ORDER BY `title` ASC')
             ->setName('notifications_id')

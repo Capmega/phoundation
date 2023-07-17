@@ -28,20 +28,20 @@ interface DefinitionInterface
     /**
      * UsesNewField class constructor
      *
-     * @param DataEntryInterface $data_entry
+     * @param DataEntryInterface|null $data_entry
      * @param string|null $field
      */
-    public function __construct(DataEntryInterface $data_entry, ?string $field = null);
+    public function __construct(?DataEntryInterface $data_entry, ?string $field = null);
 
 
     /**
      * Returns a new static object
      *
-     * @param DataEntryInterface $data_entry
+     * @param DataEntryInterface|null $data_entry
      * @param string|null $field
      * @return DefinitionInterface
      */
-    public static function new(DataEntryInterface $data_entry, ?string $field = null): DefinitionInterface;
+    public static function new(?DataEntryInterface $data_entry, ?string $field = null): DefinitionInterface;
 
     /**
      * Returns the query builder
@@ -59,12 +59,27 @@ interface DefinitionInterface
     public function modifyQueryBuilder(callable $callback): static;
 
     /**
+     * Returns the static value for this field
+     *
+     * @return callable|string|float|int|bool|null
+     */
+    public function getValue(): callable|string|float|int|bool|null;
+
+    /**
+     * Sets static value for this field
+     *
+     * @param callable|string|float|int|bool|null $value
+     * @param bool $only_when_new = false
+     * @return static
+     */
+    public function setValue(callable|string|float|int|bool|null $value, bool $only_when_new = false): static;
+
+    /**
      * Returns the field
      *
      * @return string|null
      */
     public function getField(): ?string;
-
 
     /**
      * Sets the field
@@ -330,11 +345,28 @@ interface DefinitionInterface
     public function setExecute(array|string|null $value): static;
 
     /**
+     * If true, will enable browser auto suggest for this input control
+     *
+     * @note Defaults to false
+     * @return bool
+     */
+    public function getAutoComplete(): bool;
+
+    /**
+     * If true, will enable browser auto suggest for this input control
+     *
+     * @note Defaults to false
+     * @param bool|null $value
+     * @return static
+     */
+    public function setAutoComplete(?bool $value): static;
+
+    /**
      * Returns the cli auto-completion queries for this field
      *
      * @return array|bool|null
      */
-    public function getAutoComplete(): array|bool|null;
+    public function getCliAutoComplete(): array|bool|null;
 
     /**
      * Sets the cli auto-completion queries for this field
@@ -342,7 +374,7 @@ interface DefinitionInterface
      * @param array|bool|null $value
      * @return static
      */
-    public function setAutoComplete(array|bool|null $value): static;
+    public function setCliAutoComplete(array|bool|null $value): static;
 
     /**
      * Returns the alternative CLI field names for this field
@@ -496,7 +528,7 @@ interface DefinitionInterface
      * @param int|null $value
      * @return static
      */
-    public function setRows(int|null $value): static;
+    public function setRows(?int $value): static;
 
     /**
      * Returns the default value for this field
@@ -588,7 +620,14 @@ interface DefinitionInterface
     public function getValidationFunctions(): ?array;
 
     /**
-     * Sets the type for this element if the value is NULL
+     * Clears all currently existing validation functions for this definition
+     *
+     * @return static
+     */
+    public function clearValidationFunctions(): static;
+
+    /**
+     * Adds the specified validation function to the validation functions list for this definition
      *
      * @param callable $function
      * @return static

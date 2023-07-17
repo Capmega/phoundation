@@ -45,18 +45,35 @@ class Incident extends DataEntry
 
 
     /**
-     * Incident class constructor
+     * Returns the table name used by this object
      *
-     * @param DataEntryInterface|string|int|null $identifier
-     * @param string|null $column
+     * @return string
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null)
+    public static function getTable(): string
     {
-        $this->table        = 'security_incidents';
-        $this->entry_name   = 'incident';
-        $this->unique_field = 'id';
+        return 'security_incidents';
+    }
 
-        parent::__construct($identifier, $column);
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getDataEntryName(): string
+    {
+        return 'security incident';
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return null;
     }
 
 
@@ -202,12 +219,5 @@ class Incident extends DataEntry
                 ->setDisabled(true)
                 ->setSize(12)
                 ->setMaxlength(65_535));
-
-//        ->select($this->getAlternateValidationField('type'), true)->isOptional()->hasMaxCharacters(64)->isPrintable()
-//        ->select($this->getAlternateValidationField('severity'), true)->hasMaxCharacters(6)->isInArray(['notice', 'low', 'medium', 'high', 'severe'])
-//        ->select($this->getAlternateValidationField('title'), true)->hasMaxCharacters(255)->isPrintable()
-//        ->select($this->getAlternateValidationField('details'), true)->isOptional()->hasMaxCharacters(65535)->isPrintable()
-//        ->noArgumentsLeft($no_arguments_left)
-
     }
 }

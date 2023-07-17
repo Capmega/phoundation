@@ -8,6 +8,7 @@ use PDOStatement;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
+use Phoundation\Servers\Server;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 
 
@@ -30,9 +31,6 @@ class Incidents extends DataList
      */
     public function __construct()
     {
-        $this->entry_class = Incident::class;
-        $this->table       = 'security_incidents';
-
         $this->setQuery('SELECT   `id`, `type`, `severity`, `title` 
                                    FROM     `security_incidents` 
                                    WHERE    `status` IS NULL 
@@ -42,29 +40,35 @@ class Incidents extends DataList
 
 
     /**
-     * @inheritDoc
+     * Returns the table name used by this object
+     *
+     * @return string
      */
-    public function load(?string $id_column = null): static
+    public static function getTable(): string
     {
-        // TODO: Implement load() method.
+        return 'security_incidents';
     }
 
 
     /**
-     * @inheritDoc
+     * Returns the name of this DataEntry class
+     *
+     * @return string
      */
-    public function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
+    public static function getEntryClass(): string
     {
-        // TODO: Implement loadDetails() method.
+        return Incident::class;
     }
 
 
     /**
-     * @inheritDoc
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
      */
-    public function save(): static
+    public static function getUniqueField(): ?string
     {
-        // TODO: Implement save() method.
+        return 'code';
     }
 
 

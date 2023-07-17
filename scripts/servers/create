@@ -23,7 +23,7 @@ Documentation::autoComplete(Server::getAutoComplete());
 Documentation::usage('./pho servers create [OPTIONS]
 ./pho system servers create --name phoundation --hostname www.phoundation.org -d "This is a phoundation server" --port 22');
 
-Documentation::help(Server::getHelp('This script allows you to create servers
+Documentation::help(Server::getHelpText('This script allows you to create servers
 
 
 

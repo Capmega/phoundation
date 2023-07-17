@@ -10,6 +10,7 @@ use Phoundation\Accounts\Rights\Interfaces\RightsInterface;
 use Phoundation\Accounts\Roles\Interfaces\RoleInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\User;
+use Phoundation\Business\Companies\Departments\Department;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
@@ -39,16 +40,45 @@ class Rights extends DataList implements RightsInterface
      */
     public function __construct()
     {
-        $this->unique_column = 'seo_name';
-        $this->entry_class   = Right::class;
-        $this->table         = 'accounts_rights';
-
         $this->setQuery('SELECT   `id`, `name`, `description` 
                                FROM     `accounts_rights` 
                                WHERE    `status` IS NULL 
                                ORDER BY `name`');
 
         parent::__construct();
+    }
+
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'accounts_rights';
+    }
+
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getEntryClass(): string
+    {
+        return Right::class;
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return 'seo_name';
     }
 
 
@@ -67,7 +97,7 @@ class Rights extends DataList implements RightsInterface
             $rights_list = [];
 
             foreach ($list as $right) {
-                $rights_list[] = $this->entry_class::get($right)->getId();
+                $rights_list[] = static::getEntryClass()::get($right)->getId();
             }
 
             // Get a list of what we have to add and remove to get the same list, and apply

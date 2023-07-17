@@ -8,6 +8,7 @@ use PDOStatement;
 use Phoundation\Core\Session;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Notifications\Notification;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 use Phoundation\Web\Http\Html\Components\Input\InputSelect;
 use Phoundation\Web\Http\Html\Components\Table;
@@ -31,9 +32,6 @@ class SignIns extends DataList
      */
     public function __construct()
     {
-        $this->entry_class = SignIn::class;
-        $this->table       = 'accounts_signins';
-
         $this->setQuery('SELECT    `accounts_signins`.`id`,
                                          `accounts_signins`.`created_on`,
                                          `accounts_signins`.`ip_address`, 
@@ -54,6 +52,39 @@ class SignIns extends DataList
 
 
     /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'accounts_signins';
+    }
+
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getEntryClass(): string
+    {
+        return SignIn::class;
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return null;
+    }
+
+
+    /**
      * Creates and returns an HTML table for the data in this list
      *
      * @return Table
@@ -64,29 +95,6 @@ class SignIns extends DataList
         $table->setCheckboxSelectors(true);
 
         return $table;
-    }
-
-
-    /**
-     * @inheritDoc
-     */
-     public function load(?string $id_column = null): static
-    {
-        // TODO: Implement load() method.
-    }
-
-
-    /**
-     * @inheritDoc
-     */
-    public function save(): static
-    {
-        // TODO: Implement save() method.
-    }
-
-    public function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
-    {
-        // TODO: Implement loadDetails() method.
     }
 
 

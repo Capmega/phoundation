@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Processes;
 
 use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Security\Incidents\Incident;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 use Phoundation\Web\Http\Html\Components\Input\InputSelect;
 
@@ -22,27 +23,35 @@ use Phoundation\Web\Http\Html\Components\Input\InputSelect;
 class Tasks extends DataList
 {
     /**
-     * @inheritDoc
+     * Returns the table name used by this object
+     *
+     * @return string
      */
-    public function load(?string $id_column = null): static
+    public static function getTable(): string
     {
-        // TODO: Implement load() method.
+        return 'process_tasks';
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
-    {
-        // TODO: Implement loadDetails() method.
-    }
 
     /**
-     * @inheritDoc
+     * Returns the name of this DataEntry class
+     *
+     * @return string
      */
-    public function save(): static
+    public static function getEntryClass(): string
     {
-        // TODO: Implement save() method.
+        return Task::class;
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return 'code';
     }
 
 
@@ -61,7 +70,7 @@ class Tasks extends DataList
 
         return InputSelect::new()
             ->setSourceQuery('SELECT   `' . $key_column . '`, ' . $value_column . ' 
-                                         FROM     `' . $this->table . '` 
+                                         FROM     `' . static::getTable() . '` 
                                          WHERE    `status` IS NULL 
                                          ORDER BY `created_on` ASC')
             ->setName('tasks_id')

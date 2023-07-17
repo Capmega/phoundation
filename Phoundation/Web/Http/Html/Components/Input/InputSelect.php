@@ -7,6 +7,7 @@ namespace Phoundation\Web\Http\Html\Components\Input;
 use PDO;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
+use Phoundation\Core\Strings;
 use Phoundation\Data\Iterator;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
@@ -88,6 +89,30 @@ class InputSelect extends ResourceElement implements SelectInterface
     public function getMultiple(): bool
     {
         return array_key_exists('multiple', $this->attributes);
+    }
+
+
+    /**
+     * Returns the auto complete setting
+     *
+     * @return bool
+     */
+    public function getAutoComplete(): bool
+    {
+        return Strings::toBoolean(isset_get($this->attributes['autocomplete']));
+    }
+
+
+    /**
+     * Sets the auto complete setting
+     *
+     * @param bool $auto_complete
+     * @return $this
+     */
+    public function setAutoComplete(bool $auto_complete): static
+    {
+        $this->attributes['autocomplete'] = ($auto_complete ? 'on' : 'off');
+        return $this;
     }
 
 

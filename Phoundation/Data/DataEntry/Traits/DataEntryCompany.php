@@ -37,7 +37,7 @@ trait DataEntryCompany
      * @param int|null $companies_id
      * @return static
      */
-    public function setCompaniesId(int|null $companies_id): static
+    public function setCompaniesId(?int $companies_id): static
     {
         return $this->setDataValue('companies_id', $companies_id);
     }
@@ -50,7 +50,7 @@ trait DataEntryCompany
      */
     public function getCompany(): ?Company
     {
-        $companies_id = $this->getDataValue('string', 'companies_id');
+        $companies_id = $this->getDataValue('int', 'companies_id');
 
         if ($companies_id) {
             return new Company($companies_id);
@@ -77,7 +77,7 @@ trait DataEntryCompany
      * @param string|null $companies_name
      * @return static
      */
-    public function setCompaniesName(string|null $companies_name): static
+    public function setCompaniesName(?string $companies_name): static
     {
         return $this->setDataValue('companies_name', $companies_name);
     }

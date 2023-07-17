@@ -33,17 +33,35 @@ class Category extends DataEntry implements CategoryInterface
 
 
     /**
-     * Category class constructor
+     * Returns the table name used by this object
      *
-     * @param DataEntryInterface|string|int|null $identifier
-     * @param string|null $column
+     * @return string
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null)
+    public static function getTable(): string
     {
-        $this->table      = 'categories';
-        $this->entry_name = 'category';
+        return 'categories';
+    }
 
-        parent::__construct($identifier, $column);
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getDataEntryName(): string
+    {
+        return tr('Category');
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return 'seo_name';
     }
 
 
@@ -64,7 +82,7 @@ class Category extends DataEntry implements CategoryInterface
      * @param int|null $parents_id
      * @return static
      */
-    public function setParentsId(int|null $parents_id): static
+    public function setParentsId(?int $parents_id): static
     {
         return $this->setDataValue('parents_id', $parents_id);
     }
@@ -104,7 +122,7 @@ class Category extends DataEntry implements CategoryInterface
      * @param string|null $parents_name
      * @return static
      */
-    public function setParentsName(string|null $parents_name): static
+    public function setParentsName(?string $parents_name): static
     {
         return $this->setDataValue('parents_name', $parents_name);
     }
@@ -131,13 +149,13 @@ class Category extends DataEntry implements CategoryInterface
                 ->setLabel(tr('Parent category'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     // Ensure parents_id exists and that its or parent
-                    $validator->or('parent')->isDbId()->isQueryColumn('SELECT `id` FROM `categories` WHERE `id` = :id AND `status` IS NULL', [':id' => '$parents_id']);
+                    $validator->or('parent')->isDbId()->isQueryResult('SELECT `id` FROM `categories` WHERE `id` = :id AND `status` IS NULL', [':id' => '$parents_id']);
                 }))
             ->addDefinition(Definition::new($this, 'parent')
                 ->setOptional(true)
                 ->setVirtual(true)
                 ->setCliField('--parent PARENT CATEGORY NAME')
-                ->setAutoComplete([
+                ->setCliAutoComplete([
                     'word'   => function($word) { return Categories::new()->filteredList($word); },
                     'noword' => function()      { return Categories::new()->getSource(); },
                 ])

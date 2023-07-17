@@ -587,7 +587,7 @@ Log::warning('RESTART SESSION');
             unset($_SESSION['user']['impersonate_id']);
             unset($_SESSION['user']['impersonate_url']);
 
-            Page::getFlashMessages()->addMessage(tr('Success'), tr('You have stopped impersonating user ":user"', [':user' => User::get($users_id)]), DisplayMode::success);
+            Page::getFlashMessages()->addSuccessMessage(tr('You have stopped impersonating user ":user"', [':user' => User::get($users_id)]));
             Page::redirect($url);
         }
 
@@ -617,6 +617,9 @@ Log::warning('RESTART SESSION');
                 return false;
 
             case 'email':
+                return true;
+
+            case 'lost-password':
                 return true;
 
             case 'register':
@@ -1089,10 +1092,11 @@ Log::warning('RESTART SESSION');
                 if (PLATFORM_HTTP) {
                     // There is no user, this is a guest session
                     static::$user = new GuestUser();
-                }
 
-                // There is no user, this is a system session
-                static::$user = new SystemUser();
+                } else {
+                    // There is no user, this is a system session
+                    static::$user = new SystemUser();
+                }
             }
         }
 

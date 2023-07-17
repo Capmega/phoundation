@@ -17,7 +17,13 @@ namespace Phoundation\Data\Traits;
  */
 trait DataTarget
 {
+    /**
+     * The target to use
+     *
+     * @var string|null $table
+     */
     protected ?string $target;
+
 
     /**
      * Returns the source

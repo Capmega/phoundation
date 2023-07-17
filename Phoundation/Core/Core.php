@@ -21,6 +21,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Date\Date;
+use Phoundation\Date\DateTimeZone;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\Exception;
@@ -762,7 +763,7 @@ class Core {
 
             if (Debug::enabled()) {
                 Log::warning(tr('Running in DEBUG mode, started @ ":datetime"', [
-                    ':datetime' => Date::convert(STARTTIME, 'human_datetime')
+                    ':datetime' => Date::convert(STARTTIME, 'ISO8601')
                 ]), 8);
 
                 Log::notice(tr('Detected ":size" terminal with ":columns" columns and ":lines" lines', [
@@ -1839,8 +1840,13 @@ class Core {
     public static function setTimeout(int $timeout = null): bool
     {
         if ($timeout === null) {
-            // Default timeout to either system configuration system.timeout, or environment variable TIMEOUT
-            $timeout = Config::get('system.timeout', get_null(getenv('TIMEOUT')) ?? 30);
+            if (PLATFORM_HTTP) {
+                // Default timeout to either system configuration web.timeout, or environment variable TIMEOUT
+                $timeout = Config::get('web.timeout', get_null(getenv('TIMEOUT')) ?? 5);
+            } else {
+                // Default timeout to either system configuration cli.timeout, or environment variable TIMEOUT
+                $timeout = Config::get('cli.timeout', get_null(getenv('TIMEOUT')) ?? 30);
+            }
         }
 
         static::$register['system']['timeout'] = $timeout;
@@ -2454,10 +2460,12 @@ class Core {
         $timezone = isset_get($_SESSION['user']['timezone'], Config::get('system.timezone.system', 'UTC'));
 
         try {
-            date_default_timezone_set($timezone);
+            date_default_timezone_set(DateTimeZone::new($timezone)->getName());
 
         }catch(Throwable $e) {
-            // Accounts timezone failed, use the configured one
+            // Accounts timezone failed, default to UTC
+            date_default_timezone_set('UTC');
+
             Notification::new()
                 ->setException($e)
                 ->send();

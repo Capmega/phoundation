@@ -8,7 +8,6 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryUsername;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
@@ -33,18 +32,37 @@ class SshAccount extends DataEntry
     use DataEntryNameDescription;
     use DataEntryUsername;
 
-    /**
-     * User class constructor
-     *
-     * @param DataEntryInterface|string|int|null $identifier
-     * @param string|null $column
-     */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null)
-    {
-        $this->table        = 'ssh_accounts';
-        $this->entry_name   = 'SSH account';
 
-        parent::__construct($identifier, $column);
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'ssh_accounts';
+    }
+
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getDataEntryName(): string
+    {
+        return tr('SSH account');
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return 'seo_name';
     }
 
 
@@ -90,7 +108,7 @@ class SshAccount extends DataEntry
                 ->setLabel(tr('Username'))
                 ->setInputType(InputTypeExtended::username)
                 ->setCliField(tr('-u,--username NAME'))
-                ->setAutoComplete(true)
+                ->setCliAutoComplete(true)
                 ->setSize(6)
                 ->setMaxlength(64)
                 ->setHelpText(tr('The username on the server for this account')))
@@ -99,7 +117,7 @@ class SshAccount extends DataEntry
             ->addDefinition(Definition::new($this, 'ssh_key')
                 ->setLabel(tr('SSH key'))
                 ->setCliField(tr('-i,--ssh-key-file FILE'))
-                ->setAutoComplete(true)
+                ->setCliAutoComplete(true)
                 ->setSize(12)
                 ->setMaxlength(65_535)
                 ->setHelpText(tr('The SSH private key associated with this username'))

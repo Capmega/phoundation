@@ -11,6 +11,8 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Sql\QueryBuilder;
+use Phoundation\Geo\Timezones\Timezone;
+use Phoundation\Translator\Translation;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 use Phoundation\Web\Http\Html\Components\Input\InputSelect;
 use Phoundation\Web\Http\Html\Components\Table;
@@ -34,14 +36,44 @@ class SshAccounts extends DataList
      */
     public function __construct()
     {
-        $this->entry_class = SshAccount::class;
-        $this->table       = 'ssh_accounts';
-
         $this->setQuery('SELECT   `id`, `name`, `created_on` 
                                    FROM     `ssh_accounts` 
                                    WHERE    `status` IS NULL 
                                    ORDER BY `name`');
         parent::__construct();
+    }
+
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'ssh_accounts';
+    }
+
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getEntryClass(): string
+    {
+        return SshAccount::class;
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return 'seo_name';
     }
 
 
@@ -74,24 +106,6 @@ class SshAccounts extends DataList
             ->setName('ssh_accounts_id')
             ->setNone(tr('Select an SSH account'))
             ->setEmpty(tr('No SSH accounts available'));
-    }
-
-
-    /**
-     * @inheritDoc
-     */
-    public function load(?string $id_column = null): static
-    {
-        // TODO: Implement load() method.
-    }
-
-
-    /**
-     * @inheritDoc
-     */
-    public function save(): static
-    {
-        // TODO: Implement save() method.
     }
 
 

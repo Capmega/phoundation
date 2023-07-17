@@ -7,6 +7,7 @@ namespace Phoundation\Geo\Cities;
 use PDOStatement;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Developer\Incidents\Incident;
 use Phoundation\Geo\States\State;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 use Phoundation\Web\Http\Html\Components\Table;
@@ -30,14 +31,44 @@ class Cities extends DataList
      */
     public function __construct()
     {
-        $this->entry_class = City::class;
-        $this->table  = 'geo_cities';
-
         $this->setQuery('SELECT   `id`, `name`, `status`, `created_on` 
                                    FROM     `geo_cities` 
                                    WHERE    `status` IS NULL 
                                    ORDER BY `name`');
         parent::__construct();
+    }
+
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'geo_cities';
+    }
+
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getEntryClass(): string
+    {
+        return City::class;
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return null;
     }
 
 
@@ -52,33 +83,6 @@ class Cities extends DataList
         $table->setCheckboxSelectors(true);
 
         return $table;
-    }
-
-
-    /**
-     * @inheritDoc
-     */
-    public function load(?string $id_column = null): static
-    {
-        // TODO: Implement load() method.
-    }
-
-
-    /**
-     * @inheritDoc
-     */
-    public function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
-    {
-        // TODO: Implement loadDetails() method.
-    }
-
-
-    /**
-     * @inheritDoc
-     */
-    public function save(): static
-    {
-        // TODO: Implement save() method.
     }
 
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Data\DataEntry\Definitions;
 
 use Phoundation\Accounts\Users\Users;
@@ -56,7 +58,7 @@ class DefinitionFactory
             ->setLabel(tr('Category'))
             ->addValidationFunction(function (ValidatorInterface $validator) {
                 // Ensure categories id exists and that its or category
-                $validator->or('category')->isDbId()->isQueryColumn('SELECT `id` FROM `categories` WHERE `id` = :id AND `status` IS NULL', [':id' => '$categories_id']);
+                $validator->or('categories_name')->isDbId()->isQueryResult('SELECT `id` FROM `categories` WHERE `id` = :id AND `status` IS NULL', [':id' => '$categories_id']);
             });
     }
 
@@ -68,14 +70,15 @@ class DefinitionFactory
      * @param string|null $field
      * @return DefinitionInterface
      */
-    public static function getCategory(DataEntryInterface $data_entry, ?string $field = 'category'): DefinitionInterface
+    public static function getCategory(DataEntryInterface $data_entry, ?string $field = 'categories_name'): DefinitionInterface
     {
         return Definition::new($data_entry, $field)
             ->setOptional(true)
+            ->setVisible(false)
             ->setVirtual(true)
-            ->setCliField('-t,--category CATEGORY-NAME')
+            ->setCliField('-c,--category CATEGORY-NAME')
             ->setLabel(tr('Category'))
-            ->setAutoComplete([
+            ->setCliAutoComplete([
                 'word' => function ($word) {
                     return Categories::new()->filteredList($word);
                 },
@@ -84,8 +87,8 @@ class DefinitionFactory
                 },
             ])
             ->addValidationFunction(function (ValidatorInterface $validator) {
-                // Ensure category exists and that its or category
-                $validator->or('categories_id')->isCategory();
+                // Ensure category exists and that its a category id or category name
+                $validator->or('categories_id')->isName()->setColumnFromQuery('categories_id', 'SELECT `id` FROM `categories` WHERE `name` = :name AND `status` IS NULL', [':id' => '$categories_name']);
             });
     }
 
@@ -112,7 +115,7 @@ class DefinitionFactory
             ->setLabel(tr('Company'))
             ->addValidationFunction(function (ValidatorInterface $validator) {
                 // Ensure companies id exists and that its or company
-                $validator->or('company')->isDbId()->isQueryColumn('SELECT `id` FROM `business_companies` WHERE `id` = :id AND `status` IS NULL', [':id' => '$companies_id']);
+                $validator->or('companies_name')->isDbId()->isQueryResult('SELECT `id` FROM `business_companies` WHERE `id` = :id AND `status` IS NULL', [':id' => '$companies_id']);
             });
     }
 
@@ -124,14 +127,15 @@ class DefinitionFactory
      * @param string|null $field
      * @return DefinitionInterface
      */
-    public static function getCompany(DataEntryInterface $data_entry, ?string $field = 'company'): DefinitionInterface
+    public static function getCompany(DataEntryInterface $data_entry, ?string $field = 'companies_name'): DefinitionInterface
     {
         return Definition::new($data_entry, $field)
             ->setOptional(true)
+            ->setVisible(false)
             ->setVirtual(true)
             ->setCliField('--company COMPANY-NAME')
             ->setLabel(tr('Company'))
-            ->setAutoComplete([
+            ->setCliAutoComplete([
                 'word' => function ($word) {
                     return Companies::new()->filteredList($word);
                 },
@@ -141,7 +145,7 @@ class DefinitionFactory
             ])
             ->addValidationFunction(function (ValidatorInterface $validator) {
                 // Ensure company exists and that its or company
-                $validator->or('companies_id')->isCompany();
+                $validator->or('companies_id')->isName()->setColumnFromQuery('companies_id', 'SELECT `id` FROM `business_companies` WHERE `name` = :name AND `status` IS NULL', [':name' => '$companies_name']);
             });
     }
 
@@ -167,12 +171,12 @@ class DefinitionFactory
             })
             ->setSize(3)
             ->setCliField('--languages-id')
-            ->setAutoComplete(true)
+            ->setCliAutoComplete(true)
             ->setLabel(tr('Language'))
             ->setHelpGroup(tr('Location information'))
             ->setHelpText(tr('The language in which the site will be displayed to the user'))
             ->addValidationFunction(function (ValidatorInterface $validator) {
-                $validator->or('language')->isDbId()->isQueryColumn('SELECT `id` FROM `core_languages` WHERE `id` = :id AND `status` IS NULL', [':id' => '$languages_id']);
+                $validator->or('languages_name')->isDbId()->isQueryResult('SELECT `id` FROM `core_languages` WHERE `id` = :id AND `status` IS NULL', [':id' => '$languages_id']);
             });
     }
 
@@ -184,16 +188,16 @@ class DefinitionFactory
      * @param string|null $field
      * @return DefinitionInterface
      */
-    public static function getLanguage(DataEntryInterface $data_entry, ?string $field = 'language'): DefinitionInterface
+    public static function getLanguage(DataEntryInterface $data_entry, ?string $field = 'languages_name'): DefinitionInterface
     {
         return Definition::new($data_entry, $field)
             ->setOptional(true)
-            ->setVirtual(true)
             ->setVisible(false)
+            ->setVirtual(true)
             ->setMaxlength(32)
             ->setCliField('-l,--language LANGUAGE-CODE')
             ->setLabel(tr('Language'))
-            ->setAutoComplete([
+            ->setCliAutoComplete([
                 'word' => function ($word) {
                     return Languages::new()->filteredList($word);
                 },
@@ -230,7 +234,7 @@ class DefinitionFactory
             ->setLabel(tr('Provider'))
             ->addValidationFunction(function (ValidatorInterface $validator) {
                 // Ensure providers id exists and that its or provider
-                $validator->or('provider')->isDbId()->isQueryColumn('SELECT `id` FROM `business_providers` WHERE `id` = :id AND `status` IS NULL', [':id' => '$providers_id']);
+                $validator->or('providers_name')->isDbId()->isQueryResult('SELECT `id` FROM `business_providers` WHERE `id` = :id AND `status` IS NULL', [':id' => '$providers_id']);
             });
     }
 
@@ -242,14 +246,14 @@ class DefinitionFactory
      * @param string|null $field
      * @return DefinitionInterface
      */
-    public static function getProvider(DataEntryInterface $data_entry, ?string $field = 'provider'): DefinitionInterface
+    public static function getProvider(DataEntryInterface $data_entry, ?string $field = 'providers_name'): DefinitionInterface
     {
         return Definition::new($data_entry, $field)
             ->setOptional(true)
             ->setSize(6)
             ->setCliField('--provider PROVIDER-NAME')
             ->setLabel(tr('Provider'))
-            ->setAutoComplete([
+            ->setCliAutoComplete([
                 'word' => function ($word) {
                     return Providers::new()->filteredList($word);
                 },
@@ -258,8 +262,8 @@ class DefinitionFactory
                 },
             ])
             ->addValidationFunction(function (ValidatorInterface $validator) {
-                // Ensure provider exists and that its or provider
-                $validator->or('providers_id')->isProvider();
+                // Ensure provider exists and that its providers id or providers name
+                $validator->or('providers_id')->isName()->setColumnFromQuery('providers_id', 'SELECT `id` FROM `business_providers` WHERE `name` = :name AND `status` IS NULL', [':code' => '$providers_name']);
             });
     }
 
@@ -286,7 +290,7 @@ class DefinitionFactory
             ->setLabel(tr('Customer'))
             ->addValidationFunction(function (ValidatorInterface $validator) {
                 // Ensure customers id exists and that its or customer
-                $validator->or('customer')->isDbId()->isQueryColumn('SELECT `id` FROM `business_customers` WHERE `id` = :id AND `status` IS NULL', [':id' => '$customers_id']);
+                $validator->or('customers_name')->isDbId()->isQueryResult('SELECT `id` FROM `business_customers` WHERE `id` = :id AND `status` IS NULL', [':id' => '$customers_id']);
             });
     }
 
@@ -298,14 +302,14 @@ class DefinitionFactory
      * @param string|null $field
      * @return DefinitionInterface
      */
-    public static function getCustomer(DataEntryInterface $data_entry, ?string $field = 'customer'): DefinitionInterface
+    public static function getCustomer(DataEntryInterface $data_entry, ?string $field = 'customers_name'): DefinitionInterface
     {
         return Definition::new($data_entry, $field)
             ->setOptional(true)
             ->setSize(6)
             ->setCliField('--customer CUSTOMER-NAME')
             ->setLabel(tr('Customer'))
-            ->setAutoComplete([
+            ->setCliAutoComplete([
                 'word' => function ($word) {
                     return Customers::new()->filteredList($word);
                 },
@@ -315,7 +319,7 @@ class DefinitionFactory
             ])
             ->addValidationFunction(function (ValidatorInterface $validator) {
                 // Ensure customer exists and that its or customer
-                $validator->or('customers_id')->isCustomer();
+                $validator->or('customers_id')->isName()->setColumnFromQuery('customers_id', 'SELECT `id` FROM `business_customers` WHERE `name` = :name AND `status` IS NULL', [':id' => '$customers_name']);
             });
     }
 
@@ -339,11 +343,11 @@ class DefinitionFactory
                     ->render();
             })
             ->setCliField('--timezones-id TIMEZONE-DATABASE-ID')
-            ->setAutoComplete(true)
+            ->setCliAutoComplete(true)
             ->setSize(3)
             ->setLabel(tr('Timezone'))
             ->addValidationFunction(function (ValidatorInterface $validator) {
-                $validator->or('timezone')->isDbId()->isTrue(function ($value) {
+                $validator->or('timezones_name')->isDbId()->isTrue(function ($value) {
                     // This timezone must exist.
                     return Timezone::exists('name', $value);
                 }, tr('The specified timezone does not exist'));
@@ -358,15 +362,15 @@ class DefinitionFactory
      * @param string|null $field
      * @return DefinitionInterface
      */
-    public static function getTimezone(DataEntryInterface $data_entry, ?string $field = 'timezone'): DefinitionInterface
+    public static function getTimezone(DataEntryInterface $data_entry, ?string $field = 'timezones_name'): DefinitionInterface
     {
         return Definition::new($data_entry, $field)
             ->setOptional(true)
-            ->setVirtual(true)
             ->setVisible(false)
+            ->setVirtual(true)
             ->setCliField('-t,--timezone TIMEZONE-NAME')
             ->setLabel(tr('Timezone'))
-            ->setAutoComplete([
+            ->setCliAutoComplete([
                 'word' => function ($word) {
                     return Timezones::new()->filteredList($word);
                 },
@@ -402,10 +406,10 @@ class DefinitionFactory
             })
             ->setSize(3)
             ->setCliField('--countries-id COUNTRY-DATABASE-ID')
-            ->setAutoComplete(true)
+            ->setCliAutoComplete(true)
             ->setLabel(tr('Country'))
             ->addValidationFunction(function (ValidatorInterface $validator) {
-                $validator->or('country')->isDbId()->isQueryColumn('SELECT `id` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':id' => '$countries_id']);
+                $validator->or('countries_name')->isDbId()->isQueryResult('SELECT `id` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':id' => '$countries_id']);
             });
     }
 
@@ -417,7 +421,7 @@ class DefinitionFactory
      * @param string|null $field
      * @return DefinitionInterface
      */
-    public static function getCountry(DataEntryInterface $data_entry, ?string $field = 'country'): DefinitionInterface
+    public static function getCountry(DataEntryInterface $data_entry, ?string $field = 'countries_name'): DefinitionInterface
     {
         return Definition::new($data_entry, $field)
             ->setOptional(true)
@@ -425,7 +429,7 @@ class DefinitionFactory
             ->setVirtual(true)
             ->setCliField('--country COUNTRY-NAME')
             ->setLabel(tr('Country'))
-            ->setAutoComplete([
+            ->setCliAutoComplete([
                 'word' => function ($word) {
                     return Countries::new()->filteredList($word);
                 },
@@ -461,10 +465,10 @@ class DefinitionFactory
             })
             ->setSize(3)
             ->setCliField('--states-id STATE-DATABASE-ID')
-            ->setAutoComplete(true)
+            ->setCliAutoComplete(true)
             ->setLabel(tr('State'))
             ->addValidationFunction(function (ValidatorInterface $validator) {
-                $validator->or('state')->isDbId()->isQueryColumn('SELECT `id` FROM `geo_states` WHERE `id` = :id AND `countries_id` = :countries_id AND `status` IS NULL', [':id' => '$states_id', ':countries_id' => '$countries_id']);
+                $validator->or('states_name')->isDbId()->isQueryResult('SELECT `id` FROM `geo_states` WHERE `id` = :id AND `countries_id` = :countries_id AND `status` IS NULL', [':id' => '$states_id', ':countries_id' => '$countries_id']);
             });
     }
 
@@ -476,7 +480,7 @@ class DefinitionFactory
      * @param string|null $field
      * @return DefinitionInterface
      */
-    public static function getState(DataEntryInterface $data_entry, ?string $field = 'state'): DefinitionInterface
+    public static function getState(DataEntryInterface $data_entry, ?string $field = 'states_name'): DefinitionInterface
     {
         return Definition::new($data_entry, $field)
             ->setOptional(true)
@@ -484,7 +488,7 @@ class DefinitionFactory
             ->setVirtual(true)
             ->setCliField('--state STATE-NAME')
             ->setLabel(tr('State'))
-            ->setAutoComplete([
+            ->setCliAutoComplete([
                 'word' => function ($word) {
                     return States::new()->filteredList($word);
                 },
@@ -520,10 +524,10 @@ class DefinitionFactory
             })
             ->setSize(3)
             ->setCliField('--cities-id CITY-DATABASE-ID')
-            ->setAutoComplete(true)
+            ->setCliAutoComplete(true)
             ->setLabel(tr('City'))
             ->addValidationFunction(function (ValidatorInterface $validator) {
-                $validator->or('city')->isDbId()->isQueryColumn('SELECT `id` FROM `geo_cities` WHERE `id` = :id AND `states_name`  = :states_id    AND `status` IS NULL', [':id' => '$cities_id', ':states_id' => '$states_id']);
+                $validator->or('cities_name')->isDbId()->isQueryResult('SELECT `id` FROM `geo_cities` WHERE `id` = :id AND `states_name`  = :states_id    AND `status` IS NULL', [':id' => '$cities_id', ':states_id' => '$states_id']);
             });
     }
 
@@ -535,7 +539,7 @@ class DefinitionFactory
      * @param string|null $field
      * @return DefinitionInterface
      */
-    public static function getCity(DataEntryInterface $data_entry, ?string $field = 'city'): DefinitionInterface
+    public static function getCity(DataEntryInterface $data_entry, ?string $field = 'cities_name'): DefinitionInterface
     {
         return Definition::new($data_entry, $field)
             ->setOptional(true)
@@ -543,7 +547,7 @@ class DefinitionFactory
             ->setVirtual(true)
             ->setCliField('--city CITY-NAME')
             ->setLabel(tr('City'))
-            ->setAutoComplete([
+            ->setCliAutoComplete([
                 'word' => function ($word) {
                     return Cities::new()->filteredList($word);
                 },
@@ -572,14 +576,16 @@ class DefinitionFactory
             ->setOptional(true)
             ->setInputType(InputTypeExtended::dbid)
             ->setSize(3)
-            ->setAutoComplete(true)
-            ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) use ($filters) {
+            ->setCliAutoComplete(true)
+            ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) use ($filters, $field) {
                 return Users::new()->getHtmlSelect()
+                    ->setId($field)
+                    ->setName($field)
                     ->setSelected(isset_get($source[$key]))
                     ->render();
             })
             ->addValidationFunction(function (ValidatorInterface $validator) {
-                $validator->isDbId()->isQueryColumn('SELECT `id` FROM `accounts_users` WHERE `id` = :id AND `status` IS NULL', [':id' => '$leaders_id']);
+                $validator->isDbId()->isQueryResult('SELECT `id` FROM `accounts_users` WHERE `id` = :id AND `status` IS NULL', [':id' => '$leaders_id']);
             });
     }
 
@@ -591,15 +597,16 @@ class DefinitionFactory
      * @param string|null $field
      * @return DefinitionInterface
      */
-    public static function getUser(DataEntryInterface $data_entry, ?string $field = 'email'): DefinitionInterface
+    public static function getUsersEmail(DataEntryInterface $data_entry, ?string $field = 'email'): DefinitionInterface
     {
         return Definition::new($data_entry, $field)
             ->setOptional(true)
+            ->setVisible(false)
             ->setVirtual(true)
             ->setInputType(InputType::email)
             ->setCliField('-u,--user EMAIL')
             ->setLabel(tr('User'))
-            ->setAutoComplete([
+            ->setCliAutoComplete([
                 'word' => function ($word) {
                     return Users::new()->filteredList($word);
                 },
@@ -624,10 +631,12 @@ class DefinitionFactory
     {
         return Definition::new($data_entry, $field)
             ->setOptional(true)
+            ->setInputType(InputTypeExtended::code)
             ->setSize(3)
             ->setMaxlength(16)
+            ->setMinlength(1)
             ->setCliField('-c,--code CODE')
-            ->setAutoComplete(true)
+            ->setCliAutoComplete(true)
             ->setLabel(tr('Code'))
             ->addValidationFunction(function (ValidatorInterface $validator) {
                 $validator->isCode();
@@ -665,7 +674,7 @@ class DefinitionFactory
             ->setOptional(true)
             ->setInputType(InputType::date)
             ->setSize(3)
-            ->setAutoComplete(true)
+            ->setCliAutoComplete(true)
             ->setLabel(tr('Date'));
     }
 
@@ -683,7 +692,7 @@ class DefinitionFactory
             ->setOptional(true)
             ->setInputType(InputType::time)
             ->setSize(3)
-            ->setAutoComplete(true)
+            ->setCliAutoComplete(true)
             ->setLabel(tr('Time'));
     }
 
@@ -702,7 +711,7 @@ class DefinitionFactory
             ->setMaxLength(24)
             ->setSize(3)
             ->setCliField('-t,--title TITLE')
-            ->setAutoComplete(true)
+            ->setCliAutoComplete(true)
             ->setLabel(tr('Title'))
             ->addValidationFunction(function (ValidatorInterface $validator) {
                 $validator->isName();
@@ -720,12 +729,13 @@ class DefinitionFactory
     public static function getName(DataEntryInterface $data_entry, ?string $field = 'name'): DefinitionInterface
     {
         return Definition::new($data_entry, $field)
-            ->setMaxLength(64)
+            ->setMaxLength(128)
+            ->setOptional(true)
             ->setSize(3)
             ->setLabel(tr('Name'))
             ->setCliField(tr('-n,--name NAME'))
             ->setInputType(InputTypeExtended::name)
-            ->setAutoComplete(true)
+            ->setCliAutoComplete(true)
             ->addValidationFunction(function (ValidatorInterface $validator) {
                 $validator->isName();
             });
@@ -746,7 +756,7 @@ class DefinitionFactory
             ->setInputType(InputType::email)
             ->setMaxlength(128)
             ->setCliField('-e,--email EMAIL')
-            ->setAutoComplete(true)
+            ->setCliAutoComplete(true)
             ->setLabel(tr('Email address'));
     }
 
@@ -764,7 +774,7 @@ class DefinitionFactory
             ->setOptional(true)
             ->setInputType(InputType::url)
             ->setMaxlength(2048)
-            ->setAutoComplete(true)
+            ->setCliAutoComplete(true)
             ->setCliField('--w,--website WEBSITE-URL')
             ->setLabel(tr('Website URL'))
             ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -806,7 +816,7 @@ class DefinitionFactory
             ->setMaxLength(64)
             ->setSize(3)
             ->setCliField(tr('-p,--phone-numbers "PHONE-NUMBER,PHONE-NUMBER,..."'))
-            ->setAutoComplete(true)
+            ->setCliAutoComplete(true)
             ->setLabel(tr('Phone numbers'))
             ->setHelpGroup(tr('Personal information'))
             ->setHelpText(tr('Phone numbers where this user can be reached'))
@@ -848,7 +858,7 @@ class DefinitionFactory
             ->setSize(12)
             ->setMaxlength(65_535)
             ->setCliField('-d,--description "DESCRIPTION"')
-            ->setAutoComplete(true)
+            ->setCliAutoComplete(true)
             ->setLabel(tr('Description'));
     }
 
@@ -868,7 +878,7 @@ class DefinitionFactory
             ->setSize(12)
             ->setMaxlength(65_535)
             ->setCliField('--comments "COMMENTS"')
-            ->setAutoComplete(true)
+            ->setCliAutoComplete(true)
             ->setLabel(tr('Comments'));
     }
 }

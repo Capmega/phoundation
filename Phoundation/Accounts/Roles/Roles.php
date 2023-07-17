@@ -6,6 +6,7 @@ namespace Phoundation\Accounts\Roles;
 
 use PDOStatement;
 use Phoundation\Accounts\Rights\Interfaces\RightInterface;
+use Phoundation\Accounts\Rights\Right;
 use Phoundation\Accounts\Roles\Interfaces\RoleInterface;
 use Phoundation\Accounts\Roles\Interfaces\RolesInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
@@ -38,16 +39,45 @@ class Roles extends DataList implements RolesInterface
      */
     public function __construct()
     {
-        $this->unique_column = 'seo_name';
-        $this->entry_class   = Role::class;
-        $this->table         = 'accounts_roles';
-
         $this->setQuery('SELECT   `id`, `name`, `description` 
                                FROM     `accounts_roles` 
                                WHERE    `status` IS NULL 
                                ORDER BY `name`');
 
         parent::__construct();
+    }
+
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'accounts_roles';
+    }
+
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getEntryClass(): string
+    {
+        return Role::class;
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return 'seo_name';
     }
 
 
@@ -66,7 +96,7 @@ class Roles extends DataList implements RolesInterface
             $rights_list = [];
 
             foreach ($list as $right) {
-                $rights_list[] = $this->entry_class::get($right)->getId();
+                $rights_list[] = static::getEntryClass()::get($right)->getId();
             }
 
             // Get a list of what we have to add and remove to get the same list, and apply

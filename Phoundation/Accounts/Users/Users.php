@@ -37,16 +37,45 @@ class Users extends DataList implements UsersInterface
      */
     public function __construct()
     {
-        $this->unique_column = 'email';
-        $this->entry_class   = User::class;
-        $this->table         = 'accounts_users';
-
         $this->setQuery('SELECT   `id`, TRIM(CONCAT(`first_names`, " ", `last_names`)) AS `name`, `nickname`, `email`, `status`, `created_on`
                                FROM     `accounts_users` 
                                WHERE    `status` IS NULL 
                                ORDER BY `name`');
 
         parent::__construct();
+    }
+
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'accounts_users';
+    }
+
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getEntryClass(): string
+    {
+        return User::class;
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return 'email';
     }
 
 
@@ -65,7 +94,7 @@ class Users extends DataList implements UsersInterface
             $rights_list = [];
 
             foreach ($list as $right) {
-                $rights_list[] = $this->entry_class::get($right)->getId();
+                $rights_list[] = static::getEntryClass()::get($right)->getId();
             }
 
             // Get a list of what we have to add and remove to get the same list, and apply

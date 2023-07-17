@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Business\Customers;
 
 use PDOStatement;
+use Phoundation\Accounts\Users\User;
 use Phoundation\Business\Companies\Company;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\Interfaces\IteratorInterface;
@@ -31,14 +32,44 @@ class Customers extends DataList
      */
     public function __construct()
     {
-        $this->entry_class = Customer::class;
-        $this->table       = 'business_customers';
-
         $this->setQuery('SELECT   `id`, `name`, `code`, `email`, `status`, `created_on` 
                                    FROM     `business_customers` 
                                    WHERE    `status` IS NULL 
                                    ORDER BY `name`');
         parent::__construct();
+    }
+
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'business_customers';
+    }
+
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getEntryClass(): string
+    {
+        return Customer::class;
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return 'seo_name';
     }
 
 
@@ -71,28 +102,5 @@ class Customers extends DataList
             ->setName('customers_id')
             ->setNone(tr('Select a customer'))
             ->setEmpty(tr('No customers available'));
-    }
-
-
-    /**
-     * @inheritDoc
-     */
-     public function load(?string $id_column = null): static
-    {
-        // TODO: Implement load() method.
-    }
-
-
-    /**
-     * @inheritDoc
-     */
-    public function save(): static
-    {
-        // TODO: Implement save() method.
-    }
-
-    public function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
-    {
-        // TODO: Implement loadDetails() method.
     }
 }

@@ -21,16 +21,34 @@ use Phoundation\Developer\Incidents\Incident;
 class SlowProcess extends Incident
 {
     /**
-     * SlowPage class constructor
+     * Returns the table name used by this object
      *
-     * @param DataEntryInterface|string|int|null $identifier
-     * @param string|null $column
+     * @return string
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null)
+    public static function getTable(): string
     {
-        $this->table       = 'processes_slow';
-        $this->entry_name  = 'slow process';
+        return 'processes_slow';
+    }
 
-        parent::__construct($identifier, $column);
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getDataEntryName(): string
+    {
+        return tr('Slow process');
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return null;
     }
 }

@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
-use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Accounts\Users\Interfaces\UserInterface;
+use Phoundation\Accounts\Users\User;
 
 
 /**
@@ -17,7 +18,7 @@ use Phoundation\Exception\OutOfBoundsException;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-trait DataEntryUsersId
+trait DataEntryUser
 {
     /**
      * Returns the users_id for this object
@@ -36,7 +37,7 @@ trait DataEntryUsersId
      * @param int|null $users_id
      * @return static
      */
-    public function setUsersId(int|null $users_id): static
+    public function setUsersId(?int $users_id): static
     {
         return $this->setDataValue('users_id', $users_id);
     }
@@ -45,9 +46,9 @@ trait DataEntryUsersId
     /**
      * Returns the users_id for this user
      *
-     * @return User|null
+     * @return UserInterface|null
      */
-    public function getUser(): ?User
+    public function getUser(): ?UserInterface
     {
         $users_id = $this->getDataValue('int', 'users_id');
 
@@ -76,7 +77,7 @@ trait DataEntryUsersId
      * @param string|null $users_email
      * @return static
      */
-    public function setUsersEmail(string|null $users_email): static
+    public function setUsersEmail(?string $users_email): static
     {
         return $this->setDataValue('users_email', $users_email);
     }

@@ -25,18 +25,37 @@ class Department extends DataEntry
 {
     use DataEntryNameDescription;
 
-    /**
-     * Department class constructor
-     *
-     * @param DataEntryInterface|string|int|null $identifier
-     * @param string|null $column
-     */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null)
-    {
-        $this->table        = 'business_departments';
-        $this->entry_name   = 'company department';
 
-        parent::__construct($identifier, $column);
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'business_departments';
+    }
+
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getDataEntryName(): string
+    {
+        return 'company department';
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return 'seo_name';
     }
 
 

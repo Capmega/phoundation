@@ -7,7 +7,6 @@ namespace Templates\AdminLte\Html\Components;
 use PDOStatement;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Libraries\Library;
-use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Exception\OutOfBoundsException;
@@ -19,9 +18,7 @@ use Phoundation\Web\Http\Html\Components\Interfaces\ElementsBlockInterface;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Html\Renderer;
-use Phoundation\Web\Http\Interfaces\UrlBuilderInterface;
 use Stringable;
-use Throwable;
 
 
 /**
@@ -176,10 +173,10 @@ class DataEntryForm extends Renderer
             Arrays::default($definition_array, 'size'        , 12);
             Arrays::default($definition_array, 'source'      , null);
             Arrays::default($definition_array, 'step'        , null);
+            Arrays::default($definition_array, 'title'       , null);
             Arrays::default($definition_array, 'type'        , 'text');
             Arrays::default($definition_array, 'virtual'     , false);
             Arrays::default($definition_array, 'visible'     , true);
-            Arrays::default($definition_array, 'title'       , null);
 
             // Ensure password is never sent in the form
             switch ($field) {
@@ -290,12 +287,14 @@ class DataEntryForm extends Renderer
                         include_once($file);
 
                         // Depending on input type we might need different code
+
                         switch ($definition_array['type']) {
                             case 'checkbox':
                                 // Render the HTML for this element
                                 $html = $element_class::new()
                                     ->setDisabled((bool) $definition_array['disabled'])
                                     ->setReadOnly((bool) $definition_array['readonly'])
+                                    ->setClasses($definition->getClasses())
                                     ->setName($field_name)
                                     ->setValue('1')
                                     ->setChecked((bool) $source[$field])
@@ -311,6 +310,7 @@ class DataEntryForm extends Renderer
                                     ->setMin(isset_get_typed('integer', $definition_array['min']))
                                     ->setMax(isset_get_typed('integer', $definition_array['max']))
                                     ->setStep(isset_get_typed('integer', $definition_array['step']))
+                                    ->setClasses($definition->getClasses())
                                     ->setName($field_name)
                                     ->setValue($source[$field])
                                     ->setAutoFocus($auto_focus)
@@ -322,11 +322,27 @@ class DataEntryForm extends Renderer
                                 $html = $element_class::new()
                                     ->setDisabled((bool) $definition_array['disabled'])
                                     ->setReadOnly((bool) $definition_array['readonly'])
+                                    ->setAutoComplete(false)
                                     ->setMinLength(isset_get_typed('integer', $definition_array['minlength']))
                                     ->setMaxLength(isset_get_typed('integer', $definition_array['maxlength']))
                                     ->setSourceUrl(isset_get_typed('string', $definition_array['source']))
                                     ->setVariables($definition->getVariables())
+                                    ->setClasses($definition->getClasses())
                                     ->setName($field_name)
+                                    ->setValue($source[$field])
+                                    ->setAutoFocus($auto_focus)
+                                    ->render();
+                                break;
+
+                            case 'button':
+                                // no break
+                            case 'submit':
+                                // Render the HTML for this element
+                                $html = $element_class::new()
+                                    ->setDisabled((bool) $definition_array['disabled'])
+                                    ->setReadOnly((bool) $definition_array['readonly'])
+                                    ->setName($field_name)
+                                    ->setClasses($definition->getClasses())
                                     ->setValue($source[$field])
                                     ->setAutoFocus($auto_focus)
                                     ->render();
@@ -339,7 +355,9 @@ class DataEntryForm extends Renderer
                                     ->setReadOnly((bool) $definition_array['readonly'])
                                     ->setMinLength(isset_get_typed('integer', $definition_array['minlength']))
                                     ->setMaxLength(isset_get_typed('integer', $definition_array['maxlength']))
+                                    ->setAutoComplete($definition->getAutoComplete())
                                     ->setName($field_name)
+                                    ->setClasses($definition->getClasses())
                                     ->setValue($source[$field])
                                     ->setAutoFocus($auto_focus)
                                     ->render();
@@ -366,6 +384,8 @@ class DataEntryForm extends Renderer
                             ->setReadOnly((bool) $definition_array['readonly'])
                             ->setMaxLength(isset_get_typed('integer', $definition_array['maxlength']))
                             ->setRows(isset_get_typed('integer', $definition_array['rows'], 5))
+                            ->setAutoComplete($definition->getAutoComplete())
+                            ->setClasses($definition->getClasses())
                             ->setName($field_name)
                             ->setContent(isset_get($source[$field]))
                             ->setAutoFocus($auto_focus)
@@ -392,6 +412,7 @@ class DataEntryForm extends Renderer
                         $html = $element_class::new()
                             ->setName($field_name)
                             ->setContent(isset_get($source[$field]))
+                            ->setClasses($definition->getClasses())
                             ->setAutoFocus($auto_focus)
                             ->render();
 
@@ -408,7 +429,9 @@ class DataEntryForm extends Renderer
                             ->setSource(isset_get($definition_array['source']), $execute)
                             ->setDisabled((bool) $definition_array['disabled'])
                             ->setReadOnly((bool) $definition_array['readonly'])
+                            ->setClasses($definition->getClasses())
                             ->setName($field_name)
+                            ->setAutoComplete($definition->getAutoComplete())
                             ->setSelected(isset_get($source[$field]))
                             ->setAutoFocus($auto_focus)
                             ->render();
@@ -433,6 +456,7 @@ class DataEntryForm extends Renderer
                             ->setDisabled((bool) $definition_array['disabled'])
                             ->setReadOnly((bool) $definition_array['readonly'])
                             ->setName($field_name)
+                            ->setClasses($definition->getClasses())
                             ->setValue($source[$field])
                             ->setContent(isset_get($source[$field]))
                             ->setAutoFocus($auto_focus);
@@ -458,9 +482,12 @@ class DataEntryForm extends Renderer
                         $this->render .= $this->renderItem($field, $html, $definition_array);
                 }
 
-            } else {
+            } elseif(is_callable($definition_array['content'])) {
                 $html          = $definition_array['content']($definition, $field, $field_name, $source);
                 $this->render .= $this->renderItem($field, $html, $definition_array);
+
+            } else {
+                $this->render .= $this->renderItem($field, $definition_array['content'], $definition_array);
             }
         }
 

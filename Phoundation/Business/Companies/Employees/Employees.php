@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Business\Companies\Employees;
 
 use PDOStatement;
+use Phoundation\Business\Companies\Company;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\Interfaces\IteratorInterface;
@@ -29,9 +30,6 @@ class Employees extends DataList
      */
     public function __construct()
     {
-        $this->entry_class = Employee::class;
-        $this->table       = 'business_employees';
-
         $this->setQuery('SELECT   `id`, `name`, `email`, `status`, `created_on` 
                                    FROM     `business_employees` 
                                    WHERE    `status` IS NULL 
@@ -41,28 +39,35 @@ class Employees extends DataList
 
 
     /**
-     * @inheritDoc
+     * Returns the table name used by this object
+     *
+     * @return string
      */
-     public function load(?string $id_column = null): static
+    public static function getTable(): string
     {
-        // TODO: Implement load() method.
+        return 'business_employees';
     }
 
 
     /**
-     * @inheritDoc
+     * Returns the name of this DataEntry class
+     *
+     * @return string
      */
-    public function save(): static
+    public static function getEntryClass(): string
     {
+        return Employee::class;
     }
 
 
     /**
-     * @inheritDoc
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
      */
-    public function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
+    public static function getUniqueField(): ?string
     {
-        // TODO: Implement loadDetails() method.
+        return 'seo_name';
     }
 
 

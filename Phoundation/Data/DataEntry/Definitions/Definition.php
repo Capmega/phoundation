@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Definitions;
 
 use PDOStatement;
+use Phoundation\Core\Arrays;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Traits\DataField;
@@ -39,9 +40,9 @@ class Definition implements DefinitionInterface
     /**
      * The data entry where this definition belongs to
      *
-     * @var DataEntryInterface $data_entry
+     * @var DataEntryInterface|null $data_entry
      */
-    protected DataEntryInterface $data_entry;
+    protected ?DataEntryInterface $data_entry;
 
     /**
      * Validations to execute to ensure
@@ -156,10 +157,10 @@ class Definition implements DefinitionInterface
     /**
      * UsesNewField class constructor
      *
-     * @param DataEntryInterface $data_entry
+     * @param DataEntryInterface|null $data_entry
      * @param string|null $field
      */
-    public function __construct(DataEntryInterface $data_entry, ?string $field = null)
+    public function __construct(?DataEntryInterface $data_entry, ?string $field = null)
     {
         $this->data_entry = $data_entry;
         $this->field      = $field;
@@ -169,11 +170,11 @@ class Definition implements DefinitionInterface
     /**
      * Returns a new static object
      *
-     * @param DataEntryInterface $data_entry
+     * @param DataEntryInterface|null $data_entry
      * @param string|null $field
      * @return DefinitionInterface
      */
-    public static function new(DataEntryInterface $data_entry, ?string $field = null): DefinitionInterface
+    public static function new(?DataEntryInterface $data_entry, ?string $field = null): DefinitionInterface
     {
         return new static($data_entry, $field);
     }
@@ -338,6 +339,36 @@ class Definition implements DefinitionInterface
 
 
     /**
+     * Returns the extra HTML classes for this DataEntryForm object
+     *
+     * @return array
+     * @see Definition::getVirtual()
+     */
+    public function getClasses(): array
+    {
+        return isset_get_typed('array', $this->rules['classes'], []);
+    }
+
+
+    /**
+     * Adds the specified HTML classes to the DataEntryForm object
+     *
+     * @note When specifying multiple classes in a string, make sure they are space separated!
+     *
+     * @param array|string $value
+     * @return static
+     * @see Definition::setVirtual()
+     */
+    public function addClasses(array|string $value): static
+    {
+        $value   = Arrays::force($value, ' ');
+        $value   = array_merge($this->getClasses(), $value);
+
+        return $this->setKey('classes', $value);
+    }
+
+
+    /**
      * Returns if this field will not set the DataEntry to "modified" state when changed
      *
      * @note Defaults to true
@@ -358,12 +389,7 @@ class Definition implements DefinitionInterface
      */
     public function setIgnoreModify(?bool $value): static
     {
-        if ($value === null) {
-            // Default
-            $value = false;
-        }
-
-        return $this->setKey('ignore_modify', $value);
+        return $this->setKey('ignore_modify', (bool) $value);
     }
 
 
@@ -413,12 +439,36 @@ class Definition implements DefinitionInterface
      */
     public function setVirtual(?bool $value): static
     {
-        if ($value === null) {
-            // Default
-            $value = false;
+        return $this->setKey('virtual', (bool) $value);
+    }
+
+
+    /**
+     * Returns the static value for this field
+     *
+     * @return callable|string|float|int|bool|null
+     */
+    public function getValue(): callable|string|float|int|bool|null
+    {
+        return isset_get($this->rules['value']);
+    }
+
+
+    /**
+     * Sets static value for this field
+     *
+     * @param callable|string|float|int|bool|null $value
+     * @param bool $only_when_new = false
+     * @return static
+     */
+    public function setValue(callable|string|float|int|bool|null $value, bool $only_when_new = false): static
+    {
+        if ($only_when_new and !$this->data_entry->isNew()) {
+            // Don't set this value, only set it on new entries
+            return $this;
         }
 
-        return $this->setKey('virtual', $value);
+        return $this->setKey('value', $value);
     }
 
 
@@ -627,6 +677,17 @@ class Definition implements DefinitionInterface
 
                         // Don't set the value, textarea does not have an input type
                         return $this;
+
+                    case InputTypeExtended::boolean:
+                        $this->setElement(InputElement::input);
+                        $this->setInputType(InputType::checkbox);
+
+                        $this->addValidationFunction(function (ValidatorInterface $validator) {
+                            $validator->isBoolean();
+                        });
+
+                        // Don't set the value, textarea does not have an input type
+                        return $this;
                 }
             }
 
@@ -664,12 +725,32 @@ class Definition implements DefinitionInterface
      */
     public function setReadonly(?bool $value): static
     {
-        if ($value === null) {
-            // Default
-            $value = false;
-        }
+        return $this->setKey('readonly', (bool) $value);
+    }
 
-        return $this->setKey('readonly', $value);
+
+    /**
+     * If true, will enable browser auto suggest for this input control
+     *
+     * @note Defaults to false
+     * @return bool
+     */
+    public function getAutoComplete(): bool
+    {
+        return isset_get_typed('bool', $this->rules['autocomplete'], true);
+    }
+
+
+    /**
+     * If true, will enable browser auto suggest for this input control
+     *
+     * @note Defaults to false
+     * @param bool|null $value
+     * @return static
+     */
+    public function setAutoComplete(?bool $value): static
+    {
+        return $this->setKey('autocomplete', (bool) $value);
     }
 
 
@@ -694,12 +775,7 @@ class Definition implements DefinitionInterface
      */
     public function setDisabled(?bool $value): static
     {
-        if ($value === null) {
-            // Default
-            $value = false;
-        }
-
-        return $this->setKey('disabled', $value);
+        return $this->setKey('disabled', (bool) $value);
     }
 
 
@@ -872,9 +948,9 @@ class Definition implements DefinitionInterface
      *
      * @return array|bool|null
      */
-    public function getAutoComplete(): array|bool|null
+    public function getCliAutoComplete(): array|bool|null
     {
-        return isset_get_typed('array|bool', $this->rules['auto_complete']);
+        return isset_get_typed('array|bool', $this->rules['cli_auto_complete']);
     }
 
 
@@ -884,7 +960,7 @@ class Definition implements DefinitionInterface
      * @param array|bool|null $value
      * @return static
      */
-    public function setAutoComplete(array|bool|null $value): static
+    public function setCliAutoComplete(array|bool|null $value): static
     {
         if ($value === false) {
             throw new OutOfBoundsException(tr('Invalid value "FALSE" specified for field ":field", it must be "TRUE" or an array with only the keys "word" and "noword"', [
@@ -909,7 +985,7 @@ class Definition implements DefinitionInterface
             }
         }
 
-        return $this->setKey('auto_complete', $value);
+        return $this->setKey('cli_auto_complete', $value);
     }
 
 
@@ -975,13 +1051,15 @@ class Definition implements DefinitionInterface
      */
     public function setOptional(?bool $value, string|float|int|bool|null $default = null): static
     {
-        if ($value === null) {
-            // Default
-            $value = false;
+        if (!$value and $default) {
+            // If not optional, we cannot have a default value
+            throw new OutOfBoundsException(tr('Cannot assign default value ":value" when the definition is not optional', [
+                ':value' => $default
+            ]));
         }
 
         $this->setKey('default' , $default);
-        $this->setKey('optional', $value);
+        $this->setKey('optional', (bool) $value);
 
         return $this;
     }
@@ -1171,7 +1249,7 @@ class Definition implements DefinitionInterface
      * @param int|null $value
      * @return static
      */
-    public function setRows(int|null $value): static
+    public function setRows(?int $value): static
     {
         if (isset_get($this->rules['element']) !== 'textarea') {
             throw new OutOfBoundsException(tr('Cannot define rows for field ":field", the element is a ":element" but should be a "textarea', [
@@ -1257,12 +1335,7 @@ class Definition implements DefinitionInterface
      */
     public function setNullDisabled(?bool $value): static
     {
-        if ($value === null) {
-            // Default
-            $value = false;
-        }
-
-        return $this->setKey('null_disabled', $value);
+        return $this->setKey('null_disabled', (bool) $value);
     }
 
 
@@ -1287,12 +1360,7 @@ class Definition implements DefinitionInterface
      */
     public function setNullReadonly(?bool $value): static
     {
-        if ($value === null) {
-            // Default
-            $value = false;
-        }
-
-        return $this->setKey('null_readonly', $value);
+        return $this->setKey('null_readonly', (bool) $value);
     }
 
 
@@ -1332,7 +1400,19 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Sets the type for this element if the value is NULL
+     * Clears all currently existing validation functions for this definition
+     *
+     * @return static
+     */
+    public function clearValidationFunctions(): static
+    {
+        $this->validations = [];
+        return $this;
+    }
+
+
+    /**
+     * Adds the specified validation function to the validation functions list for this definition
      *
      * @param callable $function
      * @return static
@@ -1411,14 +1491,21 @@ class Definition implements DefinitionInterface
      */
     public function validate(ValidatorInterface $validator, ?string $prefix): void
     {
-        if ($this->getReadonly() or $this->getDisabled() or $this->getMeta()) {
-            // This field cannot be modified, plain ignore it.
+        if ($this->getMeta()) {
+            // This field is metadata and should not be modified or validated, plain ignore it.
             return;
+        }
+
+        if ($this->getReadonly() or $this->getDisabled()) {
+            // This field cannot be modified and should not be validated, unless its new or has a static value
+            if (!$this->data_entry->isNew() and !$this->getValue()) {
+                return;
+            }
         }
 
         // Checkbox inputs always are boolean and does this field have a prefix?
         $bool  = ($this->getType() === 'checkbox');
-        $field = $prefix . $this->getCliField($validator);
+        $field = $this->getCliField($validator);
 
         if (!$field) {
             // This field name is empty. Coming from self::getCliField() this means that this field should NOT be
@@ -1431,8 +1518,21 @@ class Definition implements DefinitionInterface
             $field .= ']';
         }
 
-        // Select the field
-        $validator->select($field, !$bool);
+        if ($this->getValue()) {
+            // This field has a static value, force the value
+            $value = $this->getValue();
+
+            if (is_callable($this->getValue())) {
+                $value = $this->getValue()($validator->getSource(), $prefix);
+            }
+
+            $validator->setSourceKey($prefix . $field, $value);
+       }
+
+        // Set the field prefix and select the field
+        $validator
+            ->setFieldPrefix($prefix)
+            ->select($field, !$bool);
 
         // Apply default validations
         if ($this->getOptional()) {
@@ -1445,6 +1545,8 @@ class Definition implements DefinitionInterface
         } else {
             switch ($this->getElement()) {
                 case 'textarea':
+                    $validator->sanitizeTrim()->sanitizeHtmlEntities();
+
                     // Validate textarea strings
                     if ($this->getMinlength()) {
                         $validator->hasMinCharacters($this->getMinlength());
@@ -1459,33 +1561,43 @@ class Definition implements DefinitionInterface
                 case 'input':
                     switch ($this->getType()) {
                         case 'date':
+                            $validator->sanitizeTrim()->sanitizeHtmlEntities();
                             $validator->isDate();
                             break;
 
                         case 'color':
+                            $validator->sanitizeTrim()->sanitizeHtmlEntities();
                             $validator->isColor();
                             break;
 
                         case 'tel':
+                            $validator->sanitizeTrim()->sanitizeHtmlEntities();
                             $validator->isPhoneNumber();
                             break;
 
                         case 'email':
+                            $validator->sanitizeTrim()->sanitizeHtmlEntities();
                             $validator->isEmail();
                             break;
 
                         case 'time':
+                            $validator->sanitizeTrim()->sanitizeHtmlEntities();
                             $validator->isTime();
                             break;
 
                         case 'datetime-local':
+                            $validator->sanitizeTrim()->sanitizeHtmlEntities();
                             $validator->isDateTime();
                             break;
 
                         case 'number':
+                            // no break
                         case 'year':
+                            // no break
                         case 'month':
+                            // no break
                         case 'week':
+                            // no break
                         case 'day':
                             // Validate numbers
                             if ($this->getMin()) {
@@ -1500,6 +1612,8 @@ class Definition implements DefinitionInterface
 
                         default:
                             // Validate input text strings
+                            $validator->sanitizeTrim()->sanitizeHtmlEntities();
+
                             if ($this->getMinlength()) {
                                 $validator->hasMinCharacters($this->getMinlength());
                             }
@@ -1512,6 +1626,7 @@ class Definition implements DefinitionInterface
                     break;
 
                 case 'select':
+                    $validator->sanitizeTrim()->sanitizeHtmlEntities();
             }
 
             $source = $this->getSource();

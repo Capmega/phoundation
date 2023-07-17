@@ -37,7 +37,7 @@ trait DataEntryProvider
      * @param int|null $providers_id
      * @return static
      */
-    public function setProvidersId(int|null $providers_id): static
+    public function setProvidersId(?int $providers_id): static
     {
         return $this->setDataValue('providers_id', $providers_id);
     }
@@ -50,7 +50,7 @@ trait DataEntryProvider
      */
     public function getProvider(): ?Provider
     {
-        $providers_id = $this->getDataValue('string', 'providers_id');
+        $providers_id = $this->getDataValue('int', 'providers_id');
 
         if ($providers_id) {
             return new Provider($providers_id);
@@ -77,7 +77,7 @@ trait DataEntryProvider
      * @param string|null $providers_name
      * @return static
      */
-    public function setProvidersName(string|null $providers_name): static
+    public function setProvidersName(?string $providers_name): static
     {
         return $this->setDataValue('providers_name', $providers_name);
     }

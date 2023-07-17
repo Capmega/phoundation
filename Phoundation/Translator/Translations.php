@@ -7,6 +7,7 @@ namespace Phoundation\Translator;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 use Phoundation\Web\Http\Html\Components\Input\InputSelect;
+use Phoundation\Web\Routing\StaticRoute;
 
 
 /**
@@ -21,31 +22,36 @@ use Phoundation\Web\Http\Html\Components\Input\InputSelect;
  */
 class Translations extends DataList
 {
-
     /**
-     * @inheritDoc
+     * Returns the table name used by this object
+     *
+     * @return string
      */
-    public function load(?string $id_column = null): static
+    public static function getTable(): string
     {
-        // TODO: Implement load() method.
+        return 'translations';
     }
 
 
     /**
-     * @inheritDoc
+     * Returns the name of this DataEntry class
+     *
+     * @return string
      */
-    public function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
+    public static function getEntryClass(): string
     {
-        // TODO: Implement loadDetails() method.
+        return Translation::class;
     }
 
 
     /**
-     * @inheritDoc
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
      */
-    public function save(): static
+    public static function getUniqueField(): ?string
     {
-        // TODO: Implement save() method.
+        return null;
     }
 
 
@@ -60,7 +66,7 @@ class Translations extends DataList
     {
         return InputSelect::new()
             ->setSourceQuery('SELECT   `' . $key_column . '`, `' . $value_column . '` 
-                                         FROM     `' . $this->table . '` 
+                                         FROM     `' . static::getTable() . '` 
                                          WHERE    `status` IS NULL 
                                          ORDER BY `' . $value_column . '` ASC')
             ->setName('translations_id')

@@ -50,10 +50,40 @@ class SignIn extends DataEntry
      */
     public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null)
     {
-        $this->table       = 'accounts_signins';
-        $this->entry_name  = 'signin';
-
         parent::__construct($identifier, $column);
+    }
+
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'accounts_signins';
+    }
+
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getDataEntryName(): string
+    {
+        return 'signin';
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return null;
     }
 
 
@@ -135,7 +165,7 @@ class SignIn extends DataEntry
                 ->setSize(6)
                 ->setLabel(tr('Country'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->xor('country')->isQueryColumn('SELECT `name` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':id' => '$countries_id']);
+                    $validator->isQueryResult('SELECT `name` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':id' => '$countries_id']);
                 }))
             ->addDefinition(Definition::new($this, 'timezones_id')
                 ->setOptional(true)
@@ -151,7 +181,7 @@ class SignIn extends DataEntry
                 ->setSize(6)
                 ->setLabel(tr('Timezone'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->xor('timezone')->isDbId()->isQueryColumn('SELECT `id` FROM `geo_timezones` WHERE `id` = :id AND `status` IS NULL', [':id' => '$timezones_id']);
+                    $validator->isDbId()->isQueryResult('SELECT `id` FROM `geo_timezones` WHERE `id` = :id AND `status` IS NULL', [':id' => '$timezones_id']);
                 }));
     }
 }

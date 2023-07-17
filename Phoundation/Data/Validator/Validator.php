@@ -23,6 +23,7 @@ use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Url;
 use ReflectionProperty;
+use StephenHill\Base58;
 use Throwable;
 use UnitEnum;
 
@@ -131,7 +132,6 @@ abstract class Validator implements ValidatorInterface
     {
         return $this->selected_value;
     }
-
 
 
     /**
@@ -761,7 +761,7 @@ abstract class Validator implements ValidatorInterface
      * @param bool $ignore_case
      * @return static
      */
-    public function isQueryColumn(PDOStatement|string $query, ?array $execute = null, bool $ignore_case = false): static
+    public function isQueryResult(PDOStatement|string $query, ?array $execute = null, bool $ignore_case = false): static
     {
         return $this->validateValues(function(&$value) use ($query, $execute, $ignore_case) {
             // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
@@ -798,11 +798,12 @@ abstract class Validator implements ValidatorInterface
      * @param PDOStatement|string $query
      * @param array|null $execute
      * @param bool $ignore_case
+     * @param bool $fail_on_null = true
      * @return static
      */
-    public function setColumnFromQuery(string $column, PDOStatement|string $query, ?array $execute = null, bool $ignore_case = false): static
+    public function setColumnFromQuery(string $column, PDOStatement|string $query, ?array $execute = null, bool $ignore_case = false, bool $fail_on_null = true): static
     {
-        return $this->validateValues(function(&$value) use ($column, $query, $execute, $ignore_case) {
+        return $this->validateValues(function(&$value) use ($column, $query, $execute, $ignore_case, $fail_on_null) {
             // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
             $this->isScalar();
 
@@ -814,11 +815,11 @@ abstract class Validator implements ValidatorInterface
             $execute = $this->applyExecuteVariables($execute);
             $result  = sql()->getColumn($query, $execute);
 
-            if (!$result) {
-                $this->addFailure(tr('value ":value" does not exists', [':value' => $column]));
-            } else {
-                $this->source[$column] = $result;
+            if (!$result and $fail_on_null) {
+                $this->addFailure(Strings::plural(count($execute), tr('value ":values" does not exist', [':values' => implode(', ', $execute)]), tr('values ":values" do not exist', [':values' => implode(', ', $execute)])));
             }
+
+            $this->source[$this->field_prefix . $column] = $result;
         });
     }
 
@@ -845,6 +846,7 @@ abstract class Validator implements ValidatorInterface
 
             $execute = $this->applyExecuteVariables($execute);
             $column  = sql()->getColumn($query, $execute);
+
             $this->contains($column);
         });
     }
@@ -853,13 +855,13 @@ abstract class Validator implements ValidatorInterface
     /**
      * Validates the datatype for the selected field
      *
-     * This method ensures that the specified array key is a scalar value
+     * This method ensures that the value is in the results from the specified query
      *
      * @param PDOStatement|string $query
      * @param array|null $execute
      * @return static
      */
-    public function inQueryColumns(PDOStatement|string $query, ?array $execute = null): static
+    public function inQueryResultArray(PDOStatement|string $query, ?array $execute = null): static
     {
         return $this->validateValues(function(&$value) use ($query, $execute) {
             // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
@@ -872,6 +874,7 @@ abstract class Validator implements ValidatorInterface
 
             $execute = $this->applyExecuteVariables($execute);
             $results = sql()->list($query, $execute);
+
             $this->isInArray($results);
         });
     }
@@ -1153,7 +1156,7 @@ abstract class Validator implements ValidatorInterface
                 return;
             }
 
-            if (!ctype_print(str_replace(["\t", "\r", "\n"], ' ', $value))) {
+            if (!preg_match('/^[\p{L}\p{N}\p{P}\p{M}\p{S}\p{Z}\t\r\n]+$/u', $value)) {
                 $this->addFailure(tr('must contain only printable characters'));
             }
         });
@@ -1350,9 +1353,9 @@ abstract class Validator implements ValidatorInterface
             }
 
             if (!is_object(DateTime::createFromFormat('h:i a', $value))){
-                if (!is_object(DateTime::createFromFormat('h:i', $value))){
+                if (!is_object(DateTime::createFromFormat('H:i', $value))){
                     if (!is_object(DateTime::createFromFormat('h:i:s a', $value))){
-                        if (!is_object(DateTime::createFromFormat('h:i:s', $value))){
+                        if (!is_object(DateTime::createFromFormat('H:i:s', $value))){
                             $this->addFailure(tr('must be a valid time'));
                         }
                     }
@@ -1560,7 +1563,7 @@ abstract class Validator implements ValidatorInterface
                 return;
             }
 
-            $this->isQueryColumn('SELECT `id` FROM `geo_timezones` WHERE `name` = :name', [':name' => $value]);
+            $this->isQueryResult('SELECT `id` FROM `geo_timezones` WHERE `name` = :name', [':name' => $value]);
         });
     }
 
@@ -1770,7 +1773,7 @@ abstract class Validator implements ValidatorInterface
      * @param int $characters
      * @return static
      */
-    public function isName(int $characters = 64): static
+    public function isName(int $characters = 128): static
     {
         return $this->validateValues(function(&$value) use ($characters) {
             $this->hasMinCharacters(1)->hasMaxCharacters($characters);
@@ -2263,10 +2266,8 @@ abstract class Validator implements ValidatorInterface
                 return;
             }
 
-            try {
-                base58_decode($value);
-            } catch (Throwable) {
-                $this->addFailure(tr('must contain a valid bas58 encoded string'));
+            if (!Strings::isBase58($value)) {
+                $this->addFailure(tr('must contain a valid Base58 encoded string'));
             }
         });
     }
@@ -2291,10 +2292,8 @@ abstract class Validator implements ValidatorInterface
                 return;
             }
 
-            try {
-                base64_decode($value);
-            } catch (Throwable) {
-                $this->addFailure(tr('must contain a valid bas64 encoded string'));
+            if (!Strings::isBase64($value)) {
+                $this->addFailure(tr('must contain a valid Base64 encoded string'));
             }
         });
     }
@@ -2345,6 +2344,53 @@ abstract class Validator implements ValidatorInterface
 
 
     /**
+     * Validates the value is unique in the table
+     *
+     * @note This require Validator::setTable() to be set with a valid, existing table
+     * @param string|null $failure
+     * @return static
+     */
+    public function isUnique(?string $failure = null): static
+    {
+        return $this->validateValues(function(&$value) use ($failure) {
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return;
+            }
+
+            if (sql()->rowExists($this->table, $this->selected_field, $value, array_get_safe($this->source, 'id'))) {
+                $this->addFailure($failure ?? tr('with value ":value" already exists', [':value' => $value]));
+            }
+        });
+    }
+
+
+    /**
+     * Sanitize the selected value by applying htmlentities()
+     *
+     * @return static
+     * @see trim()
+     */
+    public function sanitizeHtmlEntities(): static
+    {
+        return $this->validateValues(function(&$value) {
+            $this->hasMaxCharacters();
+
+            if ($this->process_value_failed) {
+                if (!$this->selected_is_default) {
+                    // Validation already failed, don't test anything more
+                    return;
+                }
+            }
+
+            if (is_string($value)) {
+                $value = htmlentities($value, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, 'UTF-8', true);
+            }
+        });
+    }
+
+
+    /**
      * Sanitize the selected value by trimming whitespace
      *
      * @param string $characters
@@ -2354,7 +2400,7 @@ abstract class Validator implements ValidatorInterface
     public function sanitizeTrim(string $characters = "\t\n\r\0\x0B"): static
     {
         return $this->validateValues(function(&$value) use ($characters) {
-            $this->hasMinCharacters(3)->hasMaxCharacters();
+            $this->hasMaxCharacters();
 
             if ($this->process_value_failed) {
                 if (!$this->selected_is_default) {
@@ -2363,7 +2409,9 @@ abstract class Validator implements ValidatorInterface
                 }
             }
 
-            $value = trim($value, $characters);
+            if (is_string($value)) {
+                $value = trim($value, $characters);
+            }
         });
     }
 
@@ -2849,6 +2897,64 @@ abstract class Validator implements ValidatorInterface
 
 
     /**
+     * Sanitize the selected value by applying the specified transformation callback
+     *
+     * @param callable $callback
+     * @return static
+     */
+    public function sanitizeTransform(callable $callback): static
+    {
+        return $this->validateValues(function(&$value) use ($callback) {
+            if ($this->process_value_failed) {
+                if (!$this->selected_is_default) {
+                    // Validation already failed, don't test anything more
+                    return $this;
+                }
+
+                // This field contains the default
+            }
+
+            $value = $callback($value, $this->source, $this);
+            return $this;
+        });
+    }
+
+
+    /**
+     * Returns the entire source for this validator object
+     *
+     * @return array|null
+     */
+    public function getSource(): ?array
+    {
+        return $this->source;
+    }
+
+
+    /**
+     * Returns the value for the specified key, or null if not
+     *
+     * @return array
+     */
+    public function getSourceKey(string $key): mixed
+    {
+        return array_get_safe($this->source, $key);
+    }
+
+
+    /**
+     * Returns true if the specified key exists
+     *
+     * @param string $key
+     * @return bool
+     */
+    public function sourceKeyExists(string $key): bool
+    {
+        return array_key_exists($key, $this->source);
+    }
+
+
+    /**
      * Constructor for all validator types
      *
      * @param ValidatorInterface|null $parent
@@ -2871,6 +2977,54 @@ abstract class Validator implements ValidatorInterface
 
 
     /**
+     * Returns the field prefix value
+     *
+     * @return string|null
+     */
+    public function getFieldPrefix(): ?string
+    {
+        return $this->field_prefix;
+    }
+
+
+    /**
+     * Sets the field prefix value
+     *
+     * @param string|null $field_prefix
+     * @return $this
+     */
+    public function setFieldPrefix(?string $field_prefix): static
+    {
+        $this->field_prefix = $field_prefix;
+        return $this;
+    }
+
+
+    /**
+     * Returns the table value
+     *
+     * @return string|null
+     */
+    public function getTable(): ?string
+    {
+        return $this->table;
+    }
+
+
+    /**
+     * Sets the table value
+     *
+     * @param string|null $table
+     * @return $this
+     */
+    public function setTable(?string $table): static
+    {
+        $this->table = $table;
+        return $this;
+    }
+
+
+    /**
      * Selects the specified key within the array that we are validating
      *
      * @param int|string $field The array key (or HTML form field) that needs to be validated / sanitized
@@ -2890,6 +3044,9 @@ abstract class Validator implements ValidatorInterface
         if (!$field) {
             throw new OutOfBoundsException(tr('No field specified'));
         }
+
+        // Add the field prefix to the field name
+        $field = $this->field_prefix . $field;
 
         if (in_array($field, $this->selected_fields)) {
             throw new KeyAlreadySelectedException(tr('The specified key ":key" has already been selected before', [
@@ -2930,14 +3087,17 @@ abstract class Validator implements ValidatorInterface
         foreach ($execute as &$value) {
             if (is_string($value)) {
                 if (str_starts_with($value, '$')) {
-                    if (!array_key_exists(substr($value, 1), $this->source)) {
+                    // Fix field names with field prefix
+                    $value = $this->field_prefix . substr($value, 1);
+
+                    if (!array_key_exists($value, $this->source)) {
                         throw new OutOfBoundsException(tr('Specified execution variable ":value" does not exist in the specified source', [
                             ':value' => $value
                         ]));
                     }
 
                     // Replace this value with key from the array
-                    $value = $this->source[substr($value, 1)];
+                    $value = $this->source[$value];
                 }
             }
         }

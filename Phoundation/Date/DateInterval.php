@@ -22,6 +22,66 @@ use Stringable;
 class DateInterval extends \DateInterval implements Stringable
 {
     /**
+     * Number of years
+     * @var int
+     */
+    public $y;
+
+    /**
+     * Number of months
+     * @var int
+     */
+    public $m;
+
+    /**
+     * Number of days
+     * @var int
+     */
+    public $d;
+
+    /**
+     * Number of hours
+     * @var int
+     */
+    public $h;
+
+    /**
+     * Number of minutes
+     * @var int
+     */
+    public $i;
+
+    /**
+     * Number of seconds
+     * @var int
+     */
+    public $s;
+
+    /**
+     * Number of microseconds
+     * @since 7.1.0
+     * @var float
+     */
+    public $f;
+
+    /**
+     * Is 1 if the interval is inverted and 0 otherwise
+     * @var int
+     */
+    public $invert;
+
+    /**
+     * Total number of days the interval spans. If this is unknown, days will be FALSE.
+     * @var int|false
+     */
+    public $days;
+
+    /**
+     * @var string
+     */
+    public $from_string;
+
+    /**
      * DateInterval constructor
      *
      * @param \DateInterval|DateInterval|array|string|int $date_interval

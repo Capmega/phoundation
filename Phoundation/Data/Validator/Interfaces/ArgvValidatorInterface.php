@@ -38,18 +38,4 @@ interface ArgvValidatorInterface extends ValidatorInterface
      * @return static
      */
     public function noArgumentsLeft(bool $apply = true): static;
-
-    /**
-     * Force a return of all POST data without check
-     *
-     * @return array|null
-     */
-    public function forceRead(): ?array;
-
-    /**
-     * Force a return of a single POST key value
-     *
-     * @return array
-     */
-    public function forceReadKey(string $key): mixed;
 }

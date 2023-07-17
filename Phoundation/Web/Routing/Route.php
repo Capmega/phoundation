@@ -150,6 +150,18 @@ class Route
             static::execute('setup.php', false);
         }
 
+//        if (!Session::getRealUser()->isGuest()) {
+//            // Do we have to redirect somewhere?
+//            if (Session::getRealUser()->getRedirect()) {
+//                Log::warning(tr('User ":user" has a redirect to ":url", redirecting there instead', [
+//                    ':user' => Session::getRealUser()->getLogId(),
+//                    ':url'  => Session::getRealUser()->getRedirect()
+//                ]));
+//showdie('aaaaaaaaaaaaaaaaa');
+//                Page::redirect(Session::getRealUser()->getRedirect());
+//            }
+//        }
+
         // Ensure the post-processing function is registered
         Log::information(tr('Processing ":domain" routes for ":method" method request ":url" from client ":client"', [
             ':domain' => Page::getDomain(),

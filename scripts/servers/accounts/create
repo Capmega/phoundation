@@ -26,7 +26,7 @@ Documentation::usage('./pho servers accounts create [OPTIONS]
 ./pho system servers accounts create -u phoundation -k KEYFILE -d "This is a test account"');
 
 Documentation::help('This script allows you to create SSH accounts.
-' . SshAccount::getHelp());
+' . SshAccount::getHelpText());
 
 
 // Check if the account already exists

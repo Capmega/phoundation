@@ -37,7 +37,7 @@ trait DataEntryDepartment
      * @param int|null $departments_id
      * @return static
      */
-    public function setDepartmentsId(int|null $departments_id): static
+    public function setDepartmentsId(?int $departments_id): static
     {
         return $this->setDataValue('departments_id', $departments_id);
     }
@@ -67,7 +67,7 @@ trait DataEntryDepartment
      */
     public function getDepartmentsName(): ?string
     {
-        return $this->getDataValue('departments_name');
+        return $this->getDataValue('string', 'departments_name');
     }
 
 
@@ -77,7 +77,7 @@ trait DataEntryDepartment
      * @param string|null $departments_name
      * @return static
      */
-    public function setDepartmentsName(string|null $departments_name): static
+    public function setDepartmentsName(?string $departments_name): static
     {
         return $this->setDataValue('departments_name', $departments_name);
     }

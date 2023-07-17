@@ -315,7 +315,7 @@ interface UserInterface extends DataEntryInterface
      * @param int|null $leaders_id
      * @return static
      */
-    public function setLeadersId(int|null $leaders_id): static;
+    public function setLeadersId(?int $leaders_id): static;
 
     /**
      * Returns the leader for this user
@@ -337,7 +337,7 @@ interface UserInterface extends DataEntryInterface
      * @param string|null $leaders_name
      * @return static
      */
-    public function setLeadersName(string|null $leaders_name): static;
+    public function setLeadersName(?string $leaders_name): static;
 
     /**
      * Returns the latitude for this user

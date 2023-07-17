@@ -32,7 +32,7 @@ Documentation::autoComplete(Server::getAutoComplete([
 Documentation::usage('./pho servers modify HOSTNAME [OPTIONS]
 ./pho system servers modify HOSTNAME -l -i --to ENVIRONMENT');
 
-Documentation::help(Server::getHelp('This script allows you to modify servers
+Documentation::help(Server::getHelpText('This script allows you to modify servers
 
 
 

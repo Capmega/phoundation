@@ -8,6 +8,7 @@ namespace Phoundation\Data\Validator;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Utils\Json;
 
@@ -95,10 +96,11 @@ class GetValidator extends Validator
             return $this;
         }
 
-        $fields = [];
-        $get    = array_keys(static::$get);
+        $messages = [];
+        $fields   = [];
+        $get      = array_keys(static::$get);
 
-        foreach ($post as $field) {
+        foreach ($get as $field) {
             if (!in_array($field, $this->selected_fields)) {
                 $fields[]   = $field;
                 $messages[] = tr('Unknown field ":field" encountered', [
@@ -107,7 +109,7 @@ class GetValidator extends Validator
             }
         }
 
-        throw ValidationFailedException::new(tr('Unknown GET fields ":fields" encountered', [
+        throw ValidatorException::new(tr('Unknown GET fields ":fields" encountered', [
             ':fields' => Strings::force($get, ', ')
         ]))->setData($messages)->makeWarning()->log();
     }
@@ -123,30 +125,6 @@ class GetValidator extends Validator
     public static function addData(string $key, mixed $value): void
     {
         static::$get[$key] = $value;
-    }
-
-
-    /**
-     * Force a return of all GET data without check
-     *
-     * @return array|null
-     */
-    public function forceRead(): ?array
-    {
-        Log::warning(tr('Forceably returned all $_GET data without data validation!'));
-        return $this->source;
-    }
-
-
-    /**
-     * Force a return of a single GET key value
-     *
-     * @return array
-     */
-    public function forceReadKey(string $key): mixed
-    {
-        Log::warning(tr('Forceably returned $_GET[:key] without data validation!', [':key' => $key]));
-        return isset_get($this->source[$key]);
     }
 
 

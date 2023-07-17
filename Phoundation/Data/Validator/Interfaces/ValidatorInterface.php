@@ -21,6 +21,39 @@ use UnitEnum;
 interface ValidatorInterface extends ValidatorBasicsInterface
 {
     /**
+     * Returns the field prefix value
+     *
+     * @return string|null
+     */
+    public function getFieldPrefix(): ?string;
+
+
+    /**
+     * Sets the field prefix value
+     *
+     * @param string|null $field_prefix
+     * @return $this
+     */
+    public function setFieldPrefix(?string $field_prefix): static;
+
+
+    /**
+     * Returns the table value
+     *
+     * @return string|null
+     */
+    public function getTable(): ?string;
+
+    /**
+     * Sets the table value
+     *
+     * @param string|null $table
+     * @return $this
+     */
+    public function setTable(?string $table): static;
+
+
+    /**
      * Forcibly set the specified key of this validator source to the specified value
      *
      * @param string|float|int $key
@@ -262,7 +295,7 @@ interface ValidatorInterface extends ValidatorBasicsInterface
      * @param bool $ignore_case
      * @return static
      */
-    public function isQueryColumn(PDOStatement|string $query, ?array $execute = null, bool $ignore_case = false): static;
+    public function isQueryResult(PDOStatement|string $query, ?array $execute = null, bool $ignore_case = false): static;
 
     /**
      * Validates the datatype for the selected field
@@ -273,9 +306,10 @@ interface ValidatorInterface extends ValidatorBasicsInterface
      * @param PDOStatement|string $query
      * @param array|null $execute
      * @param bool $ignore_case
+     * @param bool $fail_on_null
      * @return static
      */
-    public function setColumnFromQuery(string $column, PDOStatement|string $query, ?array $execute = null, bool $ignore_case = false): static;
+    public function setColumnFromQuery(string $column, PDOStatement|string $query, ?array $execute = null, bool $ignore_case = false, bool $fail_on_null = true): static;
 
     /**
      * Validates the datatype for the selected field
@@ -297,7 +331,7 @@ interface ValidatorInterface extends ValidatorBasicsInterface
      * @param array|null $execute
      * @return static
      */
-    public function inQueryColumns(PDOStatement|string $query, ?array $execute = null): static;
+    public function inQueryResultArray(PDOStatement|string $query, ?array $execute = null): static;
 
     /**
      * Validates the datatype for the selected field
@@ -773,6 +807,14 @@ interface ValidatorInterface extends ValidatorBasicsInterface
     public function sanitizeTrim(string $characters = "\t\n\r\0\x0B"): static;
 
     /**
+     * Sanitize the selected value by applying the specified transformation callback
+     *
+     * @param callable $callback
+     * @return static
+     */
+    public function sanitizeTransform(callable $callback): static;
+
+    /**
      * Sanitize the selected value by starting the value from the specified needle
      *
      * @param string $needle
@@ -970,4 +1012,34 @@ interface ValidatorInterface extends ValidatorBasicsInterface
      * @return static
      */
     public function standardSelect(int|string $field): static;
+
+    /**
+     * Returns true if the specified field has failed
+     *
+     * @param string $field
+     * @return bool
+     */
+    public function fieldHasFailed(string $field): bool;
+
+    /**
+     * Returns the entire source for this validator object
+     *
+     * @return array|null
+     */
+    public function getSource(): ?array;
+
+    /**
+     * Returns the value for the specified key, or null if not
+     *
+     * @return array
+     */
+    public function getSourceKey(string $key): mixed;
+
+    /**
+     * Returns true if the specified key exists
+     *
+     * @param string $key
+     * @return bool
+     */
+    public function sourceKeyExists(string $key): bool;
 }

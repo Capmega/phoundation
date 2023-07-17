@@ -44,7 +44,6 @@ class SidePanel extends Renderer
         $this->render = ' <aside class="main-sidebar sidebar-dark-primary elevation-4">
                             <a href="' . UrlBuilder::getCurrent() . '" class="brand-link">
                               <img src="' . UrlBuilder::getImg('img/logos/' . Page::getProjectName() . '/medinet-large.webp') . '" alt="' . tr(':project logo', [':project' => Strings::capitalize(Config::get('project.name'))]) . '" class="brand-image elevation-3" style="opacity: .8">
-                              <span class="brand-text font-weight-light">' . Strings::capitalize(Config::get('project.name')) . '</span>
                             </a>
                             <div class="sidebar">
                               <div class="user-panel mt-3 pb-3 mb-3 d-flex">

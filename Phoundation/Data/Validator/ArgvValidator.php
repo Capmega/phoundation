@@ -545,30 +545,4 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         unset(static::$argv[$key]);
         return true;
     }
-
-
-    /**
-     * Force a return of all POST data without check
-     *
-     * @return array|null
-     */
-    public function forceRead(): ?array
-    {
-show(static::$argv);
-show($this->source);
-        Log::warning(tr('Forceably returned all $argv data without data validation!'));
-        return $this->source;
-    }
-
-
-    /**
-     * Force a return of a single POST key value
-     *
-     * @return array
-     */
-    public function forceReadKey(string $key): mixed
-    {
-        Log::warning(tr('Forceably returned $argv[:key] without data validation!', [':key' => $key]));
-        return isset_get($this->source[$key]);
-    }
 }

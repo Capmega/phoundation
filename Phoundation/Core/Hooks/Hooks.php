@@ -4,32 +4,51 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Hooks;
 
-class Hooks extends \Phoundation\Data\DataEntry\DataList
+use Phoundation\Data\DataEntry\DataList;
+
+
+/**
+ * Hooks class
+ *
+ *
+ *
+ * @see \Phoundation\Data\DataEntry\DataList
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Core
+ */
+class Hooks extends DataList
 {
-
     /**
-     * @inheritDoc
+     * Returns the table name used by this object
+     *
+     * @return string
      */
-    public function load(?string $id_column = null): static
+    public static function getTable(): string
     {
-        // TODO: Implement load() method.
+        return 'core_hooks';
     }
 
 
     /**
-     * @inheritDoc
+     * Returns the name of this DataEntry class
+     *
+     * @return string
      */
-    public function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
+    public static function getEntryClass(): string
     {
-        // TODO: Implement loadDetails() method.
+        return Hook::class;
     }
 
 
     /**
-     * @inheritDoc
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
      */
-    public function save(): static
+    public static function getUniqueField(): ?string
     {
-        // TODO: Implement save() method.
+        return 'seo_name';
     }
 }

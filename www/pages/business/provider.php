@@ -35,7 +35,7 @@ if (Page::isPostRequestMethod()) {
 //        $provider->apply()->save();
 //
 //        // Go back to where we came from
-//        Page::getFlashMessages()->addFlashMessage(tr('Success'), tr('Provider ":provider" has been updated', [':provider' => $provider->getName()]), DisplayMode::success);
+//        Page::getFlashMessages()->addFlashMessage(tr('Success'), tr('Provider ":provider" has been updated', [':provider' => $provider->getName()]));
 //        Page::redirect('referer');
 
     } catch (ValidationFailedException $e) {
@@ -50,7 +50,7 @@ if (Page::isPostRequestMethod()) {
 $buttons = Buttons::new()
     ->addButton('Submit')
     ->addButton(tr('Back'), DisplayMode::secondary, '/business/providers.html', true)
-    ->addButton(tr('Audit'), DisplayMode::green, '/audit/meta-' . $provider->getMeta() . '.html', false, true);
+    ->addButton(tr('Audit'), DisplayMode::information, '/audit/meta-' . $provider->getMeta() . '.html', false, true);
 
 // Build the provider form
 $provider_card = Card::new()

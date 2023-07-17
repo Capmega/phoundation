@@ -276,6 +276,24 @@ class Strings
 
 
     /**
+     * Returns true if the specified string is valid Base64
+     *
+     * @param Stringable|string $source
+     * @return bool
+     */
+    public static function isBase64(Stringable|string $source): bool
+    {
+        try {
+            static::fromBase64($source);
+            return true;
+
+        } catch (Throwable) {
+            return false;
+        }
+    }
+
+
+    /**
      * Will fix a base64 coded string with missing termination = marks and then attempt to decode it
      *
      * @param Stringable|string $source
@@ -284,12 +302,25 @@ class Strings
     public static function fromBase64(Stringable|string $source): string
     {
         $source = (string) $source;
+        $source = static::fixBase64($source);
 
+        return base64_decode($source);
+    }
+
+
+    /**
+     * Fixes a Base64 string if its missing termination = marks
+     *
+     * @param string $source
+     * @return string
+     */
+    protected static function fixBase64(string $source): string
+    {
         if ($mod = mb_strlen($source) % 4) {
             $source .= str_repeat('=', 4 - $mod);
         }
 
-        return base64_decode($source);
+        return $source;
     }
 
 
@@ -302,6 +333,24 @@ class Strings
     public static function toBase64(Stringable|string $source): string
     {
         return base64_encode($source);
+    }
+
+
+    /**
+     * Returns true if the specified string is base58
+     *
+     * @param Stringable|string $source
+     * @return bool
+     */
+    public static function isBase58(Stringable|string $source): bool
+    {
+        try {
+            static::fromBase58($source);
+            return true;
+
+        } catch (Throwable) {
+            return false;
+        }
     }
 
 
@@ -1473,7 +1522,7 @@ throw new UnderConstructionException();
      * /code
      *
      */
-    public static function truncate(Stringable|string|int|null $source, int $length, Stringable|string $fill = ' ... ', string $method = 'right', bool $on_word = false): string
+    public static function truncate(Stringable|string|int|bool|null $source, int $length, Stringable|string $fill = ' ... ', string $method = 'right', bool $on_word = false): string
     {
         $source = (string) $source;
         $fill   = (string) $fill;

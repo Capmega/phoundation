@@ -56,7 +56,7 @@ class FlashMessages extends ElementsBlock implements IteratorInterface
      */
     public function addSuccessMessage(?string $message = null, string $icon = null, ?int $auto_close = 5): static
     {
-        return $this->addMessage(tr('Success'), $message, DisplayMode::success, $icon, $auto_close);
+        return $this->addMessage(tr('Success!'), $message, DisplayMode::success, $icon, $auto_close);
     }
 
 
@@ -70,7 +70,7 @@ class FlashMessages extends ElementsBlock implements IteratorInterface
      */
     public function addWarningMessage(?string $message = null, string $icon = null, ?int $auto_close = 5): static
     {
-        return $this->addMessage(tr('Warning'), $message, DisplayMode::warning, $icon, $auto_close);
+        return $this->addMessage(tr('Warning!'), $message, DisplayMode::warning, $icon, $auto_close);
     }
 
 
@@ -84,7 +84,7 @@ class FlashMessages extends ElementsBlock implements IteratorInterface
      */
     public function addValidationFailedMessage(?string $message = null, string $icon = null, ?int $auto_close = 5): static
     {
-        return $this->addMessage(tr('Validation failed'), $message, DisplayMode::warning, $icon, $auto_close);
+        return $this->addMessage(tr('Validation failed!'), $message, DisplayMode::warning, $icon, $auto_close);
     }
 
 
@@ -98,7 +98,7 @@ class FlashMessages extends ElementsBlock implements IteratorInterface
      */
     public function addErrorMessage(?string $message = null, string $icon = null, ?int $auto_close = 5): static
     {
-        return $this->addMessage(tr('Error'), $message, DisplayMode::error, $icon, $auto_close);
+        return $this->addMessage(tr('Error!'), $message, DisplayMode::error, $icon, $auto_close);
     }
 
 

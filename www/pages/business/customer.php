@@ -35,7 +35,7 @@ if (Page::isPostRequestMethod()) {
 //        $customer->apply()->save();
 //
 //        // Go back to where we came from
-//        Page::getFlashMessages()->addFlashMessage(tr('Success'), tr('Customer ":customer" has been updated', [':customer' => $customer->getName()]), DisplayMode::success);
+//        Page::getFlashMessages()->addFlashMessage(tr('Success'), tr('Customer ":customer" has been updated', [':customer' => $customer->getName()]));
 //        Page::redirect('referer');
 
     } catch (ValidationFailedException $e) {
@@ -50,7 +50,7 @@ if (Page::isPostRequestMethod()) {
 $buttons = Buttons::new()
     ->addButton('Submit')
     ->addButton(tr('Back'), DisplayMode::secondary, '/business/customers.html', true)
-    ->addButton(tr('Audit'), DisplayMode::green, '/audit/meta-' . $customer->getMeta() . '.html', false, true);
+    ->addButton(tr('Audit'), DisplayMode::information, '/audit/meta-' . $customer->getMeta() . '.html', false, true);
 
 
 // Build the customer form

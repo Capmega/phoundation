@@ -7,6 +7,7 @@ namespace Phoundation\Data\DataEntry\Traits;
 use Phoundation\Core\Log\Log;
 use Phoundation\Date\DateTimeZone;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Geo\Timezones\Interfaces\TimezoneInterface;
 use Phoundation\Geo\Timezones\Timezone;
 
 
@@ -39,18 +40,18 @@ trait DataEntryTimezone
      * @param int|null $timezones_id
      * @return static
      */
-    public function setTimezonesId(int|null $timezones_id): static
+    public function setTimezonesId(?int $timezones_id): static
     {
         return $this->setDataValue('timezones_id', $timezones_id);
     }
 
 
     /**
-     * Returns the timezones_id for this user
+     * Returns the timezone for this user
      *
-     * @return Timezone|null
+     * @return TimezoneInterface|null
      */
-    public function getTimezone(): ?Timezone
+    public function getTimezone(): ?TimezoneInterface
     {
         $timezones_id = $this->getDataValue('int', 'timezones_id');
 
@@ -79,8 +80,8 @@ trait DataEntryTimezone
      * @param string|null $timezones_name
      * @return static
      */
-    public function setTimezonesName(string|null $timezones_name): static
+    public function setTimezonesName(?string $timezones_name): static
     {
-        return $this->getDataValue('timezones_name', $timezones_name);
+        return $this->setDataValue('timezones_name', $timezones_name);
     }
 }

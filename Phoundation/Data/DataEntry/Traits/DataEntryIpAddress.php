@@ -34,7 +34,7 @@ trait DataEntryIpAddress
      * @param string|null $ip_address
      * @return static
      */
-    public function setIpAddress(string|null $ip_address): static
+    public function setIpAddress(?string $ip_address): static
     {
         $this->setDataValue('net_len', strlen($ip_address));
         $this->setDataValue('ip_address', $ip_address);

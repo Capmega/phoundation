@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 use Phoundation\Accounts\Users\FilterForm;
 use Phoundation\Accounts\Users\Users;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
@@ -10,6 +9,7 @@ use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Web\Http\Html\Components\BreadCrumbs;
 use Phoundation\Web\Http\Html\Components\Buttons;
 use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
+use Phoundation\Web\Http\Html\Enums\ButtonType;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Html\Enums\DisplaySize;
 use Phoundation\Web\Http\Html\Layouts\Grid;
@@ -34,7 +34,7 @@ if (Page::isPostRequestMethod()) {
                 // Delete selected users
                 $count = $users->delete($post['id']);
 
-                Page::getFlashMessages()->addMessage(tr('Success'), tr('Deleted ":count" users', [':count' => $count]), DisplayMode::success);
+                Page::getFlashMessages()->addSuccessMessage(tr('Deleted ":count" users', [':count' => $count]));
                 Page::redirect('this');
                 break;
 
@@ -42,7 +42,7 @@ if (Page::isPostRequestMethod()) {
                 // Undelete selected users
                 $count = $users->undelete($post['id']);
 
-                Page::getFlashMessages()->addMessage(tr('Success'), tr('Undeleted ":count" users', [':count' => $count]), DisplayMode::success);
+                Page::getFlashMessages()->addSuccessMessage(tr('Undeleted ":count" users', [':count' => $count]));
                 Page::redirect('this');
                 break;
         }
@@ -71,7 +71,8 @@ $filters = Card::new()
 
 $buttons = Buttons::new()
     ->addButton(tr('Create'), DisplayMode::primary, '/accounts/user.html')
-    ->addButton(tr('Delete'), DisplayMode::warning);
+    ->addButton(tr('Delete'), DisplayMode::warning, ButtonType::submit, true, true);
+
 $table = $users->getHtmlDataTable()
     ->setRowUrl('/accounts/user-:ROW.html');
 // TODO Automatically re-select items if possible

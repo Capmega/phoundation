@@ -32,6 +32,7 @@ abstract class ObjectFile
      */
     protected KubernetesObject $object;
 
+
     /**
      * KubernetesFile class constructor
      */

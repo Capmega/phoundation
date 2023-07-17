@@ -31,7 +31,7 @@ interface CategoryInterface
      * @param int|null $parents_id
      * @return static
      */
-    public function setParentsId(int|null $parents_id): static;
+    public function setParentsId(?int $parents_id): static;
 
     /**
      * Returns the parents_id for this user
@@ -53,5 +53,5 @@ interface CategoryInterface
      * @param string|null $parents_name
      * @return static
      */
-    public function setParentsName(string|null $parents_name): static;
+    public function setParentsName(?string $parents_name): static;
 }

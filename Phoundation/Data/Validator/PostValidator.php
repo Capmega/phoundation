@@ -7,6 +7,7 @@ namespace Phoundation\Data\Validator;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 
 
@@ -97,8 +98,9 @@ class PostValidator extends Validator
             return $this;
         }
 
-        $fields = [];
-        $post   = array_keys(static::$post);
+        $messages = [];
+        $fields   = [];
+        $post     = array_keys(static::$post);
 
         foreach ($post as $field) {
             if (!in_array($field, $this->selected_fields)) {
@@ -109,7 +111,7 @@ class PostValidator extends Validator
             }
         }
 
-        throw ValidationFailedException::new(tr('Unknown POST fields ":fields" encountered', [
+        throw ValidatorException::new(tr('Unknown POST fields ":fields" encountered', [
             ':fields' => Strings::force($fields, ', ')
         ]))->setData($messages)->makeWarning()->log();
     }
@@ -145,7 +147,7 @@ class PostValidator extends Validator
      * @param string|null $prefix
      * @return array|null
      */
-    public function &forceRead(?string $prefix = null): ?array
+    public function &getSource(?string $prefix = null): ?array
     {
         if (!$prefix) {
             return $this->source;
@@ -168,7 +170,7 @@ class PostValidator extends Validator
      *
      * @return array
      */
-    public function forceReadKey(string $key): mixed
+    public function getSourceKey(string $key): mixed
     {
         Log::warning(tr('Forceably returned $_POST[:key] without data validation!', [':key' => $key]));
         return isset_get($this->source[$key]);
@@ -198,10 +200,11 @@ class PostValidator extends Validator
     {
         if ($prefix) {
             // Find the specified prefix code for the button
+            $prefix = $submit;
             $button = null;
 
             foreach (self::$post as $key => $value) {
-                if (str_starts_with($key, $submit)) {
+                if (str_ends_with($key, $submit)) {
                     $submit = $key;
                     $button = trim((string) $value);
                     break;
@@ -226,7 +229,7 @@ class PostValidator extends Validator
         }
 
         if ($return_key) {
-            return $submit;
+            return Strings::until($submit, $prefix);
         }
 
         return $button;

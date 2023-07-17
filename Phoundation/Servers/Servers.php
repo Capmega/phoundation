@@ -34,14 +34,44 @@ class Servers extends DataList
      */
     public function __construct()
     {
-        $this->entry_class = Server::class;
-        $this->table       = 'servers';
-
         $this->setQuery('SELECT   `id`, `name`, `code`, `email`, `status`, `created_on` 
                                    FROM     `servers` 
                                    WHERE    `status` IS NULL 
                                    ORDER BY `name`');
         parent::__construct();
+    }
+
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'servers';
+    }
+
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getEntryClass(): string
+    {
+        return Server::class;
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return 'seo_name';
     }
 
 
@@ -90,15 +120,6 @@ class Servers extends DataList
         // The keys contain the ids...
         $this->source = array_flip($this->source);
         return $this;
-    }
-
-
-    /**
-     * @inheritDoc
-     */
-    public function save(): static
-    {
-        // TODO: Implement save() method.
     }
 
 

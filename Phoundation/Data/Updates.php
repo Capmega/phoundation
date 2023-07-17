@@ -59,8 +59,8 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `parents_id` bigint DEFAULT NULL,
-                    `name` varchar(64) DEFAULT NULL,
-                    `seo_name` varchar(64) DEFAULT NULL,
+                    `name` varchar(128) DEFAULT NULL,
+                    `seo_name` varchar(128) DEFAULT NULL,
                     `description` text DEFAULT NULL
                 ')->setIndices(' 
                     PRIMARY KEY (`id`),
@@ -98,9 +98,9 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `meta_id` bigint NOT NULL,
                     `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
-                    `first_names` varchar(64) DEFAULT NULL,
-                    `last_names` varchar(64) DEFAULT NULL,
-                    `nickname` varchar(64) DEFAULT NULL,
+                    `first_names` varchar(128) DEFAULT NULL,
+                    `last_names` varchar(128) DEFAULT NULL,
+                    `nickname` varchar(128) DEFAULT NULL,
                     `picture` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
                     `email` varchar(128) DEFAULT NULL,
                     `code` varchar(16) CHARACTER SET latin1 DEFAULT NULL,

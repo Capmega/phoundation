@@ -7,6 +7,7 @@ namespace Phoundation\Core\Plugins;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Log;
+use Phoundation\Core\Plugins\Interfaces\PluginInterface;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
@@ -33,7 +34,7 @@ use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
-class Plugin extends DataEntry
+class Plugin extends DataEntry implements PluginInterface
 {
     use DataEntryNameDescription;
     use DataEntryPath;
@@ -43,18 +44,35 @@ class Plugin extends DataEntry
 
 
     /**
-     * Plugin class constructor
+     * Returns the table name used by this object
      *
-     * @param DataEntryInterface|string|int|null $identifier
-     * @param string|null $column
+     * @return string
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null)
+    public static function getTable(): string
     {
-        $this->table        = 'core_plugins';
-        $this->entry_name   = 'plugin';
-        $this->unique_field = 'name';
+        return 'core_plugins';
+    }
 
-        parent::__construct($identifier, $column);
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getDataEntryName(): string
+    {
+        return tr('Plugin');
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return 'name';
     }
 
 
@@ -116,10 +134,10 @@ class Plugin extends DataEntry
     /**
      * Sets if this plugin is disabled or not
      *
-     * @param bool $disabled
+     * @param int|bool|null $disabled
      * @return static
      */
-    public function setDisabled(bool $disabled): static
+    public function setDisabled(int|bool|null $disabled): static
     {
         return $this->setEnabled(!$disabled);
     }
@@ -154,7 +172,7 @@ class Plugin extends DataEntry
      * @param int|null $priority
      * @return static
      */
-    public function setPriority(int|null $priority): static
+    public function setPriority(?int $priority): static
     {
         if ($this->getName() === 'Phoundation') {
             $priority = 0;
@@ -324,6 +342,7 @@ class Plugin extends DataEntry
     {
         $definitions
             ->addDefinition(Definition::new($this, 'disabled')
+                ->setInputType(InputTypeExtended::boolean)
                 ->setOptional(true)
                 ->setVirtual(true)
                 ->setVisible(false)
@@ -339,10 +358,10 @@ class Plugin extends DataEntry
                 ->setNullDb(false, 5)
                 ->setSize(3)
                 ->setCliField('--priority')
-                ->setAutoComplete(true)
+                ->setCliAutoComplete(true)
                 ->setLabel(tr('Priority'))
-                ->setMin(1)
-                ->setMax(9)
+                ->setMin(0)
+                ->setMax(100)
                 ->setHelpText(tr('The priority for this plugin, between 1 and 9'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isInteger();
@@ -356,16 +375,16 @@ class Plugin extends DataEntry
                 ->setDefault(true)
                 ->setHelpText(tr('If enabled, this plugin will automatically start upon each page load or script execution'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->isInteger();
+                    $validator->isBoolean();
                 }))
             ->addDefinition(Definition::new($this, 'class')
                 ->setLabel(tr('Class'))
-                ->setInputType(InputTypeExtended::name)
+                ->setInputType(InputType::text)
                 ->setMaxlength(255)
                 ->setSize(6)
                 ->setHelpText(tr('The base class path of this plugin'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->hasMaxCharacters(2048)->matchesRegex('/Plugins\\[a-z0-9]+\\Plugin/');
+                    $validator->hasMaxCharacters(1024)->matchesRegex('/Plugins\\\[\\\A-Za-z0-9]+\\\Plugin/');
                 }))
             ->addDefinition(Definition::new($this, 'path')
                 ->setLabel(tr('Path'))

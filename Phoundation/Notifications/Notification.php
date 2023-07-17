@@ -25,7 +25,7 @@ use Phoundation\Data\DataEntry\Traits\DataEntryPriority;
 use Phoundation\Data\DataEntry\Traits\DataEntryTitle;
 use Phoundation\Data\DataEntry\Traits\DataEntryTrace;
 use Phoundation\Data\DataEntry\Traits\DataEntryUrl;
-use Phoundation\Data\DataEntry\Traits\DataEntryUsersId;
+use Phoundation\Data\DataEntry\Traits\DataEntryUser;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
@@ -57,7 +57,7 @@ class Notification extends DataEntry
     use DataEntryFile;
     use DataEntryLine;
     use DataEntryPriority;
-    use DataEntryUsersId;
+    use DataEntryUser;
     use DataEntryTitle;
     use DataEntryMessage;
     use DataEntryDetails;
@@ -102,13 +102,43 @@ class Notification extends DataEntry
     {
         static::$auto_log = Config::get('notifications.auto-log', true);
 
-        $this->table      = 'notifications';
-        $this->entry_name = 'notification';
-
         $this->data['mode']     = 'unknown';
         $this->data['priority'] = 1;
 
         parent::__construct($identifier, $column);
+    }
+
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'notifications';
+    }
+
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getDataEntryName(): string
+    {
+        return 'notification';
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return null;
     }
 
 
@@ -427,7 +457,7 @@ class Notification extends DataEntry
                 ->setVisible(false)
                 ->setInputType(InputTypeExtended::dbid)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->isDbId()->isQueryColumn('SELECT `id` FROM `accounts_users` WHERE `id` = :id', [':id' => '$id']);
+                    $validator->isDbId()->isQueryResult('SELECT `id` FROM `accounts_users` WHERE `id` = :id', [':id' => '$id']);
                 }))
             ->addDefinition(Definition::new($this, 'code')
                 ->setOptional(true)

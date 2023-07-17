@@ -7,6 +7,7 @@ namespace Phoundation\Geo\Countries;
 use PDOStatement;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Geo\Cities\City;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 use Phoundation\Web\Http\Html\Components\Input\InputSelect;
 use Phoundation\Web\Http\Html\Components\Table;
@@ -30,14 +31,44 @@ class Countries extends DataList
      */
     public function __construct()
     {
-        $this->entry_class = Country::class;
-        $this->table       = 'geo_countries';
-
         $this->setQuery('SELECT   `id`, `name`, `status`, `created_on` 
-                                   FROM     `geo_countries` 
-                                   WHERE    `status` IS NULL 
-                                   ORDER BY `name`');
+                               FROM     `geo_countries` 
+                               WHERE    `status` IS NULL 
+                               ORDER BY `name`');
         parent::__construct();
+    }
+
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'geo_countries';
+    }
+
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getEntryClass(): string
+    {
+        return Country::class;
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return null;
     }
 
 
@@ -70,33 +101,6 @@ class Countries extends DataList
             ->setName($name)
             ->setNone(tr('Select a country'))
             ->setEmpty(tr('No countries available'));
-    }
-
-
-    /**
-     * @inheritDoc
-     */
-    public function load(?string $id_column = null): static
-    {
-        // TODO: Implement load() method.
-    }
-
-
-    /**
-     * @inheritDoc
-     */
-    public function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
-    {
-        // TODO: Implement loadDetails() method.
-    }
-
-
-    /**
-     * @inheritDoc
-     */
-    public function save(): static
-    {
-        // TODO: Implement save() method.
     }
 
 

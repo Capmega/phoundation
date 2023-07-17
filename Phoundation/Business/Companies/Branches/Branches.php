@@ -7,6 +7,7 @@ namespace Phoundation\Business\Companies\Branches;
 use PDOStatement;
 use Phoundation\Business\Companies\Branches\Interfaces\BranchesInterface;
 use Phoundation\Business\Companies\Company;
+use Phoundation\Core\Plugins\Plugin;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
@@ -30,14 +31,44 @@ class Branches extends DataList implements BranchesInterface
      */
     public function __construct()
     {
-        $this->entry_class = Branch::class;
-        $this->table       = 'business_departments';
-
         $this->setQuery('SELECT   `id`, `name`, `email`, `status`, `created_on` 
-                                   FROM     `business_departments` 
-                                   WHERE    `status` IS NULL 
-                                   ORDER BY `name`');
+                               FROM     `business_departments` 
+                               WHERE    `status` IS NULL 
+                               ORDER BY `name`');
         parent::__construct();
+    }
+
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'business_branches';
+    }
+
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getEntryClass(): string
+    {
+        return Branch::class;
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return 'seo_name';
     }
 
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Routing;
 
 use PDOStatement;
+use Phoundation\Accounts\Roles\Role;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
@@ -29,9 +30,6 @@ class StaticRoutes extends DataList
      */
     public function __construct()
     {
-        $this->entry_class = StaticRoute::class;
-        $this->table       = 'static_routes';
-
         $this->setQuery('SELECT   `id`, `type`, `severity`, `title` 
                                    FROM     `static_routes` 
                                    WHERE    `status` IS NULL 
@@ -41,29 +39,35 @@ class StaticRoutes extends DataList
 
 
     /**
-     * @inheritDoc
+     * Returns the table name used by this object
+     *
+     * @return string
      */
-    public function load(?string $id_column = null): static
+    public static function getTable(): string
     {
-        // TODO: Implement load() method.
+        return 'static_routes';
     }
 
 
     /**
-     * @inheritDoc
+     * Returns the name of this DataEntry class
+     *
+     * @return string
      */
-    public function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
+    public static function getEntryClass(): string
     {
-        // TODO: Implement loadDetails() method.
+        return StaticRoute::class;
     }
 
 
     /**
-     * @inheritDoc
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
      */
-    public function save(): static
+    public static function getUniqueField(): ?string
     {
-        // TODO: Implement save() method.
+        return null;
     }
 
 
@@ -78,7 +82,7 @@ class StaticRoutes extends DataList
     {
         return InputSelect::new()
             ->setSourceQuery('SELECT   `' . $key_column . '`, `' . $value_column . '`
-                                         FROM     `' . $this->table . '` 
+                                         FROM     `' . static::getTable() . '` 
                                          WHERE    `status` IS NULL 
                                          ORDER BY `created_on` ASC')
             ->setName('routes_id')

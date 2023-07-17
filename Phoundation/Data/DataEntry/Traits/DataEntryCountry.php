@@ -39,7 +39,7 @@ trait DataEntryCountry
      * @param int|null $countries_id
      * @return static
      */
-    public function setCountriesId(int|null $countries_id): static
+    public function setCountriesId(?int $countries_id): static
     {
         return $this->setDataValue('countries_id', $countries_id);
     }
@@ -79,8 +79,8 @@ trait DataEntryCountry
      * @param string|null $countries_name
      * @return static
      */
-    public function setCountriesName(string|null $countries_name): static
+    public function setCountriesName(?string $countries_name): static
     {
-        $countries_id = $this->getDataValue('countries_name', $countries_name);
+        return $this->setDataValue('countries_name', $countries_name);
     }
 }

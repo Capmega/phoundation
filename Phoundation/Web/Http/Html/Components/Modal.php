@@ -78,30 +78,6 @@ abstract class Modal extends ElementsBlock
 
 
     /**
-     * Returns the modal identifier
-     *
-     * @return string|null
-     */
-    public function getId(): ?string
-    {
-        return $this->id;
-    }
-
-
-    /**
-     * Sets the modal identifier
-     *
-     * @param string|null $id
-     * @return static
-     */
-    public function setId(?string $id): static
-    {
-        $this->id = $id;
-        return $this;
-    }
-
-
-    /**
      * Sets the modal size
      *
      * @return string|null

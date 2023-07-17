@@ -266,7 +266,7 @@ class UrlBuilder implements UrlBuilderInterface
 
         } catch (ValidationFailedException) {
             Log::warning(tr('Validation for redirect url ":url" failed, ignoring', [
-                ':url' => GetValidator::new()->forceReadKey('redirect')
+                ':url' => GetValidator::new()->getSourceKey('redirect')
             ]));
         }
 
@@ -635,7 +635,17 @@ class UrlBuilder implements UrlBuilderInterface
         }
 
         // Get the base URL configuration for the domain
-        $base = ($use_configured_root ? Domains::getRootUrl() : Page::getRoutingParameters()->getRootUrl());
+        if ($use_configured_root) {
+            $base = Domains::getRootUrl();
+
+        } elseif (PLATFORM_HTTP) {
+            $base = Page::getRoutingParameters()->getRootUrl();
+
+        } else {
+            $base = Domains::getRootUrl();
+        }
+
+        // Build the URL
         $base = Strings::endsWith($base, '/');
         $url  = Strings::startsNotWith($url, '/');
         $url  = $prefix . $url;

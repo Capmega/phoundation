@@ -5,11 +5,15 @@ declare(strict_types=1);
 namespace Phoundation\Data\Validator;
 
 use Phoundation\Core\Arrays;
+use Phoundation\Core\Core;
+use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Exception\NoKeySelectedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
+use Phoundation\Developer\Debug;
+use Phoundation\Exception\OutOfBoundsException;
 use ReflectionProperty;
 
 
@@ -38,6 +42,20 @@ trait ValidatorBasics
      * @var array $failures
      */
     protected array $failures = [];
+
+    /**
+     * The prefix for field selection
+     *
+     * @var string|null $field_prefix
+     */
+    protected ?string $field_prefix = null;
+
+    /**
+     * The table that contains the data
+     *
+     * @var string|null $table
+     */
+    protected ?string $table = null;
 
     /**
      * The current field that is being validated
@@ -530,38 +548,23 @@ trait ValidatorBasics
             return;
         }
 
-//show('FAILURE (' . $this->parent_field . ' / ' . $this->selected_field . ' / ' . $this->process_key . '): ' . $failure);
-        // Build up the failure string
-        if (is_numeric($this->process_key)) {
-            if (is_numeric($this->selected_field)) {
-                if ($this->parent_field) {
-                    $failure = tr('The ":key" field in ":field" in ":parent" ', [':key' => Strings::ordinalIndicator($this->process_key), ':field' => Strings::ordinalIndicator($this->selected_field), ':parent' => $this->parent_field]) . $failure;
-                } else {
-                    $failure = tr('The ":key" field in ":field" ', [':key' => Strings::ordinalIndicator($this->process_key), ':field' => Strings::ordinalIndicator($this->selected_field)]) . $failure;
-                }
-            } else if ($this->parent_field) {
-                $failure = tr('The ":key" field in ":field" in ":parent" ', [':key' => Strings::ordinalIndicator($this->process_key), ':field' => $this->selected_field, ':parent' => $this->parent_field]) . $failure;
-            } else {
-                $failure = tr('The ":key" field in ":field" ', [':key' => Strings::ordinalIndicator($this->process_key), ':field' => $this->selected_field]) . $failure;
-            }
-        } elseif (is_numeric($this->selected_field)) {
-            if ($this->parent_field) {
-                $failure = tr('The ":key" field in ":parent" ', [':count' => Strings::ordinalIndicator($this->selected_field), ':parent' => $this->parent_field]) . $failure;
-            } else {
-                $failure = tr('The ":key" field ', [':count' => Strings::ordinalIndicator($this->selected_field)]) . $failure;
-            }
-        } elseif ($this->parent_field) {
-            $failure = tr('The ":field" field in ":parent" ', [':parent' => $this->parent_field, ':field' => $this->selected_field]) . $failure;
-        } else {
-            $failure = tr('The ":field" field ', [':field' => $this->selected_field]) . $failure;
-        }
+        // Detect field name to store this failure
+        if ($field) {
+            $selected_field = $field;
 
-        // Generate key to store this failure
-        if (!$field) {
+        } else {
+            $selected_field = $this->selected_field;
+
             if ($this->parent_field) {
-                $field = $this->parent_field . ':' . $this->selected_field;
+                $field = $this->parent_field . ':' . $selected_field;
             } else {
-                $field = $this->selected_field;
+                if (!$selected_field) {
+                    throw OutOfBoundsException::new(tr('No field specified or selected for validation failure ":failure"', [
+                        ':failure' => $failure
+                    ]));
+                }
+
+                $field = $selected_field;
             }
 
             if ($this->process_key !== null) {
@@ -569,9 +572,44 @@ trait ValidatorBasics
             }
         }
 
+//show('FAILURE (' . $this->parent_field . ' / ' . $selected_field . ' / ' . $this->process_key . '): ' . $failure);
+        // Build up the failure string
+        if (is_numeric($this->process_key)) {
+            if (is_numeric($selected_field)) {
+                if ($this->parent_field) {
+                    $failure = tr('The ":key" field in ":field" in ":parent" ', [':key' => Strings::ordinalIndicator($this->process_key), ':field' => Strings::ordinalIndicator($selected_field), ':parent' => $this->parent_field]) . $failure;
+                } else {
+                    $failure = tr('The ":key" field in ":field" ', [':key' => Strings::ordinalIndicator($this->process_key), ':field' => Strings::ordinalIndicator($selected_field)]) . $failure;
+                }
+            } else if ($this->parent_field) {
+                $failure = tr('The ":key" field in ":field" in ":parent" ', [':key' => Strings::ordinalIndicator($this->process_key), ':field' => $selected_field, ':parent' => $this->parent_field]) . $failure;
+            } else {
+                $failure = tr('The ":key" field in ":field" ', [':key' => Strings::ordinalIndicator($this->process_key), ':field' => $selected_field]) . $failure;
+            }
+        } elseif (is_numeric($selected_field)) {
+            if ($this->parent_field) {
+                $failure = tr('The ":key" field in ":parent" ', [':count' => Strings::ordinalIndicator($selected_field), ':parent' => $this->parent_field]) . $failure;
+            } else {
+                $failure = tr('The ":key" field ', [':count' => Strings::ordinalIndicator($selected_field)]) . $failure;
+            }
+        } elseif ($this->parent_field) {
+            $failure = tr('The ":field" field in ":parent" ', [':parent' => $this->parent_field, ':field' => $selected_field]) . $failure;
+        } else {
+            $failure = tr('The ":field" field ', [':field' => $selected_field]) . $failure;
+        }
+
         // Store the failure
         $this->process_value_failed = true;
         $this->failures[$field]     = $failure;
+
+        Log::warning(tr('Validation failed on field ":field" with value ":value"', [
+            ':field' => $field,
+            ':value' => $this->source[$selected_field],
+        ]));
+
+        if (Debug::enabled()) {
+            Log::backtrace();
+        }
     }
 
 
@@ -583,6 +621,24 @@ trait ValidatorBasics
     public function getFailures(): array
     {
         return $this->failures;
+    }
+
+
+    /**
+     * Returns true if the specified field has failed
+     *
+     * @param string $field
+     * @return bool
+     */
+    public function fieldHasFailed(string $field): bool
+    {
+        if (!array_key_exists($field, $this->source)) {
+            throw new OutOfBoundsException(tr('The specified field ":field" does not exist', [
+                ':field' => $field
+            ]));
+        }
+
+        return array_key_exists($field, $this->failures);
     }
 
 

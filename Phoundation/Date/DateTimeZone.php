@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Date;
 
 use Phoundation\Core\Config;
@@ -36,16 +38,23 @@ class DateTimeZone extends \DateTimeZone
                     // no break
                 case 'display':
                     $timezone = Session::getUser()->getTimezone();
+$timezone = 'PDT';
                     break;
             }
 
-            // Ensure the specified timezone is valid
-            if (!in_array($timezone, DateTimeZone::listAbbreviations())) {
-                Log::warning(tr('Specified timezone ":timezone" is not compatible with PHP, falling back to UTC', [
-                    ':timezone' => $timezone
-                ]));
+            if (!$timezone) {
+                $timezone = Config::get('locale::timezone', 'UTC');
+            }
 
-                $timezone = 'UTC';
+            // Ensure the specified timezone is valid
+            if (!in_array($timezone, DateTimeZone::listIdentifiers())) {
+                if (!array_key_exists(strtolower($timezone), DateTimeZone::listAbbreviations())) {
+                    Log::warning(tr('Specified timezone ":timezone" is not compatible with PHP, falling back to UTC', [
+                        ':timezone' => $timezone
+                    ]));
+
+                    $timezone = 'UTC';
+                }
             }
 
         } elseif (!($timezone instanceof DateTimeZone)) {

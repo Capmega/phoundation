@@ -316,7 +316,7 @@ interface ProcessVariablesInterface
      * @param string|null $argument
      * @return static This process so that multiple methods can be chained
      */
-    public function setArgument(string|null $argument): static;
+    public function setArgument(?string $argument): static;
 
     /**
      * Returns the Variables for the command that will be executed

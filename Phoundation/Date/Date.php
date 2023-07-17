@@ -6,6 +6,7 @@ namespace Phoundation\Date;
 
 use DateInterval;
 use DateTime;
+use DateTimeInterface;
 use DateTimeZone;
 use Exception;
 use Phoundation\Core\Arrays;
@@ -53,22 +54,36 @@ class Date
             $from_timezone = Config::get('system.timezone.system', 'UTC');
         }
 
-        /*
-         * Ensure we have a valid format
-         */
-        if ($requested_format == 'mysql') {
-            /*
-             * Use mysql format
-             */
-            $format = 'Y-m-d H:i:s';
+        // Ensure we have a valid format
+        switch ($requested_format) {
+            case 'ISO8601':
+                // no break
+            case 'human_datetime_timezone':
+                // Use mysql format
+                $format = DateTimeInterface::ATOM;
+                break;
 
-        } elseif (Config::get('formats.date.' . $requested_format, false)) {
-            // Use predefined format
-            $format = Config::get('formats.date.' . $requested_format, false);
+            case 'mysql':
+                // no break
+            case 'human_datetime':
+                // Use mysql format
+                $format = 'Y-m-d H:i:s';
+                break;
 
-        } else {
-            // Use custom format
-            $format = $requested_format;
+            case 'iso_date':
+                // no break
+            case 'human_date':
+                $format = 'Y-m-d';
+                break;
+
+            default:
+                if (Config::get('formats.date.' . $requested_format, false)) {
+                    // Use predefined format
+                    $format = Config::get('formats.date.' . $requested_format, false);
+                } else {
+                    // Use custom format
+                    $format = $requested_format;
+                }
         }
 
         // Force 12 or 24 hour format?

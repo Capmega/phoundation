@@ -33,6 +33,7 @@ use Phoundation\Security\Incidents\Exception\IncidentsException;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Security\Incidents\Severity;
 use Phoundation\Utils\Json;
+use Phoundation\Web\Exception\PageException;
 use Phoundation\Web\Exception\WebException;
 use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\Exception\HttpException;
@@ -366,6 +367,10 @@ class Page
      */
     public static function getRoutingParameters(): RoutingParameters
     {
+        if (PLATFORM_CLI) {
+            throw new PageException(tr('Cannot return routing parameters, this requires the HTTP platform'));
+        }
+
         return static::$parameters;
     }
 
@@ -983,7 +988,7 @@ class Page
      * @param array|string $rights
      * @param string $target
      * @param string|null $rights_redirect
-     * @param string|null $guest_redirect
+ * @param string|null $guest_redirect
      * @return void
      */
     public static function hasRightsOrRedirects(array|string $rights, string $target, ?string $rights_redirect = null, ?string $guest_redirect = null): void
@@ -1175,7 +1180,6 @@ class Page
         } catch (DataEntryNotExistsException $e) {
             Log::warning('Page did not catch the following "DataEntryNotExistsException" warning, showing "system/404"');
             Log::warning($e);
-            Log::printr($e->getTrace());
 
             // Show a 404 page instead
             Route::executeSystem(404);

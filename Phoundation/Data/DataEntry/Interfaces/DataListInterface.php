@@ -25,6 +25,27 @@ use Stringable;
 interface DataListInterface extends IteratorInterface
 {
     /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string;
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getEntryClass(): string;
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string;
+
+    /**
      * Returns if the specified data entry exists in the data list
      *
      * @param DataEntryInterface|Stringable|string|float|int $key
@@ -91,13 +112,6 @@ interface DataListInterface extends IteratorInterface
      * @return array|null
      */
     public function getExecute(): ?array;
-
-    /**
-     * Returns the table name that is the source for this DataList object
-     *
-     * @return string
-     */
-    public function getTable(): string;
 
     /**
      * Returns the schema Table object for the table that is the source for this DataList object

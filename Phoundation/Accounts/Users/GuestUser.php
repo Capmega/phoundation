@@ -30,7 +30,8 @@ class GuestUser extends User implements GuestUserInterface
     {
         parent::__construct($identifier, $column);
 
-        $this->data['id'] = -1;
+        $this->data['email'] = 'guest';
+        $this->setValidate(false);
         $this->setNickname('Guest');
     }
 }

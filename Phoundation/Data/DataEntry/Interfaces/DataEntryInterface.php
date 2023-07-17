@@ -1,21 +1,21 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Phoundation\Data\DataEntry\Interfaces;
+
 
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Meta\Meta;
+use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Date\DateTime;
 use Phoundation\Web\Http\Html\Components\Interfaces\DataEntryFormInterface;
 
-
 /**
- * Class InterfaceDataEntry
+ * Class DataEntry
  *
- * Interface for DataEntry objects
+ * This class contains the basic data entry traits
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -25,35 +25,18 @@ use Phoundation\Web\Http\Html\Components\Interfaces\DataEntryFormInterface;
 interface DataEntryInterface
 {
     /**
-     * Return the object contents in JSON string format
+     * Returns if this DataEntry will validate data before saving
      *
-     * @return string
+     * @return bool
      */
-    function __toString(): string;
+    public function getValidate(): bool;
 
     /**
-     * Return the object contents in array format
+     * Sets if this DataEntry will validate data before saving
      *
-     * @return array
+     * @return $this
      */
-    function __toArray(): array;
-
-    /**
-     * DataEntry class constructor
-     *
-     * @param DataEntryInterface|string|int|null $identifier
-     * @param string|null $column
-     */
-    function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null);
-
-    /**
-     * Returns a new DataEntry object
-     *
-     * @param DataEntryInterface|string|int|null $identifier
-     * @param string|null $column
-     * @return static
-     */
-    static function new(DataEntryInterface|string|int|null $identifier = null, ?string $column = null): static;
+    public function setValidate(bool $validate): static;
 
     /**
      * Returns the query builder for this data entry
@@ -63,142 +46,90 @@ interface DataEntryInterface
     public function getQueryBuilder(): QueryBuilderInterface;
 
     /**
-     * Returns the prefix string
+     * Returns true if the internal data structures have been modified
      *
-     * @return ?string
+     * @return bool
      */
-    public function getFieldPrefix(): ?string;
+    public function isModified(): bool;
 
     /**
-     * Sets the prefix string
+     * Returns true if the data in this DataEntry has been validated
      *
-     * @param string|null $prefix
-     * @return $this
+     * @return bool
      */
-    public function setFieldPrefix(?string $prefix): static;
+    public function isValidated(): bool;
 
     /**
-     * Returns a help file generated from the DataEntry keys
+     * Returns true if the DataEntry was just successfully saved
      *
-     * @param array $auto_complete
-     * @return array
+     * @return bool
      */
-    static function getAutoComplete(array $auto_complete = []): array;
+    public function isSaved(): bool;
+
+    /**
+     * Returns id for this database entry that can be used in logs
+     *
+     * @return bool
+     */
+    public function getAllowCreate(): bool;
+
+    /**
+     * Returns id for this database entry that can be used in logs
+     *
+     * @param bool $allow_create
+     * @return static
+     */
+    public function setAllowCreate(bool $allow_create): static;
+
+    /**
+     * Returns id for this database entry that can be used in logs
+     *
+     * @return bool
+     */
+    public function getAllowModify(): bool;
+
+    /**
+     * Returns id for this database entry that can be used in logs
+     *
+     * @param bool $allow_modify
+     * @return static
+     */
+    public function setAllowModify(bool $allow_modify): static;
 
     /**
      * Returns a translation table between CLI arguments and internal fields
      *
-     * @note This methods uses internal caching, the second request will be a cached result
      * @return array
      */
-    function getCliFields(): array;
-
-    /**
-     * Returns a help text generated from this DataEntry's field information
-     *
-     * The help text will contain help information for each field as defined in DataEntry::fields. Since this help text
-     * is for the command line, field names will be translated to their command line argument counterparts (so instead
-     * of "name" it would show "-n,--name")
-     *
-     * @param string|null $help
-     * @return string
-     */
-    static function getHelp(?string $help = null): string;
-
-    /**
-     * Returns a DataEntry object matching the specified identifier
-     *
-     * @note This method also accepts DataEntry objects, in which case it will simply return this object. This is to
-     *       simplify "if this is not DataEntry object then this is new DataEntry object" into
-     *       "PossibleDataEntryVariable is DataEntry::new(PossibleDataEntryVariable)"
-     * @param DataEntryInterface|string|int|null $identifier
-     * @param string|null $column
-     * @return static|null
-     */
-    static function get(DataEntryInterface|string|int|null $identifier = null, ?string $column = null): ?static;
-
-    /**
-     * Returns a random DataEntry object
-     *
-     * @return static|null
-     */
-    static function getRandom(): ?static;
-
-    /**
-     * Returns true if an entry with the specified identifier exists
-     *
-     * @param string $field
-     * @param string|int|null $identifier The unique identifier, but typically not the database id, usually the
-     *                                    seo_email, or seo_name
-     * @param int|null $not_id            If specified, the entry with NOT_ID will be ignored and seen as not existing
-     * @param bool $throw_exception       If the entry does not exist, instead of returning false will throw a
-     *                                    DataEntryNotExistsException
-     * @return bool
-     */
-    static function exists(string $field, string|int $identifier = null, ?int $not_id = null, bool $throw_exception = false): bool;
-
-    /**
-     * Returns true if an entry with the specified identifier does not exist
-     *
-     * @param string $field
-     * @param string|int|null $identifier The unique identifier, but typically not the database id, usually the
-     *                                    seo_email, or seo_name
-     * @param int|null $id If specified, will ignore the found entry if it has this ID as it will be THIS
-     *                                    object
-     * @param bool $throw_exception If the entry exists (and does not match id, if specified), instead of
-     *                                    returning false will throw a DataEntryNotExistsException
-     * @return bool
-     */
-    static function notExists(string $field, string|int $identifier = null, ?int $id = null, bool $throw_exception = false): bool;
-
-    /**
-     * Returns the class name of this DataEntry object
-     *
-     * @return string
-     */
-    public static function getClassName(): string;
-
-    /**
-     * Returns the name of this DataEntry class
-     *
-     * @return string
-     */
-    public function getDataEntryName(): string;
-
-    /**
-     * Returns the definitions for the fields in this table
-     *
-     * @return DefinitionsInterface
-     */
-    function getDefinitions(): DefinitionsInterface;
+    public function getCliFields(): array;
 
     /**
      * Returns true if this is a new entry that hasn't been written to the database yet
      *
      * @return bool
      */
-    function isNew(): bool;
+    public function isNew(): bool;
 
     /**
      * Returns id for this database entry
      *
      * @return int|null
      */
-    function getId(): int|null;
+    public function getId(): int|null;
 
     /**
      * Returns id for this database entry that can be used in logs
      *
      * @return string
      */
-    function getLogId(): string;
+    public function getLogId(): string;
 
     /**
      * Returns status for this database entry
      *
      * @return ?String
      */
-    function getStatus(): ?string;
+    public function getStatus(): ?string;
 
     /**
      * Set the status for this database entry
@@ -207,14 +138,14 @@ interface DataEntryInterface
      * @param string|null $comments
      * @return static
      */
-    function setStatus(?String $status, ?string $comments = null): static;
+    public function setStatus(?string $status, ?string $comments = null): static;
 
     /**
      * Returns the meta state for this database entry
      *
      * @return ?String
      */
-    function getMetaState(): ?string;
+    public function getMetaState(): ?string;
 
     /**
      * Delete the specified entries
@@ -222,7 +153,7 @@ interface DataEntryInterface
      * @param string|null $comments
      * @return static
      */
-    function delete(?string $comments = null): static;
+    public function delete(?string $comments = null): static;
 
     /**
      * Undelete the specified entries
@@ -230,14 +161,29 @@ interface DataEntryInterface
      * @param string|null $comments
      * @return static
      */
-    function undelete(?string $comments = null): static;
+    public function undelete(?string $comments = null): static;
 
     /**
      * Erase this DataEntry from the database
      *
      * @return static
      */
-    function erase(): static;
+    public function erase(): static;
+
+    /**
+     * Returns the field prefix string
+     *
+     * @return ?string
+     */
+    public function getFieldPrefix(): ?string;
+
+    /**
+     * Sets the field prefix string
+     *
+     * @param string|null $prefix
+     * @return static
+     */
+    public function setFieldPrefix(?string $prefix): static;
 
     /**
      * Returns the object that created this data entry
@@ -245,7 +191,7 @@ interface DataEntryInterface
      * @note Returns NULL if this class has no support for created_by information or has not been written to disk yet
      * @return User|null
      */
-    function getCreatedBy(): ?User;
+    public function getCreatedBy(): ?User;
 
     /**
      * Returns the object that created this data entry
@@ -253,7 +199,7 @@ interface DataEntryInterface
      * @note Returns NULL if this class has no support for created_by information or has not been written to disk yet
      * @return DateTime|null
      */
-    function getCreatedOn(): ?DateTime;
+    public function getCreatedOn(): ?DateTime;
 
     /**
      * Returns the meta information for this entry
@@ -262,30 +208,54 @@ interface DataEntryInterface
      *       yet
      * @return Meta|null
      */
-    function getMeta(): ?Meta;
+    public function getMeta(): ?Meta;
 
     /**
      * Returns the meta id for this entry
      *
      * @return int|null
      */
-    function getMetaId(): ?int;
+    public function getMetaId(): ?int;
 
     /**
      * Returns a string containing all diff data
      *
      * @return string|null
      */
-    function getDiff(): ?string;
+    public function getDiff(): ?string;
 
     /**
      * Modify the data for this object with the new specified data
      *
      * @param bool $clear_source
-     * @param array|null $source
+     * @param ValidatorInterface|array|null &$source
      * @return static
      */
-    function apply(bool $clear_source = false, ?array $source = null): static;
+    public function apply(bool $clear_source = true, ValidatorInterface|array|null &$source = null): static;
+
+    /**
+     * Forcibly modify the data for this object with the new specified data, putting the object in readonly mode
+     *
+     * @note In readonly mode this object will no longer be able to write its data!
+     * @param ValidatorInterface|array|null $data
+     * @return static
+     */
+    public function forceApply(ValidatorInterface|array|null $data = null): static;
+
+    /**
+     * Validates the source data and returns it
+     *
+     * @param ValidatorInterface|array|null $data
+     * @return static
+     */
+    public function validateMetaState(ValidatorInterface|array|null $data = null): static;
+
+    /**
+     * Returns all keys that are protected and cannot be removed from this object
+     *
+     * @return array
+     */
+    public function getProtectedFields(): array;
 
     /**
      * Returns all data for this data entry at once with an array of information
@@ -294,7 +264,7 @@ interface DataEntryInterface
      *       will not become available outside this object
      * @return array
      */
-    function getData(): array;
+    public function getData(): array;
 
     /**
      * Sets the value for the specified data key
@@ -303,7 +273,7 @@ interface DataEntryInterface
      * @param mixed $value
      * @return static
      */
-    function addDataValue(string $field, mixed $value): static;
+    public function addDataValue(string $field, mixed $value): static;
 
     /**
      * Will save the data from this data entry to database
@@ -311,7 +281,7 @@ interface DataEntryInterface
      * @param string|null $comments
      * @return static
      */
-    function save(?string $comments = null): static;
+    public function save(?string $comments = null): static;
 
     /**
      * Creates and returns a CLI table for the data in this entry
@@ -320,7 +290,7 @@ interface DataEntryInterface
      * @param string|null $value_header
      * @return void
      */
-    function getCliForm(?string $key_header = null, ?string $value_header = null): void;
+    public function getCliForm(?string $key_header = null, ?string $value_header = null): void;
 
     /**
      * Creates and returns an HTML for the data in this entry
@@ -337,4 +307,11 @@ interface DataEntryInterface
      * @return $this
      */
     public function setSource(array $source, bool $init = false): static;
+
+    /**
+     * Returns the definitions for the fields in this table
+     *
+     * @return DefinitionsInterface
+     */
+    public function getDefinitions(): DefinitionsInterface;
 }

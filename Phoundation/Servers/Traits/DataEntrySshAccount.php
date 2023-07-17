@@ -34,18 +34,12 @@ trait DataEntrySshAccount
     /**
      * Sets the ssh_accounts_id for this object
      *
-     * @param string|int|null $ssh_accounts_id
+     * @param int|null $ssh_accounts_id
      * @return static
      */
-    public function setSshAccountsId(string|int|null $ssh_accounts_id): static
+    public function setSshAccountsId(?int $ssh_accounts_id): static
     {
-        if ($ssh_accounts_id and !is_natural($ssh_accounts_id)) {
-            throw new OutOfBoundsException(tr('Specified ssh_accounts_id ":id" is not a natural number', [
-                ':id' => $ssh_accounts_id
-            ]));
-        }
-
-        return $this->setDataValue('ssh_accounts_id', get_null(isset_get_typed('integer', $ssh_accounts_id)));
+        return $this->setDataValue('ssh_accounts_id', $ssh_accounts_id);
     }
 
 
@@ -67,23 +61,24 @@ trait DataEntrySshAccount
 
 
     /**
-     * Sets the ssh_accounts_id for this user
+     * Returns the ssh_accounts_name for this user
      *
-     * @param SshAccount|string|int|null $ssh_account
+     * @return string|null
+     */
+    public function getSshAccountsName(): ?string
+    {
+        return $this->getDataValue('string', 'ssh_accounts_name');
+    }
+
+
+    /**
+     * Sets the ssh_accounts_name for this user
+     *
+     * @param string|null $ssh_accounts_name
      * @return static
      */
-    public function setSshAccount(SshAccount|string|int|null $ssh_account): static
+    public function setSshAccount(?string $ssh_accounts_name): static
     {
-        if ($ssh_account) {
-            if (!is_numeric($ssh_account)) {
-                $ssh_account = SshAccount::get($ssh_account);
-            }
-
-            if (is_object($ssh_account)) {
-                $ssh_account = $ssh_account->getId();
-            }
-        }
-
-        return $this->setSshAccountsId(get_null($ssh_account));
+        return $this->setDataValue('ssh_accounts_name', $ssh_accounts_name);
     }
 }

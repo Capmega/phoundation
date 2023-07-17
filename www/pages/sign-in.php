@@ -1,10 +1,8 @@
 <?php
 
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
-use Phoundation\Core\Log\Log;
 use Phoundation\Core\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
-use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
@@ -24,23 +22,24 @@ if (Page::isPostRequestMethod()) {
         Page::redirect('prev');
 
     } catch (ValidationFailedException) {
-        Page::getFlashMessages()->addMessage(tr('Access denied'), tr('Please specify a valid email and password'), DisplayMode::warning);
+        Page::getFlashMessages()->addWarningMessage(tr('Access denied'), tr('Please specify a valid email and password'));
     } catch (AuthenticationException) {
-        Page::getFlashMessages()->addMessage(tr('Access denied'), tr('The specified email or password was incorrect'), DisplayMode::warning);
+        Page::getFlashMessages()->addWarningMessage(tr('Access denied'), tr('The specified email or password was incorrect'));
     }
 }
 
 
 // This page will build its own body
 Page::setBuildBody(false);
+
 ?>
 <?= Page::getFlashMessages()->render() ?>
 <body class="hold-transition login-page" style="background: url(<?= UrlBuilder::getImg('img/backgrounds/' . Page::getProjectName() . '/signin.jpg') ?>); background-position: center; background-repeat: no-repeat; background-size: cover;">
     <div class="login-box">
       <!-- /.login-logo -->
-      <div class="card card-outline card-primary">
+      <div class="card card-outline card-info">
         <div class="card-header text-center">
-          <a href="https://medinet.ca" class="h1"><b>Medi</b> web</a>
+          <a href="https://phoundation.org" class="h1"><span>Phoun</span>dation</a>
         </div>
         <div class="card-body">
           <p class="login-box-msg"><?= tr('Please sign in to start your session') ?></p>
@@ -105,7 +104,7 @@ Page::setBuildBody(false);
                             </div>';
                 }
 
-                if (Session::supports('register')) {
+                if (Session::supports('lost-password')) {
                     echo '  <p class="mb-1">
                                 <a href="' . UrlBuilder::getWww('/lost-password.html') . '">' . tr('I forgot my password') . '</a>
                             </p>';
@@ -127,4 +126,4 @@ Page::setBuildBody(false);
 
 
 // Set page meta data
-Page::setPageTitle(tr('Setup Phoundation'));
+Page::setPageTitle(tr('Please sign in'));

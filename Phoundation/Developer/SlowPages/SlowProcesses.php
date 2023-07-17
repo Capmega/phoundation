@@ -9,6 +9,7 @@ use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Developer\Incidents\Incidents;
+use Phoundation\Geo\Timezones\Timezone;
 
 
 /**
@@ -28,13 +29,43 @@ class SlowProcesses extends Incidents
      */
     public function __construct()
     {
-        $this->entry_class = SlowProcess::class;
-        $this->table       = 'processes_slow';
-
         $this->setQuery('SELECT   `id`, `created_on`, `status`, `title` 
-                                   FROM     `processes_slow` 
-                                   WHERE    `type` = "slow_page" AND `status` IS NULL 
-                                   ORDER BY `created_on`');
+                               FROM     `processes_slow` 
+                               WHERE    `type` = "slow_page" AND `status` IS NULL 
+                               ORDER BY `created_on`');
         parent::__construct();
+    }
+
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'processes_slow';
+    }
+
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getEntryClass(): string
+    {
+        return SlowProcess::class;
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return null;
     }
 }

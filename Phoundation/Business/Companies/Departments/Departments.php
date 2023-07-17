@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Business\Companies\Departments;
 
 use Phoundation\Business\Companies\Departments\Interfaces\DepartmentsInterface;
+use Phoundation\Business\Companies\Employees\Employee;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 
@@ -27,14 +28,44 @@ class Departments extends DataList implements DepartmentsInterface
      */
     public function __construct()
     {
-        $this->entry_class = Department::class;
-        $this->table       = 'business_departments';
-
         $this->setQuery('SELECT   `id`, `name`, `email`, `status`, `created_on` 
                                FROM     `business_departments` 
                                WHERE    `status` IS NULL 
                                ORDER BY `name`');
         parent::__construct();
+    }
+
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'business_departments';
+    }
+
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getEntryClass(): string
+    {
+        return Department::class;
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return 'seo_name';
     }
 
 

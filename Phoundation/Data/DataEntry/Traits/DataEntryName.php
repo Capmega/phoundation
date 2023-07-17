@@ -52,7 +52,7 @@ trait DataEntryName
         if ($name !== null) {
             // Get SEO name and ensure that the seo_name does NOT surpass the name maxlength because MySQL won't find
             // the entry if it does!
-            $seo_name = Seo::unique(substr($name, 0, $this->definitions->get('name')->getMaxlength()), $this->table, $this->getDataValue('int', 'id'), 'seo_name');
+            $seo_name = Seo::unique(substr($name, 0, $this->definitions->get('name')->getMaxlength()), static::getTable(), $this->getDataValue('int', 'id'), 'seo_name');
             $this->setDataValue('seo_name', $seo_name);
         }
 

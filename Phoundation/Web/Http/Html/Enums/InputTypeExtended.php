@@ -22,6 +22,7 @@ enum InputTypeExtended: string implements InputTypeExtendedInterface
     case url          = 'url';
     case dbid         = 'dbid';
     case float        = 'float';
+    case boolean      = 'boolean';
     case integer      = 'integer';
     case natural      = 'natural';
     case code         = 'code';

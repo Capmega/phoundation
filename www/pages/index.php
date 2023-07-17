@@ -16,7 +16,7 @@ use Phoundation\Web\Http\Html\Components\BreadCrumbs;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-Page::loadCss('https://code.ionicframework.com/ionicons/2.0.1/css/ionicons');
+Page::loadCss('https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css');
 Page::loadCss('adminlte/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4');
 Page::loadCss('adminlte/plugins/icheck-bootstrap/icheck-bootstrap');
 Page::loadCss('adminlte/plugins/jqvmap/jqvmap');

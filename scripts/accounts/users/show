@@ -32,7 +32,7 @@ Documentation::autoComplete(User::getAutoComplete([
 
 Documentation::usage('./pho accounts users show USER');
 
-Documentation::help(User::getHelp('This script displays information about the specified user.  
+Documentation::help(User::getHelpText('This script displays information about the specified user.  
 
 
 

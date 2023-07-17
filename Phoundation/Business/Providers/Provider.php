@@ -50,18 +50,35 @@ class Provider extends DataEntry
 
 
     /**
-     * Provider class constructor
+     * Returns the table name used by this object
      *
-     * @param DataEntryInterface|string|int|null $identifier
-     * @param string|null $column
+     * @return string
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null)
+    public static function getTable(): string
     {
-        $this->table        = 'business_providers';
-        $this->entry_name   = 'provider';
-        $this->unique_field = 'seo_name';
+        return 'business_providers';
+    }
 
-        parent::__construct($identifier, $column);
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getDataEntryName(): string
+    {
+        return 'provider';
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return 'seo_name';
     }
 
 
@@ -137,7 +154,7 @@ class Provider extends DataEntry
             ->addDefinition(DefinitionFactory::getLanguage($this))
             ->addDefinition(Definition::new($this, 'address1')
                 ->setOptional(true)
-                ->setAutoComplete(true)
+                ->setCliAutoComplete(true)
                 ->setCliField('--address1 ADDRESS')
                 ->setMaxlength(64)
                 ->setSize(12)
@@ -145,7 +162,7 @@ class Provider extends DataEntry
                 ->setHelpText(tr('Address information for this provider')))
             ->addDefinition(Definition::new($this, 'address2')
                 ->setOptional(true)
-                ->setAutoComplete(true)
+                ->setCliAutoComplete(true)
                 ->setCliField('--address2 ADDRESS')
                 ->setMaxlength(64)
                 ->setSize(12)
@@ -153,7 +170,7 @@ class Provider extends DataEntry
                 ->setHelpText(tr('Additional address information for this provider')))
             ->addDefinition(Definition::new($this, 'address3')
                 ->setOptional(true)
-                ->setAutoComplete(true)
+                ->setCliAutoComplete(true)
                 ->setCliField('--address3 ADDRESS')
                 ->setMaxlength(64)
                 ->setSize(12)
@@ -161,7 +178,7 @@ class Provider extends DataEntry
                 ->setHelpText(tr('Additional address information for this provider')))
             ->addDefinition(Definition::new($this, 'zipcode')
                 ->setOptional(true)
-                ->setAutoComplete(true)
+                ->setCliAutoComplete(true)
                 ->setCliField('--zip-code ZIPCODE (POSTAL CODE)')
                 ->setMaxlength(8)
                 ->setSize(6)

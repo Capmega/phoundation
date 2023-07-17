@@ -29,7 +29,7 @@ Documentation::autoComplete(User::getAutoComplete());
 Documentation::usage(tr('./pho system accounts users create -e EMAIL [OPTIONS]
 ./pho system users create user@example.com -d "This is a test user"'));
 
-Documentation::help(User::getHelp('This command allows you to create new users.
+Documentation::help(User::getHelpText('This command allows you to create new users.
 
 NOTE: This script is interactive as it asks the password for the user on the command line! ') . '
 

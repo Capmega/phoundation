@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Business\Companies;
 
 use PDOStatement;
+use Phoundation\Business\Companies\Branches\Branch;
 use Phoundation\Business\Customers\Customer;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\Interfaces\IteratorInterface;
@@ -31,16 +32,45 @@ class Companies extends DataList
      */
     public function __construct()
     {
-        $this->unique_column = 'seo_name';
-        $this->entry_class   = Company::class;
-        $this->table         = 'business_companies';
-
         $this->setQuery('SELECT   `id`, `name`, `email`, `status`, `created_on` 
                                FROM     `business_companies` 
                                WHERE    `status` IS NULL 
                                ORDER BY `name`');
 
         parent::__construct();
+    }
+
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'business_companies';
+    }
+
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getEntryClass(): string
+    {
+        return Company::class;
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return 'seo_name';
     }
 
 
@@ -58,8 +88,6 @@ class Companies extends DataList
     }
 
 
-
-
     /**
      * Returns an HTML <select> for the available object entries
      *
@@ -73,41 +101,5 @@ class Companies extends DataList
             ->setName('companies_id')
             ->setNone(tr('Select a company'))
             ->setEmpty(tr('No companies available'));
-    }
-
-
-    /**
-     *
-     *
-     * @param string|int|null $id_column
-     * @return $this
-     */
-    public function load(?string $id_column = null): static
-    {
-        // TODO: Implement load() method.
-    }
-
-
-    /**
-     *
-     *
-     * @param array|string|null $columns
-     * @param array $filters
-     * @return array
-     */
-    public function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
-    {
-        // TODO: Implement loadDetails() method.
-    }
-
-
-    /**
-     *
-     *
-     * @return static
-     */
-    public function save(): static
-    {
-        // TODO: Implement save() method.
     }
 }

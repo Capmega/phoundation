@@ -18,7 +18,7 @@ namespace Phoundation\Data\Traits;
 trait DataPrefix
 {
     /**
-     * The prefix string 
+     * Sets the prefix string
      *
      * @var string|null $prefix
      */
@@ -26,7 +26,7 @@ trait DataPrefix
 
 
     /**
-     * Returns the source
+     * Returns the prefix string
      *
      * @return string|null
      */

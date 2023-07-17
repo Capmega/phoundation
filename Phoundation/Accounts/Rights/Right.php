@@ -33,17 +33,35 @@ class Right extends DataEntry implements RightInterface
 
 
     /**
-     * Right class constructor
+     * Returns the table name used by this object
      *
-     * @param DataEntryInterface|string|int|null $identifier
-     * @param string|null $column
+     * @return string
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null)
+    public static function getTable(): string
     {
-        $this->table        = 'accounts_rights';
-        $this->entry_name   = 'right';
+        return 'accounts_rights';
+    }
 
-        parent::__construct($identifier, $column);
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getDataEntryName(): string
+    {
+        return tr('Right');
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return 'seo_name';
     }
 
 
@@ -61,9 +79,7 @@ class Right extends DataEntry implements RightInterface
                 ->setMaxlength(64)
                 ->setHelpText(tr('The name for this right'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->isTrue(function ($value, $source) {
-                        return Right::notExists('name', $value, isset_get($source['id']));
-                    }, tr('value ":name" already exists', [':name' => $validator->getSourceValue()]));
+                    $validator->isUnique(tr('value ":name" already exists', [':name' => $validator->getSourceValue()]));
                 }))
             ->addDefinition(DefinitionFactory::getSeoName($this))
             ->addDefinition(DefinitionFactory::getDescription($this)

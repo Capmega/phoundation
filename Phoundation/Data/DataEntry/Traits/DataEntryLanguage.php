@@ -37,7 +37,7 @@ trait DataEntryLanguage
      * @param int|null $languages_id
      * @return static
      */
-    public function setLanguagesId(int|null $languages_id): static
+    public function setLanguagesId(?int $languages_id): static
     {
         return $this->setDataValue('languages_id', $languages_id);
     }
@@ -77,7 +77,7 @@ trait DataEntryLanguage
      * @param string|null $languages_name
      * @return static
      */
-    public function setLanguagesName(string|null $languages_name): static
+    public function setLanguagesName(?string $languages_name): static
     {
         return $this->setDataValue('languages_name', $languages_name);
     }
@@ -100,7 +100,7 @@ trait DataEntryLanguage
      * @param string|null $languages_code
      * @return static
      */
-    public function setLanguagesCode(string|null $languages_code): static
+    public function setLanguagesCode(?string $languages_code): static
     {
         return $this->setDataValue('languages_code', $languages_code);
     }

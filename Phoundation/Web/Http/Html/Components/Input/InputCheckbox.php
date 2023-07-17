@@ -98,7 +98,7 @@ class InputCheckbox extends Element
      * @param string|null $label
      * @return static
      */
-    public function setLabel(string|null $label): static
+    public function setLabel(?string $label): static
     {
         $this->label = $label;
         return $this;
@@ -122,7 +122,7 @@ class InputCheckbox extends Element
      * @param string|null $label_class
      * @return static
      */
-    public function setLabelClass(string|null $label_class): static
+    public function setLabelClass(?string $label_class): static
     {
         $this->label_class = $label_class;
         return $this;

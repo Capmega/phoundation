@@ -6,6 +6,7 @@ namespace Phoundation\Core\Plugins;
 
 use PDOStatement;
 use Phoundation\Core\Libraries\Library;
+use Phoundation\Core\Locale\Language\Language;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\Interfaces\IteratorInterface;
@@ -40,14 +41,44 @@ class Plugins extends DataList
      */
     public function __construct()
     {
-        $this->entry_class = Plugin::class;
-        $this->table       = 'core_plugins';
-
         $this->setQuery('SELECT   `id`, `name`, IFNULL(`status`, "' . tr('Ok') . '") AS `status`, IF(`enabled`, "' . tr('Enabled') . '", "' . tr('Disabled') . '") AS `enabled`, `priority`, `description` 
                                FROM     `core_plugins` 
                                ORDER BY `name`');
 
         parent::__construct();
+    }
+
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'core_plugins';
+    }
+
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getEntryClass(): string
+    {
+        return Plugin::class;
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return 'name';
     }
 
 
@@ -319,24 +350,6 @@ class Plugins extends DataList
         // The keys contain the ids...
         $this->source = array_flip($this->source);
         return $this;
-    }
-
-
-    /**
-     * @inheritDoc
-     */
-    public function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
-    {
-        // TODO: Implement loadDetails() method.
-    }
-
-
-    /**
-     * @inheritDoc
-     */
-    public function save(): static
-    {
-        // TODO: Implement save() method.
     }
 
 

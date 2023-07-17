@@ -20,6 +20,21 @@ use Stringable;
 interface DefinitionsInterface extends IteratorInterface
 {
     /**
+     * Returns the field prefix
+     *
+     * @return string|null
+     */
+    public function getFieldPrefix(): ?string;
+
+    /**
+     * Sets the field prefix
+     *
+     * @param string|null $prefix
+     * @return static
+     */
+    public function setFieldPrefix(?string $prefix): static;
+
+    /**
      * Returns the data entry
      *
      * @return DataEntryInterface

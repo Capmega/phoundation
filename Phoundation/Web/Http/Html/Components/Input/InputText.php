@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html\Components\Input;
 
+use Phoundation\Core\Strings;
 use Phoundation\Web\Http\Html\Enums\InputType;
 
 
@@ -73,6 +74,30 @@ class InputText extends Input
     public function setMaxLength(?int $maxlength): static
     {
         $this->attributes['maxlength'] = $maxlength;
+        return $this;
+    }
+
+
+    /**
+     * Returns the auto complete setting
+     *
+     * @return bool
+     */
+    public function getAutoComplete(): bool
+    {
+        return Strings::toBoolean(isset_get($this->attributes['autocomplete']));
+    }
+
+
+    /**
+     * Sets the auto complete setting
+     *
+     * @param bool $auto_complete
+     * @return $this
+     */
+    public function setAutoComplete(bool $auto_complete): static
+    {
+        $this->attributes['autocomplete'] = ($auto_complete ? 'on' : 'off');
         return $this;
     }
 }

@@ -37,7 +37,7 @@ trait DataEntryCustomer
      * @param int|null $customers_id
      * @return static
      */
-    public function setCustomersId(int|null $customers_id): static
+    public function setCustomersId(?int $customers_id): static
     {
         return $this->setDataValue('customers_id', $customers_id);
     }
@@ -50,7 +50,7 @@ trait DataEntryCustomer
      */
     public function getCustomer(): ?Customer
     {
-        $customers_id = $this->getDataValue('string', 'customers_id');
+        $customers_id = $this->getDataValue('int', 'customers_id');
 
         if ($customers_id) {
             return new Customer($customers_id);
@@ -77,7 +77,7 @@ trait DataEntryCustomer
      * @param string|null $customer_name
      * @return static
      */
-    public function setCustomersName(string|null $customer_name): static
+    public function setCustomersName(?string $customer_name): static
     {
         return $this->setDataValue('customers_name', $customer_name);
     }

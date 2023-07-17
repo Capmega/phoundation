@@ -203,6 +203,29 @@ function isset_get(mixed &$variable, mixed $default = null): mixed
 
 
 /**
+ * Return the array key value if it exists, or the default
+ *
+ * If (for example) a non-existing key from an array was specified, NULL will be returned instead of causing a variable
+ *
+ * @note IMPORTANT! After calling this function, $var will exist in the scope of the calling function!
+ * @param array $source The source array to test
+ * @param string|float|int|null $key The key to return
+ * @param string|float|int $default (optional) The value to return in case the specified $variable did not exist or was NULL.*
+ * @return mixed
+ */
+function array_get_safe(array $source, string|float|int|null $key, mixed $default = null): mixed
+{
+    // Return the key if it exists
+    if (array_key_exists($key, $source)) {
+        return $source[$key];
+    }
+
+    // Return the default value
+    return $default;
+}
+
+
+/**
  * Return the value if it actually exists with the correct datatype, or NULL instead.
  *
  * If (for example) a non-existing key from an array was specified, NULL will be returned instead of causing a variable
