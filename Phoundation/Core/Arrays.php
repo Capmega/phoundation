@@ -1896,6 +1896,10 @@ class Arrays {
      * the function will try to detect a prefix. A prefix is presumed to be a string of at least one character ending
      * with an underscore, so entries like "230984_name" will have presumed to have the prefix "230984_"
      *
+     * @param array $source
+     * @param string|null $prefix
+     * @param bool $keep_prefix
+     * @return array
      * @example :
      * [
      *   $keya         => $value,
@@ -1924,13 +1928,17 @@ class Arrays {
      *
      * @note The id in the specified keys must be the same
      *
-     * @param array $source
-     * @param string|null $prefix
-     * @return array
      */
-    public static function extractPrefix(array $source, ?string $prefix = null): array
+    public static function extractPrefix(array $source, ?string $prefix = null, bool $keep_prefix = false): array
     {
         $return = [];
+
+        if ($keep_prefix) {
+            $key_prefix = $prefix;
+
+        } else {
+            $key_prefix = null;
+        }
 
         foreach ($source as $key => $value) {
             if ($prefix === null) {
@@ -1953,7 +1961,7 @@ class Arrays {
                 continue;
             }
 
-            $return[$key] = $value;
+            $return[$key_prefix . $key] = $value;
         }
 
         return $return;

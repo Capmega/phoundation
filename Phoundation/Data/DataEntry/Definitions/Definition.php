@@ -473,6 +473,29 @@ class Definition implements DefinitionInterface
 
 
     /**
+     * Returns the auto focus for this field
+     *
+     * @return bool
+     */
+    public function getAutoFocus(): bool
+    {
+        return isset_get_typed('bool', $this->rules['auto_focus'], false);
+    }
+
+
+    /**
+     * Sets the auto focus for this field
+     *
+     * @param bool $auto_focus
+     * @return static
+     */
+    public function setAutoFocus(bool $auto_focus): static
+    {
+        return $this->setKey('auto_focus', $auto_focus);
+    }
+
+
+    /**
      * Returns the HTML client element to be used for this field
      *
      * @return string|null
@@ -1508,7 +1531,7 @@ class Definition implements DefinitionInterface
         $field = $this->getCliField($validator);
 
         if (!$field) {
-            // This field name is empty. Coming from self::getCliField() this means that this field should NOT be
+            // This field name is empty. Coming from static::getCliField() this means that this field should NOT be
             // validated
             return;
         }

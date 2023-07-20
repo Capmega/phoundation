@@ -568,7 +568,7 @@ show('CLEAR ' . $field);
     /**
      * Return true if this field was empty and now has the specified optional value and does not require validation
      *
-     * @note This process will set the self::process_value_failed to true when the optional value is applied to stop
+     * @note This process will set the static::process_value_failed to true when the optional value is applied to stop
      *       further testing.
      * @param mixed $value The value to test
      * @return bool

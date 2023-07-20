@@ -121,7 +121,7 @@ class Meta
      */
     public static function isEnabled(): bool
     {
-        return self::$enbabled;
+        return static::$enbabled;
     }
 
 
@@ -132,7 +132,7 @@ class Meta
      */
     public static function enable(): void
     {
-        self::$enbabled = true;
+        static::$enbabled = true;
     }
 
 
@@ -143,7 +143,7 @@ class Meta
      */
     public static function disable(): void
     {
-        self::$enbabled = false;
+        static::$enbabled = false;
     }
 
 
@@ -179,7 +179,7 @@ class Meta
      */
     public static function init(?string $comments = null, ?string $data = null): Meta
     {
-        if (self::$enbabled) {
+        if (static::$enbabled) {
             $meta = new Meta();
             $meta->action('created', $comments, $data);
 
@@ -201,7 +201,7 @@ class Meta
      */
     public function action(string $action, ?string $comments = null, ?string $data = null): static
     {
-        if (self::$enbabled and $this->id) {
+        if (static::$enbabled and $this->id) {
             // Insert the action in the meta_history table
             sql()->query('INSERT INTO `meta_history` (`meta_id`, `created_by`, `action`, `source`, `comments`, `data`) 
                                 VALUES                     (:meta_id , :created_by , :action , :source , :comments , :data )', [

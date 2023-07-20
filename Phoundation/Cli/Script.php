@@ -114,7 +114,7 @@ class Script
 
                 // AutoComplete::getPosition() might become -1 if one were to <TAB> right at the end of the last method.
                 // If this is the case we actually have to expand the method, NOT yet the script parameters!
-                if ((AutoComplete::getPosition() - count(self::$found_methods)) === 0) {
+                if ((AutoComplete::getPosition() - count(static::$found_methods)) === 0) {
                     throw MethodNotExistsException::new(tr('The specified command file ":file" does exist but requires auto complete extension', [
                         ':file' => $script
                     ]))
@@ -129,12 +129,12 @@ class Script
                 if (!AutoComplete::hasSupport($script)) {
                     // This script has no auto complete support, so if we execute the script it won't go for auto
                     // complete but execute normally which is not what we want. we're done here.
-                    self::die();
+                    static::die();
                 }
 
             } catch (NoMethodSpecifiedException|MethodNotFoundException|MethodNotExistsException $e) {
                 // Auto complete the method
-                AutoComplete::processMethods(self::$methods, $e->getData());
+                AutoComplete::processMethods(static::$methods, $e->getData());
             }
 
         } else {
@@ -255,7 +255,7 @@ SYSTEM ARGUMENTS
         // Execute the script
         execute_script(static::$script);
         AutoComplete::ensureAvailable();
-        self::die();
+        static::die();
     }
 
 
@@ -277,7 +277,7 @@ SYSTEM ARGUMENTS
      */
     public static function getMethods(): array
     {
-        return self::$methods;
+        return static::$methods;
     }
 
 
@@ -351,7 +351,7 @@ SYSTEM ARGUMENTS
         $position      = 0;
         $file          = PATH_ROOT . 'scripts/';
         $methods       = ArgvValidator::getMethods();
-        self::$methods = $methods;
+        static::$methods = $methods;
 
         foreach ($methods as $position => $method) {
             if (str_ends_with($method, '/cli')) {
@@ -411,7 +411,7 @@ SYSTEM ARGUMENTS
             }
 
             // Continue scanning
-            self::$found_methods[] = $method;
+            static::$found_methods[] = $method;
         }
 
         // Here we're still in a directory. If a file exists in that directory with the same name as the directory

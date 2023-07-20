@@ -101,7 +101,7 @@ class Cache
      */
     public static function delete(string $key, ?string $namespace = null): void
     {
-        static::driver()->delete($key, $namespace);
+        static::driver()->dataEntrydelete($key, $namespace);
     }
 
 

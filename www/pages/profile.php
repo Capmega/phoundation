@@ -94,21 +94,23 @@ $definitions->get('description')
 
 // Validate POST and submit
 if (Page::isPostRequestMethod()) {
-    try {
-        // Update user
-        $user->apply()->save();
+    if (PostValidator::getSubmitButton() === tr('Submit')) {
+        try {
+            // Update user
+            $user->apply()->save();
 
-        // Go back to where we came from
+            // Go back to where we came from
 // TODO Implement timers
 //showdie(Timers::get('query'));
 
-        Page::getFlashMessages()->addSuccessMessage(tr('Your profile has been updated'));
-        Page::redirect('referer');
+            Page::getFlashMessages()->addSuccessMessage(tr('Your profile has been updated'));
+            Page::redirect('referer');
 
-    } catch (ValidationFailedException $e) {
-        // Oops! Show validation errors and remain on page
-        Page::getFlashMessages()->addMessage($e);
-        $user->forceApply();
+        } catch (ValidationFailedException $e) {
+            // Oops! Show validation errors and remain on page
+            Page::getFlashMessages()->addMessage($e);
+            $user->forceApply();
+        }
     }
 }
 
@@ -134,10 +136,12 @@ $column = GridColumn::new()
 
 
 // Build profile picture card
+//showdie($user->getPicture());
 $picture = Card::new()
     ->setTitle(tr('My profile picture'))
     ->setContent(Img::new()
         ->setSrc($user->getPicture())
+        ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
         ->setAlt(tr('My profile picture')));
 
 

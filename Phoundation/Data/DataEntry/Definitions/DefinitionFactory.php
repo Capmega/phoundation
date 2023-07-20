@@ -584,8 +584,8 @@ class DefinitionFactory
                     ->setSelected(isset_get($source[$key]))
                     ->render();
             })
-            ->addValidationFunction(function (ValidatorInterface $validator) {
-                $validator->isDbId()->isQueryResult('SELECT `id` FROM `accounts_users` WHERE `id` = :id AND `status` IS NULL', [':id' => '$leaders_id']);
+            ->addValidationFunction(function (ValidatorInterface $validator) use ($field) {
+                $validator->isDbId()->isQueryResult('SELECT `id` FROM `accounts_users` WHERE `id` = :id AND `status` IS NULL', [':id' => '$' . $field]);
             });
     }
 

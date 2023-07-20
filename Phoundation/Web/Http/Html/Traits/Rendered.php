@@ -22,15 +22,16 @@ trait Rendered
      *
      * @var bool $rendered
      */
-    protected static bool $rendered = false;
+    protected bool $rendered = false;
+
 
     /**
-     * Returns the rendered
+     * Returns if the object has been rendered or not
      *
-     * @return string|null
+     * @return bool
      */
-    public function getRendered(): ?string
+    public function getRendered(): bool
     {
-        return self::$rendered;
+        return $this->rendered;
     }
 }

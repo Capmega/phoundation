@@ -222,7 +222,7 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function uninstall(): void
     {
-        self::disable();
+        static::disable();
     }
 
 
@@ -270,8 +270,8 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function unregister(?string $comments = null): void
     {
-        self::unlinkScripts();
-        sql()->delete('core_plugins', [':seo_name' => $this->getName()], $comments);
+        static::unlinkScripts();
+        sql()->dataEntrydelete('core_plugins', [':seo_name' => $this->getName()], $comments);
     }
 
 
@@ -283,8 +283,8 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function enable(?string $comments = null): void
     {
-        self::linkScripts();
-        sql()->setStatus(null, 'core_plugins', ['seo_name' => $this->getSeoName()], $comments);
+        static::linkScripts();
+        sql()->dataEntrySetStatus(null, 'core_plugins', ['seo_name' => $this->getSeoName()], $comments);
     }
 
 
@@ -296,8 +296,8 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function disable(?string $comments = null): void
     {
-        self::unlinkScripts();
-        sql()->setStatus('disabled', 'core_plugins', ['seo_name' => $this->getSeoName()], $comments);
+        static::unlinkScripts();
+        sql()->dataEntrySetStatus('disabled', 'core_plugins', ['seo_name' => $this->getSeoName()], $comments);
     }
 
 

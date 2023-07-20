@@ -288,11 +288,9 @@ class Filesystem
             }
         } else {
             if ($must_exist) {
-                Log::warning($path);
-                Log::warning($prefix);
-                showdie($prefix);
-                throw new FileNotExistException(tr('The specified file or path ":path" does not exist', [
-                    ':path' => $path
+                throw new FileNotExistException(tr('The specified file or path ":path" with prefix ":prefix" does not exist', [
+                    ':prefix' => $prefix,
+                    ':path'   => $path
                 ]));
             }
 

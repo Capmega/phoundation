@@ -135,7 +135,14 @@ class Domains {
      */
     public static function getCurrent(): string
     {
-        return Page::getDomain();
+        if (PLATFORM_HTTP) {
+            return $_SERVER['HTTP_HOST'];
+        }
+
+        $domain = Strings::from(Config::getString('web.domains.primary.www'), '//');
+        $domain = Strings::until($domain, '/');
+
+        return $domain;
     }
 
 

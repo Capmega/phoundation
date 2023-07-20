@@ -168,6 +168,13 @@ class Core {
      */
     protected static ?int $sleep = null;
 
+    /**
+     * Temporary storage for any data
+     *
+     * @var array $storage
+     */
+    protected static array $storage = [];
+
 
     /**
      * Core class constructor
@@ -234,11 +241,11 @@ class Core {
      */
     public static function getInstance(): static
     {
-        if (!isset(self::$instance)) {
-            self::$instance = new static();
+        if (!isset(static::$instance)) {
+            static::$instance = new static();
         }
 
-        return self::$instance;
+        return static::$instance;
     }
 
 
@@ -292,7 +299,7 @@ class Core {
      */
     public static function sleep(int $seconds): void
     {
-        self::doSleep($seconds);
+        static::doSleep($seconds);
     }
 
 
@@ -308,7 +315,7 @@ class Core {
      */
     public static function usleep(int $micro_seconds): void
     {
-        self::doUsleep($micro_seconds);
+        static::doUsleep($micro_seconds);
     }
 
 
@@ -1105,7 +1112,7 @@ class Core {
      */
     public static function scriptStarted(): bool
     {
-        return self::$script;
+        return static::$script;
     }
 
 
@@ -2382,6 +2389,31 @@ class Core {
         } else {
             $function();
         }
+    }
+
+
+    /**
+     * Returns data from storage
+     *
+     * @param string $key
+     * @return mixed
+     */
+    public static function getStorage(string $key): mixed
+    {
+        return array_get_safe(static::$storage, $key);
+    }
+
+
+    /**
+     * Sets data in storage
+     *
+     * @param mixed $value
+     * @param string $key
+     * @return void
+     */
+    public static function setStorage(string $key, mixed $value): void
+    {
+        static::$storage[$key] = $value;
     }
 
 

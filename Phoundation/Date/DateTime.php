@@ -6,6 +6,9 @@ namespace Phoundation\Date;
 
 use DateTimeInterface;
 use Exception;
+use Phoundation\Date\Enums\DateTimeSegment;
+use Phoundation\Date\Enums\Interfaces\DateTimeSegmentInterface;
+use Phoundation\Exception\OutOfBoundsException;
 use Stringable;
 
 
@@ -160,5 +163,61 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
         }
 
         return parent::format($format);
+    }
+
+
+    public function round(DateTimeSegmentInterface $segment): static
+    {
+        $date = $this->format('Y m d H i s v u');
+        $date = explode(' ', $date);
+
+        switch ($segment) {
+            case DateTimeSegment::millennium:
+                // no break
+            case DateTimeSegment::decennium:
+            // no break
+            case DateTimeSegment::century:
+                // no break
+            case DateTimeSegment::week:
+                throw new OutOfBoundsException(tr('Cannot round date to requested segment ":segment"', [
+                    ':segment' => $segment
+                ]));
+
+            case DateTimeSegment::year:
+                $date[0] = 0;
+                // no break
+
+            case DateTimeSegment::month:
+                $date[1] = 0;
+                // no break
+
+            case DateTimeSegment::day:
+                $date[2] = 0;
+                // no break
+
+            case DateTimeSegment::hour:
+                $date[3] = 0;
+                // no break
+
+            case DateTimeSegment::minute:
+                $date[4] = 0;
+                // no break
+
+            case DateTimeSegment::second:
+                $date[5] = 0;
+                // no break
+
+            case DateTimeSegment::millisecond:
+                $date[6] = 0;
+                // no break
+
+            case DateTimeSegment::microsecond:
+                $date[7] = 0;
+        }
+
+        $this->setDate((int) $date[0], (int) $date[1], (int) $date[2]);
+        $this->setTime((int) $date[3], (int) $date[4], (int) $date[5], (int) $date[7]);
+
+        return $this;
     }
 }

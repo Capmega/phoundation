@@ -62,7 +62,7 @@ class MaxMindImport extends GeoIpImport
 
         Log::action(tr('Storing GeoIP files in path ":path"', [':path' => $path]));
 
-        foreach (self::getMaxMindFiles(true) as $file => $url) {
+        foreach (static::getMaxMindFiles(true) as $file => $url) {
             Log::action(tr('Downloading MaxMind URL ":url"', [':url' => $url]));
 
             $wget
@@ -102,7 +102,7 @@ class MaxMindImport extends GeoIpImport
             $shas     = [];
 
             // Perform sha256 check on all files
-            foreach (self::getMaxMindFiles(true) as $file => $url) {
+            foreach (static::getMaxMindFiles(true) as $file => $url) {
                 if (str_ends_with($file, 'sha256')) {
                     // Get the required sha256 code for the following file
                     $sha = File::new($source_path . $file, $restrictions)->checkReadable()->getContentsAsString();

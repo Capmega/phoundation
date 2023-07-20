@@ -80,9 +80,7 @@ class Get extends Curl
                     ':url'   => $this->url,
                     ':errno' => curl_errno($this->curl),
                     ':error' => curl_error($this->curl),
-                ]))
-                    ->setData(curl_getinfo($this->curl))
-                    ->setCode('CURL' . curl_errno($this->curl));
+                ]))->setData(curl_getinfo($this->curl))->setCode('CURL' . curl_errno($this->curl));
             }
 
             // Split data from headers
@@ -174,11 +172,11 @@ class Get extends Curl
             // Store the request results in cache
             unset($this->curl);
 
-            sql()->delete('network_curl_cache', [
+            sql()->dataEntrydelete('network_curl_cache', [
                 'url' => $this->url
             ]);
 
-            sql()->insert('network_curl_cache', [
+            sql()->dataEntryInsert('network_curl_cache', [
                 'created_by' => Session::getUser()->getId(),
                 'url'        => $this->url,
                 'data'       => Json::encode($this->result_data),
@@ -241,10 +239,10 @@ class Get extends Curl
             $this->curl = curl_init();
 
             // Prepare headers
-            if ($this->result_headers === null) {
+            if (!$this->request_headers) {
                 // Send default headers. Check if we're sending files. If so, use multipart
                 if (empty($multipart)) {
-                    $this->result_headers = [
+                    $this->addRequestHeaders([
                         'Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5',
                         'Cache-Control: max-age=0',
                         'Connection: keep-alive',
@@ -252,7 +250,7 @@ class Get extends Curl
                         'Expect:',
                         'Accept-Charset: utf-8,ISO-8859-1;q=0.7,*;q=0.7',
                         'Accept-Language: en-us,en;q=0.5'
-                    ];
+                    ]);
 
                 } else {
                     $this->result_headers = [

@@ -301,11 +301,11 @@ class Page
      */
     public static function getInstance(): static
     {
-        if (!isset(self::$instance)) {
-            self::$instance = new static();
+        if (!isset(static::$instance)) {
+            static::$instance = new static();
         }
 
-        return self::$instance;
+        return static::$instance;
     }
 
 
@@ -532,7 +532,7 @@ class Page
      */
     public static function getDomain(): string
     {
-        return $_SERVER['HTTP_HOST'];
+        return Domains::getCurrent();
     }
 
 
@@ -984,7 +984,7 @@ class Page
 
         if (!$target) {
             // If target wasn't specified we can safely assume it's the same as the real target.
-            $target = self::$target;
+            $target = static::$target;
         }
 
         // Oops! Is this a system page though? System pages require no rights to be viewed.
@@ -1100,8 +1100,8 @@ class Page
     {
         try {
             // Startup the page and see if we can use cache
-            self::startup($target);
-            self::tryCache($target, $attachment);
+            static::startup($target);
+            static::tryCache($target, $attachment);
 
             Core::writeRegister($target, 'system', 'script_file');
             ob_start();
@@ -1109,7 +1109,7 @@ class Page
             // Execute the specified targetwww
             // Build the headers, cache output and headers together, then send the headers
             // TODO Work on the HTTP headers, lots of issues here still, like content-length!
-            $output  = self::executeTarget($target);
+            $output  = static::executeTarget($target);
             $headers = static::buildHttpHeaders($output, $attachment);
 
             if ($headers) {
@@ -1125,8 +1125,8 @@ class Page
             }
 
             // All done, send output to client
-            $output = self::filterOutput($output);
-            self::sendOutputToClient($output, $target, $attachment);
+            $output = static::filterOutput($output);
+            static::sendOutputToClient($output, $target, $attachment);
 
         } catch (ValidationFailedException $e) {
             // TODO Improve this uncaught validation failure handling
@@ -2160,10 +2160,10 @@ class Page
             try {
                 $cache  = Json::decode($cache);
                 $length = static::sendHttpHeaders($cache['headers']);
-                $output = self::filterOutput($cache['output']);
+                $output = static::filterOutput($cache['output']);
 
                 Log::success(tr('Sent ":length" bytes of HTTP to client', [':length' => $length]), 3);
-                self::sendOutputToClient($output, $target, $attachment);
+                static::sendOutputToClient($output, $target, $attachment);
 
             } catch (Throwable $e) {
                 // Cache failed!

@@ -419,7 +419,7 @@ class Library
             // Load the PHP file
             include_once($file);
 
-            $updates_class_path = self::getClassPath($file);
+            $updates_class_path = static::getClassPath($file);
             $updates            = new $updates_class_path();
 
             if (!($updates instanceof Updates)) {

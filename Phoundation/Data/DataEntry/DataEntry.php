@@ -729,7 +729,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      */
     public function setStatus(?string $status, ?string $comments = null): static
     {
-        sql()->setStatus($status, static::getTable(), ['id' => $this->getId(), 'meta_id' => $this->getMetaId()], $comments);
+        sql()->dataEntrySetStatus($status, static::getTable(), ['id' => $this->getId(), 'meta_id' => $this->getMetaId()], $comments);
         return $this->setDataValue('status', $status);
     }
 
@@ -1554,7 +1554,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
         }
 
         // Write the entry
-        $this->data['id'] = sql()->write(static::getTable(), $this->getInsertColumns(), $this->getUpdateColumns(), $comments, $this->diff);
+        $this->data['id'] = sql()->dataEntryWrite(static::getTable(), $this->getInsertColumns(), $this->getUpdateColumns(), $comments, $this->diff);
 
         if ($this->debug) {
             Log::information('SAVED DATAENTRY WITH ID "' . $this->data['id'] . '"', 10);

@@ -2397,7 +2397,7 @@ abstract class Validator implements ValidatorInterface
      * @return static
      * @see trim()
      */
-    public function sanitizeTrim(string $characters = "\t\n\r\0\x0B"): static
+    public function sanitizeTrim(string $characters = " \t\n\r\0\x0B"): static
     {
         return $this->validateValues(function(&$value) use ($characters) {
             $this->hasMaxCharacters();

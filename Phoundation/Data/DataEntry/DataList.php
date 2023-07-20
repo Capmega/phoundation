@@ -458,7 +458,7 @@ abstract class DataList extends Iterator implements DataListInterface
      */
     public function setStatus(?string $status, array $entries, ?string $comments = null): int
     {
-        return sql()->setStatus($status, static::getTable(), $entries, $comments);
+        return sql()->dataEntrySetStatus($status, static::getTable(), $entries, $comments);
     }
 
 
@@ -502,7 +502,7 @@ showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY F
 
         return sql()->list('SELECT `id` 
                                   FROM   `' . static::getTable() . '` 
-                                  WHERE  `' . self::getUniqueField() . '` IN (' . implode(', ', array_keys($in)) . ')', $in);
+                                  WHERE  `' . static::getUniqueField() . '` IN (' . implode(', ', array_keys($in)) . ')', $in);
     }
 
 

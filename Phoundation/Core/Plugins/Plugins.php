@@ -87,8 +87,8 @@ class Plugins extends DataList
      */
     public static function setup(): void
     {
-        self::clear();
-        self::scan();
+        static::clear();
+        static::scan();
     }
 
 
@@ -104,7 +104,7 @@ class Plugins extends DataList
     {
         $count = 0;
 
-        foreach (self::getPlugins() as $name => $class) {
+        foreach (static::getPlugins() as $name => $class) {
             try {
                 $plugin = $class::new($name);
 
@@ -132,7 +132,7 @@ class Plugins extends DataList
      */
     public static function start(): void
     {
-        foreach (self::getEnabled() as $plugin) {
+        foreach (static::getEnabled() as $plugin) {
             if ($plugin['enabled']) {
                 Log::action(tr('Starting plugin ":plugin"', [':plugin' => $plugin['name']]), 9);
                 include_once($plugin['path'] . 'Plugin.php');
@@ -149,7 +149,7 @@ class Plugins extends DataList
 //     */
 //    public static function startCli(): void
 //    {
-//        foreach (self::getEnabled() as $name => $plugin) {
+//        foreach (static::getEnabled() as $name => $plugin) {
 //            Log::action(tr('Starting CLI on plugin ":plugin"', [':plugin' => $name]), 3);
 //            $plugin['class']::startCli();
 //        }
@@ -164,7 +164,7 @@ class Plugins extends DataList
 //     */
 //    public static function startHttp(): void
 //    {
-//        foreach (self::getEnabled() as $name => $plugin) {
+//        foreach (static::getEnabled() as $name => $plugin) {
 //            Log::action(tr('Starting HTTP on plugin ":plugin"', [':plugin' => $name]));
 //            $plugin['class']::startHttp();
 //        }
@@ -276,7 +276,7 @@ class Plugins extends DataList
     {
         $path = PATH_ROOT . 'Plugins/';
 
-        self::clear();
+        static::clear();
         File::new($path)->delete();
         Path::new($path)->ensure();
     }

@@ -173,7 +173,7 @@ abstract class Element implements ElementInterface
             'class'     => $this->getClass(),
             'height'    => $this->height,
             'width'     => $this->width,
-            'autofocus' => ((self::$autofocus === $this->id) ? 'autofocus' : null),
+            'autofocus' => ((static::$autofocus === $this->id) ? 'autofocus' : null),
             'readonly'  => ($this->readonly ? 'readonly' : null),
             'disabled'  => ($this->disabled ? 'disabled' : null),
         ];

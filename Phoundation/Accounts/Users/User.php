@@ -167,7 +167,7 @@ class User extends DataEntry implements UserInterface
      */
     public static function authenticate(string|int $identifier, string $password, ?string $domain = null): static
     {
-        return self::doAuthenticate($identifier, $password, $domain);
+        return static::doAuthenticate($identifier, $password, $domain);
     }
 
 

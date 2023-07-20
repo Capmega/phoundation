@@ -8,6 +8,7 @@ use PDOStatement;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
+use Phoundation\Data\Traits\DataDebug;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Exception\OutOfBoundsException;
 
@@ -24,6 +25,9 @@ use Phoundation\Exception\OutOfBoundsException;
  */
 class QueryBuilder implements QueryBuilderInterface
 {
+    use DataDebug;
+
+
     /**
      * Select part of query
      *
@@ -375,7 +379,7 @@ class QueryBuilder implements QueryBuilderInterface
      */
     public function getQuery(bool $debug = false): string
     {
-        $query = ($debug ? ' ' : '');
+        $query = (($this->debug or $debug) ? ' ' : '');
 
         if ($this->select) {
             $query .= implode(', ', $this->select) . ' FROM ' . implode(', ', $this->from) . ' ';

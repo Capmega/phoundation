@@ -140,7 +140,7 @@ class Session
      */
     public static function getUser(): User
     {
-        return self::returnUser(false);
+        return static::returnUser(false);
     }
 
 
@@ -151,7 +151,7 @@ class Session
      */
     public static function getRealUser(): User
     {
-        return self::returnUser(true);
+        return static::returnUser(true);
     }
 
 
@@ -702,7 +702,7 @@ Log::warning('RESTART SESSION');
         }
 
         // Impersonate the user
-        $original_user = self::getUser();
+        $original_user = static::getUser();
 
         $_SESSION['user']['impersonate_id']  = $user->getId();
         $_SESSION['user']['impersonate_url'] = (string) UrlBuilder::getCurrent();

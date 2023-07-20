@@ -250,7 +250,7 @@ abstract class Updates
      */
     protected function addVersion(string $version, ?string $comments = null): void
     {
-        sql()->insert('core_versions', [
+        sql()->dataEntryInsert('core_versions', [
             'library'  => $this->library,
             'version'  => Version::getInteger($version),
             'comments' => $comments

@@ -158,7 +158,7 @@ Class Log {
         // Apply configuration
         try {
             // Determine log threshold
-            if (!isset(self::$threshold)) {
+            if (!isset(static::$threshold)) {
                 if (defined('QUIET') and QUIET) {
                     // Ssshhhhhhhh..
                     $threshold = 9;
@@ -208,8 +208,8 @@ Class Log {
     public static function getInstance(string $global_id = ''): static
     {
         try {
-            if (!isset(self::$instance)) {
-                self::$instance = new static($global_id);
+            if (!isset(static::$instance)) {
+                static::$instance = new static($global_id);
 
                 // Log class startup message
                 if (Debug::enabled()) {
@@ -227,8 +227,8 @@ Class Log {
             error_log($e->getMessage());
         }
 
-        // TODO self::$instance might not be assigned at this point, if there was an exception. What then?
-        return self::$instance;
+        // TODO static::$instance might not be assigned at this point, if there was an exception. What then?
+        return static::$instance;
     }
 
 

@@ -451,7 +451,7 @@ class UrlBuilder implements UrlBuilderInterface
         } else {
             $cloak = Strings::random(32);
 
-            sql()->insert('url_cloaks', [
+            sql()->dataEntryInsert('url_cloaks', [
                 'created_by' => Session::getUser()->getId(),
                 'cloak'      => $cloak,
                 'url'        => $this->url
@@ -482,7 +482,7 @@ class UrlBuilder implements UrlBuilderInterface
             ]));
         }
 
-        sql()->delete('url_cloaks', [':cloak' => $this->url]);
+        sql()->dataEntrydelete('url_cloaks', [':cloak' => $this->url]);
         return $this;
     }
 
@@ -511,11 +511,11 @@ class UrlBuilder implements UrlBuilderInterface
 
 
     /**
-     * Remove the query part from the URL
+     * Clear the query part from the URL
      *
      * @return static
      */
-    public function removeQueries(): static
+    public function clearQueries(): static
     {
         $this->url = Strings::until($this->url, '?');
         return $this;
@@ -525,10 +525,10 @@ class UrlBuilder implements UrlBuilderInterface
     /**
      * Add specified query to the specified URL and return
      *
-     * @param string $query [$query] ... All the queries to add to this URL
+     * @param array|string|bool ...$queries All the queries to add to this URL
      * @return static
      */
-    public function addQueries(...$queries): static
+    public function addQueries(array|string|bool ...$queries): static
     {
         if (!$queries) {
             throw new OutOfBoundsException(tr('No queries specified to add to the specified URL'));
@@ -537,11 +537,89 @@ class UrlBuilder implements UrlBuilderInterface
         foreach ($queries as $query) {
             if (!$query) continue;
 
+            // Break the query up in multiple entries, if specified
             if (is_string($query) and str_contains($query, '&')) {
                 $query = explode('&', $query);
             }
 
+            // If the specified query is an array, then add each element individually
             if (is_array($query)) {
+                foreach ($query as $key => $value) {
+                    if (is_numeric($key)) {
+                        // $value should contain key=value
+                        static::addQueries($value);
+
+                    } else {
+                        static::addQueries($key . '=' . $value);
+                    }
+                }
+
+                continue;
+            }
+
+            if ($query === true) {
+                // Add the original query string
+                $query = $_SERVER['QUERY_STRING'];
+            }
+
+            $this->url = Strings::endsNotWith($this->url, '?');
+
+            if (!preg_match('/^[a-z0-9-_]+?=.*?$/i', $query)) {
+                throw new OutOfBoundsException(tr('Invalid query ":query" specified. Please ensure it has the "key=value" format', [
+                    ':query' => $query
+                ]));
+            }
+
+            $key = Strings::until($query, '=');
+
+            if (!str_contains($this->url, '?')) {
+                // This URL has no query yet, begin one
+                $this->url .= '?' . $query;
+
+            } elseif (str_contains($this->url, $key . '=')) {
+                // The query already exists in the specified URL, replace it.
+                $replace   = Strings::cut($this->url, $key . '=', '&');
+                $this->url = str_replace($key . '=' . $replace, $key . '=' . Strings::from($query, '='), $this->url);
+
+            } else {
+                // Append the query to the URL
+                $this->url .= '&' . $query;
+            }
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Remove specified queries from the specified URL and return
+     *
+     * @param array|string|bool ...$queries All the queries to add to this URL
+     * @return static
+     */
+    public function removeQueries(array|string|bool ...$queries): static
+    {
+throw new UnderConstructionException();
+        if (!$queries) {
+            throw new OutOfBoundsException(tr('No queries specified to remove from the specified URL'));
+        }
+
+        foreach ($queries as $query) {
+            if (!$query) continue;
+
+            if (is_array($query)) {
+                // The queries were specified as an array. Add each individual entry separately and we're done
+                foreach($query as $key => &$value) {
+                    $this->addQueries($key . '=' . $value);
+                }
+
+                continue;
+            }
+
+            // Break the query up in multiple entries, if specified
+            if (is_string($query) and str_contains($query, '&')) {
+                $query = explode('&', $query);
+
                 foreach ($query as $key => $value) {
                     if (is_numeric($key)) {
                         // $value should contain key=value

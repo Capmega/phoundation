@@ -150,7 +150,7 @@ class Password extends DataEntry
      */
     public static function authenticate(string|int $identifier, string $password, ?string $domain = null): static
     {
-        return self::doAuthenticate($identifier, $password, $domain);
+        return static::doAuthenticate($identifier, $password, $domain);
     }
 
 

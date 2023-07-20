@@ -80,7 +80,7 @@ class Import extends \Phoundation\Developer\Project\Import
 
         Log::action(tr('Downloading Geo files to temporary path ":path"', [':path' => $tmp_path]));
 
-        foreach (self::getGeoNamesFiles() as $file => $data) {
+        foreach (static::getGeoNamesFiles() as $file => $data) {
             Log::action(tr('Downloading GeoNames URL ":url"', [':url' => $data['url']]));
 
             // Set timeout to two hours for this download as the file is hundreds of megabytes. Depending on internet
@@ -121,7 +121,7 @@ class Import extends \Phoundation\Developer\Project\Import
             $previous = Path::new($target_path, $restrictions)->move(PATH_DATA . 'garbage/');
 
             // Prepare and import each file
-            foreach (self::getGeoNamesFiles() as $file => $data) {
+            foreach (static::getGeoNamesFiles() as $file => $data) {
                 Log::action(tr('Processing GeoNames file ":file"', [':file' => $file]));
 
                 if (str_ends_with($file, '.zip')) {
@@ -153,7 +153,7 @@ class Import extends \Phoundation\Developer\Project\Import
             throw $e;
         }
 
-        self::load($target_path);
+        static::load($target_path);
         return $target_path;
     }
 

@@ -42,7 +42,7 @@ class Import extends \Phoundation\Developer\Project\Import
      */
     public function execute(): int
     {
-        $provider = self::getProvider();
+        $provider = static::getProvider();
         $path     = $provider->download();
 
         $provider->process($path);

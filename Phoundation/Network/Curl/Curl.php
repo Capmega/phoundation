@@ -62,6 +62,13 @@ abstract class Curl
     protected ?string $user_agent = null;
 
     /**
+     * The request headers for the request. NULL if the request has not yet been executed
+     *
+     * @var array $request_headers
+     */
+    protected array $request_headers = [];
+
+    /**
      * The result headers from the request. NULL if the request has not yet been executed
      *
      * @var array|null
@@ -930,6 +937,75 @@ abstract class Curl
     public function addOption(int $key, mixed $value): static
     {
         $this->options[$key] = $value;
+        return $this;
+    }
+
+
+    /**
+     * Returns the result headers
+     *
+     * @return array|null
+     */
+    public function getRequestHeaders(): ?array
+    {
+        return $this->request_headers;
+    }
+
+
+    /**
+     * Sets the request headers
+     *
+     * @param array $headers
+     * @return static
+     */
+    public function setRequestHeaders(array $headers): static
+    {
+        return $this->clearRequestHeaders()->addRequestHeaders($headers);
+    }
+
+
+    /**
+     * Returns the result headers
+     *
+     * @param array $headers
+     * @return static
+     */
+    public function addRequestHeaders(array $headers): static
+    {
+        foreach ($headers as $key => $value) {
+            if (is_numeric($key)) {
+                $this->addRequestHeader($key, $value);
+            } else {
+                $this->addRequestHeader($key, $value);
+            }
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Returns the result headers
+     *
+     * @param string $key
+     * @param string|float|int|null $value
+     * @return static
+     */
+    public function addRequestHeader(string $key, string|float|int|null $value): static
+    {
+        $this->request_headers[$key] = $value;
+        return $this;
+    }
+
+
+    /**
+     * Clears the request headers
+     *
+     * @return static
+     */
+    public function clearRequestHeaders(): static
+    {
+        $this->request_headers = [];
         return $this;
     }
 

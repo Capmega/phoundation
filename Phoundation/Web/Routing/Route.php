@@ -182,11 +182,11 @@ class Route
      */
     public static function getInstance(): static
     {
-        if (!isset(self::$instance)) {
-            self::$instance = new static();
+        if (!isset(static::$instance)) {
+            static::$instance = new static();
         }
 
-        return self::$instance;
+        return static::$instance;
     }
 
 
@@ -430,6 +430,7 @@ class Route
 
             try {
                 $match = preg_match_all($url_regex, $uri, $matches);
+
             } catch (Exception $e) {
                 throw new RouteException(tr('Failed to parse route ":route" with ":message"', [
                     ':route' => $url_regex,
@@ -508,7 +509,7 @@ class Route
             // Apply regex variables replacements
             if (preg_match_all('/\$(\d+)/', $route, $replacements)) {
                 if (preg_match('/\$\d+\.php/', $route)) {
-                    self::$dynamic_pagematch = true;
+                    static::$dynamic_pagematch = true;
                 }
 
                 foreach ($replacements[1] as $replacement) {
@@ -1111,7 +1112,7 @@ class Route
         }
 
         if (!file_exists($target)) {
-            if (self::$dynamic_pagematch) {
+            if (static::$dynamic_pagematch) {
                 Log::warning(tr('Pattern matched file ":file" does not exist', [':page' => $target]));
 
             } else {

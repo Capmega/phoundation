@@ -97,7 +97,7 @@ interface SqlInterface
      * @return int
      * @throws Exception
      */
-    public function write(string $table, array $insert_row, array $update_row, ?string $comments, ?string $diff): int;
+    public function dataEntryWrite(string $table, array $insert_row, array $update_row, ?string $comments, ?string $diff): int;
 
     /**
      * Insert the specified data row in the specified table
@@ -114,7 +114,7 @@ interface SqlInterface
      * @return int
      * @throws Exception
      */
-    public function insert(string $table, array $row, ?string $comments = null, ?string $diff = null): int;
+    public function dataEntryInsert(string $table, array $row, ?string $comments = null, ?string $diff = null): int;
 
     /**
      * Update the specified data row in the specified table
@@ -129,7 +129,7 @@ interface SqlInterface
      * @param string|null $diff
      * @return int
      */
-    public function update(string $table, array $row, string $action = 'update', ?string $comments = null, ?string $diff = null): int;
+    public function dataEntryUpdate(string $table, array $row, string $action = 'update', ?string $comments = null, ?string $diff = null): int;
 
     /**
      * Update the status for the data row in the specified table to "deleted"
@@ -143,7 +143,7 @@ interface SqlInterface
      * @param string|null $comments
      * @return int
      */
-    public function delete(string $table, array $row, ?string $comments = null): int;
+    public function dataEntrydelete(string $table, array $row, ?string $comments = null): int;
 
     /**
      * Truncates the specified table
@@ -162,7 +162,7 @@ interface SqlInterface
      * @param string|null $comments
      * @return int
      */
-    public function setStatus(?string $status, string $table, array $row, ?string $comments = null): int;
+    public function dataEntrySetStatus(?string $status, string $table, array $row, ?string $comments = null): int;
 
     /**
      * Delete the row in the specified table
@@ -172,10 +172,10 @@ interface SqlInterface
      * @note This method assumes that the specifies rows are correct to the specified table. If columns not pertaining
      *       to this table are in the $row value, the query will automatically fail with an exception!
      * @param string $table
-     * @param array $rows
+     * @param array $where
      * @return int
      */
-    public function erase(string $table, array $rows): int;
+    public function erase(string $table, array $where): int;
 
     /**
      * Prepare specified query

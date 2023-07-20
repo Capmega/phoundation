@@ -712,7 +712,7 @@ class Path extends FileBasics
      */
     public static function getTemporarySub(bool $public = false): Path
     {
-        $path = self::getTemporary($public);
+        $path = static::getTemporary($public);
         $path = $path . Strings::random(8, characters: 'alphanumeric') . '/';
 
         return Path::new($path);

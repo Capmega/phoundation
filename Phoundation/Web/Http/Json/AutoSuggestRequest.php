@@ -36,7 +36,7 @@ class AutoSuggestRequest
      */
     protected static function ensureGet(bool $term_optional = false): void
     {
-        if (isset(self::$get)) {
+        if (isset(static::$get)) {
             return;
         }
 
@@ -46,14 +46,13 @@ class AutoSuggestRequest
             ->select('_')->isNatural();
 
         if ($term_optional) {
-            $validator->select('term')->isOptional('')->hasMaxCharacters(255)->isPrintable();
+            $validator->select('term')->isOptional('')->sanitizeTrim()->hasMaxCharacters(255)->isPrintable();
 
         } else {
-            $validator->select('term')->hasMaxCharacters(255)->isPrintable();
+            $validator->select('term')->sanitizeTrim()->hasMaxCharacters(255)->isPrintable();
         }
 
-
-        self::$get = $validator->validate(false);
+        static::$get = $validator->validate(false);
     }
 
 
@@ -66,7 +65,7 @@ class AutoSuggestRequest
      */
     public static function init(bool $term_optional = false): void
     {
-        self::ensureGet($term_optional);
+        static::ensureGet($term_optional);
     }
 
 
@@ -77,8 +76,8 @@ class AutoSuggestRequest
      */
     public static function getCallback(): string
     {
-        self::ensureGet();
-        return self::$get['callback'];
+        static::ensureGet();
+        return static::$get['callback'];
     }
 
 
@@ -90,15 +89,15 @@ class AutoSuggestRequest
      */
     public static function getTerm(int $max_size = 255): string
     {
-        self::ensureGet();
+        static::ensureGet();
 
-        if (strlen(self::$get['term']) > $max_size) {
+        if (strlen(static::$get['term']) > $max_size) {
             throw new ValidationFailedException(tr('The field term must have ":count" characters or less', [
                 ':count' => $max_size
             ]));
         }
 
-        return self::$get['term'];
+        return static::$get['term'];
     }
 
 
@@ -109,7 +108,7 @@ class AutoSuggestRequest
      */
     public static function get_(): string
     {
-        self::ensureGet();
-        return self::$get['_'];
+        static::ensureGet();
+        return static::$get['_'];
     }
 }

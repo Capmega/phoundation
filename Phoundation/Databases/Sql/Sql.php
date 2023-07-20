@@ -217,17 +217,17 @@ class Sql implements SqlInterface
     {
         if ($debug === null) {
             // Set debug
-            return self::$debug;
+            return static::$debug;
         }
 
-        if (self::$debug === null) {
+        if (static::$debug === null) {
             // Default debug
-            self::$debug = Config::get('databases.sql.debug', false);
+            static::$debug = Config::get('databases.sql.debug', false);
         }
 
         // Return the previous value
-        $previous    = self::$debug;
-        self::$debug = $debug;
+        $previous    = static::$debug;
+        static::$debug = $debug;
         return $previous;
     }
 
@@ -453,32 +453,32 @@ class Sql implements SqlInterface
                         case 1052:
                             // Integrity constraint violation
                             throw new SqlException(tr('Query ":query" contains an abiguous column', [
-                                ':query' => self::buildQueryString($query, $execute, true)
+                                ':query' => static::buildQueryString($query, $execute, true)
                             ]), $e);
 
                         case 1054:
                             // Column not found
                             throw new SqlException(tr('Query ":query" refers to a column that does not exist', [
-                                ':query' => self::buildQueryString($query, $execute, true)
+                                ':query' => static::buildQueryString($query, $execute, true)
                             ]), $e);
 
                         case 1064:
                             // Syntax error or access violation
                             if (str_contains(strtoupper($query), 'DELIMITER')) {
                                 throw new SqlException(tr('Query ":query" contains the "DELIMITER" keyword. This keyword ONLY works in the MySQL console, and can NOT be used over MySQL drivers in PHP. Please remove this keword from the query', [
-                                    ':query' => self::buildQueryString($query, $execute, true)
+                                    ':query' => static::buildQueryString($query, $execute, true)
                                 ]), $e);
                             }
 
                             throw SqlException::new(tr('Query ":query" has a syntax error: ":error"', [
-                                ':query' => self::buildQueryString($query, $execute),
+                                ':query' => static::buildQueryString($query, $execute),
                                 ':error' => Strings::from($error[2], 'syntax; ')
                             ], false), $e)->setData(['query' => $query, 'execute' => $execute]);
 
                         case 1072:
                             // Adding index error, index probably does not exist
                             throw new SqlException(tr('Query ":query" failed with error 1072 with the message ":message"', [
-                                ':query'   => self::buildQueryString($query, $execute, true),
+                                ':query'   => static::buildQueryString($query, $execute, true),
                                 ':message' => isset_get($error[2])
                             ]), $e);
 
@@ -500,19 +500,19 @@ class Sql implements SqlInterface
 
                             }catch(Exception $e) {
                                 throw new SqlException(tr('Query ":query" failed with error 1005, but another error was encountered while trying to obtain FK error data', [
-                                    ':query' => self::buildQueryString($query, $execute, true)
+                                    ':query' => static::buildQueryString($query, $execute, true)
                                 ]), $e);
                             }
 
                             throw new SqlException(tr('Query ":query" failed with error 1005 with the message "Foreign key error on :message"', [
-                                ':query'   => self::buildQueryString($query, $execute, true),
+                                ':query'   => static::buildQueryString($query, $execute, true),
                                 ':message' => $fk
                             ]), $e);
 
                         case 1146:
                             // Base table or view not found
                             throw new SqlException(tr('Query ":query" refers to a base table or view that does not exist: :message', [
-                                ':query'   => self::buildQueryString($query, $execute, true),
+                                ':query'   => static::buildQueryString($query, $execute, true),
                                 ':message' => $e->getMessage()
                             ]), $e);
                     }
@@ -527,7 +527,7 @@ class Sql implements SqlInterface
                 SQL STATE ERROR : "' . $error[0] . '"
                 DRIVER ERROR    : "' . $error[1] . '"
                 ERROR MESSAGE   : "' . $error[2] . '"
-                query           : "' . Strings::Log(self::buildQueryString($query, $execute, true)) . '"
+                query           : "' . Strings::Log(static::buildQueryString($query, $execute, true)) . '"
                 date            : "' . date('Y-m-d H:i:s'))
                 ->setDetails([
                     '$argv'     => $argv,
@@ -541,7 +541,7 @@ class Sql implements SqlInterface
                 ->send();
 
             throw SqlException::new(tr('(:id) Query ":query" failed with ":messages"', [
-                ':query'    => self::buildQueryString($query, $execute),
+                ':query'    => static::buildQueryString($query, $execute),
                 ':messages' => $e->getMessage(),
                 ':id'       => $this->uniqueid
             ]), $e)->setCode(isset_get($error[1]));
@@ -565,7 +565,7 @@ class Sql implements SqlInterface
      * @return int
      * @throws Exception
      */
-    public function write(string $table, array $insert_row, array $update_row, ?string $comments, ?string $diff): int
+    public function dataEntryWrite(string $table, array $insert_row, array $update_row, ?string $comments, ?string $diff): int
     {
         if (empty($update_row['id'])) {
             // New entry, insert
@@ -575,7 +575,7 @@ class Sql implements SqlInterface
                 try {
                     // Set a random ID and insert the row
                     $insert_row = Arrays::prepend($insert_row, 'id', random_int(1, PHP_INT_MAX));
-                    return $this->insert($table, $insert_row, $comments, $diff);
+                    return $this->dataEntryInsert($table, $insert_row, $comments, $diff);
 
                 } catch (SqlException $e) {
                     if ($e->getCode() !== 1062) {
@@ -611,8 +611,50 @@ class Sql implements SqlInterface
         }
 
         // This is an existing entry, update!
-        $this->update($table, $update_row, 'update', $comments, $diff);
+        $this->dataEntryUpdate($table, $update_row, 'update', $comments, $diff);
         return $update_row['id'];
+    }
+
+
+    /**
+     * Insert the specified data row in the specified table, with "on dulplicate update" option
+     *
+     * This is a simplified insert method to speed up writing basic insert queries
+     *
+     * @note: PDO::lastInsertId() returns string|false, this method will return int
+     * @note This method assumes that the specifies rows are correct to the specified table. If columns not pertaining
+     *       to this table are in the $row value, the query will automatically fail with an exception!
+     * @param string $table
+     * @param array $data
+     * @param array|string|null $update
+     * @return int
+     */
+    public function insert(string $table, array $data, array|string|null $update = null): int
+    {
+        $columns = $this->columns($data);
+        $values  = $this->values($data);
+
+        if ($update) {
+            // Build bound variables for query
+            if (is_array($update)) {
+                $data = array_merge($data, $update);
+            }
+
+            $keys   = $this->keys($data);
+            $update = $this->updateColumns($update);
+
+            $this->query('INSERT INTO            `' . $table . '` (' . $columns . ') 
+                                VALUES                                  (' . $keys . ') 
+                                ON DUPLICATE KEY UPDATE ' . $update, $values);
+
+        } else {
+            // Build bound variables for query
+            $keys = $this->keys($data);
+
+            $this->query('INSERT INTO `' . $table . '` (' . $columns . ') VALUES (' . $keys . ')', $values);
+        }
+
+        return (int) $this->pdo->lastInsertId();
     }
 
 
@@ -631,12 +673,12 @@ class Sql implements SqlInterface
      * @return int
      * @throws Exception
      */
-    public function insert(string $table, array $row,  ?string $comments = null, ?string $diff = null): int
+    public function dataEntryInsert(string $table, array $row, ?string $comments = null, ?string $diff = null): int
     {
         // Set meta fields
         if (array_key_exists('meta_id', $row)) {
-            $row['meta_id']     = Meta::init($comments, $diff)->getId();
-            $row['created_by']  = Session::getUser()->getId();
+            $row['meta_id']    = Meta::init($comments, $diff)->getId();
+            $row['created_by'] = Session::getUser()->getId();
             $row['meta_state'] = Strings::random(16);
 
             unset($row['created_on']);
@@ -672,7 +714,7 @@ class Sql implements SqlInterface
      * @param string|null $diff
      * @return int
      */
-    public function update(string $table, array $row, string $action = 'update', ?string $comments = null, ?string $diff = null): int
+    public function dataEntryUpdate(string $table, array $row, string $action = 'update', ?string $comments = null, ?string $diff = null): int
     {
         // Set meta fields
         if (array_key_exists('meta_id', $row)) {
@@ -711,15 +753,32 @@ class Sql implements SqlInterface
      * @param string|null $comments
      * @return int
      */
-    public function delete(string $table, array $row, ?string $comments = null): int
+    public function dataEntrydelete(string $table, array $row, ?string $comments = null): int
     {
         // DataEntry table?
         if (array_key_exists('meta_id', $row)) {
-            return $this->setStatus('deleted', $table, $row, $comments);
+            return $this->dataEntrySetStatus('deleted', $table, $row, $comments);
         }
 
         // This table is not a DataEntry table, just delete the entry
         return $this->erase($table, $row);
+    }
+
+
+    /**
+     * Delete the specified table entry
+     *
+     * This is a simplified delete method to speed up writing basic insert queries
+     *
+     * @param string $table
+     * @param array $where
+     * @param string $separator
+     * @return int
+     */
+    public function delete(string $table, array $where, string $separator = 'AND'): int
+    {
+        // This table is not a DataEntry table, just delete the entry
+        return $this->erase($table, $where, $separator);
     }
 
 
@@ -744,7 +803,7 @@ class Sql implements SqlInterface
      * @param string|null $comments
      * @return int
      */
-    public function setStatus(?string $status, string $table, array $row, ?string $comments = null): int
+    public function dataEntrySetStatus(?string $status, string $table, array $row, ?string $comments = null): int
     {
         if (empty($row['id'])) {
             throw new OutOfBoundsException(tr('Cannot set status, no row id specified'));
@@ -768,14 +827,14 @@ class Sql implements SqlInterface
      * @note This method assumes that the specifies rows are correct to the specified table. If columns not pertaining
      *       to this table are in the $row value, the query will automatically fail with an exception!
      * @param string $table
-     * @param array $rows
+     * @param array $where
      * @return int
      */
-    public function erase(string $table, array $rows): int
+    public function erase(string $table, array $where, string $separator = 'AND'): int
     {
         // Build bound variables for query
-        $values = $this->values($rows);
-        $update = $this->filterColumns($rows, ' AND ');
+        $values = $this->values($where);
+        $update = $this->filterColumns($where, ' ' . $separator . ' ');
 
         return $this->query('DELETE FROM `' . $table . '`
                                    WHERE        ' . $update, $values)->rowCount();
@@ -913,7 +972,7 @@ class Sql implements SqlInterface
 
                 throw new SqlMultipleResultsException(tr('Failed for query ":query" to fetch single row, specified query result contains not 1 but ":count" results', [
                     ':count' => $result->rowCount(),
-                    ':query' => self::buildQueryString($result->queryString, $execute)
+                    ':query' => static::buildQueryString($result->queryString, $execute)
                 ]));
         }
     }
@@ -1244,13 +1303,18 @@ class Sql implements SqlInterface
     /**
      * Return a list of the specified $columns from the specified source
      *
-     * @param array $source
+     * @param array|string|null $source
      * @param string|null $prefix
      * @param string $separator
      * @return string
      */
-    protected function updateColumns(array $source, ?string $prefix = null, string $separator = ', '): string
+    protected function updateColumns(array|string|null $source, ?string $prefix = null, string $separator = ', '): string
     {
+        if (is_string($source)) {
+            // Source has already been prepared, return it
+            return $source;
+        }
+
         $return = [];
 
         foreach ($source as $key => $value) {
@@ -1388,7 +1452,7 @@ class Sql implements SqlInterface
         while (++$retries < $this->maxretries) {
             $id = random_int(1, PHP_INT_MAX);
 
-            // Try a random number and see if its used. If not, use it.
+            // Try a random number and see if it is used. If not, use it.
             if (!$this->get('SELECT `id` FROM `' . $table . '` WHERE `id` = :id', [':id' => $id])) {
                 $this->query('INSERT INTO `' . $table . '` (`id`, `created_by`, `meta_id`, `status`)
                                     VALUES                       (:id , :created_by , :meta_id , :status )', [
@@ -1413,25 +1477,27 @@ class Sql implements SqlInterface
      *
      * @todo Find a good usecase for this method or get rid of it
      * @param string|int|float|null $value
-     * @param string $column
+     * @param string $label
      * @param bool $not
      * @return string
      */
-    public static function is(string|int|float|null $value, string $column, bool $not = false): string
+    public static function is(string|int|float|null $value, string $label, bool $not = false): string
     {
+        $label = Strings::startsWith($label, ':');
+
         if ($not) {
             if ($value === null) {
-                return ' IS NOT ' . $column . ' ';
+                return ' IS NOT ' . $label;
             }
 
-            return ' != ' . $column . ' ';
+            return ' != ' . $label;
         }
 
         if ($value === null) {
-            return ' IS ' . $column . ' ';
+            return ' IS ' . $label;
         }
 
-        return ' = ' . $column . ' ';
+        return ' = ' . $label;;
     }
 
 
@@ -1625,7 +1691,7 @@ class Sql implements SqlInterface
      */
     public function show(string|PDOStatement $query, ?array $execute = null, bool $return_only = false): mixed
     {
-        $query = self::buildQueryString($query, $execute, true);
+        $query = static::buildQueryString($query, $execute, true);
 
         if ($return_only) {
             return $query;
@@ -1677,7 +1743,7 @@ class Sql implements SqlInterface
      */
     public static function addConfiguration(string $instance, array $configuration): void
     {
-        self::$configurations[$instance] = $configuration;
+        static::$configurations[$instance] = $configuration;
     }
 
 
@@ -1700,7 +1766,7 @@ class Sql implements SqlInterface
 
             if (!$configuration) {
                 // Okay, this instance doesn't exist in Config, nor SQL, maybe it's a dynamically configured instance?
-                if (!array_key_exists($instance, self::$configurations)) {
+                if (!array_key_exists($instance, static::$configurations)) {
                     // Yeah, its not found
                     throw new SqlException(tr('The specified SQL instance ":instance" is not configured', [
                         ':instance' => $instance
@@ -1708,7 +1774,7 @@ class Sql implements SqlInterface
                 }
 
                 // This is a dynamically configured instance
-                $configuration = self::$configurations[$instance];
+                $configuration = static::$configurations[$instance];
             }
         }
 
@@ -1769,7 +1835,7 @@ class Sql implements SqlInterface
     public function applyConfigurationTemplate(array $configuration): array
     {
         // Copy the configuration options over the template
-        $configuration = Arrays::mergeFull(self::getConfigurationTemplate(), $configuration);
+        $configuration = Arrays::mergeFull(static::getConfigurationTemplate(), $configuration);
 
         switch ($configuration['driver']) {
             case 'mysql':

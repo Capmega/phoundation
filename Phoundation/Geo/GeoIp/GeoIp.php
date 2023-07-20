@@ -43,7 +43,7 @@ class GeoIp
     public static function detect(?string $ip_address): ?static
     {
         try {
-            return self::getProvider()?->detect($ip_address);
+            return static::getProvider()?->detect($ip_address);
 
         } catch (Throwable $e) {
             throw new GeoIpException(tr('Failed to detect Geo location from IP ":ip"', [
