@@ -473,7 +473,7 @@ class Strings
             $return .= $chunk . $interleave;
         }
 
-        return mb_substr($return, 0, -1) . $end;
+        return mb_substr($return, 0, -strlen($interleave)) . $end;
     }
 
 
@@ -862,7 +862,7 @@ class Strings
         $source = (string) $source;
 
         // Escape all individual characters
-        for($i = (mb_strlen($escape) - 1); $i <= 0; $i++) {
+        for ($i = (mb_strlen($escape) - 1); $i >= 0; $i--) {
             $source = str_replace($escape[$i], '\\' . $escape[$i], $source);
         }
 
@@ -2023,8 +2023,11 @@ throw new UnderConstructionException();
      * @param string $delimiters
      * @return string
      */
-    public static function escapeRegex(string $string, string $delimiters = '/'): string
+    public static function escapeForRegex(string $string, string $delimiters = '/', string $skip_symbols = ''): string
     {
-        return '\\' . Strings::interleave('\\()[]{}<>.?+*^$=!|:-' . $delimiters, '\\');
+        $skip_symbols        = mb_str_split($skip_symbols, 1);
+        $standard_delimiters = str_replace($skip_symbols, '', '\\()[]{}<>.?+*^$=!|:-');
+
+        return self::escape($string, $standard_delimiters . $delimiters);
     }
 }
