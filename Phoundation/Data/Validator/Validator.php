@@ -124,6 +124,19 @@ abstract class Validator implements ValidatorInterface
 
 
     /**
+     * Forcibly remove the specified source key
+     *
+     * @param string|float|int $key
+     * @return static
+     */
+    public function removeSourceKey(string|float|int $key): static
+    {
+        unset($this->source[$key]);
+        return $this;
+    }
+
+
+    /**
      * Returns the currently selected value
      *
      * @return mixed
@@ -440,12 +453,18 @@ abstract class Validator implements ValidatorInterface
      *
      * This method ensures that the specified array key is a valid code
      *
-     * @param bool $allow_zero
+     * @param string|null $until
      * @return static
      */
-    public function isCode(bool $allow_zero = false): static
+    public function isCode(?string $until = null): static
     {
-        return $this->validateValues(function(&$value) {
+        return $this->validateValues(function(&$value) use ($until) {
+            if ($until) {
+                // Truncate the code at one of the specified characters
+                $value = Strings::until($value, $until);
+                $value = trim($value);
+            }
+
             $this->hasMinCharacters(2)->hasMaxCharacters(16);
 
             if ($this->process_value_failed) {
@@ -1741,7 +1760,7 @@ abstract class Validator implements ValidatorInterface
                 return;
             }
 
-            $separator = Strings::escapeRegex($separator);
+            $separator = Strings::escapeForRegex($separator);
             $this->matchesRegex('/[0-9- ' . $separator . '].+?/');
         });
     }

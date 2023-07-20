@@ -192,10 +192,10 @@ interface ValidatorInterface extends ValidatorBasicsInterface
      *
      * This method ensures that the specified array key is a valid code
      *
-     * @param bool $allow_zero
+     * @param string|null $until
      * @return static
      */
-    public function isCode(bool $allow_zero = false): static;
+    public function isCode(?string $until = null): static;
 
     /**
      * Validates the datatype for the selected field
