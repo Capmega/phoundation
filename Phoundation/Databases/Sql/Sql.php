@@ -1497,7 +1497,7 @@ class Sql implements SqlInterface
             return ' IS ' . $label;
         }
 
-        return ' = ' . $label;;
+        return ' = ' . $label;
     }
 
 
