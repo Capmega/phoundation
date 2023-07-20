@@ -102,6 +102,19 @@ class AutoSuggestRequest
 
 
     /**
+     * Sets the search term
+     *
+     * @param string $term
+     * @return void
+     */
+    public static function setTerm(string $term): void
+    {
+        static::ensureGet();
+        static::$get['term'] = $term;
+    }
+
+
+    /**
      * Returns the _ value
      *
      * @return string
