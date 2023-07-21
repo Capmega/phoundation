@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry;
 
 use Phoundation\Cli\Cli;
+use Phoundation\Core\Arrays;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
@@ -395,8 +396,19 @@ abstract class DataList extends Iterator implements DataListInterface
      *
      * @return DataTable
      */
-    public function getHtmlDataTable(): DataTable
+    public function getHtmlDataTable(array|string|null $columns = null): DataTable
     {
+        if ($this->source) {
+            // Source is already loaded, use this instead
+            // Create and return the table
+            return DataTable::new()
+                ->setId(static::getTable())
+                ->setSource($this->getSourceColumns($columns))
+                ->setCallbacks($this->callbacks)
+                ->setCheckboxSelectors(true);
+
+        }
+
         $this->selectQuery();
 
         // Create and return the table
@@ -652,6 +664,35 @@ showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY F
 
         foreach ($this->source as $key => $value) {
             $return[$key] = $value[$column];
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Returns an array with scalar values
+     *
+     * @param array|string|null $columns
+     * @return array
+     */
+    protected function getSourceColumns(array|string|null $columns): array
+    {
+        if (!$columns) {
+            // No columns specified, return everything
+            return $this->source;
+        }
+
+        $return  = [];
+        $columns = Arrays::force($columns);
+
+        foreach ($this->source as $key => $value) {
+            if (is_object($value)) {
+                // Extract array data from DataEntry object
+                $value = $value->__toArray();
+            }
+
+            $return[$key] = Arrays::keep($value, $columns);
         }
 
         return $return;

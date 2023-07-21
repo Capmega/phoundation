@@ -57,7 +57,7 @@ class MetaList
      *
      * @return DataTable
      */
-    public function getHtmlDataTable(): DataTable
+    public function getHtmlDataTable(array|string|null $columns): DataTable
     {
         // Create and return the table
         $in     = Sql::in($this->meta_list);
