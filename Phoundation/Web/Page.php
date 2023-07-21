@@ -543,7 +543,7 @@ class Page
      */
     public static function getProtocol(): string
     {
-        return $_SERVER['SERVER_PROTOCOL'];
+        return $_SERVER['REQUEST_SCHEME'];
     }
 
 
