@@ -102,8 +102,8 @@ class Notification extends DataEntry
     {
         static::$auto_log = Config::get('notifications.auto-log', true);
 
-        $this->data['mode']     = 'unknown';
-        $this->data['priority'] = 1;
+        $this->source['mode']     = 'unknown';
+        $this->source['priority'] = 1;
 
         parent::__construct($identifier, $column);
     }
@@ -274,7 +274,7 @@ class Notification extends DataEntry
                 throw NotificationBusyException::new(tr('The notifications system is already busy sending another notification and cannot send the new ":title" notification with message ":message"', [
                     ':title'   => $this->getTitle(),
                     ':message' => $this->getMessage()
-                ]))->setData($this->data);
+                ]))->setData($this->source);
             }
 
             $sending = true;

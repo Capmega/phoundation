@@ -31,7 +31,7 @@ class SystemUser extends User implements SystemUserInterface
     {
         parent::__construct($identifier, $column);
 
-        $this->data['id'] = null;
+        $this->source['id'] = null;
         $this->setNickname('System');
     }
 }

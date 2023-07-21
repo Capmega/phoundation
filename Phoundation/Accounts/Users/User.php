@@ -179,11 +179,11 @@ class User extends DataEntry implements UserInterface
      */
     public function passwordMatch(string $password): bool
     {
-        if (!array_key_exists('id', $this->data)) {
+        if (!array_key_exists('id', $this->source)) {
             throw new OutOfBoundsException(tr('Cannot match passwords, this user does not have a database id'));
         }
 
-        return Passwords::match($this->data['id'], $password, (string) $this->data['password']);
+        return Passwords::match($this->source['id'], $password, (string) $this->source['password']);
     }
 
 
@@ -207,7 +207,7 @@ class User extends DataEntry implements UserInterface
      */
     public function isGuest(): bool
     {
-        return array_get_safe($this->data, 'email') === 'guest';
+        return array_get_safe($this->source, 'email') === 'guest';
     }
 
 
@@ -218,7 +218,7 @@ class User extends DataEntry implements UserInterface
      */
     public function isSystem(): bool
     {
-        return array_get_safe($this->data, 'id') === null;
+        return array_get_safe($this->source, 'id') === null;
     }
 
 
@@ -860,7 +860,7 @@ class User extends DataEntry implements UserInterface
         $validation = trim($validation);
 
         $this->validatePassword($password, $validation);
-        $this->setPasswordDirectly(Passwords::hash($password, $this->data['id']));
+        $this->setPasswordDirectly(Passwords::hash($password, $this->source['id']));
 
         return $this->savePassword();
     }
@@ -874,7 +874,7 @@ class User extends DataEntry implements UserInterface
      */
     protected function setPasswordDirectly(?string $password): static
     {
-        $this->data['password'] = $password;
+        $this->source['password'] = $password;
         return $this;
     }
 
@@ -903,20 +903,20 @@ class User extends DataEntry implements UserInterface
             throw new ValidationFailedException(tr('The password must match the validation password'));
         }
 
-        if (empty($this->data['id'])) {
+        if (empty($this->source['id'])) {
             throw new OutOfBoundsException(tr('Cannot set password for this user, it has not been saved yet'));
         }
 
-        if (empty($this->data['email'])) {
+        if (empty($this->source['email'])) {
             throw new OutOfBoundsException(tr('Cannot set password for this user, it has no email address'));
         }
 
         // Is the password secure?
-        Passwords::testSecurity($password, $this->data['email'], $this->data['id']);
+        Passwords::testSecurity($password, $this->source['email'], $this->source['id']);
 
         // Is the password not the same as the current password?
         try {
-            static::doAuthenticate($this->data['email'], $password, isset_get($this->data['domain']), true);
+            static::doAuthenticate($this->source['email'], $password, isset_get($this->source['domain']), true);
             throw new PasswordNotChangedException(tr('The specified password is the same as the current password'));
 
         } catch (AuthenticationException) {
@@ -1229,13 +1229,13 @@ class User extends DataEntry implements UserInterface
      */
     protected function savePassword(): static
     {
-        if (empty($this->data['id'])) {
+        if (empty($this->source['id'])) {
             throw new UsersException(tr('Cannot save password, this user does not have an id'));
         }
 
         sql()->query('UPDATE `accounts_users` SET `password` = :password WHERE `id` = :id', [
-            ':id'       => $this->data['id'],
-            ':password' => $this->data['password']
+            ':id'       => $this->source['id'],
+            ':password' => $this->source['password']
         ]);
 
         return $this;

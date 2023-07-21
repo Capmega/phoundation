@@ -265,7 +265,7 @@ interface DataEntryInterface
      *       will not become available outside this object
      * @return array
      */
-    public function getData(): array;
+    public function getSource(): array;
 
     /**
      * Sets the value for the specified data key

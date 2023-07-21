@@ -44,7 +44,7 @@ $argv = ArgvValidator::new()
 
 try {
     // Display role data
-    Cli::displayForm(Role::get($argv['role'])->getData());
+    Cli::displayForm(Role::get($argv['role'])->getSource());
 
 }catch (DataEntryNotExistsException $e) {
     throw $e->makeWarning();

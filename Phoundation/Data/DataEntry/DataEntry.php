@@ -66,9 +66,9 @@ abstract class DataEntry implements DataEntryInterface, Stringable
     /**
      * Contains the data for all information of this data entry
      *
-     * @var array $data
+     * @var array $source
      */
-    protected array $data = [];
+    protected array $source = [];
 
     /**
      * Meta information about the keys in this DataEntry
@@ -222,7 +222,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      */
     public function __toArray(): array
     {
-        return $this->data;
+        return $this->source;
     }
 
 
@@ -246,13 +246,13 @@ abstract class DataEntry implements DataEntryInterface, Stringable
 
         if ($identifier) {
             if (is_numeric($identifier)) {
-                $this->data['id'] = $identifier;
+                $this->source['id'] = $identifier;
 
             } elseif (is_object($identifier)) {
-                $this->data['id'] = $identifier->getId();
+                $this->source['id'] = $identifier->getId();
 
             } else {
-                $this->data[static::getUniqueField()] = $identifier;
+                $this->source[static::getUniqueField()] = $identifier;
             }
 
             $this->load($identifier, $column);
@@ -967,7 +967,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
         if ($this->debug) {
             Log::information('APPLY ' . static::getDataEntryName() . ' (' . get_class($this) . ')', 10);
             Log::information('CURRENT DATA', 10);
-            Log::vardump($this->data);
+            Log::vardump($this->source);
             Log::information('SOURCE', 10);
             Log::vardump($data_source);
             Log::information('SOURCE DATA', 10);
@@ -982,7 +982,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
 
             $this
                 ->setReadonly(true)
-                ->setData($data_source, true, true);
+                ->copyDataToSource($data_source, true, true);
 
         } else {
             // Validate data and copy data into the source array
@@ -996,13 +996,13 @@ abstract class DataEntry implements DataEntryInterface, Stringable
             // Ensure DataEntry Meta state is okay, then generate the diff data and copy data array to internal data
             $this
                 ->validateMetaState($data_source)
-                ->setDiff($data_source)
-                ->setData($data_source, true);
+                ->createDiff($data_source)
+                ->copyDataToSource($data_source, true);
         }
 
         if ($this->debug) {
             Log::information('DATA AFTER APPLY', 10);
-            Log::vardump($this->data);
+            Log::vardump($this->source);
         }
 
         return $this;
@@ -1085,13 +1085,13 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      * @param array|null $data
      * @return static
      */
-    protected function setDiff(?array $data): static
+    protected function createDiff(?array $data): static
     {
         if (Meta::isEnabled()) {
             if ($data === null) {
                 $diff = [
                     'from' => [],
-                    'to' => $this->data
+                    'to' => $this->source
                 ];
             } else {
                 $diff = [
@@ -1109,10 +1109,10 @@ abstract class DataEntry implements DataEntryInterface, Stringable
                         continue;
                     }
 
-                    if (isset_get($this->data[$key]) != isset_get($data[$key])) {
+                    if (isset_get($this->source[$key]) != isset_get($data[$key])) {
                         // If both records were empty (from NULL to 0 for example) then don't register
-                        if ($this->data[$key] or $data[$key]) {
-                            $diff['from'][$key] = (string)$this->data[$key];
+                        if ($this->source[$key] or $data[$key]) {
+                            $diff['from'][$key] = (string)$this->source[$key];
                             $diff['to'][$key] = (string)$data[$key];
                         }
                     }
@@ -1142,12 +1142,12 @@ abstract class DataEntry implements DataEntryInterface, Stringable
     /**
      * Sets all data for this data entry at once with an array of information
      *
-     * @param array $data The data for this DataEntry object
+     * @param array $source The data for this DataEntry object
      * @param bool $modify
      * @param bool $directly
      * @return static
      */
-    protected function setData(array $data, bool $modify, bool $directly = false): static
+    protected function copyDataToSource(array $source, bool $modify, bool $directly = false): static
     {
         if ($this->definitions->isEmpty()) {
             throw new OutOfBoundsException(tr('Data keys were not defined for this ":class" class', [
@@ -1164,8 +1164,8 @@ abstract class DataEntry implements DataEntryInterface, Stringable
                 continue;
             }
 
-            if (array_key_exists($key, $data)) {
-                $value = $data[$key];
+            if (array_key_exists($key, $source)) {
+                $value = $source[$key];
             } else {
                 // This key doesn't exist at all in the data entry, default it
                 $value = $this->definitions->get($key)->getDefault();
@@ -1274,9 +1274,9 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      *       will not become available outside this object
      * @return array
      */
-    public function getData(): array
+    public function getSource(): array
     {
-        return Arrays::remove($this->data, $this->protected_fields);
+        return Arrays::remove($this->source, $this->protected_fields);
     }
 
 
@@ -1290,7 +1290,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      */
     protected function getDataForValidation(): array
     {
-        return Arrays::remove($this->data, [
+        return Arrays::remove($this->source, [
             'id',
             'created_by',
             'created_on',
@@ -1312,7 +1312,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
     {
         // Reset meta fields
         foreach (self::$meta_fields as $field) {
-            $this->data[$field] = null;
+            $this->source[$field] = null;
         }
 
         if ($data === null) {
@@ -1333,7 +1333,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
             }
 
             // Store the meta data
-            $this->data[$key] = $value;
+            $this->source[$key] = $value;
         }
 
         return $this;
@@ -1373,23 +1373,23 @@ abstract class DataEntry implements DataEntryInterface, Stringable
                     }
 
                     // Value may be set with default value while field was empty, which is the same. Make value empty
-                    if ((isset_get($this->data[$field]) === null) and ($value === $default)) {
+                    if ((isset_get($this->source[$field]) === null) and ($value === $default)) {
                         // If the previous value was empty and the current value is the same as the default value
                         // then there was no modification, it just defaulted
                     } else {
                         // The DataEntry::is_modified can only be modified if it is not TRUE already.
                         // The DataEntry is considered modified if user is modifying and the entry changed
                         if (!$this->is_modified and !$definition->getReadonly() and !$definition->getIgnoreModify()) {
-                            $this->is_modified = (isset_get($this->data[$field]) !== $value);
+                            $this->is_modified = (isset_get($this->source[$field]) !== $value);
                         }
                     }
 
                     if ($this->debug) {
-                        Log::debug('MODIFIED FIELD "' . $field . '" FROM "' . $this->data[$field] . '" [' . gettype(isset_get($this->data[$field])) . '] TO "' . $value . '" [' . gettype($value) . '], MARKED MODIFIED: ' . Strings::fromBoolean($this->is_modified), 10);
+                        Log::debug('MODIFIED FIELD "' . $field . '" FROM "' . $this->source[$field] . '" [' . gettype(isset_get($this->source[$field])) . '] TO "' . $value . '" [' . gettype($value) . '], MARKED MODIFIED: ' . Strings::fromBoolean($this->is_modified), 10);
                     }
 
                     // Update the field value
-                    $this->data[$field] = $value;
+                    $this->source[$field] = $value;
                     $this->is_validated = false;
                 }
             }
@@ -1413,17 +1413,17 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      */
     public function addDataValue(string $field, mixed $value): static
     {
-        if (!array_key_exists($field, $this->data)) {
-            $this->data[$field] = [];
+        if (!array_key_exists($field, $this->source)) {
+            $this->source[$field] = [];
         }
 
-        if (!is_array($this->data[$field])) {
+        if (!is_array($this->source[$field])) {
             throw new OutOfBoundsException(tr('Cannot *add* data value to key ":key", the value datatype is not "array"', [
                 ':key' => $field
             ]));
         }
 
-        $this->data[$field][] = $value;
+        $this->source[$field][] = $value;
         return $this;
     }
 
@@ -1439,7 +1439,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
     protected function getDataValue(string $type, string $field, mixed $default = null): mixed
     {
         $this->checkProtected($field);
-        return isset_get_typed($type, $this->data[$field], $default, false);
+        return isset_get_typed($type, $this->source[$field], $default, false);
     }
 
 
@@ -1499,7 +1499,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
             }
 
             // Apply definition default
-            $return[$field] = isset_get($this->data[$field]) ?? $definition->getDefault();
+            $return[$field] = isset_get($this->source[$field]) ?? $definition->getDefault();
 
             // Ensure value is scalar
             if ($return[$field] and !is_scalar($return[$field])) {
@@ -1569,7 +1569,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
 
         if (!$this->is_validated) {
             if ($this->debug) {
-                Log::information('SAVED DATAENTRY WITH ID "' . $this->data['id'] . '"', 10);
+                Log::information('SAVED DATAENTRY WITH ID "' . $this->source['id'] . '"', 10);
             }
 
 
@@ -1577,7 +1577,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
             $source = $this->getDataForValidation();
 
             // Merge the validated data over the current data
-            $this->data = array_merge($this->data, $this->validate(ArrayValidator::new($source), true));
+            $this->source = array_merge($this->source, $this->validate(ArrayValidator::new($source), true));
         }
 
         if ($this->readonly) {
@@ -1592,10 +1592,10 @@ abstract class DataEntry implements DataEntryInterface, Stringable
         }
 
         // Write the entry
-        $this->data['id'] = sql()->dataEntryWrite(static::getTable(), $this->getInsertColumns(), $this->getUpdateColumns(), $comments, $this->diff);
+        $this->source['id'] = sql()->dataEntryWrite(static::getTable(), $this->getInsertColumns(), $this->getUpdateColumns(), $comments, $this->diff);
 
         if ($this->debug) {
-            Log::information('SAVED DATAENTRY WITH ID "' . $this->data['id'] . '"', 10);
+            Log::information('SAVED DATAENTRY WITH ID "' . $this->source['id'] . '"', 10);
         }
 
         // Return debug mode if required
@@ -1623,7 +1623,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      */
     public function getCliForm(?string $key_header = null, ?string $value_header = null): void
     {
-        Cli::displayForm($this->data, $key_header, $value_header);
+        Cli::displayForm($this->source, $key_header, $value_header);
     }
 
 
@@ -1635,7 +1635,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
     public function getHtmlForm(): DataEntryFormInterface
     {
         return DataEntryForm::new()
-            ->setSource($this->data)
+            ->setSource($this->source)
             ->setDefinitions($this->definitions);
     }
 
@@ -1751,10 +1751,10 @@ abstract class DataEntry implements DataEntryInterface, Stringable
 
         if ($init) {
             // Load data with object init
-            $this->setMetaData($source)->setData($source, false);
+            $this->setMetaData($source)->copyDataToSource($source, false);
 
         } else {
-            $this->data = $source;
+            $this->source = $source;
         }
 
         $this->is_new      = false;
@@ -1785,7 +1785,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
         // Store all data in the object
         $this
             ->setMetaData((array) $data)
-            ->setData((array) $data, false);
+            ->copyDataToSource((array) $data, false);
 
         // Reset state
         $this->is_new      = false;
