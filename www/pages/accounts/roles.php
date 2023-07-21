@@ -17,7 +17,8 @@ use Phoundation\Web\Page;
 
 
 // Build roles table
-$table = Roles::new()->getHtmlDataTable()
+$table = Roles::new()
+    ->getHtmlDataTable()
     ->setRowUrl('/accounts/role-:ROW.html');
 
 $roles = Card::new()

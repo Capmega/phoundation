@@ -3,7 +3,7 @@
 use Phoundation\Web\Http\Html\Components\Input\InputAutoSuggest;
 use Phoundation\Web\Http\UrlBuilder;
 
-$suggest = InputAutoSuggest::new()
+$bar = InputSelect2::new()
     ->setId('test')
     ->addClass('form-control')
     ->setSourceUrl(UrlBuilder::getWww('/ajax/medinet/sources/doctors/autosuggest.json'));

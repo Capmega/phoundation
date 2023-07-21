@@ -34,10 +34,18 @@ if (Page::isPostRequestMethod()) {
     try {
         switch (PostValidator::getSubmitButton()) {
             case tr('Save'):
-                // Update user
-                $user->apply()->save();
+                // Update roles
+                $post = PostValidator::new()
+                    ->select('roles_id')->isArray()->each()->isDbId()
+                    ->validate(false);
 
-                // Go back to where we came from
+                // Update user
+                $user
+                    ->apply()
+                    ->save()
+                    ->getRoles()
+                        ->set($post['roles_id']);
+
 // TODO Implement timers
 //showdie(Timers::get('query'));
 
@@ -63,6 +71,7 @@ if (Page::isPostRequestMethod()) {
     } catch (IncidentsException|ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
         Page::getFlashMessages()->addMessage($e);
+
         $user->forceApply();
     }
 }
@@ -104,7 +113,9 @@ $user_card = Card::new()
 // Build the roles list management section
 if ($user->getId()) {
     $roles_card = Card::new()
-        ->setTitle(tr('Roles for this user'))
+        ->setCollapseSwitch(true)
+        ->setCollapsed(true)
+        ->setTitle(tr('Roles for this user [:count]', [':count' => $user->getRoles()->getCount()]))
         ->setContent($user->getRolesHtmlForm()
             ->setAction('#')
             ->setMethod('POST')
@@ -112,12 +123,21 @@ if ($user->getId()) {
         ->setButtons(Buttons::new()
             ->addButton(tr('Save'))
             ->addButton(tr('Back'), DisplayMode::secondary, '/accounts/users.html', true));
+showdie($user->getRights()->getSource());
+    $rights_card = Card::new()
+        ->setCollapseSwitch(true)
+        ->setCollapsed(true)
+        ->setTitle(tr('Rights for this user [:count]', [':count' => $user->getRights()->getCount()]))
+        ->setDescription(tr('This is a list of rights that this user has available because of its assigned roles. Each role gives the user a certain amount of rights and with adding or removing roles, you add or remove these rights. These rights are used to determine the access to pages or specific information that a user has. To determine what rights are required to access a specific page, click the "lock" symbol at the top menu.'))
+        ->setContent($user->getRights()
+                            ->getHtmlDataTable()
+                            ->render());
 }
 
 
 // Build the grid column with a form containing the user and roles cards
 $column = GridColumn::new()
-    ->addContent($user_card->render() . (isset($roles_card) ? $roles_card->render() : ''))
+    ->addContent($user_card->render() . (isset($roles_card) ? $roles_card->render() : '') . (isset($rights_card) ? $rights_card->render() : ''))
     ->setSize(9)
     ->useForm(true);
 
