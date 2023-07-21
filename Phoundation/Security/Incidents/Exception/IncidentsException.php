@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Security\Incidents\Exception;
 
-use Phoundation\Security\Exception\StatisticsException;
+use Phoundation\Security\Exception\SecurityException;
 
 
 /**
@@ -17,6 +17,6 @@ use Phoundation\Security\Exception\StatisticsException;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Security
  */
-class IncidentsException extends StatisticsException
+class IncidentsException extends SecurityException
 {
 }

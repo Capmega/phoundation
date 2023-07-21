@@ -256,6 +256,11 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
                         return $variable;
                     }
 
+                    if (is_object($variable) and ($variable instanceof Stringable)) {
+                        // This is fine, this object has __toString() implemented
+                        return (string) $variable;
+                    }
+
                     break;
 
                 case 'int':
@@ -626,15 +631,18 @@ function showhex(mixed $source = null, int $trace_offset = 1, bool $quiet = fals
 /**
  * Shortcut to the Debug::show() call, but displaying the backtrace
  *
- * @param mixed $source
+ * @param int $count
  * @param int $trace_offset
  * @param bool $quiet
  * @return mixed
  */
-function showbacktrace(int $count = 0, int $trace_offset = 1, bool $quiet = false): mixed
+function showbacktrace(int $count = 10, int $trace_offset = 1, bool $quiet = false): mixed
 {
     $backtrace = Debug::backtrace();
-    $backtrace = Arrays::limit($backtrace, $count);
+
+    if ($count) {
+        $backtrace = Arrays::limit($backtrace, $count);
+    }
 
     return show($backtrace, $trace_offset, $quiet);
 }

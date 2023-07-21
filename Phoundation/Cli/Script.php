@@ -18,6 +18,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Core\Numbers;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Date\Time;
 use Phoundation\Exception\Exception;
@@ -354,6 +355,13 @@ SYSTEM ARGUMENTS
         static::$methods = $methods;
 
         foreach ($methods as $position => $method) {
+            // Validate the method
+            if (strlen($method) > 32) {
+                throw new ValidationFailedException(tr('Specified method ":method" is too long, it should be less than 32 characters', [
+                    ':method' => $method
+                ]));
+            }
+
             if (str_ends_with($method, '/cli')) {
                 // This is the cli command, ignore it
                 ArgvValidator::removeMethod($method);
@@ -679,6 +687,18 @@ SYSTEM ARGUMENTS
         }
 
         return false;
+    }
+
+
+    /**
+     * Echos the specified string to the command line
+     *
+     * @param string $string
+     * @return void
+     */
+    public static function echo(string $string): void
+    {
+        echo $string . PHP_EOL;
     }
 
 

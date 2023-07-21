@@ -60,9 +60,10 @@ class Tasks extends DataList
      *
      * @param string $value_column
      * @param string $key_column
+     * @param string|null $order
      * @return SelectInterface
      */
-    public function getHtmlSelect(string $value_column = '', string $key_column = 'id'): SelectInterface
+    public function getHtmlSelect(string $value_column = '', string $key_column = 'id', ?string $order = null): SelectInterface
     {
         if (!$value_column) {
             $value_column = 'CONCAT(`command`, " [", `status`, "]") AS command';

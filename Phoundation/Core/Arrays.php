@@ -1587,8 +1587,8 @@ class Arrays {
         ];
 
         foreach ($source1 as $value) {
-            if (!is_scalar($value)) {
-                throw new OutOfBoundsException(tr('Only scalar values are supported while source 1 has a non-scalar value'));
+            if ($value and !is_scalar($value)) {
+                throw new OutOfBoundsException(tr('Can only take diffs from scalar values while source 1 has a non-scalar value'));
             }
 
             if (!in_array($value, $source2)) {

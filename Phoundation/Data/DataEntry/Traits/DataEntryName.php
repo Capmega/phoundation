@@ -31,6 +31,19 @@ trait DataEntryName
 
 
     /**
+     * Sets the seo_name for this object
+     *
+     * @note This method is protected because it should only be called from within DataEntry objects
+     * @param string|null $seo_name
+     * @return static
+     */
+    protected function setSeoName(?string $seo_name): static
+    {
+        return $this->setDataValue('seo_name', $seo_name);
+    }
+
+
+    /**
      * Returns the name for this object
      *
      * @return string|null
@@ -52,8 +65,10 @@ trait DataEntryName
         if ($name !== null) {
             // Get SEO name and ensure that the seo_name does NOT surpass the name maxlength because MySQL won't find
             // the entry if it does!
-            $seo_name = Seo::unique(substr($name, 0, $this->definitions->get('name')->getMaxlength()), static::getTable(), $this->getDataValue('int', 'id'), 'seo_name');
-            $this->setDataValue('seo_name', $seo_name);
+            if (!array_key_exists('seo_name', $this->data)) {
+                $seo_name = Seo::unique(substr($name, 0, $this->definitions->get('name')->getMaxlength()), static::getTable(), $this->getDataValue('int', 'id'), 'seo_name');
+                $this->setDataValue('seo_name', $seo_name);
+            }
         }
 
         return $this->setDataValue('name', $name);

@@ -23,7 +23,8 @@ interface BranchesInterface
      *
      * @param string $value_column
      * @param string $key_column
+     * @param string|null $order
      * @return SelectInterface
      */
-    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id'): SelectInterface;
+    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id', ?string $order = null): SelectInterface;
 }

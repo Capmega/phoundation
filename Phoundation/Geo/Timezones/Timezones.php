@@ -109,11 +109,12 @@ class Timezones extends DataList
      *
      * @param string $value_column
      * @param string $key_column
+     * @param string|null $order
      * @return SelectInterface
      */
-    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id'): SelectInterface
+    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id', ?string $order = null): SelectInterface
     {
-        return parent::getHtmlSelect($value_column, $key_column)
+        return parent::getHtmlSelect($value_column, $key_column, $order)
             ->setName('timezones_id')
             ->setNone(tr('Select a timezone'))
             ->setEmpty(tr('No timezones available'));

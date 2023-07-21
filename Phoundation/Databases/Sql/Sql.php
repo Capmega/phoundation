@@ -388,8 +388,9 @@ class Sql implements SqlInterface
                     foreach ($execute as $key => $value) {
                         if (!is_scalar($value) and !is_null($value)) {
                             // This is automatically a problem!
-                            throw new SqlException(tr('POSSIBLE ERROR: The specified $execute array contains key ":key" with non scalar value ":value"', [
+                            throw new SqlException(tr('The specified $execute array contains key ":key" with ":type" type value ":value"', [
                                 ':key'   => $key,
+                                ':type'  => gettype($value),
                                 ':value' => $value
                             ]), $e);
                         }

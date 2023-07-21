@@ -40,7 +40,7 @@ class Rights extends DataList implements RightsInterface
      */
     public function __construct()
     {
-        $this->setQuery('SELECT   `id`, `name`, `description` 
+        $this->setQuery('SELECT   `id`, `name` AS `right`, `description` 
                                FROM     `accounts_rights` 
                                WHERE    `status` IS NULL 
                                ORDER BY `name`');
@@ -492,9 +492,10 @@ class Rights extends DataList implements RightsInterface
      *
      * @return InputSelect
      */
-    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'seo_name'): SelectInterface
+    public function getHtmlSelect(string $value_column = 'CONCAT(UPPER(LEFT(`name`, 1)), SUBSTRING(`name`, 2)) AS `name`', string $key_column = 'seo_name', ?string $order = '`name` ASC'): SelectInterface
     {
-        return parent::getHtmlSelect($value_column, $key_column)
+        return parent::getHtmlSelect($value_column, $key_column, $order)
+            ->setName('rights_id')
             ->setNone(tr('Select a right'))
             ->setEmpty(tr('No rights available'));
     }

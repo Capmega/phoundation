@@ -449,7 +449,7 @@ interface UserInterface extends DataEntryInterface
      *
      * @return DateTimeInterface|null
      */
-    public function getBirthday(): ?DateTimeInterface;
+    public function getBirthdate(): ?DateTimeInterface;
 
     /**
      * Sets the birthdate for this user
@@ -457,7 +457,7 @@ interface UserInterface extends DataEntryInterface
      * @param DateTimeInterface|string|null $birthdate
      * @return static
      */
-    public function setBirthday(DateTimeInterface|string|null $birthdate): static;
+    public function setBirthdate(DateTimeInterface|string|null $birthdate): static;
 
     /**
      * Sets the password for this user
@@ -532,9 +532,10 @@ interface UserInterface extends DataEntryInterface
     /**
      * Creates and returns an HTML for the fir
      *
+     * @param string $name
      * @return FormInterface
      */
-    public function getRolesHtmlForm(): FormInterface;
+    public function getRolesHtmlForm(string $name = 'roles_id[]'): FormInterface;
 
     /**
      * Save the user to database

@@ -8,6 +8,7 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
+use Phoundation\Data\Traits\DataIntId;
 use Phoundation\Data\Validator\Exception\NoKeySelectedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
@@ -29,6 +30,9 @@ use ReflectionProperty;
  */
 trait ValidatorBasics
 {
+    use DataIntId;
+
+
     /**
      * The source data that we will be validating
      *
@@ -199,6 +203,19 @@ trait ValidatorBasics
      * @var bool $clear_failed_fields
      */
     protected bool $clear_failed_fields = false;
+
+
+    /**
+     * Sets the integer id for this object or null
+     *
+     * @param int|null $id
+     * @return static
+     */
+    public function setId(?int $id): static
+    {
+        $this->id = $id;
+        return $this;
+    }
 
 
     /**

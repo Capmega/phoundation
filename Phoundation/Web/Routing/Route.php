@@ -130,11 +130,6 @@ class Route
             static::executeSystem(400);
         }
 
-        // Double slash (//) in the URL is automatically 4o4
-        if (str_contains(static::$uri, '//')) {
-            static::executeSystem(404);
-        }
-
         // Start the Core object, hide $_GET & $_POST
         try {
             if (Core::stateIs('init')) {
@@ -149,18 +144,6 @@ class Route
 
             static::execute('setup.php', false);
         }
-
-//        if (!Session::getRealUser()->isGuest()) {
-//            // Do we have to redirect somewhere?
-//            if (Session::getRealUser()->getRedirect()) {
-//                Log::warning(tr('User ":user" has a redirect to ":url", redirecting there instead', [
-//                    ':user' => Session::getRealUser()->getLogId(),
-//                    ':url'  => Session::getRealUser()->getRedirect()
-//                ]));
-//showdie('aaaaaaaaaaaaaaaaa');
-//                Page::redirect(Session::getRealUser()->getRedirect());
-//            }
-//        }
 
         // Ensure the post-processing function is registered
         Log::information(tr('Processing ":domain" routes for ":method" method request ":url" from client ":client"', [
@@ -344,6 +327,12 @@ class Route
         static::getInstance();
 
         try {
+            // Double slash (//) in the URL is automatically 4o4
+            if (str_contains(static::$uri, '//')) {
+                Log::warning('Encountered double slash in URL, automatically 404-ing');
+                static::executeSystem(404);
+            }
+
             if (!$url_regex) {
                 // Match an empty string
                 $url_regex = '/^$/';

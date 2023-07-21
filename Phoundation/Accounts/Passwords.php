@@ -72,7 +72,7 @@ class Passwords
     protected static function isWeak(string $password, ?string $email): bool
     {
         $strength = static::getStrength($password, $email);
-        $weak     = ($strength < Config::get('security.password.strength', 50));
+        $weak     = ($strength < Config::getInteger('security.password.strength', 50));
 
         if ($weak and Validator::disabled()) {
             Log::warning(tr('Ignoring weak password because validation is disabled'));
@@ -96,13 +96,13 @@ class Passwords
         $strength = 10;
         $length   = strlen($password);
 
-        if($length < 8) {
+        if($length < 10) {
             if(!$length) {
                 Log::warning(tr('No password specified'));
                 return -1;
             }
 
-            Log::warning(tr('Specified password has length ":length" which is too short and cannot be accepted', [
+            Log::warning(tr('Specified password has only ":length" characters, 10 are the required minimum', [
                 ':length' => $length
             ]));
 
@@ -141,19 +141,21 @@ class Passwords
 
         // Get the amount of upper case letters in the password
         preg_match_all('/[A-Z]/', $password, $matches);
-        $strength += (count($matches[0]) * 2);
+        $a = (count($matches[0]) / strlen($password) * 100);
 
         // Get the amount of lower case letters in the password
         preg_match_all('/[a-z]/', $password, $matches);
-        $strength += (count($matches[0]) * 2);
+        $b = (count($matches[0]) / strlen($password) * 100);
 
         // Get the numbers in the password
         preg_match_all('/[0-9]/', $password, $matches);
-        $strength += (count($matches[0]) * 2);
+        $c = (count($matches[0]) / strlen($password) * 100);
 
         // Check for special chars
-        preg_match_all('/[|!@#$%&*\/=?,;.:\-_+~^\\\]/', $password, $matches);
-        $strength += (count($matches[0]) * 2);
+        preg_match_all('/[<>\[\](){}|!@#$%&*\/=?,;.:\-_+~^\\\]/', $password, $matches);
+        $d = (count($matches[0]) / strlen($password) * 100);
+
+        $strength += (((100 / abs($a - $b - $c - $d))) * 2.5);
 
         // Get the number of unique chars
         $chars            = str_split($password);
@@ -165,19 +167,23 @@ class Passwords
         $repeats = Strings::countCharacters($password);
         $count   = (array_pop($repeats) + array_pop($repeats) + array_pop($repeats));
 
-        if (($count / ($length + 3) * 10) >= 3) {
+        if ((($count / ($length + 3)) * 10) >= 5) {
+            // Too many same characters repeated, this counts against the strength
             $strength = $strength - ($strength * ($count / $length));
+
         } else {
-            $strength = $strength + ($strength * ($count / $length));
+            // Few same characters repeated, this counts for the strength
+            $strength = $strength + ($strength * ($count / $length) * 2);
         }
 
-        // Test for character series
-        $series     = Strings::countAlphaNumericSeries($password);
-        $percentage = ($series / strlen($password)) * 100;
-        $strength  += ((100 - $percentage) / 2);
+// TODO Improve this
+//        // Test for character series
+//        $series     = Strings::countAlphaNumericSeries($password);
+//        $percentage = ($series / strlen($password)) * 100;
+//        $strength  -= ((100 - $percentage) / 2);
 
         // Strength is a number 1 - 100;
-        $strength = (int) floor(($strength > 99) ? 99 : $strength);
+        $strength = (int) floor(($strength > 99) ? 99 : floor(($strength < 0) ? 0 : $strength));
 
         if (VERBOSE) {
             Log::notice(tr('Password strength is ":strength"', [':strength' => $strength]));

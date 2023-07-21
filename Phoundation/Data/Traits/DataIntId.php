@@ -25,6 +25,7 @@ trait DataIntId
      */
     protected ?int $id = null;
 
+
     /**
      * Returns the integer id for this object or null
      *

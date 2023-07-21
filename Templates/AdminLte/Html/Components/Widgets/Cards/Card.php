@@ -58,8 +58,11 @@ class Card extends Renderer
                                 </div>';
         }
 
+        $description = $this->render_object->getDescription();
+
         $this->render .= '      <!-- /.card-header -->
                                 <div class="card-body">
+                                    ' . ($description ? '<p class="card-description">' . Html::safe($description) . '</p>' : null) . '                                    
                                     ' . $this->render_object->getContent(). '
                                 </div>';
 

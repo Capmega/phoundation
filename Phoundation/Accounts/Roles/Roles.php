@@ -39,10 +39,19 @@ class Roles extends DataList implements RolesInterface
      */
     public function __construct()
     {
-        $this->setQuery('SELECT   `id`, `name`, `description` 
-                               FROM     `accounts_roles` 
-                               WHERE    `status` IS NULL 
-                               ORDER BY `name`');
+        $this->setQuery('SELECT     `accounts_roles`.`id`, 
+                                          CONCAT(UPPER(LEFT(`accounts_roles`.`name`, 1)), SUBSTRING(`accounts_roles`.`name`, 2)) AS `role`, 
+                                          GROUP_CONCAT(CONCAT(UPPER(LEFT(`accounts_rights`.`name`, 1)), SUBSTRING(`accounts_rights`.`name`, 2)) SEPARATOR ", ") AS `rights`, 
+                                          `accounts_roles`.`description` 
+                               FROM       `accounts_roles` 
+                               LEFT JOIN  `accounts_roles_rights`
+                               ON         `accounts_roles_rights`.`roles_id` = `accounts_roles`.`id` 
+                               LEFT JOIN  `accounts_rights`
+                               ON         `accounts_rights`.`id` = `accounts_roles_rights`.`rights_id` 
+                                 AND      `accounts_rights`.`status` IS NULL 
+                               WHERE      `accounts_roles`.`status` IS NULL
+                               GROUP BY   `accounts_roles`.`id`
+                               ORDER BY   `accounts_roles`.`name`');
 
         parent::__construct();
     }
@@ -92,22 +101,22 @@ class Roles extends DataList implements RolesInterface
         $this->ensureParent('save entries');
 
         if (is_array($list)) {
-            // Convert the list to id's
-            $rights_list = [];
+            // Convert the list with whatever is specified (id, seo_name, role object) to seo_names
+            $roles_list  = [];
 
-            foreach ($list as $right) {
-                $rights_list[] = static::getEntryClass()::get($right)->getId();
+            foreach ($list as $role) {
+                $roles_list[] = static::getEntryClass()::get($role)->getSeoName();
             }
 
             // Get a list of what we have to add and remove to get the same list, and apply
-            $diff = Arrays::valueDiff(array_keys($this->source), $rights_list);
+            $diff = Arrays::valueDiff(array_keys($this->source), $roles_list);
 
-            foreach ($diff['add'] as $right) {
-                $this->parent->getRoles()->addRole($right);
+            foreach ($diff['add'] as $role) {
+                $this->addRole($role);
             }
 
-            foreach ($diff['remove'] as $right) {
-                $this->parent->getRoles()->remove($right);
+            foreach ($diff['remove'] as $role) {
+                $this->remove($role);
             }
         }
 
@@ -465,11 +474,12 @@ class Roles extends DataList implements RolesInterface
      *
      * @param string $value_column
      * @param string $key_column
+     * @param string|null $order
      * @return SelectInterface
      */
-    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id'): SelectInterface
+    public function getHtmlSelect(string $value_column = 'CONCAT(UPPER(LEFT(`name`, 1)), SUBSTRING(`name`, 2)) AS `name`', string $key_column = 'id', ?string $order = '`name` ASC'): SelectInterface
     {
-        return parent::getHtmlSelect($value_column, $key_column)
+        return parent::getHtmlSelect($value_column, $key_column, $order)
             ->setName('roles_id')
             ->setNone(tr('Select a role'))
             ->setEmpty(tr('No roles available'));

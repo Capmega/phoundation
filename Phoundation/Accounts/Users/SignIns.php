@@ -103,9 +103,10 @@ class SignIns extends DataList
      *
      * @param string $value_column
      * @param string $key_column
+     * @param string|null $order
      * @return SelectInterface
      */
-    public function getHtmlSelect(string $value_column = 'created_on', string $key_column = 'id'): SelectInterface
+    public function getHtmlSelect(string $value_column = 'created_on', string $key_column = 'id', ?string $order = null): SelectInterface
     {
         return InputSelect::new()
             ->setSourceQuery('SELECT    `accounts_signins`.`' . $key_column . '`,

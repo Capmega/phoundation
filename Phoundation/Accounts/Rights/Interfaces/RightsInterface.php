@@ -4,6 +4,8 @@ namespace Phoundation\Accounts\Rights\Interfaces;
 
 use Phoundation\Accounts\Rights\Right;
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
+use Phoundation\Web\Http\Html\Components\Input\InputSelect;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 
 
 /**
@@ -64,4 +66,11 @@ interface RightsInterface extends DataListInterface
      * @return static
      */
     public function save(): static;
+
+    /**
+     * Returns a select with the available rights
+     *
+     * @return InputSelect
+     */
+    public function getHtmlSelect(string $value_column = 'CONCAT(UPPER(LEFT(`name`, 1)), SUBSTRING(`name`, 2)) AS `name`', string $key_column = 'seo_name', ?string $order = null): SelectInterface;
 }

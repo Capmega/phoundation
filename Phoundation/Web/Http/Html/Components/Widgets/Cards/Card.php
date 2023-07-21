@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http\Html\Components\Widgets\Cards;
 
 use Phoundation\Core\Arrays;
+use Phoundation\Data\Traits\DataDescription;
+use Phoundation\Data\Traits\DataName;
+use Phoundation\Data\Traits\DataTitle;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Button;
 use Phoundation\Web\Http\Html\Components\Buttons;
@@ -23,12 +26,9 @@ use Phoundation\Web\Http\Html\Components\Widgets\Widget;
  */
 class Card extends Widget
 {
-    /**
-     * The card title
-     *
-     * @var string|null $title
-     */
-    protected ?string $title = null;
+    use DataTitle;
+    use DataDescription;
+
 
     /**
      * If this card is collapsable or not
@@ -85,30 +85,6 @@ class Card extends Widget
      * @var Buttons|null $buttons
      */
     protected ?Buttons $buttons = null;
-
-
-    /**
-     * Returns the title for this card
-     *
-     * @return string|null
-     */
-    public function getTitle(): ?string
-    {
-        return $this->title;
-    }
-
-
-    /**
-     * Sets the title for this card
-     *
-     * @param string $title
-     * @return static
-     */
-    public function setTitle(string $title): static
-    {
-        $this->title = $title;
-        return $this;
-    }
 
 
     /**

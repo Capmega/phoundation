@@ -823,7 +823,7 @@ class User extends DataEntry implements UserInterface
      *
      * @return DateTimeInterface|null
      */
-    public function getBirthday(): ?DateTimeInterface
+    public function getBirthdate(): ?DateTimeInterface
     {
         $birthdate = $this->getDataValue('string', 'birthdate');
 
@@ -841,7 +841,7 @@ class User extends DataEntry implements UserInterface
      * @param DateTimeInterface|string|null $birthdate
      * @return static
      */
-    public function setBirthday(DateTimeInterface|string|null $birthdate): static
+    public function setBirthdate(DateTimeInterface|string|null $birthdate): static
     {
         return $this->setDataValue('birthdate', $birthdate);
     }
@@ -1004,11 +1004,11 @@ class User extends DataEntry implements UserInterface
         if (!isset($this->rights)) {
             if ($this->getId()) {
                 $this->rights = Rights::new()->setParent($this)->load();
+
             } else {
-                // This is the guest user
+                // This is the guest user or a new user. Either way, this user has no rights
                 $this->rights = Rights::new()->setParent($this);
             }
-
         }
 
         return $this->rights;
@@ -1064,27 +1064,40 @@ class User extends DataEntry implements UserInterface
 
 
     /**
-     * Creates and returns an HTML for the fir
+     * Creates and returns an HTML for the form
      *
      * @return FormInterface
      */
-    public function getRolesHtmlForm(): FormInterface
+    public function getRolesHtmlForm(string $name = 'roles_id[]'): FormInterface
     {
         $form   = Form::new();
-        $roles  = $this->getRoles();
-        $select = $roles->getHtmlSelect()->setCache(true);
+        $roles  = Roles::new();
+        $select = $roles->getHtmlSelect()->setCache(true)->setName($name);
 
         // Add extra entry with nothing selected
         $select->clearSelected();
         $form->addContent($select->render() . '<br>');
 
         // Add all current roles
-        foreach ($roles as $role) {
-            $select->setSelected($role->getSeoName());
+        foreach ($this->getRoles() as $role) {
+            $select->setSelected($role->getId());
             $form->addContent($select->render() . '<br>');
         }
 
         return $form;
+    }
+
+
+    /**
+     * Return the user data used for validation.
+     *
+     * This method strips the basic meta data but also the password column as that is updated directly
+     *
+     * @return array
+     */
+    protected function getDataForValidation(): array
+    {
+        return Arrays::remove(parent::getDataForValidation(), ['password']);
     }
 
 
@@ -1331,7 +1344,7 @@ class User extends DataEntry implements UserInterface
                 ->setHelpText(tr('The email address for this user. This is also the unique identifier for the user'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     // Validate the programs name
-                    $validator->isUnique(tr('This email address is already registered'));
+                    $validator->isUnique(tr('is already registered'));
                 }))
             ->addDefinition(Definition::new($this, 'domain')
                 ->setOptional(true)

@@ -64,4 +64,15 @@ interface RolesInterface extends DataListInterface
      * @return static
      */
     public function save(): static;
+
+    /**
+     * Returns an HTML <select> for the available object entries
+     *
+     * @param string $value_column
+     * @param string $key_column
+     * @param string|null $order
+     * @return SelectInterface
+     */
+
+    public function getHtmlSelect(string $value_column = 'CONCAT(UPPER(LEFT(`name`, 1)), SUBSTRING(`name`, 2)) AS `name`', string $key_column = 'id', ?string $order = null): SelectInterface;
 }

@@ -301,15 +301,6 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
             $methods[] = $argument;
         }
 
-        // Validate all methods
-        foreach ($methods as $method) {
-            if (strlen($method) > 32) {
-                throw new ValidationFailedException(tr('Specified method ":method" is too long, it should be less than 32 characters', [
-                    ':method' => $method
-                ]));
-            }
-        }
-
         return $methods;
     }
 

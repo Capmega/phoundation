@@ -11,6 +11,7 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
+use Phoundation\Data\Traits\DataIntId;
 use Phoundation\Data\Validator\Exception\KeyAlreadySelectedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
@@ -2032,6 +2033,7 @@ abstract class Validator implements ValidatorInterface
 
             try {
                 Passwords::testSecurity($value);
+
             } catch (ValidationFailedException $e) {
                 $this->addFailure(tr('failed because ":e"', [':e' => $e->getMessage()]));
             }
@@ -2365,7 +2367,8 @@ abstract class Validator implements ValidatorInterface
     /**
      * Validates the value is unique in the table
      *
-     * @note This require Validator::setTable() to be set with a valid, existing table
+     * @note This requires Validator::$id to be set with an entry id through Validator::setId()
+     * @note This requires Validator::setTable() to be set with a valid, existing table
      * @param string|null $failure
      * @return static
      */
@@ -2377,7 +2380,7 @@ abstract class Validator implements ValidatorInterface
                 return;
             }
 
-            if (sql()->rowExists($this->table, $this->selected_field, $value, array_get_safe($this->source, 'id'))) {
+            if (sql()->rowExists($this->table, $this->selected_field, $value, $this->id)) {
                 $this->addFailure($failure ?? tr('with value ":value" already exists', [':value' => $value]));
             }
         });

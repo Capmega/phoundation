@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry;
 
 use Phoundation\Cli\Cli;
+use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
 use Phoundation\Data\Iterator;
@@ -412,22 +413,37 @@ abstract class DataList extends Iterator implements DataListInterface
      *
      * @param string $value_column
      * @param string $key_column
+     * @param string|null $order
      * @return SelectInterface
      */
-    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id'): SelectInterface
+    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id', ?string $order = null): SelectInterface
     {
         $select = InputSelect::new();
 
         if ($this->is_loaded or count($this->source)) {
-            // Data was either loaded from DB or manually added
-            $select->setSource($this->ensureSourceObjects());
+            // Data was either loaded from DB or manually added. $value_column may contain query parts, strip em.
+            $value_column = trim($value_column);
+            $value_column = Strings::fromReverse($value_column, ' ');
+            $value_column = str_replace('`', '', $value_column);
+            $select->setSource($this->getScalarValuesSource($value_column));
 
         } else {
-            // No data was loaded from DB or manually added
-            $select->setSourceQuery('SELECT   `' . $key_column . '`, `' . $value_column . '` 
+            $query = 'SELECT   `' . $key_column . '`, ' . $value_column . ' 
                                                 FROM     `' . static::getTable() . '` 
-                                                WHERE    `status` IS NULL 
-                                                ORDER BY `' . $value_column . '` ASC');
+                                                WHERE    `status` IS NULL';
+
+            if ($order === null) {
+                // Default order by the value column
+                $order = $value_column . ' ASC';
+            }
+
+            // Only order if an order column has been specified
+            if ($order) {
+                $query .= ' ORDER BY ' . $order;
+            }
+
+            // No data was loaded from DB or manually added
+            $select->setSourceQuery($query);
         }
 
         return $select;
@@ -621,6 +637,24 @@ showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY F
 
         unset($value);
         return $this;
+    }
+
+
+    /**
+     * Returns an array with scalar values
+     *
+     * @param string $column
+     * @return array
+     */
+    protected function getScalarValuesSource(string $column): array
+    {
+        $return = [];
+
+        foreach ($this->source as $key => $value) {
+            $return[$key] = $value[$column];
+        }
+
+        return $return;
     }
 
 

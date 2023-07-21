@@ -155,6 +155,13 @@ abstract class DataEntry implements DataEntryInterface, Stringable
     protected bool $allow_modify = true;
 
     /**
+     * Global loading flag, when data is loaded into the object from database
+     *
+     * @var bool $is_loading
+     */
+    protected bool $is_loading = true;
+
+    /**
      * Returns true if the DataEntry object internal data structure has been updated
      *
      * @var bool $is_modified
@@ -539,7 +546,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
             // This already is a DataEntry object, no need to create one. Just validate that this is the same class
             if (get_class($identifier) !== static::class) {
                 throw new OutOfBoundsException(tr('Specified identifier has the class ":has" but should have the class ":should"', [
-                    ':has' => get_class($identifier),
+                    ':has'    => get_class($identifier),
                     ':should' => static::class
                 ]));
             }
@@ -947,7 +954,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
         }
 
         $this->is_validated = false;
-        $this->is_saved = false;
+        $this->is_saved     = false;
 
         // Select the correct data source and validate the source data. Specified data may be a DataValidator, an array
         // or null. After selecting a data source it will be a DataValidator object which we will then give to the
@@ -1026,7 +1033,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
             return $source;
         }
 
-        // Data source is an array, put it in an ArrayValidator
+        // Data source is an array, put it in an ArrayValidator.
         return ArrayValidator::new($source);
     }
 
@@ -1137,6 +1144,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      *
      * @param array $data The data for this DataEntry object
      * @param bool $modify
+     * @param bool $directly
      * @return static
      */
     protected function setData(array $data, bool $modify, bool $directly = false): static
@@ -1196,9 +1204,20 @@ abstract class DataEntry implements DataEntryInterface, Stringable
 
                 if (($value !== null) or $modify) {
                     // Only apply if a method exist for this variable
-                    if (method_exists($this, $method)){
-                        $this->$method($value);
+                    if (!method_exists($this, $method)){
+                        // There is no method accepting this data. This might be because its a virtual column that gets
+                        // resolved at validation time. Check this with the definitions object
+                        if ($this->definitions->get($key)?->getVirtual()) {
+                            continue;
+                        }
+
+                        throw new OutOfBoundsException(tr('Cannot set array data because key ":key" has no method for the DataEntry class ":class"', [
+                            ':key'   => $key,
+                            ':class' => Strings::fromReverse(get_class($this), '\\')
+                        ]));
                     }
+
+                    $this->$method($value);
                 }
             }
         }
@@ -1258,6 +1277,27 @@ abstract class DataEntry implements DataEntryInterface, Stringable
     public function getData(): array
     {
         return Arrays::remove($this->data, $this->protected_fields);
+    }
+
+
+    /**
+     * Return the data used for validation.
+     *
+     * This method may be overridden to add more columns. See User class for example, where "password" will also be
+     * stripped as it will never be validated as it will be updated directly
+     *
+     * @return array
+     */
+    protected function getDataForValidation(): array
+    {
+        return Arrays::remove($this->data, [
+            'id',
+            'created_by',
+            'created_on',
+            'status',
+            'meta_id',
+            'meta_state'
+        ]);
     }
 
 
@@ -1322,7 +1362,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
                 // static value.
                 $definition = $this->definitions->get($field);
 
-                if ($force or !$this->getId() or $definition->getValue() or (!$definition->getReadonly() and !$definition->getDisabled())) {
+                if ($force or $this->is_loading or !$this->getId() or $definition->getValue() or (!$definition->getReadonly() and !$definition->getDisabled())) {
                     $default = $definition->getDefault();
 
                     // What to do if we don't have a value? Data should already have been validated, so we know the
@@ -1461,6 +1501,11 @@ abstract class DataEntry implements DataEntryInterface, Stringable
             // Apply definition default
             $return[$field] = isset_get($this->data[$field]) ?? $definition->getDefault();
 
+            // Ensure value is scalar
+            if ($return[$field] and !is_scalar($return[$field])) {
+                $return[$field] = (string) $return[$field];
+            }
+
             // Apply definition prefix and postfix only if they are not empty
             $prefix = $definition->getPrefix();
 
@@ -1529,14 +1574,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
 
 
             // The data in this object hasn't been validated yet! Do so now...
-            $source = Arrays::remove($this->data, [
-                'id',
-                'created_by',
-                'created_on',
-                'status',
-                'meta_id',
-                'meta_state'
-            ]);
+            $source = $this->getDataForValidation();
 
             // Merge the validated data over the current data
             $this->data = array_merge($this->data, $this->validate(ArrayValidator::new($source), true));
@@ -1643,9 +1681,13 @@ abstract class DataEntry implements DataEntryInterface, Stringable
             return $validator->getSource();
         }
 
+        // Set ID so that the array validator can do unique lookups, etc.
         // Tell the validator what table this DataEntry is using and get the field prefix so that the validator knows
         // what fields to select
-        $validator->setTable(static::getTable());
+        $validator
+            ->setId($this->getId())
+            ->setTable(static::getTable());
+
         $prefix = $this->definitions->getFieldPrefix();
 
         // Go over each field and let the field definition do the validation since it knows the specs
@@ -1695,23 +1737,29 @@ abstract class DataEntry implements DataEntryInterface, Stringable
 
 
     /**
-     * Load all data directly from the specified array
+     * Load all data directly from the specified array.
      *
+     * @note ONLY use this to load data that came from a trusted and validated source! This method will NOT validate
+     *       your data, use DataEntry::apply() instead for untrusted data.
      * @param array $source
      * @param bool $init
      * @return $this
      */
     public function setSource(array $source, bool $init = false): static
     {
+        $this->is_loading = true;
+
         if ($init) {
             // Load data with object init
             $this->setMetaData($source)->setData($source, false);
+
         } else {
             $this->data = $source;
         }
 
         $this->is_new      = false;
         $this->is_modified = false;
+        $this->is_loading  = false;
         $this->is_saved    = false;
         return $this;
     }
@@ -1726,6 +1774,8 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      */
     protected function load(string|int $identifier, ?string $column = 'id'): void
     {
+        $this->is_loading = true;
+
         // Get the data using the query builder
         $data = $this->getQueryBuilder()
             ->addSelect('`' . static::getTable() . '`.*')
@@ -1739,6 +1789,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
 
         // Reset state
         $this->is_new      = false;
+        $this->is_loading  = false;
         $this->is_saved    = false;
         $this->is_modified = false;
     }

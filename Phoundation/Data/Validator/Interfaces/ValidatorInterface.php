@@ -21,6 +21,21 @@ use UnitEnum;
 interface ValidatorInterface extends ValidatorBasicsInterface
 {
     /**
+     * Returns the integer id for this object or null
+     *
+     * @return int|null
+     */
+    public function getId(): ?int;
+
+    /**
+     * Sets the integer id for this object or null
+     *
+     * @param int|null $id
+     * @return static
+     */
+    public function setId(?int $id): static;
+
+    /**
      * Returns if failed fields will be cleared on validation
      *
      * @return bool

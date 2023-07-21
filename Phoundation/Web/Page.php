@@ -1099,8 +1099,11 @@ class Page
     #[NoReturn] public static function execute(string $target, bool $attachment = false): never
     {
         try {
-            // Startup the page and see if we can use cache
+            // Startup the page
+            // See if we have to redirect
+            // See if we can use cache.
             static::startup($target);
+            static::checkForceRedirect();
             static::tryCache($target, $attachment);
 
             Core::writeRegister($target, 'system', 'script_file');
@@ -1180,6 +1183,34 @@ class Page
                 ->send();
 
             throw $e;
+        }
+    }
+
+
+    /**
+     * Check if this user should be forcibly be redirected to a different page
+     *
+     * @return void
+     */
+    public static function checkForceRedirect(): void
+    {
+        // Does this user have a forced redirect?
+        if (!Session::getRealUser()->isGuest()) {
+            if (Session::getRealUser()->getRedirect()) {
+                // Are we at the forced redirect page? If so, we can stay
+                $redirect = Session::getRealUser()->getRedirect();
+                $current  = (string) UrlBuilder::getCurrent();
+
+                if (Strings::until($redirect, '?') !== Strings::until($current, '?')) {
+                    // We're at a different page, redirect!
+                    Log::warning(tr('User ":user" has a redirect to ":url", redirecting there instead', [
+                        ':user' => Session::getRealUser()->getLogId(),
+                        ':url'  => $redirect
+                    ]));
+
+                    Page::redirect(UrlBuilder::getWww($redirect)->addQueries('redirect=' . urlencode($current)));
+                }
+            }
         }
     }
 
