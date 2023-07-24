@@ -139,7 +139,7 @@ interface DataListInterface extends IteratorInterface
      *
      * @return DataTable
      */
-    public function getHtmlDataTable(array|string|null $columns): DataTable;
+    public function getHtmlDataTable(array|string|null $columns = null): DataTable;
 
     /**
      * Returns an HTML <select> for the available object entries

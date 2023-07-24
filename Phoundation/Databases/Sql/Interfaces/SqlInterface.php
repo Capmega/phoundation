@@ -320,7 +320,7 @@ interface SqlInterface
      *                     row with this id
      * @return bool
      */
-    public function rowExists(string $table, string $column, int|string|null $value, ?int $id = null): bool;
+    public function DataEntryExists(string $table, string $column, int|string|null $value, ?int $id = null): bool;
 
     /**
      * NOTE: Use only on huge tables (> 1M rows)

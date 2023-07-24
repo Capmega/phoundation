@@ -31,7 +31,7 @@ trait DataEntryPicture
         $picture = get_null($this->getDataValue('string', 'picture')) ?? 'img/profiles/default.png';
 
         return Image::new($picture)
-            ->setDescription(tr('Profile image for :customer', [':customer' => $this->getName()]));
+            ->setDescription(tr('Profile picture for :customer', [':customer' => $this->getName()]));
     }
 
 
