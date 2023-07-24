@@ -413,8 +413,8 @@ class Route
             Log::action(tr('Testing rule ":count" ":regex" on ":type" ":url"', [
                 ':count' => $count,
                 ':regex' => $url_regex,
-                ':type' => static::$method,
-                ':url' => $uri
+                ':type'  => static::$method,
+                ':url'   => $uri
             ]), 4);
 
             try {
@@ -428,20 +428,21 @@ class Route
             }
 
             if (!$match) {
+                // No match, stop this try
                 $count++;
                 return;
             }
 
             if (Debug::enabled()) {
                 Log::success(tr('Regex ":count" ":regex" matched with matches ":matches" and flags ":flags"', [
-                    ':count' => $count,
-                    ':regex' => $url_regex,
+                    ':count'   => $count,
+                    ':regex'   => $url_regex,
                     ':matches' => $matches,
-                    ':flags' => $flags
+                    ':flags'   => $flags
                 ]));
             }
 
-            $route = $target;
+            $route      = $target;
             $attachment = false;
 
             // Regex matched. Do variable substitution on the target.
@@ -506,7 +507,7 @@ class Route
                         if (!$replacement[0] or empty($matches[$replacement[0]])) {
                             throw new RouteException(tr('Non existing regex replacement ":replacement" specified in route ":route"', [
                                 ':replacement' => '$' . $replacement[0],
-                                ':route' => $route
+                                ':route'       => $route
                             ]));
                         }
 
@@ -770,7 +771,7 @@ class Route
 
             // Split the route into the page name and GET requests
             $page = Strings::until($route, '?');
-            $get = Strings::from($route, '?', 0, true);
+            $get  = Strings::from($route, '?', 0, true);
 
             // Translate the route?
             if (isset($core->register['Route::map']) and empty($disable_language)) {
