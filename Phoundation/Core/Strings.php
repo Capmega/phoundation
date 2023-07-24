@@ -1572,7 +1572,7 @@ throw new UnderConstructionException();
                 return trim($return) . $fill;
 
             case 'center':
-                return mb_substr($source, 0, floor($length / 2)) . $fill.mb_substr($source, -ceil($length / 2));
+                return mb_substr($source, 0, (int) floor($length / 2)) . $fill . mb_substr($source, (int) -ceil($length / 2));
 
             case 'left':
                 $return = mb_substr($source, -$length, $length);
