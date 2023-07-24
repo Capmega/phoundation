@@ -10,6 +10,7 @@ use Phoundation\Core\Interfaces\EnumMatchModeInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Stringable;
+use Throwable;
 use UnitEnum;
 
 
@@ -1968,6 +1969,27 @@ class Arrays {
     }
 
 
+    /**
+     * Extracts the specified key from the specified array and returns its value
+     *
+     * @param array $source
+     * @param string $key
+     * @return mixed
+     */
+    public static function extractKey(array &$source, string $key): mixed
+    {
+        try {
+            $return = $source[$key];
+
+        } catch (Throwable) {
+            throw new OutOfBoundsException(tr('Key ":key" does not exist in the specified source array', [
+                ':key' => $key
+            ]));
+        }
+
+        unset($source[$key]);
+        return $return;
+    }
 
 
     /**
@@ -2022,10 +2044,10 @@ class Arrays {
     public static function findPrefix(array $source): string|float|int|null
     {
         foreach ($source as $key => $value) {
-            $prefix = Strings::until($key, '_', require: true);
+            $prefix = (int) Strings::until($key, '_', require: true);
 
             if ($prefix) {
-                return (int) $prefix;
+                return $prefix;
             }
         }
 
