@@ -411,7 +411,7 @@ class Json
         $return = json_decode($source, $as_array, $depth, $options);
 
         if (json_last_error()) {
-            throw new JsonException(tr('JSON decoding failed with :error', [':error' => json_last_error_msg()]));
+            throw new JsonException(tr('JSON decoding failed with ":error"', [':error' => json_last_error_msg()]));
         }
 
         return $return;
