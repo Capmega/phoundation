@@ -68,7 +68,7 @@ class Domains {
         if (!$domain) {
             $domain = Page::getDomain();
         } else {
-            $domain = Url::getDomainFromUrl($domain);
+            $domain = UrlBuilder::getDomainFromUrl($domain);
         }
 
         $this->domain = strtolower($domain);
@@ -97,7 +97,7 @@ class Domains {
         if (!static::$primary_domain) {
             // Build cache
             static::loadConfiguration();
-            static::$primary_domain = Url::getDomainFromUrl((string) isset_get(static::$domains_configuration['primary']['www']));
+            static::$primary_domain = UrlBuilder::getDomainFromUrl((string) isset_get(static::$domains_configuration['primary']['www']));
 
             if (!static::$primary_domain) {
                 // Whoops! We didn't get our primary domain from configuration, likely configuration isn't available yet

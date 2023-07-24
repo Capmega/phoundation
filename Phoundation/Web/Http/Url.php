@@ -65,7 +65,7 @@ class Url {
     public static function getDomainType(string $url, bool $check_sub_domains = true): ?string
     {
         // Get all domain names and check if its primary or subdomain of those.
-        $url_domain = static::getDomainFromUrl($url);
+        $url_domain = UrlBuilder::getDomainFromUrl($url);
         $domains    = Config::get('web.domains');
 
         foreach ($domains as $domain) {
@@ -93,25 +93,5 @@ class Url {
 
         // This is an external URL
         return null;
-    }
-
-
-    /**
-     * Returns the domain for the specified URL, NULL if the URL is invalid
-     *
-     * @param string $url
-     * @return string|null
-     */
-    public static function getDomainFromUrl(string $url): ?string
-    {
-        $url     = parse_url($url);
-        $domain  = isset_get($url['host']);
-
-        if ($domain === null) {
-            // Since there is no domain, assume we need the current domain
-            return Domains::getCurrent();
-        }
-
-        return $domain;
     }
 }

@@ -75,7 +75,7 @@ class UrlBuilder implements UrlBuilderInterface
     public function __toString(): string
     {
         // Auto cloak URL's?
-        $domain = Url::getDomainFromUrl($this->url);
+        $domain = static::getDomainFromUrl($this->url);
 
         try {
             if (Domains::getConfigurationKey($domain, 'cloaked')) {
@@ -672,6 +672,33 @@ throw new UnderConstructionException();
         }
 
         return $this;
+    }
+
+
+    /**
+     * Returns the domain for the specified URL, NULL if the URL is invalid
+     *
+     * @param string $url
+     * @return string|null
+     */
+    public static function getDomainFromUrl(string $url): ?string
+    {
+        $data = parse_url($url);
+
+        if (!$data) {
+            throw new OutOfBoundsException(tr('Failed to parse url ":url" to fetch domain', [
+                ':url' => $url
+            ]));
+        }
+
+        $domain = isset_get($data['host']);
+
+        if ($domain === null) {
+            // Since there is no domain, assume we need the current domain
+            return Domains::getCurrent();
+        }
+
+        return $domain;
     }
 
 
