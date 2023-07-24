@@ -39,10 +39,10 @@ interface UsersInterface extends DataListInterface
     /**
      * Remove the specified data entry from the data list
      *
-     * @param User|array|int|null $user
+     * @param User|array|string|int|null $user
      * @return static
      */
-    public function remove(User|array|int|null $user): static;
+    public function remove(User|array|string|int|null $user): static;
 
     /**
      * Remove all rights for this right

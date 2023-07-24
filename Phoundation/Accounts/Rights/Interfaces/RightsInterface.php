@@ -40,10 +40,10 @@ interface RightsInterface extends DataListInterface
     /**
      * Remove the specified data entry from the data list
      *
-     * @param RightInterface|array|int|null $right
+     * @param RightInterface|array|string|int|null $right
      * @return static
      */
-    public function remove(RightInterface|array|int|null $right): static;
+    public function remove(RightInterface|array|string|int|null $right): static;
 
     /**
      * Remove all rights for this role

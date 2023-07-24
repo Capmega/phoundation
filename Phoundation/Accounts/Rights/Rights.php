@@ -18,6 +18,7 @@ use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Sql\QueryBuilder;
 use Phoundation\Databases\Sql\Sql;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Input\InputSelect;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 
@@ -97,7 +98,9 @@ class Rights extends DataList implements RightsInterface
             $rights_list = [];
 
             foreach ($list as $right) {
-                $rights_list[] = static::getEntryClass()::get($right)->getId();
+                if ($right) {
+                    $rights_list[] = static::getEntryClass()::get($right)->getId();
+                }
             }
 
             // Get a list of what we have to add and remove to get the same list, and apply
@@ -137,43 +140,46 @@ class Rights extends DataList implements RightsInterface
                 // Add single right. Since this is a Right object, the entry already exists in the database
                 $right = Right::get($right);
 
-                // Already exists?
-                if (!array_key_exists($right->getId(), $this->source)) {
-                    // Add entry to parent, User or Role
-                    if ($this->parent instanceof UserInterface) {
-                        Log::action(tr('Adding right ":right" to user ":user"', [
-                            ':user'  => $this->parent->getLogId(),
-                            ':right' => $right->getLogId()
-                        ]));
+                // Right already exists for this parent?
+                if ($this->hasRight($right)) {
+                    // Ignore and continue
+                    return $this;
+                }
 
-                        sql()->dataEntryInsert('accounts_users_rights', [
-                            'users_id'  => $this->parent->getId(),
-                            'rights_id' => $right->getId(),
-                            'name'      => $right->getName(),
-                            'seo_name'  => $right->getSeoName()
-                        ]);
+                // Add entry to parent, User or Role
+                if ($this->parent instanceof UserInterface) {
+                    Log::action(tr('Adding right ":right" to user ":user"', [
+                        ':user'  => $this->parent->getLogId(),
+                        ':right' => $right->getLogId()
+                    ]));
 
-                        // Add right to internal list
-                        $this->addDataEntry($right);
+                    sql()->dataEntryInsert('accounts_users_rights', [
+                        'users_id'  => $this->parent->getId(),
+                        'rights_id' => $right->getId(),
+                        'name'      => $right->getName(),
+                        'seo_name'  => $right->getSeoName()
+                    ]);
 
-                    } elseif ($this->parent instanceof RoleInterface) {
-                        Log::action(tr('Adding right ":right" to role ":role"', [
-                            ':role' => $this->parent->getLogId(),
-                            ':right' => $right->getLogId()
-                        ]));
+                    // Add right to internal list
+                    $this->addDataEntry($right);
 
-                        sql()->dataEntryInsert('accounts_roles_rights', [
-                            'roles_id'  => $this->parent->getId(),
-                            'rights_id' => $right->getId()
-                        ]);
+                } elseif ($this->parent instanceof RoleInterface) {
+                    Log::action(tr('Adding right ":right" to role ":role"', [
+                        ':role' => $this->parent->getLogId(),
+                        ':right' => $right->getLogId()
+                    ]));
 
-                        // Add right to internal list
-                        $this->addDataEntry($right);
+                    sql()->dataEntryInsert('accounts_roles_rights', [
+                        'roles_id'  => $this->parent->getId(),
+                        'rights_id' => $right->getId()
+                    ]);
 
-                        // Update all users with this role to get the new right as well!
-                        foreach ($this->parent->getUsers() as $user) {
-                            User::get($user)->getRights()->addRight($right);
-                        }
+                    // Add right to internal list
+                    $this->addDataEntry($right);
+
+                    // Update all users with this role to get the new right as well!
+                    foreach ($this->parent->getUsers() as $user) {
+                        User::get($user)->getRights()->addRight($right);
                     }
                 }
             }
@@ -186,10 +192,10 @@ class Rights extends DataList implements RightsInterface
     /**
      * Remove the specified data entry from the data list
      *
-     * @param RightInterface|array|int|null $right
+     * @param RightInterface|array|string|int|null $right
      * @return static
      */
-    public function remove(RightInterface|array|int|null $right): static
+    public function remove(RightInterface|array|string|int|null $right): static
     {
         $this->ensureParent('remove entry from parent');
 
@@ -216,7 +222,7 @@ class Rights extends DataList implements RightsInterface
                     ]);
 
                     // Add right to internal list
-                    $this->deleteEntry($right);
+                    $this->delete($right);
                 } elseif ($this->parent instanceof RoleInterface) {
                     Log::action(tr('Removing right ":right" from role ":role"', [
                         ':role' => $this->parent->getLogId(),
@@ -234,12 +240,45 @@ class Rights extends DataList implements RightsInterface
                     }
 
                     // Add right to internal list
-                    $this->deleteEntry($right);
+                    $this->delete($right);
                 }
             }
         }
 
         return $this;
+    }
+
+
+    /**
+     * Returns true if the parent has the specified right
+     *
+     * @param RightInterface $right
+     * @return bool
+     */
+    public function hasRight(RightInterface $right): bool
+    {
+        if (!$this->parent) {
+            throw OutOfBoundsException::new('Cannot check if parent has the specified right, this rights list has no parent specified');
+        }
+
+        if ($this->parent instanceof UserInterface) {
+            return (bool) sql()->get('SELECT `id` 
+                                            FROM   `accounts_users_rights` 
+                                            WHERE  `users_id`  = :users_id 
+                                            AND    `rights_id` = :rights_id', [
+                ':users_id'  => $this->parent->getId(),
+                ':rights_id' => $right->getId()
+            ]);
+        }
+
+        // No user? Then it must be a role
+        return (bool) sql()->get('SELECT `id` 
+                                        FROM   `accounts_roles_rights` 
+                                        WHERE  `roles_id`  = :roles_id 
+                                        AND    `rights_id` = :rights_id', [
+            ':roles_id'  => $this->parent->getId(),
+            ':rights_id' => $right->getId()
+        ]);
     }
 
 

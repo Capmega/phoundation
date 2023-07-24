@@ -562,7 +562,7 @@ showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY F
             $keys = $keys->getId();
         }
 
-        return $this->delete($keys);
+        return parent::delete($keys);
     }
 
 

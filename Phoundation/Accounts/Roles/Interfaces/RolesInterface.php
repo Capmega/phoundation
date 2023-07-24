@@ -38,10 +38,10 @@ interface RolesInterface extends DataListInterface
     /**
      * Remove the specified role from the roles list
      *
-     * @param RoleInterface|array|int|null $role
+     * @param RoleInterface|array|string|int|null $role
      * @return static
      */
-    public function remove(RoleInterface|array|int|null $role): static;
+    public function remove(RoleInterface|array|string|int|null $role): static;
 
     /**
      * Remove all rights for this right
