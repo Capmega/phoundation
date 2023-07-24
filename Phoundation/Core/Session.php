@@ -350,6 +350,7 @@ class Session
             try {
                 // We have a cookie! Start a session for it
                 static::start();
+
             } catch (SessionException $e) {
                 Log::warning(tr('Failed to resume session due to exception ":e"', [':e' => $e->getMessage()]));
                 // Failed to start an existing session, so we'll have to detect the client anyway

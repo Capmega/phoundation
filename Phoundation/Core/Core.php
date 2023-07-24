@@ -924,17 +924,18 @@ class Core {
             $file = $_SERVER['REQUEST_URI'];
 
             // Autodetect what http call type we're on from the script being executed
+            // TODO MOVE ALL THIS TO ROUTER! ROUTER SHOULD DETERMINE WHAT IS ADMIN, AJAX, API, ETC.
             if (str_contains($file, '/admin/')) {
                 static::$request_type = EnumRequestTypes::admin;
 
             } elseif (str_contains($file, '/ajax/')) {
                 static::$request_type = EnumRequestTypes::ajax;
 
-            } elseif (str_contains($file, '/api/')) {
-                static::$request_type = EnumRequestTypes::api;
+//            } elseif (str_contains($file, '/api/')) {
+//                static::$request_type = EnumRequestTypes::api;
 
-            } elseif ((str_starts_with($_SERVER['SERVER_NAME'], 'api')) and preg_match('/^api(?:-[0-9]+)?\./', $_SERVER['SERVER_NAME'])) {
-                static::$request_type = EnumRequestTypes::api;
+//            } elseif ((str_starts_with($_SERVER['SERVER_NAME'], 'api')) and preg_match('/^api(?:-[0-9]+)?\./', $_SERVER['SERVER_NAME'])) {
+//                static::$request_type = EnumRequestTypes::api;
 
             } elseif ((str_starts_with($_SERVER['SERVER_NAME'], 'cdn')) and preg_match('/^cdn(?:-[0-9]+)?\./', $_SERVER['SERVER_NAME'])) {
                 static::$request_type = EnumRequestTypes::api;
