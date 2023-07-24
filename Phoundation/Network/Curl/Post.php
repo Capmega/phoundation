@@ -8,6 +8,7 @@ use CURLFile;
 use Exception;
 use Phoundation\Core\Log\Log;
 use Phoundation\Network\Curl\Exception\CurlPostException;
+use Stringable;
 
 
 /**
@@ -54,9 +55,9 @@ class Post extends Get
     /**
      * Post class constructor
      *
-     * @param string|null $url
+     * @param Stringable|string|null $url
      */
-    public function __construct(?string $url = null)
+    public function __construct(Stringable|string|null $url = null)
     {
         parent::__construct($url);
 

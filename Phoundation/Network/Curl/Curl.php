@@ -5,12 +5,20 @@ declare(strict_types=1);
 namespace Phoundation\Network\Curl;
 
 use JetBrains\PhpStorm\ExpectedValues;
+use Phoundation\Core\Log\Log;
+use Phoundation\Core\Strings;
+use Phoundation\Data\Traits\DataUrl;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Network\Browsers\UserAgents;
+use Phoundation\Network\Curl\Exception\Curl404Exception;
+use Phoundation\Network\Curl\Exception\CurlNon200Exception;
+use Phoundation\Network\Curl\Interfaces\CurlInterface;
 use Phoundation\Web\Exception\WebException;
+use Stringable;
+use Throwable;
 
 
 /**
@@ -23,14 +31,9 @@ use Phoundation\Web\Exception\WebException;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Network
  */
-abstract class Curl
+abstract class Curl implements CurlInterface
 {
-    /**
-     * The URL to which the Curl request will be made
-     *
-     * @var string
-     */
-    protected string $url;
+    use DataUrl;
 
     /**
      * The actual cURL interface
@@ -256,7 +259,7 @@ abstract class Curl
     /**
      * Curl class constructor
      */
-    public function __construct(?string $url = null)
+    public function __construct(Stringable|string|null $url = null)
     {
         if (!extension_loaded('curl')) {
             throw new WebException(tr('The PHP "curl" module is not available, please install it first. On ubuntu install the module with "apt -y install php-curl"; a restart of the webserver or php fpm server may be required'));
@@ -267,20 +270,23 @@ abstract class Curl
             $this->verbose = true;
         }
 
-        $this->url   = $url;
+        $this->url   = (string) $url;
         $this->retry = 0;
 
         $this->setLogPath(PATH_DATA . 'log/curl/');
+
+        // Setup new cURL request
+        $this->curl = curl_init();
     }
 
 
     /**
      * Returns a new cURL class
      *
-     * @param string|null $url
+     * @param Stringable|string|null $url
      * @return static
      */
-    public static function new(?string $url = null): static
+    public static function new(Stringable|string|null $url = null): static
     {
         return new static($url);
     }
@@ -335,10 +341,24 @@ abstract class Curl
 
         if ($method === 'POST') {
             // Disable cache on POST requests, disable follow location too as it would convert POST into GET requests
-            $this->cache_timeout           = 0;
+            $this->cache_timeout   = 0;
             $this->follow_location = false;
         }
 
+        return $this;
+    }
+
+
+    /**
+     * Set cURL options directly
+     *
+     * @param int $option
+     * @param mixed $value
+     * @return $this
+     */
+    public function setOpt(int $option, mixed $value): static
+    {
+        curl_setopt($this->curl, $option, $value);
         return $this;
     }
 
@@ -1040,6 +1060,18 @@ abstract class Curl
     public function getResultData(): ?string
     {
         return $this->result_data;
+    }
+
+
+    /**
+     * Returns the HTTP code for the request
+     *
+     * @note Returns NULL if the request has not yet been executed or completed.
+     * @return int|null
+     */
+    public function getHttpCode(): ?int
+    {
+        return get_null((int) $this->result_status['http_code']);
     }
 
 
