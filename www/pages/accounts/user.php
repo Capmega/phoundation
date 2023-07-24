@@ -36,7 +36,7 @@ if (Page::isPostRequestMethod()) {
             case tr('Save'):
                 // Update roles
                 $post = PostValidator::new()
-                    ->select('roles_id')->isArray()->each()->isDbId()
+                    ->select('roles_id')->isArray()->each()->isOptional()->isDbId()
                     ->validate(false);
 
                 // Update user
@@ -123,14 +123,14 @@ if ($user->getId()) {
         ->setButtons(Buttons::new()
             ->addButton(tr('Save'))
             ->addButton(tr('Back'), DisplayMode::secondary, '/accounts/users.html', true));
-showdie($user->getRights()->getSource());
+
     $rights_card = Card::new()
         ->setCollapseSwitch(true)
         ->setCollapsed(true)
         ->setTitle(tr('Rights for this user [:count]', [':count' => $user->getRights()->getCount()]))
         ->setDescription(tr('This is a list of rights that this user has available because of its assigned roles. Each role gives the user a certain amount of rights and with adding or removing roles, you add or remove these rights. These rights are used to determine the access to pages or specific information that a user has. To determine what rights are required to access a specific page, click the "lock" symbol at the top menu.'))
         ->setContent($user->getRights()
-                            ->getHtmlDataTable()
+                            ->getHtmlDataTable('id,name,description')
                             ->render());
 }
 
@@ -146,7 +146,8 @@ $column = GridColumn::new()
 $picture = Card::new()
     ->setTitle(tr('User profile picture'))
     ->setContent(Img::new()
-        ->setSrc($user->getPicture())
+        ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
+//        ->setSrc($user->getPicture())
         ->setAlt(tr('Profile picture for :user', [':user' => $user->getDisplayName()])));
 
 

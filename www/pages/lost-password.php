@@ -34,12 +34,12 @@ Page::setBuildBody(false);
 
 ?>
 <?= Page::getFlashMessages()->render() ?>
-    <body class="hold-transition login-page" style="background: url(<?= UrlBuilder::getImg('img/backgrounds/' . Page::getProjectName() . '/signin.jpg') ?>); background-position: center; background-repeat: no-repeat; background-size: cover;">
+    <body class="hold-transition login-page" style="background: url(<?= UrlBuilder::getImg('img/backgrounds/' . Page::getProjectName() . '/lost-password.jpg') ?>); background-position: center; background-repeat: no-repeat; background-size: cover;">
     <div class="login-box">
         <!-- /.login-logo -->
         <div class="card card-outline card-info">
             <div class="card-header text-center">
-                <a href="https://medinet.ca" class="h1"><span>Medi</span> net</a>
+                <a href="https://phoundation.org" class="h1"><span>Phounda</span>tion</a>
             </div>
             <div class="card-body">
                 <p class="login-box-msg"><?= tr('Please provide your email address and we will send you a link where you can re-establish your password') ?></p>
@@ -56,7 +56,7 @@ Page::setBuildBody(false);
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
+                        <div class="row mb-3">
                             <!-- /.col -->
                             <div class="col-12">
                                 <button type="submit" class="btn btn-primary btn-block"><?= tr('Request a new password') ?></button>
@@ -65,7 +65,7 @@ Page::setBuildBody(false);
                         </div>
                         <div class="row">
                             <div class="col-12">
-                                <a href="<?= UrlBuilder::getWww('/sign-in.html') ?>"><?= tr('Sign in') ?></a>
+                                <a class="btn btn-outline-secondary btn-block" href="<?= UrlBuilder::getWww('/sign-in.html') ?>"><?= tr('Back to sign in') ?></a>
                             </div>
                         </div>
                         <?php
