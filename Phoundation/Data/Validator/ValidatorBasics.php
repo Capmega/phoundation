@@ -383,6 +383,10 @@ trait ValidatorBasics
      */
     public function xor(string $field, bool $rename = false): static
     {
+        if (!str_starts_with($field, (string) $this->field_prefix)) {
+            $field = $this->field_prefix . $field;
+        }
+
         if ($this->selected_field === $field) {
             throw new ValidatorException(tr('Cannot validate XOR field ":field" with itself', [':field' => $field]));
         }
@@ -429,6 +433,10 @@ trait ValidatorBasics
      */
     public function or(string $field, mixed $default = null): static
     {
+        if (!str_starts_with($field, (string) $this->field_prefix)) {
+            $field = $this->field_prefix . $field;
+        }
+
         if ($this->selected_field === $field) {
             throw new ValidatorException(tr('Cannot validate OR field ":field" with itself', [':field' => $field]));
         }
