@@ -1531,13 +1531,16 @@ class Sql implements SqlInterface
      *                     row with this id
      * @return bool
      */
-    public function rowExists(string $table, string $column, int|string|null $value, ?int $id = null): bool
+    public function DataEntryExists(string $table, string $column, int|string|null $value, ?int $id = null): bool
     {
         if ($id) {
-            return (bool) $this->get('SELECT `' . $column . '` FROM `' . $table . '` WHERE `' . $column . '` = :' . $column . ' AND `id` != :id', [$column => $value, ':id' => $id]);
+            return (bool) $this->get('SELECT `id` FROM `' . $table . '` WHERE `' . $column . '` = :' . $column . ' AND `id` != :id', [
+                ':' . $column => $value,
+                ':id'         => $id
+            ]);
         }
 
-        return (bool) $this->get('SELECT `' . $column . '` FROM `' . $table . '` WHERE `' . $column . '` = :' . $column, [$column => $value]);
+        return (bool) $this->get('SELECT `id` FROM `' . $table . '` WHERE `' . $column . '` = :' . $column, [$column => $value]);
     }
 
 
