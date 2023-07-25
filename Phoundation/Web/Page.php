@@ -15,6 +15,8 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Enums\EnumRequestTypes;
+use Phoundation\Core\Locale\Language\Interfaces\LanguageInterface;
+use Phoundation\Core\Locale\Language\Language;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
@@ -40,6 +42,7 @@ use Phoundation\Web\Http\Exception\HttpException;
 use Phoundation\Web\Http\Flash;
 use Phoundation\Web\Http\Html\Components\BreadCrumbs;
 use Phoundation\Web\Http\Html\Components\FlashMessages\FlashMessages;
+use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Html\Menus\Menus;
 use Phoundation\Web\Http\Html\Template\Template;
 use Phoundation\Web\Http\Html\Template\TemplatePage;
@@ -281,6 +284,16 @@ class Page
      */
     protected static Menus $menus;
 
+    /**
+     * @var string $language_code
+     */
+    protected static string $language_code;
+
+    /**
+     * @var LanguageInterface $language
+     */
+    protected static LanguageInterface $language;
+
 
     /**
      * Page class constructor
@@ -400,6 +413,72 @@ class Page
             static::$template      = $parameters->getTemplateObject();
             static::$template_page = static::$template->getPage();
         }
+    }
+
+
+    /**
+     * Returns the language used for this page
+     *
+     * @return LanguageInterface
+     */
+    public static function getLanguage(): LanguageInterface
+    {
+        if (empty(static::$language_code)) {
+            static::$language = Language::get(static::getLanguageCode());
+        }
+
+        return static::$language;
+    }
+
+
+    /**
+     * Returns the language used for this page in ISO 639-2-b format
+     *
+     * @return string
+     */
+    public static function getLanguageCode(): string
+    {
+        if (empty(static::$language)) {
+            if (PLATFORM_HTTP) {
+                // Get requested language from client
+                static::$language_code = static::detectRequestedLanguage();
+
+            } else {
+                // Get requested language from core
+                static::$language_code = Core::readRegister('system', 'language');
+            }
+        }
+
+        return static::$language_code;
+    }
+
+
+    /**
+     * Returns the port used for this request. When on command line, assume the default from configuration
+     *
+     * @return int
+     */
+    public static function getPort(): int
+    {
+        if (PLATFORM_HTTP) {
+            return (int) $_SERVER['SERVER_PORT'];
+        }
+
+        // We're on command line
+        $config = Config::getArray('web.domains.primary');
+
+        if (array_key_exists('port', $config)) {
+            // Return configured WWW port
+            return Config::getInteger('web.domains.primary.port');
+        }
+
+        if (substr($config['www'], 4, 1) === 's') {
+            // Return default HTTPS port
+            return 443;
+        }
+
+        // Return default HTTP port
+        return 80;
     }
 
 
@@ -543,7 +622,11 @@ class Page
      */
     public static function getProtocol(): string
     {
-        return $_SERVER['REQUEST_SCHEME'];
+        if (PLATFORM_HTTP) {
+            return $_SERVER['REQUEST_SCHEME'];
+        }
+
+        return Strings::until(Config::getString('web.domains.primary.www'), '://');
     }
 
 
@@ -1202,13 +1285,19 @@ class Page
                 $current  = (string) UrlBuilder::getCurrent();
 
                 if (Strings::until($redirect, '?') !== Strings::until($current, '?')) {
-                    // We're at a different page, redirect!
-                    Log::warning(tr('User ":user" has a redirect to ":url", redirecting there instead', [
-                        ':user' => Session::getRealUser()->getLogId(),
-                        ':url'  => $redirect
-                    ]));
+                    // We're at a different page, is it sign out? Because that one is allowed
 
-                    Page::redirect(UrlBuilder::getWww($redirect)->addQueries('redirect=' . urlencode($current)));
+                    $signout = (string) UrlBuilder::getWww(Config::getString('web.pages.sign-out', '/sign-out.html'));
+
+                    if ($current !== $signout) {
+                        // No it's not, redirect!
+                        Log::warning(tr('User ":user" has a redirect to ":url", redirecting there instead', [
+                            ':user' => Session::getRealUser()->getLogId(),
+                            ':url'  => $redirect
+                        ]));
+
+                        Page::redirect(UrlBuilder::getWww($redirect)->addQueries('redirect=' . urlencode($current)));
+                    }
                 }
             }
         }
@@ -1233,11 +1322,6 @@ class Page
             throw new WebException(tr('Page::redirect() can only be called on web sessions'));
         }
 
-        // Display a system error page instead?
-        if (is_numeric($url)) {
-            Route::executeSystem((int) $url);
-        }
-
         // Build URL
         $redirect = UrlBuilder::getWww($url);
 
@@ -1245,7 +1329,7 @@ class Page
         if (UrlBuilder::isCurrent($redirect)) {
             // POST requests may redirect to the same page as the redirect will change POST to GET
             if (!Page::isPostRequestMethod()) {
-                // If the specifed redirect URL was a short code like "prev" or "referer", then it was not hard coded
+                // If the specified redirect URL was a short code like "prev" or "referer", then it was not hard coded
                 // and the system couldn't know that the short code is the same as the current URL. Redirect to domain
                 // root instead
                 $redirect = match ($url) {
@@ -2204,6 +2288,54 @@ class Page
 
                 Log::exception($e);
             }
+        }
+    }
+
+
+    /**
+     * Detects and returns what language the user prefers to see
+     *
+     * @return string a valid language requested by the user that is supported by the systems configuration
+     */
+    protected static function detectRequestedLanguage(): string
+    {
+        $languages = Config::getArray('languages.supported', []);
+
+        switch (count($languages)) {
+            case 0:
+                return LANGUAGE;
+
+            case 1:
+                return current($languages);
+
+            default:
+                // This is a multilingual website. Ensure language is supported and add language selection to the URL.
+                $requested = static::acceptsLanguages();
+
+                if (empty($requested)) {
+                    // Go for default language
+                    return Config::getString('languages.default', 'en');
+                }
+
+                foreach ($requested as $locale) {
+                    if (array_key_exists($locale['language'], $languages)) {
+                        // This requested language exists
+                        return $locale['language'];
+                    }
+                }
+
+                // None of the requested languages are supported! Oh noes! Go for default language.
+                Notification::new()
+                    ->setMode(DisplayMode::warning)
+                    ->setCode('unsupported-languages-requested')
+                    ->setRoles('developers')
+                    ->setTitle(tr('Unsupported language requested by client'))
+                    ->setMessage(tr('None of the requested languages ":languages" is supported', [
+                        ':languages' => $requested
+                    ]))
+                    ->send();
+
+                return Config::getString('languages.default', 'en');
         }
     }
 
