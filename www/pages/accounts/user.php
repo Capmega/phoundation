@@ -88,7 +88,7 @@ if ($user->canBeImpersonated()) {
 
 
 // Delete button. We cannot delete god users
-if (!$user->canBeStatusChanged()) {
+if ($user->canBeStatusChanged()) {
     $delete = Button::new()
         ->setRight(true)
         ->setMode(DisplayMode::warning)
