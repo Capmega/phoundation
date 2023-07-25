@@ -6,6 +6,7 @@ namespace Phoundation\Web\Http;
 
 use Phoundation\Core\Config;
 use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
+use Phoundation\Core\Locale\Language\Languages;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
@@ -133,8 +134,10 @@ class UrlBuilder implements UrlBuilderInterface
     {
         if (!$url) {
             $url = UrlBuilder::getCurrent();
+
         } else {
             $url = static::applyPredefined($url);
+            $url = static::applyVariables($url);
         }
 
         return static::buildUrl($url, null, $use_configured_root);
@@ -808,6 +811,23 @@ throw new UnderConstructionException();
             default                       => new static($url),
         };
 
+    }
+
+
+    /**
+     * Apply variables in the URL
+     *
+     * @param Stringable|string $url
+     * @return UrlBuilder
+     */
+    protected static function applyVariables(Stringable|string $url): string
+    {
+        $url = str_replace(':PROTOCOL', Protocols::getCurrent() , (string) $url);
+        $url = str_replace(':DOMAIN'  , Domains::getCurrent()   , $url);
+        $url = str_replace(':PORT'    , (string) Page::getPort(), $url);
+        $url = str_replace(':LANGUAGE', Page::getLanguageCode() , $url);
+
+        return $url;
     }
 
 
