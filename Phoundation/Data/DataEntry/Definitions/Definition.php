@@ -735,7 +735,7 @@ class Definition implements DefinitionInterface
      */
     public function getReadonly(): ?bool
     {
-        return in_array($this->field, self::$meta_fields) or isset_get_typed('bool', $this->rules['readonly']);
+        return in_array($this->field, self::$meta_fields) or isset_get_typed('bool', $this->rules['readonly'], false);
     }
 
 
@@ -785,7 +785,7 @@ class Definition implements DefinitionInterface
      */
     public function getDisabled(): ?bool
     {
-        return in_array($this->field, self::$meta_fields) or isset_get_typed('bool', $this->rules['disabled']);
+        return in_array($this->field, self::$meta_fields) or isset_get_typed('bool', $this->rules['disabled'], false);
     }
 
 
@@ -1309,6 +1309,29 @@ class Definition implements DefinitionInterface
 
 
     /**
+     * Returns the initial default value for this field
+     *
+     * @return string|float|int|bool|null
+     */
+    public function getInitialDefault(): string|float|int|bool|null
+    {
+        return isset_get_typed('string|float|int|bool', $this->rules['initial_default']);
+    }
+
+
+    /**
+     * Sets the initial default value for this field
+     *
+     * @param string|float|int|bool|null $value
+     * @return static
+     */
+    public function setInitialDefault(string|float|int|bool|null $value): static
+    {
+        return $this->setKey('initial_default', $value);
+    }
+
+
+    /**
      * Returns if this field should be stored with NULL in the database if empty
      *
      * @note Defaults to false
@@ -1510,19 +1533,19 @@ class Definition implements DefinitionInterface
      *
      * @param ValidatorInterface $validator
      * @param string|null $prefix
-     * @return void
+     * @return bool
      */
-    public function validate(ValidatorInterface $validator, ?string $prefix): void
+    public function validate(ValidatorInterface $validator, ?string $prefix): bool
     {
         if ($this->getMeta()) {
             // This field is metadata and should not be modified or validated, plain ignore it.
-            return;
+            return false;
         }
 
         if ($this->getReadonly() or $this->getDisabled()) {
             // This field cannot be modified and should not be validated, unless its new or has a static value
             if (!$this->data_entry->isNew() and !$this->getValue()) {
-                return;
+                return false;
             }
         }
 
@@ -1533,7 +1556,7 @@ class Definition implements DefinitionInterface
         if (!$field) {
             // This field name is empty. Coming from static::getCliField() this means that this field should NOT be
             // validated
-            return;
+            return false;
         }
 
         // Field name prefix is an HTML form array prefix? Then close the array
@@ -1666,6 +1689,8 @@ class Definition implements DefinitionInterface
         foreach ($this->validations as $validation) {
             $validation($validator);
         }
+
+        return true;
     }
 
 
