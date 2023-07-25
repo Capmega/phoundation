@@ -15,6 +15,7 @@ use Phoundation\Accounts\Users\Exception\PasswordNotChangedException;
 use Phoundation\Accounts\Users\Exception\UsersException;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Core\Arrays;
+use Phoundation\Core\Config;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
@@ -1214,7 +1215,9 @@ class User extends DataEntry implements UserInterface
         // We must have the right and we cannot impersonate ourselves
         if ($this->getId() !== Session::getUser()->getId()) {
             if (!$this->hasAllRights('god')) {
-                return true;
+                if ($this->getId() and ($this->getId() > 1)) {
+                    return true;
+                }
             }
         }
 
@@ -1289,7 +1292,7 @@ class User extends DataEntry implements UserInterface
         if (!$test) {
             Incident::new()
                 ->setType('Incorrect password')->setSeverity(Severity::low)
-                ->setTitle(tr('The specified pasThe specified password for usersword for user ":user" is incorrect', [':user' => $user->getLogId()]))
+                ->setTitle(tr('The specified password for user ":user" is incorrect', [':user' => $user->getLogId()]))
                 ->setDetails([':user' => $user->getLogId()])
                 ->save();
         }
@@ -1593,11 +1596,13 @@ class User extends DataEntry implements UserInterface
                 ->setReadonly(true)
                 ->setNullInputType(InputType::text)
                 ->setDefault(tr('Not verified'))
+                ->setNullInputType(InputType::text)
                 ->setLabel(tr('Account verified on'))
                 ->setHelpGroup(tr('Account information'))
                 ->setHelpText(tr('The date when this user was email verified. Empty if not yet verified')))
             ->addDefinition(DefinitionFactory::getUrl($this, 'redirect')
                 ->setSize(3)
+                ->setInitialDefault(Config::getString('security.accounts.users.new.defaults.redirect', ':PROTOCOL://:DOMAIN::PORT/:LANGUAGE/force-password-update.html'))
                 ->setLabel(tr('Redirect URL'))
                 ->setHelpGroup(tr('Account information'))
                 ->setHelpText(tr('The URL where this user will be redirected to upon sign in')))

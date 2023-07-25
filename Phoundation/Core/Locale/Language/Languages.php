@@ -6,6 +6,7 @@ namespace Phoundation\Core\Locale\Language;
 
 use PDOStatement;
 use Phoundation\Business\Providers\Provider;
+use Phoundation\Core\Locale\Language\Interfaces\LanguagesInterface;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
@@ -23,7 +24,7 @@ use Phoundation\Web\Http\Html\Components\Input\InputSelect;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
-class Languages extends DataList
+class Languages extends DataList implements LanguagesInterface
 {
     /**
      * Languages class constructor

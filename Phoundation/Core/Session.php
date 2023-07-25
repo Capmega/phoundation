@@ -9,6 +9,7 @@ use Exception;
 use GeoIP;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\GuestUser;
+use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\SignIn;
 use Phoundation\Accounts\Users\SystemUser;
 use Phoundation\Accounts\Users\User;
@@ -136,9 +137,9 @@ class Session
     /**
      * Returns the user for this session
      *
-     * @return User
+     * @return UserInterface
      */
-    public static function getUser(): User
+    public static function getUser(): UserInterface
     {
         return static::returnUser(false);
     }
@@ -147,9 +148,9 @@ class Session
     /**
      * Returns the user for this session
      *
-     * @return User
+     * @return UserInterface
      */
-    public static function getRealUser(): User
+    public static function getRealUser(): UserInterface
     {
         return static::returnUser(true);
     }
