@@ -10,6 +10,25 @@ use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
 
+/**
+ * Page force-password-update
+ *
+ * This page forces users to update their password. Typically used when the user was just created with a default
+ * password to force the user to use its own password
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Web
+ */
+
+
+// Only allow being here when it was forced by redirect
+if (!Session::getRealUser()->getRedirect() or (Session::getRealUser()->getRedirect() !== (string) UrlBuilder::getWww('/force-password-update.html'))) {
+    Page::redirect('prev');
+}
+
+
 // Validate sign in data and sign in
 if (Page::isPostRequestMethod()) {
     try {
@@ -32,14 +51,12 @@ if (Page::isPostRequestMethod()) {
         Page::getFlashMessages()->addMessage($e);
 
     }catch (PasswordNotChangedException $e) {
-        Page::getFlashMessages()->addWarningMessage(tr('You provided your current password. Please change your password to something different'));
+        Page::getFlashMessages()->addWarningMessage(tr('You provided your current password. Please update your account to have a new and secure password password'));
 
     }catch(Throwable $e){
         showdie($e);
     }
 }
-// pLr3o297s&&i
-// nX15/Qc410
 
 
 // This page will build its own body
@@ -51,10 +68,10 @@ Page::setBuildBody(false);
         <!-- /.login-logo -->
         <div class="card card-outline card-info">
             <div class="card-header text-center">
-                <a href="https://phoundation.org" class="h1"><span>Phounda</span>tion</a>
+                <a href="https://medinet.ca" class="h1"><span>Medi</span>net</a>
             </div>
             <div class="card-body">
-                <p class="login-box-msg"><?= tr('Please update your password before continuing...') ?></p>
+                <p class="login-box-msg"><?= tr('Please update your account to have a new and secure password password before continuing...') ?></p>
 
                 <form action="<?= UrlBuilder::getWww() ?>" method="post">
                     <div class="input-group mb-3">
@@ -73,9 +90,14 @@ Page::setBuildBody(false);
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row mb-3">
                         <div class="col-12">
                             <button type="submit" class="btn btn-primary btn-block"><?= tr('Update and continue') ?></button>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <a href="<?= UrlBuilder::getWww('/sign-out.html') ?>" class="btn btn-outline-secondary btn-block"><?= tr('Sign out') ?></a>
                         </div>
                     </div>
                 </form>
