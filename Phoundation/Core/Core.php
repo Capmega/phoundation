@@ -566,6 +566,9 @@ class Core {
 //            'no_password_validation' => false
 //    ];
 
+        // Set requested language
+        Core::writeRegister($argv['system_language'] ?? Config::getString('languages.default', 'en'), 'system', 'language');
+
         if ($argv['auto_complete']) {
             // We're in auto complete mode. Show only direct output, don't use any color
             $argv['log_level']     = 10;
@@ -1284,44 +1287,6 @@ class Core {
     public static function isRequestType(EnumRequestTypesInterface $type): bool
     {
         return (static::$request_type === $type);
-    }
-
-
-    /**
-     * Get a valid language from the specified language
-     *
-     * @version 2.0.7: Added function and documentation
-     * @param null|string $language a language code
-     * @return string a valid language that is supported by the systems configuration
-     */
-    public static function getLanguage(?string $language): string
-    {
-        if (empty(Config::get('languages.supported', ''))) {
-            // No multi languages supported for this site
-            return '';
-        }
-
-        // This is a multilingual site
-        if ($language === null) {
-            $language = LANGUAGE;
-        }
-
-        if ($language) {
-            // This is a multilingual website. Ensure language is supported and add language selection to the URL.
-            if (empty(Config::get('language.default' . $language))) {
-                $language = Config::get('language.default', 'en');
-
-                Notification::new()
-                    ->setMode(DisplayMode::warning)
-                    ->setCode('unknown-language')
-                    ->setRoles('developers')
-                    ->setTitle(tr('Unknown language specified'))
-                    ->setMessage(tr('The specified language ":language" is not known', [':language' => $language]))
-                    ->send();
-            }
-        }
-
-        return $language;
     }
 
 
