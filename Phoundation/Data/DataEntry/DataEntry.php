@@ -1169,6 +1169,11 @@ abstract class DataEntry implements DataEntryInterface, Stringable
             } else {
                 // This key doesn't exist at all in the data entry, default it
                 $value = $this->definitions->get($key)->getDefault();
+
+                // Still empty? If it's a new entry, there maybe an initial default value
+                if (!$value and $this->isNew()) {
+                    $value = $this->definitions->get($key)->getInitialDefault();
+                }
             }
 
             switch ($key) {
@@ -1692,6 +1697,19 @@ abstract class DataEntry implements DataEntryInterface, Stringable
 
         // Go over each field and let the field definition do the validation since it knows the specs
         foreach ($this->definitions as $definition) {
+            if ($definition->getMeta()) {
+                // This field is metadata and should not be modified or validated, plain ignore it.
+                continue;
+            }
+
+            if ($definition->getReadonly() or $definition->getDisabled()) {
+                // This field cannot be modified and should not be validated, unless its new or has a static value
+                if (!$this->isNew() and !$definition->getValue()) {
+                    $validator->removeSourceKey($definition->getField());
+                    continue;
+                }
+            }
+
             $definition->validate($validator, $prefix);
         }
 
