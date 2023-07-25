@@ -87,8 +87,7 @@ class Button extends Input
             return $this;
         }
 
-        parent::setContent($content);
-        return parent::setValue($content);
+        return parent::setContent($content);
     }
 
 
