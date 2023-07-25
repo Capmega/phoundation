@@ -93,6 +93,14 @@ interface ValidatorInterface extends ValidatorBasicsInterface
     public function setSourceKey(string|float|int $key, mixed $value): static;
 
     /**
+     * Forcibly remove the specified source key
+     *
+     * @param string|float|int $key
+     * @return static
+     */
+    public function removeSourceKey(string|float|int $key): static;
+
+    /**
      * Allow the validator to check each element in a list of values.
      *
      * Basically each method will expect to process a list always and ->select() will put the selected value in an

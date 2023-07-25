@@ -546,6 +546,21 @@ interface DefinitionInterface
     public function setDefault(string|float|int|bool|null $value): static;
 
     /**
+     * Returns the initial default value for this field
+     *
+     * @return string|float|int|bool|null
+     */
+    public function getInitialDefault(): string|float|int|bool|null;
+
+    /**
+     * Sets the initial default value for this field
+     *
+     * @param string|float|int|bool|null $value
+     * @return static
+     */
+    public function setInitialDefault(string|float|int|bool|null $value): static;
+
+    /**
      * Returns if this field should be stored with NULL in the database if empty
      *
      * @note Defaults to false
@@ -677,9 +692,9 @@ interface DefinitionInterface
      *
      * @param ValidatorInterface $validator
      * @param string|null $prefix
-     * @return void
+     * @return bool
      */
-    public function validate(ValidatorInterface $validator, ?string $prefix): void;
+    public function validate(ValidatorInterface $validator, ?string $prefix): bool;
 
     /**
      * Returns variables for the component
