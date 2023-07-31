@@ -445,8 +445,8 @@ abstract class DataList extends Iterator implements DataListInterface
                                                 WHERE    `status` IS NULL';
 
             if ($order === null) {
-                // Default order by the value column
-                $order = $value_column . ' ASC';
+                // Default order by the value column. Value column may have SQL, make sure its stripped
+                $order = Strings::fromReverse($value_column, ' ') . ' ASC';
             }
 
             // Only order if an order column has been specified
@@ -526,11 +526,15 @@ showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY F
      */
     public function listIds(array $identifiers): array
     {
-        $in = Sql::in($identifiers);
+        if ($identifiers) {
+            $in = Sql::in($identifiers);
 
-        return sql()->list('SELECT `id` 
+            return sql()->list('SELECT `id` 
                                   FROM   `' . static::getTable() . '` 
                                   WHERE  `' . static::getUniqueField() . '` IN (' . implode(', ', array_keys($in)) . ')', $in);
+        }
+
+        return [];
     }
 
 

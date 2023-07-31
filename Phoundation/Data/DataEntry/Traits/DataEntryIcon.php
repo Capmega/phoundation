@@ -34,7 +34,7 @@ trait DataEntryIcon
             return match ($this->getMode()) {
                 DisplayMode::warning, DisplayMode::danger => 'exclamation-circle',
                 DisplayMode::success                      => 'check-circle',
-                DisplayMode::info                         => 'info-circle',
+                DisplayMode::info, DisplayMode::notice    => 'info-circle',
                 default                                   => 'question-circle',
             };
         }

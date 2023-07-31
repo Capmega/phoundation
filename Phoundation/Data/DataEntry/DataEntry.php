@@ -736,7 +736,11 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      */
     public function setStatus(?string $status, ?string $comments = null): static
     {
-        sql()->dataEntrySetStatus($status, static::getTable(), ['id' => $this->getId(), 'meta_id' => $this->getMetaId()], $comments);
+        sql()->dataEntrySetStatus($status, static::getTable(), [
+            'id'      => $this->getId(),
+            'meta_id' => $this->getMetaId()
+        ], $comments);
+
         return $this->setDataValue('status', $status);
     }
 
@@ -761,6 +765,19 @@ abstract class DataEntry implements DataEntryInterface, Stringable
     protected function setMetaState(?string $state): static
     {
         return $this->setDataValue('meta_state', $state);
+    }
+
+
+    /**
+     * Sets the password for this user
+     *
+     * @param string|null $password
+     * @return static
+     */
+    protected function setPasswordDirectly(?string $password): static
+    {
+        $this->source['password'] = $password;
+        return $this;
     }
 
 
@@ -1508,7 +1525,12 @@ abstract class DataEntry implements DataEntryInterface, Stringable
 
             // Ensure value is scalar
             if ($return[$field] and !is_scalar($return[$field])) {
-                $return[$field] = (string) $return[$field];
+                if (is_enum($return[$field])) {
+                    $return[$field] = $return[$field]->value;
+
+                } else {
+                    $return[$field] = (string) $return[$field];
+                }
             }
 
             // Apply definition prefix and postfix only if they are not empty

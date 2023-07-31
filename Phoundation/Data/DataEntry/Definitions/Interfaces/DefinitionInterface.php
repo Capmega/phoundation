@@ -108,18 +108,18 @@ interface DefinitionInterface
      * Add specified value for the specified key for this DataEntry field
      *
      * @param string $key
-     * @return callable|PDOStatement|Stringable|array|string|float|int|bool|null
+     * @return mixed
      */
-    public function getKey(string $key): callable|PDOStatement|Stringable|array|string|float|int|bool|null;
+    public function getKey(string $key): mixed;
 
     /**
      * Add specified value for the specified key for this DataEntry field
      *
      * @param string $key
-     * @param callable|PDOStatement|Stringable|array|string|float|int|bool|null $value
+     * @param mixed $value
      * @return static
      */
-    public function setKey(string $key, callable|PDOStatement|Stringable|array|string|float|int|bool|null $value): static;
+    public function setKey(string $key, mixed $value): static;
 
     /**
      * Returns if this field will not set the DataEntry to "modified" state when changed
@@ -405,10 +405,10 @@ interface DefinitionInterface
      *
      * @note Defaults to false
      * @param bool|null $value
-     * @param string|float|int|bool|null $default
+     * @param mixed $default
      * @return static
      */
-    public function setOptional(?bool $value, string|float|int|bool|null $default = null): static;
+    public function setOptional(?bool $value, mixed $default = null): static;
 
     /**
      * Returns the placeholder for this field
@@ -533,32 +533,32 @@ interface DefinitionInterface
     /**
      * Returns the default value for this field
      *
-     * @return string|float|int|bool|null
+     * @return mixed
      */
-    public function getDefault(): string|float|int|bool|null;
+    public function getDefault(): mixed;
 
     /**
      * Sets the default value for this field
      *
-     * @param string|float|int|bool|null $value
+     * @param mixed $value
      * @return static
      */
-    public function setDefault(string|float|int|bool|null $value): static;
+    public function setDefault(mixed $value): static;
 
     /**
      * Returns the initial default value for this field
      *
-     * @return string|float|int|bool|null
+     * @return mixed
      */
-    public function getInitialDefault(): string|float|int|bool|null;
+    public function getInitialDefault(): mixed;
 
     /**
      * Sets the initial default value for this field
      *
-     * @param string|float|int|bool|null $value
+     * @param mixed $value
      * @return static
      */
-    public function setInitialDefault(string|float|int|bool|null $value): static;
+    public function setInitialDefault(mixed $value): static;
 
     /**
      * Returns if this field should be stored with NULL in the database if empty

@@ -280,9 +280,9 @@ class Definition implements DefinitionInterface
      * Add specified value for the specified key for this DataEntry field
      *
      * @param string $key
-     * @return callable|PDOStatement|Stringable|array|string|float|int|bool|null
+     * @return mixed
      */
-    public function getKey(string $key): callable|PDOStatement|Stringable|array|string|float|int|bool|null
+    public function getKey(string $key): mixed
     {
         return isset_get($this->rules[$key]);
     }
@@ -292,10 +292,10 @@ class Definition implements DefinitionInterface
      * Add specified value for the specified key for this DataEntry field
      *
      * @param string $key
-     * @param callable|PDOStatement|Stringable|array|string|float|int|bool|null $value
+     * @param mixed $value
      * @return static
      */
-    public function setKey(string $key, callable|PDOStatement|Stringable|array|string|float|int|bool|null $value): static
+    public function setKey(string $key, mixed $value): static
     {
         $this->rules[$key] = $value;
         return $this;
@@ -599,6 +599,24 @@ class Definition implements DefinitionInterface
 
                         $this->addValidationFunction(function (ValidatorInterface $validator) {
                             $validator->isInteger();
+                        });
+
+                        break;
+
+                    case InputTypeExtended::positiveInteger:
+                        $value = InputType::number;
+
+                        $this->addValidationFunction(function (ValidatorInterface $validator) {
+                            $validator->isInteger()->isMoreThan(0, true);
+                        });
+
+                        break;
+
+                    case InputTypeExtended::negativeInteger:
+                        $value = InputType::number;
+
+                        $this->addValidationFunction(function (ValidatorInterface $validator) {
+                            $validator->isInteger()->isLessThan(0, true);
                         });
 
                         break;
@@ -1069,10 +1087,10 @@ class Definition implements DefinitionInterface
      *
      * @note Defaults to false
      * @param bool|null $value
-     * @param string|float|int|bool|null $default
+     * @param mixed $default
      * @return static
      */
-    public function setOptional(?bool $value, string|float|int|bool|null $default = null): static
+    public function setOptional(?bool $value, mixed $default = null): static
     {
         if (!$value and $default) {
             // If not optional, we cannot have a default value
@@ -1288,21 +1306,21 @@ class Definition implements DefinitionInterface
     /**
      * Returns the default value for this field
      *
-     * @return string|float|int|bool|null
+     * @return mixed
      */
-    public function getDefault(): string|float|int|bool|null
+    public function getDefault(): mixed
     {
-        return isset_get_typed('string|float|int|bool', $this->rules['default']);
+        return isset_get($this->rules['default']);
     }
 
 
     /**
      * Sets the default value for this field
      *
-     * @param string|float|int|bool|null $value
+     * @param mixed $value
      * @return static
      */
-    public function setDefault(string|float|int|bool|null $value): static
+    public function setDefault(mixed $value): static
     {
         return $this->setKey('default', $value);
     }
@@ -1311,21 +1329,21 @@ class Definition implements DefinitionInterface
     /**
      * Returns the initial default value for this field
      *
-     * @return string|float|int|bool|null
+     * @return mixed
      */
-    public function getInitialDefault(): string|float|int|bool|null
+    public function getInitialDefault(): mixed
     {
-        return isset_get_typed('string|float|int|bool', $this->rules['initial_default']);
+        return isset_get($this->rules['initial_default']);
     }
 
 
     /**
      * Sets the initial default value for this field
      *
-     * @param string|float|int|bool|null $value
+     * @param mixed $value
      * @return static
      */
-    public function setInitialDefault(string|float|int|bool|null $value): static
+    public function setInitialDefault(mixed $value): static
     {
         return $this->setKey('initial_default', $value);
     }
@@ -1573,7 +1591,7 @@ class Definition implements DefinitionInterface
             }
 
             $validator->setSourceKey($prefix . $field, $value);
-       }
+        }
 
         // Set the field prefix and select the field
         $validator
@@ -1591,7 +1609,7 @@ class Definition implements DefinitionInterface
         } else {
             switch ($this->getElement()) {
                 case 'textarea':
-                    $validator->sanitizeTrim()->sanitizeHtmlEntities();
+                    $validator->sanitizeTrim();
 
                     // Validate textarea strings
                     if ($this->getMinlength()) {
@@ -1607,32 +1625,32 @@ class Definition implements DefinitionInterface
                 case 'input':
                     switch ($this->getType()) {
                         case 'date':
-                            $validator->sanitizeTrim()->sanitizeHtmlEntities();
+                            $validator->sanitizeTrim();
                             $validator->isDate();
                             break;
 
                         case 'color':
-                            $validator->sanitizeTrim()->sanitizeHtmlEntities();
+                            $validator->sanitizeTrim();
                             $validator->isColor();
                             break;
 
                         case 'tel':
-                            $validator->sanitizeTrim()->sanitizeHtmlEntities();
+                            $validator->sanitizeTrim();
                             $validator->isPhoneNumber();
                             break;
 
                         case 'email':
-                            $validator->sanitizeTrim()->sanitizeHtmlEntities();
+                            $validator->sanitizeTrim();
                             $validator->isEmail();
                             break;
 
                         case 'time':
-                            $validator->sanitizeTrim()->sanitizeHtmlEntities();
+                            $validator->sanitizeTrim();
                             $validator->isTime();
                             break;
 
                         case 'datetime-local':
-                            $validator->sanitizeTrim()->sanitizeHtmlEntities();
+                            $validator->sanitizeTrim();
                             $validator->isDateTime();
                             break;
 
@@ -1658,7 +1676,7 @@ class Definition implements DefinitionInterface
 
                         default:
                             // Validate input text strings
-                            $validator->sanitizeTrim()->sanitizeHtmlEntities();
+                            $validator->sanitizeTrim();
 
                             if ($this->getMinlength()) {
                                 $validator->hasMinCharacters($this->getMinlength());
@@ -1672,14 +1690,14 @@ class Definition implements DefinitionInterface
                     break;
 
                 case 'select':
-                    $validator->sanitizeTrim()->sanitizeHtmlEntities();
+                    $validator->sanitizeTrim();
             }
 
             $source = $this->getSource();
 
             if ($source) {
                 if (is_array($source)) {
-                    // The value must be in the specified source
+                    // The data value must be in the definition source
                     $validator->isInArray(array_keys($source));
                 }
             }
