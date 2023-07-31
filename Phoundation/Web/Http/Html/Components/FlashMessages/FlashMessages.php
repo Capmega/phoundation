@@ -130,22 +130,19 @@ class FlashMessages extends ElementsBlock implements IteratorInterface
      * @param int|null $auto_close
      * @return $this
      */
-    public function addMessage(FlashMessage|Exception|Stringable|string|null $message, ?string $title, ?DisplayMode $mode = null, string $icon = null, ?int $auto_close = 5000): static
+    public function addMessage(FlashMessage|Exception|Stringable|string|null $message, ?string $title = null, ?DisplayMode $mode = null, string $icon = null, ?int $auto_close = 5000): static
     {
         if (!$message) {
             // Ignore empty messages
             return $this;
         }
 
-        if (!$title) {
-            // Title is required tho
-            throw new OutOfBoundsException(tr('No title specified for the flash message ":message"', [
-                ':message' => $message
-            ]));
-        }
-
         if ($message instanceof ValidationFailedException) {
             // Title was specified as an exception, add each validation failure as a separate flash message
+            if (empty($title)) {
+                $title = tr('Validation failed');
+            }
+
             if ($message->getData()) {
                 $count = 0;
 
@@ -170,8 +167,12 @@ class FlashMessages extends ElementsBlock implements IteratorInterface
         } elseif ($message instanceof Exception) {
             // Title was specified as a Phoundation exception, add each validation failure as a separate flash
             // message
+            if (empty($title)) {
+                $title = tr('Error');
+            }
+
             foreach ($message->getMessages() as $message) {
-                $this->addErrorMessage($message);
+                $this->addErrorMessage($message, $title);
             }
 
             return $this;
@@ -180,6 +181,17 @@ class FlashMessages extends ElementsBlock implements IteratorInterface
         if ($message instanceof Throwable) {
             // Title was specified as a PHP exception, add the exception message as flash message
             $message = $message->getMessage();
+
+            if (empty($title)) {
+                $title = tr('Error');
+            }
+        }
+
+        if (!$title) {
+            // Title is required tho
+            throw new OutOfBoundsException(tr('No title specified for the flash message ":message"', [
+                ':message' => $message
+            ]));
         }
 
         if (!($message instanceof FlashMessageInterface)) {
