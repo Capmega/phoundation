@@ -133,10 +133,19 @@ class Plugins extends DataList
     public static function start(): void
     {
         foreach (static::getEnabled() as $plugin) {
-            if ($plugin['enabled']) {
-                Log::action(tr('Starting plugin ":plugin"', [':plugin' => $plugin['name']]), 9);
-                include_once($plugin['path'] . 'Plugin.php');
-                $plugin['class']::start();
+            try {
+                if ($plugin['enabled']) {
+                    Log::action(tr('Starting plugin ":plugin"', [':plugin' => $plugin['name']]), 9);
+                    include_once(PATH_ROOT . $plugin['path'] . 'Plugin.php');
+                    $plugin['class']::start();
+                }
+
+            } catch (Throwable $e) {
+                Log::error(tr('Failed to start plugin ":plugin" because of next exception', [
+                    ':plugin'=> $plugin['name']
+                ]));
+
+                Log::error($e);
             }
         }
     }
@@ -246,7 +255,7 @@ class Plugins extends DataList
             'enabled'  => tr('Enabled'),
             'priority' => 0,
             'class'    => 'Plugins\Phoundation\Plugin',
-            'path'     => PATH_ROOT . '/Plugins/Phoundation/',
+            'path'     => 'Plugins/Phoundation/',
         ];
     }
 

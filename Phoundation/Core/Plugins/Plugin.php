@@ -8,6 +8,7 @@ use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Plugins\Interfaces\PluginInterface;
+use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
@@ -245,15 +246,15 @@ class Plugin extends DataEntry implements PluginInterface
             return;
         }
 
-        Log::action(tr('Registering new plugin ":plugin"', [
-            ':plugin' => $name
-        ]));
-
+        // Only the Phoundation plugin is ALWAYS enabled
         $enabled = ($name === 'Phoundation');
 
+        Log::action(tr('Registering new plugin ":plugin"', [':plugin' => $name]));
+
+        // Register the plugin
         $plugin
             ->setName($name)
-            ->setPath($plugin->getPath())
+            ->setPath(Strings::from($plugin->getPath(), PATH_ROOT))
             ->setClass($plugin->getClass())
             ->setEnabled($enabled)
             ->setPriority($plugin->getPriority())
