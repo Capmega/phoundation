@@ -31,7 +31,7 @@ class ProfileImageMenu extends Menu
 
        $this->setSource([
             tr('Profile') => [
-                'url'  => '/profile.html',
+                'url'  => '/my/profile.html',
                 'icon' => ''
             ],
             tr('Sign out') => [
