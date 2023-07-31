@@ -5,6 +5,7 @@ namespace Phoundation\Data\Validator\Interfaces;
 
 use DateTime;
 use PDOStatement;
+use Phoundation\Data\Validator\Validator;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use UnitEnum;
 
@@ -18,7 +19,7 @@ use UnitEnum;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
-interface ValidatorInterface extends ValidatorBasicsInterface
+interface ValidatorInterface
 {
     /**
      * Returns the integer id for this object or null
@@ -28,60 +29,46 @@ interface ValidatorInterface extends ValidatorBasicsInterface
     public function getId(): ?int;
 
     /**
-     * Sets the integer id for this object or null
-     *
-     * @param int|null $id
-     * @return static
-     */
-    public function setId(?int $id): static;
-
-    /**
-     * Returns if failed fields will be cleared on validation
+     * Returns if all validations are disabled or not
      *
      * @return bool
      */
-    public function getClearFailedFields(): bool;
+    public static function disabled(): bool;
 
     /**
-     * Sets if failed fields will be cleared on validation
+     * Disable all validations
      *
-     * @param bool $clear_failed_fields
      * @return void
      */
-    public function setClearFailedFields(bool $clear_failed_fields): static;
+    public static function disable(): void;
 
     /**
-     * Returns the field prefix value
+     * Enable all validations
      *
-     * @return string|null
+     * @return void
      */
-    public function getFieldPrefix(): ?string;
-
+    public static function enable(): void;
 
     /**
-     * Sets the field prefix value
+     * Returns if all validations are disabled or not
      *
-     * @param string|null $field_prefix
-     * @return $this
+     * @return bool
      */
-    public function setFieldPrefix(?string $field_prefix): static;
-
+    public static function passwordsDisabled(): bool;
 
     /**
-     * Returns the table value
+     * Disable password validations
      *
-     * @return string|null
+     * @return void
      */
-    public function getTable(): ?string;
+    public static function disablePasswords(): void;
 
     /**
-     * Sets the table value
+     * Enable password validations
      *
-     * @param string|null $table
-     * @return $this
+     * @return void
      */
-    public function setTable(?string $table): static;
-
+    public static function enablePasswords(): void;
 
     /**
      * Forcibly set the specified key of this validator source to the specified value
@@ -99,6 +86,13 @@ interface ValidatorInterface extends ValidatorBasicsInterface
      * @return static
      */
     public function removeSourceKey(string|float|int $key): static;
+
+    /**
+     * Returns the currently selected value
+     *
+     * @return mixed
+     */
+    public function getSourceValue(): mixed;
 
     /**
      * Allow the validator to check each element in a list of values.
@@ -344,7 +338,7 @@ interface ValidatorInterface extends ValidatorBasicsInterface
      * @param PDOStatement|string $query
      * @param array|null $execute
      * @param bool $ignore_case
-     * @param bool $fail_on_null
+     * @param bool $fail_on_null = true
      * @return static
      */
     public function setColumnFromQuery(string $column, PDOStatement|string $query, ?array $execute = null, bool $ignore_case = false, bool $fail_on_null = true): static;
@@ -363,7 +357,7 @@ interface ValidatorInterface extends ValidatorBasicsInterface
     /**
      * Validates the datatype for the selected field
      *
-     * This method ensures that the specified array key is a scalar value
+     * This method ensures that the value is in the results from the specified query
      *
      * @param PDOStatement|string $query
      * @param array|null $execute
@@ -564,7 +558,7 @@ interface ValidatorInterface extends ValidatorBasicsInterface
     public function isCreditCard(): static;
 
     /**
-     * Validates that the selected field is a valid mode
+     * Validates that the selected field is a valid display mode
      *
      * @return static
      */
@@ -645,7 +639,7 @@ interface ValidatorInterface extends ValidatorBasicsInterface
      * @param int $characters
      * @return static
      */
-    public function isName(int $characters = 64): static;
+    public function isName(int $characters = 128): static;
 
     /**
      * Validates if the selected field is a valid name
@@ -724,7 +718,7 @@ interface ValidatorInterface extends ValidatorBasicsInterface
      * @param int $characters
      * @return static
      */
-    public function isColor(): static;
+    public function isColor(int $characters = 6): static;
 
     /**
      * Validates if the selected field is a valid email address
@@ -836,21 +830,31 @@ interface ValidatorInterface extends ValidatorBasicsInterface
     public function isFalse(callable $function, string $failure): static;
 
     /**
+     * Validates the value is unique in the table
+     *
+     * @note This requires Validator::$id to be set with an entry id through Validator::setId()
+     * @note This requires Validator::setTable() to be set with a valid, existing table
+     * @param string|null $failure
+     * @return static
+     */
+    public function isUnique(?string $failure = null): static;
+
+    /**
+     * Sanitize the selected value by applying htmlentities()
+     *
+     * @return static
+     * @see trim()
+     */
+    public function sanitizeHtmlEntities(): static;
+
+    /**
      * Sanitize the selected value by trimming whitespace
      *
      * @param string $characters
      * @return static
      * @see trim()
      */
-    public function sanitizeTrim(string $characters = "\t\n\r\0\x0B"): static;
-
-    /**
-     * Sanitize the selected value by applying the specified transformation callback
-     *
-     * @param callable $callback
-     * @return static
-     */
-    public function sanitizeTransform(callable $callback): static;
+    public function sanitizeTrim(string $characters = " \t\n\r\0\x0B"): static;
 
     /**
      * Sanitize the selected value by starting the value from the specified needle
@@ -1044,6 +1048,44 @@ interface ValidatorInterface extends ValidatorBasicsInterface
     public function sanitizePrePost(?string $pre, ?string $post): static;
 
     /**
+     * Sanitize the selected value by applying the specified transformation callback
+     *
+     * @param callable $callback
+     * @return static
+     */
+    public function sanitizeTransform(callable $callback): static;
+
+    /**
+     * Returns the field prefix value
+     *
+     * @return string|null
+     */
+    public function getFieldPrefix(): ?string;
+
+    /**
+     * Sets the field prefix value
+     *
+     * @param string|null $field_prefix
+     * @return $this
+     */
+    public function setFieldPrefix(?string $field_prefix): static;
+
+    /**
+     * Returns the table value
+     *
+     * @return string|null
+     */
+    public function getTable(): ?string;
+
+    /**
+     * Sets the table value
+     *
+     * @param string|null $table
+     * @return $this
+     */
+    public function setTable(?string $table): static;
+
+    /**
      * Selects the specified key within the array that we are validating
      *
      * @param int|string $field The array key (or HTML form field) that needs to be validated / sanitized
@@ -1052,19 +1094,12 @@ interface ValidatorInterface extends ValidatorBasicsInterface
     public function standardSelect(int|string $field): static;
 
     /**
-     * Returns true if the specified field has failed
+     * Sets the integer id for this object or null
      *
-     * @param string $field
-     * @return bool
+     * @param int|null $id
+     * @return static
      */
-    public function fieldHasFailed(string $field): bool;
-
-    /**
-     * Returns if the currently selected field failed or not
-     *
-     * @return bool
-     */
-    public function getSelectedFieldHasFailed(): bool;
+    public function setId(?int $id): static;
 
     /**
      * Returns the entire source for this validator object
@@ -1087,4 +1122,169 @@ interface ValidatorInterface extends ValidatorBasicsInterface
      * @return bool
      */
     public function sourceKeyExists(string $key): bool;
+
+    /**
+     * Manually set one of the internal fields to the specified value
+     *
+     * @param string $key
+     * @param array|string|int|float|bool|null $value
+     * @return static
+     */
+    public function setField(string $key, array|string|int|float|bool|null $value): static;
+
+    /**
+     * Returns if failed fields will be cleared on validation
+     *
+     * @return bool
+     */
+    public function getClearFailedFields(): bool;
+
+    /**
+     * Sets if failed fields will be cleared on validation
+     *
+     * @param bool $clear_failed_fields
+     * @return static
+     */
+    public function setClearFailedFields(bool $clear_failed_fields): static;
+
+    /**
+     * Returns the maximum string size that this Validator will touch
+     *
+     * @return int|null
+     */
+    public function getMaximumStringSize(): ?int;
+
+    /**
+     * Returns the maximum string size that this Validator will touch
+     *
+     * @param int|null $max_string_size
+     * @return void
+     */
+    public function setMaximumStringSize(?int $max_string_size): void;
+
+    /**
+     * Returns the parent field with the specified name
+     *
+     * @return string|null
+     */
+    public function getParentField(): ?string;
+
+    /**
+     * Sets the parent field with the specified name
+     *
+     * @param string|null $field
+     * @return void
+     */
+    public function setParentField(?string $field): void;
+
+    /**
+     * This method will make the selected field optional and use the specified $default instead
+     *
+     * This means that either it may not exist, or it's contents may be NULL
+     *
+     * @param mixed $default
+     * @return static
+     *
+     * @see Validator::xor()
+     * @see Validator::or()
+     */
+    public function isOptional(mixed $default = null): static;
+
+    /**
+     * Renames the current field to the specified field name
+     *
+     * @param string $field_name
+     * @return $this
+     */
+    public function rename(string $field_name): static;
+
+    /**
+     * This method will make sure that either this field OR the other specified field will have a value
+     *
+     * @param string $field
+     * @param bool $rename
+     * @return static
+     *
+     * @see Validator::isOptional()
+     * @see Validator::or()
+     */
+    public function xor(string $field, bool $rename = false): static;
+
+    /**
+     * This method will make sure that either this field OR the other specified field optionally will have a value
+     *
+     * @param string $field
+     * @param mixed $default
+     * @return static
+     *
+     * @see Validator::isOptional()
+     * @see Validator::xor()
+     */
+    public function or(string $field, mixed $default = null): static;
+
+    /**
+     * Will validate that the value of this field matches the value for the specified field
+     *
+     * @param string $field
+     * @param bool $strict If true will execute a strict comparison where the datatype must match as well (so 1 would
+     *                     not be the same as "1") for example
+     * @return static
+     * @see Validator::isOptional()
+     */
+    public function isEqualTo(string $field, bool $strict = false): static;
+
+    /**
+     * Recurse into a sub array and return another validator object for that sub array
+     *
+     * @return static
+     */
+    public function recurse(): static;
+
+    /**
+     * Called at the end of defining all validation rules.
+     *
+     * This method will check the failures array and if any failures were registered, it will throw an exception
+     *
+     * @param bool $clean_source
+     * @return array
+     */
+    public function validate(bool $clean_source = true): array;
+
+    /**
+     * Resets the class for a new validation
+     *
+     * @return void
+     */
+    public function clear(): void;
+
+    /**
+     * Add the specified failure message to the failures list
+     *
+     * @param string $failure
+     * @param string|null $field
+     * @return void
+     */
+    public function addFailure(string $failure, ?string $field = null): void;
+
+    /**
+     * Returns the list of failures found during validation
+     *
+     * @return array
+     */
+    public function getFailures(): array;
+
+    /**
+     * Returns if the currently selected field failed or not
+     *
+     * @return bool
+     */
+    public function getSelectedFieldHasFailed(): bool;
+
+    /**
+     * Returns true if the specified field has failed
+     *
+     * @param string $field
+     * @return bool
+     */
+    public function fieldHasFailed(string $field): bool;
 }

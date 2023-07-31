@@ -86,9 +86,9 @@ trait ValidatorBasics
     /**
      * If not NULL, the currently selected field may be non-existent or NULL, it will receive this default value
      *
-     * @var array|string|float|int|bool|null $selected_optional
+     * @var mixed $selected_optional
      */
-    protected array|string|float|int|bool|null $selected_optional = null;
+    protected mixed $selected_optional = null;
 
     /**
      * If true, the value is optional
@@ -341,13 +341,13 @@ trait ValidatorBasics
      *
      * This means that either it may not exist, or it's contents may be NULL
      *
-     * @param array|string|float|int|bool|null $default
+     * @param mixed $default
      * @return ValidatorInterface
      *
      * @see Validator::xor()
      * @see Validator::or()
      */
-    public function isOptional(array|string|float|int|bool|null $default = null): static
+    public function isOptional(mixed $default = null): static
     {
         $this->selected_is_optional = true;
         $this->selected_optional    = $default;
@@ -407,7 +407,7 @@ trait ValidatorBasics
         } else {
             // The currently selected field does not exist, the specified field MUST exist
             if (!isset_get($this->source[$field])) {
-                $this->addFailure(tr('nor ":field" were set, where either one of them must be set', [
+                $this->addFailure(tr('nor ":field" were set, where either one of them is required', [
                     ':field' => $field
                 ]));
 

@@ -6,25 +6,24 @@ namespace Phoundation\Data\Validator;
 
 use DateTime;
 use PDOStatement;
-use Phoundation\Accounts\Passwords;
+use Phoundation\Accounts\Users\Password;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
-use Phoundation\Data\Traits\DataIntId;
 use Phoundation\Data\Validator\Exception\KeyAlreadySelectedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
-use Phoundation\Data\Validator\Interfaces\ValidatorBasicsInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
+use Phoundation\Web\Http\Html\Enums\DisplayMode;
+use Phoundation\Web\Http\Html\Enums\Interfaces\DisplayModeInterface;
 use Phoundation\Web\Http\Url;
 use ReflectionProperty;
-use StephenHill\Base58;
 use Throwable;
 use UnitEnum;
 
@@ -1527,43 +1526,24 @@ abstract class Validator implements ValidatorInterface
     public function isDisplayMode(): static
     {
         return $this->validateValues(function(&$value) {
-            $this->hasMaxCharacters(12); // Sort-of arbitrary max size, just to ensure regex won't receive a 2MB string
-
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
 
-            switch ($value) {
-                case 'INFO':
-                    // no-break
-                case 'INFORMATION':
-                    $clean_mode = 'INFO';
-                    break;
+            if (!($value instanceof DisplayModeInterface)) {
+                if (is_string($value)) {
+                    // Maybe a string representation of a backed enum?
+                    $test = DisplayMode::tryFrom($value);
 
-                case 'ERROR':
-                    // no-break
-                case 'EXCEPTION':
-                    // no-break
-                case 'DANGER':
-                    $clean_mode = 'DANGER';
-                    break;
+                    if ($test) {
+                        $value = $test;
 
-                case 'NOTICE':
-                    // no-break
-                case 'WARNING':
-                    // no-break
-                case 'SUCCESS':
-                    // no-break
-                case 'UNKNOWN':
-                    break;
-
-                case '':
-                    // no break
-                default:
-                    $this->addFailure(tr('must be a valid mode value'));
+                    } else {
+                        $this->addFailure(tr('must be a valid display mode'));
+                    }
+                }
             }
-
         });
     }
 
@@ -2032,7 +2012,7 @@ abstract class Validator implements ValidatorInterface
             }
 
             try {
-                Passwords::testSecurity($value);
+                Password::testSecurity($value);
 
             } catch (ValidationFailedException $e) {
                 $this->addFailure(tr('failed because ":e"', [':e' => $e->getMessage()]));
@@ -2195,12 +2175,10 @@ abstract class Validator implements ValidatorInterface
             }
 
             // Try by regex. If that fails. try JSON decode
-            if (!preg_match('/^(?2)({([ \n\r\t]*)(((?9)(?2):((?2)(?1)(?2)))(,(?2)(?4))*)?}|\[(?2)((?1)(?2)(,(?5))*)?\]|true|false|(\"([^"\\\p{Cc}]|\\(["\\\/bfnrt]|u[\da-fA-F]{4}))*\")|-?(0|[1-9]\d*)(\.\d+)?([eE][-+]?\d+)?|null)(?2)$/', $value)){
-                json_decode($value);
+            @json_decode($value);
 
-                if (json_last_error() !== JSON_ERROR_NONE) {
-                    $this->addFailure(tr('must contain a valid JSON string'));
-                }
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                $this->addFailure(tr('must contain a valid JSON string'));
             }
         });
     }
