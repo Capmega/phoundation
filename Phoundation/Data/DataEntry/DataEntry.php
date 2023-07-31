@@ -1224,23 +1224,21 @@ abstract class DataEntry implements DataEntryInterface, Stringable
                     Log::information('SET DATA ON KEY "' . $key . '" WITH METHOD: ' . $method . ' (' . (method_exists($this, $method) ? 'exists' : 'NOT exists') . ') TO VALUE "' . Strings::log($value). '"', 10);
                 }
 
-                if (($value !== null) or $modify) {
-                    // Only apply if a method exist for this variable
-                    if (!method_exists($this, $method)){
-                        // There is no method accepting this data. This might be because its a virtual column that gets
-                        // resolved at validation time. Check this with the definitions object
-                        if ($this->definitions->get($key)?->getVirtual()) {
-                            continue;
-                        }
-
-                        throw new OutOfBoundsException(tr('Cannot set array data because key ":key" has no method for the DataEntry class ":class"', [
-                            ':key'   => $key,
-                            ':class' => Strings::fromReverse(get_class($this), '\\')
-                        ]));
+                // Only apply if a method exist for this variable
+                if (!method_exists($this, $method)){
+                    // There is no method accepting this data. This might be because its a virtual column that gets
+                    // resolved at validation time. Check this with the definitions object
+                    if ($this->definitions->get($key)?->getVirtual()) {
+                        continue;
                     }
 
-                    $this->$method($value);
+                    throw new OutOfBoundsException(tr('Cannot set array data because key ":key" has no method for the DataEntry class ":class"', [
+                        ':key'   => $key,
+                        ':class' => Strings::fromReverse(get_class($this), '\\')
+                    ]));
                 }
+
+                $this->$method($value);
             }
         }
 
