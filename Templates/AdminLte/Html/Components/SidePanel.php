@@ -56,7 +56,7 @@ class SidePanel extends Renderer
                                             ->render() . '
                                 </div>
                                 <div class="info">
-                                  <a href="' . (Session::getUser()->isGuest() ? '#' : UrlBuilder::getWww('/profile.html')) . '" class="d-block">' . Session::getUser()->getDisplayName() . '</a>
+                                  <a href="' . (Session::getUser()->isGuest() ? '#' : UrlBuilder::getWww('/my/profile.html')) . '" class="d-block">' . Session::getUser()->getDisplayName() . '</a>
                                 </div>
                               </div>
                               <div class="form-inline">

@@ -7,10 +7,10 @@ namespace Templates\AdminLte;
 
 use Phoundation\Core\Config;
 use Phoundation\Web\Http\Html\Components\Footer;
+use Phoundation\Web\Http\Html\Components\Modals\SignInModal;
 use Phoundation\Web\Http\Html\Components\SidePanel;
 use Phoundation\Web\Http\Html\Components\TopPanel;
 use Phoundation\Web\Http\Html\Html;
-use Phoundation\Web\Http\Html\Modals\SignInModal;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
@@ -204,11 +204,11 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
         $panel->getNotificationsDropDown()
             ->setNotifications(null)
             ->setNotificationsUrl('/notifications/notification-:ID.html')
-            ->setAllNotificationsUrl('/notifications/all.html');
+            ->setAllNotificationsUrl('/notifications/unread.html');
 
         $panel->getMessagesDropDown()
             ->setMessages(null)
-            ->setMessagesUrl('/messages/all.html');
+            ->setMessagesUrl('/messages/unread.html');
 
         $panel->getLanguagesDropDown()
             ->setLanguages(null)

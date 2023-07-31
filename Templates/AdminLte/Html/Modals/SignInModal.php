@@ -30,7 +30,7 @@ class SignInModal extends Renderer
     /**
      * SignInModal class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Modals\SignInModal $element)
+    public function __construct(\Phoundation\Web\Http\Html\Components\Modals\SignInModal $element)
     {
         parent::__construct($element);
     }

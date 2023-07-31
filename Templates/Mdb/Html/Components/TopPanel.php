@@ -6,8 +6,8 @@ declare(strict_types=1);
 namespace Templates\Mdb\Html\Components;
 
 use Phoundation\Web\Http\Html\Components\Img;
+use Phoundation\Web\Http\Html\Components\Modals\SignInModal;
 use Phoundation\Web\Http\Html\Html;
-use Phoundation\Web\Http\Html\Modals\SignInModal;
 use Phoundation\Web\Http\Html\Renderer;
 use Phoundation\Web\Http\UrlBuilder;
 

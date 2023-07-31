@@ -48,12 +48,19 @@ class NotificationsDropDown extends Renderer
             throw new OutOfBoundsException(tr('No notifications page URL specified'));
         }
 
-        $notifications = $this->render_object->getNotifications(null);
+        $notifications = $this->render_object->getNotifications('UNREAD');
 
         if ($notifications) {
             $count = $notifications->getCount();
             $mode  = $notifications->getMostImportantMode();
             $mode  = strtolower($mode);
+
+            // With HTML, "notice" and "information" are known as "info"
+            $mode = match ($mode) {
+                'unknown', 'notice','information' => 'info',
+                default                           => $mode
+            };
+
         } else {
             $count = 0;
         }
@@ -74,7 +81,7 @@ class NotificationsDropDown extends Renderer
                     break;
                 }
 
-                $this->render .= '<a href="' . Html::safe(str_replace(':ID', $notification->getId(), $this->render_object->getNotificationsUrl())) . '" class="dropdown-item">
+                $this->render .= '<a href="' . Html::safe(str_replace(':ID', (string) $notification->getId(), (string) $this->render_object->getNotificationsUrl())) . '" class="dropdown-item">
                                     ' . ($notification->getIcon() ? '<i class="text-' . Html::safe($notification->getMode()->value) . ' fas fa-' . Html::safe($notification->getIcon()) . ' mr-2"></i> ' : null) . Html::safe(Strings::truncate($notification->getTitle(), 24)) . '
                                     <span class="float-right text-muted text-sm"> ' . Html::safe(Date::getAge($notification->getCreatedOn())) . '</span>
                                   </a>

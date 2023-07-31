@@ -48,7 +48,7 @@ class NotificationsDropDown extends Renderer
             throw new OutOfBoundsException(tr('No notifications page URL specified'));
         }
 
-        $notifications = $this->render_object->getNotifications(null);
+        $notifications = $this->render_object->getNotifications('UNREAD');
 
         if ($notifications) {
             $count = $notifications->getCount();

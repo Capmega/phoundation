@@ -39,9 +39,9 @@ class Footer extends Renderer
     {
         return '  <footer class="main-footer">
                     <div class="float-right d-none d-sm-block">
-                      <b>' . tr('Mediweb using Phoundation (AdminLte template)') . '</b> ' . Core::FRAMEWORKCODEVERSION . '
+                      <b>' . tr('Project using Phoundation (AdminLte template)') . '</b> ' . Core::FRAMEWORKCODEVERSION . '
                     </div>
-                    <strong>Copyright © 2023 <a href="https://medinet.ca" target="_blank">Medinet</a>.</strong> All rights reserved. <br>
+                    <strong>Copyright © 2023 <a href="https://phoundation.org" target="_blank">Phoundation</a>.</strong> All rights reserved. <br>
                   </footer>';
 //        <strong>Copyright © 2014-2021 <a href="https://adminlte.io" target="_blank">AdminLTE.io</a>.</strong> All rights reserved.
 //        <strong>Copyright © 2017-2023 <a href="https://phoundation.org" target="_blank">phoundation.org</a>.</strong> All rights reserved. <br>

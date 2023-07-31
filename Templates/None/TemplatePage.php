@@ -5,12 +5,6 @@ declare(strict_types=1);
 
 namespace Templates\None;
 
-use Phoundation\Core\Config;
-use Phoundation\Web\Http\Html\Components\Footer;
-use Phoundation\Web\Http\Html\Components\SidePanel;
-use Phoundation\Web\Http\Html\Components\TopPanel;
-use Phoundation\Web\Http\Html\Modals\SignInModal;
-use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
 
