@@ -149,9 +149,10 @@ $picture = Card::new()
 $relevant = Card::new()
     ->setMode(DisplayMode::info)
     ->setTitle(tr('Relevant links'))
-    ->setContent('<a href="' . UrlBuilder::getWww('/settings.html') . '">' . tr('Your settings') . '</a><br>
-                         <a href="' . UrlBuilder::getWww('/api-access.html') . '">' . tr('Your API access') . '</a><br>
-                         <a href="' . UrlBuilder::getWww('/sign-in-history.html') . '">' . tr('Your sign in history') . '</a>');
+    ->setContent('<a href="' . UrlBuilder::getWww('/my/password.html') . '">' . tr('Change Your password') . '</a><br>
+                         <a href="' . UrlBuilder::getWww('/my/settings.html') . '">' . tr('Manage Your settings') . '</a><br>
+                         <a href="' . UrlBuilder::getWww('/my/api-access.html') . '">' . tr('Manage Your API access') . '</a><br>
+                         <a href="' . UrlBuilder::getWww('/my/sign-in-history.html') . '">' . tr('Review Your sign-in history') . '</a>');
 
 
 // Build documentation

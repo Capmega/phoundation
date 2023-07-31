@@ -39,7 +39,7 @@ Page::setBuildBody(false);
       <!-- /.login-logo -->
       <div class="card card-outline card-info">
         <div class="card-header text-center">
-          <a href="https://phoundation.org" class="h1"><span>Phounda</span>tion</a>
+          <a href="https://phoundation.org" class="h1"><span>Medi</span>net</a>
         </div>
         <div class="card-body">
           <p class="login-box-msg"><?= tr('Please sign in to start your session') ?></p>

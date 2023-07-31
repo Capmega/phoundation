@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
+use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\Exception\PasswordNotChangedException;
 use Phoundation\Accounts\Users\User;
+use Phoundation\Core\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
-use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Web\Http\Html\Components\BreadCrumbs;
 use Phoundation\Web\Http\Html\Components\Buttons;
@@ -18,18 +19,9 @@ use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
 
-// Validate GET and get requested user and password
-$get = GetValidator::new()
-    ->select('id')->isOptional()->isDbId()
-    ->validate();
-
-$user     = User::get($get['id']);
-$password = $user->getPassword();
-
-
-// Hide the "current" field as its not required for password updates by admin
-$definitions = $password->getDefinitions();
-$definitions->get('current')->setVisible(false);
+// Get current user and password objects
+$user        = User::get(Session::getRealUser()->getId());
+$password    = $user->getPassword();
 
 
 // Validate POST and submit
@@ -37,22 +29,30 @@ if (Page::isPostRequestMethod()) {
     if (PostValidator::new()->getSubmitButton() === tr('Save')) {
         try {
             $post = PostValidator::new()
+                ->select('current')->isPassword()
                 ->select('password')->isPassword()
                 ->select('passwordv')->isPassword()
                 ->validate();
 
-            // Update user password
-            $user->setPassword($post['password'] ,$post['passwordv']);
+            // First ensure the current password is correct
+            User::authenticate($user->getEmail(), $post['current']);
 
-            Page::getFlashMessages()->addSuccessMessage(tr('The password for user ":user" has been updated', [':user' => $user->getDisplayName()]));
+            // Update user password
+            $user->setPassword($post['password'], $post['passwordv']);
+
+            Page::getFlashMessages()->addSuccessMessage(tr('Your password has been updated'));
             Page::redirect(UrlBuilder::getWww('prev'));
+
+        } catch (AuthenticationException $e) {
+            // Oops! Current password was wrong
+            Page::getFlashMessages()->addWarningMessage(tr('Your current passwors was incorrect'));
 
         } catch (ValidationFailedException $e) {
             // Oops! Show validation errors and remain on page
-            Page::getFlashMessages()->addMessage($e);
+            Page::getFlashMessages()->addWarningMessage($e);
 
         }catch (PasswordNotChangedException $e) {
-            Page::getFlashMessages()->addWarningMessage(tr('Specified password is the same as the current password for this user. Please update your account to have a new and secure password'));
+            Page::getFlashMessages()->addWarningMessage(tr('You provided your current password. Please update your account to have a new and secure password'));
         }
     }
 }
@@ -67,7 +67,7 @@ $buttons = Buttons::new()
 // Build the user form
 $card = Card::new()
     ->setCollapseSwitch(true)
-    ->setTitle(tr('Change password for :name', [':name' => $user->getDisplayName()]))
+    ->setTitle(tr('Change your password'))
     ->setContent($password->getHtmlForm()->render())
     ->setButtons($buttons);
 
@@ -83,9 +83,10 @@ $column = GridColumn::new()
 $relevant = Card::new()
     ->setMode(DisplayMode::info)
     ->setTitle(tr('Relevant links'))
-    ->setContent('<a href="' . UrlBuilder::getWww('/accounts/user-' . $user->getId() . '.html') . '">' . tr('Modify profile for this user') . '</a><br>
-                         <a href="' . UrlBuilder::getWww('/accounts/roles.html') . '">' . tr('Roles management') . '</a><br>
-                         <a href="' . UrlBuilder::getWww('/accounts/rights.html') . '">' . tr('Rights management') . '</a>');
+    ->setContent('<a href="' . UrlBuilder::getWww('/my/profile.html') . '">' . tr('Manage Your profile') . '</a><br>
+                         <a href="' . UrlBuilder::getWww('/my/settings.html') . '">' . tr('Manage Your settings') . '</a><br>
+                         <a href="' . UrlBuilder::getWww('/my/api-access.html') . '">' . tr('Manage Your API access') . '</a><br>
+                         <a href="' . UrlBuilder::getWww('/my/sign-in-history.html') . '">' . tr('Review Your sign-in history') . '</a>');
 
 
 // Build documentation
@@ -105,11 +106,10 @@ $grid = Grid::new()
 echo $grid->render();
 
 // Set page meta data
-Page::setHeaderTitle(tr('Change password'));
+Page::setHeaderTitle(tr('Change your password'));
 Page::setHeaderSubTitle($user->getName());
 Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'                                          => tr('Home'),
-    '/accounts/users.html'                       => tr('Users'),
-    '/accounts/user-' . $user->getId() . '.html' => $user->getDisplayName(),
-    ''                                           => tr('Modify password')
+    '/'                  => tr('Home'),
+    '/your/profile.html' => tr('Your profile'),
+    ''                   => tr('Change your password')
 ]));

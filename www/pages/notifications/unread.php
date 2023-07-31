@@ -7,6 +7,7 @@ use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Notifications\FilterForm;
 use Phoundation\Notifications\Notifications;
 use Phoundation\Web\Http\Html\Components\BreadCrumbs;
+use Phoundation\Web\Http\Html\Components\Button;
 use Phoundation\Web\Http\Html\Components\Buttons;
 use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
@@ -17,9 +18,9 @@ use Phoundation\Web\Page;
 
 
 /**
- * Page all
+ * Page unread
  *
- * This page displays all notifications
+ * This page displays the unread notifications
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -29,13 +30,7 @@ use Phoundation\Web\Page;
 
 
 // Get new notifications object
-$notifications = Notifications::new()
-    ->markSeverityColumn();
-
-$notifications->getQueryBuilder()
-    ->addSelect('`id`, `title`, `mode` AS `severity`, `priority`, `created_on`')
-    ->addWhere('`users_id` = :users_id', [':users_id' => Session::getUser()->getId()])
-    ->addOrderBy('`created_by` ASC');
+$notifications = Notifications::new()->markSeverityColumn();
 
 
 // Process POST requests
@@ -47,6 +42,7 @@ if (Page::isPostRequestMethod()) {
         Page::redirect();
     }
 }
+
 
 // Build the page content
 
@@ -71,7 +67,7 @@ $notifications = Card::new()
     ->setContent($table->render())
     ->useForm(true)
     ->setButtons(Buttons::new()
-        ->addButton(tr('Mark all as read')));
+        ->addButton(tr('Mark all as read'), DisplayMode::warning, outline: true));
 
 $notifications->getForm()
         ->setAction(UrlBuilder::getCurrent())
@@ -82,7 +78,7 @@ $notifications->getForm()
 $relevant = Card::new()
     ->setMode(DisplayMode::info)
     ->setTitle(tr('Relevant links'))
-    ->setContent('<a href="' . UrlBuilder::getWww('/notifications/unread.html') . '">' . tr('Unread notifications') . '</a><br>
+    ->setContent('<a href="' . UrlBuilder::getWww('/notifications/all.html') . '">' . tr('All notifications') . '</a><br>
                           <a href="' . UrlBuilder::getWww('/notifications/test.html') . '">' . tr('Send me a test notification') . '</a>');
 
 

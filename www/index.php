@@ -113,7 +113,7 @@ Route::getParameters()
         ->setRootUrl('http://:DOMAIN/:LANGUAGE/')
         ->setTemplate(AdminLte::class)
         ->setRightsExceptions('sign-in.php,sign-out.php')
-        ->setRights('mediweb'))
+        ->setRights('admin'))
 
     ->add(RoutingParameters::new() // Routing parameters for default english system pages
         ->setTemplate(AdminLte::class)

@@ -38,9 +38,9 @@ $signins->getForm()
 $relevant = Card::new()
     ->setMode(DisplayMode::info)
     ->setTitle(tr('Relevant links'))
-    ->setContent('<a href="' . UrlBuilder::getWww('/settings.html') . '">' . tr('Your settings') . '</a><br>
-                         <a href="' . UrlBuilder::getWww('/api-access.html') . '">' . tr('Your API access') . '</a><br>
-                         <a href="' . UrlBuilder::getWww('/profile.html') . '">' . tr('Your profile') . '</a>');
+    ->setContent('<a href="' . UrlBuilder::getWww('/my/settings.html') . '">' . tr('Your settings') . '</a><br>
+                         <a href="' . UrlBuilder::getWww('/my/api-access.html') . '">' . tr('Your API access') . '</a><br>
+                         <a href="' . UrlBuilder::getWww('/my/profile.html') . '">' . tr('Your profile') . '</a>');
 
 
 // Build documentation
@@ -61,7 +61,7 @@ echo $grid->render();
 // Set page meta data
 Page::setHeaderTitle(tr('Your signin history'));
 Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'             => tr('Home'),
-    '/profile.html' => tr('Profile'),
-    ''              => tr('Your sign in history')
+    '/'                => tr('Home'),
+    '/my/profile.html' => tr('Profile'),
+    ''                 => tr('Your sign in history')
 ]));

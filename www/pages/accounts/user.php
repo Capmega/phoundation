@@ -36,7 +36,7 @@ if (Page::isPostRequestMethod()) {
             case tr('Save'):
                 // Update roles
                 $post = PostValidator::new()
-                    ->select('roles_id')->isArray()->each()->isOptional()->isDbId()
+                    ->select('roles_id')->isOptional()->isArray()->each()->isOptional()->isDbId()
                     ->validate(false);
 
                 // Update user

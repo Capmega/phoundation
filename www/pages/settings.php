@@ -62,8 +62,8 @@ $column = GridColumn::new()
 $relevant = Card::new()
     ->setMode(DisplayMode::info)
     ->setTitle(tr('Relevant links'))
-    ->setContent('<a href="' . UrlBuilder::getWww('/profile.html') . '">' . tr('Your profile') . '</a><br>
-                         <a href="' . UrlBuilder::getWww('/api-access.html') . '">' . tr('Your API access') . '</a>');
+    ->setContent('<a href="' . UrlBuilder::getWww('/my/profile.html') . '">' . tr('Your profile') . '</a><br>
+                         <a href="' . UrlBuilder::getWww('/my/api-access.html') . '">' . tr('Your API access') . '</a>');
 
 
 // Build documentation

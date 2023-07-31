@@ -51,10 +51,7 @@ if (Page::isPostRequestMethod()) {
         Page::getFlashMessages()->addMessage($e);
 
     }catch (PasswordNotChangedException $e) {
-        Page::getFlashMessages()->addWarningMessage(tr('You provided your current password. Please update your account to have a new and secure password password'));
-
-    }catch(Throwable $e){
-        showdie($e);
+        Page::getFlashMessages()->addWarningMessage(tr('You provided your current password. Please update your account to have a new and secure password'));
     }
 }
 
@@ -68,7 +65,7 @@ Page::setBuildBody(false);
         <!-- /.login-logo -->
         <div class="card card-outline card-info">
             <div class="card-header text-center">
-                <a href="https://medinet.ca" class="h1"><span>Medi</span>net</a>
+                <a href="https://phoundation.org" class="h1"><span>Medi</span>net</a>
             </div>
             <div class="card-body">
                 <p class="login-box-msg"><?= tr('Please update your account to have a new and secure password password before continuing...') ?></p>
