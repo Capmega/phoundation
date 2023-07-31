@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Phoundation\Accounts\Users;
 
 use DateTimeInterface;
-use Phoundation\Accounts\Passwords;
 use Phoundation\Accounts\Rights\Interfaces\RightsInterface;
 use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Accounts\Roles\Interfaces\RolesInterface;
@@ -13,6 +12,7 @@ use Phoundation\Accounts\Roles\Roles;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\Exception\PasswordNotChangedException;
 use Phoundation\Accounts\Users\Exception\UsersException;
+use Phoundation\Accounts\Users\Interfaces\PasswordInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
@@ -23,13 +23,11 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryAddress;
 use Phoundation\Data\DataEntry\Traits\DataEntryCode;
 use Phoundation\Data\DataEntry\Traits\DataEntryComments;
 use Phoundation\Data\DataEntry\Traits\DataEntryDomain;
 use Phoundation\Data\DataEntry\Traits\DataEntryEmail;
-use Phoundation\Data\DataEntry\Traits\DataEntryFile;
 use Phoundation\Data\DataEntry\Traits\DataEntryFirstNames;
 use Phoundation\Data\DataEntry\Traits\DataEntryGeo;
 use Phoundation\Data\DataEntry\Traits\DataEntryLanguage;
@@ -184,7 +182,7 @@ class User extends DataEntry implements UserInterface
             throw new OutOfBoundsException(tr('Cannot match passwords, this user does not have a database id'));
         }
 
-        return Passwords::match($this->source['id'], $password, (string) $this->source['password']);
+        return Password::match($this->source['id'], $password, (string) $this->source['password']);
     }
 
 
@@ -861,22 +859,9 @@ class User extends DataEntry implements UserInterface
         $validation = trim($validation);
 
         $this->validatePassword($password, $validation);
-        $this->setPasswordDirectly(Passwords::hash($password, $this->source['id']));
+        $this->setPasswordDirectly(Password::hash($password, $this->source['id']));
 
         return $this->savePassword();
-    }
-
-
-    /**
-     * Sets the password for this user
-     *
-     * @param string|null $password
-     * @return static
-     */
-    protected function setPasswordDirectly(?string $password): static
-    {
-        $this->source['password'] = $password;
-        return $this;
     }
 
 
@@ -913,7 +898,7 @@ class User extends DataEntry implements UserInterface
         }
 
         // Is the password secure?
-        Passwords::testSecurity($password, $this->source['email'], $this->source['id']);
+        Password::testSecurity($password, $this->source['email'], $this->source['id']);
 
         // Is the password not the same as the current password?
         try {
@@ -971,6 +956,17 @@ class User extends DataEntry implements UserInterface
     function getDisplayId(): string
     {
         return $this->getDataValue('int', 'id') . ' / ' . $this->getDisplayName();
+    }
+
+
+    /**
+     * Returns a password object for this user
+     *
+     * @return PasswordInterface
+     */
+    public function getPassword(): PasswordInterface
+    {
+        return new Password($this->getId());
     }
 
 
@@ -1067,6 +1063,7 @@ class User extends DataEntry implements UserInterface
     /**
      * Creates and returns an HTML for the form
      *
+     * @param string $name
      * @return FormInterface
      */
     public function getRolesHtmlForm(string $name = 'roles_id[]'): FormInterface
@@ -1092,7 +1089,7 @@ class User extends DataEntry implements UserInterface
     /**
      * Return the user data used for validation.
      *
-     * This method strips the basic meta data but also the password column as that is updated directly
+     * This method strips the basic meta-data but also the password column as that is updated directly
      *
      * @return array
      */
