@@ -17,4 +17,11 @@ namespace Phoundation\Web\Http\Html\Enums\Interfaces;
  */
 interface DisplayModeInterface
 {
+    /**
+     * Sets the type of mode for the element or element block
+     *
+     * @param DisplayModeInterface $mode
+     * @return static
+     */
+    public static function getPrimary(DisplayModeInterface $mode): DisplayModeInterface;
 }

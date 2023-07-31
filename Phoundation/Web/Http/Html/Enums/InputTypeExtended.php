@@ -19,18 +19,20 @@ use Phoundation\Web\Http\Html\Components\Interfaces\InputTypeExtendedInterface;
  */
 enum InputTypeExtended: string implements InputTypeExtendedInterface
 {
-    case url          = 'url';
-    case dbid         = 'dbid';
-    case float        = 'float';
-    case boolean      = 'boolean';
-    case integer      = 'integer';
-    case natural      = 'natural';
-    case code         = 'code';
-    case file         = 'file';
-    case path         = 'path';
-    case name         = 'name';
-    case phone        = 'phone';
-    case phones       = 'phones';
-    case username     = 'username';
-    case description  = 'description';
+    case url             = 'url';
+    case dbid            = 'dbid';
+    case float           = 'float';
+    case boolean         = 'boolean';
+    case integer         = 'integer';
+    case natural         = 'natural';
+    case code            = 'code';
+    case file            = 'file';
+    case path            = 'path';
+    case name            = 'name';
+    case phone           = 'phone';
+    case phones          = 'phones';
+    case username        = 'username';
+    case description     = 'description';
+    case positiveInteger = 'positive_integer';
+    case negativeInteger = 'negative_integer';
 }

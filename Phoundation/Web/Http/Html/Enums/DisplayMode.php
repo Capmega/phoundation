@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html\Enums;
 
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Enums\Interfaces\DisplayModeInterface;
 
 
@@ -44,4 +45,43 @@ enum DisplayMode: string implements DisplayModeInterface
     case red         = 'red';         // danger
     case error       = 'error';       // danger
     case exception   = 'exception';   // danger
+
+
+    /**
+     * Returns the primary mode for the given mode which might be an alias
+     *
+     * @param DisplayModeInterface $mode
+     * @return DisplayModeInterface
+     */
+    public static function getPrimary(DisplayModeInterface $mode): DisplayModeInterface
+    {
+        // Convert aliases
+        return match ($mode) {
+            DisplayMode::white       => DisplayMode::white,
+            DisplayMode::blue,
+            DisplayMode::info,
+            DisplayMode::notice,
+            DisplayMode::information => DisplayMode::info,
+            DisplayMode::green,
+            DisplayMode::success     => DisplayMode::success,
+            DisplayMode::yellow,
+            DisplayMode::warning,    => DisplayMode::warning,
+            DisplayMode::red,
+            DisplayMode::error,
+            DisplayMode::exception,
+            DisplayMode::danger      => DisplayMode::danger,
+            DisplayMode::plain,
+            DisplayMode::primary,
+            DisplayMode::secondary,
+            DisplayMode::tertiary,
+            DisplayMode::link,
+            DisplayMode::light,
+            DisplayMode::dark        => $mode,
+            DisplayMode::null,
+            DisplayMode::unknown     => DisplayMode::null,
+            default => throw new OutOfBoundsException(tr('Unknown mode ":mode" specified', [
+                ':mode' => $mode
+            ]))
+        };
+    }
 }
