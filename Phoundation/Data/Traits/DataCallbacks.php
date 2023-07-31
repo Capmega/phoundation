@@ -80,13 +80,21 @@ trait DataCallbacks
     /**
      * Execute the specified callbacks for each row
      *
+     * @note $params does NOT have a datatype specified as that would cause a crash when sending a non initialized
+     *       variable there that would be assigned within this function
      * @param array $row
+     * @param $params
      * @return $this
      */
-    public function executeCallbacks(array &$row): static
+    protected function executeCallbacks(array &$row, &$params): static
     {
+        $params = [
+            'htmlentities'     => $this->process_entities,
+            'skiphtmlentities' => ['id' => true]
+        ];
+
         foreach ($this->callbacks as $callback) {
-            $callback($row);
+            $callback($row, $params);
         }
 
         return $this;

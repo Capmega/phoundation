@@ -440,9 +440,9 @@ abstract class DataList extends Iterator implements DataListInterface
             $select->setSource($this->getScalarValuesSource($value_column));
 
         } else {
-            $query = 'SELECT   `' . $key_column . '`, ' . $value_column . ' 
-                                                FROM     `' . static::getTable() . '` 
-                                                WHERE    `status` IS NULL';
+            $query = 'SELECT `' . $key_column . '`, ' . $value_column . ' 
+                      FROM   `' . static::getTable() . '` 
+                      WHERE  `status` IS NULL';
 
             if ($order === null) {
                 // Default order by the value column. Value column may have SQL, make sure its stripped

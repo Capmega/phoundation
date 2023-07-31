@@ -208,12 +208,4 @@ interface IteratorInterface extends \Iterator, Stringable
      * @return array
      */
     public function getCallbacks(): array;
-
-    /**
-     * Execute the specified callbacks for each row
-     *
-     * @param array $row
-     * @return $this
-     */
-    public function executeCallbacks(array &$row): static;
 }
