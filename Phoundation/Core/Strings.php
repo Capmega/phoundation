@@ -1640,6 +1640,9 @@ throw new UnderConstructionException();
                 $source = Arrays::hide($source, ['password', 'ssh_key']);
                 $source = trim(JSON::encode($source));
 
+            } elseif (is_enum($source)) {
+                $source = $source->value;
+
             } elseif (is_object($source) and method_exists($source, '__toString')) {
                 $source = (string) $source;
 
