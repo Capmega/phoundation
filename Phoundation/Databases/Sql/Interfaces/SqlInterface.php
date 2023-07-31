@@ -261,11 +261,50 @@ interface SqlInterface
      *
      * @param string|PDOStatement $query
      * @param array|null $execute
-     * @param bool $numerical_array
      * @return array
      * @throws Throwable
      */
-    public function list(string|PDOStatement $query, ?array $execute = null, bool $numerical_array = false): array;
+    public function listScalar(string|PDOStatement $query, ?array $execute = null): array;
+
+    /**
+     * Execute query and return only the first row
+     *
+     * @param string|PDOStatement $query
+     * @param array|null $execute
+     * @return array
+     * @throws Throwable
+     */
+    public function listArray(string|PDOStatement $query, ?array $execute = null): array;
+
+    /**
+     * Execute query and return only the first row
+     *
+     * @param string|PDOStatement $query
+     * @param array|null $execute
+     * @return array
+     * @throws Throwable
+     */
+    public function listKeyValue(string|PDOStatement $query, ?array $execute = null): array;
+
+    /**
+     * Execute query and return only the first row
+     *
+     * @param string|PDOStatement $query
+     * @param array|null $execute
+     * @return array
+     * @throws Throwable
+     */
+    public function listKeyValues(string|PDOStatement $query, ?array $execute = null): array;
+
+    /**
+     * Execute query and return only the first row
+     *
+     * @param string|PDOStatement $query
+     * @param array|null $execute
+     * @return array
+     * @throws Throwable
+     */
+    public function list(string|PDOStatement $query, ?array $execute = null): array;
 
     /**
      * Close the connection for the specified connector

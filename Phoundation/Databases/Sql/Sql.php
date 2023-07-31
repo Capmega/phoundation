@@ -1119,45 +1119,122 @@ class Sql implements SqlInterface
 
 
     /**
+     * Returns PDO statement from the given query / execute
+     *
+     * @param string|PDOStatement $query
+     * @param array|null $execute
+     * @return PDOStatement
+     * @throws Throwable
+     */
+    protected function getPdoStatement(string|PDOStatement $query, ?array $execute = null): PDOStatement
+    {
+        if (is_object($query)) {
+            return $query;
+        }
+
+        return $this->query($query, $execute);
+    }
+
+
+    /**
      * Execute query and return only the first row
      *
      * @param string|PDOStatement $query
      * @param array|null $execute
-     * @param bool $numerical_array
      * @return array
      * @throws Throwable
      */
-    public function list(string|PDOStatement $query, ?array $execute = null, bool $numerical_array = false): array
+    public function listScalar(string|PDOStatement $query, ?array $execute = null): array
     {
-        if (is_object($query)) {
-            $resource = $query;
+        $return    = [];
+        $statement = $this->getPdoStatement($query, $execute);
 
-        } else {
-            $resource = $this->query($query, $execute);
+        while ($row = $this->fetch($statement)) {
+            $return[] = array_first($row);
         }
 
-        $return = [];
+        return $return;
+    }
 
-        while ($row = $this->fetch($resource)) {
-            switch ($numerical_array ? 0 : count($row)) {
-                case 0:
-                    /*
-                     * Force numerical array
-                     */
-                    $return[] = $row;
-                    break;
 
-                case 1:
-                    $return[] = array_shift($row);
-                    break;
+    /**
+     * Execute query and return only the first row
+     *
+     * @param string|PDOStatement $query
+     * @param array|null $execute
+     * @return array
+     * @throws Throwable
+     */
+    public function listArray(string|PDOStatement $query, ?array $execute = null): array
+    {
+        $return    = [];
+        $statement = $this->getPdoStatement($query, $execute);
 
-                case 2:
-                    $return[array_shift($row)] = array_shift($row);
-                    break;
+        while ($row = $this->fetch($statement)) {
+            $return[] = $row;
+        }
 
-                default:
-                    $return[array_shift($row)] = $row;
-            }
+        return $return;
+    }
+
+
+    /**
+     * Execute query and return only the first row
+     *
+     * @param string|PDOStatement $query
+     * @param array|null $execute
+     * @return array
+     * @throws Throwable
+     */
+    public function listKeyValue(string|PDOStatement $query, ?array $execute = null): array
+    {
+        $return    = [];
+        $statement = $this->getPdoStatement($query, $execute);
+
+        while ($row = $this->fetch($statement)) {
+            $return[array_first($row)] = array_last($row);
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Execute query and return only the first row
+     *
+     * @param string|PDOStatement $query
+     * @param array|null $execute
+     * @return array
+     * @throws Throwable
+     */
+    public function listKeyValues(string|PDOStatement $query, ?array $execute = null): array
+    {
+        $return    = [];
+        $statement = $this->getPdoStatement($query, $execute);
+
+        while ($row = $this->fetch($statement)) {
+            $return[array_first($row)] = $row;
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Execute query and return only the first row
+     *
+     * @param string|PDOStatement $query
+     * @param array|null $execute
+     * @return array
+     * @throws Throwable
+     */
+    public function list(string|PDOStatement $query, ?array $execute = null): array
+    {
+        $return    = [];
+        $statement = $this->getPdoStatement($query, $execute);
+
+        while ($row = $this->fetch($statement)) {
+            $return[array_shift($row)] = $row;
         }
 
         return $return;

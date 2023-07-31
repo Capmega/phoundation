@@ -90,6 +90,18 @@ class Table extends SchemaAbstract
 
 
     /**
+     * Renames this table
+     *
+     * @param string $table_name
+     * @return void
+     */
+    public function rename(string $table_name): void
+    {
+        sql()->query('RENAME TABLE `' . $this->name . '` TO `' . $table_name . '`');
+    }
+
+
+    /**
      * Returns if the table exists in the database or not
      *
      * @return bool
