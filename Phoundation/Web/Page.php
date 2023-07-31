@@ -2318,7 +2318,7 @@ class Page
                 }
 
                 foreach ($requested as $locale) {
-                    if (array_key_exists($locale['language'], $languages)) {
+                    if (in_array($locale['language'], $languages)) {
                         // This requested language exists
                         return $locale['language'];
                     }
