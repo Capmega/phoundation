@@ -80,9 +80,9 @@ class Notification extends DataEntry
     /**
      * The roles where this notification should be sent to
      *
-     * @var array|null $roles
+     * @var array $roles
      */
-    protected ?array $roles = null;
+    protected array $roles = [];
 
     /**
      * Optional exception source for this notification
@@ -102,7 +102,7 @@ class Notification extends DataEntry
     {
         static::$auto_log = Config::get('notifications.auto-log', true);
 
-        $this->source['mode']     = 'unknown';
+        $this->source['mode']     = 'notice';
         $this->source['priority'] = 1;
 
         parent::__construct($identifier, $column);
@@ -181,9 +181,9 @@ class Notification extends DataEntry
     /**
      * Returns the roles for this notification
      *
-     * @return array|null
+     * @return array
      */
-    public function getRoles(): ?array
+    public function getRoles(): array
     {
         return $this->roles;
     }
@@ -329,7 +329,18 @@ class Notification extends DataEntry
             Log::write(tr('Title : ":title"', [':title' => $this->getTitle()]), 'debug', 10, false);
             Log::write(tr('Message : ":message"', [':message' => $this->getMessage()]), 'debug', 10, false);
             Log::write(tr('Details :'), 'debug', 10, false);
-            Log::write(print_r($this->getDetails(), true), 'debug', 10, false);
+
+            try {
+                Log::write(print_r($this->getDetails(), true), 'debug', 10, false);
+
+            } catch (Throwable $f) {
+                Log::error(tr('Failed to display notifications detail due to the following exception. Details following after exception'));
+                Log::error($f);
+
+                Log::write(print_r($this->getDataValue('string', 'details'), true), 'debug', 10, false);
+            }
+
+            Log::error(tr('Notification sending exception:'));
             Log::error($e);
         }
 
@@ -344,6 +355,8 @@ class Notification extends DataEntry
      */
     public function log(): static
     {
+        Log::information(tr('Notification:'));
+
         switch ($this->getMode()) {
             case DisplayMode::danger:
                 Log::error($this->getTitle());
@@ -371,17 +384,19 @@ class Notification extends DataEntry
                 break;
         }
 
-        Log::information(tr('Details'));
-
         $details = $this->getDetails();
 
         if ($details) {
+            Log::information(tr('Notification details'));
+
             foreach ($details as $key => $value) {
                 Log::write($key, 'debug');
                 Log::table(Arrays::force($value));
                 Log::cli();
             }
         }
+
+        Log::information(tr('End notification'));
 
         static::$logged = true;
 
@@ -457,28 +472,29 @@ class Notification extends DataEntry
                 ->setVisible(false)
                 ->setInputType(InputTypeExtended::dbid)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->isDbId()->isQueryResult('SELECT `id` FROM `accounts_users` WHERE `id` = :id', [':id' => '$id']);
+                    $validator->isDbId()->isQueryResult('SELECT `id` FROM `accounts_users` WHERE `id` = :id', [':id' => '$users_id']);
                 }))
             ->addDefinition(Definition::new($this, 'code')
                 ->setOptional(true)
                 ->setReadonly(true)
                 ->setLabel(tr('Code'))
                 ->setDefault(tr('-'))
-                ->setSize(4)
+                ->setSize(6)
                 ->setMaxlength(16)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isPrintable();
                 }))
             ->addDefinition(Definition::new($this, 'mode')
-                ->setReadonly(true)
                 ->setLabel(tr('Mode'))
-                ->setSize(4)
+                ->setOptional(true, DisplayMode::notice)
+                ->setSize(3)
                 ->setMaxlength(16)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->isDisplayMode()->isInArray(DisplayMode::cases());
+                    $validator->isDisplayMode();
                 }))
             ->addDefinition(Definition::new($this, 'icon')
                 ->setVisible(false)
+                ->setOptional(true)
                 ->setInputType(InputType::url))
             ->addDefinition(Definition::new($this, 'priority')
                 ->setReadonly(true)
@@ -487,12 +503,12 @@ class Notification extends DataEntry
                 ->setDefault(5)
                 ->setMin(1)
                 ->setMax(9)
-                ->setSize(4))
+                ->setSize(3))
             ->addDefinition(Definition::new($this, 'title')
                 ->setReadonly(true)
                 ->setLabel(tr('Title'))
                 ->setMaxlength(255)
-                ->setSize(4)
+                ->setSize(12)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isPrintable();
                 }))
@@ -507,24 +523,28 @@ class Notification extends DataEntry
                 }))
             ->addDefinition(Definition::new($this, 'file')
                 ->setReadonly(true)
-                ->setInputType(InputType::file)
+                ->setOptional(true)
+                ->setInputType(InputType::text)
                 ->setLabel(tr('File'))
                 ->setMaxlength(255)
                 ->setSize(8))
             ->addDefinition(Definition::new($this, 'line')
                 ->setReadonly(true)
+                ->setOptional(true)
                 ->setInputType(InputTypeExtended::natural)
-                ->setLabel(tr('File'))
+                ->setLabel(tr('Line'))
                 ->setMin(1)
                 ->setSize(4))
             ->addDefinition(Definition::new($this, 'url')
                 ->setReadonly(true)
+                ->setOptional(true)
                 ->setInputType(InputType::url)
                 ->setLabel(tr('URL'))
                 ->setMaxlength(2048)
                 ->setSize(12))
             ->addDefinition(Definition::new($this, 'trace')
                 ->setReadonly(true)
+                ->setOptional(true)
                 ->setElement(InputElement::textarea)
                 ->setLabel(tr('Trace'))
                 ->setMaxlength(65_535)
@@ -539,6 +559,10 @@ class Notification extends DataEntry
                 ->setLabel(tr('Details'))
                 ->setMaxlength(65_535)
                 ->setRows(10)
-                ->setSize(12));
+                ->setSize(12)
+                ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->isJson();
+                }))
+            ->get('status')->setDefault('UNREAD');
     }
 }
