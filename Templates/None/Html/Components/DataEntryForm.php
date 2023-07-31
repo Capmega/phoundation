@@ -297,7 +297,9 @@ class DataEntryForm extends Renderer
     protected function renderItem(string|int|null $id, ?string $html, ?array $data): ?string
     {
         static $col_size = 12;
-// TODO Leave the following lines for easy debugging form layouts
+        static $cols     = [];
+
+        // TODO Leave the following lines for easy debugging form layouts
 //        Log::printr($label);
 //        Log::printr($size);
 //        Log::printr($col_size);
@@ -313,6 +315,8 @@ class DataEntryForm extends Renderer
             $col_size = 0;
 
         } else {
+            $cols[] = isset_get($data['label']) . ' = "' . $id . '" [' . $data['size'] . ']';
+
             // Keep track of column size, close each row when size 12 is reached
             if ($col_size === 12) {
                 // Open a new row
@@ -344,11 +348,15 @@ class DataEntryForm extends Renderer
             $col_size -= $data['size'];
 
             if ($col_size < 0) {
-                throw new OutOfBoundsException(tr('Cannot add column ":label" for ":class" form, the row would surpass size 12 by ":count"', [
+                throw OutOfBoundsException::new(tr('Cannot add column ":label" for ":class" form with size ":size", the row would surpass size 12 by ":count"', [
                     ':class' => $this->render_object->getDefinitions()->getTable(),
                     ':label' => $data['label'] . ' [' . $id . ']',
-                    ':count' => abs($col_size)
-                ]));
+                    ':size'  => abs($data['size']),
+                    ':count' => abs($col_size),
+                ]))->setData([
+                    'Columns on this row' => $cols,
+                    'HTML so far'         => $return
+                ]);
             }
         }
 

@@ -521,7 +521,7 @@ class DataEntryForm extends Renderer
             $col_size = 0;
 
         } else {
-            $cols[] = isset_get($data['label']) . '[' . $id . ']';
+            $cols[] = isset_get($data['label']) . ' = "' . $id . '" [' . $data['size'] . ']';
 
             // Keep track of column size, close each row when size 12 is reached
             if ($col_size === 12) {
@@ -559,7 +559,10 @@ class DataEntryForm extends Renderer
                     ':label' => $data['label'] . ' [' . $id . ']',
                     ':size'  => abs($data['size']),
                     ':count' => abs($col_size),
-                ]))->setData(['Columns on this row' => $cols]);
+                ]))->setData([
+                    'Columns on this row' => $cols,
+                    'HTML so far'         => $return
+                ]);
             }
         }
 
