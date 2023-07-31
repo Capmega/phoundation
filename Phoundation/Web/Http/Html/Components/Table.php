@@ -655,7 +655,7 @@ class Table extends ResourceElement
 
         // Process array resource. Go over each row and in each row over each column
         foreach ($this->source as $key => $row_values) {
-            $this->executeCallbacks($row_values);
+            $this->executeCallbacks($row_values, $params);
 
             if (!is_array($row_values)) {
                 if (!is_object($row_values) or !method_exists($row_values, '__toArray')) {
@@ -682,10 +682,11 @@ class Table extends ResourceElement
                 if ($first) {
                     // Convert first column to checkboxes?
                     $value = $this->renderCheckboxColumn($column, $value);
-                    $row  .= $this->renderCell($key, $column, $value, false);
+                    $row  .= $this->renderCell($key, $column, $value, $params);
                     $first = false;
+
                 } else {
-                    $row .= $this->renderCell($key, $column, $value, $this->process_entities);
+                    $row .= $this->renderCell($key, $column, $value, $params);
                 }
             }
 
@@ -721,8 +722,8 @@ class Table extends ResourceElement
 
         // Process SQL resource
         while ($row = $this->source_query->fetch(PDO::FETCH_ASSOC)) {
-            $this->executeCallbacks($row);
-            $return .= $this->renderRow($row);
+            $this->executeCallbacks($row, $params);
+            $return .= $this->renderRow($row, $params);
         }
 
         return $return . '</tbody>';
@@ -794,10 +795,10 @@ class Table extends ResourceElement
      * Returns a table cell
      *
      * @param array $row_values
-     * @param string|float|int|null $row_id
+     * @param array $params
      * @return string
      */
-    protected function renderRow(array $row_values, string|float|int|null $row_id = null): string
+    protected function renderRow(array $row_values, array $params): string
     {
         if (empty($this->column_headers)) {
             // Auto set headers from the column names
@@ -811,10 +812,8 @@ class Table extends ResourceElement
             unset($column_header);
         }
 
-        // If row identifier was not specified, then assume its the first value in the row
-        if ($row_id === null) {
-            $row_id = reset($row_values);
-        }
+        // ID is the first value in the row
+        $row_id = reset($row_values);
 
         // Add data-* in this option?
 //        if (array_key_exists($row_id, $this->source_data)) {
@@ -828,10 +827,11 @@ class Table extends ResourceElement
             if ($first) {
                 // Convert first column to checkboxes?
                 $value   = $this->renderCheckboxColumn($column, $value);
-                $return .= $this->renderCell($row_id, $column, $value, false);
-                $first = false;
+                $return .= $this->renderCell($row_id, $column, $value, $params);
+                $first   = false;
+
             } else {
-                $return .= $this->renderCell($row_id, $column, $value, $this->process_entities);
+                $return .= $this->renderCell($row_id, $column, $value, $params);
             }
         }
 
@@ -845,10 +845,10 @@ class Table extends ResourceElement
      * @param string|float|int|null $row_id
      * @param string|float|int|null $column
      * @param Stringable|string|float|int|null $value
-     * @param bool $entities
+     * @param array $param
      * @return string
      */
-    protected function renderCell(string|float|int|null $row_id, string|float|int|null $column, Stringable|string|float|int|null $value, bool $entities): string
+    protected function renderCell(string|float|int|null $row_id, string|float|int|null $column, Stringable|string|float|int|null $value, array $param): string
     {
         $value = (string) $value;
 
@@ -879,8 +879,9 @@ class Table extends ResourceElement
                 $value = str_replace(':ROW'   , $this->convert_columns[$column], $value);
                 $value = str_replace(':COLUMN', $this->convert_columns[$column], $value);
             }
+
         } else {
-            if ($entities) {
+            if ($param['htmlentities'] and empty($param['skiphtmlentities'][$column])) {
                 $value = htmlentities($value);
                 $value = str_replace(PHP_EOL, '<br>', $value);
             }

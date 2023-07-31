@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html\Components;
 
-use Phoundation\Web\Http\Html\Modals\SignInModal;
+use Phoundation\Web\Http\Html\Components\Modals\SignInModal;
 
 
 /**

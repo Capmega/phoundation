@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http\Html\Components;
 
 use Iterator;
-use Phoundation\Seo\Seo;
 use Phoundation\Web\Http\Html\Components\Interfaces\InputTypeInterface;
 use Phoundation\Web\Http\Html\Enums\ButtonType;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use ReturnTypeWillChange;
+use Stringable;
 
 
 /**
@@ -69,12 +69,12 @@ class Buttons extends ElementsBlock implements Iterator
      *
      * @param Button|string|null $button
      * @param DisplayMode $mode
-     * @param InputTypeInterface|string $type_or_anchor_url
+     * @param InputTypeInterface|Stringable|string $type_or_anchor_url
      * @param bool $outline
      * @param bool $right
      * @return static
      */
-    public function addButton(Button|string|null $button, DisplayMode $mode = DisplayMode::primary, InputTypeInterface|string $type_or_anchor_url = ButtonType::submit, bool $outline = false, bool $right = false): static
+    public function addButton(Button|string|null $button, DisplayMode $mode = DisplayMode::primary, InputTypeInterface|Stringable|string $type_or_anchor_url = ButtonType::submit, bool $outline = false, bool $right = false): static
     {
         if (!$button) {
             // Don't add anything

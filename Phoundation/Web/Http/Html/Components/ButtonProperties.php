@@ -63,30 +63,6 @@ trait ButtonProperties
 
 
     /**
-     * Set if the button is outlined or not
-     *
-     * @param bool $outlined
-     * @return Button
-     */
-    public function setOutlined(bool $outlined): static
-    {
-        $this->outlined = $outlined;
-        return $this;
-    }
-
-
-    /**
-     * Returns if the button is outlined or not
-     *
-     * @return bool
-     */
-    public function getOutlined(): bool
-    {
-        return $this->outlined;
-    }
-
-
-    /**
      * Set the button type
      *
      * @param InputTypeInterface|null $type
@@ -139,6 +115,41 @@ trait ButtonProperties
 
 
     /**
+     * Returns if the button is outlined or not
+     *
+     * @return bool
+     */
+    public function getOutlined(): bool
+    {
+        return $this->outlined;
+    }
+
+
+    /**
+     * Set if the button is outlined or not
+     *
+     * @param bool $outlined
+     * @return Button
+     */
+    public function setOutlined(bool $outlined): static
+    {
+        $this->outlined = $outlined;
+        return $this;
+    }
+
+
+    /**
+     * Returns if the button is flat or not
+     *
+     * @return bool
+     */
+    public function getFlat(): bool
+    {
+        return $this->flat;
+    }
+
+
+    /**
      * Set if the button is flat or not
      *
      * @param bool $flat
@@ -152,13 +163,13 @@ trait ButtonProperties
 
 
     /**
-     * Returns if the button is flat or not
+     * Returns if the button is rounded or not
      *
-     * @return string
+     * @return bool
      */
-    public function getFlat(): string
+    public function getRounded(): bool
     {
-        return $this->flat;
+        return $this->rounded;
     }
 
 
@@ -176,13 +187,13 @@ trait ButtonProperties
 
 
     /**
-     * Returns if the button is rounded or not
+     * Returns if the button is wrapping or not
      *
-     * @return string
+     * @return bool
      */
-    public function getRounded(): string
+    public function getWrapping(): bool
     {
-        return $this->rounded;
+        return $this->wrapping;
     }
 
 
@@ -196,16 +207,5 @@ trait ButtonProperties
     {
         $this->wrapping = $wrapping;
         return $this;
-    }
-
-
-    /**
-     * Returns if the button is wrapping or not
-     *
-     * @return string
-     */
-    public function getWrapping(): string
-    {
-        return $this->wrapping;
     }
 }

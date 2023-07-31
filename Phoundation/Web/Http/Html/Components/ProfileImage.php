@@ -79,7 +79,7 @@ class ProfileImage extends ImageMenu
             // Default image menu
             if (!$menu) {
                 $menu = Menu::new()->setSource([
-                    tr('Profile')  => '/profile.html',
+                    tr('Profile')  => '/my/profile.html',
                     tr('Sign out') => '/sign-out.html'
                 ]);
             }
