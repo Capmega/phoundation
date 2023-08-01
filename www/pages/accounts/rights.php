@@ -2,10 +2,12 @@
 
 declare(strict_types=1);
 
-
 use Phoundation\Accounts\Rights\Rights;
+use Phoundation\Accounts\Users\FilterForm;
 use Phoundation\Web\Http\Html\Components\BreadCrumbs;
+use Phoundation\Web\Http\Html\Components\Buttons;
 use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
+use Phoundation\Web\Http\Html\Enums\ButtonType;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Html\Enums\DisplaySize;
 use Phoundation\Web\Http\Html\Layouts\Grid;
@@ -13,18 +15,45 @@ use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
 
-// Build the page content
+/**
+ * Page accounts/rights.php
+ *
+ *
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Accounts
+ */
+
+
+// Build users filter card
+$filters_content = FilterForm::new();
+
+$filters = Card::new()
+    ->setCollapseSwitch(true)
+    ->setTitle('Users filters')
+    ->setContent($filters_content->render())
+    ->useForm(true);
+
+
+// Build users table
+$buttons = Buttons::new()
+    ->addButton(tr('Create'), DisplayMode::primary, '/accounts/right.html')
+    ->addButton(tr('Delete'), DisplayMode::warning, ButtonType::submit, true, true);
 
 
 // Build rights table
-$table = Rights::new()->getHtmlDataTable()
+$table = Rights::new()
+    ->getHtmlDataTable()
     ->setRowUrl('/accounts/right-:ROW.html');
 
 $rights = Card::new()
     ->setTitle('Active rights')
     ->setSwitches('reload')
     ->setContent($table->render())
-    ->useForm(true);
+    ->useForm(true)
+    ->setButtons($buttons);
 
 $rights->getForm()
         ->setAction(UrlBuilder::getCurrent())
@@ -48,7 +77,7 @@ $documentation = Card::new()
 
 // Build and render the grid
 $grid = Grid::new()
-    ->addColumn($rights, DisplaySize::nine)
+    ->addColumn($filters->render() . $rights, DisplaySize::nine)
     ->addColumn($relevant->render() . $documentation->render(), DisplaySize::three);
 
 echo $grid->render();

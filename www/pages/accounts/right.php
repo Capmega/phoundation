@@ -2,9 +2,14 @@
 
 declare(strict_types=1);
 
-
 use Phoundation\Accounts\Rights\Right;
+use Phoundation\Core\Session;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Security\Incidents\Exception\IncidentsException;
+use Phoundation\Web\Http\Html\Components\Button;
+use Phoundation\Web\Http\Html\Components\Buttons;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Html\Enums\DisplaySize;
 use Phoundation\Web\Http\Html\Layouts\Grid;
@@ -13,19 +18,95 @@ use Phoundation\Web\Page;
 use Phoundation\Web\Http\Html\Components\BreadCrumbs;
 use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
 
+Session::getUser()->hasAllRights('blergh');
+
+
+/**
+ * Page accounts/right.php
+ *
+ *
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Accounts
+ */
+
 
 // Validate
 $get = GetValidator::new()
-    ->select('id')->isDbId()
+    ->select('id')->isOptional()->isDbId()
     ->validate();
 
 
 // Build the page content
 $right = Right::get($get['id']);
+
+
+// Validate POST and submit
+if (Page::isPostRequestMethod()) {
+    try {
+        switch (PostValidator::getSubmitButton()) {
+            case tr('Save'):
+                // Update right
+                $right->setDebug(true)
+                    ->apply()
+                    ->save();
+
+// TODO Implement timers
+//showdie(Timers::get('query'));
+
+                Page::getFlashMessages()->addSuccessMessage(tr('Right ":right" has been saved', [':right' => $right->getName()]));
+                Page::redirect('referer');
+
+            case tr('Delete'):
+                $right->delete();
+                Page::getFlashMessages()->addSuccessMessage(tr('The right ":right" has been deleted', [':right' => $right->getName()]));
+                Page::redirect();
+
+            case tr('Undelete'):
+                $right->undelete();
+                Page::getFlashMessages()->addSuccessMessage(tr('The right ":right" has been undeleted', [':right' => $right->getName()]));
+                Page::redirect();
+        }
+
+    } catch (IncidentsException|ValidationFailedException $e) {
+        // Oops! Show validation errors and remain on page
+        Page::getFlashMessages()->addMessage($e);
+        $right->forceApply();
+    }
+}
+
+
+// Audit button.
+if (!$right->isNew()) {
+    $audit = Button::new()
+        ->setRight(true)
+        ->setMode(DisplayMode::information)
+        ->setAnchorUrl('/audit/meta-' . $right->getMeta() . '.html')
+        ->setRight(true)
+        ->setValue(tr('Audit'))
+        ->setContent(tr('Audit'));
+
+    $delete = Button::new()
+        ->setRight(true)
+        ->setMode(DisplayMode::warning)
+        ->setOutlined(true)
+        ->setValue(tr('Delete'))
+        ->setContent(tr('Delete'));
+}
+
+
+// Build the right card
 $form  = $right->getHtmlForm();
 $card  = Card::new()
     ->setTitle(tr('Edit data for right :name', [':name' => $right->getName()]))
-    ->setContent($form->render());
+    ->setContent($form->render())
+    ->setButtons(Buttons::new()
+        ->addButton(tr('Save'))
+        ->addButton(tr('Back'), DisplayMode::secondary, '/accounts/rights.html', true)
+        ->addButton(isset_get($delete))
+        ->addButton(isset_get($audit)));
 
 
 // Build relevant links
@@ -45,7 +126,7 @@ $documentation = Card::new()
 
 // Build and render the grid
 $grid = Grid::new()
-    ->addColumn($card, DisplaySize::nine)
+    ->addColumn($card, DisplaySize::nine, true)
     ->addColumn($relevant->render() . $documentation->render(), DisplaySize::three);
 
 echo $grid->render();

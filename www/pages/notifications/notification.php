@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Notifications\Notification;
 use Phoundation\Web\Http\Html\Components\BreadCrumbs;
 use Phoundation\Web\Http\Html\Components\Buttons;
@@ -39,6 +41,22 @@ $notification = Notification::get($get['id']);
 $notification->setStatus('READ');
 
 
+// Validate POST and submit
+if (Page::isPostRequestMethod()) {
+    try {
+        switch (PostValidator::getSubmitButton()) {
+            case tr('Mark unread'):
+                $notification->setStatus('UNREAD');
+                Page::getFlashMessages()->addSuccessMessage(tr('The notification ":notification" has been marked as unread', [':notification' => $notification->getTitle()]));
+        }
+
+    } catch (ValidationFailedException $e) {
+        // Oops! Show validation errors and remain on page
+        Page::getFlashMessages()->addMessage($e);
+    }
+}
+
+
 // Build the notification form
 $notification_card = Card::new()
     ->setCollapseSwitch(true)
@@ -46,6 +64,7 @@ $notification_card = Card::new()
     ->setTitle(tr('Display data for notification ":name"', [':name' => $notification->getTitle()]))
     ->setContent($notification->getHtmlForm()->render())
     ->setButtons(Buttons::new()
+        ->addButton(tr('Mark unread'))
         ->addButton(tr('Back'), DisplayMode::secondary, '/accounts/notifications.html', true)
         ->addButton(isset_get($delete))
         ->addButton(isset_get($impersonate)));
@@ -73,7 +92,7 @@ $documentation = Card::new()
 
 // Build and render the grid
 $grid = Grid::new()
-    ->addColumn($notification_card, DisplaySize::nine)
+    ->addColumn($notification_card, DisplaySize::nine, true)
     ->addColumn($relevant->render() . $documentation->render(), DisplaySize::three);
 
 echo $grid->render();

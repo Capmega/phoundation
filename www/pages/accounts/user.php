@@ -45,12 +45,12 @@ if (Page::isPostRequestMethod()) {
     try {
         switch (PostValidator::getSubmitButton()) {
             case tr('Save'):
-                // Update roles
+                // Validate roles
                 $post = PostValidator::new()
                     ->select('roles_id')->isOptional()->isArray()->each()->isOptional()->isDbId()
                     ->validate(false);
 
-                // Update user
+                // Update user and roles
                 $user
                     ->apply()
                     ->save()
@@ -86,6 +86,7 @@ if (Page::isPostRequestMethod()) {
         $user->forceApply();
     }
 }
+
 
 // Save button
 if (!$user->getReadonly()) {

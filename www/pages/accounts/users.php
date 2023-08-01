@@ -17,6 +17,19 @@ use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
 
+/**
+ * Page accounts/users.php
+ *
+ *
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Accounts
+ */
+
+
+// Get users list
 $users = Users::new();
 
 
@@ -55,8 +68,6 @@ if (Page::isPostRequestMethod()) {
 
 
 // Build the page content
-
-
 // Build users filter card
 $filters_content = FilterForm::new();
 
