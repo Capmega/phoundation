@@ -426,7 +426,7 @@ class QueryBuilder implements QueryBuilderInterface
         }
 
         if ($this->group_by) {
-            $query .= ' GROUP BY ' . implode(' AND ', $this->group_by);
+            $query .= ' GROUP BY ' . implode(', ', $this->group_by);
         }
 
         if ($this->having) {
