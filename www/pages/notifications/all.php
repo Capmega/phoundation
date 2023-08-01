@@ -33,7 +33,7 @@ $notifications = Notifications::new()
     ->markSeverityColumn();
 
 $notifications->getQueryBuilder()
-    ->addSelect('`id`, `title`, `mode` AS `severity`, `priority`, `created_on`')
+    ->addSelect('`id`, `title`, `status`, `mode` AS `severity`, `priority`, `created_on`')
     ->addWhere('`users_id` = :users_id', [':users_id' => Session::getUser()->getId()])
     ->addOrderBy('`created_by` ASC');
 
