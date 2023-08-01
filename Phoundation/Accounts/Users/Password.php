@@ -68,7 +68,7 @@ class Password extends DataEntry implements PasswordInterface
             throw new OutOfBoundsException(tr('Cannot instantiate Password object, a valid user ID is required'));
         }
 
-        if (User::notExists('id', $identifier)) {
+        if (User::notExists($identifier, 'id')) {
             throw new OutOfBoundsException(tr('Cannot instantiate Password object, the specified user ID ":id" does not exist', [
                 ':id' => $identifier
             ]));
