@@ -47,6 +47,7 @@ class TopPanel extends Renderer
         if (Session::isImpersonated()) {
             $this->render_object->setMode(DisplayMode::danger);
             $message = tr('(Impersonated by ":user")', [':user' => Session::getRealUser()->getDisplayName()]);
+
         } else {
             $this->render_object->setMode(DisplayMode::white);
         }
@@ -73,7 +74,7 @@ class TopPanel extends Renderer
         }
 
         // Add the optional extra message and finish the left menu
-        $left_menu .=       Html::safe(isset_get($message)) . '
+        $left_menu .=       isset_get($message) . '
                           </ul>';
 
         // Build the panel
