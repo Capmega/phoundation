@@ -1,0 +1,31 @@
+#!/usr/bin/php
+<?php
+
+declare(strict_types=1);
+
+use Phoundation\Cli\Cli;
+use Phoundation\Cli\Documentation;
+use Phoundation\Cli\Script;
+use Phoundation\Core\Log\Log;
+use Phoundation\Core\Strings;
+use Phoundation\Data\Validator\ArgvValidator;
+
+
+/**
+ * Script tools/isbase58
+ *
+ *
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Scripts
+ */
+Documentation::usage('./pho tools isbase58');
+Documentation::help('The isbase58 tool script will return 1 if the specified string is base58, 0 otherwise');
+
+$argv = ArgvValidator::new()
+    ->select('text')->hasMaxCharacters(1048576)
+    ->validate();
+
+Script::echo(Strings::isBase58($argv['text']) ? 1 : 0);
