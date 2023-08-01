@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Databases\Sql\Schema;
 
 use Phoundation\Core\Arrays;
+use Phoundation\Core\Strings;
 
 
 /**
@@ -87,7 +88,7 @@ class TableAlter extends SchemaAbstract
     public function dropColumn(string $column): static
     {
         if ($column) {
-            $this->sql->query('ALTER TABLE ' . $this->name .  ' DROP COLUMN `' . $column . '`');
+            $this->sql->query('ALTER TABLE ' . $this->name .  ' DROP COLUMN `' . Strings::endsNotWith(Strings::startsNotWith($column, '`'), '`') . '`');
         }
 
         return $this;
@@ -174,7 +175,7 @@ class TableAlter extends SchemaAbstract
     public function dropIndex(string $index): static
     {
         if ($index) {
-            $this->sql->query('ALTER TABLE ' . $this->name .  ' DROP KEY `' . $index . '`');
+            $this->sql->query('ALTER TABLE ' . $this->name .  ' DROP KEY `' . Strings::endsNotWith(Strings::startsNotWith($index, '`'), '`') . '`');
         }
 
         return $this;
@@ -227,7 +228,7 @@ class TableAlter extends SchemaAbstract
     public function dropForeignKey(string $foreign_key): static
     {
         if ($foreign_key) {
-            $this->sql->query('ALTER TABLE ' . $this->name .  ' DROP FOREIGN KEY `' . $foreign_key . '`');
+            $this->sql->query('ALTER TABLE ' . $this->name .  ' DROP FOREIGN KEY `' . Strings::endsNotWith(Strings::startsNotWith($foreign_key, '`'), '`') . '`');
         }
 
         return $this;
