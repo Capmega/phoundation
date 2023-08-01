@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html\Components;
 
-use Iterator;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Core\Log\Log;
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Http\Html\Interfaces\InterfaceElementsBlock;
+use Phoundation\Data\Iterator;
+use Phoundation\Web\Http\Html\Components\Interfaces\ElementsBlockInterface;
+use Phoundation\Web\Http\Html\Components\Interfaces\ElementInterface;
+use Phoundation\Web\Http\Html\Components\Interfaces\FormInterface;
 use Phoundation\Web\Http\Html\Renderer;
 use Phoundation\Web\Page;
-use ReturnTypeWillChange;
 
 
 /**
@@ -20,10 +21,11 @@ use ReturnTypeWillChange;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-abstract class ElementsBlock implements Iterator, InterfaceElementsBlock
+// TODO Implement Phoundation Iterator instead of PHP Iterator
+abstract class ElementsBlock extends Iterator implements IteratorInterface, ElementsBlockInterface
 {
     use ElementAttributes;
 
@@ -95,9 +97,9 @@ abstract class ElementsBlock implements Iterator, InterfaceElementsBlock
     /**
      * Returns the form of this objects block
      *
-     * @return Form|null
+     * @return FormInterface|null
      */
-    public function getForm(): ?Form
+    public function getForm(): ?FormInterface
     {
         return $this->form;
     }
@@ -106,78 +108,12 @@ abstract class ElementsBlock implements Iterator, InterfaceElementsBlock
     /**
      * Returns the form of this objects block
      *
-     * @param Form|null $form
+     * @param FormInterface|null $form
      * @return static
      */
-    public function setForm(?Form $form): static
+    public function setForm(?FormInterface $form): static
     {
         $this->form = $form;
-        return $this;
-    }
-
-
-    /**
-     * Returns the source of this object
-     *
-     * @return array|null
-     */
-    public function getSource(): ?array
-    {
-        return $this->source;
-    }
-
-
-    /**
-     * Returns the specified entry from the source of this object
-     *
-     * @param string|int $entry
-     * @return mixed
-     */
-    public function getSourceEntry(string|int $entry): mixed
-    {
-        return isset_get($this->source[$entry]);
-    }
-
-
-    /**
-     * Sets the data source of this object
-     *
-     * @param array|null $source
-     * @return $this
-     */
-    public function setSource(?array $source): static
-    {
-        $this->source = [];
-        return $this->addSource($source);
-    }
-
-
-    /**
-     * Sets the data source of this object
-     *
-     * @param array|null $source
-     * @return $this
-     */
-    public function addSource(?array $source): static
-    {
-        foreach ($source as $key => $value) {
-            $this->addSourceEntry($key, $value);
-        }
-
-        return $this;
-    }
-
-
-    /**
-     * Adds a single entry to the source of this object
-     *
-     * @param string $key
-     * @param mixed $value
-     * @return $this
-     */
-    public function addSourceEntry(string $key, mixed $value): static
-    {
-        $this->source[$key] = $value;
         return $this;
     }
 
@@ -192,7 +128,7 @@ abstract class ElementsBlock implements Iterator, InterfaceElementsBlock
      *       with Template AdminLte will be rendered by Templates\AdminLte\Html\Components\Input\InputText
      *
      * @return string|null
-     * @see InterfaceElement::render()
+     * @see ElementInterface::render()
      */
     public function render(): ?string
     {
@@ -220,7 +156,7 @@ abstract class ElementsBlock implements Iterator, InterfaceElementsBlock
         // The template component does not exist, return the basic Phoundation version
         Log::warning(tr('No template render class found for block component ":component", rendering basic HTML', [
             ':component' => get_class($this)
-        ]));
+        ]), 3);
 
         return $render_function($this->render);
     }
@@ -234,127 +170,5 @@ abstract class ElementsBlock implements Iterator, InterfaceElementsBlock
     public function hasRendered(): bool
     {
         return $this->has_rendered;
-    }
-
-
-    /**
-     * Clear all messages in this object
-     *
-     * @return $this
-     */
-    public function clear(): static
-    {
-        $this->source = [];
-        return $this;
-    }
-
-
-    /**
-     * Return the amount of flash messages in this object
-     *
-     * @return int
-     */
-    public function getCount(): int
-    {
-        return count($this->source);
-    }
-
-
-    /**
-     * Returns the specified item
-     *
-     * @param string|int $key
-     * @return mixed
-     */
-    #[ReturnTypeWillChange] public function get(string|int $key): mixed
-    {
-        if (array_key_exists($key, $this->source)) {
-            return $this->source[$key];
-        }
-
-        throw new OutOfBoundsException(tr('The specified source key ":key" does not exist', [
-            ':key' => $key
-        ]));
-    }
-
-
-    /**
-     * Returns if the specified key exists or not
-     *
-     * @param string|int $key
-     * @return bool
-     */
-    public function exists(string|int $key): bool
-    {
-        return array_key_exists($key, $this->source);
-    }
-
-
-    /**
-     * Returns the current item
-     *
-     * @return mixed
-     */
-    #[ReturnTypeWillChange] public function current(): mixed
-    {
-        return $this->get(key($this->source));
-    }
-
-
-    /**
-     * Jumps to the next element
-     *
-     * @return static
-     */
-    #[ReturnTypeWillChange] public function next(): static
-    {
-        next($this->source);
-        return $this;
-    }
-
-
-    /**
-     * Jumps to the next element
-     *
-     * @return static
-     */
-    #[ReturnTypeWillChange] public function previous(): static
-    {
-        prev($this->source);
-        return $this;
-    }
-
-
-    /**
-     * Returns the current iterator position
-     *
-     * @return mixed
-     */
-    #[ReturnTypeWillChange] public function key(): mixed
-    {
-        return key($this->source);
-    }
-
-
-    /**
-     * Returns if the current element exists or not
-     *
-     * @return bool
-     */
-    public function valid(): bool
-    {
-        return isset($this->source[key($this->source)]);
-    }
-
-
-    /**
-     * Rewinds the internal pointer to 0
-     *
-     * @return static
-     */
-    #[ReturnTypeWillChange] public function rewind(): static
-    {
-        reset($this->source);
-        return $this;
     }
 }

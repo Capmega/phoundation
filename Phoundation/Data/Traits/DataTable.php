@@ -12,7 +12,7 @@ namespace Phoundation\Data\Traits;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opentable.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 trait DataTable
@@ -22,7 +22,7 @@ trait DataTable
      *
      * @var string|null $table
      */
-    protected static ?string $table;
+    protected ?string $table;
 
 
     /**
@@ -32,7 +32,7 @@ trait DataTable
      */
     public function getTable(): ?string
     {
-        return self::$table;
+        return $this->table;
     }
 
 
@@ -44,7 +44,7 @@ trait DataTable
      */
     public function setTable(?string $table): static
     {
-        self::$table = $table;
+        $this->table = $table;
         return $this;
     }
 }

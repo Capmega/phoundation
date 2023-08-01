@@ -7,7 +7,7 @@ namespace Phoundation\Web\Http\Html\Components;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Http\Html\Interfaces\InterfaceElement;
+use Phoundation\Web\Http\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Http\Html\Renderer;
 use Phoundation\Web\Page;
 
@@ -19,10 +19,10 @@ use Phoundation\Web\Page;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-abstract class Element implements InterfaceElement
+abstract class Element implements ElementInterface
 {
     use ElementAttributes;
 
@@ -49,7 +49,7 @@ abstract class Element implements InterfaceElement
      */
     public function __toString(): string
     {
-        return $this->render();
+        return (string) $this->render();
     }
 
 
@@ -135,7 +135,7 @@ abstract class Element implements InterfaceElement
         // The template component does not exist, return the basic Phoundation version
         Log::warning(tr('No template render class found for element component ":component", rendering basic HTML', [
             ':component' => get_class($this)
-        ]), 4);
+        ]), 3);
 
         return $render_function();
     }
@@ -173,7 +173,7 @@ abstract class Element implements InterfaceElement
             'class'     => $this->getClass(),
             'height'    => $this->height,
             'width'     => $this->width,
-            'autofocus' => ((self::$autofocus === $this->id) ? 'autofocus' : null),
+            'autofocus' => ((static::$autofocus === $this->id) ? 'autofocus' : null),
             'readonly'  => ($this->readonly ? 'readonly' : null),
             'disabled'  => ($this->disabled ? 'disabled' : null),
         ];

@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http\Html\Components;
 
 use Phoundation\Content\Images\Image;
+use Phoundation\Content\Images\Interfaces\ImageInterface;
 use Phoundation\Core\Session;
 use Phoundation\Web\Page;
+
 
 /**
  * ProfileImage class
@@ -15,7 +17,7 @@ use Phoundation\Web\Page;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
 class ProfileImage extends ImageMenu
@@ -43,10 +45,10 @@ class ProfileImage extends ImageMenu
     /**
      * ProfileImage class constructor
      *
-     * @param Image|string|null $image
+     * @param ImageInterface|string|null $image
      * @return ProfileImage
      */
-    public function setImage(Image|string|null $image = null): static
+    public function setImage(ImageInterface|string|null $image = null): static
     {
         // Ensure we have a default profile image
         if (!is_object($image)) {
@@ -77,7 +79,7 @@ class ProfileImage extends ImageMenu
             // Default image menu
             if (!$menu) {
                 $menu = Menu::new()->setSource([
-                    tr('Profile')  => '/profile.html',
+                    tr('Profile')  => '/my/profile.html',
                     tr('Sign out') => '/sign-out.html'
                 ]);
             }

@@ -15,7 +15,7 @@ use Phoundation\Cli\Exception\CliColorException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Cli
  */
 
@@ -93,11 +93,15 @@ class Color
 
         // Validate the specified foreground and background colors
         if (!array_key_exists($foreground_color, static::$available_foreground_colors)) {
-            throw new CliColorException(tr('The specified foreground color ":color" does not exist', [':color' => $foreground_color]));
+            throw new CliColorException(tr('The specified foreground color ":color" does not exist', [
+                ':color' => $foreground_color
+            ]));
         }
 
         if (!array_key_exists($background_color, static::$available_background_colors)) {
-            throw new CliColorException(tr('The specified background color ":color" does not exist', [':color' => $background_color]));
+            throw new CliColorException(tr('The specified background color ":color" does not exist', [
+                ':color' => $background_color
+            ]));
         }
 
         // Apply colors

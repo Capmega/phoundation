@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Filesystem;
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FileNotExistException;
@@ -17,9 +18,9 @@ use Throwable;
  *
  * This library contains various filesystem file related functions
  *
- * @author Sven Oostenbrink <support@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @category Function reference
  * @package Phoundation\Filesystem
  */
@@ -87,7 +88,9 @@ class Filesystem
         // Check if we received independent primary and secondary mimetype sections, or if we have to cut them ourselves
         if (!$secondary) {
             if (!str_contains($primary, '/')) {
-                throw new FilesystemException(tr('Invalid primary mimetype data ":primary" specified. Either specify the complete mimetype in $primary, or specify the independent primary and secondary sections in $primary and $secondary', [':primary' => $primary]));
+                throw new FilesystemException(tr('Invalid primary mimetype data ":primary" specified. Either specify the complete mimetype in $primary, or specify the independent primary and secondary sections in $primary and $secondary', [
+                    ':primary' => $primary
+                ]));
             }
 
             $secondary = Strings::from($primary , '/');
@@ -163,7 +166,9 @@ class Filesystem
         // Check if we received independent primary and secondary mimetype sections, or if we have to cut them ourselves
         if (!$secondary) {
             if (!str_contains($primary, '/')) {
-                throw new FilesystemException(tr('Invalid primary mimetype data ":primary" specified. Either specify the complete mimetype in $primary, or specify the independent primary and secondary sections in $primary and $secondary', [':primary' => $primary]));
+                throw new FilesystemException(tr('Invalid primary mimetype data ":primary" specified. Either specify the complete mimetype in $primary, or specify the independent primary and secondary sections in $primary and $secondary', [
+                    ':primary' => $primary
+                ]));
             }
 
             $secondary = Strings::from($primary , '/');
@@ -244,11 +249,13 @@ class Filesystem
                     case 'css':
                         $prefix = PATH_CDN . LANGUAGE . '/css/';
                         break;
+
                     case 'js':
                         // no-break
                     case 'javascript':
                         $prefix = PATH_CDN . LANGUAGE . '/js/';
                         break;
+
                     case 'img':
                         // no-break
                     case 'image':
@@ -256,11 +263,13 @@ class Filesystem
                     case 'images':
                         $prefix = PATH_CDN . LANGUAGE . '/img/';
                         break;
+
                     case 'font':
                         // no-break
                     case 'fonts':
                         $prefix = PATH_CDN . LANGUAGE . '/fonts/';
                         break;
+
                     case 'video':
                         // no-break
                     case 'videos':
@@ -279,8 +288,9 @@ class Filesystem
             }
         } else {
             if ($must_exist) {
-                throw new FileNotExistException(tr('The specified file or path ":path" does not exist', [
-                    ':path' => $path
+                throw new FileNotExistException(tr('The specified file or path ":path" with prefix ":prefix" does not exist', [
+                    ':prefix' => $prefix,
+                    ':path'   => $path
                 ]));
             }
 
@@ -325,7 +335,7 @@ class Filesystem
             }
 
             // This is some other error, keep throwing
-            throw new FilesystemException(tr('Failed'), previous: $e);
+            throw new FilesystemException(tr('Failed'), $e);
         }
     }
 

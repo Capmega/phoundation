@@ -9,6 +9,7 @@ use Phoundation\Web\Http\Html\Enums\ButtonType;
 use Phoundation\Web\Http\Html\Enums\InputType;
 use Stringable;
 
+
 /**
  * Button class
  *
@@ -16,7 +17,7 @@ use Stringable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
 class Button extends Input
@@ -40,9 +41,10 @@ class Button extends Input
     {
         parent::__construct();
 
+        $this->setName('submit');
+        $this->setClasses('btn');
         $this->setElement('button');
         $this->setType(ButtonType::submit);
-        $this->setClasses('btn');
     }
 
 
@@ -106,7 +108,8 @@ class Button extends Input
             return $this;
         }
 
-        return parent::setValue($value);
+        parent::setValue($value);
+        return parent::setContent($value);
     }
 
 

@@ -11,9 +11,9 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\DataEntryFieldDefinition;
-use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
+use Phoundation\Data\DataEntry\Definitions\Definition;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryCode;
 use Phoundation\Data\DataEntry\Traits\DataEntryDetails;
 use Phoundation\Data\DataEntry\Traits\DataEntryFile;
@@ -25,16 +25,17 @@ use Phoundation\Data\DataEntry\Traits\DataEntryPriority;
 use Phoundation\Data\DataEntry\Traits\DataEntryTitle;
 use Phoundation\Data\DataEntry\Traits\DataEntryTrace;
 use Phoundation\Data\DataEntry\Traits\DataEntryUrl;
-use Phoundation\Data\DataEntry\Traits\DataEntryUsersId;
-use Phoundation\Data\Interfaces\InterfaceDataEntry;
+use Phoundation\Data\DataEntry\Traits\DataEntryUser;
+use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Exception\NotificationBusyException;
-use Phoundation\Web\Http\Html\Components\Mode;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Html\Enums\InputElement;
 use Phoundation\Web\Http\Html\Enums\InputType;
+use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
 use Throwable;
+
 
 /**
  * Class Notification
@@ -44,7 +45,7 @@ use Throwable;
  * @see \Phoundation\Data\DataEntry\DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Notification
  */
 class Notification extends DataEntry
@@ -56,7 +57,7 @@ class Notification extends DataEntry
     use DataEntryFile;
     use DataEntryLine;
     use DataEntryPriority;
-    use DataEntryUsersId;
+    use DataEntryUser;
     use DataEntryTitle;
     use DataEntryMessage;
     use DataEntryDetails;
@@ -79,9 +80,9 @@ class Notification extends DataEntry
     /**
      * The roles where this notification should be sent to
      *
-     * @var array|null $roles
+     * @var array $roles
      */
-    protected ?array $roles = null;
+    protected array $roles = [];
 
     /**
      * Optional exception source for this notification
@@ -90,20 +91,21 @@ class Notification extends DataEntry
      */
     protected ?Throwable $e = null;
 
+
     /**
      * Notification class constructor
      *
-     * @param InterfaceDataEntry|string|int|null $identifier
+     * @param DataEntryInterface|string|int|null $identifier
+     * @param string|null $column
      */
-    public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null)
     {
-        static::$auto_log   = Config::get('notifications.auto-log', true);
-        static::$entry_name = 'notification';
+        static::$auto_log = Config::get('notifications.auto-log', true);
 
-        $this->data['mode']     = 'unknown';
-        $this->data['priority'] = 1;
+        $this->source['mode']     = 'notice';
+        $this->source['priority'] = 1;
 
-        parent::__construct($identifier);
+        parent::__construct($identifier, $column);
     }
 
 
@@ -115,6 +117,28 @@ class Notification extends DataEntry
     public static function getTable(): string
     {
         return 'notifications';
+    }
+
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getDataEntryName(): string
+    {
+        return 'notification';
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return null;
     }
 
 
@@ -157,9 +181,9 @@ class Notification extends DataEntry
     /**
      * Returns the roles for this notification
      *
-     * @return array|null
+     * @return array
      */
-    public function getRoles(): ?array
+    public function getRoles(): array
     {
         return $this->roles;
     }
@@ -247,10 +271,10 @@ class Notification extends DataEntry
             static $sending = false;
 
             if ($sending) {
-                throw new NotificationBusyException(tr('The notifications system is already busy sending another notification and cannot send the new ":title" notification with message ":message"', [
+                throw NotificationBusyException::new(tr('The notifications system is already busy sending another notification and cannot send the new ":title" notification with message ":message"', [
                     ':title'   => $this->getTitle(),
                     ':message' => $this->getMessage()
-                ]), $this->data);
+                ]))->setData($this->source);
             }
 
             $sending = true;
@@ -266,17 +290,17 @@ class Notification extends DataEntry
 
             if (!$this->getTitle()) {
                 $sending = false;
-                throw new OutOfBoundsException(tr('Cannot send notification, no notification title specified'));
+                throw new OutOfBoundsException(tr('Cannot send notification, no title specified'));
             }
 
             if (!$this->getMessage()) {
                 $sending = false;
-                throw new OutOfBoundsException(tr('Cannot send notification, no notification message specified'));
+                throw new OutOfBoundsException(tr('Cannot send notification, no message specified'));
             }
 
             if (!$this->getRoles() and !$this->getUsersId()) {
                 $sending = false;
-                throw new OutOfBoundsException(tr('Cannot send notification, no notification roles or target users id specified'));
+                throw new OutOfBoundsException(tr('Cannot send notification, no roles or target users id specified'));
             }
 
             // Save and send this notification to the assigned user
@@ -288,7 +312,7 @@ class Notification extends DataEntry
             $roles = Roles::new()->listIds($this->getRoles());
 
             foreach ($roles as $role) {
-                $users = Role::get($role)->users();
+                $users = Role::get($role)->getUsers();
 
                 foreach ($users as $user) {
                     $this
@@ -305,7 +329,18 @@ class Notification extends DataEntry
             Log::write(tr('Title : ":title"', [':title' => $this->getTitle()]), 'debug', 10, false);
             Log::write(tr('Message : ":message"', [':message' => $this->getMessage()]), 'debug', 10, false);
             Log::write(tr('Details :'), 'debug', 10, false);
-            Log::write(print_r($this->getDetails(), true), 'debug', 10, false);
+
+            try {
+                Log::write(print_r($this->getDetails(), true), 'debug', 10, false);
+
+            } catch (Throwable $f) {
+                Log::error(tr('Failed to display notifications detail due to the following exception. Details following after exception'));
+                Log::error($f);
+
+                Log::write(print_r($this->getDataValue('string', 'details'), true), 'debug', 10, false);
+            }
+
+            Log::error(tr('Notification sending exception:'));
             Log::error($e);
         }
 
@@ -320,37 +355,48 @@ class Notification extends DataEntry
      */
     public function log(): static
     {
+        Log::information(tr('Notification:'));
+
         switch ($this->getMode()) {
             case DisplayMode::danger:
                 Log::error($this->getTitle());
                 Log::error($this->getMessage());
-                Log::error($this->getDetails());
                 break;
 
             case DisplayMode::warning:
                 Log::warning($this->getTitle());
                 Log::warning($this->getMessage());
-                Log::warning($this->getDetails());
                 break;
 
             case DisplayMode::success:
                 Log::success($this->getTitle());
                 Log::success($this->getMessage());
-                Log::success($this->getDetails());
                 break;
 
             case DisplayMode::info:
                 Log::information($this->getTitle());
                 Log::information($this->getMessage());
-                Log::information($this->getDetails());
                 break;
 
             default:
                 Log::notice($this->getTitle());
                 Log::notice($this->getMessage());
-                Log::notice($this->getDetails());
                 break;
         }
+
+        $details = $this->getDetails();
+
+        if ($details) {
+            Log::information(tr('Notification details'));
+
+            foreach ($details as $key => $value) {
+                Log::write($key, 'debug');
+                Log::table(Arrays::force($value));
+                Log::cli();
+            }
+        }
+
+        Log::information(tr('End notification'));
 
         static::$logged = true;
 
@@ -417,101 +463,106 @@ class Notification extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @return DataEntryFieldDefinitionsInterface
+     * @param DefinitionsInterface $definitions
      */
-    protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
+    protected function initDefinitions(DefinitionsInterface $definitions): void
     {
-        return DataEntryFieldDefinitions::new(static::getTable())
-            ->add(DataEntryFieldDefinition::new('users_id')
+        $definitions
+            ->addDefinition(Definition::new($this, 'users_id')
                 ->setVisible(false)
-                ->setInputType(InputType::numeric))
-            ->add(DataEntryFieldDefinition::new('code')
+                ->setInputType(InputTypeExtended::dbid)
+                ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->isDbId()->isQueryResult('SELECT `id` FROM `accounts_users` WHERE `id` = :id', [':id' => '$users_id']);
+                }))
+            ->addDefinition(Definition::new($this, 'code')
+                ->setOptional(true)
                 ->setReadonly(true)
                 ->setLabel(tr('Code'))
                 ->setDefault(tr('-'))
-                ->setSize(4)
-                ->setMaxlength(16))
-            ->add(DataEntryFieldDefinition::new('mode')
-                ->setReadonly(true)
-                ->setLabel(tr('Mode'))
-                ->setSize(4)
+                ->setSize(6)
                 ->setMaxlength(16)
-                ->setValidationFunction(function ($validator) {
-                    $validator->isInArray(DisplayMode::cases());
+                ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->isPrintable();
                 }))
-            ->add(DataEntryFieldDefinition::new('icon')
-                ->setVisible(false))
-            ->add(DataEntryFieldDefinition::new('priority')
+            ->addDefinition(Definition::new($this, 'mode')
+                ->setLabel(tr('Mode'))
+                ->setOptional(true, DisplayMode::notice)
+                ->setSize(3)
+                ->setMaxlength(16)
+                ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->isDisplayMode();
+                }))
+            ->addDefinition(Definition::new($this, 'icon')
+                ->setVisible(false)
+                ->setOptional(true)
+                ->setInputType(InputType::url))
+            ->addDefinition(Definition::new($this, 'priority')
                 ->setReadonly(true)
-                ->setInputType(InputType::numeric)
+                ->setInputType(InputTypeExtended::integer)
                 ->setLabel(tr('Priority'))
                 ->setDefault(5)
                 ->setMin(1)
                 ->setMax(9)
-                ->setSize(4))
-            ->add(DataEntryFieldDefinition::new('title')
+                ->setSize(3))
+            ->addDefinition(Definition::new($this, 'title')
                 ->setReadonly(true)
                 ->setLabel(tr('Title'))
                 ->setMaxlength(255)
-                ->setSize(4))
-            ->add(DataEntryFieldDefinition::new('Message')
+                ->setSize(12)
+                ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->isPrintable();
+                }))
+            ->addDefinition(Definition::new($this, 'message')
                 ->setReadonly(true)
                 ->setElement(InputElement::textarea)
                 ->setLabel(tr('Message'))
                 ->setMaxlength(65_535)
-                ->setSize(12))
-            ->add(DataEntryFieldDefinition::new('file')
+                ->setSize(12)
+                ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->isPrintable();
+                }))
+            ->addDefinition(Definition::new($this, 'file')
                 ->setReadonly(true)
+                ->setOptional(true)
+                ->setInputType(InputType::text)
                 ->setLabel(tr('File'))
                 ->setMaxlength(255)
                 ->setSize(8))
-            ->add(DataEntryFieldDefinition::new('line')
+            ->addDefinition(Definition::new($this, 'line')
                 ->setReadonly(true)
-                ->setInputType(InputType::numeric)
-                ->setLabel(tr('File'))
+                ->setOptional(true)
+                ->setInputType(InputTypeExtended::natural)
+                ->setLabel(tr('Line'))
                 ->setMin(1)
                 ->setSize(4))
-            ->add(DataEntryFieldDefinition::new('url')
+            ->addDefinition(Definition::new($this, 'url')
                 ->setReadonly(true)
+                ->setOptional(true)
                 ->setInputType(InputType::url)
                 ->setLabel(tr('URL'))
                 ->setMaxlength(2048)
                 ->setSize(12))
-            ->add(DataEntryFieldDefinition::new('trace')
+            ->addDefinition(Definition::new($this, 'trace')
                 ->setReadonly(true)
+                ->setOptional(true)
                 ->setElement(InputElement::textarea)
                 ->setLabel(tr('Trace'))
                 ->setMaxlength(65_535)
                 ->setRows(10)
-                ->setSize(12))
-            ->add(DataEntryFieldDefinition::new('details')
+                ->setSize(12)
+                ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->isJson();
+                }))
+            ->addDefinition(Definition::new($this, 'details')
                 ->setReadonly(true)
                 ->setElement(InputElement::textarea)
                 ->setLabel(tr('Details'))
                 ->setMaxlength(65_535)
                 ->setRows(10)
-                ->setSize(12));
-
-
-//        $data = $validator
-//            ->select($this->getAlternateValidationField('users_id'), true)->isId()->isQueryColumn('SELECT `id` FROM `accounts_users` WHERE `id` = :id', [':id' => '$id'])
-//            ->select($this->getAlternateValidationField('code'), true)->isOptional('-')->hasMaxCharacters(16)->isPrintable()
-//            ->select($this->getAlternateValidationField('mode'), true)->isMode()
-//            ->select($this->getAlternateValidationField('icon'), true)->isUrl()
-//            ->select($this->getAlternateValidationField('title'), true)->hasMaxCharacters(255)->isPrintable()
-//            ->select($this->getAlternateValidationField('message'), true)->isOptional()->hasMaxCharacters(65_530)->isPrintable()
-//            ->select($this->getAlternateValidationField('details'), true)->isOptional()->hasMaxCharacters(65_530)
-//            ->select($this->getAlternateValidationField('priority'), true)->isOptional(0)->isMoreThan(1, true)->isLessThan(9, true)
-//            ->select($this->getAlternateValidationField('url'), true)->isOptional()->isUrl()
-//            ->select($this->getAlternateValidationField('file'), true)->isOptional()->isFile()
-//            ->select($this->getAlternateValidationField('line'), true)->isOptional()->isPositive()
-//            ->select($this->getAlternateValidationField('trace'), true)->isOptional()->hasMaxCharacters(65_530)->isJson()
-//            ->noArgumentsLeft($no_arguments_left)
-//            ->validate();
-//
-//        // Ensure the name doesn't exist yet as it is a unique identifier
-//        if ($data['name']) {
-//            static::notExists($data['name'], $this->getId(), true);
-//        }
+                ->setSize(12)
+                ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->isJson();
+                }))
+            ->get('status')->setDefault('UNREAD');
     }
 }

@@ -7,6 +7,7 @@ namespace Phoundation\Data\DataEntry\Traits;
 use Phoundation\Core\Locale\Language\Language;
 use Phoundation\Exception\OutOfBoundsException;
 
+
 /**
  * Trait DataEntryLanguage
  *
@@ -14,7 +15,7 @@ use Phoundation\Exception\OutOfBoundsException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 trait DataEntryLanguage
@@ -33,18 +34,12 @@ trait DataEntryLanguage
     /**
      * Sets the languages_id for this object
      *
-     * @param string|int|null $languages_id
+     * @param int|null $languages_id
      * @return static
      */
-    public function setLanguagesId(string|int|null $languages_id): static
+    public function setLanguagesId(?int $languages_id): static
     {
-        if ($languages_id and !is_natural($languages_id)) {
-            throw new OutOfBoundsException(tr('Specified languages_id ":id" is not a natural number', [
-                ':id' => $languages_id
-            ]));
-        }
-
-        return $this->setDataValue('languages_id', get_null(isset_get_typed('integer', $languages_id)));
+        return $this->setDataValue('languages_id', $languages_id);
     }
 
 
@@ -66,23 +61,47 @@ trait DataEntryLanguage
 
 
     /**
-     * Sets the languages_id for this user
+     * Returns the languages_name for this user
      *
-     * @param Language|string|int|null $language
+     * @return string|null
+     */
+    public function getLanguagesName(): ?string
+    {
+        return $this->getDataValue('string', 'languages_name');
+    }
+
+
+    /**
+     * Sets the languages_name for this user
+     *
+     * @param string|null $languages_name
      * @return static
      */
-    public function setLanguage(Language|string|int|null $language): static
+    public function setLanguagesName(?string $languages_name): static
     {
-        if ($language) {
-            if (!is_numeric($language)) {
-                $language = Language::get($language);
-            }
+        return $this->setDataValue('languages_name', $languages_name);
+    }
 
-            if (is_object($language)) {
-                $language = $language->getId();
-            }
-        }
 
-        return $this->setLanguagesId(get_null($language));
+    /**
+     * Returns the languages_code for this user
+     *
+     * @return string|null
+     */
+    public function getLanguagesCode(): ?string
+    {
+        return $this->getDataValue('string', 'languages_code');
+    }
+
+
+    /**
+     * Sets the languages_code for this user
+     *
+     * @param string|null $languages_code
+     * @return static
+     */
+    public function setLanguagesCode(?string $languages_code): static
+    {
+        return $this->setDataValue('languages_code', $languages_code);
     }
 }

@@ -11,10 +11,13 @@ use Phoundation\Core\Meta\Meta;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
+use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Commands\Wget;
+use Stringable;
 use Throwable;
+
 
 /**
  * Import class
@@ -23,7 +26,7 @@ use Throwable;
  * @note See http://download.geonames.org/export/dump/readme.txt
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation/Geo
  */
 class Import extends \Phoundation\Developer\Project\Import
@@ -57,25 +60,39 @@ class Import extends \Phoundation\Developer\Project\Import
      *       https://www.maxmind.com/en/accounts/YOUR_ACCOUNT_ID/license-key and configured in the configuration path
      *       geo.ip.max-mind.api-key
      *
-     * @return string
+     * @param string|null $path
+     * @param RestrictionsInterface|array|string|null $restrictions
+     * @return Path
      */
-    public static function download(): string
+    public static function download(string $path = null, RestrictionsInterface|array|string|null $restrictions = null): Path
     {
-        $wget = Wget::new();
-        $path = $wget->getProcess()->setExecutionPathToTemp()->getExecutionPath();
+        // Default restrictions are default path writable
+        $path         = $path ?? PATH_DATA . 'sources/geo';
+        $restrictions = $restrictions ?? new Restrictions(PATH_DATA . 'sources/geo', true);
 
-        Log::action(tr('Storing Geo files in path ":path"', [':path' => $path]));
+        // Ensure target path can be written and is non-existent
+        $path = Path::new($path, $restrictions)
+            ->ensureWritable()
+            ->delete();
 
-        foreach (self::getGeoNamesFiles() as $file => $data) {
+        $wget     = Wget::new();
+        $tmp_path = $wget->getProcess()->setExecutionPathToTemp()->getExecutionPath();
+
+        Log::action(tr('Downloading Geo files to temporary path ":path"', [':path' => $tmp_path]));
+
+        foreach (static::getGeoNamesFiles() as $file => $data) {
             Log::action(tr('Downloading GeoNames URL ":url"', [':url' => $data['url']]));
 
-            // Disable timeout on this download as the file is hundreds of megabytes. This would typically takes seconds to minutes, but
-            $wget->getProcess()->setTimeout(0);
-            $wget
-                ->setSource($data['url'])
-                ->setTarget($file)
-                ->execute();
+            // Set timeout to two hours for this download as the file is hundreds of megabytes. Depending on internet
+            // connection, this can take anywhere from seconds to minutes to an hour
+            $wget->getProcess()->setTimeout(7200);
+            $wget->setSource($data['url'])
+                 ->setTarget($file)
+                 ->execute();
         }
+
+        Log::action(tr('Moving Geo files to target path ":path"', [':path' => $path]));
+        $tmp_path->move($path);
 
         return $path;
     }
@@ -84,19 +101,16 @@ class Import extends \Phoundation\Developer\Project\Import
     /**
      * Process downloaded Geo files
      *
-     * @param string $source_path
-     * @param string|null $target_path
+     * @param Stringable|string $source_path
+     * @param Stringable|string|null $target_path
      * @return string
      */
-    public static function process(string $source_path, ?string $target_path = null, Restrictions|array|string|null $restrictions = null): string
+    public static function process(Stringable|string $source_path, Stringable|string|null $target_path = null, RestrictionsInterface|array|string|null $restrictions = null): string
     {
-        if (!$restrictions) {
-            $restrictions = Restrictions::new(PATH_DATA, true);
-        }
-
         // Determine what target path to use
-        $target_path = Config::getString('geo.geonames.path', PATH_DATA . 'sources/geo/geonames/', $target_path);
-        $target_path = Filesystem::absolute($target_path, PATH_ROOT, false);
+        $restrictions = $restrictions ?? Restrictions::new(PATH_DATA, true);
+        $target_path  = Config::getString('geo.geonames.path', PATH_DATA . 'sources/geo/geonames/', $target_path);
+        $target_path  = Filesystem::absolute($target_path, PATH_ROOT, false);
 
         Path::new($target_path, $restrictions)->ensure();
         Log::action(tr('Processing GeoNames Geo files and moving to path ":path"', [':path' => $target_path]));
@@ -107,7 +121,7 @@ class Import extends \Phoundation\Developer\Project\Import
             $previous = Path::new($target_path, $restrictions)->move(PATH_DATA . 'garbage/');
 
             // Prepare and import each file
-            foreach (self::getGeoNamesFiles() as $file => $data) {
+            foreach (static::getGeoNamesFiles() as $file => $data) {
                 Log::action(tr('Processing GeoNames file ":file"', [':file' => $file]));
 
                 if (str_ends_with($file, '.zip')) {
@@ -139,7 +153,7 @@ class Import extends \Phoundation\Developer\Project\Import
             throw $e;
         }
 
-        self::load($target_path);
+        static::load($target_path);
         return $target_path;
     }
 
@@ -454,9 +468,10 @@ return;
     /**
      * Import the geonames data from the specified database
      *
+     * @param string|null $database
      * @return void
      */
-    public static function import(?string $database = null): void
+    public static function import(string $database = null): void
     {
         if (!$database) {
             $database = 'geonames';

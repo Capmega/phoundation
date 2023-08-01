@@ -15,7 +15,7 @@ use Phoundation\Web\Http\Html\Renderer;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\Mdb
  */
 class Icons extends Renderer
@@ -37,13 +37,13 @@ class Icons extends Renderer
      */
     public function render(): ?string
     {
-        $content = $this->element->getContent();
+        $content = $this->render_object->getContent();
 
         if (preg_match('/[a-z0-9-_]*]/i', $content)) {
             // icon names should only have letters, numbers and dashes and underscores
             return $content;
         }
 
-        return '<i class="fas fa-' . $content . ($this->element->getTier()->value ? ' fa-' . $this->element->getTier()->value : '') .'"></i>';
+        return '<i class="fas fa-' . $content . ($this->render_object->getTier()->value ? ' fa-' . $this->render_object->getTier()->value : '') .'"></i>';
     }
 }

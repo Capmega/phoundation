@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Core;
 
 use JetBrains\PhpStorm\NoReturn;
@@ -16,7 +18,7 @@ use Phoundation\Exception\OutOfBoundsException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
 class ProcessControlSignals
@@ -41,7 +43,7 @@ class ProcessControlSignals
      */
     protected function __construct()
     {
-        self::init();
+        static::init();
     }
 
 
@@ -52,11 +54,11 @@ class ProcessControlSignals
      */
     public static function getInstance(): static
     {
-        if (!isset(self::$instance)) {
-            self::$instance = new static();
+        if (!isset(static::$instance)) {
+            static::$instance = new static();
         }
 
-        return self::$instance;
+        return static::$instance;
     }
 
 
@@ -71,9 +73,9 @@ class ProcessControlSignals
      */
     public static function setSignal(int $signal, string $name, ?int $exit_code, callable $callback): void
     {
-        self::getInstance();
+        static::getInstance();
 
-        self::$signals[$signal] = [
+        static::$signals[$signal] = [
             'name'      => $name,
             'exit_code' => $exit_code,
             'callback'  => $callback,
@@ -89,10 +91,10 @@ class ProcessControlSignals
      */
     public static function getSignal(int $signal): ?array
     {
-        self::getInstance();
+        static::getInstance();
 
-        if (array_key_exists($signal, self::$signals)) {
-            return self::$signals[$signal];
+        if (array_key_exists($signal, static::$signals)) {
+            return static::$signals[$signal];
         }
 
         return null;
@@ -109,17 +111,17 @@ class ProcessControlSignals
     public static function execute(int $signal, mixed $info = null): void
     {
         Log::warning(tr('Received process signal ":signal"', [':signal' => $signal]), 10);
-        self::getInstance();
+        static::getInstance();
 
-        if (!array_key_exists($signal, self::$signals)) {
+        if (!array_key_exists($signal, static::$signals)) {
             throw new OutOfBoundsException(tr('Unknown process signal ":signal" received', [
                 ':signal' => $signal
             ], $info));
         }
 
-        if (self::$signals[$signal]['callback']) {
+        if (static::$signals[$signal]['callback']) {
             // Only execute callbacks if defined
-            self::$signals[$signal]['callback'](self::$signals[$signal]['name'], $info, self::$signals[$signal]['exit_code']);
+            static::$signals[$signal]['callback'](static::$signals[$signal]['name'], $info, static::$signals[$signal]['exit_code']);
         }
     }
 
@@ -157,15 +159,15 @@ class ProcessControlSignals
      */
     protected function init(): void
     {
-        if (isset(self::$signals)) {
+        if (isset(static::$signals)) {
             return;
         }
 
         $default_handler = function (string $signal, mixed $info, int $exit_code) {
-            self::dumpTerminate($signal, $info, $exit_code);
+            static::dumpTerminate($signal, $info, $exit_code);
         };
 
-        self::$signals = [
+        static::$signals = [
             // The SIGKILL signal is sent to a process to cause it to terminate immediately (kill). In contrast to SIGTERM and SIGINT, this signal cannot be caught or ignored, and the receiving process cannot perform any clean-up upon receiving this signal. The following exceptions apply:,
             // Zombie processes cannot be killed since they are already dead and waiting for their parent processes to reap them.
             // Processes that are in the blocked state will not die until they wake up again.

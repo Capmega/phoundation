@@ -14,7 +14,7 @@ use Phoundation\Exception\OutOfBoundsException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 trait DataEntryCode
@@ -41,13 +41,6 @@ trait DataEntryCode
      */
     public function setCode(?string $code): static
     {
-        // Ensure that "code" is never seen as numeric!
-        if (is_numeric($code)) {
-            throw new OutOfBoundsException(tr('Specified code ":code" is numeric, code column must be non numeric', [
-                ':code' => $code
-            ]));
-        }
-
         return $this->setDataValue('code', $code);
     }
 }

@@ -6,8 +6,6 @@ namespace Phoundation\Data\Interfaces;
 
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Meta\Meta;
-use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
 use Phoundation\Date\DateTime;
 use Phoundation\Web\Http\Html\Components\DataEntryForm;
 
@@ -121,14 +119,7 @@ interface InterfaceDataEntry
      *
      * @return string
      */
-    static function getTable(): string;
-
-    /**
-     * Returns the definitions for the fields in this table
-     *
-     * @return DataEntryFieldDefinitionsInterface
-     */
-    static function getFieldDefinitions(): DataEntryFieldDefinitionsInterface;
+    function getTable(): string;
 
     /**
      * Returns true if this is a new entry that hasn't been written to the database yet
@@ -266,11 +257,11 @@ interface InterfaceDataEntry
     /**
      * Sets the value for the specified data key
      *
-     * @param string $field
+     * @param string $key
      * @param mixed $value
      * @return static
      */
-    function addDataValue(string $field, mixed $value): static;
+    function addDataValue(string $key, mixed $value): static;
 
     /**
      * Will save the data from this data entry to database
@@ -299,9 +290,9 @@ interface InterfaceDataEntry
     /**
      * Modify the form keys
      *
-     * @param string $field
+     * @param string $form_key
      * @param array $settings
      * @return static
      */
-    function modifyDefinitions(string $field, array $settings): static;
+    function modifyKeys(string $form_key, array $settings): static;
  }

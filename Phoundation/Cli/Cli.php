@@ -7,8 +7,9 @@ namespace Phoundation\Cli;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
-use Phoundation\Data\Classes\Iterator;
+use Phoundation\Data\Iterator;
 use Phoundation\Exception\OutOfBoundsException;
+
 
 /**
  * Cli\Cli class
@@ -17,7 +18,7 @@ use Phoundation\Exception\OutOfBoundsException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Cli
  */
 class Cli
@@ -109,7 +110,7 @@ class Cli
     {
         if (is_object($source)) {
             // This is an Iterator object, get the array source
-            $source = $source->getList();
+            $source = $source->getSource();
         }
 
         if (!is_natural($column_spacing)) {

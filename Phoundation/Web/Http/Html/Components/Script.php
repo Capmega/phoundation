@@ -11,7 +11,7 @@ use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
-use Phoundation\Web\Http\Html\Components\Input\Select;
+use Phoundation\Web\Http\Html\Components\Input\InputSelect;
 use Phoundation\Web\Http\Html\Enums\AttachJavascript;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
 use Phoundation\Web\Page;
@@ -26,9 +26,9 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
- * @see Select
+ * @see InputSelect
  */
 class Script extends Element
 {
@@ -366,7 +366,9 @@ class Script extends Element
                             break;
 
                         default:
-                            throw new HtmlException(tr('html_script(): Unknown event value ":value" specified', array(':value' => $script['event'])), 'unknown');
+                            throw new HtmlException(tr('Unknown event value ":value" specified', [
+                                ':value' => $script['event']
+                            ]));
                     }
 
                 } else {

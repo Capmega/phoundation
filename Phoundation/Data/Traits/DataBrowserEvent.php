@@ -6,6 +6,7 @@ namespace Phoundation\Data\Traits;
 
 use Phoundation\Web\Http\Html\Enums\BrowserEvent;
 
+
 /**
  * Trait DataEvent
  *
@@ -13,7 +14,7 @@ use Phoundation\Web\Http\Html\Enums\BrowserEvent;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 trait DataBrowserEvent

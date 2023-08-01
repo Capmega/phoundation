@@ -6,10 +6,11 @@ declare(strict_types=1);
 namespace Templates\Mdb\Html\Components;
 
 use Phoundation\Web\Http\Html\Components\Img;
+use Phoundation\Web\Http\Html\Components\Modals\SignInModal;
 use Phoundation\Web\Http\Html\Html;
-use Phoundation\Web\Http\Html\Modals\SignInModal;
 use Phoundation\Web\Http\Html\Renderer;
 use Phoundation\Web\Http\UrlBuilder;
+
 
 /**
  * MDB Plugin TopPanel class
@@ -18,7 +19,7 @@ use Phoundation\Web\Http\UrlBuilder;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\Mdb
  */
 class TopPanel extends Renderer
@@ -29,7 +30,7 @@ class TopPanel extends Renderer
     public function __construct(\Phoundation\Web\Http\Html\Components\TopPanel $element)
     {
         $element->getModals()->setRequired('sign-in');
-        $element->getModals()->add('sign-in', SignInModal::new());
+        $element->getModals()->addModal('sign-in', SignInModal::new());
         parent::__construct($element);
     }
 
@@ -71,7 +72,7 @@ class TopPanel extends Renderer
                                         ])
                                         ->render(). '
                                   </a>
-                                  ' . $this->element->getMenu()->render() . '
+                                  ' . $this->render_object->getMenu()->render() . '
                                 </div>
                                 <!-- Collapsible wrapper -->
                             
@@ -110,7 +111,7 @@ class TopPanel extends Renderer
                                       </li>
                                     </ul>
                                   </div>
-                                  ' . $this->element->getProfileImage()->render() . '
+                                  ' . $this->render_object->getProfileImage()->render() . '
                                 </div>
                                 <!-- Right elements -->
                               </div>
@@ -118,7 +119,7 @@ class TopPanel extends Renderer
                             </nav>
                             <!-- Navbar -->';
 
-        $this->render .= $this->element->getModals()->render() . PHP_EOL;
+        $this->render .= $this->render_object->getModals()->render() . PHP_EOL;
 
         return parent::render();
     }

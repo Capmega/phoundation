@@ -7,6 +7,7 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Seo\Seo;
 
+
 /**
  * Trait DataEntryHostnamePort
  *
@@ -14,7 +15,7 @@ use Phoundation\Seo\Seo;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 trait DataEntryHostnamePort
@@ -52,7 +53,7 @@ trait DataEntryHostnamePort
         if ($hostname === null) {
             $this->setDataValue('seo_hostname', null);
         } else {
-            $seo_hostname = Seo::unique($hostname, static::getTable(), $this->getDataValue('int', 'id'), $this->unique_field);
+            $seo_hostname = Seo::unique($hostname, static::getTable(), $this->getDataValue('int', 'id'), static::getUniqueField());
             $this->setDataValue('seo_hostname', $seo_hostname);
         }
 

@@ -7,6 +7,8 @@ namespace Phoundation\Data\Validator;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\Exception\ValidatorException;
+use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 
 
 /**
@@ -18,7 +20,7 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
 class PostValidator extends Validator
@@ -40,9 +42,9 @@ class PostValidator extends Validator
      * @note Keys that do not exist in $data that are validated will automatically be created
      * @note Keys in $data that are not validated will automatically be removed
      *
-     * @param Validator|null $parent If specified, this is actually a child validator to the specified parent
+     * @param ValidatorInterface|null $parent If specified, this is actually a child validator to the specified parent
      */
-    public function __construct(?Validator $parent = null) {
+    protected function __construct(?ValidatorInterface $parent = null) {
         $this->construct($parent, static::$post);
     }
 
@@ -50,10 +52,10 @@ class PostValidator extends Validator
     /**
      * Returns a new $_POST data Validator object
      *
-     * @param Validator|null $parent
-     * @return static
+     * @param ValidatorInterface|null $parent
+     * @return PostValidator
      */
-    public static function new(?Validator $parent = null): static
+    public static function new(?ValidatorInterface $parent = null): PostValidator
     {
         return new static($parent);
     }
@@ -92,13 +94,26 @@ class PostValidator extends Validator
             return $this;
         }
 
-        if (empty(static::$post)) {
+        if (count($this->selected_fields) === count(static::$post)) {
             return $this;
         }
 
-        throw ValidationFailedException::new(tr('Invalid POST fields ":arguments" encountered', [
-            ':arguments' => Strings::force(static::$post, ', ')
-        ]))->makeWarning();
+        $messages = [];
+        $fields   = [];
+        $post     = array_keys(static::$post);
+
+        foreach ($post as $field) {
+            if (!in_array($field, $this->selected_fields)) {
+                $fields[]   = $field;
+                $messages[] = tr('Unknown field ":field" encountered', [
+                    ':field' => $field
+                ]);
+            }
+        }
+
+        throw ValidatorException::new(tr('Unknown POST fields ":fields" encountered', [
+            ':fields' => Strings::force($fields, ', ')
+        ]))->setData($messages)->makeWarning()->log();
     }
 
 
@@ -116,33 +131,37 @@ class PostValidator extends Validator
 
 
     /**
-     * Validate GET data and liberate GET data if all went well.
+     * Returns the submitted array keys
      *
-     * @return array
+     * @return array|null
      */
-    public function validate(): array
+    public static function getKeys(): ?array
     {
-        try {
-            parent::validate();
-            return $this->liberateData();
-
-        } catch (ValidationFailedException $e) {
-            // Failed data will have been filtered, liberate data!
-            $this->liberateData();
-            throw $e;
-        }
+        return array_keys(static::$post);
     }
 
 
     /**
      * Force a return of all POST data without check
      *
+     * @param string|null $prefix
      * @return array|null
      */
-    public static function extract(): ?array
+    public function &getSource(?string $prefix = null): ?array
     {
-        Log::warning(tr('Liberated all $_POST data without data validation!'));
-        return static::$post;
+        if (!$prefix) {
+            return $this->source;
+        }
+
+        $return = [];
+
+        foreach ($this->source as $key => $value) {
+            if (str_starts_with($key, $prefix)) {
+                $return[Strings::from($key, $prefix)] = $value;
+            }
+        }
+
+        return $return;
     }
 
 
@@ -151,10 +170,10 @@ class PostValidator extends Validator
      *
      * @return array
      */
-    public static function extractKey(string $key): mixed
+    public function getSourceKey(string $key): mixed
     {
-        Log::warning(tr('Liberated $_POST[:key] without data validation!', [':key' => $key]));
-        return isset_get(static::$post[$key]);
+        Log::warning(tr('Forceably returned $_POST[:key] without data validation!', [':key' => $key]));
+        return isset_get($this->source[$key]);
     }
 
 
@@ -174,11 +193,28 @@ class PostValidator extends Validator
      * Return the submit method
      *
      * @param string $submit
+     * @param bool $prefix
      * @return string|null
      */
-    public static function getSubmitButton(string $submit = 'submit'): ?string
+    public static function getSubmitButton(string $submit = 'submit', bool $prefix = false, bool $return_key = false): ?string
     {
-        $button = trim((string) isset_get(self::$post[$submit]));
+        if ($prefix) {
+            // Find the specified prefix code for the button
+            $prefix = $submit;
+            $button = null;
+
+            foreach (self::$post as $key => $value) {
+                if (str_ends_with($key, $submit)) {
+                    $submit = $key;
+                    $button = trim((string) $value);
+                    break;
+                }
+            }
+
+        } else {
+            // Button must be an exact match
+            $button = trim((string) isset_get(self::$post[$submit]));
+        }
 
         unset(self::$post[$submit]);
 
@@ -187,27 +223,15 @@ class PostValidator extends Validator
         }
 
         if ((strlen($button) > 32) or !ctype_print($button)) {
-            throw new ValidationFailedException(tr('Invalid submit button specified'), [
+            throw ValidationFailedException::new(tr('Invalid submit button specified'))->setData([
                 'submit' => tr('The specified submit button is invalid'),
             ]);
         }
 
+        if ($return_key) {
+            return Strings::until($submit, $prefix);
+        }
+
         return $button;
-    }
-
-
-    /**
-     * Gives free and full access to $_POST data, now that it has been validated
-     *
-     * @return array
-     */
-    protected function liberateData(): array
-    {
-        global $_POST;
-
-        $_POST = static::$post;
-        static::$post = null;
-
-        return $_POST;
     }
 }

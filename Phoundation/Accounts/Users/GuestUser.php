@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Users;
 
-use Phoundation\Data\Interfaces\InterfaceDataEntry;
+use Phoundation\Accounts\Users\Interfaces\GuestUserInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 
 
 /**
@@ -14,20 +15,23 @@ use Phoundation\Data\Interfaces\InterfaceDataEntry;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
-class GuestUser extends User
+class GuestUser extends User implements GuestUserInterface
 {
     /**
      * GuestUser class constructor
      *
-     * @param InterfaceDataEntry|string|int|null $identifier
+     * @param DataEntryInterface|string|int|null $identifier
+     * @param string|null $column
      */
-    public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null)
     {
-        parent::__construct(null);
-        $this->id = -1;
+        parent::__construct($identifier, $column);
+
+        $this->source['email'] = 'guest';
+        $this->setValidate(false);
         $this->setNickname('Guest');
     }
 }

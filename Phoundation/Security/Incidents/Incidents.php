@@ -4,8 +4,13 @@ declare(strict_types=1);
 
 namespace Phoundation\Security\Incidents;
 
+use PDOStatement;
 use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
+use Phoundation\Servers\Server;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
+
 
 /**
  * Class Incidents
@@ -16,53 +21,70 @@ use Phoundation\Security\Incidents\Exception\IncidentsException;
  * @see \Phoundation\Data\DataEntry\DataList
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Security
  */
 class Incidents extends DataList
 {
     /**
      * Incidents class constructor
-     *
-     * @param Incident|null $parent
-     * @param string|null $id_column
      */
-    public function __construct(?Incident $parent = null, ?string $id_column = null)
+    public function __construct()
     {
-        $this->entry_class = Incident::class;
-        self::$table       = Incident::getTable();
-
-        $this->setHtmlQuery('SELECT   `id`, `type`, `severity`, `title` 
+        $this->setQuery('SELECT   `id`, `type`, `severity`, `title` 
                                    FROM     `security_incidents` 
                                    WHERE    `status` IS NULL 
                                    ORDER BY `created_on` DESC');
-        parent::__construct($parent, $id_column);
+        parent::__construct();
     }
 
 
     /**
-     * @inheritDoc
+     * Returns the table name used by this object
+     *
+     * @return string
      */
-    protected function load(string|int|null $id_column = null): static
+    public static function getTable(): string
     {
-        // TODO: Implement load() method.
+        return 'security_incidents';
     }
 
 
     /**
-     * @inheritDoc
+     * Returns the name of this DataEntry class
+     *
+     * @return string
      */
-    protected function loadDetails(array|string|null $columns, array $filters = []): array
+    public static function getEntryClass(): string
     {
-        // TODO: Implement loadDetails() method.
+        return Incident::class;
     }
 
 
     /**
-     * @inheritDoc
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
      */
-    public function save(): static
+    public static function getUniqueField(): ?string
     {
-        // TODO: Implement save() method.
+        return 'code';
+    }
+
+
+    /**
+     * Returns an HTML <select> for the available object entries
+     *
+     * @param string $value_column
+     * @param string $key_column
+     * @param string|null $order
+     * @return SelectInterface
+     */
+    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id', ?string $order = null): SelectInterface
+    {
+        return parent::getHtmlSelect($value_column, $key_column, $order)
+            ->setName('incidents_id')
+            ->setNone(tr('Select an incident'))
+            ->setEmpty(tr('No incidents available'));
     }
 }

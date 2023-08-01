@@ -21,7 +21,7 @@ use Stringable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
 class Img extends Element
@@ -153,10 +153,10 @@ class Img extends Element
     /**
      * Sets the HTML src element attribute
      *
-     * @param File|Stringable|string|null $src
+     * @param Stringable|string|null $src
      * @return Img
      */
-    public function setSrc(File|Stringable|string|null $src): static
+    public function setSrc(Stringable|string|null $src): static
     {
 //        // Get a built src string. If $built_src is equal to specified $src then it wasn't changed and so it's an
 //        $domain         = Url::getDomain($src);
@@ -205,10 +205,6 @@ class Img extends Element
 //            $file_src = '/pub'.Strings::startsWith($src, '/');
 //            $src      = UrlBuilder::getImg($src);
 //        }
-
-        if (is_object($src)) {
-            $src = $src->getFile();
-        }
 
         $this->src = UrlBuilder::getImg($src);
         return $this;
@@ -343,20 +339,20 @@ class Img extends Element
 //                notify(array('code'    => 'not-specified',
 //                    'groups'  => 'developers',
 //                    'title'   => tr('No image src specified'),
-//                    'message' => tr('html_img(): No src for image with alt text ":alt"', array(':alt' => $params['alt']))));
+//                    'message' => tr('No src for image with alt text ":alt"', [':alt' => $params['alt']])));
 //                return '';
 //            }
 //
-//            throw new CoreException(tr('html_img(): No src for image with alt text ":alt"', array(':alt' => $params['alt'])), 'no-image');
+//            throw new CoreException(tr('No src for image with alt text ":alt"', [':alt' => $params['alt']]));
 //        }
 //
 //        if (!Debug::production()) {
 //            if (!$params['src']) {
-//                throw new CoreException(tr('html_img(): No image src specified'), 'not-specified');
+//                throw new CoreException(tr('No image src specified'));
 //            }
 //
 //            if (!$params['alt']) {
-//                throw new CoreException(tr('html_img(): No image alt text specified for src ":src"', array(':src' => $params['src'])), 'not-specified');
+//                throw new CoreException(tr('No image alt text specified for src ":src"', [':src' => $params['src']]));
 //            }
 //
 //        } else {
@@ -821,7 +817,7 @@ class Img extends Element
 //                                break;
 //
 //                            default:
-//                                throw new CoreException(tr('html_img(): Unknown lazy_img option ":key" specified. Please check the $_CONFIG[lazy_img] configuration!', array(':key' => $key)), 'unknown');
+//                                throw new CoreException(tr('Unknown lazy_img option ":key" specified. Please check the $_CONFIG[lazy_img] configuration!', [':key' => $key]));
 //                        }
 //                    }
 //

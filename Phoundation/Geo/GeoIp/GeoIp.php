@@ -10,6 +10,8 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Geo\GeoIp\Exception\GeoIpException;
+use Throwable;
 
 
 /**
@@ -19,7 +21,7 @@ use Phoundation\Exception\UnderConstructionException;
  * @note See https://linklyhq.com/blog/list-of-5-free-geoip-databases-2020
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation/Geo
  */
 class GeoIp
@@ -40,7 +42,14 @@ class GeoIp
      */
     public static function detect(?string $ip_address): ?static
     {
-        return self::getProvider()?->detect($ip_address);
+        try {
+            return static::getProvider()?->detect($ip_address);
+
+        } catch (Throwable $e) {
+            throw new GeoIpException(tr('Failed to detect Geo location from IP ":ip"', [
+                ':ip' => $ip_address
+            ]), $e);
+        }
     }
 
 
@@ -104,7 +113,7 @@ class GeoIp
      * @param string|null $ip_address
      * @return static
      */
-    public function setIpAddress(string|null $ip_address): static
+    public function setIpAddress(?string $ip_address): static
     {
         $this->ip_address = $ip_address;
         return $this;

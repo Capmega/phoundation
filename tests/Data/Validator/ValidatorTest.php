@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Data\Validator;
 
 use Phoundation\Data\Validator\Exception\ValidatorException;

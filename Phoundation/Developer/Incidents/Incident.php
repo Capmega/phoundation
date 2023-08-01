@@ -5,16 +5,18 @@ declare(strict_types=1);
 namespace Phoundation\Developer\Incidents;
 
 use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\DataEntryFieldDefinition;
-use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
+use Phoundation\Data\DataEntry\Definitions\Definition;
+use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
+use Phoundation\Data\DataEntry\Definitions\Definitions;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryDetails;
 use Phoundation\Data\DataEntry\Traits\DataEntryException;
 use Phoundation\Data\DataEntry\Traits\DataEntryTitle;
 use Phoundation\Data\DataEntry\Traits\DataEntryType;
 use Phoundation\Data\DataEntry\Traits\DataEntryUrl;
-use Phoundation\Data\Interfaces\InterfaceDataEntry;
+use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 
 
 /**
@@ -25,7 +27,7 @@ use Phoundation\Data\Interfaces\InterfaceDataEntry;
  * @see \Phoundation\Data\DataEntry\DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Developer
  */
 class Incident extends DataEntry
@@ -36,19 +38,6 @@ class Incident extends DataEntry
     use DataEntryTitle;
     use DataEntryType;
     use DataEntryUrl;
-
-
-    /**
-     * Plugin class constructor
-     *
-     * @param InterfaceDataEntry|string|int|null $identifier
-     */
-    public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
-    {
-        static::$entry_name  = 'incident';
-
-        parent::__construct($identifier);
-    }
 
 
     /**
@@ -63,54 +52,63 @@ class Incident extends DataEntry
 
 
     /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getDataEntryName(): string
+    {
+        return 'incident';
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return 'code';
+    }
+
+
+    /**
      * Sets the available data keys for this entry
      *
-     * @return DataEntryFieldDefinitions
+     * @return Definitions
      */
-    protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
+    protected function initDefinitions(DefinitionsInterface $definitions): void
     {
-        return DataEntryFieldDefinitions::new('developer_incidents')
-            ->add(DataEntryFieldDefinition::new('type')
+        $definitions
+            ->addDefinition(Definition::new($this, 'type')
                 ->setReadonly(true)
                 ->setLabel('Type')
                 ->setSize(6)
                 ->setMaxlength(255)
-                ->setValidationFunction(function ($validator) {
+                ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isName(16);
                 }))
-            ->add(DataEntryFieldDefinition::new('title')
-                ->setReadonly(true)
-                ->setLabel('Title')
-                ->setSize(6)
-                ->setMaxlength(255)
-                ->setValidationFunction(function ($validator) {
-                    $validator->hasMaxCharacters(255)->isPrintable();
-                }))
-            ->add(DataEntryFieldDefinition::new('url')
+            ->addDefinition(DefinitionFactory::getTitle($this)
+                ->setSize(6))
+            ->addDefinition(Definition::new($this, 'url')
                 ->setReadonly(true)
                 ->setLabel('URL')
                 ->setSize(12)
                 ->setMaxlength(2048)
-                ->setValidationFunction(function ($validator) {
+                ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isUrl();
                 }))
-            ->add(DataEntryFieldDefinition::new('description')
-                ->setOptional(true)
-                ->setLabel('Description')
-                ->setSize(12)
-                ->setMaxlength(255)
-                ->setValidationFunction(function ($validator) {
-                    $validator->isDescription();
-                }))
-            ->add(DataEntryFieldDefinition::new('exception')
+            ->addDefinition(DefinitionFactory::getDescription($this))
+            ->addDefinition(Definition::new($this, 'exception')
                 ->setReadonly(true)
                 ->setLabel('Exception')
                 ->setSize(12)
                 ->setMaxlength(16_777_200)
-                ->setValidationFunction(function ($validator) {
+                ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isPrintable();
                 }))
-            ->add(DataEntryFieldDefinition::new('data')
+            ->addDefinition(Definition::new($this, 'data')
                 ->setReadonly(true)
                 ->setElement('text')
                 ->setLabel('Data')

@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Data\Categories\Category;
+use Phoundation\Data\Categories\Interfaces\CategoryInterface;
 use Phoundation\Exception\OutOfBoundsException;
+
 
 /**
  * Trait DataEntryCategory
@@ -14,7 +16,7 @@ use Phoundation\Exception\OutOfBoundsException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 trait DataEntryCategory
@@ -33,32 +35,26 @@ trait DataEntryCategory
     /**
      * Sets the categories_id for this object
      *
-     * @param string|int|null $categories_id
+     * @param int|null $categories_id
      * @return static
      */
-    public function setCategoriesId(string|int|null $categories_id): static
+    public function setCategoriesId(?int $categories_id): static
     {
-        if ($categories_id and !is_natural($categories_id)) {
-            throw new OutOfBoundsException(tr('Specified categories_id ":id" is not numeric', [
-                ':id' => $categories_id
-            ]));
-        }
-
-        return $this->setDataValue('categories_id', get_null(isset_get_typed('integer', $categories_id)));
+        return $this->setDataValue('categories_id', $categories_id);
     }
 
 
     /**
-     * Returns the categories_id for this user
+     * Returns the category for this object
      *
-     * @return static|null
+     * @return CategoryInterface|null
      */
-    public function getCategory(): ?static
+    public function getCategory(): ?CategoryInterface
     {
-        $categories_id = $this->getDataValue('string', 'categories_id');
+        $categories_id = $this->getDataValue('int', 'categories_id');
 
         if ($categories_id) {
-            return new static($categories_id);
+            return new Category($categories_id);
         }
 
         return null;
@@ -66,23 +62,24 @@ trait DataEntryCategory
 
 
     /**
-     * Sets the categories_id for this user
+     * Returns the categories_name for this object
      *
-     * @param Category|string|int|null $category
+     * @return string|null
+     */
+    public function getCategoriesName(): ?string
+    {
+        return $this->getDataValue('string', 'categories_name');
+    }
+
+
+    /**
+     * Returns the categories_name for this object
+     *
+     * @param string|null $categories_name
      * @return static
      */
-    public function setCategory(Category|string|int|null $category): static
+    public function setCategoriesName(?string $categories_name): static
     {
-        if ($category) {
-            if (!is_numeric($category)) {
-                $category = static::get($category);
-            }
-
-            if (is_object($category)) {
-                $category = $category->getId();
-            }
-        }
-
-        return $this->setCategoriesId(get_null($category));
+        return $this->setDataValue('categories_name', $categories_name);
     }
 }

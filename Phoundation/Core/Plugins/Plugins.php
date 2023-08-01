@@ -4,12 +4,17 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Plugins;
 
+use PDOStatement;
 use Phoundation\Core\Libraries\Library;
+use Phoundation\Core\Locale\Language\Language;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Path;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 use Throwable;
+
 
 /**
  * Class Plugin
@@ -18,7 +23,7 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
 class Plugins extends DataList
@@ -30,21 +35,50 @@ class Plugins extends DataList
      */
     protected ?array $enabled = null;
 
+
     /**
      * Providers class constructor
-     *
-     * @param Plugin|null $parent
-     * @param string|null $id_column
      */
-    public function __construct(?Plugin $parent = null, ?string $id_column = null)
+    public function __construct()
     {
-        $this->entry_class = Plugin::class;
-        self::$table       = Plugin::getTable();
+        $this->setQuery('SELECT   `id`, `name`, IFNULL(`status`, "' . tr('Ok') . '") AS `status`, IF(`enabled`, "' . tr('Enabled') . '", "' . tr('Disabled') . '") AS `enabled`, `priority`, `description` 
+                               FROM     `core_plugins` 
+                               ORDER BY `name`');
 
-        $this->setHtmlQuery('SELECT   `id`, `name`, COALESCE(`status`, "' . tr('Enabled') . '") AS `status`, IF(`start`, "' . tr('Yes') . '", "' . tr('No') . '") AS `start`, `priority`, `description` 
-                                   FROM     `core_plugins` 
-                                   ORDER BY `name`');
-        parent::__construct($parent, $id_column);
+        parent::__construct();
+    }
+
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'core_plugins';
+    }
+
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getEntryClass(): string
+    {
+        return Plugin::class;
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return 'name';
     }
 
 
@@ -53,8 +87,8 @@ class Plugins extends DataList
      */
     public static function setup(): void
     {
-        self::clear();
-        self::scan();
+        static::clear();
+        static::scan();
     }
 
 
@@ -70,14 +104,15 @@ class Plugins extends DataList
     {
         $count = 0;
 
-        foreach (self::getPlugins() as $name => $class) {
+        foreach (static::scanPlugins() as $name => $class) {
             try {
-                $plugin = $class::new($name);
+                $plugin = $class::new($name, 'name');
 
                 if (!$plugin->getId()) {
                     $plugin->register();
                     $count++;
                 }
+
             } catch (Throwable $e) {
                 Log::warning(tr('Failed to read plugin ":plugin" because of the following exception. Ignoring it.', [
                     ':plugin' => $name
@@ -98,11 +133,20 @@ class Plugins extends DataList
      */
     public static function start(): void
     {
-        foreach (self::getEnabled() as $name => $plugin) {
-            if ($plugin['enabled']) {
-                Log::action(tr('Starting plugin ":plugin"', [':plugin' => $name]), 3);
-                include_once($plugin['path'] . 'Plugin.php');
-                $plugin['class']::start();
+        foreach (static::getEnabled() as $plugin) {
+            try {
+                if ($plugin['enabled']) {
+                    Log::action(tr('Starting plugin ":plugin"', [':plugin' => $plugin['name']]), 9);
+                    include_once(PATH_ROOT . $plugin['path'] . 'Plugin.php');
+                    $plugin['class']::start();
+                }
+
+            } catch (Throwable $e) {
+                Log::error(tr('Failed to start plugin ":plugin" because of next exception', [
+                    ':plugin'=> $plugin['name']
+                ]));
+
+                Log::error($e);
             }
         }
     }
@@ -115,7 +159,7 @@ class Plugins extends DataList
 //     */
 //    public static function startCli(): void
 //    {
-//        foreach (self::getEnabled() as $name => $plugin) {
+//        foreach (static::getEnabled() as $name => $plugin) {
 //            Log::action(tr('Starting CLI on plugin ":plugin"', [':plugin' => $name]), 3);
 //            $plugin['class']::startCli();
 //        }
@@ -130,7 +174,7 @@ class Plugins extends DataList
 //     */
 //    public static function startHttp(): void
 //    {
-//        foreach (self::getEnabled() as $name => $plugin) {
+//        foreach (static::getEnabled() as $name => $plugin) {
 //            Log::action(tr('Starting HTTP on plugin ":plugin"', [':plugin' => $name]));
 //            $plugin['class']::startHttp();
 //        }
@@ -144,19 +188,24 @@ class Plugins extends DataList
      */
     public static function getAvailable(): array
     {
-        $return = sql()->list('SELECT   `id`, `status`, `name`, `enabled`, `priority`, `path`, `class` 
-                                     FROM     `core_plugins` 
-                                     ORDER BY `priority`');
+        $return = sql()->list('SELECT   `id`, 
+                                              `name`, 
+                                              IF(`status` IS NULL, "' . tr('Ok') . '"     , "' . tr('Failed') . '")   AS `status`, 
+                                              IF(`enabled` = 1   , "' . tr('Enabled') . '", "' . tr('Disabled') . '") AS `enabled`, 
+                                              `priority`, 
+                                              `class`, 
+                                              `path`
+                                     FROM     `core_plugins`
+                                     WHERE    `name` != "Phoundation" 
+                                     ORDER BY `priority` ASC');
 
         if (!$return) {
             // Phoundation plugin is ALWAYS enabled
-            return static::getPhoundationPluginEntry();
+            return [static::getPhoundationPluginEntry()];
         }
 
-        if (!array_key_exists('phoundation', $return)) {
-            // Phoundation plugin MUST always exist!
-            $return = array_merge(static::getPhoundationPluginEntry(), $return);
-        }
+        // Push Phoundation plugin to the front of the list
+        array_unshift($return, static::getPhoundationPluginEntry());
 
         return $return;
     }
@@ -169,20 +218,26 @@ class Plugins extends DataList
      */
     public static function getEnabled(): array
     {
-        $return = sql()->list('SELECT   `id`, `status`, `name`, `enabled`, `priority`, `path`, `class` 
+        $return = sql()->list('SELECT   `id`, 
+                                              `name`, 
+                                              IF(`status` IS NULL, "' . tr('Ok') . '"     , "' . tr('Failed') . '")   AS `status`, 
+                                              IF(`enabled` = 1   , "' . tr('Enabled') . '", "' . tr('Disabled') . '") AS `enabled`, 
+                                              `priority`, 
+                                              `class`, 
+                                              `path`
                                      FROM     `core_plugins` 
-                                     WHERE    `status` IS NULL 
+                                     WHERE    `name`    != "Phoundation"
+                                     AND      `status`  IS NULL 
+                                       AND    `enabled` != 0  
                                      ORDER BY `priority` ASC');
 
         if (!$return) {
             // Phoundation plugin is ALWAYS enabled
-            return static::getPhoundationPluginEntry();
+            return [static::getPhoundationPluginEntry()];
         }
 
-        if (!array_key_exists('phoundation', $return)) {
-            // Phoundation plugin MUST always exist!
-            $return = array_merge(static::getPhoundationPluginEntry(), $return);
-        }
+        // Push Phoundation plugin to the front of the list
+        array_unshift($return, static::getPhoundationPluginEntry());
 
         return $return;
     }
@@ -196,26 +251,29 @@ class Plugins extends DataList
     protected static function getPhoundationPluginEntry(): array
     {
         return [
-            0 => [
-                'name'     => 'Phoundation',
-                'path'     => PATH_ROOT . '/Plugins/Phoundation/',
-                'class'    => 'Plugins\Phoundation\Plugin',
-                'enabled'  => true,
-                'status'   => null,
-                'priority' => 0
-            ]
+            'name'     => 'Phoundation',
+            'status'   => tr('Ok'),
+            'enabled'  => tr('Enabled'),
+            'priority' => 0,
+            'class'    => 'Plugins\Phoundation\Plugin',
+            'path'     => 'Plugins/Phoundation/',
         ];
     }
 
 
     /**
-     * Clears all plugins from only the database
+     * Purges all plugins from both database and the PATH_ROOT/Plugins path
      *
-     * @return void
+     * @return static
      */
-    public static function clear(): void
+    public function clear(): static
     {
-        sql()->query('DELETE FROM `core_plugins`');
+        $path = PATH_ROOT . 'Plugins/';
+
+        File::new($path)->delete();
+        Path::new($path)->ensure();
+
+        return parent::clear();
     }
 
 
@@ -224,11 +282,11 @@ class Plugins extends DataList
      *
      * @return void
      */
-    public static function purge(): void
+    public function purge(): void
     {
         $path = PATH_ROOT . 'Plugins/';
 
-        self::clear();
+        static::clear();
         File::new($path)->delete();
         Path::new($path)->ensure();
     }
@@ -239,7 +297,7 @@ class Plugins extends DataList
      *
      * @return array
      */
-    protected static function getPlugins(): array
+    protected static function scanPlugins(): array
     {
         $path    = PATH_ROOT . 'Plugins/';
         $return  = [];
@@ -252,6 +310,11 @@ class Plugins extends DataList
             }
 
             $file = $path . $plugin . '/Plugin.php';
+
+            if ($plugin === 'disabled') {
+                // The "disabled" directory is for disabled plugins, ignore it completely
+                continue;
+            }
 
             // Are these valid plugins? Valid plugins must have name uppercase first letter and upper/lowercase rest,
             // must have Plugin.php file available that is subclass of \Phoundation\Core\Plugin
@@ -293,26 +356,32 @@ class Plugins extends DataList
     /**
      * @inheritDoc
      */
-    protected function load(string|int|null $id_column = null): static
+    public function load(string|int|null $id_column = null): static
     {
-        // TODO: Implement load() method.
+        $this->source = sql()->list('SELECT   `core_plugins`.`id`, `core_plugins`.`name` 
+                                     FROM     `core_plugins` 
+                                     WHERE    `core_plugins`.`status` IS NULL
+                                     ORDER BY `core_plugins`.`name`' . sql()->getLimit());
+
+        // The keys contain the ids...
+        $this->source = array_flip($this->source);
+        return $this;
     }
 
 
     /**
-     * @inheritDoc
+     * Returns an HTML <select> for the available object entries
+     *
+     * @param string $value_column
+     * @param string $key_column
+     * @param string|null $order
+     * @return SelectInterface
      */
-    protected function loadDetails(array|string|null $columns, array $filters = []): array
+    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id', ?string $order = null): SelectInterface
     {
-        // TODO: Implement loadDetails() method.
-    }
-
-
-    /**
-     * @inheritDoc
-     */
-    public function save(): static
-    {
-        // TODO: Implement save() method.
+        return parent::getHtmlSelect($value_column, $key_column, $order)
+            ->setName('plugins_id')
+            ->setNone(tr('Select a plugin'))
+            ->setEmpty(tr('No plugins available'));
     }
 }

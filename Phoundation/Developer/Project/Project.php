@@ -9,6 +9,7 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
+use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Developer\Phoundation\Phoundation;
 use Phoundation\Developer\Project\Exception\EnvironmentExists;
@@ -32,7 +33,7 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package \Phoundation\Developer
  */
 class Project
@@ -294,7 +295,7 @@ class Project
                 ->save();
 
             $user->setPassword($configuration->getPassword(), $configuration->getPassword());
-            $user->roles()->add('god');
+            $user->getRoles()->addRole('god');
 
             Log::success(tr('Finished project setup'));
 
@@ -325,14 +326,12 @@ class Project
     /**
      * Validate the specified project information
      *
-     * @param Validator $validator
-     * @param bool $no_arguments_left
-     * @param bool $modify
+     * @param ValidatorInterface $validator
      * @return array
      */
-    protected function validate(DataValidator $validator, bool $no_arguments_left, bool $modify): array
+    public static function validate(ValidatorInterface $validator): array
     {
-        $validator
+        return $validator
             ->select('admin_email')->isEmail()
             ->select('admin_pass1')->isPassword()
             ->select('admin_pass2')->isPassword()->isEqualTo('admin_pass1')

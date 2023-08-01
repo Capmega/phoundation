@@ -4,17 +4,24 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Users;
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
+use Phoundation\Data\DataEntry\Definitions\Definition;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryIpAddress;
 use Phoundation\Data\DataEntry\Traits\DataEntryTimezone;
 use Phoundation\Data\DataEntry\Traits\DataEntryUserAgent;
-use Phoundation\Data\Interfaces\InterfaceDataEntry;
 use Phoundation\Data\Traits\DataGeoIp;
+use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Geo\Countries\Countries;
+use Phoundation\Geo\GeoIp\Exception\GeoIpException;
 use Phoundation\Geo\GeoIp\GeoIp;
 use Phoundation\Geo\Timezones\Timezones;
+use Phoundation\Web\Http\Html\Enums\InputType;
+use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
+
 
 /**
  * SignIn class
@@ -24,7 +31,7 @@ use Phoundation\Geo\Timezones\Timezones;
  * @see \Phoundation\Data\DataEntry\DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
 class SignIn extends DataEntry
@@ -38,13 +45,12 @@ class SignIn extends DataEntry
     /**
      * SignIn class constructor
      *
-     * @param InterfaceDataEntry|string|int|null $identifier
+     * @param DataEntryInterface|string|int|null $identifier
+     * @param string|null $column
      */
-    public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null)
     {
-        static::$entry_name  = 'signin';
-
-        parent::__construct($identifier);
+        parent::__construct($identifier, $column);
     }
 
 
@@ -60,103 +66,122 @@ class SignIn extends DataEntry
 
 
     /**
-     * Detects signin information automatically
+     * Returns the name of this DataEntry class
      *
-     * @return $this
+     * @return string
+     */
+    public static function getDataEntryName(): string
+    {
+        return 'signin';
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return null;
+    }
+
+
+    /**
+     * Detects sign-in information automatically
+     *
+     * @return static
      */
     public static function detect(): static
     {
-        return SignIn::new()
+        $signin = static::new()
             ->setIpAddress($_SERVER['REMOTE_ADDR'])
-            ->setUserAgent($_SERVER['HTTP_USER_AGENT'])
-            ->setGeoIp(GeoIp::detect($_SERVER['REMOTE_ADDR']));
+            ->setUserAgent($_SERVER['HTTP_USER_AGENT']);
+
+        try {
+            $signin->setGeoIp(GeoIp::detect($_SERVER['REMOTE_ADDR']));
+
+        } catch (GeoIpException $e) {
+            Log::error('Failed to detect GeoIP location information with following exception');
+            Log::error($e);
+        }
+
+        return $signin;
     }
 
 
     /**
      * Sets the available data keys for the User class
      *
-     * @return DataEntryFieldDefinitionsInterface
+     * @param DefinitionsInterface $definitions
      */
-    protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
+    protected function initDefinitions(DefinitionsInterface $definitions): void
     {
-        return DataEntryFieldDefinitions::new(static::getTable());
-
-        return [
-           'ip_address' => [
-               'visible'  => false
-           ],
-           'net_len' => [
-               'visible'  => false
-           ],
-           'ip_address_human' => [
-               'readonly'  => true,
-               'size'      => 6,
-               'maxlength' => 48,
-               'label'     => tr('IP Address')
-           ],
-            'user_agent' => [
-                'readonly'  => true,
-                'size'      => 6,
-                'maxlength' => 2040,
-                'label'     => tr('User agent')
-            ],
-            'latitude' => [
-                'readonly'  => true,
-                'size'      => 6,
-                'type'      => 'numeric',
-                'min'       => -90,
-                'max'       => 90,
-                'step'      => 'any',
-                'maxlength' => 16,
-                'label'     => tr('Latitude'),
-            ],
-            'longitude' => [
-                'readonly'  => true,
-                'size'      => 6,
-                'type'      => 'numeric',
-                'min'       => -180,
-                'max'       => 180,
-                'maxlength' => 16,
-                'step'      => 'any',
-                'label'     => tr('Longitude')
-            ],
-           'countries_id' => [
-               'element'  => function (string $key, array $data, array $source) {
-                   return Countries::getHtmlCountriesSelect($key)
-                       ->setDisabled(true)
-                       ->setSelected(isset_get($source['countries_id']))
-                       ->render();
-               },
-               'label' => tr('Country'),
-               'size'  => 6,
-           ],
-           'timezones_id' => [
-               'element'  => function (string $key, array $data, array $source) {
-                   return Timezones::getHtmlSelect($key)
-                       ->setDisabled(true)
-                       ->setSelected(isset_get($source['timezones_id']))
-                       ->render();
-               },
-               'label' => tr('Timezone'),
-               'size'  => 6,
-           ],
-        ];
-
-//        $data = $validator
-//            ->select($this->getAlternateValidationField('ip_address'), true)->hasMaxCharacters(16)
-//            ->select($this->getAlternateValidationField('net_len'), true)->isOptional()->isNatural()->isLessThan(48)
-//            ->select($this->getAlternateValidationField('ip_address_human'), true)->isIp()
-//            ->select($this->getAlternateValidationField('user_agent'), true)->isOptional()->hasMaxCharacters(2048)
-//            ->select($this->getAlternateValidationField('latitude'), true)->isOptional()->isLessThan(90)->isMoreThan(-90)
-//            ->select($this->getAlternateValidationField('longitude'), true)->isOptional()->isLessThan(180)->isMoreThan(-180)
-//            ->select($this->getAlternateValidationField('country'), true)->or('countries_id')->isName()->isQueryColumn ('SELECT `name` FROM `geo_countries` WHERE `name` = :name AND `status` IS NULL', [':name' => '$country'])
-//            ->select($this->getAlternateValidationField('countries_id'), true)->or('country')->isId()->isQueryColumn   ('SELECT `id`   FROM `geo_countries` WHERE `id`   = :id   AND `status` IS NULL', [':id'   => '$countries_id'])
-//            ->select($this->getAlternateValidationField('timezone'), true)->or('timezones_id')->isName()->isQueryColumn('SELECT `name` FROM `geo_timezones` WHERE `name` = :name AND `status` IS NULL', [':name' => '$timezone'])
-//            ->select($this->getAlternateValidationField('timezones_id'), true)->or('timezone')->isId()->isQueryColumn  ('SELECT `id`   FROM `geo_timezones` WHERE `id`   = :id   AND `status` IS NULL', [':id'   => '$timezones_id'])
-//            ->noArgumentsLeft($no_arguments_left)
-//            ->validate();
-//
-//        return $data;
+        $definitions
+            ->addDefinition(Definition::new($this, 'ip_address')
+                ->setVisible(false))
+            ->addDefinition(Definition::new($this, 'net_len')
+                ->setVisible(false))
+            ->addDefinition(Definition::new($this, 'ip_address_human')
+                ->setReadonly(true)
+                ->setSize(6)
+                ->setMaxlength(48)
+                ->setLabel(tr('IP Address')))
+            ->addDefinition(Definition::new($this, 'user_agent')
+                ->setOptional(true)
+                ->setReadonly(true)
+                ->setSize(6)
+                ->setMaxlength(2040)
+                ->setLabel(tr('User agent')))
+            ->addDefinition(Definition::new($this, 'latitude')
+                ->setOptional(true)
+                ->setReadonly(true)
+                ->setInputType(InputType::number)
+                ->setSize(6)
+                ->setMin(-90)
+                ->setMax(90)
+                ->setStep('any')
+                ->setLabel(tr('Latitude')))
+            ->addDefinition(Definition::new($this, 'longitude')
+                ->setOptional(true)
+                ->setReadonly(true)
+                ->setInputType(InputType::number)
+                ->setSize(6)
+                ->setMin(-180)
+                ->setMax(180)
+                ->setStep('any')
+                ->setLabel(tr('Longitude')))
+            ->addDefinition(Definition::new($this, 'countries_id')
+                ->setOptional(true)
+                ->setReadonly(true)
+                ->setInputType(InputTypeExtended::dbid)
+                ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
+                    return Countries::getHtmlCountriesSelect()
+                        ->setDisabled(true)
+                        ->setName($field_name)
+                        ->setSelected(isset_get($source['countries_id']))
+                        ->render();
+                })
+                ->setSize(6)
+                ->setLabel(tr('Country'))
+                ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->isQueryResult('SELECT `name` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':id' => '$countries_id']);
+                }))
+            ->addDefinition(Definition::new($this, 'timezones_id')
+                ->setOptional(true)
+                ->setReadonly(true)
+                ->setInputType(InputTypeExtended::dbid)
+                ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
+                    return Timezones::new()->getHtmlSelect()
+                        ->setDisabled(true)
+                        ->setName($field_name)
+                        ->setSelected(isset_get($source['timezones_id']))
+                        ->render();
+                })
+                ->setSize(6)
+                ->setLabel(tr('Timezone'))
+                ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->isDbId()->isQueryResult('SELECT `id` FROM `geo_timezones` WHERE `id` = :id AND `status` IS NULL', [':id' => '$timezones_id']);
+                }));
     }
 }

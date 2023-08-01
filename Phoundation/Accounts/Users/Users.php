@@ -4,14 +4,21 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Users;
 
-use Phoundation\Accounts\Rights\Right;
-use Phoundation\Accounts\Roles\Role;
+use PDOStatement;
+use Phoundation\Accounts\Rights\Interfaces\RightInterface;
+use Phoundation\Accounts\Roles\Interfaces\RoleInterface;
+use Phoundation\Accounts\Users\Interfaces\UserInterface;
+use Phoundation\Accounts\Users\Interfaces\UsersInterface;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Sql\QueryBuilder;
-use Phoundation\Web\Http\Html\Components\Input\Select;
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
+use Phoundation\Web\Http\Html\Components\Input\InputSelect;
+
 
 /**
  * Class Users
@@ -21,45 +28,55 @@ use Phoundation\Web\Http\Html\Components\Input\Select;
  * @see \Phoundation\Data\DataEntry\DataList
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
-class Users extends DataList
+class Users extends DataList implements UsersInterface
 {
     /**
      * Users class constructor
-     *
-     * @param Role|User|null $parent
-     * @param string|null $id_column
      */
-    public function __construct(Role|User|null $parent = null, ?string $id_column = null)
+    public function __construct()
     {
-        $this->entry_class = User::class;
-        self::$table       = User::getTable();
+        $this->setQuery('SELECT   `id`, TRIM(CONCAT(`first_names`, " ", `last_names`)) AS `name`, `nickname`, `email`, `status`, `created_on`
+                               FROM     `accounts_users` 
+                               WHERE    `status` IS NULL 
+                               ORDER BY `name`');
 
-        $this->setHtmlQuery('SELECT   `id`, TRIM(CONCAT(`first_names`, " ", `last_names`)) AS `name`, `nickname`, `email`, `status`, `created_on`
-                                   FROM     `accounts_users` 
-                                   WHERE    `status` IS NULL 
-                                   ORDER BY `name`');
-        parent::__construct($parent, $id_column);
+        parent::__construct();
     }
 
 
     /**
-     * Returns an HTML <select> object with all available users
+     * Returns the table name used by this object
      *
-     * @param string $name
-     * @return Select
+     * @return string
      */
-    public static function getHtmlSelect(string $name = 'users_id'): Select
+    public static function getTable(): string
     {
-        return Select::new()
-            ->setSourceQuery('SELECT COALESCE(NULLIF(TRIM(CONCAT_WS(" ", `first_names`, `last_names`)), ""), `nickname`, `username`, `email`, "' . tr('System') . '") AS `name` 
-                                          FROM  `accounts_users`
-                                          WHERE `status` IS NULL ORDER BY `name`')
-            ->setName($name)
-            ->setNone(tr('Please select a user'))
-            ->setEmpty(tr('No users available'));
+        return 'accounts_users';
+    }
+
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getEntryClass(): string
+    {
+        return User::class;
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return 'email';
     }
 
 
@@ -78,18 +95,18 @@ class Users extends DataList
             $rights_list = [];
 
             foreach ($list as $right) {
-                $rights_list[] = $this->entry_class::get($right)->getId();
+                $rights_list[] = static::getEntryClass()::get($right)->getId();
             }
 
             // Get a list of what we have to add and remove to get the same list, and apply
-            $diff = Arrays::valueDiff($this->list, $rights_list);
+            $diff = Arrays::valueDiff($this->source, $rights_list);
 
             foreach ($diff['add'] as $right) {
-                $this->parent->roles()->add($right);
+                $this->parent->getRoles()->addRole($right);
             }
 
             foreach ($diff['remove'] as $right) {
-                $this->parent->roles()->remove($right);
+                $this->parent->getRoles()->remove($right);
             }
         }
 
@@ -98,12 +115,12 @@ class Users extends DataList
 
 
     /**
-     * Add the specified data entry to the data list
+     * Add the specified user to the data list
      *
-     * @param User|array|string|int|null $user
+     * @param UserInterface|array|string|int|null $user
      * @return static
      */
-    public function add(User|array|string|int|null $user): static
+    public function addUser(UserInterface|array|string|int|null $user): static
     {
         $this->ensureParent('add entry to parent');
 
@@ -111,45 +128,48 @@ class Users extends DataList
             if (is_array($user)) {
                 // Add multiple rights
                 foreach ($user as $entry) {
-                    $this->add($entry);
+                    $this->addUser($entry);
                 }
 
             } else {
                 // Add single right. Since this is a User object, the entry already exists in the database
                 $user = User::get($user);
 
-                // Already exists?
-                if (!array_key_exists($user->getId(), $this->list)) {
-                    // Add entry to parent, Role or Right
-                    if ($this->parent instanceof Role) {
-                        Log::action(tr('Adding role ":role" to user ":user"', [
-                            ':role' => $this->parent->getLogId(),
-                            ':user' => $user->getLogId()
-                        ]));
+                // User already exists for this parent?
+                if ($this->hasUser($user)) {
+                    // Ignore and continue
+                    return $this;
+                }
 
-                        sql()->insert('accounts_users_roles', [
-                            'roles_id' => $this->parent->getId(),
-                            'users_id' => $user->getId()
-                        ]);
+                // Add entry to parent, Role or Right
+                if ($this->parent instanceof RoleInterface) {
+                    Log::action(tr('Adding role ":role" to user ":user"', [
+                        ':role' => $this->parent->getLogId(),
+                        ':user' => $user->getLogId()
+                    ]));
 
-                        // Add right to internal list
-                        $this->addEntry($user);
-                    } elseif ($this->parent instanceof Right) {
-                        Log::action(tr('Adding right ":right" to user ":user"', [
-                            ':right' => $this->parent->getLogId(),
-                            ':user'  => $user->getLogId()
-                        ]));
+                    sql()->dataEntryInsert('accounts_users_roles', [
+                        'roles_id' => $this->parent->getId(),
+                        'users_id' => $user->getId()
+                    ]);
 
-                        sql()->insert('accounts_users_rights', [
-                            'rights_id' => $this->parent->getId(),
-                            'users_id'  => $user->getId(),
-                            'name'      => $this->parent->getName(),
-                            'seo_name'  => $this->parent->getSeoName()
-                        ]);
+                    // Add right to internal list
+                    $this->addDataEntry($user);
+                } elseif ($this->parent instanceof RightInterface) {
+                    Log::action(tr('Adding right ":right" to user ":user"', [
+                        ':right' => $this->parent->getLogId(),
+                        ':user'  => $user->getLogId()
+                    ]));
 
-                        // Add right to internal list
-                        $this->addEntry($user);
-                    }
+                    sql()->dataEntryInsert('accounts_users_rights', [
+                        'rights_id' => $this->parent->getId(),
+                        'users_id'  => $user->getId(),
+                        'name'      => $this->parent->getName(),
+                        'seo_name'  => $this->parent->getSeoName()
+                    ]);
+
+                    // Add right to internal list
+                    $this->addDataEntry($user);
                 }
             }
         }
@@ -161,10 +181,10 @@ class Users extends DataList
     /**
      * Remove the specified data entry from the data list
      *
-     * @param User|array|int|null $user
+     * @param UserInterface|array|string|int|null $user
      * @return static
      */
-    public function remove(User|array|int|null $user): static
+    public function remove(UserInterface|array|string|int|null $user): static
     {
         $this->ensureParent('remove entry from parent');
 
@@ -179,37 +199,70 @@ class Users extends DataList
                 // Add single user. Since this is a User object, the entry already exists in the database
                 $user = User::get($user);
 
-                if ($this->parent instanceof Role) {
+                if ($this->parent instanceof RoleInterface) {
                     Log::action(tr('Removing role ":role" from user ":user"', [
                         ':role' => $this->parent->getLogId(),
                         ':user' => $user->getLogId()
                     ]));
 
-                    sql()->delete('accounts_users_rights', [
+                    sql()->dataEntrydelete('accounts_users_rights', [
                         'roles_id' => $this->parent->getId(),
                         'users_id' => $user->getId()
                     ]);
 
                     // Add right to internal list
-                    $this->removeEntry($user);
-                } elseif ($this->parent instanceof Right) {
+                    $this->delete($user);
+                } elseif ($this->parent instanceof RightInterface) {
                     Log::action(tr('Removing right ":right" from user ":user"', [
                         ':right' => $this->parent->getLogId(),
                         ':user'  => $user->getLogId()
                     ]));
 
-                    sql()->delete('accounts_users_rights', [
+                    sql()->dataEntrydelete('accounts_users_rights', [
                         'rights_id' => $this->parent->getId(),
                         'users_id' => $user->getId()
                     ]);
 
                     // Add right to internal list
-                    $this->removeEntry($user);
+                    $this->delete($user);
                 }
             }
         }
 
         return $this;
+    }
+
+
+    /**
+     * Returns true if the parent has the specified user
+     *
+     * @param UserInterface $user
+     * @return bool
+     */
+    public function hasUser(UserInterface $user): bool
+    {
+        if (!$this->parent) {
+            throw OutOfBoundsException::new('Cannot check if parent has the specified user, this users list has no parent specified');
+        }
+
+        if ($this->parent instanceof RoleInterface) {
+            return (bool) sql()->get('SELECT `id` 
+                                            FROM   `accounts_users_roles` 
+                                            WHERE  `users_id` = :users_id 
+                                            AND    `roles_id` = :roles_id', [
+                ':roles_id' => $this->parent->getId(),
+                ':users_id' => $user->getId()
+            ]);
+        }
+
+        // No user? Then it must be a right
+        return (bool) sql()->get('SELECT `id` 
+                                        FROM   `accounts_users_rights` 
+                                        WHERE  `users_id`  = :users_id 
+                                        AND    `rights_id` = :rights_id', [
+            ':rights_id' => $this->parent->getId(),
+            ':users_id'  => $user->getId()
+        ]);
     }
 
 
@@ -222,7 +275,7 @@ class Users extends DataList
     {
         $this->ensureParent('clear all entries from parent');
 
-        if ($this->parent instanceof Role) {
+        if ($this->parent instanceof RoleInterface) {
             Log::action(tr('Removing role ":role" from all users', [
                 ':right' => $this->parent->getLogId(),
             ]));
@@ -231,7 +284,7 @@ class Users extends DataList
                 'roles_id' => $this->parent->getId()
             ]);
 
-        } elseif ($this->parent instanceof Right) {
+        } elseif ($this->parent instanceof RightInterface) {
             Log::action(tr('Removing right ":right" from all users', [
                 ':right' => $this->parent->getLogId(),
             ]));
@@ -241,7 +294,7 @@ class Users extends DataList
             ]);
         }
 
-        return parent::clearEntries();
+        return parent::clear();
     }
 
 
@@ -258,28 +311,30 @@ class Users extends DataList
         }
 
         if ($this->parent) {
-            if ($this->parent instanceof Role) {
-                $this->list = sql()->list('SELECT `accounts_users_roles`.`users_id` 
-                                           FROM   `accounts_users_roles` 
-                                           WHERE  `accounts_users_roles`.`roles_id` = :roles_id', [
+            if ($this->parent instanceof RoleInterface) {
+                $this->source = sql()->list('SELECT `accounts_users`.`email` AS `key`, `accounts_users`.* 
+                                                   FROM   `accounts_users_roles` 
+                                                   JOIN   `accounts_users` 
+                                                   ON     `accounts_users_roles`.`users_id` = `accounts_users`.`id`
+                                                   WHERE  `accounts_users_roles`.`roles_id` = :roles_id', [
                     ':roles_id' => $this->parent->getId()
                 ]);
 
-            } elseif ($this->parent instanceof Right) {
-                $this->list = sql()->list('SELECT `accounts_users_rights`.`users_id` 
-                                           FROM   `accounts_users_rights` 
-                                           WHERE  `accounts_users_rights`.`rights_id` = :rights_id', [
+            } elseif ($this->parent instanceof RightInterface) {
+                $this->source = sql()->list('SELECT `accounts_users`.`email` AS `key`, `accounts_users`.* 
+                                                   FROM   `accounts_users_rights` 
+                                                   JOIN   `accounts_users` 
+                                                   ON     `accounts_users_rights`.`users_id`  = `accounts_users`.`id`
+                                                   WHERE  `accounts_users_rights`.`rights_id` = :rights_id', [
                     ':rights_id' => $this->parent->getId()
                 ]);
 
             }
 
         } else {
-            $this->list = sql()->list('SELECT `id` FROM `accounts_rights`');
+            $this->source = sql()->list('SELECT `id` FROM `accounts_rights`');
         }
 
-        // The keys contain the ids...
-        $this->list = array_flip($this->list);
         return $this;
     }
 
@@ -291,7 +346,7 @@ class Users extends DataList
      * @param array $filters
      * @return array
      */
-    protected function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
+    public function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
     {
         // Default columns
         if (!$columns) {
@@ -311,12 +366,12 @@ class Users extends DataList
 
         // Build query
         $builder = new QueryBuilder();
-        $builder->addSelect('SELECT ' . $columns);
-        $builder->addFrom('FROM `accounts_users`');
+        $builder->addSelect($columns);
+        $builder->addFrom('`accounts_users`');
 
         // Add ordering
         foreach ($order_by as $column => $direction) {
-            $builder->addOrderBy('ORDER BY `' . $column . '` ' . ($direction ? 'DESC' : 'ASC'));
+            $builder->addOrderBy($column . '` ' . ($direction ? 'DESC' : 'ASC'));
         }
 
         // Build filters
@@ -388,7 +443,7 @@ class Users extends DataList
     {
         $this->ensureParent('save parent entries');
 
-        if ($this->parent instanceof Role) {
+        if ($this->parent instanceof RoleInterface) {
             // Delete the current list
             sql()->query('DELETE FROM `accounts_users_roles` 
                                 WHERE       `accounts_users_roles`.`roles_id` = :roles_id', [
@@ -396,14 +451,14 @@ class Users extends DataList
             ]);
 
             // Add the new list
-            foreach ($this->list as $id) {
-                sql()->insert('accounts_users_roles', [
+            foreach ($this->source as $id) {
+                sql()->dataEntryInsert('accounts_users_roles', [
                     'roles_id' => $this->parent->getId(),
                     'users_id' => $id
                 ]);
             }
 
-        } elseif ($this->parent instanceof Right) {
+        } elseif ($this->parent instanceof RightInterface) {
             // Delete the current list
             sql()->query('DELETE FROM `accounts_users_rights` 
                                 WHERE       `accounts_users_rights`.`rights_id` = :rights_id', [
@@ -411,8 +466,8 @@ class Users extends DataList
             ]);
 
             // Add the new list
-            foreach ($this->list as $id) {
-                sql()->insert('accounts_users_rights', [
+            foreach ($this->source as $id) {
+                sql()->dataEntryInsert('accounts_users_rights', [
                     'rights_id' => $this->parent->getId(),
                     'users_id'  => $id,
                     'name'      => $this->parent->getName(),
@@ -424,5 +479,29 @@ class Users extends DataList
         }
 
         return $this;
+    }
+
+
+    /**
+     * Returns an HTML <select> for the available object entries
+     *
+     * @param string $value_column
+     * @param string $key_column
+     * @param string|null $order
+     * @return SelectInterface
+     */
+    public function getHtmlSelect(string $value_column = '', string $key_column = 'id', ?string $order = null): SelectInterface
+    {
+        if (!$value_column) {
+            $value_column = 'COALESCE(NULLIF(TRIM(CONCAT_WS(" ", `first_names`, `last_names`)), ""), `nickname`, `username`, `email`, "' . tr('System') . '") AS name';
+        }
+
+        return InputSelect::new()
+            ->setSourceQuery('SELECT `' . $key_column . '`, ' . $value_column . ' 
+                                          FROM  `accounts_users`
+                                          WHERE `status` IS NULL ORDER BY `' . Strings::fromReverse($value_column, ' ') . '`')
+            ->setName('users_id')
+            ->setNone(tr('Select a user'))
+            ->setEmpty(tr('No users available'));
     }
 }

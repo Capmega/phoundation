@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace Phoundation\Developer\Versioning\Git;
 
 use Phoundation\Cli\Cli;
-use Phoundation\Data\Classes\Iterator;
+use Phoundation\Data\Iterator;
 use Phoundation\Developer\Versioning\Git\Traits\GitProcess;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Processes\Process;
+
 
 /**
  * Class Repositories
@@ -17,7 +18,7 @@ use Phoundation\Processes\Process;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Developer
  */
 class RemoteRepositories extends Iterator
@@ -33,7 +34,7 @@ class RemoteRepositories extends Iterator
     public function __construct(string $path)
     {
         $this->construct($path);
-        $this->list = Process::new('git')
+        $this->source = Process::new('git')
             ->setExecutionPath($this->path)
             ->addArgument('remote')
             ->addArgument('show')
@@ -50,7 +51,7 @@ class RemoteRepositories extends Iterator
     {
         $list = [];
 
-        foreach ($this->getList() as $repository) {
+        foreach ($this->getSource() as $repository) {
             $list[$repository] = [];
         }
 
@@ -67,7 +68,7 @@ class RemoteRepositories extends Iterator
      */
     public function get(string|float|int $key, bool $exception = false): ?RemoteRepository
     {
-        if (!array_key_exists($key, $this->list)) {
+        if (!array_key_exists($key, $this->source)) {
             if ($exception) {
                 throw new NotExistsException(tr('The repository ":key" does not exist in this object', [
                     ':key' => $key

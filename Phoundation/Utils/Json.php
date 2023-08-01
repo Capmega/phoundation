@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Utils;
 
 use Exception;
+use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreException;
@@ -13,10 +14,15 @@ use Phoundation\Core\Strings;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Notification;
+use Phoundation\Utils\Enums\Interfaces\JsonAfterReplyInterface;
+use Phoundation\Utils\Enums\JsonAfterReply;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Page;
+use Stringable;
 use Throwable;
+
 
 /**
  * Class Json
@@ -25,7 +31,7 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Utils
  */
 class Json
@@ -33,64 +39,45 @@ class Json
     /**
      * Send correct JSON reply
      *
-     * @param string|array|null $data
-     * @param string $result
-     * @param int|null $http_code
-     * @param string $after
+     * @param array|Stringable|string|null $data
+     * @param JsonAfterReplyInterface $action_after
      * @return void
      */
-    public static function reply(null|string|array $data = null, string $result = 'OK', ?int $http_code = null, string $after = 'die'): void
+    #[NoReturn] public static function reply(array|Stringable|string|null $data = null, JsonAfterReplyInterface $action_after = JsonAfterReply::die): void
     {
-        if (!$data) {
-            $data = Arrays::force($data, null);
-        }
+        if (!is_string($data)) {
+            if (is_object($data)) {
+                // Stringable object
+                $data = (string) $data;
 
-        if ($result) {
-            if (isset($data['result'])) {
-                throw new JsonException(tr('Result was specified both in the data array as ":result1" as wel as the separate variable as ":result2"', [
-                    ':result1' => $data['result'],
-                    ':result2' => $result
-                ]));
+            } else {
+                // Array, JSON encode
+                $data = Json::encode($data);
             }
-
-            // Add result to the reply
-            $data['result'] = $result;
         }
 
-        // Send a new CSRF code with this payload?
-        if (!empty($core->register['csrf_ajax'])) {
-            $data['csrf'] = $core->register['csrf_ajax'];
-            unset($core->register['csrf_ajax']);
-        }
-
-        $data['result'] = strtoupper($data['result']);
-        $data = Json::encode($data);
-
-        $params = [
-            'http_code' => $http_code,
-            'mimetype' => 'application/json'
-        ];
+        Page::buildHttpHeaders($data);
 
         echo $data;
 
-        switch ($after) {
-            case 'die':
+        switch ($action_after) {
+            case JsonAfterReply::die:
                 // We're done, kill the connection % process (default)
-                Core::shutdown();
+                die();
 
-            case 'continue':
-                // Continue running
-                return;
+            case JsonAfterReply::continue:
+                // Continue running, keep the HTTP connection open
+                break;
 
-            case 'close_continue':
+            case JsonAfterReply::closeConnectionContinue:
                 // Close the current HTTP connection but continue in the background
                 session_write_close();
                 fastcgi_finish_request();
-                return;
+                break;
 
             default:
-                throw new JsonException(tr('Unknown after ":after" specified. Use one of "die", "continue", or "close_continue"', [
-                    ':after' => $after
+                throw new OutOfBoundsException(tr('Unknown after ":after" specified. Use one of "JsonAfterReply::die", "JsonAfterReply::continue", or "JsonAfterReply::closeConnectionContinue"', [
+                    ':after' => $action_after
                 ]));
         }
     }
@@ -424,7 +411,7 @@ class Json
         $return = json_decode($source, $as_array, $depth, $options);
 
         if (json_last_error()) {
-            throw new JsonException(tr('JSON decoding failed with :error', [':error' => json_last_error_msg()]));
+            throw new JsonException(tr('JSON decoding failed with ":error"', [':error' => json_last_error_msg()]));
         }
 
         return $return;

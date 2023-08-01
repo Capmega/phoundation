@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http\Html\Components;
 
 use Phoundation\Core\Session;
+use Phoundation\Databases\Sql\Sql;
 use Phoundation\Notifications\Notifications;
-use Phoundation\Web\Http\Url;
+use Phoundation\Web\Http\Interfaces\UrlBuilderInterface;
 use Phoundation\Web\Http\UrlBuilder;
 use Stringable;
 
@@ -18,7 +19,7 @@ use Stringable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
 class NotificationsDropDown extends ElementsBlock
@@ -33,16 +34,16 @@ class NotificationsDropDown extends ElementsBlock
     /**
      * Contains the URL for the specific notifications
      *
-     * @var Stringable|string|null $notifications_url
+     * @var UrlBuilderInterface|null $notifications_url
      */
-    protected Stringable|string|null $notifications_url = null;
+    protected UrlBuilderInterface|null $notifications_url = null;
 
     /**
      * Contains the URL for the notifications page
      *
-     * @var Stringable|string|null $notifications_all_url
+     * @var UrlBuilderInterface|null $notifications_all_url
      */
-    protected Stringable|string|null $notifications_all_url = null;
+    protected UrlBuilderInterface|null $notifications_all_url = null;
 
 
     /**
@@ -55,10 +56,16 @@ class NotificationsDropDown extends ElementsBlock
     {
         if (!$this->notifications) {
             $this->notifications = new Notifications();
-            $this->notifications->loadList(null, [
-                'users_id' => Session::getUser()->getId(),
-                'status'   => $status
-            ]);
+            $this->notifications->getQueryBuilder()->addSelect('*')->addOrderBy('`created_on` DESC');
+
+            if ($status) {
+                $this->notifications->getQueryBuilder()->addWhere('`users_id` = :users_id AND `status` ' . Sql::is($status, 'status'), [
+                    ':users_id' => Session::getUser()->getId(),
+                    ':status'   => $status
+                ]);
+            }
+
+            $this->notifications->load();
         }
 
         return $this->notifications;
@@ -81,9 +88,9 @@ class NotificationsDropDown extends ElementsBlock
     /**
      * Returns the notifications page URL
      *
-     * @return Stringable|string|null
+     * @return UrlBuilderInterface|null
      */
-    public function getNotificationsUrl(): Stringable|string|null
+    public function getNotificationsUrl(): ?UrlBuilderInterface
     {
         return $this->notifications_url;
     }
@@ -105,9 +112,9 @@ class NotificationsDropDown extends ElementsBlock
     /**
      * Returns the notifications page URL
      *
-     * @return Stringable|string|null
+     * @return UrlBuilderInterface
      */
-    public function getAllNotificationsUrl(): Stringable|string|null
+    public function getAllNotificationsUrl(): UrlBuilderInterface
     {
         return $this->notifications_all_url;
     }

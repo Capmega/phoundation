@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html\Components;
 
-use Phoundation\Web\Http\Html\Modals\SignInModal;
+use Phoundation\Web\Http\Html\Components\Modals\SignInModal;
 
 
 /**
@@ -14,7 +14,7 @@ use Phoundation\Web\Http\Html\Modals\SignInModal;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
 class SidePanel extends Panel
@@ -25,6 +25,6 @@ class SidePanel extends Panel
     public function __construct()
     {
         parent::__construct();
-        $this->getModals()->add('sign-in', new SignInModal());
+        $this->getModals()->addModal('sign-in', new SignInModal());
     }
 }

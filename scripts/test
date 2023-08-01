@@ -1,0 +1,16 @@
+#!/usr/bin/php
+<?php
+
+declare(strict_types=1);
+
+/**
+ * Script test
+ *
+ * General quick test script. Just scribble any test code that you want to execute here and execute it with
+ * ./pho test
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Scripts
+ */

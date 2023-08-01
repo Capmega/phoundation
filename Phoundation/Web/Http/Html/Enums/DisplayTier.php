@@ -4,20 +4,20 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html\Enums;
 
-use Phoundation\Web\Http\Html\Interfaces\InterfaceDisplayTier;
+use Phoundation\Web\Http\Html\Enums\Interfaces\DisplayTierInterface;
 
 
 /**
- * Enum DisplayTier
+ * Enum DisplayTierInterface
  *
  * The different display tiers for elements or element blocks
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-enum DisplayTier: string implements InterfaceDisplayTier
+enum DisplayTier: string implements DisplayTierInterface
 {
     case null = '';
     case xxs = 'xxs';

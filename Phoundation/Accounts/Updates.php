@@ -6,6 +6,9 @@ namespace Phoundation\Accounts;
 
 use Phoundation\Accounts\Rights\Right;
 use Phoundation\Accounts\Roles\Role;
+use Phoundation\Accounts\Users\GuestUser;
+use Phoundation\Core\Session;
+
 
 /**
  * Updates class
@@ -15,7 +18,7 @@ use Phoundation\Accounts\Roles\Role;
  * @see \Phoundation\Core\Libraries\Updates
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
 class Updates extends \Phoundation\Core\Libraries\Updates
@@ -27,7 +30,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.0.7';
+        return '0.0.12';
     }
 
 
@@ -73,13 +76,13 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `locked_until` datetime DEFAULT NULL,
                     `sign_in_count` int NOT NULL,
                     `username` varchar(64) DEFAULT NULL,
-                    `password` varchar(255) NOT NULL,
+                    `password` varchar(255) DEFAULT NULL,
                     `fingerprint` datetime DEFAULT NULL,
                     `domain` varchar(128) DEFAULT NULL,
                     `title` varchar(24) DEFAULT NULL,
-                    `first_names` varchar(127) DEFAULT NULL,
-                    `last_names` varchar(127) DEFAULT NULL,
-                    `nickname` varchar(64) DEFAULT NULL,
+                    `first_names` varchar(128) DEFAULT NULL,
+                    `last_names` varchar(128) DEFAULT NULL,
+                    `nickname` varchar(128) DEFAULT NULL,
                     `picture` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
                     `email` varchar(128) DEFAULT NULL,
                     `code` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
@@ -88,8 +91,8 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `phones` varchar(64) CHARACTER SET latin1 DEFAULT NULL,
                     `address` varchar(255) DEFAULT NULL,
                     `zipcode` varchar(8) DEFAULT NULL,
-                    `verification_code` varchar(128) DEFAULT NULL,
                     `verified_on` datetime DEFAULT NULL,
+                    `verification_code` varchar(128) DEFAULT NULL,
                     `priority` int DEFAULT NULL,
                     `is_leader` int DEFAULT NULL,
                     `leaders_id` bigint DEFAULT NULL,
@@ -102,7 +105,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `states_id` bigint DEFAULT NULL,
                     `countries_id` bigint DEFAULT NULL,
                     `timezones_id` bigint DEFAULT NULL,
-                    `redirect` varchar(255) DEFAULT NULL,
+                    `redirect` varchar(2048) DEFAULT NULL,
                     `languages_id` bigint DEFAULT NULL,
                     `gender` varchar(16) DEFAULT NULL,
                     `birthdate` date DEFAULT NULL,
@@ -154,8 +157,8 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `meta_id` bigint NOT NULL,
                     `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
-                    `name` varchar(64) NOT NULL,
-                    `seo_name` varchar(64) NOT NULL,
+                    `name` varchar(128) NOT NULL,
+                    `seo_name` varchar(128) NOT NULL,
                     `description` varchar(2047) DEFAULT NULL
                 ')->setIndices('                
                     PRIMARY KEY (`id`),
@@ -179,8 +182,8 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `meta_id` bigint NOT NULL,
                     `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
-                    `name` varchar(64) DEFAULT NULL,
-                    `seo_name` varchar(64) DEFAULT NULL,
+                    `name` varchar(128) DEFAULT NULL,
+                    `seo_name` varchar(128) DEFAULT NULL,
                     `description` text DEFAULT NULL,
                 ')->setIndices('                
                     PRIMARY KEY (`id`),
@@ -204,8 +207,8 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `meta_id` bigint NOT NULL,
                     `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
-                    `name` varchar(64) DEFAULT NULL,
-                    `seo_name` varchar(64) DEFAULT NULL,
+                    `name` varchar(128) DEFAULT NULL,
+                    `seo_name` varchar(128) DEFAULT NULL,
                     `description` text DEFAULT NULL,
                 ')->setIndices('                
                     PRIMARY KEY (`id`),
@@ -228,8 +231,8 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `created_by` bigint DEFAULT NULL,
                     `users_id` bigint NOT NULL,
                     `rights_id` bigint NOT NULL,
-                    `name` varchar(64) NOT NULL,
-                    `seo_name` varchar(64) DEFAULT NULL
+                    `name` varchar(128) NOT NULL,
+                    `seo_name` varchar(128) DEFAULT NULL
                 ')->setIndices('                
                     PRIMARY KEY (`id`),
                     UNIQUE KEY `users_rights` (`users_id`,`rights_id`),
@@ -286,6 +289,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_accounts_roles_rights_rights_id` FOREIGN KEY (`rights_id`) REFERENCES `accounts_rights` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_accounts_roles_rights_roles_id` FOREIGN KEY (`roles_id`) REFERENCES `accounts_roles` (`id`) ON DELETE CASCADE
                 ')->create();
+
         })->addUpdate('0.0.5', function () {
             // Drop the tables to be sure we have a clean slate
             sql()->schema()->table('accounts_compromised_passwords')->drop();
@@ -370,70 +374,87 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_accounts_banned_passwords_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
                 ')->create();
 
+        })->addUpdate('0.0.6', function () {
+            // Ensure Guest user is available
+            GuestUser::new()
+                ->save();
+
             // Create default rights and roles
             $god = Right::new()
-                ->setName('God')->setDescription('This right will give the user access to everything, everywhere')
+                ->setName('God')
+                ->setDescription('This right will give the user access to everything, everywhere')
                 ->save();
 
             $admin = Right::new()
-                ->setName('Admin')->setDescription('This right will give the user access to the administrative area of the site, but no specific pages yet')
+                ->setName('Admin')
+                ->setDescription('This right will give the user access to the administrative area of the site, but no specific pages yet')
                 ->save();
 
             $developer = Right::new()
-                ->setName('Developer')->setDescription('This right will give the user access to the developer area of the site')
+                ->setName('Developer')
+                ->setDescription('This right will give the user access to the developer area of the site')
                 ->save();
 
             $accounts = Right::new()
-                ->setName('Accounts')->setDescription('This right will give the user access to the administrative user accounts management section of the site')
+                ->setName('Accounts')
+                ->setDescription('This right will give the user access to the administrative user accounts management section of the site')
                 ->save();
 
             $security = Right::new()
-                ->setName('Security')->setDescription('This right will give the user access to the administrative security pages of the site')
+                ->setName('Security')
+                ->setDescription('This right will give the user access to the administrative security pages of the site')
                 ->save();
 
             $phoundation = Right::new()
-                ->setName('Phoundation')->setDescription('This right will give the user access to the administrative phoundation system management section of the site')
+                ->setName('Phoundation')
+                ->setDescription('This right will give the user access to the administrative phoundation system management section of the site')
                 ->save();
 
             $audit = Right::new()
-                ->setName('Audit')->setDescription('This right will give the user access to the audit information system of the site')
+                ->setName('Audit')
+                ->setDescription('This right will give the user access to the audit information system of the site')
                 ->save();
 
             // Define basic roles
             Role::new()
-                ->setName('God')->setDescription('This role will give the user the "God" right which will give it access to everything, everywhere')
+                ->setName('God')
+                ->setDescription('This role will give the user the "God" right which will give it access to everything, everywhere')
                 ->save()
-                ->rights()->add($god);
+                ->getRights()
+                    ->addRight($god);
 
             Role::new()
-                ->setName('Administrator')->setDescription('This role gives access to all the administrative pages except user account management')
+                ->setName('Administrator')
+                ->setDescription('This role gives access to all the administrative pages except user account management')
                 ->save()
-                ->rights()
-                ->add($admin)
-                ->add($audit)
-                ->add($security)
-                ->add($phoundation);
+                ->getRights()
+                    ->addRight($admin)
+                    ->addRight($audit)
+                    ->addRight($security)
+                    ->addRight($phoundation);
 
             Role::new()
-                ->setName('Accounts administrator')->setDescription('This role gives access to only the administrative user account pages')
+                ->setName('Accounts administrator')
+                ->setDescription('This role gives access to only the administrative user account pages')
                 ->save()
-                ->rights()
-                ->add($admin)
-                ->add($accounts);
+                ->getRights()
+                    ->addRight($admin)
+                    ->addRight($accounts);
 
             Role::new()
-                ->setName('Developer')->setDescription('This role will give the user access to the developer pages of the site')
+                ->setName('Developer')
+                ->setDescription('This role will give the user access to the developer pages of the site')
                 ->save()
-                ->rights()
-                ->add($developer);
+                ->getRights()
+                    ->addRight($developer);
 
             Role::new()
-                ->setName('Moderator')->setDescription('This role will give the user basic access to the administrative pages of the site')
+                ->setName('Moderator')
+                ->setDescription('This role will give the user basic access to the administrative pages of the site')
                 ->save()
-                ->rights()
-                ->add($admin);
+                ->getRights()
+                    ->addRight($admin);
 
-        })->addUpdate('0.0.6', function () {
             // Drop the tables to be sure we have a clean slate
             sql()->schema()->table('accounts_signins')->drop();
 
@@ -515,6 +536,9 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_accounts_authentication_failures_states_id` FOREIGN KEY (`states_id`) REFERENCES `geo_states` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_accounts_authentication_failures_cities_id` FOREIGN KEY (`cities_id`) REFERENCES `geo_cities` (`id`) ON DELETE RESTRICT,
                 ')->create();
+        })->addUpdate('0.0.12', function () {
+            // Add "password_update" column
+            sql()->schema()->table('accounts_users')->alter()->addColumn('`update_password` datetime DEFAULT NULL', 'AFTER `password`');
         });
     }
 }

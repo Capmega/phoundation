@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http\Html\Components;
 
 use Iterator;
+use Phoundation\Web\Http\Html\Components\Interfaces\InputTypeInterface;
 use Phoundation\Web\Http\Html\Enums\ButtonType;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
-use Phoundation\Web\Http\Html\Interfaces\InterfaceDisplayMode;
-use Phoundation\Web\Http\Html\Interfaces\InputTypeInterface;
 use ReturnTypeWillChange;
+use Stringable;
 
 
 /**
@@ -19,7 +19,7 @@ use ReturnTypeWillChange;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
 class Buttons extends ElementsBlock implements Iterator
@@ -68,15 +68,24 @@ class Buttons extends ElementsBlock implements Iterator
      * Adds a single button to button list
      *
      * @param Button|string|null $button
-     * @param InterfaceDisplayMode $mode
-     * @param InputTypeInterface|string $type_or_anchor_url
+     * @param DisplayMode $mode
+     * @param InputTypeInterface|Stringable|string $type_or_anchor_url
      * @param bool $outline
      * @param bool $right
      * @return static
      */
-    public function addButton(Button|string|null $button, InterfaceDisplayMode $mode = DisplayMode::primary, InputTypeInterface|string $type_or_anchor_url = ButtonType::button, bool $outline = false, bool $right = false): static
+    public function addButton(Button|string|null $button, DisplayMode $mode = DisplayMode::primary, InputTypeInterface|Stringable|string $type_or_anchor_url = ButtonType::submit, bool $outline = false, bool $right = false): static
     {
+        if (!$button) {
+            // Don't add anything
+            return $this;
+        }
+
         if (is_string($button)) {
+            if ($button === tr('Save')) {
+                $type_or_anchor_url = ButtonType::submit;
+            }
+
             // Button was specified as string, create a button first
             $button = Button::new()
                 ->setWrapping($this->wrapping)
@@ -85,8 +94,10 @@ class Buttons extends ElementsBlock implements Iterator
                 ->addClasses($this->classes)
                 ->setOutlined($outline)
                 ->setContent($button)
+                ->setValue($button)
                 ->setRight($right)
-                ->setMode($mode);
+                ->setMode($mode)
+                ->setName('submit');
 
             switch ($type_or_anchor_url) {
                 case ButtonType::submit:
@@ -105,10 +116,7 @@ class Buttons extends ElementsBlock implements Iterator
 
         }
 
-        if ($button) {
-            $this->source[] = $button;
-        }
-
+        $this->source[] = $button;
         return $this;
     }
 

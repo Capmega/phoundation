@@ -13,6 +13,8 @@ use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Exception\KeyAlreadySelectedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
+use Phoundation\Data\Validator\Interfaces\ArgvValidatorInterface;
+use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 
 
@@ -23,10 +25,10 @@ use Phoundation\Exception\OutOfBoundsException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
-class ArgvValidator extends Validator
+class ArgvValidator extends Validator implements ArgvValidatorInterface
 {
     /**
      * Internal $argv array until validation has been completed
@@ -45,21 +47,22 @@ class ArgvValidator extends Validator
      * @note Keys that do not exist in $data that are validated will automatically be created
      * @note Keys in $data that are not validated will automatically be removed
      *
-     * @param Validator|null $parent If specified, this is actually a child validator to the specified parent
+     * @param ValidatorInterface|null $parent If specified, this is actually a child validator to the specified parent
      */
-    public function __construct(?Validator $parent = null) {
-        global $argv;
-        $this->construct($parent, $argv);
+    public function __construct(?ValidatorInterface $parent = null) {
+        // NOTE: ArgValidator does NOT pass $argv to the parent constructor, the $argv values are manually copied to
+        // static::source!
+        $this->construct($parent);
     }
 
 
     /**
      * Returns a new Command Line Arguments data Validator object
      *
-     * @param Validator|null $parent
+     * @param ValidatorInterface|null $parent
      * @return static
      */
-    public static function new(?Validator $parent = null): static
+    public static function new(?ValidatorInterface $parent = null): static
     {
         return new static($parent);
     }
@@ -107,19 +110,24 @@ class ArgvValidator extends Validator
             ]));
         }
 
+        if (!$fields) {
+            throw new OutOfBoundsException(tr('No field specified'));
+        }
+
+        // Make sure the fields value doesn't have any extras like -e,--email EMAIL <<< The EMAIL part is extra
+        $fields = Strings::until($fields, ' ');
+
         // Unset various values first to ensure the byref link is broken
         unset($this->process_value);
         unset($this->process_values);
         unset($this->selected_value);
 
         $this->process_value_failed = false;
+        $this->selected_is_optional = false;
+        $this->selected_is_default  = false;
 
         $clean_field = null;
         $field       = null;
-
-        if (!$fields) {
-            throw new OutOfBoundsException(tr('No field specified'));
-        }
 
         // Determine the correct clean field name for the specified argument field
         foreach (Arrays::force($fields, ',') as $field) {
@@ -135,7 +143,7 @@ class ArgvValidator extends Validator
             }
 
             if (str_starts_with($clean_field, '-')) {
-                // This is the short form argument, won't  be a variable name unless there is no alternative
+                // This is the short form argument, won't be a variable name unless there is no alternative
                 $clean_field = Strings::startsNotWith($clean_field, '-');
                 $clean_field = str_replace('-', '_', $clean_field);
                 continue;
@@ -157,8 +165,9 @@ class ArgvValidator extends Validator
         // Get the value from the arguments list
         try {
             $value = static::argument($fields, $next);
+
         } catch (OutOfBoundsException) {
-            // ???
+            // The field was not specified
             $value = null;
         }
 
@@ -184,8 +193,8 @@ class ArgvValidator extends Validator
         $this->selected_fields[] = $clean_field;
         $this->selected_value    = &$this->source[$clean_field];
         $this->process_values    = [null => &$this->selected_value];
+        $this->selected_optional = null;
 
-        unset($this->selected_optional);
         return $this;
     }
 
@@ -290,15 +299,6 @@ class ArgvValidator extends Validator
             }
 
             $methods[] = $argument;
-        }
-
-        // Validate all methods
-        foreach ($methods as $method) {
-            if (strlen($method) > 32) {
-                throw new ValidationFailedException(tr('Specified method ":method" is too long, it should be less than 32 characters', [
-                    ':method' => $method
-                ]));
-            }
         }
 
         return $methods;
@@ -418,7 +418,8 @@ class ArgvValidator extends Validator
                     if (str_starts_with($argv_value, '-')) {
                         // Encountered a new option, stop!
                         break;
-                    }
+                    }        show(self::$argv);
+
 
                     // Add this argument to the list
                     $value[] = $argv_value;
@@ -443,19 +444,19 @@ class ArgvValidator extends Validator
             return array_shift(static::$argv);
         }
 
-        //Detect multiple key options for the same command, but ensure only one is specified
-        if (is_array($keys) or ((is_string($keys)) and str_contains($keys, ','))) {
-            $keys = Arrays::force($keys);
+        // Detect multiple key options for the same command, but ensure only one is specified
+        if (is_array($keys) or (is_string($keys) and str_contains($keys, ','))) {
+            $keys    = Arrays::force($keys);
             $results = [];
 
             foreach ($keys as $key) {
                 if ($next === 'all') {
                     // We're requesting all values for all specified keys. It will return null in case the specified key
                     // does not exist
-                    $value = static::argument($key, 'all', null);
+                    $value = static::argument($key, 'all');
 
                     if (is_array($value)) {
-                        $found = true;
+                        $found   = true;
                         $results = array_merge($results, $value);
                     }
                 } else {
@@ -534,29 +535,5 @@ class ArgvValidator extends Validator
 
         unset(static::$argv[$key]);
         return true;
-    }
-
-
-    /**
-     * Force a return of all POST data without check
-     *
-     * @return array|null
-     */
-    public static function extract(): ?array
-    {
-        Log::warning(tr('Liberated all $argv data without data validation!'));
-        return static::$argv;
-    }
-
-
-    /**
-     * Force a return of a single POST key value
-     *
-     * @return array
-     */
-    public static function extractKey(string $key): mixed
-    {
-        Log::warning(tr('Liberated $argv[:key] without data validation!', [':key' => $key]));
-        return isset_get(static::$argv[$key]);
     }
 }

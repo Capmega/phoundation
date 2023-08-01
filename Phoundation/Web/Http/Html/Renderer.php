@@ -7,6 +7,9 @@ namespace Phoundation\Web\Http\Html;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Element;
 use Phoundation\Web\Http\Html\Components\ElementsBlock;
+use Phoundation\Web\Http\Html\Components\Interfaces\ElementInterface;
+use Phoundation\Web\Http\Html\Components\Interfaces\ElementsBlockInterface;
+
 
 /**
  * Class Renderer
@@ -15,7 +18,7 @@ use Phoundation\Web\Http\Html\Components\ElementsBlock;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
 class Renderer
@@ -28,11 +31,11 @@ class Renderer
     protected ?string $render = null;
 
     /**
-     * The element to render
+     * The object to render
      *
-     * @var ElementsBlock|Element $element
+     * @var ElementsBlockInterface|ElementInterface $render_object
      */
-    protected ElementsBlock|Element $element;
+    protected ElementsBlockInterface|ElementInterface $render_object;
 
     /**
      * The parent render function
@@ -45,11 +48,11 @@ class Renderer
     /**
      * Renderer class element
      *
-     * @param ElementsBlock|Element $element
+     * @param ElementsBlockInterface|ElementInterface $render_object
      */
-    public function __construct(ElementsBlock|Element $element)
+    public function __construct(ElementsBlockInterface|ElementInterface $render_object)
     {
-        $this->element = $element;
+        $this->render_object = $render_object;
     }
 
 
@@ -92,12 +95,12 @@ class Renderer
     /**
      * Sets the element to be rendered
      *
-     * @param ElementsBlock|Element $element
+     * @param ElementsBlockInterface|ElementInterface $render_object
      * @return static
      */
-    public function setElement(ElementsBlock|Element $element): static
+    public function setRenderobject(ElementsBlockInterface|ElementInterface $render_object): static
     {
-        $this->element = $element;
+        $this->render_object = $render_object;
         return $this;
     }
 
@@ -105,11 +108,11 @@ class Renderer
     /**
      * Returns the element to be rendered
      *
-     * @return ElementsBlock|Element
+     * @return ElementsBlockInterface|ElementInterface
      */
-    public function getElement(): ElementsBlock|Element
+    public function getRenderobject(): ElementsBlockInterface|ElementInterface
     {
-        return $this->element;
+        return $this->render_object;
     }
 
 

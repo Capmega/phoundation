@@ -11,6 +11,7 @@ use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Html\Renderer;
 use Phoundation\Web\Http\UrlBuilder;
 
+
 /**
  * AdminLte Plugin TopPanel class
  *
@@ -18,7 +19,7 @@ use Phoundation\Web\Http\UrlBuilder;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\AdminLte
  */
 class TopPanel extends Renderer
@@ -44,10 +45,11 @@ class TopPanel extends Renderer
 
         // If impersonated, change top panel color and add impersonation message
         if (Session::isImpersonated()) {
-            $this->element->setMode(DisplayMode::danger);
+            $this->render_object->setMode(DisplayMode::danger);
             $message = tr('(Impersonated by ":user")', [':user' => Session::getRealUser()->getDisplayName()]);
+
         } else {
-            $this->element->setMode(DisplayMode::white);
+            $this->render_object->setMode(DisplayMode::white);
         }
 
         // Top level message?
@@ -63,8 +65,8 @@ class TopPanel extends Renderer
                               <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
                             </li>';
 
-        if ($this->element->getSourceEntry('menu')) {
-            foreach ($this->element->getSourceEntry('menu') as $url => $label) {
+        if ($this->render_object->exists('menu')) {
+            foreach ($this->render_object->get('menu') as $label => $url) {
                 $left_menu .= ' <li class="nav-item d-none d-sm-inline-block">
                                   <a href="' . Html::safe($url) . '" class="nav-link">' . Html::safe($label) . '</a>
                                 </li>';
@@ -72,11 +74,11 @@ class TopPanel extends Renderer
         }
 
         // Add the optional extra message and finish the left menu
-        $left_menu .=       Html::safe(isset_get($message)) . '
+        $left_menu .=       isset_get($message) . '
                           </ul>';
 
         // Build the panel
-        $this->render = ' <nav class="main-header navbar navbar-expand navbar-' . Html::safe($this->element->getMode()->value) . ' navbar-light">
+        $this->render = ' <nav class="main-header navbar navbar-expand navbar-' . Html::safe($this->render_object->getMode()->value) . ' navbar-light">
                             <!-- Left navbar links -->
                             ' . $left_menu . '                    
                             <!-- Right navbar links -->
@@ -106,14 +108,14 @@ class TopPanel extends Renderer
                                
                               <!-- Messages Dropdown Menu -->
                               <li class="nav-item dropdown">
-                                ' . $this->element->getMessagesDropDown()?->render() . '
+                                ' . $this->render_object->getMessagesDropDown()?->render() . '
                               </li>
                               <!-- Notifications Dropdown Menu -->
                               <li class="nav-item dropdown">
-                                ' . $this->element->getNotificationsDropDown()?->render() . '
+                                ' . $this->render_object->getNotificationsDropDown()?->render() . '
                               </li>
                               <li class="nav-item dropdown">                                  
-                                  ' . $this->element->getLanguagesDropDown()?->render() . '
+                                  ' . $this->render_object->getLanguagesDropDown()?->render() . '
                               </li>
                               <li class="nav-item">
                                 <a class="nav-link" data-widget="fullscreen" href="#" role="button">

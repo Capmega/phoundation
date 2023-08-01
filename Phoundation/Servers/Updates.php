@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Servers;
 
+
 /**
  * Updates class
  *
@@ -12,7 +13,7 @@ namespace Phoundation\Servers;
  * @see \Phoundation\Core\Libraries\Updates
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Servers
  */
 class Updates extends \Phoundation\Core\Libraries\Updates
@@ -60,8 +61,8 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `meta_id` bigint NOT NULL,
                     `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
-                    `name` varchar(64) DEFAULT NULL,
-                    `seo_name` varchar(64) DEFAULT NULL,
+                    `name` varchar(128) DEFAULT NULL,
+                    `seo_name` varchar(128) DEFAULT NULL,
                     `username` varchar(64) DEFAULT NULL,
                     `description` text DEFAULT NULL,
                     `ssh_key` text DEFAULT NULL,

@@ -15,7 +15,7 @@ use Phoundation\Web\Http\Html\Renderer;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\None
  */
 class InfoBoxBg extends Renderer
@@ -36,18 +36,18 @@ class InfoBoxBg extends Renderer
      */
     public function render(): ?string
     {
-        $this->render = '   <div class="info-box bg-' . $this->element->getMode()->value . '">
-                              <span class="info-box-icon"><i class="far ' . $this->element->getIcon() . '"></i></span>
+        $this->render = '   <div class="info-box bg-' . $this->render_object->getMode()->value . '">
+                              <span class="info-box-icon"><i class="far ' . $this->render_object->getIcon() . '"></i></span>
                 
                               <div class="info-box-content">
-                                <span class="info-box-text">' . $this->element->getTitle() . '</span>
-                                <span class="info-box-number">' . $this->element->getValue() . '</span>
+                                <span class="info-box-text">' . $this->render_object->getTitle() . '</span>
+                                <span class="info-box-number">' . $this->render_object->getValue() . '</span>
                 
-                                ' . (($this->element->getProgress() !== null) ? '   <div class="progress">
-                                                                        <div class="progress-bar" style="width: ' . $this->element->getProgress() . '%"></div>
+                                ' . (($this->render_object->getProgress() !== null) ? '   <div class="progress">
+                                                                        <div class="progress-bar" style="width: ' . $this->render_object->getProgress() . '%"></div>
                                                                       </div>' : '') . '
                                 <span class="progress-description">
-                                  ' . $this->element->getDescription() . '
+                                  ' . $this->render_object->getDescription() . '
                                 </span>
                               </div>
                               <!-- /.info-box-content -->

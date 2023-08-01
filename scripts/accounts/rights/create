@@ -1,0 +1,59 @@
+#!/usr/bin/php
+<?php
+
+declare(strict_types=1);
+
+use Phoundation\Accounts\Exception\AccountsException;
+use Phoundation\Accounts\Rights\Right;
+use Phoundation\Cli\Documentation;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+
+
+/**
+ * Script accounts/rights/create
+ *
+ * This script will create a new right with the specified properties
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Scripts
+ */
+Documentation::usage('./pho accounts right create NAME [OPTIONS]
+./pho system accounts right create test -d "This is a test right!"');
+
+Documentation::help('This script allows you to create user rights
+
+
+
+ARGUMENTS
+
+
+NAME                                    The name for the right
+
+[-d / --description]                    The description for the right');
+
+
+
+// Validate arguments
+$argv = ArgvValidator::new()
+    ->select('name', true)->isName()
+    ->select('-d,--description', true)->isOptional(null)->isDescription()
+    ->noArgumentsLeft()
+    ->validate();
+
+
+
+// Check if the right already exists
+Right::notExists('name', $argv['name'], null, true);
+
+
+
+// Create right and save it
+$right = Right::new()->apply($argv)->save();
+
+
+
+// Done!
+Log::success(tr('Created new right ":right"', [':right' => $right->getName()]));

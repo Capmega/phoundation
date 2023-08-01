@@ -6,13 +6,15 @@ namespace Phoundation\Web\Http\Html\Components;
 
 use PDO;
 use Phoundation\Core\Arrays;
-use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
+use Phoundation\Data\Traits\DataCallbacks;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Input\InputCheckbox;
+use Phoundation\Web\Http\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
 use Phoundation\Web\Http\UrlBuilder;
 use Stringable;
+
 
 /**
  * Class Table
@@ -21,11 +23,14 @@ use Stringable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
 class Table extends ResourceElement
 {
+    use DataCallbacks;
+
+
     /**
      * The class for the <row> elements within the <table> element
      *
@@ -116,6 +121,7 @@ class Table extends ResourceElement
      * @var bool $process_entities
      */
     protected bool $process_entities = true;
+
 
     /**
      * Table constructor
@@ -524,7 +530,7 @@ class Table extends ResourceElement
      * @param string|null $row_url
      * @return static
      */
-    public function setRowUrl(string|null $row_url): static
+    public function setRowUrl(?string $row_url): static
     {
         $this->row_url = $row_url;
         return $this;
@@ -606,19 +612,15 @@ class Table extends ResourceElement
      */
     public function renderBody(): string
     {
-        if (($this->source_array === null) and ($this->source_query === null)) {
+        if (($this->source === null) and ($this->source_query === null)) {
             throw new HtmlException(tr('No source specified'));
         }
 
         $return = '';
 
-        if (($this->source_array === null) and ($this->source_query === null)) {
-            throw new HtmlException(tr('No source specified'));
-        }
-
         if ($this->none) {
             // Add the none element as an array source
-            $this->source_array[''] = [$this->none];
+            $this->source[''] = [$this->none];
         }
 
         $return .= $this->renderBodyQuery();
@@ -641,18 +643,20 @@ class Table extends ResourceElement
      *@see \Templates\AdminLte\Html\Components\Table::render()
      * @see \Templates\AdminLte\Html\Components\Table::renderHeaders()
      * @see ResourceElement::renderBody()
-     * @see InterfaceElement::render()
+     * @see ElementInterface::render()
      */
     protected function renderBodyArray(): ?string
     {
-        if (!$this->source_array) {
+        if (!$this->source) {
             return null;
         }
 
         $return = '<tbody>';
 
         // Process array resource. Go over each row and in each row over each column
-        foreach ($this->source_array as $key => $row_values) {
+        foreach ($this->source as $key => $row_values) {
+            $this->executeCallbacks($row_values, $params);
+
             if (!is_array($row_values)) {
                 if (!is_object($row_values) or !method_exists($row_values, '__toArray')) {
                     throw new OutOfBoundsException(tr('The specified table source array is invalid. Format should be [[header columns][row columns][row columns] ...], a ":type" was encountered instead', [
@@ -678,10 +682,11 @@ class Table extends ResourceElement
                 if ($first) {
                     // Convert first column to checkboxes?
                     $value = $this->renderCheckboxColumn($column, $value);
-                    $row  .= $this->renderCell($key, $column, $value, false);
+                    $row  .= $this->renderCell($key, $column, $value, $params);
                     $first = false;
+
                 } else {
-                    $row .= $this->renderCell($key, $column, $value, $this->process_entities);
+                    $row .= $this->renderCell($key, $column, $value, $params);
                 }
             }
 
@@ -701,7 +706,7 @@ class Table extends ResourceElement
      *@see \Templates\AdminLte\Html\Components\Table::render()
      * @see \Templates\AdminLte\Html\Components\Table::renderHeaders()
      * @see ResourceElement::renderBody()
-     * @see InterfaceElement::render()
+     * @see ElementInterface::render()
      */
     protected function renderBodyQuery(): ?string
     {
@@ -716,8 +721,9 @@ class Table extends ResourceElement
         }
 
         // Process SQL resource
-        while ($row_values = $this->source_query->fetch(PDO::FETCH_ASSOC)) {
-            $return .= $this->renderRow($row_values);
+        while ($row = $this->source_query->fetch(PDO::FETCH_ASSOC)) {
+            $this->executeCallbacks($row, $params);
+            $return .= $this->renderRow($row, $params);
         }
 
         return $return . '</tbody>';
@@ -789,10 +795,10 @@ class Table extends ResourceElement
      * Returns a table cell
      *
      * @param array $row_values
-     * @param string|float|int|null $row_id
+     * @param array $params
      * @return string
      */
-    protected function renderRow(array $row_values, string|float|int|null $row_id = null): string
+    protected function renderRow(array $row_values, array $params): string
     {
         if (empty($this->column_headers)) {
             // Auto set headers from the column names
@@ -806,10 +812,8 @@ class Table extends ResourceElement
             unset($column_header);
         }
 
-        // If row identifier was not specified, then assume its the first value in the row
-        if ($row_id === null) {
-            $row_id = reset($row_values);
-        }
+        // ID is the first value in the row
+        $row_id = reset($row_values);
 
         // Add data-* in this option?
 //        if (array_key_exists($row_id, $this->source_data)) {
@@ -823,10 +827,11 @@ class Table extends ResourceElement
             if ($first) {
                 // Convert first column to checkboxes?
                 $value   = $this->renderCheckboxColumn($column, $value);
-                $return .= $this->renderCell($row_id, $column, $value, false);
-                $first = false;
+                $return .= $this->renderCell($row_id, $column, $value, $params);
+                $first   = false;
+
             } else {
-                $return .= $this->renderCell($row_id, $column, $value, $this->process_entities);
+                $return .= $this->renderCell($row_id, $column, $value, $params);
             }
         }
 
@@ -840,10 +845,10 @@ class Table extends ResourceElement
      * @param string|float|int|null $row_id
      * @param string|float|int|null $column
      * @param Stringable|string|float|int|null $value
-     * @param bool $entities
+     * @param array $param
      * @return string
      */
-    protected function renderCell(string|float|int|null $row_id, string|float|int|null $column, Stringable|string|float|int|null $value, bool $entities): string
+    protected function renderCell(string|float|int|null $row_id, string|float|int|null $column, Stringable|string|float|int|null $value, array $param): string
     {
         $value = (string) $value;
 
@@ -874,8 +879,9 @@ class Table extends ResourceElement
                 $value = str_replace(':ROW'   , $this->convert_columns[$column], $value);
                 $value = str_replace(':COLUMN', $this->convert_columns[$column], $value);
             }
+
         } else {
-            if ($entities) {
+            if ($param['htmlentities'] and empty($param['skiphtmlentities'][$column])) {
                 $value = htmlentities($value);
                 $value = str_replace(PHP_EOL, '<br>', $value);
             }

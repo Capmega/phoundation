@@ -5,6 +5,7 @@ declare(strict_types=1);
 
 namespace Templates\AdminLte\Html\Components;
 
+use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Web\Http\Html\Renderer;
 
@@ -16,7 +17,7 @@ use Phoundation\Web\Http\Html\Renderer;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\AdminLte
  */
 class Footer extends Renderer
@@ -39,10 +40,11 @@ class Footer extends Renderer
     {
         return '  <footer class="main-footer">
                     <div class="float-right d-none d-sm-block">
-                      <b>' . tr('Phoundation (AdminLte template) Version') . '</b> ' . Core::FRAMEWORKCODEVERSION . '
+                      <b>' . tr(':project using Phoundation (AdminLte template)', [':project' => Config::getString('project.name', 'Phoundation')]) . '</b> ' . Core::FRAMEWORKCODEVERSION . '
                     </div>
-                    <strong>Copyright © 2017-2023 <a href="https://phoundation.org">phoundation.org</a>.</strong> All rights reserved. <br>
-                    <strong>Copyright © 2014-2021 <a href="https://adminlte.io">AdminLTE.io</a>.</strong> All rights reserved.
+                    <strong>Copyright © ' . Config::getString('project.copyright', '2023') . ' <a href="' . Config::getString('project.customer-url', 'https://phoundation.org') . '" target="_blank">' . Config::getString('project.name', 'Phoundation') . '</a>.</strong> All rights reserved. <br>
                   </footer>';
+//        <strong>Copyright © 2014-2021 <a href="https://adminlte.io" target="_blank">AdminLTE.io</a>.</strong> All rights reserved.
+//        <strong>Copyright © 2017-2023 <a href="https://phoundation.org" target="_blank">phoundation.org</a>.</strong> All rights reserved. <br>
     }
 }

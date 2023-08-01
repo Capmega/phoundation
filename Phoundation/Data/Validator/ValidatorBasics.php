@@ -4,11 +4,17 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Validator;
 
+use Phoundation\Core\Arrays;
+use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
+use Phoundation\Data\Traits\DataIntId;
 use Phoundation\Data\Validator\Exception\NoKeySelectedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
+use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
+use Phoundation\Developer\Debug;
+use Phoundation\Exception\OutOfBoundsException;
 use ReflectionProperty;
 
 
@@ -19,11 +25,14 @@ use ReflectionProperty;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
 trait ValidatorBasics
 {
+    use DataIntId;
+
+
     /**
      * The source data that we will be validating
      *
@@ -37,6 +46,20 @@ trait ValidatorBasics
      * @var array $failures
      */
     protected array $failures = [];
+
+    /**
+     * The prefix for field selection
+     *
+     * @var string|null $field_prefix
+     */
+    protected ?string $field_prefix = null;
+
+    /**
+     * The table that contains the data
+     *
+     * @var string|null $table
+     */
+    protected ?string $table = null;
 
     /**
      * The current field that is being validated
@@ -65,7 +88,14 @@ trait ValidatorBasics
      *
      * @var mixed $selected_optional
      */
-    protected mixed $selected_optional;
+    protected mixed $selected_optional = null;
+
+    /**
+     * If true, the value is optional
+     *
+     * @var bool $selected_is_optional
+     */
+    protected bool $selected_is_optional = false;
 
     /**
      * The value(s) that actually will be tested. This most of the time will be an array with a single reference to
@@ -97,14 +127,21 @@ trait ValidatorBasics
     protected bool $process_value_failed = false;
 
     /**
+     * If true, then the current field has the default value
+     *
+     * @var bool $selected_is_default
+     */
+    protected bool $selected_is_default = false;
+
+    /**
      * If specified, this is a child element to a parent.
      *
      * The ->validate() call will NOT cause an exception but instead will send the failures list to the parent and then
      * return the parent element
      *
-     * @var Validator|null
+     * @var ValidatorInterface|null
      */
-    protected ?Validator $parent = null;
+    protected ?ValidatorInterface $parent = null;
 
     /**
      * If set, all field failure keys will show the parent field as well
@@ -131,6 +168,7 @@ trait ValidatorBasics
     /**
      * Required to test if selected_optional property is initialized or not
      *
+     * @todo Check if we can get rid of this reflectionproperty stuff, its very hacky
      * @var ReflectionProperty $reflection_selected_optional
      */
     protected ReflectionProperty $reflection_selected_optional;
@@ -138,6 +176,7 @@ trait ValidatorBasics
     /**
      * Required to test if process_value property is initialized or not
      *
+     * @todo Check if we can get rid of this reflectionproperty stuff, its very hacky
      * @var ReflectionProperty $reflection_process_value
      */
     protected ReflectionProperty $reflection_process_value;
@@ -157,6 +196,98 @@ trait ValidatorBasics
      * @var bool $password_disabled
      */
     protected static bool $password_disabled = false;
+
+    /**
+     * If true, failed fields will be cleared on validation
+     *
+     * @var bool $clear_failed_fields
+     */
+    protected bool $clear_failed_fields = false;
+
+
+    /**
+     * Sets the integer id for this object or null
+     *
+     * @param int|null $id
+     * @return static
+     */
+    public function setId(?int $id): static
+    {
+        $this->id = $id;
+        return $this;
+    }
+
+
+    /**
+     * Returns the entire source for this validator object
+     *
+     * @return array|null
+     */
+    public function getSource(): ?array
+    {
+        return $this->source;
+    }
+
+
+    /**
+     * Returns the value for the specified key, or null if not
+     *
+     * @return array
+     */
+    public function getSourceKey(string $key): mixed
+    {
+        return array_get_safe($this->source, $key);
+    }
+
+
+    /**
+     * Returns true if the specified key exists
+     *
+     * @param string $key
+     * @return bool
+     */
+    public function sourceKeyExists(string $key): bool
+    {
+        return array_key_exists($key, $this->source);
+    }
+
+
+    /**
+     * Manually set one of the internal fields to the specified value
+     *
+     * @param string $key
+     * @param array|string|int|float|bool|null $value
+     * @return static
+     */
+    public function setField(string $key, array|string|int|float|bool|null $value): static
+    {
+        $this->source[$key] = $value;
+        return $this;
+    }
+
+
+    /**
+     * Returns if failed fields will be cleared on validation
+     *
+     * @return bool
+     */
+    public function getClearFailedFields(): bool
+    {
+        return $this->clear_failed_fields;
+    }
+
+
+    /**
+     * Sets if failed fields will be cleared on validation
+     *
+     * @param bool $clear_failed_fields
+     * @return static
+     */
+    public function setClearFailedFields(bool $clear_failed_fields): static
+    {
+        $this->clear_failed_fields = $clear_failed_fields;
+        return $this;
+    }
 
 
     /**
@@ -210,15 +341,16 @@ trait ValidatorBasics
      *
      * This means that either it may not exist, or it's contents may be NULL
      *
-     * @param array|string|float|int|bool|null $default
+     * @param mixed $default
      * @return static
      *
      * @see Validator::xor()
      * @see Validator::or()
      */
-    public function isOptional(array|string|float|int|bool|null $default = null): static
+    public function isOptional(mixed $default = null): static
     {
-        $this->selected_optional = $default;
+        $this->selected_is_optional = true;
+        $this->selected_optional    = $default;
         return $this;
     }
 
@@ -251,6 +383,10 @@ trait ValidatorBasics
      */
     public function xor(string $field, bool $rename = false): static
     {
+        if (!str_starts_with($field, (string) $this->field_prefix)) {
+            $field = $this->field_prefix . $field;
+        }
+
         if ($this->selected_field === $field) {
             throw new ValidatorException(tr('Cannot validate XOR field ":field" with itself', [':field' => $field]));
         }
@@ -271,9 +407,8 @@ trait ValidatorBasics
         } else {
             // The currently selected field does not exist, the specified field MUST exist
             if (!isset_get($this->source[$field])) {
-                $this->addFailure(tr('Neither fields ":field" and ":selected_field" were set, where either one of them must be set', [
-                    ':field' => $field,
-                    ':selected_field' => $this->selected_field
+                $this->addFailure(tr('nor ":field" were set, where either one of them is required', [
+                    ':field' => $field
                 ]));
 
             } else {
@@ -290,26 +425,28 @@ trait ValidatorBasics
      * This method will make sure that either this field OR the other specified field optionally will have a value
      *
      * @param string $field
-     * @param mixed $default
      * @return static
      *
      * @see Validator::isOptional()
      * @see Validator::xor()
      */
-    public function or(string $field, mixed $default = null): static
+    public function or(string $field): static
     {
+        if (!str_starts_with($field, (string) $this->field_prefix)) {
+            $field = $this->field_prefix . $field;
+        }
+
         if ($this->selected_field === $field) {
             throw new ValidatorException(tr('Cannot validate OR field ":field" with itself', [':field' => $field]));
         }
 
-        if (isset_get($this->source[$this->selected_field])) {
-            // The currently selected field exists, the specified field cannot exist
-            if (isset_get($this->source[$field])) {
-                $this->addFailure(tr('Both fields ":field" and ":selected_field" were set, where only either one of them are allowed', [':field' => $field, ':selected_field' => $this->selected_field]));
+        if (!isset_get($this->source[$this->selected_field])) {
+            if (!$this->selected_is_optional) {
+                // The currently selected field is required but does not exist, so the other must exist
+                if (!isset_get($this->source[$field])) {
+                    $this->addFailure(tr('Neither fields ":field" nor ":selected_field" were set, where at least one of them is required', [':field' => $field, ':selected_field' => $this->selected_field]));
+                }
             }
-        } else {
-            // The currently selected field does not exist, so we default
-            $this->isOptional($default);
         }
 
         return $this;
@@ -378,21 +515,28 @@ trait ValidatorBasics
      *
      * This method will check the failures array and if any failures were registered, it will throw an exception
      *
+     * @param bool $clean_source
      * @return array
      */
-    public function validate(): array
+    public function validate(bool $clean_source = true): array
     {
         // Remove all unselected and all failed fields
         foreach ($this->source as $field => $value) {
             // Unprocessed fields
-            if (!in_array($field, $this->selected_fields)) {
-                unset($this->source[$field]);
-                continue;
+            if ($clean_source) {
+                if (!in_array($field, $this->selected_fields)) {
+                    $unclean[$field] = tr('The field ":field" is unknown', [':field' => $field]);
+                    unset($this->source[$field]);
+                    continue;
+                }
             }
 
             // Failed fields
             if (array_key_exists($field, $this->failures)) {
-                unset($this->source[$field]);
+                if ($this->clear_failed_fields) {
+show('CLEAR ' . $field);
+                    unset($this->source[$field]);
+                }
             }
         }
 
@@ -404,14 +548,23 @@ trait ValidatorBasics
 
             // Clear the contents of this object to avoid stuck references
             $this->clear();
+            // TODO Fix parent support
             return $this->parent;
         }
 
         if ($this->failures) {
-            throw ValidationFailedException::new(tr('Data validation failed with the following issues:'), $this->failures)->makeWarning();
+            throw ValidationFailedException::new(tr('Data validation failed with the following issues:'))
+                ->setData($this->failures)
+                ->makeWarning();
         }
 
-        return $this->source;
+        if (isset($unclean)) {
+            throw ValidationFailedException::new(tr('Data validation failed because of the following unknown fields'))
+                ->setData($unclean)
+                ->makeWarning();
+        }
+
+        return Arrays::extract($this->source, $this->selected_fields);
     }
 
 
@@ -436,8 +589,10 @@ trait ValidatorBasics
 
 
     /**
-     * Return if this field is optional or not
+     * Return true if this field was empty and now has the specified optional value and does not require validation
      *
+     * @note This process will set the static::process_value_failed to true when the optional value is applied to stop
+     *       further testing.
      * @param mixed $value The value to test
      * @return bool
      */
@@ -445,7 +600,7 @@ trait ValidatorBasics
     {
         if ($this->process_value_failed) {
             // Value processing already failed anyway, so always fail
-            return false;
+            return true;
         }
 
 // DEBUG CODE: In case of errors with validation, its very useful to have these debugged here
@@ -453,22 +608,21 @@ trait ValidatorBasics
 //        show($value);
 
         if (!$value) {
-            if (($value !== 0) and ($value !== "0")) {
-                if (!$this->reflection_selected_optional->isInitialized($this)){
-                    // At this point we know we MUST have a value, so we're bad here
-                    $this->addFailure(tr('is required'));
-                    return false;
-                }
-
-                // If value is set or not doesn't matter, it's okay
-                $value = $this->selected_optional;
-                $this->process_value_failed = true;
-                return false;
+            if (!$this->selected_is_optional) {
+                // At this point we know we MUST have a value, so we're bad here
+                $this->addFailure(tr('is required'));
+                return true;
             }
+
+            // If value is set or not doesn't matter, it's okay
+            $value = $this->selected_optional;
+            $this->selected_is_default  = true;
+            $this->process_value_failed = true;
+            return true;
         }
 
         // Field has a value, we're okay
-        return true;
+        return false;
     }
 
 
@@ -485,38 +639,23 @@ trait ValidatorBasics
             return;
         }
 
-//show('FAILURE (' . $this->parent_field . ' / ' . $this->selected_field . ' / ' . $this->process_key . '): ' . $failure);
-        // Build up the failure string
-        if (is_numeric($this->process_key)) {
-            if (is_numeric($this->selected_field)) {
-                if ($this->parent_field) {
-                    $failure = tr('The ":key" field in ":field" in ":parent" ', [':key' => Strings::ordinalIndicator($this->process_key), ':field' => Strings::ordinalIndicator($this->selected_field), ':parent' => $this->parent_field]) . $failure;
-                } else {
-                    $failure = tr('The ":key" field in ":field" ', [':key' => Strings::ordinalIndicator($this->process_key), ':field' => Strings::ordinalIndicator($this->selected_field)]) . $failure;
-                }
-            } else if ($this->parent_field) {
-                $failure = tr('The ":key" field in ":field" in ":parent" ', [':key' => Strings::ordinalIndicator($this->process_key), ':field' => $this->selected_field, ':parent' => $this->parent_field]) . $failure;
-            } else {
-                $failure = tr('The ":key" field in ":field" ', [':key' => Strings::ordinalIndicator($this->process_key), ':field' => $this->selected_field]) . $failure;
-            }
-        } elseif (is_numeric($this->selected_field)) {
-            if ($this->parent_field) {
-                $failure = tr('The ":key" field in ":parent" ', [':count' => Strings::ordinalIndicator($this->selected_field), ':parent' => $this->parent_field]) . $failure;
-            } else {
-                $failure = tr('The ":key" field ', [':count' => Strings::ordinalIndicator($this->selected_field)]) . $failure;
-            }
-        } elseif ($this->parent_field) {
-            $failure = tr('The ":field" field in ":parent" ', [':parent' => $this->parent_field, ':field' => $this->selected_field]) . $failure;
-        } else {
-            $failure = tr('The ":field" field ', [':field' => $this->selected_field]) . $failure;
-        }
+        // Detect field name to store this failure
+        if ($field) {
+            $selected_field = $field;
 
-        // Generate key to store this failure
-        if (!$field) {
+        } else {
+            $selected_field = $this->selected_field;
+
             if ($this->parent_field) {
-                $field = $this->parent_field . ':' . $this->selected_field;
+                $field = $this->parent_field . ':' . $selected_field;
             } else {
-                $field = $this->selected_field;
+                if (!$selected_field) {
+                    throw OutOfBoundsException::new(tr('No field specified or selected for validation failure ":failure"', [
+                        ':failure' => $failure
+                    ]));
+                }
+
+                $field = $selected_field;
             }
 
             if ($this->process_key !== null) {
@@ -524,9 +663,44 @@ trait ValidatorBasics
             }
         }
 
+        if (Debug::enabled()) {
+            Log::warning(tr('Validation failed for field ":field" with value ":value" because ":failure"', [
+                ':field'   => ($this->parent_field ?? '-') . ' / ' . $selected_field . ' / ' . ($this->process_key ?? '-'),
+                ':failure' => $failure,
+                ':value'   => $this->source[$selected_field],
+            ]));
+
+            Log::backtrace();
+        }
+
+        // Build up the failure string
+        if (is_numeric($this->process_key)) {
+            if (is_numeric($selected_field)) {
+                if ($this->parent_field) {
+                    $failure = tr('The ":key" field in ":field" in ":parent" ', [':key' => Strings::ordinalIndicator($this->process_key), ':field' => Strings::ordinalIndicator($selected_field), ':parent' => $this->parent_field]) . $failure;
+                } else {
+                    $failure = tr('The ":key" field in ":field" ', [':key' => Strings::ordinalIndicator($this->process_key), ':field' => Strings::ordinalIndicator($selected_field)]) . $failure;
+                }
+            } else if ($this->parent_field) {
+                $failure = tr('The ":key" field in ":field" in ":parent" ', [':key' => Strings::ordinalIndicator($this->process_key), ':field' => $selected_field, ':parent' => $this->parent_field]) . $failure;
+            } else {
+                $failure = tr('The ":key" field in ":field" ', [':key' => Strings::ordinalIndicator($this->process_key), ':field' => $selected_field]) . $failure;
+            }
+        } elseif (is_numeric($selected_field)) {
+            if ($this->parent_field) {
+                $failure = tr('The ":key" field in ":parent" ', [':count' => Strings::ordinalIndicator($selected_field), ':parent' => $this->parent_field]) . $failure;
+            } else {
+                $failure = tr('The ":key" field ', [':count' => Strings::ordinalIndicator($selected_field)]) . $failure;
+            }
+        } elseif ($this->parent_field) {
+            $failure = tr('The ":field" field in ":parent" ', [':parent' => $this->parent_field, ':field' => $selected_field]) . $failure;
+        } else {
+            $failure = tr('The ":field" field ', [':field' => $selected_field]) . $failure;
+        }
+
         // Store the failure
         $this->process_value_failed = true;
-        $this->failures[$field] = $failure;
+        $this->failures[$field]     = $failure;
     }
 
 
@@ -538,6 +712,35 @@ trait ValidatorBasics
     public function getFailures(): array
     {
         return $this->failures;
+    }
+
+
+    /**
+     * Returns if the currently selected field failed or not
+     *
+     * @return bool
+     */
+    public function getSelectedFieldHasFailed(): bool
+    {
+        return $this->fieldHasFailed($this->selected_field);
+    }
+
+
+    /**
+     * Returns true if the specified field has failed
+     *
+     * @param string $field
+     * @return bool
+     */
+    public function fieldHasFailed(string $field): bool
+    {
+        if (!array_key_exists($field, $this->source)) {
+            throw new OutOfBoundsException(tr('The specified field ":field" does not exist', [
+                ':field' => $field
+            ]));
+        }
+
+        return array_key_exists($field, $this->failures);
     }
 
 

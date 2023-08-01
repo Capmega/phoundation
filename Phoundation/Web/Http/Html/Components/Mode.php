@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html\Components;
 
-use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
-use Phoundation\Web\Http\Html\Interfaces\InterfaceDisplayMode;
+use Phoundation\Web\Http\Html\Enums\Interfaces\DisplayModeInterface;
+
 
 /**
  * Mode trait
@@ -15,7 +15,7 @@ use Phoundation\Web\Http\Html\Interfaces\InterfaceDisplayMode;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
 trait Mode
@@ -23,17 +23,17 @@ trait Mode
     /**
      * The type of mode for the element or element block
      *
-     * @var InterfaceDisplayMode $mode
+     * @var DisplayModeInterface $mode
      */
-    protected InterfaceDisplayMode $mode = DisplayMode::primary;
+    protected DisplayModeInterface $mode = DisplayMode::primary;
 
 
     /**
      * Returns the type of mode for the element or element block
      *
-     * @return InterfaceDisplayMode
+     * @return DisplayModeInterface
      */
-    public function getMode(): InterfaceDisplayMode
+    public function getMode(): DisplayModeInterface
     {
         return $this->mode;
     }
@@ -42,39 +42,16 @@ trait Mode
     /**
      * Sets the type of mode for the element or element block
      *
-     * @param InterfaceDisplayMode $mode
+     * @param DisplayModeInterface|string $mode
      * @return static
      */
-    public function setMode(InterfaceDisplayMode $mode): static {
-        // Convert aliases
-        $mode = match ($mode) {
-            DisplayMode::white       => DisplayMode::white,
-            DisplayMode::blue,
-            DisplayMode::info,
-            DisplayMode::information => DisplayMode::info,
-            DisplayMode::green,
-            DisplayMode::success     => DisplayMode::success,
-            DisplayMode::yellow,
-            DisplayMode::warning,    => DisplayMode::warning,
-            DisplayMode::red,
-            DisplayMode::error,
-            DisplayMode::exception,
-            DisplayMode::danger      => DisplayMode::danger,
-            DisplayMode::plain,
-            DisplayMode::primary,
-            DisplayMode::secondary,
-            DisplayMode::tertiary,
-            DisplayMode::link,
-            DisplayMode::light,
-            DisplayMode::dark,
-            DisplayMode::null        => $mode,
-            default                  => throw new OutOfBoundsException(tr('Unknown mode ":mode" specified', [
-                ':mode' => $mode
-            ]))
-        };
+    public function setMode(DisplayModeInterface|string $mode): static {
+        if (is_string($mode)) {
+            $mode = DisplayMode::from($mode);
+        }
 
-        $this->mode = $mode;
-
+        // Ensure we have primary display mode
+        $this->mode = $mode->getPrimary($mode);
         return $this;
     }
 }

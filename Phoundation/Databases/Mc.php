@@ -8,12 +8,14 @@ use Memcached;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
+use Phoundation\Core\Exception\ConfigurationInvalidException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Notifications\Notification;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Throwable;
+
 
 /**
  * Class Mc
@@ -22,7 +24,7 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Databases
  */
 class Mc
@@ -82,9 +84,10 @@ class Mc
         }
 
         // Get instance information and connect to memcached servers
-        $this->memcached = new Memcached();
         $this->instance_name = $instance_name;
-        $this->namespace = new MemcachedNamespace($this);
+        $this->memcached     = new Memcached();
+        $this->namespace     = new MemcachedNamespace($this);
+
         $this->readConfiguration();
         $this->setConnections($this->configuration['connections']);
         $this->connect();
@@ -158,11 +161,11 @@ class Mc
     /**
      * Add the specified connection
      *
-     * @param string $connection_name
+     * @param string|int $connection_name
      * @param array $configuration
      * @return static
      */
-    public function addConnection(string $connection_name, array $configuration): static
+    public function addConnection(string|int $connection_name, array $configuration): static
     {
         $this->configuration['connections'][$connection_name] = $configuration;
         return $this;
@@ -400,10 +403,10 @@ class Mc
     protected function readConfiguration(): void
     {
         // Read the configuration
-        $this->configuration = Config::get('databases.memcached.instances.' . $this->instance_name);
+        $this->configuration = Config::getArray('databases.memcached.instances.' . $this->instance_name);
 
         // Ensure that all required keys are available
-        Arrays::ensure($this->configuration, 'connections');
+        Arrays::ensure($this->configuration , 'connections');
         Arrays::default($this->configuration, 'expires', 86400);
         Arrays::default($this->configuration, 'prefix', gethostname());
 
@@ -417,13 +420,25 @@ class Mc
         if (!is_array($this->configuration['connections'])) {
             throw new OutOfBoundsException(tr('Invalid memcached connections configured for instance ":instance", it should be an array but is an ":type"', [
                 ':instance' => $this->instance_name,
-                ':type' => gettype($this->configuration['connections'])
+                ':type'     => gettype($this->configuration['connections'])
             ]));
         }
 
         // Ensure all connections are valid
-        foreach ($this->configuration['connections'] as &$restrictionss) {
-            Arrays::ensure($restrictionss, 'host,port,weight');
+        foreach ($this->configuration['connections'] as $weight => &$connection) {
+            if (!is_array($connection)) {
+                if ($connection) {
+                    throw new ConfigurationInvalidException(tr('Configuration path ":path" contains invalid information', [
+                        ':path' => 'databases.memcached.instances.' . $this->instance_name . '.connections.' . $weight
+                    ]));
+                }
+
+                // Empty connector information, default to empty array and fill up below
+                $connection = [];
+            }
+
+            Arrays::default($connection, 'host', '127.0.0.1');
+            Arrays::default($connection, 'port', 11211);
         }
     }
 
@@ -435,42 +450,47 @@ class Mc
      */
     protected function connect(): void
     {
-        if (!$this->memcached->getServerList()) {
-            Log::warning('Not connecting to memcached servers again, this instance is already connected');
+        if (empty($this->memcached)) {
+            // This is wonky, how did we get here without memcached being loaded?
+            throw new OutOfBoundsException(tr('Cannot connect to memcached servers, memcached driver has not been loaded'));
         }
 
-        if (empty($this->memcached)) {
-            // Memcached disabled?
-            if (!Config::get('databases.memcached.enabled', true)) {
-                Log::warning('Not using memcached, its disabled by configuration "memcached.enabled"');
+        // Memcached disabled?
+        if (!Config::get('databases.memcached.enabled', true)) {
+            Log::warning('Not using memcached, its disabled by configuration "memcached.enabled"', 4);
 
-            } else {
-                $failed = 0;
+        } else {
+            $failed = 0;
 
-                // Connect to all memcached servers, but only if no servers were added yet (this should normally be the case)
-                foreach ($this->configuration['connections'] as $restrictions) {
-                    try {
-                        $this->memcached->addServer($restrictions['host'], $restrictions['port'], $restrictions['weight']);
-                        $this->connections[] = $restrictions;
-                    } catch (Throwable $e) {
-                        Log::warning(tr('Failed to connect to memcached server ":host::port"', [':host' => $restrictions['host'], 'port' => $restrictions['port']]));
-                        $failed++;
-                    }
+            // Connect to all memcached servers, but only if no servers were added yet (this should normally be the case)
+            foreach ($this->configuration['connections'] as $weight => $connection) {
+                try {
+                    $this->memcached->addServer($connection['host'], $connection['port'], $weight);
+                    $this->connections[] = $connection;
+
+                } catch (Throwable $e) {
+                    Log::warning(tr('Failed to connect to memcached server ":host::port" in configuration path ":path"', [
+                        ':host' => $connection['host'],
+                        ':port' => $connection['port'],
+                        ':path' => 'databases.memcached.instances.' . $this->instance_name . '.connections.' . $weight
+                    ]));
+                    Log::error($e);
+                    $failed++;
                 }
+            }
 
-                if ($failed) {
-                    if (!$this->memcached->getServerList()) {
-                        // We haven't been able to connect to any memcached server at all!
-                        Log::warning(tr('Failed to connect to any memcached server'), 10);
+            if ($failed) {
+                if (!$this->memcached->getServerList()) {
+                    // We haven't been able to connect to any memcached server at all!
+                    Log::warning(tr('Failed to connect to any memcached server'), 10);
 
-                        Notification::new()
-                            ->setMode(DisplayMode::warning)
-                            ->setCode('not-available')
-                            ->addRole('developers')
-                            ->setTitle(tr('Memcached server not available'))
-                            ->setMessage(tr('Failed to connect to all ":count" memcached servers', [':server' => count($this->configuration['connections'])]))
-                            ->send();
-                    }
+                    Notification::new()
+                        ->setMode(DisplayMode::warning)
+                        ->setCode('not-available')
+                        ->addRole('developers')
+                        ->setTitle(tr('Memcached server not available'))
+                        ->setMessage(tr('Failed to connect to all ":count" memcached servers', [':server' => count($this->configuration['connections'])]))
+                        ->send();
                 }
             }
         }

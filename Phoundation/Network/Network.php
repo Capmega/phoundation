@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Phoundation\Network;
 
 use Phoundation\Core\Log\Log;
+use Phoundation\Network\Curl\Exception\CurlException;
 use Phoundation\Network\Curl\Get;
+use Phoundation\Network\Exception\NetworkException;
 use Phoundation\Processes\Exception\ProcessFailedException;
 use Phoundation\Processes\Process;
 
@@ -18,7 +20,7 @@ use Phoundation\Processes\Process;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Network
  */
 class Network
@@ -38,11 +40,17 @@ class Network
                 ->executeReturnString();
 
         } catch (ProcessFailedException $e) {
-            Log::warning(tr('Network::getPublicIpAddress() The dig command failed with the following exception'));
-            Log::warning(tr('This issue might be caused by a VPN, retrying with curl'));
-            Log::warning($e);
+            try {
+                Log::warning(tr('The dig command failed with the following exception'));
+                Log::warning(tr('This issue might be caused by a VPN, retrying with curl'));
+                Log::warning($e);
 
-            return Get::new('https://ipinfo.io/ip')->execute()->getResultData();
+                return Get::new('https://ipinfo.io/ip')->execute()->getResultData();
+
+            } catch (CurlException $f) {
+                Log::warning(tr('Failed to get public IP address from ipinfo.io'));
+                throw new NetworkException(tr('Failed to determine public IP address'), $f);
+            }
         }
     }
 }

@@ -6,6 +6,7 @@ namespace Phoundation\Databases\Sql\Schema;
 
 use Phoundation\Core\Arrays;
 
+
 /**
  * TableAlter class
  *
@@ -13,7 +14,7 @@ use Phoundation\Core\Arrays;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Databases
  */
 class TableAlter extends SchemaAbstract
@@ -78,6 +79,56 @@ class TableAlter extends SchemaAbstract
 
 
     /**
+     * Drop the specified column from the table
+     *
+     * @param string $column
+     * @return static
+     */
+    public function dropColumn(string $column): static
+    {
+        if ($column) {
+            $this->sql->query('ALTER TABLE ' . $this->name .  ' DROP COLUMN `' . $column . '`');
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Modify the specified column from the table
+     *
+     * @param string $column
+     * @param string $to_definition
+     * @return static
+     */
+    public function modifyColumn(string $column, string $to_definition): static
+    {
+        if ($column) {
+            $this->sql->query('ALTER TABLE ' . $this->name .  ' MODIFY COLUMN `' . $column . '` ' . $to_definition);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Change the specified column from the table
+     *
+     * @param string $column
+     * @param string $to_definition
+     * @return static
+     */
+    public function changeColumn(string $column, string $to_definition): static
+    {
+        if ($column) {
+            $this->sql->query('ALTER TABLE ' . $this->name .  ' CHANGE COLUMN `' . $column . '` ' . $to_definition);
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Add the array of indices to the table
      *
      * @param string|array $indices
@@ -108,6 +159,22 @@ class TableAlter extends SchemaAbstract
     {
         if ($index) {
             $this->sql->query('ALTER TABLE ' . $this->name .  ' ADD ' . $index);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Drop the specified index from the table
+     *
+     * @param string $index
+     * @return static
+     */
+    public function dropIndex(string $index): static
+    {
+        if ($index) {
+            $this->sql->query('ALTER TABLE ' . $this->name .  ' DROP KEY `' . $index . '`');
         }
 
         return $this;
@@ -150,4 +217,19 @@ class TableAlter extends SchemaAbstract
         return $this;
     }
 
+
+    /**
+     * Drop the specified foreign_key from the table
+     *
+     * @param string $foreign_key
+     * @return static
+     */
+    public function dropForeignKey(string $foreign_key): static
+    {
+        if ($foreign_key) {
+            $this->sql->query('ALTER TABLE ' . $this->name .  ' DROP FOREIGN KEY `' . $foreign_key . '`');
+        }
+
+        return $this;
+    }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
+
 /**
  * Trait DataEntryIpAddress
  *
@@ -11,7 +12,7 @@ namespace Phoundation\Data\DataEntry\Traits;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 trait DataEntryIpAddress
@@ -33,7 +34,7 @@ trait DataEntryIpAddress
      * @param string|null $ip_address
      * @return static
      */
-    public function setIpAddress(string|null $ip_address): static
+    public function setIpAddress(?string $ip_address): static
     {
         $this->setDataValue('net_len', strlen($ip_address));
         $this->setDataValue('ip_address', $ip_address);

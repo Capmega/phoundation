@@ -4,18 +4,17 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Categories;
 
-use Phoundation\Core\Locale\Language\Languages;
+use Phoundation\Data\Categories\Interfaces\CategoryInterface;
 use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
-use Phoundation\Data\DataEntry\Traits\DataEntryCategory;
+use Phoundation\Data\DataEntry\Definitions\Definition;
+use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
-use Phoundation\Data\Interfaces\InterfaceDataEntry;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Data\Validator\GetValidator;
-use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Exception\UnderConstructionException;
+
 
 /**
  * Category class
@@ -25,25 +24,12 @@ use Phoundation\Exception\UnderConstructionException;
  * @see \Phoundation\Data\DataEntry\DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-class Category extends DataEntry
+class Category extends DataEntry implements CategoryInterface
 {
     use DataEntryNameDescription;
-
-
-    /**
-     * Category class constructor
-     *
-     * @param InterfaceDataEntry|string|int|null $identifier
-     */
-    public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
-    {
-        static::$entry_name = 'category';
-
-        parent::__construct($identifier);
-    }
 
 
     /**
@@ -54,6 +40,28 @@ class Category extends DataEntry
     public static function getTable(): string
     {
         return 'categories';
+    }
+
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getDataEntryName(): string
+    {
+        return tr('Category');
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return 'seo_name';
     }
 
 
@@ -71,27 +79,21 @@ class Category extends DataEntry
     /**
      * Sets the parents_id for this object
      *
-     * @param string|int|null $parents_id
+     * @param int|null $parents_id
      * @return static
      */
-    public function setParentsId(string|int|null $parents_id): static
+    public function setParentsId(?int $parents_id): static
     {
-        if ($parents_id and !is_natural($parents_id)) {
-            throw new OutOfBoundsException(tr('Specified parents_id ":id" is not numeric', [
-                ':id' => $parents_id
-            ]));
-        }
-
-        return $this->setDataValue('parents_id', get_null(isset_get_typed('integer', $parents_id)));
+        return $this->setDataValue('parents_id', $parents_id);
     }
 
 
     /**
      * Returns the parents_id for this user
      *
-     * @return Parent|null
+     * @return Category|null
      */
-    public function getParent(): ?Parent
+    public function getParent(): ?Category
     {
         $parents_id = $this->getDataValue('int', 'parents_id');
 
@@ -104,81 +106,70 @@ class Category extends DataEntry
 
 
     /**
+     * Returns the parents_id for this user
+     *
+     * @return string|null
+     */
+    public function getParentsName(): ?string
+    {
+        return $this->getDataValue('string', 'parents_name');
+    }
+
+
+    /**
      * Sets the parents_id for this user
      *
-     * @param Category|string|int|null $parent
+     * @param string|null $parents_name
      * @return static
      */
-    public function setParent(Category|string|int|null $parent): static
+    public function setParentsName(?string $parents_name): static
     {
-        if ($parent) {
-            if (!is_numeric($parent)) {
-                $parent = static::get($parent);
-            }
-
-            if (is_object($parent)) {
-                $parent = $parent->getId();
-            }
-        }
-
-        return $this->setParentsId(get_null($parent));
+        return $this->setDataValue('parents_name', $parents_name);
     }
 
 
     /**
      * Sets the available data keys for this entry
      *
-     * @return DataEntryFieldDefinitionsInterface
+     * @param DefinitionsInterface $definitions
+     * @return void
      */
-    protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
+    protected function initDefinitions(DefinitionsInterface $definitions): void
     {
-        return DataEntryFieldDefinitions::new(static::getTable());
-
-        return [
-            'parents_id' => [
-                'element'  => function (string $key, array $data, array $source) {
-                    return Categories::getHtmlSelect($key)
-                        ->setParentsId(null)
-                        ->setSelected(isset_get($source['parents_id']))
+        $definitions
+            ->addDefinition(Definition::new($this, 'parents_id')
+                ->setOptional(true)
+                ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
+                    return Categories::new()->getHtmlSelect()
+                        ->setName($field_name)
+                        ->setSelected(isset_get($source[$key]))
                         ->render();
-                },
-                'source' => [],
-                'label'  => tr('Parent'),
-                'size'   => 4,
-                'help'   => tr('The parent category for this category'),
-            ],
-            'name' => [
-                'label'     => tr('Name'),
-                'maxlength' => 64,
-                'size'      => 12,
-                'help'      => tr('The name for this category'),
-            ],
-            'seo_name' => [
-                'visible'  => false,
-                'readonly' => true,
-            ],
-            'description' => [
-                'element'   => 'text',
-                'label'     => tr('Description'),
-                'maxlength' => 65535,
-                'size'      => 12,
-                'help'      => tr('The description for this category'),
-            ],
-        ];
-
-//        $data = $validator
-//            ->select($this->getAlternateValidationField('name'), true)->hasMaxCharacters(64)->isName()
-//            ->select($this->getAlternateValidationField('description'), true)->isOptional()->hasMaxCharacters(65_530)->isPrintable()
-//            ->select($this->getAlternateValidationField('parent'), true)->or('parents_id')->isName()->isQueryColumn('SELECT `name` FROM `categories` WHERE `name` = :name AND `status` IS NULL', [':name' => '$parent'])
-//            ->select($this->getAlternateValidationField('parents_id'), true)->or('parent')->isId()->isQueryColumn  ('SELECT `id`   FROM `categories` WHERE `id`   = :id   AND `status` IS NULL', [':id'   => '$parents_id'])
-//            ->noArgumentsLeft($no_arguments_left)
-//            ->validate();
-//
-//        // Ensure the name doesn't exist yet as it is a unique identifier
-//        if ($data['name']) {
-//            static::notExists($data['name'], $this->getId(), true);
-//        }
-//
-//        return $data;
+                })
+                ->setSize(6)
+                ->setLabel(tr('Parent category'))
+                ->addValidationFunction(function (ValidatorInterface $validator) {
+                    // Ensure parents_id exists and that its or parent
+                    $validator->or('parent')->isDbId()->isQueryResult('SELECT `id` FROM `categories` WHERE `id` = :id AND `status` IS NULL', [':id' => '$parents_id']);
+                }))
+            ->addDefinition(Definition::new($this, 'parent')
+                ->setOptional(true)
+                ->setVirtual(true)
+                ->setCliField('--parent PARENT CATEGORY NAME')
+                ->setCliAutoComplete([
+                    'word'   => function($word) { return Categories::new()->filteredList($word); },
+                    'noword' => function()      { return Categories::new()->getSource(); },
+                ])
+                ->addValidationFunction(function (ValidatorInterface $validator) {
+                    // Ensure parent exists and that its or parents_id
+                    $validator->or('parents_id')->isName(64)->setColumnFromQuery('parents_id', 'SELECT `id` FROM `categories` WHERE `name` = :name AND `status` IS NULL', [':name' => '$parent']);
+                }))
+            ->addDefinition(DefinitionFactory::getName($this)
+                ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->isFalse(function($value, $source) {
+                        Category::exists($value, 'name', isset_get($source['id']));
+                    }, tr('already exists'));
+                }))
+            ->addDefinition(DefinitionFactory::getSeoName($this))
+            ->addDefinition(DefinitionFactory::getDescription($this));
     }
 }

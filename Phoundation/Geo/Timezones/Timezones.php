@@ -4,9 +4,14 @@ declare(strict_types=1);
 
 namespace Phoundation\Geo\Timezones;
 
+use PDOStatement;
 use Phoundation\Data\DataEntry\DataList;
-use Phoundation\Web\Http\Html\Components\Input\Select;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Geo\States\State;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
+use Phoundation\Web\Http\Html\Components\Input\InputSelect;
 use Phoundation\Web\Http\Html\Components\Table;
+
 
 /**
  * Timezones class
@@ -16,27 +21,54 @@ use Phoundation\Web\Http\Html\Components\Table;
  * @see \Phoundation\Data\DataEntry\DataList
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Geo
  */
 class Timezones extends DataList
 {
     /**
      * Timezones class constructor
-     *
-     * @param Timezone|null $parent
-     * @param string|null $id_column
      */
-    public function __construct(?Timezone $parent = null, ?string $id_column = null)
+    public function __construct()
     {
-        $this->entry_class = Timezone::class;
-        self::$table       = Timezone::getTable();
+        $this->setQuery('SELECT   `id`, `name`, `status`, `created_on` 
+                               FROM     `geo_timezones` 
+                               WHERE    `status` IS NULL 
+                               ORDER BY `name`');
+        parent::__construct();
+    }
 
-        $this->setHtmlQuery('SELECT   `id`, `name`, `status`, `created_on` 
-                                   FROM     `geo_states` 
-                                   WHERE    `status` IS NULL 
-                                   ORDER BY `name`');
-        parent::__construct($parent, $id_column);
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'geo_timezones';
+    }
+
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getEntryClass(): string
+    {
+        return Timezone::class;
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return null;
     }
 
 
@@ -58,43 +90,33 @@ class Timezones extends DataList
      * Returns an HTML <select> object with all states available in this timezone
      *
      * @param string $name
-     * @return Select
+     * @return InputSelect
      */
-    public static function getHtmlTimezonesSelect(string $name = 'timezones_id'): Select
+    public static function getHtmlTimezonesSelect(string $name = 'timezones_id'): InputSelect
     {
-        return Select::new()
+        return InputSelect::new()
             ->setSourceQuery('SELECT `id`, `name` 
                                           FROM  `geo_timezones` 
                                           WHERE `status` IS NULL ORDER BY `name`')
             ->setName($name)
-            ->setNone(tr('Please select a timezone'))
+            ->setNone(tr('Select a timezone'))
             ->setEmpty(tr('No timezones available'));
     }
 
 
     /**
-     * @inheritDoc
+     * Returns an HTML <select> for the available object entries
+     *
+     * @param string $value_column
+     * @param string $key_column
+     * @param string|null $order
+     * @return SelectInterface
      */
-    protected function load(string|int|null $id_column = null): static
+    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id', ?string $order = null): SelectInterface
     {
-        // TODO: Implement load() method.
-    }
-
-
-    /**
-     * @inheritDoc
-     */
-    protected function loadDetails(array|string|null $columns, array $filters = []): array
-    {
-        // TODO: Implement loadDetails() method.
-    }
-
-
-    /**
-     * @inheritDoc
-     */
-    public function save(): static
-    {
-        // TODO: Implement save() method.
+        return parent::getHtmlSelect($value_column, $key_column, $order)
+            ->setName('timezones_id')
+            ->setNone(tr('Select a timezone'))
+            ->setEmpty(tr('No timezones available'));
     }
 }

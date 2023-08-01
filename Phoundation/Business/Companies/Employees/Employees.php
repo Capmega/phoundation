@@ -4,8 +4,13 @@ declare(strict_types=1);
 
 namespace Phoundation\Business\Companies\Employees;
 
+use PDOStatement;
+use Phoundation\Business\Companies\Company;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
+
 
 /**
  * Class Employees
@@ -15,53 +20,70 @@ use Phoundation\Data\DataEntry\DataList;
  * @see \Phoundation\Data\DataEntry\DataList
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Companies
  */
 class Employees extends DataList
 {
     /**
      * Employees class constructor
-     *
-     * @param DataEntry|null $parent
-     * @param string|null $id_column
      */
-    public function __construct(?DataEntry $parent = null, ?string $id_column = null)
+    public function __construct()
     {
-        $this->entry_class = Employee::class;
-        self::$table       = Employee::getTable();
-
-        $this->setHtmlQuery('SELECT   `id`, `name`, `email`, `status`, `created_on` 
+        $this->setQuery('SELECT   `id`, `name`, `email`, `status`, `created_on` 
                                    FROM     `business_employees` 
                                    WHERE    `status` IS NULL 
                                    ORDER BY `name`');
-        parent::__construct($parent, $id_column);
+        parent::__construct();
     }
 
 
     /**
-     * @inheritDoc
+     * Returns the table name used by this object
+     *
+     * @return string
      */
-     protected function load(string|int|null $id_column = null): static
+    public static function getTable(): string
     {
-        // TODO: Implement load() method.
+        return 'business_employees';
     }
 
 
     /**
-     * @inheritDoc
+     * Returns the name of this DataEntry class
+     *
+     * @return string
      */
-    public function save(): static
+    public static function getEntryClass(): string
     {
-        return $this;
+        return Employee::class;
     }
 
 
     /**
-     * @inheritDoc
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
      */
-    protected function loadDetails(array|string|null $columns, array $filters = []): array
+    public static function getUniqueField(): ?string
     {
-        // TODO: Implement loadDetails() method.
+        return 'seo_name';
+    }
+
+
+    /**
+     * Returns an HTML <select> for the available object entries
+     *
+     * @param string $value_column
+     * @param string $key_column
+     * @param string|null $order
+     * @return SelectInterface
+     */
+    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id', ?string $order = null): SelectInterface
+    {
+        return parent::getHtmlSelect($value_column, $key_column, $order)
+            ->setName('employees_id')
+            ->setNone(tr('Select a employee'))
+            ->setEmpty(tr('No employees available'));
     }
 }

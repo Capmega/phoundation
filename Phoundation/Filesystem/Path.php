@@ -12,6 +12,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FilesystemException;
+use Phoundation\Filesystem\Exception\PathException;
 use Phoundation\Filesystem\Exception\PathNotDirectoryException;
 use Phoundation\Filesystem\Exception\RestrictionsException;
 use Phoundation\Processes\Commands\FilesystemCommands;
@@ -25,9 +26,9 @@ use const PhpConsole\Test\PATH_TMP_DIR;
  *
  * This library contains various filesystem path related functions
  *
- * @author Sven Oostenbrink <support@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @category Function reference
  * @package Phoundation\Filesystem
  */
@@ -90,7 +91,7 @@ class Path extends FileBasics
             throw new FilesystemException(tr('The:type directory ":file" cannot be read because it is not a directory', [
                 ':type' => ($type ? '' : ' ' . $type),
                 ':file' => $this->file
-            ]), previous: $previous_e);
+            ]), $previous_e);
         }
 
         if ($previous_e) {
@@ -125,7 +126,7 @@ class Path extends FileBasics
             throw new FilesystemException(tr('The:type directory ":file" cannot be written because it is not a directory', [
                 ':type' => ($type ? '' : ' ' . $type),
                 ':file' => $this->file
-            ]), previous: $previous_e);
+            ]), $previous_e);
         }
 
         if ($previous_e) {
@@ -187,7 +188,7 @@ class Path extends FileBasics
 
                 try {
                     // Make sure that the parent path is writable when creating the directory
-                    Path::new(dirname($this->file), $this->restrictions)->execute()
+                    Path::new(dirname($this->file), $this->restrictions->getParent())->execute()
                         ->setMode(0770)
                         ->onPathOnly(function() use ($mode) {
                             mkdir($this->file, $mode);
@@ -200,9 +201,9 @@ class Path extends FileBasics
                     // It sometimes happens that the specified path was created just in between the file_exists and
                     // mkdir
                     if (!file_exists($this->file)) {
-                        throw FilesystemException::new(tr('Failed to create directory ":path"', [
+                        throw PathException::new(tr('Failed to create directory ":path"', [
                             ':path' => $this->file
-                        ]), ['path' => $this->file], $e);
+                        ]), $e)->setData(['path' => $this->file]);
                     }
                 }
             }
@@ -687,8 +688,9 @@ class Path extends FileBasics
     {
         if (!static::$temp_path) {
             static::$temp_path = PATH_TMP . 'process-' . posix_getpid() . '/';
+            $restrictions      = Restrictions::new(PATH_TMP, true);
 
-            static::$temp_path = Path::new(static::$temp_path, Restrictions::new(static::$temp_path, true))
+            static::$temp_path = Path::new(static::$temp_path, $restrictions)
                 ->delete()
                 ->ensureWritable();
         }
@@ -698,7 +700,7 @@ class Path extends FileBasics
             link(PATH_PUBTMP . 'p-' . posix_getpid() . '/', static::$temp_path);
         }
 
-        return Path::new(static::$temp_path);
+        return Path::new(static::$temp_path, $restrictions);
     }
 
 
@@ -710,7 +712,7 @@ class Path extends FileBasics
      */
     public static function getTemporarySub(bool $public = false): Path
     {
-        $path = self::getTemporary($public);
+        $path = static::getTemporary($public);
         $path = $path . Strings::random(8, characters: 'alphanumeric') . '/';
 
         return Path::new($path);

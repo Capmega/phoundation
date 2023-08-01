@@ -10,8 +10,10 @@ use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Input\InputMultiButtonText;
-use Phoundation\Web\Http\Html\Components\Input\Select;
+use Phoundation\Web\Http\Html\Components\Input\InputSelect;
 use Phoundation\Web\Http\Html\Components\Input\TextArea;
+use Phoundation\Web\Http\Html\Components\Interfaces\ElementInterface;
+use Phoundation\Web\Http\Html\Components\Interfaces\ElementsBlockInterface;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Html\Renderer;
 
@@ -23,15 +25,17 @@ use Phoundation\Web\Http\Html\Renderer;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\None
  */
 class DataEntryForm extends Renderer
 {
     /**
      * DataEntryForm class constructor
+     *
+     * @param ElementsBlockInterface|ElementInterface $element
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\DataEntryForm $element)
+    public function __construct(ElementsBlockInterface|ElementInterface $element)
     {
         parent::__construct($element);
     }
@@ -44,12 +48,12 @@ class DataEntryForm extends Renderer
      */
     public function render(): ?string
     {
-        if (!$this->element->getFields()) {
+        if (!$this->render_object->getDefinitions()) {
             throw new OutOfBoundsException(tr('Cannot render DataEntryForm, no form keys specified'));
         }
 
-        $source = $this->element->getSource();
-        $keys   = $this->reorderKeys($this->element->getFields());
+        $source = $this->render_object->getSource();
+        $keys   = $this->render_object->getDefinitions();
 
         // Possible $data contents:
         //
@@ -144,7 +148,7 @@ class DataEntryForm extends Renderer
                         ]));
                     }
 
-                    if (!$this->element->inputTypeSupported($data['type'])) {
+                    if (!$this->render_object->inputTypeSupported($data['type'])) {
                         throw new OutOfBoundsException(tr('Unknown input type ":type" specified for key ":key"', [
                             ':key'  => $key,
                             ':type' => $data['type']
@@ -218,11 +222,11 @@ class DataEntryForm extends Renderer
 
                 case 'select':
                     // Build the element class path and load the required class file
-                    $element = '\\Phoundation\\Web\\Http\\Html\\Components\\Input\\Select';
+                    $element = '\\Phoundation\\Web\\Http\\Html\\Components\\Input\\InputSelect';
                     $file    = Library::getClassFile($element);
                     include_once($file);
 
-                    $html = Select::new()
+                    $html = InputSelect::new()
                         ->setSource(isset_get($data['source']), $execute)
                         ->setDisabled((bool) $data['disabled'])
                         ->setReadOnly((bool) $data['readonly'])
@@ -293,7 +297,9 @@ class DataEntryForm extends Renderer
     protected function renderItem(string|int|null $id, ?string $html, ?array $data): ?string
     {
         static $col_size = 12;
-// TODO Leave the following lines for easy debugging form layouts
+        static $cols     = [];
+
+        // TODO Leave the following lines for easy debugging form layouts
 //        Log::printr($label);
 //        Log::printr($size);
 //        Log::printr($col_size);
@@ -309,6 +315,8 @@ class DataEntryForm extends Renderer
             $col_size = 0;
 
         } else {
+            $cols[] = isset_get($data['label']) . ' = "' . $id . '" [' . $data['size'] . ']';
+
             // Keep track of column size, close each row when size 12 is reached
             if ($col_size === 12) {
                 // Open a new row
@@ -340,9 +348,15 @@ class DataEntryForm extends Renderer
             $col_size -= $data['size'];
 
             if ($col_size < 0) {
-                throw new OutOfBoundsException(tr('Cannot add column ":label", the row would surpass size 12', [
-                    ':label' => $data['label']
-                ]));
+                throw OutOfBoundsException::new(tr('Cannot add column ":label" for ":class" form with size ":size", the row would surpass size 12 by ":count"', [
+                    ':class' => $this->render_object->getDefinitions()->getTable(),
+                    ':label' => $data['label'] . ' [' . $id . ']',
+                    ':size'  => abs($data['size']),
+                    ':count' => abs($col_size),
+                ]))->setData([
+                    'Columns on this row' => $cols,
+                    'HTML so far'         => $return
+                ]);
             }
         }
 
@@ -350,36 +364,6 @@ class DataEntryForm extends Renderer
             // Close the row
             $col_size = 12;
             $return  .= '</div>';
-        }
-
-        return $return;
-    }
-
-
-    /**
-     * Reorder the keys in the order of the specified keys and add the size information
-     *
-     * @param array $keys
-     * @return array
-     */
-    public function reorderKeys(array $keys): array
-    {
-        $return       = [];
-        $keys_display = $this->element->getKeysDisplay();
-
-        if (!$keys_display) {
-            return $keys;
-        }
-
-        foreach ($keys_display as $key => $size) {
-            if (!array_key_exists($key, $keys)) {
-                throw new OutOfBoundsException(tr('Specified form key ":key" does not exist as DataEntry key', [
-                    ':key' => $key
-                ]));
-            }
-
-            $return[$key]         = $keys[$key];
-            $return[$key]['size'] = $size;
         }
 
         return $return;

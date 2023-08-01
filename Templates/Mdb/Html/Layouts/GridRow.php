@@ -16,7 +16,7 @@ use Phoundation\Web\Http\Html\Renderer;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\Mdb
  */
 class GridRow extends Renderer
@@ -40,7 +40,7 @@ class GridRow extends Renderer
         $return = '<div class="row">';
         $size   = 0;
 
-        foreach ($this->element->getColumns() as $column) {
+        foreach ($this->render_object->getSource() as $column) {
             $size   += $column->getSize()->value;
             $return .= $column->render();
         }

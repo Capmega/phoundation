@@ -16,7 +16,7 @@ use Phoundation\Web\Http\Html\Renderer;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\Mdb
  */
 class Container extends Renderer
@@ -37,6 +37,6 @@ class Container extends Renderer
      */
     public function render(): ?string
     {
-        return '<div class="container' . ($this->element->getTier()->value ? '-' . Html::safe($this->getTier()->value) : null) . '">' . $this->element->getContent() . '</div>';
+        return '<div class="container' . ($this->render_object->getTier()->value ? '-' . Html::safe($this->getTier()->value) : null) . '">' . $this->render_object->getContent() . '</div>';
     }
 }

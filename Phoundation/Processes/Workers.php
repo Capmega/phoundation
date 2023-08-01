@@ -7,8 +7,10 @@ namespace Phoundation\Processes;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Exception\WorkersException;
+
 
 /**
  * Class Workers
@@ -17,7 +19,7 @@ use Phoundation\Processes\Exception\WorkersException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Processes
  * @uses \Phoundation\Processes\ProcessVariables
  */
@@ -93,10 +95,10 @@ class Workers extends Process
 //     * Workers constructor
 //     *
 //     * @param string|null $command
-//     * @param Restrictions|array|string|null $restrictions
+//     * @param RestrictionsInterface|array|string|null $restrictions
 //     * @param bool $which_command
 //     */
-//    public function __construct(?string $command = null, Restrictions|array|string|null $restrictions = null, bool $which_command = false)
+//    public function __construct(?string $command = null, RestrictionsInterface|array|string|null $restrictions = null, bool $which_command = false)
 //    {
 //        $this->setCommand($command, $which_command);
 //        $this->setRestrictions($restrictions);
@@ -107,10 +109,10 @@ class Workers extends Process
      * Returns a new Workers object
      *
      * @param string|null $command
-     * @param Restrictions|array|string|null $restrictions
+     * @param RestrictionsInterface|array|string|null $restrictions
      * @return static
      */
-    public static function create(?string $command = null, Restrictions|array|string|null $restrictions = null): static
+    public static function create(?string $command = null, RestrictionsInterface|array|string|null $restrictions = null): static
     {
         return new static($command, $restrictions);
     }

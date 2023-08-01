@@ -5,15 +5,14 @@ declare(strict_types=1);
 namespace Phoundation\Geo\States;
 
 use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
-use Phoundation\Data\Interfaces\InterfaceDataEntry;
-use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Geo\Continents\Continent;
 use Phoundation\Geo\Countries\Country;
 use Phoundation\Geo\Timezones\Timezone;
-use Phoundation\Web\Http\Html\Components\Input\Select;
+use Phoundation\Web\Http\Html\Components\Input\InputSelect;
+
 
 /**
  * Class State
@@ -23,25 +22,12 @@ use Phoundation\Web\Http\Html\Components\Input\Select;
  * @see \Phoundation\Data\DataEntry\DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Geo
  */
 class State extends DataEntry
 {
     use DataEntryNameDescription;
-
-    /**
-     * State class constructor
-     *
-     * @param InterfaceDataEntry|string|int|null $identifier
-     */
-    public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
-    {
-        static::$entry_name = 'geo state';
-        $this->unique_field = 'seo_name';
-
-        parent::__construct($identifier);
-    }
 
 
     /**
@@ -52,6 +38,28 @@ class State extends DataEntry
     public static function getTable(): string
     {
         return 'geo_states';
+    }
+
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getDataEntryName(): string
+    {
+        return 'geo state';
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return 'seo_name';
     }
 
 
@@ -92,18 +100,18 @@ class State extends DataEntry
      * Returns an HTML <select> object with all cities available in this state
      *
      * @param string $name
-     * @return Select
+     * @return InputSelect
      */
-    public function getHtmlCitiesSelect(string $name = 'cities_id'): Select
+    public function getHtmlCitiesSelect(string $name = 'cities_id'): InputSelect
     {
-        return Select::new()
+        return InputSelect::new()
             ->setSourceQuery('SELECT `id`, `name` 
                                           FROM  `geo_cities` 
                                           WHERE `states_id` = :states_id AND `status` IS NULL ORDER BY `name`', [
                 ':states_id' => $this->getId()
             ])
             ->setName($name)
-            ->setNone(tr('Please select a city'))
+            ->setNone(tr('Select a city'))
             ->setEmpty(tr('No cities available'));
     }
 
@@ -111,26 +119,26 @@ class State extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @return DataEntryFieldDefinitionsInterface
+     * @param DefinitionsInterface $definitions
      */
-    protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
+    protected function initDefinitions(DefinitionsInterface $definitions): void
     {
-        return DataEntryFieldDefinitions::new(static::getTable());
+        $definitions;
 
 //        throw new UnderConstructionException();
 //
 //        $data = $validator
-//            ->select($this->getAlternateValidationField('code'), true)->hasMaxCharacters()->isName()->isQueryColumn('SELECT `name` FROM `geo_continents` WHERE `name` = :name AND `status` IS NULL', [':name' => '$continent'])
-//            ->select($this->getAlternateValidationField('continent'), true)->or('continents_id')->isName()->isQueryColumn('SELECT `name` FROM `geo_continents` WHERE `name` = :name AND `status` IS NULL', [':name' => '$continent'])
-//            ->select($this->getAlternateValidationField('continents_id'), true)->or('continent')->isId()->isQueryColumn  ('SELECT `id`   FROM `geo_continents` WHERE `id`   = :id   AND `status` IS NULL', [':id'   => '$continents_id'])
-//            ->select($this->getAlternateValidationField('timezone'), true)->or('timezones_id')->isName()->isQueryColumn  ('SELECT `name` FROM `geo_timezone`   WHERE `name` = :name AND `status` IS NULL', [':name' => '$timezone'])
-//            ->select($this->getAlternateValidationField('timezones_id'), true)->or('timezone')->isId()->isQueryColumn    ('SELECT `id`   FROM `geo_timezone`   WHERE `id`   = :id   AND `status` IS NULL', [':id'   => '$timezones_id'])
+//            ->select($this->getAlternateValidationField('code'), true)->hasMaxCharacters()->isName()->isQueryResult('SELECT `name` FROM `geo_continents` WHERE `name` = :name AND `status` IS NULL', [':name' => '$continent'])
+//            ->select($this->getAlternateValidationField('continent'), true)->or('continents_id')->isName()->isQueryResult('SELECT `name` FROM `geo_continents` WHERE `name` = :name AND `status` IS NULL', [':name' => '$continent'])
+//            ->select($this->getAlternateValidationField('continents_id'), true)->or('continent')->isDbId()->isQueryResult  ('SELECT `id`   FROM `geo_continents` WHERE `id`   = :id   AND `status` IS NULL', [':id'   => '$continents_id'])
+//            ->select($this->getAlternateValidationField('timezone'), true)->or('timezones_id')->isName()->isQueryResult  ('SELECT `name` FROM `geo_timezone`   WHERE `name` = :name AND `status` IS NULL', [':name' => '$timezone'])
+//            ->select($this->getAlternateValidationField('timezones_id'), true)->or('timezone')->isDbId()->isQueryResult    ('SELECT `id`   FROM `geo_timezone`   WHERE `id`   = :id   AND `status` IS NULL', [':id'   => '$timezones_id'])
 //            ->noArgumentsLeft($no_arguments_left)
 //            ->validate();
 //
 //        // Ensure the name doesn't exist yet as it is a unique identifier
 //        if ($data['name']) {
-//            static::notExists($data['name'], $this->getId(), true);
+//            static::notExists($data['name'], 'name', $this->getId(), true);
 //        }
 //
 //        return $data;

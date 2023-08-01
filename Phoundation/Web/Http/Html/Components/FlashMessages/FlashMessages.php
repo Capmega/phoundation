@@ -4,17 +4,18 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html\Components\FlashMessages;
 
-use Iterator;
-use JetBrains\PhpStorm\ExpectedValues;
-use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\ElementsBlock;
+use Phoundation\Web\Http\Html\Components\FlashMessages\Interfaces\FlashMessageInterface;
 use Phoundation\Web\Http\Html\Components\Script;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
-use Phoundation\Web\Http\Html\Interfaces\InterfaceDisplayMode;
+use Stringable;
+use Throwable;
+
 
 /**
  * Class FlashMessages
@@ -23,10 +24,10 @@ use Phoundation\Web\Http\Html\Interfaces\InterfaceDisplayMode;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class FlashMessages extends ElementsBlock implements Iterator
+class FlashMessages extends ElementsBlock implements IteratorInterface
 {
     /**
      * This method will move all messages from the specified FlashMessages object here.
@@ -50,69 +51,161 @@ class FlashMessages extends ElementsBlock implements Iterator
 
 
     /**
-     * Add a flash message
+     * Add a "Success!" flash message
      *
-     * @param FlashMessage|Exception|string|null $title
-     * @param string|null $message
-     * @param InterfaceDisplayMode|null $mode
+     * @param FlashMessage|Exception|string|null $message
      * @param string|null $icon
      * @param int|null $auto_close
      * @return $this
      */
-    public function add(FlashMessage|Exception|string|null $title, ?string $message = null, ?InterfaceDisplayMode $mode = null, string $icon = null, ?int $auto_close = null): static
+    public function addSuccessMessage(FlashMessage|Exception|string|null $message = null, string $icon = null, ?int $auto_close = 10000): static
     {
-        if ($title) {
-            // a title was specified
-            if (is_string($title)) {
-                // Title was specified as a string, make it a flash message
-                if (!$message) {
-                    throw new OutOfBoundsException(tr('No message specified for this flash message'));
+        return $this->addMessage($message, tr('Success!'), DisplayMode::success, $icon, $auto_close);
+    }
+
+
+    /**
+     * Add a "Warning!" flash message
+     *
+     * @param FlashMessage|Exception|string|null $message
+     * @param string|null $icon
+     * @param int|null $auto_close
+     * @return $this
+     */
+    public function addWarningMessage(FlashMessage|Exception|string|null $message = null, string $icon = null, ?int $auto_close = 0): static
+    {
+        return $this->addMessage($message, tr('Warning'), DisplayMode::warning, $icon, $auto_close);
+    }
+
+
+    /**
+     * Add a "Validation failed" flash message
+     *
+     * @param FlashMessage|Exception|string|null $message
+     * @param string|null $icon
+     * @param int|null $auto_close
+     * @return $this
+     */
+    public function addValidationFailedMessage(FlashMessage|Exception|string|null $message = null, string $icon = null, ?int $auto_close = 10000): static
+    {
+        return $this->addMessage($message, tr('Validation failed'), DisplayMode::warning, $icon, $auto_close);
+    }
+
+
+    /**
+     * Add an "Error!" flash message
+     *
+     * @param FlashMessage|Exception|string|null $message
+     * @param string|null $icon
+     * @param int|null $auto_close
+     * @return $this
+     */
+    public function addErrorMessage(FlashMessage|Exception|string|null $message = null, string $icon = null, ?int $auto_close = 0): static
+    {
+        return $this->addMessage($message, tr('Something went wrong'), DisplayMode::error, $icon, $auto_close);
+    }
+
+
+    /**
+     * Add a "Notice!" flash message
+     *
+     * @param FlashMessage|Exception|string|null $message
+     * @param string|null $icon
+     * @param int|null $auto_close
+     * @return $this
+     */
+    public function addNoticeMessage(FlashMessage|Exception|string|null $message = null, string $icon = null, ?int $auto_close = 10000): static
+    {
+        return $this->addMessage($message, tr('Notice'), DisplayMode::notice, $icon, $auto_close);
+    }
+
+
+    /**
+     * Add a flash message
+     *
+     * @param FlashMessage|Exception|Stringable|string|null $message
+     * @param string|null $title
+     * @param DisplayMode|null $mode
+     * @param string|null $icon
+     * @param int|null $auto_close
+     * @return $this
+     */
+    public function addMessage(FlashMessage|Exception|Stringable|string|null $message, ?string $title = null, ?DisplayMode $mode = null, string $icon = null, ?int $auto_close = 5000): static
+    {
+        if (!$message) {
+            // Ignore empty messages
+            return $this;
+        }
+
+        if ($message instanceof ValidationFailedException) {
+            // Title was specified as an exception, add each validation failure as a separate flash message
+            if (empty($title)) {
+                $title = tr('Validation failed');
+            }
+
+            if ($message->getData()) {
+                $count = 0;
+
+                foreach ($message->getData() as $message) {
+                    if (!trim($message)) {
+                        continue;
+                    }
+
+                    $count++;
+                    $this->addValidationFailedMessage($message);
                 }
 
-                $title = FlashMessage::new()
-                    ->setAutoClose($auto_close)
-                    ->setMessage($message)
-                    ->setTitle($title)
-                    ->setMode($mode)
-                    ->setIcon($icon);
-
-            } elseif ($title instanceof ValidationFailedException) {
-                // Title was specified as an exception, add each validation failure as a separate flash message
-                if ($title->getData()) {
-                    $count = 0;
-
-                    foreach ($title->getData() as $message) {
-                        if (!trim($message)) {
-                            continue;
-                        }
-
-                        $count++;
-                        $this->add(tr('Information validation failure'), $message, DisplayMode::warning, null, 5000);
-                    }
-
-                    if (!$count) {
-                        throw new OutOfBoundsException(tr('The specified Validation exception ":e" has no or empty messages in the exception data', [
-                            ':e' => $title
-                        ]));
-                    }
-                }
-
-                return $this;
-
-            } elseif ($title instanceof Exception) {
-                // Title was specified as an exception, add each validation failure as a separate flash
-                // message
-                if ($title->getMessages()) {
-                    foreach ($title->getMessages() as $message) {
-                        $this->add(tr('Problem encountered!'), $message, DisplayMode::warning, null, 5000);
-                    }
+                if (!$count) {
+                    throw new OutOfBoundsException(tr('The specified Validation exception ":e" has no or empty messages in the exception data', [
+                        ':e' => $title
+                    ]));
                 }
 
                 return $this;
             }
+
+        } elseif ($message instanceof Exception) {
+            // Title was specified as a Phoundation exception, add each validation failure as a separate flash
+            // message
+            if (empty($title)) {
+                $title = tr('Error');
+            }
+
+            foreach ($message->getMessages() as $message) {
+                $this->addErrorMessage($message, $title);
+            }
+
+            return $this;
         }
 
-        $this->source[] = $title;
+        if ($message instanceof Throwable) {
+            // Title was specified as a PHP exception, add the exception message as flash message
+            $message = $message->getMessage();
+
+            if (empty($title)) {
+                $title = tr('Error');
+            }
+        }
+
+        if (!$title) {
+            // Title is required tho
+            throw new OutOfBoundsException(tr('No title specified for the flash message ":message"', [
+                ':message' => $message
+            ]));
+        }
+
+        if (!($message instanceof FlashMessageInterface)) {
+            // The message was not specified as a flash message, treat it as a string and make a flash message out of it
+            $message = FlashMessage::new()
+                ->setAutoClose($auto_close)
+                ->setMessage((string) $message)
+                ->setTitle($title)
+                ->setMode($mode)
+                ->setIcon($icon);
+        }
+
+        $this->source[] = $message;
+
         return $this;
     }
 

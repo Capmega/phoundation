@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Locale\Language;
 
+use Phoundation\Core\Locale\Language\Interfaces\LanguageInterface;
 use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
+use Phoundation\Data\DataEntry\Definitions\Definition;
+use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
-use Phoundation\Data\Interfaces\InterfaceDataEntry;
+use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
 
 
 /**
@@ -19,26 +21,12 @@ use Phoundation\Data\Interfaces\InterfaceDataEntry;
  * @see \Phoundation\Data\DataEntry\DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
-class Language extends DataEntry
+class Language extends DataEntry implements LanguageInterface
 {
     use DataEntryNameDescription;
-
-
-    /**
-     * Language class constructor
-     *
-     * @param InterfaceDataEntry|string|int|null $identifier
-     */
-    public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
-    {
-        static::$entry_name = 'language';
-        $this->unique_field = 'code_639_1';
-
-        parent::__construct($identifier);
-    }
 
 
     /**
@@ -49,6 +37,28 @@ class Language extends DataEntry
     public static function getTable(): string
     {
         return 'core_languages';
+    }
+
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getDataEntryName(): string
+    {
+        return 'language';
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return 'code_639_1';
     }
 
 
@@ -147,80 +157,48 @@ class Language extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @return DataEntryFieldDefinitionsInterface
+     * @param DefinitionsInterface $definitions
      */
-    protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
+    protected function initDefinitions(DefinitionsInterface $definitions): void
     {
-        return DataEntryFieldDefinitions::new(static::getTable());
-
-        return [
-            'name' => [
-                'disabled'  => true,
-                'label'     => tr('Name'),
-                'size'      => 12,
-                'maxlength' => 32,
-                'help'      => tr('The name for this language'),
-            ],
-            'seo_name' => [
-                'visible'  => false,
-            ],
-            'code_639_1' => [
-                'disabled'  => true,
-                'type'      => 'text',
-                'label'     => tr('ISO 639-1 code'),
-                'size'      => 3,
-                'maxlength' => 2,
-                'help'      => tr('The code_639_1 code for this language'),
-            ],
-            'code_639_2_t' => [
-                'disabled'  => true,
-                'type'      => 'text',
-                'label'     => tr('ISO 639-2/T code'),
-                'size'      => 3,
-                'maxlength' => 3,
-                'help'      => tr('The code_639_2_t code for this language'),
-            ],
-            'code_639_2_b' => [
-                'disabled'  => true,
-                'type'      => 'text',
-                'label'     => tr('ISO 639-2/B code'),
-                'size'      => 3,
-                'maxlength' => 3,
-                'help'      => tr('The code_639_2_b code for this language'),
-            ],
-            'code_639_3' => [
-                'disabled'  => true,
-                'type'      => 'text',
-                'label'     => tr('ISO 639-3 code'),
-                'size'      => 3,
-                'maxlength' => 3,
-                'help'      => tr('The name for this language'),
-            ],
-            'description' => [
-                'element'   => 'text',
-                'label'     => tr('Description'),
-                'size'      => 3,
-                'maxlength' => 65535,
-                'help'      => tr('The description for this language'),
-            ]
-        ];
-
-
-//        $data = $validator
-//            ->select($this->getAlternateValidationField('name'), true)->isOptional()->hasMaxCharacters(32)->isName()
-//            ->select($this->getAlternateValidationField('code_639_1'), true)->isOptional()->hasCharacters(2)->isCode()
-//            ->select($this->getAlternateValidationField('code_639_2_t'), true)->isOptional()->hasCharacters(3)->isCode()
-//            ->select($this->getAlternateValidationField('code_639_2_b'), true)->isOptional()->hasCharacters(3)->isCode()
-//            ->select($this->getAlternateValidationField('code_639_3'), true)->isOptional()->hasCharacters(3)->isCode()
-//            ->select($this->getAlternateValidationField('description'), true)->isOptional()->isPrintable()->hasMaxCharacters(65_530)
-//            ->noArgumentsLeft($no_arguments_left)
-//            ->validate();
-//
-//        // Ensure the name doesn't exist yet as it is a unique identifier
-//        if ($data['name']) {
-//            static::notExists($data['name'], $this->getId(), true);
-//        }
-//
-//        return $data;
+        $definitions
+            ->addDefinition(DefinitionFactory::getName($this)
+                ->setDisabled(true)
+                ->setHelpText(tr('The name for this language')))
+            ->addDefinition(DefinitionFactory::getSeoName($this))
+            ->addDefinition(Definition::new($this, 'code_639_1')
+                ->setDisabled(true)
+                ->setInputType(InputTypeExtended::code)
+                ->setLabel(tr('ISO 639-1 code'))
+                ->setCliField(tr('--iso-691-1 CODE'))
+                ->setSize(12)
+                ->setMaxlength(2)
+                ->setHelpText(tr('The ISO 639-1 code for this language')))
+            ->addDefinition(Definition::new($this, 'code_639_2_t')
+                ->setDisabled(true)
+                ->setInputType(InputTypeExtended::code)
+                ->setLabel(tr('ISO 639-2/T code'))
+                ->setCliField(tr('--iso-691-2-t CODE'))
+                ->setSize(12)
+                ->setMaxlength(3)
+                ->setHelpText(tr('The ISO 639-2/T code for this language')))
+            ->addDefinition(Definition::new($this, 'code_639_2_b')
+                ->setDisabled(true)
+                ->setInputType(InputTypeExtended::code)
+                ->setLabel(tr('ISO 639-2/B code'))
+                ->setCliField(tr('--iso-691-2-b CODE'))
+                ->setSize(12)
+                ->setMaxlength(3)
+                ->setHelpText(tr('The ISO 639-2/B code for this language')))
+            ->addDefinition(Definition::new($this, 'code_639_3')
+                ->setDisabled(true)
+                ->setInputType(InputTypeExtended::code)
+                ->setLabel(tr('ISO 639-3 code'))
+                ->setCliField(tr('--iso-691-2-b CODE'))
+                ->setSize(12)
+                ->setMaxlength(3)
+                ->setHelpText(tr('The ISO 639-3 code for this language')))
+            ->addDefinition(DefinitionFactory::getDescription($this)
+                ->setHelpText(tr('The description for this language')));
     }
 }

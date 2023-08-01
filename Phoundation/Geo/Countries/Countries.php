@@ -4,9 +4,14 @@ declare(strict_types=1);
 
 namespace Phoundation\Geo\Countries;
 
+use PDOStatement;
 use Phoundation\Data\DataEntry\DataList;
-use Phoundation\Web\Http\Html\Components\Input\Select;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Geo\Cities\City;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
+use Phoundation\Web\Http\Html\Components\Input\InputSelect;
 use Phoundation\Web\Http\Html\Components\Table;
+
 
 /**
  * Countries class
@@ -16,27 +21,54 @@ use Phoundation\Web\Http\Html\Components\Table;
  * @see \Phoundation\Data\DataEntry\DataList
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Geo
  */
 class Countries extends DataList
 {
     /**
      * Countries class constructor
-     *
-     * @param Country|null $parent
-     * @param string|null $id_column
      */
-    public function __construct(?Country $parent = null, ?string $id_column = null)
+    public function __construct()
     {
-        $this->entry_class = Country::class;
-        self::$table       = Country::getTable();
+        $this->setQuery('SELECT   `id`, `name`, `status`, `created_on` 
+                               FROM     `geo_countries` 
+                               WHERE    `status` IS NULL 
+                               ORDER BY `name`');
+        parent::__construct();
+    }
 
-        $this->setHtmlQuery('SELECT   `id`, `name`, `status`, `created_on` 
-                                   FROM     `geo_states` 
-                                   WHERE    `status` IS NULL 
-                                   ORDER BY `name`');
-        parent::__construct($parent, $id_column);
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'geo_countries';
+    }
+
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getEntryClass(): string
+    {
+        return Country::class;
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return null;
     }
 
 
@@ -58,43 +90,33 @@ class Countries extends DataList
      * Returns an HTML <select> object with all states available in this country
      *
      * @param string $name
-     * @return Select
+     * @return InputSelect
      */
-    public static function getHtmlCountriesSelect(string $name = 'countries_id'): Select
+    public static function getHtmlCountriesSelect(string $name = 'countries_id'): InputSelect
     {
-        return Select::new()
+        return InputSelect::new()
             ->setSourceQuery('SELECT `id`, `name` 
                                           FROM  `geo_countries` 
                                           WHERE `status` IS NULL ORDER BY `name`')
             ->setName($name)
-            ->setNone(tr('Please select a country'))
+            ->setNone(tr('Select a country'))
             ->setEmpty(tr('No countries available'));
     }
 
 
     /**
-     * @inheritDoc
+     * Returns an HTML <select> for the available object entries
+     *
+     * @param string $value_column
+     * @param string $key_column
+     * @param string|null $order
+     * @return SelectInterface
      */
-    protected function load(string|int|null $id_column = null): static
+    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id', ?string $order = null): SelectInterface
     {
-        // TODO: Implement load() method.
-    }
-
-
-    /**
-     * @inheritDoc
-     */
-    protected function loadDetails(array|string|null $columns, array $filters = []): array
-    {
-        // TODO: Implement loadDetails() method.
-    }
-
-
-    /**
-     * @inheritDoc
-     */
-    public function save(): static
-    {
-        // TODO: Implement save() method.
+        return parent::getHtmlSelect($value_column, $key_column, $order)
+            ->setName('countries_id')
+            ->setNone(tr('Select a country'))
+            ->setEmpty(tr('No countries available'));
     }
 }

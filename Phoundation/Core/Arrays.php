@@ -10,6 +10,8 @@ use Phoundation\Core\Interfaces\EnumMatchModeInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Stringable;
+use Throwable;
+use UnitEnum;
 
 
 /**
@@ -18,7 +20,7 @@ use Stringable;
  * This is the standard Phoundation array functionality extension class
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @package Phoundation\Core
  */
@@ -121,11 +123,10 @@ class Arrays {
      * @param array $source The source array in which will be searched
      * @param mixed $current_value The value for which will be searched
      * @param bool $delete If true, will delete the specified $current_value and found next value
-     * @param bool $restart
      * @return mixed
-     * @throws OutOfBoundsException ?????
+     * @throws OutOfBoundsException thrown if the $current_value was found at the end of the array
      */
-    public static function nextValue(array &$source, mixed $current_value, bool $delete = false, bool $restart = false): mixed
+    public static function nextValue(array &$source, mixed $current_value, bool $delete = false): mixed
     {
         foreach ($source as $key => $value) {
             if (isset($next)) {
@@ -145,15 +146,14 @@ class Arrays {
             }
         }
 
-        if (!$restart) {
+        if (isset($next)) {
             // The current value was found, but it was at the end of the array
             throw new OutOfBoundsException(tr('Option ":value" does not have a value specified', [
                 ':value' => $current_value
             ]));
         }
 
-        reset($source);
-        return current($source);
+        return null;
     }
 
 
@@ -589,6 +589,28 @@ class Arrays {
         }
 
         return $source;
+    }
+
+
+    /**
+     * Removes all entries from the byref source array in the specified $keys and returns those in the result array
+     *
+     * @param array $source
+     * @param string|array $keys
+     * @return array
+     */
+    public static function extract(array &$source, string|array $keys): array
+    {
+        $return = [];
+
+        foreach (Arrays::force($keys) as $key) {
+            if (array_key_exists($key, $source)) {
+                $return[$key] = $source[$key];
+                unset($source[$key]);
+            }
+        }
+
+        return $return;
     }
 
 
@@ -1566,8 +1588,8 @@ class Arrays {
         ];
 
         foreach ($source1 as $value) {
-            if (!is_scalar($value)) {
-                throw new OutOfBoundsException(tr('Only scalar values are supported while source 1 has a non-scalar value'));
+            if ($value and !is_scalar($value)) {
+                throw new OutOfBoundsException(tr('Can only take diffs from scalar values while source 1 has a non-scalar value'));
             }
 
             if (!in_array($value, $source2)) {
@@ -1865,5 +1887,170 @@ class Arrays {
         $array = array_column($array, 'value');
 
         return $array;
+    }
+
+
+    /**
+     * Extracts entries with the specified prefix from the keys from the given source
+     *
+     * This function will return an array with all keys that have the specified prefix. If no prefix has been specified,
+     * the function will try to detect a prefix. A prefix is presumed to be a string of at least one character ending
+     * with an underscore, so entries like "230984_name" will have presumed to have the prefix "230984_"
+     *
+     * @param array $source
+     * @param string|null $prefix
+     * @param bool $keep_prefix
+     * @return array
+     * @example :
+     * [
+     *   $keya         => $value,
+     *   $prefix_$key1 => $value,
+     *   $prefix_$key2 => $value
+     * ]
+     *
+     * Will return
+     * [
+     *   $prefix_$key1 => $value,
+     *   $prefix_$key2 => $value
+     * ]
+     *
+     * @example :
+     * [
+     *   25346_name        => $value,
+     *   25346_description => $value,
+     *   information       => $value
+     * ]
+     *
+     * will return
+     * [
+     *   25346_name        => $value,
+     *   25346_description => $value
+     * ]
+     *
+     * @note The id in the specified keys must be the same
+     *
+     */
+    public static function extractPrefix(array $source, ?string $prefix = null, bool $keep_prefix = false): array
+    {
+        $return = [];
+
+        if ($keep_prefix) {
+            $key_prefix = $prefix;
+
+        } else {
+            $key_prefix = null;
+        }
+
+        foreach ($source as $key => $value) {
+            if ($prefix === null) {
+                // Auto detect class
+                $prefix = Strings::until($key, '_', require: true);
+
+                if (!$prefix) {
+                    // No class found, continue to the next entry
+                    $prefix = null;
+                    continue;
+                }
+
+                $prefix .= '_';
+            }
+
+            $key = Strings::from($key, $prefix, require: true);
+
+            if (!$key) {
+                // This key didn't have the specified class
+                continue;
+            }
+
+            $return[$key_prefix . $key] = $value;
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Extracts the specified key from the specified array and returns its value
+     *
+     * @param array $source
+     * @param string $key
+     * @return mixed
+     */
+    public static function extractKey(array &$source, string $key): mixed
+    {
+        try {
+            $return = $source[$key];
+
+        } catch (Throwable) {
+            throw new OutOfBoundsException(tr('Key ":key" does not exist in the specified source array', [
+                ':key' => $key
+            ]));
+        }
+
+        unset($source[$key]);
+        return $return;
+    }
+
+
+    /**
+     * Finds and returns a prefix code in array keys
+     *
+     * This function will find and return the first prefix code that it can find. A prefix is presumed to be a string of
+     * at least one character ending with an underscore, so entries like "230984_name" will have presumed to have the
+     * prefix "230984_". Returns NULL if no prefix was found.
+     *
+     * @example :
+     * [
+     *   $keya         => $value,
+     *   $prefix_$key1 => $value,
+     *   $prefix_$key2 => $value
+     * ]
+     *
+     * Will return
+     * $prefix
+     *
+     * @example :
+     * [
+     *   25346_name        => $value,
+     *   25346_description => $value,
+     *   information       => $value
+     * ]
+     *
+     * will return
+     * "25346"
+     *
+     * @example :
+     * [
+     *   name        => $value,
+     *   description => $value
+     * ]
+     *
+     * will return
+     * NULL
+     *
+     * @example :
+     * [
+     *   name         => $value,
+     *   _description => $value,
+     *   _information => $value
+     * ]
+     *
+     * will return
+     * NULL
+     *
+     * @param array $source
+     * @return string|float|int|null
+     */
+    public static function findPrefix(array $source): string|float|int|null
+    {
+        foreach ($source as $key => $value) {
+            $prefix = (int) Strings::until($key, '_', require: true);
+
+            if ($prefix) {
+                return $prefix;
+            }
+        }
+
+        return null;
     }
 }

@@ -7,21 +7,22 @@ namespace Templates\AdminLte;
 
 use Phoundation\Core\Config;
 use Phoundation\Web\Http\Html\Components\Footer;
+use Phoundation\Web\Http\Html\Components\Modals\SignInModal;
 use Phoundation\Web\Http\Html\Components\SidePanel;
 use Phoundation\Web\Http\Html\Components\TopPanel;
 use Phoundation\Web\Http\Html\Html;
-use Phoundation\Web\Http\Html\Modals\SignInModal;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
+
 
 /**
  * AdminLte template class
  *
- * 
+ *
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\AdminLte
  */
 class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
@@ -63,18 +64,23 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
     public function buildHtmlHeader(): ?string
     {
         // Set head meta data
-        Page::setFavIcon('img/favicons/project.png');
+        Page::setFavIcon();
         Page::setViewport('width=device-width, initial-scale=1');
 
         // Load basic MDB and fonts CSS
         Page::loadCss([
             'https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback',
-            'adminlte/plugins/fontawesome-free/css/all',
+            'adminlte/plugins/fontawesome-free-6.4.0-web/css/all',
+            'adminlte/plugins/fontawesome-free-6.4.0-web/css/regular',
+            'adminlte/plugins/fontawesome-free-6.4.0-web/css/v4-shim',
             'adminlte/css/adminlte',
             'adminlte/css/phoundation',
             'adminlte/plugins/overlayScrollbars/css/OverlayScrollbars',
             'adminlte/css/phoundation'
         ], true);
+
+        // Load configured CSS files
+        Page::loadCss(Config::getArray('web.page.css', []));
 
         // Load basic MDB amd jQuery javascript libraries
         Page::loadJavascript([
@@ -86,8 +92,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
         ], null, true);
 
         // Set basic page details
-        Page::setPageTitle(tr('Phoundation platform'));
-        Page::setFavIcon('favicon/' . Page::getProjectName() . '/project.png');
+        Page::setPageTitle(Config::get('project.name', tr('Phoundation platform')) . ' (' . Page::getHeaderTitle() . ')');
 
         return Page::buildHeaders();
     }
@@ -100,7 +105,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
      */
     public function buildPageHeader(): ?string
     {
-        return '<body class="sidebar-mini" style="height: auto;">    
+        return '<body class="sidebar-mini" style="height: auto;">
                     <div class="wrapper">
                         ' . Page::getFlashMessages()->render() . '
                         ' . $this->buildTopPanel() . '
@@ -160,7 +165,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
         $body = parent::buildBody($target);
 
         if (Page::getBuildBody()) {
-            $body = '   <div class="content-wrapper" style="min-height: 1518.06px;">                   
+            $body = '   <div class="content-wrapper" style="min-height: 1518.06px;">
                            ' . $this->buildBodyHeader() . '
                             <section class="content">
                                 <div class="container-fluid">
@@ -199,11 +204,11 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
         $panel->getNotificationsDropDown()
             ->setNotifications(null)
             ->setNotificationsUrl('/notifications/notification-:ID.html')
-            ->setAllNotificationsUrl('/notifications/all.html');
+            ->setAllNotificationsUrl('/notifications/unread.html');
 
         $panel->getMessagesDropDown()
             ->setMessages(null)
-            ->setMessagesUrl('/messages/all.html');
+            ->setMessagesUrl('/messages/unread.html');
 
         $panel->getLanguagesDropDown()
             ->setLanguages(null)
@@ -229,7 +234,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
         $panel = SidePanel::new();
         $panel->setMenu(Page::getMenus()->getPrimaryMenu());
         $panel->getModals()
-            ->add('sign-in', $sign_in);
+            ->addModal('sign-in', $sign_in);
 
         return $panel->render();
     }
@@ -250,7 +255,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
                           <div class="col-sm-6">
                             <h1>
                               ' . Page::getHeaderTitle() . '
-                              ' . ($sub_title ? '<small>' . Html::safe($sub_title) . '</small>' : '') . '                          
+                              ' . ($sub_title ? '<small>' . Html::safe($sub_title) . '</small>' : '') . '
                             </h1>
                           </div>
                           <div class="col-sm-6">

@@ -7,6 +7,7 @@ namespace Phoundation\Filesystem;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Strings;
 use Phoundation\Filesystem\Exception\RestrictionsException;
+use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Stringable;
 
 
@@ -15,13 +16,13 @@ use Stringable;
  *
  * This class manages file access restrictions
  *
- * @author Sven Oostenbrink <support@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @category Function reference
  * @package Phoundation\Filesystem
  */
-class Restrictions
+class Restrictions implements RestrictionsInterface
 {
     /**
      * Internal store of all restrictions
@@ -36,6 +37,7 @@ class Restrictions
      * @var string $label
      */
     protected string $label = 'system';
+
 
     /**
      * Restrictions constructor
@@ -53,6 +55,28 @@ class Restrictions
         if ($paths) {
             $this->setPaths($paths, $write);
         }
+    }
+
+
+    /**
+     * Return the paths for this Restrictions object in string format
+     *
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return implode(',', array_keys($this->paths));
+    }
+
+
+    /**
+     * Return the paths for this Restrictions object
+     *
+     * @return array
+     */
+    public function __toArray(): array
+    {
+        return $this->paths;
     }
 
 
@@ -149,8 +173,20 @@ class Restrictions
      */
     public function addPaths(Stringable|array|string $paths, bool $write = false): static
     {
-        foreach (Arrays::force($paths) as $path) {
-            $this->addPath($path, $write);
+        foreach (Arrays::force($paths) as $path => $path_write) {
+            if (is_numeric($path)) {
+                // Path array was not specified as [path => write, path => write, ...] but as [path, path, ...]
+                // Get the correct path names and use the "global" $write flag instead
+                $path       = $path_write;
+                $path_write = $write;
+            }
+
+            if (is_array($path)) {
+                $this->addPaths($paths, $path_write);
+
+            } else {
+                $this->addPath($path, $path_write);
+            }
         }
 
         return $this;
@@ -243,7 +279,7 @@ class Restrictions
             }
 
             // The specified pattern(s) are not allowed by the specified restrictions
-            throw RestrictionsException::new(tr('Access to path patterns ":patterns" denied by ":label" restrictions', [
+            throw RestrictionsException::new(tr('Access to requested path patterns ":patterns" denied by ":label" restrictions', [
                 ':patterns' => $pattern,
                 ':label'    => $this->label
             ]))->setData([

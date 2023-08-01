@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http\Html;
 
 use Phoundation\Core\Arrays;
+use Phoundation\Core\Strings;
 use Phoundation\Notifications\Notification;
 use Phoundation\Web\Exception\WebException;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
+
 
 /**
  * Class Js
@@ -16,7 +18,7 @@ use Phoundation\Web\Http\Html\Enums\DisplayMode;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
 class Js
@@ -70,7 +72,7 @@ class Js
                         ->setMessage(tr('File ":file" was specified with ".js"', [':file' => $file]))
                         ->send();
 
-                } elseif (substr($file, -7, 7) == '.min.js') {
+                } elseif (str_ends_with($file, '.min.js')) {
                     $file = substr($file, 0, -7);
 
                     Notification::new()

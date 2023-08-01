@@ -9,7 +9,7 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
-use Phoundation\Data\Interfaces\InterfaceDataEntry;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Databases\Databases;
 use Phoundation\Databases\Mc;
 use Phoundation\Databases\Mongo;
@@ -203,6 +203,29 @@ function isset_get(mixed &$variable, mixed $default = null): mixed
 
 
 /**
+ * Return the array key value if it exists, or the default
+ *
+ * If (for example) a non-existing key from an array was specified, NULL will be returned instead of causing a variable
+ *
+ * @note IMPORTANT! After calling this function, $var will exist in the scope of the calling function!
+ * @param array $source The source array to test
+ * @param string|float|int|null $key The key to return
+ * @param string|float|int $default (optional) The value to return in case the specified $variable did not exist or was NULL.*
+ * @return mixed
+ */
+function array_get_safe(array $source, string|float|int|null $key, mixed $default = null): mixed
+{
+    // Return the key if it exists
+    if (array_key_exists($key, $source)) {
+        return $source[$key];
+    }
+
+    // Return the default value
+    return $default;
+}
+
+
+/**
  * Return the value if it actually exists with the correct datatype, or NULL instead.
  *
  * If (for example) a non-existing key from an array was specified, NULL will be returned instead of causing a variable
@@ -214,7 +237,7 @@ function isset_get(mixed &$variable, mixed $default = null): mixed
  * @param mixed $default (optional) The value to return in case the specified $variable did not exist or was NULL.*
  * @return mixed
  */
-function isset_get_typed(array|string $types, mixed &$variable, mixed $default = null): mixed
+function isset_get_typed(array|string $types, mixed &$variable, mixed $default = null, bool $exception = true): mixed
 {
     // The variable exists
     if (isset($variable)) {
@@ -233,8 +256,8 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
                         return $variable;
                     }
 
-                    // Allow hard casting for numbers
-                    if (is_numeric($variable)) {
+                    if (is_object($variable) and ($variable instanceof Stringable)) {
+                        // This is fine, this object has __toString() implemented
                         return (string) $variable;
                     }
 
@@ -311,10 +334,16 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
             }
         }
 
-        throw OutOfBoundsException::new(tr('isset_get_typed(): Specified variable has datatype ":has" but it should be one of ":types"', [
-            ':has'   => gettype($variable),
-            ':types' => $types,
-        ]))->setData(['variable' => $variable]);
+        if ($exception) {
+            throw OutOfBoundsException::new(tr('isset_get_typed(): Specified variable ":variable" has datatype ":has" but it should be one of ":types"', [
+                ':variable' => $variable,
+                ':has'      => gettype($variable),
+                ':types'    => $types,
+            ]))->setData(['variable' => $variable]);
+        }
+
+        // Don't throw an exception, return null instead.
+        return null;
     }
 
     // The previous isset would have actually set the variable with null, unset it to ensure it won't exist
@@ -437,11 +466,11 @@ function is_numeric_integer(mixed $source): bool
  *
  * A data entry is considered new when the id is null, or _new
  *
- * @param InterfaceDataEntry|array $entry The entry to check
+ * @param DataEntryInterface|array $entry The entry to check
  * @return boolean TRUE if the specified $entry is new
  * @version 2.5.46: Added function and documentation
  */
-function is_new(InterfaceDataEntry|array $entry): bool
+function is_new(DataEntryInterface|array $entry): bool
 {
     if (!is_array($entry)) {
         if (!is_object($entry)) {
@@ -602,14 +631,20 @@ function showhex(mixed $source = null, int $trace_offset = 1, bool $quiet = fals
 /**
  * Shortcut to the Debug::show() call, but displaying the backtrace
  *
- * @param mixed $source
+ * @param int $count
  * @param int $trace_offset
  * @param bool $quiet
  * @return mixed
  */
-function showbacktrace(mixed $source = null, int $trace_offset = 1, bool $quiet = false): mixed
+function showbacktrace(int $count = 10, int $trace_offset = 1, bool $quiet = false): mixed
 {
-    return show(Debug::backtrace(), $trace_offset, $quiet);
+    $backtrace = Debug::backtrace();
+
+    if ($count) {
+        $backtrace = Arrays::limit($backtrace, $count);
+    }
+
+    return show($backtrace, $trace_offset, $quiet);
 }
 
 
@@ -726,6 +761,7 @@ function execute_script(string $__file): void
 {
     try {
         include($__file);
+
     } catch (Throwable $e) {
         // Did this fail because the specified file does not exist?
         File::new($__file, PATH_SCRIPTS)->checkReadable('script', $e);

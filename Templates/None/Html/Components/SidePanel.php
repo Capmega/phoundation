@@ -13,6 +13,7 @@ use Phoundation\Web\Http\Html\Renderer;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
+
 /**
  * None Plugin SidePanel class
  *
@@ -20,7 +21,7 @@ use Phoundation\Web\Page;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\None
  */
 class SidePanel extends Renderer
@@ -56,7 +57,7 @@ class SidePanel extends Renderer
                                             ->render() . '
                                 </div>
                                 <div class="info">
-                                  <a href="' . (Session::getUser()->isGuest() ? '#' : Html::safe(UrlBuilder::getWww('/profile.html'))) . '" class="d-block">' . Html::safe(Session::getUser()->getDisplayName()) . '</a>
+                                  <a href="' . (Session::getUser()->isGuest() ? '#' : Html::safe(UrlBuilder::getWww('/my/profile.html'))) . '" class="d-block">' . Html::safe(Session::getUser()->getDisplayName()) . '</a>
                                 </div>
                               </div>
                               <div class="form-inline">
@@ -83,14 +84,14 @@ class SidePanel extends Renderer
                         
                               <!-- Sidebar Menu -->
                               <nav>
-                                ' . $this->element->getMenu()?->render() . '                                
+                                ' . $this->render_object->getMenu()?->render() . '                                
                               </nav>
                               <!-- /.sidebar-menu -->
                             </div>
                             <!-- /.sidebar -->
                           </aside>';
 
-        $this->render .= $this->element->getModals()?->render() . PHP_EOL;
+        $this->render .= $this->render_object->getModals()?->render() . PHP_EOL;
 
         return parent::render();
     }

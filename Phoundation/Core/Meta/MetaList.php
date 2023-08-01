@@ -10,6 +10,7 @@ use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Components\DataTable;
 use Phoundation\Web\Http\Url;
 
+
 /**
  * Class MetaList
  *
@@ -17,7 +18,7 @@ use Phoundation\Web\Http\Url;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
 class MetaList
@@ -56,7 +57,7 @@ class MetaList
      *
      * @return DataTable
      */
-    public function getHtmlDataTable(): DataTable
+    public function getHtmlDataTable(array|string|null $columns = null): DataTable
     {
         // Create and return the table
         $in     = Sql::in($this->meta_list);
@@ -90,11 +91,27 @@ class MetaList
                     unset($row['data'][$section]['status']);
                 }
 
+                foreach ($row['data']['to'] as &$value) {
+                    if ($value) {
+                        $value = '<span class="success">' . htmlentities($value) . '</span>';
+                    }
+                }
+
+                unset($value);
+
                 if (isset_get($row['data']['from'])) {
-                    $row['data'] = '<b>' . tr('From: ') . '</b><br>' . htmlentities(Arrays::implodeWithKeys($row['data']['from'], PHP_EOL, ': ')) . '<br><b>' . tr('To: ') . '</b><br>' . htmlentities(Arrays::implodeWithKeys($row['data']['to'], PHP_EOL, ': '));
+                    foreach ($row['data']['from'] as &$value) {
+                        if ($value) {
+                            $value = '<span class="danger">' . htmlentities($value) . '</span>';
+                        }
+                    }
+
+                    unset($value);
+
+                    $row['data'] = '<b>' . tr('From: ') . '</b><br>' . Arrays::implodeWithKeys($row['data']['from'], PHP_EOL, ': ') . '<br><b>' . tr('To: ') . '</b><br>' . Arrays::implodeWithKeys($row['data']['to'], PHP_EOL, ': ');
 
                 } else {
-                    $row['data'] = '<b>' . tr('Created with: ') . '</b><br>' . htmlentities(Arrays::implodeWithKeys($row['data']['to'], PHP_EOL, ': '));
+                    $row['data'] = '<b>' . tr('Created with: ') . '</b><br>' . Arrays::implodeWithKeys($row['data']['to'], PHP_EOL, ': ');
                 }
 
                 $row['data'] = str_replace(PHP_EOL, '<br>', $row['data']);
@@ -117,6 +134,6 @@ class MetaList
                 tr('Comments'),
                 tr('Data'),
             ])
-            ->setSourceArray($source);
+            ->setSource($source);
     }
 }

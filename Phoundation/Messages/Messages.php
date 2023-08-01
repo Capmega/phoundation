@@ -4,7 +4,13 @@ declare(strict_types=1);
 
 namespace Phoundation\Messages;
 
+use PDOStatement;
 use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Processes\Task;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
+use Phoundation\Web\Http\Html\Components\Input\InputSelect;
+
 
 /**
  * Messages class
@@ -14,53 +20,74 @@ use Phoundation\Data\DataEntry\DataList;
  * @see \Phoundation\Data\DataEntry\DataList
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundations\Messages
  */
 class Messages extends DataList
 {
     /**
      * Messages class constructor
+     */
+    public function __construct()
+    {
+        $this->setQuery('SELECT   `id`, `title`, `status`, `created_on` 
+                               FROM     `messages` 
+                               WHERE    `status` IS NULL 
+                               ORDER BY `title`');
+        parent::__construct();
+    }
+
+
+    /**
+     * Returns the table name used by this object
      *
-     * @param Message|null $parent
-     * @param string|null $id_column
+     * @return string
      */
-    public function __construct(?Message $parent = null, ?string $id_column = null)
+    public static function getTable(): string
     {
-        $this->entry_class = Message::class;
-        self::$table       = Message::getTable();
-
-        $this->setHtmlQuery('SELECT   `id`, `title`, `status`, `created_on` 
-                                   FROM     `messages` 
-                                   WHERE    `status` IS NULL 
-                                   ORDER BY `title`');
-        parent::__construct($parent, $id_column);
+        return 'messages';
     }
 
 
     /**
-     * @inheritDoc
+     * Returns the name of this DataEntry class
+     *
+     * @return string
      */
-    protected function load(string|int|null $id_column = null): static
+    public static function getEntryClass(): string
     {
-        // TODO: Implement load() method.
+        return Message::class;
     }
 
 
     /**
-     * @inheritDoc
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
      */
-    protected function loadDetails(array|string|null $columns, array $filters = []): array
+    public static function getUniqueField(): ?string
     {
-        // TODO: Implement loadDetails() method.
+        return null;
     }
 
 
     /**
-     * @inheritDoc
+     * Returns an HTML <select> for the available object entries
+     *
+     * @param string $value_column
+     * @param string $key_column
+     * @param string|null $order
+     * @return SelectInterface
      */
-    public function save(): static
+    public function getHtmlSelect(string $value_column = 'title', string $key_column = 'id', ?string $order = null): SelectInterface
     {
-        // TODO: Implement save() method.
+        return InputSelect::new()
+            ->setSourceQuery('SELECT   `' . $key_column . '`, `' . $value_column . '` 
+                                         FROM     `' . static::getTable() . '` 
+                                         WHERE    `status` IS NULL 
+                                         ORDER BY `title` ASC')
+            ->setName('messages_id')
+            ->setNone(tr('Select a message'))
+            ->setEmpty(tr('No messages available'));
     }
 }

@@ -9,10 +9,13 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
+use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Commands\Wget;
+use Stringable;
 use Throwable;
+
 
 /**
  * MaxMind class
@@ -21,7 +24,7 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation/Geo
  */
 class MaxMindImport extends GeoIpImport
@@ -49,9 +52,9 @@ class MaxMindImport extends GeoIpImport
      *       https://www.maxmind.com/en/accounts/YOUR_ACCOUNT_ID/license-key and configured in the configuration path
      *       geo.ip.max-mind.api-key
      *
-     * @return string
+     * @return Stringable|string
      */
-    public static function download(): string
+    public static function download(): Stringable|string
     {
         $license_key = Config::getString('geo.ip.max-mind.api-key');
         $wget        = Wget::new();
@@ -59,7 +62,7 @@ class MaxMindImport extends GeoIpImport
 
         Log::action(tr('Storing GeoIP files in path ":path"', [':path' => $path]));
 
-        foreach (self::getMaxMindFiles(true) as $file => $url) {
+        foreach (static::getMaxMindFiles(true) as $file => $url) {
             Log::action(tr('Downloading MaxMind URL ":url"', [':url' => $url]));
 
             $wget
@@ -75,19 +78,17 @@ class MaxMindImport extends GeoIpImport
     /**
      * Process downloaded GeoIP files
      *
-     * @param string $source_path
-     * @param string|null $target_path
+     * @param Stringable|string $source_path
+     * @param Stringable|string|null $target_path
+     * @param RestrictionsInterface|array|string|null $restrictions = null
      * @return string
      */
-    public static function process(string $source_path, ?string $target_path = null, Restrictions|array|string|null $restrictions = null): string
+    public static function process(Stringable|string $source_path, Stringable|string|null $target_path = null, RestrictionsInterface|array|string|null $restrictions = null): string
     {
-        if (!$restrictions) {
-            $restrictions = Restrictions::new(PATH_DATA, true);
-        }
-
         // Determine what target path to use
-        $target_path = Config::getString('geo.ip.max-mind.path', PATH_DATA . 'sources/geo/ip/maxmind/', $target_path);
-        $target_path = Filesystem::absolute($target_path, PATH_ROOT, false);
+        $restrictions = $restrictions ?? Restrictions::new(PATH_DATA, true);
+        $target_path  = Config::getString('geo.ip.max-mind.path', PATH_DATA . 'sources/geoip/maxmind/', $target_path);
+        $target_path  = Filesystem::absolute($target_path, PATH_ROOT, false);
 
         Path::new($target_path, $restrictions)->ensure();
         Log::action(tr('Processing GeoIP files and moving to path ":path"', [':path' => $target_path]));
@@ -101,7 +102,7 @@ class MaxMindImport extends GeoIpImport
             $shas     = [];
 
             // Perform sha256 check on all files
-            foreach (self::getMaxMindFiles(true) as $file => $url) {
+            foreach (static::getMaxMindFiles(true) as $file => $url) {
                 if (str_ends_with($file, 'sha256')) {
                     // Get the required sha256 code for the following file
                     $sha = File::new($source_path . $file, $restrictions)->checkReadable()->getContentsAsString();

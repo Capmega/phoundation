@@ -4,10 +4,16 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Incidents;
 
+use PDOStatement;
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\User;
+use Phoundation\Data\Categories\Category;
 use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
+use Phoundation\Web\Http\Html\Components\Input\InputSelect;
 use Phoundation\Web\Http\Html\Components\Table;
+
 
 /**
  * Incidents class
@@ -16,27 +22,21 @@ use Phoundation\Web\Http\Html\Components\Table;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Developer
  */
 class Incidents extends DataList
 {
     /**
      * Users class constructor
-     *
-     * @param Role|User|null $parent
-     * @param string|null $id_column
      */
-    public function __construct(Role|User|null $parent = null, ?string $id_column = null)
+    public function __construct()
     {
-        $this->entry_class = Incident::class;
-        self::$table       = Incident::getTable();
-
-        $this->setHtmlQuery('SELECT   `id`, `created_on`, `status`, `type`, `title` 
+        $this->setQuery('SELECT   `id`, `created_on`, `status`, `type`, `title` 
                                    FROM     `developer_incidents` 
                                    WHERE    `status` IS NULL 
                                    ORDER BY `created_on`');
-        parent::__construct($parent, $id_column);
+        parent::__construct();
     }
 
 
@@ -47,7 +47,29 @@ class Incidents extends DataList
      */
     public static function getTable(): string
     {
-        return 'accounts_signins';
+        return 'developer_incidents';
+    }
+
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getEntryClass(): string
+    {
+        return Incident::class;
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return null;
     }
 
 
@@ -66,28 +88,22 @@ class Incidents extends DataList
 
 
     /**
-     * @inheritDoc
+     * Returns an HTML <select> for the available object entries
+     *
+     * @param string $value_column
+     * @param string $key_column
+     * @param string|null $order
+     * @return SelectInterface
      */
-    protected function load(string|int|null $id_column = null): static
+    public function getHtmlSelect(string $value_column = 'title', string $key_column = 'id', ?string $order = null): SelectInterface
     {
-        // TODO: Implement load() method.
-    }
-
-
-    /**
-     * @inheritDoc
-     */
-    protected function loadDetails(array|string|null $columns, array $filters = []): array
-    {
-        // TODO: Implement loadDetails() method.
-    }
-
-
-    /**
-     * @inheritDoc
-     */
-    public function save(): static
-    {
-        // TODO: Implement save() method.
+        return InputSelect::new()
+            ->setSourceQuery('SELECT   `' . $key_column . '`, `' . $value_column . '` 
+                                         FROM     `' . static::getTable() . '` 
+                                         WHERE    `status` IS NULL 
+                                         ORDER BY `title` ASC')
+            ->setName('incidents_id')
+            ->setNone(tr('Select an incident'))
+            ->setEmpty(tr('No incidents available'));
     }
 }

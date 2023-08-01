@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace Phoundation\Servers;
 
 use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
+use Phoundation\Data\DataEntry\Definitions\Definition;
+use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryUsername;
-use Phoundation\Data\Interfaces\InterfaceDataEntry;
+use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Filesystem\Traits\DataRestrictions;
+use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
+
 
 /**
  * SshAccount class
@@ -20,7 +23,7 @@ use Phoundation\Filesystem\Traits\DataRestrictions;
  * @see \Phoundation\Data\DataEntry\DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Servers
  */
 class SshAccount extends DataEntry
@@ -28,18 +31,6 @@ class SshAccount extends DataEntry
     use DataRestrictions;
     use DataEntryNameDescription;
     use DataEntryUsername;
-
-    /**
-     * User class constructor
-     *
-     * @param InterfaceDataEntry|string|int|null $identifier
-     */
-    public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
-    {
-        static::$entry_name = 'SSH account';
-
-        parent::__construct($identifier);
-    }
 
 
     /**
@@ -50,6 +41,28 @@ class SshAccount extends DataEntry
     public static function getTable(): string
     {
         return 'ssh_accounts';
+    }
+
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getDataEntryName(): string
+    {
+        return tr('SSH account');
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return 'seo_name';
     }
 
 
@@ -79,74 +92,37 @@ class SshAccount extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @return DataEntryFieldDefinitionsInterface
+     * @param DefinitionsInterface $definitions
      */
-    protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
+    protected function initDefinitions(DefinitionsInterface $definitions): void
     {
-        return DataEntryFieldDefinitions::new(static::getTable());
-
-        return [
-            'name' => [
-                'required'   => true,
-                'complete'   => true,
-                'cli'        => '-n,--name NAME',
-                'size'       => 6,
-                'maxlength'  => 64,
-                'label'      => tr('Name'),
-                'help_group' => tr('Identification'),
-                'help'       => tr('The name for this account'),
-            ],
-            'seo_name' => [
-                'visible'  => false,
-                'readonly' => false,
-            ],
-            'username' => [
-                'required'   => true,
-                'complete'   => true,
-                'cli'        => '-u,--username NAME',
-                'size'       => 6,
-                'maxlength'  => 64,
-                'label'      => tr('Username'),
-                'help_group' => tr(''),
-                'help'       => tr('The username on the server for this account'),
-            ],
-            'description' => [
-                'element'    => 'text',
-                'complete'   => true,
-                'cli'        => '-d,--description DESCRIPTION',
-                'size'       => 12,
-                'maxlength'  => 65_535,
-                'label'      => tr('Description'),
-                'help_group' => tr(''),
-                'help'       => tr('The description for this account'),
-            ],
-            'ssh_key' => [
-                'required'   => true,
-                'complete'   => true,
-                'cli'        => '-i,--ssh-key-file FILE',
-                'element'    => 'text',
-                'size'       => 12,
-                'maxlength'  => 65_535,
-                'label'      => tr('SSH Key'),
-                'help_group' => tr(''),
-                'help'       => tr('The SSH private key associated with this username'),
-            ],
-       ];
-
-//        $data = $validator
-//            ->select('name', true)->hasMaxCharacters(64)->isName()
-//            ->select('username', true)->hasMaxCharacters(64)->isVariable()
-//            ->select('ssh_key', true)->xor('ssh_key_file')->hasMaxCharacters(255)->isFile()
-//            ->select('ssh_key_file', true)->xor('ssh_key')->hasMaxCharacters(65_535)->matchesRegex('-----BEGIN .+? PRIVATE KEY-----.+?-----END .+? PRIVATE KEY-----')
-//            ->select('description', true)->isOptional()->hasMaxCharacters(65_535)->isDescription()
-//            ->noArgumentsLeft()
-//            ->validate();
-//
-//        // Ensure the hostname doesn't exist yet as it is a unique identifier
-//        if ($data['name']) {
-//            Server::notExists($data['name'], $this->getId(), true);
-//        }
-//
-//        return $data;
+        $definitions
+            ->addDefinition(DefinitionFactory::getName($this)
+                ->setSize(6)
+                ->setHelpGroup(tr('Identification'))
+                ->setHelpText(tr('The name for this account')))
+            ->addDefinition(Definition::new($this, 'seo_name')
+                ->setVisible(false)
+                ->setReadonly(true))
+            ->addDefinition(Definition::new($this, 'username')
+                ->setLabel(tr('Username'))
+                ->setInputType(InputTypeExtended::username)
+                ->setCliField(tr('-u,--username NAME'))
+                ->setCliAutoComplete(true)
+                ->setSize(6)
+                ->setMaxlength(64)
+                ->setHelpText(tr('The username on the server for this account')))
+            ->addDefinition(DefinitionFactory::getDescription($this)
+                ->setHelpText(tr('The description for this account')))
+            ->addDefinition(Definition::new($this, 'ssh_key')
+                ->setLabel(tr('SSH key'))
+                ->setCliField(tr('-i,--ssh-key-file FILE'))
+                ->setCliAutoComplete(true)
+                ->setSize(12)
+                ->setMaxlength(65_535)
+                ->setHelpText(tr('The SSH private key associated with this username'))
+                ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->matchesRegex('-----BEGIN .+? PRIVATE KEY-----.+?-----END .+? PRIVATE KEY-----');
+                }));
     }
 }

@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
+
 /**
  * Trait DataIntId
  *
  *
  *
- * @author Sven Oostenbrink <support@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @category Function reference
  * @package Phoundation\Data
  */
@@ -23,6 +24,7 @@ trait DataIntId
      * @var int|null $id
      */
     protected ?int $id = null;
+
 
     /**
      * Returns the integer id for this object or null

@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
+use Phoundation\Core\Log\Log;
+use Phoundation\Date\DateTimeZone;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Geo\Timezones\Interfaces\TimezoneInterface;
 use Phoundation\Geo\Timezones\Timezone;
 
 
@@ -15,7 +18,7 @@ use Phoundation\Geo\Timezones\Timezone;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 trait DataEntryTimezone
@@ -34,27 +37,21 @@ trait DataEntryTimezone
     /**
      * Sets the timezones_id for this user
      *
-     * @param string|int|null $timezones_id
+     * @param int|null $timezones_id
      * @return static
      */
-    public function setTimezonesId(string|int|null $timezones_id): static
+    public function setTimezonesId(?int $timezones_id): static
     {
-        if ($timezones_id and !is_natural($timezones_id)) {
-            throw new OutOfBoundsException(tr('Specified timezones_id ":id" is not a natural number', [
-                ':id' => $timezones_id
-            ]));
-        }
-
-        return $this->setDataValue('timezones_id', get_null(isset_get_typed('integer', $timezones_id)));
+        return $this->setDataValue('timezones_id', $timezones_id);
     }
 
 
     /**
-     * Returns the timezones_id for this user
+     * Returns the timezone for this user
      *
-     * @return Timezone|null
+     * @return TimezoneInterface|null
      */
-    public function getTimezone(): ?Timezone
+    public function getTimezone(): ?TimezoneInterface
     {
         $timezones_id = $this->getDataValue('int', 'timezones_id');
 
@@ -67,23 +64,24 @@ trait DataEntryTimezone
 
 
     /**
-     * Sets the timezones_id for this user
+     * Returns the timezones_name for this user
      *
-     * @param Timezone|string|int|null $timezone
+     * @return string|null
+     */
+    public function getTimezonesName(): ?string
+    {
+        return $this->getDataValue('string', 'timezones_name');
+    }
+
+
+    /**
+     * Sets the timezones_name for this user
+     *
+     * @param string|null $timezones_name
      * @return static
      */
-    public function setTimezone(Timezone|string|int|null $timezone): static
+    public function setTimezonesName(?string $timezones_name): static
     {
-        if ($timezone) {
-            if (!is_numeric($timezone)) {
-                $timezone = Timezone::get($timezone);
-            }
-
-            if (is_object($timezone)) {
-                $timezone = $timezone->getId();
-            }
-        }
-
-        return $this->setTimezonesId(get_null($timezone));
+        return $this->setDataValue('timezones_name', $timezones_name);
     }
 }

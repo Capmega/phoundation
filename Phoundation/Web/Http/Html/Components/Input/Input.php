@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http\Html\Components\Input;
 
 use Phoundation\Core\Strings;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinition;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Web\Http\Html\Components\Element;
 use Phoundation\Web\Http\Html\Components\Input\Traits\InputElement;
 
@@ -17,7 +17,7 @@ use Phoundation\Web\Http\Html\Components\Input\Traits\InputElement;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
 abstract class Input extends Element implements Interfaces\Input
@@ -40,13 +40,13 @@ abstract class Input extends Element implements Interfaces\Input
     /**
      * Returns a new input element from
      *
-     * @param DataEntryFieldDefinition $field
+     * @param DefinitionInterface $field
      * @return static
      */
-    public static function newFromDAtaEntryField(DataEntryFieldDefinition $field): static
+    public static function newFromDAtaEntryField(DefinitionInterface $field): static
     {
         $element    = new static();
-        $attributes = $field->getDefinitions();
+        $attributes = $field->getRules();
 
         // Set all attributes from the definitions file
         foreach($attributes as $key => $value) {

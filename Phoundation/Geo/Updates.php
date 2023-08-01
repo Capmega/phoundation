@@ -13,7 +13,7 @@ namespace Phoundation\Geo;
  * @see \Phoundation\Core\Libraries\Updates
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Geo
  */
 class Updates extends \Phoundation\Core\Libraries\Updates
@@ -70,8 +70,8 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `coordinates` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `utc_offset` varchar(6) CHARACTER SET latin1 NOT NULL,
                     `utc_dst_offset` varchar(6) CHARACTER SET latin1 NOT NULL,
-                    `name` varchar(64) NOT NULL,
-                    `seo_name` varchar(64) NOT NULL,
+                    `name` varchar(128) NOT NULL,
+                    `seo_name` varchar(128) NOT NULL,
                     `comments` text DEFAULT NULL,
                     `notes` varchar(255) DEFAULT NULL,
                 ')->setIndices('  
@@ -101,8 +101,8 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `geonames_id` bigint NOT NULL,
                     `code` varchar(2) NOT NULL,
-                    `name` varchar(64) NOT NULL,
-                    `seo_name` varchar(64) NOT NULL,
+                    `name` varchar(128) NOT NULL,
+                    `seo_name` varchar(128) NOT NULL,
                     `alternate_names` varchar(4000) NOT NULL,
                     `latitude` decimal(10,7) NOT NULL,
                     `longitude` decimal(10,7) NOT NULL,
@@ -263,8 +263,8 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `countries_id` bigint NOT NULL,
                     `states_id` bigint NOT NULL,
                     `code` varchar(2),
-                    `name` varchar(64),
-                    `seo_name` varchar(64),
+                    `name` varchar(128),
+                    `seo_name` varchar(128),
                     `alternate_names` text,
                     `latitude` decimal(10,7) DEFAULT NULL,
                     `longitude` decimal(10,7) DEFAULT NULL,
@@ -308,7 +308,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `code` varchar(10) NOT NULL,
-                    `name` varchar(64) NOT NULL,
+                    `name` varchar(128) NOT NULL,
                     `description` varchar(4096) DEFAULT NULL,
                 ')->setIndices('
                     PRIMARY KEY (`id`),

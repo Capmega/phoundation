@@ -7,6 +7,7 @@ namespace Phoundation\Databases;
 use Phoundation\Core\Core;
 use Phoundation\Core\Strings;
 use Phoundation\Databases\Exception\MysqlException;
+use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Process;
 use Phoundation\Servers\Servers;
@@ -17,9 +18,9 @@ use Phoundation\Servers\Servers;
  *
  * This class can manage MySQL servers and databases
  *
- * @author Sven Oostenbrink <support@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @category Function reference
  * @package Phoundation\Filesystem
  */
@@ -28,16 +29,16 @@ class Mysql
     /**
      * The server object to execute commands on different servers if needed
      *
-     * @var Restrictions|array|string|null $restrictions
+     * @var RestrictionsInterface|array|string|null $restrictions
      */
-    protected Restrictions|array|string|null $restrictions = null;
+    protected RestrictionsInterface|array|string|null $restrictions = null;
 
     /**
      * Mysql class constructor
      *
-     * @param Restrictions|array|string|null $restrictions
+     * @param RestrictionsInterface|array|string|null $restrictions
      */
-    public function __construct(Restrictions|array|string|null $restrictions = null)
+    public function __construct(RestrictionsInterface|array|string|null $restrictions = null)
     {
         $this->restrictions = Core::ensureRestrictions($restrictions);
     }
@@ -46,10 +47,10 @@ class Mysql
     /**
      * Get a new instance of the Mysql class
      *
-     * @param Restrictions|array|string|null $restrictions
+     * @param RestrictionsInterface|array|string|null $restrictions
      * @return Mysql
      */
-    public static function getInstance(Restrictions|array|string|null $restrictions = null): Mysql
+    public static function getInstance(RestrictionsInterface|array|string|null $restrictions = null): Mysql
     {
         return new Mysql($restrictions);
     }

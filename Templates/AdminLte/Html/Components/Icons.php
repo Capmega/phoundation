@@ -8,6 +8,7 @@ namespace Templates\AdminLte\Html\Components;
 use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Html\Renderer;
 
+
 /**
  * AdminLte Plugin Icons class
  *
@@ -15,7 +16,7 @@ use Phoundation\Web\Http\Html\Renderer;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\AdminLte
  */
 class Icons extends Renderer
@@ -37,11 +38,11 @@ class Icons extends Renderer
      */
     public function render(): ?string
     {
-        if (preg_match('/[a-z0-9-_]*]/i', $this->element->getContent())) {
+        if (preg_match('/[a-z0-9-_]*]/i', $this->render_object->getContent())) {
             // icon names should only have letters, numbers and dashes and underscores
-            return $this->element->getContent();
+            return $this->render_object->getContent();
         }
 
-        return '<i class="fas fa-' . $this->element->getContent() . ($this->element->getTier()->value ? ' fa-' . Html::safe($this->element->getTier()->value) : '') .'"></i>';
+        return '<i class="fas fa-' . $this->render_object->getContent() . ($this->render_object->getTier()->value ? ' fa-' . Html::safe($this->render_object->getTier()->value) : '') .'"></i>';
     }
 }

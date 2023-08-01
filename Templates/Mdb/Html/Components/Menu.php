@@ -19,7 +19,7 @@ use Phoundation\Web\Http\UrlBuilder;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\Mdb
  */
 class Menu extends Renderer
@@ -40,7 +40,7 @@ class Menu extends Renderer
      */
     public function render(): ?string
     {
-        return $this->renderMenu($this->element->getSource(), 'nav navbar-nav me-auto mb-2 mb-lg-0');
+        return $this->renderMenu($this->render_object->getSource(), 'nav navbar-nav me-auto mb-2 mb-lg-0');
     }
 
 

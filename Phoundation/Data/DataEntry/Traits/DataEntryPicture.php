@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Content\Images\Image;
+use Phoundation\Content\Images\Interfaces\ImageInterface;
 use Phoundation\Core\Strings;
+
 
 /**
  * Trait DataEntryPicture
@@ -14,7 +16,7 @@ use Phoundation\Core\Strings;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 trait DataEntryPicture
@@ -22,27 +24,30 @@ trait DataEntryPicture
     /**
      * Returns the picture for this entry
      *
-     * @return Image
+     * @return ImageInterface
      */
-    public function getPicture(): Image
+    public function getPicture(): ImageInterface
     {
-        if (!$this->getDataValue('string', 'picture')) {
-            $this->setDataValue('picture', 'img/profiles/default.png', true);
-        }
+        $picture = get_null($this->getDataValue('string', 'picture')) ?? 'img/profiles/default.png';
 
-        return Image::new($this->getDataValue('string', 'picture'))
-            ->setDescription(tr('Profile image for :customer', [':customer' => $this->getName()]));
+        return Image::new($picture)
+            ->setDescription(tr('Profile picture for :customer', [':customer' => $this->getName()]));
     }
 
 
     /**
      * Sets the picture for this entry
      *
-     * @param Image|string|null $picture
+     * @param ImageInterface|string|null $picture
      * @return static
      */
-    public function setPicture(Image|string|null $picture): static
+    public function setPicture(ImageInterface|string|null $picture): static
     {
-        return $this->setDataValue('picture', Strings::from($picture?->getFile(), PATH_CDN));
+        if ($picture) {
+            // Make sure we have an Image object
+            $picture = Image::new($picture);
+        }
+
+        return $this->setDataValue('picture', Strings::from(get_null($picture)?->getFile(), PATH_CDN));
     }
 }

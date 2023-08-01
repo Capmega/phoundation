@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+
 /**
  * Class Webserver
  *
@@ -9,7 +10,7 @@ declare(strict_types=1);
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
 class Webserver
@@ -25,10 +26,10 @@ class Webserver
                 break;
 
             case '':
-                throw new OutOfBoundsException(tr('disconnect(): No SAPI detected'), 'unknown');
+                throw new OutOfBoundsException(tr('No SAPI detected'));
 
             default:
-                throw new OutOfBoundsException(tr('disconnect(): Unknown SAPI ":sapi" detected', array(':sapi' => php_sapi_name())), 'unknown');
+                throw new OutOfBoundsException(tr('Unknown SAPI ":sapi" detected', [':sapi' => php_sapi_name()]));
         }
     }
 }

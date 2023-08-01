@@ -12,12 +12,14 @@ use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Filesystem;
+use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\Html\Template\Template;
 use Phoundation\Web\Http\Protocols;
 use Phoundation\Web\Http\UrlBuilder;
 use Templates\AdminLte\AdminLte;
+
 
 /**
  * Class RouteParameters
@@ -26,7 +28,7 @@ use Templates\AdminLte\AdminLte;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
 class RoutingParameters
@@ -374,9 +376,9 @@ class RoutingParameters
     /**
      * Returns the server restrictions
      *
-     * @return Restrictions|array|string|null
+     * @return RestrictionsInterface|array|string|null
      */
-    public function getRestrictions(): Restrictions|array|string|null
+    public function getRestrictions(): RestrictionsInterface|array|string|null
     {
         if (!isset($this->restrictions)) {
             // Set default server restrictions
@@ -390,10 +392,10 @@ class RoutingParameters
     /**
      * Sets the server restrictions
      *
-     * @param Restrictions|array|string|null $restrictions
+     * @param RestrictionsInterface|array|string|null $restrictions
      * @return static
      */
-    public function setRestrictions(Restrictions|array|string|null $restrictions): static
+    public function setRestrictions(RestrictionsInterface|array|string|null $restrictions): static
     {
         $this->restrictions = Core::ensureRestrictions($restrictions, PATH_WWW, 'Route');
         return $this;
@@ -427,11 +429,8 @@ class RoutingParameters
      */
     public function setRootUrl(string $root_url): static
     {
-        // Apply keyword replacements
-        $root_url = str_replace(':DOMAIN'  , Domains::getCurrent(), $root_url);
-        $root_url = str_replace(':PROTOCOL', Protocols::getCurrent(), $root_url);
-
-        $this->root_url = Strings::endsWith(Strings::startsNotWith($root_url, '/'), '/');
+        // Make it a correct local URL
+        $this->root_url = (string) UrlBuilder::getWww($root_url);
         return $this;
     }
 
@@ -564,7 +563,7 @@ class RoutingParameters
     {
         if (is_object($rights)) {
             if ($rights instanceof Rights) {
-                $rights = $rights->list();
+                $rights = $rights->getSource();
             } else {
                 $rights = $rights->getSeoName();
             }

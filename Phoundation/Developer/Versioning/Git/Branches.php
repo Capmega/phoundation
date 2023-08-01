@@ -9,6 +9,7 @@ use Phoundation\Data\Iterator;
 use Phoundation\Developer\Versioning\Git\Traits\GitProcess;
 use Phoundation\Processes\Process;
 
+
 /**
  * Class Branches
  *
@@ -16,7 +17,7 @@ use Phoundation\Processes\Process;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Developer
  */
 class Branches extends Iterator
@@ -29,9 +30,9 @@ class Branches extends Iterator
      *
      * @return array
      */
-    public function getList(): array
+    public function getSource(): array
     {
-        if (!$this->list) {
+        if (!$this->source) {
             $results = Process::new('git')->setExecutionPath($this->path)
                 ->addArgument('branch')
                 ->addArgument('--quiet')
@@ -40,14 +41,14 @@ class Branches extends Iterator
 
             foreach ($results as $line) {
                 if (str_starts_with($line, '*')) {
-                    $this->list[substr($line, 2)] = true;
+                    $this->source[substr($line, 2)] = true;
                 } else {
-                    $this->list[substr($line, 2)] = false;
+                    $this->source[substr($line, 2)] = false;
                 }
             }
         }
 
-        return $this->list;
+        return $this->source;
     }
 
 
@@ -60,7 +61,7 @@ class Branches extends Iterator
     {
         $list = [];
 
-        foreach ($this->getList() as $branch => $selected) {
+        foreach ($this->getSource() as $branch => $selected) {
             $list[$branch] = ['selected' => $selected ? '*' : ''];
         }
 

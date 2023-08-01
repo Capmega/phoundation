@@ -6,11 +6,14 @@ namespace Phoundation\Core;
 
 use JetBrains\PhpStorm\ExpectedValues;
 use JetBrains\PhpStorm\NoReturn;
+use Phoundation\Audio\Audio;
 use Phoundation\Cli\AutoComplete;
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\Exception\MethodNotFoundException;
 use Phoundation\Cli\Exception\NoMethodSpecifiedException;
 use Phoundation\Cli\Script;
+use Phoundation\Core\Enums\EnumRequestTypes;
+use Phoundation\Core\Enums\Interfaces\EnumRequestTypesInterface;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Exception\NoProjectException;
 use Phoundation\Core\Log\Log;
@@ -18,11 +21,14 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Date\Date;
+use Phoundation\Date\DateTimeZone;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\PhpException;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
@@ -43,7 +49,7 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
 class Core {
@@ -61,11 +67,11 @@ class Core {
     protected static ?Core $instance = null;
 
     /**
-     * The Core default server object
+     * The Core default restrictions object
      *
-     * @var Restrictions $restrictions
+     * @var Restrictions|null $restrictions
      */
-    protected static Restrictions $restrictions;
+    protected static ?Restrictions $restrictions = null;
 
     /**
      * The generic system register to store data
@@ -77,9 +83,9 @@ class Core {
     /**
      * The type of call for this process. One of http, admin, cli, mobile, ajax, api, amp (deprecated), system
      *
-     * @var string|null
+     * @var EnumRequestTypesInterface
      */
-    protected static ?string $request_type = null;
+    protected static EnumRequestTypesInterface $request_type = EnumRequestTypes::unknown;
 
     /**
      *
@@ -162,6 +168,13 @@ class Core {
      */
     protected static ?int $sleep = null;
 
+    /**
+     * Temporary storage for any data
+     *
+     * @var array $storage
+     */
+    protected static array $storage = [];
+
 
     /**
      * Core class constructor
@@ -187,7 +200,7 @@ class Core {
         define('PATH_ROOT'   , realpath(__DIR__ . '/../..') . '/');
         define('PATH_WWW'    , PATH_ROOT . 'www/');
         define('PATH_DATA'   , PATH_ROOT . 'data/');
-        define('PATH_CDN'    , PATH_DATA . 'cdn/');
+        define('PATH_CDN'    , PATH_DATA . 'content/cdn/');
         define('PATH_TMP'    , PATH_DATA . 'tmp/');
         define('PATH_PUBTMP' , PATH_DATA . 'content/cdn/tmp/');
         define('PATH_SCRIPTS', PATH_ROOT . 'scripts/');
@@ -213,7 +226,6 @@ class Core {
         // Set timeout and request type, ensure safe PHP configuration, apply general server restrictions, set the
         // project name, platform and request type
         static::securePhpSettings();
-        static::setRestrictions();
         static::setProject();
         static::setPlatform();
         static::selectStartup();
@@ -229,11 +241,11 @@ class Core {
      */
     public static function getInstance(): static
     {
-        if (!isset(self::$instance)) {
-            self::$instance = new static();
+        if (!isset(static::$instance)) {
+            static::$instance = new static();
         }
 
-        return self::$instance;
+        return static::$instance;
     }
 
 
@@ -287,7 +299,7 @@ class Core {
      */
     public static function sleep(int $seconds): void
     {
-        self::doSleep($seconds);
+        static::doSleep($seconds);
     }
 
 
@@ -303,7 +315,7 @@ class Core {
      */
     public static function usleep(int $micro_seconds): void
     {
-        self::doUsleep($micro_seconds);
+        static::doUsleep($micro_seconds);
     }
 
 
@@ -401,7 +413,7 @@ class Core {
 
             if (empty($env)) {
                 // No environment set in ENV, maybe given by parameter?
-                Page::die('startup: No required environment specified for project "' . PROJECT . '"');
+                Page::die('startup: No required web environment specified for project "' . PROJECT . '"');
             }
         }
 
@@ -421,7 +433,7 @@ class Core {
         define('ADMIN'   , '');
         define('PWD'     , Strings::slash(isset_get($_SERVER['PWD'])));
         define('STARTDIR', Strings::slash(getcwd()));
-        define('PAGE'    , isset_get($_GET['page'], 1));
+        define('PAGE'    , $_GET['page'] ?? 1);
         define('ALL'     , (getenv('ALL')     ? 'ALL'     : false));
         define('DELETED' , (getenv('DELETED') ? 'DELETED' : false));
         define('FORCE'   , (getenv('FORCE')   ? 'FORCE'   : false));
@@ -430,6 +442,7 @@ class Core {
         define('QUIET'   , (getenv('QUIET')   ? 'QUIET'   : false));
         define('TEST'    , (getenv('TEST')    ? 'TEST'    : false));
         define('VERBOSE' , (getenv('VERBOSE') ? 'VERBOSE' : false));
+        define('NOAUDIO' , (getenv('NOAUDIO') ? 'NOAUDIO' : false));
         define('LIMIT'   , (getenv('LIMIT')   ? 'LIMIT'   : Config::getNatural('paging.limit', 50)));
 
         // Check HEAD and OPTIONS requests. If HEAD was requested, just return basic HTTP headers
@@ -488,12 +501,15 @@ class Core {
      */
     protected static function startupCli(): void
     {
-        static::$request_type = 'cli';
+        static::$request_type = EnumRequestTypes::cli;
 
         // Hide all command line arguments
         ArgvValidator::hideData($GLOBALS['argv']);
 
-        // Validate system modifier arguments
+        // Validate system modifier arguments. Ensure that these variables get stored in the global $argv array because
+        // they may be used later down the line by (for example) Documenation class, for example!
+        global $argv;
+
         $argv = ArgvValidator::new()
             ->select('-A,--all')->isOptional(false)->isBoolean()
             ->select('-C,--no-color')->isOptional(false)->isBoolean()
@@ -503,8 +519,9 @@ class Core {
             ->select('-H,--help')->isOptional(false)->isBoolean()
             ->select('-L,--log-level', true)->isOptional()->isInteger()->isBetween(1, 10)
             ->select('-O,--order-by', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(128)
-            ->select('-P,--page', true)->isOptional(1)->isId()
+            ->select('-P,--page', true)->isOptional(1)->isDbId()
             ->select('-Q,--quiet')->isOptional(false)->isBoolean()
+            ->select('-N,--no-audio')->isOptional(false)->isBoolean()
             ->select('-S,--status', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(16)
             ->select('-T,--test')->isOptional(false)->isBoolean()
             ->select('-U,--usage')->isOptional(false)->isBoolean()
@@ -519,7 +536,38 @@ class Core {
             ->select('--show-passwords')->isOptional(false)->isBoolean()
             ->select('--no-validation')->isOptional(false)->isBoolean()
             ->select('--no-password-validation')->isOptional(false)->isBoolean()
-            ->validate();
+            ->validate(false);
+
+//        $argv = [
+//            'all' => false,
+//            'no_color' => false,
+//            'debug' => false,
+//            'environment' => null,
+//            'force' => false,
+//            'help' => false,
+//            'log_level' => false,
+//            'order_by' => false,
+//            'page' => 1,
+//            'quiet' => false,
+//            'no_sound' => false,
+//            'status' => false,
+//            'test' => false,
+//            'usage' => false,
+//            'verbose' => false,
+//            'no_warnings' => false,
+//            'system_language' => false,
+//            'deleted' => false,
+//            'version' => false,
+//            'limit' => false,
+//            'timezone' => null,
+//            'auto_complete' => null,
+//            'show_passwords' => false,
+//            'no_validation' => false,
+//            'no_password_validation' => false
+//    ];
+
+        // Set requested language
+        Core::writeRegister($argv['system_language'] ?? Config::getString('languages.default', 'en'), 'system', 'language');
 
         if ($argv['auto_complete']) {
             // We're in auto complete mode. Show only direct output, don't use any color
@@ -546,7 +594,7 @@ class Core {
                 if (PROJECT !== 'UNKNOWN') {
                     // If we're in auto complete mode, then we don't need an environment
                     if (!AutoComplete::isActive()) {
-                        Script::die(2, 'startup: No required environment specified for project "' . PROJECT . '"');
+                        Script::die(2, 'startup: No required cli environment specified for project "' . PROJECT . '"');
                     }
                 }
 
@@ -573,6 +621,7 @@ class Core {
         define('ALL'     , $argv['all']);
         define('STATUS'  , $argv['status']);
         define('PAGE'    , $argv['page']);
+        define('NOAUDIO' , $argv['no_audio']);
         define('LIMIT'   , get_null($argv['limit']) ?? Config::getNatural('paging.limit', 50));
 
         // Correct $_SERVER['PHP_SELF'], sometimes seems empty
@@ -678,7 +727,7 @@ class Core {
             $language = not_empty($argv['language'], Config::get('language.default', 'en'));
 
             if (Config::get('language.default', ['en']) and Config::exists('language.supported.' . $language)) {
-                throw new CoreException(tr('Unknown language ":language" specified', array(':language' => $language)), 'unknown');
+                throw new CoreException(tr('Unknown language ":language" specified', [':language' => $language]));
             }
 
             define('LANGUAGE', $language);
@@ -724,7 +773,7 @@ class Core {
 
             if (Debug::enabled()) {
                 Log::warning(tr('Running in DEBUG mode, started @ ":datetime"', [
-                    ':datetime' => Date::convert(STARTTIME, 'human_datetime')
+                    ':datetime' => Date::convert(STARTTIME, 'ISO8601')
                 ]), 8);
 
                 Log::notice(tr('Detected ":size" terminal with ":columns" columns and ":lines" lines', [
@@ -803,14 +852,18 @@ class Core {
 
 
     /**
-     * Set general file access restrictions
+     * Returns Core general file access restrictions
      *
-     * @return void
+     * @return RestrictionsInterface
      */
-    protected static function setRestrictions(): void
+    protected static function getRestrictions(): RestrictionsInterface
     {
-        // Set up the Core restrictions object with default file access restrictions
-        static::$restrictions = Restrictions::new(PATH_DATA, false, 'Core');
+        if (!static::$restrictions) {
+            // Set up the Core restrictions object with default file access restrictions
+            static::$restrictions = Restrictions::new(PATH_DATA, false, 'Core');
+        }
+
+        return static::$restrictions;
     }
 
 
@@ -874,35 +927,36 @@ class Core {
             $file = $_SERVER['REQUEST_URI'];
 
             // Autodetect what http call type we're on from the script being executed
+            // TODO MOVE ALL THIS TO ROUTER! ROUTER SHOULD DETERMINE WHAT IS ADMIN, AJAX, API, ETC.
             if (str_contains($file, '/admin/')) {
-                static::$request_type = 'admin';
+                static::$request_type = EnumRequestTypes::admin;
 
             } elseif (str_contains($file, '/ajax/')) {
-                static::$request_type = 'ajax';
+                static::$request_type = EnumRequestTypes::ajax;
 
-            } elseif (str_contains($file, '/api/')) {
-                static::$request_type = 'api';
+//            } elseif (str_contains($file, '/api/')) {
+//                static::$request_type = EnumRequestTypes::api;
 
-            } elseif ((str_starts_with($_SERVER['SERVER_NAME'], 'api')) and preg_match('/^api(?:-[0-9]+)?\./', $_SERVER['SERVER_NAME'])) {
-                static::$request_type = 'api';
+//            } elseif ((str_starts_with($_SERVER['SERVER_NAME'], 'api')) and preg_match('/^api(?:-[0-9]+)?\./', $_SERVER['SERVER_NAME'])) {
+//                static::$request_type = EnumRequestTypes::api;
 
             } elseif ((str_starts_with($_SERVER['SERVER_NAME'], 'cdn')) and preg_match('/^cdn(?:-[0-9]+)?\./', $_SERVER['SERVER_NAME'])) {
-                static::$request_type = 'api';
+                static::$request_type = EnumRequestTypes::api;
 
             } elseif (Config::get('web.html.amp.enabled', false) and !empty($_GET['amp'])) {
-                static::$request_type = 'amp';
+                static::$request_type = EnumRequestTypes::amp;
 
             } elseif (is_numeric(substr($file, -3, 3))) {
                 static::$register['http']['code'] = substr($file, -3, 3);
-                static::$request_type = 'system';
+                static::$request_type = EnumRequestTypes::system;
 
             } else {
-                static::$request_type = 'http';
+                static::$request_type = EnumRequestTypes::html;
             }
 
         } else {
             // We're running on the command line
-            static::$request_type = 'cli';
+            static::$request_type = EnumRequestTypes::cli;
         }
     }
 
@@ -1062,7 +1116,7 @@ class Core {
      */
     public static function scriptStarted(): bool
     {
-        return self::$script;
+        return static::$script;
     }
 
 
@@ -1214,11 +1268,11 @@ class Core {
 
 
     /**
-     * This method will return the calltype for this call, as is stored in the private variable core::callType
+     * This method will return the request type for this call, as is stored in the private variable core::request_type
      *
-     * @return string Returns core::callType
+     * @return EnumRequestTypesInterface
      */
-    public static function getRequestType(): ?string
+    public static function getRequestType(): EnumRequestTypesInterface
     {
         return static::$request_type;
     }
@@ -1227,50 +1281,12 @@ class Core {
     /**
      * Will return true if $call_type is equal to core::callType, false if not.
      *
-     * @param string $type The call type you wish to compare to
+     * @param EnumRequestTypesInterface $type The call type you wish to compare to
      * @return bool This function will return true if $type matches core::callType, or false if it does not.
      */
-    public static function isCallType(string $type): bool
+    public static function isRequestType(EnumRequestTypesInterface $type): bool
     {
         return (static::$request_type === $type);
-    }
-
-
-    /**
-     * Get a valid language from the specified language
-     *
-     * @version 2.0.7: Added function and documentation
-     * @param null|string $language a language code
-     * @return string a valid language that is supported by the systems configuration
-     */
-    public static function getLanguage(?string $language): string
-    {
-        if (empty(Config::get('languages.supported', ''))) {
-            // No multi languages supported for this site
-            return '';
-        }
-
-        // This is a multilingual site
-        if ($language === null) {
-            $language = LANGUAGE;
-        }
-
-        if ($language) {
-            // This is a multilingual website. Ensure language is supported and add language selection to the URL.
-            if (empty(Config::get('language.default' . $language))) {
-                $language = Config::get('language.default', 'en');
-
-                Notification::new()
-                    ->setMode(DisplayMode::warning)
-                    ->setCode('unknown-language')
-                    ->setRoles('developers')
-                    ->setTitle(tr('Unknown language specified'))
-                    ->setMessage(tr('The specified language ":language" is not known', [':language' => $language]))
-                    ->send();
-            }
-        }
-
-        return $language;
     }
 
 
@@ -1291,16 +1307,18 @@ class Core {
     public static function phpErrorHandler(int $errno, string $errstr, string $errfile, int $errline): void
     {
         if (static::startupState()) {
-            // Wut? We're not even ready to go! Likely we don't have configuration available so we cannot even send out
+            // Wut? We're not even ready to go! Likely we don't have configuration available, so we cannot even send out
             // notifications. Just crash with a standard PHP exception
-            throw new \Exception('Core startup PHP ERROR [' . $errno . '] "' . $errstr . '" in "' . $errfile . '@' . $errline . '"');
+            throw PhpException::new('Core startup PHP ERROR "' . $errstr . '"')
+                ->setCode($errno)
+                ->setFile($errfile)
+                ->setLine($errline);
         }
 
-        $trace = Debug::backtrace();
-        unset($trace[0]);
-        unset($trace[1]);
-
-        throw new \Exception('PHP ERROR [' .$errno . '] "' . $errstr . '" in "' . $errfile . '@' . $errline . '"', $errno);
+        throw PhpException::new('PHP ERROR "' . $errstr . '"')
+            ->setCode($errno)
+            ->setFile($errfile)
+            ->setLine($errline);
     }
 
 
@@ -1315,6 +1333,15 @@ class Core {
      */
     #[NoReturn] public static function uncaughtException(Throwable $e, bool $die = true): never
     {
+        try {
+            Audio::new('data/audio/critical.mp3')->play(true);
+
+        } catch (Throwable $e) {
+            Log::warning(tr('Failed to play uncaught exception audio because ":e"', [
+                ':e' => $e->getMessage()
+            ]));
+        }
+
         //if (!headers_sent()) {header_remove('Content-Type'); header('Content-Type: text/html', true);} echo "<pre>\nEXCEPTION CODE: "; print_r($e->getCode()); echo "\n\nEXCEPTION:\n"; print_r($e); echo "\n\nBACKTRACE:\n"; print_r(debug_backtrace()); die();
         /*
          * Phoundation uncaught exception handler
@@ -1391,7 +1418,7 @@ class Core {
                     // System crashed before platform detection.
                     Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', [
                         ':code'   => $e->getCode(),
-                        ':type'   => static::getRequestType(),
+                        ':type'   => static::getRequestType()->value,
                         ':script' => static::readRegister('system', 'script')
                     ]));
 
@@ -1501,7 +1528,7 @@ class Core {
 
                         Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE CLI SCRIPT ":script" WITH ENVIRONMENT ":environment" DURING CORE STATE ":state" ***', [
                             ':code'        => $e->getCode(),
-                            ':type'        => static::getRequestType(),
+                            ':type'        => static::getRequestType()->value,
                             ':state'       => static::$state,
                             ':script'      => static::readRegister('system', 'script'),
                             ':environment' => (defined('ENVIRONMENT') ? ENVIRONMENT : null)
@@ -1509,8 +1536,13 @@ class Core {
 
                         Log::error(tr('Exception data:'));
                         Log::error($e);
-                        Log::printr($e->getTrace());
-                        Log::printr(debug_backtrace());
+//                        Log::error();
+//                        Log::write(tr('Extended trace:'), 'debug', 10, false);
+//                        Log::write(print_r($e->getTrace(), true), 'debug', 10, false);
+//                        Log::error();
+//                        Log::write(tr('Super extended trace:'), 'debug', 10, false);
+//                        Log::write(print_r(debug_backtrace(), true), 'debug', 10, false);
+//                        Log::printr(debug_backtrace());
                         Script::die(1);
 
                     case 'http':
@@ -1529,7 +1561,7 @@ class Core {
                             // Log exception data
                             Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE WEB SCRIPT ":script" WITH ENVIRONMENT ":environment" DURING CORE STATE ":state" ***', [
                                 ':code'        => $e->getCode(),
-                                ':type'        => static::getRequestType(),
+                                ':type'        => static::getRequestType()->value,
                                 ':state'       => static::$state,
                                 ':script'      => static::readRegister('system', 'script'),
                                 ':environment' => (defined('ENVIRONMENT') ? ENVIRONMENT : null)
@@ -1593,9 +1625,9 @@ class Core {
 
                         if (Debug::enabled()) {
                             switch (Core::getRequestType()) {
-                                case 'api':
+                                case EnumRequestTypes::api:
                                     // no-break
-                                case 'ajax':
+                                case EnumRequestTypes::ajax:
                                     echo "UNCAUGHT EXCEPTION\n\n";
                                     showdie($e);
                             }
@@ -1639,6 +1671,9 @@ class Core {
                                         table.debug .debug-header{
                                             display: none;
                                         }
+                                        pre {
+                                            white-space: break-spaces;
+                                        }
                                         </style>
                                         <table class="exception">
                                             <thead>
@@ -1646,7 +1681,7 @@ class Core {
                                                     '.tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', [
                                                         ':code'   => $e->getCode(),
                                                         ':script' => static::readRegister('system', 'script'),
-                                                        'type'    => Core::getRequestType()
+                                                        ':type'   => Core::getRequestType()->value
                                                     ]).'
                                                 </td>
                                             </thead>
@@ -1682,7 +1717,7 @@ class Core {
 
                             echo $return;
 
-                            if ($e instanceof CoreException) {
+                            if ($e instanceof Exception) {
                                 // Clean data
                                 $e->setData(Arrays::hide(Arrays::force($e->getData()), 'GLOBALS,%pass,ssh_key'));
                             }
@@ -1696,9 +1731,9 @@ class Core {
                             ->send();
 
                         switch (Core::getRequestType()) {
-                            case 'api':
+                            case EnumRequestTypes::api:
                                 // no-break
-                            case 'ajax':
+                            case EnumRequestTypes::ajax:
                                 if ($e instanceof CoreException) {
                                     Json::message($e->getCode(), ['reason' => ($e->isWarning() ? trim(Strings::from($e->getMessage(), ':')) : '')]);
                                 }
@@ -1778,8 +1813,13 @@ class Core {
     public static function setTimeout(int $timeout = null): bool
     {
         if ($timeout === null) {
-            // Default timeout to either system configuration system.timeout, or environment variable TIMEOUT
-            $timeout = Config::get('system.timeout', get_null(getenv('TIMEOUT')) ?? 30);
+            if (PLATFORM_HTTP) {
+                // Default timeout to either system configuration web.timeout, or environment variable TIMEOUT
+                $timeout = Config::get('web.timeout', get_null(getenv('TIMEOUT')) ?? 5);
+            } else {
+                // Default timeout to either system configuration cli.timeout, or environment variable TIMEOUT
+                $timeout = Config::get('cli.timeout', get_null(getenv('TIMEOUT')) ?? 30);
+            }
         }
 
         static::$register['system']['timeout'] = $timeout;
@@ -2064,7 +2104,7 @@ class Core {
      * @param int|null $error_code
      * @return void
      */
-    public static function shutdown(?int $error_code = null): void
+    #[NoReturn] public static function shutdown(?int $error_code = null): void
     {
         try {
             static::$state = 'shutdown';
@@ -2200,6 +2240,8 @@ class Core {
             // Uncaught exception handler for shutdown
             Core::uncaughtException($e);
         }
+
+        die();
     }
 
 
@@ -2267,7 +2309,7 @@ class Core {
      * With this, availability of restrictions is guaranteed, even if a function did not receive restrictions. If Core
      * restrictions are returned, these core restrictions are the ones that apply
      *
-     * @param Restrictions|array|string|null $restrictions  The restriction data that must be ensured to be a
+     * @param RestrictionsInterface|array|string|null $restrictions  The restriction data that must be ensured to be a
      *                                                      Restrictions object
      * @param bool $write                                   If $restrictions is not specified as a Restrictions class,
      *                                                      but as a path string, or array of path strings, then this
@@ -2282,7 +2324,7 @@ class Core {
      *                                                      specified ($restrictions was null or an empty string), the
      *                                                      Core restrictions will be returned instead
      */
-    public static function ensureRestrictions(Restrictions|array|string|null $restrictions = null, bool $write = false, ?string $label = null): Restrictions
+    public static function ensureRestrictions(RestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): Restrictions
     {
         if ($restrictions) {
             if (!is_object($restrictions)) {
@@ -2293,7 +2335,7 @@ class Core {
             return $restrictions;
         }
 
-        return static::$restrictions;
+        return static::getRestrictions();
     }
 
 
@@ -2313,6 +2355,31 @@ class Core {
         } else {
             $function();
         }
+    }
+
+
+    /**
+     * Returns data from storage
+     *
+     * @param string $key
+     * @return mixed
+     */
+    public static function getStorage(string $key): mixed
+    {
+        return array_get_safe(static::$storage, $key);
+    }
+
+
+    /**
+     * Sets data in storage
+     *
+     * @param mixed $value
+     * @param string $key
+     * @return void
+     */
+    public static function setStorage(string $key, mixed $value): void
+    {
+        static::$storage[$key] = $value;
     }
 
 
@@ -2391,10 +2458,12 @@ class Core {
         $timezone = isset_get($_SESSION['user']['timezone'], Config::get('system.timezone.system', 'UTC'));
 
         try {
-            date_default_timezone_set($timezone);
+            date_default_timezone_set(DateTimeZone::new($timezone)->getName());
 
         }catch(Throwable $e) {
-            // Accounts timezone failed, use the configured one
+            // Accounts timezone failed, default to UTC
+            date_default_timezone_set('UTC');
+
             Notification::new()
                 ->setException($e)
                 ->send();

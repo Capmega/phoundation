@@ -6,7 +6,7 @@ namespace Phoundation\Web\Http\Html\Layouts;
 
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\ElementsBlock;
-use Phoundation\Web\Http\Html\Interfaces\InterfaceDisplaySize;
+use Phoundation\Web\Http\Html\Enums\Interfaces\DisplaySizeInterface;
 
 
 /**
@@ -16,33 +16,23 @@ use Phoundation\Web\Http\Html\Interfaces\InterfaceDisplaySize;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
 class Grid extends Container
 {
     /**
-     * Clear the rows in this grid
-     *
-     * @return static
-     */
-    public function clearRows(): static
-    {
-        $this->source = [];
-        return $this;
-    }
-
-
-    /**
      * Set the rows for this grid
      *
      * @param array $rows
+     * @param DisplaySizeInterface|null $column_size
+     * @param bool $use_form
      * @return static
      */
-    public function setRows(array $rows): static
+    public function setRows(array $rows, ?DisplaySizeInterface $column_size = null, bool $use_form = false): static
     {
         $this->source = [];
-        return $this->addRows($rows);
+        return $this->addRows($rows, $column_size, $use_form);
     }
 
 
@@ -50,9 +40,11 @@ class Grid extends Container
      * Add the specified row to this grid
      *
      * @param array $rows
+     * @param DisplaySizeInterface|null $column_size
+     * @param bool $use_form
      * @return static
      */
-    public function addRows(array $rows): static
+    public function addRows(array $rows, ?DisplaySizeInterface $column_size = null, bool $use_form = false): static
     {
         // Validate columns
         foreach ($rows as $row) {
@@ -62,7 +54,7 @@ class Grid extends Container
                 ]));
             }
 
-            $this->addRow($row);
+            $this->addRow($row, $column_size, $use_form);
         }
 
         return $this;
@@ -73,10 +65,11 @@ class Grid extends Container
      * Add the specified row to this grid
      *
      * @param GridRow|GridColumn|ElementsBlock|null $row
-     * @param InterfaceDisplaySize|null $column_size
+     * @param DisplaySizeInterface|null $column_size
+     * @param bool $use_form
      * @return static
      */
-    public function addRow(GridRow|GridColumn|ElementsBlock|null $row = null, ?InterfaceDisplaySize $column_size = null): static
+    public function addRow(GridRow|GridColumn|ElementsBlock|null $row = null, ?DisplaySizeInterface $column_size = null, bool $use_form = false): static
     {
         if (!$row) {
             // Just add an empty row
@@ -87,7 +80,7 @@ class Grid extends Container
             // This is not a row!
             if (!($row instanceof GridColumn)) {
                 // This is not even a column, it's content. Put it in a column first
-                $row = GridColumn::new()->setContent($row);
+                $row = GridColumn::new()->setContent($row)->useForm($use_form);
             }
 
             // This is a column, put the column in a row
@@ -102,39 +95,17 @@ class Grid extends Container
 
 
     /**
-     * Returns the rows for this grid
-     *
-     * @return array
-     */
-    public function getRows(): array
-    {
-        return $this->source;
-    }
-
-
-    /**
-     * Clears the columns for the current row in this grid
-     *
-     * @return static
-     */
-    public function clearColumns(): static
-    {
-        $this->getCurrentRow()->clearColumns();
-        return $this;
-    }
-
-
-    /**
      * Set the columns for the current row in this grid
      *
      * @param array $columns
-     * @param InterfaceDisplaySize|int|null $size $size
+     * @param DisplaySizeInterface|int|null $size $size
+     * @param bool $use_form
      * @return static
      */
-    public function setColumns(array $columns, InterfaceDisplaySize|int|null $size = null): static
+    public function setColumns(array $columns, DisplaySizeInterface|int|null $size = null, bool $use_form = false): static
     {
-        $this->getCurrentRow()->clearColumns();
-        return $this->addColumns($columns, $size);
+        $this->getCurrentRow()->clear();
+        return $this->addColumns($columns, $size, $use_form);
     }
 
 
@@ -142,13 +113,14 @@ class Grid extends Container
      * Add the specified column to the current row in this grid
      *
      * @param array $columns
-     * @param InterfaceDisplaySize|int|null $size $size
+     * @param DisplaySizeInterface|int|null $size $size
+     * @param bool $use_form
      * @return static
      */
-    public function addColumns(array $columns, InterfaceDisplaySize|int|null $size = null): static
+    public function addColumns(array $columns, DisplaySizeInterface|int|null $size = null, bool $use_form = false): static
     {
         foreach ($columns as $column) {
-            $this->addColumn($column, $size);
+            $this->addColumn($column, $size, $use_form);
         }
 
         return $this;
@@ -159,10 +131,11 @@ class Grid extends Container
      * Add the specified column to the current row in this grid
      *
      * @param object|string|null $column
-     * @param InterfaceDisplaySize|int|null $size $size
+     * @param DisplaySizeInterface|int|null $size $size
+     * @param bool $use_form
      * @return static
      */
-    public function addColumn(object|string|null $column, InterfaceDisplaySize|int|null $size = null): static
+    public function addColumn(object|string|null $column, DisplaySizeInterface|int|null $size = null, bool $use_form = false): static
     {
         // Get a row
         if ($this->source) {
@@ -188,7 +161,7 @@ class Grid extends Container
         if (is_string($column)) {
             // This is not a column, it is content (should be an HTML string). Place the content in a column and add
             // that column instead
-            $column = GridColumn::new()->setContent($column);
+            $column = GridColumn::new()->setContent($column)->useForm($use_form);
         }
 
         $row->addColumn($column, $size);

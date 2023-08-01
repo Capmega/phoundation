@@ -8,10 +8,13 @@ use Exception;
 use Phoundation\Cli\Color;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Utils\Json;
+use StephenHill\Base58;
 use Stringable;
 use Throwable;
+
 
 /**
  * Class Strings
@@ -19,7 +22,7 @@ use Throwable;
  * This is the standard Phoundation string functionality extension class
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Class reference
  * @package Phoundation\Core
@@ -274,20 +277,118 @@ class Strings
 
 
     /**
+     * Returns true if the specified string is valid Base64
+     *
+     * @param Stringable|string $source
+     * @return bool
+     */
+    public static function isBase64(Stringable|string $source): bool
+    {
+        try {
+            static::fromBase64($source);
+            return true;
+
+        } catch (Throwable) {
+            return false;
+        }
+    }
+
+
+    /**
      * Will fix a base64 coded string with missing termination = marks and then attempt to decode it
      *
      * @param Stringable|string $source
      * @return string
      */
-    public static function safeBase64Decode(Stringable|string $source): string
+    public static function fromBase64(Stringable|string $source): string
     {
         $source = (string) $source;
+        $source = static::fixBase64($source);
 
+        return base64_decode($source);
+    }
+
+
+    /**
+     * Fixes a Base64 string if its missing termination = marks
+     *
+     * @param string $source
+     * @return string
+     */
+    protected static function fixBase64(string $source): string
+    {
         if ($mod = mb_strlen($source) % 4) {
             $source .= str_repeat('=', 4 - $mod);
         }
 
-        return base64_decode($source);
+        return $source;
+    }
+
+
+    /**
+     * Returns a base64 encoded string
+     *
+     * @param Stringable|string $source
+     * @return string
+     */
+    public static function toBase64(Stringable|string $source): string
+    {
+        return base64_encode($source);
+    }
+
+
+    /**
+     * Returns true if the specified string is base58
+     *
+     * @param Stringable|string $source
+     * @return bool
+     */
+    public static function isBase58(Stringable|string $source): bool
+    {
+        try {
+            static::fromBase58($source);
+
+            return true;
+
+        } catch (Throwable $e) {
+            $message = strtolower($e->getMessage());
+
+            if (str_contains($message, 'bc math') or str_contains($message, 'gmp')) {
+                throw PhpModuleNotAvailableException::new('The PHP BC Math and / or GMP modules are not installed or available');
+            }
+
+            return false;
+        }
+    }
+
+
+    /**
+     * Returns decoded base58 strings
+     *
+     * @param Stringable|string $source
+     * @return string
+     */
+    public static function fromBase58(Stringable|string $source): string
+    {
+        $source = (string) $source;
+        $codec  = new Base58();
+
+        return $codec->decode($source);
+    }
+
+
+    /**
+     * Returns a base58 encoded string
+     *
+     * @param Stringable|string $source
+     * @return string
+     */
+    public static function toBase58(Stringable|string $source): string
+    {
+        $source = (string) $source;
+        $codec  = new Base58();
+
+        return $codec->encode($source);
     }
 
 
@@ -372,7 +473,7 @@ class Strings
             $return .= $chunk . $interleave;
         }
 
-        return mb_substr($return, 0, -1) . $end;
+        return mb_substr($return, 0, -strlen($interleave)) . $end;
     }
 
 
@@ -714,13 +815,13 @@ class Strings
     /**
      * Force the specified string to be the specified size.
      *
-     * @param Stringable|string|null $source
+     * @param Stringable|string|float|int|null $source
      * @param int $size
      * @param string $add
      * @param bool $prefix
      * @return string
      */
-    public static function size(Stringable|string|null $source, int $size, string $add = ' ', bool $prefix = false): string
+    public static function size(Stringable|string|float|int|null $source, int $size, string $add = ' ', bool $prefix = false): string
     {
         if ($size < 0) {
             throw new OutOfBoundsException(tr('Specified size ":size" is invalid, it must be 0 or higher', [
@@ -761,7 +862,7 @@ class Strings
         $source = (string) $source;
 
         // Escape all individual characters
-        for($i = (mb_strlen($escape) - 1); $i <= 0; $i++) {
+        for ($i = (mb_strlen($escape) - 1); $i >= 0; $i--) {
             $source = str_replace($escape[$i], '\\' . $escape[$i], $source);
         }
 
@@ -1013,13 +1114,13 @@ throw new UnderConstructionException();
      * @version 2.0.0: Moved to system library, added documentation
      * @example
      * code
-     * $result = Strings::cut('support@capmega.com', '@', '.');
+     * $result = Strings::cut('so.oostenbrink@gmail.com', '@', '.');
      * showdie($result);
      * /code
      *
      * This would return
      * code
-     * capmega
+     * gmail
      * /code
      *
      * @param Stringable|string|int|null $source The string to be cut
@@ -1062,15 +1163,15 @@ throw new UnderConstructionException();
      * Return the given string from the specified needle
      *
      * @param Stringable|string|int|null $source
-     * @param Stringable|string|int $needle
+     * @param Stringable|string|int|null $needle
      * @param int $more
      * @param bool $require
      * @return string
      */
-    public static function from(Stringable|string|int|null $source, Stringable|string|int $needle, int $more = 0, bool $require = false): string
+    public static function from(Stringable|string|int|null $source, Stringable|string|int|null $needle, int $more = 0, bool $require = false): string
     {
         if (!$needle) {
-            throw new OutOfBoundsException('No needle specified');
+            return $source;
         }
 
         $needle = (string) $needle;
@@ -1093,7 +1194,7 @@ throw new UnderConstructionException();
      * Return the given string from 0 until the specified needle
      *
      * @param Stringable|string|int|null $source
-     * @param Stringable|string|int $needle
+     * @param Stringable|string|int|null $needle
      * @param int $more
      * @param int $start
      * @param bool $require
@@ -1102,7 +1203,7 @@ throw new UnderConstructionException();
     public static function until(Stringable|string|int|null $source, Stringable|string|int $needle, int $more = 0, int $start = 0, bool $require = false): string
     {
         if (!$needle) {
-            throw new OutOfBoundsException('No needle specified');
+            return $source;
         }
 
         $needle = (string) $needle;
@@ -1125,14 +1226,14 @@ throw new UnderConstructionException();
      * Return the given string from the specified needle, starting from the end
      *
      * @param Stringable|string|int|null $source
-     * @param Stringable|string|int $needle
+     * @param Stringable|string|int|null $needle
      * @param int $more
      * @return string
      */
     public static function fromReverse(Stringable|string|int|null $source, Stringable|string|int $needle, int $more = 0): string
     {
         if (!$needle) {
-            throw new OutOfBoundsException('No needle specified');
+            return $source;
         }
 
         $needle = (string) $needle;
@@ -1149,7 +1250,7 @@ throw new UnderConstructionException();
      * Return the given string from 0 until the specified needle, starting from the end
      *
      * @param Stringable|string|int|null $source
-     * @param Stringable|string|int $needle
+     * @param Stringable|string|int|null $needle
      * @param int $more
      * @param int $start
      * @return string
@@ -1157,7 +1258,7 @@ throw new UnderConstructionException();
     public static function untilReverse(Stringable|string|int|null $source, Stringable|string|int $needle, int $more = 0, int $start = 0): string
     {
         if (!$needle) {
-            throw new OutOfBoundsException('No needle specified');
+            return $source;
         }
 
         $needle = (string) $needle;
@@ -1176,7 +1277,7 @@ throw new UnderConstructionException();
      * Return the given string from the specified needle having been skipped $count times
      *
      * @param Stringable|string|int|null $source
-     * @param Stringable|string|int $needle
+     * @param Stringable|string|int|null $needle
      * @param int $count
      * @param bool $required
      * @return string
@@ -1184,7 +1285,7 @@ throw new UnderConstructionException();
     public static function skip(Stringable|string|int|null $source, Stringable|string|int $needle, int $count, bool $required = false): string
     {
         if (!$needle) {
-            throw new OutOfBoundsException(tr('No needle specified'));
+            return $source;
         }
 
         if ($count < 1) {
@@ -1207,14 +1308,14 @@ throw new UnderConstructionException();
      * string
      *
      * @param Stringable|string|int|null $source
-     * @param Stringable|string|int $needle
+     * @param Stringable|string|int|null $needle
      * @param int $count
      * @return string
      */
-    public static function skipReverse(Stringable|string|int|null $source, Stringable|string|int $needle, int $count): string
+    public static function skipReverse(Stringable|string|int|null $source, Stringable|string|int $needle, int $count, int $more = 0): string
     {
         if (!$needle) {
-            throw new OutOfBoundsException(tr('No needle specified'));
+            return $source;
         }
 
         if ($count < 1) {
@@ -1223,12 +1324,16 @@ throw new UnderConstructionException();
 
         $needle = (string) $needle;
         $source = (string) $source;
+        $result = [];
 
-        for ($i = 0; $i < $count; $i++) {
-            $source = Strings::fromReverse($source, $needle, 0);
+        for ($i = 0; $i <= $count; $i++) {
+            $result[] = Strings::fromReverse($source, $needle, $more);
+            $source   = Strings::untilReverse($source, $needle, $more);
         }
 
-        return $source;
+        $result = array_reverse($result);
+
+        return implode($needle, $result);
     }
 
 
@@ -1243,6 +1348,10 @@ throw new UnderConstructionException();
     {
         $source = (string) $source;
         $string = (string) $string;
+
+        if (!$string) {
+            throw new OutOfBoundsException(tr('Cannot ensure source starts with string, empty string specified'));
+        }
 
         if (mb_substr($source, 0, mb_strlen($string)) == $string) {
             return $source;
@@ -1264,6 +1373,10 @@ throw new UnderConstructionException();
         $source = (string) $source;
         $string = (string) $string;
 
+        if (!$string) {
+            throw new OutOfBoundsException(tr('Cannot ensure source starts not with string, empty string specified'));
+        }
+
         while (mb_substr($source, 0, mb_strlen($string)) == $string) {
             $source = mb_substr($source, mb_strlen($string));
         }
@@ -1284,6 +1397,10 @@ throw new UnderConstructionException();
         $source = (string) $source;
         $string = (string) $string;
         $length = mb_strlen($string);
+
+        if (!$string) {
+            throw new OutOfBoundsException(tr('Cannot ensure source ends with string, empty string specified'));
+        }
 
         if (mb_substr($source, -$length, $length) == $string) {
             return $source;
@@ -1315,6 +1432,10 @@ throw new UnderConstructionException();
                 foreach ($strings as $string) {
                     $strings = (string) $strings;
                     $new     = Strings::endsNotWith($source, $string, true);
+
+                    if (!$string) {
+                        throw new OutOfBoundsException(tr('Cannot ensure source not ends with string, empty string specified'));
+                    }
 
                     if ($new != $source) {
                         // A change was made, we have to rerun over it.
@@ -1413,7 +1534,7 @@ throw new UnderConstructionException();
      * /code
      *
      */
-    public static function truncate(Stringable|string|int|null $source, int $length, Stringable|string $fill = ' ... ', string $method = 'right', bool $on_word = false): string
+    public static function truncate(Stringable|string|int|bool|null $source, int $length, Stringable|string $fill = ' ... ', string $method = 'right', bool $on_word = false): string
     {
         $source = (string) $source;
         $fill   = (string) $fill;
@@ -1451,7 +1572,7 @@ throw new UnderConstructionException();
                 return trim($return) . $fill;
 
             case 'center':
-                return mb_substr($source, 0, floor($length / 2)) . $fill.mb_substr($source, -ceil($length / 2));
+                return mb_substr($source, 0, (int) floor($length / 2)) . $fill . mb_substr($source, (int) -ceil($length / 2));
 
             case 'left':
                 $return = mb_substr($source, -$length, $length);
@@ -1518,6 +1639,9 @@ throw new UnderConstructionException();
             if (is_array($source)) {
                 $source = Arrays::hide($source, ['password', 'ssh_key']);
                 $source = trim(JSON::encode($source));
+
+            } elseif (is_enum($source)) {
+                $source = $source->value;
 
             } elseif (is_object($source) and method_exists($source, '__toString')) {
                 $source = (string) $source;
@@ -1851,9 +1975,11 @@ throw new UnderConstructionException();
      * @param mixed $source
      * @param string $eol
      * @param string|null $separator
+     * @param int $indent
+     * @param int $indent_increase
      * @return string
      */
-    public static function getKeyValueTable(mixed $source, string $eol = PHP_EOL, ?string $separator = null): string
+    public static function getKeyValueTable(mixed $source, string $eol = PHP_EOL, ?string $separator = null, int $indent = 0, int $indent_increase = 8): string
     {
         if (!$source) {
             return '';
@@ -1879,9 +2005,14 @@ throw new UnderConstructionException();
 
         // format and write the lines
         foreach ($source as $key => $value) {
+            if (!is_string($value)) {
+                // Recurse
+                $value = static::getKeyValueTable($value, $eol, $separator, $indent + $indent_increase, $indent_increase);
+            }
+
             // Resize the call lines to all have the same size for easier reading
-            $key     = Strings::size($key, $longest);
-            $return .= trim($key . $separator . $value) . $eol;
+            $key     = Strings::size((string) $key, $longest);
+            $return .= str_repeat(' ', $indent) . trim($key . $separator . $value) . $eol;
         }
 
         return $return;
@@ -1895,8 +2026,11 @@ throw new UnderConstructionException();
      * @param string $delimiters
      * @return string
      */
-    public static function escapeRegex(string $string, string $delimiters = '/'): string
+    public static function escapeForRegex(string $string, string $delimiters = '/', string $skip_symbols = ''): string
     {
-        return '\\' . Strings::interleave('\\()[]{}<>.?+*^$=!|:-' . $delimiters, '\\');
+        $skip_symbols        = mb_str_split($skip_symbols, 1);
+        $standard_delimiters = str_replace($skip_symbols, '', '\\()[]{}<>.?+*^$=!|:-');
+
+        return self::escape($string, $standard_delimiters . $delimiters);
     }
 }

@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Routing;
 
+use Exception;
 use Phoundation\Core\Log\Log;
 use Phoundation\Web\Exception\RouteException;
+
 
 /**
  * Class RouteParametersList
@@ -14,7 +16,7 @@ use Phoundation\Web\Exception\RouteException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
 class RoutingParametersList
@@ -112,22 +114,32 @@ class RoutingParametersList
                 break;
             }
 
-            if (preg_match_all($pattern, $uri, $matches)) {
-                $parameters
-                    ->setMatches($matches)
-                    ->setUri($uri);
+            try {
+                if (!preg_match_all($pattern, $uri, $matches)) {
+                    continue;
+                }
 
-                // Use this template
-                Log::action(tr('Selected parameters pattern ":pattern" with template ":template" and path ":path" for:system page from URI ":uri"', [
-                    ':system'   => ($system ? ' system' : ''),
-                    ':uri'      => $uri,
-                    ':path'     => $parameters->getRootPath(),
-                    ':template' => $parameters->getTemplate(),
-                    ':pattern'  => $pattern
-                ]));
-
-                return $parameters;
+            } catch (Exception $e) {
+                throw RouteException::new(tr('Routing regular expression pattern ":regex" failed with error ":e"', [
+                    ':e'     => $e->getMessage(),
+                    ':regex' => $pattern
+                ]), $e)->setData(['failed_pattern' => $pattern]);
             }
+
+            $parameters
+                ->setMatches($matches)
+                ->setUri($uri);
+
+            // Use this template
+            Log::action(tr('Selected parameters pattern ":pattern" with template ":template" and path ":path" for:system page from URI ":uri"', [
+                ':system'   => ($system ? ' system' : ''),
+                ':uri'      => $uri,
+                ':path'     => $parameters->getRootPath(),
+                ':template' => $parameters->getTemplate(),
+                ':pattern'  => $pattern
+            ]));
+
+            return $parameters;
         }
 
         if (!isset($parameters)) {

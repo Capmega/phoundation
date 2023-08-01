@@ -16,7 +16,7 @@ use Phoundation\Web\Http\Html\Renderer;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\AdminLte
  */
 class Menu extends Renderer
@@ -38,7 +38,7 @@ class Menu extends Renderer
      */
     public function render(): ?string
     {
-        return $this->renderMenu($this->element->getSource(), 0);
+        return $this->renderMenu($this->render_object->getSource(), 0);
     }
 
 
@@ -62,7 +62,7 @@ class Menu extends Renderer
             if (isset($entry['url']) or isset($entry['menu'])) {
                 $html .= '<li class="nav-item">
                             <a href="' . Html::safe(isset_get($entry['url']) ?? '#') . '" class="nav-link">
-                                ' . (isset($entry['icon']) ? '<i class="nav-icon fas ' . Html::safe($entry['icon']) . '"></i>' : '') . '
+                                ' . (isset($entry['icon']) ? '<i class="nav-icon fas fa ' . Html::safe($entry['icon']) . '"></i>' : '') . '
                                 <p>' . Html::safe($label) . (isset($entry['menu']) ? '<i class="right fas fa-angle-left"></i>' : (isset($entry['badge']) ? '<span class="right badge badge-' . Html::safe($entry['badge']['type']) . '">' . Html::safe($entry['badge']['label']) . '</span>' : '')) . '</p>
                             </a>';
 
@@ -72,7 +72,7 @@ class Menu extends Renderer
             } else {
                 // Not a clickable menu element, just a label
                 $html .= '<li class="nav-header">
-                                ' . (isset($entry['icon']) ? '<i class="nav-icon fas ' . Html::safe($entry['icon']) . '"></i>' : '') . '
+                                ' . (isset($entry['icon']) ? '<i class="nav-icon fas fa ' . Html::safe($entry['icon']) . '"></i>' : '') . '
                                 ' . strtoupper(Html::safe($label)) . (isset($entry['badge']) ? '<span class="right badge badge-' . Html::safe($entry['badge']['type']) . '">' . Html::safe($entry['badge']['label']) . '</span>' : '');
             }
 

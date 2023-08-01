@@ -288,9 +288,10 @@ interface InterfaceElementAttributes
     /**
      * Sets the HTML class element attribute
      *
+     * @param bool $autofocus
      * @return static
      */
-    function setAutofocus(): static;
+    function setAutofocus(bool $autofocus): static;
 
     /**
      * Returns the HTML class element attribute

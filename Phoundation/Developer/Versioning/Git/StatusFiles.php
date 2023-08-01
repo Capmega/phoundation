@@ -9,12 +9,13 @@ use Phoundation\Cli\Color;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
-use Phoundation\Data\Classes\Iterator;
+use Phoundation\Data\Iterator;
 use Phoundation\Developer\Versioning\Git\Exception\GitPatchException;
 use Phoundation\Developer\Versioning\Git\Traits\GitProcess;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Exception\ProcessFailedException;
+
 
 /**
  * Class StatusFiles
@@ -23,7 +24,7 @@ use Phoundation\Processes\Exception\ProcessFailedException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Developer
  */
 class StatusFiles extends Iterator
@@ -57,7 +58,7 @@ class StatusFiles extends Iterator
      */
     public function scanChanges(): static
     {
-        $this->list = [];
+        $this->source = [];
 
         $files = $this->git_process
             ->clearArguments()
@@ -77,7 +78,7 @@ class StatusFiles extends Iterator
                 $file   = Strings::until($file, ' -> ');
             }
 
-            $this->list[$file] = StatusFile::new($status, $file, $target);
+            $this->source[$file] = StatusFile::new($status, $file, $target);
         }
 
         return $this;
@@ -93,7 +94,7 @@ class StatusFiles extends Iterator
     {
         $list = [];
 
-        foreach ($this->getList() as $file => $status) {
+        foreach ($this->getSource() as $file => $status) {
             if (trim(substr($status->getStatus(), 0, 1))) {
                 $status = Color::apply($status->getStatus()->getReadable(), 'green');
             } else {

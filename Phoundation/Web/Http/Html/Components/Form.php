@@ -6,8 +6,11 @@ namespace Phoundation\Web\Http\Html\Components;
 
 use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Core\Config;
+use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Http\Html\Components\Interfaces\FormInterface;
 use Phoundation\Web\Http\UrlBuilder;
+use Stringable;
 
 
 /**
@@ -17,10 +20,10 @@ use Phoundation\Web\Http\UrlBuilder;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class Form extends Element
+class Form extends Element implements FormInterface
 {
     /**
      * The submit method
@@ -100,10 +103,10 @@ class Form extends Element
     /**
      * Sets the form action
      *
-     * @param UrlBuilder|string|null $action
+     * @param Stringable|string|null $action
      * @return static
      */
-    public function setAction(UrlBuilder|string|null $action): static
+    public function setAction(Stringable|string|null $action): static
     {
         if ($action) {
             $this->action = (string) UrlBuilder::getWww($action);

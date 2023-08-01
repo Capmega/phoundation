@@ -10,6 +10,7 @@ use Phoundation\Core\Numbers;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 
+
 /**
  * Class TestDataGenerator
  *
@@ -17,7 +18,7 @@ use Phoundation\Exception\OutOfBoundsException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Developer
  */
 class TestDataGenerator
@@ -138,7 +139,7 @@ class TestDataGenerator
      */
     public static function getName(): string
     {
-        return Strings::random(random_int(3, 10));
+        return Strings::random(random_int(3, 10), characters: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ');
     }
 
 
@@ -150,7 +151,7 @@ class TestDataGenerator
      */
     public static function getDomain(): string
     {
-        return Strings::random(random_int(3, 24) . pick_random('.com', '.org', '.net', '.ca', '.nl', '.mx', '.com.mx', '.info', '.local'));
+        return Strings::random(random_int(3, 24)) . pick_random('.com', '.org', '.net', '.ca', '.nl', '.mx', '.com.mx', '.info', '.local');
     }
 
 

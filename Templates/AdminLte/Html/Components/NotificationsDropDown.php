@@ -11,6 +11,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Html\Renderer;
 
+
 /**
  * NotificationsDropDown class
  *
@@ -18,7 +19,7 @@ use Phoundation\Web\Http\Html\Renderer;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\AdminLte
  */
 class NotificationsDropDown extends Renderer
@@ -39,20 +40,27 @@ class NotificationsDropDown extends Renderer
      */
     public function render(): ?string
     {
-        if (!$this->element->getAllNotificationsUrl()) {
+        if (!$this->render_object->getAllNotificationsUrl()) {
             throw new OutOfBoundsException(tr('No all notifications page URL specified'));
         }
 
-        if (!$this->element->getNotificationsUrl()) {
+        if (!$this->render_object->getNotificationsUrl()) {
             throw new OutOfBoundsException(tr('No notifications page URL specified'));
         }
 
-        $notifications = $this->element->getNotifications(null);
+        $notifications = $this->render_object->getNotifications('UNREAD');
 
         if ($notifications) {
             $count = $notifications->getCount();
             $mode  = $notifications->getMostImportantMode();
             $mode  = strtolower($mode);
+
+            // With HTML, "notice" and "information" are known as "info"
+            $mode = match ($mode) {
+                'unknown', 'notice','information' => 'info',
+                default                           => $mode
+            };
+
         } else {
             $count = 0;
         }
@@ -73,7 +81,7 @@ class NotificationsDropDown extends Renderer
                     break;
                 }
 
-                $this->render .= '<a href="' . Html::safe(str_replace(':ID', $notification->getId(), $this->element->getNotificationsUrl())) . '" class="dropdown-item">
+                $this->render .= '<a href="' . Html::safe(str_replace(':ID', (string) $notification->getId(), (string) $this->render_object->getNotificationsUrl())) . '" class="dropdown-item">
                                     ' . ($notification->getIcon() ? '<i class="text-' . Html::safe($notification->getMode()->value) . ' fas fa-' . Html::safe($notification->getIcon()) . ' mr-2"></i> ' : null) . Html::safe(Strings::truncate($notification->getTitle(), 24)) . '
                                     <span class="float-right text-muted text-sm"> ' . Html::safe(Date::getAge($notification->getCreatedOn())) . '</span>
                                   </a>
@@ -81,7 +89,7 @@ class NotificationsDropDown extends Renderer
             }
         }
 
-        $this->render .= '        <a href="' . Html::safe($this->element->getAllNotificationsUrl()) . '" class="dropdown-item dropdown-footer">' . tr('See All Notifications') . '</a>
+        $this->render .= '        <a href="' . Html::safe($this->render_object->getAllNotificationsUrl()) . '" class="dropdown-item dropdown-footer">' . tr('See All Notifications') . '</a>
                                 </div>';
 
         return parent::render();

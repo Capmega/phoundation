@@ -5,12 +5,20 @@ declare(strict_types=1);
 namespace Phoundation\Network\Curl;
 
 use JetBrains\PhpStorm\ExpectedValues;
+use Phoundation\Core\Log\Log;
+use Phoundation\Core\Strings;
+use Phoundation\Data\Traits\DataUrl;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Network\Browsers\UserAgents;
+use Phoundation\Network\Curl\Exception\Curl404Exception;
+use Phoundation\Network\Curl\Exception\CurlNon200Exception;
+use Phoundation\Network\Curl\Interfaces\CurlInterface;
 use Phoundation\Web\Exception\WebException;
+use Stringable;
+use Throwable;
 
 
 /**
@@ -20,17 +28,12 @@ use Phoundation\Web\Exception\WebException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Network
  */
-abstract class Curl
+abstract class Curl implements CurlInterface
 {
-    /**
-     * The URL to which the Curl request will be made
-     *
-     * @var string
-     */
-    protected string $url;
+    use DataUrl;
 
     /**
      * The actual cURL interface
@@ -60,6 +63,13 @@ abstract class Curl
      * @var string|null
      */
     protected ?string $user_agent = null;
+
+    /**
+     * The request headers for the request. NULL if the request has not yet been executed
+     *
+     * @var array $request_headers
+     */
+    protected array $request_headers = [];
 
     /**
      * The result headers from the request. NULL if the request has not yet been executed
@@ -106,9 +116,9 @@ abstract class Curl
     /**
      * Cache timeout
      *
-     * @var int $cache
+     * @var int $cache_timeout
      */
-    protected int $cache = 0;
+    protected int $cache_timeout = 0;
 
     /**
      * The amount of time in seconds before a connection times out
@@ -249,7 +259,7 @@ abstract class Curl
     /**
      * Curl class constructor
      */
-    public function __construct(?string $url = null)
+    public function __construct(Stringable|string|null $url = null)
     {
         if (!extension_loaded('curl')) {
             throw new WebException(tr('The PHP "curl" module is not available, please install it first. On ubuntu install the module with "apt -y install php-curl"; a restart of the webserver or php fpm server may be required'));
@@ -260,20 +270,23 @@ abstract class Curl
             $this->verbose = true;
         }
 
-        $this->url   = $url;
+        $this->url   = (string) $url;
         $this->retry = 0;
 
         $this->setLogPath(PATH_DATA . 'log/curl/');
+
+        // Setup new cURL request
+        $this->curl = curl_init();
     }
 
 
     /**
      * Returns a new cURL class
      *
-     * @param string|null $url
+     * @param Stringable|string|null $url
      * @return static
      */
-    public static function new(?string $url = null): static
+    public static function new(Stringable|string|null $url = null): static
     {
         return new static($url);
     }
@@ -328,10 +341,24 @@ abstract class Curl
 
         if ($method === 'POST') {
             // Disable cache on POST requests, disable follow location too as it would convert POST into GET requests
-            $this->cache           = 0;
+            $this->cache_timeout   = 0;
             $this->follow_location = false;
         }
 
+        return $this;
+    }
+
+
+    /**
+     * Set cURL options directly
+     *
+     * @param int $option
+     * @param mixed $value
+     * @return $this
+     */
+    public function setOpt(int $option, mixed $value): static
+    {
+        curl_setopt($this->curl, $option, $value);
         return $this;
     }
 
@@ -799,23 +826,23 @@ abstract class Curl
     /**
      * Sets if object will use local cache for this request
      *
-     * @return bool
+     * @return int
      */
-    public function getCache(): bool
+    public function getCacheTimeout(): int
     {
-        return $this->cache;
+        return $this->cache_timeout;
     }
 
 
     /**
      * Returns if object will use local cache for this request
      *
-     * @param bool $cache
+     * @param int $cache_timeout
      * @return static
      */
-    public function setCache(bool $cache): static
+    public function setCacheTimeout(int $cache_timeout): static
     {
-        $this->cache = $cache;
+        $this->cache_timeout = $cache_timeout;
         return $this;
     }
 
@@ -939,6 +966,75 @@ abstract class Curl
      *
      * @return array|null
      */
+    public function getRequestHeaders(): ?array
+    {
+        return $this->request_headers;
+    }
+
+
+    /**
+     * Sets the request headers
+     *
+     * @param array $headers
+     * @return static
+     */
+    public function setRequestHeaders(array $headers): static
+    {
+        return $this->clearRequestHeaders()->addRequestHeaders($headers);
+    }
+
+
+    /**
+     * Returns the result headers
+     *
+     * @param array $headers
+     * @return static
+     */
+    public function addRequestHeaders(array $headers): static
+    {
+        foreach ($headers as $key => $value) {
+            if (is_numeric($key)) {
+                $this->addRequestHeader($key, $value);
+            } else {
+                $this->addRequestHeader($key, $value);
+            }
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Returns the result headers
+     *
+     * @param string $key
+     * @param string|float|int|null $value
+     * @return static
+     */
+    public function addRequestHeader(string $key, string|float|int|null $value): static
+    {
+        $this->request_headers[$key] = $value;
+        return $this;
+    }
+
+
+    /**
+     * Clears the request headers
+     *
+     * @return static
+     */
+    public function clearRequestHeaders(): static
+    {
+        $this->request_headers = [];
+        return $this;
+    }
+
+
+    /**
+     * Returns the result headers
+     *
+     * @return array|null
+     */
     public function getResultHeaders(): ?array
     {
         return $this->result_headers;
@@ -964,6 +1060,18 @@ abstract class Curl
     public function getResultData(): ?string
     {
         return $this->result_data;
+    }
+
+
+    /**
+     * Returns the HTTP code for the request
+     *
+     * @note Returns NULL if the request has not yet been executed or completed.
+     * @return int|null
+     */
+    public function getHttpCode(): ?int
+    {
+        return get_null((int) $this->result_status['http_code']);
     }
 
 

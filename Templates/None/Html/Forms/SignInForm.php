@@ -16,7 +16,7 @@ use Phoundation\Web\Http\Html\Renderer;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\None
  */
 class SignInForm extends Renderer
@@ -61,7 +61,7 @@ class SignInForm extends Renderer
                         
                             <div class="col">
                               <!-- Simple link -->
-                              <a href="' . Html::safe($this->element->getForgotPasswordUrl()) . '">' . tr('Forgot password?') . '</a>
+                              <a href="' . Html::safe($this->render_object->getForgotPasswordUrl()) . '">' . tr('Forgot password?') . '</a>
                             </div>
                           </div>
                         
@@ -70,7 +70,7 @@ class SignInForm extends Renderer
                         
                           <!-- Register buttons -->
                           <div class="text-center">
-                            <p>' . tr('Not a member?') . ' <a href="' . Html::safe($this->element->getRegisterUrl()) . '">' . tr('Register') . '</a></p>
+                            <p>' . tr('Not a member?') . ' <a href="' . Html::safe($this->render_object->getRegisterUrl()) . '">' . tr('Register') . '</a></p>
                             <p>' . tr('or sign up with:') . '</p>
                             <button type="button" class="btn btn-primary btn-floating mx-1">
                               <i class="fab fa-facebook-f"></i>

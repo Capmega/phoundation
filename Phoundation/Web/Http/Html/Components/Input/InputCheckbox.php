@@ -8,6 +8,7 @@ use Phoundation\Web\Http\Html\Components\Element;
 use Phoundation\Web\Http\Html\Components\Input\Traits\InputElement;
 use Phoundation\Web\Http\Html\Enums\InputType;
 
+
 /**
  * Checkbox class
  *
@@ -15,7 +16,7 @@ use Phoundation\Web\Http\Html\Enums\InputType;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation/Web
  */
 class InputCheckbox extends Element
@@ -97,7 +98,7 @@ class InputCheckbox extends Element
      * @param string|null $label
      * @return static
      */
-    public function setLabel(string|null $label): static
+    public function setLabel(?string $label): static
     {
         $this->label = $label;
         return $this;
@@ -121,7 +122,7 @@ class InputCheckbox extends Element
      * @param string|null $label_class
      * @return static
      */
-    public function setLabelClass(string|null $label_class): static
+    public function setLabelClass(?string $label_class): static
     {
         $this->label_class = $label_class;
         return $this;

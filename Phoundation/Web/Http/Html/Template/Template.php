@@ -11,6 +11,7 @@ use Phoundation\Web\Http\Html\Components\ElementsBlock;
 use Phoundation\Web\Http\Html\Template\Exception\TemplateException;
 use Plugins\Phoundation\Components\Menu;
 
+
 /**
  * Class Template
  *
@@ -18,7 +19,7 @@ use Plugins\Phoundation\Components\Menu;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
 abstract class Template
@@ -115,7 +116,7 @@ abstract class Template
             if (!($page instanceof TemplatePage)) {
                 throw new OutOfBoundsException(tr('Cannot instantiate ":template" template page object, specified class ":class" is not a sub class of "TemplatePage"', [
                     ':template' => $this->name,
-                    'class' => $this->page_class
+                    'class'     => $this->page_class
                 ]));
             }
 

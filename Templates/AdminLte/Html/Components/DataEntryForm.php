@@ -4,17 +4,21 @@ declare(strict_types=1);
 
 namespace Templates\AdminLte\Html\Components;
 
+use PDOStatement;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Strings;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinition;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Input\InputMultiButtonText;
-use Phoundation\Web\Http\Html\Components\Input\Select;
+use Phoundation\Web\Http\Html\Components\Input\InputSelect;
 use Phoundation\Web\Http\Html\Components\Input\TextArea;
+use Phoundation\Web\Http\Html\Components\Interfaces\ElementInterface;
+use Phoundation\Web\Http\Html\Components\Interfaces\ElementsBlockInterface;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Html\Renderer;
+use Stringable;
 
 
 /**
@@ -24,15 +28,17 @@ use Phoundation\Web\Http\Html\Renderer;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\AdminLte
  */
 class DataEntryForm extends Renderer
 {
     /**
      * DataEntryForm class constructor
+     *
+     * @param ElementsBlockInterface|ElementInterface $element
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\DataEntryForm $element)
+    public function __construct(ElementsBlockInterface|ElementInterface $element)
     {
         parent::__construct($element);
     }
@@ -41,20 +47,25 @@ class DataEntryForm extends Renderer
     /**
      * Standard DataEntryForm object does not render any HTML, this requires a Template class
      *
+     * @todo Refactor this method
      * @return string|null
      */
     public function render(): ?string
     {
-        if (!$this->element->getFields()) {
-            throw new OutOfBoundsException(tr('Cannot render DataEntryForm, no form keys specified'));
+        $render_object = $this->render_object;
+
+        if (!$render_object->getDefinitions()) {
+            throw new OutOfBoundsException(tr('Cannot render DataEntryForm, no fields specified'));
         }
 
-        $source = $this->element->getSource();
-        $keys   = $this->reorderKeys($this->element->getFields());
-
+        $source        = $render_object->getSource();
+        $definitions   = $render_object->getDefinitions();
+        $prefix        = $render_object->getDefinitions()->getPrefix();
+        $auto_focus_id = $render_object->getAutofocusId();
+        $array         = str_ends_with((string) $prefix, '[');
 
         /*
-         * $data field keys: (Or just use DataEntryFieldDefinitions class)
+         * $data field keys: (Or just use Definitions class)
          *
          * FIELD          DATATYPE           DEFAULT VALUE  DESCRIPTION
          * value          mixed              null           The value for this entry
@@ -98,52 +109,81 @@ class DataEntryForm extends Renderer
         // If form key definitions are available, reorder the keys as in the form key definitions
 
         // Go over each key and add it to the form
-        foreach ($keys as $key => $data) {
-            if (!is_array($data)) {
-                if (!is_object($data) and !($data instanceof DataEntryFieldDefinition)) {
-                    throw new OutOfBoundsException(tr('Data key definition for key ":key" is invalid. Iit should be an array or DataEntryFieldDefinition type  but contains ":data"', [
-                        ':key'  => $key,
-                        ':data' => gettype($data) . ': ' . $data
+        foreach ($definitions as $field => $definition) {
+            // Add field name prefix
+            $field_name = $prefix . $field;
+
+            if ($field_name === $auto_focus_id) {
+                // This field has autofocus
+                $definition->setAutoFocus(true);
+            }
+
+            if ($array) {
+                // The field name prefix is an HTML form array prefix, close that array
+                $field_name .= ']';
+            }
+
+            if (is_array($definition)) {
+                $definition_array = $definition;
+            } else {
+                if (!is_object($definition) or !($definition instanceof DefinitionInterface)) {
+                    throw new OutOfBoundsException(tr('Data key definition for field ":field / :field_name" is invalid. Iit should be an array or Definition type  but contains ":data"', [
+                        ':field'      => $field,
+                        ':field_name' => $field_name,
+                        ':data'       => gettype($definition) . ': ' . $definition
                     ]));
                 }
 
-                // This is a new DataEntryFieldDefinition object, get the definitions from there
-                // TODO Use the DataEntryFieldDefinition class all here,
-                $data = $data->getDefinitions();
-            }
+                if ($definition->getMeta()) {
+                    // This is an unmutable meta field, virtual field, or readonly field.
+                    // In creation mode we're not even going to show this, in edit mode don't put a field name because
+                    // users aren't even supposed to be able to submit this
+                    if (empty($render_object->source['id'])) {
+                        continue;
+                    }
 
-            if (!isset_get($data['visible'], true)) {
-                continue;
+                    $field_name = '';
+                }
+
+                if (!$definition->getVisible()) {
+                    // This element shouldn't be shown, continue
+                    continue;
+                }
+
+                if ($definition->getDisabled() or $definition->getReadonly()) {
+                    // This is an unmutable field. Don't add a field names as users aren't supposed to submit this.
+                    $field_name = '';
+                }
+
+                // This is a new Definition object, get the definitions from there
+                // TODO Use the Definition class all here,
+                $definition_array = $definition->getRules();
             }
 
             // Set defaults
-            Arrays::default($data, 'size'        , 12);
-            Arrays::default($data, 'type'        , 'text');
-            Arrays::default($data, 'label'       , null);
-            Arrays::default($data, 'disabled'    , false);
-            Arrays::default($data, 'readonly'    , false);
-            Arrays::default($data, 'visible'     , true);
-            Arrays::default($data, 'readonly'    , false);
-            Arrays::default($data, 'title'       , null);
-            Arrays::default($data, 'placeholder' , null);
-            Arrays::default($data, 'pattern'     , null);
-            Arrays::default($data, 'maxlength'   , 0);
-            Arrays::default($data, 'min'         , 0);
-            Arrays::default($data, 'max'         , 0);
-            Arrays::default($data, 'step'        , 0);
-
-            if (!$data['visible']) {
-                // This element shouldn't be shown, continue
-                continue;
-            }
+            Arrays::default($definition_array, 'disabled'    , false);
+            Arrays::default($definition_array, 'label'       , null);
+            Arrays::default($definition_array, 'max'         , null);
+            Arrays::default($definition_array, 'maxlength'   , null);
+            Arrays::default($definition_array, 'min'         , null);
+            Arrays::default($definition_array, 'pattern'     , null);
+            Arrays::default($definition_array, 'placeholder' , null);
+            Arrays::default($definition_array, 'readonly'    , false);
+            Arrays::default($definition_array, 'size'        , 12);
+            Arrays::default($definition_array, 'source'      , null);
+            Arrays::default($definition_array, 'step'        , null);
+            Arrays::default($definition_array, 'title'       , null);
+            Arrays::default($definition_array, 'type'        , 'text');
+            Arrays::default($definition_array, 'virtual'     , false);
+            Arrays::default($definition_array, 'visible'     , true);
 
             // Ensure password is never sent in the form
-            switch ($key) {
+            switch ($field) {
                 case 'password':
-                    $source[$key] = '';
+                    $source[$field] = '';
             }
 
-            $execute = isset_get($data['execute']);
+            $execute = isset_get($definition_array['execute']);
 
             if (is_string($execute)) {
                 // Build the source execute array from the specified column
@@ -156,219 +196,302 @@ class DataEntryForm extends Renderer
             }
 
             // Select default element
-            if (!isset_get($data['element'])) {
-                if (isset_get($data['source'])) {
+            if (!isset_get($definition_array['element'])) {
+                if (isset_get($definition_array['source'])) {
                     // Default element for form items with a source is "select"
-                    $data['element'] = 'select';
+                    $definition_array['element'] = 'select';
                 } else {
                     // Default element for form items "text input"
-                    $data['element'] = 'input';
+                    $definition_array['element'] = 'input';
                 }
             }
 
             // Set default value and override key entry values if value is null
-            if (isset_get($source[$key]) === null) {
-                if (isset_get($data['null_element'])) {
-                    $data['element'] = $data['null_element'];
+            if (isset_get($source[$field]) === null) {
+                if (isset_get($definition_array['null_element'])) {
+                    $definition_array['element'] = $definition_array['null_element'];
                 }
 
-                if (isset_get($data['null_type'])) {
-                    $data['type'] = $data['null_type'];
+                if (isset_get($definition_array['null_type'])) {
+                    $definition_array['type'] = $definition_array['null_type'];
                 }
 
-                if (isset_get($data['null_disabled'])) {
-                    $data['disabled'] = $data['null_disabled'];
+                if (isset_get($definition_array['null_disabled'])) {
+                    $definition_array['disabled'] = $definition_array['null_disabled'];
                 }
 
-                if (isset_get($data['null_readonly'])) {
-                    $data['readonly'] = $data['null_readonly'];
+                if (isset_get($definition_array['null_readonly'])) {
+                    $definition_array['readonly'] = $definition_array['null_readonly'];
                 }
 
-                $source[$key] = isset_get($data['default']);
+                $source[$field] = isset_get($definition_array['default']);
             }
 
             // Set value to value specified in $data
-            if (isset($data['value'])) {
-                $source[$key] = $data['value'];
+            if (isset($definition_array['value'])) {
+                $source[$field] = $definition_array['value'];
 
                 // Apply variables
                 foreach ($source as $source_key => $source_value) {
-                    $source[$key] = str_replace(':' . $source_key, (string) $source_value, $source[$key]);
+                    $source[$field] = str_replace(':' . $source_key, (string) $source_value, $source[$field]);
                 }
             }
 
             // Build the form elements
-            switch ($data['element']) {
-                case 'input':
-                    $data['type'] = isset_get($data['type'], 'text');
+            if (empty($definition_array['content'])) {
+                switch ($definition_array['element']) {
+                    case 'input':
+                        $definition_array['type'] = isset_get($definition_array['type'], 'text');
 
-                    if (!$data['type']) {
-                        throw new OutOfBoundsException(tr('No input type specified for key ":key"', [
-                            ':key' => $key
+                        if (!$definition_array['type']) {
+                            throw new OutOfBoundsException(tr('No input type specified for field ":field / field_name"', [
+                                ':field_name' => $field_name,
+                                ':field'      => $field
+                            ]));
+                        }
+
+                        if (!$render_object->inputTypeSupported($definition_array['type'])) {
+                            throw new OutOfBoundsException(tr('Unknown input type ":type" specified for field ":field / :field_name"', [
+                                ':field_name' => $field_name,
+                                ':field'      => $field,
+                                ':type'       => $definition_array['type']
+                            ]));
+                        }
+
+                        // If we have a source query specified, then get the actual value from the query
+                        if (isset_get($definition_array['source'])) {
+                            if (is_array($definition_array['source'])) {
+                                $definition_array['source'] = $definition_array['source'];
+
+                            } elseif (is_string($definition_array['source'])) {
+                                $definition_array['source'] = $definition_array['source'];
+
+                            } elseif ($definition_array['source'] instanceof Stringable) {
+                                $definition_array['source'] = (string) $definition_array['source'];
+
+                            } elseif ($definition_array['source'] instanceof PDOStatement) {
+                                $definition_array['source'] = sql()->getColumn($definition_array['source'], $execute);
+                            }
+                        }
+
+                        // Build the element class path and load the required class file
+                        $type = match ($definition_array['type']) {
+                            'datetime-local' => 'DateTimeLocal',
+                            'auto-suggest'   => 'AutoSuggest',
+                            default          => Strings::capitalize($definition_array['type']),
+                        };
+
+                        $element_class = '\\Phoundation\\Web\\Http\\Html\\Components\\Input\\Input' . $type;
+                        $file          = Library::getClassFile($element_class);
+                        include_once($file);
+
+                        // Depending on input type we might need different code
+
+                        switch ($definition_array['type']) {
+                            case 'checkbox':
+                                // Render the HTML for this element
+                                $html = $element_class::new()
+                                    ->setDisabled((bool) $definition_array['disabled'])
+                                    ->setReadOnly((bool) $definition_array['readonly'])
+                                    ->setClasses($definition->getClasses())
+                                    ->setName($field_name)
+                                    ->setValue('1')
+                                    ->setChecked((bool) $source[$field])
+                                    ->setAutoFocus($definition->getAutoFocus())
+                                    ->render();
+                                break;
+
+                            case 'number':
+                                // Render the HTML for this element
+                                $html = $element_class::new()
+                                    ->setDisabled((bool) $definition_array['disabled'])
+                                    ->setReadOnly((bool) $definition_array['readonly'])
+                                    ->setMin(isset_get_typed('integer', $definition_array['min']))
+                                    ->setMax(isset_get_typed('integer', $definition_array['max']))
+                                    ->setStep(isset_get_typed('integer', $definition_array['step']))
+                                    ->setClasses($definition->getClasses())
+                                    ->setName($field_name)
+                                    ->setValue($source[$field])
+                                    ->setAutoFocus($definition->getAutoFocus())
+                                    ->render();
+                                break;
+
+                            case 'auto-suggest':
+                                // Render the HTML for this element
+                                $html = $element_class::new()
+                                    ->setDisabled((bool) $definition_array['disabled'])
+                                    ->setReadOnly((bool) $definition_array['readonly'])
+                                    ->setAutoComplete(false)
+                                    ->setMinLength(isset_get_typed('integer', $definition_array['minlength']))
+                                    ->setMaxLength(isset_get_typed('integer', $definition_array['maxlength']))
+                                    ->setSourceUrl(isset_get_typed('string', $definition_array['source']))
+                                    ->setVariables($definition->getVariables())
+                                    ->setClasses($definition->getClasses())
+                                    ->setName($field_name)
+                                    ->setValue($source[$field])
+                                    ->setAutoFocus($definition->getAutoFocus())
+                                    ->render();
+                                break;
+
+                            case 'button':
+                                // no break
+                            case 'submit':
+                                // Render the HTML for this element
+                                $html = $element_class::new()
+                                    ->setDisabled((bool) $definition_array['disabled'])
+                                    ->setReadOnly((bool) $definition_array['readonly'])
+                                    ->setName($field_name)
+                                    ->setClasses($definition->getClasses())
+                                    ->setValue($source[$field])
+                                    ->setAutoFocus($definition->getAutoFocus())
+                                    ->render();
+                                break;
+
+                            default:
+                                // Render the HTML for this element
+                                $html = $element_class::new()
+                                    ->setDisabled((bool) $definition_array['disabled'])
+                                    ->setReadOnly((bool) $definition_array['readonly'])
+                                    ->setMinLength(isset_get_typed('integer', $definition_array['minlength']))
+                                    ->setMaxLength(isset_get_typed('integer', $definition_array['maxlength']))
+                                    ->setAutoComplete($definition->getAutoComplete())
+                                    ->setName($field_name)
+                                    ->setClasses($definition->getClasses())
+                                    ->setValue($source[$field])
+                                    ->setAutoFocus($definition->getAutoFocus())
+                                    ->render();
+                        }
+
+                        $this->render .= $this->renderItem($field, $html, $definition_array);
+                        break;
+
+                    case 'text':
+                        // no-break
+                    case 'textarea':
+                        // If we have a source query specified, then get the actual value from the query
+                        if (isset_get($definition_array['source'])) {
+                            $source[$field] = sql()->getColumn($definition_array['source'], $execute);
+                        }
+
+                        // Build the element class path and load the required class file
+                        $element_class = '\\Phoundation\\Web\\Http\\Html\\Components\\Input\\TextArea';
+                        $file          = Library::getClassFile($element_class);
+                        include_once($file);
+
+                        $html = TextArea::new()
+                            ->setDisabled((bool) $definition_array['disabled'])
+                            ->setReadOnly((bool) $definition_array['readonly'])
+                            ->setMaxLength(isset_get_typed('integer', $definition_array['maxlength']))
+                            ->setRows(isset_get_typed('integer', $definition_array['rows'], 5))
+                            ->setAutoComplete($definition->getAutoComplete())
+                            ->setClasses($definition->getClasses())
+                            ->setName($field_name)
+                            ->setContent(isset_get($source[$field]))
+                            ->setAutoFocus($definition->getAutoFocus())
+                            ->render();
+
+                        $this->render .= $this->renderItem($field, $html, $definition_array);
+                        break;
+
+                    case 'div':
+                        // no break;
+                    case 'span':
+                        $element_class = Strings::capitalize($definition_array['element']);
+
+                        // If we have a source query specified, then get the actual value from the query
+                        if (isset_get($definition_array['source'])) {
+                            $source[$field] = sql()->getColumn($definition_array['source'], $execute);
+                        }
+
+                        // Build the element class path and load the required class file
+                        $element_class = '\\Phoundation\\Web\\Http\\Html\\Components\\' . $element_class;
+                        $file          = Library::getClassFile($element_class);
+                        include_once($file);
+
+                        $html = $element_class::new()
+                            ->setName($field_name)
+                            ->setContent(isset_get($source[$field]))
+                            ->setClasses($definition->getClasses())
+                            ->setAutoFocus($definition->getAutoFocus())
+                            ->render();
+
+                        $this->render .= $this->renderItem($field, $html, $definition_array);
+                        break;
+
+                    case 'select':
+                        // Build the element class path and load the required class file
+                        $element_class = '\\Phoundation\\Web\\Http\\Html\\Components\\Input\\InputSelect';
+                        $file          = Library::getClassFile($element_class);
+                        include_once($file);
+
+                        $html = InputSelect::new()
+                            ->setSource(isset_get($definition_array['source']), $execute)
+                            ->setDisabled((bool) $definition_array['disabled'])
+                            ->setReadOnly((bool) $definition_array['readonly'])
+                            ->setClasses($definition->getClasses())
+                            ->setName($field_name)
+                            ->setAutoComplete($definition->getAutoComplete())
+                            ->setSelected(isset_get($source[$field]))
+                            ->setAutoFocus($definition->getAutoFocus())
+                            ->render();
+
+                        $this->render .= $this->renderItem($field, $html, $definition_array);
+                        break;
+
+                    case 'inputmultibuttontext':
+                        // Build the element class path and load the required class file
+                        $element_class = '\\Phoundation\\Web\\Http\\Html\\Components\\Input\\InputMultiButtonText';
+                        $file          = Library::getClassFile($element_class);
+                        include_once($file);
+
+                        $input = InputMultiButtonText::new()
+                            ->setSource($definition_array['source']);
+
+                        $input->getButton()
+                            ->setMode(DisplayMode::from(isset_get($definition_array['mode'])))
+                            ->setContent(isset_get($definition_array['label']));
+
+                        $input->getInput()
+                            ->setDisabled((bool) $definition_array['disabled'])
+                            ->setReadOnly((bool) $definition_array['readonly'])
+                            ->setName($field_name)
+                            ->setClasses($definition->getClasses())
+                            ->setValue($source[$field])
+                            ->setContent(isset_get($source[$field]))
+                            ->setAutoFocus($definition->getAutoFocus());
+
+                        $this->render .= $this->renderItem($field, $input->render(), $definition_array);
+                        break;
+
+                    case '':
+                        throw new OutOfBoundsException(tr('No element specified for key ":key"', [
+                            ':key' => $field
                         ]));
-                    }
 
-                    if (!$this->element->inputTypeSupported($data['type'])) {
-                        throw new OutOfBoundsException(tr('Unknown input type ":type" specified for key ":key"', [
-                            ':key'  => $key,
-                            ':type' => $data['type']
-                        ]));
-                    }
+                    default:
+                        if (!is_callable($definition_array['element'])) {
+                            throw new OutOfBoundsException(tr('Unknown element ":element" specified for key ":key"', [
+                                ':element' => isset_get($definition_array['element'], 'input'),
+                                ':key'     => $field
+                            ]));
+                        }
 
-                    // If we have a source query specified, then get the actual value from the query
-                    if (isset_get($data['source'])) {
-                        $source[$key] = sql()->getColumn($data['source'], $execute);
-                    }
+                        // Execute this to get the element
+                        $html = $definition_array['element']($field, $definition_array, $source);
+                        $this->render .= $this->renderItem($field, $html, $definition_array);
+                }
 
-                    // Build the element class path and load the required class file
-                    $type = match ($data['type']) {
-                        'datetime-local' => 'DateTimeLocal',
-                        default          => Strings::capitalize($data['type']),
-                    };
+            } elseif(is_callable($definition_array['content'])) {
+                $html          = $definition_array['content']($definition, $field, $field_name, $source);
+                $this->render .= $this->renderItem($field, $html, $definition_array);
 
-                    $element = '\\Phoundation\\Web\\Http\\Html\\Components\\Input\\Input' . $type;
-                    $file    = Library::getClassFile($element);
-                    include_once($file);
-
-                    // Depending on input type we might need different code
-                    switch ($data['type']) {
-                        case 'checkbox':
-                            // Render the HTML for this element
-                            $html = $element::new()
-                                ->setDisabled((bool) $data['disabled'])
-                                ->setReadOnly((bool) $data['readonly'])
-                                ->setName($key)
-                                ->setValue('1')
-                                ->setChecked((bool) $source[$key])
-                                ->render();
-                            break;
-
-                        case 'number':
-
-                        case 'text':
-
-                        default:
-                            // Render the HTML for this element
-                            $html = $element::new()
-                                ->setDisabled((bool) $data['disabled'])
-                                ->setReadOnly((bool) $data['readonly'])
-                                ->setName($key)
-                                ->setValue($source[$key])
-                                ->render();
-                    }
-
-                    $this->render .= $this->renderItem($key, $html, $data);
-                    break;
-
-                case 'text':
-                    // no-break
-                case 'textarea':
-                    // If we have a source query specified, then get the actual value from the query
-                    if (isset_get($data['source'])) {
-                        $source[$key] = sql()->getColumn($data['source'], $execute);
-                    }
-
-                    // Build the element class path and load the required class file
-                    $element = '\\Phoundation\\Web\\Http\\Html\\Components\\Input\\TextArea';
-                    $file    = Library::getClassFile($element);
-                    include_once($file);
-
-                    $html = TextArea::new()
-                        ->setDisabled((bool) $data['disabled'])
-                        ->setReadOnly((bool) $data['readonly'])
-                        ->setRows((int) isset_get($data['rows'], 5))
-                        ->setName($key)
-                        ->setContent(isset_get($source[$key]))
-                        ->render();
-
-                    $this->render .= $this->renderItem($key, $html, $data);
-                    break;
-
-                case 'div':
-                    // no break;
-                case 'span':
-                    $element = Strings::capitalize($data['element']);
-
-                    // If we have a source query specified, then get the actual value from the query
-                    if (isset_get($data['source'])) {
-                        $source[$key] = sql()->getColumn($data['source'], $execute);
-                    }
-
-                    // Build the element class path and load the required class file
-                    $element = '\\Phoundation\\Web\\Http\\Html\\Components\\' . $element;
-                    $file    = Library::getClassFile($element);
-                    include_once($file);
-
-                    $html = $element::new()
-                        ->setName($key)
-                        ->setContent(isset_get($source[$key]))
-                        ->render();
-
-                    $this->render .= $this->renderItem($key, $html, $data);
-                    break;
-
-                case 'select':
-                    // Build the element class path and load the required class file
-                    $element = '\\Phoundation\\Web\\Http\\Html\\Components\\Input\\Select';
-                    $file    = Library::getClassFile($element);
-                    include_once($file);
-
-                    $html = Select::new()
-                        ->setSource(isset_get($data['source']), $execute)
-                        ->setDisabled((bool) $data['disabled'])
-                        ->setReadOnly((bool) $data['readonly'])
-                        ->setName($key)
-                        ->setSelected(isset_get($source[$key]))
-                        ->render();
-
-                    $this->render .= $this->renderItem($key, $html, $data);
-                    break;
-
-                case 'inputmultibuttontext':
-                    // Build the element class path and load the required class file
-                    $element = '\\Phoundation\\Web\\Http\\Html\\Components\\Input\\InputMultiButtonText';
-                    $file    = Library::getClassFile($element);
-                    include_once($file);
-
-                    $input = InputMultiButtonText::new()
-                        ->setSource($data['source']);
-
-                    $input->getButton()
-                        ->setMode(DisplayMode::from(isset_get($data['mode'])))
-                        ->setContent(isset_get($data['label']));
-
-                    $input->getInput()
-                        ->setDisabled((bool) $data['disabled'])
-                        ->setReadOnly((bool) $data['readonly'])
-                        ->setName($key)
-                        ->setValue($source[$key])
-                        ->setContent(isset_get($source[$key]));
-
-                    $this->render .= $this->renderItem($key, $input->render(), $data);
-                    break;
-
-                case '':
-                    throw new OutOfBoundsException(tr('No element specified for key ":key"', [
-                        ':key' => $key
-                    ]));
-
-                default:
-                    if (!is_callable($data['element'])) {
-                        throw new OutOfBoundsException(tr('Unknown element ":element" specified for key ":key"', [
-                            ':element' => isset_get($data['element'], 'input'),
-                            ':key'     => $key
-                        ]));
-                    }
-
-                    // Execute this to get the element
-                    $html = $data['element']($key, $data, $source);
-                    $this->render .= $this->renderItem($key, $html, $data);
+            } else {
+                $this->render .= $this->renderItem($field, $definition_array['content'], $definition_array);
             }
         }
 
         // Add one empty element to (if required) close any rows
         $this->render .= $this->renderItem(null, null, null);
-
         return parent::render();
     }
 
@@ -384,6 +507,8 @@ class DataEntryForm extends Renderer
     protected function renderItem(string|int|null $id, ?string $html, ?array $data): ?string
     {
         static $col_size = 12;
+        static $cols     = [];
+
         $return = '';
 
         if ($data === null) {
@@ -396,6 +521,8 @@ class DataEntryForm extends Renderer
             $col_size = 0;
 
         } else {
+            $cols[] = isset_get($data['label']) . ' = "' . $id . '" [' . $data['size'] . ']';
+
             // Keep track of column size, close each row when size 12 is reached
             if ($col_size === 12) {
                 // Open a new row
@@ -427,46 +554,23 @@ class DataEntryForm extends Renderer
             $col_size -= $data['size'];
 
             if ($col_size < 0) {
-                throw new OutOfBoundsException(tr('Cannot add column ":label", the row would surpass size 12', [
-                    ':label' => $data['label']
-                ]));
+                throw OutOfBoundsException::new(tr('Cannot add column ":label" for ":class" form with size ":size", the row would surpass size 12 by ":count"', [
+                    ':class' => $this->render_object->getDefinitions()->getTable(),
+                    ':label' => $data['label'] . ' [' . $id . ']',
+                    ':size'  => abs($data['size']),
+                    ':count' => abs($col_size),
+                ]))->setData([
+                    'Columns on this row' => $cols,
+                    'HTML so far'         => $return
+                ]);
             }
         }
 
         if ($col_size == 0) {
             // Close the row
             $col_size = 12;
-            $return  .= '</div>';
-        }
-
-        return $return;
-    }
-
-
-    /**
-     * Reorder the keys in the order of the specified keys and add the size information
-     *
-     * @param array $keys
-     * @return array
-     */
-    public function reorderKeys(array $keys): array
-    {
-        $return       = [];
-        $keys_display = $this->element->getKeysDisplay();
-
-        if (!$keys_display) {
-            return $keys;
-        }
-
-        foreach ($keys_display as $key => $size) {
-            if (!array_key_exists($key, $keys)) {
-                throw new OutOfBoundsException(tr('Specified form key ":key" does not exist as DataEntry key', [
-                    ':key' => $key
-                ]));
-            }
-
-            $return[$key]         = $keys[$key];
-            $return[$key]['size'] = $size;
+            $cols = [];
+            $return .= '</div>';
         }
 
         return $return;

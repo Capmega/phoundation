@@ -6,13 +6,14 @@ namespace Phoundation\Cli;
 
 use Phoundation\Core\Log\Log;
 
+
 /**
  * Class Documentation
  *
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Cli
  */
 class Documentation
@@ -32,7 +33,7 @@ class Documentation
     protected static bool $usage = false;
 
     /**
-     * Returns the help text
+     * Displays the help text
      *
      * @param string $help
      * @return void
@@ -50,7 +51,7 @@ class Documentation
 
 
     /**
-     * Sets the usage text
+     * Displays the usage text
      *
      * @param string $usage
      * @return void

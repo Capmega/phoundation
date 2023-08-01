@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Databases\Sql\Schema;
 
 use Phoundation\Core\Config;
+use Phoundation\Databases\Sql\Interfaces\SqlInterface;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Exception\OutOfBoundsException;
 
@@ -16,7 +17,7 @@ use Phoundation\Exception\OutOfBoundsException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Databases
  */
 class Schema
@@ -42,6 +43,13 @@ class Schema
      */
     protected ?string $current_database = null;
 
+    /**
+     * The SQL engine
+     *
+     * @var SqlInterface|Sql $sql
+     */
+    protected SqlInterface $sql;
+
 
     /**
      * Schema constructor
@@ -54,7 +62,7 @@ class Schema
         }
 
         $this->instance_name = $instance_name;
-        $this->sql = new Sql($instance_name, $use_database);
+        $this->sql           = new Sql($instance_name, $use_database);
     }
 
 

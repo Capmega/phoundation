@@ -6,6 +6,8 @@ namespace Phoundation\Core\Meta;
 
 use Exception;
 use Phoundation\Cli\Script;
+use Phoundation\Core\Log\Log;
+use Phoundation\Core\Meta\Exception\MetaException;
 use Phoundation\Core\Session;
 use Phoundation\Data\Exception\DataEntryNotExistsException;
 use Phoundation\Databases\Sql\Exception\SqlException;
@@ -20,7 +22,7 @@ use Phoundation\Web\Http\UrlBuilder;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package \Phoundation\Core
  */
 class Meta
@@ -71,6 +73,7 @@ class Meta
 
                         sql()->query('INSERT INTO `meta` (`id`)
                                             VALUES             (' . $this->id . ')');
+                        return;
 
                     } catch (SqlException $e) {
                         if ($e->getCode() !== 1062) {
@@ -81,6 +84,8 @@ class Meta
                         // If we got here we have a duplicate entry, try with a different random number
                     }
                 }
+
+                throw new MetaException(tr('Failed to create meta record after 5 retries, see previous exception why'), $e);
             }
         }
     }
@@ -116,7 +121,7 @@ class Meta
      */
     public static function isEnabled(): bool
     {
-        return self::$enbabled;
+        return static::$enbabled;
     }
 
 
@@ -127,7 +132,7 @@ class Meta
      */
     public static function enable(): void
     {
-        self::$enbabled = true;
+        static::$enbabled = true;
     }
 
 
@@ -138,7 +143,7 @@ class Meta
      */
     public static function disable(): void
     {
-        self::$enbabled = false;
+        static::$enbabled = false;
     }
 
 
@@ -174,7 +179,7 @@ class Meta
      */
     public static function init(?string $comments = null, ?string $data = null): Meta
     {
-        if (self::$enbabled) {
+        if (static::$enbabled) {
             $meta = new Meta();
             $meta->action('created', $comments, $data);
 
@@ -196,7 +201,7 @@ class Meta
      */
     public function action(string $action, ?string $comments = null, ?string $data = null): static
     {
-        if (self::$enbabled and $this->id) {
+        if (static::$enbabled and $this->id) {
             // Insert the action in the meta_history table
             sql()->query('INSERT INTO `meta_history` (`meta_id`, `created_by`, `action`, `source`, `comments`, `data`) 
                                 VALUES                     (:meta_id , :created_by , :action , :source , :comments , :data )', [

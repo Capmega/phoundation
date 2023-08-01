@@ -16,7 +16,7 @@ use Phoundation\Web\Http\Html\Renderer;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\AdminLte
  */
 class GridColumn extends Renderer
@@ -37,14 +37,14 @@ class GridColumn extends Renderer
      */
     public function render(): ?string
     {
-        $this->render = '   <div class="col' . (Html::safe($this->element->getTier()->value) ? '-' . Html::safe($this->element->getTier()->value) : '') . '-' . Html::safe($this->element->getSize()->value) . '">';
+        $this->render = '   <div class="col' . (Html::safe($this->render_object->getTier()->value) ? '-' . Html::safe($this->render_object->getTier()->value) : '') . '-' . Html::safe($this->render_object->getSize()->value) . '">';
 
-        if ($this->element->getForm()) {
+        if ($this->render_object->getForm()) {
             // Return column content rendered in a form
-            $this->render .= $this->element->getForm()->setContent($this->element->getContent())->render();
-            $this->element->setForm(null);
+            $this->render .= $this->render_object->getForm()->setContent($this->render_object->getContent())->render();
+            $this->render_object->setForm(null);
         } else {
-            $this->render .= $this->element->getContent();
+            $this->render .= $this->render_object->getContent();
         }
 
         $this->render .= '</div>';

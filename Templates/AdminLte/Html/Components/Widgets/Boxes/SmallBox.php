@@ -16,7 +16,7 @@ use Phoundation\Web\Http\Html\Renderer;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\AdminLte
  */
 class SmallBox extends Renderer
@@ -37,19 +37,19 @@ class SmallBox extends Renderer
      */
     public function render(): ?string
     {
-        $this->render = '   <div class="small-box bg-' . Html::safe($this->element->getMode()->value) . ($this->shadow ? ' ' . Html::safe($this->shadow) : '') . '">
+        $this->render = '   <div class="small-box bg-' . Html::safe($this->render_object->getMode()->value) . ($this->shadow ? ' ' . Html::safe($this->shadow) : '') . '">
                               <div class="inner">
-                                <h3>' . Html::safe($this->element->getValue()) . '</h3>       
-                                <p>' . Html::safe($this->element->getTitle()) . '</p>
+                                <h3>' . Html::safe($this->render_object->getValue()) . '</h3>       
+                                <p>' . Html::safe($this->render_object->getTitle()) . '</p>
                               </div>
-                              ' . (($this->element->getProgress() !== null) ? '   <div class="progress">
-                                                                                    <div class="progress-bar" style="width: ' . $this->element->getProgress() . '%"></div>
+                              ' . (($this->render_object->getProgress() !== null) ? '   <div class="progress">
+                                                                                    <div class="progress-bar" style="width: ' . $this->render_object->getProgress() . '%"></div>
                                                                                   </div>' : '') . '
-                              ' . ($this->element->getDescription() ? '<p>' . Html::safe($this->element->getDescription()) . '</p>' : '') . '                        
-                              ' . ($this->element->getIcon() ? '  <div class="icon">
-                                                        <i class="fas ' . Html::safe($this->element->getIcon()) . '"></i>
+                              ' . ($this->render_object->getDescription() ? '<p>' . Html::safe($this->render_object->getDescription()) . '</p>' : '') . '                        
+                              ' . ($this->render_object->getIcon() ? '  <div class="icon">
+                                                        <i class="fas ' . Html::safe($this->render_object->getIcon()) . '"></i>
                                                     </div>' : '') . '
-                              ' . ($this->element->getUrl() ? ' <a href="' . Html::safe($this->element->getUrl()) . '" class="small-box-footer">
+                              ' . ($this->render_object->getUrl() ? ' <a href="' . Html::safe($this->render_object->getUrl()) . '" class="small-box-footer">
                                                     ' . tr('More info') . ' <i class="fas fa-arrow-circle-right"></i>
                                                   </a>' : '') . '                        
                             </div>';

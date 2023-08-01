@@ -15,7 +15,7 @@ use Phoundation\Web\Http\Html\Renderer;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\AdminLte
  */
 class Buttons extends Renderer
@@ -38,15 +38,15 @@ class Buttons extends Renderer
     {
         $this->render = '';
 
-        if ($this->element->getGroup()) {
+        if ($this->render_object->getGroup()) {
             $this->render .= '<div class="btn-group" role="group" aria-label="Button group">';
         }
 
-        foreach ($this->element->getSource() as $button) {
+        foreach ($this->render_object->getSource() as $button) {
             $this->render .= $button->render(). ' ';
         }
 
-        if ($this->element->getGroup()) {
+        if ($this->render_object->getGroup()) {
             $this->render .= '</div>';
         }
 

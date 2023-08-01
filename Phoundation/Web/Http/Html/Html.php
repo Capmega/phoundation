@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html;
 
+use PDOStatement;
 use Phoundation\Content\Images\Image;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Strings;
@@ -22,7 +23,7 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
 Class Html
@@ -320,9 +321,7 @@ Class Html
          */
         $_CONFIG['cdn']['js']['load_delayed'] = false;
 
-        /*
-         * Add required fonts
-         */
+        // Add required fonts
         if (!empty($params['fonts'])) {
             foreach ($params['fonts'] as $font) {
                 $extension = Strings::fromReverse($font, '.');
@@ -336,7 +335,10 @@ Class Html
 
                     default:
                         if (!str_contains($font, 'fonts.googleapis.com')) {
-                            throw new HtmlException(tr('html_header(): Unknown font type ":type" specified for font ":font"', array(':type' => $extension, ':font' => $font)), 'unknown');
+                            throw new HtmlException(tr('Unknown font type ":type" specified for font ":font"', [
+                                ':type' => $extension,
+                                ':font' => $font
+                            ]));
                         }
 
                         $return .= '<link rel="preload" href="'.$font.'" as="font" type="text/css" crossorigin="anonymous">';
@@ -701,7 +703,7 @@ Class Html
 //                    break;
 //
 //                default:
-//                    throw new HtmlException(tr('html_flash(): Unknown html flash type ":type" specified. Please check your $_CONFIG[flash][type] configuration', array(':type' => $_CONFIG['flash']['type'])), 'unknown');
+//                    throw new HtmlException(tr('html_flash(): Unknown html flash type ":type" specified. Please check your $_CONFIG[flash][type] configuration', [':type' => $_CONFIG['flash']['type']]));
 //            }
 //
 //            $core->register['flash'] = true;
@@ -770,14 +772,14 @@ Class Html
 //    function flash_set($params, $type = 'info', $class = null) {
 //        try {
 //            if (!PLATFORM_HTTP) {
-//                throw new HtmlException(tr('html_flash_set(): This function can only be executed on a webserver!'), 'invalid');
+//                throw new HtmlException(tr('html_flash_set(): This function can only be executed on a webserver!'));
 //            }
 //
 //            if (!$params) {
 //                /*
 //                 * Wut? no message?
 //                 */
-//                throw new HtmlException(tr('html_flash_set(): No messages specified'), 'not-specified');
+//                throw new HtmlException(tr('No messages specified'));
 //            }
 //
 //            /*
@@ -815,7 +817,7 @@ Class Html
 //                    return html_flash_set(implode(',', $params), $type, $class);
 //                }
 //
-//                throw new HtmlException(tr('html_flash_set(): Invalid call data ":data", should contain at least "text" or "html" or "title"!', array(':data' => $params)), 'invalid');
+//                throw new HtmlException(tr('Invalid call data ":data", should contain at least "text" or "html" or "title"!', [':data' => $params]));
 //            }
 //
 //            switch (strtolower($params['type'])) {
@@ -1009,7 +1011,7 @@ Class Html
                 $type .= tr(' of class :class', array(':class' => get_class($params['buttons'])));
             }
 
-            throw new HtmlException(tr('html_select_submit(): Invalid data type specified for params "buttons", it should be an array or PDO statement object, but it is an ":type"', array(':type' => $type)), 'invalid');
+            throw new HtmlException(tr('Invalid data type specified for params "buttons", it should be an array or PDO statement object, but it is an ":type"', [':type' => $type]));
         }
 
         return html_select($params);
@@ -1094,7 +1096,7 @@ Class Html
 
         if (!$params['name']) {
             if (!$params['id']) {
-                throw new HtmlException(tr('html_select(): No name specified'), 'not-specified');
+                throw new HtmlException(tr('No name specified'));
             }
 
             $params['name'] = $params['id'];
@@ -1131,7 +1133,7 @@ Class Html
             //        $params['disabled'] = true;
             //
             //    } else {
-            //        throw new HtmlException(tr('html_select(): Invalid resource of type "%type%" specified, should be either null, an array, or a PDOStatement object', array('%type%' => gettype($params['resource']))), 'invalid');
+            //        throw new HtmlException(tr('Invalid resource of type "%type%" specified, should be either null, an array, or a PDOStatement object', ['%type%' => gettype($params['resource']])));
             //    }
             //}
         }
@@ -1241,22 +1243,20 @@ Class Html
         }
 
         if ($params['data_resource'] and !is_array($params['data_resource'])) {
-            throw new HtmlException(tr('html_select_body(): Invalid data_resource specified, should be an array, but received a ":gettype"', array(':gettype' => gettype($params['data_resource']))), 'invalid');
+            throw new HtmlException(tr('Invalid data_resource specified, should be an array, but received a ":gettype"', [
+                ':gettype' => gettype($params['data_resource'])
+            ]));
         }
 
         if ($params['resource']) {
             if (is_array($params['resource'])) {
                 if ($params['auto_select'] and ((count($params['resource']) == 1) and !$params['none'])) {
-                    /*
-                     * Auto select the only available element
-                     */
+                    // Auto select the only available element
                     $params['selected'] = array_keys($params['resource']);
                     $params['selected'] = array_shift($params['selected']);
                 }
 
-                /*
-                 * Process array resource
-                 */
+                // Process array resource
                 foreach ($params['resource'] as $key => $value) {
                     $notempty    = true;
                     $option_data = '';
@@ -1274,7 +1274,7 @@ Class Html
 
             } elseif (is_object($params['resource'])) {
                 if (!($params['resource'] instanceof PDOStatement)) {
-                    throw new HtmlException(tr('html_select_body(): Specified resource object is not an instance of PDOStatement'), 'invalidresource');
+                    throw new HtmlException(tr('html_select_body(): Specified resource object is not an instance of PDOStatement'));
                 }
 
                 if ($params['auto_select'] and ($params['resource']->rowCount() == 1)) {
@@ -1313,7 +1313,7 @@ Class Html
                 }
 
             } else {
-                throw new HtmlException(tr('html_select_body(): Specified resource ":resource" is neither an array nor a PDO statement', array(':resource' => $params['resource'])), 'invalid');
+                throw new HtmlException(tr('Specified resource ":resource" is neither an array nor a PDO statement', [':resource' => $params['resource']]));
             }
         }
 
@@ -1425,7 +1425,7 @@ Class Html
                             break;
 
                         default:
-                            throw new HtmlException(tr('html_script(): Unknown event value ":value" specified', array(':value' => $script['event'])), 'unknown');
+                            throw new HtmlException(tr('Unknown event value ":value" specified', [':value' => $script['event']]));
                     }
 
                 } else {
@@ -1896,16 +1896,16 @@ Class Html
                 return '';
             }
 
-            throw new HtmlException(tr('html_img(): No src for image with alt text ":alt"', array(':alt' => $params['alt'])), 'no-image');
+            throw new HtmlException(tr('html_img(): No src for image with alt text ":alt"', [':alt' => $params['alt']]));
         }
 
         if (!Debug::production()) {
             if (!$params['src']) {
-                throw new HtmlException(tr('html_img(): No image src specified'), 'not-specified');
+                throw new HtmlException(tr('No image src specified'));
             }
 
             if (!$params['alt']) {
-                throw new HtmlException(tr('html_img(): No image alt text specified for src ":src"', array(':src' => $params['src'])), 'not-specified');
+                throw new HtmlException(tr('html_img(): No image alt text specified for src ":src"', [':src' => $params['src']]));
             }
 
         } else {
@@ -2341,7 +2341,7 @@ Class Html
                                 break;
 
                             default:
-                                throw new HtmlException(tr('html_img(): Unknown lazy_img option ":key" specified. Please check the $_CONFIG[lazy_img] configuration!', array(':key' => $key)), 'unknown');
+                                throw new HtmlException(tr('Unknown lazy_img option ":key" specified. Please check the $_CONFIG[lazy_img] configuration!', [':key' => $key]));
                         }
                     }
 
@@ -2379,7 +2379,7 @@ Class Html
 
         if (!Debug::production()) {
             if (!$params['src']) {
-                throw new HtmlException(tr('html_video(): No video src specified'), 'not-specified');
+                throw new HtmlException(tr('No video src specified'));
             }
         }
 
@@ -2387,19 +2387,19 @@ Class Html
 // But in this case, we have to use a external "library" to get this done
 // Investigate the best option for this!
         if (!$params['width']) {
-            throw new HtmlException(tr('html_video(): No width specified'), 'not-specified');
+            throw new HtmlException(tr('No width specified'));
         }
 
         if (!is_natural($params['width'])) {
-            throw new HtmlException(tr('html_video(): Invalid width ":width" specified', array(':width' => $params['width'])), 'invalid');
+            throw new HtmlException(tr('html_video(): Invalid width ":width" specified', [':width' => $params['width']]));
         }
 
         if (!$params['height']) {
-            throw new HtmlException(tr('html_video(): No height specified'), 'not-specified');
+            throw new HtmlException(tr('html_video(): No height specified'));
         }
 
         if (!is_natural($params['height'])) {
-            throw new HtmlException(tr('html_video(): Invalid height ":height" specified', array(':height' => $params['height'])), 'invalid');
+            throw new HtmlException(tr('html_video(): Invalid height ":height" specified', [':height' => $params['height']]));
         }
 
         /*
@@ -2438,11 +2438,11 @@ Class Html
                  * Remote videos MUST have height and width specified!
                  */
                 if (!$params['height']) {
-                    throw new HtmlException(tr('html_video(): No height specified for remote video'), 'not-specified');
+                    throw new HtmlException(tr('html_video(): No height specified for remote video'));
                 }
 
                 if (!$params['width']) {
-                    throw new HtmlException(tr('html_video(): No width specified for remote video'), 'not-specified');
+                    throw new HtmlException(tr('html_video(): No width specified for remote video'));
                 }
 
                 switch ($params['type']) {
@@ -2455,14 +2455,15 @@ Class Html
                         break;
 
                     case '':
-                        /*
-                         * Try to autodetect
-                         */
+                        // Try to autodetect
+                        $params['type'] = 'video/'.Strings::fromReverse($params['src'], '.');
                         $params['type'] = 'video/'.Strings::fromReverse($params['src'], '.');
                         break;
 
                     default:
-                        throw new HtmlException(tr('html_video(): Unknown type ":type" specified for remote video', array(':type' => $params['type'])), 'unknown');
+                        throw new HtmlException(tr('Unknown type ":type" specified for remote video', [
+                            ':type' => $params['type']
+                        ]));
                 }
             }
         }
@@ -2663,7 +2664,7 @@ Class Html
 
         if ($list) {
             if ($exception) {
-                throw new HtmlException('html_filter_tags(): Found HTML tags ":tags" which are forbidden', array(':tags', implode(', ', $list)), 'forbidden');
+                throw new HtmlException('Found HTML tags ":tags" which are forbidden', [':tags', implode(', ', $list)]);
             }
 
             foreach ($list as $item) {

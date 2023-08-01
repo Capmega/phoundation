@@ -16,6 +16,7 @@ use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Throwable;
 
+
 /**
  * Class Config
  *
@@ -25,7 +26,7 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
 class Config
@@ -80,11 +81,11 @@ class Config
      */
     public static function getInstance(): static
     {
-        if (!isset(self::$instance)) {
-            self::$instance = new static();
+        if (!isset(static::$instance)) {
+            static::$instance = new static();
         }
 
-        return self::$instance;
+        return static::$instance;
     }
 
 

@@ -12,6 +12,7 @@ use Phoundation\Web\Http\Html\Renderer;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
+
 /**
  * AdminLte Plugin SidePanel class
  *
@@ -19,7 +20,7 @@ use Phoundation\Web\Page;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\AdminLte
  */
 class SidePanel extends Renderer
@@ -42,20 +43,20 @@ class SidePanel extends Renderer
     {
         $this->render = ' <aside class="main-sidebar sidebar-dark-primary elevation-4">
                             <a href="' . UrlBuilder::getCurrent() . '" class="brand-link">
-                              <img src="' . UrlBuilder::getImg('img/logos/' . Page::getProjectName() . '/project-square-64.png') . '" alt="' . tr(':project logo', [':project' => Strings::capitalize(Config::get('project.name'))]) . '" class="brand-image img-circle elevation-3" style="opacity: .8">
-                              <span class="brand-text font-weight-light">' . Strings::capitalize(Config::get('project.name')) . '</span>
+                              <img src="' . UrlBuilder::getImg('img/logos/' . Page::getProjectName() . '/large.webp') . '" alt="' . tr(':project logo', [':project' => Strings::capitalize(Config::get('project.name'))]) . '" class="brand-image elevation-3" style="opacity: .8">
                             </a>
                             <div class="sidebar">
                               <div class="user-panel mt-3 pb-3 mb-3 d-flex">
                                 <div class="image">
                                   ' . Session::getUser()->getPicture()
                                         ->getHtmlElement()
+                                            ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
                                             ->setClass('img-circle elevation-2')
                                             ->setAlt(tr('Profile picture for :user', [':user' => Session::getUser()->getDisplayName()]))
                                             ->render() . '
                                 </div>
                                 <div class="info">
-                                  <a href="' . (Session::getUser()->isGuest() ? '#' : UrlBuilder::getWww('/profile.html')) . '" class="d-block">' . Session::getUser()->getDisplayName() . '</a>
+                                  <a href="' . (Session::getUser()->isGuest() ? '#' : UrlBuilder::getWww('/my/profile.html')) . '" class="d-block">' . Session::getUser()->getDisplayName() . '</a>
                                 </div>
                               </div>
                               <div class="form-inline">
@@ -82,14 +83,14 @@ class SidePanel extends Renderer
                         
                               <!-- Sidebar Menu -->
                               <nav>
-                                ' . $this->element->getMenu()?->render() . '                                
+                                ' . $this->render_object->getMenu()?->render() . '                                
                               </nav>
                               <!-- /.sidebar-menu -->
                             </div>
                             <!-- /.sidebar -->
                           </aside>';
 
-        $this->render .= $this->element->getModals()?->render() . PHP_EOL;
+        $this->render .= $this->render_object->getModals()?->render() . PHP_EOL;
 
         return parent::render();
     }

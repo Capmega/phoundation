@@ -9,18 +9,19 @@ use PDOStatement;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
+use Phoundation\Core\Enums\EnumRequestTypes;
 use Phoundation\Core\Exception\ConfigException;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
-use Phoundation\Developer\Exception\DebugException;
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\File;
+use Phoundation\Exception\Exception;
 use Phoundation\Notifications\Notification;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Page;
+use Throwable;
+
 
 /**
  * Class Debug
@@ -29,7 +30,7 @@ use Phoundation\Web\Page;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Developer
  */
 class Debug {
@@ -318,19 +319,21 @@ class Debug {
         if (Core::readyState() and PLATFORM_HTTP) {
             if (empty($core->register['debug_plain'])) {
                 switch (Core::getRequestType()) {
-                    case 'api':
+                    case EnumRequestTypes::api:
                         // no-break
-                    case 'ajax':
-                        if (!headers_sent()) {
-                            Page::setContentType('text/html');
-                            Page::sendHttpHeaders(Page::buildHttpHeaders($value));
-                        }
-
-                        $output = PHP_EOL . tr('DEBUG SHOW (:file@:line) [:size]', [
+                    case EnumRequestTypes::ajax:
+                        $output = PHP_EOL . tr('DEBUG SHOW (:file@:line) [:type :size]', [
+                            ':type' => gettype($value),
                             ':file' => static::currentFile($trace_offset - 1),
                             ':line' => static::currentLine($trace_offset - 1),
                             ':size' => ($value === null ? 'NULL' : (is_scalar($value) ? strlen((string) $value) : count((array) $value)))
                         ]) . PHP_EOL . print_r($value, true) . PHP_EOL;
+
+                        if (!headers_sent()) {
+                            Page::setContentType('text/html');
+                            Page::sendHttpHeaders(Page::buildHttpHeaders($output));
+                        }
+
                         break;
 
                     default:
@@ -350,12 +353,13 @@ class Debug {
                 flush();
 
             } else {
-                echo PHP_EOL . tr('DEBUG SHOW (:file@:line) [:size]', [
+                echo PHP_EOL . tr('DEBUG SHOW (:file@:line) [:type :size]', [
+                    ':type' => gettype($value),
                     ':file' => static::currentFile($trace_offset),
                     ':line' => static::currentLine($trace_offset),
-                        ':size' => ($value === null ? 'NULL' : (is_scalar($value) ? strlen((string) $value) : count((array) $value)))
+                    ':size' => ($value === null ? 'NULL' : (is_scalar($value) ? strlen((string) $value) : count((array) $value)))
                 ]) . PHP_EOL;;
-                print_r($value) . PHP_EOL;;
+                print_r($value, true) . PHP_EOL;
                 flush();
                 ob_flush();
             }
@@ -370,7 +374,8 @@ class Debug {
 
             // Show output on CLI console
             if (is_scalar($value)) {
-                $return .= ($quiet ? '' : tr('DEBUG SHOW (:file@:line) [:size] ', [
+                $return .= ($quiet ? '' : tr('DEBUG SHOW (:file@:line) [:type :size] ', [
+                    ':type' => gettype($value),
                     ':file' => static::currentFile($trace_offset),
                     ':line' => static::currentLine($trace_offset),
                     ':size' => strlen((string) $value)
@@ -383,7 +388,8 @@ class Debug {
                 }
 
                 if (!$quiet) {
-                    $return .= tr('DEBUG SHOW (:file@:line) [:size]', [
+                    $return .= tr('DEBUG SHOW (:file@:line) [:type :size]', [
+                        ':type' => gettype($value),
                         ':file' => static::currentFile($trace_offset),
                         ':line' => static::currentLine($trace_offset),
                         ':size' => ($value === null ? 'NULL' : count((array) $value))
@@ -476,6 +482,9 @@ class Debug {
                 table.debug td.value{
                     word-break: break-all;
                 }
+                pre {
+                    white-space: break-spaces;
+                }
                </style>';
         } else {
             $return = '';
@@ -507,20 +516,20 @@ class Debug {
         switch ($type) {
             case 'string':
                 if (is_numeric($value)) {
-                    $type = tr('numeric');
-
                     if (is_integer($value)) {
-                        $type .= tr(' (integer)');
+                        $type = tr('integer');
 
                     } elseif (is_float($value)) {
-                        $type .= tr(' (float)');
+                        $type = tr('float');
 
                     } elseif (is_string($value)) {
-                        $type .= tr(' (string)');
+                        $type = tr('string');
 
                     } else {
-                        $type .= tr(' (unknown)');
+                        $type = tr('unknown');
                     }
+
+                    $type .= ' ' . tr('(numeric)');
 
                 } else {
                     $type = tr('string');
@@ -593,11 +602,43 @@ class Debug {
                 </tr>';
 
             case 'object':
-                // Clean contents!
-                $value  = print_r($value, true);
-                $value  = preg_replace('/-----BEGIN RSA PRIVATE KEY.+?END RSA PRIVATE KEY-----/imus', '*** HIDDEN ***', $value);
-                $value  = preg_replace('/(\[.*?pass.*?\]\s+=>\s+).+/', '$1*** HIDDEN ***', $value);
-                $return = '<pre>' . $value.'</pre>';
+                // Format exception nicely
+                if ($value instanceof Throwable) {
+                    $exception  = tr(':type Exception', [':type' => get_class($value)]) . '<br><br>';
+                    $exception .= tr('Messages:') . '<br>';
+
+                    if ($value instanceof Exception) {
+                        foreach ($value->getMessages() as $message) {
+                            $exception .= htmlentities((string) $message) . '<br>';
+                        }
+                    }else {
+                        $exception .= htmlentities((string) $value->getMessage()) . '<br>';
+                    }
+
+                    $exception .= '<br>' . tr('Location: ') . htmlentities($value->getFile()) . '@' . $value->getLine() . '<br><br>' . tr('Backtrace: ') . '<br>';
+
+                    foreach (Debug::formatBacktrace($value->getTrace()) as $line) {
+                        $exception .= htmlentities((string) $line) . '<br>';
+                    }
+
+                    $exception .= '<br><br>' . tr('Data: ') . '<br>';
+
+                    if ($value instanceof Exception) {
+                        $exception .= htmlentities((string)print_r($value->getData() ?? '-', true)) . '<br>';
+
+                    } else {
+                        $exception .= htmlentities('-') . '<br>';
+                    }
+
+                    $value = $exception;
+
+                } else {
+                    $value  = print_r($value, true);
+                    $value  = preg_replace('/-----BEGIN RSA PRIVATE KEY.+?END RSA PRIVATE KEY-----/imus', '*** HIDDEN ***', $value);
+                    $value  = preg_replace('/(\[.*?pass.*?\]\s+=>\s+).+/', '$1*** HIDDEN ***', $value);
+                }
+
+                $return = '<pre>' . $value . '</pre>';
 
                 return '<tr>
                             <td>' . $key . '</td>
@@ -628,9 +669,9 @@ class Debug {
             default:
                 return '<tr>
                     <td>' . $key . '</td>
-                    <td>'.tr('Unknown') . '</td>
+                    <td>' . tr('Unknown') . '</td>
                     <td>???</td>
-                    <td class="value">'.htmlentities((string) $value) . '</td>
+                    <td class="value">' . htmlentities((string) $value) . '</td>
                 </tr>';
         }
     }
@@ -940,5 +981,114 @@ class Debug {
 
         static::$counter->select($counter);
         return static::$counter;
+    }
+
+
+    /**
+     * Dump the specified backtrace data
+     *
+     * @param array $backtrace The backtrace data
+     * @return array The backtrace lines
+     */
+    public static function formatBackTrace(array $backtrace): array
+    {
+        $lines   = static::buildBackTrace($backtrace);
+        $longest = Arrays::getLongestValueSize($lines, 'call');
+        $return  = [];
+
+        // format and write the lines
+        foreach ($lines as $line) {
+            if (isset($line['call'])) {
+                // Resize the call lines to all have the same size for easier log reading
+                $line['call'] = Strings::size($line['call'], $longest);
+            }
+
+            $return[] = trim(($line['call'] ?? null) . (isset($line['location']) ? (isset($line['call']) ? ' in ' : null) . $line['location'] : null));
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Dump the specified backtrace data
+     *
+     * @param array $backtrace The backtrace data
+     * @return array The backtrace lines
+     */
+    protected static function buildBackTrace(array $backtrace, ?int $display = null): array
+    {
+        $lines = [];
+
+        if ($display === null) {
+            $display = Log::getBacktraceDisplay();
+        }
+
+        // Parse backtrace data and build the log lines
+        foreach ($backtrace as $step) {
+            // We usually don't want to see arguments as that clogs up BADLY
+            unset($step['args']);
+
+            // Remove unneeded information depending on the specified display
+            switch ($display) {
+                case Log::BACKTRACE_DISPLAY_FILE:
+                    // Display only file@line information, but ONLY if file@line information is available
+                    if (isset($step['file'])) {
+                        unset($step['class']);
+                        unset($step['function']);
+                    }
+
+                    break;
+
+                case Log::BACKTRACE_DISPLAY_FUNCTION:
+                    // Display only function / class information
+                    unset($step['file']);
+                    unset($step['line']);
+                    break;
+
+                case Log::BACKTRACE_DISPLAY_BOTH:
+                    // Display both function / class and file@line information
+                    break;
+
+                default:
+                    // Wut? Just display both
+                    Log::warning(tr('Unknown $display ":display" specified. Please use one of Log::BACKTRACE_DISPLAY_FILE, Log::BACKTRACE_DISPLAY_FUNCTION, or BACKTRACE_DISPLAY_BOTH', [':display' => $display]));
+                    $display = Log::BACKTRACE_DISPLAY_BOTH;
+            }
+
+            // Build up log line from here. Start by getting the file information
+            $line = [];
+
+            if (isset($step['class'])) {
+                if (isset_get($step['class']) === 'Closure') {
+                    // Log the closure call
+                    $line['call'] = '{closure}';
+                } else {
+                    // Log the class method call
+                    $line['call'] = $step['class'] . $step['type'] . $step['function'] . '()';
+                }
+            } elseif (isset($step['function'])) {
+                // Log the function call
+                $line['call'] = $step['function'] . '()';
+            }
+
+            // Log the file@line information
+            if (isset($step['file'])) {
+                // Remove PATH_ROOT from the filenames for clarity
+                $line['location'] = Strings::from($step['file'], PATH_ROOT) . '@' . $step['line'];
+            }
+
+            if (!$line) {
+                // Failed to build backtrace line
+                Log::write(tr('Invalid backtrace data encountered, do not know how to process and display the following entry'), 'warning');
+                Log::printr($step);
+                Log::write(tr('Original backtrace data entry format below'), 'warning');
+                Log::printr($step);
+            }
+
+            $lines[] = $line;
+        }
+
+        return $lines;
     }
 }

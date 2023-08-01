@@ -4,16 +4,21 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Roles;
 
-use Phoundation\Accounts\Interfaces\InterfaceRole;
+use Phoundation\Accounts\Rights\Interfaces\RightsInterface;
 use Phoundation\Accounts\Rights\Rights;
+use Phoundation\Accounts\Roles\Interfaces\RoleInterface;
+use Phoundation\Accounts\Users\Interfaces\UsersInterface;
 use Phoundation\Accounts\Users\Users;
 use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\DataEntryFieldDefinition;
-use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
+use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
-use Phoundation\Data\Interfaces\InterfaceDataEntry;
+use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
+use Phoundation\Geo\Timezones\Timezone;
 use Phoundation\Web\Http\Html\Components\Form;
+use Phoundation\Web\Http\Html\Components\Interfaces\FormInterface;
+use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
 
 
 /**
@@ -24,25 +29,12 @@ use Phoundation\Web\Http\Html\Components\Form;
  * @see \Phoundation\Data\DataEntry\DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
-class Role extends DataEntry implements InterfaceRole
+class Role extends DataEntry implements RoleInterface
 {
     use DataEntryNameDescription;
-
-
-    /**
-     * Role class constructor
-     *
-     * @param InterfaceDataEntry|string|int|null $identifier
-     */
-    public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
-    {
-        static::$entry_name = 'role';
-
-        parent::__construct($identifier);
-    }
 
 
     /**
@@ -57,14 +49,36 @@ class Role extends DataEntry implements InterfaceRole
 
 
     /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getDataEntryName(): string
+    {
+        return tr('Role');
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return 'seo_name';
+    }
+
+
+    /**
      * Add the specified rights to this role
      *
-     * @return Rights
+     * @return RightsInterface
      */
-    public function rights(): Rights
+    public function getRights(): RightsInterface
     {
         if (!$this->list) {
-            $this->list = new Rights($this);
+            $this->list = Rights::new()->setParent($this)->load();
         }
 
         return $this->list;
@@ -74,23 +88,23 @@ class Role extends DataEntry implements InterfaceRole
     /**
      * Returns the users that are linked to this role
      *
-     * @return Users
+     * @return UsersInterface
      */
-    public function users(): Users
+    public function getUsers(): UsersInterface
     {
-        return new Users($this);
+        return Users::new()->setParent($this)->load();
     }
 
 
     /**
      * Creates and returns an HTML for the fir
      *
-     * @return Form
+     * @return FormInterface
      */
-    public function getRightsHtmlForm(): Form
+    public function getRightsHtmlForm(): FormInterface
     {
         $form   = Form::new();
-        $rights = $this->rights();
+        $rights = $this->getRights();
         $select = $rights->getHtmlSelect()->setCache(true);
 
         foreach ($rights as $right) {
@@ -108,23 +122,21 @@ class Role extends DataEntry implements InterfaceRole
     /**
      * Sets the available data keys for this entry
      *
-     * @return DataEntryFieldDefinitionsInterface
+     * @param DefinitionsInterface $definitions
      */
-    protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
+    protected function initDefinitions(DefinitionsInterface $definitions): void
     {
-        return DataEntryFieldDefinitions::new(static::getTable())
-            ->add(DataEntryFieldDefinition::new('name')
-                ->setLabel(tr('Name'))
+        $definitions
+            ->addDefinition(DefinitionFactory::getName($this)
+                ->setInputType(InputTypeExtended::name)
                 ->setSize(12)
                 ->setMaxlength(64)
-                ->setHelpText(tr('The name for this right')))
-            ->add(DataEntryFieldDefinition::new('seo_name')
-                ->setVisible(true)
-                ->setReadonly(true))
-            ->add(DataEntryFieldDefinition::new('description')
-                ->setLabel(tr('Description'))
-                ->setSize(12)
-                ->setMaxlength(65_535)
-                ->setHelpText(tr('The description for this right')));
+                ->setHelpText(tr('The name for this role'))
+                ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->isUnique(tr('value ":name" already exists', [':name' => $validator->getSourceValue()]));
+                }))
+            ->addDefinition(DefinitionFactory::getSeoName($this))
+            ->addDefinition(DefinitionFactory::getDescription($this)
+                ->setHelpText(tr('The description for this role')));
     }
 }

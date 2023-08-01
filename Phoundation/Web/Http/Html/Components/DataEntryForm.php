@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html\Components;
 
-use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
+use Phoundation\Data\DataEntry\Definitions\Definitions;
+use Phoundation\Web\Http\Html\Components\Interfaces\DataEntryFormInterface;
 
 
 /**
@@ -14,24 +15,17 @@ use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Web
  */
-class DataEntryForm extends ElementsBlock
+class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
 {
     /**
      * The key metadata for the specified data
      *
-     * @var DataEntryFieldDefinitions $fields
+     * @var Definitions $definitions
      */
-    protected DataEntryFieldDefinitions $fields;
-
-    /**
-     * The form specific metadata for the keys for the specified data
-     *
-     * @var array $keys_display
-     */
-    protected array $keys_display;
+    protected Definitions $definitions;
 
     /**
      * Optional class for input elements
@@ -39,6 +33,13 @@ class DataEntryForm extends ElementsBlock
      * @var string $input_class
      */
     protected string $input_class;
+
+    /**
+     * If set, the screen focus will automatically go to the specified element
+     *
+     * @var string|null $auto_focus_id
+     */
+    protected ?string $auto_focus_id = null;
 
     /**
      * Supported input element types
@@ -56,7 +57,7 @@ class DataEntryForm extends ElementsBlock
         'hidden',
         'image',
         'month',
-        'numeric',
+        'number',
         'password',
         'radio',
         'range',
@@ -67,8 +68,33 @@ class DataEntryForm extends ElementsBlock
         'text',
         'time',
         'url',
-        'week'
+        'week',
+        'auto-suggest'
     ];
+
+
+    /**
+     * Returns the element that will receive autofocus
+     *
+     * @return string|null
+     */
+    public function getAutoFocusId(): ?string
+    {
+        return $this->auto_focus_id;
+    }
+
+
+    /**
+     * Sets the element that will receive autofocus
+     *
+     * @param string|null $auto_focus_id
+     * @return $this
+     */
+    public function setAutoFocusId(?string $auto_focus_id): static
+    {
+        $this->auto_focus_id = $auto_focus_id;
+        return $this;
+    }
 
 
     /**
@@ -110,47 +136,23 @@ class DataEntryForm extends ElementsBlock
     /**
      * Returns the data fields for this DataEntryForm
      *
-     * @return DataEntryFieldDefinitions
+     * @return Definitions
      */
-    public function getFields(): DataEntryFieldDefinitions
+    public function getDefinitions(): Definitions
     {
-        return $this->fields;
+        return $this->definitions;
     }
 
 
     /**
      * Set the data source for this DataEntryForm
      *
-     * @param DataEntryFieldDefinitions $fields
+     * @param Definitions $definitions
      * @return static
      */
-    public function setFieldDefinitions(DataEntryFieldDefinitions $fields): static
+    public function setDefinitions(Definitions $definitions): static
     {
-        $this->fields = $fields;
-        return $this;
-    }
-
-
-    /**
-     * Returns the data source for this DataEntryForm
-     *
-     * @return array
-     */
-    public function getKeysDisplay(): array
-    {
-        return $this->keys_display;
-    }
-
-
-    /**
-     * Set the data source for this DataEntryForm
-     *
-     * @param array $keys_display
-     * @return static
-     */
-    public function setKeysDisplay(array $keys_display): static
-    {
-        $this->keys_display = $keys_display;
+        $this->definitions = $definitions;
         return $this;
     }
 }

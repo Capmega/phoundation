@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace Phoundation\Business\Providers;
 
-use Phoundation\Business\Companies\Companies;
-use Phoundation\Core\Locale\Language\Languages;
-use Phoundation\Data\Categories\Categories;
 use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
+use Phoundation\Data\DataEntry\Definitions\Definition;
+use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryAddress;
 use Phoundation\Data\DataEntry\Traits\DataEntryCategory;
 use Phoundation\Data\DataEntry\Traits\DataEntryCode;
@@ -21,12 +20,8 @@ use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryPhones;
 use Phoundation\Data\DataEntry\Traits\DataEntryPicture;
 use Phoundation\Data\DataEntry\Traits\DataEntryUrl;
-use Phoundation\Data\Interfaces\InterfaceDataEntry;
-use Phoundation\Geo\Cities\Cities;
-use Phoundation\Geo\Countries\Countries;
-use Phoundation\Geo\Countries\Country;
-use Phoundation\Geo\States\State;
-use Phoundation\Geo\States\States;
+use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
+
 
 /**
  * Provider class
@@ -36,7 +31,7 @@ use Phoundation\Geo\States\States;
  * @see \Phoundation\Data\DataEntry\DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Business
  */
 class Provider extends DataEntry
@@ -55,20 +50,6 @@ class Provider extends DataEntry
 
 
     /**
-     * Provider class constructor
-     *
-     * @param InterfaceDataEntry|string|int|null $identifier
-     */
-    public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
-    {
-        static::$entry_name = 'provider';
-        $this->unique_field = 'seo_name';
-
-        parent::__construct($identifier);
-    }
-
-
-    /**
      * Returns the table name used by this object
      *
      * @return string
@@ -76,6 +57,28 @@ class Provider extends DataEntry
     public static function getTable(): string
     {
         return 'business_providers';
+    }
+
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getDataEntryName(): string
+    {
+        return 'provider';
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return 'seo_name';
     }
 
 
@@ -128,265 +131,70 @@ class Provider extends DataEntry
     /**
      * Sets the available data keys for the User class
      *
-     * @return DataEntryFieldDefinitionsInterface
+     * @param DefinitionsInterface $definitions
+     * @return void
      */
-    protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
+    protected function initDefinitions(DefinitionsInterface $definitions): void
     {
-        return DataEntryFieldDefinitions::new(static::getTable());
-
-        return [
-            'country' => [
-                'complete' => [
-                    'word'   => function($word) { return Countries::new()->filteredList($word); },
-                    'noword' => function()      { return Countries::new()->list(); },
-                ],
-                'virtual'    => true,
-                'cli'        => '--country COUNTRY-NAME',
-                'help_group' => tr('Location information'),
-                'help'       => tr('The country where this provider is located'),
-            ],
-            'state' => [
-                'complete' => [
-                    'word'   => function($word) { return States::new()->filteredList($word); },
-                    'noword' => function()      { return States::new()->list(); },
-                ],
-                'virtual'    => true,
-                'cli'        => '--state STATE-NAME',
-                'help_group' => tr('Location information'),
-                'help'       => tr('The state where this provider is located'),
-            ],
-            'city' => [
-                'complete' => [
-                    'word'   => function($word) { return Cities::new()->filteredList($word); },
-                    'noword' => function()      { return Cities::new()->list(); },
-                ],
-                'virtual'    => true,
-                'cli'        => '--city CITY-NAME',
-                'help_group' => tr('Location information'),
-                'help'       => tr('The city where this provider is located'),
-            ],
-            'category' => [
-                'complete' => [
-                    'word'   => function($word) { return Categories::new()->filteredList($word); },
-                    'noword' => function()      { return Categories::new()->list(); },
-                ],
-                'virtual'    => true,
-                'cli'        => '--category CATEGORY-NAME',
-                'help_group' => tr('Organisation information'),
-                'help'       => tr('The category under which this provider is organized'),
-            ],
-            'company' => [
-                'complete' => [
-                    'word'   => function($word) { return Companies::new()->filteredList($word); },
-                    'noword' => function()      { return Companies::new()->list(); },
-                ],
-                'virtual'    => true,
-                'cli'        => '--company COMPANY-NAME',
-                'help_group' => tr('Organisation information'),
-                'help'       => tr('The language in which the site will be displayed to the user'),
-            ],
-            'language' => [
-                'complete' => [
-                    'word'   => function($word) { return Languages::new()->filteredList($word); },
-                    'noword' => function()      { return Languages::new()->list(); },
-                ],
-                'virtual'    => true,
-                'cli'        => '-l,--language LANGUAGE-NAME',
-                'help_group' => tr('Location information'),
-                'help'       => tr('The language in which the site will be displayed to the user'),
-            ],
-            'name' => [
-                'required'   => true,
-                'complete'   => true,
-                'cli'        => '-n,--name NAME',
-                'size'       => 6,
-                'maxlength'  => 64,
-                'label'      => tr('Name'),
-                'help_group' => tr('Identification'),
-                'help'       => tr('The name for this provider'),
-            ],
-            'seo_name' => [
-                'visible'  => false
-            ],
-            'code' => [
-                'complete'   => true,
-                'cli'        => '-c,--code CODE',
-                'size'       => 6,
-                'maxlength'  => 64,
-                'label'      => tr('Code'),
-                'help_group' => tr('Identification'),
-                'help'       => tr('The unique code for this provider'),
-            ],
-            'email' => [
-                'complete'   => true,
-                'type'       => 'email',
-                'cli'        => '-e,--email CODE',
-                'size'       => 6,
-                'maxlength'  => 128,
-                'label'      => tr('Email'),
-                'help_group' => tr('Contact'),
-                'help'       => tr('The contact email for this provider'),
-            ],
-            'phones' => [
-                'complete'   => true,
-                'cli'        => '-p,--phones PHONE,PHONE',
-                'size'       => 6,
-                'maxlength'  => 64,
-                'label'      => tr('Phones'),
-                'help_group' => tr('Contact'),
-                'help'       => tr('The provider phone number(s)'),
-            ],
-            'picture' => [
-                'visible'  => false
-            ],
-            'url' => [
-                'complete'   => true,
-                'cli'        => '-u,--url URL',
-                'size'       => 6,
-                'maxlength'  => 2048,
-                'label'      => tr('URL'),
-                'help'       => tr('A URL with more information about this provider'),
-            ],
-            'address' => [
-                'complete'  => true,
-                'cli'       => '--address URL',
-                'size'      => 12,
-                'maxlength' => 64,
-                'label'     => tr('Address'),
-                'help'      => tr('Address information for this provider'),
-            ],
-            'address2' => [
-                'complete'  => true,
-                'cli'       => '--address2 URL',
-                'size'      => 12,
-                'maxlength' => 64,
-                'label'     => tr('Address 2'),
-                'help'      => tr('Address information for this provider'),
-            ],
-            'address3' => [
-                'complete'  => true,
-                'cli'       => '--address3 URL',
-                'size'      => 6,
-                'maxlength' => 64,
-                'label'     => tr('Address 3'),
-                'help'      => tr('Address information for this provider'),
-            ],
-            'zipcode' => [
-                'complete'  => true,
-                'cli'       => '--address3 URL',
-                'size'      => 6,
-                'maxlength' => 8,
-                'label'     => tr('Postal code'),
-                'help'      => tr('Postal code (zipcode) information for this provider'),
-            ],
-            'countries_id' => [
-                'element'  => function (string $key, array $data, array $source) {
-                    return Countries::getHtmlCountriesSelect($key)
-                        ->setSelected(isset_get($source['countries_id']))
-                        ->render();
-                },
-                'cli'        => '--countries-id',
-                'complete'   => true,
-                'label'      => tr('Country'),
-                'size'       => 4,
-                'help_group' => tr('Location information'),
-                'help'       => tr('The database id of the country where this provider is located'),
-            ],
-            'states_id' => [
-                'element'  => function (string $key, array $data, array $source) {
-                    return Country::get($source['countries_id'])->getHtmlStatesSelect($key)
-                        ->setSelected(isset_get($source['states_id']))
-                        ->render();
-                },
-                'cli'        => '--states-id',
-                'complete'   => true,
-                'label'      => tr('State'),
-                'size'       => 4,
-                'help_group' => tr('Location information'),
-                'help'       => tr('The database id of the state where this provider is located'),
-            ],
-            'cities_id' => [
-                'element'  => function (string $key, array $data, array $source) {
-                    return State::get($source['states_id'])->getHtmlCitiesSelect($key)
-                        ->setSelected(isset_get($source['cities_id']))
-                        ->render();
-                },
-                'cli'        => '--companies-id',
-                'complete'   => true,
-                'label'      => tr('City'),
-                'size'       => 4,
-                'help_group' => tr('Location information'),
-                'help'       => tr('The database id of the country where this provider is located'),
-            ],
-            'categories_id' => [
-                'element'  => function (string $key, array $data, array $source) {
-                    return Categories::getHtmlSelect($key)
-                        ->setSelected(isset_get($source['categories_id']))
-                        ->render();
-                },
-                'cli'        => '--categories-id',
-                'complete'   => true,
-                'label'      => tr('Category'),
-                'size'       => 4,
-                'help_group' => tr('Location information'),
-                'help'       => tr('The database id of the category under which this provider is organized'),
-            ],
-            'companies_id' => [
-                'element'  => function (string $key, array $data, array $source) {
-                    return Companies::getHtmlSelect($key)
-                        ->setSelected(isset_get($source['companies_id']))
-                        ->render();
-                },
-                'cli'        => '--companies-id',
-                'complete'   => true,
-                'label'      => tr('Company'),
-                'size'       => 4,
-                'help_group' => tr('Organisation information'),
-                'help'       => tr('The database id of the company that is linked to this organization'),
-            ],
-            'languages_id' => [
-                'element'  => function (string $key, array $data, array $source) {
-                    return Languages::getHtmlSelect($key)
-                        ->setSelected(isset_get($source['languages_id']))
-                        ->render();
-                },
-                'cli'        => '--languages-id',
-                'complete'   => true,
-                'label'      => tr('Language'),
-                'size'       => 4,
-                'help_group' => tr('Location information'),
-                'help'       => tr('The language in which the site will be displayed to the user'),
-            ],
-            'description' => [
-                'element'    => 'text',
-                'cli'        => '-d,--description',
-                'complete'   => true,
-                'label'      => tr('Description'),
-                'maxlength'  => 65_535,
-                'size'       => 12,
-                'help_group' => tr('Account information'),
-                'help'       => tr('A description about this user'),
-            ],
-        ];
-
-
-//        return $validator->hasMaxCharacters()
-//            ->select('name')->isOptional()->isName()
-//            ->select('code')->isOptional()->isDomain()
-//            ->select('email')->isOptional()->isEmail()
-//            ->select('zipcode')->isOptional()->isString()->hasMinCharacters(4)->hasMaxCharacters(7)
-//            ->select('phones')->isOptional()->sanitizeForceArray(',')->each()->isPhone()->sanitizeForceString()
-//            ->select('address')->isOptional()->isPrintable()->hasMaxCharacters(64)
-//            ->select('address2')->isOptional()->isPrintable()->hasMaxCharacters(64)
-//            ->select('address3')->isOptional()->isPrintable()->hasMaxCharacters(64)
-//            ->select('categories_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `categories` WHERE `id` = :id AND `status` IS NULL', [':id' => '$categories_id'])
-//            ->select('languages_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `core_languages` WHERE `id` = :id AND `status` IS NULL', [':id' => '$languages_id'])
-//            ->select('companies_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `business_companies` WHERE `id` = :id AND `status` IS NULL', [':id' => '$companies_id'])
-//            ->select('countries_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':id' => '$countries_id'])
-//            ->select('states_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_states` WHERE `id` = :id AND `countries_id` = :countries_id AND `status` IS NULL', [':id' => 'states_id', ':countries_id' => '$countries_id'])
-//            ->select('cities_id')->isOptional()->isId()->isQueryColumn('SELECT `id` FROM `geo_cities` WHERE `id` = :id AND `states_id`    = :states_id    AND `status` IS NULL', [':id' => 'cities_id', ':states_id'    => '$states_id'])
-//            ->select('description')->isOptional()->isPrintable()->hasMaxCharacters(65_530)
-//            ->select('url')->isOptional()->isUrl()
-//            ->validate();
+        $definitions
+            ->addDefinition(DefinitionFactory::getCategoriesId($this))
+            ->addDefinition(DefinitionFactory::getCategory($this))
+            ->addDefinition(DefinitionFactory::getCompaniesId($this))
+            ->addDefinition(DefinitionFactory::getCompany($this))
+            ->addDefinition(DefinitionFactory::getName($this)
+                ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->isFalse(function($value, $source) {
+                        Provider::exists($value, 'name', isset_get($source['id']));
+                    }, tr('already exists'));
+                }))
+            ->addDefinition(DefinitionFactory::getSeoName($this))
+            ->addDefinition(DefinitionFactory::getCode($this))
+            ->addDefinition(DefinitionFactory::getEmail($this))
+            ->addDefinition(DefinitionFactory::getLanguagesId($this))
+            ->addDefinition(DefinitionFactory::getLanguage($this))
+            ->addDefinition(Definition::new($this, 'address1')
+                ->setOptional(true)
+                ->setCliAutoComplete(true)
+                ->setCliField('--address1 ADDRESS')
+                ->setMaxlength(64)
+                ->setSize(12)
+                ->setLabel(tr('Address 1'))
+                ->setHelpText(tr('Address information for this provider')))
+            ->addDefinition(Definition::new($this, 'address2')
+                ->setOptional(true)
+                ->setCliAutoComplete(true)
+                ->setCliField('--address2 ADDRESS')
+                ->setMaxlength(64)
+                ->setSize(12)
+                ->setLabel(tr('Address 2'))
+                ->setHelpText(tr('Additional address information for this provider')))
+            ->addDefinition(Definition::new($this, 'address3')
+                ->setOptional(true)
+                ->setCliAutoComplete(true)
+                ->setCliField('--address3 ADDRESS')
+                ->setMaxlength(64)
+                ->setSize(12)
+                ->setLabel(tr('Address 3'))
+                ->setHelpText(tr('Additional address information for this provider')))
+            ->addDefinition(Definition::new($this, 'zipcode')
+                ->setOptional(true)
+                ->setCliAutoComplete(true)
+                ->setCliField('--zip-code ZIPCODE (POSTAL CODE)')
+                ->setMaxlength(8)
+                ->setSize(6)
+                ->setLabel(tr('Postal code / Zipcode'))
+                ->setHelpText(tr('Postal code (zipcode) information for this provider')))
+            ->addDefinition(DefinitionFactory::getCountriesId($this))
+            ->addDefinition(DefinitionFactory::getCountry($this))
+            ->addDefinition(DefinitionFactory::getStatesId($this))
+            ->addDefinition(DefinitionFactory::getState($this))
+            ->addDefinition(DefinitionFactory::getCitiesId($this))
+            ->addDefinition(DefinitionFactory::getCity($this))
+            ->addDefinition(DefinitionFactory::getPhones($this))
+            ->addDefinition(DefinitionFactory::getUrl($this))
+            ->addDefinition(DefinitionFactory::getDescription($this))
+            ->addDefinition(Definition::new($this, 'picture')
+                ->setVirtual(true)
+                ->setVisible(false));
     }
 }

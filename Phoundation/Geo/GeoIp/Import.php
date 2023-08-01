@@ -8,6 +8,7 @@ use Phoundation\Core\Config;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 
+
 /**
  * Importer class
  *
@@ -15,7 +16,7 @@ use Phoundation\Exception\UnderConstructionException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation/Geo
  */
 class Import extends \Phoundation\Developer\Project\Import
@@ -41,7 +42,7 @@ class Import extends \Phoundation\Developer\Project\Import
      */
     public function execute(): int
     {
-        $provider = self::getProvider();
+        $provider = static::getProvider();
         $path     = $provider->download();
 
         $provider->process($path);

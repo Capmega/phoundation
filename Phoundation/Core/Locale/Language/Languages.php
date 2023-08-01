@@ -4,8 +4,14 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Locale\Language;
 
+use PDOStatement;
+use Phoundation\Business\Providers\Provider;
+use Phoundation\Core\Locale\Language\Interfaces\LanguagesInterface;
 use Phoundation\Data\DataEntry\DataList;
-use Phoundation\Web\Http\Html\Components\Input\Select;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
+use Phoundation\Web\Http\Html\Components\Input\InputSelect;
+
 
 /**
  * Languages class
@@ -15,71 +21,88 @@ use Phoundation\Web\Http\Html\Components\Input\Select;
  * @see \Phoundation\Data\DataEntry\DataList
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
-class Languages extends DataList
+class Languages extends DataList implements LanguagesInterface
 {
     /**
      * Languages class constructor
-     *
-     * @param Language|null $parent
-     * @param string|null $id_column
      */
-    public function __construct(?Language $parent = null, ?string $id_column = null)
+    public function __construct()
     {
-        $this->entry_class = Language::class;
-        self::$table       = Language::getTable();
-
-        $this->setHtmlQuery('SELECT   `id`, `code_639_1`, `name`, `status`, `created_on` 
-                             FROM     `core_languages` 
-                             WHERE    `status` IS NULL 
-                             ORDER BY `name`');
-        parent::__construct($parent, $id_column);
-        $this->load($id_column);
+        $this->setQuery('SELECT   `id`, `code_639_1`, `name`, `status`, `created_on` 
+                               FROM     `core_languages` 
+                               WHERE    `status` IS NULL 
+                               ORDER BY `name`');
+        parent::__construct();
     }
 
 
     /**
-     * Returns an HTML <select> object with all available languages
+     * Returns the table name used by this object
      *
-     * @param string $name
-     * @return Select
+     * @return string
      */
-    public static function getHtmlSelect(string $name = 'languages_id'): Select
+    public static function getTable(): string
     {
-        return Select::new()
-            ->setSourceQuery('SELECT `id`, `name` FROM `core_languages` WHERE `status` IS NULL ORDER BY `name`')
-            ->setName($name)
-            ->setNone(tr('Please select a language'))
+        return 'core_languages';
+    }
+
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getEntryClass(): string
+    {
+        return Language::class;
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return 'code_639_1';
+    }
+
+
+    /**
+     * Returns an HTML <select> for the available object entries
+     *
+     * @param string $value_column
+     * @param string $key_column
+     * @param string|null $order
+     * @return SelectInterface
+     */
+    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id', ?string $order = null): SelectInterface
+    {
+        return parent::getHtmlSelect($value_column, $key_column, $order)
+            ->setName('languages_id')
+            ->setNone(tr('Select a language'))
             ->setEmpty(tr('No languages available'));
     }
 
 
     /**
-     * @param string|int|null $id_column
+     * @param string|null $id_column
      * @return $this
      * @throws \Throwable
      */
-    protected function load(string|int|null $id_column = null): static
+    public function load(?string $id_column = null): static
     {
-        $this->list = sql()->list('SELECT `core_languages`.`id`, substring_index(substring_index(`core_languages`.`name`, "(", 1), ",", 1) AS `name` 
-                                   FROM     `core_languages` 
+        $this->source = sql()->list('SELECT `core_languages`.`id`, substring_index(substring_index(`core_languages`.`name`, "(", 1), ",", 1) AS `name`
+                                   FROM     `core_languages`
                                    WHERE    `core_languages`.`status` IS NULL
                                    ORDER BY `name`');
 
         // The keys contain the ids...
-        $this->list = array_flip($this->list);
+        $this->source = array_flip($this->source);
         return $this;
-    }
-
-    protected function loadDetails(array|string|null $columns, array $filters = []): array
-    {
-        // TODO: Implement loadDetails() method.
-    }
-
-    public function save(): static
-    {
-        // TODO: Implement save() method.
     }
 }

@@ -6,6 +6,7 @@ namespace Phoundation\Virtualization\Kubernetes\Pods;
 
 use Phoundation\Virtualization\Kubernetes\KubernetesObjects;
 
+
 /**
  * Class Pods
  *
@@ -13,7 +14,7 @@ use Phoundation\Virtualization\Kubernetes\KubernetesObjects;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Virtualization
  */
 class Pods extends KubernetesObjects

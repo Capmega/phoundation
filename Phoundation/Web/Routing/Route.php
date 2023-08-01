@@ -40,7 +40,7 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
 class Route
@@ -130,11 +130,6 @@ class Route
             static::executeSystem(400);
         }
 
-        // Double slash (//) in the URL is automatically 4o4
-        if (str_contains(static::$uri, '//')) {
-            static::executeSystem(404);
-        }
-
         // Start the Core object, hide $_GET & $_POST
         try {
             if (Core::stateIs('init')) {
@@ -170,11 +165,11 @@ class Route
      */
     public static function getInstance(): static
     {
-        if (!isset(self::$instance)) {
-            self::$instance = new static();
+        if (!isset(static::$instance)) {
+            static::$instance = new static();
         }
 
-        return self::$instance;
+        return static::$instance;
     }
 
 
@@ -183,7 +178,7 @@ class Route
      *
      * @return RoutingParametersList
      */
-    public static function parameters(): RoutingParametersList
+    public static function getParameters(): RoutingParametersList
     {
         static::getInstance();
 
@@ -332,6 +327,12 @@ class Route
         static::getInstance();
 
         try {
+            // Double slash (//) in the URL is automatically 4o4
+            if (str_contains(static::$uri, '//')) {
+                Log::warning('Encountered double slash in URL, automatically 404-ing');
+                static::executeSystem(404);
+            }
+
             if (!$url_regex) {
                 // Match an empty string
                 $url_regex = '/^$/';
@@ -412,12 +413,13 @@ class Route
             Log::action(tr('Testing rule ":count" ":regex" on ":type" ":url"', [
                 ':count' => $count,
                 ':regex' => $url_regex,
-                ':type' => static::$method,
-                ':url' => $uri
+                ':type'  => static::$method,
+                ':url'   => $uri
             ]), 4);
 
             try {
                 $match = preg_match_all($url_regex, $uri, $matches);
+
             } catch (Exception $e) {
                 throw new RouteException(tr('Failed to parse route ":route" with ":message"', [
                     ':route' => $url_regex,
@@ -426,20 +428,21 @@ class Route
             }
 
             if (!$match) {
+                // No match, stop this try
                 $count++;
                 return;
             }
 
             if (Debug::enabled()) {
                 Log::success(tr('Regex ":count" ":regex" matched with matches ":matches" and flags ":flags"', [
-                    ':count' => $count,
-                    ':regex' => $url_regex,
+                    ':count'   => $count,
+                    ':regex'   => $url_regex,
                     ':matches' => $matches,
-                    ':flags' => $flags
+                    ':flags'   => $flags
                 ]));
             }
 
-            $route = $target;
+            $route      = $target;
             $attachment = false;
 
             // Regex matched. Do variable substitution on the target.
@@ -496,7 +499,7 @@ class Route
             // Apply regex variables replacements
             if (preg_match_all('/\$(\d+)/', $route, $replacements)) {
                 if (preg_match('/\$\d+\.php/', $route)) {
-                    self::$dynamic_pagematch = true;
+                    static::$dynamic_pagematch = true;
                 }
 
                 foreach ($replacements[1] as $replacement) {
@@ -504,7 +507,7 @@ class Route
                         if (!$replacement[0] or empty($matches[$replacement[0]])) {
                             throw new RouteException(tr('Non existing regex replacement ":replacement" specified in route ":route"', [
                                 ':replacement' => '$' . $replacement[0],
-                                ':route' => $route
+                                ':route'       => $route
                             ]));
                         }
 
@@ -644,7 +647,7 @@ class Route
                         }
 
                         Core::unregisterShutdown('route[postprocess]');
-                        Page::setRoutingParameters(static::parameters()->select(static::$uri));
+                        Page::setRoutingParameters(static::getParameters()->select(static::$uri));
                         Page::redirect(UrlBuilder::getWww($route)->addQueries($_GET), (int) $http_code);
 
                     case 'S':
@@ -760,7 +763,7 @@ class Route
                             ]));
 
                             Core::unregisterShutdown('route[postprocess]');
-                            Page::setRoutingParameters(static::parameters()->select(static::$uri));
+                            Page::setRoutingParameters(static::getParameters()->select(static::$uri));
                             Page::redirect($domain);
                     }
                 }
@@ -768,7 +771,7 @@ class Route
 
             // Split the route into the page name and GET requests
             $page = Strings::until($route, '?');
-            $get = Strings::from($route, '?', 0, true);
+            $get  = Strings::from($route, '?', 0, true);
 
             // Translate the route?
             if (isset($core->register['Route::map']) and empty($disable_language)) {
@@ -997,7 +1000,7 @@ class Route
         }
 
         if ($http_code === 200) {
-            Log::success(tr('Script ":script" ended with HTTP code ":httpcode" in ":time" with ":usage" peak memory usage', [
+            Log::success(tr('Script ":script" ended successfully with HTTP code ":httpcode" in ":time" with ":usage" peak memory usage', [
                 ':script'   => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
                 ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
                 ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
@@ -1005,7 +1008,7 @@ class Route
             ]));
 
         } else {
-            Log::warning(tr('Script ":script" ended with HTTP code ":httpcode" in ":time" with ":usage" peak memory usage', [
+            Log::warning(tr('Script ":script" ended with HTTP warning code ":httpcode" in ":time" with ":usage" peak memory usage', [
                 ':script'   => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
                 ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
                 ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
@@ -1072,7 +1075,7 @@ class Route
 
         // Route the requested system page. The called method will die(), so the following die() call is there more to
         // make the static analyzers shut up :)
-        RouteSystem::new(static::parameters()->select(static::$uri, true))->$method();
+        RouteSystem::new(static::getParameters()->select(static::$uri, true))->$method();
         die();
     }
 
@@ -1088,7 +1091,7 @@ class Route
     {
         // Get routing parameters and find the correct target page
         if (!$parameters) {
-            $parameters = static::parameters()->select(static::$uri);
+            $parameters = static::getParameters()->select(static::$uri);
         }
 
         $target = Filesystem::absolute($parameters->getRootPath() . Strings::unslash($target));
@@ -1099,7 +1102,7 @@ class Route
         }
 
         if (!file_exists($target)) {
-            if (self::$dynamic_pagematch) {
+            if (static::$dynamic_pagematch) {
                 Log::warning(tr('Pattern matched file ":file" does not exist', [':page' => $target]));
 
             } else {

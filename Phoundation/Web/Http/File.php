@@ -12,7 +12,11 @@ use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Filesystem;
+use Phoundation\Filesystem\Interfaces\FileInterface;
+use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Restrictions;
+use Stringable;
+
 
 /**
  * Class File
@@ -23,7 +27,7 @@ use Phoundation\Filesystem\Restrictions;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
 class File
@@ -97,9 +101,9 @@ class File
     /**
      * File class constructor
      *
-     * @param Restrictions|array|string|null $restrictions
+     * @param RestrictionsInterface|array|string|null $restrictions
      */
-    public function __construct(Restrictions|array|string|null $restrictions = null)
+    public function __construct(RestrictionsInterface|array|string|null $restrictions = null)
     {
         $this->setRestrictions($restrictions);
         $this->compression = Config::get('web.http.download.compression', 'auto');
@@ -109,10 +113,10 @@ class File
     /**
      * Returns a new File object with the specified restrictions
      *
-     * @param Restrictions|array|string|null $restrictions
+     * @param RestrictionsInterface|array|string|null $restrictions
      * @return static
      */
-    public static function new(Restrictions|array|string|null $restrictions = null): static
+    public static function new(RestrictionsInterface|array|string|null $restrictions = null): static
     {
         return new static($restrictions);
     }
@@ -121,10 +125,10 @@ class File
     /**
      * Sets the file access restrictions
      *
-     * @param Restrictions|array|string|null $restrictions
+     * @param RestrictionsInterface|array|string|null $restrictions
      * @return static
      */
-    public function setRestrictions(Restrictions|array|string|null $restrictions = null): static
+    public function setRestrictions(RestrictionsInterface|array|string|null $restrictions = null): static
     {
         $this->restrictions = Core::ensureRestrictions($restrictions);
         return $this;
@@ -411,9 +415,9 @@ Log::checkpoint();
      * @param string $url             The URL of the file to be downloaded
      * @param callable|null $callback If specified, download will execute this callback with either the filename or file
      *                                contents (depending on $section)
-     * @return string|null            The path to the downloaded file or NULL if a callback was specified
+     * @return FileInterface|null     The path to the downloaded file or NULL if a callback was specified
      */
-    public function download(string $url, callable $callback = null): ?string
+    public function download(string $url, callable $callback = null): FileInterface|null
     {
         // Set temp file and download data
         $file = Filesystem::createTempFile()->getFile();
@@ -422,11 +426,13 @@ Log::checkpoint();
         // Write data to the temp file
         file_put_contents($file, $data);
 
-        if ($callback) {
-            // Execute the callbacks before returning the data, delete the temporary file after
-            $callback($file);
-            \Phoundation\Filesystem\File::new($file, $this->restrictions)->delete();
+        if (!$callback) {
+            return \Phoundation\Filesystem\File::new($file, $this->restrictions);
         }
+
+        // Execute the callbacks before returning the data, delete the temporary file after
+        $file = $callback($file);
+        \Phoundation\Filesystem\File::new($file, $this->restrictions)->delete();
 
         return $file;
     }

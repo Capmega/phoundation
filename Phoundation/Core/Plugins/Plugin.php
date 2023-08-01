@@ -6,15 +6,21 @@ namespace Phoundation\Core\Plugins;
 
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Libraries\Library;
+use Phoundation\Core\Log\Log;
+use Phoundation\Core\Plugins\Interfaces\PluginInterface;
+use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
+use Phoundation\Data\DataEntry\Definitions\Definition;
+use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryPath;
 use Phoundation\Data\DataEntry\Traits\DataEntryPriority;
-use Phoundation\Data\Interfaces\InterfaceDataEntry;
+use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
+use Phoundation\Web\Http\Html\Enums\InputType;
+use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
 
 
 /**
@@ -25,29 +31,15 @@ use Phoundation\Filesystem\File;
  * @see \Phoundation\Data\DataEntry\DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
-abstract class Plugin extends DataEntry
+class Plugin extends DataEntry implements PluginInterface
 {
     use DataEntryNameDescription;
     use DataEntryPath;
     use DataEntryPriority {
         setPriority as setTraitPriority;
-    }
-
-
-    /**
-     * Plugin class constructor
-     *
-     * @param InterfaceDataEntry|string|int|null $identifier
-     */
-    public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
-    {
-        static::$entry_name  = 'plugin';
-        $this->unique_field  = 'name';
-
-        parent::__construct($identifier);
     }
 
 
@@ -63,10 +55,36 @@ abstract class Plugin extends DataEntry
 
 
     /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getDataEntryName(): string
+    {
+        return tr('Plugin');
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return 'name';
+    }
+
+
+    /**
+     * Execute the required code to start the plugin
+     *
      * @return void
      */
     // TODO Use hooks after startup!
-    abstract public static function start(): void;
+    public static function start(): void
+    {
+    }
 
 
     /**
@@ -87,10 +105,10 @@ abstract class Plugin extends DataEntry
     /**
      * Sets if this plugin is enabled or not
      *
-     * @param bool|null $enabled
+     * @param int|bool|null $enabled
      * @return static
      */
-    public function setEnabled(bool|null $enabled): static
+    public function setEnabled(int|bool|null $enabled): static
     {
         if ($this->getName() === 'Phoundation') {
             if (!$enabled) {
@@ -116,10 +134,10 @@ abstract class Plugin extends DataEntry
     /**
      * Sets if this plugin is disabled or not
      *
-     * @param bool $disabled
+     * @param int|bool|null $disabled
      * @return static
      */
-    public function setDisabled(bool $disabled): static
+    public function setDisabled(int|bool|null $disabled): static
     {
         return $this->setEnabled(!$disabled);
     }
@@ -128,21 +146,27 @@ abstract class Plugin extends DataEntry
     /**
      * Returns the plugin path for this plugin
      *
-     * @return string
+     * @return string|null
      */
-    public function getClass(): string
+    public function getClass(): ?string
     {
-        return Library::getClassPath($this->getPath() . 'Plugin.php');
+        $path = $this->getPath();
+
+        if ($path) {
+            return Library::getClassPath($path . 'Plugin.php');
+        }
+
+        return null;
     }
 
 
     /**
      * Sets the main class for this plugin
      *
-     * @param string $class
+     * @param string|null $class
      * @return static
      */
-    public function setClass(string $class): static
+    public function setClass(?string $class): static
     {
         return $this->setDataValue('class', $class);
     }
@@ -154,7 +178,7 @@ abstract class Plugin extends DataEntry
      * @param int|null $priority
      * @return static
      */
-    public function setPriority(int|null $priority): static
+    public function setPriority(?int $priority): static
     {
         if ($this->getName() === 'Phoundation') {
             $priority = 0;
@@ -204,7 +228,7 @@ abstract class Plugin extends DataEntry
      */
     public function uninstall(): void
     {
-        self::disable();
+        static::disable();
     }
 
 
@@ -216,11 +240,28 @@ abstract class Plugin extends DataEntry
     public static function register(): void
     {
         $plugin = static::new();
+        $name   = $plugin->getName();
+
+        if (static::exists($name, 'name')) {
+            // This plugin is already registered
+            Log::warning(tr('Not registering plugin ":plugin", it is already registered', [
+                ':plugin' => $name
+            ]), 3);
+
+            return;
+        }
+
+        // Only the Phoundation plugin is ALWAYS enabled
+        $enabled = ($name === 'Phoundation');
+
+        Log::action(tr('Registering new plugin ":plugin"', [':plugin' => $name]));
+
+        // Register the plugin
         $plugin
-            ->setName($plugin->getName())
-            ->setPath($plugin->getPath())
+            ->setName($name)
+            ->setPath(Strings::from($plugin->getPath(), PATH_ROOT))
             ->setClass($plugin->getClass())
-            ->setEnabled(false)
+            ->setEnabled($enabled)
             ->setPriority($plugin->getPriority())
             ->setDescription($plugin->getDescription())
             ->save();
@@ -235,8 +276,8 @@ abstract class Plugin extends DataEntry
      */
     public function unregister(?string $comments = null): void
     {
-        self::unlinkScripts();
-        sql()->delete('core_plugins', [':seo_name' => $this->getName()], $comments);
+        static::unlinkScripts();
+        sql()->dataEntrydelete('core_plugins', [':seo_name' => $this->getName()], $comments);
     }
 
 
@@ -248,8 +289,8 @@ abstract class Plugin extends DataEntry
      */
     public function enable(?string $comments = null): void
     {
-        self::linkScripts();
-        sql()->setStatus(null, 'core_plugins', ['seo_name' => $this->getSeoName()], $comments);
+        static::linkScripts();
+        sql()->dataEntrySetStatus(null, 'core_plugins', ['seo_name' => $this->getSeoName()], $comments);
     }
 
 
@@ -261,8 +302,8 @@ abstract class Plugin extends DataEntry
      */
     public function disable(?string $comments = null): void
     {
-        self::unlinkScripts();
-        sql()->setStatus('disabled', 'core_plugins', ['seo_name' => $this->getSeoName()], $comments);
+        static::unlinkScripts();
+        sql()->dataEntrySetStatus('disabled', 'core_plugins', ['seo_name' => $this->getSeoName()], $comments);
     }
 
 
@@ -301,82 +342,62 @@ abstract class Plugin extends DataEntry
     /**
      * Sets the available data keys for the User class
      *
-     * @return DataEntryFieldDefinitionsInterface
+     * @param DefinitionsInterface $definitions
      */
-    protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
+    protected function initDefinitions(DefinitionsInterface $definitions): void
     {
-        return DataEntryFieldDefinitions::new(static::getTable());
-
-        return [
-            'disabled' => [
-                'virtual' => true,
-                'cli'     => '-d,--disable',
-            ],
-           'seo_name' => [
-               'visible' => false,
-           ],
-            'name' => [
-                'required'  => true,
-                'readonly'  => true,
-                'complete'  => false,
-                'label'     => tr('Name'),
-                'size'      => 4,
-                'maxlength' => 64,
-                'help'      => tr('The name of this plugin'),
-            ],
-            'priority' => [
-                'type'     => 'numeric',
-                'cli'      => '-p,--priority PRIORITY (1 - 10)',
-                'null_db'  => false,
-                'min'     => 1,
-                'default' => 5,
-                'max'     => 100,
-                'size'     => 4,
-                'label'    => tr('Priority'),
-                'help'     => tr('Sets the priority'),
-            ],
-           'enabled' => [
-               'complete' => false,
-               'type'     => 'checkbox',
-               'cli'      => '-e,--enable',
-               'size'     => 4,
-               'label'    => tr('Start'),
-               'help'     => tr('If specified, this plugin is enabled and will automatically start upon each page load or script execution'),
-               'default'  => true,
-           ],
-            'path' => [
-                'readonly' => true,
-                'size'     => 6,
-                'label'    => tr('Path'),
-            ],
-            'class' => [
-                'readonly' => true,
-                'size'     => 6,
-                'label'    => tr('Class'),
-            ],
-            'description' => [
-                'readonly' => true,
-                'size'     => 12,
-                'label'    => tr('Description')
-            ],
-        ];
-
-
-//        $data = $validator
-//            ->select($this->getAlternateValidationField('name'), true)->hasMaxCharacters()->isName()
-//            ->select($this->getAlternateValidationField('priority'), true)->isOptional(0)->isBetween(0, 9)
-//            ->select($this->getAlternateValidationField('enabled'), true)->isBoolean()
-//            ->select($this->getAlternateValidationField('file'), true)->isPath()
-//            ->select($this->getAlternateValidationField('class'), true)->hasMaxCharacters(2048)->matchesRegex('/Plugins\\[a-z0-9]+\\Plugin/')
-//            ->select($this->getAlternateValidationField('description'), true)->isOptional()->hasMaxCharacters(65_530)->isPrintable()
-//            ->noArgumentsLeft($no_arguments_left)
-//            ->validate();
-//
-//        // Ensure the name doesn't exist yet as it is a unique identifier
-//        if ($data['name']) {
-//            static::notExists($data['name'], $this->getId(), true);
-//        }
-//
-//        return $data;
+        $definitions
+            ->addDefinition(Definition::new($this, 'disabled')
+                ->setInputType(InputTypeExtended::boolean)
+                ->setOptional(true)
+                ->setVirtual(true)
+                ->setVisible(false)
+                ->setCliField('-d,--disable'))
+            ->addDefinition(DefinitionFactory::getName($this, 'seo_name')
+                ->setVisible(false))
+            ->addDefinition(DefinitionFactory::getName($this)
+                ->setSize(6)
+                ->setHelpText(tr('The name of this plugin')))
+            ->addDefinition(Definition::new($this, 'priority')
+                ->setOptional(true)
+                ->setInputType(InputType::number)
+                ->setNullDb(false, 5)
+                ->setSize(3)
+                ->setCliField('--priority')
+                ->setCliAutoComplete(true)
+                ->setLabel(tr('Priority'))
+                ->setMin(0)
+                ->setMax(100)
+                ->setHelpText(tr('The priority for this plugin, between 1 and 9'))
+                ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->isInteger();
+                }))
+            ->addDefinition(Definition::new($this, 'enabled')
+                ->setOptional(true)
+                ->setInputType(InputType::checkbox)
+                ->setSize(3)
+                ->setCliField('-e,--enabled')
+                ->setLabel(tr('Enabled'))
+                ->setDefault(true)
+                ->setHelpText(tr('If enabled, this plugin will automatically start upon each page load or script execution'))
+                ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->isBoolean();
+                }))
+            ->addDefinition(Definition::new($this, 'class')
+                ->setLabel(tr('Class'))
+                ->setInputType(InputType::text)
+                ->setMaxlength(255)
+                ->setSize(6)
+                ->setHelpText(tr('The base class path of this plugin'))
+                ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->hasMaxCharacters(1024)->matchesRegex('/Plugins\\\[\\\A-Za-z0-9]+\\\Plugin/');
+                }))
+            ->addDefinition(Definition::new($this, 'path')
+                ->setLabel(tr('Path'))
+                ->setInputType(InputTypeExtended::path)
+                ->setMaxlength(128)
+                ->setSize(6)
+                ->setHelpText(tr('The filesystem path where this plugin is located')))
+            ->addDefinition(DefinitionFactory::getDescription($this));
     }
 }

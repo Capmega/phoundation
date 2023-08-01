@@ -7,6 +7,7 @@ namespace Phoundation\Templates;
 use Phoundation\Core\Session;
 use Phoundation\Web\Http\UrlBuilder;
 
+
 /**
  * Class Template
  *
@@ -14,7 +15,7 @@ use Phoundation\Web\Http\UrlBuilder;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Templates
  */
 class Template
@@ -139,6 +140,7 @@ class Template
                                             <h3><i class="fas fa-exclamation-triangle text-:type"></i> :h3</h3>
                                     
                                             <p>:p</p>
+                                            <p>' . tr('Click :here to go to the index page', [':here' => '<a href="' . UrlBuilder::getCurrentDomainRootUrl() . '">here</a>']) . '</p>
                                             <p>' . tr('Click :here to sign out', [':here' => '<a href="' . UrlBuilder::getWww('sign-out.html') . '">here</a>']) . '</p>';
 
                 if (!Session::getUser()->isGuest()) {

@@ -12,6 +12,8 @@ use Phoundation\Filesystem\Exception\FileExistsException;
 use Phoundation\Filesystem\Exception\FileNotWritableException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\PathNotExistsException;
+use Phoundation\Filesystem\Interfaces\FileBasicsInterface;
+use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Processes\Exception\ProcessesException;
 use Phoundation\Processes\Process;
 use Phoundation\Servers\Traits\UsesRestrictions;
@@ -24,13 +26,13 @@ use Throwable;
  *
  * This library contains the variables used in the File class
  *
- * @author Sven Oostenbrink <support@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @category Function reference
  * @package Phoundation\Filesystem
  */
-class FileBasics implements Stringable
+class FileBasics implements Stringable, FileBasicsInterface
 {
     use UsesRestrictions;
 
@@ -64,9 +66,9 @@ class FileBasics implements Stringable
      * File class constructor
      *
      * @param FileBasics|Stringable|string|null $file
-     * @param Restrictions|array|string|null $restrictions_restrictions
+     * @param RestrictionsInterface|array|string|null $restrictions_restrictions
      */
-    public function __construct(FileBasics|Stringable|string|null $file = null, Restrictions|array|string|null $restrictions_restrictions = null)
+    public function __construct(FileBasics|Stringable|string|null $file = null, RestrictionsInterface|array|string|null $restrictions_restrictions = null)
     {
         // Specified file was actually a File or Path object, get the file from there
         if (is_object($file)) {
@@ -95,10 +97,10 @@ class FileBasics implements Stringable
      * Returns a new File object with the specified restrictions
      *
      * @param FileBasics|Stringable|string|null $file
-     * @param Restrictions|array|string|null $restrictions_restrictions
+     * @param RestrictionsInterface|array|string|null $restrictions_restrictions
      * @return static
      */
-    public static function new(FileBasics|Stringable|string|null $file = null, Restrictions|array|string|null $restrictions_restrictions = null): static
+    public static function new(FileBasics|Stringable|string|null $file = null, RestrictionsInterface|array|string|null $restrictions_restrictions = null): static
     {
         return new static($file, $restrictions_restrictions);
     }
@@ -183,9 +185,9 @@ class FileBasics implements Stringable
      * would not be readable (ie, the file exists, and can be read accessed), it will throw an exception with the
      * previous exception attached to it
      *
-     * @param string|null $type             This is the label that will be added in the exception indicating what type
+     * @param string|null $type This is the label that will be added in the exception indicating what type
      *                                      of file it is
-     * @param Throwable|null $previous_e    If the file is okay, but this exception was specified, this exception will
+     * @param Throwable|null $previous_e If the file is okay, but this exception was specified, this exception will
      *                                      be thrown
      * @return static
      */
@@ -201,20 +203,20 @@ class FileBasics implements Stringable
                     ':type' => ($type ? '' : ' ' . $type),
                     ':file' => $this->file,
                     ':path' => dirname($this->file)
-                ]), previous: $previous_e);
+                ]), $previous_e);
             }
 
             throw new FilesystemException(tr('The:type file ":file" cannot be read because it does not exist', [
                 ':type' => ($type ? '' : ' ' . $type),
                 ':file' => $this->file
-            ]), previous: $previous_e);
+            ]), $previous_e);
         }
 
         if (!is_readable($this->file)) {
             throw new FilesystemException(tr('The:type file ":file" cannot be read', [
                 ':type' => ($type ? '' : ' ' . $type),
                 ':file' => $this->file
-            ]), previous: $previous_e);
+            ]), $previous_e);
         }
 
         if ($previous_e) {
@@ -224,7 +226,7 @@ class FileBasics implements Stringable
 //            throw new FilesystemException(tr('The:type file ":file" cannot be read because of an unknown error', [
 //                ':type' => ($type ? '' : ' ' . $type),
 //                ':file' => $this->file
-//            ]), previous: $previous_e);
+//            ]), $previous_e);
         }
 
         return $this;
@@ -240,7 +242,7 @@ class FileBasics implements Stringable
      * would not be readable (ie, the file exists, and can be read accessed), it will throw an exception with the
      * previous exception attached to it
      *
-     * @param string|null $type          This is the label that will be added in the exception indicating what type of
+     * @param string|null $type This is the label that will be added in the exception indicating what type of
      *                                   file it is
      * @param Throwable|null $previous_e If the file is okay, but this exception was specified, this exception will be
      *                                   thrown
@@ -258,20 +260,20 @@ class FileBasics implements Stringable
                     ':type' => ($type ? '' : ' ' . $type),
                     ':file' => $this->file,
                     ':path' => dirname($this->file)
-                ]), previous: $previous_e);
+                ]), $previous_e);
             }
 
             throw new FilesystemException(tr('The:type file ":file" cannot be written because it does not exist', [
                 ':type' => ($type ? '' : ' ' . $type),
                 ':file' => $this->file
-            ]), previous: $previous_e);
+            ]), $previous_e);
         }
 
         if (!is_readable($this->file)) {
             throw new FilesystemException(tr('The:type file ":file" cannot be written', [
                 ':type' => ($type ? '' : ' ' . $type),
                 ':file' => $this->file
-            ]), previous: $previous_e);
+            ]), $previous_e);
         }
 
         return $this;
@@ -536,8 +538,8 @@ class FileBasics implements Stringable
      * @param boolean $clean_path If specified true, all directories above each specified pattern will be deleted as
      *                            well as long as they are empty. This way, no empty directories will be left lying
      *                            around
-     * @param boolean $sudo       If specified true, the rm command will be executed using sudo
-     * @param bool $escape        If true, will escape the filename. This may cause issues when using wildcards, for
+     * @param boolean $sudo If specified true, the rm command will be executed using sudo
+     * @param bool $escape If true, will escape the filename. This may cause issues when using wildcards, for
      *                            example
      * @return static
      * @see Restrictions::check() This function uses file location restrictions
@@ -568,11 +570,11 @@ class FileBasics implements Stringable
     /**
      * Moves this file to the specified target, will try to ensure target path exists
      *
-     * @param string $target
+     * @param Stringable|string $target
      * @param bool $ensure_path
      * @return $this
      */
-    public function move(string $target, bool $ensure_path = true): static
+    public function move(Stringable|string $target, bool $ensure_path = true): static
     {
         // Ensure target is absolute
         $target = Filesystem::absolute($target, must_exist: false);
@@ -677,13 +679,13 @@ class FileBasics implements Stringable
     /**
      * Update the object file owner and group
      *
-     * @see $this->chmod()
-     *
-     * @note This function ALWAYS requires sudo as chown is a root only filesystem command
      * @param string|null $user
      * @param string|null $group
      * @param bool $recursive
      * @return static
+     * @see $this->chmod()
+     *
+     * @note This function ALWAYS requires sudo as chown is a root only filesystem command
      */
     public function chown(?string $user = null, ?string $group = null, bool $recursive = false): static
     {
@@ -716,13 +718,12 @@ class FileBasics implements Stringable
     /**
      * Change file mode, optionally recursively
      *
-     * @see $this->chown()
-     *
      * @param string|int $mode The mode to apply to the specified path (and all files below if recursive is specified)
      * @param boolean $recursive If set to true, apply specified mode to the specified path and all files below by
      *                           recursion
      * @param bool $sudo
      * @return static
+     * @see $this->chown()
      */
     public function chmod(string|int $mode, bool $recursive = false, bool $sudo = false): static
     {
@@ -737,12 +738,14 @@ class FileBasics implements Stringable
         // Check filesystem restrictions
         $this->restrictions->check($this->file, true);
 
-        Process::new('chmod', $this->restrictions)
-            ->setSudo($sudo)
-            ->addArgument($recursive ? '-R' : null)
-            ->addArgument('0' . decoct($mode))
-            ->addArguments($this->file)
-            ->executeReturnArray();
+        if ($recursive) {
+            Process::new('chmod', $this->restrictions)
+                ->setSudo($sudo)
+                ->addArguments(['-R', '0' . decoct($mode), $this->file])
+                ->executeReturnArray();
+        } else {
+            chmod($this->file, $mode);
+        }
 
         return $this;
     }
@@ -841,7 +844,7 @@ class FileBasics implements Stringable
         }
 
         // As of here we know the file doesn't exist. Attempt to create it. First ensure the parent path exists.
-        Path::new(dirname($this->file), $this->restrictions)->ensure();
+        Path::new(dirname($this->file), $this->restrictions->getParent())->ensure();
 
         return false;
     }

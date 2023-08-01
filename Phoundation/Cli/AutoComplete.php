@@ -17,6 +17,7 @@ use Phoundation\Filesystem\Restrictions;
 use Phoundation\Geo\Timezones\Timezones;
 use Phoundation\Processes\Commands\Grep;
 
+
 /**
  * Class AutoComplete
  *
@@ -35,7 +36,7 @@ use Phoundation\Processes\Commands\Grep;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Cli
  */
 class AutoComplete
@@ -69,7 +70,7 @@ class AutoComplete
      */
     public static function isActive(): bool
     {
-        return self::$position !== null;
+        return static::$position !== null;
     }
 
 
@@ -80,8 +81,8 @@ class AutoComplete
      */
     public static function setPosition(int $position): void
     {
-        self::$position         = $position;
-        self::$system_arguments = [
+        static::$position         = $position;
+        static::$system_arguments = [
             '-A,--all'                 => false,
             '-C,--no-color'            => false,
             '-D,--debug'               => false,
@@ -99,14 +100,14 @@ class AutoComplete
             '-W,--no-warnings'         => false,
             '--system-language'        => [
                 'word'   => function($word) { return Languages::new()->filteredList($word); },
-                'noword' => function()      { return Languages::new()->list(); },
+                'noword' => function()      { return Languages::new()->getSource(); },
             ],
             '--deleted'                => false,
             '--version'                => false,
             '--limit'                  => true,
             '--timezone'               => [
                 'word'   => function($word) { return Timezones::new()->filteredList($word); },
-                'noword' => function()      { return Timezones::new()->list(); },
+                'noword' => function()      { return Timezones::new()->getSource(); },
             ],
             '--show-passwords'         => false,
             '--no-validation'          => false,
@@ -122,7 +123,7 @@ class AutoComplete
      */
     public static function getPosition(): ?int
     {
-        return self::$position;
+        return static::$position;
     }
 
 
@@ -137,9 +138,9 @@ class AutoComplete
     #[NoReturn] public static function processMethods(?array $cli_methods, array $data): never
     {
         // $data['position'] is the amount of found methods
-        // self::$position is the word # where the cursor was when <TAB> was pressed
+        // static::$position is the word # where the cursor was when <TAB> was pressed
         if ($cli_methods === null) {
-            if (self::$position) {
+            if (static::$position) {
                 // Invalid situation, supposedly there is an auto complete location, but no methods?
                 die('Invalid auto complete arguments' . PHP_EOL);
             }
@@ -148,7 +149,7 @@ class AutoComplete
             $word  = array_shift($words);
 
             if (str_starts_with((string) $word, '-')) {
-                self::processArguments(self::$system_arguments);
+                static::processArguments(static::$system_arguments);
 
             } else {
                 foreach ($data['methods'] as $method) {
@@ -156,17 +157,17 @@ class AutoComplete
                 }
             }
 
-        } elseif (self::$position > count($cli_methods)) {
+        } elseif (static::$position > count($cli_methods)) {
             // Invalid situation, supposedly the location was beyond, after the amount of arguments?
             die('Invalid auto complete arguments' . PHP_EOL);
 
-        } elseif ($data['position'] > self::$position) {
+        } elseif ($data['position'] > static::$position) {
             // The findScript() method already found this particular word, so we know it exists!
-            echo $cli_methods[self::$position];
+            echo $cli_methods[static::$position];
 
         } else {
             $contains        = [];
-            $argument_method = isset_get($cli_methods[self::$position], '');
+            $argument_method = isset_get($cli_methods[static::$position], '');
 
             if (!$argument_method) {
                 // There are no methods, are there modifier arguments, perhaps?
@@ -184,7 +185,7 @@ class AutoComplete
                     // This is a system modifier argument, show the system modifier arguments instead.
                     $data['methods'] = [];
 
-                    foreach (self::$system_arguments as $arguments => $definitions) {
+                    foreach (static::$system_arguments as $arguments => $definitions) {
                         $arguments = explode(',', $arguments);
 
                         foreach ($arguments as $argument) {
@@ -241,14 +242,14 @@ class AutoComplete
         }
 
         // Get the word where we're <TAB>bing on
-        $word = isset_get(ArgvValidator::getArguments()[self::$position]);
+        $word = isset_get(ArgvValidator::getArguments()[static::$position]);
         $word = strtolower(trim((string) $word));
 
         // First check position!
-        self::processScriptPosition($definitions, $word, self::$position);
+        static::processScriptPosition($definitions, $word, static::$position);
 
         // Do we have an "all other positions" entry?
-        self::processScriptPosition($definitions, $word, -1);
+        static::processScriptPosition($definitions, $word, -1);
     }
 
 
@@ -269,12 +270,12 @@ class AutoComplete
             // We may have a word or not, check if position_data allows word (or not) and process
             if ($word) {
                 if (array_key_exists('word', $position_data)) {
-                    $results = self::processDefinition($position_data['word'], $word);
+                    $results = static::processDefinition($position_data['word'], $word);
                 }
 
             } else {
                 if (array_key_exists('noword', $position_data)) {
-                    $results = self::processDefinition($position_data['noword'], null);
+                    $results = static::processDefinition($position_data['noword'], null);
                 }
             }
 
@@ -300,9 +301,9 @@ class AutoComplete
     public static function processScriptArguments(?array $definitions): void
     {
         if ($definitions) {
-            self::processArguments(array_merge($definitions, self::$system_arguments));
+            static::processArguments(array_merge($definitions, static::$system_arguments));
         } else {
-            self::processArguments(self::$system_arguments);
+            static::processArguments(static::$system_arguments);
         }
     }
 
@@ -316,15 +317,15 @@ class AutoComplete
      */
     public static function hasSupport(string $script): bool
     {
-        self::$script = $script;
+        static::$script = $script;
 
         // Update the location to the first argument (argument 0) after the script
-        $script = Strings::from(self::$script, PATH_ROOT . 'scripts/');
+        $script = Strings::from(static::$script, PATH_ROOT . 'scripts/');
         $script = explode('/', $script);
 
-        self::$position = self::$position - count($script);
+        static::$position = static::$position - count($script);
 
-        return !empty(File::new(self::$script, PATH_ROOT . 'scripts/')->grep(['Documentation::autoComplete('], 100));
+        return !empty(File::new(static::$script, PATH_ROOT . 'scripts/')->grep(['Documentation::autoComplete('], 100));
     }
 
 
@@ -335,7 +336,7 @@ class AutoComplete
      */
     public static function ensureAvailable(): void
     {
-        $file = Filesystem::absolute('~/.bash_completion');
+        $file = Filesystem::absolute('~/.bash_completion', must_exist: false);
 
         if (file_exists($file)) {
             // Check if it contains the setup for Phoundation
@@ -364,6 +365,7 @@ COMPREPLY+=($(compgen -W "$PHO"));
 complete -F _phoundation pho');
 
         Log::information('Setup auto complete for Phoundation in ~/.bash_completion');
+        Log::information('You may need to logout and login again for auto complete to work correctly');
     }
 
 
@@ -375,9 +377,9 @@ complete -F _phoundation pho');
      */
     #[NoReturn] public static function processArguments(array $argument_definitions) {
         // Get the word where we're <TAB>bing on
-        if (self::$position) {
-            $previous_word = isset_get(ArgvValidator::getArguments()[self::$position - 1]);
-            $word          = isset_get(ArgvValidator::getArguments()[self::$position]);
+        if (static::$position) {
+            $previous_word = isset_get(ArgvValidator::getArguments()[static::$position - 1]);
+            $word          = isset_get(ArgvValidator::getArguments()[static::$position]);
             $word          = strtolower(trim((string) $word));
 
             // Check if the previous key was a modifier argument that requires a value
@@ -402,11 +404,11 @@ complete -F _phoundation pho');
             } else {
                 if ($word) {
                     if (array_key_exists('word', $requires_value)) {
-                        $results = self::processDefinition($requires_value['word'], $word);
+                        $results = static::processDefinition($requires_value['word'], $word);
                     }
                 } else {
                     if (array_key_exists('noword', $requires_value)) {
-                        $results = self::processDefinition($requires_value['noword'], null);
+                        $results = static::processDefinition($requires_value['noword'], null);
                     }
                 }
             }
@@ -481,7 +483,7 @@ complete -F _phoundation pho');
         }
 
         throw new AutoCompleteException(tr('Failed to process auto complete definition ":definition" for script ":script"', [
-            ':script'     => self::$script,
+            ':script'     => static::$script,
             ':definition' => $definition
         ]));
     }

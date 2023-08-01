@@ -4,13 +4,17 @@ declare(strict_types=1);
 
 namespace Phoundation\Servers;
 
+use PDOStatement;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Sql\QueryBuilder;
-use Phoundation\Web\Http\Html\Components\Input\Select;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
+use Phoundation\Web\Http\Html\Components\Input\InputSelect;
 use Phoundation\Web\Http\Html\Components\Table;
+
 
 /**
  * Servers class
@@ -20,27 +24,54 @@ use Phoundation\Web\Http\Html\Components\Table;
  * @see \Phoundation\Data\DataEntry\DataList
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Business
  */
 class Servers extends DataList
 {
     /**
      * Servers class constructor
-     *
-     * @param DataEntry|null $parent
-     * @param string|null $id_column
      */
-    public function __construct(?DataEntry $parent = null, ?string $id_column = null)
+    public function __construct()
     {
-        $this->entry_class = Server::class;
-        self::$table       = Server::getTable();
-
-        $this->setHtmlQuery('SELECT   `id`, `name`, `code`, `email`, `status`, `created_on` 
+        $this->setQuery('SELECT   `id`, `name`, `code`, `email`, `status`, `created_on` 
                                    FROM     `servers` 
                                    WHERE    `status` IS NULL 
                                    ORDER BY `name`');
-        parent::__construct($parent, $id_column);
+        parent::__construct();
+    }
+
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'servers';
+    }
+
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getEntryClass(): string
+    {
+        return Server::class;
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return 'seo_name';
     }
 
 
@@ -58,21 +89,21 @@ class Servers extends DataList
     }
 
 
+
+
     /**
-     * Returns an HTML <select> object with all available servers
+     * Returns an HTML <select> for the available object entries
      *
-     * @param string $name
-     * @return Select
+     * @param string $value_column
+     * @param string $key_column
+     * @param string|null $order
+     * @return SelectInterface
      */
-    public static function getHtmlSelect(string $name = 'servers_id'): Select
+    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id', ?string $order = null): SelectInterface
     {
-        return Select::new()
-            ->setSourceQuery('SELECT    `id`, `name` 
-                                          FROM     `servers`
-                                          WHERE    `status` IS NULL 
-                                          ORDER BY `name`')
-            ->setName($name)
-            ->setNone(tr('Please select a server'))
+        return parent::getHtmlSelect($value_column, $key_column, $order)
+            ->setName('servers_id')
+            ->setNone(tr('Select a server'))
             ->setEmpty(tr('No servers available'));
     }
 
@@ -80,25 +111,16 @@ class Servers extends DataList
     /**
      * @inheritDoc
      */
-    protected function load(string|int|null $id_column = null): static
+    public function load(?string $id_column = null): static
     {
-        $this->list = sql()->list('SELECT `servers`.`id`, `servers`.`hostname`, `servers`.`created_on`, `servers`.`status` 
+        $this->source = sql()->list('SELECT `servers`.`id`, `servers`.`hostname`, `servers`.`created_on`, `servers`.`status` 
                                    FROM     `servers` 
                                    WHERE    `servers`.`status` IS NULL
                                    ORDER BY `servers`.`hostname`' . sql()->getLimit());
 
         // The keys contain the ids...
-        $this->list = array_flip($this->list);
+        $this->source = array_flip($this->source);
         return $this;
-    }
-
-
-    /**
-     * @inheritDoc
-     */
-    public function save(): static
-    {
-        // TODO: Implement save() method.
     }
 
 
@@ -109,7 +131,7 @@ class Servers extends DataList
      * @param array $filters
      * @return array
      */
-    protected function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
+    public function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
     {
         // Default columns
         if (!$columns) {
@@ -127,12 +149,12 @@ class Servers extends DataList
 
         // Build query
         $builder = new QueryBuilder();
-        $builder->addSelect('SELECT ' . $columns);
-        $builder->addFrom('FROM `servers`');
+        $builder->addSelect($columns);
+        $builder->addFrom('`servers`');
 
         // Add ordering
         foreach ($order_by as $column => $direction) {
-            $builder->addOrderBy('ORDER BY `' . $column . '` ' . ($direction ? 'DESC' : 'ASC'));
+            $builder->addOrderBy('`' . $column . '` ' . ($direction ? 'DESC' : 'ASC'));
         }
 
         // Build filters

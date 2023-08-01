@@ -8,6 +8,7 @@ use Phoundation\Accounts\Rights\Right;
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Core\Locale\Language\Import;
 
+
 /**
  * Updates class
  *
@@ -16,7 +17,7 @@ use Phoundation\Core\Locale\Language\Import;
  * @see \Phoundation\Core\Libraries\Updates
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
 class Updates extends Libraries\Updates
@@ -196,8 +197,8 @@ class Updates extends Libraries\Updates
                     `meta_id` bigint NOT NULL,
                     `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
-                    `name` varchar(64) DEFAULT NULL,
-                    `seo_name` varchar(64) DEFAULT NULL,
+                    `name` varchar(128) DEFAULT NULL,
+                    `seo_name` varchar(128) DEFAULT NULL,
                     `code_639_1` varchar(2) DEFAULT NULL,
                     `code_639_2_t` varchar(3) DEFAULT NULL,
                     `code_639_2_b` varchar(3) DEFAULT NULL,
@@ -236,8 +237,8 @@ class Updates extends Libraries\Updates
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `enabled` tinyint NOT NULL,
                     `priority` int NOT NULL,
-                    `name` varchar(64) CHARACTER SET latin1 DEFAULT NULL,
-                    `seo_name` varchar(64) CHARACTER SET latin1 DEFAULT NULL,
+                    `name` varchar(128) CHARACTER SET latin1 DEFAULT NULL,
+                    `seo_name` varchar(128) CHARACTER SET latin1 DEFAULT NULL,
                     `path` varchar(128) NOT NULL,
                     `class` varchar(255) NOT NULL,
                     `description` text NULL,
@@ -251,6 +252,7 @@ class Updates extends Libraries\Updates
                     UNIQUE KEY `name` (`name`),
                     UNIQUE KEY `seo_name` (`seo_name`),
                     INDEX `enabled` (`enabled`),
+                    INDEX `enabled-status` (`enabled`, `status`),                    
                     INDEX `priority` (`priority`),
                 ')->setForeignKeys('
                     CONSTRAINT `fk_core_plugins_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
@@ -266,8 +268,8 @@ class Updates extends Libraries\Updates
                     `meta_id` bigint NOT NULL,
                     `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
-                    `name` varchar(64) DEFAULT NULL,
-                    `seo_name` varchar(64) DEFAULT NULL,
+                    `name` varchar(128) DEFAULT NULL,
+                    `seo_name` varchar(128) DEFAULT NULL,
                     `file` varchar(64) NOT NULL,
                     `class` varchar(32) DEFAULT NULL,
                     `description` text DEFAULT NULL,
@@ -300,32 +302,33 @@ class Updates extends Libraries\Updates
 
             // Add default rights
             foreach ($rights as $right) {
-                if (!Right::exists($right)) {
+                if (!Right::exists($right, 'name')) {
                     Right::new()
                         ->setName($right)
                         ->save();
                 }
-
             }
 
             // Add default roles and assign the default rights to them
             foreach ($rights as $role) {
-                if (!Role::exists($role)) {
+                if (!Role::exists($role, 'name')) {
                     Role::new()
                         ->setName($role)
-                        ->save();
+                        ->save()
+                        ->getRights()
+                            ->addRight($role);
                 }
-
-                Role::get($role)->rights()->add($role);
             }
 
             // Various rights go together...
-            Role::get('audit')->rights()->add('admin');
+            Role::get('audit')->getRights()->addRight('admin');
 
-            Role::get('security')->rights()->add('admin');
+            Role::get('security')->getRights()->addRight('admin');
 
-            Role::get('impersonate')->rights()->add('admin');
-            Role::get('impersonate')->rights()->add('accounts');
+            Role::get('impersonate')
+                ->getRights()
+                    ->addRight('admin')
+                    ->addRight('accounts');
         });
     }
 }

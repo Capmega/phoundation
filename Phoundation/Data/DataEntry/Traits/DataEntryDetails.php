@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Utils\Json;
+
 
 /**
  * Trait DataEntryDetails
@@ -13,7 +15,7 @@ use Phoundation\Utils\Json;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 trait DataEntryDetails
@@ -21,9 +23,9 @@ trait DataEntryDetails
     /**
      * Returns the details for this object
      *
-     * @return array|null
+     * @return array|string|null
      */
-    public function getDetails(): ?array
+    public function getDetails(): array|string|null
     {
         return Json::decode($this->getDataValue('string', 'details'));
     }
@@ -37,10 +39,6 @@ trait DataEntryDetails
      */
     public function setDetails(array|string|null $details): static
     {
-        if (is_array($details)) {
-            $details = Json::encode($details);
-        }
-
-        return $this->setDataValue('details', $details);
+        return $this->setDataValue('details', Json::encode($details));
     }
 }

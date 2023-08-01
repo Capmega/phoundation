@@ -13,9 +13,13 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Path;
-use Phoundation\Network\Exception\NetworkException;
+use Phoundation\Network\Curl\Exception\Curl404Exception;
+use Phoundation\Network\Curl\Exception\CurlGetException;
+use Phoundation\Network\Curl\Exception\CurlNon200Exception;
 use Phoundation\Network\Interfaces;
 use Phoundation\Utils\Json;
+use Stringable;
+use Throwable;
 
 
 /**
@@ -25,7 +29,7 @@ use Phoundation\Utils\Json;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Network
  */
 class Get extends Curl
@@ -33,9 +37,9 @@ class Get extends Curl
     /**
      * Get class constructor
      *
-     * @param string|null $url
+     * @param Stringable|string|null $url
      */
-    public function __construct(?string $url = null)
+    public function __construct(Stringable|string|null $url = null)
     {
         $this->method          = 'GET';
         $this->follow_location = true;
@@ -45,20 +49,20 @@ class Get extends Curl
 
 
     /**
-     * Executes the GET request
+     * Executes the request
      *
      * @return static
      */
     public function execute(): static
     {
         // Use local cache?
-        if ($this->cache) {
+        if ($this->cache_timeout) {
             $return = sql()->getColumn('SELECT `data` 
                                               FROM   `network_curl_cache` 
                                               WHERE  `url` = :url 
                                               AND    `created_on` + :cache < NOW()', [
                 ':url'   => $this->url,
-                ':cache' => $this->cache
+                ':cache' => $this->cache_timeout
             ]);
 
             if ($return) {
@@ -74,61 +78,34 @@ class Get extends Curl
         try {
             $data = curl_exec($this->curl);
 
-            if (curl_errno($this->curl)) {
-                // Oops... cURL request failed!
-                throw NetworkException::new(tr('The cURL request ":url" failed with error ":errno" ":error"', [
-                    ':url'   => $this->url,
-                    ':errno' => curl_errno($this->curl),
-                    ':error' => curl_error($this->curl),
-                ]))
-                    ->setData(curl_getinfo($this->curl))
-                    ->setCode('CURL' . curl_errno($this->curl));
-            }
-
             // Split data from headers
             $this->result_data    = Strings::from($data, "\r\n\r\n");
             $data                 = Strings::until($data, "\r\n\r\n");
             $this->result_headers = explode(PHP_EOL, $data);
+            $this->result_status  = curl_getinfo($this->curl);
 
             if (curl_errno($this->curl)) {
-                throw new NetworkException(tr('CURL failed with ":e"', [
-                    ':e' => curl_strerror(curl_errno($this->curl))
-                ]));
+                // Oops... cURL request failed!
+                throw CurlGetException::new(tr('The cURL request ":url" failed with error ":errno" ":error"', [
+                    ':url'   => $this->url,
+                    ':errno' => curl_errno($this->curl),
+                    ':error' => curl_error($this->curl),
+                ]))
+                    ->setData([
+                        'headers' => $this->result_headers,
+                        'data'    => $this->result_data,
+                        'info'    => $this->result_status
+                    ])
+                    ->setCode('CURL' . curl_errno($this->curl));
             }
 
-        }catch(Exception $e) {
-            if (++$this->retry <= $this->retries) {
-                switch ($e->getCode()) {
-                    case 'CURL0':
-                        // no break;
+            $this->checkForHttpException();
 
-                    case 'CURL28':
-                        // For whatever reason, connection gave HTTP code 0 which probably means that the server died
-                        // off during connection. This again may mean that the server overloaded. Wait for a few
-                        // seconds, and try again for a limited number of times
-                        Log::warning(tr('Got HTTP0 for url ":url" at attempt ":retry" with ":connect_timeout" seconds connect timeout', [
-                            ':url'             => $this->url,
-                            ':retry'           => $this->retry,
-                            ':connect_timeout' => $this->connect_timeout
-                        ]));
+        } catch(Exception $e) {
+            $this->checkForHttpException();
+            $this->checkForCurlException($e);
 
-                        usleep($this->sleep);
-                        return $this->execute();
-
-                    case 'CURL92':
-                        // This server apparently doesn't support anything beyond HTTP1.1
-                        Log::warning(tr('Got HTTP92 for url ":url" at attempt ":retry", forcing protocol HTTP 1.1 to fix', [
-                            ':url'             => $this->url,
-                            ':retry'           => $this->retry,
-                            ':connect_timeout' => $this->connect_timeout
-                        ]));
-
-                        $this->http_version = CURL_HTTP_VERSION_1_1;
-                        return $this->execute();
-                }
-            }
-
-            throw new NetworkException(tr('Failed to make ":method" request for url ":url"', [
+            throw new CurlGetException(tr('Failed to make ":method" request for url ":url"', [
                 ':url'    => $this->url,
                 ':method' => $this->method
             ]), $e);
@@ -145,8 +122,6 @@ class Get extends Curl
                 Log::notice(Color::apply($key.' : ', 'white') . Strings::force($value));
             }
         }
-
-        $this->result_status = curl_getinfo($this->curl);
 
         if ($this->get_cookies) {
             // get cookies
@@ -170,47 +145,20 @@ class Get extends Curl
             curl_close($this->curl);
         }
 
-        if ($this->cache) {
+        if ($this->cache_timeout) {
             // Store the request results in cache
             unset($this->curl);
 
-            sql()->delete('network_curl_cache', [
+            sql()->dataEntrydelete('network_curl_cache', [
                 'url' => $this->url
             ]);
 
-            sql()->insert('network_curl_cache', [
+            sql()->dataEntryInsert('network_curl_cache', [
                 'created_by' => Session::getUser()->getId(),
                 'url'        => $this->url,
                 'data'       => Json::encode($this->result_data),
                 'headers'    => Json::encode($this->result_headers)
             ]);
-        }
-
-        switch ($this->result_status['http_code']) {
-            case 200:
-                break;
-
-            case 403:
-                $data = Json::decode($this->result_data);
-
-                throw new NetworkException(tr('URL ":url" gave HTTP "403" ACCESS DENIED because ":data"', [
-                    ':url' => $this->url,
-                    ':data' => $data
-                ]));
-
-            case 404:
-                $data = Json::decode($this->result_data);
-
-                throw new NetworkException(tr('URL ":url" gave HTTP "404" NOT FOUND because ":data"', [
-                    ':url' => $this->url,
-                    ':data' => $data
-                ]));
-
-            default:
-                throw new NetworkException(tr('URL ":url" gave HTTP ":httpcode"', [
-                    ':url'      => $this->url,
-                    ':httpcode' => $this->result_status['http_code']
-                ]));
         }
 
         if ($this->save_to_file) {
@@ -233,88 +181,81 @@ class Get extends Curl
             throw new OutOfBoundsException('No URL or existing cURL connection specified');
         }
 
-        if (isset($this->curl)) {
-            // Update only the URL
-            curl_setopt($this->curl, CURLOPT_URL, $this->url);
-        } else {
-            // Setup new cURL request
-            $this->curl = curl_init();
+        // Prepare headers
+        if (!$this->request_headers) {
+            // Send default headers. Check if we're sending files. If so, use multipart
+            if (empty($multipart)) {
+                $this->addRequestHeaders([
+                    'Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5',
+                    'Cache-Control: max-age=0',
+                    'Connection: keep-alive',
+                    'Keep-Alive: 300',
+                    'Expect:',
+                    'Accept-Charset: utf-8,ISO-8859-1;q=0.7,*;q=0.7',
+                    'Accept-Language: en-us,en;q=0.5'
+                ]);
 
-            // Prepare headers
-            if ($this->result_headers === null) {
-                // Send default headers. Check if we're sending files. If so, use multipart
-                if (empty($multipart)) {
-                    $this->result_headers = [
-                        'Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5',
-                        'Cache-Control: max-age=0',
-                        'Connection: keep-alive',
-                        'Keep-Alive: 300',
-                        'Expect:',
-                        'Accept-Charset: utf-8,ISO-8859-1;q=0.7,*;q=0.7',
-                        'Accept-Language: en-us,en;q=0.5'
-                    ];
+            } else {
+                $this->result_headers = [
+                    'Content-Type: multipart/form-data',
+                    'boundary={-0-0-0-0-0-(00000000000000000000)-0-0-0-0-0-}',
+                    'Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5',
+                    'Cache-Control: max-age=0',
+                    'Connection: keep-alive',
+                    'Keep-Alive: 300',
+                    'Expect:',
+                    'Accept-Charset: utf-8,ISO-8859-1;q=0.7,*;q=0.7',
+                    'Accept-Language: en-us,en;q=0.5'
+                ];
+            }
+        }
 
-                } else {
-                    $this->result_headers = [
-                        'Content-Type: multipart/form-data',
-                        'boundary={-0-0-0-0-0-(00000000000000000000)-0-0-0-0-0-}',
-                        'Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5',
-                        'Cache-Control: max-age=0',
-                        'Connection: keep-alive',
-                        'Keep-Alive: 300',
-                        'Expect:',
-                        'Accept-Charset: utf-8,ISO-8859-1;q=0.7,*;q=0.7',
-                        'Accept-Language: en-us,en;q=0.5'
-                    ];
-                }
+        // Set general options
+        curl_setopt($this->curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($this->curl, CURLOPT_URL           , $this->url);
+        curl_setopt($this->curl, CURLOPT_REFERER       , $this->referer);
+        curl_setopt($this->curl, CURLOPT_USERAGENT     , $this->getUserAgent());
+        curl_setopt($this->curl, CURLOPT_INTERFACE     , Interfaces::getRandomInterfaceIp());
+        curl_setopt($this->curl, CURLOPT_TIMEOUT       , $this->timeout);
+        curl_setopt($this->curl, CURLOPT_CONNECTTIMEOUT, $this->connect_timeout);
+        curl_setopt($this->curl, CURLOPT_SSL_VERIFYHOST, ($this->verify_ssl ? 2 : 0));
+        curl_setopt($this->curl, CURLOPT_SSL_VERIFYPEER, $this->verify_ssl);
+        curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST , $this->method);
+        curl_setopt($this->curl, CURLOPT_VERBOSE       , $this->verbose);
+        curl_setopt($this->curl, CURLOPT_HEADER        , true);
+        curl_setopt($this->curl, CURLOPT_FOLLOWLOCATION, ($this->follow_location));
+        curl_setopt($this->curl, CURLOPT_MAXREDIRS     , ($this->follow_location ? 50 : null));
+        curl_setopt($this->curl, CURLOPT_POST          , false);
+        //curl_setopt($this->curl, CURLOPT_HTTPHEADER    , true);
+
+        // Log cURL request?
+        if ($this->log_path) {
+            curl_setopt($this->curl, CURLOPT_STDERR, File::new($this->log_path . getmypid(), $this->log_restrictions)->open('a'));
+
+            Log::action(tr('Preparing ":method" cURL request to ":url"', [
+                ':method' => $this->method,
+                ':url'    => $this->url,
+            ]));
+        }
+
+        if ($this->user_password) {
+            curl_setopt($this->curl, CURLOPT_USERPWD, $this->user_password);
+        }
+
+        // Use cookies?
+        if (isset_get($this->cookies)) {
+            if (!isset_get($this->cookie_file)) {
+                $this->cookie_file = Filesystem::createTempFile()->getFile();
             }
 
-            // Set general options
-            curl_setopt($this->curl, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($this->curl, CURLOPT_URL           , $this->url);
-            curl_setopt($this->curl, CURLOPT_REFERER       , $this->referer);
-            curl_setopt($this->curl, CURLOPT_USERAGENT     , $this->getUserAgent());
-            curl_setopt($this->curl, CURLOPT_INTERFACE     , Interfaces::getRandomInterfaceIp());
-            curl_setopt($this->curl, CURLOPT_TIMEOUT       , $this->timeout);
-            curl_setopt($this->curl, CURLOPT_CONNECTTIMEOUT, $this->connect_timeout);
-            curl_setopt($this->curl, CURLOPT_SSL_VERIFYHOST, ($this->verify_ssl ? 2 : 0));
-            curl_setopt($this->curl, CURLOPT_SSL_VERIFYPEER, ($this->verify_ssl ? 1 : 0));
-            curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST , $this->method);
-            curl_setopt($this->curl, CURLOPT_VERBOSE       , $this->verbose);
-            curl_setopt($this->curl, CURLOPT_HEADER        , true);
-            curl_setopt($this->curl, CURLOPT_FOLLOWLOCATION, ($this->follow_location ? 1 : 0));
-            curl_setopt($this->curl, CURLOPT_MAXREDIRS     , ($this->follow_location ? 50 : null));
-            curl_setopt($this->curl, CURLOPT_POST          , false);
-            //curl_setopt($this->curl, CURLOPT_HTTPHEADER    , true);
+            // Make sure the specified cookie path exists
+            Path::new(dirname($this->cookie_file))->ensure();
 
-            // Log cURL request?
-            if ($this->log_path) {
-                curl_setopt($this->curl, CURLOPT_STDERR, File::new($this->log_path . getmypid(), $this->log_restrictions)->open('a'));
-
-                Log::action(tr('Preparing ":method" cURL request to ":url"', [
-                    ':method' => $this->method,
-                    ':url'    => $this->url,
-                ]));
-            }
-
-            if ($this->user_password) {
-                curl_setopt($this->curl, CURLOPT_USERPWD, $this->user_password);
-            }
-
-            // Use cookies?
-            if (isset_get($this->cookies)) {
-                if (!isset_get($this->cookie_file)) {
-                    $this->cookie_file = Filesystem::createTempFile()->getFile();
-                }
-
-                // Make sure the specified cookie path exists
-                Path::new(dirname($this->cookie_file))->ensure();
-
-                // Set cookie options
-                curl_setopt($this->curl, CURLOPT_COOKIEJAR    , $this->cookie_file);
-                curl_setopt($this->curl, CURLOPT_COOKIEFILE   , $this->cookie_file);
-                curl_setopt($this->curl, CURLOPT_COOKIESESSION, true);
-            }
+            // Set cookie options
+            curl_setopt($this->curl, CURLOPT_COOKIEJAR    , $this->cookie_file);
+            curl_setopt($this->curl, CURLOPT_COOKIEFILE   , $this->cookie_file);
+            curl_setopt($this->curl, CURLOPT_COOKIESESSION, true);
+        }
 
 //            if ($params['utf8']) {
 //                /*
@@ -326,17 +267,117 @@ class Get extends Curl
 //                $this->result_headers[] = 'Content-Type: text/html; charset='.strtolower($_CONFIG['encoding']['charset']).';';
 //            }
 
-            // Disable DNS cache?
-            if (!$this->dns_cache) {
-                curl_setopt($this->curl, CURLOPT_DNS_CACHE_TIMEOUT, 0);
-            }
+        // Disable DNS cache?
+        if (!$this->dns_cache) {
+            curl_setopt($this->curl, CURLOPT_DNS_CACHE_TIMEOUT, 0);
+        }
 
-            // Apply other cURL options
-            if ($this->options) {
-                foreach ($this->options as $key => $value) {
-                    curl_setopt($this->curl, $key, $value);
-                }
+        // Apply other cURL options
+        if ($this->options) {
+            foreach ($this->options as $key => $value) {
+                curl_setopt($this->curl, $key, $value);
             }
+        }
+    }
+
+
+    /**
+     * Throws an exception for a variety of cURL error codes
+     *
+     * @param Throwable $e
+     * @return static
+     */
+    protected function checkForCurlException(Throwable $e): static
+    {
+        if (++$this->retry <= $this->retries) {
+            switch ($e->getCode()) {
+                case 'CURL0':
+                    // no break;
+
+                case 'CURL28':
+                    // For whatever reason, connection gave HTTP code 0 which probably means that the server died
+                    // off during connection. This again may mean that the server overloaded. Wait for a few
+                    // seconds, and try again for a limited number of times
+                    Log::warning(tr('Got HTTP0 for url ":url" at attempt ":retry" with ":connect_timeout" seconds connect timeout', [
+                        ':url'             => $this->url,
+                        ':retry'           => $this->retry,
+                        ':connect_timeout' => $this->connect_timeout
+                    ]));
+
+                    usleep($this->sleep);
+                    return $this->execute();
+
+                case 'CURL92':
+                    // This server apparently doesn't support anything beyond HTTP1.1
+                    Log::warning(tr('Got HTTP92 for url ":url" at attempt ":retry", forcing protocol HTTP 1.1 to fix', [
+                        ':url'             => $this->url,
+                        ':retry'           => $this->retry,
+                        ':connect_timeout' => $this->connect_timeout
+                    ]));
+
+                    $this->http_version = CURL_HTTP_VERSION_1_1;
+                    return $this->execute();
+            }
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Throws an exception for a variety of non 200 HTTP codes
+     *
+     * @return static
+     */
+    protected function checkForHttpException(): static
+    {
+        switch ($this->getHttpCode()) {
+            case 200:
+                // No break;
+            case 304:
+                // All is fine!
+                return $this;
+
+            case 400:
+                throw new Curl404Exception(tr('Curl got "400 - Bad Request" for URL ":url"', [
+                    ':url' => $this->url
+                ]));
+
+            case 401:
+                throw new Curl404Exception(tr('Curl got "401 - Unauthorized" for URL ":url"', [
+                    ':url' => $this->url
+                ]));
+
+            case 403:
+                throw new Curl404Exception(tr('Curl got "403 - Forbidden" for URL ":url"', [
+                    ':url' => $this->url
+                ]));
+
+            case 404:
+                throw new Curl404Exception(tr('Curl got "404 - Not Found" for URL ":url"', [
+                    ':url' => $this->url
+                ]));
+
+            case 410:
+                throw new Curl404Exception(tr('Curl got "410 - Gone" for URL ":url"', [
+                    ':url' => $this->url
+                ]));
+
+            case 500:
+                throw new Curl404Exception(tr('Curl got "500 - Internal Server Errror" for URL ":url"', [
+                    ':url' => $this->url
+                ]));
+
+            case 503:
+                throw new Curl404Exception(tr('Curl got "503 - Service Unavailable" for URL ":url"', [
+                    ':url' => $this->url
+                ]));
+
+            default:
+                throw new CurlNon200Exception(tr('Curl got "HTTP :http" for URL ":url"', [
+                    ':http' => $this->getHttpCode(),
+                    ':url'  => $this->url
+                ]));
         }
     }
 }

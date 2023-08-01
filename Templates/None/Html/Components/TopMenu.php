@@ -9,6 +9,7 @@ use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Html\Renderer;
 use Phoundation\Web\Http\UrlBuilder;
 
+
 /**
  * None Plugin TopMenu class
  *
@@ -16,7 +17,7 @@ use Phoundation\Web\Http\UrlBuilder;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\None
  */
 class TopMenu extends Renderer
@@ -45,8 +46,8 @@ class TopMenu extends Renderer
                             <a href="' . Html::safe(UrlBuilder::getCurrent()) . '" class="nav-link">' . tr('Home') . '</a>
                         </li>';
 
-        if ($this->element->getSource()) {
-            foreach ($this->element->getSource() as $label => $entry) {
+        if ($this->render_object->getSource()) {
+            foreach ($this->render_object->getSource() as $label => $entry) {
                 if (is_string($entry))  {
                     $entry = ['url' => $entry];
                 }

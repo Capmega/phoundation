@@ -14,6 +14,9 @@ use Phoundation\Cache\Cache;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
+use Phoundation\Core\Enums\EnumRequestTypes;
+use Phoundation\Core\Locale\Language\Interfaces\LanguageInterface;
+use Phoundation\Core\Locale\Language\Language;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
@@ -32,12 +35,14 @@ use Phoundation\Security\Incidents\Exception\IncidentsException;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Security\Incidents\Severity;
 use Phoundation\Utils\Json;
+use Phoundation\Web\Exception\PageException;
 use Phoundation\Web\Exception\WebException;
 use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\Exception\HttpException;
 use Phoundation\Web\Http\Flash;
 use Phoundation\Web\Http\Html\Components\BreadCrumbs;
 use Phoundation\Web\Http\Html\Components\FlashMessages\FlashMessages;
+use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Html\Menus\Menus;
 use Phoundation\Web\Http\Html\Template\Template;
 use Phoundation\Web\Http\Html\Template\TemplatePage;
@@ -45,6 +50,7 @@ use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Routing\Route;
 use Phoundation\Web\Routing\RoutingParameters;
+use Stringable;
 use Throwable;
 
 
@@ -55,7 +61,7 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
 class Page
@@ -278,6 +284,16 @@ class Page
      */
     protected static Menus $menus;
 
+    /**
+     * @var string $language_code
+     */
+    protected static string $language_code;
+
+    /**
+     * @var LanguageInterface $language
+     */
+    protected static LanguageInterface $language;
+
 
     /**
      * Page class constructor
@@ -298,11 +314,11 @@ class Page
      */
     public static function getInstance(): static
     {
-        if (!isset(self::$instance)) {
-            self::$instance = new static();
+        if (!isset(static::$instance)) {
+            static::$instance = new static();
         }
 
-        return self::$instance;
+        return static::$instance;
     }
 
 
@@ -364,6 +380,10 @@ class Page
      */
     public static function getRoutingParameters(): RoutingParameters
     {
+        if (PLATFORM_CLI) {
+            throw new PageException(tr('Cannot return routing parameters, this requires the HTTP platform'));
+        }
+
         return static::$parameters;
     }
 
@@ -393,6 +413,72 @@ class Page
             static::$template      = $parameters->getTemplateObject();
             static::$template_page = static::$template->getPage();
         }
+    }
+
+
+    /**
+     * Returns the language used for this page
+     *
+     * @return LanguageInterface
+     */
+    public static function getLanguage(): LanguageInterface
+    {
+        if (empty(static::$language_code)) {
+            static::$language = Language::get(static::getLanguageCode());
+        }
+
+        return static::$language;
+    }
+
+
+    /**
+     * Returns the language used for this page in ISO 639-2-b format
+     *
+     * @return string
+     */
+    public static function getLanguageCode(): string
+    {
+        if (empty(static::$language)) {
+            if (PLATFORM_HTTP) {
+                // Get requested language from client
+                static::$language_code = static::detectRequestedLanguage();
+
+            } else {
+                // Get requested language from core
+                static::$language_code = Core::readRegister('system', 'language');
+            }
+        }
+
+        return static::$language_code;
+    }
+
+
+    /**
+     * Returns the port used for this request. When on command line, assume the default from configuration
+     *
+     * @return int
+     */
+    public static function getPort(): int
+    {
+        if (PLATFORM_HTTP) {
+            return (int) $_SERVER['SERVER_PORT'];
+        }
+
+        // We're on command line
+        $config = Config::getArray('web.domains.primary');
+
+        if (array_key_exists('port', $config)) {
+            // Return configured WWW port
+            return Config::getInteger('web.domains.primary.port');
+        }
+
+        if (substr($config['www'], 4, 1) === 's') {
+            // Return default HTTPS port
+            return 443;
+        }
+
+        // Return default HTTP port
+        return 80;
     }
 
 
@@ -525,11 +611,7 @@ class Page
      */
     public static function getDomain(): string
     {
-        if (PLATFORM_HTTP) {
-            return $_SERVER['HTTP_HOST'];
-        }
-
-        return Domains::getPrimary();
+        return Domains::getCurrent();
     }
 
 
@@ -541,10 +623,10 @@ class Page
     public static function getProtocol(): string
     {
         if (PLATFORM_HTTP) {
-            return $_SERVER['SERVER_PROTOCOL'];
+            return $_SERVER['REQUEST_SCHEME'];
         }
 
-        return Domains::getPrimary();
+        return Strings::until(Config::getString('web.domains.primary.www'), '://');
     }
 
 
@@ -556,11 +638,7 @@ class Page
      */
     public static function getUrl(bool $no_queries = false): string
     {
-        if (PLATFORM_HTTP) {
-            return $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . static::getUri($no_queries);
-        }
-
-        return static::$parameters->getRootUrl();
+        return $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . static::getUri($no_queries);
     }
 
 
@@ -573,22 +651,19 @@ class Page
      */
     public static function getUri(bool $no_queries = false): string
     {
-        if (PLATFORM_HTTP) {
-            return ($no_queries ? Strings::until($_SERVER['REQUEST_URI'], '?') : $_SERVER['REQUEST_URI']);
-        }
-
-        return static::$parameters->getUri();
+        return ($no_queries ? Strings::until($_SERVER['REQUEST_URI'], '?') : $_SERVER['REQUEST_URI']);
     }
 
 
     /**
      * Return the complete request URL for this page (WITH domain)
      *
+     * @param string $type
      * @return string
      */
-    public static function getRootUrl(): string
+    public static function getRootUrl(string $type = 'www'): string
     {
-        return static::$parameters->getRootUrl();
+        return static::$parameters->getRootUrl($type);
     }
 
 
@@ -668,14 +743,14 @@ class Page
 
 
     /**
-     * Will throw an AccessDeniedException if the current session user does not have ALL of the specified rights
+     * Will throw an AccessDeniedException if the current session user does not have ALL the specified rights
      *
-     * @param array|string $rights
+     * @param array|Stringable|string $rights
      * @param string|int|null $missing_rights_target
      * @param string|int|null $guest_target
      * @return void
      */
-    public static function requiresAllRights(array|string $rights, string|int|null $missing_rights_target = 403, string|int|null $guest_target = 401): void
+    public static function requiresAllRights(array|Stringable|string $rights, string|int|null $missing_rights_target = 403, string|int|null $guest_target = 401): void
     {
         static::requiresNotGuest();
 
@@ -981,7 +1056,7 @@ class Page
      * @param array|string $rights
      * @param string $target
      * @param string|null $rights_redirect
-     * @param string|null $guest_redirect
+ * @param string|null $guest_redirect
      * @return void
      */
     public static function hasRightsOrRedirects(array|string $rights, string $target, ?string $rights_redirect = null, ?string $guest_redirect = null): void
@@ -992,7 +1067,7 @@ class Page
 
         if (!$target) {
             // If target wasn't specified we can safely assume it's the same as the real target.
-            $target = self::$target;
+            $target = static::$target;
         }
 
         // Oops! Is this a system page though? System pages require no rights to be viewed.
@@ -1000,7 +1075,7 @@ class Page
         $system = basename($system);
 
         if ($system === 'system') {
-            // Hurrah, its a bo.. system page!
+            // Hurrah, its a bo.. system page! System pages require no rights, everyone can see a 404, 500, etc...
             return;
         }
 
@@ -1009,6 +1084,9 @@ class Page
             if (!$guest_redirect) {
                 $guest_redirect = '/sign-in.html';
             }
+
+            $guest_redirect = (string) UrlBuilder::getWww($guest_redirect)
+                                    ->addQueries('redirect=' . urlencode((string) UrlBuilder::getCurrent()));
 
             Incident::new()
                 ->setType('401 - unauthorized')->setSeverity(Severity::low)
@@ -1104,17 +1182,20 @@ class Page
     #[NoReturn] public static function execute(string $target, bool $attachment = false): never
     {
         try {
-            // Startup the page and see if we can use cache
-            self::startup($target);
-            self::tryCache($target, $attachment);
+            // Startup the page
+            // See if we have to redirect
+            // See if we can use cache.
+            static::startup($target);
+            static::checkForceRedirect();
+            static::tryCache($target, $attachment);
 
             Core::writeRegister($target, 'system', 'script_file');
             ob_start();
 
-            // Execute the specified target
+            // Execute the specified targetwww
             // Build the headers, cache output and headers together, then send the headers
             // TODO Work on the HTTP headers, lots of issues here still, like content-length!
-            $output  = self::executeTarget($target);
+            $output  = static::executeTarget($target);
             $headers = static::buildHttpHeaders($output, $attachment);
 
             if ($headers) {
@@ -1130,22 +1211,32 @@ class Page
             }
 
             // All done, send output to client
-            $output = self::filterOutput($output);
-            self::sendOutputToClient($output, $target, $attachment);
+            $output = static::filterOutput($output);
+            static::sendOutputToClient($output, $target, $attachment);
 
         } catch (ValidationFailedException $e) {
             // TODO Improve this uncaught validation failure handling
             Log::warning('Page did not catch the following "ValidationFailedException" warning, showing "system/400"');
             Log::warning($e);
 
-            static::getFlashMessages()->add($e);
-            Route::executeSystem(400);
+            switch (Core::getRequestType()) {
+                case EnumRequestTypes::ajax:
+                    // no break
+                case EnumRequestTypes::api:
+                    Page::setHttpCode(400);
+                    Json::reply($e->getData());
+
+                default:
+                    static::getFlashMessages()->addMessage($e);
+                    Route::executeSystem(400);
+            }
 
         } catch (AuthenticationException $e) {
             Log::warning('Page did not catch the following "AuthenticationException" warning, showing "system/401"');
             Log::warning($e);
 
-            static::getFlashMessages()->add($e);
+            // Todo: Remove AJAX flash messages from general flash messages! Might require tagging flash messages with request types?
+            static::getFlashMessages()->addMessage($e);
             Route::executeSystem(401);
 
         } catch (IncidentsException $e) {
@@ -1153,7 +1244,8 @@ class Page
             Log::warning('Page did not catch the following "IncidentsException" warning, showing "system/401"');
             Log::warning($e);
 
-            static::getFlashMessages()->add($e);
+            // Todo: Remove AJAX flash messages from general flash messages! Might require tagging flash messages with request types?
+            static::getFlashMessages()->addMessage($e);
             Route::executeSystem(403);
 
         } catch (DataEntryNotExistsException $e) {
@@ -1166,7 +1258,7 @@ class Page
         } catch (Exception $e) {
             Notification::new()
                 ->setTitle(tr('Failed to execute ":type" page ":page" with language ":language"', [
-                    ':type'     => Core::getRequestType(),
+                    ':type'     => Core::getRequestType()->value,
                     ':page'     => $target,
                     ':language' => LANGUAGE
                 ]))
@@ -1174,6 +1266,40 @@ class Page
                 ->send();
 
             throw $e;
+        }
+    }
+
+
+    /**
+     * Check if this user should be forcibly be redirected to a different page
+     *
+     * @return void
+     */
+    public static function checkForceRedirect(): void
+    {
+        // Does this user have a forced redirect?
+        if (!Session::getUser()->isGuest()) {
+            if (Session::getUser()->getRedirect()) {
+                // Are we at the forced redirect page? If so, we can stay
+                $redirect = Session::getUser()->getRedirect();
+                $current  = (string) UrlBuilder::getCurrent();
+
+                if (Strings::until($redirect, '?') !== Strings::until($current, '?')) {
+                    // We're at a different page, is it sign out? Because that one is allowed
+
+                    $signout = (string) UrlBuilder::getWww(Config::getString('web.pages.sign-out', '/sign-out.html'));
+
+                    if ($current !== $signout) {
+                        // No it's not, redirect!
+                        Log::warning(tr('User ":user" has a redirect to ":url", redirecting there instead', [
+                            ':user' => Session::getUser()->getLogId(),
+                            ':url'  => $redirect
+                        ]));
+
+                        Page::redirect(UrlBuilder::getWww($redirect)->addQueries('redirect=' . urlencode($current)));
+                    }
+                }
+            }
         }
     }
 
@@ -1196,11 +1322,6 @@ class Page
             throw new WebException(tr('Page::redirect() can only be called on web sessions'));
         }
 
-        // Display a system error page instead?
-        if (is_numeric($url)) {
-            Route::executeSystem((int) $url);
-        }
-
         // Build URL
         $redirect = UrlBuilder::getWww($url);
 
@@ -1208,7 +1329,7 @@ class Page
         if (UrlBuilder::isCurrent($redirect)) {
             // POST requests may redirect to the same page as the redirect will change POST to GET
             if (!Page::isPostRequestMethod()) {
-                // If the specifed redirect URL was a short code like "prev" or "referer", then it was not hard coded
+                // If the specified redirect URL was a short code like "prev" or "referer", then it was not hard coded
                 // and the system couldn't know that the short code is the same as the current URL. Redirect to domain
                 // root instead
                 $redirect = match ($url) {
@@ -1490,17 +1611,30 @@ class Page
     /**
      * Set the favicon for this page
      *
-     * @param string $url
+     * @param string|null $url
      * @return void
      */
-    public static function setFavIcon(string $url): void
+    public static function setFavIcon(?string $url = null): void
     {
         try {
-            static::$headers['link'][$url] = [
-                'rel'  => 'icon',
-                'href' => UrlBuilder::getImg($url),
-                'type' => File::new(Filesystem::absolute($url, 'img'), PATH_CDN . LANGUAGE . '/img')->mimetype()
-            ];
+            if (!$url) {
+                $url  = 'img/favicons/' . Page::getProjectName() . '/project.png';
+                $file = Filesystem::absolute(LANGUAGE . '/' . $url, PATH_CDN);
+
+                static::$headers['link'][$url] = [
+                    'rel'  => 'icon',
+                    'href' => UrlBuilder::getImg($url),
+                    'type' => File::new($file)->mimetype()
+                ];
+            } else {
+                // Unknown (likely remote?) link
+                static::$headers['link'][$url] = [
+                    'rel'  => 'icon',
+                    'href' => UrlBuilder::getImg($url),
+                    'type' => 'image/' . Strings::fromReverse($url, '.')
+                ];
+            }
+
         } catch (FilesystemException $e) {
             Log::warning('Failed to find favicon, see next message for more information');
             Log::warning($e->makeWarning());
@@ -1738,9 +1872,9 @@ class Page
             }
         }
 
-        // Add noidex, nofollow and nosnipped headers for non production environments and non normal HTTP pages.
+        // Add noindex, nofollow and nosnipped headers for non production environments and non normal HTTP pages.
         // These pages should NEVER be indexed
-        if (!Debug::production() or !Core::getRequestType('http') or Config::get('web.noindex', false)) {
+        if (!Debug::production() or !Core::isRequestType(EnumRequestTypes::html) or Config::get('web.noindex', false)) {
             $headers[] = 'X-Robots-Tag: noindex, nofollow, nosnippet, noarchive, noydir';
         }
 
@@ -1941,11 +2075,11 @@ class Page
             } else {
                 // Send caching headers. Ajax, API, and admin calls do not have proxy caching
                 switch (Core::getRequestType()) {
-                    case 'api':
+                    case EnumRequestTypes::api:
                         // no-break
-                    case 'ajax':
+                    case EnumRequestTypes::ajax:
                         // no-break
-                    case 'admin':
+                    case EnumRequestTypes::admin:
                         break;
 
                     default:
@@ -2004,7 +2138,7 @@ class Page
             return false;
         }
 
-        if (Core::getRequestType('ajax') or Core::getRequestType('api')) {
+        if (Core::isRequestType(EnumRequestTypes::ajax) or Core::isRequestType(EnumRequestTypes::api)) {
             return false;
         }
 
@@ -2030,7 +2164,7 @@ class Page
     protected static function cacheEtag(): bool
     {
         // ETAG requires HTTP caching enabled. Ajax and API calls do not use ETAG
-        if (!Config::get('web.cache.enabled', 'auto') or Core::getRequestType('ajax') or Core::getRequestType('api')) {
+        if (!Config::get('web.cache.enabled', 'auto') or Core::isRequestType(EnumRequestTypes::ajax) or Core::isRequestType(EnumRequestTypes::api)) {
             static::$etag = null;
             return false;
         }
@@ -2039,7 +2173,7 @@ class Page
         static::$etag = sha1(PROJECT.$_SERVER['SCRIPT_FILENAME'].filemtime($_SERVER['SCRIPT_FILENAME']) . Core::readRegister('etag'));
 
 // :TODO: Document why we are trimming with an empty character mask... It doesn't make sense but something tells me we're doing this for a good reason...
-        if (trim(isset_get($_SERVER['HTTP_IF_NONE_MATCH']), '') == static::$etag) {
+        if (trim((string) isset_get($_SERVER['HTTP_IF_NONE_MATCH']), '') == static::$etag) {
             if (empty($core->register['flash'])) {
                 // The client sent an etag which is still valid, no body (or anything else) necessary
                 http_response_code(304);
@@ -2089,31 +2223,38 @@ class Page
      * @return void
      * @throws Exception
      */
-    protected static function startup(string $target): void
+    protected static function startup(string &$target): void
     {
         // Ensure we have flash messages available
         if (!isset(static::$flash_messages)) {
             static::$flash_messages = FlashMessages::new();
         }
 
-        // Start the session
+        // Start the session if Core hasn't failed so far
         if (!Core::getFailed()) {
-            Session::startup();
+            // But not for API's! API's have to handle a different session management
+            if (!Core::isRequestType(EnumRequestTypes::api)) {
+                Session::startup();
+            }
         }
 
         if (Strings::fromReverse(dirname($target), '/') === 'system') {
-            // Wait a small random time to avoid timing attacks on system pages
-            usleep(random_int(1, 500));
+            // Wait a small random time (0S - 100mS) to avoid timing attacks on system pages
+            usleep(random_int(1, 100000));
         }
+
+        // Ensure we have an absolute target
+        $target = static::getAbsoluteTarget($target);
 
         // Set the page hash and check if we have access to this page?
         static::$hash   = sha1($_SERVER['REQUEST_URI']);
-        static::$target = $target;
-        static::$restrictions->check($target, false);
+        static::$target = static::getAbsoluteTarget($target);
+
+        static::$restrictions->check(static::$target, false);
 
         // Check user access rights. Routing parameters should be able to tell us what rights are required now
         if (Core::stateIs('script')) {
-            Page::hasRightsOrRedirects(static::$parameters->getRequiredRights($target), $target);
+            Page::hasRightsOrRedirects(static::$parameters->getRequiredRights(static::$target), static::$target);
         }
     }
 
@@ -2134,10 +2275,10 @@ class Page
             try {
                 $cache  = Json::decode($cache);
                 $length = static::sendHttpHeaders($cache['headers']);
-                $output = self::filterOutput($cache['output']);
+                $output = static::filterOutput($cache['output']);
 
                 Log::success(tr('Sent ":length" bytes of HTTP to client', [':length' => $length]), 3);
-                self::sendOutputToClient($output, $target, $attachment);
+                static::sendOutputToClient($output, $target, $attachment);
 
             } catch (Throwable $e) {
                 // Cache failed!
@@ -2147,6 +2288,54 @@ class Page
 
                 Log::exception($e);
             }
+        }
+    }
+
+
+    /**
+     * Detects and returns what language the user prefers to see
+     *
+     * @return string a valid language requested by the user that is supported by the systems configuration
+     */
+    protected static function detectRequestedLanguage(): string
+    {
+        $languages = Config::getArray('languages.supported', []);
+
+        switch (count($languages)) {
+            case 0:
+                return LANGUAGE;
+
+            case 1:
+                return current($languages);
+
+            default:
+                // This is a multilingual website. Ensure language is supported and add language selection to the URL.
+                $requested = static::acceptsLanguages();
+
+                if (empty($requested)) {
+                    // Go for default language
+                    return Config::getString('languages.default', 'en');
+                }
+
+                foreach ($requested as $locale) {
+                    if (in_array($locale['language'], $languages)) {
+                        // This requested language exists
+                        return $locale['language'];
+                    }
+                }
+
+                // None of the requested languages are supported! Oh noes! Go for default language.
+                Notification::new()
+                    ->setMode(DisplayMode::warning)
+                    ->setCode('unsupported-languages-requested')
+                    ->setRoles('developers')
+                    ->setTitle(tr('Unsupported language requested by client'))
+                    ->setMessage(tr('None of the requested languages ":languages" is supported', [
+                        ':languages' => $requested
+                    ]))
+                    ->send();
+
+                return Config::getString('languages.default', 'en');
         }
     }
 
@@ -2190,9 +2379,9 @@ class Page
             ]));
 
             switch (Core::getRequestType()) {
-                case 'api':
+                case EnumRequestTypes::api:
                     // no-break
-                case 'ajax':
+                case EnumRequestTypes::ajax:
                     static::$api_interface = new ApiInterface();
                     $output = static::$api_interface->execute($target);
                     break;
@@ -2210,8 +2399,8 @@ class Page
             ]));
 
             $output = match (Core::getRequestType()) {
-                'api', 'ajax' => static::$api_interface->execute($new_target),
-                default       => static::$template_page->execute($new_target),
+                EnumRequestTypes::api, EnumRequestTypes::ajax => static::$api_interface->execute($new_target),
+                default                                       => static::$template_page->execute($new_target),
             };
         }
 
@@ -2242,5 +2431,17 @@ class Page
         }
 
         static::die();
+    }
+
+
+    /**
+     * Returns an absolute target for the specified target
+     *
+     * @param string $target
+     * @return string
+     */
+    protected static function getAbsoluteTarget(string $target): string
+    {
+        return Filesystem::absolute($target, PATH_WWW . 'pages/');
     }
 }

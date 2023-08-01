@@ -7,6 +7,7 @@ namespace Phoundation\Databases\Sql\Schema;
 use Phoundation\Core\Log\Log;
 use Phoundation\Databases\Sql\Sql;
 
+
 /**
  * Table class
  *
@@ -14,7 +15,7 @@ use Phoundation\Databases\Sql\Sql;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Databases
  */
 class Table extends SchemaAbstract
@@ -85,6 +86,18 @@ class Table extends SchemaAbstract
     public function alter(): TableAlter
     {
         return new TableAlter($this->name, $this->sql, $this);
+    }
+
+
+    /**
+     * Renames this table
+     *
+     * @param string $table_name
+     * @return void
+     */
+    public function rename(string $table_name): void
+    {
+        sql()->query('RENAME TABLE `' . $this->name . '` TO `' . $table_name . '`');
     }
 
 

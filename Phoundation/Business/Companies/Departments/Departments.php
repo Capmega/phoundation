@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace Phoundation\Business\Companies\Departments;
 
-use Phoundation\Business\Companies\Company;
+use Phoundation\Business\Companies\Departments\Interfaces\DepartmentsInterface;
+use Phoundation\Business\Companies\Employees\Employee;
 use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
+
 
 /**
  *  Class Departments
@@ -15,53 +18,70 @@ use Phoundation\Data\DataEntry\DataList;
  * @see \Phoundation\Data\DataEntry\DataList
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Companies
  */
-class Departments extends DataList
+class Departments extends DataList implements DepartmentsInterface
 {
     /**
      * Departments class constructor
+     */
+    public function __construct()
+    {
+        $this->setQuery('SELECT   `id`, `name`, `email`, `status`, `created_on` 
+                               FROM     `business_departments` 
+                               WHERE    `status` IS NULL 
+                               ORDER BY `name`');
+        parent::__construct();
+    }
+
+
+    /**
+     * Returns the table name used by this object
      *
-     * @param Company|null $parent
-     * @param string|null $id_column
+     * @return string
      */
-    public function __construct(?Company $parent = null, ?string $id_column = null)
+    public static function getTable(): string
     {
-        $this->entry_class = Department::class;
-        self::$table       = Department::getTable();
-
-        $this->setHtmlQuery('SELECT   `id`, `name`, `email`, `status`, `created_on` 
-                                   FROM     `business_departments` 
-                                   WHERE    `status` IS NULL 
-                                   ORDER BY `name`');
-        parent::__construct($parent, $id_column);
+        return 'business_departments';
     }
 
 
     /**
-     * @inheritDoc
+     * Returns the name of this DataEntry class
+     *
+     * @return string
      */
-     protected function load(string|int|null $id_column = null): static
+    public static function getEntryClass(): string
     {
-        // TODO: Implement load() method.
+        return Department::class;
     }
 
 
     /**
-     * @inheritDoc
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
      */
-    public function save(): static
+    public static function getUniqueField(): ?string
     {
-        // TODO: Implement save() method.
+        return 'seo_name';
     }
 
 
     /**
-     * @inheritDoc
+     * Returns an HTML <select> for the available object entries
+     *
+     * @param string $value_column
+     * @param string $key_column
+     * @param string|null $order
+     * @return SelectInterface
      */
-    protected function loadDetails(array|string|null $columns, array $filters = []): array
+    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id', ?string $order = null): SelectInterface
     {
-        // TODO: Implement loadDetails() method.
+        return parent::getHtmlSelect($value_column, $key_column, $order)
+            ->setName('departments_id')
+            ->setNone(tr('Select a department'))
+            ->setEmpty(tr('No departments available'));
     }
 }

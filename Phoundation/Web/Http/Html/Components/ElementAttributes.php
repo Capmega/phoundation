@@ -6,7 +6,9 @@ namespace Phoundation\Web\Http\Html\Components;
 
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Strings;
+use Phoundation\Data\Traits\UsesNew;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Json;
 use Stringable;
 
 
@@ -17,11 +19,14 @@ use Stringable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
 trait ElementAttributes
 {
+    use UsesNew;
+
+
     /**
      * The HTML id element attribute
      *
@@ -157,38 +162,20 @@ trait ElementAttributes
 
 
     /**
-     * ElementsAttributes class constructor
-     */
-    public function __construct()
-    {
-    }
-
-
-    /**
-     * Return new Templated HTML Element object using the current Page template
-     *
-     * return static
-     */
-    public static function new(): static
-    {
-        return new static();
-    }
-
-
-    /**
      * Sets the HTML id element attribute
      *
      * @param string|null $id
+     * @param bool $name_too
      * @return static
      */
-    public function setId(?string $id): static
+    public function setId(?string $id, bool $name_too = true): static
     {
         $this->id      = $id;
         $this->real_id = Strings::until($id, '[');
 
         // By default, name and id should be equal
-        if (empty($this->name)) {
-            $this->setName($id);
+        if ($name_too) {
+            $this->setName($id, false);
         }
 
         return $this;
@@ -210,16 +197,17 @@ trait ElementAttributes
      * Sets the HTML name element attribute
      *
      * @param string|null $name
+     * @param bool $id_too
      * @return static
      */
-    public function setName(?string $name): static
+    public function setName(?string $name, bool $id_too = true): static
     {
         $this->name      = $name;
         $this->real_name = Strings::until($name, '[');
 
         // By default, name and id should be equal
-        if (empty($this->id)) {
-            $this->setId($name);
+        if ($id_too) {
+            $this->setId($name, false);
         }
 
         return $this;
@@ -632,25 +620,42 @@ trait ElementAttributes
     /**
      * Sets the HTML class element attribute
      *
+     * @param bool $auto_focus
      * @return static
      */
-    public function setAutofocus(): static
+    public function setAutofocus(bool $auto_focus): static
     {
-        if (static::$autofocus) {
-            throw new OutOfBoundsException(tr('Cannot set autofocus on element ":id", its already being used by id ":already"', [
-                ':id'      => $this->id,
-                ':already' => static::$autofocus
-            ]));
+        if ($auto_focus) {
+            if (static::$autofocus !== null) {
+                if (static::$autofocus !== $this->id) {
+                    throw new OutOfBoundsException(tr('Cannot set autofocus on element ":id", its already being used by id ":already"', [
+                        ':id'      => $this->id,
+                        ':already' => static::$autofocus
+                    ]));
+                }
+            }
+
+            if (!$this->id) {
+                throw new OutOfBoundsException(tr('Cannot set autofocus on element, it has no id specified yet'));
+            }
+
+            static::$autofocus = $this->id;
+
+        } else {
+            // Unset autofocus? Only if this is the element that had it in the first place!
+            if (static::$autofocus !== null) {
+                // Some element has auto focus, is it this one?
+                if (static::$autofocus === $this->id) {
+                    throw new OutOfBoundsException(tr('Cannot remove autofocus from element ":id", it does not have autofocus', [
+                        ':id' => $this->id
+                    ]));
+                }
+
+                static::$autofocus = null;
+            }
         }
 
-        if (!$this->id) {
-            throw new OutOfBoundsException(tr('Cannot set autofocus on this element, it has no "id" specified yet', [
-                ':id'      => $this->id,
-                ':already' => static::$autofocus
-            ]));
-        }
 
-        static::$autofocus = $this->id;
         return $this;
     }
 

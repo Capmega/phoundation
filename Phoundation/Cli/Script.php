@@ -5,17 +5,20 @@ declare(strict_types=1);
 namespace Phoundation\Cli;
 
 use JetBrains\PhpStorm\NoReturn;
+use Phoundation\Audio\Audio;
 use Phoundation\Cli\Exception\CliException;
 use Phoundation\Cli\Exception\MethodNotExistsException;
 use Phoundation\Cli\Exception\MethodNotFoundException;
 use Phoundation\Cli\Exception\NoMethodSpecifiedException;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Core;
+use Phoundation\Core\Enums\EnumMatchMode;
 use Phoundation\Core\Exception\NoProjectException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Numbers;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Date\Time;
 use Phoundation\Exception\Exception;
@@ -25,6 +28,7 @@ use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Path;
 use Phoundation\Processes\Commands\Command;
 use Throwable;
+
 
 /**
  * Class Scripts
@@ -41,7 +45,7 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Cli
  */
 class Script
@@ -63,6 +67,7 @@ class Script
     /**
      * The original set of methods
      *
+     * @todo Change "methods" to "commands"
      * @var array|null $methods
      */
     protected static ?array $methods = null;
@@ -110,7 +115,7 @@ class Script
 
                 // AutoComplete::getPosition() might become -1 if one were to <TAB> right at the end of the last method.
                 // If this is the case we actually have to expand the method, NOT yet the script parameters!
-                if ((AutoComplete::getPosition() - count(self::$found_methods)) === 0) {
+                if ((AutoComplete::getPosition() - count(static::$found_methods)) === 0) {
                     throw MethodNotExistsException::new(tr('The specified command file ":file" does exist but requires auto complete extension', [
                         ':file' => $script
                     ]))
@@ -125,12 +130,12 @@ class Script
                 if (!AutoComplete::hasSupport($script)) {
                     // This script has no auto complete support, so if we execute the script it won't go for auto
                     // complete but execute normally which is not what we want. we're done here.
-                    self::die();
+                    static::die();
                 }
 
             } catch (NoMethodSpecifiedException|MethodNotFoundException|MethodNotExistsException $e) {
                 // Auto complete the method
-                AutoComplete::processMethods(self::$methods, $e->getData());
+                AutoComplete::processMethods(static::$methods, $e->getData());
             }
 
         } else {
@@ -158,7 +163,7 @@ The pho script command line has bash command line auto complete support so with 
 what methods are available to you. Auto complete support is also already enabled for some of the methods so (for 
 example) user creation with "pho system accounts user create" can show all available options with <TAB>
 
-The system arguments are ALWAYS available no matter what method is being executed. Some arguments always apply, others 
+The system arguments are ALWAYS available no matter what command is being executed. Some arguments always apply, others 
 only apply for the commands that implement and or use them. If a system modifier argument was specified with a command 
 that does not support it, it will simply be ignored. See the --help output for each method for more information. 
            
@@ -251,7 +256,7 @@ SYSTEM ARGUMENTS
         // Execute the script
         execute_script(static::$script);
         AutoComplete::ensureAvailable();
-        self::die();
+        static::die();
     }
 
 
@@ -273,7 +278,7 @@ SYSTEM ARGUMENTS
      */
     public static function getMethods(): array
     {
-        return self::$methods;
+        return static::$methods;
     }
 
 
@@ -287,7 +292,9 @@ SYSTEM ARGUMENTS
     public static function setExitCode(int $code, bool $only_if_null = false): void
     {
         if (($code < 0) or ($code > 255)) {
-            throw new OutOfBoundsException(tr('Invalid exit code ":code" specified, it should be a positive integer value between 0 and 255', [':code' => $code]));
+            throw new OutOfBoundsException(tr('Invalid exit code ":code" specified, it should be a positive integer value between 0 and 255', [
+                ':code' => $code
+            ]));
         }
 
         if (!$only_if_null or !static::$exit_code) {
@@ -338,16 +345,23 @@ SYSTEM ARGUMENTS
                 ->makeWarning()
                 ->setData([
                     'position' => 0,
-                    'methods'  => Arrays::filterValues(scandir(PATH_ROOT . 'scripts/'), '/^\./', true)
+                    'methods'  => Arrays::filterValues(scandir(PATH_ROOT . 'scripts/'), '/^\./', EnumMatchMode::regex)
                 ]);
         }
 
         $position      = 0;
         $file          = PATH_ROOT . 'scripts/';
         $methods       = ArgvValidator::getMethods();
-        self::$methods = $methods;
+        static::$methods = $methods;
 
         foreach ($methods as $position => $method) {
+            // Validate the method
+            if (strlen($method) > 32) {
+                throw new ValidationFailedException(tr('Specified method ":method" is too long, it should be less than 32 characters', [
+                    ':method' => $method
+                ]));
+            }
+
             if (str_ends_with($method, '/cli')) {
                 // This is the cli command, ignore it
                 ArgvValidator::removeMethod($method);
@@ -380,7 +394,7 @@ SYSTEM ARGUMENTS
                     ->makeWarning()
                     ->setData([
                         'position' => $position,
-                        'methods'  => Arrays::filterValues(scandir(dirname($file)), '/^\./', true)
+                        'methods'  => Arrays::filterValues(scandir(dirname($file)), '/^\./', EnumMatchMode::regex)
                     ]);
             }
 
@@ -405,7 +419,7 @@ SYSTEM ARGUMENTS
             }
 
             // Continue scanning
-            self::$found_methods[] = $method;
+            static::$found_methods[] = $method;
         }
 
         // Here we're still in a directory. If a file exists in that directory with the same name as the directory
@@ -426,7 +440,7 @@ SYSTEM ARGUMENTS
             ->makeWarning()
             ->setData([
                 'position' => $position + 1,
-                'methods'  => Arrays::filterValues(scandir($file), '/^\./', true)
+                'methods'  => Arrays::filterValues(scandir($file), '/^\./', EnumMatchMode::regex)
             ]);
     }
 
@@ -578,7 +592,9 @@ SYSTEM ARGUMENTS
                         preg_match_all('/.+?\d{2}:\d{2}:\d{2}\s+('.str_replace('/', '\/', $script).')/', $name, $matches);
 
                         if (!empty($matches[1][0])) {
-                            throw new CliException(tr('cli_run_once_local(): The script ":script" for this project is already running', array(':script' => $script)), 'already-running');
+                            throw new CliException(tr('The script ":script" for this project is already running', [
+                                ':script' => $script
+                            ]));
                         }
                     }
                 }
@@ -675,6 +691,18 @@ SYSTEM ARGUMENTS
 
 
     /**
+     * Echos the specified string to the command line
+     *
+     * @param string $string
+     * @return void
+     */
+    public static function echo(string $string): void
+    {
+        echo $string . PHP_EOL;
+    }
+
+
+    /**
      * Kill this script process
      *
      * @param Throwable|int $exit_code
@@ -721,6 +749,7 @@ SYSTEM ARGUMENTS
             if ($exit_code >= 200) {
                 if ($exit_message) {
                     Log::warning($exit_message, 8);
+
                 } else {
                     // Script ended with warning
                     Log::warning(tr('Script ":script" ended with exit code ":exitcode" warning in ":time" with ":usage" peak memory usage', [
@@ -732,6 +761,8 @@ SYSTEM ARGUMENTS
                 }
 
             } else {
+                Audio::new('data/audio/critical.mp3')->play(true);
+
                 if ($exit_message) {
                     Log::error($exit_message, 8);
                 } else {

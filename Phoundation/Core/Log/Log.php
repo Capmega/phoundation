@@ -32,7 +32,7 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
 Class Log {
@@ -115,9 +115,9 @@ Class Log {
     /**
      * The last message that was logged.
      *
-     * @var string|null
+     * @var mixed $last_message
      */
-    protected static ?string $last_message = null;
+    protected static mixed $last_message = null;
 
     /**
      * Lock the Log class from writing in case it is busy to avoid race conditions
@@ -158,7 +158,7 @@ Class Log {
         // Apply configuration
         try {
             // Determine log threshold
-            if (!isset(self::$threshold)) {
+            if (!isset(static::$threshold)) {
                 if (defined('QUIET') and QUIET) {
                     // Ssshhhhhhhh..
                     $threshold = 9;
@@ -208,8 +208,8 @@ Class Log {
     public static function getInstance(string $global_id = ''): static
     {
         try {
-            if (!isset(self::$instance)) {
-                self::$instance = new static($global_id);
+            if (!isset(static::$instance)) {
+                static::$instance = new static($global_id);
 
                 // Log class startup message
                 if (Debug::enabled()) {
@@ -218,6 +218,7 @@ Class Log {
                     ]));
                 }
             }
+
         } catch (Throwable $e) {
             // Crap, we could not get a Log instance
             static::$fail = true;
@@ -226,7 +227,8 @@ Class Log {
             error_log($e->getMessage());
         }
 
-        return self::$instance;
+        // TODO static::$instance might not be assigned at this point, if there was an exception. What then?
+        return static::$instance;
     }
 
 
@@ -509,6 +511,8 @@ Class Log {
      *
      * @param mixed $messages
      * @param int $threshold
+     * @param bool $clean
+     * @param bool $newline
      * @return bool
      */
     public static function success(mixed $messages = null, int $threshold = 5, bool $clean = true, bool $newline = true): bool
@@ -533,11 +537,11 @@ Class Log {
     /**
      * Dump an exception object in the log file
      *
-     * @param mixed $messages
+     * @param Throwable $messages
      * @param int $threshold
      * @return bool
      */
-    public static function exception(Throwable $messages = null, int $threshold = 10): bool
+    public static function exception(Throwable $messages, int $threshold = 10): bool
     {
         return static::write($messages, 'error', $threshold, false);
     }
@@ -548,6 +552,8 @@ Class Log {
      *
      * @param mixed $messages
      * @param int $threshold
+     * @param bool $clean
+     * @param bool $newline
      * @return bool
      */
     public static function warning(mixed $messages = null, int $threshold = 9, bool $clean = true, bool $newline = true): bool
@@ -561,6 +567,8 @@ Class Log {
      *
      * @param mixed $messages
      * @param int $threshold
+     * @param bool $clean
+     * @param bool $newline
      * @return bool
      */
     public static function notice(mixed $messages = null, int $threshold = 3, bool $clean = true, bool $newline = true): bool
@@ -570,10 +578,12 @@ Class Log {
 
 
     /**
-     * Write a action message in the log file
+     * Write an action message in the log file
      *
      * @param mixed $messages
      * @param int $threshold
+     * @param bool $clean
+     * @param bool $newline
      * @return bool
      */
     public static function action(mixed $messages = null, int $threshold = 5, bool $clean = true, bool $newline = true): bool
@@ -597,10 +607,12 @@ Class Log {
 
 
     /**
-     * Write a information message in the log file
+     * Write an information message in the log file
      *
      * @param mixed $messages
      * @param int $threshold
+     * @param bool $clean
+     * @param bool $newline
      * @return bool
      */
     public static function information(mixed $messages = null, int $threshold = 7, bool $clean = true, bool $newline = true): bool
@@ -736,12 +748,13 @@ Class Log {
      * Write a debug message trying to format the data in a neat table.
      *
      * @param mixed $key_value
+     * @param int $indent
      * @param int $threshold
      * @return bool
      */
-    public static function table(array $key_value, int $threshold = 10): bool
+    public static function table(array $key_value, int $indent = 4, int $threshold = 10): bool
     {
-        return static::write(Strings::getKeyValueTable($key_value, PHP_EOL, ': '), 'debug', $threshold, false, false);
+        return static::write(Strings::getKeyValueTable($key_value, PHP_EOL, ': ', $indent), 'debug', $threshold, false, false);
     }
 
 
@@ -797,6 +810,8 @@ Class Log {
      * @param string|PDOStatement $query
      * @param ?array $execute
      * @param int $threshold
+     * @param bool $clean
+     * @param bool $newline
      * @return bool
      */
     public static function sql(string|PDOStatement $query, ?array $execute = null, int $threshold = 10, bool $clean = true, bool $newline = true): bool
@@ -820,11 +835,11 @@ Class Log {
      * @param bool $newline      If true, a newline will be appended at the end of the log line
      * @return bool              True if the line was written, false if it was dropped
      */
-    public static function write(mixed $messages = null, ?string $class = null, int $threshold = 10, bool $clean = true, bool $newline = true): bool
+    public static function write(mixed $messages = null, ?string $class = null, int $threshold = 10, bool $clean = true, bool $newline = true, bool $prefix = true): bool
     {
         if (static::$init) {
             // Do not log anything while locked, initialising, or while dealing with a Log internal failure
-            error_log($messages);
+            error_log(Strings::force($messages));
             return false;
         }
 
@@ -895,8 +910,14 @@ Class Log {
                 }
 
                 // Log the initial exception message
-                static::write('Encountered "' . get_class($messages) . '" class exception in "' . $messages->getFile() . '@' . $messages->getLine() . '" (Main script "' . basename(isset_get($_SERVER['SCRIPT_FILENAME'])) . '")', $class, $threshold);
-                static::write('"' . get_class($messages) . '" Exception message: [' . ($messages->getCode() ?? 'N/A') . '] ' . $messages->getMessage(), $class, $threshold, false);
+                static::write('Main script: ', 'information', $threshold, true, false);
+                static::write(basename(isset_get($_SERVER['SCRIPT_FILENAME'])), $class, $threshold, true, true, false);
+                static::write('Exception class: ', 'information', $threshold, true, false);
+                static::write(get_class($messages), $class, $threshold, true, true, false);
+                static::write('Exception location: ', 'information', $threshold, true, false);
+                static::write($messages->getFile() . '@' . $messages->getLine(), $class, $threshold, true, true, false);
+                static::write('Exception message: ', 'information', $threshold, true, false);
+                static::write('[' . ($messages->getCode() ?? 'N/A') . '] ' . $messages->getMessage(), $class, $threshold, false, true, false);
 
                 // Log the exception data
                 if ($messages instanceof Exception) {
@@ -913,7 +934,7 @@ Class Log {
                         }
                     } else {
                         // Dump the error data completely
-                        Log::printr($messages->getData());
+                        static::write(print_r($messages->getData(), true), 'debug', $threshold, false);
                     }
                 }
 
@@ -923,15 +944,15 @@ Class Log {
                     $trace = $messages->getTrace();
 
                     if ($trace) {
-                        static::write(tr('Backtrace:'), 'debug', $threshold);
-                        static::dumpTrace($messages->getTrace());
+                        static::write(tr('Backtrace:'), 'information', $threshold);
+                        static::dumpTrace($messages->getTrace(), class: $class);
                     }
 
                     // Log all previous exceptions as well
                     $previous = $messages->getPrevious();
 
                     while ($previous) {
-                        static::write('Previous exception: ', $class, $threshold);
+                        static::write('Previous exception: ', 'information', $threshold);
                         static::write($previous, $class, $threshold, $clean);
 
                         $previous = $previous->getPrevious();
@@ -958,13 +979,13 @@ Class Log {
 
             // If we're initializing the log then write to the system log
             if (static::$fail) {
-                error_log($messages);
+                error_log(Strings::force($messages));
                 static::$lock = false;
                 return true;
             }
 
             // Add coloring for easier reading
-            $messages = Color::apply($messages, $class);
+            $messages = Color::apply((string) $messages, $class);
 
             // Build the message to be logged, clean it and log
             // The log line format is DATE LEVEL PID GLOBALID/LOCALID MESSAGE EOL
@@ -972,8 +993,11 @@ Class Log {
                 $messages = Strings::cleanWhiteSpace($messages);
             }
 
-            $line = date('Y-m-d H:i:s.') . substr(microtime(FALSE), 2, 3) . ' ' . ($threshold === 10 ? 10 : ' ' . $threshold) . ' ' . getmypid() . ' ' . static::$global_id . ' / ' . static::$local_id . ' ' . $messages . ($newline ? PHP_EOL : null);
-            fwrite(static::$handles[static::$file], $line);
+            if ($prefix) {
+                $messages = date('Y-m-d H:i:s.') . substr(microtime(FALSE), 2, 3) . ' ' . ($threshold === 10 ? 10 : ' ' . $threshold) . ' ' . getmypid() . ' ' . static::$global_id . ' / ' . static::$local_id . ' ' . $messages;
+            }
+
+            fwrite(static::$handles[static::$file], $messages . ($newline ? PHP_EOL : null));
 
             // In Command Line mode always log to the screen too, but not during PHPUnit test!
             if ((PHP_SAPI === 'cli')  and !Core::isPhpUnitTest()) {
@@ -1049,13 +1073,13 @@ Class Log {
      *                          Log::BACKTRACE_DISPLAY_FUNCTION or Log::BACKTRACE_DISPLAY_BOTH.
      * @return int The amount of lines that were logged. -1 in case of an exception while trying to log the backtrace.
      */
-    protected static function dumpTrace(array $backtrace, int $threshold = 9, ?int $display = null): int
+    protected static function dumpTrace(array $backtrace, int $threshold = 9, ?int $display = null, string $class = 'debug'): int
     {
         try {
-            $lines = self::formatTrace($backtrace, $threshold, $display);
+            $lines = Debug::formatBackTrace($backtrace, $threshold, $display);
 
             foreach ($lines as $line) {
-                static::write($line, 'debug', $threshold, false);
+                static::write($line, $class, $threshold, false);
             }
 
             return count($lines);
@@ -1065,120 +1089,5 @@ Class Log {
             static::error(tr('Failed to log backtrace because of exception ":e"', [':e' => $e->getMessage()]));
             return -1;
         }
-    }
-
-
-    /**
-     * Dump the specified backtrace data
-     *
-     * @param array $backtrace The backtrace data
-     * @param int $threshold The log level for this backtrace data
-     * @param int|null $display How to display the backtrace. Must be one of Log::BACKTRACE_DISPLAY_FILE,
-     *                          Log::BACKTRACE_DISPLAY_FUNCTION or Log::BACKTRACE_DISPLAY_BOTH.
-     * @return array The backtrace lines
-     */
-    protected static function formatTrace(array $backtrace, int $threshold = 9, ?int $display = null): array
-    {
-        $lines   = self::buildTrace($backtrace, $threshold, $display);
-        $longest = Arrays::getLongestValueSize($lines, 'call');
-        $return  = [];
-
-        // format and write the lines
-        foreach ($lines as $line) {
-            if (isset($line['call'])) {
-                // Resize the call lines to all have the same size for easier log reading
-                $line['call'] = Strings::size($line['call'], $longest);
-            }
-
-            $return[] = trim(($line['call'] ?? null) . (isset($line['location']) ? (isset($line['call']) ? ' in ' : null) . $line['location'] : null));
-        }
-
-        return $return;
-    }
-
-
-    /**
-     * Dump the specified backtrace data
-     *
-     * @param array $backtrace The backtrace data
-     * @param int $threshold The log level for this backtrace data
-     * @param int|null $display How to display the backtrace. Must be one of Log::BACKTRACE_DISPLAY_FILE,
-     *                          Log::BACKTRACE_DISPLAY_FUNCTION or Log::BACKTRACE_DISPLAY_BOTH.
-     * @return array The backtrace lines
-     */
-    protected static function buildTrace(array $backtrace, int $threshold = 9, ?int $display = null): array
-    {
-        $lines = [];
-
-        if ($display === null) {
-            $display = static::$display;
-        }
-
-        // Parse backtrace data and build the log lines
-        foreach ($backtrace as $id => $step) {
-            // We usually don't want to see arguments as that clogs up BADLY
-            unset($step['args']);
-
-            // Remove unneeded information depending on the specified display
-            switch ($display) {
-                case self::BACKTRACE_DISPLAY_FILE:
-                    // Display only file@line information, but ONLY if file@line information is available
-                    if (isset($step['file'])) {
-                        unset($step['class']);
-                        unset($step['function']);
-                    }
-
-                    break;
-
-                case self::BACKTRACE_DISPLAY_FUNCTION:
-                    // Display only function / class information
-                    unset($step['file']);
-                    unset($step['line']);
-                    break;
-
-                case self::BACKTRACE_DISPLAY_BOTH:
-                    // Display both function / class and file@line information
-                    break;
-
-                default:
-                    // Wut? Just display both
-                    static::warning(tr('Unknown $display ":display" specified. Please use one of Log::BACKTRACE_DISPLAY_FILE, Log::BACKTRACE_DISPLAY_FUNCTION, or BACKTRACE_DISPLAY_BOTH', [':display' => $display]));
-                    $display = self::BACKTRACE_DISPLAY_BOTH;
-            }
-
-            // Build up log line from here. Start by getting the file information
-            $line = [];
-
-            if (isset($step['class'])) {
-                if (isset_get($step['class']) === 'Closure') {
-                    // Log the closure call
-                    $line['call'] = '{closure}';
-                } else {
-                    // Log the class method call
-                    $line['call'] = $step['class'] . $step['type'] . $step['function'] . '()';
-                }
-            } elseif (isset($step['function'])) {
-                // Log the function call
-                $line['call'] = $step['function'] . '()';
-            }
-
-            // Log the file@line information
-            if (isset($step['file'])) {
-                // Remove PATH_ROOT from the filenames for clarity
-                $line['location'] = Strings::from($step['file'], PATH_ROOT) . '@' . $step['line'];
-            }
-
-            if (!$line) {
-                // Failed to build backtrace line
-                static::write(tr('Invalid backtrace data encountered, do not know how to process and display the following entry'), 'warning', $threshold);
-                static::printr($step, 10);
-                static::write(tr('Original backtrace data entry format below'), 'warning', $threshold);
-                static::printr($step, 10);
-            }
-
-            $lines[] = $line;
-        }
-
-        return $lines;
     }
 }

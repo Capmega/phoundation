@@ -14,6 +14,7 @@ use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Path;
 use Phoundation\Utils\Json;
 
+
 /**
  * Library class
  *
@@ -21,7 +22,7 @@ use Phoundation\Utils\Json;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Developer
  */
 class Library
@@ -418,7 +419,7 @@ class Library
             // Load the PHP file
             include_once($file);
 
-            $updates_class_path = self::getClassPath($file);
+            $updates_class_path = static::getClassPath($file);
             $updates            = new $updates_class_path();
 
             if (!($updates instanceof Updates)) {

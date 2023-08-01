@@ -8,9 +8,11 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
+use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Exception\ProcessesException;
 use Phoundation\Processes\Process;
 use Throwable;
+
 
 /**
  * Class Audio
@@ -18,7 +20,7 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Audio
  */
 class Audio extends File
@@ -31,19 +33,23 @@ class Audio extends File
      */
     public function play(bool $background = false): static
     {
-        try {
-            $this->file = Filesystem::absolute($this->file, PATH_ROOT . 'data/audio');
-            $process    = Process::new('mplayer')->addArgument($this->file);
+        if (!defined('NOAUDIO') or !NOAUDIO) {
+            try {
+                $this->file = Filesystem::absolute($this->file, PATH_DATA . 'audio');
+                $process    = Process::new('mplayer')
+                    ->setRestrictions(Restrictions::new(PATH_DATA . 'audio', true))
+                    ->addArgument($this->file);
 
-            if ($background) {
-                $process->executeBackground();
-            } else {
-                $process->executeNoReturn();
+                if ($background) {
+                    $process->executeBackground();
+                } else {
+                    $process->executeNoReturn();
+                }
+
+            } catch (FileNotExistException|ProcessesException $e) {
+                Log::warning(tr('Failed to play the requested audio file because of the following exception'));
+                Log::warning($e->getMessage());
             }
-
-        } catch (FileNotExistException|ProcessesException $e) {
-            Log::warning(tr('Failed to play the requested audio file because of the following exception'));
-            Log::warning($e->getMessage());
         }
 
         return $this;

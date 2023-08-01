@@ -15,7 +15,7 @@ use Phoundation\Web\Http\Html\Renderer;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\None
  */
 class InfoBox extends Renderer
@@ -37,13 +37,13 @@ class InfoBox extends Renderer
     public function render(): ?string
     {
         $this->render = '   <div class="info-box shadow-none">
-                              <span class="info-box-icon bg-' . $this->element->getMode()->value . '"><i class="far ' . $this->element->getIcon() . '"></i></span>
+                              <span class="info-box-icon bg-' . $this->render_object->getMode()->value . '"><i class="far ' . $this->render_object->getIcon() . '"></i></span>
                 
                               <div class="info-box-content">
-                                <span class="info-box-text">' . $this->element->getTitle() . '</span>
-                                <span class="info-box-number">' . $this->element->getValue() . '</span>
+                                <span class="info-box-text">' . $this->render_object->getTitle() . '</span>
+                                <span class="info-box-number">' . $this->render_object->getValue() . '</span>
                               </div>
-                              ' . $this->element->getDescription() . '
+                              ' . $this->render_object->getDescription() . '
                             </div>';
 
         return parent::render();

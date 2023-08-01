@@ -9,6 +9,7 @@ use Phoundation\Data\Traits\DataFile;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 
+
 /**
  * Class KubernetesFile
  *
@@ -16,7 +17,7 @@ use Phoundation\Filesystem\File;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Virtualization
  */
 abstract class KubernetesFile
@@ -42,7 +43,7 @@ abstract class KubernetesFile
     /**
      * Save the data from this deployment to the yaml configuration file
      *
-     * @return $this
+     * @return static
      */
     public function save(): static
     {

@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases;
 
+
 /**
  * SQL Exists library
  *
  * This library contains various "exists" functions to check if a database, table, column, etc exists, or not
  *
- * @author Sven Oostenbrink <support@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @category Function reference
  * @package Phoundation/Databases
  */
@@ -20,9 +21,9 @@ class SqlExists
     /**
      * return if database exists
      *
-     * @author Sven Oostenbrink <support@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @category Function reference
      * @package sql-exists
      *
@@ -64,10 +65,9 @@ class SqlExists
      * If query is specified, the query will be executed only if the specified function exists
      * If the query is prefixed with an exclamation mark ! then the query will only be executed if the function does NOT exist
      *
-     * @author Infospace <infospace@capmega.com>
-     * @author Sven Oostenbrink <support@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @category Function reference
      * @package sql-exists
      *
@@ -112,9 +112,9 @@ class SqlExists
      * If query is specified, the query will be executed only if the specified function exists
      * If the query is prefixed with an exclamation mark ! then the query will only be executed if the function does NOT exist
      *
-     * @author Sven Oostenbrink <support@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @category Function reference
      * @package sql-exists
      *
@@ -160,9 +160,9 @@ class SqlExists
      * If query is specified, the query will be executed only if the specified function exists
      * If the query is prefixed with an exclamation mark ! then the query will only be executed if the function does NOT exist
      *
-     * @author Sven Oostenbrink <support@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @category Function reference
      * @package sql-exists
      *
@@ -208,9 +208,9 @@ class SqlExists
      * If query is specified, the query will be executed only if the specified function exists
      * If the query is prefixed with an exclamation mark ! then the query will only be executed if the function does NOT exist
      *
-     * @author Sven Oostenbrink <support@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @category Function reference
      * @package sql-exists
      *
@@ -266,9 +266,9 @@ class SqlExists
      * If query is specified, the query will be executed only if the specified function exists
      * If the query is prefixed with an exclamation mark ! then the query will only be executed if the function does NOT exist
      *
-     * @author Sven Oostenbrink <support@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @category Function reference
      * @package sql-exists
      *
@@ -323,9 +323,9 @@ class SqlExists
     /*
      * Returns the tables that have foreign keys to the specified table / column
      *
-     * @author Sven Oostenbrink <support@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @category Function reference
      * @package sql-exists
      *

@@ -6,10 +6,11 @@ namespace Phoundation\Virtualization\Kubernetes;
 
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Strings;
-use Phoundation\Data\Classes\Iterator;
+use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\UsesNew;
 use Phoundation\Processes\Process;
 use Phoundation\Virtualization\Kubernetes\Traits\UsesKubeCtl;
+
 
 /**
  * Class KubernetesObjects
@@ -18,7 +19,7 @@ use Phoundation\Virtualization\Kubernetes\Traits\UsesKubeCtl;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Virtualization
  */
 class KubernetesObjects extends Iterator
@@ -34,7 +35,7 @@ class KubernetesObjects extends Iterator
     public function __construct()
     {
         $format            = [];
-        $this->list        = [];
+        $this->source        = [];
         $this->kind        = Strings::fromReverse(get_class($this), '\\');
         $this->get_command = strtolower($this->kind);
 
@@ -54,7 +55,7 @@ class KubernetesObjects extends Iterator
                 continue;
             }
 
-            $this->list[] = Arrays::format($line, $format);
+            $this->source[] = Arrays::format($line, $format);
         }
     }
 }

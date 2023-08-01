@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html\Traits;
 
+
 /**
  * Trait Rendered
  *
@@ -11,7 +12,7 @@ namespace Phoundation\Web\Http\Html\Traits;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 trait Rendered
@@ -21,15 +22,16 @@ trait Rendered
      *
      * @var bool $rendered
      */
-    protected static bool $rendered = false;
+    protected bool $rendered = false;
+
 
     /**
-     * Returns the rendered
+     * Returns if the object has been rendered or not
      *
-     * @return string|null
+     * @return bool
      */
-    public function getRendered(): ?string
+    public function getRendered(): bool
     {
-        return self::$rendered;
+        return $this->rendered;
     }
 }

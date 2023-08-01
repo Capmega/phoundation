@@ -7,6 +7,7 @@ namespace Phoundation\Data\DataEntry\Traits;
 use Phoundation\Business\Customers\Customer;
 use Phoundation\Exception\OutOfBoundsException;
 
+
 /**
  * Trait DataEntryCustomer
  *
@@ -14,7 +15,7 @@ use Phoundation\Exception\OutOfBoundsException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 trait DataEntryCustomer
@@ -26,25 +27,19 @@ trait DataEntryCustomer
      */
     public function getCustomersId(): ?int
     {
-        return $this->getDataValue('string', 'customers_id');
+        return $this->getDataValue('int', 'customers_id');
     }
 
 
     /**
      * Sets the customers_id for this object
      *
-     * @param string|int|null $customers_id
+     * @param int|null $customers_id
      * @return static
      */
-    public function setCustomersId(string|int|null $customers_id): static
+    public function setCustomersId(?int $customers_id): static
     {
-        if ($customers_id and !is_natural($customers_id)) {
-            throw new OutOfBoundsException(tr('Specified customers_id ":id" is not numeric', [
-                ':id' => $customers_id
-            ]));
-        }
-
-        return $this->setDataValue('customers_id', get_null(isset_get_typed('integer', $customers_id)));
+        return $this->setDataValue('customers_id', $customers_id);
     }
 
 
@@ -55,7 +50,7 @@ trait DataEntryCustomer
      */
     public function getCustomer(): ?Customer
     {
-        $customers_id = $this->getDataValue('string', 'customers_id');
+        $customers_id = $this->getDataValue('int', 'customers_id');
 
         if ($customers_id) {
             return new Customer($customers_id);
@@ -66,23 +61,24 @@ trait DataEntryCustomer
 
 
     /**
-     * Sets the customers_id for this user
+     * Returns the customers_name for this user
      *
-     * @param Customer|string|int|null $customer
+     * @return string|null
+     */
+    public function getCustomersName(): ?string
+    {
+        return $this->getDataValue('string', 'customers_name');
+    }
+
+
+    /**
+     * Sets the customers_name for this user
+     *
+     * @param string|null $customer_name
      * @return static
      */
-    public function setCustomer(Customer|string|int|null $customer): static
+    public function setCustomersName(?string $customer_name): static
     {
-        if ($customer) {
-            if (!is_numeric($customer)) {
-                $customer = Customer::get($customer);
-            }
-
-            if (is_object($customer)) {
-                $customer = $customer->getId();
-            }
-        }
-
-        return $this->setCustomersId(get_null($customer));
+        return $this->setDataValue('customers_name', $customer_name);
     }
 }

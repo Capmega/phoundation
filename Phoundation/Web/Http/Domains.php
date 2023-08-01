@@ -22,7 +22,7 @@ use Phoundation\Web\Page;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
 class Domains {
@@ -68,7 +68,7 @@ class Domains {
         if (!$domain) {
             $domain = Page::getDomain();
         } else {
-            $domain = Url::getDomainFromUrl($domain);
+            $domain = UrlBuilder::getDomainFromUrl($domain);
         }
 
         $this->domain = strtolower($domain);
@@ -97,7 +97,7 @@ class Domains {
         if (!static::$primary_domain) {
             // Build cache
             static::loadConfiguration();
-            static::$primary_domain = Url::getDomainFromUrl((string) isset_get(static::$domains_configuration['primary']['www']));
+            static::$primary_domain = UrlBuilder::getDomainFromUrl((string) isset_get(static::$domains_configuration['primary']['www']));
 
             if (!static::$primary_domain) {
                 // Whoops! We didn't get our primary domain from configuration, likely configuration isn't available yet
@@ -135,7 +135,14 @@ class Domains {
      */
     public static function getCurrent(): string
     {
-        return Page::getDomain();
+        if (PLATFORM_HTTP) {
+            return $_SERVER['HTTP_HOST'];
+        }
+
+        $domain = Strings::from(Config::getString('web.domains.primary.www'), '//');
+        $domain = Strings::until($domain, '/');
+
+        return $domain;
     }
 
 

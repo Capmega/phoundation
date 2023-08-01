@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\SlowPages;
 
+use PDOStatement;
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\User;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Developer\Incidents\Incidents;
+use Phoundation\Geo\Timezones\Timezone;
 
 
 /**
@@ -16,26 +19,53 @@ use Phoundation\Developer\Incidents\Incidents;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Developer
  */
 class SlowProcesses extends Incidents
 {
     /**
-     * Users class constructor
-     *
-     * @param Role|User|null $parent
-     * @param string|null $id_column
+     * SlowProcesses class constructor
      */
-    public function __construct(Role|User|null $parent = null, ?string $id_column = null)
+    public function __construct()
     {
-        $this->entry_class = SlowProcess::class;
-        self::$table       = SlowProcess::getTable();
+        $this->setQuery('SELECT   `id`, `created_on`, `status`, `title` 
+                               FROM     `processes_slow` 
+                               WHERE    `type` = "slow_page" AND `status` IS NULL 
+                               ORDER BY `created_on`');
+        parent::__construct();
+    }
 
-        $this->setHtmlQuery('SELECT   `id`, `created_on`, `status`, `title` 
-                                   FROM     `accounts_users` 
-                                   WHERE    `type` = "slow_page" AND `status` IS NULL 
-                                   ORDER BY `created_on`');
-        parent::__construct($parent, $id_column);
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'processes_slow';
+    }
+
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getEntryClass(): string
+    {
+        return SlowProcess::class;
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return null;
     }
 }

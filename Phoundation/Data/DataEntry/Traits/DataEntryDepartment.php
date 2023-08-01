@@ -7,6 +7,7 @@ namespace Phoundation\Data\DataEntry\Traits;
 use Phoundation\Business\Companies\Departments\Department;
 use Phoundation\Exception\OutOfBoundsException;
 
+
 /**
  * Trait DataEntryDepartment
  *
@@ -14,19 +15,11 @@ use Phoundation\Exception\OutOfBoundsException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 trait DataEntryDepartment
 {
-    /**
-     * The department for this object
-     *
-     * @var Department|null $department
-     */
-    protected ?Department $department;
-
-
     /**
      * Returns the departments_id for this object
      *
@@ -41,18 +34,12 @@ trait DataEntryDepartment
     /**
      * Sets the departments_id for this object
      *
-     * @param string|int|null $departments_id
+     * @param int|null $departments_id
      * @return static
      */
-    public function setDepartmentsId(string|int|null $departments_id): static
+    public function setDepartmentsId(?int $departments_id): static
     {
-        if ($departments_id and !is_natural($departments_id)) {
-            throw new OutOfBoundsException(tr('Specified departments_id ":id" is not numeric', [
-                ':id' => $departments_id
-            ]));
-        }
-
-        return $this->setDataValue('departments_id', get_null(isset_get_typed('integer', $departments_id)));
+        return $this->setDataValue('departments_id', $departments_id);
     }
 
 
@@ -74,23 +61,24 @@ trait DataEntryDepartment
 
 
     /**
+     * Returns the departments_id for this object
+     *
+     * @return string|null
+     */
+    public function getDepartmentsName(): ?string
+    {
+        return $this->getDataValue('string', 'departments_name');
+    }
+
+
+    /**
      * Sets the departments_id for this object
      *
-     * @param Department|string|int|null $department
+     * @param string|null $departments_name
      * @return static
      */
-    public function setDepartment(Department|string|int|null $department): static
+    public function setDepartmentsName(?string $departments_name): static
     {
-        if ($department) {
-            if (!is_numeric($department)) {
-                $department = Department::get($department);
-            }
-
-            if (is_object($department)) {
-                $department = $department->getId();
-            }
-        }
-
-        return $this->setDepartmentsId(get_null($department));
+        return $this->setDataValue('departments_name', $departments_name);
     }
 }

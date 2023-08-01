@@ -10,7 +10,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Filesystem;
+use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Commands\Command;
@@ -19,8 +19,10 @@ use Phoundation\Processes\Commands\Exception\CommandsException;
 use Phoundation\Processes\Commands\SystemCommands;
 use Phoundation\Processes\Exception\ProcessesException;
 use Phoundation\Processes\Exception\ProcessException;
+use Phoundation\Processes\Interfaces\ProcessInterface;
 use Phoundation\Servers\Server;
 use Stringable;
+
 
 /**
  * Trait ProcessVariables
@@ -29,7 +31,7 @@ use Stringable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Processes
  */
 trait ProcessVariables
@@ -240,13 +242,27 @@ trait ProcessVariables
      */
     protected ?float $stop = null;
 
+    /**
+     * If specified, this command will be executed before the main command
+     *
+     * @var Process|null $pre_exec
+     */
+    protected ?Process $pre_exec = null;
+
+    /**
+     * If specified, this command will be executed after the main command
+     *
+     * @var Process|null $post_exec
+     */
+    protected ?Process $post_exec = null;
+
 
     /**
      * Process class constructor
      *
-     * @param Restrictions|array|string|null $restrictions
+     * @param RestrictionsInterface|array|string|null $restrictions
      */
-    public function __construct(Restrictions|array|string|null $restrictions)
+    public function __construct(RestrictionsInterface|array|string|null $restrictions)
     {
         // Set server filesystem restrictions
         $this->setRestrictions($restrictions);
@@ -284,6 +300,54 @@ trait ProcessVariables
     public function getExecutionStopTime(): ?float
     {
         return $this->stop;
+    }
+
+
+    /**
+     * Returns the exact time that execution started
+     *
+     * @return ProcessInterface|null
+     */
+    public function getPreExecution(): ?ProcessInterface
+    {
+        return $this->pre_exec;
+    }
+
+
+    /**
+     * Sets the process to execute before the main process
+     *
+     * @param ProcessInterface|null $process
+     * @return static
+     */
+    public function setPreExecution(?ProcessInterface $process): static
+    {
+        $this->pre_exec = $process;
+        return $this;
+    }
+
+
+    /**
+     * Returns the process to execute after the main process
+     *
+     * @return ProcessInterface|null
+     */
+    public function getPostExecution(): ?ProcessInterface
+    {
+        return $this->post_exec;
+    }
+
+
+    /**
+     * Sets the process to execute after the main process
+     *
+     * @param ProcessInterface|null $process
+     * @return static
+     */
+    public function setPostExecution(?ProcessInterface $process): static
+    {
+        $this->post_exec = $process;
+        return $this;
     }
 
 
@@ -377,24 +441,29 @@ trait ProcessVariables
     /**
      * Returns if the process will first CD to this directory before continuing
      *
-     * @return string
+     * @return Path
      */
-    public function getExecutionPath(): string
+    public function getExecutionPath(): Path
     {
-        return $this->execution_path;
+        return Path::new($this->execution_path);
     }
 
 
     /**
      * Sets if the process will first CD to this directory before continuing
      *
-     * @param Stringable|string|null $execution_path
+     * @param Path|Stringable|string|null $execution_path
+     * @param RestrictionsInterface|array|string|null $restrictions
      * @return static This process so that multiple methods can be chained
      */
-    public function setExecutionPath(Stringable|string|null $execution_path): static
+    public function setExecutionPath(Path|Stringable|string|null $execution_path, RestrictionsInterface|array|string|null $restrictions = null): static
     {
         $this->cached_command_line = null;
         $this->execution_path      = (string) $execution_path;
+
+        if ($restrictions) {
+            $this->restrictions = $restrictions;
+        }
 
         return $this;
     }
@@ -408,7 +477,10 @@ trait ProcessVariables
      */
     public function setExecutionPathToTemp(bool $public = false): static
     {
-        $this->setExecutionPath(Path::getTemporary($public));
+        $path               = Path::getTemporary($public);
+        $this->restrictions = $path->getRestrictions();
+
+        $this->setExecutionPath($path, $path->getRestrictions());
         return $this;
     }
 
@@ -694,12 +766,12 @@ trait ProcessVariables
      * Set the server on which the command should be executed for this process
      *
      * @note NULL means this local server
-     * @param Restrictions|array|string|null $restrictions
+     * @param RestrictionsInterface|array|string|null $restrictions
      * @param bool $write
      * @param string|null $label
      * @return static
      */
-    public function setRestrictions(Restrictions|array|string|null $restrictions = null, bool $write = false, ?string $label = null): static
+    public function setRestrictions(RestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): static
     {
         $this->cached_command_line = null;
         $this->restrictions        = Core::ensureRestrictions($restrictions, $write, $label);
@@ -900,7 +972,7 @@ trait ProcessVariables
      * @param string|null $argument
      * @return static This process so that multiple methods can be chained
      */
-    public function setArgument(string|null $argument): static
+    public function setArgument(?string $argument): static
     {
         return $this->setArguments([$argument]);
     }
@@ -1215,7 +1287,7 @@ trait ProcessVariables
             ]));
         }
 
-        $this->pid = $pid;
+        $this->pid = (int) $pid;
     }
 
 

@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html\Components\FlashMessages;
 
-use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Content\Images\Image;
+use Phoundation\Content\Images\Interfaces\ImageInterface;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\ElementsBlock;
+use Phoundation\Web\Http\Html\Components\FlashMessages\Interfaces\FlashMessageInterface;
 use Phoundation\Web\Http\Html\Components\Mode;
 use Phoundation\Web\Http\Html\Components\Script;
-use Phoundation\Web\Page;
 
 
 /**
@@ -21,10 +21,10 @@ use Phoundation\Web\Page;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class FlashMessage extends ElementsBlock
+class FlashMessage extends ElementsBlock implements FlashMessageInterface
 {
     use Mode;
 
@@ -67,7 +67,7 @@ class FlashMessage extends ElementsBlock
     /**
      * Image to show with the flash message
      *
-     * @var Image|null $image
+     * @var ImageInterface|null $image
      */
     protected ?Image $image = null;
 
@@ -191,9 +191,9 @@ class FlashMessage extends ElementsBlock
     /**
      * Returns the flash image contents
      *
-     * @return Image
+     * @return ImageInterface
      */
-    public function getImage(): Image
+    public function getImage(): ImageInterface
     {
         return $this->image;
     }
@@ -202,11 +202,11 @@ class FlashMessage extends ElementsBlock
     /**
      * Sets the flash image contents
      *
-     * @param Image|string|null $image
+     * @param ImageInterface|string|null $image
      * @param string|null $alt
      * @return $this
      */
-    public function setImage(Image|string|null $image, ?string $alt = null): static
+    public function setImage(ImageInterface|string|null $image, ?string $alt = null): static
     {
         if ($image) {
             if ($this->icon) {
@@ -229,9 +229,9 @@ class FlashMessage extends ElementsBlock
     /**
      * Returns if the flash message is shown on the left side of the screen
      *
-     * @return string
+     * @return bool
      */
-    public function getLeft(): string
+    public function getLeft(): bool
     {
         return $this->left;
     }
@@ -240,10 +240,10 @@ class FlashMessage extends ElementsBlock
     /**
      * Sets if the flash message is shown on the right side of the screen
      *
-     * @param string $left
+     * @param bool $left
      * @return $this
      */
-    public function setLeft(string $left): static
+    public function setLeft(bool $left): static
     {
         $this->left = $left;
         return $this;
@@ -253,9 +253,9 @@ class FlashMessage extends ElementsBlock
     /**
      * Returns if the flash message is shown at the top of the screen
      *
-     * @return string
+     * @return bool
      */
-    public function getTop(): string
+    public function getTop(): bool
     {
         return $this->top;
     }
@@ -264,10 +264,10 @@ class FlashMessage extends ElementsBlock
     /**
      * Sets if the flash message is shown at the top of the screen
      *
-     * @param string $top
+     * @param bool $top
      * @return $this
      */
-    public function setTop(string $top): static
+    public function setTop(bool $top): static
     {
         $this->top = $top;
         return $this;

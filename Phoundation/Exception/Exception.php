@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Phoundation\Exception;
 
 use Phoundation\Core\Arrays;
-use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Developer\Incidents\Incident;
@@ -14,6 +13,7 @@ use Phoundation\Utils\Json;
 use RuntimeException;
 use Throwable;
 
+
 /**
  * Class Exception
  *
@@ -21,10 +21,10 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink
  * @copyright Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Exception
  */
-class Exception extends RuntimeException
+class Exception extends RuntimeException implements Interfaces\ExceptionInterface
 {
     /**
      * Exception data, if available
@@ -50,35 +50,42 @@ class Exception extends RuntimeException
     /**
      * Exception code
      *
+     * @note Not sure what datatype PHP has for this, but it doesn't allow datatype specification here
      * @var string $code
      */
     protected $code = 0;
 
+    /**
+     * The file where this exception occurred.
+     *
+     * @var string $file
+     */
+    protected string $file;
+
+    /**
+     * The line where this exception occurred.
+     *
+     * @var int $line
+     */
+    protected int $line;
 
     /**
      * CoreException __constructor
      *
      * @param Throwable|array|string|null $messages The exception messages
-     * @param array $data [array] Data related to the exception. Should be a named array with elements that may be
-     *      anything, string, array, object, resource, etc. The handler for this exception is assumed to know how to
-     *      handle this data if it wants to do so
-     * @param string|int|null $code The exception code (optional)
      * @param Throwable|null $previous A previous exception, if available.
      */
-    public function __construct(Throwable|array|string|null $messages, mixed $data = null, string|int|null $code = null, ?Throwable $previous = null)
+    public function __construct(Throwable|array|string|null $messages, ?Throwable $previous = null)
     {
         if (is_object($messages)) {
             // The message actually is an Exception! Extract data and make this exception the previous
             $previous = $messages;
-            $code     = $messages->getCode();
 
             if ($messages instanceof Exception) {
                 // This is a Phoundation exception, get more information
-                $data     = $messages->getData();
                 $messages = $messages->getMessages();
             } else {
                 // This is a standard PHP exception
-                $data     = null;
                 $messages = [$messages->getMessage()];
             }
         } elseif (!is_array($messages)) {
@@ -89,13 +96,17 @@ class Exception extends RuntimeException
             $messages = [$messages];
         }
 
+        // Fix the location and backtrace due to Exception::new() usage?
+        if (isset($this->file) and ($this->file === __FILE__)) {
+            // Adjust the file and location pointers by 1, remove the top trace entry
+            $trace = $this->getTrace();
+            $this->setFile($trace[0]['file'])->setLine($trace[0]['line']);
+        }
+
         $message = reset($messages);
         $message = Strings::force($message);
 
-        $this->setCode((string) $code);
-        $this->setData($data);
         $this->addMessages($messages);
-
         parent::__construct($message, 0, $previous);
     }
 
@@ -143,9 +154,9 @@ class Exception extends RuntimeException
      * Set the exception data
      *
      * @param mixed $data
-     * @return CoreException $this
+     * @return static
      */
-    public function setData(mixed $data): Exception
+    public function setData(mixed $data): static
     {
         $this->data = $data;
         return $this;
@@ -169,7 +180,7 @@ class Exception extends RuntimeException
      * @param array $messages
      * @return Exception
      */
-    public function addMessages(array $messages): Exception
+    public function addMessages(array $messages): static
     {
         foreach ($messages as $message) {
             $this->messages[] = $message;
@@ -193,9 +204,10 @@ class Exception extends RuntimeException
     /**
      * Set the exception code
      *
-     * @param mixed $code
+     * @param string|int|null $code
+     * @return Exception
      */
-    public function setCode(?string $code = null): Exception
+    public function setCode(string|int|null $code = null): static
     {
         $this->code = $code;
         return $this;
@@ -209,7 +221,7 @@ class Exception extends RuntimeException
      * @param bool $warning True if this exception is a warning, false if not
      * @return Exception
      */
-    public function setWarning(bool $warning): Exception
+    public function setWarning(bool $warning): static
     {
         if (defined('NOWARNINGS') and NOWARNINGS) {
             $warning = false;
@@ -226,7 +238,7 @@ class Exception extends RuntimeException
      * @note This method returns $this, allowing chaining
      * @return Exception
      */
-    public function makeWarning(): Exception
+    public function makeWarning(): static
     {
         return $this->setWarning(true);
     }
@@ -284,7 +296,12 @@ class Exception extends RuntimeException
      */
     public function log(): static
     {
-        Log::warning($this);
+        if ($this->warning) {
+            Log::warning($this);
+        } else {
+            Log::error($this);
+        }
+
         return $this;
     }
 
@@ -403,5 +420,31 @@ class Exception extends RuntimeException
         }
 
         return $trace;
+    }
+
+
+    /**
+     * Sets the file where the exception occurred
+     *
+     * @param string $file
+     * @return $this
+     */
+    public function setFile(string $file): static
+    {
+        $this->file = $file;
+        return $this;
+    }
+
+
+    /**
+     * Sets the line where the exception occurred
+     *
+     * @param int $line
+     * @return $this
+     */
+    public function setLine(int $line): static
+    {
+        $this->line = $line;
+        return $this;
     }
 }

@@ -7,11 +7,13 @@ namespace Templates\AdminLte\Html\Modals;
 
 use Phoundation\Core\Config;
 use Phoundation\Web\Http\Html\Components\Script;
+use Phoundation\Web\Http\Html\Enums\DisplaySize;
 use Phoundation\Web\Http\Html\Layouts\Grid;
 use Phoundation\Web\Http\Html\Layouts\GridColumn;
 use Phoundation\Web\Http\Html\Layouts\GridRow;
 use Phoundation\Web\Http\Html\Renderer;
 use Phoundation\Web\Http\UrlBuilder;
+
 
 /**
  * MDB Plugin SignInModal class
@@ -20,7 +22,7 @@ use Phoundation\Web\Http\UrlBuilder;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\AdminLte
  */
 class SignInModal extends Renderer
@@ -28,7 +30,7 @@ class SignInModal extends Renderer
     /**
      * SignInModal class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Modals\SignInModal $element)
+    public function __construct(\Phoundation\Web\Http\Html\Components\Modals\SignInModal $element)
     {
         parent::__construct($element);
     }
@@ -42,18 +44,18 @@ class SignInModal extends Renderer
     public function render(): ?string
     {
         // Build the form
-        $form = $this->element->getForm()->render();
+        $form = $this->render_object->getForm()->render();
 
         // Build the layout
         $layout = Grid::new()
             ->addRow(GridRow::new()
-                ->addColumn(GridColumn::new()->setSize(3))
-                ->addColumn(GridColumn::new()->setSize(6)->setContent($form))
-                ->addColumn(GridColumn::new()->setSize(3))
+                ->addColumn(GridColumn::new()->setSize(DisplaySize::three))
+                ->addColumn(GridColumn::new()->setSize(DisplaySize::six)->setContent($form))
+                ->addColumn(GridColumn::new()->setSize(DisplaySize::three))
             );
 
         // Set defaults
-        $this->element
+        $this->render_object
             ->setId('signinModal')
             ->setSize('lg')
             ->setTitle(tr('Sign in'))

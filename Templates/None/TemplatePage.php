@@ -5,13 +5,8 @@ declare(strict_types=1);
 
 namespace Templates\None;
 
-use Phoundation\Core\Config;
-use Phoundation\Web\Http\Html\Components\Footer;
-use Phoundation\Web\Http\Html\Components\SidePanel;
-use Phoundation\Web\Http\Html\Components\TopPanel;
-use Phoundation\Web\Http\Html\Modals\SignInModal;
-use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
+
 
 /**
  * None template class
@@ -20,7 +15,7 @@ use Phoundation\Web\Page;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\None
  */
 class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage

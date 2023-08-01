@@ -9,13 +9,18 @@ use Exception;
 use GeoIP;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\GuestUser;
+use Phoundation\Accounts\Users\Interfaces\UserInterface;
+use Phoundation\Accounts\Users\Interfaces\UsersInterface;
 use Phoundation\Accounts\Users\SignIn;
+use Phoundation\Accounts\Users\SystemUser;
 use Phoundation\Accounts\Users\User;
+use Phoundation\Core\Enums\EnumRequestTypes;
 use Phoundation\Core\Exception\ConfigException;
 use Phoundation\Core\Exception\SessionException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntry\Exception\DataEntryStatusException;
+use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Developer\Debug;
@@ -35,6 +40,7 @@ use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 use Throwable;
 
+
 /**
  * Class Session
  *
@@ -42,7 +48,7 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
 class Session
@@ -50,9 +56,16 @@ class Session
     /**
      * The current user for this session
      *
-     * @var User|null $user
+     * @var UserInterface $user
      */
-    protected static ?User $user = null;
+    protected static UserInterface $user;
+
+    /**
+     * The current impersonated user for this session
+     *
+     * @var UserInterface $impersonated_user
+     */
+    protected static UserInterface $impersonated_user;
 
     /**
      * Tracks if the session has startup or not
@@ -132,22 +145,22 @@ class Session
     /**
      * Returns the user for this session
      *
-     * @return User
+     * @return UserInterface
      */
-    public static function getUser(): User
+    public static function getUser(): UserInterface
     {
-        return self::returnUser(false);
+        return static::returnUser(false);
     }
 
 
     /**
      * Returns the user for this session
      *
-     * @return User
+     * @return UserInterface
      */
-    public static function getRealUser(): User
+    public static function getRealUser(): UserInterface
     {
-        return self::returnUser(true);
+        return static::returnUser(true);
     }
 
 
@@ -170,16 +183,16 @@ class Session
     /**
      * Validate sign in data
      *
-     * @param Validator|null $validator
-     * @return void
+     * @param ValidatorInterface|null $validator
+     * @return array
      */
-    public static function validateSignIn(Validator $validator = null): void
+    public static function validateSignIn(ValidatorInterface $validator = null): array
     {
         if (!$validator) {
             $validator = PostValidator::new();
         }
 
-        $validator
+        return $validator
             ->select('email')->isEmail()
             ->select('password')->isPassword()
             ->validate();
@@ -212,8 +225,8 @@ class Session
 
             Incident::new()
                 ->setType('User sign in')->setSeverity(Severity::notice)
-                ->setTitle(tr('The user ":user" signed in', [':user' => static::$user]))
-                ->setDetails([':user' => static::$user])
+                ->setTitle(tr('The user ":user" signed in', [':user' => static::$user->getLogId()]))
+                ->setDetails([':user' => static::$user->getLogId()])
                 ->save();
 
             $_SESSION['user']['id'] = static::$user->getId();
@@ -301,7 +314,7 @@ class Session
         }
 
         // No supported language found, set the default language
-        return Config::get('languages.default', 'en');
+        return Config::getString('languages.default', 'en');
     }
 
 
@@ -346,6 +359,7 @@ class Session
             try {
                 // We have a cookie! Start a session for it
                 static::start();
+
             } catch (SessionException $e) {
                 Log::warning(tr('Failed to resume session due to exception ":e"', [':e' => $e->getMessage()]));
                 // Failed to start an existing session, so we'll have to detect the client anyway
@@ -391,9 +405,16 @@ class Session
             return false;
         }
 
-        if (Core::isCallType('api')) {
-            // Do not send cookies to API's!
-            return false;
+        switch(Core::getRequestType()) {
+            case EnumRequestTypes::api:
+                // API's don't do cookies at all
+                return false;
+
+            case EnumRequestTypes::ajax:
+                // AJAX requests only do readonly cookies, they won't emit cookies
+                if (array_key_exists(Config::getString('web.sessions.cookies.name', 'phoundation'), $_COOKIE)) {
+
+                }
         }
 
         if (isset_get(Core::readRegister('session', 'client')['type']) === 'crawler') {
@@ -405,16 +426,20 @@ class Session
 
             return false;
         }
-
+//show(session_get_cookie_params());
+//show('IMPLEMENT LONG SESSIONS SUPPORT');
+//show('IMPLEMENT MYSQL SESSIONS SUPPORT');
+//show('IMPLEMENT MEMCACHED SUPPORT WITH FALLBACK TO MYSQL');
+//showdie('IMPLEMENT RETURN TO PREVIOUS PAGE AFTER LOGOUT SUPPORT');
         // What handler to use?
-        switch (Config::get('web.sessions.handler', 'files')) {
+        switch (Config::getString('web.sessions.handler', 'files')) {
             case 'files':
-                $path = Path::new(Config::get('web.sessions.path', PATH_DATA), Restrictions::new([PATH_DATA . 'sessions/', '/var/lib/php/sessions/'], true, 'system/sessions'))->ensure();
+                $path = Path::new(Config::getString('web.sessions.path', PATH_DATA . 'sessions/'), Restrictions::new([PATH_DATA, '/var/lib/php/sessions/'], true, 'system/sessions'))->ensure();
                 session_save_path($path);
                 break;
 
             case 'memcached':
-                // no-break
+
             case 'redis':
                 // no-break
             case 'mongo':
@@ -426,7 +451,7 @@ class Session
 
             default:
                 throw new ConfigException(tr('Unknown session handler ":handler" specified in configuration path "web.sessions.handler"', [
-                    ':handler' => Config::get('web.sessions.handler', 'files')
+                    ':handler' => Config::getString('web.sessions.handler', 'files')
                 ]));
         }
 
@@ -439,7 +464,7 @@ class Session
         }
 
         // Check for extended sessions
-        // TODO Are we still doing this?
+        // TODO Why are we still doing this? We shoudl be able to do extended sessions better
         static::checkExtended();
 
         Log::success(tr('Started session for user ":user" from IP ":ip"', [
@@ -448,9 +473,9 @@ class Session
         ]));
 
         // check and set last activity
-        if (Config::get('web.sessions.cookies.lifetime', 0)) {
+        if (Config::getInteger('web.sessions.cookies.lifetime', 0)) {
             // Session cookie timed out?
-            if (isset($_SESSION['last_activity']) and (time() - $_SESSION['last_activity'] > Config::get('web.sessions.cookies.lifetime', 0))) {
+            if (isset($_SESSION['last_activity']) and (time() - $_SESSION['last_activity'] > Config::getInteger('web.sessions.cookies.lifetime', 0))) {
                 // Session expired!
                 session_unset();
                 session_destroy();
@@ -463,7 +488,7 @@ Log::warning('RESTART SESSION');
         $_SESSION['last_activity'] = microtime(true);
 
         // Euro cookie check, can we do cookies at all?
-        if (Config::get('web.sessions.cookies.europe', true) and !Config::get('web.sessions.cookies.name', 'phoundation')) {
+        if (Config::getBoolean('web.sessions.cookies.europe', true) and !Config::getString('web.sessions.cookies.name', 'phoundation')) {
             if (GeoIP::new()->isEuropean()) {
                 // All first visits to european countries require cookie permissions given!
                 $_SESSION['euro_cookie'] = true;
@@ -471,14 +496,14 @@ Log::warning('RESTART SESSION');
             }
         }
 
-        if (Config::get('security.url-cloaking.enabled', false) and Config::get('security.url-cloaking.strict', false)) {
+        if (Config::getBoolean('security.url-cloaking.enabled', false) and Config::getBoolean('security.url-cloaking.strict', false)) {
             /*
              * URL cloaking was enabled and requires strict checking.
              *
              * Ensure that we have a cloaked URL users_id and that it matches the sessions users_id
              * Only check cloaking rules if we are NOT displaying a system page
              */
-            if (!Core::getRequestType('system')) {
+            if (!Core::isRequestType(EnumRequestTypes::system)) {
                 if (empty($core->register['url_cloak_users_id'])) {
                     throw new SessionException(tr('Failed cloaked URL strict checking, no cloaked URL users_id registered'));
                 }
@@ -492,9 +517,9 @@ Log::warning('RESTART SESSION');
             }
         }
 
-        if (Config::get('web.sessions.regenerate-id', false)) {
+        if (Config::getBoolean('web.sessions.regenerate-id', false)) {
             // Regenerate session identifier
-            if (isset($_SESSION['created']) and (time() - $_SESSION['created'] > Config::get('web.sessions.regenerate_id', false))) {
+            if (isset($_SESSION['created']) and (time() - $_SESSION['created'] > Config::getBoolean('web.sessions.regenerate_id', false))) {
                 // Use "created" to monitor session id age and refresh it periodically to mitigate
                 // attacks on sessions like session fixation
                 session_regenerate_id(true);
@@ -572,7 +597,10 @@ Log::warning('RESTART SESSION');
             unset($_SESSION['user']['impersonate_id']);
             unset($_SESSION['user']['impersonate_url']);
 
-            Page::getFlashMessages()->add(tr('Success'), tr('You have stopped impersonating user ":user"', [':user' => User::get($users_id)]), DisplayMode::success);
+            Page::getFlashMessages()->addSuccessMessage(tr('You have stopped impersonating user ":user"', [
+                ':user' => User::get($users_id)->getLogId()
+            ]));
+
             Page::redirect($url);
         }
 
@@ -602,6 +630,9 @@ Log::warning('RESTART SESSION');
                 return false;
 
             case 'email':
+                return true;
+
+            case 'lost-password':
                 return true;
 
             case 'register':
@@ -684,7 +715,7 @@ Log::warning('RESTART SESSION');
         }
 
         // Impersonate the user
-        $original_user = self::getUser();
+        $original_user = static::getUser();
 
         $_SESSION['user']['impersonate_id']  = $user->getId();
         $_SESSION['user']['impersonate_url'] = (string) UrlBuilder::getCurrent();
@@ -724,7 +755,7 @@ Log::warning('RESTART SESSION');
     {
         // Check the cookie domain configuration to see if it's valid.
         // NOTE: In case whitelabel domains are used, $_CONFIG[cookie][domain] must be one of "auto" or ".auto"
-        switch (Config::get('web.sessions.cookies.domain', '.auto')) {
+        switch (Config::getBoolString('web.sessions.cookies.domain', '.auto')) {
             case false:
                 // This domain has no cookies
                 break;
@@ -746,11 +777,11 @@ Log::warning('RESTART SESSION');
                  * If the configured cookie domain is different from the current domain then all cookie will inexplicably fail without warning,
                  * so this must be detected to avoid lots of hair pulling and throwing arturo off the balcony incidents :)
                  */
-                if (Config::get('web.sessions.cookies.domain')[0] == '.') {
+                if (Config::getBoolString('web.sessions.cookies.domain')[0] == '.') {
                     $test = substr(Config::get('web.sessions.cookies.domain'), 1);
 
                 } else {
-                    $test = Config::get('web.sessions.cookies.domain');
+                    $test = Config::getBoolString('web.sessions.cookies.domain');
                 }
 
                 if (!str_contains(static::$domain, $test)) {
@@ -760,44 +791,44 @@ Log::warning('RESTART SESSION');
                         ->setRoles('developers')
                         ->setTitle(tr('Invalid cookie domain'))
                         ->setMessage(tr('Specified cookie domain ":cookie_domain" is invalid for current domain ":current_domain". Please fix $_CONFIG[cookie][domain]! Redirecting to ":domain"', [
-                            ':domain'         => Strings::startsNotWith(Config::get('web.sessions.cookies.domain'), '.'),
-                            ':cookie_domain'  => Config::get('web.sessions.cookies.domain'),
+                            ':domain'         => Strings::startsNotWith(Config::getBoolString('web.sessions.cookies.domain'), '.'),
+                            ':cookie_domain'  => Config::getBoolString('web.sessions.cookies.domain'),
                             ':current_domain' => static::$domain
                         ]))->send();
 
-                    Page::redirect(PROTOCOL.Strings::startsNotWith(Config::get('web.sessions.cookies.domain'), '.'));
+                    Page::redirect(PROTOCOL.Strings::startsNotWith(Config::getBoolString('web.sessions.cookies.domain'), '.'));
                 }
 
-                ini_set('session.cookie_domain', Config::get('web.sessions.cookies.domain'));
+                ini_set('session.cookie_domain', Config::getBoolString('web.sessions.cookies.domain'));
                 unset($test);
                 unset($length);
         }
 
         // Set session and cookie parameters
         try {
-            if (Config::get('web.sessions.enabled', true)) {
+            if (Config::getBoolean('web.sessions.enabled', true)) {
                 // Force session cookie configuration
-                ini_set('session.gc_maxlifetime' , Config::get('web.sessions.timeout'            , true));
-                ini_set('session.cookie_lifetime', Config::get('web.sessions.cookies.lifetime'   , 0));
-                ini_set('session.use_strict_mode', Config::get('web.sessions.cookies.strict_mode', true));
-                ini_set('session.name'           , Config::get('web.sessions.cookies.name'       , 'phoundation'));
-                ini_set('session.cookie_httponly', Config::get('web.sessions.cookies.http-only'  , true));
-                ini_set('session.cookie_secure'  , Config::get('web.sessions.cookies.secure'     , true));
-                ini_set('session.cookie_samesite', Config::get('web.sessions.cookies.same-site'  , true));
-                ini_set('session.save_handler'   , Config::get('sessions.handler'                , 'files'));
-                ini_set('session.save_path'      , Config::get('sessions.path'                   , PATH_DATA . 'data/sessions/'));
+                ini_set('session.gc_maxlifetime' , Config::getBoolString('web.sessions.timeout'         , true));
+                ini_set('session.cookie_lifetime', Config::getInteger('web.sessions.cookies.lifetime'   , 0));
+                ini_set('session.use_strict_mode', Config::getBoolean('web.sessions.cookies.strict_mode', true));
+                ini_set('session.name'           , Config::getString('web.sessions.cookies.name'        , 'phoundation'));
+                ini_set('session.cookie_httponly', Config::getBoolean('web.sessions.cookies.http-only'  , true));
+                ini_set('session.cookie_secure'  , Config::getBoolean('web.sessions.cookies.secure'     , true));
+                ini_set('session.cookie_samesite', Config::getBoolean('web.sessions.cookies.same-site'  , true));
+                ini_set('session.save_handler'   , Config::getString('sessions.handler'                 , 'files'));
+                ini_set('session.save_path'      , Config::getString('sessions.path'                    , PATH_DATA . 'data/sessions/'));
 
-                if (Config::get('web.sessions.check-referrer', true)) {
+                if (Config::getBoolean('web.sessions.check-referrer', true)) {
                     ini_set('session.referer_check', static::$domain);
                 }
 
-                if (Debug::enabled() or !Config::get('cache.http.enabled', true)) {
+                if (Debug::enabled() or !Config::getBoolean('cache.http.enabled', true)) {
                     ini_set('session.cache_limiter', 'nocache');
 
                 } else {
-                    if (Config::get('cache.http.enabled', true) === 'auto') {
-                        ini_set('session.cache_limiter', Config::get('cache.http.php-cache-limiter'         , true));
-                        ini_set('session.cache_expire' , Config::get('cache.http.php-cache-php-cache-expire', true));
+                    if (Config::getBoolean('cache.http.enabled', true) === 'auto') {
+                        ini_set('session.cache_limiter', Config::getBoolean('cache.http.php-cache-limiter'         , true));
+                        ini_set('session.cache_expire' , Config::getBoolean('cache.http.php-cache-php-cache-expire', true));
                     }
                 }
             }
@@ -808,7 +839,10 @@ Log::warning('RESTART SESSION');
 
             } else {
                 if (!is_writable(session_save_path())) {
-                    throw new SessionException('Session startup failed because the session path ":path" is not writable for platform ":platform"', array(':path' => session_save_path(), ':platform' => PLATFORM), $e);
+                    throw new SessionException('Session startup failed because the session path ":path" is not writable for platform ":platform"', [
+                        ':path'     => session_save_path(),
+                        ':platform' => PLATFORM
+                    ], $e);
                 }
 
                 throw new SessionException('Session startup failed', $e);
@@ -842,7 +876,7 @@ Log::warning('RESTART SESSION');
 
         } else {
             // This is not the registered domain!
-            switch (Config::get('web.domains.whitelabels', false)) {
+            switch (Config::getBoolean('web.domains.whitelabels', false)) {
                 case '':
                     // White label domains are disabled, so the requested domain MUST match the configured domain
                     Log::warning(tr('Whitelabels are disabled, redirecting domain ":source" to ":target"', [
@@ -978,7 +1012,7 @@ Log::warning('RESTART SESSION');
 
         // Set users timezone
         if (empty($_SESSION['user']['timezone'])) {
-            $_SESSION['user']['timezone'] = Config::get('timezone.display', 0);
+            $_SESSION['user']['timezone'] = Config::get('timezone.display', 'UTC');
 
         } else {
             try {
@@ -986,7 +1020,7 @@ Log::warning('RESTART SESSION');
 
             }catch(Exception $e) {
                 // Timezone invalid for this user. Notification developers, and fix timezone for user
-                $_SESSION['user']['timezone'] = Config::get('timezone.display', 0);
+                $_SESSION['user']['timezone'] = Config::get('timezone.display', 'UTC');
 
                 Notification::new()
                     ->setException(SessionException::new(tr('Reset timezone for user ":user" to ":timezone"', [
@@ -1006,73 +1040,86 @@ Log::warning('RESTART SESSION');
      *
      * @todo Add caching for real_user
      * @param bool $real_user
-     * @return User
+     * @return UserInterface
      */
-    protected static function returnUser(bool $real_user): User
+    protected static function returnUser(bool $real_user): UserInterface
     {
-        if (static::$user === null) {
-            // User object does not yet exist
-            if (isset_get($_SESSION['user']['id'])) {
-                if (isset($_SESSION['user']['impersonate_id'])) {
-                    if ($real_user) {
-                        // The session user is impersonated, but the real user was requested
-                        return User::get($_SESSION['user']['id']);
-                    }
-
-                    // Impersonated user!
-                    $users_id = $_SESSION['user']['impersonate_id'];
-                } else {
-                    $users_id = $_SESSION['user']['id'];
+        if (!$real_user) {
+            // We can return impersonated user IF exists
+            if (!empty($_SESSION['user']['impersonate_id'])) {
+                // Return impersonated user
+                if (empty(static::$impersonated_user)) {
+                    // Load impersonated user into cache variable
+                    static::$impersonated_user = static::loadUser($_SESSION['user']['impersonate_id']);
                 }
 
-                // Create new user object and ensure it's still good to go
-                try {
-                    $user = User::get($users_id);
-
-                    if ($user->getStatus()) {
-                        // Only status NULL is allowed
-                        throw new DataEntryStatusException(tr('The user ":user" has the status ":status" which is not allowed, removing session entry and dropping to guest user', [
-                            ':user'   => $user->getLogId(),
-                            ':status' => $user->getStatus()
-                        ]));
-                    }
-
-                    static::$user = $user;
-
-                } catch (DataEntryNotExistsException) {
-                    Log::warning(tr('The session user ":id" does not exist, removing session entry and dropping to guest user', [
-                        ':id' => $_SESSION['user']['id']
-                    ]));
-
-                    // Remove entry and try again
-                    unset($_SESSION['user']['id']);
-                    static::$user = new GuestUser();
-
-                } catch (DataEntryStatusException $e) {
-                    Log::warning($e->getMessage());
-
-                    // Remove entry and try again
-                    unset($_SESSION['user']['id']);
-                    static::$user = new GuestUser();
-
-                } catch (Throwable $e) {
-                    Log::warning(tr('Failed to fetch user ":user" for session with ":e", removing session entry and dropping to guest user', [
-                        ':e' => $e->getMessage(),
-                        ':user' => $_SESSION['user']['id']
-                    ]));
-
-                    // Remove entry and try again
-                    unset($_SESSION['user']['id']);
-                    static::$user = new GuestUser();
-                }
-
-            } else {
-                // There is no user, this is a guest session
-                static::$user = new GuestUser();
+                return static::$impersonated_user;
             }
         }
 
-        // Return the user object
+        // Return the real user
+        if (empty(static::$user)) {
+            // User object does not yet exist
+            if (isset_get($_SESSION['user']['id'])) {
+                static::$user = static::loadUser($_SESSION['user']['id']);
+
+            } else {
+                // TODO What if we run setup from HTTP? Change this to some sort of system flag
+                if (PLATFORM_HTTP) {
+                    // There is no user, this is a guest session
+                    static::$user = new GuestUser();
+
+                } else {
+                    // There is no user, this is a system session
+                    static::$user = new SystemUser();
+                }
+            }
+        }
+
+        // Return from cache
         return static::$user;
+    }
+
+
+    /**
+     * Load the userdata into this session
+     *
+     * @param int $users_id
+     * @return UserInterface
+     */
+    protected static function loadUser(int $users_id): UserInterface
+    {
+        // Create new user object and ensure it's still good to go
+        try {
+            $user = User::get($users_id);
+
+            if (!$user->getStatus()) {
+                return $user;
+            }
+
+            // Only status NULL is allowed
+            Log::warning(tr('The user ":user" has the status ":status" which is not allowed, killed session and dropping to guest user', [
+                ':user'   => $user->getLogId(),
+                ':status' => $user->getStatus()
+            ]));
+
+        } catch (DataEntryNotExistsException) {
+            Log::warning(tr('The session user ":id" does not exist, removing session entry and dropping to guest user', [
+                ':id' => $_SESSION['user']['id']
+            ]));
+
+        } catch (DataEntryStatusException $e) {
+            Log::warning($e->getMessage());
+
+        } catch (Throwable $e) {
+            Log::warning(tr('Failed to fetch user ":user" for session with ":e", removing session entry and dropping to guest user', [
+                ':e' => $e->getMessage(),
+                ':user' => $_SESSION['user']['id']
+            ]));
+        }
+
+        // Remove user information for this session and return to guest user
+        unset($_SESSION['user']['id']);
+        return new GuestUser();
     }
 }

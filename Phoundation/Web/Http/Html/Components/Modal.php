@@ -14,7 +14,7 @@ use JetBrains\PhpStorm\ExpectedValues;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
 abstract class Modal extends ElementsBlock
@@ -75,30 +75,6 @@ abstract class Modal extends ElementsBlock
      * @var bool $escape
      */
     protected ?bool $backdrop = true;
-
-
-    /**
-     * Returns the modal identifier
-     *
-     * @return string|null
-     */
-    public function getId(): ?string
-    {
-        return $this->id;
-    }
-
-
-    /**
-     * Sets the modal identifier
-     *
-     * @param string|null $id
-     * @return static
-     */
-    public function setId(?string $id): static
-    {
-        $this->id = $id;
-        return $this;
-    }
 
 
     /**

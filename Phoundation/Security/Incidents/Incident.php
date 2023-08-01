@@ -7,13 +7,12 @@ namespace Phoundation\Security\Incidents;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\DataEntryFieldDefinition;
-use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
+use Phoundation\Data\DataEntry\Definitions\Definition;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryDetails;
 use Phoundation\Data\DataEntry\Traits\DataEntryTitle;
 use Phoundation\Data\DataEntry\Traits\DataEntryType;
-use Phoundation\Data\Interfaces\InterfaceDataEntry;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
 use Phoundation\Web\Http\Html\Enums\InputElement;
 
@@ -26,7 +25,7 @@ use Phoundation\Web\Http\Html\Enums\InputElement;
  * @see \Phoundation\Data\DataEntry\DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Security
  * @todo Incidents should be able to throw exceptions depending on type. AuthenticationFailureExceptions, for example, should be thrown from here so that it is no longer required for the developer to both register the incident AND throw the exception
  */
@@ -46,20 +45,6 @@ class Incident extends DataEntry
 
 
     /**
-     * Incident class constructor
-     *
-     * @param InterfaceDataEntry|string|int|null $identifier
-     */
-    public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
-    {
-        static::$entry_name = 'incident';
-        $this->unique_field = 'id';
-
-        parent::__construct($identifier);
-    }
-
-
-    /**
      * Returns the table name used by this object
      *
      * @return string
@@ -67,6 +52,28 @@ class Incident extends DataEntry
     public static function getTable(): string
     {
         return 'security_incidents';
+    }
+
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getDataEntryName(): string
+    {
+        return 'security incident';
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return null;
     }
 
 
@@ -124,7 +131,8 @@ class Incident extends DataEntry
     /**
      * Saves the incident to database
      *
-     * @return $this
+     * @param string|null $comments
+     * @return static
      */
     public function save(?string $comments = null): static
     {
@@ -175,18 +183,18 @@ class Incident extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @return DataEntryFieldDefinitionsInterface
+     * @param DefinitionsInterface $definitions
      */
-    protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
+    protected function initDefinitions(DefinitionsInterface $definitions): void
     {
-        return DataEntryFieldDefinitions::new(static::getTable())
-            ->add(DataEntryFieldDefinition::new('type')
+        $definitions
+            ->addDefinition(Definition::new($this, 'type')
                 ->setLabel(tr('Incident type'))
                 ->setDisabled(true)
                 ->setDefault(tr('Unknown'))
                 ->setSize(6)
                 ->setMaxlength(6))
-            ->add(DataEntryFieldDefinition::new('severity')
+            ->addDefinition(Definition::new($this, 'severity')
                 ->setElement(InputElement::select)
                 ->setLabel(tr('Severity'))
                 ->setDisabled(true)
@@ -199,24 +207,17 @@ class Incident extends DataEntry
                     Severity::high->value   => tr('High'),
                     Severity::severe->value => tr('Severe')
                 ]))
-            ->add(DataEntryFieldDefinition::new('title')
+            ->addDefinition(Definition::new($this, 'title')
                 ->setLabel(tr('Title'))
                 ->setDisabled(true)
                 ->setSize(12)
                 ->setMaxlength(4)
                 ->setMaxlength(255))
-            ->add(DataEntryFieldDefinition::new('details')
+            ->addDefinition(Definition::new($this, 'details')
                 ->setElement(InputElement::textarea)
                 ->setLabel(tr('Details'))
                 ->setDisabled(true)
                 ->setSize(12)
                 ->setMaxlength(65_535));
-
-//        ->select($this->getAlternateValidationField('type'), true)->isOptional()->hasMaxCharacters(64)->isPrintable()
-//        ->select($this->getAlternateValidationField('severity'), true)->hasMaxCharacters(6)->inArray(['notice', 'low', 'medium', 'high', 'severe'])
-//        ->select($this->getAlternateValidationField('title'), true)->hasMaxCharacters(255)->isPrintable()
-//        ->select($this->getAlternateValidationField('details'), true)->isOptional()->hasMaxCharacters(65535)->isPrintable()
-//        ->noArgumentsLeft($no_arguments_left)
-
     }
 }

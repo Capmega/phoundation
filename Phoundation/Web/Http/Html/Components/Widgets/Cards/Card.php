@@ -5,10 +5,14 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http\Html\Components\Widgets\Cards;
 
 use Phoundation\Core\Arrays;
+use Phoundation\Data\Traits\DataDescription;
+use Phoundation\Data\Traits\DataName;
+use Phoundation\Data\Traits\DataTitle;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Button;
 use Phoundation\Web\Http\Html\Components\Buttons;
 use Phoundation\Web\Http\Html\Components\Widgets\Widget;
+
 
 /**
  * Card class
@@ -17,45 +21,42 @@ use Phoundation\Web\Http\Html\Components\Widgets\Widget;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
 class Card extends Widget
 {
-    /**
-     * The card title
-     *
-     * @var string|null $title
-     */
-    protected ?string $title = null;
+    use DataTitle;
+    use DataDescription;
+
 
     /**
      * If this card is collapsable or not
      *
-     * @var bool $has_collapse_switch
+     * @var bool $collapse_switch
      */
-    protected bool $has_collapse_switch = false;
+    protected bool $collapse_switch = false;
 
     /**
      * If this card can reload or not
      *
-     * @var bool $has_reload_switch
+     * @var bool $reload_switch
      */
-    protected bool $has_reload_switch = false;
+    protected bool $reload_switch = false;
 
     /**
      * If this card can close or not
      *
-     * @var bool $has_close_switch
+     * @var bool $close_switch
      */
-    protected bool $has_close_switch = false;
+    protected bool $close_switch = false;
 
     /**
      * If this card can maximize or not
      *
-     * @var bool $has_maximize_switch
+     * @var bool $maximize_switch
      */
-    protected bool $has_maximize_switch = false;
+    protected bool $maximize_switch = false;
 
     /**
      * If this card is shown with outline color or not
@@ -72,43 +73,18 @@ class Card extends Widget
     protected ?string $header_content = null;
 
     /**
+     * Tracks if the card is collapsed or not
+     *
+     * @var bool $collapsed
+     */
+    protected bool $collapsed = false;
+
+    /**
      * Buttons for this card
      *
      * @var Buttons|null $buttons
      */
     protected ?Buttons $buttons = null;
-
-    /**
-     * Card class constructor
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-
-    /**
-     * Returns the title for this card
-     *
-     * @return string|null
-     */
-    public function getTitle(): ?string
-    {
-        return $this->title;
-    }
-
-
-    /**
-     * Sets the title for this card
-     *
-     * @param string $title
-     * @return static
-     */
-    public function setTitle(string $title): static
-    {
-        $this->title = $title;
-        return $this;
-    }
 
 
     /**
@@ -149,19 +125,19 @@ class Card extends Widget
     {
         $return = [];
 
-        if ($this->has_close_switch) {
+        if ($this->close_switch) {
             $return['close'] = true;
         }
 
-        if ($this->has_maximize_switch) {
+        if ($this->maximize_switch) {
             $return['maximize'] = true;
         }
 
-        if ($this->has_collapse_switch) {
+        if ($this->collapse_switch) {
             $return['collapse'] = true;
         }
 
-        if ($this->has_reload_switch) {
+        if ($this->reload_switch) {
             $return['reload'] = true;
         }
 
@@ -177,10 +153,10 @@ class Card extends Widget
      */
     public function setSwitches(array|string|null $switches = null): static
     {
-        $this->has_close_switch    = false;
-        $this->has_reload_switch   = false;
-        $this->has_maximize_switch = false;
-        $this->has_collapse_switch = false;
+        $this->close_switch    = false;
+        $this->reload_switch   = false;
+        $this->maximize_switch = false;
+        $this->collapse_switch = false;
 
         foreach (Arrays::force($switches) as $switch) {
             switch ($switch) {
@@ -189,19 +165,19 @@ class Card extends Widget
                     break;
 
                 case 'close':
-                    $this->has_close_switch = true;
+                    $this->close_switch = true;
                     break;
 
                 case 'reload':
-                    $this->has_reload_switch = true;
+                    $this->reload_switch = true;
                     break;
 
                 case 'collapse':
-                    $this->has_collapse_switch = true;
+                    $this->collapse_switch = true;
                     break;
 
                 case 'maximize':
-                    $this->has_maximize_switch = true;
+                    $this->maximize_switch = true;
                     break;
 
                 default:
@@ -232,7 +208,7 @@ class Card extends Widget
      * @param string|null $header_content
      * @return static
      */
-    public function setHeaderContent(string|null $header_content): static
+    public function setHeaderContent(?string $header_content): static
     {
         $this->header_content = $header_content;
         return $this;
@@ -244,21 +220,56 @@ class Card extends Widget
      *
      * @return bool
      */
-    public function hasCollapseSwitch(): bool
+    public function getCollapseSwitch(): bool
     {
-        return $this->has_collapse_switch;
+        return $this->collapse_switch;
     }
 
 
     /**
      * Sets if the card can collapse
      *
-     * @param bool $has_collapse_switch
+     * @param bool $collapse_switch
      * @return static
      */
-    public function setHasCollapseSwitch(bool $has_collapse_switch): static
+    public function setCollapseSwitch(bool $collapse_switch): static
     {
-        $this->has_collapse_switch = $has_collapse_switch;
+        $this->collapse_switch = $collapse_switch;
+        return $this;
+    }
+
+
+    /**
+     * Returns if the card is collapsed or not
+     *
+     * @return bool
+     */
+    public function getCollapsed(): bool
+    {
+        return $this->collapsed;
+    }
+
+
+    /**
+     * Sets if the card is collapsed or not
+     *
+     * @param bool $collapsed
+     * @return static
+     */
+    public function setCollapsed(bool $collapsed): static
+    {
+        $this->collapsed = $collapsed;
+
+        if ($this->collapsed) {
+            if (!$this->collapse_switch) {
+                throw new OutOfBoundsException(tr('Cannot create collapsed card ":title" without collapse switch', [
+                    ':title' => $this->title
+                ]));
+            }
+
+            $this->addClass('collapsed-card');
+        }
+
         return $this;
     }
 
@@ -268,21 +279,21 @@ class Card extends Widget
      *
      * @return bool
      */
-    public function hasCloseSwitch(): bool
+    public function getCloseSwitch(): bool
     {
-        return $this->has_close_switch;
+        return $this->close_switch;
     }
 
 
     /**
      * Sets if the card can close
      *
-     * @param bool $has_close_switch
+     * @param bool $close_switch
      * @return static
      */
-    public function setHasCloseSwitch(bool $has_close_switch): static
+    public function setCloseSwitch(bool $close_switch): static
     {
-        $this->has_close_switch = $has_close_switch;
+        $this->close_switch = $close_switch;
         return $this;
     }
 
@@ -292,21 +303,21 @@ class Card extends Widget
      *
      * @return bool
      */
-    public function hasReloadSwitch(): bool
+    public function getReloadSwitch(): bool
     {
-        return $this->has_reload_switch;
+        return $this->reload_switch;
     }
 
 
     /**
      * Sets if the card can reload
      *
-     * @param bool $has_reload_switch
+     * @param bool $reload_switch
      * @return static
      */
-    public function setHasReloadSwitch(bool $has_reload_switch): static
+    public function setReloadSwitch(bool $reload_switch): static
     {
-        $this->has_reload_switch = $has_reload_switch;
+        $this->reload_switch = $reload_switch;
         return $this;
     }
 
@@ -316,21 +327,21 @@ class Card extends Widget
      *
      * @return bool
      */
-    public function hasMaximizeSwitch(): bool
+    public function getMaximizeSwitch(): bool
     {
-        return $this->has_maximize_switch;
+        return $this->maximize_switch;
     }
 
 
     /**
      * Sets if the card can maximize
      *
-     * @param bool $has_maximize_switch
+     * @param bool $maximize_switch
      * @return static
      */
-    public function setHasMaximizeSwitch(bool $has_maximize_switch): static
+    public function setMaximizeSwitch(bool $maximize_switch): static
     {
-        $this->has_maximize_switch = $has_maximize_switch;
+        $this->maximize_switch = $maximize_switch;
         return $this;
     }
 

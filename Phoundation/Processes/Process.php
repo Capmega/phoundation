@@ -10,12 +10,15 @@ use Phoundation\Core\Strings;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Filesystem;
+use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Commands\Command;
 use Phoundation\Processes\Enum\ExecuteMethod;
 use Phoundation\Processes\Exception\ProcessException;
 use Phoundation\Processes\Exception\ProcessFailedException;
+use Phoundation\Processes\Interfaces\ProcessInterface;
+use Phoundation\Processes\Interfaces\ProcessVariablesInterface;
 use Phoundation\Servers\Server;
 
 
@@ -26,11 +29,11 @@ use Phoundation\Servers\Server;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Processes
  * @uses \Phoundation\Processes\ProcessVariables
  */
-Class Process
+Class Process implements ProcessInterface, ProcessVariablesInterface
 {
     use ProcessVariables;
 
@@ -39,13 +42,13 @@ Class Process
      * Processes constructor.
      *
      * @param string|null $command
-     * @param Restrictions|array|string|null $restrictions
+     * @param RestrictionsInterface|array|string|null $restrictions
      * @param string|null $packages
      */
-    public function __construct(?string $command = null, Restrictions|array|string|null $restrictions = null, ?string $packages = null)
+    public function __construct(?string $command = null, RestrictionsInterface|array|string|null $restrictions = null, ?string $packages = null)
     {
         // Ensure that the run files directory is available
-        Path::new(PATH_ROOT . 'data/run/', $restrictions)->ensure();
+        Path::new(PATH_ROOT . 'data/run/', Restrictions::new(PATH_DATA . 'run', true))->ensure();
 
         $this->setRestrictions($restrictions);
 
@@ -63,11 +66,11 @@ Class Process
      * Create a new process factory
      *
      * @param string|null $command
-     * @param Restrictions|array|string|null $restrictions
+     * @param RestrictionsInterface|array|string|null $restrictions
      * @param string|null $packages
      * @return static
      */
-    public static function new(?string $command = null, Restrictions|array|string|null $restrictions = null, ?string $packages = null): static
+    public static function new(?string $command = null, RestrictionsInterface|array|string|null $restrictions = null, ?string $packages = null): static
     {
         return new static($command, $restrictions, $packages);
     }
@@ -77,11 +80,11 @@ Class Process
      * Create a new CLI script process factory
      *
      * @param string|null $command
-     * @param Restrictions|array|string|null $restrictions
+     * @param RestrictionsInterface|array|string|null $restrictions
      * @param string|null $packages
      * @return static
      */
-    public static function newCliScript(?string $command = null, Restrictions|array|string|null $restrictions = null, ?string $packages = null): static
+    public static function newCliScript(?string $command = null, RestrictionsInterface|array|string|null $restrictions = null, ?string $packages = null): static
     {
         $process = static::new('cli', $restrictions, $packages);
         $process->addArguments(Arrays::force($command, ' '));
@@ -139,10 +142,10 @@ Class Process
             }
 
             // The command finished with an error
-            throw new ProcessFailedException(tr('The command ":command" failed with exit code ":code"', [
+            throw ProcessFailedException::new(tr('The command ":command" failed with exit code ":code"', [
                 ':command' => $this->command,
                 ':code'    => $exit_code
-            ]), [
+            ]))->setCode($exit_code)->setData([
                 'command'              => $this->command,
                 'full_command'         => $this->getFullCommandLine(),
                 'pipe'                 => $this->pipe?->getFullCommandLine(),
@@ -160,7 +163,7 @@ Class Process
                 'execution_time'       => $this->getExecutionTime(),
                 'execution_stop_time'  => $this->getExecutionStopTime(),
                 'execution_start_time' => $this->getExecutionStartTime(),
-            ], $exit_code);
+            ]);
         }
 
         // All okay, yay!

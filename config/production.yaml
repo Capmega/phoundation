@@ -5,6 +5,8 @@ debug:
 project:
   name: "Phoundation"
   version: "0.0.0"
+  customer-url: https://phoundation.org
+  copyright: 2017 - 2023
 languages:
   supported: ["en", "es"]
   default: "en"
@@ -46,4 +48,4 @@ geo:
   ip:
     provider: maxmind
     max-mind:
-      api-key: 
+      api-key:

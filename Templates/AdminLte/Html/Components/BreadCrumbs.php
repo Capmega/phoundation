@@ -18,7 +18,7 @@ use Phoundation\Web\Http\Html\Renderer;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\AdminLte
  */
 class BreadCrumbs extends Renderer
@@ -41,10 +41,10 @@ class BreadCrumbs extends Renderer
     {
         $this->render = ' <ol class="breadcrumb float-sm-right">';
 
-        if ($this->element->getSource()) {
-            $count = count($this->element->getSource());
+        if ($this->render_object->getSource()) {
+            $count = count($this->render_object->getSource());
 
-            foreach ($this->element->getSource() as $url => $label) {
+            foreach ($this->render_object->getSource() as $url => $label) {
                 $label = Strings::truncate($label, 48);
 
                 if (!--$count) {

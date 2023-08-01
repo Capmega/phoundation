@@ -1,0 +1,101 @@
+#!/usr/bin/php
+<?php
+
+declare(strict_types=1);
+
+use Phoundation\Cli\Documentation;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Developer\Project\Project;
+
+
+
+/**
+ * Script project/check
+ *
+ * This script will check for - and report - (and optionally fix) the project and its systems
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Scripts
+ */
+Documentation::usage('./pho system deploy
+./pho system deploy TARGET --
+');
+
+Documentation::help('This script will check - and report - (and optionally fix) the project and its systems
+
+
+
+ARGUMENTS
+
+
+
+TARGET                                  - The target name to which to deploy
+
+-c / --categories                       - List all available deployment categories
+
+-t / --targets                          - List all available deployment targets
+
+
+-i / --ignore-changes                   - Ignore git status, don\'t check for uncommitted changes
+
+--do-content-check                      - Check content files
+
+--no-hook / --no-hooks                  - Do not execute hooks
+
+--no-init                               - Do not execute an init on the target server
+
+--no-notify                             - Do not send notifications
+
+--no-compress                           - Do not compress the javascript / CSS files.
+
+--no-push                               - Do not automatically git push all changes and tags
+
+--no-parrallel                          - Do not use parallel rsync deploy, even if the website is configured to do so 
+                                          anyway
+
+--no-sitemap                            - Do not automatically reupdate the sitemap files
+
+--no-translate                          - Do not execute file translation
+
+--no-bom-check                          - Do not test for BOM character in all PHP files. The ByteOrderMark character is  
+                                          a UTF8 character (added mostly by apple machines) that indicates how to read 
+                                          the UTF8 text, but is interpreted by the PHP as a character before the <?php 
+                                          tag, which can cause problems with headers(). The clearbom script will strip 
+                                          the BOM characters and is by default always executed on each deploy to be sure 
+                                          no BOM characters end up in production code. This option disables the BOM 
+                                          check.
+
+--no-backup                             - Do NOT execute a site / database backup, even though per configuration, a  
+                                          backup should be done
+
+--do-backup                             - Execute a site / database backup, even if per configuration, a backup should 
+                                          not be done
+
+--stash                                 - Execute a \"git stash\" before and \"git stash pop\" after deploy, in case the WT
+                                          contained changes
+
+--update-sitemap                        - rsync the www/LANG/sitemap file as well (Normally always skipped)
+
+-F / --force                            - Force a deploy, even when it should be stopped due to (for example) git changes
+
+--test-syntax                           - Do PHP syntax tests
+
+--test-unit                             - Do PHP unit tests ');
+
+
+
+// Validate arguments
+$argv = ArgvValidator::new()
+    ->select('-r,--repair')->isOptional()->isBoolean()
+    ->noArgumentsLeft()
+    ->validate();
+
+
+Log::information('Checking your system. Please wait, this may take a few seconds...');
+Project::deploy()
+    ->setTarget()
+    ->setTarget()
+    ->execute();

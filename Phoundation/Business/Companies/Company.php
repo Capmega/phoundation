@@ -5,13 +5,15 @@ declare(strict_types=1);
 namespace Phoundation\Business\Companies;
 
 use Phoundation\Business\Companies\Branches\Branches;
+use Phoundation\Business\Companies\Branches\Interfaces\BranchesInterface;
 use Phoundation\Business\Companies\Departments\Departments;
+use Phoundation\Business\Companies\Departments\Interfaces\DepartmentsInterface;
+use Phoundation\Business\Companies\Interfaces\CompanyInterface;
 use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\DataEntryFieldDefinitions;
 use Phoundation\Data\DataEntry\DataList;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryFieldDefinitionsInterface;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
-use Phoundation\Data\Interfaces\InterfaceDataEntry;
 
 
 /**
@@ -22,10 +24,10 @@ use Phoundation\Data\Interfaces\InterfaceDataEntry;
  * @see \Phoundation\Data\DataEntry\DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Companies
  */
-class Company extends DataEntry
+class Company extends DataEntry implements CompanyInterface
 {
     use DataEntryNameDescription;
 
@@ -33,29 +35,16 @@ class Company extends DataEntry
     /**
      * The branches for this company
      *
-     * @var DataList $branches
+     * @var BranchesInterface $branches
      */
-    protected DataList $branches;
+    protected BranchesInterface $branches;
 
     /**
      * The departments for this company
      *
-     * @var DataList $departments
+     * @var DepartmentsInterface $departments
      */
-    protected DataList $departments;
-
-
-    /**
-     * Company class constructor
-     *
-     * @param InterfaceDataEntry|string|int|null $identifier
-     */
-    public function __construct(InterfaceDataEntry|string|int|null $identifier = null)
-    {
-        static::$entry_name = 'company';
-
-        parent::__construct($identifier);
-    }
+    protected DepartmentsInterface $departments;
 
 
     /**
@@ -70,11 +59,33 @@ class Company extends DataEntry
 
 
     /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getDataEntryName(): string
+    {
+        return tr('Company');
+    }
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string
+    {
+        return 'seo_name';
+    }
+
+
+    /**
      * Access company branches
      *
-     * @return Branches
+     * @return BranchesInterface
      */
-    public function branches(): Branches
+    public function getBranches(): BranchesInterface
     {
         if (!isset($this->branches)) {
             $this->branches = Branches::new($this);
@@ -88,9 +99,9 @@ class Company extends DataEntry
     /**
      * Access company branches
      *
-     * @return Departments
+     * @return DepartmentsInterface
      */
-    public function departments(): Departments
+    public function getDepartments(): DepartmentsInterface
     {
         if (!isset($this->departments)) {
             $this->departments = Departments::new($this);
@@ -101,21 +112,12 @@ class Company extends DataEntry
 
 
     /**
-     * @inheritDoc
-     */
-    public function save(?string $comments = null): static
-    {
-        // TODO: Implement save() method.
-    }
-
-
-    /**
      * Sets the available data keys for this entry
      *
-     * @return DataEntryFieldDefinitionsInterface
+     * @param DefinitionsInterface $definitions
      */
-    protected static function setFieldDefinitions(): DataEntryFieldDefinitionsInterface
+    protected function initDefinitions(DefinitionsInterface $definitions): void
     {
-        return DataEntryFieldDefinitions::new(static::getTable());
+        $definitions;
     }
 }
