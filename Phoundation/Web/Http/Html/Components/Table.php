@@ -527,12 +527,12 @@ class Table extends ResourceElement
     /**
      * Sets the URL that applies to each row
      *
-     * @param string|null $row_url
+     * @param Stringable|string|null $row_url
      * @return static
      */
-    public function setRowUrl(?string $row_url): static
+    public function setRowUrl(Stringable|string|null $row_url): static
     {
-        $this->row_url = $row_url;
+        $this->row_url = (string) $row_url;
         return $this;
     }
 
