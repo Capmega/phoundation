@@ -576,7 +576,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
         }
 
         throw DataEntryNotExistsException::new(tr('The ":label" entry ":identifier" does not exist', [
-            ':label' => static::getClassName(),
+            ':label'      => static::getClassName(),
             ':identifier' => $identifier
         ]))->makeWarning();
     }
