@@ -687,31 +687,6 @@ class Arrays {
 
 
     /**
-     * Merge two arrays together, using the values of array1 as keys, and the values of array2 as values
-     *
-     * @param array $keys
-     * @param array $values
-     * @return array
-     */
-    public static function mergeKeysValues(array $keys, array $values): array
-    {
-        $return = [];
-
-        foreach ($keys as $key) {
-            if (!isset($next)) {
-                $next = true;
-                $return[$key] = reset($values);
-
-            } else {
-                $return[$key] = next($values);
-            }
-        }
-
-        return $return;
-    }
-
-
-    /**
      * Prefix all keys in this array with the specified prefix
      *
      * @param array $source
