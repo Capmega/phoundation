@@ -41,9 +41,10 @@ class Button extends Input
     {
         parent::__construct();
 
+        $this->setName('submit');
+        $this->setClasses('btn');
         $this->setElement('button');
         $this->setType(ButtonType::submit);
-        $this->setClasses('btn');
     }
 
 
