@@ -17,5 +17,4 @@ use Phoundation\Web\Http\Html\Components\Modals\LargeModal;
  */
 class Modal extends LargeModal
 {
-
 }

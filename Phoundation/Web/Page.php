@@ -1278,10 +1278,10 @@ class Page
     public static function checkForceRedirect(): void
     {
         // Does this user have a forced redirect?
-        if (!Session::getRealUser()->isGuest()) {
-            if (Session::getRealUser()->getRedirect()) {
+        if (!Session::getUser()->isGuest()) {
+            if (Session::getUser()->getRedirect()) {
                 // Are we at the forced redirect page? If so, we can stay
-                $redirect = Session::getRealUser()->getRedirect();
+                $redirect = Session::getUser()->getRedirect();
                 $current  = (string) UrlBuilder::getCurrent();
 
                 if (Strings::until($redirect, '?') !== Strings::until($current, '?')) {
@@ -1292,7 +1292,7 @@ class Page
                     if ($current !== $signout) {
                         // No it's not, redirect!
                         Log::warning(tr('User ":user" has a redirect to ":url", redirecting there instead', [
-                            ':user' => Session::getRealUser()->getLogId(),
+                            ':user' => Session::getUser()->getLogId(),
                             ':url'  => $redirect
                         ]));
 
