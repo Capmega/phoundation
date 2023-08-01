@@ -726,8 +726,6 @@ SYSTEM ARGUMENTS
             if (($e instanceof Exception) and $e->isWarning()) {
                 $exit_code = $exit_code ?? 1;
 
-                Audio::new('data/audio/critical.mp3')->play(true);
-
                 Log::warning($e->getMessage());
                 Log::warning(tr('Script ":script" ended with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
                     ':script'   => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
@@ -737,8 +735,6 @@ SYSTEM ARGUMENTS
                 ]), 10);
             } else {
                 $exit_code = $exit_code ?? 255;
-
-                Audio::new('data/audio/critical.mp3')->play(true);
 
                 Log::error($e->getMessage());
                 Log::error(tr('Script ":script" ended with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
@@ -751,10 +747,9 @@ SYSTEM ARGUMENTS
 
         } elseif ($exit_code) {
             if ($exit_code >= 200) {
-                Audio::new('data/audio/critical.mp3')->play(true);
-
                 if ($exit_message) {
                     Log::warning($exit_message, 8);
+
                 } else {
                     // Script ended with warning
                     Log::warning(tr('Script ":script" ended with exit code ":exitcode" warning in ":time" with ":usage" peak memory usage', [
