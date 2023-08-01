@@ -100,7 +100,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      * @return static
      * @throws Exception
      */
-    public static function today(\DateTimeZone|string|null $timezone = null): static
+    public static function getToday(\DateTimeZone|string|null $timezone = null): static
     {
         return new static('today', DateTimeZone::new($timezone));
     }
@@ -113,7 +113,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      * @return static
      * @throws Exception
      */
-    public static function tomorrow(\DateTimeZone|string|null $timezone = null): static
+    public static function getTomorrow(\DateTimeZone|string|null $timezone = null): static
     {
         return new static('tomorrow', DateTimeZone::new($timezone));
     }
@@ -122,14 +122,49 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
     /**
      * Returns a new DateTime object for yesterday
      *
-     * @param Date|DateTime|string $datetime
-     * @param \DateTimeZone|DateTimeZone|string|null $timezone
+     * @param \DateTimeZone|string|null $timezone
      * @return static
      * @throws Exception
      */
-    public static function yesterday(Date|DateTime|string $datetime = 'yesterday 00:00:00', \DateTimeZone|DateTimeZone|string|null $timezone = null): static
+    public static function getYesterday(\DateTimeZone|string|null $timezone = null): static
     {
         return new static('yesterday', DateTimeZone::new($timezone));
+    }
+
+
+    /**
+     * Returns a new DateTime object
+     *
+     * @param \DateTimeZone|string|null $timezone
+     * @return bool
+     */
+    public function isToday(\DateTimeZone|string|null $timezone = null): bool
+    {
+        return $this->format('y-m-d') == static::new('today', DateTimeZone::new($timezone))->format('y-m-d');
+    }
+
+
+    /**
+     * Returns a new DateTime object for tomorrow
+     *
+     * @param \DateTimeZone|string|null $timezone
+     * @return bool
+     */
+    public function isTomorrow(\DateTimeZone|string|null $timezone = null): bool
+    {
+        return $this->format('y-m-d') == static::new('tomorrow', DateTimeZone::new($timezone))->format('y-m-d');
+    }
+
+
+    /**
+     * Returns a new DateTime object for yesterday
+     *
+     * @param \DateTimeZone|string|null $timezone
+     * @return bool
+     */
+    public function isYesterday(\DateTimeZone|string|null $timezone = null): bool
+    {
+        return $this->format('y-m-d') == static::new('yesterday', DateTimeZone::new($timezone))->format('y-m-d');
     }
 
 
@@ -175,7 +210,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
             case DateTimeSegment::millennium:
                 // no break
             case DateTimeSegment::decennium:
-            // no break
+                // no break
             case DateTimeSegment::century:
                 // no break
             case DateTimeSegment::week:
