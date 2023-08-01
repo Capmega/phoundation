@@ -381,12 +381,13 @@ class Strings
      * Returns a base58 encoded string
      *
      * @param Stringable|string $source
+     * @param string|null $alphabet
      * @return string
      */
-    public static function toBase58(Stringable|string $source): string
+    public static function toBase58(Stringable|string $source, ?string $alphabet = null): string
     {
         $source = (string) $source;
-        $codec  = new Base58();
+        $codec  = new Base58($alphabet);
 
         return $codec->encode($source);
     }
@@ -403,7 +404,7 @@ class Strings
     {
         $source = explode($separator, mb_strtolower((string) $source));
 
-        foreach ($source as $key => &$value) {
+        foreach ($source as &$value) {
             $value = mb_ucfirst($value);
         }
 
