@@ -1690,6 +1690,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
     {
         return DataEntryForm::new()
             ->setSource($this->source)
+            ->setReadonly($this->readonly)
             ->setDefinitions($this->definitions);
     }
 

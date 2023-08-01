@@ -138,7 +138,7 @@ class DataEntryForm extends Renderer
                     // This is an unmutable meta field, virtual field, or readonly field.
                     // In creation mode we're not even going to show this, in edit mode don't put a field name because
                     // users aren't even supposed to be able to submit this
-                    if (empty($render_object->source['id'])) {
+                    if (empty($source['id'])) {
                         continue;
                     }
 
@@ -168,7 +168,7 @@ class DataEntryForm extends Renderer
             Arrays::default($definition_array, 'min'         , null);
             Arrays::default($definition_array, 'pattern'     , null);
             Arrays::default($definition_array, 'placeholder' , null);
-            Arrays::default($definition_array, 'readonly'    , false);
+            Arrays::default($definition_array, 'readonly'    , $render_object->getReadonly());
             Arrays::default($definition_array, 'size'        , 12);
             Arrays::default($definition_array, 'source'      , null);
             Arrays::default($definition_array, 'step'        , null);
