@@ -23,6 +23,7 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryAddress;
 use Phoundation\Data\DataEntry\Traits\DataEntryCode;
 use Phoundation\Data\DataEntry\Traits\DataEntryComments;
@@ -135,6 +136,22 @@ class User extends DataEntry implements UserInterface
     public static function getUniqueField(): ?string
     {
         return 'email';
+    }
+
+
+    /**
+     * DataEntry class constructor
+     *
+     * @param DataEntryInterface|string|int|null $identifier
+     * @param string|null $column
+     */
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null)
+    {
+        parent::__construct($identifier, $column);
+
+        if ($this->isGuest() or $this->isSystem()) {
+            $this->setReadonly(true);
+        }
     }
 
 
@@ -1187,12 +1204,20 @@ class User extends DataEntry implements UserInterface
      */
     public function canBeImpersonated(): bool
     {
-        if (!Session::isImpersonated()) {
-            if (Session::getUser()->hasAllRights('impersonate')) {
-                // We must have the right and we cannot impersonate ourselves
-                if ($this->getId() !== Session::getUser()->getId()) {
-                    if (!$this->hasAllRights('god')) {
-                        return true;
+        if (!$this->isNew()){
+            // Cannot impersonate while we are already impersonating
+            if (!Session::isImpersonated()) {
+                // We can only impersonate if we have the right to do so
+                if (Session::getUser()->hasAllRights('impersonate')) {
+                    // We must have the right and we cannot impersonate ourselves
+                    if ($this->getId() !== Session::getUser()->getId()) {
+                        // Cannot impersonate god level users
+                        if (!$this->hasAllRights('god')) {
+                            // Cannot impersonate readonly users (typically guest and system)
+                            if (!$this->readonly) {
+                                return true;
+                            }
+                        }
                     }
                 }
             }
@@ -1209,11 +1234,17 @@ class User extends DataEntry implements UserInterface
      */
     public function canBeStatusChanged(): bool
     {
-        // We must have the right and we cannot impersonate ourselves
+        // We cannot status change ourselves, we cannot status change god users nor system users, we cannot change
+        // readonly users
         if ($this->getId() !== Session::getUser()->getId()) {
+            // Cannot change status for god right users
             if (!$this->hasAllRights('god')) {
-                if ($this->getId() and ($this->getId() > 1)) {
-                    return true;
+                // Cannot change status for new users
+                if ($this->getId()) {
+                    // Cannot change status for readonly users (typically guest and system)
+                    if (!$this->readonly) {
+                        return true;
+                    }
                 }
             }
         }
@@ -1253,7 +1284,7 @@ class User extends DataEntry implements UserInterface
      */
     protected static function doAuthenticate(string|int $identifier, string $password, ?string $domain = null, bool $test = false): static
     {
-        $user = User::get($identifier);
+        $user = User::get($identifier, (is_numeric($identifier) ? 'id' : 'email'));
 
         if ($user->passwordMatch($password)) {
             if ($user->getDomain()) {
@@ -1335,8 +1366,9 @@ class User extends DataEntry implements UserInterface
                 ->setReadonly(true)
                 ->setInputType(InputType::datetime_local)
                 ->setNullInputType(InputType::text)
-                ->setSize(3)
                 ->setDefault(tr('Not locked'))
+                ->setNullDb(true)
+                ->setSize(3)
                 ->setLabel(tr('Locked until')))
             ->addDefinition(DefinitionFactory::getEmail($this)
                 ->setSize(3)

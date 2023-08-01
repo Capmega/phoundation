@@ -30,7 +30,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.0.12';
+        return '0.0.13';
     }
 
 
@@ -536,9 +536,15 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_accounts_authentication_failures_states_id` FOREIGN KEY (`states_id`) REFERENCES `geo_states` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_accounts_authentication_failures_cities_id` FOREIGN KEY (`cities_id`) REFERENCES `geo_cities` (`id`) ON DELETE RESTRICT,
                 ')->create();
+
         })->addUpdate('0.0.12', function () {
             // Add "password_update" column
             sql()->schema()->table('accounts_users')->alter()->addColumn('`update_password` datetime DEFAULT NULL', 'AFTER `password`');
+
+        })->addUpdate('0.0.13', function () {
+            // Fix minor db issues
+            sql()->query('UPDATE `accounts_users` SET `locked_until` = NULL');
+            sql()->query('UPDATE `accounts_users` SET `first_names` = "guest" WHERE `email` = "guest"');
         });
     }
 }
