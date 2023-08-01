@@ -166,7 +166,7 @@ class Category extends DataEntry implements CategoryInterface
             ->addDefinition(DefinitionFactory::getName($this)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isFalse(function($value, $source) {
-                        Category::exists('name', $value, isset_get($source['id']));
+                        Category::exists($value, 'name', isset_get($source['id']));
                     }, tr('already exists'));
                 }))
             ->addDefinition(DefinitionFactory::getSeoName($this))

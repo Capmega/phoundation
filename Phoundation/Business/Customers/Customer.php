@@ -152,7 +152,7 @@ class Customer extends DataEntry
             ->addDefinition(DefinitionFactory::getName($this)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isFalse(function($value, $source) {
-                        Customer::exists('name', $value, isset_get($source['id']));
+                        Customer::exists($value, 'name', isset_get($source['id']));
                     }, tr('already exists'));
                 }))
             ->addDefinition(DefinitionFactory::getSeoName($this))

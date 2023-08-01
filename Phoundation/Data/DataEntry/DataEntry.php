@@ -169,6 +169,13 @@ abstract class DataEntry implements DataEntryInterface, Stringable
     protected bool $is_modified = false;
 
     /**
+     * True when data is being applied through the DataEntry::apply() method
+     *
+     * @var bool $is_applying
+     */
+    protected bool $is_applying = false;
+
+    /**
      * Returns true if the DataEntry object was just successfully saved
      *
      * @var bool $is_saved
@@ -237,7 +244,14 @@ abstract class DataEntry implements DataEntryInterface, Stringable
         if (!$column) {
             // If the column on which to select wasn't specified, assume `id` for numeric identifiers, or the unique
             // field otherwise
-            $column = (is_numeric($identifier) ? 'id' : static::getUniqueField());
+            $column = 'id';
+
+            if ($identifier and !is_numeric($identifier)) {
+                throw new OutOfBoundsException(tr('This ":class" class DataEntry object has a non numeric identifier ":identifier" without $column specified. Either specify a $column for this identifier or specify the entry ID instead', [
+                    ':class'      => get_class($this),
+                    ':identifier' => $identifier
+                ]));
+            }
         }
 
         // Set up the fields for this object
@@ -245,15 +259,16 @@ abstract class DataEntry implements DataEntryInterface, Stringable
         $this->initDefinitions($this->definitions);
 
         if ($identifier) {
-            if (is_numeric($identifier)) {
-                $this->source['id'] = $identifier;
-
-            } elseif (is_object($identifier)) {
-                $this->source['id'] = $identifier->getId();
-
-            } else {
-                $this->source[static::getUniqueField()] = $identifier;
-            }
+// TODO WTF was the thought behind this section? Just load, the identifier should be loaded with the DataEntry::load() call
+//            if (is_numeric($identifier)) {
+//                $this->source['id'] = $identifier;
+//
+//            } elseif (is_object($identifier)) {
+//                $this->source['id'] = $identifier->getId();
+//
+//            } else {
+//                $this->source[$column] = $identifier;
+//            }
 
             $this->load($identifier, $column);
 
@@ -272,7 +287,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      */
     public static function new(DataEntryInterface|string|int|null $identifier = null, ?string $column = null): static
     {
-        return new static($identifier);
+        return new static($identifier, $column);
     }
 
 
@@ -591,14 +606,14 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      * Returns true if an entry with the specified identifier exists
      *
      * @param string $field
-     * @param string|int|null $identifier The unique identifier, but typically not the database id, usually the
-     *                                    seo_email, or seo_name
+     * @param string|int $identifier The unique identifier, but typically not the database id, usually the seo_email,
+     *                               or seo_name
      * @param int|null $not_id
      * @param bool $throw_exception If the entry does not exist, instead of returning false will throw a
      *                                    DataEntryNotExistsException
      * @return bool
      */
-    public static function exists(string $field, string|int $identifier = null, ?int $not_id = null, bool $throw_exception = false): bool
+    public static function exists(string|int $identifier, string $field, ?int $not_id = null, bool $throw_exception = false): bool
     {
         if (!$identifier) {
             throw new OutOfBoundsException(tr('Cannot check if ":class" class DataEntry exists, no identifier specified', [
@@ -641,7 +656,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      *                                    returning false will throw a DataEntryNotExistsException
      * @return bool
      */
-    public static function notExists(string $field, string|int $identifier = null, ?int $id = null, bool $throw_exception = false): bool
+    public static function notExists(string|int $identifier, string $field, ?int $id = null, bool $throw_exception = false): bool
     {
         if (!$identifier) {
             throw new OutOfBoundsException(tr('Cannot check if ":class" class DataEntry not exists, no identifier specified', [
@@ -970,6 +985,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
             }
         }
 
+        $this->is_applying  = true;
         $this->is_validated = false;
         $this->is_saved     = false;
 
@@ -1016,6 +1032,8 @@ abstract class DataEntry implements DataEntryInterface, Stringable
                 ->createDiff($data_source)
                 ->copyDataToSource($data_source, true);
         }
+
+        $this->is_applying = false;
 
         if ($this->debug) {
             Log::information('DATA AFTER APPLY', 10);
@@ -1365,60 +1383,72 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      *
      * @param string $field
      * @param mixed $value
-     * @param bool $force
      * @return static
      */
-    protected function setDataValue(string $field, mixed $value, bool $force = false): static
+    protected function setDataValue(string $field, mixed $value): static
     {
         if ($this->debug) {
-            Log::information('SETDATAVALUE FIELD "' . $field . '"', 10);
+            Log::information('TRY SETDATAVALUE FIELD "' . $field . '"', 10);
         }
 
         // Only save values that are defined for this object
-        if ($this->definitions->exists($field)) {
-            // Skip all meta fields like id, created_on, meta_id, etc etc etc..
-            if (!in_array($field, self::$meta_fields)) {
-                // If the key is defined as readonly or disabled, it cannot be updated unless it's a new object or a
-                // static value.
-                $definition = $this->definitions->get($field);
-
-                if ($force or $this->is_loading or !$this->getId() or $definition->getValue() or (!$definition->getReadonly() and !$definition->getDisabled())) {
-                    $default = $definition->getDefault();
-
-                    // What to do if we don't have a value? Data should already have been validated, so we know the
-                    // value is optional (would not have passed validation otherwise) so it either defaults or NULL
-                    if (!$value) {
-                        //  By default, all columns with empty values will be pushed to NULL unless specified otherwise
-                        $value = $default;
-                    }
-
-                    // Value may be set with default value while field was empty, which is the same. Make value empty
-                    if ((isset_get($this->source[$field]) === null) and ($value === $default)) {
-                        // If the previous value was empty and the current value is the same as the default value
-                        // then there was no modification, it just defaulted
-                    } else {
-                        // The DataEntry::is_modified can only be modified if it is not TRUE already.
-                        // The DataEntry is considered modified if user is modifying and the entry changed
-                        if (!$this->is_modified and !$definition->getReadonly() and !$definition->getIgnoreModify()) {
-                            $this->is_modified = (isset_get($this->source[$field]) !== $value);
-                        }
-                    }
-
-                    if ($this->debug) {
-                        Log::debug('MODIFIED FIELD "' . $field . '" FROM "' . $this->source[$field] . '" [' . gettype(isset_get($this->source[$field])) . '] TO "' . $value . '" [' . gettype($value) . '], MARKED MODIFIED: ' . Strings::fromBoolean($this->is_modified), 10);
-                    }
-
-                    // Update the field value
-                    $this->source[$field] = $value;
-                    $this->is_validated = false;
-                }
+        if (!$this->definitions->exists($field)) {
+            if ($this->definitions->isEmpty()) {
+                throw new DataEntryException(tr('The ":class" class has no fields defined yet', [
+                    ':class' => get_class($this)
+                ]));
             }
 
-        } elseif ($this->definitions->isEmpty()) {
-            throw new DataEntryException(tr('The ":class" class has no fields defined yet', [
+            throw new DataEntryException(tr('Not setting field ":field", it is not defined for the ":class" class', [
+                ':field' => $field,
                 ':class' => get_class($this)
             ]));
         }
+
+        // Skip all meta fields like id, created_on, meta_id, etc etc etc..
+        if (in_array($field, self::$meta_fields)) {
+            return $this;
+        }
+
+        // If the key is defined as readonly or disabled, it cannot be updated unless it's a new object or a
+        // static value.
+        $definition = $this->definitions->get($field);
+
+        if ($this->is_applying) {
+            if ($definition->getReadonly() or $definition->getDisabled()) {
+                // The data is being set through DataEntry::apply() but this column is readonly
+                return $this;
+            }
+        }
+
+        $default = $definition->getDefault();
+
+        // What to do if we don't have a value? Data should already have been validated, so we know the
+        // value is optional (would not have passed validation otherwise) so it either defaults or NULL
+        if (!$value) {
+            //  By default, all columns with empty values will be pushed to NULL unless specified otherwise
+            $value = $default;
+        }
+
+        // Value may be set with default value while field was empty, which is the same. Make value empty
+        if ((isset_get($this->source[$field]) === null) and ($value === $default)) {
+            // If the previous value was empty and the current value is the same as the default value
+            // then there was no modification, we simply applied a default value
+        } else {
+            // The DataEntry::is_modified can only be modified if it is not TRUE already.
+            // The DataEntry is considered modified if user is modifying and the entry changed
+            if (!$this->is_modified and !$definition->getReadonly() and !$definition->getIgnoreModify()) {
+                $this->is_modified = (isset_get($this->source[$field]) !== $value);
+            }
+        }
+
+        if ($this->debug) {
+            Log::debug('MODIFIED FIELD "' . $field . '" FROM "' . $this->source[$field] . '" [' . gettype(isset_get($this->source[$field])) . '] TO "' . $value . '" [' . gettype($value) . '], MARKED MODIFIED: ' . Strings::fromBoolean($this->is_modified), 10);
+        }
+
+        // Update the field value
+        $this->source[$field] = $value;
+        $this->is_validated   = false;
 
         return $this;
     }
@@ -1596,7 +1626,6 @@ abstract class DataEntry implements DataEntryInterface, Stringable
             if ($this->debug) {
                 Log::information('SAVED DATAENTRY WITH ID "' . $this->source['id'] . '"', 10);
             }
-
 
             // The data in this object hasn't been validated yet! Do so now...
             $source = $this->getDataForValidation();

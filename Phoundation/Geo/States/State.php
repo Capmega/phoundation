@@ -138,7 +138,7 @@ class State extends DataEntry
 //
 //        // Ensure the name doesn't exist yet as it is a unique identifier
 //        if ($data['name']) {
-//            static::notExists($data['name'], $this->getId(), true);
+//            static::notExists($data['name'], 'name', $this->getId(), true);
 //        }
 //
 //        return $data;

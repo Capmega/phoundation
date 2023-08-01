@@ -51,7 +51,7 @@ class Roles extends DataList implements RolesInterface
                                ON         `accounts_rights`.`id` = `accounts_roles_rights`.`rights_id` 
                                  AND      `accounts_rights`.`status` IS NULL 
                                WHERE      `accounts_roles`.`status` IS NULL
-                               GROUP BY   `accounts_roles`.`id`
+                               GROUP BY   `accounts_roles`.`name`
                                ORDER BY   `accounts_roles`.`name`');
 
         parent::__construct();
