@@ -104,14 +104,15 @@ class Plugins extends DataList
     {
         $count = 0;
 
-        foreach (static::getPlugins() as $name => $class) {
+        foreach (static::scanPlugins() as $name => $class) {
             try {
-                $plugin = $class::new($name);
+                $plugin = $class::new($name, 'name');
 
                 if (!$plugin->getId()) {
                     $plugin->register();
                     $count++;
                 }
+
             } catch (Throwable $e) {
                 Log::warning(tr('Failed to read plugin ":plugin" because of the following exception. Ignoring it.', [
                     ':plugin' => $name
@@ -296,7 +297,7 @@ class Plugins extends DataList
      *
      * @return array
      */
-    protected static function getPlugins(): array
+    protected static function scanPlugins(): array
     {
         $path    = PATH_ROOT . 'Plugins/';
         $return  = [];
@@ -309,6 +310,11 @@ class Plugins extends DataList
             }
 
             $file = $path . $plugin . '/Plugin.php';
+
+            if ($plugin === 'disabled') {
+                // The "disabled" directory is for disabled plugins, ignore it completely
+                continue;
+            }
 
             // Are these valid plugins? Valid plugins must have name uppercase first letter and upper/lowercase rest,
             // must have Plugin.php file available that is subclass of \Phoundation\Core\Plugin

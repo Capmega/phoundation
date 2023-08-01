@@ -13,7 +13,6 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryPath;
 use Phoundation\Data\DataEntry\Traits\DataEntryPriority;
@@ -147,21 +146,27 @@ class Plugin extends DataEntry implements PluginInterface
     /**
      * Returns the plugin path for this plugin
      *
-     * @return string
+     * @return string|null
      */
-    public function getClass(): string
+    public function getClass(): ?string
     {
-        return Library::getClassPath($this->getPath() . 'Plugin.php');
+        $path = $this->getPath();
+
+        if ($path) {
+            return Library::getClassPath($path . 'Plugin.php');
+        }
+
+        return null;
     }
 
 
     /**
      * Sets the main class for this plugin
      *
-     * @param string $class
+     * @param string|null $class
      * @return static
      */
-    public function setClass(string $class): static
+    public function setClass(?string $class): static
     {
         return $this->setDataValue('class', $class);
     }
@@ -237,7 +242,7 @@ class Plugin extends DataEntry implements PluginInterface
         $plugin = static::new();
         $name   = $plugin->getName();
 
-        if (static::exists('name', $name)) {
+        if (static::exists($name, 'name')) {
             // This plugin is already registered
             Log::warning(tr('Not registering plugin ":plugin", it is already registered', [
                 ':plugin' => $name
@@ -348,7 +353,7 @@ class Plugin extends DataEntry implements PluginInterface
                 ->setVirtual(true)
                 ->setVisible(false)
                 ->setCliField('-d,--disable'))
-            ->addDefinition(DefinitionFactory::getName($this)
+            ->addDefinition(DefinitionFactory::getName($this, 'seo_name')
                 ->setVisible(false))
             ->addDefinition(DefinitionFactory::getName($this)
                 ->setSize(6)

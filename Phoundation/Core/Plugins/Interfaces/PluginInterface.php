@@ -49,17 +49,17 @@ interface PluginInterface
     /**
      * Returns the plugin path for this plugin
      *
-     * @return string
+     * @return string|null
      */
-    public function getClass(): string;
+    public function getClass(): ?string;
 
     /**
      * Sets the main class for this plugin
      *
-     * @param string $class
+     * @param string|null $class
      * @return static
      */
-    public function setClass(string $class): static;
+    public function setClass(?string $class): static;
 
     /**
      * Sets the priority for this plugin
