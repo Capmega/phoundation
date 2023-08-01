@@ -83,6 +83,7 @@ if ($user->canBeImpersonated()) {
     $impersonate = Button::new()
         ->setRight(true)
         ->setMode(DisplayMode::danger)
+        ->setValue(tr('Impersonate'))
         ->setContent(tr('Impersonate'));
 }
 
@@ -93,6 +94,7 @@ if ($user->canBeStatusChanged()) {
         ->setRight(true)
         ->setMode(DisplayMode::warning)
         ->setOutlined(true)
+        ->setValue(tr('Delete'))
         ->setContent(tr('Delete'));
 }
 

@@ -2,6 +2,7 @@
 
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\Exception\PasswordNotChangedException;
+use Phoundation\Core\Config;
 use Phoundation\Core\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
@@ -24,7 +25,7 @@ use Phoundation\Web\Page;
 
 
 // Only allow being here when it was forced by redirect
-if (!Session::getRealUser()->getRedirect() or (Session::getRealUser()->getRedirect() !== (string) UrlBuilder::getWww('/force-password-update.html'))) {
+if (!Session::getUser()->getRedirect() or (Session::getUser()->getRedirect() !== (string) UrlBuilder::getWww('/force-password-update.html'))) {
     Page::redirect('prev');
 }
 
@@ -65,7 +66,7 @@ Page::setBuildBody(false);
         <!-- /.login-logo -->
         <div class="card card-outline card-info">
             <div class="card-header text-center">
-                <a href="https://phoundation.org" class="h1"><span>Medi</span>net</a>
+              <a href="<?= Config::getString('project.customer-url', 'https://phoundation.org'); ?>" class="h1"><?= Config::getString('project.customer-label', '<span>Phoun</span>dation'); ?></a>
             </div>
             <div class="card-body">
                 <p class="login-box-msg"><?= tr('Please update your account to have a new and secure password password before continuing...') ?></p>

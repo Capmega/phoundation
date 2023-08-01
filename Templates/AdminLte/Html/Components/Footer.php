@@ -5,6 +5,7 @@ declare(strict_types=1);
 
 namespace Templates\AdminLte\Html\Components;
 
+use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Web\Http\Html\Renderer;
 
@@ -39,9 +40,9 @@ class Footer extends Renderer
     {
         return '  <footer class="main-footer">
                     <div class="float-right d-none d-sm-block">
-                      <b>' . tr('Project using Phoundation (AdminLte template)') . '</b> ' . Core::FRAMEWORKCODEVERSION . '
+                      <b>' . tr(':project using Phoundation (AdminLte template)', [':project' => Config::getString('project.name', 'Phoundation')]) . '</b> ' . Core::FRAMEWORKCODEVERSION . '
                     </div>
-                    <strong>Copyright © 2023 <a href="https://phoundation.org" target="_blank">Phoundation</a>.</strong> All rights reserved. <br>
+                    <strong>Copyright © ' . Config::getString('project.copyright', '2023') . ' <a href="' . Config::getString('project.customer-url', 'https://phoundation.org') . '" target="_blank">' . Config::getString('project.name', 'Phoundation') . '</a>.</strong> All rights reserved. <br>
                   </footer>';
 //        <strong>Copyright © 2014-2021 <a href="https://adminlte.io" target="_blank">AdminLTE.io</a>.</strong> All rights reserved.
 //        <strong>Copyright © 2017-2023 <a href="https://phoundation.org" target="_blank">phoundation.org</a>.</strong> All rights reserved. <br>

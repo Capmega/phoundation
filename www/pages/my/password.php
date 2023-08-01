@@ -20,7 +20,7 @@ use Phoundation\Web\Page;
 
 
 // Get current user and password objects
-$user        = User::get(Session::getRealUser()->getId());
+$user        = User::get(Session::getUser()->getId());
 $password    = $user->getPassword();
 
 
