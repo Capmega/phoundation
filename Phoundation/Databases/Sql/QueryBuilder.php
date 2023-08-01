@@ -29,6 +29,16 @@ class QueryBuilder implements QueryBuilderInterface
 
 
     /**
+     * @var int $limit_offset
+     */
+    protected int $limit_offset = 0;
+
+    /**
+     * @var int $limit_count
+     */
+    protected int $limit_count = 0;
+
+    /**
      * Select part of query
      *
      * @var string $select
@@ -327,6 +337,22 @@ class QueryBuilder implements QueryBuilderInterface
 
 
     /**
+     * Add a ORDER BY part of the query
+     *
+     * @param int $count
+     * @param int $offset
+     * @return static
+     */
+    public function setLimit(int $count, int $offset = 0): static
+    {
+        $this->limit_count  = $count;
+        $this->limit_offset = $offset;
+
+        return $this;
+    }
+
+
+    /**
      * Returns a column comparison and adds the bound variable to the execute list
      *
      * @param string $column
@@ -409,6 +435,10 @@ class QueryBuilder implements QueryBuilderInterface
 
         if ($this->order_by) {
             $query .= ' ORDER BY ' . implode(', ', $this->order_by);
+        }
+
+        if ($this->limit_count) {
+            $query .= ' LIMIT ' . $this->limit_offset . ', ' . $this->limit_count;
         }
 
         return $query;
