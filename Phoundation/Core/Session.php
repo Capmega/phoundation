@@ -10,6 +10,7 @@ use GeoIP;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\GuestUser;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
+use Phoundation\Accounts\Users\Interfaces\UsersInterface;
 use Phoundation\Accounts\Users\SignIn;
 use Phoundation\Accounts\Users\SystemUser;
 use Phoundation\Accounts\Users\User;
@@ -55,9 +56,16 @@ class Session
     /**
      * The current user for this session
      *
-     * @var User|null $user
+     * @var UserInterface $user
      */
-    protected static ?User $user = null;
+    protected static UserInterface $user;
+
+    /**
+     * The current impersonated user for this session
+     *
+     * @var UserInterface $impersonated_user
+     */
+    protected static UserInterface $impersonated_user;
 
     /**
      * Tracks if the session has startup or not
@@ -589,7 +597,10 @@ Log::warning('RESTART SESSION');
             unset($_SESSION['user']['impersonate_id']);
             unset($_SESSION['user']['impersonate_url']);
 
-            Page::getFlashMessages()->addSuccessMessage(tr('You have stopped impersonating user ":user"', [':user' => User::get($users_id)]));
+            Page::getFlashMessages()->addSuccessMessage(tr('You have stopped impersonating user ":user"', [
+                ':user' => User::get($users_id)->getLogId()
+            ]));
+
             Page::redirect($url);
         }
 
@@ -1029,65 +1040,28 @@ Log::warning('RESTART SESSION');
      *
      * @todo Add caching for real_user
      * @param bool $real_user
-     * @return User
+     * @return UserInterface
      */
-    protected static function returnUser(bool $real_user): User
+    protected static function returnUser(bool $real_user): UserInterface
     {
-        if (static::$user === null) {
+        if (!$real_user) {
+            // We can return impersonated user IF exists
+            if (!empty($_SESSION['user']['impersonate_id'])) {
+                // Return impersonated user
+                if (empty(static::$impersonated_user)) {
+                    // Load impersonated user into cache variable
+                    static::$impersonated_user = static::loadUser($_SESSION['user']['impersonate_id']);
+                }
+
+                return static::$impersonated_user;
+            }
+        }
+
+        // Return the real user
+        if (empty(static::$user)) {
             // User object does not yet exist
             if (isset_get($_SESSION['user']['id'])) {
-                if (isset($_SESSION['user']['impersonate_id'])) {
-                    if ($real_user) {
-                        // The session user is impersonated, but the real user was requested
-                        return User::get($_SESSION['user']['id']);
-                    }
-
-                    // Impersonated user!
-                    $users_id = $_SESSION['user']['impersonate_id'];
-                } else {
-                    $users_id = $_SESSION['user']['id'];
-                }
-
-                // Create new user object and ensure it's still good to go
-                try {
-                    $user = User::get($users_id);
-
-                    if ($user->getStatus()) {
-                        // Only status NULL is allowed
-                        throw new DataEntryStatusException(tr('The user ":user" has the status ":status" which is not allowed, removing session entry and dropping to guest user', [
-                            ':user'   => $user->getLogId(),
-                            ':status' => $user->getStatus()
-                        ]));
-                    }
-
-                    static::$user = $user;
-
-                } catch (DataEntryNotExistsException) {
-                    Log::warning(tr('The session user ":id" does not exist, removing session entry and dropping to guest user', [
-                        ':id' => $_SESSION['user']['id']
-                    ]));
-
-                    // Remove entry and try again
-                    unset($_SESSION['user']['id']);
-                    static::$user = new GuestUser();
-
-                } catch (DataEntryStatusException $e) {
-                    Log::warning($e->getMessage());
-
-                    // Remove entry and try again
-                    unset($_SESSION['user']['id']);
-                    static::$user = new GuestUser();
-
-                } catch (Throwable $e) {
-                    Log::warning(tr('Failed to fetch user ":user" for session with ":e", removing session entry and dropping to guest user', [
-                        ':e' => $e->getMessage(),
-                        ':user' => $_SESSION['user']['id']
-                    ]));
-
-                    // Remove entry and try again
-                    unset($_SESSION['user']['id']);
-                    static::$user = new GuestUser();
-                }
+                static::$user = static::loadUser($_SESSION['user']['id']);
 
             } else {
                 // TODO What if we run setup from HTTP? Change this to some sort of system flag
@@ -1102,7 +1076,50 @@ Log::warning('RESTART SESSION');
             }
         }
 
-        // Return the user object
+        // Return from cache
         return static::$user;
+    }
+
+
+    /**
+     * Load the userdata into this session
+     *
+     * @param int $users_id
+     * @return UserInterface
+     */
+    protected static function loadUser(int $users_id): UserInterface
+    {
+        // Create new user object and ensure it's still good to go
+        try {
+            $user = User::get($users_id);
+
+            if (!$user->getStatus()) {
+                return $user;
+            }
+
+            // Only status NULL is allowed
+            Log::warning(tr('The user ":user" has the status ":status" which is not allowed, killed session and dropping to guest user', [
+                ':user'   => $user->getLogId(),
+                ':status' => $user->getStatus()
+            ]));
+
+        } catch (DataEntryNotExistsException) {
+            Log::warning(tr('The session user ":id" does not exist, removing session entry and dropping to guest user', [
+                ':id' => $_SESSION['user']['id']
+            ]));
+
+        } catch (DataEntryStatusException $e) {
+            Log::warning($e->getMessage());
+
+        } catch (Throwable $e) {
+            Log::warning(tr('Failed to fetch user ":user" for session with ":e", removing session entry and dropping to guest user', [
+                ':e' => $e->getMessage(),
+                ':user' => $_SESSION['user']['id']
+            ]));
+        }
+
+        // Remove user information for this session and return to guest user
+        unset($_SESSION['user']['id']);
+        return new GuestUser();
     }
 }
