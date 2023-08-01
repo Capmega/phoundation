@@ -6,36 +6,36 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 
 /**
- * Trait DataEntryUsername
+ * Trait DataEntryUserEmail
  *
- * This trait contains methods for DataEntry objects that require a username
+ * This trait contains methods for DataEntry objects that require a email
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-trait DataEntryUsername
+trait DataEntryUserEmail
 {
     /**
-     * Returns the username for this object
+     * Returns the email for this object
      *
      * @return string|null
      */
-    public function getUsername(): ?string
+    public function getUserEmail(): ?string
     {
-        return $this->getDataValue('string', 'username');
+        return $this->getDataValue('string', 'email');
     }
 
 
     /**
-     * Sets the username for this object
+     * Sets the email for this object
      *
-     * @param string|null $username
+     * @param string|null $email
      * @return static
      */
-    public function setUsername(?string $username): static
+    public function setUserEmail(?string $email): static
     {
-        return $this->setSourceValue('username', $username);
+        return $this->setSourceValue('email', $email);
     }
 }
