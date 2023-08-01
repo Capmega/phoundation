@@ -82,14 +82,14 @@ interface DataEntryInterface
     public function setAllowCreate(bool $allow_create): static;
 
     /**
-     * Returns id for this database entry that can be used in logs
+     * Returns if this DataEntry will allow modification of existing entries
      *
      * @return bool
      */
     public function getAllowModify(): bool;
 
     /**
-     * Returns id for this database entry that can be used in logs
+     * Sets if this DataEntry will allow modification of existing entries
      *
      * @param bool $allow_modify
      * @return static
@@ -301,8 +301,10 @@ interface DataEntryInterface
     public function getHtmlForm(): DataEntryFormInterface;
 
     /**
-     * Load all data directly from the specified array
+     * Load all data directly from the specified array.
      *
+     * @note ONLY use this to load data that came from a trusted and validated source! This method will NOT validate
+     *       your data, use DataEntry::apply() instead for untrusted data.
      * @param array $source
      * @param bool $init
      * @return $this

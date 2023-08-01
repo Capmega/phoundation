@@ -349,7 +349,7 @@ class DefinitionFactory
             ->addValidationFunction(function (ValidatorInterface $validator) {
                 $validator->or('timezones_name')->isDbId()->isTrue(function ($value) {
                     // This timezone must exist.
-                    return Timezone::exists('name', $value);
+                    return Timezone::exists($value, 'name');
                 }, tr('The specified timezone does not exist'));
             });
     }

@@ -141,7 +141,7 @@ abstract class DataList extends Iterator implements DataListInterface
 
 
     /**
-     * Returns if the specified data entry exists in the data list
+     * Returns if the specified data entry key exists in the data list
      *
      * @param DataEntryInterface|Stringable|string|float|int $key
      * @return bool
