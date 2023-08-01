@@ -61,7 +61,7 @@ if (Page::isPostRequestMethod()) {
 // Build the buttons
 $buttons = Buttons::new()
     ->addButton(tr('Save'))
-    ->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getWww('prev'), true);
+    ->addButton(tr('Back'), DisplayMode::secondary, 'prev', true);
 
 
 // Build the user form

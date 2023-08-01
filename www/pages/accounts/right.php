@@ -104,7 +104,7 @@ $card  = Card::new()
     ->setContent($form->render())
     ->setButtons(Buttons::new()
         ->addButton(tr('Save'))
-        ->addButton(tr('Back'), DisplayMode::secondary, '/accounts/rights.html', true)
+        ->addButton(tr('Back'), DisplayMode::secondary, 'prev', true)
         ->addButton(isset_get($delete))
         ->addButton(isset_get($audit)));
 

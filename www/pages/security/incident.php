@@ -27,7 +27,7 @@ $form     = $incident->getHtmlForm();
 $card     = Card::new()
     ->setTitle(tr('Edit data for incident :name', [':name' => $incident->getTitle()]))
     ->setContent($form->render())
-    ->setButtons(Buttons::new()->addButton(tr('Back'), DisplayMode::secondary, '/security/incidents.html', true));
+    ->setButtons(Buttons::new()->addButton(tr('Back'), DisplayMode::secondary, 'prev', true));
 
 
 // Build relevant links

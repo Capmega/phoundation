@@ -65,7 +65,7 @@ $notification_card = Card::new()
     ->setContent($notification->getHtmlForm()->render())
     ->setButtons(Buttons::new()
         ->addButton(tr('Mark unread'))
-        ->addButton(tr('Back'), DisplayMode::secondary, '/accounts/notifications.html', true)
+        ->addButton(tr('Back'), DisplayMode::secondary, 'prev', true)
         ->addButton(isset_get($delete))
         ->addButton(isset_get($impersonate)));
 

@@ -137,7 +137,7 @@ $user_card = Card::new()
     ->setContent($user->getHtmlForm()->render())
     ->setButtons(Buttons::new()
         ->addButton(isset_get($save))
-        ->addButton(tr('Back'), DisplayMode::secondary, '/accounts/users.html', true)
+        ->addButton(tr('Back'), DisplayMode::secondary, 'prev', true)
         ->addButton(isset_get($audit))
         ->addButton(isset_get($delete))
         ->addButton(isset_get($impersonate)));
@@ -155,7 +155,7 @@ if ($user->getId()) {
             ->render())
         ->setButtons(Buttons::new()
             ->addButton(tr('Save'))
-            ->addButton(tr('Back'), DisplayMode::secondary, '/accounts/users.html', true));
+            ->addButton(tr('Back'), DisplayMode::secondary, 'prev', true));
 
     $rights_card = Card::new()
         ->setCollapseSwitch(true)
