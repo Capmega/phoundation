@@ -12,13 +12,24 @@ use Phoundation\Web\Http\Html\Components\Button;
 use Phoundation\Web\Http\Html\Components\Buttons;
 use Phoundation\Web\Http\Html\Components\Img;
 use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
-use Phoundation\Web\Http\Html\Enums\ButtonType;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Html\Enums\DisplaySize;
 use Phoundation\Web\Http\Html\Layouts\Grid;
 use Phoundation\Web\Http\Html\Layouts\GridColumn;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
+
+
+/**
+ * Page accounts/user.php
+ *
+ *
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Accounts
+ */
 
 
 // Validate GET
@@ -49,7 +60,7 @@ if (Page::isPostRequestMethod()) {
 // TODO Implement timers
 //showdie(Timers::get('query'));
 
-                Page::getFlashMessages()->addSuccessMessage(tr('User ":user" has been updated', [':user' => $user->getDisplayName()]));
+                Page::getFlashMessages()->addSuccessMessage(tr('User ":user" has been saved', [':user' => $user->getDisplayName()]));
                 Page::redirect('referer');
 
             case tr('Impersonate'):
@@ -76,6 +87,13 @@ if (Page::isPostRequestMethod()) {
     }
 }
 
+// Save button
+if (!$user->getReadonly()) {
+    $save = Button::new()
+        ->setValue(tr('Save'))
+        ->setContent(tr('Save'));
+}
+
 
 // Impersonate button. We must have the right to impersonate, we cannot impersonate ourselves, and we cannot impersonate
 // god users
@@ -99,15 +117,27 @@ if ($user->canBeStatusChanged()) {
 }
 
 
+// Audit button. We cannot delete god users
+if (!$user->isNew()) {
+    $audit = Button::new()
+        ->setRight(true)
+        ->setMode(DisplayMode::information)
+        ->setAnchorUrl('/audit/meta-' . $user->getMeta() . '.html')
+        ->setRight(true)
+        ->setValue(tr('Audit'))
+        ->setContent(tr('Audit'));
+}
+
+
 // Build the user form
 $user_card = Card::new()
     ->setCollapseSwitch(true)
     ->setTitle(tr('Edit data for user :name', [':name' => $user->getDisplayName()]))
     ->setContent($user->getHtmlForm()->render())
     ->setButtons(Buttons::new()
-        ->addButton(tr('Save'), type_or_anchor_url: ButtonType::submit)
+        ->addButton(isset_get($save))
         ->addButton(tr('Back'), DisplayMode::secondary, '/accounts/users.html', true)
-        ->addButton(tr('Audit'), DisplayMode::information, '/audit/meta-' . $user->getMeta() . '.html', false, true)
+        ->addButton(isset_get($audit))
         ->addButton(isset_get($delete))
         ->addButton(isset_get($impersonate)));
 
