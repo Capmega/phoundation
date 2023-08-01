@@ -342,7 +342,7 @@ trait ValidatorBasics
      * This means that either it may not exist, or it's contents may be NULL
      *
      * @param mixed $default
-     * @return ValidatorInterface
+     * @return static
      *
      * @see Validator::xor()
      * @see Validator::or()
@@ -376,7 +376,7 @@ trait ValidatorBasics
      *
      * @param string $field
      * @param bool $rename
-     * @return ValidatorInterface
+     * @return static
      *
      * @see Validator::isOptional()
      * @see Validator::or()
@@ -425,13 +425,12 @@ trait ValidatorBasics
      * This method will make sure that either this field OR the other specified field optionally will have a value
      *
      * @param string $field
-     * @param mixed $default
-     * @return ValidatorInterface
+     * @return static
      *
      * @see Validator::isOptional()
      * @see Validator::xor()
      */
-    public function or(string $field, mixed $default = null): static
+    public function or(string $field): static
     {
         if (!str_starts_with($field, (string) $this->field_prefix)) {
             $field = $this->field_prefix . $field;
@@ -441,14 +440,13 @@ trait ValidatorBasics
             throw new ValidatorException(tr('Cannot validate OR field ":field" with itself', [':field' => $field]));
         }
 
-        if (isset_get($this->source[$this->selected_field])) {
-            // The currently selected field exists, the specified field cannot exist
-            if (isset_get($this->source[$field])) {
-                $this->addFailure(tr('Both fields ":field" and ":selected_field" were set, where only either one of them are allowed', [':field' => $field, ':selected_field' => $this->selected_field]));
+        if (!isset_get($this->source[$this->selected_field])) {
+            if (!$this->selected_is_optional) {
+                // The currently selected field is required but does not exist, so the other must exist
+                if (!isset_get($this->source[$field])) {
+                    $this->addFailure(tr('Neither fields ":field" nor ":selected_field" were set, where at least one of them is required', [':field' => $field, ':selected_field' => $this->selected_field]));
+                }
             }
-        } else {
-            // The currently selected field does not exist, so we default
-            $this->isOptional($default);
         }
 
         return $this;
@@ -461,7 +459,7 @@ trait ValidatorBasics
      * @param string $field
      * @param bool $strict If true will execute a strict comparison where the datatype must match as well (so 1 would
      *                     not be the same as "1") for example
-     * @return ValidatorInterface
+     * @return static
      * @see Validator::isOptional()
      */
     public function isEqualTo(string $field, bool $strict = false): static
@@ -490,7 +488,7 @@ trait ValidatorBasics
     /**
      * Recurse into a sub array and return another validator object for that sub array
      *
-     * @return ValidatorInterface
+     * @return static
      */
     public function recurse(): static
     {
@@ -665,13 +663,13 @@ show('CLEAR ' . $field);
             }
         }
 
-        Log::warning(tr('Validation failed on field ":field" with value ":value" because ":failure"', [
-            ':field'   => ($this->parent_field ?? '-') . ' / ' . $selected_field . ' / ' . ($this->process_key ?? '-'),
-            ':failure' => $failure,
-            ':value'   => $this->source[$selected_field],
-        ]));
-
         if (Debug::enabled()) {
+            Log::warning(tr('Validation failed for field ":field" with value ":value" because ":failure"', [
+                ':field'   => ($this->parent_field ?? '-') . ' / ' . $selected_field . ' / ' . ($this->process_key ?? '-'),
+                ':failure' => $failure,
+                ':value'   => $this->source[$selected_field],
+            ]));
+
             Log::backtrace();
         }
 

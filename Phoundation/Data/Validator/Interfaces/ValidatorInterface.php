@@ -22,55 +22,6 @@ use UnitEnum;
 interface ValidatorInterface
 {
     /**
-     * Returns the integer id for this object or null
-     *
-     * @return int|null
-     */
-    public function getId(): ?int;
-
-    /**
-     * Returns if all validations are disabled or not
-     *
-     * @return bool
-     */
-    public static function disabled(): bool;
-
-    /**
-     * Disable all validations
-     *
-     * @return void
-     */
-    public static function disable(): void;
-
-    /**
-     * Enable all validations
-     *
-     * @return void
-     */
-    public static function enable(): void;
-
-    /**
-     * Returns if all validations are disabled or not
-     *
-     * @return bool
-     */
-    public static function passwordsDisabled(): bool;
-
-    /**
-     * Disable password validations
-     *
-     * @return void
-     */
-    public static function disablePasswords(): void;
-
-    /**
-     * Enable password validations
-     *
-     * @return void
-     */
-    public static function enablePasswords(): void;
-
-    /**
      * Forcibly set the specified key of this validator source to the specified value
      *
      * @param string|float|int $key
@@ -415,6 +366,22 @@ interface ValidatorInterface
     public function matchesNotRegex(string $regex): static;
 
     /**
+     * Validates that the selected field starts with the specified string
+     *
+     * @param string $string
+     * @return static
+     */
+    public function startsWith(string $string): static;
+
+    /**
+     * Validates that the selected field ends with the specified string
+     *
+     * @param string $string
+     * @return static
+     */
+    public function endsWith(string $string): static;
+
+    /**
      * Validates that the selected field contains only alphabet characters
      *
      * @return static
@@ -675,20 +642,20 @@ interface ValidatorInterface
     /**
      * Validates if the selected field is a valid directory
      *
-     * @param string|bool|null $exists_in_path
+     * @param string|null $exists_in_path
      * @param RestrictionsInterface|array|string|null $restrictions
      * @return static
      */
-    public function isDirectory(string|bool $exists_in_path = null, RestrictionsInterface|array|string|null $restrictions = null): static;
+    public function isDirectory(?string $exists_in_path = null, RestrictionsInterface|array|string|null $restrictions = null): static;
 
     /**
      * Validates if the selected field is a valid file
      *
-     * @param string|bool $exists_in_path
+     * @param string|null $exists_in_path
      * @param RestrictionsInterface|array|string|null $restrictions
      * @return static
      */
-    public function isFile(string|bool $exists_in_path = null, RestrictionsInterface|array|string|null $restrictions = null): static;
+    public function isFile(?string $exists_in_path = null, RestrictionsInterface|array|string|null $restrictions = null): static;
 
     /**
      * Validates if the selected field is a valid description
@@ -1092,199 +1059,4 @@ interface ValidatorInterface
      * @return static
      */
     public function standardSelect(int|string $field): static;
-
-    /**
-     * Sets the integer id for this object or null
-     *
-     * @param int|null $id
-     * @return static
-     */
-    public function setId(?int $id): static;
-
-    /**
-     * Returns the entire source for this validator object
-     *
-     * @return array|null
-     */
-    public function getSource(): ?array;
-
-    /**
-     * Returns the value for the specified key, or null if not
-     *
-     * @return array
-     */
-    public function getSourceKey(string $key): mixed;
-
-    /**
-     * Returns true if the specified key exists
-     *
-     * @param string $key
-     * @return bool
-     */
-    public function sourceKeyExists(string $key): bool;
-
-    /**
-     * Manually set one of the internal fields to the specified value
-     *
-     * @param string $key
-     * @param array|string|int|float|bool|null $value
-     * @return static
-     */
-    public function setField(string $key, array|string|int|float|bool|null $value): static;
-
-    /**
-     * Returns if failed fields will be cleared on validation
-     *
-     * @return bool
-     */
-    public function getClearFailedFields(): bool;
-
-    /**
-     * Sets if failed fields will be cleared on validation
-     *
-     * @param bool $clear_failed_fields
-     * @return static
-     */
-    public function setClearFailedFields(bool $clear_failed_fields): static;
-
-    /**
-     * Returns the maximum string size that this Validator will touch
-     *
-     * @return int|null
-     */
-    public function getMaximumStringSize(): ?int;
-
-    /**
-     * Returns the maximum string size that this Validator will touch
-     *
-     * @param int|null $max_string_size
-     * @return void
-     */
-    public function setMaximumStringSize(?int $max_string_size): void;
-
-    /**
-     * Returns the parent field with the specified name
-     *
-     * @return string|null
-     */
-    public function getParentField(): ?string;
-
-    /**
-     * Sets the parent field with the specified name
-     *
-     * @param string|null $field
-     * @return void
-     */
-    public function setParentField(?string $field): void;
-
-    /**
-     * This method will make the selected field optional and use the specified $default instead
-     *
-     * This means that either it may not exist, or it's contents may be NULL
-     *
-     * @param mixed $default
-     * @return static
-     *
-     * @see Validator::xor()
-     * @see Validator::or()
-     */
-    public function isOptional(mixed $default = null): static;
-
-    /**
-     * Renames the current field to the specified field name
-     *
-     * @param string $field_name
-     * @return $this
-     */
-    public function rename(string $field_name): static;
-
-    /**
-     * This method will make sure that either this field OR the other specified field will have a value
-     *
-     * @param string $field
-     * @param bool $rename
-     * @return static
-     *
-     * @see Validator::isOptional()
-     * @see Validator::or()
-     */
-    public function xor(string $field, bool $rename = false): static;
-
-    /**
-     * This method will make sure that either this field OR the other specified field optionally will have a value
-     *
-     * @param string $field
-     * @param mixed $default
-     * @return static
-     *
-     * @see Validator::isOptional()
-     * @see Validator::xor()
-     */
-    public function or(string $field, mixed $default = null): static;
-
-    /**
-     * Will validate that the value of this field matches the value for the specified field
-     *
-     * @param string $field
-     * @param bool $strict If true will execute a strict comparison where the datatype must match as well (so 1 would
-     *                     not be the same as "1") for example
-     * @return static
-     * @see Validator::isOptional()
-     */
-    public function isEqualTo(string $field, bool $strict = false): static;
-
-    /**
-     * Recurse into a sub array and return another validator object for that sub array
-     *
-     * @return static
-     */
-    public function recurse(): static;
-
-    /**
-     * Called at the end of defining all validation rules.
-     *
-     * This method will check the failures array and if any failures were registered, it will throw an exception
-     *
-     * @param bool $clean_source
-     * @return array
-     */
-    public function validate(bool $clean_source = true): array;
-
-    /**
-     * Resets the class for a new validation
-     *
-     * @return void
-     */
-    public function clear(): void;
-
-    /**
-     * Add the specified failure message to the failures list
-     *
-     * @param string $failure
-     * @param string|null $field
-     * @return void
-     */
-    public function addFailure(string $failure, ?string $field = null): void;
-
-    /**
-     * Returns the list of failures found during validation
-     *
-     * @return array
-     */
-    public function getFailures(): array;
-
-    /**
-     * Returns if the currently selected field failed or not
-     *
-     * @return bool
-     */
-    public function getSelectedFieldHasFailed(): bool;
-
-    /**
-     * Returns true if the specified field has failed
-     *
-     * @param string $field
-     * @return bool
-     */
-    public function fieldHasFailed(string $field): bool;
 }

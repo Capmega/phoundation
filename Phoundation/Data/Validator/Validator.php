@@ -1028,6 +1028,54 @@ abstract class Validator implements ValidatorInterface
 
 
     /**
+     * Validates that the selected field starts with the specified string
+     *
+     * @param string $string
+     * @return static
+     */
+    public function startsWith(string $string): static
+    {
+        return $this->validateValues(function(&$value) use ($string) {
+            // This value must be scalar
+            $this->isScalar();
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return;
+            }
+
+            if (!str_starts_with((string) $value, $string)) {
+                $this->addFailure(tr('must start with ":value"', [':value' => $string]));
+            }
+        });
+    }
+
+
+    /**
+     * Validates that the selected field ends with the specified string
+     *
+     * @param string $string
+     * @return static
+     */
+    public function endsWith(string $string): static
+    {
+        return $this->validateValues(function(&$value) use ($string) {
+            // This value must be scalar
+            $this->isScalar();
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return;
+            }
+
+            if (!str_ends_with((string) $value, $string)) {
+                $this->addFailure(tr('must end with ":value"', [':value' => $string]));
+            }
+        });
+    }
+
+
+    /**
      * Validates that the selected field contains only alphabet characters
      *
      * @return static
@@ -1876,11 +1924,11 @@ abstract class Validator implements ValidatorInterface
     /**
      * Validates if the selected field is a valid directory
      *
-     * @param string|bool|null $exists_in_path
+     * @param string|null $exists_in_path
      * @param RestrictionsInterface|array|string|null $restrictions
      * @return static
      */
-    public function isDirectory(string|bool $exists_in_path = null, RestrictionsInterface|array|string|null $restrictions = null): static
+    public function isDirectory(?string $exists_in_path = null, RestrictionsInterface|array|string|null $restrictions = null): static
     {
         return $this->validateValues(function(&$value) use($exists_in_path, $restrictions) {
             $this->hasMinCharacters(1)->hasMaxCharacters(2048);
@@ -1900,11 +1948,11 @@ abstract class Validator implements ValidatorInterface
     /**
      * Validates if the selected field is a valid file
      *
-     * @param string|bool $exists_in_path
+     * @param string|null $exists_in_path
      * @param RestrictionsInterface|array|string|null $restrictions
      * @return static
      */
-    public function isFile(string|bool $exists_in_path = null, RestrictionsInterface|array|string|null $restrictions = null): static
+    public function isFile(?string $exists_in_path = null, RestrictionsInterface|array|string|null $restrictions = null): static
     {
         return $this->validateValues(function(&$value) use($exists_in_path, $restrictions) {
             $this->hasMinCharacters(1)->hasMaxCharacters(2048);
@@ -1934,8 +1982,10 @@ abstract class Validator implements ValidatorInterface
     {
         if ($directory) {
             $type = 'directory';
+
         } elseif (is_bool($directory)) {
             $type = 'file';
+
         } else {
             $type = '';
         }
