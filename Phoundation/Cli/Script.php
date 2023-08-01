@@ -693,10 +693,10 @@ SYSTEM ARGUMENTS
     /**
      * Echos the specified string to the command line
      *
-     * @param string $string
+     * @param string|float|int $string
      * @return void
      */
-    public static function echo(string $string): void
+    public static function echo(string|float|int $string): void
     {
         echo $string . PHP_EOL;
     }
