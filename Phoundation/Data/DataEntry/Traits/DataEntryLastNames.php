@@ -36,6 +36,6 @@ trait DataEntryLastNames
      */
     public function setLastNames(?string $last_names): static
     {
-        return $this->setDataValue('last_names', $last_names);
+        return $this->setSourceValue('last_names', $last_names);
     }
 }

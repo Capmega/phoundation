@@ -39,7 +39,7 @@ trait DataEntryUser
      */
     public function setUsersId(?int $users_id): static
     {
-        return $this->setDataValue('users_id', $users_id);
+        return $this->setSourceValue('users_id', $users_id);
     }
 
 
@@ -79,6 +79,6 @@ trait DataEntryUser
      */
     public function setUsersEmail(?string $users_email): static
     {
-        return $this->setDataValue('users_email', $users_email);
+        return $this->setSourceValue('users_email', $users_email);
     }
 }

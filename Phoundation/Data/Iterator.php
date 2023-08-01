@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Data;
 
 use PDOStatement;
+use Phoundation\Core\Interfaces\Arrayable;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\DataCallbacks;
 use Phoundation\Data\Traits\UsesNew;
@@ -38,10 +39,11 @@ use Stringable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-class Iterator implements IteratorInterface
+class Iterator implements IteratorInterface, Arrayable
 {
     use UsesNew;
     use DataCallbacks;
+
 
     /**
      * The list that stores all entries

@@ -36,6 +36,6 @@ trait DataEntryEmail
      */
     public function setEmail(?string $number): static
     {
-        return $this->setDataValue('email', $number);
+        return $this->setSourceValue('email', $number);
     }
 }

@@ -26,6 +26,7 @@ use Phoundation\Data\DataEntry\Traits\DataEntryTitle;
 use Phoundation\Data\DataEntry\Traits\DataEntryTrace;
 use Phoundation\Data\DataEntry\Traits\DataEntryUrl;
 use Phoundation\Data\DataEntry\Traits\DataEntryUser;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
@@ -41,7 +42,7 @@ use Throwable;
  * Class Notification
  *
  *
- *
+ * @todo Change the Notification::roles to a Data\Iterator class instead of a plain array
  * @see \Phoundation\Data\DataEntry\DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -205,10 +206,10 @@ class Notification extends DataEntry
      * Sets the message for this notification
      *
      * @note: This will reset the current already registered roles
-     * @param array|string $roles
+     * @param IteratorInterface|array|string $roles
      * @return static
      */
-    public function setRoles(array|string $roles): static
+    public function setRoles(IteratorInterface|array|string $roles): static
     {
         if (!$roles) {
             throw new OutOfBoundsException('No roles specified for this notification');
@@ -223,13 +224,17 @@ class Notification extends DataEntry
     /**
      * Sets the message for this notification
      *
-     * @param array|string $roles
+     * @param IteratorInterface|array|string $roles
      * @return static
      */
-    public function addRoles(array|string $roles): static
+    public function addRoles(IteratorInterface|array|string $roles): static
     {
         if (!$roles) {
             throw new OutOfBoundsException('No roles specified for this notification');
+        }
+
+        if ($roles instanceof IteratorInterface) {
+            $roles = array_keys($roles->getSource());
         }
 
         foreach (Arrays::force($roles) as $role) {
@@ -304,20 +309,28 @@ class Notification extends DataEntry
             }
 
             // Save and send this notification to the assigned user
-            $this
-                ->saveFor($this->getUsersId())
-                ->sendTo($this->getUsersId());
+            if ($this->getUsersId()) {
+                $this
+                    ->saveFor($this->getUsersId())
+                    ->sendTo($this->getUsersId());
+            }
 
             // Save and send this notification to all users that are members of the specified roles
-            $roles = Roles::new()->listIds($this->getRoles());
-
-            foreach ($roles as $role) {
+            foreach ($this->getRoles() as $role) {
                 $users = Role::get($role)->getUsers();
 
                 foreach ($users as $user) {
-                    $this
-                        ->saveFor($user->getId())
-                        ->sendTo($user->getId());
+                    try {
+                        $this
+                            ->saveFor($user->getId())
+                            ->sendTo($user->getId());
+
+                    } catch (Throwable $e) {
+                        Log::error(tr('Failed to save notification for user ":user" because of the following exception', [
+                            ':user' => $user->getId()
+                        ]));
+                        Log::error($e);
+                    }
                 }
             }
 
@@ -427,7 +440,7 @@ class Notification extends DataEntry
 
         // Set the id to NULL so that the DataEntry will save a new record
         $this
-            ->setDataValue('id', null)
+            ->setSourceValue('id', null)
             ->setUsersId($user);
 
         return parent::save();
@@ -555,6 +568,7 @@ class Notification extends DataEntry
                 }))
             ->addDefinition(Definition::new($this, 'details')
                 ->setReadonly(true)
+                ->setOptional(true)
                 ->setElement(InputElement::textarea)
                 ->setLabel(tr('Details'))
                 ->setMaxlength(65_535)

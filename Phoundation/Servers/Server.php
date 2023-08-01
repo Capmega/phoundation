@@ -100,7 +100,7 @@ class Server extends DataEntry
      */
     public function setCost(?float $cost): static
     {
-        return $this->setDataValue('cost', $cost);
+        return $this->setSourceValue('cost', $cost);
     }
 
 
@@ -123,7 +123,7 @@ class Server extends DataEntry
      */
     public function setBillDueDate(?string $bill_due_date): static
     {
-        return $this->setDataValue('bill_due_date', $bill_due_date);
+        return $this->setSourceValue('bill_due_date', $bill_due_date);
     }
 
 
@@ -147,7 +147,7 @@ class Server extends DataEntry
      */
     public function setInterval(#[ExpectedValues([null, 'hourly', 'daily', 'weekly', 'monthly', 'bimonthly', 'quarterly', 'semiannual', 'annually'])] ?string $interval): static
     {
-        return $this->setDataValue('interval', $interval);
+        return $this->setSourceValue('interval', $interval);
     }
 
 
@@ -171,7 +171,7 @@ class Server extends DataEntry
      */
     public function setOsName(#[ExpectedValues([null, 'debian','ubuntu','redhat','gentoo','slackware','linux','windows','freebsd','macos','other'])] ?string $os_name): static
     {
-        return $this->setDataValue('os_name', $os_name);
+        return $this->setSourceValue('os_name', $os_name);
     }
 
 
@@ -194,7 +194,7 @@ class Server extends DataEntry
      */
     public function setOsVersion(?string $os_version): static
     {
-        return $this->setDataValue('os_version', $os_version);
+        return $this->setSourceValue('os_version', $os_version);
     }
 
 
@@ -218,7 +218,7 @@ class Server extends DataEntry
      */
     public function setWebServices(?bool $web_services): static
     {
-        return $this->setDataValue('web_services', (bool) $web_services);
+        return $this->setSourceValue('web_services', (bool) $web_services);
     }
 
 
@@ -241,7 +241,7 @@ class Server extends DataEntry
      */
     public function setMailServices(?bool $mail_services): static
     {
-        return $this->setDataValue('mail_services', (bool) $mail_services);
+        return $this->setSourceValue('mail_services', (bool) $mail_services);
     }
 
 
@@ -264,7 +264,7 @@ class Server extends DataEntry
      */
     public function setDatabaseServices(?bool $database_services): static
     {
-        return $this->setDataValue('database_services', (bool) $database_services);
+        return $this->setSourceValue('database_services', (bool) $database_services);
     }
 
 
@@ -287,7 +287,7 @@ class Server extends DataEntry
      */
     public function setAllowSshdModifications(?bool $allow_sshd_modifications): static
     {
-        return $this->setDataValue('allow_sshd_modifications', (bool) $allow_sshd_modifications);
+        return $this->setSourceValue('allow_sshd_modifications', (bool) $allow_sshd_modifications);
     }
 
 

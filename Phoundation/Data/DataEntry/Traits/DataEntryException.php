@@ -48,6 +48,6 @@ trait DataEntryException
             $exception = $exception->exportString();
         }
 
-        return $this->setDataValue('exception', $exception);
+        return $this->setSourceValue('exception', $exception);
     }
 }

@@ -36,6 +36,6 @@ trait DataEntryPath
      */
     public function setPath(?string $path): static
     {
-        return $this->setDataValue('path', $path);
+        return $this->setSourceValue('path', $path);
     }
 }

@@ -204,9 +204,9 @@ class Session
      *
      * @param string $user
      * @param string $password
-     * @return User
+     * @return UserInterface
      */
-    public static function signIn(string $user, string $password): User
+    public static function signIn(string $user, string $password): UserInterface
     {
         try {
             static::$user = User::authenticate($user, $password);
@@ -238,6 +238,7 @@ class Session
                 ->setType('User does not exist')->setSeverity(Severity::low)
                 ->setTitle(tr('The specified user ":user" does not exist', [':user' => $user]))
                 ->setDetails([':user' => $user])
+                ->notifyRoles('accounts')
                 ->save();
 
             // The specified user does not exist
@@ -581,13 +582,14 @@ Log::warning('RESTART SESSION');
             Incident::new()
                 ->setType('User impersonation')->setSeverity(Severity::low)
                 ->setTitle(tr('The user ":user" stopped impersonating user ":impersonate"', [
-                    ':user'        => User::get($_SESSION['user']['id']),
-                    ':impersonate' => User::get($_SESSION['user']['impersonate_id'])
+                    ':user'        => User::get($_SESSION['user']['id'])->getLogId(),
+                    ':impersonate' => User::get($_SESSION['user']['impersonate_id'])->getLogId()
                 ]))
                 ->setDetails([
-                    ':user'        => User::get($_SESSION['user']['id']),
-                    ':impersonate' => User::get($_SESSION['user']['impersonate_id'])
+                    ':user'        => User::get($_SESSION['user']['id'])->getLogId(),
+                    ':impersonate' => User::get($_SESSION['user']['impersonate_id'])->getLogId()
                 ])
+                ->notifyRoles('accounts')
                 ->save();
 
             // We're impersonating a user, return to the original user.
@@ -608,7 +610,7 @@ Log::warning('RESTART SESSION');
             ->setType('User sign out')
             ->setSeverity(Severity::notice)
             ->setTitle(tr('The user ":user" signed out', [':user' => static::getUser()]))
-            ->setDetails([':user' => static::getUser()])
+            ->setDetails([':user' => static::getUser()->getLogId()])
             ->save();
 
         session_destroy();
@@ -677,13 +679,16 @@ Log::warning('RESTART SESSION');
         if (isset($_SESSION['user']['impersonate_id'])) {
             // We are already impersonating a user!
             Incident::new()
-                ->setType('User impersonation')->setSeverity(Severity::high)
-                ->setTitle(tr('Cannot impersonate user, we are already impersonating'))
+                ->setType('User impersonation failed')->setSeverity(Severity::high)
+                ->setTitle(tr('Cannot impersonate user ":user", we are already impersonating', [
+                    ':user' => $user->getLogId()
+                ]))
                 ->setDetails([
-                    'user'                => static::getUser(),
-                    'impersonating'       => User::get('impersonate_id'),
-                    'want_to_impersonate' => $user
+                    'user'                => static::getUser()->getLogId(),
+                    'impersonating'       => User::get($_SESSION['user']['impersonate_id'], 'id')->getLogId(),
+                    'want_to_impersonate' => $user->getLogId()
                 ])
+                ->notifyRoles('accounts')
                 ->save()
                 ->throw();
         }
@@ -691,12 +696,16 @@ Log::warning('RESTART SESSION');
         if ($user->getId() === static::getUser()->getId()) {
             // We are already impersonating a user!
             Incident::new()
-                ->setType('User impersonation')->setSeverity(Severity::high)
-                ->setTitle(tr('Cannot impersonate user, the user to impersonate is this user itself'))
+                ->setType('User impersonation failed')
+                ->setSeverity(Severity::high)
+                ->setTitle(tr('Cannot impersonate user ":user", the user to impersonate is this user itself', [
+                    ':user' => static::getUser()->getLogId(),
+                ]))
                 ->setDetails([
-                    'user'                => static::getUser(),
-                    'want_to_impersonate' => $user
+                    'user'                => static::getUser()->getLogId(),
+                    'want_to_impersonate' => $user->getLogId()
                 ])
+                ->notifyRoles('accounts')
                 ->save()
                 ->throw();
         }
@@ -704,12 +713,16 @@ Log::warning('RESTART SESSION');
         if ($user->hasAllRights('god')) {
             // Can't impersonate a god level user!
             Incident::new()
-                ->setType('User impersonation')->setSeverity(Severity::severe)
-                ->setTitle(tr('Cannot impersonate user, the user to impersonate has the "god" role'))
+                ->setType('User impersonation failed')
+                ->setSeverity(Severity::severe)
+                ->setTitle(tr('Cannot impersonate user ":user", the user to impersonate has the "god" role', [
+                    ':user' => static::getUser()->getLogId(),
+                ]))
                 ->setDetails([
-                    'user'                => static::getUser(),
-                    'want_to_impersonate' => $user
+                    'user'                => static::getUser()->getLogId(),
+                    'want_to_impersonate' => $user->getLogId()
                 ])
+                ->notifyRoles('accounts')
                 ->save()
                 ->throw();
         }
@@ -725,13 +738,14 @@ Log::warning('RESTART SESSION');
             ->setType('User impersonation')
             ->setSeverity(Severity::medium)
             ->setTitle(tr('The user ":user" started impersonating user ":impersonate"', [
-                ':user'        => $original_user,
-                ':impersonate' => $user
+                ':user'        => $original_user->getLogId(),
+                ':impersonate' => $user->getLogId()
             ]))
             ->setDetails([
-                ':user'        => $original_user,
-                ':impersonate' => $user
+                ':user'        => $original_user->getLogId(),
+                ':impersonate' => $user->getLogId()
             ])
+            ->notifyRoles('accounts')
             ->save();
 
         // Notify the target user

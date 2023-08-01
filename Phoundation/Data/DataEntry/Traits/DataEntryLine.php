@@ -38,12 +38,12 @@ trait DataEntryLine
      */
     public function setLine(?int $line): static
     {
-        if ($line < 1) {
+        if ($line < 0) {
             throw new OutOfBoundsException(tr('Specified line ":line" is invalid, it should be 1 or more', [
                 ':line' => $line
             ]));
         }
 
-        return $this->setDataValue('line', $line);
+        return $this->setSourceValue('line', get_null($line));
     }
 }

@@ -47,6 +47,6 @@ trait DataEntryMode
         }
 
         // Ensure we have primary display mode
-        return $this->setDataValue('mode', $mode->getPrimary($mode)->value);
+        return $this->setSourceValue('mode', $mode->getPrimary($mode)->value);
     }
 }

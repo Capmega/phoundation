@@ -128,14 +128,12 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
      * Returns a new exception object
      *
      * @param Throwable|array|string|null $messages
-     * @param mixed|null $data
-     * @param string|int|null $code
      * @param Throwable|null $previous
      * @return static
      */
-    public static function new(Throwable|array|string|null $messages, mixed $data = null, string|int|null $code = null, ?Throwable $previous = null): static
+    public static function new(Throwable|array|string|null $messages, ?Throwable $previous = null): static
     {
-        return new static($messages, $data, $code, $previous);
+        return new static($messages, $previous);
     }
 
 

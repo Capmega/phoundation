@@ -36,6 +36,6 @@ trait DataEntryUsername
      */
     public function setUsername(?string $domain): static
     {
-        return $this->setDataValue('username', $domain);
+        return $this->setSourceValue('username', $domain);
     }
 }

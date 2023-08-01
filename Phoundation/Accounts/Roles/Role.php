@@ -99,22 +99,24 @@ class Role extends DataEntry implements RoleInterface
     /**
      * Creates and returns an HTML for the fir
      *
+     * @param string $name
      * @return FormInterface
      */
-    public function getRightsHtmlForm(): FormInterface
+    public function getRightsHtmlForm(string $name = 'rights_id[]'): FormInterface
     {
         $form   = Form::new();
-        $rights = $this->getRights();
-        $select = $rights->getHtmlSelect()->setCache(true);
-
-        foreach ($rights as $right) {
-            $select->setSelected($right->getSeoName());
-            $form->addContent($select->render() . '<br>');
-        }
+        $rights = Rights::new();
+        $select = $rights->getHtmlSelect()->setCache(true)->setName($name);
 
         // Add extra entry with nothing selected
         $select->clearSelected();
-        $form->addContent($select->render());
+        $form->addContent($select->render() . '<br>');
+
+        foreach ($this->getRights() as $right) {
+            $select->setSelected($right->getId());
+            $form->addContent($select->render() . '<br>');
+        }
+
         return $form;
     }
 

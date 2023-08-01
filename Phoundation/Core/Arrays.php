@@ -6,7 +6,9 @@ namespace Phoundation\Core;
 
 use Enum;
 use Phoundation\Core\Enums\EnumMatchMode;
+use Phoundation\Core\Interfaces\Arrayable;
 use Phoundation\Core\Interfaces\EnumMatchModeInterface;
+use Phoundation\Data\Iterator;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Stringable;
@@ -1273,13 +1275,13 @@ class Arrays {
 
         if (!is_array($source)) {
             if (!is_string($source)) {
-                if (!is_object($source) or !($source instanceof Stringable)) {
+                if (!is_object($source) or !($source instanceof Arrayable)) {
                     // Unknown datatype
                     return [$source];
                 }
 
                 // This is an object that can convert to string
-                $source = (string) $source;
+                return $source->__toArray();
             }
 
             if (!$separator) {

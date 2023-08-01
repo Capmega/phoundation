@@ -44,6 +44,6 @@ trait DataEntryPriority
             ]));
         }
 
-        return $this->setDataValue('priority', $priority);
+        return $this->setSourceValue('priority', $priority);
     }
 }

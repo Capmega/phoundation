@@ -19,6 +19,8 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Sql\QueryBuilder;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Security\Incidents\Incident;
+use Phoundation\Security\Incidents\Severity;
 use Phoundation\Web\Http\Html\Components\Input\InputSelect;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 
@@ -94,24 +96,24 @@ class Rights extends DataList implements RightsInterface
         $this->ensureParent('save entries');
 
         if (is_array($list)) {
-            // Convert the list to id's
+            // Convert the list with whatever is specified (id, seo_name, role object) to seo_names
             $rights_list = [];
 
             foreach ($list as $right) {
                 if ($right) {
-                    $rights_list[] = static::getEntryClass()::get($right)->getId();
+                    $rights_list[] = static::getEntryClass()::get($right)->getSeoName();
                 }
             }
 
             // Get a list of what we have to add and remove to get the same list, and apply
-            $diff = Arrays::valueDiff($this->source, $rights_list);
+            $diff = Arrays::valueDiff(array_keys($this->source), $rights_list);
 
             foreach ($diff['add'] as $right) {
-                $this->parent->getRights()->addRight($right);
+                $this->addRight($right);
             }
 
             foreach ($diff['remove'] as $right) {
-                $this->parent->getRights()->remove($right);
+                $this->remove($right);
             }
         }
 
@@ -531,11 +533,50 @@ class Rights extends DataList implements RightsInterface
      *
      * @return InputSelect
      */
-    public function getHtmlSelect(string $value_column = 'CONCAT(UPPER(LEFT(`name`, 1)), SUBSTRING(`name`, 2)) AS `name`', string $key_column = 'seo_name', ?string $order = '`name` ASC'): SelectInterface
+    public function getHtmlSelect(string $value_column = 'CONCAT(UPPER(LEFT(`name`, 1)), SUBSTRING(`name`, 2)) AS `name`', string $key_column = 'id', ?string $order = '`name` ASC'): SelectInterface
     {
         return parent::getHtmlSelect($value_column, $key_column, $order)
             ->setName('rights_id')
             ->setNone(tr('Select a right'))
             ->setEmpty(tr('No rights available'));
+    }
+
+
+    /**
+     * Ensure that the specified rights exist
+     *
+     * @param array $rights
+     * @return void
+     */
+    public static function ensure(array $rights): void
+    {
+        // Save each right in this list if it doesn't exist
+        foreach ($rights as $right) {
+            if (is_numeric($right)) {
+                // This is an ID, not a name. Right names can NOT be numeric
+                throw new OutOfBoundsException(tr('Cannot add right ":right", it is numeric. Right names must not be numeric', [
+                    ':right' => $right
+                ]));
+            }
+
+            if (!is_string($right)) {
+                // Who dis?
+                throw new OutOfBoundsException(tr('Cannot add right ":right", it is not a string. Right names must be a string', [
+                    ':right' => $right
+                ]));
+            }
+
+            if (Right::notExists($right, 'name')) {
+                Right::new()->setName($right)->save();
+
+                Incident::new()
+                    ->setSeverity(Severity::medium)
+                    ->setType('Right created automatically')
+                    ->setTitle(tr('Automatically created new right ":right"', [':right' => $right]))
+                    ->setDetails([':right' => $right])
+                    ->notifyRoles('accounts')
+                    ->save();
+            }
+        }
     }
 }

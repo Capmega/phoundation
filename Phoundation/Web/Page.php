@@ -1118,7 +1118,7 @@ class Page
             // One or more of the rights do not exist
             Incident::new()
                 ->setType('Non existing rights')->setSeverity(in_array('admin', Session::getUser()->getMissingRights($rights)) ? Severity::high : Severity::medium)
-                ->setTitle(tr('The requested rights ":rights" for target page ":target" (real target ":real_target") do not exist on this system! Redirecting to ":redirect"', [
+                ->setTitle(tr('The requested rights ":rights" for target page ":target" (real target ":real_target") do not exist on this system and was not automatically created. Redirecting to ":redirect"', [
                     ':rights'      => Strings::force(Rights::getNotExist($rights), ', '),
                     ':target'      => Strings::from(static::$target, PATH_ROOT),
                     ':real_target' => Strings::from($target, PATH_ROOT),
@@ -1132,6 +1132,7 @@ class Page
                     'rights'         => $rights,
                     'missing_rights' => Rights::getNotExist($rights)
                 ])
+                ->notifyRoles('accounts')
                 ->save();
 
             Page::redirect($rights_redirect);
@@ -1155,6 +1156,7 @@ class Page
                 ':real_target' => Strings::from($target, PATH_ROOT),
                 'rights'       => $rights
             ])
+            ->notifyRoles('accounts')
             ->save();
 
         Page::redirect($rights_redirect);

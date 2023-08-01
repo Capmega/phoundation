@@ -85,7 +85,7 @@ class SshAccount extends DataEntry
      */
     public function setSshKey(?string $ssh_key): static
     {
-        return $this->setDataValue('ssh_key', $ssh_key);
+        return $this->setSourceValue('ssh_key', $ssh_key);
     }
 
 

@@ -150,7 +150,7 @@ class User extends DataEntry implements UserInterface
         parent::__construct($identifier, $column);
 
         if ($this->isGuest() or $this->isSystem()) {
-            $this->setReadonly(true);
+//            $this->setReadonly(true);
         }
     }
 
@@ -257,7 +257,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setNickname(?string $nickname): static
     {
-        return $this->setDataValue('nickname', $nickname);
+        return $this->setSourceValue('nickname', $nickname);
     }
 
 
@@ -303,7 +303,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setUsername(?string $username): static
     {
-        return $this->setDataValue('username', $username);
+        return $this->setSourceValue('username', $username);
     }
 
 
@@ -326,7 +326,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setLastSignin(?string $last_sign_in): static
     {
-        return $this->setDataValue('last_sign_in', $last_sign_in);
+        return $this->setSourceValue('last_sign_in', $last_sign_in);
     }
 
 
@@ -362,7 +362,7 @@ class User extends DataEntry implements UserInterface
             $date_time = $date_time->getTimestamp();
         }
 
-        return $this->setDataValue('update_password', $date_time);
+        return $this->setSourceValue('update_password', $date_time);
     }
 
 
@@ -385,7 +385,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setAuthenticationFailures(?int $authentication_failures): static
     {
-        return $this->setDataValue('authentication_failures', (int) $authentication_failures);
+        return $this->setSourceValue('authentication_failures', (int) $authentication_failures);
     }
 
 
@@ -408,7 +408,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setLockedUntil(?string $locked_until): static
     {
-        return $this->setDataValue('locked_until', $locked_until);
+        return $this->setSourceValue('locked_until', $locked_until);
     }
 
 
@@ -431,7 +431,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setSigninCount(?int $sign_in_count): static
     {
-        return $this->setDataValue('sign_in_count', $sign_in_count);
+        return $this->setSourceValue('sign_in_count', $sign_in_count);
     }
 
 
@@ -460,10 +460,10 @@ class User extends DataEntry implements UserInterface
                 $fingerprint = new DateTime($fingerprint);
             }
 
-            return $this->setDataValue('fingerprint', $fingerprint->format('Y-m-d H:i:s'));
+            return $this->setSourceValue('fingerprint', $fingerprint->format('Y-m-d H:i:s'));
         }
 
-        return $this->setDataValue('fingerprint', null);
+        return $this->setSourceValue('fingerprint', null);
     }
 
 
@@ -486,7 +486,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setTitle(?string $title): static
     {
-        return $this->setDataValue('title', $title);
+        return $this->setSourceValue('title', $title);
     }
 
 
@@ -509,7 +509,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setKeywords(array|string|null $keywords): static
     {
-        return $this->setDataValue('keywords', Strings::force($keywords, ', '));
+        return $this->setSourceValue('keywords', Strings::force($keywords, ', '));
     }
 
 
@@ -532,7 +532,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setVerificationCode(?string $verification_code): static
     {
-        return $this->setDataValue('verification_code', $verification_code);
+        return $this->setSourceValue('verification_code', $verification_code);
     }
 
 
@@ -555,7 +555,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setVerifiedOn(?string $verified_on): static
     {
-        return $this->setDataValue('verified_on', $verified_on);
+        return $this->setSourceValue('verified_on', $verified_on);
     }
 
 
@@ -578,7 +578,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setPriority(?int $priority): static
     {
-        return $this->setDataValue('priority', $priority);
+        return $this->setSourceValue('priority', $priority);
     }
 
 
@@ -601,7 +601,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setIsLeader(int|bool|null $is_leader): static
     {
-        return $this->setDataValue('is_leader', (bool) $is_leader);
+        return $this->setSourceValue('is_leader', (bool) $is_leader);
     }
 
 
@@ -624,7 +624,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setLeadersId(?int $leaders_id): static
     {
-        return $this->setDataValue('leaders_id', $leaders_id);
+        return $this->setSourceValue('leaders_id', $leaders_id);
     }
 
 
@@ -664,7 +664,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setLeadersName(?string $leaders_name): static
     {
-        return $this->setDataValue('leaders_name', $leaders_name);
+        return $this->setSourceValue('leaders_name', $leaders_name);
     }
 
 
@@ -687,7 +687,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setLatitude(?float $latitude): static
     {
-        return $this->setDataValue('latitude', $latitude);
+        return $this->setSourceValue('latitude', $latitude);
     }
 
 
@@ -710,7 +710,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setLongitude(?float $longitude): static
     {
-        return $this->setDataValue('longitude', $longitude);
+        return $this->setSourceValue('longitude', $longitude);
     }
 
 
@@ -733,7 +733,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setAccuracy(?float $accuracy): static
     {
-        return $this->setDataValue('accuracy', $accuracy);
+        return $this->setSourceValue('accuracy', $accuracy);
     }
 
 
@@ -756,7 +756,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setOffsetLatitude(?float $offset_latitude): static
     {
-        return $this->setDataValue('offset_latitude', $offset_latitude);
+        return $this->setSourceValue('offset_latitude', $offset_latitude);
     }
 
 
@@ -779,7 +779,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setOffsetLongitude(?float $offset_longitude): static
     {
-        return $this->setDataValue('offset_longitude', $offset_longitude);
+        return $this->setSourceValue('offset_longitude', $offset_longitude);
     }
 
 
@@ -807,7 +807,7 @@ class User extends DataEntry implements UserInterface
             $redirect = UrlBuilder::getWww($redirect);
         }
 
-        return $this->setDataValue('redirect', get_null($redirect));
+        return $this->setSourceValue('redirect', get_null($redirect));
     }
 
 
@@ -830,7 +830,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setGender(?string $gender): static
     {
-        return $this->setDataValue('gender', $gender);
+        return $this->setSourceValue('gender', $gender);
     }
 
 
@@ -859,7 +859,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setBirthdate(DateTimeInterface|string|null $birthdate): static
     {
-        return $this->setDataValue('birthdate', $birthdate);
+        return $this->setSourceValue('birthdate', $birthdate);
     }
 
 
@@ -1041,7 +1041,35 @@ class User extends DataEntry implements UserInterface
             return true;
         }
 
-        return $this->getRights()->containsKeys($rights, true, 'god');
+        $contains = $this->getRights()->containsKeys($rights, true, 'god');
+
+        if (!$contains and $this->getRights()->getCount()) {
+            Rights::ensure($this->getMissingRights($rights));
+        }
+
+        return $contains;
+    }
+
+
+    /**
+     * Returns true if the user has SOME of the specified rights
+     *
+     * @param array|string $rights
+     * @return bool
+     */
+    public function hasSomeRights(array|string $rights): bool
+    {
+        if (!$rights) {
+            return true;
+        }
+
+        $contains = $this->getRights()->containsKeys($rights, false, 'god');
+
+        if (!$contains and $this->getRights()->getCount()) {
+            Rights::ensure($this->getMissingRights($rights));
+        }
+
+        return $contains;
     }
 
 
@@ -1058,22 +1086,6 @@ class User extends DataEntry implements UserInterface
         }
 
         return $this->getRights()->getMissingKeys($rights, 'god');
-    }
-
-
-    /**
-     * Returns true if the user has SOME of the specified rights
-     *
-     * @param array|string $rights
-     * @return bool
-     */
-    public function hasSomeRights(array|string $rights): bool
-    {
-        if (!$rights) {
-            return true;
-        }
-
-        return $this->getRights()->containsKeys($rights, false, 'god');
     }
 
 
@@ -1134,13 +1146,14 @@ class User extends DataEntry implements UserInterface
                     ->setType('Blocked user update')
                     ->setSeverity(Severity::severe)
                     ->setTitle(tr('The user ":user" attempted to modify god level user ":modify" without having the "god" right itself.', [
-                        ':modify' => $this,
-                        ':user'   => Session::getUser(),
+                        ':modify' => $this->getLogId(),
+                        ':user'   => Session::getUser()->getLogId(),
                     ]))
                     ->setDetails([
-                        ':modify' => $this,
-                        ':user'   => Session::getUser(),
+                        ':modify' => $this->getLogId(),
+                        ':user'   => Session::getUser()->getSource(),
                     ])
+                    ->notifyRoles('accounts')
                     ->save()
                     ->throw();
             }
@@ -1158,9 +1171,8 @@ class User extends DataEntry implements UserInterface
                     ':user'    => $this->getLogId(),
                     ':meta_id' => $meta_id
                 ]))
-                ->setDetails([
-                    ':user' => $this->getLogId(),
-                ])
+                ->setDetails([':user' => $this->getLogId()])
+                ->notifyRoles('accounts')
                 ->save();
 
         } else {
@@ -1170,9 +1182,8 @@ class User extends DataEntry implements UserInterface
                 ->setTitle(tr('The user ":user" was created', [
                     ':user' => $this->getLogId()
                 ]))
-                ->setDetails([
-                    ':user' => $this->getLogId(),
-                ])
+                ->setDetails([':user' => $this->getLogId()])
+                ->notifyRoles('accounts')
                 ->save();
         }
 
@@ -1300,10 +1311,14 @@ class User extends DataEntry implements UserInterface
                             ->setType('Domain access disallowed')
                             ->setSeverity(Severity::medium)
                             ->setTitle(tr('The user ":user" is not allowed to have access to domain ":domain"', [
-                                ':user'   => $user,
+                                ':user'   => $user->getLogId(),
                                 ':domain' => $domain
                             ]))
-                            ->setDetails([':user' => $user, ':domain' => $domain])
+                            ->setDetails([
+                                ':user'   => $user,
+                                ':domain' => $domain
+                            ])
+                            ->notifyRoles('accounts')
                             ->save();
                     }
 

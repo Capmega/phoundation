@@ -4,6 +4,7 @@ namespace Phoundation\Data\DataEntry\Interfaces;
 
 
 use Phoundation\Accounts\Users\User;
+use Phoundation\Core\Interfaces\Arrayable;
 use Phoundation\Core\Meta\Meta;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
@@ -22,7 +23,7 @@ use Phoundation\Web\Http\Html\Components\Interfaces\DataEntryFormInterface;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
-interface DataEntryInterface
+interface DataEntryInterface extends Arrayable
 {
     /**
      * Returns if this DataEntry will validate data before saving

@@ -116,7 +116,7 @@ class Plugin extends DataEntry implements PluginInterface
             }
         }
 
-        return $this->setDataValue('enabled', (bool) $enabled);
+        return $this->setSourceValue('enabled', (bool) $enabled);
     }
 
 
@@ -168,7 +168,7 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function setClass(?string $class): static
     {
-        return $this->setDataValue('class', $class);
+        return $this->setSourceValue('class', $class);
     }
 
 

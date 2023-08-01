@@ -36,6 +36,6 @@ trait DataEntryUrl
      */
     public function setUrl(?string $url): static
     {
-        return $this->setDataValue('url', $url);
+        return $this->setSourceValue('url', $url);
     }
 }

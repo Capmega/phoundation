@@ -110,7 +110,7 @@ class Customer extends DataEntry
      */
     public function setAddress2(?string $address2): static
     {
-        return $this->setDataValue('address2', $address2);
+        return $this->setSourceValue('address2', $address2);
     }
 
 
@@ -133,7 +133,7 @@ class Customer extends DataEntry
      */
     public function setAddress3(?string $address3): static
     {
-        return $this->setDataValue('address3', $address3);
+        return $this->setSourceValue('address3', $address3);
     }
 
 

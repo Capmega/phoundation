@@ -39,7 +39,8 @@ interface RoleInterface extends DataEntryInterface
     /**
      * Creates and returns an HTML for the fir
      *
+     * @param string $name
      * @return FormInterface
      */
-    public function getRightsHtmlForm(): FormInterface;
+    public function getRightsHtmlForm(string $name = 'roles_id[]'): FormInterface;
 }

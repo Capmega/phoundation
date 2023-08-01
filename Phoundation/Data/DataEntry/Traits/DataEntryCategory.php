@@ -40,7 +40,7 @@ trait DataEntryCategory
      */
     public function setCategoriesId(?int $categories_id): static
     {
-        return $this->setDataValue('categories_id', $categories_id);
+        return $this->setSourceValue('categories_id', $categories_id);
     }
 
 
@@ -80,6 +80,6 @@ trait DataEntryCategory
      */
     public function setCategoriesName(?string $categories_name): static
     {
-        return $this->setDataValue('categories_name', $categories_name);
+        return $this->setSourceValue('categories_name', $categories_name);
     }
 }

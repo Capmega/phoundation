@@ -56,7 +56,7 @@ class NotificationsDropDown extends ElementsBlock
     {
         if (!$this->notifications) {
             $this->notifications = new Notifications();
-            $this->notifications->getQueryBuilder()->addSelect('*')->addOrderBy('`created_on` DESC');
+            $this->notifications->getQueryBuilder()->addSelect('`id` AS `_id`, `notifications`.*')->addOrderBy('`created_on` DESC');
 
             if ($status) {
                 $this->notifications->getQueryBuilder()->addWhere('`users_id` = :users_id AND `status` ' . Sql::is($status, 'status'), [

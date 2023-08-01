@@ -39,6 +39,6 @@ trait DataEntryDetails
      */
     public function setDetails(array|string|null $details): static
     {
-        return $this->setDataValue('details', Json::encode($details));
+        return $this->setSourceValue('details', Json::encode($details));
     }
 }

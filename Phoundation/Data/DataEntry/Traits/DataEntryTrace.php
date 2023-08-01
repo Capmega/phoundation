@@ -42,6 +42,6 @@ trait DataEntryTrace
             $trace = Json::encode($trace);
         }
 
-        return $this->setDataValue('trace', $trace);
+        return $this->setSourceValue('trace', $trace);
     }
 }

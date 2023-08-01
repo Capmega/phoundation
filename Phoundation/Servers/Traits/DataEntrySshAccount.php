@@ -39,7 +39,7 @@ trait DataEntrySshAccount
      */
     public function setSshAccountsId(?int $ssh_accounts_id): static
     {
-        return $this->setDataValue('ssh_accounts_id', $ssh_accounts_id);
+        return $this->setSourceValue('ssh_accounts_id', $ssh_accounts_id);
     }
 
 
@@ -79,6 +79,6 @@ trait DataEntrySshAccount
      */
     public function setSshAccount(?string $ssh_accounts_name): static
     {
-        return $this->setDataValue('ssh_accounts_name', $ssh_accounts_name);
+        return $this->setSourceValue('ssh_accounts_name', $ssh_accounts_name);
     }
 }

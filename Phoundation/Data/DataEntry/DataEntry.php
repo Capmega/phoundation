@@ -244,13 +244,13 @@ abstract class DataEntry implements DataEntryInterface, Stringable
         if (!$column) {
             // If the column on which to select wasn't specified, assume `id` for numeric identifiers, or the unique
             // field otherwise
-            $column = 'id';
+            if ($identifier) {
+                if (is_numeric($identifier)) {
+                    $column = 'id';
 
-            if ($identifier and !is_numeric($identifier)) {
-                throw new OutOfBoundsException(tr('This ":class" class DataEntry object has a non numeric identifier ":identifier" without $column specified. Either specify a $column for this identifier or specify the entry ID instead', [
-                    ':class'      => get_class($this),
-                    ':identifier' => $identifier
-                ]));
+                } else {
+                    $column = $this->unique_field;
+                }
             }
         }
 
@@ -756,7 +756,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
             'meta_id' => $this->getMetaId()
         ], $comments);
 
-        return $this->setDataValue('status', $status);
+        return $this->setSourceValue('status', $status);
     }
 
 
@@ -779,7 +779,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      */
     protected function setMetaState(?string $state): static
     {
-        return $this->setDataValue('meta_state', $state);
+        return $this->setSourceValue('meta_state', $state);
     }
 
 
@@ -1012,10 +1012,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
             // Force was used, but object will now be in readonly mode so we can save failed data
             // Validate data and copy data into the source array
             $data_source = $this->doNotValidate($data_source, $clear_source);
-
-            $this
-                ->setReadonly(true)
-                ->copyDataToSource($data_source, true, true);
+            $this->copyDataToSource($data_source, true, true);
 
         } else {
             // Validate data and copy data into the source array
@@ -1232,7 +1229,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
 
             if ($directly) {
                 // Store data directly
-                $this->setDataValue($key, $value);
+                $this->setSourceValue($key, $value);
 
             } else {
                 // Store this data through the methods to ensure datatype and filtering is done correctly
@@ -1385,7 +1382,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      * @param mixed $value
      * @return static
      */
-    protected function setDataValue(string $field, mixed $value): static
+    protected function setSourceValue(string $field, mixed $value): static
     {
         if ($this->debug) {
             Log::information('TRY SETDATAVALUE FIELD "' . $field . '"', 10);

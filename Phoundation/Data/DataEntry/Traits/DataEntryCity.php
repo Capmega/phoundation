@@ -41,7 +41,7 @@ trait DataEntryCity
      */
     public function setCitiesId(?int $cities_id): static
     {
-        return $this->setDataValue('cities_id', $cities_id);
+        return $this->setSourceValue('cities_id', $cities_id);
     }
 
 
@@ -81,6 +81,6 @@ trait DataEntryCity
      */
     public function setCitiesName(?string $cities_name): static
     {
-        return $this->setDataValue('cities_name', $cities_name);
+        return $this->setSourceValue('cities_name', $cities_name);
     }
 }
