@@ -12,6 +12,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Developer\Phoundation\Phoundation;
 use Phoundation\Developer\Project\Exception\EnvironmentExists;
+use Phoundation\Developer\Project\Interfaces\DeployInterface;
 use Phoundation\Developer\Project\Interfaces\ProjectInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
 use Phoundation\Developer\Versioning\Git\Traits\Git;
@@ -141,11 +142,12 @@ class Project implements ProjectInterface
     /**
      * Returns the deploy object for this project
      *
+     * @param array|null $target_environments
      * @return DeployInterface
      */
-    protected function getDeploy(): DeployInterface
+    protected function getDeploy(array|null $target_environments): DeployInterface
     {
-        return new Deploy($this);
+        return new Deploy($this, $target_environments);
     }
 
 
