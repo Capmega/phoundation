@@ -107,45 +107,58 @@ class Phoundation extends Project
                 continue;
             }
 
-            // The main phoundation directory should be called either phoundation or Phoundation.
-            foreach (['phoundation', 'Phoundation'] as $name) {
-                $path = $path . $name . '/';
-                $this->restrictions = Restrictions::new(dirname($path));
+            $names = [
+                'phoundation',
+                'Phoundation',
+                'phoundation/phoundation',
+                'Phoundation/phoundation',
+                'Phoundation/Phoundation',
+                'phoundation/Phoundation'
+            ];
 
-                if (!file_exists($path)) {
+            // The main phoundation directory should be called either phoundation or Phoundation.
+            foreach ($names as $name) {
+                $test_path = $path . $name . '/';
+                $this->restrictions = Restrictions::new(dirname($test_path));
+
+                if (!file_exists($test_path)) {
+                    Log::warning(tr('Ignoring path ":path", it does not exist', [
+                        ':path' => $test_path,
+                    ]), 2);
+
                     continue;
                 }
 
-                if (!$this->isPhoundationProject($path)) {
+                if (!$this->isPhoundationProject($test_path)) {
                     // This is not a Phoundation type project directory
                     Log::warning(tr('Ignoring path ":path", it has the name ":name" but is not a Phoundation project', [
-                        ':path' => $path,
+                        ':path' => $test_path,
                         ':name' => $name
                     ]));
 
                     continue;
                 }
 
-                if (!$this->isPhoundation($path)) {
+                if (!$this->isPhoundation($test_path)) {
                     // This is not the Phoundation directory
                     Log::warning(tr('Ignoring path ":path", it has the name ":name" and is a Phoundation project but is not a Phoundation core project', [
-                        ':path' => $path,
+                        ':path' => $test_path,
                         ':name' => $name
                     ]));
 
                     continue;
                 }
 
-                if ($path == PATH_ROOT) {
+                if ($test_path == PATH_ROOT) {
                     throw new IsPhoundationException(tr('This project IS your Phoundation core installation', [
                         ':file' => $location
                     ]));
                 }
 
-                Log::success(tr('Found Phoundation installation in ":path"', [':path' => $path]));
+                Log::success(tr('Found Phoundation installation in ":path"', [':path' => $test_path]));
 
-                $this->path = $path;
-                return $path;
+                $this->path = $test_path;
+                return $test_path;
             }
         }
 
@@ -154,6 +167,8 @@ class Phoundation extends Project
 
 
     /**
+     * Switch the Phoundation project to the specified branch
+     *
      * @param string|null $branch
      * @return $this
      */
@@ -190,8 +205,17 @@ class Phoundation extends Project
      */
     public function patch(?string $branch, ?string $message, ?bool $sign = null, bool $checkout = true): void
     {
+        if (!$branch) {
+            // Select the current branch
+            $branch = $this->git->getBranch();
+
+            Log::notice(tr('Trying to patch updates on Phoudation using current project branch ":branch"', [
+                ':branch' => $branch
+            ]));
+        }
+
         if ($sign === null) {
-            $sign = Config::getBoolean('developer.phoundation.patch');
+            $sign = Config::getBoolean('developer.phoundation.patch.sign', true);
         }
 
         Log::information(tr('Patching branch ":branch" on your local Phoundation repository from this project', [
@@ -201,16 +225,18 @@ class Phoundation extends Project
         // Update the local project
         $sections = ['Phoundation', 'scripts'];
         $project  = Project::new();
-        $project->updateLocal($branch, $message, $sign);
+        $project->updateLocalProject($branch, $message, $sign);
 
         // Detect Phoundation installation and ensure its clean and on the right branch
-        $this->selectBranch($branch);
+        $this->selectPhoundationBranch($branch);
 
         try {
             // Execute the patching
             foreach ($sections as $section) {
                 // Patch phoundation target section and remove the changes locally
-                StatusFiles::new(PATH_ROOT . $section)->patch($this->getPath() . $section);
+                StatusFiles::new()
+                    ->setPath(PATH_ROOT . $section)
+                    ->patch($this->getPath() . $section);
             }
 
             if ($checkout) {
@@ -219,7 +245,7 @@ class Phoundation extends Project
             }
 
             if ($this->phoundation_branch) {
-                $this->selectBranch($this->phoundation_branch);
+                $this->selectPhoundationBranch($this->phoundation_branch);
             }
 
         } catch (GitHasChangesException $e) {
@@ -274,7 +300,7 @@ class Phoundation extends Project
      * @param string|null $branch
      * @return void
      */
-    protected function selectBranch(?string $branch): void
+    protected function selectPhoundationBranch(?string $branch): void
     {
         if (!$branch) {
             return;

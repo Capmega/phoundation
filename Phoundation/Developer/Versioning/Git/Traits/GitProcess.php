@@ -38,25 +38,13 @@ trait GitProcess
 
 
     /**
-     * GitPath class constructor
-     *
-     * @param string $path
-     */
-    public function __construct(string $path)
-    {
-        $this->setPath($path);
-    }
-
-
-    /**
      * Returns a new GitPath object
      *
-     * @param string $path
      * @return static
      */
-    public static function new(string $path): static
+    public static function new(): static
     {
-        return new static($path);
+        return new static();
     }
 
 

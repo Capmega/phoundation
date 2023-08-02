@@ -167,7 +167,7 @@ class Git extends Versioning
      */
     public function getRepositories(): RemoteRepositories
     {
-        return RemoteRepositories::new($this->path);
+        return RemoteRepositories::new()->setPath($this->path);
     }
 
 
@@ -178,7 +178,7 @@ class Git extends Versioning
      */
     public function getBranches(): Branches
     {
-        return Branches::new($this->path);
+        return Branches::new()->setPath($this->path);
     }
 
 
@@ -187,9 +187,9 @@ class Git extends Versioning
      *
      * @return Stash
      */
-    public function stash(): Stash
+    public function getStash(): Stash
     {
-        return Stash::new($this->path);
+        return Stash::new()->setPath($this->path);
     }
 
 
@@ -286,7 +286,9 @@ class Git extends Versioning
      */
     public function getStatus(?string $path = null): StatusFiles
     {
-        return new StatusFiles($path ?? $this->path);
+        return StatusFiles::new()
+            ->setPath($path ?? $this->path)
+            ->scanChanges();
     }
 
 

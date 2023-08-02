@@ -40,18 +40,6 @@ class StatusFiles extends Iterator
 
 
     /**
-     * StatusFiles class constructor
-     *
-     * @param string $path
-     */
-    public function __construct(string $path)
-    {
-        $this->setPath($path);
-        $this->scanChanges();
-    }
-
-
-    /**
      * Scans for changes
      *
      * @return static
