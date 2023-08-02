@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Processes\Commands;
 
+use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\DataDebug;
 use Phoundation\Data\Traits\DataNetworkConnection;
@@ -106,6 +107,13 @@ class Rsync extends Command
      */
     protected ?string $ssh_key = null;
 
+    /**
+     * Files to be ignored by rsync
+     *
+     * @var array $ignore
+     */
+    protected array $ignore = [];
+
 
     /**
      * Returns if file progress should be displayed or not
@@ -127,6 +135,45 @@ class Rsync extends Command
     public function setProgress(bool $progress): static
     {
         $this->progress = $progress;
+        return $this;
+    }
+
+
+    /**
+     * Returns the paths that will be ignored
+     *
+     * @return array
+     */
+    public function getIgnore(): array
+    {
+        return $this->ignore;
+    }
+
+
+    /**
+     * Clears the "ignore path" list
+     *
+     * @return static
+     */
+    public function clearIgnore(): static
+    {
+        $this->ignore = [];
+        return $this;
+    }
+
+
+    /**
+     * Adds the specified paths to the list that will be ignored
+     *
+     * @param array|string $paths
+     * @return static
+     */
+    public function addIgnore(array|string $paths): static
+    {
+        foreach (Arrays::force($paths) as $path) {
+            $this->ignore[] = $path;
+        }
+
         return $this;
     }
 
@@ -263,20 +310,24 @@ class Rsync extends Command
         $this->process
             ->clearArguments()
             ->setCommand('rsync')
-            ->addArgument($this->progress ? '--progress' : null)
-            ->addArgument($this->archive ? '-a' : null)
-            ->addArgument($this->quiet ? '-q' : null)
-            ->addArgument($this->verbose ? '-v' : null)
-            ->addArgument($this->compress ? '-z' : null)
+            ->addArgument($this->progress   ? '--progress' : null)
+            ->addArgument($this->archive    ? '-a' : null)
+            ->addArgument($this->quiet      ? '-q' : null)
+            ->addArgument($this->verbose    ? '-v' : null)
+            ->addArgument($this->compress   ? '-z' : null)
             ->addArgument($this->safe_links ? '--safe-links' : null)
-            ->addArgument($this->rsh ? '-e' : null)
+            ->addArgument($this->rsh        ? '-e' : null)
             ->addArgument($this->rsh)
-            ->addArgument($this->ssh_key ? '-i' : null)
+            ->addArgument($this->ssh_key    ? '-i' : null)
             ->addArgument($this->ssh_key)
             ->addArgument($this->rsync_path ? '--rsync-path' : null)
             ->addArgument($this->rsync_path)
             ->addArgument($this->source)
             ->addArgument($this->target);
+
+        foreach ($this->ignore as $ignore) {
+            $this->process->addArgument('--ignore=' . $ignore);
+        }
 
         if ($background) {
             $pid = $this->process->executeBackground();
