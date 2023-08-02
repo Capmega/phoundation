@@ -686,9 +686,10 @@ class Path extends FileBasics
      */
     public static function getTemporary(bool $public = false): Path
     {
+        $restrictions = Restrictions::new(PATH_TMP, true);
+
         if (!static::$temp_path) {
             static::$temp_path = PATH_TMP . 'process-' . posix_getpid() . '/';
-            $restrictions      = Restrictions::new(PATH_TMP, true);
 
             static::$temp_path = Path::new(static::$temp_path, $restrictions)
                 ->delete()
