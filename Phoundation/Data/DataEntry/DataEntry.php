@@ -1883,6 +1883,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
             ->addDefinition(Definition::new($this, 'id')
                 ->setReadonly(true)
                 ->setInputType(InputTypeExtended::dbid)
+                ->addClasses('text-center')
                 ->setSize(3)
                 ->setCliAutoComplete(true)
                 ->setLabel(tr('Database ID')))
@@ -1890,6 +1891,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
                 ->setReadonly(true)
                 ->setInputType(InputType::datetime_local)
                 ->setNullInputType(InputType::text)
+                ->addClasses('text-center')
                 ->setSize(3)
                 ->setLabel(tr('Created on')))
             ->addDefinition(Definition::new($this, 'created_by')
@@ -1901,6 +1903,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
                         // This is a new DataEntry object, so the creator is.. well, you!
                         return InputText::new()
                             ->setDisabled(true)
+                            ->addClasses('text-center')
                             ->setValue(Session::getUser()->getDisplayName())
                             ->render();
                     } else {
@@ -1908,11 +1911,13 @@ abstract class DataEntry implements DataEntryInterface, Stringable
                         if ($source[$key]) {
                             return InputText::new()
                                 ->setDisabled(true)
+                                ->addClasses('text-center')
                                 ->setValue(User::get($source[$key])->getDisplayName())
                                 ->render();
                         } else {
                             return InputText::new()
                                 ->setDisabled(true)
+                                ->addClasses('text-center')
                                 ->setValue(tr('System'))
                                 ->render();
                         }
@@ -1933,6 +1938,8 @@ abstract class DataEntry implements DataEntryInterface, Stringable
                 ->setOptional(true)
                 ->setReadonly(true)
                 ->setInputType(InputType::text)
+                ->setDefault(tr('Ok'))
+                ->addClasses('text-center')
                 ->setSize(3)
                 ->setLabel(tr('Status')));
     }
