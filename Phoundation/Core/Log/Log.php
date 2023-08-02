@@ -602,7 +602,7 @@ Class Log {
      */
     public static function cli(mixed $messages = null, int $threshold = 10, bool $newline = true): bool
     {
-        return static::write($messages, 'cli', $threshold, false, $newline);
+        return static::write($messages, 'cli', $threshold, false, $newline, false);
     }
 
 
