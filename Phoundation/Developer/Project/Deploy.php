@@ -10,6 +10,7 @@ use Phoundation\Developer\Project\Interfaces\DeployInterface;
 use Phoundation\Developer\Project\Interfaces\ProjectInterface;
 use Phoundation\Developer\Tests\BomPath;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Processes\Commands\Rsync;
 use Throwable;
 
 
@@ -43,6 +44,7 @@ class Deploy implements DeployInterface
         'ignore_changes'    => false,   // If true, git changes will be ignored and deploy will be executed anyway
         'content_check'     => true,    // If true will check content
         'execute_hooks'     => true,    // If true will execute configured deployment hooks
+        'sync'              => true,    // If true will sync before (optionally) executing an init before deploying
         'init'              => true,    // If true will execute a system init before deploying
         'notify'            => true,    // If true will send out notifications about this deploy
         'minify'            => true,    // If true will execute CDN file minification
@@ -58,7 +60,6 @@ class Deploy implements DeployInterface
         'force'             => false,   // If true will ignore halting issue and force deploy. DANGEROUS
         'test_syntax'       => true,    // If true will perform a syntax check before deploying
         'test_unit'         => true,    // If true will execute a unit test before deploying
-        'test_sync_init'    => true,    // If true will first sync and execute an init before deployg
     ];
 
     /**
@@ -121,29 +122,43 @@ class Deploy implements DeployInterface
                 }
             }
 
+            static::executeHook('start,pre-content-check');
+
             if (!$env_config['content_check']) {
 
             }
 
+            static::executeHook('post-content-check,pre-bom-check');
+
             if ($env_config['bom_check']) {
-                BomPath::new(PATH_ROOT, PATH_ROOT)->clearBom();
+//                BomPath::new(PATH_ROOT, PATH_ROOT)->clearBom();
             }
+
+            static::executeHook('post-bom-check,pre-test-syntax');
 
             if ($env_config['test_syntax']) {
 
             }
 
+            static::executeHook('post-test-syntax,pre-test-unit');
+
             if ($env_config['test_unit']) {
 
             }
 
-            if ($env_config['test_sync_init']) {
-
-            }
+            static::executeHook('post-test-unit,pre-stash');
 
             if ($env_config['stash']) {
 
             }
+
+            static::executeHook('post-stash,pre-sync');
+
+            if ($env_config['sync']) {
+
+            }
+
+            static::executeHook('post-sync,pre-init');
 
             if ($env_config['init']) {
                 // We may have already initialized, so we could skip this
@@ -156,37 +171,79 @@ class Deploy implements DeployInterface
                 // Init
             }
 
+            static::executeHook('post-init,pre-translate');
+
             if ($env_config['translate']) {
 
             }
+
+            static::executeHook('post-translate,pre-minify');
 
             if ($env_config['minify']) {
 
             }
 
-            if ($env_config['sitemap']) {
+            static::executeHook('post-minify,pre-build-sitemap');
+
+            if ($env_config['build_sitemap']) {
 
             }
+
+            static::executeHook('post-build-sitemap,pre-push');
 
             if ($env_config['push']) {
 
             }
 
+            static::executeHook('post-push,pre-connect,pre-backup');
+
             if ($env_config['backup']) {
 
             }
+
+            static::executeHook('post-backup,pre-parallel');
 
             if ($env_config['parallel']) {
 
             }
 
+            static::executeHook('post-parallel,pre-rsync');
+
+            // Build the rsync target
+            $rsync_target  = $env_config['server']['host'];
+            $rsync_target .= $env_config['server']['path'];
+
+            if ($env_config['server']['user']) {
+                $rsync_target = $env_config['server']['user'] . '@' . $rsync_target;
+            }
+
+            // Execute rsync
+            $process = Rsync::new()
+                ->setSource(PATH_ROOT)
+                ->setTarget($rsync_target)
+                ->addIgnore('data/run')
+                ->addIgnore('data/log')
+                ->addIgnore('data/tmp')
+                ->addIgnore('data/cache')
+                ->addIgnore('data/system')
+                ->addIgnore('data/sources')
+                ->addIgnore('data/cookies')
+                ->addIgnore('data/sessions')
+                ->execute();
+
+            static::executeHook('post-rsync,pre-update-file-modes');
+
             if ($env_config['update_file_modes']) {
 
             }
 
+            static::executeHook('post-update-file-modes,pre-notify');
+
             if ($env_config['notify']) {
 
             }
+
+            static::executeHook('post-notify,finish');
         }
 
         return $this;
@@ -196,13 +253,13 @@ class Deploy implements DeployInterface
     /**
      * Try to execute the specified hook
      *
-     * @param string $hook
+     * @param array|string $hooks
      * @return $this
      */
-    protected function executeHook(string $hook): static
+    protected function executeHook(array|string $hooks): static
     {
         if ($this->configuration['execute_hooks']) {
-            Hook::new('deploy/' . $hook)->execute();
+            Hook::new('deploy')->execute($hooks);
         }
 
         return $this;
