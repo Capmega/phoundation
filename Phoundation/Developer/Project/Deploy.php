@@ -216,7 +216,7 @@ class Deploy implements DeployInterface
             if ($env_config['server']['user']) {
                 $rsync_target = $env_config['server']['user'] . '@' . $rsync_target;
             }
-
+showdie($rsync_target);
             // Execute rsync
             $process = Rsync::new()
                 ->setSource(PATH_ROOT)
@@ -228,8 +228,8 @@ class Deploy implements DeployInterface
                 ->addIgnore('data/system')
                 ->addIgnore('data/sources')
                 ->addIgnore('data/cookies')
-                ->addIgnore('data/sessions')
-                ->execute();
+                ->addIgnore('data/sessions');
+//                ->execute();
 
             static::executeHook('post-rsync,pre-update-file-modes');
 
