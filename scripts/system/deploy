@@ -90,9 +90,6 @@ TARGET                                  - The target name to which to deploy
 --do-backup                             - Execute a site / database backup, even if per configuration, a backup should 
                                           not be done
 
---stash                                 - Execute a \"git stash\" before and \"git stash pop\" after deploy, in case the WT
-                                          contained changes
-
 --update-sitemap                        - rsync the www/LANG/sitemap file as well (Normally always skipped)
 
 -F / --force                            - Force a deploy, even when it should be stopped due to (for example) git changes

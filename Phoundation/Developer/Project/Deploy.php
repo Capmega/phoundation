@@ -5,6 +5,8 @@ namespace Phoundation\Developer\Project;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Hooks\Hook;
+use Phoundation\Core\Libraries\Libraries;
+use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Deploy\Exception\DeployException;
 use Phoundation\Developer\Project\Interfaces\DeployInterface;
 use Phoundation\Developer\Project\Interfaces\ProjectInterface;
@@ -50,13 +52,11 @@ class Deploy implements DeployInterface
         'minify'            => true,    // If true will execute CDN file minification
         'push'              => true,    // If true will push changes to the remote git repository
         'parallel'          => true,    // If true will rsync to a parallel copy of the project instead of to the project directly. This can cause the project to be in an unknown state during deployment
-        'sitemap'           => true,    // If true the system will rebuild the sitemap after deployment
         'translate'         => true,    // If true will translate the project before deploying
         'bom_check'         => true,    // If true the system will execute a BOM check on the files
         'update_file_modes' => true,    //
         'backup'            => true,    // If true the system will make a backup on the target environments
-        'stash'             => true,    //
-        'update_sitemap'    => true,    //
+        'update_sitemap'    => true,    // If true the system will rebuild the sitemap after deployment
         'force'             => false,   // If true will ignore halting issue and force deploy. DANGEROUS
         'test_syntax'       => true,    // If true will perform a syntax check before deploying
         'test_unit'         => true,    // If true will execute a unit test before deploying
@@ -125,86 +125,84 @@ class Deploy implements DeployInterface
             static::executeHook('start,pre-content-check');
 
             if (!$env_config['content_check']) {
+                Log::action(tr('Executing content check'));
 
             }
 
             static::executeHook('post-content-check,pre-bom-check');
 
             if ($env_config['bom_check']) {
+                Log::action(tr('Executing BOM check'));
 //                BomPath::new(PATH_ROOT, PATH_ROOT)->clearBom();
             }
 
             static::executeHook('post-bom-check,pre-test-syntax');
 
             if ($env_config['test_syntax']) {
-
+                Log::action(tr('Executing syntax check'));
             }
 
             static::executeHook('post-test-syntax,pre-test-unit');
 
             if ($env_config['test_unit']) {
+                Log::action(tr('Executing unit tests'));
 
             }
 
-            static::executeHook('post-test-unit,pre-stash');
-
-            if ($env_config['stash']) {
-
-            }
-
-            static::executeHook('post-stash,pre-sync');
+            static::executeHook('post-test-unit,pre-sync');
 
             if ($env_config['sync']) {
+                Log::action(tr('Executing system synchronisation'));
 
             }
 
             static::executeHook('post-sync,pre-init');
 
             if ($env_config['init']) {
-                // We may have already initialized, so we could skip this
-                if (!$env_config['test_sync_init']) {
-
-                }
-
-                // Sync
-
-                // Init
+                // Initialize the system
+                Log::action(tr('Executing system initialization'));
+                Libraries::initialize(true, true, true, 'Executed by the Phoundation deployment system');
             }
 
             static::executeHook('post-init,pre-translate');
 
             if ($env_config['translate']) {
+                Log::action(tr('Executing translation'));
 
             }
 
             static::executeHook('post-translate,pre-minify');
 
             if ($env_config['minify']) {
+                Log::action(tr('Executing CDN data minification'));
 
             }
 
-            static::executeHook('post-minify,pre-build-sitemap');
+            static::executeHook('post-minify,pre-update-sitemap');
 
-            if ($env_config['build_sitemap']) {
+            if ($env_config['update_sitemap']) {
+                Log::action(tr('Executing sitemap update'));
 
             }
 
-            static::executeHook('post-build-sitemap,pre-push');
+            static::executeHook('post-update-sitemap,pre-push');
 
             if ($env_config['push']) {
+                Log::action(tr('Pushing updates to remote GIT'));
 
             }
 
             static::executeHook('post-push,pre-connect,pre-backup');
 
             if ($env_config['backup']) {
+                Log::action(tr('Executing remote backup'));
 
             }
 
             static::executeHook('post-backup,pre-parallel');
 
             if ($env_config['parallel']) {
-
+                Log::action(tr('Executing remote project copy to prepare for parallel rsync'));
             }
 
             static::executeHook('post-parallel,pre-rsync');
@@ -216,8 +214,9 @@ class Deploy implements DeployInterface
             if ($env_config['server']['user']) {
                 $rsync_target = $env_config['server']['user'] . '@' . $rsync_target;
             }
-showdie($rsync_target);
+
             // Execute rsync
+            Log::action(tr('Executing rsync'));
             $process = Rsync::new()
                 ->setSource(PATH_ROOT)
                 ->setTarget($rsync_target)
@@ -234,12 +233,13 @@ showdie($rsync_target);
             static::executeHook('post-rsync,pre-update-file-modes');
 
             if ($env_config['update_file_modes']) {
-
+                Log::action(tr('Executing file mode update'));
             }
 
             static::executeHook('post-update-file-modes,pre-notify');
 
             if ($env_config['notify']) {
+                Log::action(tr('Sending out notifications'));
 
             }
 
