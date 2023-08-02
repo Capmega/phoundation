@@ -790,7 +790,7 @@ class Config
                 $value = static::fixKeys($value);
             }
 
-            $return[str_replace('-', '_', $key)] = $value;
+            $return[str_replace('-', '_', (string) $key)] = $value;
         }
 
         return $return;
