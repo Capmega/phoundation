@@ -153,7 +153,7 @@ class Plugin extends DataEntry implements PluginInterface
         $path = $this->getPath();
 
         if ($path) {
-            return Library::getClassPath($path . 'Plugin.php');
+            return Library::getClassPath(PATH_ROOT . $path . 'Plugin.php');
         }
 
         return null;
@@ -206,7 +206,7 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function getPath(): string
     {
-        return dirname(Library::getClassFile($this)) . '/';
+        return Strings::from(dirname(Library::getClassFile($this)) . '/', PATH_ROOT);
     }
 
 
@@ -259,7 +259,7 @@ class Plugin extends DataEntry implements PluginInterface
         // Register the plugin
         $plugin
             ->setName($name)
-            ->setPath(Strings::from($plugin->getPath(), PATH_ROOT))
+            ->setPath($plugin->getPath())
             ->setClass($plugin->getClass())
             ->setEnabled($enabled)
             ->setPriority($plugin->getPriority())
