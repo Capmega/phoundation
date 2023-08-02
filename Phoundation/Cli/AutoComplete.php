@@ -81,7 +81,15 @@ class AutoComplete
      */
     public static function setPosition(int $position): void
     {
-        static::$position         = $position;
+        static::$position = $position;
+    }
+
+
+    /**
+     * Initializes system arguments
+     */
+    public static function initSystemArguments(): void
+    {
         static::$system_arguments = [
             '-A,--all'                 => false,
             '-C,--no-color'            => false,
@@ -89,7 +97,7 @@ class AutoComplete
             '-E,--environment'         => true,
             '-F,--force'               => false,
             '-H,--help'                => false,
-            '-L,--log-level'           => true,
+            '-L,--log-level'           => [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
             '-O,--order-by'            => true,
             '-P,--page'                => true,
             '-Q,--quiet'               => false,
@@ -140,11 +148,7 @@ class AutoComplete
         // $data['position'] is the amount of found methods
         // static::$position is the word # where the cursor was when <TAB> was pressed
         if ($cli_methods === null) {
-            if (static::$position) {
-                // Invalid situation, supposedly there is an auto complete location, but no methods?
-                die('Invalid auto complete arguments' . PHP_EOL);
-            }
-
+            // No CLI methods have been specified yet, so all arguments are assumed system arguments
             $words = ArgvValidator::getArguments();
             $word  = array_shift($words);
 
@@ -302,6 +306,7 @@ class AutoComplete
     {
         if ($definitions) {
             static::processArguments(array_merge($definitions, static::$system_arguments));
+
         } else {
             static::processArguments(static::$system_arguments);
         }
@@ -377,7 +382,7 @@ complete -F _phoundation pho');
      */
     #[NoReturn] public static function processArguments(array $argument_definitions) {
         // Get the word where we're <TAB>bing on
-        if (static::$position) {
+        if (static::$position >= 0) {
             $previous_word = isset_get(ArgvValidator::getArguments()[static::$position - 1]);
             $word          = isset_get(ArgvValidator::getArguments()[static::$position]);
             $word          = strtolower(trim((string) $word));
@@ -398,22 +403,31 @@ complete -F _phoundation pho');
             $word = '';
         }
 
-        if (isset($requires_value)) {
+        if (isset_get($requires_value)) {
             if ($requires_value === true) {
                 // non-suggestible value, the user will have to type this themselves...
             } else {
-                if ($word) {
-                    if (array_key_exists('word', $requires_value)) {
-                        $results = static::processDefinition($requires_value['word'], $word);
-                    }
-                } else {
-                    if (array_key_exists('noword', $requires_value)) {
-                        $results = static::processDefinition($requires_value['noword'], null);
+                if (is_array($requires_value)) {
+                    if (array_keys($requires_value) === ['word', 'noword']) {
+                        // The $requires_value contains queries for if there is a partial word, or when there is no
+                        // partial word
+                        if ($word) {
+                            if (array_key_exists('word', $requires_value)) {
+                                $results = static::processDefinition($requires_value['word'], $word);
+                            }
+                        } else {
+                            if (array_key_exists('noword', $requires_value)) {
+                                $results = static::processDefinition($requires_value['noword'], null);
+                            }
+                        }
+                    } else {
+                        // The $requires_value contains a list of possible values
+                        $results = $requires_value;
                     }
                 }
             }
         } else {
-            // Check if we can suggest modifier arguments
+            // The previous argument (if any?) requires no value. Check if we can suggest more modifier arguments
             foreach ($argument_definitions as $key => $value) {
                 // Values may contain multiple arguments!
                 $keys = explode(',', Strings::until($key, ' '));
@@ -460,10 +474,10 @@ complete -F _phoundation pho');
 
             if (str_starts_with($definition, 'SELECT ')) {
                 if ($word) {
-                    return sql()->list($definition, [':word' => '%' . $word . '%']);
+                    return sql()->listScalar($definition, [':word' => '%' . $word . '%']);
                 }
 
-                return sql()->list($definition);
+                return sql()->listScalar($definition);
             }
 
             return $definition;

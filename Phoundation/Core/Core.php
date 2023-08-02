@@ -580,6 +580,7 @@ class Core {
             // Reset the $argv array to the auto complete data
             ArgvValidator::hideData($argv['auto_complete']);
             AutoComplete::setPosition($location - 1);
+            AutoComplete::initSystemArguments();
         }
 
         // Check what environment we're in
