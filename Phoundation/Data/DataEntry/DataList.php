@@ -367,7 +367,7 @@ abstract class DataList extends Iterator implements DataListInterface
     public function getQueryBuilder(): QueryBuilderInterface
     {
         if (!isset($this->query_builder)) {
-            $this->query_builder = new QueryBuilder($this);
+            $this->query_builder = QueryBuilder::new($this);
         }
 
         return $this->query_builder;
@@ -472,6 +472,12 @@ abstract class DataList extends Iterator implements DataListInterface
      */
     public function CliDisplayTable(?array $columns = null, array $filters = [], ?string $id_column = 'id'): void
     {
+        // If this list is empty then load data from query, else show list contents
+        if (empty($this->source)) {
+            $this->selectQuery();
+            $this->source = sql()->list($this->query, $this->execute);
+        }
+
         Cli::displayTable($this->source, $columns, $id_column);
     }
 
