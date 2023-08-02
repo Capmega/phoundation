@@ -454,6 +454,7 @@ class Password extends DataEntry implements PasswordInterface
                 ->setVirtual(true)
                 ->setInputType(InputType::password)
                 ->setMaxlength(128)
+                ->setLabel(tr('Current password'))
                 ->setHelpText(tr('Your current password'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isStrongPassword();
@@ -463,7 +464,8 @@ class Password extends DataEntry implements PasswordInterface
                 ->setVirtual(true)
                 ->setInputType(InputType::password)
                 ->setMaxlength(128)
-                ->setHelpText(tr('The password for this user'))
+                ->setLabel(tr('New password'))
+                ->setHelpText(tr('The new password for this user'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isStrongPassword();
                 }))
@@ -472,7 +474,8 @@ class Password extends DataEntry implements PasswordInterface
                 ->setVirtual(true)
                 ->setInputType(InputType::password)
                 ->setMaxlength(128)
-                ->setHelpText(tr('Validate the password for this user'))
+                ->setLabel(tr('Validate password'))
+                ->setHelpText(tr('Validate the new password for this user'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isEqualTo('password');
                 }));
