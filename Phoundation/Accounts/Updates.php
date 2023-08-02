@@ -30,7 +30,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.0.13';
+        return '0.0.14';
     }
 
 
@@ -545,6 +545,10 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             // Fix minor db issues
             sql()->query('UPDATE `accounts_users` SET `locked_until` = NULL');
             sql()->query('UPDATE `accounts_users` SET `first_names` = "guest" WHERE `email` = "guest"');
+
+        })->addUpdate('0.0.14', function () {
+            // Fix minor db issues
+            sql()->query('UPDATE `accounts_users` SET `verified_on` = NULL');
         });
     }
 }
