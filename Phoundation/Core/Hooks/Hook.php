@@ -7,7 +7,6 @@ namespace Phoundation\Core\Hooks;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
-use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\File;
 use Throwable;
 
