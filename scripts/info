@@ -61,7 +61,7 @@ Log::cli(Color::apply(Strings::size(tr('Platform:')     , 28), 'white') . ' ' . 
 Log::cli(Color::apply(Strings::size(tr('Environment:')  , 28), 'white') . ' ' . ENVIRONMENT);
 Log::cli(Color::apply(Strings::size(tr('Production:')   , 28), 'white') . ' ' . Strings::fromBoolean(Debug::production()));
 Log::cli(Color::apply(Strings::size(tr('Debug:')        , 28), 'white') . ' ' . Strings::fromBoolean(Debug::enabled()));
-Log::cli(Color::apply(Strings::size(tr('Core database:'), 28), 'white') . ' ' . Config::get('databases.sql.instances.system.name', 'unknown') . ($no_db ? ' (' . Color::apply(tr('NOT CONNECTED BECAUSE ":reason"', [':reason' => $no_db]), 'red') : '') . ')');
+Log::cli(Color::apply(Strings::size(tr('Core database:'), 28), 'white') . ' ' . Config::get('databases.sql.instances.system.name', 'unknown') . ($no_db ? ' (' . Color::apply(tr('NOT CONNECTED BECAUSE ":reason"', [':reason' => $no_db]), 'red') . ')' : ''));
 
 Log::cli();
 Log::cli(Color::apply(Strings::size(tr('System libraries:'), 28) . ' ' . Strings::size(tr('Code version'), 14) . Strings::size(tr('Database version'), 18) . Strings::size(tr('Size'), 14), 'white'));

@@ -6,9 +6,9 @@ declare(strict_types=1);
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\Documentation;
-use Phoundation\Core\Config;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Databases\Sql\Limit;
 
 
 /**
@@ -25,7 +25,7 @@ Documentation::autoComplete(User::getAutoComplete([
     'positions' => [
         0 => [
             'word'   => 'SELECT `email` FROM `accounts_users` WHERE `email` LIKE :word AND `status` IS NULL',
-            'noword' => 'SELECT `email` FROM `accounts_users` WHERE `status` IS NULL LIMIT ' . Config::getInteger('shell.autocomplete.limit', 50)
+            'noword' => 'SELECT `email` FROM `accounts_users` WHERE `status` IS NULL'
         ]
     ],
 ]));
