@@ -145,7 +145,7 @@ class Project implements ProjectInterface
      * @param array|null $target_environments
      * @return DeployInterface
      */
-    protected function getDeploy(array|null $target_environments): DeployInterface
+    public function getDeploy(array|null $target_environments): DeployInterface
     {
         return new Deploy($this, $target_environments);
     }

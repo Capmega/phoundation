@@ -24,7 +24,17 @@ Documentation::usage('./pho system deploy
 ./pho system deploy TARGET --
 ');
 
-Documentation::help('This script will check - and report - (and optionally fix) the project and its systems
+Documentation::help('This script will deploy your project from this machine to the target environment
+
+Most options are configured in a per-target basis and can be specified on the command line to override this
+configuration in a do or do not way. For example, the "production" environment can have "execute-hooks" enabled with
+true, but this can be overridden on the command line by using --no-execute-hooks. Please note that modifiers specified
+on the command line apply on all specified targets. If you wish to use different modifiers for different targets, then
+execute an individual deploy process for each target
+
+The general deployment configuration is stored in config/deploy/deploy.yml. Every target environment must have its own
+deployment configuration file named config/deploy/ENVIRONMENT.yml where ENVIRONMENT is the name of the target
+environment. If the required target environment has no configuration file, you will not be able to deploy to it.
 
 
 
@@ -39,15 +49,16 @@ TARGET                                  - The target name to which to deploy
 -t / --targets                          - List all available deployment targets
 
 
--i / --ignore-changes                   - Ignore git status, don\'t check for uncommitted changes
+--do-ignore-changes                     - Do not ignore git status, check for uncommitted changes
+--no-ignore-changes                     - Ignore git status, don\'t check for uncommitted changes
 
 --do-content-check                      - Do check content files
 
 --no-content-check                      - Do not check content files
 
---do-hook / --do-hooks                  - Do execute hooks
+--do-execute-hooks                      - Do execute hooks
 
---no-hook / --no-hooks                  - Do not execute hooks
+--no-execute-hooks                      - Do not execute hooks
 
 --do-init                               - Do execute an init on the target server
 
@@ -92,16 +103,48 @@ TARGET                                  - The target name to which to deploy
 --test-unit                             - Do PHP unit tests ');
 
 
-
 // Validate arguments
 $argv = ArgvValidator::new()
-    ->select('-r,--repair')->isOptional()->isBoolean()
+    ->select('targets', true)->isOptional()->isVariable()
+    ->select('-c,--categories', true)->isOptional()->isVariable()
+    ->select('--do-ignore-changes')->isOptional()->isBoolean()
+    ->select('--no-ignore-changes')->isOptional()->isBoolean()
+    ->select('--do-content-check')->isOptional()->isBoolean()
+    ->select('--no-content-check')->isOptional()->isBoolean()
+    ->select('--do-hooks')->isOptional()->isBoolean()
+    ->select('--no-hooks')->isOptional()->isBoolean()
+    ->select('--do-init')->isOptional()->isBoolean()
+    ->select('--no-init')->isOptional()->isBoolean()
+    ->select('--do-notify')->isOptional()->isBoolean()
+    ->select('--no-notify')->isOptional()->isBoolean()
+    ->select('--do-compress')->isOptional()->isBoolean()
+    ->select('--no-compress')->isOptional()->isBoolean()
+    ->select('--do-push')->isOptional()->isBoolean()
+    ->select('--no-push')->isOptional()->isBoolean()
+    ->select('--do-parallel')->isOptional()->isBoolean()
+    ->select('--no-parallel')->isOptional()->isBoolean()
+    ->select('--do-sitemap')->isOptional()->isBoolean()
+    ->select('--no-sitemap')->isOptional()->isBoolean()
+    ->select('--do-translate')->isOptional()->isBoolean()
+    ->select('--no-translate')->isOptional()->isBoolean()
+    ->select('--do-bom-check')->isOptional()->isBoolean()
+    ->select('--no-bom-check')->isOptional()->isBoolean()
+    ->select('--do-backup')->isOptional()->isBoolean()
+    ->select('--no-backup')->isOptional()->isBoolean()
+    ->select('--do-stash')->isOptional()->isBoolean()
+    ->select('--no-stash')->isOptional()->isBoolean()
+    ->select('--do-update-sitemap')->isOptional()->isBoolean()
+    ->select('--no-update-sitemap')->isOptional()->isBoolean()
+    ->select('--do-test-syntax')->isOptional()->isBoolean()
+    ->select('--no-test-syntax')->isOptional()->isBoolean()
+    ->select('--do-test-unit')->isOptional()->isBoolean()
+    ->select('--no-test-unit')->isOptional()->isBoolean()
     ->noArgumentsLeft()
     ->validate();
 
 
-Log::information('Checking your system. Please wait, this may take a few seconds...');
-Project::getDeploy($argv['targets'])
-    ->setTarget()
-    ->setTarget()
+Log::information('Starting deployment process');
+
+Project::new()->getDeploy($argv['targets'])
+    ->setExecuteHooks($argv['execute_hooks'], $argv['execute_hooks'])
     ->execute();

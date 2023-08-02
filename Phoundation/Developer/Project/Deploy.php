@@ -4,8 +4,11 @@ namespace Phoundation\Developer\Project;
 
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
+use Phoundation\Core\Hooks\Hook;
 use Phoundation\Developer\Project\Interfaces\DeployInterface;
 use Phoundation\Developer\Project\Interfaces\ProjectInterface;
+use Phoundation\Exception\OutOfBoundsException;
+use Throwable;
 
 
 /**
@@ -33,9 +36,11 @@ class Deploy implements DeployInterface
      * @var array $keys
      */
     protected array $keys = [
+        'server'            => [],      // The target server to which we will deploy
+        'hooks'             => [],      // The hooks to execute
         'ignore_changes'    => false,   // If true, git changes will be ignored and deploy will be executed anyway
         'content_check'     => true,    // If true will check content
-        'hooks'             => true,    // If true will execute configured deployment hooks
+        'execute_hooks'     => true,    // If true will execute configured deployment hooks
         'init'              => true,    // If true will execute a system init before deploying
         'notify'            => true,    // If true will send out notifications about this deploy
         'minify'            => true,    // If true will execute CDN file minification
@@ -66,7 +71,14 @@ class Deploy implements DeployInterface
      *
      * @var array $modifiers
      */
-    protected array $modifiers;
+    protected array $modifiers = [];
+
+    /**
+     * The targets to which we are deploying
+     *
+     * @var array $targets
+     */
+    protected array $targets;
 
 
     /**
@@ -77,12 +89,192 @@ class Deploy implements DeployInterface
      */
     public function __construct(ProjectInterface $project, array|null $target_environments)
     {
-        $this->project = $project;
+        $this->project       = $project;
+        $this->configuration = $this->getConfig();
+        $this->targets       = $target_environments ?? Arrays::force($this->configuration['targets']);
+    }
 
-        foreach ($target_environments as $environment) {
-            $configuration = $this->loadConfig($environment);
 
+    /**
+     * Sets if hooks should be executed or not
+     *
+     * @param bool|null $do
+     * @param bool|null $dont
+     * @return $this
+     */
+    public function setExecuteHooks (?bool $do, ?bool $dont): static
+    {
+        return $this->setModifier('execute_hooks', $do, $dont);
+    }
+
+
+    /**
+     * Start the deployment process
+     *
+     * @return $this
+     */
+    public function execute(): static
+    {
+        if (!$this->targets) {
+            throw new OutOfBoundsException(tr('No deployment target environments configured or specified on the commandline'));
         }
+
+        foreach ($this->targets as $environment) {
+            // Read environment config, update global config and then check which sections should be executed
+            $env_config = $this->getEnvironmentConfig($environment);
+
+            $this->configuration['execute_hooks'] =  $env_config['execute_hooks'];
+            $this->configuration['force']         = ($env_config['force'] or FORCE);
+
+            if (!$env_config['ignore_changes']) {
+
+            }
+
+            if (!$env_config['content_check']) {
+
+            }
+
+            if ($env_config['bom_check']) {
+
+            }
+
+            if ($env_config['test_syntax']) {
+
+            }
+
+            if ($env_config['test_unit']) {
+
+            }
+
+            if ($env_config['test_sync_init']) {
+
+            }
+
+            if ($env_config['stash']) {
+
+            }
+
+            if ($env_config['init']) {
+                // We may have already initialized, so we could skip this
+                if (!$env_config['test_sync_init']) {
+
+                }
+
+                // Sync
+
+                // Init
+            }
+
+            if ($env_config['translate']) {
+
+            }
+
+            if ($env_config['minify']) {
+
+            }
+
+            if ($env_config['sitemap']) {
+
+            }
+
+            if ($env_config['push']) {
+
+            }
+
+            if ($env_config['backup']) {
+
+            }
+
+            if ($env_config['parallel']) {
+
+            }
+
+            if ($env_config['update_file_modes']) {
+
+            }
+
+            if ($env_config['notify']) {
+
+            }
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Try to execute the specified hook
+     *
+     * @param string $hook
+     * @return $this
+     */
+    protected function executeHook(string $hook): static
+    {
+        if ($this->configuration['execute_hooks']) {
+            Hook::new('deploy/' . $hook)->execute();
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Return all deployment configuration
+     *
+     * @return array
+     * @throws Throwable
+     */
+    protected function getConfig(): array
+    {
+        try {
+            Config::setEnvironment('deploy');
+            $configuration = Config::get('');
+
+            Arrays::ensure($configuration);
+            Arrays::default($configuration, 'targets', 'production');
+
+            Config::setEnvironment(ENVIRONMENT);
+
+            return $configuration;
+
+        } catch (Throwable $e) {
+            // Whatever went wrong, make sure that the configuration environment is set back to normal
+            Config::setEnvironment(ENVIRONMENT);
+            throw $e;
+        }
+    }
+
+
+    /**
+     * Sets the requested modifier configuration
+     *
+     * @param string $modifier
+     * @param bool|null $do
+     * @param bool|null $dont
+     * @return $this
+     */
+    protected function setModifier(string $modifier, ?bool $do, ?bool $dont): static
+    {
+        if ($do) {
+            if ($dont) {
+                throw new OutOfBoundsException(tr('Both "do" and "dont" modifiers were specified for ":modifier". Please specify only one', [
+                    ':modifier' => $modifier
+                ]));
+
+            }
+
+            $value = true;
+
+        } elseif ($dont) {
+            $value = false;
+
+        } else {
+            $value = null;
+        }
+
+        $this->modifiers[$modifier] = $value;
+
+        return $this;
     }
 
 
@@ -92,17 +284,30 @@ class Deploy implements DeployInterface
      * @param $environment
      * @return array
      */
-    protected function loadConfig($environment): array
+    protected function getEnvironmentConfig($environment): array
     {
-        Config::setEnvironment('deploy/' . $environment);
+        $return = [];
 
-        foreach ($this->keys as $key => $default) {
-            Arrays::default($this->configuration, $key, Config::getBoolean($key, $default));
+        try {
+            Config::setEnvironment('deploy/' . $environment);
 
-            if (array_key_exists($key, $this->modifiers)) {
-                // Override was specified on the command line
-                $this->configuration[$key] = $this->modifiers[$key];
+            foreach ($this->keys as $key => $default) {
+                Arrays::default($return, $key, Config::getBoolean($key, $default));
+
+                if (array_key_exists($key, $this->modifiers)) {
+                    // Override was specified on the command line
+                    $return[$key] = $this->modifiers[$key];
+                }
             }
+
+            Config::setEnvironment(ENVIRONMENT);
+
+            return $return;
+
+        } catch (Throwable $e) {
+            // Whatever went wrong, make sure that the configuration environment is set back to normal
+            Config::setEnvironment(ENVIRONMENT);
+            throw $e;
         }
     }
 }
