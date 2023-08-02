@@ -1395,16 +1395,35 @@ class File extends FileBasics implements FileInterface
 
 
     /**
+     * Reads and returns the specified amount of bytes from this file
+     *
+     * @param int $count
+     * @param int $start
+     * @return string
+     */
+    public function readBytes(int $count, int $start = 0): string
+    {
+        $h    = $this->open('r');
+        $data = fread($h, $start + $count);
+        $data = substr($data, $start);
+
+        fclose($h);
+
+        return $data;
+    }
+
+
+    /**
      * Write the specified data to this file with the requested file mode
      *
      * @param string $data
-     * @param string $filemode
+     * @param string $write_mode
      * @return $this
      */
-    protected function write(string $data, string $filemode): static
+    protected function write(string $data, string $write_mode = 'w'): static
     {
         // Validate the specified filemode
-        switch (substr($filemode, 0, 1)) {
+        switch (substr($write_mode, 0, 1)) {
             case 'w':
                 // no break
             case 'a':
@@ -1416,11 +1435,11 @@ class File extends FileBasics implements FileInterface
 
             default:
                 throw new FilesystemException(tr('Invalid file mode ":mode" specified, please use one of "w", "w+", "a", "a+", "c", "c+", , "x", or "x+"', [
-                    ':mode' => $filemode
+                    ':mode' => $write_mode
                 ]));
         }
 
-        switch (substr($filemode, 1, 1)) {
+        switch (substr($write_mode, 1, 1)) {
             case '+':
                 // no break
             case null:
@@ -1429,7 +1448,7 @@ class File extends FileBasics implements FileInterface
 
             default:
                 throw new FilesystemException(tr('Invalid file mode ":mode" specified, please use one of "w", "w+", "a", "a+", "c", "c+", , "x", or "x+"', [
-                    ':mode' => $filemode
+                    ':mode' => $write_mode
                 ]));
         }
 
@@ -1440,7 +1459,7 @@ class File extends FileBasics implements FileInterface
         // PARENT directory IN the PARENT directory OF the PARENT!
         Path::new(dirname($this->file), $this->restrictions->getParent()->getParent())->ensure();
 
-        $h = $this->open($filemode);
+        $h = $this->open($write_mode);
         fwrite($h, $data);
         fclose($h);
 
