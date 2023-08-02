@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Processes\Commands;
 
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Traits\DataDebug;
 use Phoundation\Data\Traits\DataNetworkConnection;
 use Phoundation\Data\Traits\DataSource;
 use Phoundation\Data\Traits\DataTarget;
@@ -22,6 +23,7 @@ use Phoundation\Data\Traits\DataTarget;
  */
 class Rsync extends Command
 {
+    use DataDebug;
     use DataSource;
     use DataTarget;
     use DataNetworkConnection;
@@ -289,7 +291,11 @@ class Rsync extends Command
 
         $results = $this->process->executeReturnArray();
 
-        Log::notice($results, 4);
+        if ($this->debug) {
+            Log::information(tr('Output of the rsync command:'), 4);
+            Log::notice($results, 4);
+        }
+
         return null;
     }
 }
