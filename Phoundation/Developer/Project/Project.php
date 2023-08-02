@@ -133,7 +133,7 @@ class Project implements ProjectInterface
      *
      * @return GitInterface
      */
-    protected function getGit(): GitInterface
+    public function getGit(): GitInterface
     {
         return $this->git;
     }

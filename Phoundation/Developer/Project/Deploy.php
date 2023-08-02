@@ -5,8 +5,10 @@ namespace Phoundation\Developer\Project;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Hooks\Hook;
+use Phoundation\Developer\Deploy\Exception\DeployException;
 use Phoundation\Developer\Project\Interfaces\DeployInterface;
 use Phoundation\Developer\Project\Interfaces\ProjectInterface;
+use Phoundation\Developer\Tests\BomPath;
 use Phoundation\Exception\OutOfBoundsException;
 use Throwable;
 
@@ -49,7 +51,7 @@ class Deploy implements DeployInterface
         'sitemap'           => true,    // If true the system will rebuild the sitemap after deployment
         'translate'         => true,    // If true will translate the project before deploying
         'bom_check'         => true,    // If true the system will execute a BOM check on the files
-        'update-file-modes' => true,    //
+        'update_file_modes' => true,    //
         'backup'            => true,    // If true the system will make a backup on the target environments
         'stash'             => true,    //
         'update_sitemap'    => true,    //
@@ -96,19 +98,6 @@ class Deploy implements DeployInterface
 
 
     /**
-     * Sets if hooks should be executed or not
-     *
-     * @param bool|null $do
-     * @param bool|null $dont
-     * @return $this
-     */
-    public function setExecuteHooks (?bool $do, ?bool $dont): static
-    {
-        return $this->setModifier('execute_hooks', $do, $dont);
-    }
-
-
-    /**
      * Start the deployment process
      *
      * @return $this
@@ -127,7 +116,9 @@ class Deploy implements DeployInterface
             $this->configuration['force']         = ($env_config['force'] or FORCE);
 
             if (!$env_config['ignore_changes']) {
-
+                if ($this->project->getGit()->hasChanges()) {
+                    throw new DeployException(tr('The project has pending git changes. Please commit or stash first'));
+                }
             }
 
             if (!$env_config['content_check']) {
@@ -135,7 +126,7 @@ class Deploy implements DeployInterface
             }
 
             if ($env_config['bom_check']) {
-
+                BomPath::new(PATH_ROOT, PATH_ROOT)->clearBom();
             }
 
             if ($env_config['test_syntax']) {
@@ -227,13 +218,12 @@ class Deploy implements DeployInterface
     protected function getConfig(): array
     {
         try {
-            Config::setEnvironment('deploy');
+            Config::setEnvironment('deploy/deploy', false);
             $configuration = Config::get('');
+            Config::setEnvironment(ENVIRONMENT);
 
             Arrays::ensure($configuration);
             Arrays::default($configuration, 'targets', 'production');
-
-            Config::setEnvironment(ENVIRONMENT);
 
             return $configuration;
 
@@ -289,18 +279,46 @@ class Deploy implements DeployInterface
         $return = [];
 
         try {
-            Config::setEnvironment('deploy/' . $environment);
+            Config::setEnvironment('deploy/' . $environment, false);
+            $config = Config::get('');
+            Config::setEnvironment(ENVIRONMENT);
+
+            show($config);
+            showdie('zzzzzzzzzzzzzzzz');
 
             foreach ($this->keys as $key => $default) {
-                Arrays::default($return, $key, Config::getBoolean($key, $default));
+                $key = str_replace('_', '-', $key);
+
+                switch ($key) {
+                    case 'server':
+                        // no break
+                    case 'hooks':
+                        Arrays::default($return, $key, Config::getArray($key, $default));
+                        break;
+
+                    default:
+                        print_r($key); echo  PHP_EOL;
+                        print_r($default); echo  PHP_EOL;
+                        print_r(Config::getBoolean($key, $default)); echo  PHP_EOL;
+
+                        Arrays::default($return, $key, Config::getBoolean($key, $default));
+                }
 
                 if (array_key_exists($key, $this->modifiers)) {
-                    // Override was specified on the command line
-                    $return[$key] = $this->modifiers[$key];
+                    print_r($this->modifiers[$key]); echo  PHP_EOL;
+                    print_r('aaaaaaaasssssssssssssssssssssa'); echo  PHP_EOL;
+                    print_r('aaaaaaaasssssssssssssssssssssa'); echo  PHP_EOL;
+
+                    if ($this->modifiers[$key] !== null) {
+                        // Override was specified on the command line
+                        $return[$key] = $this->modifiers[$key];
+                    }
                 }
             }
 
-            Config::setEnvironment(ENVIRONMENT);
+
+            print_r($return); echo  PHP_EOL;
+            showdie('====================');
 
             return $return;
 
@@ -310,4 +328,32 @@ class Deploy implements DeployInterface
             throw $e;
         }
     }
+
+
+    /**
+     * Sets if hooks should be executed or not
+     *
+     * @param bool|null $do
+     * @param bool|null $dont
+     * @return $this
+     */
+    public function setExecuteHooks(?bool $do, ?bool $dont): static
+    {
+        return $this->setModifier('execute_hooks', $do, $dont);
+    }
+
+
+    /**
+     * Sets if git changes should be ignored or not
+     *
+     * @param bool|null $do
+     * @param bool|null $dont
+     * @return $this
+     */
+    public function setIgnoreChanges(?bool $do, ?bool $dont): static
+    {
+        return $this->setModifier('ignore_changes', $do, $dont);
+    }
+
+
 }

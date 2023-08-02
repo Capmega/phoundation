@@ -70,7 +70,7 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
     protected int $line;
 
     /**
-     * CoreException __constructor
+     * Exception constructor
      *
      * @param Throwable|array|string|null $messages The exception messages
      * @param Throwable|null $previous A previous exception, if available.
