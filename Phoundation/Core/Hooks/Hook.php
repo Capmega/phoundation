@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Hooks;
 
-
 use Phoundation\Core\Arrays;
+use Phoundation\Core\Log\Log;
+use Phoundation\Core\Strings;
+use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\File;
+use Throwable;
+
 
 /**
  * Hook class
@@ -47,7 +51,11 @@ class Hook
      */
     public function __construct(?string $class = null)
     {
-        $this->class = $class;
+        $this->class = Strings::endsNotWith(trim($class), '/') . '/';
+
+        if ($this->class) {
+            $this->path .= $this->class;
+        }
     }
 
 
@@ -73,9 +81,30 @@ class Hook
     {
         foreach (Arrays::force($hooks) as $hook) {
             $file = $this->path . $hook;
+
+            if (!file_exists($file)) {
+                // Only execute existing files
+                continue;
+            }
+
+            // Ensure its readable, not a path, within the filesystem restrictions, etc...
             File::new($file, $this->path)->checkReadable();
 
-            include($file);
+            // Try executing it!
+            try {
+                Log::action(tr('Executing hook ":hook"', [
+                    ':hook' => $this->class . '/' . $hook
+                ]));
+
+                include($file);
+
+            } catch (Throwable $e) {
+                Log::error(tr('Hook ":hook" failed to execute with the following exception', [
+                    ':hook' => $hook
+                ]));
+
+                Log::error($e);
+            }
         }
 
         return $this;
