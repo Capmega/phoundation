@@ -400,11 +400,11 @@ class Config
                 // The requested key does not exist
                 if ($default === null) {
                     // We have no default configuration either
-                    throw new ConfigurationDoesNotExistsException(tr('The configuration section ":section" from key path ":path" does not exist. Please check "production.yaml" AND ":environment.yaml"', [
+                    throw ConfigurationDoesNotExistsException::new(tr('The configuration section ":section" from key path ":path" does not exist. Please check "production.yaml" AND ":environment.yaml"', [
                         ':environment' => ENVIRONMENT,
                         ':section'     => $section,
                         ':path'        => Strings::force($path, '.')
-                    ]));
+                    ]))->makeWarning();
                 }
 
                 // The requested key does not exist in configuration, return the default value instead
@@ -439,10 +439,10 @@ class Config
         foreach ($path as $section) {
             if (!is_array($data)) {
                 // Oops, this data section should be an array
-                throw new ConfigException(tr('The configuration section ":section" from requested path ":path" does not exist', [
+                throw ConfigException::new(tr('The configuration section ":section" from requested path ":path" does not exist', [
                     ':section' => $section,
-                    ':path' => $path
-                ]));
+                    ':path'    => $path
+                ]))->makeWarning();
             }
 
             if (!array_key_exists($section, $data)) {
