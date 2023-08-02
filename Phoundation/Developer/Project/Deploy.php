@@ -283,42 +283,27 @@ class Deploy implements DeployInterface
             $config = Config::get('');
             Config::setEnvironment(ENVIRONMENT);
 
-            show($config);
-            showdie('zzzzzzzzzzzzzzzz');
-
             foreach ($this->keys as $key => $default) {
-                $key = str_replace('_', '-', $key);
+                $key = str_replace('-', '_', $key);
 
                 switch ($key) {
                     case 'server':
                         // no break
                     case 'hooks':
-                        Arrays::default($return, $key, Config::getArray($key, $default));
+                        Arrays::default($return, $key, isset_get_typed('array', $config[$key], $default));
                         break;
 
                     default:
-                        print_r($key); echo  PHP_EOL;
-                        print_r($default); echo  PHP_EOL;
-                        print_r(Config::getBoolean($key, $default)); echo  PHP_EOL;
-
-                        Arrays::default($return, $key, Config::getBoolean($key, $default));
+                        Arrays::default($return, $key, isset_get_typed('bool', $config[$key], $default));
                 }
 
                 if (array_key_exists($key, $this->modifiers)) {
-                    print_r($this->modifiers[$key]); echo  PHP_EOL;
-                    print_r('aaaaaaaasssssssssssssssssssssa'); echo  PHP_EOL;
-                    print_r('aaaaaaaasssssssssssssssssssssa'); echo  PHP_EOL;
-
                     if ($this->modifiers[$key] !== null) {
                         // Override was specified on the command line
                         $return[$key] = $this->modifiers[$key];
                     }
                 }
             }
-
-
-            print_r($return); echo  PHP_EOL;
-            showdie('====================');
 
             return $return;
 
