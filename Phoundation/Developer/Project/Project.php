@@ -12,6 +12,8 @@ use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Developer\Phoundation\Phoundation;
 use Phoundation\Developer\Project\Exception\EnvironmentExists;
+use Phoundation\Developer\Project\Interfaces\ProjectInterface;
+use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
 use Phoundation\Developer\Versioning\Git\Traits\Git;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
@@ -35,7 +37,7 @@ use Throwable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package \Phoundation\Developer
  */
-class Project
+class Project implements ProjectInterface
 {
     use DataRestrictions;
     use Git {
@@ -128,11 +130,22 @@ class Project
     /**
      * Returns the git object for this project
      *
-     * @return \Phoundation\Developer\Versioning\Git\Git
+     * @return GitInterface
      */
-    protected function getGit(): \Phoundation\Developer\Versioning\Git\Git
+    protected function getGit(): GitInterface
     {
         return $this->git;
+    }
+
+
+    /**
+     * Returns the deploy object for this project
+     *
+     * @return DeployInterface
+     */
+    protected function getDeploy(): DeployInterface
+    {
+        return new Deploy($this);
     }
 
 

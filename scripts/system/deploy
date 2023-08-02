@@ -41,9 +41,15 @@ TARGET                                  - The target name to which to deploy
 
 -i / --ignore-changes                   - Ignore git status, don\'t check for uncommitted changes
 
---do-content-check                      - Check content files
+--do-content-check                      - Do check content files
+
+--no-content-check                      - Do not check content files
+
+--do-hook / --do-hooks                  - Do execute hooks
 
 --no-hook / --no-hooks                  - Do not execute hooks
+
+--do-init                               - Do execute an init on the target server
 
 --no-init                               - Do not execute an init on the target server
 
@@ -95,7 +101,7 @@ $argv = ArgvValidator::new()
 
 
 Log::information('Checking your system. Please wait, this may take a few seconds...');
-Project::deploy()
+Project::getDeploy()
     ->setTarget()
     ->setTarget()
     ->execute();
