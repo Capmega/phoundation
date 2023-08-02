@@ -248,7 +248,7 @@ class Config
         $return = static::get($path, $default, $specified);
 
         if (is_array($return)) {
-            return $return;
+            return static::fixKeys($return);
         }
 
         throw new ConfigException(tr('The configuration path ":path" should be an array but has value ":value"', [
@@ -387,7 +387,7 @@ class Config
 
         if (!$path) {
             // No path specified, return everything
-            return static::$data;
+            return static::fixKeys(static::$data);
         }
 
         $path = Arrays::force($path, '.');
@@ -771,6 +771,29 @@ class Config
                 ]
             ],
         ];
+    }
+
+
+    /**
+     * Fixes configuration key names, - will be replaced with _
+     *
+     * @param array $data
+     * @return array
+     */
+    protected static function fixKeys(array $data): array
+    {
+        $return = [];
+
+        foreach ($data as $key => $value) {
+            if (is_array($value)) {
+                // Recurse
+                $value = static::fixKeys($value);
+            }
+
+            $return[str_replace('-', '_', $key)] = $value;
+        }
+
+        return $return;
     }
 
 
