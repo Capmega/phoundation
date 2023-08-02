@@ -73,6 +73,13 @@ class Config
      */
     protected static ?string $environment = null;
 
+    /**
+     * If true, Config will always first read the production configuration file, then the specified environment
+     *
+     * @var bool $include_production
+     */
+    protected static bool $include_production = true;
+
 
     /**
      * Singleton, ensure to always return the same Log object.
@@ -106,7 +113,7 @@ class Config
      * @param string $environment
      * @return void
      */
-    public static function setEnvironment(string $environment): void
+    public static function setEnvironment(string $environment, bool $include_production = true): void
     {
         if (!$environment) {
             // Environment was specified as "", use no environment!
@@ -116,7 +123,8 @@ class Config
         }
 
         // Use the specified environment
-        static::$environment = strtolower(trim($environment));
+        static::$include_production = $include_production;
+        static::$environment        = strtolower(trim($environment));
 
         static::reset();
         static::read();
@@ -377,6 +385,11 @@ class Config
             return $specified;
         }
 
+        if (!$path) {
+            // No path specified, return everything
+            return static::$data;
+        }
+
         $path = Arrays::force($path, '.');
         $data = &static::$data;
 
@@ -481,8 +494,13 @@ class Config
             // What environments should be read?
             if (static::$environment === 'production') {
                 $environments = ['production'];
-            } else {
+
+            } elseif(static::$include_production) {
                 $environments = ['production', static::$environment];
+
+            } else {
+                // Read only the specified environment
+                $environments = [static::$environment];
             }
 
             // Read the section for each environment
@@ -500,6 +518,7 @@ class Config
                 try {
                     // Read the configuration data and merge it in the internal configuration data array
                     $data = yaml_parse_file($file);
+
                 } catch (Throwable $e) {
                     // Failed to read YAML data from configuration file
                     static::$fail = true;
@@ -508,17 +527,24 @@ class Config
                 }
 
                 if (!is_array($data)) {
-                    throw new OutOfBoundsException(tr('Configuration data in file ":file" has an invalid format', [
-                        ':file' => $file
-                    ]));
+                    if ($data) {
+                        throw new OutOfBoundsException(tr('Configuration data in file ":file" has an invalid format', [
+                            ':file' => $file
+                        ]));
+                    }
+
+                    // Looks like configuration file was empty
+                    $data = [];
                 }
 
                 static::$data = Arrays::mergeFull(static::$data, $data);
             }
 
         } catch (ConfigException $e) {
+            // Do NOT use Log class here as log class requires config which just now failed... Same goes for tr()!
+            echo 'Failed to load configuration file "' . $file . '"' . PHP_EOL;
+
             static::$fail = true;
-            // TODO Log here that configuration loading failed.
         }
     }
 
@@ -568,8 +594,8 @@ class Config
                                     if ($store[$path] !== $default) {
                                         Log::warning(tr('Configuration path ":path" has two different default values ":1" and ":2"', [
                                             ':path' => $path,
-                                            ':1' => $default,
-                                            ':2' => $store[$path],
+                                            ':1'    => $default,
+                                            ':2'    => $store[$path],
                                         ]));
                                     }
                                 }
