@@ -15,6 +15,7 @@ use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Commands\Command;
 use Phoundation\Processes\Enum\ExecuteMethod;
+use Phoundation\Processes\Enum\Interfaces\ExecuteMethodInterface;
 use Phoundation\Processes\Exception\ProcessException;
 use Phoundation\Processes\Exception\ProcessFailedException;
 use Phoundation\Processes\Interfaces\ProcessInterface;
@@ -222,14 +223,14 @@ Class Process implements ProcessInterface, ProcessVariablesInterface
     /**
      * Execute the command and depending on specified method, return or log output
      *
-     * @param ExecuteMethod $method
+     * @param ExecuteMethodInterface $method
      * @return string|int|bool|array|null
      */
-    public function execute(ExecuteMethod $method): string|int|bool|array|null
+    public function execute(ExecuteMethodInterface $method): string|int|bool|array|null
     {
         switch ($method) {
             case ExecuteMethod::log:
-                $results = $this->process->executeReturnArray();
+                $results = $this->executeReturnArray();
                 Log::notice($results, 4);
                 return null;
 
@@ -244,6 +245,10 @@ Class Process implements ProcessInterface, ProcessVariablesInterface
 
             case ExecuteMethod::returnArray:
                 return $this->executeReturnArray();
+
+            case ExecuteMethod::noReturn:
+                $this->executeNoReturn();
+                return null;
 
             default:
                 throw new OutOfBoundsException(tr('Unknown execute method ":method" specified', [
@@ -306,6 +311,7 @@ Class Process implements ProcessInterface, ProcessVariablesInterface
 
         if ($this->debug) {
             Log::printr($this->getFullCommandLine());
+
         } else {
             Log::notice(tr('Executing background command ":command" using exec()', [
                 ':command' => $this->getFullCommandLine(true)
@@ -327,7 +333,7 @@ Class Process implements ProcessInterface, ProcessVariablesInterface
 
         // Set the process id and exit code for the nohup command
         $this->setPid();
-        $exit_code = $this->setExitCode($exit_code, $output);
+        $exit_code = $this->setExitCode(0, $output);
 
         Log::success(tr('Executed background command ":command" with PID ":pid"', [
             ':command' => $this->real_command,
