@@ -10,6 +10,8 @@ use Phoundation\Data\Traits\DataDebug;
 use Phoundation\Data\Traits\DataNetworkConnection;
 use Phoundation\Data\Traits\DataSource;
 use Phoundation\Data\Traits\DataTarget;
+use Phoundation\Processes\Enum\ExecuteMethod;
+use Phoundation\Processes\Enum\Interfaces\ExecuteMethodInterface;
 
 
 /**
@@ -110,9 +112,9 @@ class Rsync extends Command
     /**
      * Files to be ignored by rsync
      *
-     * @var array $ignore
+     * @var array $exlude
      */
-    protected array $ignore = [];
+    protected array $exlude = [];
 
 
     /**
@@ -144,34 +146,34 @@ class Rsync extends Command
      *
      * @return array
      */
-    public function getIgnore(): array
+    public function getExlude(): array
     {
-        return $this->ignore;
+        return $this->exlude;
     }
 
 
     /**
-     * Clears the "ignore path" list
+     * Clears the "exclude path" list
      *
      * @return static
      */
-    public function clearIgnore(): static
+    public function clearExclude(): static
     {
-        $this->ignore = [];
+        $this->exlude = [];
         return $this;
     }
 
 
     /**
-     * Adds the specified paths to the list that will be ignored
+     * Adds the specified paths to the list that will be excluded
      *
      * @param array|string $paths
      * @return static
      */
-    public function addIgnore(array|string $paths): static
+    public function addExclude(array|string $paths): static
     {
         foreach (Arrays::force($paths) as $path) {
-            $this->ignore[] = $path;
+            $this->exlude[] = $path;
         }
 
         return $this;
@@ -251,6 +253,54 @@ class Rsync extends Command
 
 
     /**
+     * Returns if rsync should be executed using sudo on the remote host
+     *
+     * @return bool
+     */
+    public function getSudo(): bool
+    {
+        return $this->rsync_path === 'sudo rsync';
+    }
+
+
+    /**
+     * Returns if rsync should be executed using sudo on the remote host
+     *
+     * @param bool $sudo
+     * @return static
+     */
+    public function setSudo(bool $sudo): static
+    {
+        $this->rsync_path = 'sudo rsync';
+        return $this;
+    }
+
+
+    /**
+     * Returns the remote rsync command
+     *
+     * @return string|null
+     */
+    public function getRsyncPath(): ?string
+    {
+        return $this->rsync_path;
+    }
+
+
+    /**
+     * Sets the remote rsync command
+     *
+     * @param string|null $rsync_path
+     * @return static
+     */
+    public function setRsyncPath(?string $rsync_path): static
+    {
+        $this->rsync_path = $rsync_path;
+        return $this;
+    }
+
+
+    /**
      * Returns if rsync will ignore symlinks that point outside the tree
      *
      * @return bool
@@ -301,52 +351,47 @@ class Rsync extends Command
     /**
      * Execute the rsync operation and return the PID (background) or -1
      *
-     * @param bool $background
-     * @return int|null
+     * @param ExecuteMethodInterface $method
+     * @return static
      */
-    public function execute(bool $background = false): ?int
+    public function execute(ExecuteMethodInterface $method = ExecuteMethod::passthru): static
     {
+        // If port is a non-default SSH port, then generate the RSH variable
+        if (empty($this->rsh)) {
+            if ($this->port) {
+                $this->rsh = 'ssh -p ' . $this->port;
+            }
+        }
+
         // Build the process parameters, then execute
         $this->process
             ->clearArguments()
             ->setCommand('rsync')
-            ->addArgument($this->progress   ? '--progress' : null)
-            ->addArgument($this->archive    ? '-a' : null)
-            ->addArgument($this->quiet      ? '-q' : null)
-            ->addArgument($this->verbose    ? '-v' : null)
-            ->addArgument($this->compress   ? '-z' : null)
+            ->addArgument($this->progress   ? '--progress'   : null)
+            ->addArgument($this->archive    ? '-a'           : null)
+            ->addArgument($this->quiet      ? '-q'           : null)
+            ->addArgument($this->verbose    ? '-v'           : null)
+            ->addArgument($this->compress   ? '-z'           : null)
             ->addArgument($this->safe_links ? '--safe-links' : null)
-            ->addArgument($this->rsh        ? '-e' : null)
+            ->addArgument($this->rsh        ? '-e'           : null)
             ->addArgument($this->rsh)
-            ->addArgument($this->ssh_key    ? '-i' : null)
+            ->addArgument($this->ssh_key    ? '-i'           : null)
             ->addArgument($this->ssh_key)
-            ->addArgument($this->rsync_path ? '--rsync-path' : null)
-            ->addArgument($this->rsync_path)
+            ->addArgument($this->rsync_path ? '--rsync-path=' . escapeshellarg($this->rsync_path) : null, false)
             ->addArgument($this->source)
             ->addArgument($this->target);
 
-        foreach ($this->ignore as $ignore) {
-            $this->process->addArgument('--ignore=' . $ignore);
+        foreach ($this->exlude as $exclude) {
+            $this->process->addArgument('--exclude=' . escapeshellarg($exclude), false);
         }
 
-        if ($background) {
-            $pid = $this->process->executeBackground();
-
-            Log::success(tr('Executed rsync as a background process with PID ":pid"', [
-                ':pid' => $pid
-            ]), 4);
-
-            return $pid;
-
-        }
-
-        $results = $this->process->executeReturnArray();
+        $results = $this->process->execute($method);
 
         if ($this->debug) {
             Log::information(tr('Output of the rsync command:'), 4);
             Log::notice($results, 4);
         }
 
-        return null;
+        return $this;
     }
 }
