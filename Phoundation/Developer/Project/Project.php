@@ -242,7 +242,6 @@ class Project implements ProjectInterface
             'scripts',
             'Templates',
             'tests',
-            'vendor',
             'www',
             'pho',
         ];
