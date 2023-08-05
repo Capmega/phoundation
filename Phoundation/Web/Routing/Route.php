@@ -53,6 +53,13 @@ class Route
     protected static Route $instance;
 
     /**
+     * Keeps track if the routing system has been initialized
+     *
+     * @var bool $init
+     */
+    protected static bool $init = false;
+
+    /**
      * The temporary template to use while routing ONLY for the current try
      *
      * @var ?string $temp_template
@@ -117,18 +124,9 @@ class Route
          */
         static::$method = ($_POST ? 'POST' : 'GET');
         static::$ip     = (empty($_SERVER['HTTP_X_REAL_IP']) ? $_SERVER['REMOTE_ADDR'] : $_SERVER['HTTP_X_REAL_IP']);
+        static::$query  = Strings::from($_SERVER['REQUEST_URI']         , '?');
         static::$uri    = Strings::startsNotWith($_SERVER['REQUEST_URI'], '/');
         static::$uri    = Strings::until(static::$uri                   , '?');
-        static::$query  = Strings::from($_SERVER['REQUEST_URI']         , '?');
-
-        if (strlen(static::$uri) > 2048) {
-            Log::warning(tr('Requested URI ":uri" has ":count" characters, where 2048 is a hardcoded limit (See Route() class). 400-ing the request', [
-                ':uri'   => static::$uri,
-                ':count' => strlen(static::$uri)
-            ]));
-
-            static::executeSystem(400);
-        }
 
         // Start the Core object, hide $_GET & $_POST
         try {
@@ -158,6 +156,37 @@ class Route
     }
 
 
+
+    /**
+     * Will execute a few initial checks
+     *
+     * @return void
+     */
+    protected static function init(): void
+    {
+        // URI may not be more than 2048 bytes
+        if (strlen(static::$uri) > 2048) {
+            Log::warning(tr('Requested URI ":uri" has ":count" characters, where 2048 is a hardcoded limit (See Route() class). 400-ing the request', [
+                ':uri'   => static::$uri,
+                ':count' => strlen(static::$uri)
+            ]));
+
+            static::executeSystem(400);
+        }
+
+        // Check for double // anywhere in the URL, this is automatically rejected with a 404, not found
+        // NOTE: This is checked on $_SERVER['REQUEST_URI'] and not static::$uri because static::$uri already has the
+        // first slash(es) stripped during the __construct() phase
+        if (str_contains($_SERVER['REQUEST_URI'], '//')) {
+            Log::warning(tr('Requested URI ":uri" contains one or multiple double slashes, automatically rejecting this with a 404 page', [
+                ':uri' => $_SERVER['REQUEST_URI']
+            ]));
+
+            static::executeSystem(404);
+        }
+    }
+
+
     /**
      * Singleton, ensure to always return the same Route object.
      *
@@ -165,8 +194,17 @@ class Route
      */
     public static function getInstance(): static
     {
-        if (!isset(static::$instance)) {
+        if (empty(static::$instance)) {
             static::$instance = new static();
+        }
+
+        // We should execute the initialisation only once
+        if (!static::$init) {
+            // Only initialise when parameters list has been set, since init may cause this list to be needed
+            if (isset(static::$parameters)) {
+                static::$init = true;
+                static::init();
+            }
         }
 
         return static::$instance;
@@ -327,12 +365,6 @@ class Route
         static::getInstance();
 
         try {
-            // Double slash (//) in the URL is automatically 4o4
-            if (str_contains(static::$uri, '//')) {
-                Log::warning('Encountered double slash in URL, automatically 404-ing');
-                static::executeSystem(404);
-            }
-
             if (!$url_regex) {
                 // Match an empty string
                 $url_regex = '/^$/';
