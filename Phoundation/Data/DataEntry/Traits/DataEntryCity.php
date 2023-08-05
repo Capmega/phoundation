@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
-use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Geo\Cities\City;
-use Phoundation\Geo\Countries\Country;
-use Phoundation\Geo\States\State;
 
 
 /**
@@ -69,7 +66,7 @@ trait DataEntryCity
      */
     public function getCitiesName(): ?string
     {
-        return $this->getDataValue('string', 'cities_name');
+        return $this->getDataValue('string', 'cities_name') ?? City::new($this->getCitiesId(), 'id')?->getName();
     }
 
 

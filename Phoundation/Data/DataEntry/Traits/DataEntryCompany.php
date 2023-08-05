@@ -63,9 +63,9 @@ trait DataEntryCompany
     /**
      * Returns the companies_name for this object
      *
-     * @return Company|null
+     * @return string|null
      */
-    public function getCompaniesName(): ?Company
+    public function getCompaniesName(): ?string
     {
         return $this->getDataValue('string', 'companies_name');
     }

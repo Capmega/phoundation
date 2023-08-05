@@ -53,7 +53,7 @@ trait DataEntryProvider
         $providers_id = $this->getDataValue('int', 'providers_id');
 
         if ($providers_id) {
-            return new Provider($providers_id);
+            return new Provider($providers_id, 'id');
         }
 
         return null;

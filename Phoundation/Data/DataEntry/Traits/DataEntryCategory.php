@@ -6,7 +6,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Data\Categories\Category;
 use Phoundation\Data\Categories\Interfaces\CategoryInterface;
-use Phoundation\Exception\OutOfBoundsException;
 
 
 /**

@@ -67,7 +67,7 @@ trait DataEntryBranch
      */
     public function getBranchesName(): ?string
     {
-        return $this->getDataValue('string', 'branches_name');
+        return $this->getDataValue('string', 'branches_name') ?? Branch::new($this->getBranchesId(), 'id')?->getName();
     }
 
 
