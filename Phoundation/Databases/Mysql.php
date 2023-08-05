@@ -7,6 +7,7 @@ namespace Phoundation\Databases;
 use Phoundation\Core\Core;
 use Phoundation\Core\Strings;
 use Phoundation\Databases\Exception\MysqlException;
+use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Process;
@@ -33,6 +34,7 @@ class Mysql
      */
     protected RestrictionsInterface|array|string|null $restrictions = null;
 
+
     /**
      * Mysql class constructor
      *
@@ -57,15 +59,31 @@ class Mysql
 
 
     /**
+     * Imports the specified MySQL dump file into the specified database
+     *
+     * @param string $database
+     * @param string $file
+     */
+    public static function import(string $database, string $file): void
+    {
+        File::new(PATH_DATA . 'sources/' . $file, Restrictions::new(PATH_DATA . 'sources/', false, 'Mysql importer'))->checkReadable();
+
+        Process::new('mysql')
+            ->addArguments(['-p', '-B', $database])
+            ->setInputRedirect($file)
+            ->executeNoReturn();
+    }
+
+
+    /**
      * Execute a query on a remote SSH server in a bash command
      *
      * @note: This does NOT support bound variables!
-     * @param string|Restrictions $restrictions
      * @param string $query
      * @param bool $root
      * @param bool $simple_quotes
      * @return array
-     *@todo: This method uses a password file which might be left behind if (for example) the connection would drop
+     * @todo: This method uses a password file which might be left behind if (for example) the connection would drop
      *        half way
      */
     public function exec(string $query, bool $root = false, bool $simple_quotes = false): array
