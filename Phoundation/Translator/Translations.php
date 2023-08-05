@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Translator;
 
+use Phoundation\Core\Config;
 use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 use Phoundation\Web\Http\Html\Components\Input\InputSelect;
 use Phoundation\Web\Routing\StaticRoute;
@@ -52,6 +54,29 @@ class Translations extends DataList
     public static function getUniqueField(): ?string
     {
         return null;
+    }
+
+
+    /**
+     * Returns what languages are configured for translations
+     *
+     * @return array
+     */
+    public function getLanguages(): array
+    {
+        return Config::getArray('translations.languages', ['en']);
+    }
+
+
+    /**
+     * Deletes all translation copies of this project
+     *
+     * @return static
+     */
+    public function clean(): static
+    {
+throw new UnderConstructionException();
+        return $this;
     }
 
 
