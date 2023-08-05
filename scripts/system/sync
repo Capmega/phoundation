@@ -5,6 +5,7 @@ declare(strict_types=1);
 
 use Phoundation\Cli\Documentation;
 use Phoundation\Cli\Script;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Sync;
 
@@ -29,33 +30,25 @@ Documentation::help('This script will synchronize either the specified environme
 With this, a production environment can easily be tested locally, for example
 
 
-
 ARGUMENTS
 
 
+ENVIRONMENT                             The single source environment from which the data will be synced
 
-[-f / --from]                           If specified
+[-i / --no-init]                        If specified, will NOT execute the system initialization right after the sync
+                                        process has finished
 
-[-i / --init]
-
-[-l / --lock]                           If specified
-
-[-t / --target]                         If specified
-
-[-t / --to]                             If specified');
+[-t / --to]                             If specified, will sync not FROM, but TO the specified environment');
 
 
 
 // Validate arguments
 $argv = ArgvValidator::new()
+    ->select('environment')->isVariable()
+    ->select('-i,--no-init')->isOptional(false)->isBoolean()
     ->select('-l,--lock')->isOptional(false)->isBoolean()
-    ->select('-i,--init')->isOptional(true)->isBoolean()
     ->select('-t,--to', true)->isOptional()->isVariable()
-    ->select('-f,--from', true)->xor('to')->isVariable()
-    ->select('-t,--target')->isOptional(null)->isName()
-    ->noArgumentsLeft()
     ->validate();
-
 
 
 // Sync environments
@@ -65,6 +58,15 @@ $sync = Sync::new()
 
 if ($argv['to']) {
     $sync->toEnvironment($argv['target']);
+
+    Log::Success(tr('Finished syncing process to environment ":environment"', [
+        ':environment' => $argv['environment']
+    ]));
+
 } else {
     $sync->fromEnvironment($argv['target']);
+
+    Log::Success(tr('Finished syncing process from environment ":environment"', [
+        ':environment' => $argv['environment']
+    ]));
 }
