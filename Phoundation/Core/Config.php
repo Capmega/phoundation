@@ -477,6 +477,18 @@ class Config
 
 
     /**
+     * Returns true if a configuration file for the specified environment exists, false if not
+     *
+     * @param string $environment
+     * @return bool
+     */
+    public static function environmentExists(string $environment): bool
+    {
+        return file_exists(PATH_ROOT . 'config/' . $environment . '.yaml');
+    }
+
+
+    /**
      * Reads the configuration file for the specified configuration environment
      *
      * @return void
