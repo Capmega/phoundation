@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Cli;
 
 use Phoundation\Core\Log\Log;
+use Throwable;
 
 
 /**
@@ -76,10 +77,16 @@ class Documentation
      */
     public static function autoComplete(array $definitions): void
     {
-        if (AutoComplete::isActive()) {
-            AutoComplete::processScriptPositions(isset_get($definitions['positions']));
-            AutoComplete::processScriptArguments(isset_get($definitions['arguments']));
-            Script::die();
+        try {
+            if (AutoComplete::isActive()) {
+                AutoComplete::processScriptPositions(isset_get($definitions['positions']));
+                AutoComplete::processScriptArguments(isset_get($definitions['arguments']));
+                Script::die();
+            }
+
+        } catch (Throwable $e) {
+            Log::error($e, echo_screen: false);
+            die('Autocomplete-failure-see-system-log');
         }
     }
 }

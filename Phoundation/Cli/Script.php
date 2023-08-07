@@ -122,7 +122,7 @@ class Script
                         ->makeWarning()
                         ->setData([
                             'position' => AutoComplete::getPosition(),
-                            'methods'  => [basename($script)]
+                            'methods' => [basename($script)]
                         ]);
                 }
 
@@ -132,6 +132,10 @@ class Script
                     // complete but execute normally which is not what we want. we're done here.
                     static::die();
                 }
+            } catch (ValidationFailedException $e) {
+                // Whoops, somebody typed something weird or naughty. Either way, just ignore it
+                Log::warning($e);
+                static::die(1);
 
             } catch (NoMethodSpecifiedException|MethodNotFoundException|MethodNotExistsException $e) {
                 // Auto complete the method
