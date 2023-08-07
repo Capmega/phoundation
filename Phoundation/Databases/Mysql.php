@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases;
 
+use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Strings;
 use Phoundation\Databases\Exception\MysqlException;
@@ -64,12 +65,23 @@ class Mysql
      * @param string $database
      * @param string $file
      */
-    public static function import(string $database, string $file): void
+    public static function import(string $database, string $file, int $timeout = 3600): void
     {
-        File::new(PATH_DATA . 'sources/' . $file, Restrictions::new(PATH_DATA . 'sources/', false, 'Mysql importer'))->checkReadable();
+        $file         = PATH_DATA . 'sources/' . $file;
+        $restrictions = Restrictions::new(PATH_DATA . 'sources/', false, 'Mysql importer');
 
-        Process::new('mysql')
-            ->addArguments(['-p', '-B', $database])
+        // Drop the requested database
+        sql()->schema()
+            ->database($database)
+                ->drop()
+                ->create();
+
+        // Start the import
+        File::new($file, $restrictions)->checkReadable();
+
+        Process::new('mysql', $restrictions)
+            ->setTimeout($timeout)
+            ->addArguments(['-h', Config::getString('databases.sql.instances.system.host'), '-u', Config::getString('databases.sql.instances.system.user'), '-p' . Config::getString('databases.sql.instances.system.pass'), '-B', $database])
             ->setInputRedirect($file)
             ->executeNoReturn();
     }
