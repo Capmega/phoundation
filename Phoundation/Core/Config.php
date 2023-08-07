@@ -7,6 +7,7 @@ namespace Phoundation\Core;
 use Exception;
 use Phoundation\Core\Exception\ConfigException;
 use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
+use Phoundation\Core\Interfaces\ConfigInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Debug;
 use Phoundation\Developer\Project\Configuration;
@@ -29,14 +30,21 @@ use Throwable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
-class Config
+class Config implements ConfigInterface
 {
     /**
-     * Singleton variable
+     * Singleton variable for main config object
      *
-     * @var Config|null $instance
+     * @var ConfigInterface|null $instance
      */
-    protected static ?Config $instance = null;
+    protected static ?ConfigInterface $instance = null;
+
+    /**
+     * Alternative environment instances
+     *
+     * @var array $instances
+     */
+    protected static array $instances = [];
 
     /**
      * Keeps track of configuration failures
@@ -108,9 +116,27 @@ class Config
 
 
     /**
+     * Returns a config object for the specified environment
+     *
+     * @param string $environment
+     * @return ConfigInterface
+     */
+    public static function forEnvironment(string $environment): ConfigInterface
+    {
+        if (empty(static::$instances[$environment])) {
+            static::$instances[$environment] = new static();
+            static::$instances[$environment]->setEnvironment($environment);
+        }
+
+        return static::$instances[$environment];
+    }
+
+
+    /**
      * Lets the Config object use the specified (or if not specified, the current global) environment
      *
      * @param string $environment
+     * @param bool $include_production
      * @return void
      */
     public static function setEnvironment(string $environment, bool $include_production = true): void
