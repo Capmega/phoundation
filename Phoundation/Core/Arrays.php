@@ -27,6 +27,13 @@ use UnitEnum;
  * @package Phoundation\Core
  */
 class Arrays {
+    const MATCH_ALL      = 1;
+    const MATCH_ANY      = 2;
+    const MATCH_BEGIN    = 4;
+    const MATCH_END      = 8;
+    const MATCH_ANYWHERE = 16;
+
+
     /**
      * If set, will filter NULL values
      */
@@ -165,7 +172,7 @@ class Arrays {
      *
      * @param mixed $params A parameters array
      * @param string|null $string_key
-     * @param string $numeric_key
+     * @param string|null $numeric_key
      * @param bool|null $default The default value for the non-selected key
      * @return void
      *
@@ -174,9 +181,8 @@ class Arrays {
      *       is that many of its dependancies use "false" as "do not use" because "null" would be interpreted as
      *       "compare to null"
      * @version 2.5.119: Added function and documentation
-     *
      */
-    public static function params(mixed &$params, string $string_key = null, string $numeric_key = null, ?bool $default = false): void
+    public static function params(mixed &$params, string $string_key = null, ?string $numeric_key = null, ?bool $default = false): void
     {
         if(!$params) {
             // The specified value is empty (probably null, "", etc). Convert it into an array containing the numeric and string keys with null values
@@ -2029,5 +2035,106 @@ class Arrays {
         }
 
         return null;
+    }
+
+
+    /**
+     * Returns all array values from the haystack that matches the needle(s)
+     *
+     * @param array|string $needles
+     * @param array $haystack
+     * @param int $options          Flags that will modify this functions behaviour. Current flags are one of
+     *                              Arrays::MATCH_ALL, Arrays::MATCH_BEGIN, Arrays::MATCH_END, or Arrays::MATCH_ANYWHERE
+     *                              Arrays::MATCH_ANY
+     *
+     * Arrays::MATCH_ALL:      Will match entries that contain all of the specified needles
+     * Arrays::MATCH_ANY:      Will match entries that contain any of the specified needles
+     * Arrays::MATCH_BEGIN:    Will match entries that start with the specified needles. Mutually exclusive with
+     *                         Arrays::MATCH_END, Arrays::MATCH_ANYWHERE
+     * Arrays::MATCH_END:      Will match entries that end with the specified needles. Mutually exclusive with
+     *                         Arrays::MATCH_BEGIN, Arrays::MATCH_ANYWHERE
+     * Arrays::MATCH_ANYWHERE: Will match entries that contain the specified needles anywhere. Mutually exclusive with
+     *                         Arrays::MATCH_BEGIN, Arrays::MATCH_ANYWHERE
+     * @return array
+     */
+    public static function match(array|string $needles, array $haystack, int $options = self::MATCH_ALL | self::MATCH_ANYWHERE): array
+    {
+        if (!$needles) {
+            throw new OutOfBoundsException(tr('No needles specified'));
+        }
+
+        // Decode options
+        $match_all      = (bool) ($options & self::MATCH_ALL);
+        $match_any      = (bool) ($options & self::MATCH_ANY);
+        $match_begin    = (bool) ($options & self::MATCH_BEGIN);
+        $match_end      = (bool) ($options & self::MATCH_END);
+        $match_anywhere = (bool) ($options & self::MATCH_ANYWHERE);
+
+        // Validate options
+        if ($match_begin) {
+            if ($match_end or $match_anywhere) {
+                throw new OutOfBoundsException(tr('Cannot mix location flags MATCH_BEGIN with MATCH_END or MATCH_ANYWHERE, they are mutually exclusive'));
+            }
+
+        } else {
+            if ($match_end and $match_anywhere) {
+                throw new OutOfBoundsException(tr('Cannot mix location flags MATCH_END with MATCH_ANYWHERE, they are mutually exclusive'));
+            }
+
+            if (!$match_end and !$match_anywhere) {
+                throw new OutOfBoundsException(tr('No match location flag specified. One of MATCH_BEGIN, MATCH_END, or MATCH_ANYWHERE must be specified'));
+            }
+        }
+
+        if ($match_all) {
+            if ($match_any) {
+                throw new OutOfBoundsException(tr('Cannot mix combination flags MATCH_ALL with MATCH_ANY, they are mutually exclusive'));
+            }
+
+        } else {
+            if (!$match_any) {
+                throw new OutOfBoundsException(tr('No match combination flag specified. Either one of MATCH_ALL or MATCH_ANY must be specified'));
+            }
+        }
+
+        $return = [];
+
+        foreach ($haystack as $key => $value) {
+            $add = true;
+
+            foreach (Arrays::force($needles) as $needle) {
+                if ($match_begin) {
+                    if (str_starts_with($value, $needle)) {
+                        $add = true;
+                        continue;
+                    }
+
+                } elseif ($match_end) {
+                    if (str_ends_with($value, $needle)) {
+                        $add = true;
+                        continue;
+                    }
+
+                } else {
+                    if (str_contains($value, $needle)) {
+                        $add = true;
+                        continue;
+                    }
+                }
+
+                $add = false;
+
+                if ($match_all) {
+                    // This needle failed, no need to check other needles
+                    break;
+                }
+            }
+
+            if ($add) {
+                $return[$key] = $value;
+            }
+        }
+
+        return $return;
     }
 }
