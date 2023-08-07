@@ -214,6 +214,29 @@ class Git extends Versioning implements GitInterface
 
 
     /**
+     * Checks out the specified branches or paths for this git path
+     *
+     * @param array|string $branches_or_paths
+     * @param bool $files
+     * @param bool $directories
+     * @return static
+     */
+    public function clean(array|string $branches_or_paths, bool $files, bool $directories): static
+    {
+        $output = $this->git
+            ->clearArguments()
+            ->addArgument('clean')
+            ->addArgument($files       ? '-f' : null)
+            ->addArgument($directories ? '-d' : null)
+            ->addArguments($branches_or_paths)
+            ->executeReturnArray();
+
+        Log::notice($output, 4, false);
+        return $this;
+    }
+
+
+    /**
      * Resets the current branch to the specified revision
      *
      * @param string $revision
