@@ -84,9 +84,9 @@ class Database extends SchemaAbstract
     /**
      * Create this database
      *
-     * @return void
+     * @return static
      */
-    public function create(): void
+    public function create(): static
     {
         if ($this->exists()) {
             throw new SqlException(tr('Cannot create database ":name", it already exists', [':name' => $this->sql->getDatabase()]));
@@ -101,15 +101,16 @@ class Database extends SchemaAbstract
         ]);
 
         $this->sql->use($this->sql->getDatabase());
+        return $this;
     }
 
 
     /**
      * Drop this database
      *
-     * @return void
+     * @return static
      */
-    public function drop(): void
+    public function drop(): static
     {
         // This query cannot use bound variables!
         Log::warning(tr('Dropping database ":database" for SQL instance ":instance"', [
@@ -118,6 +119,7 @@ class Database extends SchemaAbstract
         ]), 3);
 
         $this->sql->query('DROP DATABASE IF EXISTS `' . $this->sql->getDatabase() . '`');
+        return $this;
     }
 
 
@@ -125,11 +127,12 @@ class Database extends SchemaAbstract
      * Use the specified database name
      *
      * @param string $name
-     * @return void
+     * @return static
      */
-    protected function use(string $name): void
+    protected function use(string $name): static
     {
         $this->sql->use($name);
+        return $this;
     }
 
 
