@@ -4,11 +4,12 @@
 declare(strict_types=1);
 
 use Phoundation\Cli\Documentation;
+use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Mysql;
-use Phoundation\Developer\Project\Project;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Filesystem\Path;
 
 
 /**
@@ -36,12 +37,29 @@ ARGUMENTS
 
 -f / --file FILE                        The file which to import');
 
+Documentation::autoComplete([
+    'arguments' => [
+        '--file' => [
+            'word'   => function ($word) { return Path::new(PATH_DATA . 'sources/', PATH_DATA . 'sources/')->scandir($word . '*.sql'); },
+            'noword' => function ()      { return Path::new(PATH_DATA . 'sources/', PATH_DATA . 'sources/')->scandir('*.sql'); },
+        ],
+        '--driver' => [
+            'word'   => function ($word) { return Arrays::match($word, ['mysql']); },
+            'noword' => ['mysql']
+        ],
+        '--database' => [
+            'word'   => function ($word) { return sql()->listScalar('SHOW DATABASES LIKE :word', [':word' => '%' . $word . '%']); },
+            'noword' => function ()      { return sql()->listScalar('SHOW DATABASES'); },
+        ]
+    ]
+]);
+
 
 // Validate arguments
 $argv = ArgvValidator::new()
-    ->select('-d,--driver', true)->sanitizeLowercase()->isInArray(['mysql', 'redis', 'mongo', 'mongodb', 'elastic', 'elasticsearch'])
+    ->select('-f,--file'    , true)->isFile(PATH_DATA . 'sources/', PATH_DATA . 'sources/')
+    ->select('-d,--driver'  , true)->sanitizeLowercase()->isInArray(['mysql', 'redis', 'mongo', 'mongodb', 'elastic', 'elasticsearch'])
     ->select('-b,--database', true)->isVariable()
-    ->select('-f,--file', true)->isFile(PATH_DATA . 'sources/', PATH_DATA . 'sources/')
     ->noArgumentsLeft()
     ->validate();
 
