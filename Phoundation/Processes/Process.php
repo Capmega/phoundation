@@ -496,7 +496,7 @@ Class Process implements ProcessInterface, ProcessVariablesInterface
 
         // Redirect command input from the specified files for the specified channels
         foreach ($this->input_redirect as $channel => $file) {
-            $this->cached_command_line .= ' <'. $channel . ' ' . $file;
+            $this->cached_command_line .= ' ' . (($channel > 1) ? $channel : '') . '< ' . $file;
         }
 
         // Background commands get some extra options around
