@@ -51,7 +51,12 @@ class Path extends FileBasics
     public function __construct(FileBasics|string|null $file = null, array|string|Restrictions|null $restrictions_restrictions = null)
     {
         parent::__construct($file, $restrictions_restrictions);
+
         $this->file = Strings::slash($this->file);
+
+        if ($this->real_file) {
+            $this->real_file = Strings::slash($this->real_file);
+        }
     }
 
 
@@ -215,7 +220,6 @@ class Path extends FileBasics
             return $this->ensure($mode, $clear, $sudo);
         }
 
-        $this->file = Strings::slash(realpath($this->file));
         return $this->file;
     }
 
@@ -842,5 +846,59 @@ class Path extends FileBasics
         }
 
         return array_shift($files);
+    }
+
+
+    /**
+     * Returns a list of all available files in this path matching the specified (multiple) pattern(s)
+     *
+     * @param array|string $file_pattern The single or multiple pattern(s) that should be matched
+     * @param int $glob_flags            Flags for the internal glob() call
+     * @param int $match_flags           Flags for the internal fnmatch() call
+     * @return array                     The resulting file paths
+     */
+    public function scandir(array|string $file_pattern, int $glob_flags = GLOB_MARK, int $match_flags = FNM_PERIOD|FNM_CASEFOLD): array
+    {
+        $return = [];
+
+        // Get path pattern part and file pattern part
+        $path_pattern      = dirname($file_pattern);
+        $file_pattern      = basename($file_pattern);
+        $directory_pattern = Strings::until($file_pattern, '.');
+
+        if ($path_pattern === '.') {
+            $path_pattern  = '';
+
+        } else {
+            $path_pattern .= '/';
+        }
+
+        $glob = glob($this->file . $path_pattern . '*', $glob_flags);
+
+        if (empty($glob)) {
+            // This path pattern search had no results
+            return [];
+        }
+
+        // Check file patterns
+        foreach ($glob as $file) {
+            $file = Strings::from($file, $this->real_file);
+            $test = Strings::fromReverse(Strings::endsNotWith($file, '/'), '/');
+
+            if (is_dir($this->file . $file)) {
+                if (!fnmatch($directory_pattern, $test, $match_flags)) {
+                    // This directory doesn't match the test pattern
+                    continue;
+                }
+
+            } elseif (!fnmatch($file_pattern, $test, $match_flags)) {
+                // This file doesn't match the test pattern
+                continue;
+            }
+
+            $return[] = $file;
+        }
+
+        return $return;
     }
 }

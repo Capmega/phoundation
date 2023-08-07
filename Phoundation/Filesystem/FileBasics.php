@@ -55,6 +55,13 @@ class FileBasics implements Stringable, FileBasicsInterface
     protected ?string $file = null;
 
     /**
+     * The real path to this file
+     *
+     * @var string|false|null $real_file
+     */
+    protected string|false|null $real_file = null;
+
+    /**
      * The target file name in case operations create copies of this file
      *
      * @var string|null $target
@@ -75,6 +82,7 @@ class FileBasics implements Stringable, FileBasicsInterface
             $this->setFile($file->getFile());
             $this->setTarget($file->getTarget());
             $this->setRestrictions($restrictions_restrictions ?? $file->getRestrictions());
+
         } else {
             $this->setFile($file);
             $this->setRestrictions($restrictions_restrictions);
@@ -116,7 +124,9 @@ class FileBasics implements Stringable, FileBasicsInterface
      */
     public function setFile(Stringable|string|null $file, string $prefix = null, bool $must_exist = false): static
     {
-        $this->file = Filesystem::absolute($file, $prefix, $must_exist);
+        $this->file      = Filesystem::absolute($file, $prefix, $must_exist);
+        $this->real_file = realpath($this->file);
+
         return $this;
     }
 
@@ -777,7 +787,7 @@ class FileBasics implements Stringable, FileBasicsInterface
             try {
                 Log::warning(tr('The file ":file" (Realpath ":path") is not readable. Attempting to apply default file mode ":mode"', [
                     ':file' => $this->file,
-                    ':path' => realpath($this->file),
+                    ':path' => $this->real_file,
                     ':mode' => $mode
                 ]));
 
@@ -786,7 +796,7 @@ class FileBasics implements Stringable, FileBasicsInterface
             } catch (ProcessesException) {
                 throw new FileNotWritableException(tr('The file ":file" (Realpath ":path") is not writable, and could not be made writable', [
                     ':file' => $this->file,
-                    ':path' => realpath($this->file)
+                    ':path' => $this->real_file
                 ]));
             }
         }
@@ -829,7 +839,7 @@ class FileBasics implements Stringable, FileBasicsInterface
             try {
                 Log::warning(tr('The file ":file" (Realpath ":path") is not writable. Attempting to apply default file mode ":mode"', [
                     ':file' => $this->file,
-                    ':path' => realpath($this->file),
+                    ':path' => $this->real_file,
                     ':mode' => $mode
                 ]));
 
@@ -838,7 +848,7 @@ class FileBasics implements Stringable, FileBasicsInterface
             } catch (ProcessesException) {
                 throw new FileNotWritableException(tr('The file ":file" (Realpath ":path") is not writable, and could not be made writable', [
                     ':file' => $this->file,
-                    ':path' => realpath($this->file)
+                    ':path' => $this->real_file
                 ]));
             }
         }
