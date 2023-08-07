@@ -16,6 +16,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Processes\Commands\Rsync;
 use Phoundation\Processes\Enum\ExecuteMethod;
 use Phoundation\Processes\Process;
+use Phoundation\Servers\Server;
 use Phoundation\Translator\Translation;
 use Throwable;
 
@@ -239,7 +240,10 @@ class Deploy implements DeployInterface
 
             // First ensure the target base directory exists!
             Process::new('mkdir')
-                ->setServer($env_config['server']['host')
+                ->setServer(Server::new()
+                    ->setHostname($env_config['server']['host'])
+                    ->setPort($env_config['server']['port'])
+                    ->setSshAccount())
                 ->addArguments(['-p', $env_config['server']['path']])
                 ->execute(ExecuteMethod::noReturn);
 
