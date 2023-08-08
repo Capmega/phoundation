@@ -316,6 +316,20 @@ class DataEntryForm extends Renderer
                                     ->render();
                                 break;
 
+                            case 'date':
+                                // Render the HTML for this element
+                                $html = $element_class::new()
+                                    ->setDisabled((bool) $definition_array['disabled'])
+                                    ->setReadOnly((bool) $definition_array['readonly'])
+                                    ->setMin(isset_get_typed('integer', $definition_array['min']))
+                                    ->setMax(isset_get_typed('integer', $definition_array['max']))
+                                    ->setClasses($definition->getClasses())
+                                    ->setName($field_name)
+                                    ->setValue($source[$field])
+                                    ->setAutoFocus($definition->getAutoFocus())
+                                    ->render();
+                                break;
+
                             case 'auto-suggest':
                                 // Render the HTML for this element
                                 $html = $element_class::new()
