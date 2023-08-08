@@ -534,7 +534,6 @@ trait ValidatorBasics
             // Failed fields
             if (array_key_exists($field, $this->failures)) {
                 if ($this->clear_failed_fields) {
-show('CLEAR ' . $field);
                     unset($this->source[$field]);
                 }
             }
@@ -647,7 +646,7 @@ show('CLEAR ' . $field);
             $selected_field = $this->selected_field;
 
             if ($this->parent_field) {
-                $field = $this->parent_field . ':' . $selected_field;
+                $field = $this->parent_field . '>' . $selected_field;
             } else {
                 if (!$selected_field) {
                     throw OutOfBoundsException::new(tr('No field specified or selected for validation failure ":failure"', [
@@ -658,19 +657,21 @@ show('CLEAR ' . $field);
                 $field = $selected_field;
             }
 
-            if ($this->process_key !== null) {
-                $field .= ':' . $this->process_key;
+            if ($this->process_key) {
+                $field .= '>' . $this->process_key;
             }
         }
 
+        $failure = trim($failure);
+
         if (Debug::enabled()) {
-            Log::warning(tr('Validation failed for field ":field" with value ":value" because ":failure"', [
+            Log::warning(tr('Validation failed for field ":field" with value ":value" because it :failure', [
                 ':field'   => ($this->parent_field ?? '-') . ' / ' . $selected_field . ' / ' . ($this->process_key ?? '-'),
                 ':failure' => $failure,
                 ':value'   => $this->source[$selected_field],
-            ]));
+            ]), 3);
 
-            Log::backtrace();
+            Log::backtrace(threshold: 3);
         }
 
         // Build up the failure string
