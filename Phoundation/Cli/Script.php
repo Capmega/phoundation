@@ -669,11 +669,11 @@ SYSTEM ARGUMENTS
         if (!$each) {
             if ($count) {
                 // Only show "Done" if we have shown any dot at all
-                Log::write(tr('Done'), $color, 10, false, false);
+                Log::write(tr('Done'), $color, 10, false, false, false);
             }
 
             $l_each = 0;
-            $count = 0;
+            $count  = 0;
             return true;
         }
 
@@ -686,7 +686,7 @@ SYSTEM ARGUMENTS
 
         if ($count >= $l_each) {
             $count = 0;
-            Log::write($dot, $color, 10, false, false);
+            Log::write($dot, $color, 10, false, false, false);
             return true;
         }
 
