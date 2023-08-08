@@ -242,8 +242,9 @@ class Phoundation extends Project
             if ($checkout) {
                 // Checkout files locally in the specified sections so that these changes are removed from the project
                 // Clean files locally in the specified sections so that new files are removed from the project
-                Git::new(PATH_ROOT)->checkout($sections);
-                Git::new(PATH_ROOT)->clean($sections, true, true);
+                Git::new(PATH_ROOT)
+                    ->checkout($sections)
+                    ->clean($sections, true, true);
             }
 
             if ($this->phoundation_branch) {
