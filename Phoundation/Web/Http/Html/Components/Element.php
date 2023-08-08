@@ -104,7 +104,9 @@ abstract class Element implements ElementInterface
 
         if (isset_get($this->attributes['auto_submit'])) {
             // Add javascript to automatically submit on change
-            $postfix .= Script::new()->setContent('$("#' . $this->id . '").change(function (e){ e.target.closest("form").submit(); });');
+            $postfix .= Script::new()
+                ->setContent('$("#' . $this->id . '").change(function (e){ e.target.closest("form").submit(); });')
+                ->setEventWrapper('window');
             unset($this->attributes['auto_submit']);
         }
 
