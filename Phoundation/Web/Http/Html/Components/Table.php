@@ -8,6 +8,7 @@ use PDO;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Traits\DataCallbacks;
+use Phoundation\Data\Traits\DataTitle;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Input\InputCheckbox;
 use Phoundation\Web\Http\Html\Components\Interfaces\ElementInterface;
@@ -28,6 +29,7 @@ use Stringable;
  */
 class Table extends ResourceElement
 {
+    use DataTitle;
     use DataCallbacks;
 
 
@@ -102,13 +104,6 @@ class Table extends ResourceElement
     protected bool $full_width = true;
 
     /**
-     * Table title
-     *
-     * @var string|null $title
-     */
-    protected ?string $title = null;
-
-    /**
      * Table header text
      *
      * @var string|null $header_text
@@ -130,30 +125,6 @@ class Table extends ResourceElement
     {
         parent::__construct();
         parent::setElement('table');
-    }
-
-
-    /**
-     * Returns if the table is title or not
-     *
-     * @return string|null
-     */
-    public function getTitle(): ?string
-    {
-        return $this->title;
-    }
-
-
-    /**
-     * Sets if the table is title or not
-     *
-     * @param string|null $title
-     * @return static
-     */
-    public function setTitle(?string $title): static
-    {
-        $this->title = $title;
-        return $this;
     }
 
 
@@ -882,7 +853,7 @@ class Table extends ResourceElement
 
         } else {
             if ($param['htmlentities'] and empty($param['skiphtmlentities'][$column])) {
-                $value = htmlentities($value);
+                $value = htmlspecialchars($value);
                 $value = str_replace(PHP_EOL, '<br>', $value);
             }
         }

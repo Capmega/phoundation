@@ -225,9 +225,10 @@ interface DefinitionInterface
      * Sets the HTML client element to be used for this field
      *
      * @param callable|string|null $value
+     * @param bool $make_safe
      * @return static
      */
-    public function setContent(callable|string|null $value): static;
+    public function setContent(callable|string|null $value, bool $make_safe = false): static;
 
     /**
      * Return the type of input element.

@@ -145,9 +145,9 @@ class Form extends Element implements FormInterface
     /**
      * Sets the form no_validate
      *
-     * @return string|null
+     * @return bool
      */
-    public function getNoValidate(): ?string
+    public function getNoValidate(): bool
     {
         return $this->no_validate;
     }
@@ -156,10 +156,10 @@ class Form extends Element implements FormInterface
     /**
      * Sets the form no_validate
      *
-     * @param string $no_validate
+     * @param bool $no_validate
      * @return static
      */
-    public function setNoValidate(string $no_validate): static
+    public function setNoValidate(bool $no_validate): static
     {
         $this->no_validate = $no_validate;
         return $this;

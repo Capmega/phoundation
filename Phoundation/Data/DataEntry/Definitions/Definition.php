@@ -19,6 +19,7 @@ use Phoundation\Web\Http\Html\Components\Interfaces\InputTypeInterface;
 use Phoundation\Web\Http\Html\Enums\InputElement;
 use Phoundation\Web\Http\Html\Enums\InputType;
 use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
+use Phoundation\Web\Http\Html\Html;
 use Stringable;
 
 
@@ -543,10 +544,15 @@ class Definition implements DefinitionInterface
      * Sets the HTML client element to be used for this field
      *
      * @param callable|string|null $value
+     * @param bool $make_safe
      * @return static
      */
-    public function setContent(callable|string|null $value): static
+    public function setContent(callable|string|null $value, bool $make_safe = false): static
     {
+        if ($make_safe and !is_callable($value)) {
+            $value = Html::safe($value);
+        }
+
         return $this->setKey('content', $value);
     }
 

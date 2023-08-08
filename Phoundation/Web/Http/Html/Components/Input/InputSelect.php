@@ -399,7 +399,7 @@ class InputSelect extends ResourceElement implements SelectInterface
                 $value = (string) $value;
             }
 
-            $return .= '<option' . $this->buildOptionClassString() . $this->buildSelectedString($key) . ' value="' . htmlentities((string) $key) . '"' . $option_data . '>' . htmlentities((string) $value) . '</option>';
+            $return .= '<option' . $this->buildOptionClassString() . $this->buildSelectedString($key) . ' value="' . htmlspecialchars((string) $key) . '"' . $option_data . '>' . htmlentities((string) $value) . '</option>';
         }
 
         return $return;
@@ -470,7 +470,7 @@ class InputSelect extends ResourceElement implements SelectInterface
                 }
             }
 
-            $return .= '<option' . $this->buildOptionClassString() . $this->buildSelectedString($key) . ' value="' . htmlentities((string) $key) . '"' . $option_data . '>' . htmlentities((string) $value) . '</option>';
+            $return .= '<option' . $this->buildOptionClassString() . $this->buildSelectedString($key) . ' value="' . htmlspecialchars((string) $key) . '"' . $option_data . '>' . htmlentities((string) $value) . '</option>';
         }
 
         if ($this->cache) {

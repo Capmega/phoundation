@@ -8,6 +8,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Web\Http\Html\Components\Interfaces\InputTypeInterface;
 use Phoundation\Web\Http\Html\Components\Mode;
 use Phoundation\Web\Http\Html\Enums\InputType;
+use Phoundation\Web\Http\Html\Html;
 use Stringable;
 
 
@@ -80,11 +81,17 @@ trait InputElement
      * Sets the value for the input element
      *
      * @param Stringable|string|float|int|null $value
+     * @param bool $make_safe
      * @return static
      */
-    public function setValue(Stringable|string|float|int|null $value): static
+    public function setValue(Stringable|string|float|int|null $value, bool $make_safe = true): static
     {
-        $this->value = htmlspecialchars((string) $value);
+        if ($make_safe) {
+            $this->value = Html::safe($value);
+        } else {
+            $this->value = $value;
+        }
+
         return $this;
     }
 

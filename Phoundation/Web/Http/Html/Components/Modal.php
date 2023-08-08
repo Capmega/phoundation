@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http\Html\Components;
 
 use JetBrains\PhpStorm\ExpectedValues;
+use Phoundation\Data\Traits\DataTitle;
 
 
 /**
@@ -19,19 +20,15 @@ use JetBrains\PhpStorm\ExpectedValues;
  */
 abstract class Modal extends ElementsBlock
 {
+    use DataTitle;
+
+
     /**
      * The Modal identifier
      *
      * @var string|null
      */
     protected ?string $id = null;
-
-    /**
-     * The text in the modal title bar
-     *
-     * @var string|null
-     */
-    protected ?string $title = null;
 
     /**
      * The bottom buttons content for this modal
@@ -108,9 +105,9 @@ abstract class Modal extends ElementsBlock
     /**
      * Returns the modal fade
      *
-     * @return string|null
+     * @return bool
      */
-    public function getFade(): ?string
+    public function getFade(): bool
     {
         return $this->fade;
     }
@@ -119,10 +116,10 @@ abstract class Modal extends ElementsBlock
     /**
      * Sets the modal fade
      *
-     * @param string|null $fade
+     * @param bool $fade
      * @return static
      */
-    public function setFade(?string $fade): static
+    public function setFade(bool $fade): static
     {
         $this->fade = $fade;
         return $this;
@@ -156,9 +153,9 @@ abstract class Modal extends ElementsBlock
     /**
      * Returns if the modal is vertically centered
      *
-     * @return string|null
+     * @return bool
      */
-    public function getVerticalCenter(): ?string
+    public function getVerticalCenter(): bool
     {
         return $this->vertical_center;
     }
@@ -167,10 +164,10 @@ abstract class Modal extends ElementsBlock
     /**
      * Sets if the modal is vertically centered
      *
-     * @param string|null $vertical_center
+     * @param bool $vertical_center
      * @return static
      */
-    public function setVerticalCenter(?string $vertical_center): static
+    public function setVerticalCenter( $vertical_center): static
     {
         $this->vertical_center = $vertical_center;
         return $this;
@@ -180,9 +177,9 @@ abstract class Modal extends ElementsBlock
     /**
      * Returns the modal escape
      *
-     * @return string|null
+     * @return bool
      */
-    public function getEscape(): ?string
+    public function getEscape(): bool
     {
         return $this->escape;
     }
@@ -191,36 +188,12 @@ abstract class Modal extends ElementsBlock
     /**
      * Sets the modal escape
      *
-     * @param string|null $escape
+     * @param bool $escape
      * @return static
      */
-    public function setEscape(?string $escape): static
+    public function setEscape(bool $escape): static
     {
         $this->escape = $escape;
-        return $this;
-    }
-
-
-    /**
-     * Returns the modal title
-     *
-     * @return string|null
-     */
-    public function getTitle(): ?string
-    {
-        return $this->title;
-    }
-
-
-    /**
-     * Sets the modal title
-     *
-     * @param string|null $title
-     * @return static
-     */
-    public function setTitle(?string $title): static
-    {
-        $this->title = $title;
         return $this;
     }
 

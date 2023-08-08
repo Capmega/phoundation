@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html\Layouts;
 
-use PDOStatement;
-use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Enums\DisplayTier;
 use Phoundation\Web\Http\Html\Enums\Interfaces\DisplaySizeInterface;
@@ -44,16 +42,17 @@ class GridColumn extends Layout
      * Sets the content of the grid
      *
      * @param Stringable|string|float|int|null $content
+     * @param bool $make_safe
      * @param DisplaySizeInterface|int|null $size
      * @return static
      */
-    public function setContent(Stringable|string|float|int|null $content, DisplaySizeInterface|int|null $size = null): static
+    public function setContent(Stringable|string|float|int|null $content, bool $make_safe = false, DisplaySizeInterface|int|null $size = null): static
     {
         if ($size !== null) {
             $this->setSize($size);
         }
 
-        return parent::setContent($content);
+        return parent::setContent($content, $make_safe);
     }
 
 
@@ -65,7 +64,7 @@ class GridColumn extends Layout
      * @param bool $use_form
      * @return static
      */
-    public function addContent(Stringable|string|float|int|null $content, DisplaySizeInterface|int|null $size = null, bool $use_form = false): static
+    public function addContent(Stringable|string|float|int|null $content, bool $make_safe = false, DisplaySizeInterface|int|null $size = null, bool $use_form = false): static
     {
         if ($size !== null) {
             $this->setSize($size);
@@ -73,7 +72,7 @@ class GridColumn extends Layout
 
         $this->useForm($use_form);
 
-        return parent::addContent($content);
+        return parent::addContent($content, $make_safe);
     }
 
 

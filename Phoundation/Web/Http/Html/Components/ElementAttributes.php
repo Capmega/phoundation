@@ -9,6 +9,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Data\Traits\UsesNew;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Json;
+use Phoundation\Web\Http\Html\Html;
 use Stringable;
 
 
@@ -680,6 +681,13 @@ trait ElementAttributes
      */
     public function setDisabled(bool $disabled): static
     {
+        if ($disabled) {
+            $this->addClass('disabled');
+
+        } else {
+            $this->removeClass('disabled');
+        }
+
         $this->disabled = $disabled;
         return $this;
     }
@@ -704,6 +712,13 @@ trait ElementAttributes
      */
     public function setReadonly(bool $readonly): static
     {
+        if ($readonly) {
+            $this->addClass('readonly');
+
+        } else {
+            $this->removeClass('readonly');
+        }
+
         $this->readonly = $readonly;
         return $this;
     }
@@ -797,12 +812,13 @@ trait ElementAttributes
      * Sets the content of the element
      *
      * @param Stringable|string|float|int|null $content
+     * @param bool $make_safe
      * @return static
      */
-    public function setContent(Stringable|string|float|int|null $content): static
+    public function setContent(Stringable|string|float|int|null $content, bool $make_safe = false): static
     {
         $this->content = null;
-        return $this->addContent($content);
+        return $this->addContent($content, $make_safe);
     }
 
 
@@ -810,14 +826,20 @@ trait ElementAttributes
      * Adds the specified content to the content of the element
      *
      * @param Stringable|string|float|int|null $content
+     * @param bool $make_safe
      * @return static
      */
-    public function addContent(Stringable|string|float|int|null $content): static
+    public function addContent(Stringable|string|float|int|null $content, bool $make_safe = false): static
     {
         if (is_object($content)) {
             // This object must be able to render HTML. Check this and then render.
             static::canRenderHtml($content);
-            $content = $content->render();
+            $content   = $content->render();
+            $make_safe = false;
+        }
+
+        if ($make_safe) {
+            $content = Html::safe($content);
         }
 
         $this->content .= $content;

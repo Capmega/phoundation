@@ -232,7 +232,7 @@ class Notifications extends DataList
                     break;
 
                 default:
-                    $row['severity'] = htmlentities($row['severity']);
+                    $row['severity'] = htmlspecialchars($row['severity']);
                     $row['severity'] = str_replace(PHP_EOL, '<br>', $row['severity']);
             }
 

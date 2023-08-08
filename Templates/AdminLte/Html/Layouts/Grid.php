@@ -36,7 +36,8 @@ class Grid extends Renderer
      */
     public function render(): ?string
     {
-        $this->render = '<div class="container-fluid">';
+        $class        = $this->render_object->getClass();
+        $this->render = '<div class="container-fluid' . ($class ? ' ' . $class : '') . '">';
 
         if ($this->render_object->getForm()) {
             // Return content rendered in a form

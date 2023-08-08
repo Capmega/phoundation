@@ -75,20 +75,21 @@ class Button extends Input
     /**
      * Set the content for this button
      *
-     * @todo add documentation for when button is floating as it is unclear what is happening there
      * @param Stringable|string|float|int|null $content
+     * @param bool $make_safe
      * @return static
+     * @todo add documentation for when button is floating as it is unclear what is happening there
      */
-    public function setContent(Stringable|string|float|int|null $content): static
+    public function setContent(Stringable|string|float|int|null $content, bool $make_safe = false): static
     {
         if ($this->floating) {
             // What does this do?????????????
             $this->addClass('btn-floating');
-            Icons::new()->setContent($this->content)->render();
+            Icons::new()->setContent($this->content, $make_safe)->render();
             return $this;
         }
 
-        return parent::setContent($content);
+        return parent::setContent($content, $make_safe);
     }
 
 
@@ -99,7 +100,7 @@ class Button extends Input
      * @return static
      * @todo add documentation for when button is floating as it is unclear what is happening there
      */
-    public function setValue(Stringable|string|float|int|null $value): static
+    public function setValue(Stringable|string|float|int|null $value, bool $make_safe = true): static
     {
         if ($this->floating) {
             // What does this do?????????????
@@ -108,8 +109,8 @@ class Button extends Input
             return $this;
         }
 
-        parent::setValue($value);
-        return parent::setContent($value);
+        parent::setValue($value, $make_safe);
+        return parent::setContent($value, $make_safe);
     }
 
 
@@ -143,9 +144,14 @@ class Button extends Input
             $this->addClass('btn-' . $this->size->value);
         }
 
+        if ($this->block) {
+            $this->addClass('btn-block');
+        }
+
         if ($this->rounded) {
             $this->addClass('btn-rounded');
         }
+
         if (!$this->wrapping) {
             $this->addClass('text-nowrap');
         }

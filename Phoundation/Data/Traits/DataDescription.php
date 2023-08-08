@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
+use Phoundation\Web\Http\Html\Html;
+
 
 /**
  * Trait DataDescription
@@ -40,10 +42,15 @@ trait DataDescription
      * Sets the description
      *
      * @param string|null $description
+     * @param bool $make_safe
      * @return static
      */
-    public function setDescription(?string $description): static
+    public function setDescription(?string $description, bool $make_safe = true): static
     {
+        if ($make_safe) {
+            $description = Html::safe($description);
+        }
+
         $this->description = $description;
         return $this;
     }

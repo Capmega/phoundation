@@ -41,6 +41,13 @@ trait ButtonProperties
     protected bool $outlined = false;
 
     /**
+     * Block (full width) buttons
+     *
+     * @var bool $block
+     */
+    protected bool $block = false;
+
+    /**
      * Flat buttons
      *
      * @var bool $flat
@@ -134,6 +141,30 @@ trait ButtonProperties
     public function setOutlined(bool $outlined): static
     {
         $this->outlined = $outlined;
+        return $this;
+    }
+
+
+    /**
+     * Returns if the button is block or not
+     *
+     * @return bool
+     */
+    public function getBlock(): bool
+    {
+        return $this->block;
+    }
+
+
+    /**
+     * Set if the button is block or not
+     *
+     * @param bool $block
+     * @return Button
+     */
+    public function setBlock(bool $block): static
+    {
+        $this->block = $block;
         return $this;
     }
 

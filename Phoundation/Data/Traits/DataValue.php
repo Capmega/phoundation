@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Phoundation\Data\Traits;
 
 
+use Phoundation\Web\Http\Html\Html;
+
 /**
  * Trait DataValue
  *
@@ -20,16 +22,16 @@ trait DataValue
     /**
      * The value for this object
      *
-     * @var string $value
+     * @var string|null $value
      */
-    protected string $value;
+    protected ?string $value = null;
 
     /**
      * Returns the value
      *
-     * @return string
+     * @return string|null
      */
-    public function getValue(): string
+    public function getValue(): ?string
     {
         return $this->value;
     }
@@ -38,12 +40,19 @@ trait DataValue
     /**
      * Sets the value
      *
-     * @param string $value
+     * @param string|null $value
+     * @param bool $make_safe
      * @return static
      */
-    public function setValue(string $value): static
+    public function setValue(?string $value, bool $make_safe = true): static
     {
-        $this->value = $value;
+        if ($make_safe) {
+            $this->value = Html::safe($value);
+
+        } else {
+            $this->value = $value;
+        }
+
         return $this;
     }
 }

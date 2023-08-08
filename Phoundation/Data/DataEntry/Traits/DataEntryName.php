@@ -67,7 +67,7 @@ trait DataEntryName
             // the entry if it does!
             if (!array_key_exists('seo_name', $this->source)) {
                 $seo_name = Seo::unique(substr($name, 0, $this->definitions->get('name')->getMaxlength()), static::getTable(), $this->getDataValue('int', 'id'), 'seo_name');
-                $this->setSourceValue('seo_name', $seo_name);
+                $this->setSourceValue('seo_name', $seo_name, true);
             }
         }
 

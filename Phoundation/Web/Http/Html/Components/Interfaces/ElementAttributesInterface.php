@@ -375,9 +375,10 @@ interface ElementAttributesInterface
      * Sets the content of the element
      *
      * @param Stringable|string|float|int|null $content
+     * @param bool $make_safe
      * @return static
      */
-    function setContent(Stringable|string|float|int|null $content): static;
+    function setContent(Stringable|string|float|int|null $content, bool $make_safe = false): static;
 
     /**
      * Adds the specified content to the content of the element

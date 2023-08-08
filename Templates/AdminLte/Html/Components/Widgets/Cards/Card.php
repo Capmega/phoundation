@@ -39,21 +39,21 @@ class Card extends Renderer
 
         if ($this->render_object->getReloadSwitch() or $this->render_object->getMaximizeSwitch() or $this->render_object->getCollapseSwitch() or $this->render_object->getCloseSwitch() or $this->render_object->getTitle() or $this->render_object->getHeaderContent()) {
             $this->render .= '  <div class="card-header">
-                                    <h3 class="card-title">' . Html::safe($this->render_object->getTitle()) . '</h3>
+                                    <h3 class="card-title">' . $this->render_object->getTitle() . '</h3>
                                     <div class="card-tools">
                                       ' . $this->render_object->getHeaderContent() . '
                                       ' . ($this->render_object->getReloadSwitch() ? '   <button type="button" class="btn btn-tool" data-card-widget="card-refresh" data-source="widgets.html" data-source-selector="#card-refresh-content" data-load-on-init="false">
-                                                                                    <i class="fas fa-sync-alt"></i>
-                                                                                  </button>' : '') . '
+                                                                                           <i class="fas fa-sync-alt"></i>
+                                                                                         </button>' : '') . '
                                       ' . ($this->render_object->getMaximizeSwitch() ? ' <button type="button" class="btn btn-tool" data-card-widget="maximize">
-                                                                                    <i class="fas fa-expand"></i>
-                                                                                  </button>' : '') . '
+                                                                                           <i class="fas fa-expand"></i>
+                                                                                         </button>' : '') . '
                                       ' . ($this->render_object->getCollapseSwitch() ? ' <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                                                                    <i class="fas fa-' . ($this->render_object->getCollapsed() ? 'plus' : 'minus') . '"></i>
-                                                                                  </button>' : '') . '
+                                                                                           <i class="fas fa-' . ($this->render_object->getCollapsed() ? 'plus' : 'minus') . '"></i>
+                                                                                         </button>' : '') . '
                                       ' . ($this->render_object->getCloseSwitch() ? '    <button type="button" class="btn btn-tool" data-card-widget="remove">
-                                                                                    <i class="fas fa-times"></i>
-                                                                                  </button>' : '') . '                              
+                                                                                           <i class="fas fa-times"></i>
+                                                                                         </button>' : '') . '                              
                                     </div>
                                 </div>';
         }
@@ -62,7 +62,7 @@ class Card extends Renderer
 
         $this->render .= '      <!-- /.card-header -->
                                 <div class="card-body">
-                                    ' . ($description ? '<p class="card-description">' . Html::safe($description) . '</p>' : null) . '                                    
+                                    ' . ($description ? '<p class="card-description">' . $description . '</p>' : null) . '                                    
                                     ' . $this->render_object->getContent(). '
                                 </div>';
 

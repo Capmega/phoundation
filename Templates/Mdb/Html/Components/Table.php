@@ -64,11 +64,11 @@ class Table extends Renderer
         $content = '';
 
         if ($this->render_object->getTitle()) {
-            $content .= '<h2 class="mb-4">' . htmlentities($this->render_object->getTitle()) . '</h2>';
+            $content .= '<h2 class="mb-4">' . htmlspecialchars($this->render_object->getTitle()) . '</h2>';
         }
 
         if ($this->render_object->getHeaderText()) {
-            $content .= '<p>' . htmlentities($this->render_object->getHeaderText()) . '</p>';
+            $content .= '<p>' . htmlspecialchars($this->render_object->getHeaderText()) . '</p>';
         }
         
         if ($content) {
