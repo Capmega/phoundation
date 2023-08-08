@@ -137,7 +137,7 @@ $rights = Card::new()
         ->render());
 
 
-// Build and render the grid
+// Build and render the page grid
 $grid = Grid::new()
     ->addColumn($card . $rights, DisplaySize::nine, true)
     ->addColumn($relevant->render() . $documentation->render(), DisplaySize::three);
