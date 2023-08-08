@@ -27,3 +27,8 @@ li div.ui-state-active {
 .btn.float-right {
     margin-left: 4px;
 }
+
+.w100
+{
+    width: 100%;
+}
