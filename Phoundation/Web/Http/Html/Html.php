@@ -84,15 +84,24 @@ Class Html
 
 
     /**
-     * Wrapper for htmlentities()
+     * Wrapper for htmlspecialchars() that can conditionally execute and accept more data types
      *
-     * @param Stringable|string|int|null $html
-     * @return string
+     * @param Stringable|string|float|int|null $html
+     * @param bool $enabled
+     * @return string|null
      * @see htmlentities()
      */
-    public static function safe(Stringable|string|int|null $html): string
+    public static function safe(Stringable|string|float|int|null $html, bool $enabled = true): ?string
     {
-        return htmlentities((string) $html);
+        if ($html === null) {
+            return null;
+        }
+
+        if ($enabled) {
+            return htmlspecialchars((string) $html);
+        }
+
+        return (string) $html;
     }
 
 
@@ -2360,12 +2369,12 @@ Class Html
                 }
             }
 
-            $this->render .= '<'.$params['tag'].' data-src="'.$params['src'].'" alt="'.htmlentities($params['alt']).'"'.$params['width'].$params['height'].$params['extra'].'>';
+            $this->render .= '<'.$params['tag'].' data-src="'.$params['src'].'" alt="'.htmlspecialchars($params['alt']).'"'.$params['width'].$params['height'].$params['extra'].'>';
 
             return $this->render;
         }
 
-        return '<'.$params['tag'].' src="'.$params['src'].'" alt="'.htmlentities($params['alt']).'"'.$params['width'].$params['height'].$params['extra'].'>';
+        return '<'.$params['tag'].' src="'.$params['src'].'" alt="'.htmlspecialchars($params['alt']).'"'.$params['width'].$params['height'].$params['extra'].'>';
     }
 
 
