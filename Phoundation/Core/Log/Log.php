@@ -513,12 +513,13 @@ Class Log {
      * @param int $threshold
      * @param bool $clean
      * @param bool $newline
+     * @param bool $prefix
      * @param bool $echo_screen
      * @return bool
      */
-    public static function success(mixed $messages = null, int $threshold = 5, bool $clean = true, bool $newline = true, bool $echo_screen = true): bool
+    public static function success(mixed $messages = null, int $threshold = 5, bool $clean = true, bool $newline = true, bool $prefix = true, bool $echo_screen = true): bool
     {
-        return static::write($messages, 'success', $threshold, $clean, $newline, $echo_screen);
+        return static::write($messages, 'success', $threshold, $clean, $newline, $prefix, $echo_screen);
     }
 
 
@@ -557,12 +558,13 @@ Class Log {
      * @param int $threshold
      * @param bool $clean
      * @param bool $newline
+     * @param bool $prefix
      * @param bool $echo_screen
      * @return bool
      */
-    public static function warning(mixed $messages = null, int $threshold = 9, bool $clean = true, bool $newline = true, bool $echo_screen = true): bool
+    public static function warning(mixed $messages = null, int $threshold = 9, bool $clean = true, bool $newline = true, bool $prefix = true, bool $echo_screen = true): bool
     {
-        return static::write($messages, 'warning', $threshold, $clean, $newline, echo_screen: $echo_screen);
+        return static::write($messages, 'warning', $threshold, $clean, $newline, $prefix, $echo_screen);
     }
 
 
@@ -573,12 +575,13 @@ Class Log {
      * @param int $threshold
      * @param bool $clean
      * @param bool $newline
+     * @param bool $prefix
      * @param bool $echo_screen
      * @return bool
      */
-    public static function notice(mixed $messages = null, int $threshold = 3, bool $clean = true, bool $newline = true, bool $echo_screen = true): bool
+    public static function notice(mixed $messages = null, int $threshold = 3, bool $clean = true, bool $newline = true, bool $prefix = true, bool $echo_screen = true): bool
     {
-        return static::write($messages, 'notice', $threshold, $clean, $newline, echo_screen: $echo_screen);
+        return static::write($messages, 'notice', $threshold, $clean, $newline, $prefix, $echo_screen);
     }
 
 
@@ -589,12 +592,13 @@ Class Log {
      * @param int $threshold
      * @param bool $clean
      * @param bool $newline
+     * @param bool $prefix
      * @param bool $echo_screen
      * @return bool
      */
-    public static function action(mixed $messages = null, int $threshold = 5, bool $clean = true, bool $newline = true, bool $echo_screen = true): bool
+    public static function action(mixed $messages = null, int $threshold = 5, bool $clean = true, bool $newline = true, bool $prefix = true, bool $echo_screen = true): bool
     {
-        return static::write($messages, 'action', $threshold, $clean, $newline, $echo_screen);
+        return static::write($messages, 'action', $threshold, $clean, $newline, $prefix, $echo_screen);
     }
 
 
@@ -604,11 +608,12 @@ Class Log {
      * @param mixed $messages
      * @param int $threshold
      * @param bool $newline
+     * @param bool $prefix
      * @return bool
      */
-    public static function cli(mixed $messages = null, int $threshold = 10, bool $newline = true): bool
+    public static function cli(mixed $messages = null, int $threshold = 10, bool $newline = true, bool $prefix = false): bool
     {
-        return static::write($messages, 'cli', $threshold, false, $newline, false);
+        return static::write($messages, 'cli', $threshold, false, $newline, $prefix);
     }
 
 
@@ -619,12 +624,13 @@ Class Log {
      * @param int $threshold
      * @param bool $clean
      * @param bool $newline
+     * @param bool $prefix
      * @param bool $echo_screen
      * @return bool
      */
-    public static function information(mixed $messages = null, int $threshold = 7, bool $clean = true, bool $newline = true, bool $echo_screen = true): bool
+    public static function information(mixed $messages = null, int $threshold = 7, bool $clean = true, bool $newline = true, bool $prefix = true, bool $echo_screen = true): bool
     {
-        return static::write($messages, 'information', $threshold, $clean, $newline, echo_screen: $echo_screen);
+        return static::write($messages, 'information', $threshold, $clean, $newline, $prefix, $echo_screen);
     }
 
 
@@ -700,12 +706,10 @@ Class Log {
      * Write a "FUNCTION IS DEPRECATED" message in the log file
      *
      * @param int $threshold
-     * @param bool $clean
-     * @param bool $newline
      * @param bool $echo_screen
      * @return bool
      */
-    public static function deprecated(int $threshold = 8, bool $clean = true, bool $newline = true, bool $echo_screen = true): bool
+    public static function deprecated(int $threshold = 8, bool $echo_screen = true): bool
     {
         return static::logDebugHeader('DEPRECATED', 1, $threshold, echo_screen: $echo_screen);
     }
@@ -719,13 +723,14 @@ Class Log {
      * @param int $threshold
      * @param bool $clean
      * @param bool $newline
+     * @param bool $prefix
      * @param bool $echo_screen
      * @return bool
      */
-    public static function hex(mixed $messages = null, int $threshold = 3, bool $clean = true, bool $newline = true, bool $echo_screen = true): bool
+    public static function hex(mixed $messages = null, int $threshold = 3, bool $clean = true, bool $newline = true, bool $prefix = true, bool $echo_screen = true): bool
     {
         static::logDebugHeader('HEX', 1, $threshold, echo_screen: $echo_screen);
-        return static::write(Strings::interleave(bin2hex(Strings::force($messages)), 10), 'debug', $threshold, $clean, $newline, echo_screen: $echo_screen);
+        return static::write(Strings::interleave(bin2hex(Strings::force($messages)), 10), 'debug', $threshold, $clean, $newline, $prefix, $echo_screen);
     }
 
 
@@ -736,12 +741,10 @@ Class Log {
      *
      * @param string|null $message
      * @param int $threshold
-     * @param bool $clean
-     * @param bool $newline
      * @param bool $echo_screen
      * @return bool
      */
-    public static function checkpoint(?string $message = null, int $threshold = 10, bool $clean = true, bool $newline = true, bool $echo_screen = true): bool
+    public static function checkpoint(?string $message = null, int $threshold = 10, bool $echo_screen = true): bool
     {
         return static::logDebugHeader('CHECKPOINT ' . $message, 1, $threshold, echo_screen: $echo_screen);
     }
@@ -768,12 +771,13 @@ Class Log {
      * @param mixed $key_value
      * @param int $indent
      * @param int $threshold
+     * @param bool $prefix
      * @param bool $echo_screen
      * @return bool
      */
-    public static function table(array $key_value, int $indent = 4, int $threshold = 10, bool $echo_screen = true): bool
+    public static function table(array $key_value, int $indent = 4, int $threshold = 10, bool $prefix = true, bool $echo_screen = true): bool
     {
-        return static::write(Strings::getKeyValueTable($key_value, PHP_EOL, ': ', $indent), 'debug', $threshold, false, false);
+        return static::write(Strings::getKeyValueTable($key_value, PHP_EOL, ': ', $indent), 'debug', $threshold, false, false, $prefix, $echo_screen);
     }
 
 
@@ -836,12 +840,12 @@ Class Log {
      * @param bool $echo_screen
      * @return bool
      */
-    public static function sql(string|PDOStatement $query, ?array $execute = null, int $threshold = 10, bool $clean = true, bool $newline = true, bool $echo_screen = true): bool
+    public static function sql(string|PDOStatement $query, ?array $execute = null, int $threshold = 10, bool $clean = true, bool $newline = true, bool $prefix = true, bool $echo_screen = true): bool
     {
         $query = Sql::buildQueryString($query, $execute);
         $query = Strings::endsWith($query, ';');
 
-        return static::write('SQL QUERY: ' . $query, 'debug', $threshold, $clean, $newline, echo_screen: $echo_screen);
+        return static::write('SQL QUERY: ' . $query, 'debug', $threshold, $clean, $newline, $prefix, $echo_screen);
     }
 
 
