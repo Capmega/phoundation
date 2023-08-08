@@ -458,10 +458,16 @@ class Sql implements SqlInterface
                             ]), $e);
 
                         case 1054:
+                            $column = $e->getMessage();
+                            $column = Strings::from($column, "Unknown column");
+                            $column = Strings::from($column, "'");
+                            $column = Strings::until($column, "'");
+
                             // Column not found
-                            throw new SqlException(tr('Query ":query" refers to a column that does not exist', [
-                                ':query' => static::buildQueryString($query, $execute, true)
-                            ]), $e);
+                            throw SqlException::new(tr('Query ":query" refers to non existing column ":column"', [
+                                ':query'  => static::buildQueryString($query, $execute, true),
+                                ':column' => $column
+                            ]), $e)->setData([':column' => $column]);
 
                         case 1064:
                             // Syntax error or access violation
