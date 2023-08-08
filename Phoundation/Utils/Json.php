@@ -45,6 +45,9 @@ class Json
      */
     #[NoReturn] public static function reply(array|Stringable|string|null $data = null, JsonAfterReplyInterface $action_after = JsonAfterReply::die): void
     {
+        // Always return all numbers as strings as javascript borks BADLY on large numbers, WTF JS?!
+        $data = array_map('strval', $data);
+
         if (!is_string($data)) {
             if (is_object($data)) {
                 // Stringable object
