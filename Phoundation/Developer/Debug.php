@@ -542,15 +542,15 @@ class Debug {
 
             case 'double':
                 return '<tr>
-                    <td>'.htmlentities((string) $key) . '</td>
+                    <td>'.htmlspecialchars((string) $key) . '</td>
                     <td>' . $type.'</td>
                     <td>'.strlen((string) $value) . '</td>
-                    <td class="value">'.nl2br(htmlentities((string) $value)) . '</td>
+                    <td class="value">'.nl2br(htmlspecialchars((string) $value)) . '</td>
                 </tr>';
 
             case 'boolean':
                 return '<tr>
-                    <td>'.htmlentities((string) $key) . '</td>
+                    <td>'.htmlspecialchars((string) $key) . '</td>
                     <td>' . $type.'</td>
                     <td>1</td>
                     <td class="value">'.($value ? tr('true') : tr('false')) . '</td>
@@ -565,7 +565,7 @@ class Debug {
                 </tr>';
 
             case 'resource':
-                return '<tr><td>'.htmlentities((string) $key) . '</td>
+                return '<tr><td>'.htmlspecialchars((string) $key) . '</td>
                     <td>' . $type.'</td>
                     <td>?</td>
                     <td class="value">' . $value.'</td>
@@ -575,7 +575,7 @@ class Debug {
                 // no-break
 
             case 'property':
-                return '<tr><td>'.htmlentities((string) $key) . '</td>
+                return '<tr><td>'.htmlspecialchars((string) $key) . '</td>
                     <td>' . $type.'</td>
                     <td>'.strlen((string) $value) . '</td>
                     <td class="value">' . $value.'</td>
@@ -591,7 +591,7 @@ class Debug {
                 }
 
                 return '<tr>
-                    <td>'.htmlentities($key) . '</td>
+                    <td>'.htmlspecialchars($key) . '</td>
                     <td>' . $type.'</td>
                     <td>'.count($value) . '</td>
                     <td style="padding:0">
@@ -609,25 +609,25 @@ class Debug {
 
                     if ($value instanceof Exception) {
                         foreach ($value->getMessages() as $message) {
-                            $exception .= htmlentities((string) $message) . '<br>';
+                            $exception .= htmlspecialchars((string) $message) . '<br>';
                         }
                     }else {
-                        $exception .= htmlentities((string) $value->getMessage()) . '<br>';
+                        $exception .= htmlspecialchars((string) $value->getMessage()) . '<br>';
                     }
 
-                    $exception .= '<br>' . tr('Location: ') . htmlentities($value->getFile()) . '@' . $value->getLine() . '<br><br>' . tr('Backtrace: ') . '<br>';
+                    $exception .= '<br>' . tr('Location: ') . htmlspecialchars($value->getFile()) . '@' . $value->getLine() . '<br><br>' . tr('Backtrace: ') . '<br>';
 
                     foreach (Debug::formatBacktrace($value->getTrace()) as $line) {
-                        $exception .= htmlentities((string) $line) . '<br>';
+                        $exception .= htmlspecialchars((string) $line) . '<br>';
                     }
 
                     $exception .= '<br><br>' . tr('Data: ') . '<br>';
 
                     if ($value instanceof Exception) {
-                        $exception .= htmlentities((string)print_r($value->getData() ?? '-', true)) . '<br>';
+                        $exception .= htmlspecialchars((string)print_r($value->getData() ?? '-', true)) . '<br>';
 
                     } else {
-                        $exception .= htmlentities('-') . '<br>';
+                        $exception .= htmlspecialchars('-') . '<br>';
                     }
 
                     $value = $exception;
@@ -671,7 +671,7 @@ class Debug {
                     <td>' . $key . '</td>
                     <td>' . tr('Unknown') . '</td>
                     <td>???</td>
-                    <td class="value">' . htmlentities((string) $value) . '</td>
+                    <td class="value">' . htmlspecialchars((string) $value) . '</td>
                 </tr>';
         }
     }
