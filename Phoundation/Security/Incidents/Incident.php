@@ -191,10 +191,11 @@ class Incident extends DataEntry
     /**
      * Saves the incident to database
      *
+     * @param bool $force
      * @param string|null $comments
      * @return static
      */
-    public function save(?string $comments = null): static
+    public function save(bool $force = false, ?string $comments = null): static
     {
         $severity = strtolower($this->getSeverity());
 
@@ -226,7 +227,7 @@ class Incident extends DataEntry
         }
 
         // Save the incident
-        $incident = parent::save();
+        $incident = parent::save($force, $comments);
 
         // Notify anybody?
         if (isset($this->notify_roles)) {

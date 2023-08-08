@@ -38,5 +38,5 @@ interface CompanyInterface
     /**
      * @inheritDoc
      */
-    public function save(?string $comments = null): static;
+    public function save(bool $force = false, ?string $comments = null): static;
 }

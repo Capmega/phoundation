@@ -280,10 +280,11 @@ interface DataEntryInterface extends Arrayable
     /**
      * Will save the data from this data entry to database
      *
+     * @param bool $force
      * @param string|null $comments
      * @return static
      */
-    public function save(?string $comments = null): static;
+    public function save(bool $force = false, ?string $comments = null): static;
 
     /**
      * Creates and returns a CLI table for the data in this entry

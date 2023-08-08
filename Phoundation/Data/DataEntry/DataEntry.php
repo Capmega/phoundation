@@ -1613,12 +1613,13 @@ abstract class DataEntry implements DataEntryInterface, Stringable
     /**
      * Will save the data from this data entry to database
      *
+     * @param bool $force
      * @param string|null $comments
      * @return static
      */
-    public function save(?string $comments = null): static
+    public function save(bool $force = false, ?string $comments = null): static
     {
-        if (!$this->is_modified) {
+        if (!$this->is_modified and !$force) {
             // Nothing changed, no reason to save
             if ($this->debug) {
                 Log::information('NOTHING CHANGED FOR ID "' . $this->source['id'] . '"', 10);

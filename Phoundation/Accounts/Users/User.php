@@ -1110,10 +1110,11 @@ class User extends DataEntry implements UserInterface
     /**
      * Save the user to database
      *
+     * @param bool $force
      * @param string|null $comments
      * @return static
      */
-    public function save(?string $comments = null): static
+    public function save(bool $force = false, ?string $comments = null): static
     {
         Log::action(tr('Saving user ":user"', [':user' => $this->getDisplayName()]));
 
