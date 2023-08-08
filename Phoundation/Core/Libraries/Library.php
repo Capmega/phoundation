@@ -404,6 +404,47 @@ class Library
 
 
     /**
+     * Update the version registration for this version to be the specified version
+     *
+     * @param string $version
+     * @return void
+     */
+    public function setVersion(string $version, ?string $comments = null) {
+        Log::action(tr('Forcing version for library ":library" to ":version"', [
+            ':library' => $this->getName(),
+            ':version' => $version
+        ]));
+
+        $int_version = Version::getInteger($version);
+
+        // Delete any version that is higher than the specified version
+        sql()->query('DELETE FROM `core_versions` WHERE `library` = :library AND `version` > :version', [
+            ':library' => $this->getName(),
+            ':version' => $int_version
+        ]);
+
+        // Get the highest version. If it's lower than requested, insert the requested version so that we're exactly at
+        // the right version
+        $int_current = sql()->getColumn('SELECT MAX(`version`) FROM `core_versions` WHERE `library` = :library', [
+            ':library' => $this->getName(),
+        ]);
+
+        if ($int_current < $int_version) {
+            if ($comments === null) {
+                // Default comment
+                $comments = tr('Forced library to this version');
+            }
+
+            sql()->dataEntryInsert('core_versions', [
+                'library'  => $this->library,
+                'version'  => $int_version,
+                'comments' => $comments
+            ]);
+        }
+    }
+
+
+    /**
      * Load the Init object for this library
      */
     protected function loadUpdatesObject(): void

@@ -193,7 +193,7 @@ abstract class Updates
         if (array_key_exists($version, $this->updates)) {
             throw new DoubleVersionException(tr('The version ":version" is specified twice in the init file ":file"', [
                 ':version' => $version,
-                ':file' => $this->file
+                ':file'    => $this->file
             ]));
         }
 
