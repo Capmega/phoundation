@@ -37,6 +37,7 @@ use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryPhones;
 use Phoundation\Data\DataEntry\Traits\DataEntryPicture;
 use Phoundation\Data\DataEntry\Traits\DataEntryTimezone;
+use Phoundation\Data\DataEntry\Traits\DataEntryTitle;
 use Phoundation\Data\DataEntry\Traits\DataEntryType;
 use Phoundation\Data\DataEntry\Traits\DataEntryUrl;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
@@ -71,6 +72,7 @@ class User extends DataEntry implements UserInterface
     use DataEntryUrl;
     use DataEntryCode;
     use DataEntryType;
+    use DataEntryTitle;
     use DataEntryEmail;
     use DataEntryPhones;
     use DataEntryDomain;
@@ -464,29 +466,6 @@ class User extends DataEntry implements UserInterface
         }
 
         return $this->setSourceValue('fingerprint', null);
-    }
-
-
-    /**
-     * Returns the title for this user
-     *
-     * @return string|null
-     */
-    public function getTitle(): ?string
-    {
-        return $this->getDataValue('string', 'title');
-    }
-
-
-    /**
-     * Sets the title for this user
-     *
-     * @param string|null $title
-     * @return static
-     */
-    public function setTitle(?string $title): static
-    {
-        return $this->setSourceValue('title', $title);
     }
 
 
