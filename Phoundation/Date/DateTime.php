@@ -30,7 +30,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      * @return string
      */
     public function __toString() {
-        return $this->format('Y-m-d H:i:s.v.u');
+        return $this->format('Y-m-d H:i:s.u');
     }
 
 
@@ -53,7 +53,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
         // Return Phoundation DateTime object for whatever given $datetime
         if (is_object($datetime)) {
             // Return a new DateTime object with the specified date in the specified timezone
-            parent::__construct($datetime->format('Y-m-d H:i:s.vu'), $timezone);
+            parent::__construct($datetime->format('Y-m-d H:i:s.u'), $timezone);
         }
 
         parent::__construct($datetime, $timezone);
@@ -72,7 +72,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
     {
         if (is_object($datetime)) {
             // Return a new DateTime object with the specified date in the specified timezone
-            return new static($datetime->format('Y-m-d H:i:s.vu'), $timezone);
+            return new static($datetime->format('Y-m-d H:i:s.u'), $timezone);
         }
 
         return new static($datetime, $timezone);
@@ -140,7 +140,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      */
     public function isToday(\DateTimeZone|string|null $timezone = null): bool
     {
-        return $this->format('y-m-d') == static::new('today', DateTimeZone::new($timezone))->format('y-m-d');
+        return $this->format('y-m-d') == static::new('today', DateTimeZone::new($timezone ?? $this->getTimezone()))->format('y-m-d');
     }
 
 
@@ -152,7 +152,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      */
     public function isTomorrow(\DateTimeZone|string|null $timezone = null): bool
     {
-        return $this->format('y-m-d') == static::new('tomorrow', DateTimeZone::new($timezone))->format('y-m-d');
+        return $this->format('y-m-d') == static::new('tomorrow', DateTimeZone::new($timezone ?? $this->getTimezone()))->format('y-m-d');
     }
 
 
@@ -164,7 +164,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      */
     public function isYesterday(\DateTimeZone|string|null $timezone = null): bool
     {
-        return $this->format('y-m-d') == static::new('yesterday', DateTimeZone::new($timezone))->format('y-m-d');
+        return $this->format('y-m-d') == static::new('yesterday', DateTimeZone::new($timezone ?? $this->getTimezone()))->format('y-m-d');
     }
 
 
@@ -201,6 +201,12 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
     }
 
 
+    /**
+     * Round the
+     *
+     * @param DateTimeSegmentInterface $segment
+     * @return $this
+     */
     public function round(DateTimeSegmentInterface $segment): static
     {
         $date = $this->format('Y m d H i s v u');
@@ -253,6 +259,55 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
         $this->setDate((int) $date[0], (int) $date[1], (int) $date[2]);
         $this->setTime((int) $date[3], (int) $date[4], (int) $date[5], (int) $date[7]);
 
+        return $this;
+    }
+
+
+    /**
+     * Makes this date at the start of the day
+     *
+     * @return $this
+     */
+    public function makeDayStart(): static
+    {
+        $date = $this->format('Y m d');
+        $date = explode(' ', $date);
+
+        $this->setDate((int) $date[0], (int) $date[1], (int) $date[2]);
+        $this->setTime(0, 0, 0, 0);
+
+        return $this;
+    }
+
+
+    /**
+     * Makes this date at the end of the day
+     *
+     * @return $this
+     */
+    public function makeDayEnd(): static
+    {
+        $date = $this->format('Y m d');
+        $date = explode(' ', $date);
+
+        $this->setDate((int) $date[0], (int) $date[1], (int) $date[2]);
+        $this->setTime(23, 59, 59, 999999);
+
+        return $this;
+    }
+
+
+    /**
+     * Makes this date have the current time
+     *
+     * @return $this
+     */
+    public function makeCurrentTime(\DateTimeZone|DateTimeZone|string|null $timezone = null): static
+    {
+        $time = DateTime::new('now', $timezone ?? $this->getTimezone())->format('H i s u');
+        $time = explode(' ', $time);
+
+        $this->setTime((int) $time[0], (int) $time[1], (int) $time[2], (int) $time[3]);
         return $this;
     }
 }
