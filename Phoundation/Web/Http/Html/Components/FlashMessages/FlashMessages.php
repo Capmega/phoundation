@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html\Components\FlashMessages;
 
-use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Exception\Exception;
@@ -13,6 +12,7 @@ use Phoundation\Web\Http\Html\Components\ElementsBlock;
 use Phoundation\Web\Http\Html\Components\FlashMessages\Interfaces\FlashMessageInterface;
 use Phoundation\Web\Http\Html\Components\Script;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
+use Phoundation\Web\Http\Html\Enums\Interfaces\DisplayModeInterface;
 use Stringable;
 use Throwable;
 
@@ -125,12 +125,12 @@ class FlashMessages extends ElementsBlock implements IteratorInterface
      *
      * @param FlashMessage|Exception|Stringable|string|null $message
      * @param string|null $title
-     * @param DisplayMode|null $mode
+     * @param DisplayModeInterface|null $mode
      * @param string|null $icon
      * @param int|null $auto_close
      * @return $this
      */
-    public function addMessage(FlashMessage|Exception|Stringable|string|null $message, ?string $title = null, ?DisplayMode $mode = null, string $icon = null, ?int $auto_close = 5000): static
+    public function addMessage(FlashMessage|Exception|Stringable|string|null $message, ?string $title = null, ?DisplayModeInterface $mode = DisplayMode::error, string $icon = null, ?int $auto_close = 5000): static
     {
         if (!$message) {
             // Ignore empty messages
@@ -163,6 +163,8 @@ class FlashMessages extends ElementsBlock implements IteratorInterface
 
                 return $this;
             }
+
+            $mode = DisplayMode::warning;
 
         } elseif ($message instanceof Exception) {
             // Title was specified as a Phoundation exception, add each validation failure as a separate flash

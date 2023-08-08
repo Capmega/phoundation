@@ -36,17 +36,18 @@ interface FlashMessageInterface
     /**
      * Returns the flash message title
      *
-     * @return string
+     * @return string|null
      */
-    public function getTitle(): string;
+    public function getTitle(): ?string;
 
     /**
      * Sets the flash message title
      *
-     * @param string $title
+     * @param string|null $title
+     * @param bool $make_safe
      * @return $this
      */
-    public function setTitle(string $title): static;
+    public function setTitle(?string $title, bool $make_safe = true): static;
 
     /**
      * Returns the flash message subtitle
