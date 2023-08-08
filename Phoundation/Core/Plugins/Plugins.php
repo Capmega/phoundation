@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Plugins;
 
-use PDOStatement;
 use Phoundation\Core\Libraries\Library;
-use Phoundation\Core\Locale\Language\Language;
 use Phoundation\Core\Log\Log;
+use Phoundation\Core\Plugins\Interfaces\PluginsInterface;
 use Phoundation\Data\DataEntry\DataList;
-use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Path;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
@@ -26,7 +24,7 @@ use Throwable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
-class Plugins extends DataList
+class Plugins extends DataList implements PluginsInterface
 {
     /**
      * A cached list of enabled plugins
@@ -41,7 +39,12 @@ class Plugins extends DataList
      */
     public function __construct()
     {
-        $this->setQuery('SELECT   `id`, `name`, IFNULL(`status`, "' . tr('Ok') . '") AS `status`, IF(`enabled`, "' . tr('Enabled') . '", "' . tr('Disabled') . '") AS `enabled`, `priority`, `description` 
+        $this->setQuery('SELECT   `id`, 
+                                        `name`, 
+                                        IFNULL(`status`, "' . tr('Ok') . '") AS `status`, 
+                                        IF(`enabled`, "' . tr('Enabled') . '", "' . tr('Disabled') . '") AS `enabled`, 
+                                        `priority`, 
+                                        `description` 
                                FROM     `core_plugins` 
                                ORDER BY `name`');
 
@@ -87,8 +90,9 @@ class Plugins extends DataList
      */
     public static function setup(): void
     {
-        static::clear();
-        static::scan();
+        static::new()
+            ->truncate()
+            ->scan();
     }
 
 
@@ -98,9 +102,9 @@ class Plugins extends DataList
      * This method ensures all available plugins are registered in the database and that any plugin registration
      * that no longer exists is removed from the database
      *
-     * @return int
+     * @return PluginsInterface
      */
-    public static function scan(): int
+    public function scan(): PluginsInterface
     {
         $count = 0;
 
@@ -122,7 +126,7 @@ class Plugins extends DataList
             }
         }
 
-        return $count;
+        return static::new()->load();
     }
 
 
@@ -262,33 +266,32 @@ class Plugins extends DataList
 
 
     /**
-     * Purges all plugins from both database and the PATH_ROOT/Plugins path
+     * Truncates all plugins from the database table
      *
      * @return static
      */
-    public function clear(): static
+    public function truncate(): static
     {
-        $path = PATH_ROOT . 'Plugins/';
-
-        File::new($path)->delete();
-        Path::new($path)->ensure();
-
-        return parent::clear();
+        // Delete all plugins from registry
+        sql()->query('DELETE FROM `core_plugins`');
+        return $this;
     }
 
 
     /**
-     * Purges all plugins from both database and the PATH_ROOT/Plugins path
+     * Purges all plugins from the PATH_ROOT/Plugins path
      *
-     * @return void
+     * @return static
      */
-    public function purge(): void
+    public function purge(): static
     {
+        // Delete all plugins from disk
         $path = PATH_ROOT . 'Plugins/';
 
-        static::clear();
         File::new($path)->delete();
         Path::new($path)->ensure();
+
+        return $this;
     }
 
 
@@ -350,22 +353,6 @@ class Plugins extends DataList
         }
 
         return $return;
-    }
-
-
-    /**
-     * @inheritDoc
-     */
-    public function load(string|int|null $id_column = null): static
-    {
-        $this->source = sql()->list('SELECT   `core_plugins`.`id`, `core_plugins`.`name` 
-                                     FROM     `core_plugins` 
-                                     WHERE    `core_plugins`.`status` IS NULL
-                                     ORDER BY `core_plugins`.`name`' . sql()->getLimit());
-
-        // The keys contain the ids...
-        $this->source = array_flip($this->source);
-        return $this;
     }
 
 

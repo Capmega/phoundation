@@ -42,7 +42,9 @@ $argv = ArgvValidator::new()
     ->validate();
 
 
-
 // Display the results of the plugins scan
-Plugins::scan();
+Plugins::new()
+    ->truncate()
+    ->scan();
+
 Cli::displayTable(Plugins::getAvailable());
