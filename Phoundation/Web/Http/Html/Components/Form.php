@@ -293,7 +293,7 @@ class Form extends Element implements FormInterface
         // These are obligatory
         $return = [
             'action'       => $this->getAction(),
-            'method'       => $this->method,
+            'method'       => strtolower($this->method) ?? 'post',
             'autocomplete' => $this->auto_complete ? 'on' : 'off',
         ];
 
