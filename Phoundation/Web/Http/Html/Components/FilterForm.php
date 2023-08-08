@@ -26,16 +26,5 @@ class FilterForm extends DataEntryForm
      */
     public function __construct()
     {
-        parent::__construct();
-
-        $this->definitions = Definitions::new()
-            ->addDefinition(Definition::new(null, 'type[]')
-                ->setLabel(tr('Type'))
-                ->setSize(6)
-                ->setElement(InputElement::select)
-                ->setSource([]))
-            ->addDefinition(Definition::new(null, 'filter[]')
-                ->setLabel(tr('Filter'))
-                ->setSize(6));
     }
 }
