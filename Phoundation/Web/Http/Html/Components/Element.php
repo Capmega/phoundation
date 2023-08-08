@@ -100,9 +100,17 @@ abstract class Element implements ElementInterface
             throw new OutOfBoundsException(tr('Cannot render HTML element, no element type specified'));
         }
 
+        $postfix = null;
+
+        if (isset_get($this->attributes['auto_submit'])) {
+            // Add javascript to automatically submit on change
+            $postfix .= Script::new()->setContent('$("#' . $this->id . '").change(function (e){ e.target.closest("form").submit(); });');
+            unset($this->attributes['auto_submit']);
+        }
+
         $renderer_class  = Page::getTemplate()->getRendererClass($this);
 
-        $render_function = function () {
+        $render_function = function () use ($postfix) {
             $attributes  = $this->buildAttributes();
             $attributes  = Arrays::implodeWithKeys($attributes, ' ', '=', '"', Arrays::FILTER_NULL | Arrays::QUOTE_ALWAYS | Arrays::FILTER_NULL);
             $attributes .= $this->extra;
@@ -121,7 +129,7 @@ abstract class Element implements ElementInterface
             $render       = $this->render . ' />';
             $this->render = null;
 
-            return $render;
+            return $render . $postfix;
         };
 
         if ($renderer_class) {
@@ -129,7 +137,7 @@ abstract class Element implements ElementInterface
 
             return $renderer_class::new($this)
                 ->setParentRenderFunction($render_function)
-                ->render();
+                ->render() . $postfix;
         }
 
         // The template component does not exist, return the basic Phoundation version
@@ -137,7 +145,7 @@ abstract class Element implements ElementInterface
             ':component' => get_class($this)
         ]), 3);
 
-        return $render_function();
+        return $render_function() . $postfix;
     }
 
 
