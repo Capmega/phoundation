@@ -741,7 +741,7 @@ class Definition implements DefinitionInterface
             switch ($value) {
                 case InputType::number:
                     // Numbers should never be longer than this
-                    $this->setMaxlength(16);
+                    $this->setMaxlength(24);
             }
 
             $this->validateType('type', $value->value);
