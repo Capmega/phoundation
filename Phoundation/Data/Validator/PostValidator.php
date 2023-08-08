@@ -194,9 +194,9 @@ class PostValidator extends Validator
      *
      * @param string $submit
      * @param bool $prefix
-     * @return string|null
+     * @return string|bool|null
      */
-    public static function getSubmitButton(string $submit = 'submit', bool $prefix = false, bool $return_key = false): ?string
+    public static function getSubmitButton(string $submit = 'submit', bool $prefix = false, bool $return_key = false): string|bool|null
     {
         if ($prefix) {
             // Find the specified prefix code for the button
@@ -216,20 +216,28 @@ class PostValidator extends Validator
             $button = trim((string) isset_get(self::$post[$submit]));
         }
 
-        unset(self::$post[$submit]);
-
-        if (!$button) {
+        if (!$submit) {
+            // Specified button not found
             return null;
         }
 
-        if ((strlen($button) > 32) or !ctype_print($button)) {
-            throw ValidationFailedException::new(tr('Invalid submit button specified'))->setData([
-                'submit' => tr('The specified submit button is invalid'),
-            ]);
+        unset(self::$post[$submit]);
+
+        if ($button) {
+            if ((strlen($button) > 32) or !ctype_print($button)) {
+                throw ValidationFailedException::new(tr('Invalid submit button specified'))->setData([
+                    'submit' => tr('The specified submit button is invalid'),
+                ]);
+            }
         }
 
         if ($return_key) {
             return Strings::until($submit, $prefix);
+        }
+
+        if (!$button) {
+            // Button exists, but has no value
+            return true;
         }
 
         return $button;

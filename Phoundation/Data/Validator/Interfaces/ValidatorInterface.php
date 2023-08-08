@@ -815,6 +815,14 @@ interface ValidatorInterface
     public function sanitizeHtmlEntities(): static;
 
     /**
+     * Sanitize the selected value by applying htmlspecialchars()
+     *
+     * @return static
+     * @see trim()
+     */
+    public function sanitizeHtmlSpecialChars(): static;
+
+    /**
      * Sanitize the selected value by trimming whitespace
      *
      * @param string $characters

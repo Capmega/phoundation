@@ -2416,6 +2416,31 @@ abstract class Validator implements ValidatorInterface
 
 
     /**
+     * Sanitize the selected value by applying htmlspecialchars()
+     *
+     * @return static
+     * @see trim()
+     */
+    public function sanitizeHtmlSpecialChars(): static
+    {
+        return $this->validateValues(function(&$value) {
+            $this->hasMaxCharacters();
+
+            if ($this->process_value_failed) {
+                if (!$this->selected_is_default) {
+                    // Validation already failed, don't test anything more
+                    return;
+                }
+            }
+
+            if (is_string($value)) {
+                $value = htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, 'UTF-8', true);
+            }
+        });
+    }
+
+
+    /**
      * Sanitize the selected value by applying htmlentities()
      *
      * @return static
