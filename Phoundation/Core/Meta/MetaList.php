@@ -8,6 +8,7 @@ use Phoundation\Core\Arrays;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Components\DataTable;
+use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Url;
 
 
@@ -93,7 +94,7 @@ class MetaList
 
                 foreach ($row['data']['to'] as &$value) {
                     if ($value) {
-                        $value = '<span class="success">' . htmlentities($value) . '</span>';
+                        $value = '<span class="success">' . Html::safe($value) . '</span>';
                     }
                 }
 
@@ -102,7 +103,7 @@ class MetaList
                 if (isset_get($row['data']['from'])) {
                     foreach ($row['data']['from'] as &$value) {
                         if ($value) {
-                            $value = '<span class="danger">' . htmlentities($value) . '</span>';
+                            $value = '<span class="danger">' . Html::safe($value) . '</span>';
                         }
                     }
 
