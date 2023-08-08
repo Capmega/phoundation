@@ -963,7 +963,9 @@ abstract class DataEntry implements DataEntryInterface, Stringable
     /**
      * Modify the data for this object with the new specified data
      *
+     * @param bool $clear_source
      * @param ValidatorInterface|array|null &$source
+     * @param bool $force
      * @return static
      */
     protected function doApply(bool $clear_source, ValidatorInterface|array|null &$source, bool $force): static
@@ -1380,9 +1382,10 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      *
      * @param string $field
      * @param mixed $value
+     * @param bool $force
      * @return static
      */
-    protected function setSourceValue(string $field, mixed $value): static
+    protected function setSourceValue(string $field, mixed $value, bool $force = false): static
     {
         if ($this->debug) {
             Log::information('TRY SETDATAVALUE FIELD "' . $field . '"', 10);
@@ -1411,7 +1414,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
         // static value.
         $definition = $this->definitions->get($field);
 
-        if ($this->is_applying) {
+        if ($this->is_applying and !$force) {
             if ($definition->getReadonly() or $definition->getDisabled()) {
                 // The data is being set through DataEntry::apply() but this column is readonly
                 return $this;
@@ -1420,8 +1423,8 @@ abstract class DataEntry implements DataEntryInterface, Stringable
 
         $default = $definition->getDefault();
 
-        // What to do if we don't have a value? Data should already have been validated, so we know the
-        // value is optional (would not have passed validation otherwise) so it either defaults or NULL
+        // What to do if we don't have a value? Data should already have been validated, so we know the value is
+        // optional (would not have passed validation otherwise) so it either defaults or NULL
         if (!$value) {
             //  By default, all columns with empty values will be pushed to NULL unless specified otherwise
             $value = $default;
@@ -1429,12 +1432,13 @@ abstract class DataEntry implements DataEntryInterface, Stringable
 
         // Value may be set with default value while field was empty, which is the same. Make value empty
         if ((isset_get($this->source[$field]) === null) and ($value === $default)) {
-            // If the previous value was empty and the current value is the same as the default value
-            // then there was no modification, we simply applied a default value
+            // If the previous value was empty and the current value is the same as the default value then there was no
+            // modification, we simply applied a default value
+
         } else {
-            // The DataEntry::is_modified can only be modified if it is not TRUE already.
-            // The DataEntry is considered modified if user is modifying and the entry changed
-            if (!$this->is_modified and !$definition->getReadonly() and !$definition->getIgnoreModify()) {
+            // The DataEntry::is_modified can only be modified if it is not TRUE already. The DataEntry is considered
+            // modified if user is modifying and the entry changed
+            if (!$this->is_modified and !$definition->getIgnoreModify()) {
                 $this->is_modified = (isset_get($this->source[$field]) !== $value);
             }
         }
@@ -1616,6 +1620,9 @@ abstract class DataEntry implements DataEntryInterface, Stringable
     {
         if (!$this->is_modified) {
             // Nothing changed, no reason to save
+            if ($this->debug) {
+                Log::information('NOTHING CHANGED FOR ID "' . $this->source['id'] . '"', 10);
+            }
             return $this;
         }
 
@@ -1810,7 +1817,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      * @param bool $init
      * @return $this
      */
-    public function setSource(array $source, bool $init = false): static
+    public function setSource(array $source, bool $init = true): static
     {
         $this->is_loading = true;
 
@@ -1938,7 +1945,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
                 ->setOptional(true)
                 ->setReadonly(true)
                 ->setInputType(InputType::text)
-                ->setDefault(tr('Ok'))
+//                ->setDisplayDefault(tr('Ok'))
                 ->addClasses('text-center')
                 ->setSize(3)
                 ->setLabel(tr('Status')));
