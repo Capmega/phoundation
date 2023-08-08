@@ -118,6 +118,7 @@ $column = GridColumn::new()
 $picture = Card::new()
     ->setTitle(tr('The users profile picture'))
     ->setContent(Img::new()
+        ->addClass('w100')
         ->setSrc($user->getPicture())
         ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
         ->setAlt(tr('My profile picture')));
