@@ -66,7 +66,13 @@ $argv = ArgvValidator::new()
 
 switch ($argv['driver']) {
     case 'mysql':
+        Log::information(tr('Importing MySQL dump file ":file" to database ":database", this may take a while...', [
+            ':file'     => $argv['file'],
+            ':database' => $argv['database'],
+        ]));
+
         Mysql::import($argv['database'], $argv['file']);
+
         Log::success(tr('Finished importing MySQL dump file ":file" to database ":database"', [
             ':file'     => $argv['file'],
             ':database' => $argv['database'],
