@@ -911,11 +911,17 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function(&$value) {
             if (!$this->checkIsOptional($value)) {
                 if (!is_string($value)) {
-                    if ($value !== null) {
-                        $this->addFailure(tr('must have a string value'));
-                    }
+                    if (!is_numeric($value)) {
+                        if ($value !== null) {
+                            $this->addFailure(tr('must have a string value'));
+                        }
 
-                    $value = '';
+                        $value = '';
+
+                    } else {
+                        // A number is allowed to be interpreted as a string
+                        $value = (string) $value;
+                    }
                 }
             }
         });
