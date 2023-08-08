@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html\Components\Input;
 
+use Phoundation\Web\Http\Html\Components\Script;
 use Phoundation\Web\Http\Html\Enums\InputType;
+use Phoundation\Web\Page;
 use Plugins\Medinet\Traits\DataStartDate;
 use Plugins\Medinet\Traits\DataStopDate;
 
@@ -32,5 +34,21 @@ class InputDateRange extends InputText
     {
         $this->type = InputType::text;
         parent::__construct();
+    }
+
+
+    /**
+     * Render and return the HTML for this Input Element
+     *
+     * @return string|null
+     */
+    public function render(): ?string
+    {
+        // Required javascript
+        Page::loadJavascript('adminlte/plugins/moment/moment');
+        Page::loadJavascript('adminlte/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4');
+        Page::loadJavascript('adminlte/plugins/daterangepicker/daterangepicker');
+
+        return parent::render();
     }
 }
