@@ -22,9 +22,31 @@ use Phoundation\Web\Http\Html\Enums\InputElement;
 class FilterForm extends DataEntryForm
 {
     /**
+     * All get filter data
+     *
+     * @var array $get
+     */
+    protected array $get;
+
+
+    /**
+     * Returns filter value for the specified key
+     *
+     * @param string $key
+     * @return mixed
+     */
+    public function getFilterValue(string $key): mixed
+    {
+        return isset_Get($this->get[$key]);
+    }
+
+
+    /**
      * FilterForm class constructor
      */
     public function __construct()
     {
+        parent::__construct();
+        $this->setId('filters');
     }
 }
