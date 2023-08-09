@@ -1225,7 +1225,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
                 }
 
                 if ($definition->getPostfix()) {
-                    $value = Strings::untilReverse($value, $definition->getPrefix());
+                    $value = Strings::untilReverse($value, $definition->getPostfix());
                 }
             }
 
