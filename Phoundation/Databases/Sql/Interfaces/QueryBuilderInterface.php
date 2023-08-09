@@ -102,10 +102,10 @@ interface QueryBuilderInterface
      * Add a JOIN part of the query
      *
      * @param string $column
-     * @param string|int|null $value
+     * @param string|float|int|null $value
      * @return static
      */
-    public function addExecute(string $column, string|int|null $value): static;
+    public function addExecute(string $column, string|float|int|null $value): static;
 
     /**
      * Returns a column comparison and adds the bound variable to the execute list
