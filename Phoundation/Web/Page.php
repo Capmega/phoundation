@@ -886,6 +886,17 @@ class Page
 
 
     /**
+     * Returns the <head>ers to be sent
+     *
+     * @return array
+     */
+    public static function getHeaders(): array
+    {
+        return static::$headers;
+    }
+
+
+    /**
      * Returns the current tab index and automatically increments it
      *
      * @return string
