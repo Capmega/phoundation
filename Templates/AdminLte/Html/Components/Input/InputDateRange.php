@@ -58,10 +58,14 @@ class InputDateRange extends Renderer
 
         // Required javascript
         Page::loadJavascript('adminlte/plugins/moment/moment');
-        Page::loadJavascript('adminlte/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4');
         Page::loadJavascript('adminlte/plugins/daterangepicker/daterangepicker');
+        Page::loadJavascript('adminlte/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4');
+
+        // Required CSS
+        Page::loadCss('adminlte/plugins/daterangepicker/daterangepicker');
+        Page::loadCss('adminlte/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4');
 
         // Add date range picker JS
-        return $html . Script::new()->setContent('$("#' . $this->render_object->getId() . '").daterangepicker();');
+        return $html;
     }
 }
