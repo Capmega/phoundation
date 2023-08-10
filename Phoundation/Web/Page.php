@@ -26,6 +26,7 @@ use Phoundation\Date\Date;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
@@ -1066,11 +1067,11 @@ class Page
      *
      * @param array|string $rights
      * @param string $target
-     * @param string|null $rights_redirect
- * @param string|null $guest_redirect
+     * @param int|null $rights_redirect
+     * @param string|null $guest_redirect
      * @return void
      */
-    public static function hasRightsOrRedirects(array|string $rights, string $target, ?string $rights_redirect = null, ?string $guest_redirect = null): void
+    public static function hasRightsOrRedirects(array|string $rights, string $target, ?int $rights_redirect = null, ?string $guest_redirect = null): void
     {
         if (Session::getUser()->hasAllRights($rights)) {
             return;
@@ -1121,7 +1122,7 @@ class Page
 
         // This user is missing rights
         if (!$rights_redirect) {
-            $rights_redirect = '403';
+            $rights_redirect = 403;
         }
 
         // Do the specified rights exist at all? If they aren't defined then no wonder this user doesn't have them
@@ -1146,31 +1147,30 @@ class Page
                 ->notifyRoles('accounts')
                 ->save();
 
-            Page::redirect($rights_redirect);
+        } else {
+            // Registered user does not have the required rights
+            Incident::new()
+                ->setType('403 - forbidden')
+                ->setSeverity(in_array('admin', Session::getUser()->getMissingRights($rights)) ? Severity::high : Severity::medium)
+                ->setTitle(tr('User ":user" does not have the required rights ":rights" for target page ":target" (real target ":real_target"), redirecting to ":redirect"', [
+                    ':user'        => Session::getUser()->getLogId(),
+                    ':rights'      => $rights,
+                    ':target'      => Strings::from(static::$target, PATH_ROOT),
+                    ':real_target' => Strings::from($target, PATH_ROOT),
+                    ':redirect'    => $rights_redirect
+                ]))
+                ->setDetails([
+                    'user'        => Session::getUser()->getLogId(),
+                    'uri'         => Page::getUri(),
+                    'target'      => Strings::from(static::$target, PATH_ROOT),
+                    'real_target' => Strings::from($target, PATH_ROOT),
+                    'rights'      => $rights
+                ])
+                ->notifyRoles('accounts')
+                ->save();
         }
 
-        // Registered user does not have the required rights
-        Incident::new()
-            ->setType('403 - forbidden')
-            ->setSeverity(in_array('admin', Session::getUser()->getMissingRights($rights)) ? Severity::high : Severity::medium)
-            ->setTitle(tr('User ":user" does not have the required rights ":rights" for target page ":target" (real target ":real_target"), redirecting to ":redirect"', [
-                ':user'        => Session::getUser()->getLogId(),
-                ':rights'      => $rights,
-                ':target'      => Strings::from(static::$target, PATH_ROOT),
-                ':real_target' => Strings::from($target, PATH_ROOT),
-                ':redirect'    => $rights_redirect
-            ]))
-            ->setDetails([
-                'user'         => Session::getUser()->getLogId(),
-                'uri'          => Page::getUri(),
-                'target'       => Strings::from(static::$target, PATH_ROOT),
-                ':real_target' => Strings::from($target, PATH_ROOT),
-                'rights'       => $rights
-            ])
-            ->notifyRoles('accounts')
-            ->save();
-
-        Page::redirect($rights_redirect);
+        Route::executeSystem($rights_redirect);
     }
 
 
@@ -1205,7 +1205,7 @@ class Page
             Core::writeRegister($target, 'system', 'script_file');
             ob_start();
 
-            // Execute the specified targetwww
+            // Execute the specified target file
             // Build the headers, cache output and headers together, then send the headers
             // TODO Work on the HTTP headers, lots of issues here still, like content-length!
             $output  = static::executeTarget($target);
@@ -2257,7 +2257,14 @@ class Page
         }
 
         // Ensure we have an absolute target
-        $target = static::getAbsoluteTarget($target);
+        try {
+            $target = static::getAbsoluteTarget($target);
+
+        } catch (FileNotExistException $e) {
+            throw FileNotExistException::new(tr('The specified target ":target" does not exist', [
+                ':target' => $target
+            ]), $e)->setData(['target' => $target]);
+        }
 
         // Set the page hash and check if we have access to this page?
         static::$hash   = sha1($_SERVER['REQUEST_URI']);

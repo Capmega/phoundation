@@ -959,7 +959,7 @@ class Route
             static::execute($page, $attachment);
 
         } catch (FileNotExistException $e) {
-            Log::warning(tr('Page ":page" does not exist', [':page' => $page]));
+            Log::warning(tr('Page ":page" does not exist', [':page' => $e->getDataKey('target') ?? $page]));
 
             // TODO route_postprocess() This should be a class method!
             Core::unregisterShutdown('route[postprocess]');
