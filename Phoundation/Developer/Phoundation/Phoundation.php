@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Phoundation;
 
+use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Log\Log;
+use Phoundation\Core\Strings;
+use Phoundation\Data\Iterator;
 use Phoundation\Developer\Phoundation\Exception\IsPhoundationException;
 use Phoundation\Developer\Phoundation\Exception\NotPhoundationException;
+use Phoundation\Developer\Phoundation\Exception\PatchPartiallySuccessfulException;
 use Phoundation\Developer\Phoundation\Exception\PhoundationNotFoundException;
 use Phoundation\Developer\Project\Project;
 use Phoundation\Developer\Versioning\Git\Exception\GitHasChangesException;
@@ -18,6 +22,7 @@ use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Restrictions;
+use Phoundation\Processes\Exception\ProcessFailedException;
 
 
 /**
@@ -223,6 +228,7 @@ class Phoundation extends Project
         ]));
 
         // Update the local project
+        $stash    = new Iterator();
         $sections = ['Phoundation', 'scripts'];
         $project  = Project::new();
         $project->updateLocalProject($branch, $message, $sign);
@@ -234,9 +240,34 @@ class Phoundation extends Project
             // Execute the patching
             foreach ($sections as $section) {
                 // Patch phoundation target section and remove the changes locally
-                StatusFiles::new()
-                    ->setPath(PATH_ROOT . $section)
-                    ->patch($this->getPath() . $section);
+                while(true) {
+                    try {
+                        StatusFiles::new()
+                            ->setPath(PATH_ROOT . $section)
+                            ->patch($this->getPath() . $section);
+
+                        // All okay!
+                        break;
+
+                    } catch (ProcessFailedException $e) {
+                        // Fork me, the patch failed! What file? Stash the little forker and retry without, then unstash it
+                        // after for manual review / copy
+                        Log::warning(tr('Trying to fix by stashing problematic file(s)'));
+
+                        $output = $e->getDataKey('output');
+                        $output = Arrays::match($output, 'patch failed', Arrays::MATCH_ALL | Arrays::MATCH_ANYWHERE| Arrays::MATCH_NO_CASE);
+
+                        foreach ($output as $file) {
+                            $file = Strings::fromReverse($file, ' ');
+                            $file = Strings::untilReverse($file, ':');
+
+                            $stash->add($file);
+
+                            Log::warning(tr('Stashing problematic file ":file"', [':file' => $file]));
+                            Git::new(PATH_ROOT)->add($file)->getStash()->stash($file);
+                        }
+                    }
+                }
             }
 
             if ($checkout) {
@@ -247,8 +278,18 @@ class Phoundation extends Project
                     ->clean($sections, true, true);
             }
 
-            if ($this->phoundation_branch) {
-                $this->selectPhoundationBranch($this->phoundation_branch);
+            if ($stash->getCount()) {
+                $bad_files = clone $stash;
+
+                // Whoopsie, we have shirts in stash, meaning some file was naughty.
+                foreach ($stash as $key => $file) {
+                    Log::warning(tr('Returning problematic file ":file" from stash', [':file' => $file]));
+                    Git::new(PATH_ROOT)->getStash()->pop();
+                    $stash->delete($key);
+                }
+
+                throw PatchPartiallySuccessfulException::new(tr('Phoundating patch was partially successful, some files failed'))
+                    ->setData(['files' => $bad_files]);
             }
 
         } catch (GitHasChangesException $e) {

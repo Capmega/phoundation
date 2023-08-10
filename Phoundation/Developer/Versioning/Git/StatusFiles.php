@@ -123,7 +123,7 @@ class StatusFiles extends Iterator
                 ':path' => $target_path
             ]));
 
-            Log::exception($e);
+            Log::warning($e->getMessages());
 
             if (isset($patch_file)) {
                 // Delete the temporary patch file

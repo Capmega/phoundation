@@ -29,13 +29,16 @@ class Stash extends Versioning
     /**
      * Unstashes the git changes
      *
+     * @param string|null $path
      * @return static
      */
-    public function stash(): static
+    public function stash(?string $path = null): static
     {
         $output = $this->git_process
             ->clearArguments()
             ->addArgument('stash')
+            ->addArgument('--')
+            ->addArgument($path)
             ->executeReturnArray();
 
         Log::notice($output, 4, false);
