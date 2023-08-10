@@ -834,7 +834,7 @@ trait ProcessVariables
 
                         $this->failed = true;
 
-                        throw new ProcessesException(tr('Specified process command ":command" does not exist', [
+                        throw new CommandNotFoundException(tr('Specified process command ":command" does not exist', [
                             ':command' => $command
                         ]));
 
