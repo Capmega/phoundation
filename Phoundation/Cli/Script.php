@@ -209,7 +209,11 @@ SYSTEM ARGUMENTS
                                         the table on the specified page. Defaults to 1
 
 -Q,--quiet                              Will have the system run in quiet mode, suppressing log startup and shutdown 
-                                        messages  
+                                        messages. NOTE: This will override DEBUG output; QUIET will suppress all debug 
+                                        messages!  
+
+-G,--no-prefix                          Will suppress the DATETIME - LOGLEVEL - PROCESS ID - GLOBAL PROCESS ID prefix 
+                                        that normally begins each log line output    
 
 -S,--status STATUS                      If specified will only display DataEntry entries with the specified status                                        
 
