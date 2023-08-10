@@ -299,111 +299,122 @@ class Debug {
             return null;
         }
 
-        Core::unregisterShutdown('route[postprocess]');
+        try {
+            Core::unregisterShutdown('route[postprocess]');
 
-        if (Debug::production()) {
-            // This is not usually something you want to happen!
-            Notification::new()
-                ->setMode(DisplayMode::exception)
-                ->setTitle('Debug mode enabled on production environment!')
-                ->setMessage('Debug mode enabled on production environment, with this all internal debug information can be visible to everybody!')
-                ->setRoles('developer')
-                ->send();
-        }
-
-        // Filter secure data
-        if (is_array($value)) {
-            $value = Arrays::hide($value, 'GLOBALS,%pass,ssh_key');
-        }
-
-        if (Core::readyState() and PLATFORM_HTTP) {
-            if (empty($core->register['debug_plain'])) {
-                switch (Core::getRequestType()) {
-                    case EnumRequestTypes::api:
-                        // no-break
-                    case EnumRequestTypes::ajax:
-                        $output = PHP_EOL . tr('DEBUG SHOW (:file@:line) [:type :size]', [
-                            ':type' => gettype($value),
-                            ':file' => static::currentFile($trace_offset - 1),
-                            ':line' => static::currentLine($trace_offset - 1),
-                            ':size' => ($value === null ? 'NULL' : (is_scalar($value) ? strlen((string) $value) : count((array) $value)))
-                        ]) . PHP_EOL . print_r($value, true) . PHP_EOL;
-
-                        if (!headers_sent()) {
-                            Page::setContentType('text/html');
-                            Page::sendHttpHeaders(Page::buildHttpHeaders($output));
-                        }
-
-                        break;
-
-                    default:
-                        // Force HTML content type, and show HTML data
-                        $output = static::showHtml($value, tr('Unknown'), $trace_offset);
-                }
-
-                // Show output on web
-                if (!headers_sent()) {
-                    Page::setContentType('text/html');
-                    Page::sendHttpHeaders(Page::buildHttpHeaders($output));
-                }
-
-                echo $output;
-
-                ob_flush();
-                flush();
-
-            } else {
-                echo PHP_EOL . tr('DEBUG SHOW (:file@:line) [:type :size]', [
-                    ':type' => gettype($value),
-                    ':file' => static::currentFile($trace_offset),
-                    ':line' => static::currentLine($trace_offset),
-                    ':size' => ($value === null ? 'NULL' : (is_scalar($value) ? strlen((string) $value) : count((array) $value)))
-                ]) . PHP_EOL;;
-                print_r($value, true) . PHP_EOL;
-                flush();
-                ob_flush();
+            if (Debug::production()) {
+                // This is not usually something you want to happen!
+                Notification::new()
+                    ->setMode(DisplayMode::exception)
+                    ->setTitle('Debug mode enabled on production environment!')
+                    ->setMessage('Debug mode enabled on production environment, with this all internal debug information can be visible to everybody!')
+                    ->setRoles('developer')
+                    ->send();
             }
 
-        } else {
-            $return = '';
-
-            if (PLATFORM_HTTP) {
-                // We're displaying plain text to a browser platform. Send "<pre>" to force readable display
-                echo '<pre>';
+            // Filter secure data
+            if (is_array($value)) {
+                $value = Arrays::hide($value, 'GLOBALS,%pass,ssh_key');
             }
 
-            // Show output on CLI console
-            if (is_scalar($value)) {
-                $return .= ($quiet ? '' : tr('DEBUG SHOW (:file@:line) [:type :size] ', [
-                    ':type' => gettype($value),
-                    ':file' => static::currentFile($trace_offset),
-                    ':line' => static::currentLine($trace_offset),
-                    ':size' => strlen((string) $value)
-                    ])) . $value . PHP_EOL;
+            if (Core::readyState() and PLATFORM_HTTP) {
+                if (empty($core->register['debug_plain'])) {
+                    switch (Core::getRequestType()) {
+                        case EnumRequestTypes::api:
+                            // no-break
+                        case EnumRequestTypes::ajax:
+                            $output = PHP_EOL . tr('DEBUG SHOW (:file@:line) [:type :size]', [
+                                ':type' => gettype($value),
+                                ':file' => static::currentFile($trace_offset - 1),
+                                ':line' => static::currentLine($trace_offset - 1),
+                                ':size' => ($value === null ? 'NULL' : (is_scalar($value) ? strlen((string) $value) : count((array) $value)))
+                            ]) . PHP_EOL . print_r($value, true) . PHP_EOL;
 
-            } else {
-                // Sort if is array for easier reading
-                if (is_array($value)) {
-                    ksort($value);
-                }
+                            if (!headers_sent()) {
+                                Page::setContentType('text/html');
+                                Page::sendHttpHeaders(Page::buildHttpHeaders($output));
+                            }
 
-                if (!$quiet) {
-                    $return .= tr('DEBUG SHOW (:file@:line) [:type :size]', [
+                            break;
+
+                        default:
+                            // Force HTML content type, and show HTML data
+                            $output = static::showHtml($value, tr('Unknown'), $trace_offset);
+                    }
+
+                    // Show output on web
+                    if (!headers_sent()) {
+                        Page::setContentType('text/html');
+                        Page::sendHttpHeaders(Page::buildHttpHeaders($output));
+                    }
+
+                    echo $output;
+
+                    ob_flush();
+                    flush();
+
+                } else {
+                    echo PHP_EOL . tr('DEBUG SHOW (:file@:line) [:type :size]', [
                         ':type' => gettype($value),
                         ':file' => static::currentFile($trace_offset),
                         ':line' => static::currentLine($trace_offset),
-                        ':size' => ($value === null ? 'NULL' : count((array) $value))
-                    ]) . PHP_EOL;
+                        ':size' => ($value === null ? 'NULL' : (is_scalar($value) ? strlen((string) $value) : count((array) $value)))
+                    ]) . PHP_EOL;;
+                    print_r($value, true) . PHP_EOL;
+                    flush();
+                    ob_flush();
                 }
 
-                $return .= print_r($value, true);
-                $return .= PHP_EOL;
+            } else {
+                $return = '';
+
+                if (PLATFORM_HTTP) {
+                    // We're displaying plain text to a browser platform. Send "<pre>" to force readable display
+                    echo '<pre>';
+                }
+
+                // Show output on CLI console
+                if (is_scalar($value)) {
+                    $return .= ($quiet ? '' : tr('DEBUG SHOW (:file@:line) [:type :size] ', [
+                        ':type' => gettype($value),
+                        ':file' => static::currentFile($trace_offset),
+                        ':line' => static::currentLine($trace_offset),
+                        ':size' => strlen((string) $value)
+                        ])) . $value . PHP_EOL;
+
+                } else {
+                    // Sort if is array for easier reading
+                    if (is_array($value)) {
+                        ksort($value);
+                    }
+
+                    if (!$quiet) {
+                        $return .= tr('DEBUG SHOW (:file@:line) [:type :size]', [
+                            ':type' => gettype($value),
+                            ':file' => static::currentFile($trace_offset),
+                            ':line' => static::currentLine($trace_offset),
+                            ':size' => ($value === null ? 'NULL' : count((array) $value))
+                        ]) . PHP_EOL;
+                    }
+
+                    $return .= print_r($value, true);
+                    $return .= PHP_EOL;
+                }
+
+                echo $return;
             }
 
-            echo $return;
-        }
+            return $value;
 
-        return $value;
+        } catch (Throwable $e) {
+            if (php_sapi_name() !== 'cli') {
+                // Only add this on browsers
+                echo '<pre>' . PHP_EOL . '"';
+            }
+
+            echo 'Debug::show() call failed with following exception';
+            print_r($e);
+        }
     }
 
 
@@ -422,8 +433,20 @@ class Debug {
     #[NoReturn] public static function showDie(mixed $value = null, int $trace_offset = 1, bool $quiet = false): void
     {
         if (static::enabled()) {
-            static::show($value, $trace_offset, $quiet);
-            Log::warning(tr('Reached showdie() call at :location', [':location' => static::currentLocation($trace_offset)]));
+            try {
+                static::show($value, $trace_offset, $quiet);
+                Log::warning(tr('Reached showdie() call at :location', [':location' => static::currentLocation($trace_offset)]));
+
+            } catch (Throwable $e) {
+                if (php_sapi_name() !== 'cli') {
+                    // Only add this on browsers
+                    echo '<pre>' . PHP_EOL . '"';
+                }
+
+                echo 'Debug::showDie() call failed with following exception';
+                print_r($e);
+            }
+
             die();
         }
     }

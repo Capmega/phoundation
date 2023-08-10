@@ -605,11 +605,15 @@ function pick_random_multiple(int $count, mixed ...$arguments): string|array
  */
 function show(mixed $source = null, int $trace_offset = 1, bool $quiet = false): mixed
 {
-    if (Core::scriptStarted()) {
-        return Debug::show($source, $trace_offset, $quiet);
+    if (Debug::enabled()) {
+        if (Core::scriptStarted()) {
+            return Debug::show($source, $trace_offset, $quiet);
+        }
+
+        return show_system($source, false);
     }
 
-    return show_system($source, false);
+    return null;
 }
 
 
@@ -623,8 +627,12 @@ function show(mixed $source = null, int $trace_offset = 1, bool $quiet = false):
  */
 function showhex(mixed $source = null, int $trace_offset = 1, bool $quiet = false): mixed
 {
-    $source = bin2hex($source);
-    return show($source, $trace_offset);
+    if (Debug::enabled()) {
+        $source = bin2hex($source);
+        return show($source, $trace_offset);
+    }
+
+    return null;
 }
 
 
@@ -638,13 +646,17 @@ function showhex(mixed $source = null, int $trace_offset = 1, bool $quiet = fals
  */
 function showbacktrace(int $count = 10, int $trace_offset = 1, bool $quiet = false): mixed
 {
-    $backtrace = Debug::backtrace();
+    if (Debug::enabled()) {
+        $backtrace = Debug::backtrace();
 
-    if ($count) {
-        $backtrace = Arrays::limit($backtrace, $count);
+        if ($count) {
+            $backtrace = Arrays::limit($backtrace, $count);
+        }
+
+        return show($backtrace, $trace_offset, $quiet);
     }
 
-    return show($backtrace, $trace_offset, $quiet);
+    return null;
 }
 
 
@@ -654,15 +666,17 @@ function showbacktrace(int $count = 10, int $trace_offset = 1, bool $quiet = fal
  * @param mixed $source
  * @param int $trace_offset
  * @param bool $quiet
- * @return never
+ * @return void
  */
-#[NoReturn] function showdie(mixed $source = null, int $trace_offset = 2, bool $quiet = false): never
+#[NoReturn] function showdie(mixed $source = null, int $trace_offset = 2, bool $quiet = false): void
 {
-    if (Core::scriptStarted()) {
-        Debug::showdie($source, $trace_offset, $quiet);
-    }
+    if (Debug::enabled()) {
+        if (Core::scriptStarted()) {
+            Debug::showdie($source, $trace_offset, $quiet);
+        }
 
-    show_system($source);
+        show_system($source);
+    }
 }
 
 
