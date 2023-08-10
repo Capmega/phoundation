@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 use Phoundation\Web\Http\Html\Html;
 
+
 /**
- * Trait DataValue
+ * Trait DataProcess
  *
  *
  *
@@ -17,41 +17,41 @@ use Phoundation\Web\Http\Html\Html;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-trait DataValue
+trait DataProcessName
 {
     /**
-     * The value for this object
+     * The process_name for this object
      *
-     * @var string|null $value
+     * @var string|null $process_name
      */
-    protected ?string $value = null;
+    protected ?string $process_name = null;
 
 
     /**
-     * Returns the value
+     * Returns the process name
      *
      * @return string|null
      */
-    public function getValue(): ?string
+    public function getProcessName(): ?string
     {
-        return $this->value;
+        return $this->process_name;
     }
 
 
     /**
-     * Sets the value
+     * Sets the process name
      *
-     * @param string|null $value
+     * @param string|null $process_name
      * @param bool $make_safe
      * @return static
      */
-    public function setValue(?string $value, bool $make_safe = true): static
+    public function setProcessName(?string $process_name, bool $make_safe = true): static
     {
         if ($make_safe) {
-            $this->value = Html::safe($value);
+            $this->process_name = Html::safe($process_name);
 
         } else {
-            $this->value = $value;
+            $this->process_name = $process_name;
         }
 
         return $this;

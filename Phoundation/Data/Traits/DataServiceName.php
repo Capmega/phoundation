@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 use Phoundation\Web\Http\Html\Html;
 
+
 /**
- * Trait DataValue
+ * Trait DataService
  *
  *
  *
@@ -17,41 +17,41 @@ use Phoundation\Web\Http\Html\Html;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-trait DataValue
+trait DataServiceName
 {
     /**
-     * The value for this object
+     * The service_name for this object
      *
-     * @var string|null $value
+     * @var string|null $service_name
      */
-    protected ?string $value = null;
+    protected ?string $service_name = null;
 
 
     /**
-     * Returns the value
+     * Returns the service name
      *
      * @return string|null
      */
-    public function getValue(): ?string
+    public function getServiceName(): ?string
     {
-        return $this->value;
+        return $this->service_name;
     }
 
 
     /**
-     * Sets the value
+     * Sets the service name
      *
-     * @param string|null $value
+     * @param string|null $service_name
      * @param bool $make_safe
      * @return static
      */
-    public function setValue(?string $value, bool $make_safe = true): static
+    public function setServiceName(?string $service_name, bool $make_safe = true): static
     {
         if ($make_safe) {
-            $this->value = Html::safe($value);
+            $this->service_name = Html::safe($service_name);
 
         } else {
-            $this->value = $value;
+            $this->service_name = $service_name;
         }
 
         return $this;
