@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Phoundation\Notifications;
 
 use Phoundation\Accounts\Roles\Role;
-use Phoundation\Accounts\Roles\Roles;
-use Phoundation\Accounts\Users\User;
+use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Log\Log;
+use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
@@ -101,7 +101,7 @@ class Notification extends DataEntry
      */
     public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null)
     {
-        static::$auto_log = Config::get('notifications.auto-log', true);
+        static::$auto_log = Config::getBoolean('notifications.auto-log', false);
 
         $this->source['mode']     = 'notice';
         $this->source['priority'] = 1;
@@ -338,10 +338,10 @@ class Notification extends DataEntry
 
         } catch (Throwable $e) {
             Log::error(tr('Failed to send the following notification with the following exception'));
-            Log::write(tr('Code : ":code"', [':code' => $this->getCode()]), 'debug', 10, false);
-            Log::write(tr('Title : ":title"', [':title' => $this->getTitle()]), 'debug', 10, false);
+            Log::write(tr('Code    : ":code"'   , [':code' => $this->getCode()])      , 'debug', 10, false);
+            Log::write(tr('Title   : ":title"'  , [':title' => $this->getTitle()])    , 'debug', 10, false);
             Log::write(tr('Message : ":message"', [':message' => $this->getMessage()]), 'debug', 10, false);
-            Log::write(tr('Details :'), 'debug', 10, false);
+            Log::write(tr('Details :')                                                , 'debug', 10, false);
 
             try {
                 Log::write(print_r($this->getDetails(), true), 'debug', 10, false);
@@ -372,40 +372,49 @@ class Notification extends DataEntry
 
         switch ($this->getMode()) {
             case DisplayMode::danger:
-                Log::error($this->getTitle());
-                Log::error($this->getMessage());
+                Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, newline: false);
+                Log::error($this->getTitle(), prefix: false);
+                Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, newline: false);
+                Log::error($this->getMessage(), prefix: false);
                 break;
 
             case DisplayMode::warning:
-                Log::warning($this->getTitle());
-                Log::warning($this->getMessage());
+                Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, newline: false);
+                Log::warning($this->getTitle(), prefix: false);
+                Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, newline: false);
+                Log::warning($this->getMessage(), prefix: false);
                 break;
 
             case DisplayMode::success:
-                Log::success($this->getTitle());
-                Log::success($this->getMessage());
+                Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, newline: false);
+                Log::success($this->getTitle(), prefix: false);
+                Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, newline: false);
+                Log::success($this->getMessage(), prefix: false);
                 break;
 
             case DisplayMode::info:
-                Log::information($this->getTitle());
-                Log::information($this->getMessage());
+                Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, newline: false);
+                Log::information($this->getTitle(), prefix: false);
+                Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, newline: false);
+                Log::information($this->getMessage(), prefix: false);
                 break;
 
             default:
-                Log::notice($this->getTitle());
-                Log::notice($this->getMessage());
+                Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, newline: false);
+                Log::notice($this->getTitle(), prefix: false);
+                Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, newline: false);
+                Log::notice($this->getMessage(), prefix: false);
                 break;
         }
 
         $details = $this->getDetails();
 
         if ($details) {
-            Log::information(tr('Notification details'));
+            Log::write(Strings::size('Details', 12) . ': ', 'debug', clean: false);
 
-            foreach ($details as $key => $value) {
-                Log::write($key, 'debug');
-                Log::table(Arrays::force($value));
-                Log::cli();
+            foreach (Arrays::force($details) as $key => $value) {
+                Log::write(Strings::size($key, 12) . ': ', 'debug', clean: false, newline: false);
+                Log::write(Strings::log($value), prefix: false);
             }
         }
 
@@ -420,10 +429,10 @@ class Notification extends DataEntry
     /**
      * Save this notification for the specified user
      *
-     * @param User|int|null $user
+     * @param UserInterface|int|null $user
      * @return $this
      */
-    protected function saveFor(User|int|null $user): static
+    protected function saveFor(UserInterface|int|null $user): static
     {
         if (!$user) {
             // No user specified, save nothing
@@ -450,10 +459,10 @@ class Notification extends DataEntry
     /**
      * Send this notification to the specified user
      *
-     * @param User|int|null $user
+     * @param UserInterface|int|null $user
      * @return $this
      */
-    protected function sendTo(User|int|null $user): static
+    protected function sendTo(UserInterface|int|null $user): static
     {
         if (!$user) {
             // No user specified, save nothing
