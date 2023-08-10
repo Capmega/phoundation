@@ -8,6 +8,7 @@ use Enum;
 use Phoundation\Core\Enums\EnumMatchMode;
 use Phoundation\Core\Interfaces\Arrayable;
 use Phoundation\Core\Interfaces\EnumMatchModeInterface;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Iterator;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
@@ -32,6 +33,7 @@ class Arrays {
     const MATCH_BEGIN    = 4;
     const MATCH_END      = 8;
     const MATCH_ANYWHERE = 16;
+    const MATCH_NO_CASE  = 32;
 
 
     /**
@@ -2047,7 +2049,8 @@ class Arrays {
      *                              Arrays::MATCH_ALL, Arrays::MATCH_BEGIN, Arrays::MATCH_END, or Arrays::MATCH_ANYWHERE
      *                              Arrays::MATCH_ANY
      *
-     * Arrays::MATCH_ALL:      Will match entries that contain all of the specified needles
+     * Arrays::MATCH_NO_CASE:  Will match entries in case-insensitive mode
+     * Arrays::MATCH_ALL:      Will match entries that contain all the specified needles
      * Arrays::MATCH_ANY:      Will match entries that contain any of the specified needles
      * Arrays::MATCH_BEGIN:    Will match entries that start with the specified needles. Mutually exclusive with
      *                         Arrays::MATCH_END, Arrays::MATCH_ANYWHERE
@@ -2057,13 +2060,14 @@ class Arrays {
      *                         Arrays::MATCH_BEGIN, Arrays::MATCH_ANYWHERE
      * @return array
      */
-    public static function match(array|string $needles, array $haystack, int $options = self::MATCH_ALL | self::MATCH_ANYWHERE): array
+    public static function match(array $haystack, array|string $needles, int $options = self::MATCH_ALL | self::MATCH_ANYWHERE): array
     {
         if (!$needles) {
             throw new OutOfBoundsException(tr('No needles specified'));
         }
 
         // Decode options
+        $match_no_case  = (bool) ($options & self::MATCH_NO_CASE);
         $match_all      = (bool) ($options & self::MATCH_ALL);
         $match_any      = (bool) ($options & self::MATCH_ANY);
         $match_begin    = (bool) ($options & self::MATCH_BEGIN);
@@ -2097,32 +2101,81 @@ class Arrays {
             }
         }
 
+        $needles = Arrays::force($needles);
+
+        // In case of caseless compare, prepare the needles
+        if ($match_no_case) {
+            foreach ($needles as &$needle) {
+                $needle = strtolower((string) $needle);
+            }
+
+            unset($needle);
+        }
+
         $return = [];
 
         foreach ($haystack as $key => $value) {
-            $add = true;
+            if (!$value) {
+                // Ignore empty lines
+                continue;
+            }
 
-            foreach (Arrays::force($needles) as $needle) {
+            if (!is_scalar($value)) {
+                Log::warning(tr('Arrays match ignoring key ":key" with non scalar value ":value"', [
+                    ':key'   => $key,
+                    ':value' => $value
+                ]));
+                continue;
+            }
+
+            // Caseless match? Compare lowercase
+            if ($match_no_case) {
+                $test_value = strtolower((string) $value);
+
+            } else {
+                $test_value = $value;
+            }
+
+            $match = true;
+
+            // Compare to each needle
+            foreach ($needles as $needle) {
                 if ($match_begin) {
-                    if (str_starts_with($value, $needle)) {
-                        $add = true;
+                    if (str_starts_with($test_value, $needle)) {
+                        // This needle matched
+                        if ($match_any) {
+                            $match = true;
+                            break;
+                        }
+
+                        // This needle matched
                         continue;
                     }
 
                 } elseif ($match_end) {
-                    if (str_ends_with($value, $needle)) {
-                        $add = true;
+                    if (str_ends_with($test_value, $needle)) {
+                        // This needle matched
+                        if ($match_any) {
+                            $match = true;
+                            break;
+                        }
+
                         continue;
                     }
 
                 } else {
-                    if (str_contains($value, $needle)) {
-                        $add = true;
+                    if (str_contains($test_value, $needle)) {
+                        // This needle matched
+                        if ($match_any) {
+                            $match = true;
+                            break;
+                        }
+
                         continue;
                     }
                 }
 
-                $add = false;
+                $match = false;
 
                 if ($match_all) {
                     // This needle failed, no need to check other needles
@@ -2130,7 +2183,7 @@ class Arrays {
                 }
             }
 
-            if ($add) {
+            if ($match) {
                 $return[$key] = $value;
             }
         }
