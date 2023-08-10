@@ -109,13 +109,6 @@ class Rsync extends Command
      */
     protected ?string $ssh_key = null;
 
-    /**
-     * Files to be ignored by rsync
-     *
-     * @var array $exlude
-     */
-    protected array $exlude = [];
-
 
     /**
      * Returns if file progress should be displayed or not
@@ -146,9 +139,9 @@ class Rsync extends Command
      *
      * @return array
      */
-    public function getExlude(): array
+    public function getExclude(): array
     {
-        return $this->exlude;
+        return $this->exclude;
     }
 
 
@@ -159,7 +152,7 @@ class Rsync extends Command
      */
     public function clearExclude(): static
     {
-        $this->exlude = [];
+        $this->exclude = [];
         return $this;
     }
 
@@ -173,7 +166,7 @@ class Rsync extends Command
     public function addExclude(array|string $paths): static
     {
         foreach (Arrays::force($paths) as $path) {
-            $this->exlude[] = $path;
+            $this->exclude[] = $path;
         }
 
         return $this;
@@ -381,7 +374,7 @@ class Rsync extends Command
             ->addArgument($this->source)
             ->addArgument($this->target);
 
-        foreach ($this->exlude as $exclude) {
+        foreach ($this->exclude as $exclude) {
             $this->process->addArgument('--exclude=' . escapeshellarg($exclude), false);
         }
 
