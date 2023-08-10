@@ -44,7 +44,7 @@ Documentation::autoComplete([
             'noword' => function ()      { return Path::new(PATH_DATA . 'sources/', PATH_DATA . 'sources/')->scandir('*.sql'); },
         ],
         '--driver' => [
-            'word'   => function ($word) { return Arrays::match($word, ['mysql']); },
+            'word'   => function ($word) { return Arrays::match(['mysql'], $word); },
             'noword' => ['mysql']
         ],
         '--database' => [
