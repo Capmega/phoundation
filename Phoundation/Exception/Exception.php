@@ -149,6 +149,38 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
 
 
     /**
+     * Return the exception related data
+     *
+     * @param string|int $key
+     * @return mixed
+     */
+    public function getDataKey(string|int $key): mixed
+    {
+        return isset_get($this->data[$key]);
+    }
+
+
+    /**
+     * Return exception data that matches the specified needles
+     *
+     * @param array|string $needles
+     * @param int $options
+     * @return array
+     */
+    public function getDataMatch(array|string $needles, int $options = Arrays::MATCH_ALL | Arrays::MATCH_ANYWHERE| Arrays::MATCH_NO_CASE): array
+    {
+        if (!is_array($this->data)) {
+            throw OutOfBoundsException::new(tr('Cannot return exception data match, the data is not an array'), $this)->setData([
+                'exception' => $this,
+                'data'      => $this->getData()
+            ]);
+        }
+
+        return Arrays::match($this->data, $needles, $options);
+    }
+
+
+    /**
      * Set the exception data
      *
      * @param mixed $data
