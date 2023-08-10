@@ -521,6 +521,7 @@ class Core {
             ->select('-O,--order-by', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(128)
             ->select('-P,--page', true)->isOptional(1)->isDbId()
             ->select('-Q,--quiet')->isOptional(false)->isBoolean()
+            ->select('-G,--no-prefix')->isOptional(false)->isBoolean()
             ->select('-N,--no-audio')->isOptional(false)->isBoolean()
             ->select('-S,--status', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(16)
             ->select('-T,--test')->isOptional(false)->isBoolean()
@@ -549,6 +550,7 @@ class Core {
 //            'order_by' => false,
 //            'page' => 1,
 //            'quiet' => false,
+//            'no_prefix' => false,
 //            'no_sound' => false,
 //            'status' => false,
 //            'test' => false,
@@ -650,6 +652,10 @@ class Core {
 
         if ($argv['log_level']) {
             Log::setThreshold($argv['log_level']);
+        }
+
+        if ($argv['no_prefix']) {
+            Log::setUsePrefix(!$argv['no_prefix']);
         }
 
         // Check if the owner of this process is the same as the owner of this script (Required to avoid issues)

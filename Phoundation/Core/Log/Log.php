@@ -77,6 +77,13 @@ Class Log {
     protected static int $threshold;
 
     /**
+     * If true, log messages will have a prefix
+     *
+     * @var bool $use_prefix
+     */
+    protected static bool $use_prefix = true;
+
+    /**
      * The current file where the log class will write to.
      *
      * @var string|null $file
@@ -255,6 +262,30 @@ Class Log {
 
 
     /**
+     * Returns if log messages will have a prefix or not
+     *
+     * @return bool
+     */
+    public static function getUsePrefix(): bool
+    {
+        return static::$use_prefix;
+    }
+
+
+    /**
+     * Sets if log messages will have a prefix or not
+     *
+     * @param bool $use_prefix
+     * @return int
+     * @throws OutOfBoundsException if the specified threshold is invalid.
+     */
+    public static function setUsePrefix(bool $use_prefix): void
+    {
+        static::$use_prefix = $use_prefix;
+    }
+
+
+    /**
      * Returns the log threshold on which log messages will pass to log files
      *
      * @return int
@@ -288,7 +319,7 @@ Class Log {
 
 
     /**
-     * Returns if double messages shoudl be filtered or not
+     * Returns if double messages should be filtered or not
      *
      * @return bool
      */
@@ -528,12 +559,13 @@ Class Log {
      *
      * @param mixed $messages
      * @param int $threshold
+     * @param bool $prefix
      * @param bool $echo_screen
      * @return bool
      */
-    public static function error(mixed $messages = null, int $threshold = 10, bool $echo_screen = true): bool
+    public static function error(mixed $messages = null, int $threshold = 10, bool $prefix = true, bool $echo_screen = true): bool
     {
-        return static::write($messages, 'error', $threshold, false, echo_screen: $echo_screen);
+        return static::write($messages, 'error', $threshold, false, prefix: $prefix, echo_screen: $echo_screen);
     }
 
 
@@ -1025,15 +1057,19 @@ Class Log {
                 $messages = Strings::cleanWhiteSpace($messages);
             }
 
-            if ($prefix) {
-                $messages = date('Y-m-d H:i:s.') . substr(microtime(FALSE), 2, 3) . ' ' . ($threshold === 10 ? 10 : ' ' . $threshold) . ' ' . getmypid() . ' ' . static::$global_id . ' / ' . static::$local_id . ' ' . $messages;
-            }
+            $prefix = date('Y-m-d H:i:s.') . substr(microtime(FALSE), 2, 3) . ' ' . ($threshold === 10 ? 10 : ' ' . $threshold) . ' ' . getmypid() . ' ' . static::$global_id . ' / ' . static::$local_id . ' ';
 
-            fwrite(static::$handles[static::$file], $messages . ($newline ? PHP_EOL : null));
+            fwrite(static::$handles[static::$file], $prefix . $messages . ($newline ? PHP_EOL : null));
 
-            // In Command Line mode always log to the screen too, but not during PHPUnit test!
-            if ((PHP_SAPI === 'cli')  and !Core::isPhpUnitTest() and $echo_screen) {
-                echo $messages . ($newline ? PHP_EOL : null);
+            // In Command Line mode, if requested, always log to the screen too but not during PHPUnit test!
+            if ($echo_screen and (PHP_SAPI === 'cli') and !Core::isPhpUnitTest()) {
+                if (static::$use_prefix and $prefix) {
+                    echo $prefix . $messages . ($newline ? PHP_EOL : null);
+
+                } else {
+                    echo $messages . ($newline ? PHP_EOL : null);
+                }
+
             }
 
             static::$lock = false;
