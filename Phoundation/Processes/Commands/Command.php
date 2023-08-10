@@ -9,7 +9,9 @@ use Phoundation\Core\Core;
 use Phoundation\Exception\Exception;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Restrictions;
+use Phoundation\Processes\Commands\Exception\CommandNotFoundException;
 use Phoundation\Processes\Commands\Exception\CommandsException;
+use Phoundation\Processes\Commands\Exception\NoSudoException;
 use Phoundation\Processes\Exception\ProcessFailedException;
 use Phoundation\Processes\Process;
 
@@ -89,13 +91,23 @@ class Command
                 ->executeReturnArray();
 
             return true;
-        } catch (ProcessFailedException $e) {
+
+        } catch (CommandNotFoundException) {
             if ($exception) {
-                throw $e;
+                throw new NoSudoException(tr('Cannot check for sudo privileges for the ":command" command, the command was not found', [
+                    ':command' => $command
+                ]));
             }
 
-            return false;
+        } catch (ProcessFailedException) {
+            if ($exception) {
+                throw new NoSudoException(tr('The current process owner has no sudo privileges available for the ":command" command', [
+                    ':command' => $command
+                ]));
+            }
         }
+
+        return false;
     }
 
 
