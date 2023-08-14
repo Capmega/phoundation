@@ -1,10 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Http\Html\Components;
-
-use Phoundation\Web\Http\Html\Components\Interfaces\DataTableInterface;
+namespace Phoundation\Web\Http\Html\Components\Interfaces;
 
 
 /**
@@ -17,6 +13,6 @@ use Phoundation\Web\Http\Html\Components\Interfaces\DataTableInterface;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class DataTable extends Table implements DataTableInterface
+interface DataTableInterface
 {
 }

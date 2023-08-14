@@ -6,6 +6,7 @@ namespace Phoundation\Web\Http\Html\Components\Input;
 
 use Phoundation\Web\Http\Html\Components\Script;
 use Phoundation\Web\Http\Html\Enums\InputType;
+use Phoundation\Web\Http\Html\Enums\JavascriptWrappers;
 use Phoundation\Web\Page;
 use Plugins\Medinet\Traits\DataStartDate;
 use Plugins\Medinet\Traits\DataStopDate;
@@ -84,7 +85,7 @@ class InputDateRange extends InputText
     public function render(): ?string
     {
         Script::new()
-            ->setEventWrapper('dom_content')
+            ->setJavascriptWrapper(JavascriptWrappers::window)
             ->setContent('
                 $("#' . $this->getId() . '").daterangepicker(
                 {

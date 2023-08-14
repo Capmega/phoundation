@@ -134,6 +134,11 @@ abstract class ElementsBlock extends Iterator implements IteratorInterface, Elem
     {
         $renderer_class = Page::getTemplate()->getRendererClass($this);
 
+        Log::write(tr('Using renderer class ":class" for ":this"', [
+            ':class' => $renderer_class,
+            ':this'  => get_class($this)
+        ]), 'debug', 2);
+
         $render_function = function (?string $render = null) {
             if ($this->form) {
                 $this->form->setContent($render);

@@ -8,6 +8,7 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Interfaces\ElementInterface;
+use Phoundation\Web\Http\Html\Enums\JavascriptWrappers;
 use Phoundation\Web\Http\Html\Renderer;
 use Phoundation\Web\Page;
 
@@ -106,7 +107,7 @@ abstract class Element implements ElementInterface
             // Add javascript to automatically submit on change
             $postfix .= Script::new()
                 ->setContent('$("#' . $this->id . '").change(function (e){ e.target.closest("form").submit(); });')
-                ->setEventWrapper('window');
+                ->setJavascriptWrapper(JavascriptWrappers::window);
             unset($this->attributes['auto_submit']);
         }
 

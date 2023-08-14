@@ -13,6 +13,8 @@ use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Web\Http\Html\Components\Input\InputSelect;
 use Phoundation\Web\Http\Html\Enums\AttachJavascript;
+use Phoundation\Web\Http\Html\Enums\JavascriptWrappers;
+use Phoundation\Web\Http\Html\Enums\Interfaces\JavascriptWrappersInterface;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
 use Phoundation\Web\Page;
 use Phoundation\Web\Uglify;
@@ -63,10 +65,9 @@ class Script extends Element
     /**
      * What event to wrap this script into
      *
-     * @var string|null $event_wrapper
+     * @var JavascriptWrappersInterface|null $javascript_wrapper
      */
-    #[ExpectedValues('dom_content', 'window', 'function', null)]
-    protected ?string $event_wrapper = 'dom_content';
+    protected ?JavascriptWrappersInterface $javascript_wrapper = null;
 
 
     /**
@@ -168,42 +169,23 @@ class Script extends Element
     /**
      * Returns the event wrapper code for this script
      *
-     * @return string|null
+     * @return JavascriptWrappersInterface|null
      */
-    #[ExpectedValues('dom_content', 'window', 'function', null)]
-    public function getEventWrapper(): ?string
+    public function getJavascriptWrapper(): ?JavascriptWrappersInterface
     {
-        return $this->event_wrapper;
+        return $this->javascript_wrapper;
     }
 
 
     /**
      * Sets the event wrapper code for this script
      *
-     * @param string|null $event_wrapper
+     * @param JavascriptWrappersInterface|null $javascript_wrapper
      * @return static
      */
-    public function setEventWrapper(#[ExpectedValues('dom_content', 'window', 'function', null)] ?string $event_wrapper): static
+    public function setJavascriptWrapper(?JavascriptWrappersInterface $javascript_wrapper): static
     {
-        switch ($event_wrapper) {
-            case 'dom_content':
-                // no-break
-            case 'window':
-                // no-break
-            case 'function':
-                // no-break
-            case '':
-                // no-break
-            case null:
-                break;
-
-            default:
-                throw new OutOfBoundsException(tr('Unknown event wrapper ":value" specified', [
-                    ':value' => $event_wrapper
-                ]));
-        }
-
-        $this->event_wrapper = $event_wrapper;
+        $this->javascript_wrapper = $javascript_wrapper;
         return $this;
     }
 
@@ -221,33 +203,33 @@ class Script extends Element
 
         if ($this->content) {
             // Apply event wrapper
-            switch ($this->event_wrapper) {
-                case 'dom_content':
+            switch ($this->javascript_wrapper) {
+                case JavascriptWrappers::dom_content:
                     $render = 'document.addEventListener("DOMContentLoaded", function(e) {
                               ' . $this->content . '
                            });';
                     break;
 
-                case 'window':
+                case JavascriptWrappers::window:
                     $render = 'window.addEventListener("load", function(e) {
                               ' . $this->content . '
                            });';
                     break;
 
-                case 'function':
+                case JavascriptWrappers::function:
                     $render = '$(function() {
                               ' . $this->content . '
                            });';
                     break;
 
-                case '':
-                    // no-break
                 case null:
+                    // No wrapping
+                    $render = $this->content;
                     break;
 
                 default:
                     throw new OutOfBoundsException(tr('Unknown event wrapper ":value" specified', [
-                        ':value' => $this->event_wrapper
+                        ':value' => $this->javascript_wrapper
                     ]));
             }
         } else {
@@ -473,7 +455,7 @@ class Script extends Element
         }
 
         // If delayed, add it to the footer, else return it directly for inclusion at the point where the
-        // Html::script() function wascalled
+        // Html::script() function was called
         if (isset($core->register['script_delayed'])) {
             $core->register['script_delayed'] .= $return;
 

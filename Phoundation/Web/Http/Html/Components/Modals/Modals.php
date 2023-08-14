@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Web\Http\Html\Components;
+namespace Phoundation\Web\Http\Html\Components\Modals;
 
 use Phoundation\Core\Arrays;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Http\Html\Components\ElementsBlock;
 
 
 /**

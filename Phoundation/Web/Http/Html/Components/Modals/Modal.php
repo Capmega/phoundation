@@ -2,10 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Web\Http\Html\Components;
+namespace Phoundation\Web\Http\Html\Components\Modals;
 
 use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Data\Traits\DataTitle;
+use Phoundation\Web\Http\Html\Components\Buttons;
+use Phoundation\Web\Http\Html\Components\ElementsBlock;
 
 
 /**

@@ -6,12 +6,17 @@ namespace Phoundation\Web\Http\Html\Components;
 
 use PDO;
 use Phoundation\Core\Arrays;
+use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Strings;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\DataCallbacks;
 use Phoundation\Data\Traits\DataTitle;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Web\Http\Html\Components\Input\InputCheckbox;
 use Phoundation\Web\Http\Html\Components\Interfaces\ElementInterface;
+use Phoundation\Web\Http\Html\Components\Interfaces\TableInterface;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
 use Phoundation\Web\Http\UrlBuilder;
 use Stringable;
@@ -27,39 +32,32 @@ use Stringable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class Table extends ResourceElement
+class Table extends ResourceElement implements TableInterface
 {
     use DataTitle;
     use DataCallbacks;
 
 
     /**
-     * The class for the <row> elements within the <table> element
+     * The HTML class element attribute cache for the <tr> element
      *
-     * @var array $row_classes
+     * @var string|null $row_classes
      */
-    protected array $row_classes = [];
+    protected ?string $row_classes = null;
 
     /**
-     * The HTML class element attribute cache for the <row> element
+     * The HTML class element attribute cache for the <td> element
      *
-     * @var string|null
+     * @var string|null $column_classes
      */
-    protected ?string $row_class = null;
+    protected ?string $column_classes = null;
 
     /**
-     * The table column headers
+     * The HTML class element attribute cache for the <a> element in row columns
      *
-     * @var array $column_headers
+     * @var string|null $anchor_classes
      */
-    protected array $column_headers = [];
-
-    /**
-     * URL's specific for columns
-     *
-     * @var array $column_url
-     */
-    protected array $column_url = [];
+    protected ?string $anchor_classes = null;
 
     /**
      * URLs that apply to all rows
@@ -69,18 +67,46 @@ class Table extends ResourceElement
     protected ?string $row_url = null;
 
     /**
+     * The table column headers
+     *
+     * @var IteratorInterface|null $column_headers
+     */
+    protected ?IteratorInterface $column_headers = null;
+
+    /**
+     * URL's specific for columns
+     *
+     * @var IteratorInterface|null $column_urls
+     */
+    protected ?IteratorInterface $column_urls = null;
+
+    /**
      * Top buttons
      *
-     * @var array $top_buttons
+     * @var IteratorInterface|null $top_buttons
      */
-    protected array $top_buttons = [];
+    protected ?IteratorInterface $top_buttons = null;
+
+    /**
+     * Data attributes for <td> columns
+     *
+     * @var IteratorInterface|null $column_data_attributes
+     */
+    protected ?IteratorInterface $column_data_attributes = null;
+
+    /**
+     * Data attributes for anchors
+     *
+     * @var IteratorInterface|null $anchor_data_attributes
+     */
+    protected ?IteratorInterface $anchor_data_attributes = null;
 
     /**
      * Convert columns to checkboxes, buttons, etc
      *
-     * @var array $convert_columns
+     * @var IteratorInterface|null $convert_columns
      */
-    protected array $convert_columns = [];
+    protected ?IteratorInterface $convert_columns = null;
 
     /**
      * If true, the first (id) column will be checkboxes
@@ -225,196 +251,71 @@ class Table extends ResourceElement
 
 
     /**
-     * Clears the table's column conversions
+     * Returns the column's data attributes
      *
-     * @return static
+     * @return IteratorInterface
      */
-    public function clearConvertColumns(): static
+    public function getColumnDataAttributes(): IteratorInterface
     {
-        $this->convert_columns = [];
-        return $this;
-    }
-
-
-    /**
-     * Sets the table's column conversions
-     *
-     * @param array|string|null $convert_columns
-     * @return static
-     */
-    public function setConvertColumns(array|string|null $convert_columns): static
-    {
-        $this->convert_columns = [];
-        return $this->addConvertColumns($convert_columns);
-    }
-
-
-    /**
-     * Adds multiple table column conversions
-     *
-     * @param array|string|null $convert_columns
-     * @return static
-     */
-    public function addConvertColumns(array|string|null $convert_columns): static
-    {
-        foreach (Arrays::force($convert_columns, ' ') as $column => $callback) {
-            $this->addConvertColumn($column, $callback);
+        if (empty($this->column_data_attributes)) {
+            $this->column_data_attributes = new Iterator();
         }
 
-        return $this;
+        return $this->column_data_attributes;
     }
 
 
     /**
-     * Adds single table column conversions
+     * Returns the column's data attributes
      *
-     * @param string $column
-     * @param string|callable $replace_or_callback
-     * @return static
+     * @return IteratorInterface
      */
-    public function addConvertColumn(string $column, string|callable $replace_or_callback): static
+    public function getAnchorDataAttributes(): IteratorInterface
     {
-        $this->convert_columns[$column] = $replace_or_callback;
-        return $this;
+        if (empty($this->anchor_data_attributes)) {
+            $this->anchor_data_attributes = new Iterator();
+        }
+
+        return $this->anchor_data_attributes;
     }
 
 
     /**
      * Returns the table's column conversions
      *
-     * @return array
+     * @return IteratorInterface
      */
-    public function getConvertColumns(): array
+    public function getConvertColumns(): IteratorInterface
     {
-        return $this->convert_columns;
-    }
-
-
-    /**
-     * Cleras the table's top buttons
-     *
-     * @return static
-     */
-    public function clearTopButtons(): static
-    {
-        $this->top_buttons = [];
-        return $this;
-    }
-
-
-    /**
-     * Sets the table's  top buttons
-     *
-     * @param array|string|null $top_buttons
-     * @return static
-     */
-    public function setTopButtons(array|string|null $top_buttons): static
-    {
-        $this->top_buttons = [];
-        return $this->addTopButtons($top_buttons);
-    }
-
-
-    /**
-     * Adds multiple buttons to the table's top buttons
-     *
-     * @param array|string|null $top_buttons
-     * @return static
-     */
-    public function addTopButtons(array|string|null $top_buttons): static
-    {
-        foreach (Arrays::force($top_buttons, ' ') as $row_class) {
-            $this->addRowClass($row_class);
+        if (empty($this->convert_columns)) {
+            $this->convert_columns = new Iterator();
         }
 
-        return $this;
-    }
-
-
-    /**
-     * Adds single button to the table's top buttons
-     *
-     * @param string $row_class
-     * @return static
-     */
-    public function addTopButton(string $row_class): static
-    {
-        $this->top_buttons[] = $row_class;
-        return $this;
+        return $this->convert_columns;
     }
 
 
     /**
      * Returns the table's top buttons
      *
-     * @return array
+     * @return IteratorInterface
      */
-    public function getTopButtons(): array
+    public function getTopButtons(): IteratorInterface
     {
+        if (empty($this->top_buttons)) {
+            $this->top_buttons = new Iterator();
+        }
+
         return $this->top_buttons;
     }
 
 
     /**
-     * Clears the HTML row_class element attribute
+     * Returns the classes used for <tr> tags
      *
-     * @return static
+     * @return string|null
      */
-    public function clearRowClasses(): static
-    {
-        $this->row_classes = [];
-        return $this;
-    }
-
-
-    /**
-     * Sets the HTML row_class element attribute
-     *
-     * @param array|string|null $row_classes
-     * @return static
-     */
-    public function setRowClasses(array|string|null $row_classes): static
-    {
-        $this->row_classes = [];
-        return $this->addRowClasses($row_classes);
-    }
-
-
-    /**
-     * Sets the HTML row_class element attribute
-     *
-     * @param array|string|null $row_classes
-     * @return static
-     */
-    public function addRowClasses(array|string|null $row_classes): static
-    {
-        foreach (Arrays::force($row_classes, ' ') as $row_class) {
-            $this->addRowClass($row_class);
-        }
-
-        return $this;
-    }
-
-
-    /**
-     * Adds a row_class to the HTML row_class element attribute
-     *
-     * @param string $row_class
-     * @return static
-     */
-    public function addRowClass(string $row_class): static
-    {
-        $this->row_classes[] = $row_class;
-        return $this;
-    }
-
-
-    /**
-     * Returns the HTML row_class element attribute
-     *
-     * @return array
-     */
-    public function getRowClasses(): array
+    public function getRowClasses(): ?string
     {
         return $this->row_classes;
     }
@@ -423,39 +324,60 @@ class Table extends ResourceElement
     /**
      * Returns the HTML class element attribute
      *
-     * @return string|null
-     */
-    public function getRowClass(): ?string
-    {
-        if (!$this->row_class) {
-            $this->row_class = implode(' ', $this->row_classes);
-        }
-
-        return $this->row_class;
-    }
-
-
-    /**
-     * Returns the URL that applies to each column
-     *
-     * @return array
-     */
-    public function getColumnUrl(): array
-    {
-        return $this->column_url;
-    }
-
-
-    /**
-     * Sets the URL that applies to each column
-     *
-     * @param string $column
-     * @param string $url
+     * @param string|null $classes
      * @return static
      */
-    public function setColumnUrl(string $column, string $url): static
+    public function setRowClasses(?string $classes): static
     {
-        $this->column_url[$column] = $url;
+        $this->row_classes = $classes;
+        return $this;
+    }
+
+
+    /**
+     * Returns the HTML class element attribute for <td> tags
+     *
+     * @return string|null
+     */
+    public function getColumnClasses(): ?string
+    {
+        return $this->column_classes;
+    }
+
+
+    /**
+     * Sets the HTML class element attribute for <td> tags
+     *
+     * @param string|null $classes
+     * @return static
+     */
+    public function setColumnClasses(?string $classes): static
+    {
+        $this->column_classes = $classes;
+        return $this;
+    }
+
+
+    /**
+     * Returns the HTML class element attribute for <td> tags
+     *
+     * @return string|null
+     */
+    public function getAnchorClasses(): ?string
+    {
+        return $this->anchor_classes;
+    }
+
+
+    /**
+     * Sets the HTML class element attribute for <td> tags
+     *
+     * @param string|null $classes
+     * @return static
+     */
+    public function setAnchorClasses(?string $classes): static
+    {
+        $this->anchor_classes = $classes;
         return $this;
     }
 
@@ -509,69 +431,31 @@ class Table extends ResourceElement
 
 
     /**
-     * Clears the table headers
+     * Returns the URL that applies to each column
      *
-     * @return static
+     * @return IteratorInterface
      */
-    public function clearColumnHeaders(): static
+    public function getColumnUrls(): IteratorInterface
     {
-        $this->column_headers = [];
-        return $this;
-    }
-
-
-    /**
-     * Sets the table headers
-     *
-     * @param array $headers
-     * @return static
-     */
-    public function setColumnHeaders(array $headers): static
-    {
-        $this->column_headers = [];
-        return $this->addColumnHeaders($headers);
-    }
-
-
-    /**
-     * Adds the specified headers to the table headers
-     *
-     * @param array $headers
-     * @return static
-     */
-    public function addColumnHeaders(array $headers): static
-    {
-        foreach (Arrays::force($headers, ' ') as $header) {
-            $this->addColumnHeader($header);
+        if (empty($this->column_urls)) {
+            $this->column_urls = new Iterator();
         }
 
-        return $this;
-    }
-
-
-    /**
-     * Adds a header to the table headers
-     *
-     * @param string|null $header
-     * @return static
-     */
-    public function addColumnHeader(?string $header): static
-    {
-        if ($header) {
-            $this->column_headers[] = $header;
-        }
-
-        return $this;
+        return $this->column_urls;
     }
 
 
     /**
      * Returns the table headers
      *
-     * @return array
+     * @return IteratorInterface
      */
-    public function getColumnHeaders(): array
+    public function getColumnHeaders(): IteratorInterface
     {
+        if (empty($this->column_headers)) {
+            $this->column_headers = new Iterator();
+        }
+
         return $this->column_headers;
     }
 
@@ -611,7 +495,7 @@ class Table extends ResourceElement
      * This will return all HTML FROM the <tbody> tags around it
      *
      * @return string|null The body HTML (all <option> tags) for a <select> tag
-     *@see \Templates\AdminLte\Html\Components\Table::render()
+     * @see \Templates\AdminLte\Html\Components\Table::render()
      * @see \Templates\AdminLte\Html\Components\Table::renderHeaders()
      * @see ResourceElement::renderBody()
      * @see ElementInterface::render()
@@ -629,12 +513,13 @@ class Table extends ResourceElement
             $this->executeCallbacks($row_values, $params);
 
             if (!is_array($row_values)) {
-                if (!is_object($row_values) or !method_exists($row_values, '__toArray')) {
-                    throw new OutOfBoundsException(tr('The specified table source array is invalid. Format should be [[header columns][row columns][row columns] ...], a ":type" was encountered instead', [
+                if (!$row_values instanceof ArrayableInterface) {
+                    throw new OutOfBoundsException(tr('The specified table source array is invalid. Format should be [[header columns][row columns][row columns] ...] or contain an object with ArreableInterface Interface. a ":type" was encountered instead', [
                         ':type' => gettype($row_values)
                     ]));
                 }
 
+                // Row values is actually an object, get its content
                 $row_values = $row_values->__toArray();
             }
 
@@ -720,10 +605,15 @@ class Table extends ResourceElement
     /**
      * Render the table body
      *
-     * @return string
+     * @return string|null
      */
-    protected function renderHeaders(): string
+    protected function renderHeaders(): ?string
     {
+        if (!$this->column_headers) {
+            // No headers because no content
+            return null;
+        }
+
         $return = '<thead><tr>';
         $first  = true;
 
@@ -752,10 +642,38 @@ class Table extends ResourceElement
      */
     protected function buildRowClassString(): ?string
     {
-        $row_class = $this->getRowClass();
+        if ($this->row_classes) {
+            return ' class="' . $this->row_classes . '"';
+        }
 
-        if ($row_class) {
-            return ' class="' . $row_class . '"';
+        return null;
+    }
+
+
+    /**
+     * Builds and returns the class string
+     *
+     * @return string|null
+     */
+    protected function buildColumnClassString(): ?string
+    {
+        if ($this->column_classes) {
+            return ' class="' . $this->column_classes . '"';
+        }
+
+        return null;
+    }
+
+
+    /**
+     * Builds and returns the class string
+     *
+     * @return string|null
+     */
+    protected function buildAnchorClassString(): ?string
+    {
+        if ($this->anchor_classes) {
+            return ' class="' . $this->anchor_classes . '"';
         }
 
         return null;
@@ -771,16 +689,16 @@ class Table extends ResourceElement
      */
     protected function renderRow(array $row_values, array $params): string
     {
-        if (empty($this->column_headers)) {
+        if (!$this->column_headers) {
             // Auto set headers from the column names
-            $this->column_headers = array_keys($row_values);
+            $this->getColumnHeaders()->setSource(array_keys($row_values));
 
-            foreach ($this->column_headers as &$column_header) {
+            foreach ($this->column_headers as $key => $column_header) {
                 $column_header = str_replace(['-', '_'], ' ', $column_header);
                 $column_header = Strings::capitalize($column_header);
-            }
 
-            unset($column_header);
+                $this->column_headers->set($key, $column_header);
+            }
         }
 
         // ID is the first value in the row
@@ -821,21 +739,22 @@ class Table extends ResourceElement
      */
     protected function renderCell(string|float|int|null $row_id, string|float|int|null $column, Stringable|string|float|int|null $value, array $param): string
     {
-        $value = (string) $value;
+        // Use row or column URL's?
+        // Use column convert?
+        $attributes = '';
+        $value      = (string) $value;
+        $url        = $this->getColumnUrls()->get($column, false);
+        $convert    = $this->getConvertColumns()->get($column, false);
 
-        // Do we have row or column URL's?
-        if (array_key_exists($column, $this->column_url)) {
-            // Use this column specific URL
-            $url = $this->column_url;
 
-        } elseif ($this->row_url) {
+        if (!$url and $this->row_url) {
             $url = $this->row_url;
         }
 
-        if (array_key_exists($column, $this->convert_columns)) {
-            if (is_callable($this->convert_columns[$column])) {
+        if ($convert) {
+            if (is_callable($convert)) {
                 // Convert this column
-                $converted = $this->convert_columns[$column]($value);
+                $converted = $convert($value);
 
                 if (!is_string($converted)) {
                     throw new OutOfBoundsException(tr('Conversion for column ":column" callback does not return a string as required', [
@@ -844,11 +763,6 @@ class Table extends ResourceElement
                 }
 
                 $value = $converted;
-
-            } else {
-                // Convert this column
-                $value = str_replace(':ROW'   , $this->convert_columns[$column], $value);
-                $value = str_replace(':COLUMN', $this->convert_columns[$column], $value);
             }
 
         } else {
@@ -859,15 +773,23 @@ class Table extends ResourceElement
         }
 
         if (isset($url)) {
-            // Apply URL row / column specific information
-            $url = str_replace(':ROW'   , (string) $row_id, $url);
-            $url = str_replace(':COLUMN', (string) $column, $url);
-            $url = UrlBuilder::getWww($url);
-
-            return '<td><a href="' . $url . '">' . $value . '</a></td>';
+            $value = $this->buildUrl($value, $url);
         }
 
-        return '<td>' . $value . '</td>';
+        // Add data attributes?
+        if ($this->column_data_attributes) {
+            foreach ($this->column_data_attributes as $data_key => $data_value) {
+                $attributes .= ' data-' . $data_key . '="' . $data_value . '"';
+            }
+        }
+
+        // Build row with TD tags with attributes
+        // Ensure all :ROW and :COLUMN markings are converted
+        $value = '<td' . $attributes . $this->buildColumnClassString() . '>' . $value . '</td>';
+        $value = str_replace(':ROW'   , (string) $row_id, $value);
+        $value = str_replace(':COLUMN', (string) $column, $value);
+
+        return $value;
     }
 
 
@@ -888,5 +810,26 @@ class Table extends ResourceElement
             ->setName($column . '[]')
             ->setValue($value)
             ->render();
+    }
+
+
+    /**
+     * Builds a URL around the specified column value
+     *
+     * @param string $value
+     * @param string $url
+     * @return string
+     */
+    protected function buildUrl(string $value, string $url): string
+    {
+        $attributes = '';
+
+        if ($this->anchor_data_attributes) {
+            foreach ($this->anchor_data_attributes as $data_key => $data_value) {
+                $attributes .= ' data-' . $data_key . '="' . $data_value . '"';
+            }
+       }
+
+        return '<a' . $this->buildAnchorClassString() . ' href="' . UrlBuilder::getWww($url) . '"' . $attributes . '>' . $value . '</a>';
     }
 }

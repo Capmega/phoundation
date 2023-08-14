@@ -6,6 +6,7 @@ namespace Phoundation\Web\Http\Html\Components;
 
 use Phoundation\Content\Images\Image;
 use Phoundation\Content\Images\Interfaces\ImageInterface;
+use Phoundation\Web\Http\Html\Components\Modals\Modals;
 
 
 /**
