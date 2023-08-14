@@ -45,7 +45,7 @@ class NotificationModal extends LargeModal
             $("nav.main-header").on("click", ".notification.open-modal", function(e) {
                 e.stopPropagation();
 
-                $.get("' . UrlBuilder::getAjax('system/notifications/user/modal.json?id=') . '" + $(e.target).data("id"))
+                $.get("' . UrlBuilder::getAjax('system/notifications/modal.json?id=') . '" + $(e.target).data("id"))
                     .done(function (data, textStatus, jqXHR) {
                         checkNotifications();
                         $("#notification-modal").find(".modal-title").text(data.title);

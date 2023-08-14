@@ -1,16 +1,11 @@
 <?php
 
-use Phoundation\Data\Validator\GetValidator;
-use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Json;
-use Phoundation\Web\Http\Html\Components\Button;
-use Phoundation\Web\Http\Html\Components\Buttons;
 use Phoundation\Web\Http\Html\Components\NotificationsDropDown;
-use Phoundation\Web\Http\Html\Enums\DisplayMode;
 
 
 /**
- * Ajax system/notifications/user/dropdown.php
+ * Ajax system/notifications/dropdown.php
  *
  * This ajax call will return the complete HTML for the notifications drop-down
  *

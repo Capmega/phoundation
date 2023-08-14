@@ -4,12 +4,11 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Components\Button;
-use Phoundation\Web\Http\Html\Components\Buttons;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 
 
 /**
- * Ajax system/notifications/user/modal.php
+ * Ajax system/notifications/modal.php
  *
  * This ajax call will return the contents of the specified notifications id for use with notification modals
  *
@@ -28,7 +27,6 @@ $get = GetValidator::new()
 
 // Update notification status to READ and build modal information and send reply
 $notification = Notification::get($get['id'])->setStatus('READ');
-$notification->setUrl('http://mediweb.medinet.ca.local/en/accounts/users.html');
 
 if ($notification->getUrl()) {
     $button = Button::new()

@@ -6,7 +6,7 @@ use Phoundation\Utils\Json;
 
 
 /**
- * Ajax system/notifications/user/get.php
+ * Ajax system/notifications/get.php
  *
  * This ajax call will return the contents of the specified notifications id
  *
