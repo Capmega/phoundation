@@ -536,7 +536,7 @@ class Definition implements DefinitionInterface
      */
     public function getContent(): callable|string|null
     {
-        return isset_get_typed('callable|string', $this->rules['element']);
+        return isset_get_typed('callable|string', $this->rules['content']);
     }
 
 
@@ -869,12 +869,6 @@ class Definition implements DefinitionInterface
     public function setSize(?int $value): static
     {
         if ($value) {
-            if (!$this->getVisible()) {
-                throw new OutOfBoundsException(tr('Cannot define size for field ":field", this field is not visible and will not be displayed', [
-                    ':field' => $this->field,
-                ]));
-            }
-
             if (($value < 1) or ($value > 12)) {
                 throw new OutOfBoundsException(tr('Invalid size ":value" specified for field ":field", it must be an integer number between 1 and 12', [
                     ':field' => $this->field,
@@ -1133,6 +1127,29 @@ class Definition implements DefinitionInterface
     {
         $this->validateTextTypeElement('placeholder', $value);
         return $this->setKey('placeholder', $value);
+    }
+
+
+    /**
+     * Returns the display_callback for this field
+     *
+     * @return callable|null
+     */
+    public function getDisplayCallback(): ?callable
+    {
+        return isset_get_typed('object|callable', $this->rules['display_callback']);
+    }
+
+
+    /**
+     * Sets the display_callback for this field
+     *
+     * @param callable|null $value
+     * @return static
+     */
+    public function setDisplayCallback(?callable $value): static
+    {
+        return $this->setKey('display_callback', $value);
     }
 
 
