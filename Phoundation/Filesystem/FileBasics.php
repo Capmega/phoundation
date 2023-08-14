@@ -7,6 +7,7 @@ namespace Phoundation\Filesystem;
 use Exception;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
+use Phoundation\Data\Traits\DataFile;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FileExistsException;
 use Phoundation\Filesystem\Exception\FileNotWritableException;
@@ -35,6 +36,7 @@ use Throwable;
 class FileBasics implements Stringable, FileBasicsInterface
 {
     use UsesRestrictions;
+    use DataFile;
 
 
     /**
@@ -46,13 +48,6 @@ class FileBasics implements Stringable, FileBasicsInterface
      * File WRITE method
      */
     public const WRITE = 2;
-
-    /**
-     * The file for this File object
-     *
-     * @var string|null $file
-     */
-    protected ?string $file = null;
 
     /**
      * The real path to this file
@@ -72,19 +67,19 @@ class FileBasics implements Stringable, FileBasicsInterface
     /**
      * File class constructor
      *
-     * @param FileBasics|Stringable|string|null $file
+     * @param FileBasicsInterface|Stringable|string|null $file
      * @param RestrictionsInterface|array|string|null $restrictions_restrictions
      */
-    public function __construct(FileBasics|Stringable|string|null $file = null, RestrictionsInterface|array|string|null $restrictions_restrictions = null)
+    public function __construct(FileBasicsInterface|Stringable|string|null $file = null, RestrictionsInterface|array|string|null $restrictions_restrictions = null)
     {
         // Specified file was actually a File or Path object, get the file from there
-        if (is_object($file)) {
+        if ($file instanceof FileBasics) {
             $this->setFile($file->getFile());
             $this->setTarget($file->getTarget());
             $this->setRestrictions($restrictions_restrictions ?? $file->getRestrictions());
 
         } else {
-            $this->setFile($file);
+            $this->setFile((string) $file);
             $this->setRestrictions($restrictions_restrictions);
         }
     }
@@ -128,17 +123,6 @@ class FileBasics implements Stringable, FileBasicsInterface
         $this->real_file = realpath($this->file);
 
         return $this;
-    }
-
-
-    /**
-     * Returns the file for this File object
-     *
-     * @return string|null
-     */
-    public function getFile(): ?string
-    {
-        return $this->file;
     }
 
 
