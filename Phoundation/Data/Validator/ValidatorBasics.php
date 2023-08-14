@@ -444,7 +444,12 @@ trait ValidatorBasics
             if (!$this->selected_is_optional) {
                 // The currently selected field is required but does not exist, so the other must exist
                 if (!isset_get($this->source[$field])) {
-                    $this->addFailure(tr('Neither fields ":field" nor ":selected_field" were set, where at least one of them is required', [':field' => $field, ':selected_field' => $this->selected_field]));
+                    $this->addFailure(tr('nor ":field" field were set, where at least one of them is required', [
+                        ':field' => $field
+                    ]));
+                } else {
+                    // The other field exists, making this one optional
+                    $this->isOptional();
                 }
             }
         }
@@ -602,9 +607,10 @@ trait ValidatorBasics
             return true;
         }
 
-// DEBUG CODE: In case of errors with validation, its very useful to have these debugged here
+// DEBUG CODE: In case of errors with validation, it's very useful to have these debugged here
 //        show($this->selected_field);
 //        show($value);
+//        show($this->selected_is_optional);
 
         if (!$value) {
             if (!$this->selected_is_optional) {
