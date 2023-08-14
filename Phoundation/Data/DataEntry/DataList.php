@@ -360,6 +360,27 @@ abstract class DataList extends Iterator implements DataListInterface
 
 
     /**
+     * Sets the value for the specified key
+     *
+     * @param Stringable|string|float|int $key
+     * @param DataEntryInterface $value
+     * @return static
+     */
+    public function set(Stringable|string|float|int $key, mixed $value): static
+    {
+        if ($value instanceof DataEntryInterface) {
+            return parent::set($key, $value);
+        }
+
+        throw new OutOfBoundsException(tr('Cannot set value ":value" to key ":key" in the list ":list", it does not have a DataEntryInterface', [
+            ':list'  => get_class($this),
+            ':key'   => $key,
+            ':value' => $value
+        ]));
+    }
+
+
+    /**
      * Returns a QueryBuilder object to modify the internal query for this object
      *
      * @return QueryBuilderInterface
