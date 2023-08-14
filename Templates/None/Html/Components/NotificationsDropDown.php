@@ -82,7 +82,7 @@ class NotificationsDropDown extends Renderer
             }
         }
 
-        $this->render .= '        <a href="' . Html::safe($this->render_object->getAllNotificationsUrl()) . '" class="dropdown-item dropdown-footer">' . tr('See All Notifications') . '</a>
+        $this->render .= '        <a href="' . Html::safe($this->render_object->getAllNotificationsUrl()) . '" class="dropdown-item dropdown-footer">' . tr('See all unread notifications') . '</a>
                                 </div>';
 
         return parent::render();

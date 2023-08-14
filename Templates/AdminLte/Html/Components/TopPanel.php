@@ -107,14 +107,14 @@ class TopPanel extends Renderer
                         
                                
                               <!-- Messages Dropdown Menu -->
-                              <li class="nav-item dropdown">
+                              <li class="nav-item dropdown messages">
                                 ' . $this->render_object->getMessagesDropDown()?->render() . '
                               </li>
                               <!-- Notifications Dropdown Menu -->
-                              <li class="nav-item dropdown">
+                              <li class="nav-item dropdown notifications">
                                 ' . $this->render_object->getNotificationsDropDown()?->render() . '
                               </li>
-                              <li class="nav-item dropdown">                                  
+                              <li class="nav-item dropdown languages">                                  
                                   ' . $this->render_object->getLanguagesDropDown()?->render() . '
                               </li>
                               <li class="nav-item">
