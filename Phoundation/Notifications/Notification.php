@@ -31,6 +31,8 @@ use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Exception\NotificationBusyException;
+use Phoundation\Utils\Exception\JsonException;
+use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Html\Enums\InputElement;
 use Phoundation\Web\Http\Html\Enums\InputType;
@@ -501,6 +503,7 @@ class Notification extends DataEntry
                 ->setReadonly(true)
                 ->setLabel(tr('Code'))
                 ->setDefault(tr('-'))
+                ->addClasses('text-center')
                 ->setSize(6)
                 ->setMaxlength(16)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -508,7 +511,9 @@ class Notification extends DataEntry
                 }))
             ->addDefinition(Definition::new($this, 'mode')
                 ->setLabel(tr('Mode'))
+                ->setReadonly(true)
                 ->setOptional(true, DisplayMode::notice)
+                ->addClasses('text-center')
                 ->setSize(3)
                 ->setMaxlength(16)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -523,6 +528,7 @@ class Notification extends DataEntry
                 ->setInputType(InputTypeExtended::integer)
                 ->setLabel(tr('Priority'))
                 ->setDefault(5)
+                ->addClasses('text-center')
                 ->setMin(1)
                 ->setMax(9)
                 ->setSize(3))
@@ -543,20 +549,6 @@ class Notification extends DataEntry
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isPrintable();
                 }))
-            ->addDefinition(Definition::new($this, 'file')
-                ->setReadonly(true)
-                ->setOptional(true)
-                ->setInputType(InputType::text)
-                ->setLabel(tr('File'))
-                ->setMaxlength(255)
-                ->setSize(8))
-            ->addDefinition(Definition::new($this, 'line')
-                ->setReadonly(true)
-                ->setOptional(true)
-                ->setInputType(InputTypeExtended::natural)
-                ->setLabel(tr('Line'))
-                ->setMin(1)
-                ->setSize(4))
             ->addDefinition(Definition::new($this, 'url')
                 ->setReadonly(true)
                 ->setOptional(true)
@@ -564,22 +556,62 @@ class Notification extends DataEntry
                 ->setLabel(tr('URL'))
                 ->setMaxlength(2048)
                 ->setSize(12))
-            ->addDefinition(Definition::new($this, 'trace')
-                ->setReadonly(true)
-                ->setOptional(true)
-                ->setElement(InputElement::textarea)
-                ->setLabel(tr('Trace'))
-                ->setMaxlength(65_535)
-                ->setRows(10)
-                ->setSize(12)
-                ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->isJson();
-                }))
             ->addDefinition(Definition::new($this, 'details')
                 ->setReadonly(true)
                 ->setOptional(true)
                 ->setElement(InputElement::textarea)
                 ->setLabel(tr('Details'))
+                ->setMaxlength(65_535)
+                ->setRows(10)
+                ->setSize(12)
+                ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->isJson();
+                })
+                ->setDisplayCallback(function(mixed $value, array $source) {
+                    // Since the details almost always have an array encoded in JSON, decode it and display it using
+                    // print_r
+                    if (!$value) {
+                        return null;
+                    }
+
+                    try {
+                        $return  = '';
+                        $details = Json::decode($value);
+                        $largest = Arrays::getLongestKeySize($details);
+
+                        foreach ($details as $key => $value) {
+                            $return .= Strings::size($key, $largest) . ' : ' . $value . PHP_EOL;
+                        }
+
+                        return $return;
+
+                    } catch (JsonException) {
+                        // Likely this wasn't JSON encoded
+                        return $value;
+                    }
+                }))
+            ->addDefinition(Definition::new($this, 'file')
+                ->setReadonly(true)
+                ->setOptional(true)
+                ->setVisible(false)
+                ->setInputType(InputType::text)
+                ->setLabel(tr('File'))
+                ->setMaxlength(255)
+                ->setSize(8))
+            ->addDefinition(Definition::new($this, 'line')
+                ->setReadonly(true)
+                ->setOptional(true)
+                ->setVisible(false)
+                ->setInputType(InputTypeExtended::natural)
+                ->setLabel(tr('Line'))
+                ->setMin(1)
+                ->setSize(4))
+            ->addDefinition(Definition::new($this, 'trace')
+                ->setReadonly(true)
+                ->setOptional(true)
+                ->setVisible(false)
+                ->setElement(InputElement::textarea)
+                ->setLabel(tr('Trace'))
                 ->setMaxlength(65_535)
                 ->setRows(10)
                 ->setSize(12)

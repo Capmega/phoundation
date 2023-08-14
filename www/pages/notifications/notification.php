@@ -61,7 +61,7 @@ if (Page::isPostRequestMethod()) {
 $notification_card = Card::new()
     ->setCollapseSwitch(true)
     ->setMaximizeSwitch(true)
-    ->setTitle(tr('Display data for notification ":name"', [':name' => $notification->getTitle()]))
+    ->setTitle($notification->getTitle())
     ->setContent($notification->getHtmlForm()->render())
     ->setButtons(Buttons::new()
         ->addButton(tr('Mark unread'))
@@ -99,9 +99,12 @@ echo $grid->render();
 
 // Set page meta data
 Page::setHeaderTitle(tr('Notification'));
-Page::setHeaderSubTitle($notification->getTitle());
+Page::setHeaderSubTitle($notification->getId());
 Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                       => tr('Home'),
     '/notifications/all.html' => tr('Notifications'),
-    ''                        => $notification->getTitle()
+    ''                        => tr(':id [:title]', [
+        ':title' => $notification->getTitle(),
+        ':id'    => $notification->getId()
+    ])
 ]));

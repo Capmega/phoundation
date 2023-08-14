@@ -62,9 +62,16 @@ $filters = Card::new()
 
 
 // Build notifications table
-$table = $notifications->getHtmlDataTable()
-    ->setRowUrl('/notifications/notification-:ROW.html');
+$table = $notifications
+    ->getHtmlDataTable()
+        ->setRowUrl('/notifications/notification-:ROW.html')
+        ->setAnchorClasses('notification open-modal');
 
+$table->getAnchorDataAttributes()->add(':ROW', 'id');
+;
+
+
+// Build notifications card
 $notifications = Card::new()
     ->setTitle('Active notifications')
     ->setSwitches('reload')

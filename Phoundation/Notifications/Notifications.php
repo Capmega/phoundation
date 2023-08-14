@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Phoundation\Notifications;
 
 use PDOStatement;
+use Phoundation\Audio\Audio;
 use Phoundation\Core\Arrays;
+use Phoundation\Core\Config;
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataList;
@@ -14,7 +16,10 @@ use Phoundation\Databases\Sql\QueryBuilder;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 use Phoundation\Web\Http\Html\Components\Input\InputSelect;
+use Phoundation\Web\Http\Html\Components\Script;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
+use Phoundation\Web\Http\Html\Enums\JavascriptWrappers;
+use Phoundation\Web\Http\UrlBuilder;
 
 
 /**
@@ -238,5 +243,37 @@ class Notifications extends DataList
 
             $params['skiphtmlentities']['severity'] = true;
         });
+    }
+
+
+    /**
+     * Have the client perform automated update checks for notifications
+     *
+     * @return $this
+     */
+    public function autoUpdate(): static
+    {
+        Audio::new(PATH_CDN . '/audio/ping.mp3')->playRemote('notification');
+
+        Script::new()
+            ->setJavascriptWrapper(null)
+            ->setContent('   function checkNotifications(ping) {
+                                        var ping = (typeof ping !== "undefined") ? ping : true;
+
+                                        $.get("' . UrlBuilder::getAjax('/system/notifications/user/dropdown.json') . '")
+                                        .done(function(data) {
+                                            if ((data.count > 0) && ping) {
+                                                console.log("Notification ping!");
+                                                $("audio.notification").trigger("play");
+                                            }
+
+                                            $(".main-header.navbar ul.navbar-nav .nav-item.dropdown.notifications").html(data.html)
+                                        });
+                                    }
+
+                                    setInterval(function(){ checkNotifications(true); }, ' . (Config::getNatural('notifications.ping.interval', 5) * 1000) . ');')
+            ->render();
+
+        return $this;
     }
 }
