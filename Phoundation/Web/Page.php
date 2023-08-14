@@ -58,7 +58,7 @@ use Throwable;
 /**
  * Class Page
  *
- * This class contains methods to assist in building web pages
+ * This class manages the execution and processing of web pages, AJAX and API requests.
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -115,12 +115,13 @@ class Page
      * @note IMPORTANT: Since flush() and ob_flush() will NOT lock headers until the buffers are actually flushed, and
      *                  they will neither actually flush the buffers as long as the process is running AND the buffers
      *                  are not full yet, weird things can happen. With a buffer of 4096 bytes (typically), echo 100
-     *                  characters, and then execute static::sendHeaders(), then ob_flush() and flush() and headers_sent()
-     *                  will STILL be false, and REMAIN false until the buffer has reached 4096 characters OR the
-     *                  process ends. This variable just keeps track if static::sendHeaders() has been executed (and it
-     *                  won't execute again), but headers might still be sent out manually. This is rather messed up,
-     *                  because it really shows as if information was sent, the buffers are flushed, yet nothing is
-     *                  actually flushed, so the headers are also not sent. This is just messed up PHP.
+     *                  characters, and then execute static::sendHeaders(), then ob_flush() and flush() and
+     *                  headers_sent() will STILL be false, and REMAIN false until the buffer has reached 4096
+     *                  characters OR the process ends. This variable just keeps track if static::sendHeaders() has been
+     *                  executed (and it won't execute again), but headers might still be sent out manually. This is
+     *                  rather messed up, because it really shows as if information was sent, the buffers are flushed,
+     *                  yet nothing is actually flushed, so the headers are also not sent. This is just messed up PHP.
+     *
      * @var bool $http_headers_sent
      */
     protected static bool $http_headers_sent = false;
@@ -934,12 +935,12 @@ class Page
     /**
      * Sets the browser page title
      *
-     * @param string $page_title
+     * @param Stringable|string|float|int|null $page_title
      * @return void
      */
-    public static function setPageTitle(string $page_title): void
+    public static function setPageTitle(Stringable|string|float|int|null $page_title): void
     {
-        static::$page_title = strip_tags($page_title);
+        static::$page_title = strip_tags((string) $page_title);
     }
 
 
@@ -980,15 +981,15 @@ class Page
     /**
      * Sets the page header title
      *
-     * @param string|null $header_title
+     * @param Stringable|string|float|int|null $header_title
      * @return void
      */
-    public static function setHeaderTitle(?string $header_title): void
+    public static function setHeaderTitle(Stringable|string|float|int|null $header_title): void
     {
-        static::$header_title = $header_title;
+        static::$header_title = (string) $header_title;
 
         if (!static::$page_title) {
-            static::$page_title = Config::get('project.name', 'Phoundation') . $header_title;
+            static::$page_title = Config::get('project.name', 'Phoundation') . ' - ' . $header_title;
         }
     }
 
@@ -1007,12 +1008,12 @@ class Page
     /**
      * Sets the page header subtitle
      *
-     * @param string|null $header_sub_title
+     * @param Stringable|string|float|int|null $header_sub_title
      * @return void
      */
-    public static function setHeaderSubTitle(?string $header_sub_title): void
+    public static function setHeaderSubTitle(Stringable|string|float|int|null $header_sub_title): void
     {
-        static::$header_sub_title = $header_sub_title;
+        static::$header_sub_title = get_null((string) $header_sub_title);
     }
 
 
@@ -1232,40 +1233,29 @@ class Page
             Log::warning('Page did not catch the following "ValidationFailedException" warning, showing "system/400"');
             Log::warning($e);
 
-            switch (Core::getRequestType()) {
-                case EnumRequestTypes::ajax:
-                    // no break
-                case EnumRequestTypes::api:
-                    Page::setHttpCode(400);
-                    Json::reply($e->getData());
-
-                default:
-                    static::getFlashMessages()->addMessage($e);
-                    Route::executeSystem(400);
-            }
+            Core::writeRegister($e, 'e');
+            Route::executeSystem(400);
 
         } catch (AuthenticationException $e) {
             Log::warning('Page did not catch the following "AuthenticationException" warning, showing "system/401"');
             Log::warning($e);
 
-            // Todo: Remove AJAX flash messages from general flash messages! Might require tagging flash messages with request types?
-            static::getFlashMessages()->addMessage($e);
+            Core::writeRegister($e, 'e');
             Route::executeSystem(401);
 
-        } catch (IncidentsException $e) {
+        } catch (IncidentsException|AccessDeniedException $e) {
             // TODO Should we also catch AccessDenied exception here?
             Log::warning('Page did not catch the following "IncidentsException" warning, showing "system/401"');
             Log::warning($e);
 
-            // Todo: Remove AJAX flash messages from general flash messages! Might require tagging flash messages with request types?
-            static::getFlashMessages()->addMessage($e);
+            Core::writeRegister($e, 'e');
             Route::executeSystem(403);
 
         } catch (DataEntryNotExistsException $e) {
             Log::warning('Page did not catch the following "DataEntryNotExistsException" warning, showing "system/404"');
             Log::warning($e);
 
-            // Show a 404 page instead
+            Core::writeRegister($e, 'e');
             Route::executeSystem(404);
 
         } catch (Exception $e) {
@@ -1772,6 +1762,10 @@ class Page
 
         $return = '';
 
+        if (isset_get(static::$footers['html'])) {
+            $return .= implode('', static::$footers['html']);
+        }
+
         foreach (static::$footers['javascript'] as $footer) {
             if (isset($footer['src'])) {
                 $footer  = Arrays::implodeWithKeys($footer, ' ', '=', '"');
@@ -2045,10 +2039,10 @@ class Page
      *
      * @todo This should -in the near future- be updated to sending Javascript, Css, etc objects instead of "some array"
      * @param string $key
-     * @param array $entry
+     * @param array|string $entry
      * @return void
      */
-    public static function addToFooter(string $key, array $entry): void
+    public static function addToFooter(string $key, array|string $entry): void
     {
         static::$footers[$key][] = $entry;
     }
