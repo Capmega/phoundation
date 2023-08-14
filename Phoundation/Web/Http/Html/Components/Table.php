@@ -798,12 +798,12 @@ class Table extends ResourceElement implements TableInterface
      *
      * @param string $column
      * @param string|float|int $value
-     * @return string
+     * @return ?string
      */
-    protected function renderCheckboxColumn(string $column, string|float|int $value): string
+    protected function renderCheckboxColumn(string $column, string|float|int $value): ?string
     {
         if (!$this->checkbox_selectors) {
-            return $value;
+            return null;
         }
 
         return InputCheckbox::new()

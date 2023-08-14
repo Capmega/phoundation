@@ -485,6 +485,7 @@ class Mc
                     Log::warning(tr('Failed to connect to any memcached server'), 10);
 
                     Notification::new()
+                        ->setUrl('developer/incidents.html')
                         ->setMode(DisplayMode::warning)
                         ->setCode('not-available')
                         ->addRole('developers')

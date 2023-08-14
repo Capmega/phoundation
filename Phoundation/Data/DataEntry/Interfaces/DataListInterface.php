@@ -8,6 +8,8 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Web\Http\Html\Components\DataTable;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
+use Phoundation\Web\Http\Html\Components\Interfaces\DataTableInterface;
+use Phoundation\Web\Http\Html\Components\Interfaces\TableInterface;
 use Phoundation\Web\Http\Html\Components\Table;
 use ReturnTypeWillChange;
 use Stringable;
@@ -130,16 +132,16 @@ interface DataListInterface extends IteratorInterface
     /**
      * Creates and returns an HTML table for the data in this list
      *
-     * @return Table
+     * @return TableInterface
      */
-    public function getHtmlTable(): Table;
+    public function getHtmlTable(): TableInterface;
 
     /**
      * Creates and returns a fancy HTML data table for the data in this list
      *
-     * @return DataTable
+     * @return DataTableInterface
      */
-    public function getHtmlDataTable(array|string|null $columns = null): DataTable;
+    public function getHtmlDataTable(array|string|null $columns = null): DataTableInterface;
 
     /**
      * Returns an HTML <select> for the available object entries

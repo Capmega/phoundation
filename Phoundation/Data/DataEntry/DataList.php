@@ -19,6 +19,8 @@ use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Components\DataTable;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 use Phoundation\Web\Http\Html\Components\Input\InputSelect;
+use Phoundation\Web\Http\Html\Components\Interfaces\DataTableInterface;
+use Phoundation\Web\Http\Html\Components\Interfaces\TableInterface;
 use Phoundation\Web\Http\Html\Components\Table;
 use ReturnTypeWillChange;
 use Stringable;
@@ -398,9 +400,9 @@ abstract class DataList extends Iterator implements DataListInterface
     /**
      * Creates and returns an HTML table for the data in this list
      *
-     * @return Table
+     * @return TableInterface
      */
-    public function getHtmlTable(): Table
+    public function getHtmlTable(): TableInterface
     {
         $this->selectQuery();
 
@@ -415,9 +417,10 @@ abstract class DataList extends Iterator implements DataListInterface
     /**
      * Creates and returns a fancy HTML data table for the data in this list
      *
-     * @return DataTable
+     * @param array|string|null $columns
+     * @return DataTableInterface
      */
-    public function getHtmlDataTable(array|string|null $columns = null): DataTable
+    public function getHtmlDataTable(array|string|null $columns = null): DataTableInterface
     {
         if ($this->source) {
             // Source is already loaded, use this instead
@@ -427,7 +430,6 @@ abstract class DataList extends Iterator implements DataListInterface
                 ->setSource($this->getSourceColumns($columns))
                 ->setCallbacks($this->callbacks)
                 ->setCheckboxSelectors(true);
-
         }
 
         $this->selectQuery();

@@ -2340,6 +2340,7 @@ class Page
 
                 // None of the requested languages are supported! Oh noes! Go for default language.
                 Notification::new()
+                    ->setUrl('developer/incidents.html')
                     ->setMode(DisplayMode::warning)
                     ->setCode('unsupported-languages-requested')
                     ->setRoles('developers')

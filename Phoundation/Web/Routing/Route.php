@@ -617,6 +617,7 @@ class Route
                     case 'H':
                         Log::notice(tr('*POSSIBLE HACK ATTEMPT DETECTED*'));
                         Notification::new()
+                            ->setUrl('security/incidents.html')
                             ->setMode(DisplayMode::exception)
                             ->setCode('hack')
                             ->setRoles('security')

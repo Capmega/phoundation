@@ -529,6 +529,7 @@ class Sql implements SqlInterface
             global $argv;
 
             Notification::new()
+                ->setUrl('developer/incidents.html')
                 ->setMode(DisplayMode::exception)
                 ->setCode('SQL_QUERY_ERROR')->setRoles('developer')->setTitle('SQL Query error')->setMessage('
                 SQL STATE ERROR : "' . $error[0] . '"

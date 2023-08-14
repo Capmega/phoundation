@@ -146,6 +146,7 @@ class Libraries
         if (Debug::production()) {
             // Notification developers
             Notification::new()
+                ->setUrl('/system/information.html')
                 ->setMode(DisplayMode::info)
                 ->setRoles('developers')->setTitle(tr('System initialization'))
                 ->setMessage(tr('The system ran an initialization'))

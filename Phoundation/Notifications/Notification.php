@@ -153,14 +153,16 @@ class Notification extends DataEntry
      */
     public function setException(Throwable $e): static
     {
-        $this->setFile($e->getFile());
-        $this->setLine($e->getLine());
-        $this->setTrace($e->getTraceAsString());
-        $this->setCode('E-' . $e->getCode());
-        $this->setTitle(tr('Phoundation encountered an exception'));
-        $this->setMessage($e->getMessage());
-        $this->addRole('developer');
-        $this->setDetails([
+        $this
+            ->setUrl('/development/incidents.html')
+            ->setFile($e->getFile())
+            ->setLine($e->getLine())
+            ->setTrace($e->getTraceAsString())
+            ->setCode('E-' . $e->getCode())
+            ->setTitle(tr('Phoundation encountered an exception'))
+            ->setMessage($e->getMessage())
+            ->addRole('developer')
+            ->setDetails([
             'trace' => $e->getTrace(),
             'data' => (($e instanceof Exception) ? $e->getData() : 'No a Phoundation exception, no data available')
         ]);

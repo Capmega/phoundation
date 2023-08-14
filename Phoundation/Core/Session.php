@@ -750,6 +750,7 @@ Log::warning('RESTART SESSION');
 
         // Notify the target user
         Notification::new()
+            ->setUrl('profiles/profile-' . $original_user->getId() . '.html')
             ->setMode(DisplayMode::warning)
             ->setUsersId($_SESSION['user']['impersonate_id'])
             ->setTitle(tr('Your account was impersonated'))
@@ -800,6 +801,7 @@ Log::warning('RESTART SESSION');
 
                 if (!str_contains(static::$domain, $test)) {
                     Notification::new()
+                        ->setUrl('security/incidents.html')
                         ->setMode(DisplayMode::warning)
                         ->setCode('configuration')
                         ->setRoles('developers')
