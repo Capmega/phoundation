@@ -23,6 +23,7 @@ use Phoundation\Web\Page;
 
 // Create the notification, log it, and send it to this user.
 Notification::new()
+    ->setUrl('/index.html')
     ->setMode(pick_random(DisplayMode::error, DisplayMode::warning, DisplayMode::success, DisplayMode::info, DisplayMode::notice))
     ->setUsersId(Session::getUser()->getId())
     ->setTitle(tr('This is a test notification'))

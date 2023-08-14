@@ -133,6 +133,7 @@ if (!$user->isNew()) {
 // Build the user form
 $user_card = Card::new()
     ->setCollapseSwitch(true)
+    ->setMaximizeSwitch(true)
     ->setTitle(tr('Edit data for user :name', [':name' => $user->getDisplayName()]))
     ->setContent($user->getHtmlForm()->render())
     ->setButtons(Buttons::new()
@@ -164,6 +165,7 @@ if ($user->getId()) {
         ->setDescription(tr('This is a list of rights that this user has available because of its assigned roles. Each role gives the user a certain amount of rights and with adding or removing roles, you add or remove these rights. These rights are used to determine the access to pages or specific information that a user has. To determine what rights are required to access a specific page, click the "lock" symbol at the top menu.'))
         ->setContent($user->getRights()
                             ->getHtmlDataTable('id,name,description')
+                            ->setCheckboxSelectors(false)
                             ->render());
 }
 
