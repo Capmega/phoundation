@@ -784,6 +784,7 @@ throw new UnderConstructionException();
             return new static($url);
         }
 
+        $url  = Strings::from($url,'data/content/cdn/');
         $base = Domains::getConfigurationKey(Domains::getCurrent(), 'cdn', $_SERVER['REQUEST_SCHEME'] . '://cdn.' . Domains::getCurrent() . '/:LANGUAGE/');
         $base = Strings::endsWith($base, '/');
         $url  = Strings::startsNotWith($url, '/');
