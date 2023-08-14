@@ -92,12 +92,12 @@ class Roles extends DataList implements RolesInterface
 
 
     /**
-     * Set the entries to the specified list
+     * Set the new roles for the current parents to the specified list
      *
      * @param array|null $list
      * @return static
      */
-    public function set(?array $list): static
+    public function setRoles(?array $list): static
     {
         $this->ensureParent('save entries');
 
