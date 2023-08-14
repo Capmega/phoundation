@@ -25,7 +25,8 @@ $get = GetValidator::new()
 $incident = Incident::get($get['id']);
 $form     = $incident->getHtmlForm();
 $card     = Card::new()
-    ->setTitle(tr('Edit data for incident :name', [':name' => $incident->getTitle()]))
+    ->setTitle($incident->getTitle())
+    ->setMaximizeSwitch(true)
     ->setContent($form->render())
     ->setButtons(Buttons::new()->addButton(tr('Back'), DisplayMode::secondary, 'prev', true));
 
@@ -55,9 +56,9 @@ echo $grid->render();
 
 // Set page meta data
 Page::setHeaderTitle(tr('Incident'));
-Page::setHeaderSubTitle($incident->getTitle());
+Page::setHeaderSubTitle($incident->getId());
 Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                        => tr('Home'),
     '/security/incidents.html' => tr('Incidents'),
-    ''                         => $incident->getTitle()
+    ''                         => $incident->getId()
 ]));
