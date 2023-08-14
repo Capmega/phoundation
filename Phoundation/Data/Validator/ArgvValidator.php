@@ -31,6 +31,20 @@ use Phoundation\Exception\OutOfBoundsException;
 class ArgvValidator extends Validator implements ArgvValidatorInterface
 {
     /**
+     * Tracks if for selecting the current value, we have to take the current argument or the next
+     *
+     * @var bool $next
+     */
+    protected bool $next = false;
+
+    /**
+     * The fields that were originally selected as they might be expected on the CLI, like "-u,users"
+     *
+     * @var string|null $cli_fields
+     */
+    protected ?string $cli_fields = null;
+
+    /**
      * Internal $argv array until validation has been completed
      *
      * @var array $argv
@@ -125,6 +139,8 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         $this->process_value_failed = false;
         $this->selected_is_optional = false;
         $this->selected_is_default  = false;
+        $this->cli_fields           = $fields;
+        $this->next                 = $next;
 
         $clean_field = null;
         $field       = null;
@@ -317,6 +333,105 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
 
     /**
+     * This method will make sure that either this field OR the other specified field will have a value
+     *
+     * @note: This or works slightly different form the ValidatorBasics::xor(). If the specified field data is not found
+     *        initially, it will check the static::$argv to see if it might be there, ready and waiting. This is because
+     *        in the ArgvValidator key values may not be detected until static::$argv has passed through
+     *        static::argument(). It first needs to detect one of the requested keys, then the corresponding value
+     *        (for example: -u,--users USEREMAIL is detected by first finding --user then the email)
+     *
+     * @param string $field
+     * @param bool $rename
+     * @return static
+     *
+     * @see Validator::isOptional()
+     * @see Validator::or()
+     */
+    public function xor(string $field, bool $rename = false): static
+    {
+        if (!str_starts_with($field, (string) $this->field_prefix)) {
+            $field = $this->field_prefix . $field;
+        }
+
+        if ($this->selected_field === $field) {
+            throw new ValidatorException(tr('Cannot validate XOR field ":field" with itself', [':field' => $field]));
+        }
+
+        if (isset_get($this->source[$this->selected_field])) {
+            // The currently selected field exists, the specified field cannot exist
+            if (isset_get($this->source[$field]) or static::argument($this->cli_fields, $this->next, true)) {
+                $this->addFailure(tr('Both fields ":field" and ":selected_field" were set, where only either one of them are allowed', [
+                    ':field' => $field,
+                    ':selected_field' => $this->selected_field
+                ]));
+            }
+
+            if ($rename) {
+                // Rename this field to the specified field
+                $this->rename($field);
+            }
+        } else {
+            // The currently selected field does not exist, the specified field MUST exist
+            if (!isset_get($this->source[$field]) and !static::argument($this->cli_fields, $this->next, true)) {
+                $this->addFailure(tr('nor ":field" were set, where either one of them is required', [
+                    ':field' => $field
+                ]));
+
+            } else {
+                // Yay, the alternate field exists, so this one can be made optional.
+                $this->isOptional();
+            }
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * This method will make sure that either this field OR the other specified field optionally will have a value
+     *
+     * @note: This or works slightly different form the ValidatorBasics::or(). If the specified field data is not found
+     *        initially, it will check the static::$argv to see if it might be there, ready and waiting. This is because
+     *        in the ArgvValidator key values may not be detected until static::$argv has passed through
+     *        static::argument(). It first needs to detect one of the requested keys, then the corresponding value
+     *        (for example: -u,--users USEREMAIL is detected by first finding --user then the email)
+     * @param string $field
+     * @return static
+     *
+     * @see Validator::isOptional()
+     * @see Validator::xor()
+     */
+    public function or(string $field): static
+    {
+        if (!str_starts_with($field, (string) $this->field_prefix)) {
+            $field = $this->field_prefix . $field;
+        }
+
+        if ($this->selected_field === $field) {
+            throw new ValidatorException(tr('Cannot validate OR field ":field" with itself', [':field' => $field]));
+        }
+
+        if (!isset_get($this->source[$this->selected_field])) {
+            if (!$this->selected_is_optional) {
+                // The currently selected field is required but does not exist, so the other must exist
+                if (!isset_get($this->source[$field]) and !static::argument($this->cli_fields, $this->next, true)) {
+                    $this->addFailure(tr('nor ":field" field were set, where at least one of them is required', [
+                        ':field' => $field
+                    ]));
+
+                } else {
+                    // Yay, the alternate field exists, so this one can be made optional.
+                    $this->isOptional();
+                }
+            }
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Remove the specified method from the arguments list
      *
      * @param string $method
@@ -394,13 +509,15 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
      *                                      argument, and this will be returned. If set to "all", it will return all
      *                                      following arguments. If set to "optional", a next argument will be returned,
      *                                      if available.
+     * @param bool $test                    If true, will not remove the variable from the internal $argv, it will just
+     *                                      return the values to test them
      * @return mixed                        If $next is null, it will return a boolean value, true if the specified key
      *                                      exists, false if not. If $next is true or "optional", the next value will be
      *                                      returned as a string. However, if "optional" was used, and the next value
      *                                      was not specified, boolean FALSE will be returned instead. If $next is
      *                                      specified as all, all subsequent values will be returned in an array
      */
-    protected static function argument(array|string|int|null $keys = null, string|bool $next = false): mixed
+    protected static function argument(array|string|int|null $keys = null, string|bool $next = false, bool $test = false): mixed
     {
         if (is_integer($keys)) {
             // Get arguments by index
@@ -411,19 +528,25 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
                     }
 
                     if ($argv_key == $keys) {
-                        unset(static::$argv[$keys]);
+                        if (!$test) {
+                            unset(static::$argv[$keys]);
+                        }
+
                         continue;
                     }
 
                     if (str_starts_with($argv_value, '-')) {
                         // Encountered a new option, stop!
                         break;
-                    }        show(self::$argv);
+                    }
 
 
                     // Add this argument to the list
                     $value[] = $argv_value;
-                    unset(static::$argv[$argv_key]);
+
+                    if (!$test) {
+                        unset(static::$argv[$argv_key]);
+                    }
                 }
 
                 return isset_get($value);
@@ -431,7 +554,11 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
             if (isset(static::$argv[$keys++])) {
                 $argument = static::$argv[$keys - 1];
-                unset(static::$argv[$keys - 1]);
+
+                if (!$test) {
+                    unset(static::$argv[$keys - 1]);
+                }
+
                 return $argument;
             }
 
@@ -441,29 +568,34 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
         if ($keys === null) {
             // Get the next argument?
+            if ($test) {
+                return static::$argv[array_key_first(static::$argv)];
+            }
+
             return array_shift(static::$argv);
         }
 
         // Detect multiple key options for the same command, but ensure only one is specified
         if (is_array($keys) or (is_string($keys) and str_contains($keys, ','))) {
-            $keys    = Arrays::force($keys);
-            $results = [];
+            $keys       = Arrays::force($keys);
+            $return_key = static::getReturnKey($keys);
+            $results    = [];
 
             foreach ($keys as $key) {
                 if ($next === 'all') {
                     // We're requesting all values for all specified keys. It will return null in case the specified key
                     // does not exist
-                    $value = static::argument($key, 'all');
+                    $value = static::argument($key, 'all', $test);
 
                     if (is_array($value)) {
                         $found   = true;
                         $results = array_merge($results, $value);
                     }
                 } else {
-                    $value = static::argument($key, $next);
+                    $value = static::argument($key, $next, $test);
 
                     if ($value) {
-                        $results[$key] = $value;
+                        $results[$return_key] = $value;
                         break;
                     }
                 }
@@ -476,9 +608,9 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
             return match (count($results)) {
                 0       => null,
                 1       => current($results),
-                default => throw ArgumentsException::new('Multiple related command line arguments ":results" for the same option specified. Please specify only one', [
+                default => throw ArgumentsException::new(tr('Multiple related command line arguments ":results" for the same option specified. Please specify only one', [
                     ':results' => $results
-                ])->makeWarning()
+                ]))->makeWarning()
             };
         }
 
@@ -495,7 +627,10 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
                     if (empty($start)) {
                         if ($argv_value == $keys) {
                             $start = true;
-                            unset(static::$argv[$argv_key]);
+
+                            if (!$test) {
+                                unset(static::$argv[$argv_key]);
+                            }
                         }
 
                         continue;
@@ -508,7 +643,10 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
                     //Add this argument to the list
                     $value[] = $argv_value;
-                    unset(static::$argv[$argv_key]);
+
+                    if (!$test) {
+                        unset(static::$argv[$argv_key]);
+                    }
                 }
 
                 return $value;
@@ -516,7 +654,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
             try {
                 // Return next argument, if available
-                $value = Arrays::nextValue(static::$argv, $keys, true);
+                $value = Arrays::nextValue(static::$argv, $keys, !$test);
 
             } catch (OutOfBoundsException $e) {
                 // This argument requires another parameter. Make it an arguments exception!
@@ -527,13 +665,79 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
                 throw ArgumentsException::new(tr('Argument ":keys" has no assigned value. It is immediately followed by argument ":value"', [
                     ':keys'  => $keys,
                     ':value' => $value
-                ]), ['keys' => $keys])->makeWarning();
+                ]))->setData(['keys' => $keys])->makeWarning();
             }
 
             return $value;
         }
 
-        unset(static::$argv[$key]);
+        if (!$test) {
+            unset(static::$argv[$key]);
+        }
+
         return true;
+    }
+
+
+    /**
+     * Returns the key that will be used internally as an argument key
+     *
+     * Keys may be specified by words, letters, or both. If both were specified, prefer the word
+     *
+     * @param array $keys
+     * @return string
+     */
+    protected static function getReturnKey(array $keys): string
+    {
+        if (empty($keys)) {
+            throw new OutOfBoundsException(tr('No keys specified'));
+        }
+
+        $return = '';
+
+        foreach ($keys as $key) {
+            if (str_starts_with($key, '--')) {
+                // This key MUST have more than one letter!
+                if (strlen($key) <= 3) {
+                    throw new ValidationFailedException(tr('Specified word argument ":argument" starts with -- and must have more than one alpha-numeric character after!', [
+                        ':argument' => $key
+                    ]));
+                }
+
+                if (!preg_match('/^--(?:[a-z0-9]+-?)+$/i', $key)) {
+                    throw new ValidationFailedException(tr('Specified word argument ":argument" is invalid, it must follow the expression /^--(?:[a-z0-9]+-)+]$/i', [
+                        ':argument' => $key
+                    ]));
+                }
+
+                // Always use the first word argument that is encountered
+                return $key;
+
+            } elseif (str_starts_with($key, '-')) {
+                // This key MUST have only one letter!
+                if (strlen($key) > 2) {
+                    throw new ValidationFailedException(tr('Specified letter argument ":argument" starts with - and must have only one alpha-numeric character after!', [
+                        ':argument' => $key
+                    ]));
+
+                }
+
+                if (!preg_match('/^-[a-z0-9]$/i', $key)) {
+                    throw new ValidationFailedException(tr('Specified letter argument ":argument" is invalid, it must follow the expression /^-[a-z0-9]$/i', [
+                        ':argument' => $key
+                    ]));
+                }
+
+                // So far we encountered a letter, if that is all, that is what we will return
+                $return = $key;
+
+            } else {
+                throw new OutOfBoundsException(tr('Specified key ":key" is invalid, a key must start with - or --', [
+                    ':key' => $key
+                ]));
+            }
+        }
+
+        return $return;
     }
 }
