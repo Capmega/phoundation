@@ -1,4 +1,5 @@
 data
+~data/content/cdn/en/img/logos/phoundation/
 config/default.yaml
 *.cache
 *~
