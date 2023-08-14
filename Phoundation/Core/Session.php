@@ -226,7 +226,7 @@ class Session
             Incident::new()
                 ->setType('User sign in')->setSeverity(Severity::notice)
                 ->setTitle(tr('The user ":user" signed in', [':user' => static::$user->getLogId()]))
-                ->setDetails([':user' => static::$user->getLogId()])
+                ->setDetails(['user' => static::$user->getLogId()])
                 ->save();
 
             $_SESSION['user']['id'] = static::$user->getId();
@@ -237,7 +237,7 @@ class Session
             Incident::new()
                 ->setType('User does not exist')->setSeverity(Severity::low)
                 ->setTitle(tr('The specified user ":user" does not exist', [':user' => $user]))
-                ->setDetails([':user' => $user])
+                ->setDetails(['user' => $user])
                 ->notifyRoles('accounts')
                 ->save();
 
@@ -586,8 +586,8 @@ Log::warning('RESTART SESSION');
                     ':impersonate' => User::get($_SESSION['user']['impersonate_id'])->getLogId()
                 ]))
                 ->setDetails([
-                    ':user'        => User::get($_SESSION['user']['id'])->getLogId(),
-                    ':impersonate' => User::get($_SESSION['user']['impersonate_id'])->getLogId()
+                    'user'        => User::get($_SESSION['user']['id'])->getLogId(),
+                    'impersonate' => User::get($_SESSION['user']['impersonate_id'])->getLogId()
                 ])
                 ->notifyRoles('accounts')
                 ->save();
@@ -610,7 +610,7 @@ Log::warning('RESTART SESSION');
             ->setType('User sign out')
             ->setSeverity(Severity::notice)
             ->setTitle(tr('The user ":user" signed out', [':user' => static::getUser()]))
-            ->setDetails([':user' => static::getUser()->getLogId()])
+            ->setDetails(['user' => static::getUser()->getLogId()])
             ->save();
 
         session_destroy();
@@ -742,8 +742,8 @@ Log::warning('RESTART SESSION');
                 ':impersonate' => $user->getLogId()
             ]))
             ->setDetails([
-                ':user'        => $original_user->getLogId(),
-                ':impersonate' => $user->getLogId()
+                'user'        => $original_user->getLogId(),
+                'impersonate' => $user->getLogId()
             ])
             ->notifyRoles('accounts')
             ->save();
