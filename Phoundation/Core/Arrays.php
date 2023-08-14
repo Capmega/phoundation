@@ -6,7 +6,7 @@ namespace Phoundation\Core;
 
 use Enum;
 use Phoundation\Core\Enums\EnumMatchMode;
-use Phoundation\Core\Interfaces\Arrayable;
+use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Interfaces\EnumMatchModeInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Iterator;
@@ -1283,7 +1283,7 @@ class Arrays {
 
         if (!is_array($source)) {
             if (!is_string($source)) {
-                if (!is_object($source) or !($source instanceof Arrayable)) {
+                if (!is_object($source) or !($source instanceof ArrayableInterface)) {
                     // Unknown datatype
                     return [$source];
                 }
