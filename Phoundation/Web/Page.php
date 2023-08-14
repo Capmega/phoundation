@@ -1165,7 +1165,7 @@ class Page
                     'uri'         => Page::getUri(),
                     'target'      => Strings::from(static::$target, PATH_ROOT),
                     'real_target' => Strings::from($target, PATH_ROOT),
-                    'rights'      => $rights
+                    ':rights'      => Session::getUser()->getMissingRights($rights),
                 ])
                 ->notifyRoles('accounts')
                 ->save();
