@@ -1151,7 +1151,7 @@ class User extends DataEntry implements UserInterface
                     ':user'    => $this->getLogId(),
                     ':meta_id' => $meta_id
                 ]))
-                ->setDetails([':user' => $this->getLogId()])
+                ->setDetails(['user' => $this->getLogId()])
                 ->notifyRoles('accounts')
                 ->save();
 
@@ -1162,7 +1162,7 @@ class User extends DataEntry implements UserInterface
                 ->setTitle(tr('The user ":user" was created', [
                     ':user' => $this->getLogId()
                 ]))
-                ->setDetails([':user' => $this->getLogId()])
+                ->setDetails(['user' => $this->getLogId()])
                 ->notifyRoles('accounts')
                 ->save();
         }
@@ -1295,8 +1295,8 @@ class User extends DataEntry implements UserInterface
                                 ':domain' => $domain
                             ]))
                             ->setDetails([
-                                ':user'   => $user,
-                                ':domain' => $domain
+                                'user'   => $user,
+                                'domain' => $domain
                             ])
                             ->notifyRoles('accounts')
                             ->save();
@@ -1316,7 +1316,7 @@ class User extends DataEntry implements UserInterface
             Incident::new()
                 ->setType('Incorrect password')->setSeverity(Severity::low)
                 ->setTitle(tr('The specified password for user ":user" is incorrect', [':user' => $user->getLogId()]))
-                ->setDetails([':user' => $user->getLogId()])
+                ->setDetails(['user' => $user->getLogId()])
                 ->save();
         }
 
