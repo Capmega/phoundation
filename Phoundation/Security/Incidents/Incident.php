@@ -7,6 +7,7 @@ namespace Phoundation\Security\Incidents;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
+use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
@@ -18,9 +19,11 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Notifications\Notification;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
+use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Html\Enums\InputElement;
+use Throwable;
 
 
 /**
@@ -311,6 +314,30 @@ class Incident extends DataEntry
                 ->setLabel(tr('Details'))
                 ->setDisabled(true)
                 ->setSize(12)
-                ->setMaxlength(65_535));
+                ->setMaxlength(65_535)
+                ->setDisplayCallback(function(mixed $value, array $source) {
+                    // Since the details almost always have an array encoded in JSON, decode it and display it using
+                    // print_r
+                    if (!$value) {
+                        return null;
+                    }
+
+                    try {
+                        $return  = '';
+                        $details = Json::decode($value);
+                        $largest = Arrays::getLongestKeySize($details);
+
+                        foreach ($details as $key => $value) {
+                            $return .= Strings::size($key, $largest) . ' : ' . $value . PHP_EOL;
+                        }
+
+                        return $return;
+
+                    } catch (JsonException $e) {
+                        // We couldn't decode it! Why? No idea, but lets just move on, its not THAT important.. yet.
+                        Log::warning($e);
+                        return $value;
+                    }
+                }));
     }
 }
