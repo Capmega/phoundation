@@ -1155,7 +1155,7 @@ class Page
                 ->setSeverity(in_array('admin', Session::getUser()->getMissingRights($rights)) ? Severity::high : Severity::medium)
                 ->setTitle(tr('User ":user" does not have the required rights ":rights" for target page ":target" (real target ":real_target"), redirecting to ":redirect"', [
                     ':user'        => Session::getUser()->getLogId(),
-                    ':rights'      => $rights,
+                    ':rights'      => Session::getUser()->getMissingRights($rights),
                     ':target'      => Strings::from(static::$target, PATH_ROOT),
                     ':real_target' => Strings::from($target, PATH_ROOT),
                     ':redirect'    => $rights_redirect
