@@ -6,6 +6,7 @@ namespace Phoundation\Databases;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Strings;
 use Phoundation\Databases\Sql\Exception\SqlException;
+use Phoundation\Databases\Sql\Sql;
 
 
 /**
@@ -304,7 +305,9 @@ class SqlSimple
             $values = Sql::in($values, ':value', true, true);
 
         } else {
-            throw new SqlException(tr('Specified values ":values" is neither NULL nor scalar nor an array', [':values' => $values]));
+            throw new SqlException(tr('Specified values ":values" is neither NULL nor scalar nor an array', [
+                ':values' => $values
+            ]));
         }
 
         if ($extra) {
@@ -380,17 +383,13 @@ class SqlSimple
             while (true) {
                 switch ($key[0]) {
                     case '*':
-                        /*
-                         * Do not use value, key only
-                         */
+                        // Do not use value, key only
                         $key = substr($key, 1);
                         $use_value = false;
                         break;
 
                     case '<':
-                        /*
-                         * Smaller than
-                         */
+                        // Smaller than
                         if ($not) {
                             $comparison = '>=';
 
@@ -402,9 +401,7 @@ class SqlSimple
                         break;
 
                     case '>':
-                        /*
-                         * larger than
-                         */
+                        // larger than
                         if ($not) {
                             $comparison = '<=';
 
@@ -426,42 +423,36 @@ class SqlSimple
                         break;
 
                     case '~':
-                        /*
-                         * LIKE
-                         */
+                        // LIKE
                         $key = substr($key, 1);
                         $like = true;
                         $value = '%' . $value . '%';
                         break;
 
                     case '!':
-                        /*
-                         * NOT
-                         */
+                        // NOT
                         $key = substr($key, 1);
 
                         switch ($comparison) {
                             case '<':
                                 $comparison = '>=';
-                                $not = '';
+                                $not        = '';
                                 break;
 
                             case '>':
                                 $comparison = '<=';
-                                $not = '';
+                                $not        = '';
                                 break;
 
                             default:
                                 $not_string = ' NOT ';
-                                $not = '!';
+                                $not        = '!';
                         }
                         break;
 
                     case '#':
-                        /*
-                         * IN
-                         */
-                        $key = substr($key, 1);
+                        // IN
+                        $key   = substr($key, 1);
                         $array = true;
 
                     default:
@@ -475,7 +466,7 @@ class SqlSimple
                 }
 
                 $column = '`' . str_replace('.', '`.`', trim($key)) . '`';
-                $key = str_replace('.', '_', $key);
+                $key    = str_replace('.', '_', $key);
 
             } else {
                 $column = trim($key);
@@ -483,7 +474,9 @@ class SqlSimple
 
             if ($like) {
                 if (!$use_value) {
-                    throw new SqlException(tr('Sql::getWhereString(): The specified filter key ":key" specified * to not use value, but also # to use LIKE which cannot work together', array(':key' => $key)), 'invalid');
+                    throw new SqlException(tr('The specified filter key ":key" specified * to not use value, but also # to use LIKE which cannot work together', [
+                        ':key' => $key
+                    ]));
                 }
 
                 if (is_string($value)) {
@@ -492,34 +485,45 @@ class SqlSimple
 
                 } else {
                     if (is_array($value)) {
-                        throw new SqlException(tr('Sql::getWhereString(): The specified filter key ":key" is an array, which is not allowed with a LIKE comparisson.', array(':key' => $key)), 'invalid');
+                        throw new SqlException(tr('The specified filter key ":key" is an array, which is not allowed with a LIKE comparisson.', [
+                            ':key' => $key
+                        ]));
                     }
 
                     if (is_bool($value)) {
-                        throw new SqlException(tr('Sql::getWhereString(): The specified filter key ":key" is a boolean, which is not allowed with a LIKE comparisson.', array(':key' => $key)), 'invalid');
+                        throw new SqlException(tr('The specified filter key ":key" is a boolean, which is not allowed with a LIKE comparisson.', [
+                            ':key' => $key
+                        ]));
                     }
 
                     if ($value === null) {
-                        throw new SqlException(tr('Sql::getWhereString(): The specified filter key ":key" is a null, which is not allowed with a LIKE comparisson.', array(':key' => $key)), 'invalid');
+                        throw new SqlException(tr('The specified filter key ":key" is a null, which is not allowed with a LIKE comparisson.', [
+                            ':key' => $key
+                        ]));
                     }
 
-                    throw new SqlException(tr('Sql::getWhereString(): Specified value ":value" is of invalid datatype ":datatype"', array(':value' => $value, ':datatype' => gettype($value))), 'invalid');
+                    throw new SqlException(tr('Specified value ":value" is of invalid datatype ":datatype"', [
+                        ':value'    => $value,
+                        ':datatype' => gettype($value)
+                    ]));
                 }
 
             } else {
                 if (is_array($value)) {
                     if (!$use_value) {
-                        throw new SqlException(tr('Sql::getWhereString(): The specified filter key ":key" specified * to not use value, but the value contains an array while "null" is required', array(':key' => $key)), 'invalid');
+                        throw new SqlException(tr('The specified filter key ":key" specified * to not use value, but the value contains an array while "null" is required', [
+                            ':key' => $key
+                        ]));
                     }
 
                     if ($array) {
-                        throw new SqlException(tr('Sql::getWhereString(): The specified filter key ":key" contains an array, which is not allowed. Specify the key as "#:array" to allow arrays', array(':key' => $key, ':array' => $key)), 'invalid');
+                        throw new SqlException(tr('The specified filter key ":key" contains an array, which is not allowed. Specify the key as "#:array" to allow arrays', [
+                            ':key'   => $key,
+                            ':array' => $key
+                        ]));
                     }
 
-                    /*
-                     * The $value may be specified as an empty array, which then
-                     * will be ignored
-                     */
+                    // The $value may be specified as an empty array, which then will be ignored
                     if ($value) {
                         $value = Sql::in($value);
                         $filter = ' ' . $column . ' ' . $not_string . 'IN (' . Sql::inColumns($value) . ') ';
@@ -528,15 +532,19 @@ class SqlSimple
 
                 } elseif (is_bool($value)) {
                     if (!$use_value) {
-                        throw new SqlException(tr('Sql::getWhereString(): The specified filter key ":key" specified * to not use value, but the value contains a boolean while "null" is required', array(':key' => $key)), 'invalid');
+                        throw new SqlException(tr('The specified filter key ":key" specified * to not use value, but the value contains a boolean while "null" is required', [
+                            ':key' => $key
+                        ]));
                     }
 
                     $filter = ' ' . $column . ' ' . $not . '= :' . $key . ' ';
-                    $execute[':' . $key] = (integer)$value;
+                    $execute[':' . $key] = (integer) $value;
 
                 } elseif (is_string($value)) {
                     if (!$use_value) {
-                        throw new SqlException(tr('Sql::getWhereString(): The specified filter key ":key" specified * to not use value, but the value contains a string while "null" is required', array(':key' => $key)), 'invalid');
+                        throw new SqlException(tr('The specified filter key ":key" specified * to not use value, but the value contains a string while "null" is required', [
+                            ':key' => $key
+                        ]));
                     }
 
                     $filter = ' ' . $column . ' ' . $not . $comparison . ' :' . $key . ' ';
@@ -544,7 +552,9 @@ class SqlSimple
 
                 } elseif (is_numeric($value)) {
                     if (!$use_value) {
-                        throw new SqlException(tr('Sql::getWhereString(): The specified filter key ":key" specified * to not use value, but the value contains a number while "false" is required', array(':key' => $key)), 'invalid');
+                        throw new SqlException(tr('The specified filter key ":key" specified * to not use value, but the value contains a number while "false" is required', [
+                            ':key' => $key
+                        ]));
                     }
 
                     $filter = ' ' . $column . ' ' . $not . $comparison . ' :' . $key . ' ';
@@ -552,10 +562,7 @@ class SqlSimple
 
                 } elseif ($value === null) {
                     if (!$use_value) {
-                        /*
-                         * Do NOT use a value, so also don't add an execute
-                         * value
-                         */
+                        // Do NOT use a value, so also don't add an execute value
                         $filter = ' ' . $column . ' ';
 
                     } else {
@@ -564,7 +571,10 @@ class SqlSimple
                     }
 
                 } else {
-                    throw new SqlException(tr('Sql::getWhereString(): Specified value ":value" is of invalid datatype ":datatype"', array(':value' => $value, ':datatype' => gettype($value))), 'invalid');
+                    throw new SqlException(tr('Specified value ":value" is of invalid datatype ":datatype"', [
+                        ':value'    => $value,
+                        ':datatype' => gettype($value)
+                    ]));
                 }
             }
 
@@ -643,9 +653,14 @@ class SqlSimple
             return '';
         }
 
+        $return = [];
+
         foreach ($orderby as $column => $direction) {
             if (!is_string($direction)) {
-                throw new SqlException(tr('Specified orderby direction ":direction" for column ":column" is invalid, it should be a string', [':direction' => $direction, ':column' => $column]));
+                throw new SqlException(tr('Specified orderby direction ":direction" for column ":column" is invalid, it should be a string', [
+                    ':direction' => $direction,
+                    ':column'    => $column
+                ]));
             }
 
             $direction = strtoupper($direction);
@@ -657,7 +672,10 @@ class SqlSimple
                     break;
 
                 default:
-                    throw new SqlException(tr('Specified orderby direction ":direction" for column ":column" is invalid, it should be either "ASC" or "DESC"', [':direction' => $direction, ':column' => $column]));
+                    throw new SqlException(tr('Specified orderby direction ":direction" for column ":column" is invalid, it should be either "ASC" or "DESC"', [
+                        ':direction' => $direction,
+                        ':column'    => $column
+                    ]));
             }
 
             $return[] = '`' . $column . '` ' . $direction;
