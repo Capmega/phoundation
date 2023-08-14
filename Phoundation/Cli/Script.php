@@ -769,7 +769,7 @@ SYSTEM ARGUMENTS
                 }
 
             } else {
-                Audio::new('data/audio/critical.mp3')->play(true);
+                Audio::new('data/audio/critical.mp3')->playLocal(true);
 
                 if ($exit_message) {
                     Log::error($exit_message, 8);

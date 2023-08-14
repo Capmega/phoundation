@@ -1341,7 +1341,7 @@ class Core {
     #[NoReturn] public static function uncaughtException(Throwable $e, bool $die = true): never
     {
         try {
-            Audio::new('data/audio/critical.mp3')->play(true);
+            Audio::new('data/audio/critical.mp3')->playLocal(true);
 
         } catch (Throwable $e) {
             Log::warning(tr('Failed to play uncaught exception audio because ":e"', [
@@ -2362,31 +2362,6 @@ class Core {
         } else {
             $function();
         }
-    }
-
-
-    /**
-     * Returns data from storage
-     *
-     * @param string $key
-     * @return mixed
-     */
-    public static function getStorage(string $key): mixed
-    {
-        return array_get_safe(static::$storage, $key);
-    }
-
-
-    /**
-     * Sets data in storage
-     *
-     * @param mixed $value
-     * @param string $key
-     * @return void
-     */
-    public static function setStorage(string $key, mixed $value): void
-    {
-        static::$storage[$key] = $value;
     }
 
 
