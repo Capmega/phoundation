@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Data;
 
 use PDOStatement;
-use Phoundation\Core\Interfaces\Arrayable;
+use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\DataCallbacks;
 use Phoundation\Data\Traits\UsesNew;
@@ -39,7 +39,7 @@ use Stringable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-class Iterator implements IteratorInterface, Arrayable
+class Iterator implements IteratorInterface, ArrayableInterface
 {
     use UsesNew;
     use DataCallbacks;
@@ -280,7 +280,7 @@ class Iterator implements IteratorInterface, Arrayable
      * @param bool $exception
      * @return mixed
      */
-    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = false): mixed
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = true): mixed
     {
         if (!array_key_exists($key, $this->source)) {
             if ($exception) {
@@ -291,6 +291,20 @@ class Iterator implements IteratorInterface, Arrayable
         }
 
         return $this->source[$key];
+    }
+
+
+    /**
+     * Sets the value for the specified key
+     *
+     * @param Stringable|string|float|int $key
+     * @param mixed $value
+     * @return mixed
+     */
+    public function set(Stringable|string|float|int $key, mixed $value): static
+    {
+        $this->source[$key] = $value;
+        return $this;
     }
 
 
