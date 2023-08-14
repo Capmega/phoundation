@@ -269,6 +269,7 @@ class Bundler
 
                     if (!file_exists($this->path . $import)) {
                         Notification::new()
+                            ->setUrl('developer/incidents.html')
                             ->setMode(DisplayMode::exception)
                             ->setCode('not-exists')
                             ->setRoles('developer')
@@ -293,6 +294,7 @@ class Bundler
 
                     if (!file_exists($import)) {
                         Notification::new()
+                            ->setUrl('developer/incidents.html')
                             ->setMode(DisplayMode::exception)
                             ->setCode('not-exists')
                             ->setRoles('developer')
@@ -377,6 +379,7 @@ class Bundler
     
                     if (!file_exists($file)) {
                         Notification::new()
+                            ->setUrl('developer/incidents.html')
                             ->setMode(DisplayMode::exception)
                             ->setCode('not-exists')
                             ->setRoles('developer')
