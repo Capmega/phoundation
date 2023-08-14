@@ -3,6 +3,7 @@
 namespace Phoundation\Data\Interfaces;
 
 use PDOStatement;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use ReturnTypeWillChange;
 use Stringable;
 
@@ -142,6 +143,15 @@ interface IteratorInterface extends \Iterator, Stringable
      * @return mixed
      */
     public function get(Stringable|string|float|int $key, bool $exception = false): mixed;
+
+    /**
+     * Sets the value for the specified key
+     *
+     * @param Stringable|string|float|int $key
+     * @param mixed $value
+     * @return static
+     */
+    public function set(Stringable|string|float|int $key, mixed $value): static;
 
     /**
      * Returns the amount of items contained in this object

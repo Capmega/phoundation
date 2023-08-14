@@ -725,4 +725,19 @@ interface DefinitionInterface
      * @return static
      */
     public function setVariables(array|null $value): static;
+
+    /**
+     * Returns the display_callback for this field
+     *
+     * @return callable|null
+     */
+    public function getDisplayCallback(): ?callable;
+
+    /**
+     * Sets the display_callback for this field
+     *
+     * @param callable|null $value
+     * @return static
+     */
+    public function setDisplayCallback(?callable $value): static;
 }
