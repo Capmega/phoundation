@@ -55,7 +55,7 @@ if (Page::isPostRequestMethod()) {
                     ->apply()
                     ->save()
                     ->getRoles()
-                        ->set($post['roles_id']);
+                        ->setRoles($post['roles_id']);
 
 // TODO Implement timers
 //showdie(Timers::get('query'));

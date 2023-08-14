@@ -55,7 +55,7 @@ if (Page::isPostRequestMethod()) {
                     ->apply()
                     ->save()
                     ->getRights()
-                    ->set($post['rights_id']);
+                    ->setRights($post['rights_id']);
 
 // TODO Implement timers
 //showdie(Timers::get('query'));
