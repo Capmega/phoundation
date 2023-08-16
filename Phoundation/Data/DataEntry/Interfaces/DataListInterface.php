@@ -2,17 +2,15 @@
 
 namespace Phoundation\Data\DataEntry\Interfaces;
 
-
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
-use Phoundation\Web\Http\Html\Components\DataTable;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 use Phoundation\Web\Http\Html\Components\Interfaces\DataTableInterface;
 use Phoundation\Web\Http\Html\Components\Interfaces\TableInterface;
-use Phoundation\Web\Http\Html\Components\Table;
 use ReturnTypeWillChange;
 use Stringable;
+
 
 /**
  * Class DataList

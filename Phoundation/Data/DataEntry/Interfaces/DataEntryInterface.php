@@ -274,7 +274,7 @@ interface DataEntryInterface extends ArrayableInterface
      * @param mixed $value
      * @return static
      */
-    public function addDataValue(string $field, mixed $value): static;
+    public function addSourceValue(string $field, mixed $value): static;
 
     /**
      * Will save the data from this data entry to database
