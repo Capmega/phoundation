@@ -667,6 +667,33 @@ class Sql implements SqlInterface
 
 
     /**
+     * Update the specified data row in the specified table
+     *
+     * This is a simplified update method to speed up writing basic insert queries
+     *
+     * @note This method assumes that the specifies rows are correct to the specified table. If columns not pertaining
+     *       to this table are in the $row value, the query will automatically fail with an exception!
+     * @param string $table
+     * @param array $set
+     * @param array|null $where
+     * @return int The amount of rows that were updated
+     */
+    public function update(string $table, array $set, array|null $where = null): int
+    {
+        // Build bound variables for query
+        $values = $this->values(array_merge($set, Arrays::force($where)));
+        $update = $this->updateColumns($set);
+        $where  = $this->whereColumns($where);
+
+        $statement = $this->query('UPDATE `' . $table . '`
+                                         SET     ' . $update . '
+                                         WHERE   ' . $where, $values);
+
+        return $statement->rowCount();
+    }
+
+
+    /**
      * Insert the specified data row in the specified table
      *
      * This is a simplified insert method to speed up writing basic insert queries
@@ -1409,6 +1436,39 @@ class Sql implements SqlInterface
                 case 'meta_id':
                     // NEVER update these!
                     break;
+
+                default:
+                    $return[] = '`' . $prefix . $key . '` = :' . $key;
+            }
+        }
+
+        return implode($separator, $return);
+    }
+
+
+    /**
+     * Return a list of the specified $columns from the specified source
+     *
+     * @param array|string|null $source
+     * @param string|null $prefix
+     * @param string $separator
+     * @return string
+     */
+    protected function whereColumns(array|string|null $source, ?string $prefix = null, string $separator = ' AND '): string
+    {
+        if (is_string($source)) {
+            // Source has already been prepared, return it
+            return $source;
+        }
+
+        $return = [];
+
+        foreach ($source as $key => $value) {
+            switch ($key) {
+                case 'meta_id':
+                    // NEVER update these!
+                    break;
+
                 default:
                     $return[] = '`' . $prefix . $key . '` = :' . $key;
             }
