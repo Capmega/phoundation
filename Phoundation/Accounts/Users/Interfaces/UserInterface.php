@@ -8,6 +8,7 @@ use Phoundation\Accounts\Roles\Interfaces\RolesInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Date\DateTime;
 use Phoundation\Web\Http\Html\Components\Interfaces\FormInterface;
+use Stringable;
 
 
 /**
@@ -570,4 +571,19 @@ interface UserInterface extends DataEntryInterface
      * @return bool
      */
     public function canBeStatusChanged(): bool;
+
+    /**
+     * Returns the notifications_hash for this user
+     *
+     * @return string|null
+     */
+    public function getNotificationsHash(): ?string;
+
+    /**
+     * Sets the notifications_hash for this user
+     *
+     * @param string|null $notifications_hash
+     * @return static
+     */
+    public function setNotificationsHash(string|null $notifications_hash): static;
 }
