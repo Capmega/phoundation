@@ -582,6 +582,10 @@ class Notification extends DataEntry
                         $largest = Arrays::getLongestKeySize($details);
 
                         foreach ($details as $key => $value) {
+                            if ($value and !is_scalar($value)) {
+                                $value = print_r($value, true);
+                            }
+
                             $return .= Strings::size($key, $largest) . ' : ' . $value . PHP_EOL;
                         }
 
