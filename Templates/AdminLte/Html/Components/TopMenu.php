@@ -41,9 +41,12 @@ class TopMenu extends Renderer
         $return = '<ul class="navbar-nav">
                         <li class="nav-item">
                             <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+                        </li> 
+                        <li class="nav-item d-none d-sm-inline-block">
+                            <a href="' . Html::safe(UrlBuilder::getCurrentDomainRootUrl()) . '" class="nav-link">' . tr('Home') . '</a>
                         </li>
                         <li class="nav-item d-none d-sm-inline-block">
-                            <a href="' . Html::safe(UrlBuilder::getCurrent()) . '" class="nav-link">' . tr('Home') . '</a>
+                            <a href="' . Html::safe(UrlBuilder::getWww('/demo')) . '" class="nav-link">' . tr('Demo') . '</a>
                         </li>';
 
         if ($this->render_object->getSource()) {
