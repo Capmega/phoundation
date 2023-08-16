@@ -25,7 +25,7 @@ $table = $signins->getHtmlDataTable()->setCheckboxSelectors(false);
 
 $signins = Card::new()
     ->setTitle('Your signin history')
-    ->setSwitches('reload')
+    ->setMaximizeSwitch(true)
     ->setContent($table->render())
     ->useForm(true);
 

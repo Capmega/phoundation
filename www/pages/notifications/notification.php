@@ -48,6 +48,7 @@ if (Page::isPostRequestMethod()) {
             case tr('Mark unread'):
                 $notification->setStatus('UNREAD');
                 Page::getFlashMessages()->addSuccessMessage(tr('The notification ":notification" has been marked as unread', [':notification' => $notification->getTitle()]));
+                Page::redirect();
         }
 
     } catch (ValidationFailedException $e) {
@@ -59,7 +60,6 @@ if (Page::isPostRequestMethod()) {
 
 // Build the notification form
 $notification_card = Card::new()
-    ->setCollapseSwitch(true)
     ->setMaximizeSwitch(true)
     ->setTitle($notification->getTitle())
     ->setContent($notification->getHtmlForm()->render())
@@ -85,9 +85,11 @@ $relevant = Card::new()
 $documentation = Card::new()
     ->setMode(DisplayMode::info)
     ->setTitle(tr('Documentation'))
-    ->setContent('<p>Soluta a rerum quia est blanditiis ipsam ut libero. Pariatur est ut qui itaque dolor nihil illo quae. Asperiores ut corporis et explicabo et. Velit perspiciatis sunt dicta maxime id nam aliquid repudiandae. Et id quod tempore.</p>
-                         <p>Debitis pariatur tempora quia dolores minus sint repellendus accusantium. Ipsam hic molestiae vel beatae modi et. Voluptate suscipit nisi fugit vel. Animi suscipit suscipit est excepturi est eos.</p>
-                         <p>Et molestias aut vitae et autem distinctio. Molestiae quod ullam a. Fugiat veniam dignissimos rem repudiandae consequuntur voluptatem. Enim dolores sunt unde sit dicta animi quod. Nesciunt nisi non ea sequi aut. Suscipit aperiam amet fugit facere dolorem qui deserunt.</p>');
+    ->setContent(tr('Here you can find all new notifications that you have not yet read. These notifications will 
+                         also show in the notifications drop down at the top of your screen (Click the bell icon to see 
+                         them). You can here click on each notification and view them, or mark them all as read. Once 
+                         marked as read they will no longer show up either here or in the notifications drop down at the 
+                         top of your screen.'));
 
 
 // Build and render the page grid
@@ -97,14 +99,12 @@ $grid = Grid::new()
 
 echo $grid->render();
 
+
 // Set page meta data
 Page::setHeaderTitle(tr('Notification'));
 Page::setHeaderSubTitle($notification->getId());
 Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                       => tr('Home'),
     '/notifications/all.html' => tr('Notifications'),
-    ''                        => tr(':id [:title]', [
-        ':title' => $notification->getTitle(),
-        ':id'    => $notification->getId()
-    ])
+    ''                        => tr('Notification :id', [':id' => $notification->getId()])
 ]));
