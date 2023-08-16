@@ -7,7 +7,9 @@ namespace Phoundation\Web\Http\Html\Components;
 use Phoundation\Core\Session;
 use Phoundation\Data\Traits\DataStatus;
 use Phoundation\Databases\Sql\Sql;
+use Phoundation\Notifications\Interfaces\NotificationsInterface;
 use Phoundation\Notifications\Notifications;
+use Phoundation\Web\Http\Html\Enums\JavascriptWrappers;
 use Phoundation\Web\Http\Interfaces\UrlBuilderInterface;
 use Phoundation\Web\Http\UrlBuilder;
 use Stringable;
@@ -72,9 +74,9 @@ class NotificationsDropDown extends ElementsBlock
     /**
      * Returns the notifications object
      *
-     * @return Notifications|null
+     * @return NotificationsInterface|null
      */
-    public function getNotifications(): ?Notifications
+    public function getNotifications(): ?NotificationsInterface
     {
         if (!$this->notifications) {
             $this->notifications = new Notifications();
@@ -162,6 +164,16 @@ class NotificationsDropDown extends ElementsBlock
      */
     public function render(): ?string
     {
+        // Link the users notifications hash and see if we need to ping
+        $ping = $this->getNotifications()->linkHash();
+
+        if ($ping) {
+            Script::new()
+                ->setJavascriptWrapper(JavascriptWrappers::window)
+                ->setContent('console.log("Initial ping!"); $("audio.notification").trigger("play");')
+                ->render();
+        }
+
         return parent::render();
     }
 }
