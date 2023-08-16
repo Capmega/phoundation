@@ -8,6 +8,7 @@ use Phoundation\Audio\Audio;
 use Phoundation\Core\Config;
 use Phoundation\Core\Session;
 use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Notifications\Interfaces\NotificationsInterface;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 use Phoundation\Web\Http\Html\Components\Input\InputSelect;
 use Phoundation\Web\Http\Html\Components\Script;
@@ -25,7 +26,7 @@ use Phoundation\Web\Http\UrlBuilder;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundations\Notifications
  */
-class Notifications extends DataList
+class Notifications extends DataList implements NotificationsInterface
 {
     /**
      * Notifications class constructor
@@ -254,7 +255,7 @@ class Notifications extends DataList
 
                                         $.get("' . UrlBuilder::getAjax('/system/notifications/dropdown.json') . '")
                                         .done(function(data) {
-                                            if ((data.count > 0) && ping) {
+                                            if ((data.count > 0) && data.ping) {
                                                 console.log("Notification ping!");
                                                 $("audio.notification").trigger("play");
                                             }
@@ -263,9 +264,51 @@ class Notifications extends DataList
                                         });
                                     }
 
-                                    setInterval(function(){ checkNotifications(true); }, ' . (Config::getNatural('notifications.ping.interval', 5) * 1000) . ');')
+                                    setInterval(function(){ checkNotifications(true); }, ' . (Config::getNatural('notifications.ping.interval', 60) * 1000) . ');')
             ->render();
 
         return $this;
+    }
+
+
+    /**
+     * Return a sha1 hash of all notification ID's available to this user
+     *
+     * @return ?string
+     */
+    public function getHash(): ?string
+    {
+        if (empty($this->source)) {
+            return null;
+        }
+
+        $return = '';
+
+        foreach ($this->source as $key => $value) {
+            $return .= $key;
+        }
+
+        return sha1($return);
+    }
+
+
+    /**
+     * Link the hash from this notifications list to its user and return if a change was detected
+     *
+     * @return bool
+     */
+    public function linkHash(): bool
+    {
+        $hash = $this->getHash();
+
+        if ($hash !== Session::getUser()->getNotificationsHash()) {
+            Session::getUser()->setNotificationsHash($hash);
+
+            // Return true only if there was any hash
+            return (bool) $hash;
+        }
+
+        // No changes
+        return false;
     }
 }

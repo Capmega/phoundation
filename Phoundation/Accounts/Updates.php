@@ -30,7 +30,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.0.14';
+        return '0.0.17';
     }
 
 
@@ -549,6 +549,10 @@ class Updates extends \Phoundation\Core\Libraries\Updates
         })->addUpdate('0.0.14', function () {
             // Fix minor db issues
             sql()->query('UPDATE `accounts_users` SET `verified_on` = NULL');
+
+        })->addUpdate('0.0.17', function () {
+            // Add support for notifications_hash
+            sql()->schema()->table('accounts_users')->alter()->addColumn('`notifications_hash` varchar(40) DEFAULT NULL', 'AFTER `fingerprint`');
         });
     }
 }
