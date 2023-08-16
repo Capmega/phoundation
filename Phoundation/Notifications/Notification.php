@@ -377,37 +377,37 @@ class Notification extends DataEntry
         switch ($this->getMode()) {
             case DisplayMode::danger:
                 Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, newline: false);
-                Log::error($this->getTitle(), prefix: false);
+                Log::error($this->getTitle(), use_prefix: false);
                 Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, newline: false);
-                Log::error($this->getMessage(), prefix: false);
+                Log::error($this->getMessage(), use_prefix: false);
                 break;
 
             case DisplayMode::warning:
                 Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, newline: false);
-                Log::warning($this->getTitle(), prefix: false);
+                Log::warning($this->getTitle(), use_prefix: false);
                 Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, newline: false);
-                Log::warning($this->getMessage(), prefix: false);
+                Log::warning($this->getMessage(), use_prefix: false);
                 break;
 
             case DisplayMode::success:
                 Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, newline: false);
-                Log::success($this->getTitle(), prefix: false);
+                Log::success($this->getTitle(), use_prefix: false);
                 Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, newline: false);
-                Log::success($this->getMessage(), prefix: false);
+                Log::success($this->getMessage(), use_prefix: false);
                 break;
 
             case DisplayMode::info:
                 Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, newline: false);
-                Log::information($this->getTitle(), prefix: false);
+                Log::information($this->getTitle(), use_prefix: false);
                 Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, newline: false);
-                Log::information($this->getMessage(), prefix: false);
+                Log::information($this->getMessage(), use_prefix: false);
                 break;
 
             default:
                 Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, newline: false);
-                Log::notice($this->getTitle(), prefix: false);
+                Log::notice($this->getTitle(), use_prefix: false);
                 Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, newline: false);
-                Log::notice($this->getMessage(), prefix: false);
+                Log::notice($this->getMessage(), use_prefix: false);
                 break;
         }
 
@@ -418,7 +418,7 @@ class Notification extends DataEntry
 
             foreach (Arrays::force($details) as $key => $value) {
                 Log::write(Strings::size($key, 12) . ': ', 'debug', clean: false, newline: false);
-                Log::write(Strings::log($value), prefix: false);
+                Log::write(Strings::log($value), use_prefix: false);
             }
         }
 
