@@ -157,23 +157,36 @@ class Script
 ./pho system accounts users create --help
 ./pho system <TAB>');
 
-                Documentation::help(tr('This is the Phoundation CLI interface "pho"
+                Documentation::help(tr('This is the Phoundation CLI interface command "pho"
 
-With this Command Line Interface script you can manage your Phoundation installation. Almost all web interface 
-functionalities are also available on the command line and certain maintenance and development options are ONLY 
-available on the CLI
+With this Command Line Interface script you can manage your Phoundation installation and perform various tasks. Almost 
+all web interface functionalities are also available on the command line and certain maintenance and development options 
+are ONLY available on the CLI
 
 The pho script command line has bash command line auto complete support so with the <TAB> button you can very easily see 
-what methods are available to you. Auto complete support is also already enabled for some of the methods so (for 
-example) user creation with "pho system accounts user create" can show all available options with <TAB>
+what commands are available to you. Auto complete support is also already enabled for some of the commands so (for 
+example) user modification with "./pho accounts user modify" can show all available options with <TAB>
 
 The system arguments are ALWAYS available no matter what command is being executed. Some arguments always apply, others 
 only apply for the commands that implement and or use them. If a system modifier argument was specified with a command 
-that does not support it, it will simply be ignored. See the --help output for each method for more information. 
-           
+that does not support it, it will simply be ignored. See the --help output for each command for more information.                         
+
+A few useful commands to execute are:
+
+./pho info                              Gives general information about your Phoundation installation
+
+./pho system init                       Will run the database initialization function. This will typically be run 
+                                        automatically whenever you install a new plugin or when you update your 
+                                        Phoundation code, but can be run manually when required
+                                        
+./pho system setup                      The first command you will want to run (or the first page that will show up 
+                                        after you installed Phoundation) which allows you to setup an initial 
+                                        configuration and initializes your database                                        
                 
                 
-SYSTEM ARGUMENTS
+GLOBAL ARGUMENTS
+
+The following arguments are available to ALL scripts 
 
 
 -A,--all                                If set, the system will run in ALL mode, which typically will display normally 
@@ -195,7 +208,7 @@ SYSTEM ARGUMENTS
                                         restrictions. See --help for information on how specific commands deal with this 
                                         flag 
 
--H,--help                               If specified will display the help page for this command
+-H,--help                               If specified will display the help page for the typed command
 
 -L,--log-level LEVEL                    If specified will set the minimum threshold level for log messages to appear. 
                                         Any message with a threshold level below the indicated amount will not appear in 
@@ -223,7 +236,7 @@ SYSTEM ARGUMENTS
                                         NOTE: In this mode, temporary directories will NOT be removed upon shutdown so  
                                         that their contents can be used for debugging and testing.
 
--U,--usage                              Prints various command usage examples
+-U,--usage                              Prints various command usage examples for the typed command
 
 -V,--verbose                            Will print more output during log startup and shutdown
 
@@ -280,7 +293,7 @@ SYSTEM ARGUMENTS
 
 
     /**
-     * Returns the list of methods that came to the script that executed
+     * Returns the list of commands that came to the script that executed
      *
      * @return array
      */
