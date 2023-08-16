@@ -16,6 +16,7 @@ use Phoundation\Core\Enums\EnumRequestTypes;
 use Phoundation\Core\Enums\Interfaces\EnumRequestTypesInterface;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Exception\NoProjectException;
+use Phoundation\Core\Interfaces\CoreInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
@@ -52,7 +53,8 @@ use Throwable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
-class Core {
+class Core implements CoreInterface
+{
     /**
      * Framework version and minimum required PHP version
      */
