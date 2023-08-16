@@ -29,13 +29,13 @@ trait DataEntryDetails
     public function getDetails(): array|string|null
     {
         try {
-            return Json::decode($this->getDataValue('string', 'details'));
+            return Json::decode($this->getSourceValue('string', 'details'));
 
         } catch (JsonException $e) {
             Log::warning(tr('Failed to decode details because of following exception'));
             Log::warning(tr('NOTE: This is due to DataEntry::setDetails() JSON encoding incoming arrays automatically, but when reading from DB, it reads strings, it gets messy and a better solution must be found'));
             Log::error($e);
-            return $this->getDataValue('string', 'details');
+            return $this->getSourceValue('string', 'details');
         }
     }
 

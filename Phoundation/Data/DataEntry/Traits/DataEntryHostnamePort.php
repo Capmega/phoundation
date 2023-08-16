@@ -27,7 +27,7 @@ trait DataEntryHostnamePort
      */
     public function getSeoHostname(): ?string
     {
-        return $this->getDataValue('string', 'seo_hostname');
+        return $this->getSourceValue('string', 'seo_hostname');
     }
 
 
@@ -38,7 +38,7 @@ trait DataEntryHostnamePort
      */
     public function getHostname(): ?string
     {
-        return $this->getDataValue('string', 'hostname');
+        return $this->getSourceValue('string', 'hostname');
     }
 
 
@@ -53,7 +53,7 @@ trait DataEntryHostnamePort
         if ($hostname === null) {
             $this->setSourceValue('seo_hostname', null);
         } else {
-            $seo_hostname = Seo::unique($hostname, static::getTable(), $this->getDataValue('int', 'id'), static::getUniqueField());
+            $seo_hostname = Seo::unique($hostname, static::getTable(), $this->getSourceValue('int', 'id'), static::getUniqueField());
             $this->setSourceValue('seo_hostname', $seo_hostname);
         }
 
@@ -68,7 +68,7 @@ trait DataEntryHostnamePort
      */
     public function getPort(): ?int
     {
-        return $this->getDataValue('int', 'port');
+        return $this->getSourceValue('int', 'port');
     }
 
 

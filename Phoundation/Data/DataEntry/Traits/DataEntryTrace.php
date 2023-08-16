@@ -26,7 +26,7 @@ trait DataEntryTrace
      */
     public function getTrace(): ?array
     {
-        return Json::decode($this->getDataValue('array', 'trace'));
+        return Json::decode($this->getSourceValue('array', 'trace'));
     }
 
 

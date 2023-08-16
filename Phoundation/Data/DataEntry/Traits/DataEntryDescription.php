@@ -24,7 +24,7 @@ trait DataEntryDescription
      */
     public function getDescription(): ?string
     {
-        return $this->getDataValue('string', 'description');
+        return $this->getSourceValue('string', 'description');
     }
 
 

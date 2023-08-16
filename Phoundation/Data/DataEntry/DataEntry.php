@@ -716,7 +716,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      */
     public function getId(): int|null
     {
-        return $this->getDataValue('int', 'id');
+        return $this->getSourceValue('int', 'id');
     }
 
 
@@ -727,7 +727,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      */
     public function getLogId(): string
     {
-        return $this->getDataValue('int', 'id') . ' / ' . (static::getUniqueField() ?? '-');
+        return $this->getSourceValue('int', 'id') . ' / ' . (static::getUniqueField() ?? '-');
     }
 
 
@@ -738,7 +738,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      */
     public function getStatus(): ?string
     {
-        return $this->getDataValue('string', 'status');
+        return $this->getSourceValue('string', 'status');
     }
 
 
@@ -767,7 +767,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      */
     public function getMetaState(): ?string
     {
-        return $this->getDataValue('string', 'meta_state');
+        return $this->getSourceValue('string', 'meta_state');
     }
 
 
@@ -864,7 +864,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      */
     public function getCreatedBy(): ?User
     {
-        $created_by = $this->getDataValue('int', 'created_by');
+        $created_by = $this->getSourceValue('int', 'created_by');
 
         if ($created_by === null) {
             return null;
@@ -882,7 +882,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      */
     public function getCreatedOn(): ?DateTime
     {
-        $created_on = $this->getDataValue('string', 'created_on');
+        $created_on = $this->getSourceValue('string', 'created_on');
 
         if ($created_on === null) {
             return null;
@@ -901,7 +901,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      */
     public function getMeta(): ?Meta
     {
-        $meta_id = $this->getDataValue('int', 'meta_id');
+        $meta_id = $this->getSourceValue('int', 'meta_id');
 
         if ($meta_id === null) {
             return null;
@@ -918,7 +918,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      */
     public function getMetaId(): ?int
     {
-        return $this->getDataValue('int', 'meta_id');
+        return $this->getSourceValue('int', 'meta_id');
     }
 
 
@@ -1229,8 +1229,8 @@ abstract class DataEntry implements DataEntryInterface, Stringable
                 }
             }
 
-            if ($directly) {
-                // Store data directly
+            if ($directly or $this->definitions->get($key)?->getDirectUpdate()) {
+                // Store data directly, bypassing the
                 $this->setSourceValue($key, $value);
 
             } else {
@@ -1314,6 +1314,25 @@ abstract class DataEntry implements DataEntryInterface, Stringable
     public function getSource(): array
     {
         return Arrays::remove($this->source, $this->protected_fields);
+    }
+
+
+    /**
+     * Returns all data for this data entry at once with an array of information
+     *
+     * @note This method filters out all keys defined in static::getProtectedKeys() to ensure that keys like "password"
+     *       will not become available outside this object
+     * @return array
+     */
+    public function getSourceKey(string $key): mixed
+    {
+        if (array_key_exists($key, $this->source)) {
+        return $this->source[$key];
+        }
+
+        throw new OutOfBoundsException(tr('Specified key ":key" does not exist in the source', [
+            ':key' => $key
+        ]));
     }
 
 
@@ -1462,7 +1481,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      * @param mixed $value
      * @return static
      */
-    public function addDataValue(string $field, mixed $value): static
+    public function addSourceValue(string $field, mixed $value): static
     {
         if (!array_key_exists($field, $this->source)) {
             $this->source[$field] = [];
@@ -1487,7 +1506,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      * @param mixed|null $default
      * @return mixed
      */
-    protected function getDataValue(string $type, string $field, mixed $default = null): mixed
+    protected function getSourceValue(string $type, string $field, mixed $default = null): mixed
     {
         $this->checkProtected($field);
         return isset_get_typed($type, $this->source[$field], $default, false);

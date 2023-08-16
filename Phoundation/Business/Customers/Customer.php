@@ -98,7 +98,7 @@ class Customer extends DataEntry
      */
     public function getAddress2(): ?string
     {
-        return $this->getDataValue('string', 'address2');
+        return $this->getSourceValue('string', 'address2');
     }
 
 
@@ -121,7 +121,7 @@ class Customer extends DataEntry
      */
     public function getAddress3(): ?string
     {
-        return $this->getDataValue('string', 'address3');
+        return $this->getSourceValue('string', 'address3');
     }
 
 

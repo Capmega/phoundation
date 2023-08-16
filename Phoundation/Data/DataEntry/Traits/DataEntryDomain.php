@@ -24,7 +24,7 @@ trait DataEntryDomain
      */
     public function getDomain(): ?string
     {
-        return $this->getDataValue('string', 'domain');
+        return $this->getSourceValue('string', 'domain');
     }
 
 

@@ -69,7 +69,7 @@ class Language extends DataEntry implements LanguageInterface
      */
     public function getCode_639_1(): ?string
     {
-        return $this->getDataValue('string', 'code_639_1');
+        return $this->getSourceValue('string', 'code_639_1');
     }
 
 
@@ -92,7 +92,7 @@ class Language extends DataEntry implements LanguageInterface
      */
     public function getCode_639_2_b(): ?string
     {
-        return $this->getDataValue('string', 'code_639_2_b');
+        return $this->getSourceValue('string', 'code_639_2_b');
     }
 
 
@@ -115,7 +115,7 @@ class Language extends DataEntry implements LanguageInterface
      */
     public function getCode_639_2_t(): ?string
     {
-        return $this->getDataValue('string', 'code_639_2_t');
+        return $this->getSourceValue('string', 'code_639_2_t');
     }
 
 
@@ -138,7 +138,7 @@ class Language extends DataEntry implements LanguageInterface
      */
     public function getCode_639_3(): ?string
     {
-        return $this->getDataValue('string', 'code_639_3');
+        return $this->getSourceValue('string', 'code_639_3');
     }
 
 

@@ -73,7 +73,7 @@ class SshAccount extends DataEntry
      */
     public function getSshKey(): ?string
     {
-        return $this->getDataValue('string', 'ssh_key');
+        return $this->getSourceValue('string', 'ssh_key');
     }
 
 

@@ -26,7 +26,7 @@ trait DataEntryCode
      */
     public function getCode(): ?string
     {
-        return $this->getDataValue('string', 'code');
+        return $this->getSourceValue('string', 'code');
     }
 
 

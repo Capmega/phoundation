@@ -88,7 +88,7 @@ class Server extends DataEntry
      */
     public function getCost(): ?float
     {
-        return $this->getDataValue('float', 'cost');
+        return $this->getSourceValue('float', 'cost');
     }
 
 
@@ -111,7 +111,7 @@ class Server extends DataEntry
      */
     public function getBillDueDate(): ?string
     {
-        return $this->getDataValue('string', 'bill_due_date');
+        return $this->getSourceValue('string', 'bill_due_date');
     }
 
 
@@ -135,7 +135,7 @@ class Server extends DataEntry
     #[ExpectedValues([null, 'hourly', 'daily', 'weekly', 'monthly', 'bimonthly', 'quarterly', 'semiannual', 'annually'])]
     public function getInterval(): ?string
     {
-        return $this->getDataValue('string', 'interval');
+        return $this->getSourceValue('string', 'interval');
     }
 
 
@@ -159,7 +159,7 @@ class Server extends DataEntry
     #[ExpectedValues([null, 'debian','ubuntu','redhat','gentoo','slackware','linux','windows','freebsd','macos','other'])]
     public function getOsName(): ?string
     {
-        return $this->getDataValue('string', 'os_name');
+        return $this->getSourceValue('string', 'os_name');
     }
 
 
@@ -182,7 +182,7 @@ class Server extends DataEntry
      */
     public function getOsVersion(): ?string
     {
-        return $this->getDataValue('string', 'os_version');
+        return $this->getSourceValue('string', 'os_version');
     }
 
 
@@ -206,7 +206,7 @@ class Server extends DataEntry
      */
     public function getWebServices(): bool
     {
-        return $this->getDataValue('bool', 'web_services', false);
+        return $this->getSourceValue('bool', 'web_services', false);
     }
 
 
@@ -229,7 +229,7 @@ class Server extends DataEntry
      */
     public function getMailServices(): bool
     {
-        return $this->getDataValue('bool', 'mail_services', false);
+        return $this->getSourceValue('bool', 'mail_services', false);
     }
 
 
@@ -252,7 +252,7 @@ class Server extends DataEntry
      */
     public function getDatabaseServices(): bool
     {
-        return $this->getDataValue('bool', 'database_services', false);
+        return $this->getSourceValue('bool', 'database_services', false);
     }
 
 
@@ -275,7 +275,7 @@ class Server extends DataEntry
      */
     public function getAllowSshdModifications(): bool
     {
-        return $this->getDataValue('bool', 'allow_sshd_modifications', false);
+        return $this->getSourceValue('bool', 'allow_sshd_modifications', false);
     }
 
 

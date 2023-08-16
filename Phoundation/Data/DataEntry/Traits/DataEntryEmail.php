@@ -24,7 +24,7 @@ trait DataEntryEmail
      */
     public function getEmail(): ?string
     {
-        return $this->getDataValue('string', 'email');
+        return $this->getSourceValue('string', 'email');
     }
 
 

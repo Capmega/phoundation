@@ -27,7 +27,7 @@ trait DataEntryIcon
      */
     public function getIcon(): ?string
     {
-        $return = $this->getDataValue('string', 'icon');
+        $return = $this->getSourceValue('string', 'icon');
 
         if (!$return) {
             // Assign default icon

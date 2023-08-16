@@ -27,7 +27,7 @@ trait DataEntryCategory
      */
     public function getCategoriesId(): ?int
     {
-        return $this->getDataValue('int', 'categories_id');
+        return $this->getSourceValue('int', 'categories_id');
     }
 
 
@@ -50,7 +50,7 @@ trait DataEntryCategory
      */
     public function getCategory(): ?CategoryInterface
     {
-        $categories_id = $this->getDataValue('int', 'categories_id');
+        $categories_id = $this->getSourceValue('int', 'categories_id');
 
         if ($categories_id) {
             return new Category($categories_id);
@@ -67,7 +67,7 @@ trait DataEntryCategory
      */
     public function getCategoriesName(): ?string
     {
-        return $this->getDataValue('string', 'categories_name');
+        return $this->getSourceValue('string', 'categories_name');
     }
 
 
