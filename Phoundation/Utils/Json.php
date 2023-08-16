@@ -47,7 +47,13 @@ class Json
     {
         // Always return all numbers as strings as javascript borks BADLY on large numbers, WTF JS?!
         if (is_array($data)) {
-            $data = array_map('strval', $data);
+            $data = array_map(function ($value) {
+                if (is_numeric($value)) {
+                    return strval($value);
+                }
+
+                return $value;
+            }, $data);
         }
 
         if (!is_string($data)) {
