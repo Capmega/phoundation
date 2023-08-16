@@ -413,71 +413,84 @@ class InputSelect extends ResourceElement implements SelectInterface
      *
      * Return the body HTML for a <select> list
      *
-     * @return string|null The body HTML (all <option> tags) for a <select> tag
+     * @return void
      * @see \Templates\AdminLte\Html\Components\Input\InputSelect::render()
      * @see \Templates\AdminLte\Html\Components\Input\InputSelect::renderHeaders()
      * @see ResourceElement::renderBody()
      * @see ElementInterface::render()
      */
-    protected function renderBodyQuery(): ?string
+    protected function renderBodyQuery(): void
     {
-        $return = '';
-
-        if (!$this->source_query) {
-            return '';
+        if (empty($this->source)) {
+            $this->source = new Iterator();
         }
 
-        if (!$this->source_query->rowCount()) {
-            return '';
-        }
-
-        // Get resource data from a query
-        if ($this->auto_select and ($this->source_query->rowCount() == 1)) {
-            // Auto select the only available element
-// :TODO: Implement
-        }
-
-        // Process SQL resource
         while ($row = $this->source_query->fetch(PDO::FETCH_NUM)) {
-            $this->count++;
-            $option_data = '';
-
             $key   = $row[array_key_first($row)];
             $value = $row[array_key_last($row)];
 
-            if ($this->cache) {
-                // Store the data in array
-                if (empty($this->source)) {
-                    $this->source = new Iterator();
-                }
-
-                $this->source->add($value, $key);
-            }
-
-            if (!$key) {
-                // To avoid select problems with "none" entries, empty id column values are not allowed
-                Log::warning(tr('Dropping result ":count" without key from source query ":query"', [
-                    ':count' => $this->count,
-                    ':query' => $this->source_query->queryString
-                ]));
-                continue;
-            }
-
-            // Add data- in this option?
-            if (array_key_exists($key, $this->source_data)) {
-                foreach ($this->source_data as $data_key => $data_value) {
-                    $option_data .= ' data-' . $data_key . '="' . $data_value . '"';
-                }
-            }
-
-            $return .= '<option' . $this->buildOptionClassString() . $this->buildSelectedString($key) . ' value="' . htmlspecialchars((string) $key) . '"' . $option_data . '>' . htmlentities((string) $value) . '</option>';
+            $this->source->add($value, $key);
         }
 
-        if ($this->cache) {
-            $this->source_query = null;
-        }
+        $this->source_query = null;
 
-        return $return;
+//        $return = '';
+//
+//        if (!$this->source_query) {
+//            return '';
+//        }
+//
+//        if (!$this->source_query->rowCount()) {
+//            return '';
+//        }
+//
+//        // Get resource data from a query
+//        if ($this->auto_select and ($this->source_query->rowCount() == 1)) {
+//            // Auto select the only available element
+//// :TODO: Implement
+//        }
+//
+//        // Process SQL resource
+//        while ($row = $this->source_query->fetch(PDO::FETCH_NUM)) {
+//            $this->count++;
+//            $option_data = '';
+//
+//            $key   = $row[array_key_first($row)];
+//            $value = $row[array_key_last($row)];
+//
+//            if ($this->cache) {
+//                // Store the data in array
+//                if (empty($this->source)) {
+//                    $this->source = new Iterator();
+//                }
+//
+//                $this->source->add($value, $key);
+//            }
+//
+//            if (!$key) {
+//                // To avoid select problems with "none" entries, empty id column values are not allowed
+//                Log::warning(tr('Dropping result ":count" without key from source query ":query"', [
+//                    ':count' => $this->count,
+//                    ':query' => $this->source_query->queryString
+//                ]));
+//                continue;
+//            }
+//
+//            // Add data- in this option?
+//            if (array_key_exists($key, $this->source_data)) {
+//                foreach ($this->source_data as $data_key => $data_value) {
+//                    $option_data .= ' data-' . $data_key . '="' . $data_value . '"';
+//                }
+//            }
+//
+//            $return .= '<option' . $this->buildOptionClassString() . $this->buildSelectedString($key) . ' value="' . htmlspecialchars((string) $key) . '"' . $option_data . '>' . htmlentities((string) $value) . '</option>';
+//        }
+//
+//        if ($this->cache) {
+//            $this->source_query = null;
+//        }
+//
+//        return $return;
     }
 
 
