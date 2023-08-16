@@ -11,11 +11,56 @@ use Phoundation\Cli\Script;
  *
  * With this script you can execute all Phoundation scripts. It supports auto complete so please try and use <TAB>
  *
- * @author Sven Oostenbrink <support@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @category Scripts
  * @package Phoundation\Cli
  */
-require('./vendor/autoload.php');
-Script::execute();
+
+
+try {
+    // Load the PHP autoloader and execute the static Script::execute() method that will execute the requested command
+    @require('./vendor/autoload.php');
+    Script::execute();
+
+} catch (Throwable $e) {
+    $message = $e->getMessage();
+
+    if (str_starts_with($message, 'Failed opening required \'./vendor/autoload.php\'')) {
+        // Whoops, no vendor libraries available. Run composer to fix
+        echo 'WARNING: Autoloader or vendor libraries could not be found, attempting to fix with composer' . PHP_EOL;
+
+        if (file_exists(__DIR__ . '/composer.phar')) {
+            passthru('php ' . __DIR__ . '/composer.phar update', $exit_code);
+
+            if ($exit_code) {
+                throw new Exception('Composer failed to execute, see composer output for more information');
+            }
+
+        }else {
+            echo 'WARNING: Included composer.phar file missing, attempting to run system composer' . PHP_EOL;
+
+            $output = exec('which composer');
+
+            if ($output) {
+                passthru($output . ' update', $exit_code);
+
+                if ($exit_code) {
+                    throw new Exception('Composer failed to execute, see composer output for more information');
+                }
+
+            } else {
+                echo 'ERROR: Autoloader and or vendor libraries are missing and failed to find local (./composer.phar) or system composer to try and fix this issue. Please recover the local composer file ./composer.phar or install composer (sudo apt install composer, for example) on your system to retry.' . PHP_EOL;
+                exit(1);
+            }
+        }
+
+        echo 'WARNING: Libraries successfully installed, retrying execution of PHO script' . PHP_EOL;
+        include('./vendor/autoload.php');
+        Script::execute();
+    }
+
+    // Some other issue occurred, continue throwing exception
+    throw $e;
+}
