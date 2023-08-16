@@ -422,7 +422,7 @@ class Definition implements DefinitionInterface
      */
     public function getVirtual(): ?bool
     {
-        return isset_get_typed('bool', $this->rules['virtual']);
+        return isset_get_typed('bool', $this->rules['virtual'], false);
     }
 
 
@@ -441,6 +441,33 @@ class Definition implements DefinitionInterface
     public function setVirtual(?bool $value): static
     {
         return $this->setKey('virtual', (bool) $value);
+    }
+
+
+    /**
+     * Returns if this field updates directly, bypassing DataEntry::setSourceValue()
+     *
+     * @note Defaults to false
+     * @return bool|null
+     *@see Definition::getVisible()
+     */
+    public function getDirectUpdate(): ?bool
+    {
+        return isset_get_typed('bool', $this->rules['direct_update'], false);
+    }
+
+
+    /**
+     * Sets if this field updates directly, bypassing DataEntry::setSourceValue()
+     *
+     * @note Defaults to false
+     * @param bool|null $value
+     * @return static
+     * @see Definition::setVisible()
+     */
+    public function setDirectUpdate(?bool $value): static
+    {
+        return $this->setKey('direct_update', (bool) $value);
     }
 
 

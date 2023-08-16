@@ -173,6 +173,25 @@ interface DefinitionInterface
     public function getMeta(): bool;
 
     /**
+     * Returns if this field updates directly, bypassing DataEntry::setSourceValue()
+     *
+     * @note Defaults to false
+     * @return bool|null
+     *@see Definition::getVisible()
+     */
+    public function getDirectUpdate(): ?bool;
+
+    /**
+     * Sets if this field updates directly, bypassing DataEntry::setSourceValue()
+     *
+     * @note Defaults to false
+     * @param bool|null $value
+     * @return static
+     * @see Definition::setVisible()
+     */
+    public function setDirectUpdate(?bool $value): static;
+
+    /**
      * Returns if this field is virtual
      *
      * If this field is virtual, it will be visible and can be manipulated but will have no direct database entry.
