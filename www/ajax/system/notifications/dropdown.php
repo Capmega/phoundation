@@ -1,5 +1,7 @@
 <?php
 
+use Phoundation\Core\Log\Log;
+use Phoundation\Core\Session;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Components\NotificationsDropDown;
 
@@ -22,9 +24,16 @@ $dropdown = NotificationsDropDown::new()
     ->setNotificationsUrl('/notifications/notification-:ID.html')
     ->setAllNotificationsUrl('/notifications/unread.html');
 
+
+// Link the users notifications hash and see if we need to ping
+$ping = $dropdown->getNotifications()->linkHash();
+
+
+// Reply
 $reply = [
     'html'  => '<li class="nav-item dropdown notifications">' . $dropdown->render() . '</li>',
     'count' => $dropdown->getNotifications()->getCount(),
+    'ping'  => $ping,
 ];
 
 Json::reply($reply);
