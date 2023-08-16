@@ -738,7 +738,7 @@ class Page
     public static function requiresNotGuest(string|int|null $new_target = 'sign-in'): void
     {
         if (Session::getUser()->isGuest()) {
-            throw AccessDeniedException::new(tr('You do not have the required rights to view this page'))
+            throw AuthenticationException::new(tr('You do not have the required rights to view this page'))
                 ->setNewTarget($new_target);
         }
     }
@@ -1103,7 +1103,7 @@ class Page
 
             Incident::new()
                 ->setType('401 - unauthorized')->setSeverity(Severity::low)
-                ->setTitle(tr('Guest user has no access to target page ":target" (real target ":real_target" requires rights ":rights"), redirecting to ":redirect"', [
+                ->setTitle(tr('Guest user has no access to target page ":target" (real target ":real_target" requires rights ":rights"). Redirecting to "system/:redirect"', [
                     ':target'      => Strings::from(static::$target, PATH_ROOT),
                     ':real_target' => Strings::from($target, PATH_ROOT),
                     ':redirect'    => $guest_redirect,
@@ -1118,6 +1118,17 @@ class Page
                 ])
                 ->save();
 
+            if (Core::isRequestType(EnumRequestTypes::api)) {
+                Json::reply(['_system' => ['http_code' => 401]]);
+            }
+
+            if (Core::isRequestType(EnumRequestTypes::ajax)) {
+                Json::reply(['_system' => [
+                    'http_code' => 401,
+                    'location'  => (string) UrlBuilder::getWww('/sign-in.html')]
+                ]);
+            }
+
             Page::redirect($guest_redirect);
         }
 
@@ -1131,7 +1142,7 @@ class Page
             // One or more of the rights do not exist
             Incident::new()
                 ->setType('Non existing rights')->setSeverity(in_array('admin', Session::getUser()->getMissingRights($rights)) ? Severity::high : Severity::medium)
-                ->setTitle(tr('The requested rights ":rights" for target page ":target" (real target ":real_target") do not exist on this system and was not automatically created. Redirecting to ":redirect"', [
+                ->setTitle(tr('The requested rights ":rights" for target page ":target" (real target ":real_target") do not exist on this system and was not automatically created. Redirecting to "system/:redirect"', [
                     ':rights'      => Strings::force(Rights::getNotExist($rights), ', '),
                     ':target'      => Strings::from(static::$target, PATH_ROOT),
                     ':real_target' => Strings::from($target, PATH_ROOT),
@@ -1151,9 +1162,9 @@ class Page
         } else {
             // Registered user does not have the required rights
             Incident::new()
-                ->setType('403 - forbidden')
+                ->setType('403 - Forbidden')
                 ->setSeverity(in_array('admin', Session::getUser()->getMissingRights($rights)) ? Severity::high : Severity::medium)
-                ->setTitle(tr('User ":user" does not have the required rights ":rights" for target page ":target" (real target ":real_target"), redirecting to ":redirect"', [
+                ->setTitle(tr('User ":user" does not have the required rights ":rights" for target page ":target" (real target ":real_target"). Executing "system/:redirect" instead', [
                     ':user'        => Session::getUser()->getLogId(),
                     ':rights'      => Session::getUser()->getMissingRights($rights),
                     ':target'      => Strings::from(static::$target, PATH_ROOT),
@@ -1230,14 +1241,14 @@ class Page
 
         } catch (ValidationFailedException $e) {
             // TODO Improve this uncaught validation failure handling
-            Log::warning('Page did not catch the following "ValidationFailedException" warning, showing "system/400"');
+            Log::warning('Page did not catch the following "ValidationFailedException" warning. Executing "system/400" instead');
             Log::warning($e);
 
             Core::writeRegister($e, 'e');
             Route::executeSystem(400);
 
         } catch (AuthenticationException $e) {
-            Log::warning('Page did not catch the following "AuthenticationException" warning, showing "system/401"');
+            Log::warning('Page did not catch the following "AuthenticationException" warning. Executing "system/401" instead');
             Log::warning($e);
 
             Core::writeRegister($e, 'e');
@@ -1245,14 +1256,14 @@ class Page
 
         } catch (IncidentsException|AccessDeniedException $e) {
             // TODO Should we also catch AccessDenied exception here?
-            Log::warning('Page did not catch the following "IncidentsException" warning, showing "system/401"');
+            Log::warning('Page did not catch the following "IncidentsException" warning. Executing "system/401" instead');
             Log::warning($e);
 
             Core::writeRegister($e, 'e');
             Route::executeSystem(403);
 
         } catch (DataEntryNotExistsException $e) {
-            Log::warning('Page did not catch the following "DataEntryNotExistsException" warning, showing "system/404"');
+            Log::warning('Page did not catch the following "DataEntryNotExistsException" warning. Executing "system/404" instead');
             Log::warning($e);
 
             Core::writeRegister($e, 'e');
