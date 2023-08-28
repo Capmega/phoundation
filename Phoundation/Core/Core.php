@@ -2221,6 +2221,8 @@ class Core implements CoreInterface
                     Notification::new()
                         ->setException($e)
                         ->send(true);
+
+                    throw $e;
                 }
             }
 
