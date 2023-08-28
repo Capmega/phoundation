@@ -102,7 +102,6 @@ class Cli
      *
      * @param Iterator|array $source
      * @param array|string|null $headers
-     * @param string|null $id_column
      * @param int $column_spacing
      * @return void
      */
