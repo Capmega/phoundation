@@ -11,7 +11,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 
 
 /**
- * Script tools/display-hex
+ * Script tools/display/hex
  *
  *
  *
@@ -20,8 +20,8 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho tools display-hex');
-Documentation::help('The display-hex tool script will display the specified text in pure HEX code');
+Documentation::usage('./pho tools display hex');
+Documentation::help('The display hex tool script will display the specified text in pure HEX code');
 
 $argv = ArgvValidator::new()
     ->select('text')->hasMaxCharacters(1048576)
@@ -43,4 +43,3 @@ if (is_numeric($argv['text'])) {
 } else {
     Script::echo(bin2hex($argv['text']));
 }
-
