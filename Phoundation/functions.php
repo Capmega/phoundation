@@ -394,29 +394,21 @@ function ensure_variable(mixed &$variable, mixed $initialize): mixed
 function force_natural(mixed $source, int $default = 1, int $start = 1): int
 {
     if (!is_numeric($source)) {
-        /*
-         * This isn't even a number
-         */
+        // This isn't even a number
         return $default;
     }
 
     if ($source < $start) {
-        /*
-         * Natural numbers have to be > 1 (by detault, $start might be adjusted where needed)
-         */
+        // Natural numbers have to be > 1 (by default, $start might be adjusted where needed)
         return $default;
     }
 
     if (!is_int($source)) {
-        /*
-         * This is a nice integer
-         */
+        // This is a nice integer
         return (integer) $source;
     }
 
-    /*
-     * Natural numbers must be integer numbers. Round to the nearest integer
-     */
+    // Natural numbers must be integer numbers. Round to the nearest integer
     return (integer) round($source);
 }
 
@@ -705,6 +697,71 @@ function get_null(mixed $source): mixed
 {
     if (empty($source)) {
         return null;
+    }
+
+    return $source;
+}
+
+
+/**
+ * Returns if the specified variable (string or not) is actually an integer, or not
+ *
+ * @param mixed $source
+ * @param int|null $larger_than
+ * @return bool
+ */
+function is_really_integer(mixed $source, ?int $larger_than = null): bool
+{
+    if ($source != (int) $source) {
+        return false;
+    }
+
+    if ($larger_than === null) {
+        return true;
+    }
+
+    // The number must be larger than...
+    return $source > $larger_than;
+}
+
+
+/**
+ * Ensures the specified source either is NULL or INT value. Non NULL/INT values will cause an exception
+ *
+ * @param mixed $source
+ * @param bool $allow_null
+ * @return int|null
+ */
+function get_integer(mixed $source, bool $allow_null = true): ?int
+{
+    if (is_integer($source)) {
+        // Well that was easy!
+        return $source;
+    }
+
+    if (!is_string($source)) {
+        throw new OutOfBoundsException(tr('Specified data ":source" is not an integer value', [
+            ':source' => $source
+        ]));
+    }
+
+    if ($source === '') {
+        if ($allow_null) {
+            // Interpret this as a NULL value
+            return null;
+        }
+
+        return 0;
+
+    } else {
+        $old_source = $source;
+        $source     = (int) $source;
+
+        if ($old_source != $source) {
+            throw new OutOfBoundsException(tr('Specified data ":source" is not an integer value', [
+                ':source' => $old_source
+            ]));
+        }
     }
 
     return $source;
