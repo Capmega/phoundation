@@ -1,0 +1,41 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\DataEntry\Traits;
+
+
+/**
+ * Trait DataEntryBody
+ *
+ * This trait contains methods for DataEntry objects that require a body
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Data
+ */
+trait DataEntryBody
+{
+    /**
+     * Returns the body for this object
+     *
+     * @return string|null
+     */
+    public function getBody(): ?string
+    {
+        return $this->getSourceValue('string', 'body');
+    }
+
+
+    /**
+     * Sets the body for this object
+     *
+     * @param string|null $body
+     * @return static
+     */
+    public function setBody(?string $body): static
+    {
+        return $this->setSourceValue('body', $body);
+    }
+}

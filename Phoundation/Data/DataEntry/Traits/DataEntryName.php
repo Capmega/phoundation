@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Seo\Seo;
 
 
@@ -62,13 +63,14 @@ trait DataEntryName
      */
     public function setName(?string $name): static
     {
-        if ($name !== null) {
+        if ($name === null) {
+            $this->setSourceValue('seo_name', null, true);
+
+        } else {
             // Get SEO name and ensure that the seo_name does NOT surpass the name maxlength because MySQL won't find
             // the entry if it does!
-            if (!array_key_exists('seo_name', $this->source)) {
-                $seo_name = Seo::unique(substr($name, 0, $this->definitions->get('name')->getMaxlength()), static::getTable(), $this->getSourceValue('int', 'id'), 'seo_name');
-                $this->setSourceValue('seo_name', $seo_name, true);
-            }
+            $seo_name = Seo::unique(substr($name, 0, $this->definitions->get('name')->getMaxlength()), static::getTable(), $this->getSourceValue('int', 'id'), 'seo_name');
+            $this->setSourceValue('seo_name', $seo_name, true);
         }
 
         return $this->setSourceValue('name', $name);
