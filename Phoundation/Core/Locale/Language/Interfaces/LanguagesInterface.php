@@ -4,7 +4,7 @@ namespace Phoundation\Core\Locale\Language\Interfaces;
 
 
 use Phoundation\Core\Locale\Language\Languages;
-use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
 
 /**
  * Languages class
@@ -25,14 +25,13 @@ interface LanguagesInterface
      * @param string $value_column
      * @param string $key_column
      * @param string|null $order
-     * @return SelectInterface
+     * @return InputSelectInterface
      */
-    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id', ?string $order = null): SelectInterface;
+    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id', ?string $order = null): InputSelectInterface;
 
     /**
-     * @param string|null $id_column
      * @return $this
      * @throws \Throwable
      */
-    public function load(?string $id_column = null): static;
+    public function load(): static;
 }

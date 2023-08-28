@@ -268,6 +268,15 @@ interface DataEntryInterface extends ArrayableInterface
     public function getSource(): array;
 
     /**
+     * Returns only the specified key from the source of this DataEntry
+     *
+     * @note This method filters out all keys defined in static::getProtectedKeys() to ensure that keys like "password"
+     *       will not become available outside this object
+     * @return array
+     */
+    public function getSourceKey(string $key): mixed;
+
+    /**
      * Sets the value for the specified data key
      *
      * @param string $field

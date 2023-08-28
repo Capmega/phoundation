@@ -3,7 +3,7 @@
 namespace Phoundation\Core\Plugins\Interfaces;
 
 
-use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
 
 /**
  * Class Plugin
@@ -37,7 +37,7 @@ interface PluginsInterface
      * @param string $value_column
      * @param string $key_column
      * @param string|null $order
-     * @return SelectInterface
+     * @return InputSelectInterface
      */
-    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id', ?string $order = null): SelectInterface;
+    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id', ?string $order = null): InputSelectInterface;
 }

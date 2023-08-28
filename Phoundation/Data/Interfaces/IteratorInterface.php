@@ -2,8 +2,9 @@
 
 namespace Phoundation\Data\Interfaces;
 
+use Iterator;
 use PDOStatement;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Core\Interfaces\ArrayableInterface;
 use ReturnTypeWillChange;
 use Stringable;
 
@@ -31,40 +32,14 @@ use Stringable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-interface IteratorInterface extends \Iterator, Stringable
+interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
 {
-    /**
-     * Return the object contents in JSON string format
-     *
-     * @return string
-     */
-    function __toString(): string;
-
-    /**
-     * Return the object contents in array format
-     *
-     * @return array
-     */
-    function __toArray(): array;
-
-    /**
-     * Iterator class constructor
-     */
-    public function __construct();
-
-    /**
-     * Returns a new Iterator object
-     *
-     * @return static
-     */
-    public static function new(): static;
-
     /**
      * Returns the current entry
      *
      * @return mixed
      */
-    #[ReturnTypeWillChange] public function current(): mixed;
+    public function current(): mixed;
 
     /**
      * Progresses the internal pointer to the next entry
@@ -85,7 +60,7 @@ interface IteratorInterface extends \Iterator, Stringable
      *
      * @return string|float|int|null
      */
-    public function key(): string|float|int|null;
+    #[ReturnTypeWillChange] public function key(): string|float|int|null;
 
     /**
      * Returns if the current pointer is valid or not
@@ -127,6 +102,72 @@ interface IteratorInterface extends \Iterator, Stringable
     public function getSource(): array;
 
     /**
+     * Returns value for the specified key
+     *
+     * @param Stringable|string|float|int $key
+     * @param bool $exception
+     * @return mixed
+     */
+    public function getSourceKey(Stringable|string|float|int $key, bool $exception = true): mixed;
+
+    /**
+     * Sets value for the specified key
+     *
+     * @note This is a wrapper for Iterator::set()
+     * @param Stringable|string|float|int $key
+     * @param mixed $value
+     * @return mixed
+     */
+    public function setSourceKey(Stringable|string|float|int $key, mixed $value): static;
+
+    /**
+     * Returns a list of items that are specified, but not available in this Iterator
+     *
+     * @param IteratorInterface|array|string $list
+     * @param string|null $always_match
+     * @return array
+     */
+    public function getMissingKeys(IteratorInterface|array|string $list, string $always_match = null): array;
+
+    /**
+     * Returns if all (or optionally any) of the specified entries are in this list
+     *
+     * @param IteratorInterface|array|string $list
+     * @param bool $all
+     * @param string|null $always_match
+     * @return bool
+     */
+    public function containsKeys(IteratorInterface|array|string $list, bool $all = true, string $always_match = null): bool;
+
+    /**
+     * Returns a list with all the keys that match the specified key
+     *
+     * @param array|string $keys
+     * @return array
+     */
+    public function getMatchingKeys(array|string $keys): array;
+
+    /**
+     * Returns value for the specified key
+     *
+     * @param Stringable|string|float|int $key
+     * @param array|string $columns
+     * @param bool $exception
+     * @return mixed
+     */
+    public function getSourceKeyColumns(Stringable|string|float|int $key, array|string $columns, bool $exception = true): mixed;
+
+    /**
+     * Returns value for the specified key
+     *
+     * @param Stringable|string|float|int $key
+     * @param string $column
+     * @param bool $exception
+     * @return mixed
+     */
+    public function getSourceKeyColumn(Stringable|string|float|int $key, string $column, bool $exception = true): mixed;
+
+    /**
      * Sets the internal source directly
      *
      * @param IteratorInterface|PDOStatement|array|string|null $source
@@ -136,20 +177,34 @@ interface IteratorInterface extends \Iterator, Stringable
     public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static;
 
     /**
+     * Returns a list of all internal definition keys
+     *
+     * @return mixed
+     */
+    public function getKeys(): array;
+
+    /**
+     * Returns a list of all internal definition keys with their indices (positions within the array)
+     *
+     * @return mixed
+     */
+    public function getKeyIndices(): array;
+
+    /**
      * Returns value for the specified key
      *
      * @param Stringable|string|float|int $key
      * @param bool $exception
      * @return mixed
      */
-    public function get(Stringable|string|float|int $key, bool $exception = false): mixed;
+    public function get(Stringable|string|float|int $key, bool $exception = true): mixed;
 
     /**
      * Sets the value for the specified key
      *
      * @param Stringable|string|float|int $key
      * @param mixed $value
-     * @return static
+     * @return mixed
      */
     public function set(Stringable|string|float|int $key, mixed $value): static;
 
@@ -187,7 +242,7 @@ interface IteratorInterface extends \Iterator, Stringable
      * @param array|string|float|int $keys
      * @return static
      */
-    public function delete(array|string|float|int $keys): static;
+    public function remove(array|string|float|int $keys): static;
 
     /**
      * Returns if the specified key exists or not
@@ -203,19 +258,4 @@ interface IteratorInterface extends \Iterator, Stringable
      * @return bool
      */
     public function isEmpty(): bool;
-
-    /**
-     * Execute the specified callback for each row
-     *
-     * @param callable $callback
-     * @return $this
-     */
-    public function addCallback(callable $callback): static;
-
-    /**
-     * Returns the row callbacks
-     *
-     * @return array
-     */
-    public function getCallbacks(): array;
 }

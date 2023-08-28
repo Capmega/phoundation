@@ -4,7 +4,7 @@ namespace Phoundation\Notifications\Interfaces;
 
 
 use Phoundation\Notifications\Notifications;
-use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
 
 /**
  * Notifications class
@@ -32,9 +32,9 @@ interface NotificationsInterface
      * @param string $value_column
      * @param string $key_column
      * @param string|null $order
-     * @return SelectInterface
+     * @return InputSelectInterface
      */
-    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id', ?string $order = null): SelectInterface;
+    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id', ?string $order = null): InputSelectInterface;
 
     /**
      * Marks the severity column with a color class

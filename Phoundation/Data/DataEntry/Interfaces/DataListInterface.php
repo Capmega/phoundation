@@ -5,10 +5,9 @@ namespace Phoundation\Data\DataEntry\Interfaces;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
-use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
-use Phoundation\Web\Http\Html\Components\Interfaces\DataTableInterface;
-use Phoundation\Web\Http\Html\Components\Interfaces\TableInterface;
-use ReturnTypeWillChange;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
+use Phoundation\Web\Http\Html\Components\Interfaces\HtmlDataTableInterface;
+use Phoundation\Web\Http\Html\Components\Interfaces\HtmlTableInterface;
 use Stringable;
 
 
@@ -25,70 +24,12 @@ use Stringable;
 interface DataListInterface extends IteratorInterface
 {
     /**
-     * Returns the table name used by this object
-     *
-     * @return string
-     */
-    public static function getTable(): string;
-
-    /**
-     * Returns the name of this DataEntry class
-     *
-     * @return string
-     */
-    public static function getEntryClass(): string;
-
-    /**
-     * Returns the field that is unique for this object
-     *
-     * @return string|null
-     */
-    public static function getUniqueField(): ?string;
-
-    /**
-     * Returns if the specified data entry exists in the data list
+     * Returns if the specified data entry key exists in the data list
      *
      * @param DataEntryInterface|Stringable|string|float|int $key
      * @return bool
      */
     public function exists(DataEntryInterface|Stringable|string|float|int $key): bool;
-
-    /**
-     * Returns a list of items that are specified, but not available in this DataList
-     *
-     * @param DataListInterface|array|string $list
-     * @param string|null $always_match
-     * @return array
-     */
-    public function getMissingKeys(DataListInterface|array|string $list, string $always_match = null): array;
-
-    /**
-     * Returns if all (or optionally any) of the specified entries are in this list
-     *
-     * @param DataListInterface|array|string $list
-     * @param bool $all
-     * @param string|null $always_match
-     * @return bool
-     */
-    public function containsKeys(DataListInterface|array|string $list, bool $all = true, string $always_match = null): bool;
-
-    /**
-     * Returns if all (or optionally any) of the specified entries are in this list
-     *
-     * @param DataListInterface|array|string $list
-     * @param bool $all
-     * @param string|null $always_match
-     * @return bool
-     */
-    public function containsValues(DataListInterface|array|string $list, bool $all = true, string $always_match = null): bool;
-
-    /**
-     * Returns the internal list filtered by the specified keyword
-     *
-     * @param string|null $keyword
-     * @return array
-     */
-    public function filteredList(?string $keyword): array;
 
     /**
      * Set the query for this object when generating internal content
@@ -121,6 +62,24 @@ interface DataListInterface extends IteratorInterface
     public function getTableSchema(): \Phoundation\Databases\Sql\Schema\Table;
 
     /**
+     * Returns the item with the specified identifier
+     *
+     * @param Stringable|string|float|int $key
+     * @param bool $exception
+     * @return DataEntry|null
+     */
+    public function get(Stringable|string|float|int $key, bool $exception = false): ?DataEntryInterface;
+
+    /**
+     * Sets the value for the specified key
+     *
+     * @param Stringable|string|float|int $key
+     * @param DataEntryInterface $value
+     * @return static
+     */
+    public function set(Stringable|string|float|int $key, mixed $value): static;
+
+    /**
      * Returns a QueryBuilder object to modify the internal query for this object
      *
      * @return QueryBuilderInterface
@@ -130,16 +89,18 @@ interface DataListInterface extends IteratorInterface
     /**
      * Creates and returns an HTML table for the data in this list
      *
-     * @return TableInterface
+     * @param array|string|null $columns
+     * @return HtmlTableInterface
      */
-    public function getHtmlTable(): TableInterface;
+    public function getHtmlTable(array|string|null $columns = null): HtmlTableInterface;
 
     /**
      * Creates and returns a fancy HTML data table for the data in this list
      *
-     * @return DataTableInterface
+     * @param array|string|null $columns
+     * @return HtmlDataTableInterface
      */
-    public function getHtmlDataTable(array|string|null $columns = null): DataTableInterface;
+    public function getHtmlDataTable(array|string|null $columns = null): HtmlDataTableInterface;
 
     /**
      * Returns an HTML <select> for the available object entries
@@ -147,16 +108,15 @@ interface DataListInterface extends IteratorInterface
      * @param string $value_column
      * @param string $key_column
      * @param string|null $order
-     * @return SelectInterface
+     * @return InputSelectInterface
      */
-    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id', ?string $order = null): SelectInterface;
+    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id', ?string $order = null): InputSelectInterface;
 
     /**
      * Creates and returns a CLI table for the data in this list
      *
      * @param array|null $columns
      * @param array $filters
-     * @param string|null $id_column
      * @return void
      */
     public function CliDisplayTable(?array $columns = null, array $filters = [], ?string $id_column = 'id'): void;
@@ -165,29 +125,26 @@ interface DataListInterface extends IteratorInterface
      * Set the specified status for the specified entries
      *
      * @param string|null $status
-     * @param array $entries
      * @param string|null $comments
      * @return int
      */
-    public function setStatus(?string $status, array $entries, ?string $comments = null): int;
+    public function setStatus(?string $status, ?string $comments = null): int;
 
     /**
      * Delete the specified entries
      *
-     * @param array $entries
      * @param string|null $comments
      * @return int
      */
-    public function dbDelete(array $entries, ?string $comments = null): int;
+    public function delete(?string $comments = null): int;
 
     /**
      * Undelete the specified entries
      *
-     * @param array $entries
      * @param string|null $comments
      * @return int
      */
-    public function dbUndelete(array $entries, ?string $comments = null): int;
+    public function undelete(?string $comments = null): int;
 
     /**
      * Returns an array with all id's for the specified entry identifiers
@@ -206,49 +163,49 @@ interface DataListInterface extends IteratorInterface
     public function addDataEntry(?DataEntryInterface $entry): static;
 
     /**
-     * Remove the specified key(s) from the data list
-     *
-     * @param DataEntryInterface|array|string|float|int $keys
-     * @return static
-     */
-    public function delete(DataEntryInterface|array|string|float|int $keys): static;
-
-    /**
      * Returns the current item
      *
-     * @return DataEntryInterface|null
+     * @return DataEntry|null
      */
-    #[ReturnTypeWillChange] public function current(): ?DataEntryInterface;
-
-    /**
-     * Returns value for the specified key
-     *
-     * @param Stringable|string|float|int $key
-     * @param bool $exception
-     * @return DataEntryInterface|null
-     */
-    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = false): ?DataEntryInterface;
+    public function current(): ?DataEntryInterface;
 
     /**
      * Returns the first element contained in this object without changing the internal pointer
      *
      * @return DataEntryInterface|null
      */
-    #[ReturnTypeWillChange] public function getFirst(): ?DataEntryInterface;
+    public function getFirst(): ?DataEntryInterface;
 
     /**
      * Returns the last element contained in this object without changing the internal pointer
      *
      * @return DataEntryInterface|null
      */
-    #[ReturnTypeWillChange] public function getLast(): ?DataEntryInterface;
+    public function getLast(): ?DataEntryInterface;
 
     /**
      * Load the id list from database
      *
-     * @param string|null $id_column
      * @return static
-     * @deprecated This function will be replaced by the QueryBuilder. DO NOT USE
      */
-    public function load(?string $id_column = null): static;
+    public function load(): static;
+
+    /**
+     * Returns the total amounts for all columns together
+     *
+     * @note This specific method will just return a row with empty values. Its up to the classes implementing DataList
+     *       to override this method and return meaningful totals.
+     *
+     * @param array|string $columns
+     * @return array
+     */
+    public function getTotals(array|string $columns): array;
+
+    /**
+     * Adds the specified source to the internal source
+     *
+     * @param DataListInterface|array|null $source
+     * @return $this
+     */
+    public function addSource(DataListInterface|array|null $source): static;
 }

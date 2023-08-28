@@ -3,7 +3,7 @@
 namespace Phoundation\Accounts\Roles\Interfaces;
 
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
-use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
 
 
 /**
@@ -38,10 +38,10 @@ interface RolesInterface extends DataListInterface
     /**
      * Remove the specified role from the roles list
      *
-     * @param RoleInterface|array|string|int|null $role
+     * @param RoleInterface|array|string|float|int $role
      * @return static
      */
-    public function remove(RoleInterface|array|string|int|null $role): static;
+    public function remove(RoleInterface|array|string|float|int $role): static;
 
     /**
      * Remove all rights for this right
@@ -53,10 +53,9 @@ interface RolesInterface extends DataListInterface
     /**
      * Load the data for this rights list into the object
      *
-     * @param string|null $id_column
      * @return static
      */
-    public function load(?string $id_column = 'roles_id'): static;
+    public function load(): static;
 
     /**
      * Save the data for this roles list in the database
@@ -71,8 +70,8 @@ interface RolesInterface extends DataListInterface
      * @param string $value_column
      * @param string $key_column
      * @param string|null $order
-     * @return SelectInterface
+     * @return InputSelectInterface
      */
 
-    public function getHtmlSelect(string $value_column = 'CONCAT(UPPER(LEFT(`name`, 1)), SUBSTRING(`name`, 2)) AS `name`', string $key_column = 'id', ?string $order = null): SelectInterface;
+    public function getHtmlSelect(string $value_column = 'CONCAT(UPPER(LEFT(`name`, 1)), SUBSTRING(`name`, 2)) AS `name`', string $key_column = 'id', ?string $order = null): InputSelectInterface;
 }

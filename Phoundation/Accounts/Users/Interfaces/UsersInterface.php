@@ -4,7 +4,7 @@ namespace Phoundation\Accounts\Users\Interfaces;
 
 use Phoundation\Accounts\Users\User;
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
-use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
 
 
 /**
@@ -39,10 +39,10 @@ interface UsersInterface extends DataListInterface
     /**
      * Remove the specified data entry from the data list
      *
-     * @param User|array|string|int|null $user
+     * @param User|array|string|float|int $user
      * @return static
      */
-    public function remove(User|array|string|int|null $user): static;
+    public function remove(User|array|string|float|int $user): static;
 
     /**
      * Remove all rights for this right
@@ -54,10 +54,9 @@ interface UsersInterface extends DataListInterface
     /**
      * Load the data for this rights list into the object
      *
-     * @param string|null $id_column
      * @return static
      */
-    public function load(?string $id_column = 'users_id'): static;
+    public function load(): static;
 
     /**
      * Save the data for this rights list in the database
