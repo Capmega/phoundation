@@ -432,6 +432,7 @@ class Arrays {
     /**
      * Limit the specified array to the specified amount of entries
      *
+     * @todo This is cringy slow at large arrays (also at smaller ones, but eh...), find a more efficient way to do this
      * @param array $source
      * @param int $count
      * @param bool $return_source
@@ -2060,7 +2061,7 @@ class Arrays {
      *                         Arrays::MATCH_BEGIN, Arrays::MATCH_ANYWHERE
      * @return array
      */
-    public static function match(array $haystack, array|string $needles, int $options = self::MATCH_ALL | self::MATCH_ANYWHERE): array
+    public static function match(array $haystack, array|string $needles, int $options = self::MATCH_NO_CASE | self::MATCH_ALL | self::MATCH_ANYWHERE): array
     {
         if (!$needles) {
             throw new OutOfBoundsException(tr('No needles specified'));
@@ -2189,5 +2190,25 @@ class Arrays {
         }
 
         return $return;
+    }
+
+
+    /**
+     * Returns the highest key found in the given source
+     *
+     * @param array $source
+     * @return string|float|int|null
+     */
+    public static function getHighestKey(array $source): string|float|int|null
+    {
+        $highest = null;
+
+        foreach ($source as $key => $value) {
+            if ($key > $highest) {
+                $highest = $key;
+            }
+        }
+
+        return $highest;
     }
 }
