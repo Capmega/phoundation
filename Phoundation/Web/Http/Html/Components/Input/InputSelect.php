@@ -6,10 +6,10 @@ namespace Phoundation\Web\Http\Html\Components\Input;
 
 use PDO;
 use Phoundation\Core\Arrays;
-use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Iterator;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 use Phoundation\Web\Http\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Http\Html\Components\ResourceElement;
@@ -27,7 +27,7 @@ use Stringable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class InputSelect extends ResourceElement implements SelectInterface
+class InputSelect extends ResourceElement implements InputSelectInterface
 {
     /**
      * The class for the <option> elements within the <select> element

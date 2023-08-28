@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http\Html\Components;
 
 use PDO;
-use Phoundation\Core\Arrays;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Interfaces\IteratorInterface;
@@ -13,17 +12,20 @@ use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\DataCallbacks;
 use Phoundation\Data\Traits\DataTitle;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Web\Http\Html\Components\Input\InputCheckbox;
 use Phoundation\Web\Http\Html\Components\Interfaces\ElementInterface;
-use Phoundation\Web\Http\Html\Components\Interfaces\TableInterface;
+use Phoundation\Web\Http\Html\Components\Interfaces\HtmlTableInterface;
+use Phoundation\Web\Http\Html\Enums\Interfaces\TableIdColumnInterface;
+use Phoundation\Web\Http\Html\Enums\Interfaces\TableRowTypeInterface;
+use Phoundation\Web\Http\Html\Enums\TableIdColumn;
+use Phoundation\Web\Http\Html\Enums\TableRowType;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
 use Phoundation\Web\Http\UrlBuilder;
 use Stringable;
 
 
 /**
- * Class Table
+ * Class HtmlTable
  *
  * This class can create various HTML tables
  *
@@ -32,7 +34,7 @@ use Stringable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class Table extends ResourceElement implements TableInterface
+class HtmlTable extends ResourceElement implements HtmlTableInterface
 {
     use DataTitle;
     use DataCallbacks;
@@ -69,9 +71,16 @@ class Table extends ResourceElement implements TableInterface
     /**
      * The table column headers
      *
-     * @var IteratorInterface|null $column_headers
+     * @var IteratorInterface|null $headers
      */
-    protected ?IteratorInterface $column_headers = null;
+    protected ?IteratorInterface $headers = null;
+
+    /**
+     * The table column footers
+     *
+     * @var IteratorInterface|null $footers
+     */
+    protected ?IteratorInterface $footers = null;
 
     /**
      * URL's specific for columns
@@ -109,11 +118,11 @@ class Table extends ResourceElement implements TableInterface
     protected ?IteratorInterface $convert_columns = null;
 
     /**
-     * If true, the first (id) column will be checkboxes
+     * Sets how the id columns will be displayed
      *
-     * @var bool $checkbox_selectors
+     * @var TableIdColumnInterface $checkbox_selectors
      */
-    protected bool $checkbox_selectors = false;
+    protected TableIdColumnInterface $checkbox_selectors = TableIdColumn::hidden;
 
     /**
      * Sets whether the table is responsive or not
@@ -385,9 +394,9 @@ class Table extends ResourceElement implements TableInterface
     /**
      * Returns if the first column will automatically be converted to checkboxes
      *
-     * @return bool
+     * @return TableIdColumnInterface
      */
-    public function getCheckboxSelectors(): bool
+    public function getTableIdColumn(): TableIdColumnInterface
     {
         return $this->checkbox_selectors;
     }
@@ -396,10 +405,10 @@ class Table extends ResourceElement implements TableInterface
     /**
      * Sets if the first column will automatically be converted to checkboxes
      *
-     * @param bool $checkbox_selectors
+     * @param TableIdColumnInterface $checkbox_selectors
      * @return static
      */
-    public function setCheckboxSelectors(bool $checkbox_selectors): static
+    public function setTableIdColumn(TableIdColumnInterface $checkbox_selectors): static
     {
         $this->checkbox_selectors = $checkbox_selectors;
         return $this;
@@ -450,13 +459,45 @@ class Table extends ResourceElement implements TableInterface
      *
      * @return IteratorInterface
      */
-    public function getColumnHeaders(): IteratorInterface
+    public function getHeaders(): IteratorInterface
     {
-        if (empty($this->column_headers)) {
-            $this->column_headers = new Iterator();
+        if (empty($this->headers)) {
+            $this->headers = new Iterator();
         }
 
-        return $this->column_headers;
+        return $this->headers;
+    }
+
+
+    /**
+     * Returns the table headers
+     *
+     * @return IteratorInterface
+     */
+    public function getFooters(): IteratorInterface
+    {
+        if (empty($this->footers)) {
+            $this->footers = new Iterator();
+        }
+
+        return $this->footers;
+    }
+
+
+    /**
+     * Returns the table headers
+     *
+     * @param IteratorInterface|array|null $footers
+     * @return static
+     */
+    public function setFooters(IteratorInterface|array|null $footers): static
+    {
+        if (is_array($footers)) {
+            $footers = Iterator::new()->setSource($footers);
+        }
+
+        $this->footers = $footers;
+        return $this;
     }
 
 
@@ -485,7 +526,7 @@ class Table extends ResourceElement implements TableInterface
             $return = $this->renderBodyEmpty();
         }
 
-        return $this->renderHeaders() . $return;
+        return $this->renderHeaders() . $return . $this->renderFooters();
     }
 
 
@@ -495,8 +536,8 @@ class Table extends ResourceElement implements TableInterface
      * This will return all HTML FROM the <tbody> tags around it
      *
      * @return string|null The body HTML (all <option> tags) for a <select> tag
-     * @see \Templates\AdminLte\Html\Components\Table::render()
-     * @see \Templates\AdminLte\Html\Components\Table::renderHeaders()
+     * @see \Templates\AdminLte\Html\Components\HtmlTable::render()
+     * @see \Templates\AdminLte\Html\Components\HtmlTable::renderHeaders()
      * @see ResourceElement::renderBody()
      * @see ElementInterface::render()
      */
@@ -509,44 +550,45 @@ class Table extends ResourceElement implements TableInterface
         $return = '<tbody>';
 
         // Process array resource. Go over each row and in each row over each column
-        foreach ($this->source as $key => $row_values) {
-            $this->executeCallbacks($row_values, $params);
-
-            if (!is_array($row_values)) {
-                if (!$row_values instanceof ArrayableInterface) {
+        foreach ($this->source as $key => $row) {
+            if (!is_array($row)) {
+                if (!$row instanceof ArrayableInterface) {
                     throw new OutOfBoundsException(tr('The specified table source array is invalid. Format should be [[header columns][row columns][row columns] ...] or contain an object with ArreableInterface Interface. a ":type" was encountered instead', [
-                        ':type' => gettype($row_values)
+                        ':type' => gettype($row)
                     ]));
                 }
 
                 // Row values is actually an object, get its content
-                $row_values = $row_values->__toArray();
+                $row = $row->__toArray();
             }
 
-            $row_data = '';
-            $this->count++;
+            $this->executeCallbacks($row, TableRowType::row, $params);
+            $return .= $this->renderRow($row, $key, $params);
 
-            // Add data-* in this option?
-            if (array_key_exists($key, $this->source_data)) {
-                $row_data = ' data-' . $key . '="' . $this->source_data[$key] . '"';
-            }
-
-            $row   = '<tr' . $row_data . $this->buildRowClassString() . '>';
-            $first = true;
-
-            foreach ($row_values as $column => $value) {
-                if ($first) {
-                    // Convert first column to checkboxes?
-                    $value = $this->renderCheckboxColumn($column, $value);
-                    $row  .= $this->renderCell($key, $column, $value, $params);
-                    $first = false;
-
-                } else {
-                    $row .= $this->renderCell($key, $column, $value, $params);
-                }
-            }
-
-            $return .= $row . '</tr>';
+//            $row_data = '';
+//            $this->count++;
+//
+//            // Add data-* in this option?
+//            if (array_key_exists($key, $this->source_data)) {
+//                $row_data = ' data-' . $key . '="' . $this->source_data[$key] . '"';
+//            }
+//
+//            $row   = '<tr' . $row_data . $this->renderRowClassString() . '>';
+//            $first = true;
+//
+//            foreach ($row_values as $column => $value) {
+//                if ($first) {
+//                    // Convert first column to checkboxes?
+//                    $value = $this->renderCheckboxColumn($column, $value);
+//                    $row  .= $this->renderCell($key, $column, $value, $params);
+//                    $first = false;
+//
+//                } else {
+//                    $row .= $this->renderCell($key, $column, $value, $params);
+//                }
+//            }
+//
+//            $return .= $row . '</tr>';
         }
 
         return $return . '</tbody>';
@@ -559,8 +601,8 @@ class Table extends ResourceElement implements TableInterface
      * This will return all HTML FROM the <tbody> tags around it
      *
      * @return string|null The body HTML (all <option> tags) for a <select> tag
-     *@see \Templates\AdminLte\Html\Components\Table::render()
-     * @see \Templates\AdminLte\Html\Components\Table::renderHeaders()
+     *@see \Templates\AdminLte\Html\Components\HtmlTable::render()
+     * @see \Templates\AdminLte\Html\Components\HtmlTable::renderHeaders()
      * @see ResourceElement::renderBody()
      * @see ElementInterface::render()
      */
@@ -578,8 +620,8 @@ class Table extends ResourceElement implements TableInterface
 
         // Process SQL resource
         while ($row = $this->source_query->fetch(PDO::FETCH_ASSOC)) {
-            $this->executeCallbacks($row, $params);
-            $return .= $this->renderRow($row, $params);
+            $this->executeCallbacks($row, TableRowType::row, $params);
+            $return .= $this->renderRow($row, array_first($row), $params);
         }
 
         return $return . '</tbody>';
@@ -603,13 +645,13 @@ class Table extends ResourceElement implements TableInterface
 
 
     /**
-     * Render the table body
+     * Render the table headers
      *
      * @return string|null
      */
     protected function renderHeaders(): ?string
     {
-        if (!$this->column_headers) {
+        if (!$this->headers) {
             // No headers because no content
             return null;
         }
@@ -617,15 +659,26 @@ class Table extends ResourceElement implements TableInterface
         $return = '<thead><tr>';
         $first  = true;
 
-        foreach ($this->column_headers as $column => $header) {
-            if ($first and $this->checkbox_selectors) {
-                $first   = false;
-                $return .= '<th>' .
-                                InputCheckbox::new()
-                                    ->setName($column . '[]')
-                                    ->setValue(1)
-                                    ->render()
-                         . '</th>';
+        foreach ($this->headers as $column => $header) {
+            if ($first) {
+                $first = false;
+
+                switch ($this->checkbox_selectors) {
+                    case TableIdColumn::hidden:
+                        break;
+
+                    case TableIdColumn::checkbox:
+                        $return .= '<th>' . InputCheckbox::new()
+                            ->setName($column . '[]')
+                            ->setValue(1)
+                            ->render() . '</th>';
+                        break;
+
+                    case TableIdColumn::visible:
+                        $return .= '<th>' . $header . '</th>';
+                        break;
+                }
+
             } else {
                 $return .= '<th>' . $header . '</th>';
             }
@@ -636,11 +689,36 @@ class Table extends ResourceElement implements TableInterface
 
 
     /**
+     * Render the table footers
+     *
+     * @return string|null
+     */
+    protected function renderFooters(): ?string
+    {
+        if (!$this->footers) {
+            // No footers because no content
+            return null;
+        }
+
+        $return  = '<tfoot><tr>';
+        $footers = $this->footers->__toArray();
+
+        $this->executeCallbacks($footers, TableRowType::footer, $params);
+
+        foreach ($footers as $column => $footer) {
+            $return .= '<th>' . $footer . '</th>';
+        }
+
+        return $return . '</tr></tfoot>';
+    }
+
+
+    /**
      * Builds and returns the class string
      *
      * @return string|null
      */
-    protected function buildRowClassString(): ?string
+    protected function renderRowClassString(): ?string
     {
         if ($this->row_classes) {
             return ' class="' . $this->row_classes . '"';
@@ -655,7 +733,7 @@ class Table extends ResourceElement implements TableInterface
      *
      * @return string|null
      */
-    protected function buildColumnClassString(): ?string
+    protected function renderColumnClassString(): ?string
     {
         if ($this->column_classes) {
             return ' class="' . $this->column_classes . '"';
@@ -670,7 +748,7 @@ class Table extends ResourceElement implements TableInterface
      *
      * @return string|null
      */
-    protected function buildAnchorClassString(): ?string
+    protected function renderAnchorClassString(): ?string
     {
         if ($this->anchor_classes) {
             return ' class="' . $this->anchor_classes . '"';
@@ -684,40 +762,47 @@ class Table extends ResourceElement implements TableInterface
      * Returns a table cell
      *
      * @param array $row_values
+     * @param string|float|int|null $key
      * @param array $params
      * @return string
      */
-    protected function renderRow(array $row_values, array $params): string
+    protected function renderRow(array $row_values, string|float|int|null $key, array $params): string
     {
-        if (!$this->column_headers) {
+        if (!$this->headers) {
             // Auto set headers from the column names
-            $this->getColumnHeaders()->setSource(array_keys($row_values));
+            $this->getHeaders()->setSource(array_keys($row_values));
 
-            foreach ($this->column_headers as $key => $column_header) {
+            foreach ($this->headers as $key => $column_header) {
                 $column_header = str_replace(['-', '_'], ' ', $column_header);
                 $column_header = Strings::capitalize($column_header);
 
-                $this->column_headers->set($key, $column_header);
+                $this->headers->set($key, $column_header);
             }
         }
 
         // ID is the first value in the row
         $row_id = reset($row_values);
 
-        // Add data-* in this option?
-//        if (array_key_exists($row_id, $this->source_data)) {
-//            $row_data = ' data-' . $key . '="' . $this->source_data[$key] . '"';
-//        }
+        $row_data = '';
+        $this->count++;
 
-        $return = '<tr>';
+        // Add data-* in this option?
+        if (array_key_exists($key, $this->source_data)) {
+            $row_data = ' data-' . $key . '="' . $this->source_data[$key] . '"';
+        }
+
+        $return = '<tr' . $row_data . $this->renderRowClassString() . '>';
         $first  = true;
 
         foreach($row_values as $column => $value) {
             if ($first) {
                 // Convert first column to checkboxes?
-                $value   = $this->renderCheckboxColumn($column, $value);
-                $return .= $this->renderCell($row_id, $column, $value, $params);
-                $first   = false;
+                $value = $this->renderCheckboxColumn($column, $value);
+                $first = false;
+
+                if ($value !== null) {
+                    $return .= $this->renderCell($row_id, $column, $value, $params);
+                }
 
             } else {
                 $return .= $this->renderCell($row_id, $column, $value, $params);
@@ -773,7 +858,7 @@ class Table extends ResourceElement implements TableInterface
         }
 
         if (isset($url)) {
-            $value = $this->buildUrl($value, $url);
+            $value = $this->renderUrl($value, $url);
         }
 
         // Add data attributes?
@@ -785,7 +870,7 @@ class Table extends ResourceElement implements TableInterface
 
         // Build row with TD tags with attributes
         // Ensure all :ROW and :COLUMN markings are converted
-        $value = '<td' . $attributes . $this->buildColumnClassString() . '>' . $value . '</td>';
+        $value = '<td' . $attributes . $this->renderColumnClassString() . '>' . $value . '</td>';
         $value = str_replace(':ROW'   , (string) $row_id, $value);
         $value = str_replace(':COLUMN', (string) $column, $value);
 
@@ -798,18 +883,25 @@ class Table extends ResourceElement implements TableInterface
      *
      * @param string $column
      * @param string|float|int $value
-     * @return ?string
+     * @return string|int|null
      */
-    protected function renderCheckboxColumn(string $column, string|float|int $value): ?string
+    protected function renderCheckboxColumn(string $column, string|float|int $value): string|int|null
     {
-        if (!$this->checkbox_selectors) {
-            return null;
-        }
+        switch ($this->checkbox_selectors) {
+            case TableIdColumn::hidden:
+                return null;
 
-        return InputCheckbox::new()
-            ->setName($column . '[]')
-            ->setValue($value)
-            ->render();
+            case TableIdColumn::visible:
+                return $value;
+
+            case TableIdColumn::checkbox:
+                // no break
+            default:
+                return InputCheckbox::new()
+                    ->setName($column . '[]')
+                    ->setValue($value)
+                    ->render();
+        }
     }
 
 
@@ -820,7 +912,7 @@ class Table extends ResourceElement implements TableInterface
      * @param string $url
      * @return string
      */
-    protected function buildUrl(string $value, string $url): string
+    protected function renderUrl(string $value, string $url): string
     {
         $attributes = '';
 
@@ -830,6 +922,6 @@ class Table extends ResourceElement implements TableInterface
             }
        }
 
-        return '<a' . $this->buildAnchorClassString() . ' href="' . UrlBuilder::getWww($url) . '"' . $attributes . '>' . $value . '</a>';
+        return '<a' . $this->renderAnchorClassString() . ' href="' . UrlBuilder::getWww($url) . '"' . $attributes . '>' . $value . '</a>';
     }
 }

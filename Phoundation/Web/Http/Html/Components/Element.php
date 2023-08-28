@@ -9,6 +9,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Http\Html\Enums\JavascriptWrappers;
+use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Html\Renderer;
 use Phoundation\Web\Page;
 

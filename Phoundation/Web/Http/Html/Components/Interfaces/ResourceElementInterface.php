@@ -2,13 +2,12 @@
 
 namespace Phoundation\Web\Http\Html\Components\Interfaces;
 
-
 use PDOStatement;
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Web\Http\Html\Components\ResourceElement;
+
 
 /**
- * Class RenderElement
+ * Interface ResourceElementInterface
  *
  * This class is an abstract HTML element object class that can display resource data
  *
@@ -17,7 +16,7 @@ use Phoundation\Web\Http\Html\Components\ResourceElement;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-interface ResourceElementInterface
+interface ResourceElementInterface extends ElementInterface
 {
     /**
      * Set the HTML none element attribute

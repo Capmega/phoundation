@@ -242,24 +242,24 @@ class Script extends Element
                 case JavascriptWrappers::dom_content:
                     $render = 'document.addEventListener("DOMContentLoaded", function(e) {
                               ' . $this->content . '
-                           });';
+                           });' . PHP_EOL;
                     break;
 
                 case JavascriptWrappers::window:
                     $render = 'window.addEventListener("load", function(e) {
                               ' . $this->content . '
-                           });';
+                           });' . PHP_EOL;
                     break;
 
                 case JavascriptWrappers::function:
                     $render = '$(function() {
                               ' . $this->content . '
-                           });';
+                           });' . PHP_EOL;
                     break;
 
                 case null:
                     // No wrapping
-                    $render = $this->content;
+                    $render = $this->content . PHP_EOL;
                     break;
 
                 default:
@@ -274,11 +274,11 @@ class Script extends Element
         // Where should this script be attached?
         switch ($this->attach) {
             case AttachJavascript::here:
-                return '<script type="text/javascript"' . ($this->async ? ' async' : '') . ($this->defer ? ' defer' : '') . ($this->src ? ' src="' . $this->src . '"' : '') . '>' . $render . '</script>';
+                return '<script type="text/javascript"' . ($this->async ? ' async' : '') . ($this->defer ? ' defer' : '') . ($this->src ? ' src="' . $this->src . '"' : '') . '>' . $render . '</script>' . PHP_EOL;
 
             case AttachJavascript::header:
                 Page::addToHeader('javascript', [
-                    'type' => 'text/javascript',
+                    'type'    => 'text/javascript',
                     'content' => $render
                 ]);
 
@@ -286,7 +286,7 @@ class Script extends Element
 
             case AttachJavascript::footer:
                 Page::addToFooter('javascript', [
-                    'type' => 'text/javascript',
+                    'type'    => 'text/javascript',
                     'content' => $render
                 ]);
 

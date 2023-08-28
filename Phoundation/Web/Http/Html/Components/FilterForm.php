@@ -37,7 +37,21 @@ class FilterForm extends DataEntryForm
      */
     public function getFilterValue(string $key): mixed
     {
-        return isset_Get($this->get[$key]);
+        return isset_get($this->get[$key]);
+    }
+
+
+    /**
+     * Sets the filter value for the specified key
+     *
+     * @param string $key
+     * @param mixed $value
+     * @return mixed
+     */
+    public function setFilterValue(mixed $value, string $key): static
+    {
+        $this->get[$key] = $value;
+        return $this;
     }
 
 

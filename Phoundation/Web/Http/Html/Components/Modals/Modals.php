@@ -44,19 +44,6 @@ class Modals extends ElementsBlock
 
 
     /**
-     * Remove the specified modal
-     *
-     * @param string $identifier
-     * @return $this
-     */
-    public function remove(string $identifier): static
-    {
-        unset($this->source[$identifier]);
-        return $this;
-    }
-
-
-    /**
      * Returns true if the specified modal exists
      *
      * @param array|string|null $required

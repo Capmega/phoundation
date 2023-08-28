@@ -2,12 +2,13 @@
 
 namespace Phoundation\Web\Http\Html\Components\Interfaces;
 
-
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Web\Http\Html\Enums\Interfaces\TableIdColumnInterface;
 use Stringable;
 
+
 /**
- * Class Table
+ * Class HtmlTable
  *
  * This class can create various HTML tables
  *
@@ -16,7 +17,7 @@ use Stringable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-interface TableInterface
+interface HtmlTableInterface extends ResourceElementInterface
 {
     /**
      * Returns if the table is header_text or not
@@ -79,6 +80,20 @@ interface TableInterface
     public function setFullWidth(bool $full_width): static;
 
     /**
+     * Returns the column's data attributes
+     *
+     * @return IteratorInterface
+     */
+    public function getColumnDataAttributes(): IteratorInterface;
+
+    /**
+     * Returns the column's data attributes
+     *
+     * @return IteratorInterface
+     */
+    public function getAnchorDataAttributes(): IteratorInterface;
+
+    /**
      * Returns the table's column conversions
      *
      * @return IteratorInterface
@@ -93,14 +108,14 @@ interface TableInterface
     public function getTopButtons(): IteratorInterface;
 
     /**
-     * Returns the HTML class element attribute for <tr> tags
+     * Returns the classes used for <tr> tags
      *
      * @return string|null
      */
     public function getRowClasses(): ?string;
 
     /**
-     * Sets the HTML class element attribute for <tr> tags
+     * Returns the HTML class element attribute
      *
      * @param string|null $classes
      * @return static
@@ -123,19 +138,34 @@ interface TableInterface
     public function setColumnClasses(?string $classes): static;
 
     /**
+     * Returns the HTML class element attribute for <td> tags
+     *
+     * @return string|null
+     */
+    public function getAnchorClasses(): ?string;
+
+    /**
+     * Sets the HTML class element attribute for <td> tags
+     *
+     * @param string|null $classes
+     * @return static
+     */
+    public function setAnchorClasses(?string $classes): static;
+
+    /**
      * Returns if the first column will automatically be converted to checkboxes
      *
-     * @return bool
+     * @return TableIdColumnInterface
      */
-    public function getCheckboxSelectors(): bool;
+    public function getTableIdColumn(): TableIdColumnInterface;
 
     /**
      * Sets if the first column will automatically be converted to checkboxes
      *
-     * @param bool $checkbox_selectors
+     * @param TableIdColumnInterface $checkbox_selectors
      * @return static
      */
-    public function setCheckboxSelectors(bool $checkbox_selectors): static;
+    public function setTableIdColumn(TableIdColumnInterface $checkbox_selectors): static;
 
     /**
      * Returns the URL that applies to each row
@@ -164,7 +194,22 @@ interface TableInterface
      *
      * @return IteratorInterface
      */
-    public function getColumnHeaders(): IteratorInterface;
+    public function getHeaders(): IteratorInterface;
+
+    /**
+     * Returns the table headers
+     *
+     * @return IteratorInterface
+     */
+    public function getFooters(): IteratorInterface;
+
+    /**
+     * Returns the table headers
+     *
+     * @param IteratorInterface|array|null $footers
+     * @return static
+     */
+    public function setFooters(IteratorInterface|array|null $footers): static;
 
     /**
      * Render the table body

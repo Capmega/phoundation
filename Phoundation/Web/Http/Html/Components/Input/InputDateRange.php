@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html\Components\Input;
 
+use Phoundation\Date\DateRangePickerRanges;
+use Phoundation\Date\Interfaces\DateRangePickerRangesInterface;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Script;
 use Phoundation\Web\Http\Html\Enums\InputType;
 use Phoundation\Web\Http\Html\Enums\JavascriptWrappers;
@@ -42,6 +45,13 @@ class InputDateRange extends InputText
      */
     protected ?string $auto_submit = null;
 
+    /**
+     * Date ranges
+     *
+     * @var DateRangePickerRangesInterface $ranges
+     */
+    protected DateRangePickerRangesInterface $ranges;
+
 
     /**
      * InputDateRange class constructor
@@ -78,12 +88,60 @@ class InputDateRange extends InputText
 
 
     /**
+     * Returns the date ranges object
+     *
+     * @return DateRangePickerRangesInterface
+     */
+    public function getRanges(): DateRangePickerRangesInterface
+    {
+        if (empty($this->ranges)) {
+            $this->ranges = new DateRangePickerRanges();
+        }
+
+        return $this->ranges;
+    }
+
+
+    /**
+     * Specify what pre-programmed range to use
+     *
+     * @param string $range
+     * @return $this
+     */
+    public function useRange(string $range): static
+    {
+        switch ($range) {
+            case 'default':
+                $this->getRanges()->useDefault();
+                break;
+
+            default:
+                throw new OutOfBoundsException(tr('Unknown range ":range" specified, specify one of "default"', [
+                    ':range' => $range
+                ]));
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Render and return the HTML for this Input Element
      *
      * @return string|null
      */
     public function render(): ?string
     {
+        // Required javascript
+        Page::loadJavascript('adminlte/plugins/moment/moment');
+        Page::loadJavascript('adminlte/plugins/daterangepicker/daterangepicker');
+        Page::loadJavascript('adminlte/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4');
+
+        // Required CSS
+        Page::loadCss('adminlte/plugins/daterangepicker/daterangepicker');
+        Page::loadCss('adminlte/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4');
+
+        // Setup & configuration script for daterangepicker
         Script::new()
             ->setJavascriptWrapper(JavascriptWrappers::window)
             ->setContent('
@@ -93,16 +151,7 @@ class InputDateRange extends InputText
                         return $(this).trigger("change");
                     },
                     parentEl: "' . $this->parent_selector . '",
-                    ranges   : {
-                        "Today"  : [moment(), moment()],
-                        "Yesterday"   : [moment().subtract(1, "days"), moment().subtract(1, "days")],
-                        "Last 7 Days" : [moment().subtract(6, "days"), moment()],
-                        "Last 30 Days": [moment().subtract(29, "days"), moment()],
-                        "This Month"  : [moment().startOf("month"), moment().endOf("month")],
-                        "Last Month"  : [moment().subtract(1, "month").startOf("month"), moment().subtract(1, "month").endOf("month")],
-                        "This Year"   : [moment().startOf("year"), moment().endOf("year")],
-                        "Last Year"   : [moment().subtract(1, "year").startOf("year"), moment().subtract(1, "year").endOf("year")]
-                    }
+                    ' . $this->buildRanges() . '
 //                    startDate: moment().subtract(29, "days"),
 //                    endDate  : moment()
                 },
@@ -112,5 +161,26 @@ class InputDateRange extends InputText
             ->render();
 
         return parent::render();
+    }
+
+
+    /**
+     * Builds the ranges string, if any
+     *
+     * @return string|null
+     */
+    protected function buildRanges(): ?string
+    {
+        if (empty($this->ranges) or $this->ranges->isEmpty()) {
+            return null;
+        }
+
+        $return = [];
+
+        foreach ($this->ranges as $key => $range) {
+            $return[] = '"' . $key . '"  : ' . $range;
+        }
+
+        return 'ranges : {' . implode(',' . PHP_EOL, $return) . '}' . PHP_EOL;
     }
 }

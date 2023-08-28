@@ -3,8 +3,7 @@
 namespace Phoundation\Web\Http\Html\Components\Input\Interfaces;
 
 
-use Phoundation\Web\Http\Html\Components\Interfaces\ResourceElementInterface;
-
+use Phoundation\Web\Http\Html\Components\Input\InputSelect;
 
 /**
  * Class Select
@@ -16,7 +15,7 @@ use Phoundation\Web\Http\Html\Components\Interfaces\ResourceElementInterface;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-interface SelectInterface extends ResourceElementInterface
+interface InputSelectInterface
 {
     /**
      * Sets if the select element allows multiple options to be selected
@@ -32,6 +31,21 @@ interface SelectInterface extends ResourceElementInterface
      * @return bool
      */
     public function getMultiple(): bool;
+
+    /**
+     * Returns the auto complete setting
+     *
+     * @return bool
+     */
+    public function getAutoComplete(): bool;
+
+    /**
+     * Sets the auto complete setting
+     *
+     * @param bool $auto_complete
+     * @return $this
+     */
+    public function setAutoComplete(bool $auto_complete): static;
 
     /**
      * Sets if there is only one option, it should automatically be selected

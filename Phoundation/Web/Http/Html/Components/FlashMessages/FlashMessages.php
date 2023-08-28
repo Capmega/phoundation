@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html\Components\FlashMessages;
 
-use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\ElementsBlock;
 use Phoundation\Web\Http\Html\Components\FlashMessages\Interfaces\FlashMessageInterface;
+use Phoundation\Web\Http\Html\Components\FlashMessages\Interfaces\FlashMessagesInterface;
 use Phoundation\Web\Http\Html\Components\Script;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Html\Enums\Interfaces\DisplayModeInterface;
@@ -27,15 +27,15 @@ use Throwable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class FlashMessages extends ElementsBlock implements IteratorInterface
+class FlashMessages extends ElementsBlock implements FlashMessagesInterface
 {
     /**
      * This method will move all messages from the specified FlashMessages object here.
      *
-     * @param FlashMessages|null $messages
+     * @param FlashMessagesInterface|null $messages
      * @return static
      */
-    public function pullMessagesFrom(?FlashMessages $messages): static
+    public function pullMessagesFrom(?FlashMessagesInterface $messages): static
     {
         if ($messages) {
             foreach ($messages as $message) {
@@ -53,12 +53,12 @@ class FlashMessages extends ElementsBlock implements IteratorInterface
     /**
      * Add a "Success!" flash message
      *
-     * @param FlashMessage|Exception|string|null $message
+     * @param FlashMessageInterface|Exception|string|null $message
      * @param string|null $icon
      * @param int|null $auto_close
      * @return $this
      */
-    public function addSuccessMessage(FlashMessage|Exception|string|null $message = null, string $icon = null, ?int $auto_close = 10000): static
+    public function addSuccessMessage(FlashMessageInterface|Exception|string|null $message = null, string $icon = null, ?int $auto_close = 10000): static
     {
         return $this->addMessage($message, tr('Success!'), DisplayMode::success, $icon, $auto_close);
     }
@@ -67,12 +67,12 @@ class FlashMessages extends ElementsBlock implements IteratorInterface
     /**
      * Add a "Warning!" flash message
      *
-     * @param FlashMessage|Exception|string|null $message
+     * @param FlashMessageInterface|Exception|string|null $message
      * @param string|null $icon
      * @param int|null $auto_close
      * @return $this
      */
-    public function addWarningMessage(FlashMessage|Exception|string|null $message = null, string $icon = null, ?int $auto_close = 0): static
+    public function addWarningMessage(FlashMessageInterface|Exception|string|null $message = null, string $icon = null, ?int $auto_close = 0): static
     {
         return $this->addMessage($message, tr('Warning'), DisplayMode::warning, $icon, $auto_close);
     }
@@ -81,12 +81,12 @@ class FlashMessages extends ElementsBlock implements IteratorInterface
     /**
      * Add a "Validation failed" flash message
      *
-     * @param FlashMessage|Exception|string|null $message
+     * @param FlashMessageInterface|Exception|string|null $message
      * @param string|null $icon
      * @param int|null $auto_close
      * @return $this
      */
-    public function addValidationFailedMessage(FlashMessage|Exception|string|null $message = null, string $icon = null, ?int $auto_close = 10000): static
+    public function addValidationFailedMessage(FlashMessageInterface|Exception|string|null $message = null, string $icon = null, ?int $auto_close = 10000): static
     {
         return $this->addMessage($message, tr('Validation failed'), DisplayMode::warning, $icon, $auto_close);
     }
@@ -95,12 +95,12 @@ class FlashMessages extends ElementsBlock implements IteratorInterface
     /**
      * Add an "Error!" flash message
      *
-     * @param FlashMessage|Exception|string|null $message
+     * @param FlashMessageInterface|Exception|string|null $message
      * @param string|null $icon
      * @param int|null $auto_close
      * @return $this
      */
-    public function addErrorMessage(FlashMessage|Exception|string|null $message = null, string $icon = null, ?int $auto_close = 0): static
+    public function addErrorMessage(FlashMessageInterface|Exception|string|null $message = null, string $icon = null, ?int $auto_close = 0): static
     {
         return $this->addMessage($message, tr('Something went wrong'), DisplayMode::error, $icon, $auto_close);
     }
@@ -109,12 +109,12 @@ class FlashMessages extends ElementsBlock implements IteratorInterface
     /**
      * Add a "Notice!" flash message
      *
-     * @param FlashMessage|Exception|string|null $message
+     * @param FlashMessageInterface|Exception|string|null $message
      * @param string|null $icon
      * @param int|null $auto_close
      * @return $this
      */
-    public function addNoticeMessage(FlashMessage|Exception|string|null $message = null, string $icon = null, ?int $auto_close = 10000): static
+    public function addNoticeMessage(FlashMessageInterface|Exception|string|null $message = null, string $icon = null, ?int $auto_close = 10000): static
     {
         return $this->addMessage($message, tr('Notice'), DisplayMode::notice, $icon, $auto_close);
     }
@@ -123,14 +123,14 @@ class FlashMessages extends ElementsBlock implements IteratorInterface
     /**
      * Add a flash message
      *
-     * @param FlashMessage|Exception|Stringable|string|null $message
+     * @param FlashMessageInterface|Exception|Stringable|string|null $message
      * @param string|null $title
      * @param DisplayModeInterface|null $mode
      * @param string|null $icon
      * @param int|null $auto_close
      * @return $this
      */
-    public function addMessage(FlashMessage|Exception|Stringable|string|null $message, ?string $title = null, ?DisplayModeInterface $mode = DisplayMode::error, string $icon = null, ?int $auto_close = 5000): static
+    public function addMessage(FlashMessageInterface|Exception|Stringable|string|null $message, ?string $title = null, ?DisplayModeInterface $mode = DisplayMode::error, string $icon = null, ?int $auto_close = 5000): static
     {
         if (!$message) {
             // Ignore empty messages

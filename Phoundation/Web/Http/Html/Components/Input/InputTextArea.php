@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http\Html\Components\Input;
 
 use Phoundation\Core\Strings;
-use Phoundation\Web\Http\Html\Enums\InputType;
 
 
 /**
- * TextArea class
+ * Class InputTextArea
  *
  *
  *
@@ -18,7 +17,7 @@ use Phoundation\Web\Http\Html\Enums\InputType;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class TextArea extends Input
+class InputTextArea extends Input
 {
     /**
      * The amount of columns to use for this text area

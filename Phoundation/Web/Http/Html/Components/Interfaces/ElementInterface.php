@@ -8,7 +8,7 @@ use Stringable;
 
 
 /**
- * Interface Element
+ * Interface ElementInterface
  *
  *
  *

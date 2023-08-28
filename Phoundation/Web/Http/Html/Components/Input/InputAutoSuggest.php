@@ -185,6 +185,11 @@ class InputAutoSuggest extends InputText
      */
     public function render(): ?string
     {
+        // Auto suggest is only available when not readonly or not disabled
+        if ($this->readonly or $this->disabled) {
+            return parent::render();
+        }
+
         if (empty($this->id)) {
             throw new OutOfBoundsException(tr('No ID or name specified for id auto suggest component'));
         }
