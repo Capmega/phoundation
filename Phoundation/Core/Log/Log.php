@@ -306,7 +306,7 @@ Class Log {
     public static function setThreshold(int $threshold): int
     {
         if (!is_natural($threshold, 1) or ($threshold > 10)) {
-            throw OutOfBoundsException::new(tr('The specified log threshold level ":level" is invalid. Please ensure the level is between 0 and 10', [
+            throw OutOfBoundsException::new(tr('The specified log threshold level ":level" is invalid. Please ensure the level is between 1 and 10', [
                 ':level' => $threshold
             ]))->makeWarning();
         }
