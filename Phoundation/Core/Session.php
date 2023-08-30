@@ -10,7 +10,6 @@ use GeoIP;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\GuestUser;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
-use Phoundation\Accounts\Users\Interfaces\UsersInterface;
 use Phoundation\Accounts\Users\SignIn;
 use Phoundation\Accounts\Users\SystemUser;
 use Phoundation\Accounts\Users\User;
@@ -22,7 +21,6 @@ use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntry\Exception\DataEntryStatusException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Data\Validator\PostValidator;
-use Phoundation\Data\Validator\Validator;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\OutOfBoundsException;
@@ -34,6 +32,7 @@ use Phoundation\Security\Incidents\Incident;
 use Phoundation\Security\Incidents\Severity;
 use Phoundation\Web\Client;
 use Phoundation\Web\Http\Html\Components\FlashMessages\FlashMessages;
+use Phoundation\Web\Http\Html\Components\FlashMessages\Interfaces\FlashMessagesInterface;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\UrlBuilder;
@@ -168,9 +167,9 @@ class Session
      * Returns the page flash messages
      *
      * @todo Load flash messages for the session!
-     * @return FlashMessages
+     * @return FlashMessagesInterface
      */
-    public static function getFlashMessages(): FlashMessages
+    public static function getFlashMessages(): FlashMessagesInterface
     {
         if (!static::$flash_messages) {
             static::$flash_messages = FlashMessages::new();
@@ -786,12 +785,11 @@ Log::warning('RESTART SESSION');
                 break;
 
             default:
-                /*
-                 * Test cookie domain limitation
-                 *
-                 * If the configured cookie domain is different from the current domain then all cookie will inexplicably fail without warning,
-                 * so this must be detected to avoid lots of hair pulling and throwing arturo off the balcony incidents :)
-                 */
+                // Test cookie domain limitation
+                //
+                // If the configured cookie domain is different from the current domain then all cookie will
+                // inexplicably fail without warning, so this must be detected to avoid lots of hair pulling and
+                // throwing arturo off the balcony incidents :)
                 if (Config::getBoolString('web.sessions.cookies.domain')[0] == '.') {
                     $test = substr(Config::get('web.sessions.cookies.domain'), 1);
 
@@ -842,7 +840,7 @@ Log::warning('RESTART SESSION');
                     ini_set('session.cache_limiter', 'nocache');
 
                 } else {
-                    if (Config::getBoolean('cache.http.enabled', true) === 'auto') {
+                    if (Config::get('cache.http.enabled', true) === 'auto') {
                         ini_set('session.cache_limiter', Config::getBoolean('cache.http.php-cache-limiter'         , true));
                         ini_set('session.cache_expire' , Config::getBoolean('cache.http.php-cache-php-cache-expire', true));
                     }
@@ -851,17 +849,18 @@ Log::warning('RESTART SESSION');
 
         }catch(Exception $e) {
             if ($e->getCode() == 403) {
-                $core->register['page_show'] = 403;
+                // TODO Check if any of this is still required? we're no longer using page_show...
+                Core::writeRegister(403, 'page_show');
 
             } else {
                 if (!is_writable(session_save_path())) {
-                    throw new SessionException('Session startup failed because the session path ":path" is not writable for platform ":platform"', [
+                    throw new SessionException(tr('Session startup failed because the session path ":path" is not writable for platform ":platform"', [
                         ':path'     => session_save_path(),
                         ':platform' => PLATFORM
-                    ], $e);
+                    ]), $e);
                 }
 
-                throw new SessionException('Session startup failed', $e);
+                throw new SessionException(tr('Session startup failed'), $e);
             }
         }
     }
@@ -895,7 +894,7 @@ Log::warning('RESTART SESSION');
             switch (Config::getBoolean('web.domains.whitelabels', false)) {
                 case '':
                     // White label domains are disabled, so the requested domain MUST match the configured domain
-                    Log::warning(tr('Whitelabels are disabled, redirecting domain ":source" to ":target"', [
+                    Log::warning(tr('White labels are disabled, redirecting domain ":source" to ":target"', [
                         ':source' => $_SERVER['HTTP_HOST'],
                         ':target' => Page::getDomain()
                     ]));
