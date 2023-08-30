@@ -4,14 +4,20 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Meta;
 
+use DateTime;
 use Exception;
 use Phoundation\Cli\Script;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Exception\MetaException;
 use Phoundation\Core\Session;
 use Phoundation\Data\Exception\DataEntryNotExistsException;
+use Phoundation\Data\Validator\Validate;
 use Phoundation\Databases\Sql\Exception\SqlException;
-use Phoundation\Web\Http\Html\Components\Table;
+use Phoundation\Databases\Sql\Sql;
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Web\Http\Html\Components\Interfaces\HtmlTableInterface;
+use Phoundation\Web\Http\Html\Components\HtmlTable;
 use Phoundation\Web\Http\UrlBuilder;
 
 
@@ -59,10 +65,12 @@ class Meta
         if ($id) {
             // Load the specified metadata
             $this->load($id);
+
         } else {
             if ($id === 0) {
                 // if specified $id is 0 then just return an empty object
                 $this->id = 0;
+
             } else {
                 // create a new metadata entry
                 $retry = 0;
@@ -171,6 +179,59 @@ class Meta
 
 
     /**
+     * Erases all meta history for the specified meta ids
+     *
+     * @param array|string|int $ids
+     * @return void
+     */
+    public static function erase(array|string|int $ids): void
+    {
+        // Erase the meta entry, the history will cascade
+        sql()->query('DELETE FROM `meta` WHERE `id` IN (' . Sql::in($ids) . ')', $ids);
+    }
+
+
+    /**
+     * Erases all meta history for entries from before the $before date
+     *
+     * @param DateTime|string $before
+     * @param int $limit
+     * @return void
+     */
+    public static function purge(DateTime|string $before, int $limit = 10_000): void
+    {
+        Validate::new($limit)->isMoreThan(0);
+
+        $before = \Phoundation\Date\DateTime::new($before)->format('mysql');
+
+        sql()->list('DELETE FROM `meta_history` WHERE `created_on` < :created_on' . ($limit ? ' LIMIT ' . $limit : null), [
+            ':created_on' => $before,
+        ]);
+    }
+
+
+    /**
+     * Erases all meta entries that have no database entries using them.
+     *
+     * @param int $limit
+     * @return int
+     */
+    public static function deorphan(int $limit = 1_000_000): int
+    {
+throw new UnderConstructionException();
+        Validate::new($limit)->isMoreThan(0);
+
+        $ids = [];
+
+        if ($ids) {
+            self::erase($ids);
+        }
+
+        return count($ids);
+    }
+
+
+    /**
      * Creates a new meta entry and returns the database id for it
      *
      * @param string|null $comments
@@ -221,12 +282,13 @@ class Meta
     /**
      * Creates and returns an HTML table for the data in this list
      *
-     * @return Table
+     * @param array|string|null $columns
+     * @return HtmlTableInterface
      */
-    public function getHtmlTable(): Table
+    public function getHtmlTable(array|string|null $columns = null): HtmlTableInterface
     {
         // Create and return the table
-        return Table::new()->setSourceQuery('SELECT * FROM `meta_history` WHERE `meta_id` = :meta_id', [':meta_id' => $this->id]);
+        return HtmlTable::new()->setSourceQuery('SELECT * FROM `meta_history` WHERE `meta_id` = :meta_id', [':meta_id' => $this->id]);
     }
 
 
