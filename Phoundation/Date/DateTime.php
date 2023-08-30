@@ -8,8 +8,10 @@ use DateTimeInterface;
 use Exception;
 use Phoundation\Date\Enums\DateTimeSegment;
 use Phoundation\Date\Enums\Interfaces\DateTimeSegmentInterface;
+use Phoundation\Date\Exception\DateTimeException;
 use Phoundation\Exception\OutOfBoundsException;
 use Stringable;
+use Throwable;
 
 
 /**
@@ -56,7 +58,16 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
             parent::__construct($datetime->format('Y-m-d H:i:s.u'), $timezone);
         }
 
-        parent::__construct($datetime, $timezone);
+        try {
+            parent::__construct($datetime, $timezone);
+
+        } catch (Throwable $e) {
+            throw new DateTimeException(tr('Failed to create DateTime object for given $datetime ":datetime" / timezone ":timezone" because ":e"', [
+                ':datetime' => $datetime,
+                ':timezone' => $timezone,
+                ':e'        => $e->getMessage(),
+            ]), $e);
+        }
     }
 
 
