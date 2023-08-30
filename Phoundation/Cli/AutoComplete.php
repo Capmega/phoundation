@@ -6,22 +6,46 @@ namespace Phoundation\Cli;
 
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Cli\Exception\AutoCompleteException;
+use Phoundation\Core\Arrays;
+use Phoundation\Core\Config;
 use Phoundation\Core\Locale\Language\Languages;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Geo\Timezones\Timezones;
 use Phoundation\Processes\Commands\Grep;
 
-
 /**
  * Class AutoComplete
  *
+ * This class executes all BaSH autocompletion including registering ./pho for autocompletion if it hasn't been yet.
  *
+ * The class supports autocompletion of commands, global system arguments, command arguments and command values.
+ * Commands must use Documentation::autoComplete() for this
+ *
+ * @example
+ *
+ * Documentation::autoComplete([
+ *     'positions' => [
+ *         0 => [
+ *             'word'   => 'SELECT `name` FROM `ssh_accounts` WHERE `name` LIKE :word AND `status` IS NULL',
+ *             'noword' => 'SELECT `name` FROM `ssh_accounts` WHERE `status` IS NULL LIMIT ' . Config::getInteger('shell.autocomplete.limit', 50)
+ *         ]
+ *     ],
+ *     'arguments' => [
+ *         '--file' => [
+ *             'word'   => function ($word) { return Path::new(PATH_DATA . 'sources/', PATH_DATA . 'sources/')->scandir($word . '*.csv'); },
+ *             'noword' => function ()      { return Path::new(PATH_DATA . 'sources/', PATH_DATA . 'sources/')->scandir('*.csv'); },
+ *         ],
+ *         '--user' => [
+ *             'word'   => function ($word) { return Arrays::match(Users::new()->load()->getSourceColumn('email'), $word); },
+ *             'noword' => function ()      { return Users::new()->load()->getSourceColumn('email'); },
+ *         ]
+ *     ]
+ * ]);
  *
  * @note Bash autocompletion has no man page and complete --help is of little, well, help. Search engines were also
  *       uncharacteristically unhelpful, so see the following links for more information
@@ -32,7 +56,10 @@ use Phoundation\Processes\Commands\Grep;
  * @see https://dev.to/iridakos/adding-bash-completion-to-your-scripts-50da
  * @see https://iridakos.com/programming/2018/03/01/bash-programmable-completion-tutorial
  * @see https://serverfault.com/questions/506612/standard-place-for-user-defined-bash-completion-d-scripts
-
+ * @see https://stackoverflow.com/questions/1146098/properly-handling-spaces-and-quotes-in-bash-completion#11536437
+ *
+ * @todo Fix known issues with "foo" and "foo-bar", the second item won't ever be shown
+ * @todo Fix known issues with result set having entries containing spaces, "foo bar" will be shown as "foo" and "bar"
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -107,14 +134,14 @@ class AutoComplete
             '-V,--verbose'             => false,
             '-W,--no-warnings'         => false,
             '--system-language'        => [
-                'word'   => function($word) { return Languages::new()->filteredList($word); },
+                'word'   => function($word) { return Languages::new()->getMatchingKeys($word); },
                 'noword' => function()      { return Languages::new()->getSource(); },
             ],
             '--deleted'                => false,
             '--version'                => false,
             '--limit'                  => true,
             '--timezone'               => [
-                'word'   => function($word) { return Timezones::new()->filteredList($word); },
+                'word'   => function($word) { return Timezones::new()->getMatchingKeys($word); },
                 'noword' => function()      { return Timezones::new()->getSource(); },
             ],
             '--show-passwords'         => false,
@@ -375,6 +402,18 @@ complete -F _phoundation pho');
 
 
     /**
+     * Automatically limit the specified result set to the configured auto complete limit
+     *
+     * @param array $source
+     * @return array
+     */
+    public static function limit(array $source): array
+    {
+        return Arrays::limit($source, Config::getInteger('shell.autocomplete.limit', 50));
+    }
+
+
+    /**
      * Process auto complete for this script from the definitions specified by the script
      *
      * @param array $argument_definitions
@@ -461,12 +500,21 @@ complete -F _phoundation pho');
      */
     protected static function processDefinition(mixed $definition, ?string $word): array|string|null
     {
+        // If no definitions were given we're done
         if (is_null($definition)) {
             return null;
         }
 
+        // If the given definition was a function we can just return the result
         if (is_callable($definition)) {
-            return $definition($word);
+            $results = $definition($word);
+
+            if (is_array($results)) {
+                // Limit the amount of results
+                $results = static::limit($results);
+            }
+
+            return $results;
         }
 
         if (is_string($definition)) {
@@ -474,10 +522,12 @@ complete -F _phoundation pho');
 
             if (str_starts_with($definition, 'SELECT ')) {
                 if ($word) {
-                    return sql()->listScalar($definition, [':word' => '%' . $word . '%']);
+                    // Execute the query filtering on the specified word and limit the results
+                    return static::limit(sql()->listScalar($definition, [':word' => '%' . $word . '%']));
                 }
 
-                return sql()->listScalar($definition);
+                // Execute the query completely and limit the results
+                return static::limit(sql()->listScalar($definition));
             }
 
             return $definition;
@@ -485,7 +535,8 @@ complete -F _phoundation pho');
 
         // Process an array, return all entries that have partial match
         if (is_array($definition)) {
-            $results = [];
+            $definition = static::limit($definition);
+            $results    = [];
 
             foreach ($definition as $value) {
                 if (!$word or str_contains(strtolower(trim($value)), $word)) {
