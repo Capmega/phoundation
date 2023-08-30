@@ -49,6 +49,36 @@ class Validate
 
 
     /**
+     * Validates if the selected field is integer
+     *
+     * @return static
+     */
+    public function isInteger(): static
+    {
+        if (!is_integer($this->source)) {
+            throw new ValidationFailedException(tr('The specified value must be integer'));
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Validates if the selected field is a float
+     *
+     * @return static
+     */
+    public function isFloat(): static
+    {
+        if (!is_float($this->source)) {
+            throw new ValidationFailedException(tr('The specified value must be a float'));
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Validates if the selected field is a valid domain name
      *
      * @return static
@@ -57,6 +87,36 @@ class Validate
     {
         if (!is_numeric($this->source)) {
             throw new ValidationFailedException(tr('The specified value must be numeric'));
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Validates if the selected field is a string
+     *
+     * @return static
+     */
+    public function isString(): static
+    {
+        if (!is_string($this->source)) {
+            throw new ValidationFailedException(tr('The specified value must be a string'));
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Validates if the selected field is an array
+     *
+     * @return static
+     */
+    public function isArray(): static
+    {
+        if (!is_array($this->source)) {
+            throw new ValidationFailedException(tr('The specified value must be an array'));
         }
 
         return $this;
