@@ -7,6 +7,7 @@ namespace Phoundation\Web\Http\Html;
 use PDOStatement;
 use Phoundation\Content\Images\Image;
 use Phoundation\Core\Arrays;
+use Phoundation\Core\Config;
 use Phoundation\Core\Strings;
 use Phoundation\Developer\Debug;
 use Phoundation\Filesystem\File;
@@ -109,11 +110,16 @@ Class Html
      * Minify and return the specified HTML
      *
      * @param string $html
+     * @param bool $force
      * @return string
      */
-    public static function minify(string $html): string
+    public static function minify(string $html, bool $force = false): string
     {
-        return Minifier::html($html);
+        if ($force or Config::getBoolean('web.minify', false)) {
+            return Minifier::html($html);
+        }
+
+        return $html;
     }
 
 
