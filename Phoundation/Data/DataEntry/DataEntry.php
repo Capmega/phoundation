@@ -501,7 +501,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
         // Get the required fields and gather a list of available help groups
         foreach ($fields as $id => $definitions) {
             if (!$definitions->getOptional()) {
-                $fields->delete($id);
+                $fields->remove($id);
                 $return .= PHP_EOL . PHP_EOL . Strings::size($definitions->getCliField(), 39) . ' ' . $definitions->getHelpText();
             }
 
@@ -520,7 +520,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
 
             foreach ($fields as $id => $definitions) {
                 if ($definitions->getHelpGroup() === $group) {
-                    $fields->delete($id);
+                    $fields->remove($id);
                     $body .= PHP_EOL . PHP_EOL . Strings::size($definitions->getCliField(), 39) . ' ' . $definitions->getHelpText();
                 }
             }
@@ -751,10 +751,12 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      */
     public function setStatus(?string $status, ?string $comments = null): static
     {
-        sql()->dataEntrySetStatus($status, static::getTable(), [
-            'id'      => $this->getId(),
-            'meta_id' => $this->getMetaId()
-        ], $comments);
+        if ($this->getId()) {
+            sql()->dataEntrySetStatus($status, static::getTable(), [
+                'id'      => $this->getId(),
+                'meta_id' => $this->getMetaId()
+            ], $comments);
+        }
 
         return $this->setSourceValue('status', $status);
     }
@@ -1014,7 +1016,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
             // Force was used, but object will now be in readonly mode so we can save failed data
             // Validate data and copy data into the source array
             $data_source = $this->doNotValidate($data_source, $clear_source);
-            $this->copyDataToSource($data_source, true, true);
+            $this->copyValuesToSource($data_source, true, true);
 
         } else {
             // Validate data and copy data into the source array
@@ -1029,7 +1031,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
             $this
                 ->validateMetaState($data_source)
                 ->createDiff($data_source)
-                ->copyDataToSource($data_source, true);
+                ->copyValuesToSource($data_source, true);
         }
 
         $this->is_applying = false;
@@ -1181,7 +1183,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      * @param bool $directly
      * @return static
      */
-    protected function copyDataToSource(array $source, bool $modify, bool $directly = false): static
+    protected function copyValuesToSource(array $source, bool $modify, bool $directly = false): static
     {
         if ($this->definitions->isEmpty()) {
             throw new OutOfBoundsException(tr('Data keys were not defined for this ":class" class', [
@@ -1238,7 +1240,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
                 $method = $this->convertFieldToSetMethod($key);
 
                 if ($this->debug) {
-                    Log::information('SET DATA ON KEY "' . $key . '" WITH METHOD: ' . $method . ' (' . (method_exists($this, $method) ? 'exists' : 'NOT exists') . ') TO VALUE "' . Strings::log($value). '"', 10);
+                    Log::information('ABOUT TO SET SOURCE KEY "' . $key . '" WITH METHOD: ' . $method . ' (' . (method_exists($this, $method) ? 'exists' : 'NOT exists') . ') TO VALUE "' . Strings::log($value). '"', 10);
                 }
 
                 // Only apply if a method exist for this variable
@@ -1249,7 +1251,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
                         continue;
                     }
 
-                    throw new OutOfBoundsException(tr('Cannot set array data because key ":key" has no method for the DataEntry class ":class"', [
+                    throw new OutOfBoundsException(tr('Cannot set source key ":key" because the class definitions have no method defined for DataEntry class ":class"', [
                         ':key'   => $key,
                         ':class' => Strings::fromReverse(get_class($this), '\\')
                     ]));
@@ -1318,7 +1320,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
 
 
     /**
-     * Returns all data for this data entry at once with an array of information
+     * Returns only the specified key from the source of this DataEntry
      *
      * @note This method filters out all keys defined in static::getProtectedKeys() to ensure that keys like "password"
      *       will not become available outside this object
@@ -1327,11 +1329,12 @@ abstract class DataEntry implements DataEntryInterface, Stringable
     public function getSourceKey(string $key): mixed
     {
         if (array_key_exists($key, $this->source)) {
-        return $this->source[$key];
+            return $this->source[$key];
         }
 
-        throw new OutOfBoundsException(tr('Specified key ":key" does not exist in the source', [
-            ':key' => $key
+        throw new OutOfBoundsException(tr('Specified key ":key" does not exist in this DataEntry ":class" object', [
+            ':class' => get_class($this),
+            ':key'   => $key
         ]));
     }
 
@@ -1407,7 +1410,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
     protected function setSourceValue(string $field, mixed $value, bool $force = false): static
     {
         if ($this->debug) {
-            Log::information('TRY SETDATAVALUE FIELD "' . $field . '"', 10);
+            Log::information('TRY SET SOURCE VALUE FIELD "' . $field . '"', 10);
         }
 
         // Only save values that are defined for this object
@@ -1521,6 +1524,10 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      */
     protected function checkProtected(string $field): void
     {
+        if (empty($field)) {
+            throw new OutOfBoundsException(tr('Empty field name specified'));
+        }
+
         if (in_array($field, $this->protected_fields)) {
             throw new OutOfBoundsException(tr('Specified DataValue key ":key" is protected and cannot be accessed', [
                 ':key' => $field
@@ -1787,6 +1794,8 @@ abstract class DataEntry implements DataEntryInterface, Stringable
             $definition->validate($validator, $prefix);
         }
 
+        // Check if no arguments are left and execute the validate method to get the results of the validation
+        // TODO Seems like "noArgumentsLeft()" method has no real use anymore. Get rid of it
         $validator->noArgumentsLeft($clear_source);
         $source = $validator->validate($clear_source);
         $this->is_validated = true;
@@ -1843,7 +1852,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
 
         if ($init) {
             // Load data with object init
-            $this->setMetaData($source)->copyDataToSource($source, false);
+            $this->setMetaData($source)->copyValuesToSource($source, false);
 
         } else {
             $this->source = $source;
@@ -1877,7 +1886,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
         // Store all data in the object
         $this
             ->setMetaData((array) $data)
-            ->copyDataToSource((array) $data, false);
+            ->copyValuesToSource((array) $data, false);
 
         // Reset state
         $this->is_new      = false;
