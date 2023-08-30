@@ -40,7 +40,7 @@ trait DataUsersId
      * @param int|null $users_id
      * @return static
      */
-    public function setUsersId(int|null $users_id): static
+    public function setUsersId(?int $users_id): static
     {
         $this->users_id = get_null($users_id);
         return $this;
