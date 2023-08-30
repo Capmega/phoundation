@@ -6,15 +6,15 @@ namespace Phoundation\Date\Exception;
 
 
 /**
- * Class TimeException
+ * Class DateTimeException
  *
- * This is the standard exception for the Phoundation\Date\Time class
+ * This is the standard exception for the Phoundation\Date\DateTime class
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Date
  */
-class TimeException extends DateException
+class DateTimeException extends DateException
 {
 }
