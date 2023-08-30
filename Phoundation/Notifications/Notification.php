@@ -153,8 +153,20 @@ class Notification extends DataEntry
      */
     public function setException(Throwable $e): static
     {
+        if ($e instanceof Exception) {
+            if ($e->isWarning()) {
+                $mode = DisplayMode::warning;
+            } else {
+                $mode = DisplayMode::exception;
+            }
+
+        } else {
+            $mode = DisplayMode::exception;
+        }
+
         $this
             ->setUrl('/development/incidents.html')
+            ->setMode($mode)
             ->setFile($e->getFile())
             ->setLine($e->getLine())
             ->setTrace($e->getTraceAsString())
