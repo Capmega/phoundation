@@ -485,7 +485,7 @@ class UrlBuilder implements UrlBuilderInterface
             ]));
         }
 
-        sql()->dataEntrydelete('url_cloaks', [':cloak' => $this->url]);
+        sql()->dataEntryDelete('url_cloaks', [':cloak' => $this->url]);
         return $this;
     }
 

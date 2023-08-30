@@ -156,7 +156,7 @@ class Category extends DataEntry implements CategoryInterface
                 ->setVirtual(true)
                 ->setCliField('--parent PARENT CATEGORY NAME')
                 ->setCliAutoComplete([
-                    'word'   => function($word) { return Categories::new()->filteredList($word); },
+                    'word'   => function($word) { return Categories::new()->getMatchingKeys($word); },
                     'noword' => function()      { return Categories::new()->getSource(); },
                 ])
                 ->addValidationFunction(function (ValidatorInterface $validator) {

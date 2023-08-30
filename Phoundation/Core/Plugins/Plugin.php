@@ -277,7 +277,7 @@ class Plugin extends DataEntry implements PluginInterface
     public function unregister(?string $comments = null): void
     {
         static::unlinkScripts();
-        sql()->dataEntrydelete('core_plugins', [':seo_name' => $this->getName()], $comments);
+        sql()->dataEntryDelete('core_plugins', [':seo_name' => $this->getName()], $comments);
     }
 
 

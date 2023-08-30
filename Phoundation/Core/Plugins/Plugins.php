@@ -10,7 +10,7 @@ use Phoundation\Core\Plugins\Interfaces\PluginsInterface;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Path;
-use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
 use Throwable;
 
 
@@ -362,9 +362,9 @@ class Plugins extends DataList implements PluginsInterface
      * @param string $value_column
      * @param string $key_column
      * @param string|null $order
-     * @return SelectInterface
+     * @return InputSelectInterface
      */
-    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id', ?string $order = null): SelectInterface
+    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id', ?string $order = null): InputSelectInterface
     {
         return parent::getHtmlSelect($value_column, $key_column, $order)
             ->setName('plugins_id')

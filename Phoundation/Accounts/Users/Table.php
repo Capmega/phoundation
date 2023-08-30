@@ -15,7 +15,7 @@ namespace Phoundation\Accounts\Users;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
-class Table extends \Phoundation\Web\Http\Html\Components\Table
+class Table extends \Phoundation\Web\Http\Html\Components\HtmlTable
 {
     /**
      * Table class constructor

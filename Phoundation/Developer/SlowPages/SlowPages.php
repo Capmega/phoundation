@@ -25,7 +25,6 @@ class SlowPages extends Incidents
      * Users class constructor
      *
      * @param Role|User|null $parent
-     * @param string|null $id_column
      */
     public function __construct(Role|User|null $parent = null, ?string $id_column = null)
     {

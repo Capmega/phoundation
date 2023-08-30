@@ -31,7 +31,7 @@ class Paging
             return $limit;
         }
 
-        return Config::getInteger('data.paging.default-limit', 50);
+        return Config::getInteger('data.paging.limit', 50);
     }
 
 

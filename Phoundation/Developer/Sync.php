@@ -102,7 +102,7 @@ class Sync
     {
         $this->lock();
         $this->dumpDatabases();
-        $this->unlockDatabases();
+        $this->unlockRemoteSqlDatabase();
         $this->copyDumps();
         $this->cleanDumps();
         $this->importDatabases();
@@ -132,30 +132,8 @@ class Sync
      */
     protected function lock(): void
     {
-        $this->lockSystem();
-        $this->lockDatabases();
-    }
-
-
-    /**
-     * Lock all databases in readonly for this projects so that we can dump them
-     *
-     * @return void
-     */
-    protected function lockSystem(): void
-    {
-
-    }
-
-
-    /**
-     * Lock all databases in readonly for this projects so that we can dump them
-     *
-     * @return void
-     */
-    protected function lockDatabases(): void
-    {
-
+        $this->lockRemoteSystem();
+        $this->lockRemoteSqlDatabase();
     }
 
 
@@ -166,8 +144,8 @@ class Sync
      */
     protected function unlock(): void
     {
-        $this->unlockSystem();
-        $this->unlockDatabases();
+        $this->unlockRemoteSystem();
+        $this->unlockRemoteSqlDatabase();
     }
 
 
@@ -176,7 +154,7 @@ class Sync
      *
      * @return void
      */
-    protected function unlockSystem(): void
+    protected function lockRemoteSystem(): void
     {
 
     }
@@ -187,7 +165,31 @@ class Sync
      *
      * @return void
      */
-    protected function unlockDatabases(): void
+    protected function unlockRemoteSystem(): void
+    {
+
+    }
+
+
+    /**
+     * Lock all databases in readonly for this projects so that we can dump them
+     *
+     * @param string $database
+     * @return void
+     */
+    protected function lockRemoteSqlDatabase(string $database): void
+    {
+
+    }
+
+
+    /**
+     * Lock specified SQL database in readonly for this projects so that we can dump them
+     *
+     * @param string $database
+     * @return void
+     */
+    protected function unlockRemoteSqlDatabase(string $database): void
     {
 
     }
@@ -200,11 +202,20 @@ class Sync
      */
     protected function dumpDatabases(): void
     {
-        $this->lock();
-        $this->dumpSql();
-        $this->dumpMongo();
-        $this->dumpRedis();
-        $this->unlock();
+        $this->dumpAllSql();
+        $this->dumpAllMongo();
+        $this->dumpAllRedis();
+    }
+
+
+    /**
+     * Dumps the SQL databases for this project
+     *
+     * @return void
+     */
+    protected function dumpAllSql(): void
+    {
+
     }
 
 
@@ -224,7 +235,29 @@ class Sync
      *
      * @return void
      */
+    protected function dumpAllMongo(): void
+    {
+
+    }
+
+
+    /**
+     * Dumps the Mongo databases for this project
+     *
+     * @return void
+     */
     protected function dumpMongo(): void
+    {
+
+    }
+
+
+    /**
+     * Dumps the Redis databases for this project
+     *
+     * @return void
+     */
+    protected function dumpAllRedis(): void
     {
 
     }

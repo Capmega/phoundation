@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Phoundation\Accounts\Rights;
 
 use Phoundation\Accounts\Rights\Interfaces\RightInterface;
+use Phoundation\Accounts\Roles\Interfaces\RolesInterface;
 use Phoundation\Accounts\Roles\Role;
+use Phoundation\Accounts\Roles\Roles;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
@@ -62,6 +64,17 @@ class Right extends DataEntry implements RightInterface
     public static function getUniqueField(): ?string
     {
         return 'seo_name';
+    }
+
+
+    /**
+     * Returns the roles that give this right
+     *
+     * @return RolesInterface
+     */
+    public function getRoles(): RolesInterface
+    {
+        return Roles::new()->setParent($this)->load();
     }
 
 

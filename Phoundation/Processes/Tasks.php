@@ -6,7 +6,7 @@ namespace Phoundation\Processes;
 
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Security\Incidents\Incident;
-use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Http\Html\Components\Input\InputSelect;
 
 
@@ -61,9 +61,9 @@ class Tasks extends DataList
      * @param string $value_column
      * @param string $key_column
      * @param string|null $order
-     * @return SelectInterface
+     * @return InputSelectInterface
      */
-    public function getHtmlSelect(string $value_column = '', string $key_column = 'id', ?string $order = null): SelectInterface
+    public function getHtmlSelect(string $value_column = '', string $key_column = 'id', ?string $order = null): InputSelectInterface
     {
         if (!$value_column) {
             $value_column = 'CONCAT(`command`, " [", `status`, "]") AS command';

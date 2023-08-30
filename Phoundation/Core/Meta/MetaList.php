@@ -7,7 +7,7 @@ namespace Phoundation\Core\Meta;
 use Phoundation\Core\Arrays;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Utils\Json;
-use Phoundation\Web\Http\Html\Components\DataTable;
+use Phoundation\Web\Http\Html\Components\HtmlDataTable;
 use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Url;
 
@@ -56,9 +56,9 @@ class MetaList
     /**
      * Returns a DataTable object
      *
-     * @return DataTable
+     * @return HtmlDataTable
      */
-    public function getHtmlDataTable(array|string|null $columns = null): DataTable
+    public function getHtmlDataTable(array|string|null $columns = null): HtmlDataTable
     {
         // Create and return the table
         $in     = Sql::in($this->meta_list);
@@ -124,7 +124,7 @@ class MetaList
 
         unset($row);
 
-        return DataTable::new()
+        return HtmlDataTable::new()
             ->setId('meta')
             ->setProcessEntities(false)
             ->setColumnHeaders([

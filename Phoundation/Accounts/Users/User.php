@@ -8,6 +8,7 @@ use DateTimeInterface;
 use Phoundation\Accounts\Rights\Interfaces\RightsInterface;
 use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Accounts\Roles\Interfaces\RolesInterface;
+use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Roles\Roles;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\Exception\PasswordNotChangedException;
@@ -42,7 +43,9 @@ use Phoundation\Data\DataEntry\Traits\DataEntryType;
 use Phoundation\Data\DataEntry\Traits\DataEntryUrl;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
+use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Date\DateTime;
+use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\NotSupportedException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Security\Incidents\Incident;
@@ -155,6 +158,37 @@ class User extends DataEntry implements UserInterface
         if ($this->isGuest() or $this->isSystem()) {
 //            $this->setReadonly(true);
         }
+    }
+
+
+    /**
+     * Returns a single user object for a single user that has the specified role.
+     *
+     * Will throw an NotEx
+     *
+     * @param RolesInterface|Stringable|string $role
+     * @return UserInterface
+     * @throws SqlMultipleResultsException, NotExistsException
+     */
+    public static function getForRole(RolesInterface|Stringable|string $role): userInterface
+    {
+        $role = Role::get($role);
+        $id   = sql()->getColumn('SELECT `accounts_users`.`id`
+                                    FROM   `accounts_users`
+                                    JOIN   `accounts_users_roles`
+                                    ON     `accounts_users_roles`.`users_id` = `accounts_users`.`id`
+                                    WHERE  `accounts_users_roles`.`roles_id` = :roles_id
+                                      AND  `accounts_users_roles`.`status`   IS NULL', [
+                                          ':roles_id' => $role->getId()
+        ]);
+
+        if (empty($user)) {
+            throw new NotExistsException(tr('No user exists that has the role ":role"', [
+                ':role' => $role
+            ]));
+        }
+
+        return User::get($id);
     }
 
 
@@ -1017,11 +1051,11 @@ class User extends DataEntry implements UserInterface
      *
      * @return RightsInterface
      */
-    public function getRights(): RightsInterface
+    public function getRights(bool $reload = false, bool $order = false): RightsInterface
     {
-        if (!isset($this->rights)) {
+        if (!isset($this->rights) or $reload) {
             if ($this->getId()) {
-                $this->rights = Rights::new()->setParent($this)->load();
+                $this->rights = Rights::new()->setParent($this)->load($order);
 
             } else {
                 // This is the guest user or a new user. Either way, this user has no rights
@@ -1352,6 +1386,28 @@ class User extends DataEntry implements UserInterface
         throw new AuthenticationException(tr('The specified password did not match for user ":user"', [
             ':user' => $identifier
         ]));
+    }
+
+
+    /**
+     * Returns true if the user has the specified role
+     *
+     * @param RolesInterface|Stringable|string $role
+     * @param bool $exception
+     * @return bool
+     */
+    public function hasRole(RolesInterface|Stringable|string $role, bool $exception = false): bool
+    {
+        $return = $this->getRoles()->exists($role);
+
+        if (!$return and $exception) {
+            throw new NotExistsException(tr('The user ":user" does not have the required role ":role"', [
+                ':user' => $this->getLogId(),
+                ':role' => $role
+            ]));
+        }
+
+        return $return;
     }
 
 

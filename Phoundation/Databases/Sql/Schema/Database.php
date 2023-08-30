@@ -158,7 +158,7 @@ class Database extends SchemaAbstract
      *
      * @return void
      */
-    public function load(?string $id_column = null): static
+    public function load(): static
     {
         // Load columns & indices data
         // TODO Implement

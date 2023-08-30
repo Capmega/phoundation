@@ -64,7 +64,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns Definition object for column category
+     * Returns Definition object for column categories_name
      *
      * @param DataEntryInterface $data_entry
      * @param string|null $field
@@ -80,7 +80,7 @@ class DefinitionFactory
             ->setLabel(tr('Category'))
             ->setCliAutoComplete([
                 'word' => function ($word) {
-                    return Categories::new()->filteredList($word);
+                    return Categories::new()->getMatchingKeys($word);
                 },
                 'noword' => function () {
                     return Categories::new()->getSource();
@@ -90,6 +90,40 @@ class DefinitionFactory
                 // Ensure category exists and that its a category id or category name
                 $validator->or('categories_id')->isName()->setColumnFromQuery('categories_id', 'SELECT `id` FROM `categories` WHERE `name` = :name AND `status` IS NULL', [':id' => '$categories_name']);
             });
+    }
+
+
+    /**
+     * Returns Definition object for column parents_id
+     *
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
+     * @return DefinitionInterface
+     */
+    public static function getParentsId(DataEntryInterface $data_entry, ?string $field = 'parents_id'): DefinitionInterface
+    {
+        return Definition::new($data_entry, $field)
+            ->setOptional(true)
+            ->setSize(6)
+            ->setLabel(tr('Parent'));
+    }
+
+
+    /**
+     * Returns Definition object for column parents_name
+     *
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
+     * @return DefinitionInterface
+     */
+    public static function getParent(DataEntryInterface $data_entry, ?string $field = 'parents_name'): DefinitionInterface
+    {
+        return Definition::new($data_entry, $field)
+            ->setOptional(true)
+            ->setVisible(false)
+            ->setVirtual(true)
+            ->setCliField('-p,--parent PARENT-NAME')
+            ->setLabel(tr('Parent'));
     }
 
 
@@ -137,7 +171,7 @@ class DefinitionFactory
             ->setLabel(tr('Company'))
             ->setCliAutoComplete([
                 'word' => function ($word) {
-                    return Companies::new()->filteredList($word);
+                    return Companies::new()->getMatchingKeys($word);
                 },
                 'noword' => function () {
                     return Companies::new()->getSource();
@@ -199,7 +233,7 @@ class DefinitionFactory
             ->setLabel(tr('Language'))
             ->setCliAutoComplete([
                 'word' => function ($word) {
-                    return Languages::new()->filteredList($word);
+                    return Languages::new()->getMatchingKeys($word);
                 },
                 'noword' => function () {
                     return Languages::new()->getSource();
@@ -255,7 +289,7 @@ class DefinitionFactory
             ->setLabel(tr('Provider'))
             ->setCliAutoComplete([
                 'word' => function ($word) {
-                    return Providers::new()->filteredList($word);
+                    return Providers::new()->getMatchingKeys($word);
                 },
                 'noword' => function () {
                     return Providers::new()->getSource();
@@ -311,7 +345,7 @@ class DefinitionFactory
             ->setLabel(tr('Customer'))
             ->setCliAutoComplete([
                 'word' => function ($word) {
-                    return Customers::new()->filteredList($word);
+                    return Customers::new()->getMatchingKeys($word);
                 },
                 'noword' => function () {
                     return Customers::new()->getSource();
@@ -372,7 +406,7 @@ class DefinitionFactory
             ->setLabel(tr('Timezone'))
             ->setCliAutoComplete([
                 'word' => function ($word) {
-                    return Timezones::new()->filteredList($word);
+                    return Timezones::new()->getMatchingKeys($word);
                 },
                 'noword' => function () {
                     return Timezones::new()->getSource();
@@ -431,7 +465,7 @@ class DefinitionFactory
             ->setLabel(tr('Country'))
             ->setCliAutoComplete([
                 'word' => function ($word) {
-                    return Countries::new()->filteredList($word);
+                    return Countries::new()->getMatchingKeys($word);
                 },
                 'noword' => function () {
                     return Countries::new()->getSource();
@@ -490,7 +524,7 @@ class DefinitionFactory
             ->setLabel(tr('State'))
             ->setCliAutoComplete([
                 'word' => function ($word) {
-                    return States::new()->filteredList($word);
+                    return States::new()->getMatchingKeys($word);
                 },
                 'noword' => function () {
                     return States::new()->getSource();
@@ -549,7 +583,7 @@ class DefinitionFactory
             ->setLabel(tr('City'))
             ->setCliAutoComplete([
                 'word' => function ($word) {
-                    return Cities::new()->filteredList($word);
+                    return Cities::new()->getMatchingKeys($word);
                 },
                 'noword' => function () {
                     return Cities::new()->getSource();
@@ -608,7 +642,7 @@ class DefinitionFactory
             ->setLabel(tr('User'))
             ->setCliAutoComplete([
                 'word' => function ($word) {
-                    return Users::new()->filteredList($word);
+                    return Users::new()->getMatchingKeys($word);
                 },
                 'noword' => function () {
                     return Users::new()->getSource();
@@ -860,6 +894,26 @@ class DefinitionFactory
             ->setCliField('-d,--description "DESCRIPTION"')
             ->setCliAutoComplete(true)
             ->setLabel(tr('Description'));
+    }
+
+
+    /**
+     * Returns Definition object for column content
+     *
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
+     * @return DefinitionInterface
+     */
+    public static function getContent(DataEntryInterface $data_entry, ?string $field = 'content'): DefinitionInterface
+    {
+        return Definition::new($data_entry, $field)
+            ->setOptional(true)
+            ->setInputType(InputType::text)
+            ->setSize(12)
+            ->setMaxlength(16_777_215)
+            ->setCliField('--content "CONTENT"')
+            ->setCliAutoComplete(true)
+            ->setLabel(tr('Content'));
     }
 
 

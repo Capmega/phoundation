@@ -285,7 +285,7 @@ class Phoundation extends Project
                 foreach ($stash as $key => $file) {
                     Log::warning(tr('Returning problematic file ":file" from stash', [':file' => $file]));
                     Git::new(PATH_ROOT)->getStash()->pop();
-                    $stash->delete($key);
+                    $stash->remove($key);
                 }
 
                 throw PatchPartiallySuccessfulException::new(tr('Phoundating patch was partially successful, some files failed'))

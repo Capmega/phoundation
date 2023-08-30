@@ -335,7 +335,7 @@ class Server extends DataEntry
                 ->setInputType(InputTypeExtended::name)
                 ->setCliField('-a,--account ACCOUNT-NAME')
                 ->setCliAutoComplete([
-                    'word'   => function($word) { return SshAccounts::new()->filteredList($word); },
+                    'word'   => function($word) { return SshAccounts::new()->getMatchingKeys($word); },
                     'noword' => function()      { return SshAccounts::new()->getSource(); },
                 ])
                 ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -346,7 +346,7 @@ class Server extends DataEntry
                 ->setVirtual(true)
                 ->setCliField('--category CATEGORY-NAME')
                 ->setCliAutoComplete([
-                    'word'   => function($word) { return Categories::new()->filteredList($word); },
+                    'word'   => function($word) { return Categories::new()->getMatchingKeys($word); },
                     'noword' => function()      { return Categories::new()->getSource(); },
                 ])
                 ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -357,7 +357,7 @@ class Server extends DataEntry
                 ->setVirtual(true)
                 ->setCliField('--provider PROVIDER-NAME')
                 ->setCliAutoComplete([
-                    'word'   => function($word) { return Providers::new()->filteredList($word); },
+                    'word'   => function($word) { return Providers::new()->getMatchingKeys($word); },
                     'noword' => function()      { return Providers::new()->getSource(); },
                 ])
                 ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -368,7 +368,7 @@ class Server extends DataEntry
                 ->setVirtual(true)
                 ->setCliField('--customer CUSTOMER-NAME')
                 ->setCliAutoComplete([
-                    'word'   => function($word) { return Customers::new()->filteredList($word); },
+                    'word'   => function($word) { return Customers::new()->getMatchingKeys($word); },
                     'noword' => function()      { return Customers::new()->getSource(); },
                 ])
                 ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -381,7 +381,7 @@ class Server extends DataEntry
                 ->setMaxlength(200)
                 ->setCliField('--country COUNTRY-NAME')
                 ->setCliAutoComplete([
-                    'word'   => function($word) { return Countries::new()->filteredList($word); },
+                    'word'   => function($word) { return Countries::new()->getMatchingKeys($word); },
                     'noword' => function()      { return Countries::new()->getSource(); },
                 ])
                 ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -394,7 +394,7 @@ class Server extends DataEntry
                 ->setMaxlength(200)
                 ->setCliField('--state STATE-NAME')
                 ->setCliAutoComplete([
-                    'word'   => function($word) { return States::new()->filteredList($word); },
+                    'word'   => function($word) { return States::new()->getMatchingKeys($word); },
                     'noword' => function()      { return States::new()->getSource(); },
                 ])
                 ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -407,7 +407,7 @@ class Server extends DataEntry
                 ->setMaxlength(200)
                 ->setCliField('--city STATE-NAME')
                 ->setCliAutoComplete([
-                    'word'   => function($word) { return Cities::new()->filteredList($word); },
+                    'word'   => function($word) { return Cities::new()->getMatchingKeys($word); },
                     'noword' => function()      { return Cities::new()->getSource(); },
                 ])
                 ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -430,7 +430,7 @@ class Server extends DataEntry
                 ->setHelpGroup(tr('Identification and network'))
                 ->setHelpText(tr('The unique hostname for this server'))
                 ->setCliAutoComplete([
-                    'word'   => function($word) { return SshAccounts::new()->filteredList($word); },
+                    'word'   => function($word) { return SshAccounts::new()->getMatchingKeys($word); },
                     'noword' => function()      { return SshAccounts::new()->getSource(); },
                 ])
                 ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -442,7 +442,7 @@ class Server extends DataEntry
                 ->setLabel(tr('Account'))
                 ->setHelpText(tr('The unique hostname for this server'))
                 ->setCliAutoComplete([
-                    'word'   => function($word) { return SshAccounts::new()->filteredList($word); },
+                    'word'   => function($word) { return SshAccounts::new()->getMatchingKeys($word); },
                     'noword' => function()      { return SshAccounts::new()->getSource(); },
                 ])
                 ->addValidationFunction(function (ValidatorInterface $validator) {

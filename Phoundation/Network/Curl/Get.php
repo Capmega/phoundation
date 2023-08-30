@@ -149,7 +149,7 @@ class Get extends Curl
             // Store the request results in cache
             unset($this->curl);
 
-            sql()->dataEntrydelete('network_curl_cache', [
+            sql()->dataEntryDelete('network_curl_cache', [
                 'url' => $this->url
             ]);
 

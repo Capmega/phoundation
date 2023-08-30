@@ -17,7 +17,8 @@ use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Path;
 use Phoundation\Notifications\Notification;
-use Phoundation\Web\Http\Html\Components\Table;
+use Phoundation\Web\Http\Html\Components\Interfaces\HtmlTableInterface;
+use Phoundation\Web\Http\Html\Components\HtmlTable;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 
 
@@ -317,12 +318,12 @@ class Libraries
     /**
      * Creates and returns an HTML table for the data in this list
      *
-     * @return Table
+     * @return HtmlTableInterface
      */
-    public static function getHtmlTable(): Table
+    public static function getHtmlTable(): HtmlTable
     {
         // Create and return the table
-        return Table::new()
+        return HtmlTable::new()
             ->setColumnHeaders([tr('Library'), tr('Version'), tr('Description')])
             ->setSource(static::listLibraries());
     }

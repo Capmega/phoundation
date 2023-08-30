@@ -174,7 +174,7 @@ class KubernetesObject
      *
      * @return static
      */
-    public function load(?string $id_column = null): static
+    public function load(): static
     {
         if ($this->getName()) {
             $output = Process::new('kubectl')
