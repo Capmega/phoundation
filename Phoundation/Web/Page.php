@@ -1075,15 +1075,16 @@ class Page
     public static function hasRightsOrRedirects(array|string $rights, string $target, ?int $rights_redirect = null, ?string $guest_redirect = null): void
     {
         if (Session::getUser()->hasAllRights($rights)) {
+            // Well then, all fine and dandy!
             return;
         }
 
         if (!$target) {
-            // If target wasn't specified we can safely assume it's the same as the real target.
+            // If target wasn't specified we can safely assume it's the same as the page target.
             $target = static::$target;
         }
 
-        // Oops! Is this a system page though? System pages require no rights to be viewed.
+        // Is this a system page though? System pages require no rights to be viewed.
         $system = dirname($target);
         $system = basename($system);
 
@@ -1092,6 +1093,7 @@ class Page
             return;
         }
 
+        // Is this a guest? Guests have no rights and can only see system pages and pages that require no rights
         if (Session::getUser()->isGuest()) {
             // This user has no rights at all, send to sign-in page
             if (!$guest_redirect) {
@@ -1099,10 +1101,10 @@ class Page
             }
 
             $guest_redirect = (string) UrlBuilder::getWww($guest_redirect)
-                                    ->addQueries('redirect=' . urlencode((string) UrlBuilder::getCurrent()));
+                ->addQueries('redirect=' . urlencode((string) UrlBuilder::getCurrent()));
 
             Incident::new()
-                ->setType('401 - unauthorized')->setSeverity(Severity::low)
+                ->setType('401 - Unauthorized')->setSeverity(Severity::low)
                 ->setTitle(tr('Guest user has no access to target page ":target" (real target ":real_target" requires rights ":rights"). Redirecting to "system/:redirect"', [
                     ':target'      => Strings::from(static::$target, PATH_ROOT),
                     ':real_target' => Strings::from($target, PATH_ROOT),
@@ -1119,16 +1121,25 @@ class Page
                 ->save();
 
             if (Core::isRequestType(EnumRequestTypes::api)) {
-                Json::reply(['_system' => ['http_code' => 401]]);
-            }
-
-            if (Core::isRequestType(EnumRequestTypes::ajax)) {
-                Json::reply(['_system' => [
-                    'http_code' => 401,
-                    'location'  => (string) UrlBuilder::getWww('/sign-in.html')]
+                // This method will exit
+                Json::reply([
+                    '__system' => [
+                        'http_code' => 401
+                    ]
                 ]);
             }
 
+            if (Core::isRequestType(EnumRequestTypes::ajax)) {
+                // This method will exit
+                Json::reply([
+                    '__system' => [
+                        'http_code' => 401,
+                        'location'  => (string) UrlBuilder::getWww('/sign-in.html')
+                    ]
+                ]);
+            }
+
+            // This method will exit
             Page::redirect($guest_redirect);
         }
 
@@ -1182,6 +1193,7 @@ class Page
                 ->save();
         }
 
+        // This method will exit
         Route::executeSystem($rights_redirect);
     }
 
@@ -1578,7 +1590,21 @@ class Page
         ob_flush();
         flush();
 
-        Log::success(tr('Sent ":length" bytes of HTML to client', [':length' => $length]), 4);
+        // Headers have been sent, from here we know if its a 200 or something else
+        if (static::$http_code === 200) {
+            Log::success(tr('Sent :http with ":bytes bytes" for URL ":url"', [
+                ':length' => $length,
+                ':http'   => (static::$http_code ? 'HTTP ' . static::$http_code : 'HTTP 0'),
+                ':url'    => (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']
+            ]), 4);
+
+        } else {
+            Log::warning(tr('Sent ":http" with ":bytes bytes" for URL ":url"', [
+                ':length' => $length,
+                ':http'   => (static::$http_code ? 'HTTP ' . static::$http_code : 'HTTP 0'),
+                ':url'    => (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']
+            ]));
+        }
     }
 
 
@@ -1968,18 +1994,6 @@ class Page
 
             // Set correct headers
             http_response_code(static::$http_code);
-
-            if (static::$http_code === 200) {
-                Log::success(tr('Phoundation sent :http for URL ":url"', [
-                    ':http' => (static::$http_code ? 'HTTP' . static::$http_code : 'HTTP0'),
-                    ':url' => (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']
-                ]), 4);
-            } else {
-                Log::warning(tr('Phoundation sent ":http" for URL ":url"', [
-                    ':http' => (static::$http_code ? 'HTTP' . static::$http_code : 'HTTP0'),
-                    ':url'  => (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']
-                ]));
-            }
 
             // Send all available headers
             foreach ($headers as $header) {
