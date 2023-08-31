@@ -4,15 +4,20 @@ declare(strict_types=1);
 
 namespace Phoundation\Processes\Commands;
 
+use Phoundation\Core\Core;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\DataBindAddress;
+use Phoundation\Data\Traits\DataFile;
 use Phoundation\Data\Traits\DataSource;
 use Phoundation\Data\Traits\DataTarget;
+use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Enum\ExecuteMethod;
 use Phoundation\Processes\Enum\Interfaces\ExecuteMethodInterface;
+use Phoundation\Processes\Process;
 
 
 /**
- * Class Wget
+ * Class Mplayer
  *
  *
  *
@@ -21,29 +26,24 @@ use Phoundation\Processes\Enum\Interfaces\ExecuteMethodInterface;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Processes
  */
-class Wget extends Command
+class Mplayer extends Command
 {
-    use DataSource;
-    use DataTarget;
-    use DataBindAddress;
+    use DataFile;
 
 
     /**
-     * Execute the rsync operation and return the PID (background) or -1
+     * Play the specified file
      *
-     * @param ExecuteMethod $method
-     * @return int|null
+     * @param bool $background
+     * @return void
      */
-    public function execute(ExecuteMethodInterface $method = ExecuteMethod::passthru): ?int
+    public function play(bool $background): void
     {
         // Build the process parameters, then execute
         $this->clearArguments()
-             ->setInternalCommand('wget')
-             ->addArgument($this->bind_address ? '--bind-address=' . $this->bind_address : null)
-             ->addArguments($this->target ? ['-O', $this->target] : null)
-             ->addArgument($this->source)
-             ->execute($method);
-
-        return null;
+             ->setRestrictions(Restrictions::default($this->restrictions, Restrictions::new(PATH_DATA . 'mplayer', true, 'audio')))
+             ->setInternalCommand('mplayer')
+             ->addArgument($this->file)
+             ->execute($background ? ExecuteMethod::background : ExecuteMethod::noReturn);
     }
 }

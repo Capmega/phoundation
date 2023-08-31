@@ -16,9 +16,11 @@ use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Commands\Command;
 use Phoundation\Processes\Commands\Exception\CommandNotFoundException;
 use Phoundation\Processes\Commands\Exception\CommandsException;
-use Phoundation\Processes\Commands\SystemCommands;
+use Phoundation\Processes\Commands\Exception\NoSudoException;
+use Phoundation\Processes\Commands\Which;
 use Phoundation\Processes\Exception\ProcessesException;
 use Phoundation\Processes\Exception\ProcessException;
+use Phoundation\Processes\Exception\ProcessFailedException;
 use Phoundation\Processes\Interfaces\ProcessInterface;
 use Phoundation\Servers\Server;
 use Stringable;
@@ -139,9 +141,9 @@ trait ProcessVariables
     /**
      * If specified, output from this command will be piped to the next command
      *
-     * @var Process|null $pipe
+     * @var ProcessInterface|string|null $pipe
      */
-    protected ?Process $pipe = null;
+    protected ProcessInterface|string|null $pipe = null;
 
     /**
      * Stores the data on where to redirect input channels
@@ -160,9 +162,9 @@ trait ProcessVariables
     /**
      * Keeps track on which server this command should be executed. NULL means this local server
      *
-     * @var Restrictions $restrictions
+     * @var RestrictionsInterface $restrictions
      */
-    protected Restrictions $restrictions;
+    protected RestrictionsInterface $restrictions;
 
     /**
      * If specified, the process will be executed on this server
@@ -650,6 +652,44 @@ trait ProcessVariables
 
 
     /**
+     * Returns true if the process can execute the specified command with sudo privileges
+     *
+     * @param string $command
+     * @param bool $exception
+     * @return bool
+     * @todo Find a better option than "--version" which may not be available for everything. What about shell commands like "true", or "which", etc?
+     */
+    public function sudoAvailable(string $command, bool $exception = false): bool
+    {
+        try {
+            Process::new($command, $this->getRestrictions())
+                ->setSudo(true)
+                ->setInternalCommand($command)
+                ->addArgument('--version')
+                ->executeReturnArray();
+
+            return true;
+
+        } catch (CommandNotFoundException) {
+            if ($exception) {
+                throw new NoSudoException(tr('Cannot check for sudo privileges for the ":command" command, the command was not found', [
+                    ':command' => $command
+                ]));
+            }
+
+        } catch (ProcessFailedException) {
+            if ($exception) {
+                throw new NoSudoException(tr('The current process owner has no sudo privileges available for the ":command" command', [
+                    ':command' => $command
+                ]));
+            }
+        }
+
+        return false;
+    }
+
+
+    /**
      * Sets if the command should be executed as a different user using sudo.
      *
      * If $sudo is NULL or FALSE, the command will not execute with sudo. If a string is specified, the command will
@@ -774,7 +814,7 @@ trait ProcessVariables
     public function setRestrictions(RestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): static
     {
         $this->cached_command_line = null;
-        $this->restrictions        = Core::ensureRestrictions($restrictions, $write, $label);
+        $this->restrictions        = Restrictions::ensure($restrictions, $write, $label);
         return $this;
     }
 
@@ -786,7 +826,7 @@ trait ProcessVariables
      * @param bool $which_command
      * @return static This process so that multiple methods can be chained
      */
-    public function setCommand(?string $command, bool $which_command = true): static
+    protected function setInternalCommand(?string $command, bool $which_command = true): static
     {
         if ($command) {
             // Make sure we have a clean command
@@ -807,14 +847,14 @@ trait ProcessVariables
         if ($which_command) {
             // Get the real location for the command to ensure it exists. Do NOT use this for shell internal commands!
             try {
-                $real_command = SystemCommands::new($this->restrictions)->which($command);
+                $real_command = Which::new($this->restrictions)->which($command);
 
             } catch (CommandNotFoundException) {
                 // Check if the command exist on disk
                 if (($command !== 'which') and !file_exists($command)) {
                     // The specified command was not found, we'll have to look for it anyway!
                     try {
-                        $real_command = SystemCommands::new($this->restrictions)->which($command);
+                        $real_command = Which::new($this->restrictions)->which($command);
 
                     } catch (CommandsException) {
                         // The command does not exist, but maybe we can auto install?
@@ -844,8 +884,8 @@ trait ProcessVariables
                         ]));
 
 // TODO Implement this! Have apt-file actually search for the command, match /s?bin/COMMAND or /usr/s?bin/COMMAND
-//                    SystemCommands::new()->aptGetInstall($this->packages);
-//                    return $this->setCommand($command, $which_command);
+//                    AptGet::new()->install($this->packages);
+//                    return $this->setInternalCommand($command, $which_command);
                     }
                 }
             }
@@ -1024,6 +1064,25 @@ trait ProcessVariables
 
 
     /**
+     * Returns the process command line for hte pipe
+     *
+     * @return Process|null
+     */
+    public function getPipeCommandLine(): ?string
+    {
+        if (empty($this->pipe)) {
+            return null;
+        }
+
+        if (is_string($this->pipe)) {
+            return $this->pipe;
+        }
+
+        return $this->pipe->getFullCommandLine();
+    }
+
+
+    /**
      * Returns the process where the output of this command will be piped to, IF specified
      *
      * @return Process|null
@@ -1037,16 +1096,18 @@ trait ProcessVariables
     /**
      * Sets the process where the output of this command will be piped to, IF specified
      *
-     * @param Process|null $pipe
+     * @param ProcessInterface|string|null $pipe
      * @return static
      */
-    public function setPipe(?Process $pipe): static
+    public function setPipe(ProcessInterface|string|null $pipe): static
     {
         $this->cached_command_line = null;
         $this->pipe                = $pipe;
 
-        $this->pipe->increaseQuoteEscapes();
-        $this->pipe->setTerm();
+        if (is_object($pipe)) {
+            $this->pipe->increaseQuoteEscapes();
+            $this->pipe->setTerm();
+        }
 
         return $this;
     }
@@ -1068,15 +1129,15 @@ trait ProcessVariables
             if ($redirect[0] === '&') {
                 // Redirect output to other channel
                 if (strlen($redirect) !== 2) {
-                    throw new OutOfBoundsException('Specified redirect ":redirect" is invalid. When redirecting to another channel, always specify &N where N is 0-9', [
+                    throw new OutOfBoundsException(tr('Specified redirect ":redirect" is invalid. When redirecting to another channel, always specify &N where N is 0-9', [
                         ':redirect' => $redirect
-                    ]);
+                    ]));
                 }
 
             } else {
                 // Redirect output to a file
-                File::new($redirect, $this->restrictions)->checkWritable('output redirect file', true);
-                $this->output_redirect[$channel] = ($append ? '*' : '') . $redirect;
+                File::new($redirect, $this->restrictions)->checkWritable('output redirect file');
+                $this->output_redirect[$channel] = ($append ? '>>' : '') . $redirect;
             }
 
         } else {

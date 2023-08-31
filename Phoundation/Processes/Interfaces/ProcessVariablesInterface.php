@@ -251,15 +251,6 @@ interface ProcessVariablesInterface
     public function setRestrictions(RestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): static;
 
     /**
-     * Set the command to be executed for this process
-     *
-     * @param string|null $command
-     * @param bool $which_command
-     * @return static This process so that multiple methods can be chained
-     */
-    public function setCommand(?string $command, bool $which_command = true): static;
-
-    /**
      * Returns the command to be executed for this process
      *
      * @return string
@@ -353,10 +344,10 @@ interface ProcessVariablesInterface
     /**
      * Sets the process where the output of this command will be piped to, IF specified
      *
-     * @param Process|null $pipe
+     * @param ProcessInterface|string|null $pipe
      * @return static
      */
-    public function setPipe(?Process $pipe): static;
+    public function setPipe(ProcessInterface|string|null $pipe): static;
 
     /**
      * Sets the output redirection for this process

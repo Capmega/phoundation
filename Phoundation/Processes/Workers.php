@@ -9,6 +9,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Restrictions;
+use Phoundation\Processes\Commands\Ps;
 use Phoundation\Processes\Exception\WorkersException;
 
 
@@ -100,7 +101,7 @@ class Workers extends Process
 //     */
 //    public function __construct(?string $command = null, RestrictionsInterface|array|string|null $restrictions = null, bool $which_command = false)
 //    {
-//        $this->setCommand($command, $which_command);
+//        $this->setInternalCommand($command, $which_command);
 //        $this->setRestrictions($restrictions);
 //    }
 
@@ -404,7 +405,7 @@ class Workers extends Process
     {
         // Check the workers that are still active
         foreach ($this->workers as $pid => $worker) {
-            $ps = ProcessCommands::new($this->restrictions)->ps($pid);
+            $ps = Ps::new($this->restrictions)->do($pid);
 
             if ($ps) {
                 // There is A process, but is it the right one? Cleanup both commands to compare

@@ -4,21 +4,16 @@ declare(strict_types=1);
 
 namespace Phoundation\Processes\Commands;
 
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\Traits\DataBindAddress;
-use Phoundation\Data\Traits\DataFile;
-use Phoundation\Data\Traits\DataPath;
 use Phoundation\Data\Traits\DataProcessName;
-use Phoundation\Data\Traits\DataSource;
-use Phoundation\Data\Traits\DataTarget;
-use Phoundation\Data\Traits\DataValue;
-use Phoundation\Processes\Commands\Exception\CommandsException;
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Processes\Exception\ProcessFailedException;
 
 
 /**
- * Class Pgrep
+ * Class ProcessCommands
  *
- * pgrep (ProcessGrep) command
+ * This class contains various easy-to-use and ready-to-go command line commands in static methods to manage Linux
+ * processes.
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -27,26 +22,63 @@ use Phoundation\Processes\Commands\Exception\CommandsException;
  */
 class Pgrep extends Command
 {
-    use DataProcessName;
+    /**
+     * Returns the process id for the specified command
+     *
+     * @note Returns NULL if the process wasn't found
+     * @param string $process
+     * @return ?int
+     */
+    public function do(string $process): ?int
+    {
+        try {
+            $output = $this
+                ->setInternalCommand('pgrep')
+                ->addArgument($process)
+                ->setTimeout(1)
+                ->executeReturnArray();
+
+            $output = array_pop($output);
+
+            if (!$output or !is_numeric($output)) {
+                return null;
+            }
+
+            return (integer) $output;
+
+        } catch (ProcessFailedException $e) {
+            static::handleException('pgrep', $e);
+        }
+    }
 
 
     /**
-     * Execute the pgrep operation and return the found PID's
+     * Returns the process id's for all children of the specified parent process id
      *
+     * @note This method will also return the PID for the pgrep command that was used to create this list!
+     * @param int $pid
      * @return array
      */
-    public function execute(): array
+    public function getChildren(int $pid): array
     {
-        if (!$this->process_name) {
-            throw new CommandsException(tr('Cannot execute pgrep, no process name specified'));
-        }
+        try {
+            if ($pid < 0) {
+                throw new OutOfBoundsException(tr('The specified process id ":pid" is invalid. Please specify a positive integer', [':pid' => $pid]));
+            }
 
-        // Return results
-        return $this->process
-            ->clearArguments()
-            ->addAcceptedExitCode(1)
-            ->setCommand('pgrep')
-            ->addArgument($this->process_name)
-            ->executeReturnArray();
-   }
+            $output = $this
+                ->setInternalCommand('pgrep')
+                ->addArguments(['-P', $pid])
+                ->setTimeout(1)
+                ->executeReturnArray();
+
+            // Remove the pgrep command PID
+            unset($output[0]);
+
+            return $output;
+
+        } catch (ProcessFailedException $e) {
+            static::handleException('pgrep', $e);
+        }
+    }
 }

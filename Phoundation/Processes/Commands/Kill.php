@@ -11,81 +11,17 @@ use Phoundation\Processes\Process;
 
 
 /**
- * Class ProcessCommands
+ * Class Kill
  *
- * This class contains various easy-to-use and ready-to-go command line commands in static methods to manage Linux
- * processes.
+ * This class contains various "kill" commands
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Processes
  */
-class ProcessCommands extends Command
+class Kill extends Command
 {
-    /**
-     * Returns the process id for the specified command
-     *
-     * @note Returns NULL if the process wasn't found
-     * @param string $process
-     * @return ?int
-     */
-    public function pgrep(string $process): ?int
-    {
-        try {
-            $output = $this->process
-                ->setCommand('pgrep')
-                ->addArgument($process)
-                ->setTimeout(1)
-                ->executeReturnArray();
-
-            $output = array_pop($output);
-
-            if (!$output or !is_numeric($output)) {
-                return null;
-            }
-
-            return (integer) $output;
-
-        } catch (ProcessFailedException $e) {
-            // TODO Check what error happened! What about read permission denied?
-            return null;
-        }
-    }
-
-
-    /**
-     * Returns the process id's for all children of the specified parent process id
-     *
-     * @note This method will also return the PID for the pgrep command that was used to create this list!
-     * @param int $pid
-     * @return array
-     */
-    public function getChildren(int $pid): array
-    {
-        try {
-            if ($pid < 0) {
-                throw new OutOfBoundsException(tr('The specified process id ":pid" is invalid. Please specify a positive integer', [':pid' => $pid]));
-            }
-
-            $output = $this->process
-                ->setCommand('pgrep')
-                ->addArguments(['-P', $pid])
-                ->setTimeout(1)
-                ->executeReturnArray();
-
-            // Remove the pgrep command PID
-            unset($output[0]);
-
-            return $output;
-
-        } catch (ProcessFailedException $e) {
-            // The command id failed
-            Command::handleException('pgrep', $e);
-        }
-    }
-
-
     /**
      * Sends the specified signal to the specified process ids
      *
@@ -93,7 +29,7 @@ class ProcessCommands extends Command
      * @param array|int $pids
      * @return void
      */
-    public function killPid(int $signal, array|int $pids): void
+    public function pid(int $signal, array|int $pids): void
     {
         try {
             // Validate arguments
@@ -111,8 +47,8 @@ class ProcessCommands extends Command
                 }
             }
 
-            $this->process
-                ->setCommand('kill')
+            $this
+                ->setInternalCommand('kill')
                 ->addArgument('-' . $signal)
                 ->addArguments($pids)
                 ->setTimeout(10)
@@ -120,7 +56,7 @@ class ProcessCommands extends Command
 
         } catch (ProcessFailedException $e) {
             // The command kill failed
-            Command::handleException('kill', $e);
+            static::handleException('kill', $e);
         }
     }
 
@@ -132,7 +68,7 @@ class ProcessCommands extends Command
      * @param array|string $processes
      * @return void
      */
-    public function killProcesses(int $signal, array|string $processes): void
+    public function processes(int $signal, array|string $processes): void
     {
         try {
             // Validate arguments
@@ -150,8 +86,8 @@ class ProcessCommands extends Command
                 }
             }
 
-            $this->process
-                ->setCommand('pkill')
+            $this
+                ->setInternalCommand('pkill')
                 ->addArgument('-' . $signal)
                 ->addArguments($processes)
                 ->setTimeout(10)
@@ -159,7 +95,7 @@ class ProcessCommands extends Command
 
         } catch (ProcessFailedException $e) {
             // The command pkill failed
-            Command::handleException('pkill', $e);
+            static::handleException('pkill', $e);
         }
     }
 
@@ -178,8 +114,8 @@ class ProcessCommands extends Command
                 throw new OutOfBoundsException(tr('Specified pid ":pid" is invalid, it should be an integer number 1 or higher', [':pid' => $pid]));
             }
 
-            $output = $this->process
-                ->setCommand('ps')
+            $output = $this
+                ->setInternalCommand('ps')
                 ->addArguments(['-p', $pid, '--no-headers', '-o', 'pid,ppid,comm,cmd,args'])
                 ->setTimeout(1)
                 ->executeReturnArray();
@@ -201,7 +137,7 @@ class ProcessCommands extends Command
 
         } catch (ProcessFailedException $e) {
             // The command pkill failed
-            Command::handleException('pkill', $e);
+            static::handleException('pkill', $e);
         }
     }
 
@@ -223,8 +159,8 @@ class ProcessCommands extends Command
                 throw new OutOfBoundsException(tr('Specified pid ":pid" is invalid, it should be an integer number 1 or higher', [':pid' => $pid]));
             }
 
-            $output = $this->process
-                ->setCommand('ps')
+            $output = $this
+                ->setInternalCommand('ps')
                 ->addArguments(['-p', $pid, '--no-headers', '-o', 'pid:1,ppid:1,uid:1,gid:1,nice:1,fuid:1,%cpu:1,%mem:1,size:1,cputime:1,cputimes:1,drs:1,etime:1,etimes:1,euid:1,egid:1,egroup:1,start_time:1,bsdtime:1,state:1,stat:1,time:1,vsize:1,rss:1,args'])
                 ->setTimeout(1)
                 ->executeReturnArray();
@@ -236,7 +172,7 @@ class ProcessCommands extends Command
 
             $output = array_pop($output);
             $return = [];
-            
+
             $return['pid']         = trim(Strings::until($output, ' '));
             $return['ppid']        = trim(Strings::until($output = trim(Strings::from($output, ' ')), ' '));
             $return['uid']         = trim(Strings::until($output = trim(Strings::from($output, ' ')), ' '));
@@ -296,7 +232,7 @@ class ProcessCommands extends Command
 
         } catch (ProcessFailedException $e) {
             // The command pkill failed
-            Command::handleException('pkill', $e);
+            static::handleException('pkill', $e);
         }
     }
 }

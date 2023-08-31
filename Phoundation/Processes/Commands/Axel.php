@@ -8,6 +8,8 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\DataBindAddress;
 use Phoundation\Data\Traits\DataSource;
 use Phoundation\Data\Traits\DataTarget;
+use Phoundation\Processes\Enum\ExecuteMethod;
+use Phoundation\Processes\Enum\Interfaces\ExecuteMethodInterface;
 
 
 /**
@@ -30,21 +32,21 @@ class Axel extends Command
     /**
      * Execute the rsync operation and return the PID (background) or -1
      *
-     * @param bool $background
-     * @return int|null
+     * @param ExecuteMethodInterface $method
+     * @return string|int|bool|array|null
      */
-    public function execute(bool $background = false): ?int
+    public function download(ExecuteMethodInterface $method = ExecuteMethod::noReturn): string|int|bool|array|null
     {
         // Build the process parameters, then execute
-        $this->process
+        $this
             ->clearArguments()
-            ->setCommand('axel')
+            ->setInternalCommand('axel')
             ->addArgument($this->bind_address ? '--bind-address=' . $this->bind_address : null)
             ->addArguments($this->target ? ['-O ', $this->target] : null)
             ->addArgument($this->source);
 
-        if ($background) {
-            $pid = $this->process->executeBackground();
+        if ($method === ExecuteMethod::background) {
+            $pid = $this->executeBackground();
 
             Log::success(tr('Executed wget as a background process with PID ":pid"', [
                 ':pid' => $pid
@@ -54,7 +56,7 @@ class Axel extends Command
 
         }
 
-        $results = $this->process->executeReturnArray();
+        $results = $this->execute($method);
 
         Log::notice($results, 4);
         return null;

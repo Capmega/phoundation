@@ -12,6 +12,7 @@ use Phoundation\Data\Traits\DataSource;
 use Phoundation\Data\Traits\DataTarget;
 use Phoundation\Data\Traits\DataValue;
 use Phoundation\Processes\Commands\Exception\CommandsException;
+use Phoundation\Processes\Enum\Interfaces\ExecuteMethodInterface;
 
 
 /**
@@ -34,9 +35,10 @@ class Grep extends Command
     /**
      * Execute the rsync operation and return the PID (background) or -1
      *
+     * @param ExecuteMethodInterface $method
      * @return array
      */
-    public function execute(): array
+    public function grep(ExecuteMethodInterface $method): array
     {
         if (!$this->path and !$this->file) {
             throw new CommandsException(tr('Cannot execute grep, no file or path specified'));
@@ -47,12 +49,12 @@ class Grep extends Command
         }
 
         // Return results
-        return $this->process
+        return $this
             ->clearArguments()
-            ->setCommand('grep')
+            ->setInternalCommand('grep')
             ->addArgument($this->value)
             ->addArgument($this->path ?? $this->file)
             ->addArgument($this->path ? '-R' : null)
-            ->executeReturnArray();
+            ->execute($method);
    }
 }

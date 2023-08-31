@@ -345,9 +345,9 @@ class Rsync extends Command
      * Execute the rsync operation and return the PID (background) or -1
      *
      * @param ExecuteMethodInterface $method
-     * @return static
+     * @return string|int|bool|array|null
      */
-    public function execute(ExecuteMethodInterface $method = ExecuteMethod::passthru): static
+    public function execute(ExecuteMethodInterface $method = ExecuteMethod::passthru): string|int|bool|array|null
     {
         // If port is a non-default SSH port, then generate the RSH variable
         if (empty($this->rsh)) {
@@ -357,9 +357,9 @@ class Rsync extends Command
         }
 
         // Build the process parameters, then execute
-        $this->process
+        $this
             ->clearArguments()
-            ->setCommand('rsync')
+            ->setInternalCommand('rsync')
             ->addArgument($this->progress   ? '--progress'   : null)
             ->addArgument($this->archive    ? '-a'           : null)
             ->addArgument($this->quiet      ? '-q'           : null)
@@ -375,10 +375,10 @@ class Rsync extends Command
             ->addArgument($this->target);
 
         foreach ($this->exclude as $exclude) {
-            $this->process->addArgument('--exclude=' . escapeshellarg($exclude), false);
+            $this->addArgument('--exclude=' . escapeshellarg($exclude), false);
         }
 
-        $results = $this->process->execute($method);
+        $results = $this->execute($method);
 
         if ($this->debug) {
             Log::information(tr('Output of the rsync command:'), 4);

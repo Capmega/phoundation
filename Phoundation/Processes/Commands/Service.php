@@ -116,10 +116,10 @@ class Service extends Command
     protected function executeService(string $action): array
     {
         // Restart the service
-        return $this->process
+        return $this
             ->clearArguments()
             ->setSudo(true)
-            ->setCommand('service')
+            ->setInternalCommand('service')
             ->addArgument($this->service_name)
             ->addArgument($action)
             ->executeReturnArray();
