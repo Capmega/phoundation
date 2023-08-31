@@ -2,14 +2,13 @@
 
 declare(strict_types=1);
 
-
 namespace Templates\AdminLte\Html\Components\Input;
 
 use Phoundation\Web\Http\Html\Renderer;
 
 
 /**
- * Class TextArea
+ * Class InputTextArea
  *
  *
  *
@@ -18,12 +17,12 @@ use Phoundation\Web\Http\Html\Renderer;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\AdminLte
  */
-class TextArea extends Renderer
+class InputTextArea extends Renderer
 {
     /**
      * TextArea class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\Input\TextArea $element)
+    public function __construct(\Phoundation\Web\Http\Html\Components\Input\InputTextArea $element)
     {
         $element->addClass( 'form-control');
         parent::__construct($element);

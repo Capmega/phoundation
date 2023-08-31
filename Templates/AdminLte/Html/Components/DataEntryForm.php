@@ -12,7 +12,7 @@ use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Input\InputMultiButtonText;
 use Phoundation\Web\Http\Html\Components\Input\InputSelect;
-use Phoundation\Web\Http\Html\Components\Input\TextArea;
+use Phoundation\Web\Http\Html\Components\Input\InputTextArea;
 use Phoundation\Web\Http\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Http\Html\Components\Interfaces\ElementsBlockInterface;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
@@ -393,11 +393,11 @@ class DataEntryForm extends Renderer
                         }
 
                         // Build the element class path and load the required class file
-                        $element_class = '\\Phoundation\\Web\\Http\\Html\\Components\\Input\\TextArea';
+                        $element_class = '\\Phoundation\\Web\\Http\\Html\\Components\\Input\\InputTextArea';
                         $file          = Library::getClassFile($element_class);
                         include_once($file);
 
-                        $html = TextArea::new()
+                        $html = InputTextArea::new()
                             ->setDisabled((bool) $definition_array['disabled'])
                             ->setReadOnly((bool) $definition_array['readonly'])
                             ->setMaxLength(isset_get_typed('integer', $definition_array['maxlength']))

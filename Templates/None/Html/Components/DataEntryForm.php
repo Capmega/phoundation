@@ -11,7 +11,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Input\InputMultiButtonText;
 use Phoundation\Web\Http\Html\Components\Input\InputSelect;
-use Phoundation\Web\Http\Html\Components\Input\TextArea;
+use Phoundation\Web\Http\Html\Components\Input\InputTextArea;
 use Phoundation\Web\Http\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Http\Html\Components\Interfaces\ElementsBlockInterface;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
@@ -205,11 +205,11 @@ class DataEntryForm extends Renderer
                     }
 
                     // Build the element class path and load the required class file
-                    $element = '\\Phoundation\\Web\\Http\\Html\\Components\\Input\\TextArea';
+                    $element = '\\Phoundation\\Web\\Http\\Html\\Components\\Input\\InputTextArea';
                     $file    = Library::getClassFile($element);
                     include_once($file);
 
-                    $html = TextArea::new()
+                    $html = InputTextArea::new()
                         ->setDisabled((bool) $data['disabled'])
                         ->setReadOnly((bool) $data['readonly'])
                         ->setRows((int) isset_get($data['rows'], 5))

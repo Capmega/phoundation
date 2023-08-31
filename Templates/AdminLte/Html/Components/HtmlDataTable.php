@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 namespace Templates\AdminLte\Html\Components;
 
 use Phoundation\Exception\OutOfBoundsException;
@@ -15,7 +14,7 @@ use Phoundation\Web\Page;
 
 
 /**
- * AdminLte Plugin DataTable class
+ * AdminLte Template HtmlDataTable class
  *
  *
  *
@@ -24,12 +23,12 @@ use Phoundation\Web\Page;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\AdminLte
  */
-class DataTable extends Renderer
+class HtmlDataTable extends Renderer
 {
     /**
      * Table class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\Table $element)
+    public function __construct(\Phoundation\Web\Http\Html\Components\HtmlTable $element)
     {
         $element->addClass('table');
         parent::__construct($element);
@@ -43,52 +42,12 @@ class DataTable extends Renderer
      */
     public function render(): ?string
     {
-        if (!$this->render_object->getId()) {
-            throw new OutOfBoundsException(tr('Cannot render DataTable, no table id specified'));
-        }
-
-        Page::loadJavascript([
-            'adminlte/plugins/datatables/jquery.dataTables',
-            'adminlte/plugins/datatables-bs4/js/dataTables.bootstrap4',
-            'adminlte/plugins/datatables-responsive/js/dataTables.responsive',
-            'adminlte/plugins/datatables-responsive/js/responsive.bootstrap4',
-            'adminlte/plugins/datatables-buttons/js/dataTables.buttons',
-            'adminlte/plugins/datatables-buttons/js/buttons.bootstrap4',
-            'adminlte/plugins/jszip/jszip',
-            'adminlte/plugins/pdfmake/pdfmake',
-            'adminlte/plugins/pdfmake/vfs_fonts',
-            'adminlte/plugins/datatables-buttons/js/buttons.html5',
-            'adminlte/plugins/datatables-buttons/js/buttons.print',
-            'adminlte/plugins/datatables-buttons/js/buttons.colVis'
-        ]);
-
-        Page::loadCss('adminlte/plugins/datatables-bs4/css/dataTables.bootstrap4');
-        Page::loadCss('adminlte/plugins/datatables-responsive/css/responsive.bootstrap4');
-        Page::loadCss('adminlte/plugins/datatables-buttons/css/buttons.bootstrap4');
-
         $id    = $this->render_object->getId();
         $table = GridRow::new()->addColumn(parent::render());
 
-        $this->render  = '<div id="' . Html::safe($id) . '_wrapper" class="dataTables_wrapper dt-bootstrap4">' .
-                            $table->render() .
-                         '</div>';
-
-        $this->render .= Script::new()
-            ->setJavascriptWrapper(JavascriptWrappers::dom_content)
-            ->setContent('
-                $("#' . Html::safe($id) . '").DataTable({
-                  "responsive": true, "lengthChange": false, "autoWidth": false,
-                  "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
-                }).buttons().container().appendTo("#' . Html::safe($id) . '_wrapper .col-md-6:eq(0)");
-                $("#example2").DataTable({
-                  "paging": true,
-                  "lengthChange": false,
-                  "searching": false,
-                  "ordering": true,
-                  "info": true,
-                  "autoWidth": false,
-                  "responsive": true,
-                });')->render();
+        return '<div id="' . Html::safe($id) . '_wrapper" class="dataTables_wrapper dt-bootstrap4">' .
+                    $table->render() .
+               '</div>';
 
         return $this->render;
 

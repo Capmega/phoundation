@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 namespace Templates\AdminLte\Html\Components\Input;
 
 use Phoundation\Web\Http\Html\Renderer;

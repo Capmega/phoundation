@@ -56,15 +56,6 @@ class InputDateRange extends Renderer
                         ' . parent::render() . '
                     </div>';
 
-        // Required javascript
-        Page::loadJavascript('adminlte/plugins/moment/moment');
-        Page::loadJavascript('adminlte/plugins/daterangepicker/daterangepicker');
-        Page::loadJavascript('adminlte/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4');
-
-        // Required CSS
-        Page::loadCss('adminlte/plugins/daterangepicker/daterangepicker');
-        Page::loadCss('adminlte/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4');
-
         // Add date range picker JS
         return $html;
     }

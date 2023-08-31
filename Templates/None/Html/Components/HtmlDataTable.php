@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 namespace Templates\None\Html\Components;
 
 use Phoundation\Exception\OutOfBoundsException;
@@ -15,7 +14,7 @@ use Phoundation\Web\Page;
 
 
 /**
- * None Plugin DataTable class
+ * None Plugin HtmlDataTable class
  *
  *
  *
@@ -24,12 +23,12 @@ use Phoundation\Web\Page;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\None
  */
-class DataTable extends Renderer
+class HtmlDataTable extends Renderer
 {
     /**
      * Table class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\Table $element)
+    public function __construct(\Phoundation\Web\Http\Html\Components\HtmlTable $element)
     {
         $element->addClass('table');
         parent::__construct($element);

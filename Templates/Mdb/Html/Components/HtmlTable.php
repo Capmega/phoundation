@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 namespace Templates\Mdb\Html\Components;
 
 use Phoundation\Web\Http\Html\Components\Section;
@@ -19,12 +18,12 @@ use Phoundation\Web\Http\Html\Renderer;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\Mdb
  */
-class Table extends Renderer
+class HtmlTable extends Renderer
 {
     /**
      * Table class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\Table $element)
+    public function __construct(\Phoundation\Web\Http\Html\Components\HtmlTable $element)
     {
         $element->addClass('table');
         parent::__construct($element);
@@ -70,7 +69,7 @@ class Table extends Renderer
         if ($this->render_object->getHeaderText()) {
             $content .= '<p>' . htmlspecialchars($this->render_object->getHeaderText()) . '</p>';
         }
-        
+
         if ($content) {
             $section = Section::new()
                 ->setContent($content . $return);
