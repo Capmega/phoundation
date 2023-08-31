@@ -29,14 +29,12 @@ use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpException;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
-use Phoundation\Processes\Commands\SystemCommands;
+use Phoundation\Processes\Commands\Free;
 use Phoundation\Processes\Process;
 use Phoundation\Utils\Json;
-use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Page;
 use Phoundation\Web\Routing\Route;
@@ -861,22 +859,6 @@ class Core implements CoreInterface
 
 
     /**
-     * Returns Core general file access restrictions
-     *
-     * @return RestrictionsInterface
-     */
-    protected static function getRestrictions(): RestrictionsInterface
-    {
-        if (!static::$restrictions) {
-            // Set up the Core restrictions object with default file access restrictions
-            static::$restrictions = Restrictions::new(PATH_DATA, false, 'Core');
-        }
-
-        return static::$restrictions;
-    }
-
-
-    /**
      * Detect and set the project name
      *
      * @return void
@@ -1535,7 +1517,7 @@ class Core implements CoreInterface
 //                                    die(Script::getExitCode());
 //                            }
 
-                        Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE CLI SCRIPT ":script" WITH ENVIRONMENT ":environment" DURING CORE STATE ":state" ***', [
+                        Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" CLI PLATFORM SCRIPT ":script" WITH ENVIRONMENT ":environment" DURING CORE STATE ":state" ***', [
                             ':code'        => $e->getCode(),
                             ':type'        => static::getRequestType()->value,
                             ':state'       => static::$state,
@@ -1568,7 +1550,7 @@ class Core implements CoreInterface
 
                         } else {
                             // Log exception data
-                            Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE WEB SCRIPT ":script" WITH ENVIRONMENT ":environment" DURING CORE STATE ":state" ***', [
+                            Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" WEB PLATFORM SCRIPT ":script" WITH ENVIRONMENT ":environment" DURING CORE STATE ":state" ***', [
                                 ':code'        => $e->getCode(),
                                 ':type'        => static::getRequestType()->value,
                                 ':state'       => static::$state,
@@ -2281,7 +2263,7 @@ class Core implements CoreInterface
 
         if ($limit === -1) {
             // No memory limit configured, just get how much memory we have available in total
-            $free  = SystemCommands::new()->free();
+            $free  = Free::new()->free();
             $limit = ceil($free['memory']['available'] * .8);
         }
 
@@ -2311,42 +2293,6 @@ class Core implements CoreInterface
         }
 
         return $available;
-    }
-
-
-    /**
-     * Returns either the specified restrictions object or the Core restrictions object
-     *
-     * With this, availability of restrictions is guaranteed, even if a function did not receive restrictions. If Core
-     * restrictions are returned, these core restrictions are the ones that apply
-     *
-     * @param RestrictionsInterface|array|string|null $restrictions  The restriction data that must be ensured to be a
-     *                                                      Restrictions object
-     * @param bool $write                                   If $restrictions is not specified as a Restrictions class,
-     *                                                      but as a path string, or array of path strings, then this
-     *                                                      method will convert that into a Restrictions object and this
-     *                                                      is the $write modifier for that object
-     * @param string|null $label                            If $restrictions is not specified as a Restrictions class,
-     *                                                      but as a path string, or array of path strings, then this
-     *                                                      method will convert that into a Restrictions object and this
-     *                                                      is the $label modifier for that object
-     * @return Restrictions                                 A Restrictions object. If possible, the specified
-     *                                                      restrictions will be returned but if no $restictions were
-     *                                                      specified ($restrictions was null or an empty string), the
-     *                                                      Core restrictions will be returned instead
-     */
-    public static function ensureRestrictions(RestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): Restrictions
-    {
-        if ($restrictions) {
-            if (!is_object($restrictions)) {
-                // Restrictions were specified by simple path string or array of paths. Convert to restrictions object
-                $restrictions = new Restrictions($restrictions, $write, $label);
-            }
-
-            return $restrictions;
-        }
-
-        return static::getRestrictions();
     }
 
 

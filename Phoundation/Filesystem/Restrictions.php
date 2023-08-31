@@ -95,6 +95,59 @@ class Restrictions implements RestrictionsInterface
 
 
     /**
+     * Returns the default restrictions object if the given specified restrictions are empty
+     *
+     * @param RestrictionsInterface|null $restrictions
+     * @param RestrictionsInterface $default
+     * @return static
+     */
+    public static function default(RestrictionsInterface|null $restrictions, RestrictionsInterface $default): static
+    {
+        if ($restrictions) {
+            return $restrictions->ensureLabel($default->getLabel());
+        }
+
+        return static::ensure($default);
+    }
+
+
+    /**
+     * Returns either the specified restrictions object or the Core restrictions object
+     *
+     * With this, availability of restrictions is guaranteed, even if a function did not receive restrictions. If Core
+     * restrictions are returned, these core restrictions are the ones that apply
+     *
+     * @param RestrictionsInterface|array|string|null $restrictions  The restriction data that must be ensured to be a
+     *                                                      Restrictions object
+     * @param bool $write                                   If $restrictions is not specified as a Restrictions class,
+     *                                                      but as a path string, or array of path strings, then this
+     *                                                      method will convert that into a Restrictions object and this
+     *                                                      is the $write modifier for that object
+     * @param string|null $label                            If $restrictions is not specified as a Restrictions class,
+     *                                                      but as a path string, or array of path strings, then this
+     *                                                      method will convert that into a Restrictions object and this
+     *                                                      is the $label modifier for that object
+     * @return Restrictions                                 A Restrictions object. If possible, the specified
+     *                                                      restrictions will be returned but if no $restictions were
+     *                                                      specified ($restrictions was null or an empty string), the
+     *                                                      Core restrictions will be returned instead
+     */
+    public static function ensure(RestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): RestrictionsInterface
+    {
+        if ($restrictions) {
+            if (!is_object($restrictions)) {
+                // Restrictions were specified by simple path string or array of paths. Convert to restrictions object
+                $restrictions = new Restrictions($restrictions, $write, $label);
+            }
+
+            return $restrictions;
+        }
+
+        return static::getSystem();
+    }
+
+
+    /**
      * Returns a restrictions object with parent paths for all paths in this restrictions object
      *
      * This is useful for the Path object where one will want to be able to access or create the parent path of the file
@@ -232,6 +285,22 @@ class Restrictions implements RestrictionsInterface
 
 
     /**
+     * Sets the restrictions label only if the specified label is not empty, and this object's label is NULL or "system"
+     *
+     * @param string|null $label
+     * @return $this
+     */
+    public function ensureLabel(?string $label): static
+    {
+        if ($label and (empty($this->label) or $this->label === 'system')) {
+            return $this->setLabel($label);
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Returns the label for this restriction
      *
      * @return string
@@ -288,5 +357,22 @@ class Restrictions implements RestrictionsInterface
                 'paths'    => $this->paths
             ])->makeWarning();
         }
+    }
+
+
+    /**
+     * Returns system general file access restrictions
+     *
+     * @return RestrictionsInterface
+     */
+    public static function getSystem(): RestrictionsInterface
+    {
+        static $restrictions;
+
+        if (empty($restrictions)) {
+            $restrictions = Restrictions::new(PATH_DATA, false, 'System');
+        }
+
+        return $restrictions;
     }
 }

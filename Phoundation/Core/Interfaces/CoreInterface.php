@@ -3,8 +3,6 @@
 namespace Phoundation\Core\Interfaces;
 
 use Phoundation\Core\Enums\Interfaces\EnumRequestTypesInterface;
-use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
-use Phoundation\Filesystem\Restrictions;
 use Throwable;
 
 
@@ -342,29 +340,6 @@ interface CoreInterface
      * @return int
      */
     public static function getMemoryAvailable(): int;
-
-    /**
-     * Returns either the specified restrictions object or the Core restrictions object
-     *
-     * With this, availability of restrictions is guaranteed, even if a function did not receive restrictions. If Core
-     * restrictions are returned, these core restrictions are the ones that apply
-     *
-     * @param RestrictionsInterface|array|string|null $restrictions The restriction data that must be ensured to be a
-     *                                                      Restrictions object
-     * @param bool $write If $restrictions is not specified as a Restrictions class,
-     *                                                      but as a path string, or array of path strings, then this
-     *                                                      method will convert that into a Restrictions object and this
-     *                                                      is the $write modifier for that object
-     * @param string|null $label If $restrictions is not specified as a Restrictions class,
-     *                                                      but as a path string, or array of path strings, then this
-     *                                                      method will convert that into a Restrictions object and this
-     *                                                      is the $label modifier for that object
-     * @return Restrictions                                 A Restrictions object. If possible, the specified
-     *                                                      restrictions will be returned but if no $restictions were
-     *                                                      specified ($restrictions was null or an empty string), the
-     *                                                      Core restrictions will be returned instead
-     */
-    public static function ensureRestrictions(RestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): Restrictions;
 
     /**
      * Will execute the specified callback only when not running in TEST mode
