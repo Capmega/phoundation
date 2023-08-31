@@ -11,10 +11,10 @@ use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Restrictions;
+use Phoundation\Processes\Commands\Mplayer;
 use Phoundation\Processes\Enum\ExecuteMethod;
 use Phoundation\Processes\Exception\ProcessesException;
 use Phoundation\Processes\Process;
-use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
 
@@ -39,12 +39,9 @@ class Audio extends File
     {
         if (!defined('NOAUDIO') or !NOAUDIO) {
             try {
-                $this->file = Filesystem::absolute($this->file, PATH_DATA . 'audio');
-
-                Process::new('mplayer')
-                    ->setRestrictions(Restrictions::new(PATH_DATA . 'audio', true))
-                    ->addArgument($this->file)
-                    ->execute($background ? ExecuteMethod::background : ExecuteMethod::noReturn);
+                Mplayer::new(Restrictions::new(PATH_DATA . 'audio', true))
+                    ->setFile(Filesystem::absolute($this->file, PATH_DATA . 'audio'))
+                    ->play($background);
 
             } catch (FileNotExistException|ProcessesException $e) {
                 Log::warning(tr('Failed to play the requested audio file because of the following exception'));

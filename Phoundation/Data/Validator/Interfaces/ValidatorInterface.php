@@ -633,29 +633,32 @@ interface ValidatorInterface
     /**
      * Validates if the selected field is a valid directory
      *
-     * @param string|null $exists_in_path
+     * @param string|null $check_in_path
      * @param RestrictionsInterface|array|string|null $restrictions
+     * @param bool $exists
      * @return static
      */
-    public function isPath(?string $exists_in_path = null, RestrictionsInterface|array|string|null $restrictions = null): static;
+    public function isPath(?string $check_in_path = null, RestrictionsInterface|array|string|null $restrictions = null, bool $exists = true): static;
 
     /**
      * Validates if the selected field is a valid directory
      *
-     * @param string|null $exists_in_path
+     * @param string|null $check_in_path
      * @param RestrictionsInterface|array|string|null $restrictions
+     * @param bool $exists
      * @return static
      */
-    public function isDirectory(?string $exists_in_path = null, RestrictionsInterface|array|string|null $restrictions = null): static;
+    public function isDirectory(?string $check_in_path = null, RestrictionsInterface|array|string|null $restrictions = null, bool $exists = true): static;
 
     /**
      * Validates if the selected field is a valid file
      *
-     * @param string|null $exists_in_path
+     * @param string|null $check_in_path
      * @param RestrictionsInterface|array|string|null $restrictions
+     * @param bool $exists
      * @return static
      */
-    public function isFile(?string $exists_in_path = null, RestrictionsInterface|array|string|null $restrictions = null): static;
+    public function isFile(?string $check_in_path = null, RestrictionsInterface|array|string|null $restrictions = null, bool $exists = true): static;
 
     /**
      * Validates if the selected field is a valid description

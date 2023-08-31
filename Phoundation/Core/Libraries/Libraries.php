@@ -107,10 +107,10 @@ class Libraries
      * @param bool $plugins
      * @param bool $templates
      * @param string|null $comments
-     * @param string|null $library
+     * @param array|null $libraries
      * @return void
      */
-    public static function initialize(bool $system = true, bool $plugins = true, bool $templates = true, ?string $comments = null, ?string $library = null): void
+    public static function initialize(bool $system = true, bool $plugins = true, bool $templates = true, ?string $comments = null, ?array $libraries = null): void
     {
         static::$initializing = true;
 
@@ -118,10 +118,12 @@ class Libraries
             static::force();
         }
 
-        if ($library) {
-            // Init only the specified library
-            $library = static::findLibrary($library);
-            $library->init($comments);
+        if ($libraries) {
+            foreach ($libraries as $library) {
+                // Init only the specified library
+                $library = static::findLibrary($library);
+                $library->init($comments);
+            }
 
         } else {
             // Wipe all temporary data

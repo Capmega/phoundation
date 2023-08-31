@@ -7,6 +7,8 @@ namespace Phoundation\Accounts\Users;
 use PDOStatement;
 use Phoundation\Accounts\Rights\Interfaces\RightInterface;
 use Phoundation\Accounts\Roles\Interfaces\RoleInterface;
+use Phoundation\Accounts\Roles\Interfaces\RolesInterface;
+use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\Interfaces\UsersInterface;
 use Phoundation\Core\Arrays;
@@ -14,10 +16,13 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Databases\Sql\QueryBuilder;
+use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Http\Html\Components\Input\InputSelect;
+use Stringable;
 
 
 /**
@@ -181,10 +186,10 @@ class Users extends DataList implements UsersInterface
     /**
      * Remove the specified data entry from the data list
      *
-     * @param UserInterface|array|string|int|null $user
+     * @param UserInterface|array|string|float|int $user
      * @return static
      */
-    public function remove(UserInterface|array|string|int|null $user): static
+    public function remove(UserInterface|array|string|float|int $user): static
     {
         $this->ensureParent('remove entry from parent');
 
@@ -200,31 +205,32 @@ class Users extends DataList implements UsersInterface
                 $user = User::get($user);
 
                 if ($this->parent instanceof RoleInterface) {
-                    Log::action(tr('Removing role ":role" from user ":user"', [
+                    Log::action(tr('Removing user ":user" from role ":role"', [
                         ':role' => $this->parent->getLogId(),
                         ':user' => $user->getLogId()
                     ]));
 
-                    sql()->dataEntrydelete('accounts_users_rights', [
+                    sql()->dataEntryDelete('accounts_users_rights', [
                         'roles_id' => $this->parent->getId(),
                         'users_id' => $user->getId()
                     ]);
 
-                    // Add right to internal list
-                    $this->delete($user);
+                    // Remove user from internal list
+                    parent::remove($user->getId());
+
                 } elseif ($this->parent instanceof RightInterface) {
-                    Log::action(tr('Removing right ":right" from user ":user"', [
+                    Log::action(tr('Removing user ":user" from right ":right"', [
                         ':right' => $this->parent->getLogId(),
                         ':user'  => $user->getLogId()
                     ]));
 
-                    sql()->dataEntrydelete('accounts_users_rights', [
+                    sql()->dataEntryDelete('accounts_users_rights', [
                         'rights_id' => $this->parent->getId(),
                         'users_id' => $user->getId()
                     ]);
 
-                    // Add right to internal list
-                    $this->delete($user);
+                    // Remove user from internal list
+                    parent::remove($user->getId());
                 }
             }
         }
@@ -301,15 +307,10 @@ class Users extends DataList implements UsersInterface
     /**
      * Load the data for this rights list into the object
      *
-     * @param string|null $id_column
      * @return static
      */
-    public function load(?string $id_column = 'users_id'): static
+    public function load(): static
     {
-        if (!$id_column) {
-            $id_column = 'users_id';
-        }
-
         if ($this->parent) {
             if ($this->parent instanceof RoleInterface) {
                 $this->source = sql()->list('SELECT `accounts_users`.`email` AS `key`, `accounts_users`.* 
@@ -332,7 +333,7 @@ class Users extends DataList implements UsersInterface
             }
 
         } else {
-            $this->source = sql()->list('SELECT `id` FROM `accounts_rights`');
+            parent::load();
         }
 
         return $this;
@@ -488,9 +489,9 @@ class Users extends DataList implements UsersInterface
      * @param string $value_column
      * @param string $key_column
      * @param string|null $order
-     * @return SelectInterface
+     * @return InputSelectInterface
      */
-    public function getHtmlSelect(string $value_column = '', string $key_column = 'id', ?string $order = null): SelectInterface
+    public function getHtmlSelect(string $value_column = '', string $key_column = 'id', ?string $order = null): InputSelectInterface
     {
         if (!$value_column) {
             $value_column = 'COALESCE(NULLIF(TRIM(CONCAT_WS(" ", `first_names`, `last_names`)), ""), `nickname`, `username`, `email`, "' . tr('System') . '") AS name';
@@ -503,5 +504,28 @@ class Users extends DataList implements UsersInterface
             ->setName('users_id')
             ->setNone(tr('Select a user'))
             ->setEmpty(tr('No users available'));
+    }
+
+
+    /**
+     * Returns Users list object with users for the specified role.
+     *
+     * Will throw an NotEx
+     *
+     * @param RolesInterface|Stringable|string $role
+     * @return UsersInterface
+     * @throws SqlMultipleResultsException, NotExistsException
+     */
+    public static function getForRole(RolesInterface|Stringable|string $role): usersInterface
+    {
+        $role  = Role::get($role, 'seo_name');
+        $users = Users::new();
+        $users->getQueryBuilder()->setDebug(true)
+            ->addSelect('`accounts_users`.*')
+            ->addJoin('JOIN `accounts_users_roles` ON `accounts_users_roles`.`users_id` = `accounts_users`.`id`')
+            ->addWhere('`accounts_users_roles`.`roles_id` = :roles_id', [':roles_id' => $role->getId()])
+            ->addWhere('`accounts_users`.`status`   IS NULL');
+
+        return $users->load();
     }
 }

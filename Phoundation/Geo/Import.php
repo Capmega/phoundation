@@ -76,7 +76,7 @@ class Import extends \Phoundation\Developer\Project\Import
             ->delete();
 
         $wget     = Wget::new();
-        $tmp_path = $wget->getProcess()->setExecutionPathToTemp()->getExecutionPath();
+        $tmp_path = $wget->setExecutionPathToTemp()->getExecutionPath();
 
         Log::action(tr('Downloading Geo files to temporary path ":path"', [':path' => $tmp_path]));
 
@@ -356,7 +356,7 @@ return;
                 geonameid INT
             ) CHARACTER SET utf8;');
 
-        
+
         Log::action(tr('Importing geonames data file ":file"', [':file' => 'allCountries.txt']));
         sql('geonames')->query('SET GLOBAL local_infile=true;
             SET SESSION wait_timeout=600;
@@ -366,7 +366,7 @@ return;
             CHARACTER SET "UTF8"
                 (geonameid, name, asciiname, alternatenames, latitude, longitude, fclass, fcode, country, cc2, admin1, admin2, admin3, admin4, population, elevation, gtopo30, timezone, moddate);');
 
-        
+
         Log::action(tr('Importing geonames data file ":file"', [':file' => 'alternateNames.txt']));
         sql('geonames')->query('SET GLOBAL local_infile=true;
             SET SESSION wait_timeout=600;
@@ -376,7 +376,7 @@ return;
             CHARACTER SET "UTF8"
                 (alternatenameid, geonameid, isoLanguage, alternateName, isPreferredName, isShortName, isColloquial, isHistoric);');
 
-        
+
         Log::action(tr('Importing geonames data file ":file"', [':file' => 'languagecodes.txt']));
         sql('geonames')->query('SET GLOBAL local_infile=true;
             SET SESSION wait_timeout=600;
@@ -387,7 +387,7 @@ return;
             IGNORE 1 LINES
                 (iso_639_3, iso_639_2, iso_639_1, language_name);');
 
-        
+
         Log::action(tr('Importing geonames data file ":file"', [':file' => 'admin1CodesASCII.txt']));
         sql('geonames')->query('SET GLOBAL local_infile=true;
             SET SESSION wait_timeout=600;
@@ -397,7 +397,7 @@ return;
             CHARACTER SET "UTF8"
                 (code, name, nameAscii, geonameid);');
 
-        
+
         Log::action(tr('Importing geonames data file ":file"', [':file' => 'admin2Codes.txt']));
         sql('geonames')->query('SET GLOBAL local_infile=true;
             SET SESSION wait_timeout=600;
@@ -407,7 +407,7 @@ return;
             CHARACTER SET "UTF8"
                 (code, name, nameAscii, geonameid);');
 
-        
+
         Log::action(tr('Importing geonames data file ":file"', [':file' => 'hierarchy.txt']));
         sql('geonames')->query('SET GLOBAL local_infile=true;
             SET SESSION wait_timeout=600;
@@ -417,7 +417,7 @@ return;
             CHARACTER SET "UTF8"
                 (parentId, childId, type);');
 
-        
+
         Log::action(tr('Importing geonames data file ":file"', [':file' => 'featureCodes_en.txt']));
         sql('geonames')->query('SET GLOBAL local_infile=true;
             SET SESSION wait_timeout=600;
@@ -427,7 +427,7 @@ return;
             CHARACTER SET "UTF8"
                 (code, name, description);');
 
-        
+
         Log::action(tr('Importing geonames data file ":file"', [':file' => 'timeZones.txt']));
         sql('geonames')->query('SET GLOBAL local_infile=true;
             SET SESSION wait_timeout=600;
@@ -438,7 +438,7 @@ return;
             IGNORE 1 LINES
                 (timeZoneId, GMT_offset, DST_offset);');
 
-        
+
         Log::action(tr('Importing geonames data file ":file"', [':file' => 'countryInfo.txt']));
         sql('geonames')->query('SET GLOBAL local_infile=true;
             SET SESSION wait_timeout=600;
@@ -449,7 +449,7 @@ return;
             IGNORE 51 LINES
                 (iso_alpha2, iso_alpha3, iso_numeric, fips_code, name, capital, areaInSqKm, population, continent, tld, currency, currencyName, phone, postalCodeFormat, postalCodeRegex, languages, geonameid, neighbours, equivalentFipsCode);');
 
-        
+
         Log::action(tr('Importing geonames data file ":file"', [':file' => 'continentCodes.txt']));
         sql('geonames')->query('SET GLOBAL local_infile=true;
             SET SESSION wait_timeout=600;

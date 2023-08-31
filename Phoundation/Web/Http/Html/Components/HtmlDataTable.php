@@ -997,7 +997,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
             ->setJavascriptWrapper(JavascriptWrappers::dom_content)
             ->setContent('
                 $("#' . Html::safe($id) . '").DataTable({
-                  ' . implode(', ' . PHP_EOL, $options) . '
+                  ' . implode(', ' . PHP_EOL, $options) . '                                                                          
                 }).buttons().container().appendTo("#' . Html::safe($id) . '_wrapper .col-md-6:eq(0)");')->render();
 
 //showdie('$("#' . Html::safe($id) . '").DataTable({

@@ -236,7 +236,7 @@ class FileBasics implements Stringable, FileBasicsInterface
      * would not be readable (ie, the file exists, and can be read accessed), it will throw an exception with the
      * previous exception attached to it
      *
-     * @param string|null $type This is the label that will be added in the exception indicating what type of
+     * @param string|null $type          This is the label that will be added in the exception indicating what type of
      *                                   file it is
      * @param Throwable|null $previous_e If the file is okay, but this exception was specified, this exception will be
      *                                   thrown
@@ -257,13 +257,10 @@ class FileBasics implements Stringable, FileBasicsInterface
                 ]), $previous_e);
             }
 
-            throw new FilesystemException(tr('The:type file ":file" cannot be written because it does not exist', [
-                ':type' => ($type ? '' : ' ' . $type),
-                ':file' => $this->file
-            ]), $previous_e);
-        }
+            // File doesn't exist, check if the parent directory is writable so that the file can be created
+            Path::new(dirname($this->file), $this->restrictions)->checkWritable($type, $previous_e);
 
-        if (!is_readable($this->file)) {
+        } elseif (!is_writable($this->file)) {
             throw new FilesystemException(tr('The:type file ":file" cannot be written', [
                 ':type' => ($type ? '' : ' ' . $type),
                 ':file' => $this->file

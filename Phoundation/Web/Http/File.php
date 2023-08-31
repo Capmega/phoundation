@@ -130,7 +130,7 @@ class File
      */
     public function setRestrictions(RestrictionsInterface|array|string|null $restrictions = null): static
     {
-        $this->restrictions = Core::ensureRestrictions($restrictions);
+        $this->restrictions = Restrictions::ensure($restrictions);
         return $this;
     }
 

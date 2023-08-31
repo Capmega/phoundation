@@ -90,6 +90,14 @@ interface RestrictionsInterface
     public function setLabel(?string $label): static;
 
     /**
+     * Sets the restrictions label only if the specified label is not empty, and this object's label is NULL or "system"
+     *
+     * @param string|null $label
+     * @return $this
+     */
+    public function ensureLabel(?string $label): static;
+
+    /**
      * Returns the label for this restriction
      *
      * @return string
@@ -102,4 +110,11 @@ interface RestrictionsInterface
      * @return void
      */
     public function check(string|array &$patterns, bool $write): void;
+
+    /**
+     * Returns system general file access restrictions
+     *
+     * @return RestrictionsInterface
+     */
+    public static function getSystem(): RestrictionsInterface;
 }

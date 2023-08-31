@@ -9,7 +9,7 @@ use Phoundation\Core\Config;
 use Phoundation\Core\Session;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Notifications\Interfaces\NotificationsInterface;
-use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Http\Html\Components\Input\InputSelect;
 use Phoundation\Web\Http\Html\Components\Script;
 use Phoundation\Web\Http\UrlBuilder;
@@ -123,7 +123,7 @@ class Notifications extends DataList implements NotificationsInterface
 //    /**
 //     * @inheritDoc
 //     */
-//    public function load(?string $id_column = null): static
+//    public function load(): static
 //    {
 //        $this->source = sql()->list('SELECT `notifications`.`id`, `notifications`.`title`
 //                                   FROM     `notifications`
@@ -185,9 +185,9 @@ class Notifications extends DataList implements NotificationsInterface
      * @param string $value_column
      * @param string $key_column
      * @param string|null $order
-     * @return SelectInterface
+     * @return InputSelectInterface
      */
-    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id', ?string $order = null): SelectInterface
+    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id', ?string $order = null): InputSelectInterface
     {
         return InputSelect::new()
             ->setSourceQuery('SELECT   `' . $key_column . '`, `' . $value_column . '` 

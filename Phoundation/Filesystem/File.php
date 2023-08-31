@@ -18,6 +18,8 @@ use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\Sha256MismatchException;
 use Phoundation\Filesystem\Interfaces\FileInterface;
 use Phoundation\Processes\Commands\FilesystemCommands;
+use Phoundation\Processes\Commands\Gzip;
+use Phoundation\Processes\Commands\Zip;
 use Throwable;
 
 
@@ -1320,7 +1322,7 @@ class File extends FileBasics implements FileInterface
      */
     public function tar(): static
     {
-        return File::new(FilesystemCommands::new($this->restrictions)->tar($this->file), $this->restrictions);
+        return File::new(Tar::new($this->restrictions)->tar($this->file), $this->restrictions);
     }
 
 
@@ -1343,7 +1345,7 @@ class File extends FileBasics implements FileInterface
      */
     public function gzip(): static
     {
-        $file = FilesystemCommands::new($this->restrictions)->gzip($this->file);
+        $file = Gzip::new($this->restrictions)->gzip($this->file);
         return File::new($file, $this->restrictions);
     }
 
@@ -1355,7 +1357,7 @@ class File extends FileBasics implements FileInterface
      */
     public function gunzip(): static
     {
-        $file = FilesystemCommands::new($this->restrictions)->gunzip($this->file);
+        $file = Gzip::new($this->restrictions)->gunzip($this->file);
         return File::new($file, $this->restrictions);
     }
 
@@ -1389,7 +1391,7 @@ class File extends FileBasics implements FileInterface
      */
     public function unzip(): static
     {
-        FilesystemCommands::new($this->restrictions)->unzip($this->file);
+        Zip::new($this->restrictions)->unzip($this->file);
         return $this;
     }
 

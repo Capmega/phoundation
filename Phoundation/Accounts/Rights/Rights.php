@@ -22,7 +22,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Security\Incidents\Severity;
 use Phoundation\Web\Http\Html\Components\Input\InputSelect;
-use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
 
 
 /**
@@ -43,10 +43,19 @@ class Rights extends DataList implements RightsInterface
      */
     public function __construct()
     {
-        $this->setQuery('SELECT   `id`, `name` AS `right`, `description` 
-                               FROM     `accounts_rights` 
-                               WHERE    `status` IS NULL 
-                               ORDER BY `name`');
+        $this->setQuery('SELECT     `accounts_rights`.`id`, 
+                                          CONCAT(UPPER(LEFT(`accounts_rights`.`name`, 1)), SUBSTRING(`accounts_rights`.`name`, 2)) AS `role`, 
+                                          GROUP_CONCAT(CONCAT(UPPER(LEFT(`accounts_roles`.`name`, 1)), SUBSTRING(`accounts_roles`.`name`, 2)) SEPARATOR ", ") AS `Linked roles`, 
+                                          `accounts_rights`.`description` 
+                               FROM       `accounts_rights` 
+                               LEFT JOIN  `accounts_roles_rights`
+                               ON         `accounts_roles_rights`.`rights_id` = `accounts_rights`.`id` 
+                               LEFT JOIN  `accounts_roles`
+                               ON         `accounts_roles`.`id` = `accounts_roles_rights`.`roles_id` 
+                                 AND      `accounts_roles`.`status` IS NULL 
+                               WHERE      `accounts_rights`.`status` IS NULL
+                               GROUP BY   `accounts_rights`.`name`
+                               ORDER BY   `accounts_rights`.`name`');
 
         parent::__construct();
     }
@@ -194,10 +203,10 @@ class Rights extends DataList implements RightsInterface
     /**
      * Remove the specified data entry from the data list
      *
-     * @param RightInterface|array|string|int|null $right
+     * @param RightInterface|array|string|float|int $right
      * @return static
      */
-    public function remove(RightInterface|array|string|int|null $right): static
+    public function remove(RightInterface|array|string|float|int $right): static
     {
         $this->ensureParent('remove entry from parent');
 
@@ -218,20 +227,21 @@ class Rights extends DataList implements RightsInterface
                         ':right' => $right->getLogId()
                     ]));
 
-                    sql()->dataEntrydelete('accounts_users_rights', [
+                    sql()->dataEntryDelete('accounts_users_rights', [
                         'users_id'  => $this->parent->getId(),
                         'rights_id' => $right->getId()
                     ]);
 
-                    // Add right to internal list
-                    $this->delete($right);
+                    // Delete right from internal list
+                    parent::remove($right->getId());
+
                 } elseif ($this->parent instanceof RoleInterface) {
                     Log::action(tr('Removing right ":right" from role ":role"', [
                         ':role' => $this->parent->getLogId(),
                         ':right' => $right->getLogId()
                     ]));
 
-                    sql()->dataEntrydelete('accounts_roles_rights', [
+                    sql()->dataEntryDelete('accounts_roles_rights', [
                         'roles_id'  => $this->parent->getId(),
                         'rights_id' => $right->getId()
                     ]);
@@ -241,8 +251,8 @@ class Rights extends DataList implements RightsInterface
                         User::get($user)->getRights()->remove($right);
                     }
 
-                    // Add right to internal list
-                    $this->delete($right);
+                    // Delete right from internal list
+                    parent::remove($right->getId());
                 }
             }
         }
@@ -319,19 +329,16 @@ class Rights extends DataList implements RightsInterface
     /**
      * Load the data for this rights list into the object
      *
-     * @param string|null $id_column
      * @return static
      */
-    public function load(?string $id_column = 'rights_id'): static
+    public function load(): static
     {
-        if (!$id_column) {
-            $id_column = 'rights_id';
-        }
-
         if ($this->parent) {
             // Load only rights for specified parent
             if ($this->parent instanceof UserInterface) {
-                $this->source = sql()->list('SELECT `accounts_rights`.`seo_name` AS `key`, `accounts_rights`.*
+                $this->source = sql()->list('SELECT `accounts_rights`.`seo_name` AS `key`, 
+                                                          `accounts_rights`.*,
+                                                          CONCAT(UPPER(LEFT(`accounts_rights`.`name`, 1)), SUBSTRING(`accounts_rights`.`name`, 2)) AS `name`
                                                    FROM   `accounts_users_rights` 
                                                    JOIN   `accounts_rights` 
                                                    ON     `accounts_users_rights`.`rights_id` = `accounts_rights`.`id`
@@ -340,7 +347,9 @@ class Rights extends DataList implements RightsInterface
                 ]);
 
             } elseif ($this->parent instanceof RoleInterface) {
-                $this->source = sql()->list('SELECT `accounts_rights`.`seo_name` AS `key`, `accounts_rights`.* 
+                $this->source = sql()->list('SELECT `accounts_rights`.`seo_name` AS `key`, 
+                                                          `accounts_rights`.*,
+                                                          CONCAT(UPPER(LEFT(`accounts_rights`.`name`, 1)), SUBSTRING(`accounts_rights`.`name`, 2)) AS `name`
                                                    FROM   `accounts_roles_rights` 
                                                    JOIN   `accounts_rights` 
                                                    ON     `accounts_roles_rights`.`rights_id` = `accounts_rights`.`id`
@@ -533,7 +542,7 @@ class Rights extends DataList implements RightsInterface
      *
      * @return InputSelect
      */
-    public function getHtmlSelect(string $value_column = 'CONCAT(UPPER(LEFT(`name`, 1)), SUBSTRING(`name`, 2)) AS `name`', string $key_column = 'id', ?string $order = '`name` ASC'): SelectInterface
+    public function getHtmlSelect(string $value_column = 'CONCAT(UPPER(LEFT(`name`, 1)), SUBSTRING(`name`, 2)) AS `name`', string $key_column = 'id', ?string $order = '`name` ASC'): InputSelectInterface
     {
         return parent::getHtmlSelect($value_column, $key_column, $order)
             ->setName('rights_id')

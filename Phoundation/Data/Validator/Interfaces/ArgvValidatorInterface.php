@@ -30,12 +30,4 @@ interface ArgvValidatorInterface extends ValidatorInterface
      * @return array
      */
     public function getArgv(): array;
-
-    /**
-     * Throws an exception if there are still arguments left in the argv source
-     *
-     * @param bool $apply
-     * @return static
-     */
-    public function noArgumentsLeft(bool $apply = true): static;
 }

@@ -54,7 +54,7 @@ trait DataRestrictions
      */
     public function setRestrictions(RestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): static
     {
-        $this->restrictions = Core::ensureRestrictions($restrictions, $write, $label);
+        $this->restrictions = Restrictions::ensure($restrictions, $write, $label);
         return $this;
     }
 }

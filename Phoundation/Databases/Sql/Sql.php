@@ -17,10 +17,12 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
 use Phoundation\Core\Log\Exception\LogException;
 use Phoundation\Core\Log\Log;
+use Phoundation\Core\Meta\Exception\MetaException;
 use Phoundation\Core\Meta\Meta;
 use Phoundation\Core\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Core\Timers;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Databases\Sql\Exception\SqlAccessDeniedException;
 use Phoundation\Databases\Sql\Exception\SqlColumnDoesNotExistsException;
 use Phoundation\Databases\Sql\Exception\SqlDatabaseDoesNotExistException;
@@ -39,6 +41,7 @@ use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Processes\Commands\Command;
 use Phoundation\Servers\Servers;
+use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Throwable;
@@ -304,6 +307,7 @@ class Sql implements SqlInterface
      * @param string|PDOStatement $query
      * @param array|null $execute
      * @return PDOStatement
+     * @throws SqlException
      */
     public function query(string|PDOStatement $query, ?array $execute = null): PDOStatement
     {
@@ -359,14 +363,17 @@ class Sql implements SqlInterface
                     foreach ($execute as $key => $value) {
                         if (!is_scalar($value) and !is_null($value)) {
                             throw new SqlException(tr('Specified key ":value" in the execute array for query ":query" is NOT scalar or NULL! Value is ":value"', [
-                                ':key' => str_replace(':', '.', $key),
+                                ':key'   => str_replace(':', '.', $key),
                                 ':query' => str_replace(':', '.', $query),
                                 ':value' => str_replace(':', '.', $value)
                             ]));
                         }
                     }
 
-                    throw $e;
+                    throw new SqlException(tr('Sql query ":query" failed with ":e"', [
+                        ':query' => $query,
+                        ':e'     => $e->getMessage()
+                    ]), $e);
                 }
             }
 
@@ -412,9 +419,7 @@ class Sql implements SqlInterface
                     // no-break
                 case 'invalidforce':
 
-                    /*
-                     * Some database operation has failed
-                     */
+                    // Some database operation has failed
                     foreach ($e->getMessages() as $message) {
                         Log::error('(' . $this->uniqueid . ') ' . $message);
                     }
@@ -429,15 +434,15 @@ class Sql implements SqlInterface
 
                     if (count($matches[0]) != count($execute)) {
                         throw new SqlException(tr('Query ":query" failed with error HY093, the number of query tokens does not match the number of bound variables. The query contains tokens ":tokens", where the bound variables are ":variables"', [
-                            ':query' => $query,
-                            ':tokens' => implode(',', $matches['0']),
+                            ':query'     => $query,
+                            ':tokens'    => implode(',', $matches['0']),
                             ':variables' => implode(',', array_keys($execute))
                         ]), $e);
                     }
 
                     throw new SqlException(tr('Query ":query" failed with error HY093, One or more query tokens does not match the bound variables keys. The query contains tokens ":tokens", where the bound variables are ":variables"', [
-                        ':query' => $query,
-                        ':tokens' => implode(',', $matches['0']),
+                        ':query'     => $query,
+                        ':tokens'    => implode(',', $matches['0']),
                         ':variables' => implode(',', array_keys($execute))
                     ]), $e);
 
@@ -788,7 +793,7 @@ class Sql implements SqlInterface
      * @param string|null $comments
      * @return int
      */
-    public function dataEntrydelete(string $table, array $row, ?string $comments = null): int
+    public function dataEntryDelete(string $table, array $row, ?string $comments = null): int
     {
         // DataEntry table?
         if (array_key_exists('meta_id', $row)) {
@@ -806,14 +811,14 @@ class Sql implements SqlInterface
      * This is a simplified delete method to speed up writing basic insert queries
      *
      * @param string $table
-     * @param array $where
-     * @param string $separator
+     * @param string $where
+     * @param array $execute
      * @return int
      */
-    public function delete(string $table, array $where, string $separator = 'AND'): int
+    public function delete(string $table, string $where, array $execute): int
     {
         // This table is not a DataEntry table, just delete the entry
-        return $this->erase($table, $where, $separator);
+        return $this->erase($table, $where, $execute);
     }
 
 
@@ -834,23 +839,30 @@ class Sql implements SqlInterface
      *
      * @param string|null $status
      * @param string $table
-     * @param array $row
+     * @param DataEntryInterface|array $entry
      * @param string|null $comments
      * @return int
      */
-    public function dataEntrySetStatus(?string $status, string $table, array $row, ?string $comments = null): int
+    public function dataEntrySetStatus(?string $status, string $table, DataEntryInterface|array $entry, ?string $comments = null): int
     {
-        if (empty($row['id'])) {
+        if (is_object($entry)) {
+            $entry = [
+                'id'      => $entry->getId(),
+                'meta_id' => $entry->getMetaId(),
+            ];
+        }
+
+        if (empty($entry['id'])) {
             throw new OutOfBoundsException(tr('Cannot set status, no row id specified'));
         }
 
         // Update the meta data
-        Meta::get($row['meta_id'])->action(tr('Changed status'), $comments, Json::encode(['status' => $status]));
+        Meta::get($entry['meta_id'])->action(tr('Changed status'), $comments, Json::encode(['status' => $status]));
 
         // Update the row status
         return $this->query('UPDATE `' . $table . '` 
                                    SET `status` = :status
-                                   WHERE   `id` = :id', [':status' => $status, ':id' => $row['id']])->rowCount();
+                                   WHERE   `id` = :id', [':status' => $status, ':id' => $entry['id']])->rowCount();
     }
 
 
@@ -863,6 +875,7 @@ class Sql implements SqlInterface
      *       to this table are in the $row value, the query will automatically fail with an exception!
      * @param string $table
      * @param array $where
+     * @param string $separator
      * @return int
      */
     public function erase(string $table, array $where, string $separator = 'AND'): int
@@ -871,8 +884,8 @@ class Sql implements SqlInterface
         $values = $this->values($where);
         $update = $this->filterColumns($where, ' ' . $separator . ' ');
 
-        return $this->query('DELETE FROM `' . $table . '`
-                                   WHERE        ' . $update, $values)->rowCount();
+         return $this->query('DELETE FROM `' . $table . '`
+                                    WHERE        ' . $update, $values)->rowCount();
     }
 
 
@@ -1171,7 +1184,9 @@ class Sql implements SqlInterface
 
 
     /**
-     * Execute query and return only the first row
+     * Executes the single column query and returns array with only scalar values.
+     *
+     * Each key will be a numeric index starting from 0
      *
      * @param string|PDOStatement $query
      * @param array|null $execute
@@ -1192,7 +1207,9 @@ class Sql implements SqlInterface
 
 
     /**
-     * Execute query and return only the first row
+     * Executes the query and returns array with each complete row in a sub array
+     *
+     * Each sub array will have a numeric index key starting from 0
      *
      * @param string|PDOStatement $query
      * @param array|null $execute
@@ -1213,7 +1230,7 @@ class Sql implements SqlInterface
 
 
     /**
-     * Execute query and return only the first row
+     * Executes the query for two columns and will return the results as a key => static value array
      *
      * @param string|PDOStatement $query
      * @param array|null $execute
@@ -1234,7 +1251,9 @@ class Sql implements SqlInterface
 
 
     /**
-     * Execute query and return only the first row
+     * Executes the query for two or more columns and will return the results as a key => values-in-array array
+     *
+     * The key will be the first selected column but will be included in the value array
      *
      * @param string|PDOStatement $query
      * @param array|null $execute
@@ -1255,7 +1274,10 @@ class Sql implements SqlInterface
 
 
     /**
-     * Execute query and return only the first row
+     * Executes the query for two or more columns and will return the results as a key => values-in-array array,
+     * removing the key from the values
+     *
+     * The key will be the first selected column and will be removed from the value array
      *
      * @param string|PDOStatement $query
      * @param array|null $execute
@@ -2588,31 +2610,31 @@ class Sql implements SqlInterface
     }
 
 
-//    /**
-//     * Helper for building $this->in key value pairs
-//     *
-//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-//     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-//     * @category Function reference
-//     * @package sql
-//     *
-//     * @param array $in
-//     * @param int|string|null $column_starts_with
-//     * @return string a comma delimited string of columns
-//     */
-//    public function inColumns(array $in, int|string|null $column_starts_with = null): string
-//    {
-//        if ($column_starts_with) {
-//            // Only return those columns that start with this string
-//            foreach ($in as $key => $column) {
-//                if (!Strings::startsWith($key, $column_starts_with)) {
-//                    unset($in[$key]);
-//                }
-//            }
-//        }
-//
-//        return implode(', ', array_keys($in));
-//    }
+    /**
+     * Helper for building $this->in key value pairs
+     *
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @category Function reference
+     * @package sql
+     *
+     * @param array $in
+     * @param int|string|null $column_starts_with
+     * @return string a comma delimited string of columns
+     */
+    public static function inColumns(array $in, int|string|null $column_starts_with = null): string
+    {
+        if ($column_starts_with) {
+            // Only return those columns that start with this string
+            foreach ($in as $key => $column) {
+                if (!Strings::startsWith($key, $column_starts_with)) {
+                    unset($in[$key]);
+                }
+            }
+        }
+
+        return implode(', ', array_keys($in));
+    }
 
 
 //    /**

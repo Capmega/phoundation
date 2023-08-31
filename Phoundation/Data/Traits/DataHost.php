@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
+use Phoundation\Core\Strings;
+use Phoundation\Exception\OutOfBoundsException;
+
 
 /**
- * Trait DataFile
+ * Trait DataHost
  *
  *
  *
@@ -15,35 +18,36 @@ namespace Phoundation\Data\Traits;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-trait DataFile
+trait DataHost
 {
     /**
-     * The file for this object
+     * The host for this object
      *
-     * @var string|null $file
+     * @var string|null $host
      */
-    protected ?string $file = null;
+    protected ?string $host = null;
+
 
     /**
-     * Returns the file
+     * Returns the host
      *
      * @return string|null
      */
-    public function getFile(): ?string
+    public function getHost(): ?string
     {
-        return $this->file;
+        return $this->host;
     }
 
 
     /**
-     * Sets the file
+     * Sets the host
      *
-     * @param string|null $file
+     * @param string|null $host
      * @return static
      */
-    public function setFile(?string $file): static
+    public function setHost(?string $host): static
     {
-        $this->file = get_null($file);
+        $this->host = get_null($host);
         return $this;
     }
 }

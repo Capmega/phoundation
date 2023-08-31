@@ -27,6 +27,7 @@ use Phoundation\Exception\ScriptException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Path;
 use Phoundation\Processes\Commands\Command;
+use Phoundation\Processes\Commands\Id;
 use Throwable;
 
 
@@ -335,7 +336,7 @@ The following arguments are available to ALL scripts
             return posix_getuid();
         }
 
-        return Command::new()->id('u');
+        return Id::new()->do('u');
     }
 
 

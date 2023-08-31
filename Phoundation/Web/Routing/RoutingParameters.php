@@ -50,9 +50,9 @@ class RoutingParameters
     /**
      * Server restrictions indicating what the router can access
      *
-     * @var Restrictions|array|string $restrictions
+     * @var Restrictions|array|string|null $restrictions
      */
-    protected Restrictions|array|string $restrictions;
+    protected Restrictions|array|string|null $restrictions = null;
 
     /**
      * Sets the default base URL for all links generated
@@ -380,12 +380,7 @@ class RoutingParameters
      */
     public function getRestrictions(): RestrictionsInterface|array|string|null
     {
-        if (!isset($this->restrictions)) {
-            // Set default server restrictions
-            $this->restrictions = Core::ensureRestrictions(PATH_WWW, false, 'Route');
-        }
-
-        return $this->restrictions;
+        return Restrictions::default($this->restrictions, Restrictions::new(PATH_WWW, false, 'Route'));
     }
 
 
@@ -397,7 +392,7 @@ class RoutingParameters
      */
     public function setRestrictions(RestrictionsInterface|array|string|null $restrictions): static
     {
-        $this->restrictions = Core::ensureRestrictions($restrictions, PATH_WWW, 'Route');
+        $this->restrictions = Restrictions::default($restrictions, Restrictions::new(PATH_WWW, false, 'Route'));
         return $this;
     }
 

@@ -127,7 +127,7 @@ class Path extends FileBasics
         $this->file = Strings::slash($this->file);
         parent::checkWritable($type, $previous_e);
 
-        if (is_dir($this->file)) {
+        if (!is_dir($this->file)) {
             throw new FilesystemException(tr('The:type directory ":file" cannot be written because it is not a directory', [
                 ':type' => ($type ? '' : ' ' . $type),
                 ':file' => $this->file
@@ -334,7 +334,7 @@ class Path extends FileBasics
      */
     public function createTarget(?bool $single = null, int $length = 0): string
     {
-        // Check filesystem restrictions 
+        // Check filesystem restrictions
         $this->file = Strings::slash($this->file);
         $this->restrictions->check($this->file, true);
         $this->exists();
@@ -375,7 +375,7 @@ class Path extends FileBasics
      */
     public function listTree(array|string|null $filters = null, bool $recursive = true): array
     {
-        // Check filesystem restrictions 
+        // Check filesystem restrictions
         $this->file = Strings::slash($this->file);
         $this->restrictions->check($this->file, false);
         $this->exists();
@@ -429,7 +429,7 @@ class Path extends FileBasics
      */
     public function random(): string
     {
-        // Check filesystem restrictions 
+        // Check filesystem restrictions
         $this->file = Strings::slash($this->file);
         $this->restrictions->check($this->file, false);
         $this->exists();
@@ -461,7 +461,7 @@ class Path extends FileBasics
      */
     public function scanUpwardsForFile(string $filename): ?string
     {
-        // Check filesystem restrictions 
+        // Check filesystem restrictions
         $this->file = Strings::slash($this->file);
         $this->restrictions->check($this->file, false);
         $this->exists();
@@ -488,7 +488,7 @@ class Path extends FileBasics
      */
     public function treeFileSize(): int
     {
-        // Check filesystem restrictions 
+        // Check filesystem restrictions
         $this->file = Strings::slash($this->file);
         $this->restrictions->check($this->file, false);
         $this->exists();
@@ -518,7 +518,7 @@ class Path extends FileBasics
      */
     public function treeFileCount(): int
     {
-        // Check filesystem restrictions 
+        // Check filesystem restrictions
         $this->file = Strings::slash($this->file);
         $this->restrictions->check($this->file, false);
         $this->exists();

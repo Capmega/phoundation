@@ -18,6 +18,7 @@ use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
+use Phoundation\Filesystem\Restrictions;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
@@ -243,6 +244,13 @@ abstract class Validator implements ValidatorInterface
      */
     public function isBoolean(): static
     {
+        if ($this->selected_optional === true) {
+            // A default TRUE for boolean values makes no sense as with this they will ALWAYS be TRUE.
+            throw new OutOfBoundsException(tr('Cannot use "TRUE" as a default value for boolean field ":selected" as this means the field will ALWAYS be true', [
+                ':selected' => $this->selected_field
+            ]));
+        }
+
         return $this->validateValues(function(&$value) {
             if (!$this->checkIsOptional($value)) {
                 if (Strings::toBoolean($value, false) === null) {
@@ -1904,15 +1912,18 @@ abstract class Validator implements ValidatorInterface
 
 
     /**
-     * Validates if the selected field is a valid directory
+     * Validates if the selected field is a valid file path
      *
-     * @param string|null $exists_in_path
+     * @param string|null $check_in_path
      * @param RestrictionsInterface|array|string|null $restrictions
+     * @param bool $exists
      * @return static
      */
-    public function isPath(?string $exists_in_path = null, RestrictionsInterface|array|string|null $restrictions = null): static
+    public function isPath(?string $check_in_path = null, RestrictionsInterface|array|string|null $restrictions = null, bool $exists = true): static
     {
-        return $this->validateValues(function(&$value) use($exists_in_path, $restrictions) {
+        $restrictions->setLabel(tr('Validator'));
+
+        return $this->validateValues(function(&$value) use($check_in_path, $restrictions, $exists) {
             $this->hasMinCharacters(1)->hasMaxCharacters(2048);
 
             if ($this->process_value_failed) {
@@ -1920,8 +1931,20 @@ abstract class Validator implements ValidatorInterface
                 return;
             }
 
-            if ($exists_in_path !== null) {
-                $this->checkFile($value, $exists_in_path, $restrictions, null);
+            if ($check_in_path !== null) {
+                if ($exists) {
+                    // The specified directory must exist
+                    $this->checkFile($value, $check_in_path, $restrictions, true);
+
+                } else {
+                    // The specified directory must NOT exist, but ensure the parent path is available so that we can
+                    // create it
+                    $this->checkFile(dirname($value), $check_in_path, $restrictions, true);
+
+                    if (file_exists($value)) {
+                        $this->addFailure(tr('is a path that already exists'));
+                    }
+                }
             }
         });
     }
@@ -1930,13 +1953,16 @@ abstract class Validator implements ValidatorInterface
     /**
      * Validates if the selected field is a valid directory
      *
-     * @param string|null $exists_in_path
+     * @param string|null $check_in_path
      * @param RestrictionsInterface|array|string|null $restrictions
+     * @param bool $exists
      * @return static
      */
-    public function isDirectory(?string $exists_in_path = null, RestrictionsInterface|array|string|null $restrictions = null): static
+    public function isDirectory(?string $check_in_path = null, RestrictionsInterface|array|string|null $restrictions = null, bool $exists = true): static
     {
-        return $this->validateValues(function(&$value) use($exists_in_path, $restrictions) {
+        $restrictions->setLabel(tr('Validator'));
+
+        return $this->validateValues(function(&$value) use($check_in_path, $restrictions, $exists) {
             $this->hasMinCharacters(1)->hasMaxCharacters(2048);
 
             if ($this->process_value_failed) {
@@ -1944,8 +1970,20 @@ abstract class Validator implements ValidatorInterface
                 return;
             }
 
-            if ($exists_in_path !== null) {
-                $this->checkFile($value, $exists_in_path, $restrictions, true);
+            if ($check_in_path !== null) {
+                if ($exists) {
+                    // The specified directory must exist
+                    $this->checkFile($value, $check_in_path, $restrictions, true);
+
+                } else {
+                    // The specified directory must NOT exist, but ensure the parent path is available so that we can
+                    // create it
+                    $this->checkFile(dirname($value), $check_in_path, $restrictions, true);
+
+                    if (file_exists($value)) {
+                        $this->addFailure(tr('is a directory that already exists'));
+                    }
+                }
             }
         });
     }
@@ -1954,13 +1992,16 @@ abstract class Validator implements ValidatorInterface
     /**
      * Validates if the selected field is a valid file
      *
-     * @param string|null $exists_in_path
+     * @param string|null $check_in_path
      * @param RestrictionsInterface|array|string|null $restrictions
+     * @param bool $exists
      * @return static
      */
-    public function isFile(?string $exists_in_path = null, RestrictionsInterface|array|string|null $restrictions = null): static
+    public function isFile(?string $check_in_path = null, RestrictionsInterface|array|string|null $restrictions = null, bool $exists = true): static
     {
-        return $this->validateValues(function(&$value) use($exists_in_path, $restrictions) {
+        $restrictions = Restrictions::ensure($restrictions)->setLabel(tr('Validator'));
+
+        return $this->validateValues(function(&$value) use($check_in_path, $restrictions, $exists) {
             $this->hasMinCharacters(1)->hasMaxCharacters(2048);
 
             if ($this->process_value_failed) {
@@ -1968,8 +2009,20 @@ abstract class Validator implements ValidatorInterface
                 return;
             }
 
-            if ($exists_in_path !== null) {
-                $this->checkFile($value, $exists_in_path, $restrictions);
+            if ($check_in_path !== null) {
+                if ($exists) {
+                    // The specified file must exist
+                    $this->checkFile($value, $check_in_path, $restrictions);
+
+                } else {
+                    // The specified directory must NOT exist, but ensure the parent path is available so that we can
+                    // create it
+                    $this->checkFile(dirname($value), $check_in_path, $restrictions, true);
+
+                    if (file_exists($value)) {
+                        $this->addFailure(tr('is a file that already exists'));
+                    }
+                }
             }
         });
     }
@@ -1996,6 +2049,12 @@ abstract class Validator implements ValidatorInterface
             $type = '';
         }
 
+        if (!$value) {
+            // Some value must be specified
+            $this->addFailure(tr('must contain a path'));
+            return;
+        }
+
         if (!$restrictions) {
             throw new ValidatorException(tr('Cannot validate the specified :type, no restrictions specified', [
                 ':type' => $type
@@ -2004,7 +2063,7 @@ abstract class Validator implements ValidatorInterface
 
         $path = ($exists_in_path ? Strings::slash($exists_in_path) : null) . $value;
 
-        Core::ensureRestrictions($restrictions)->check($path, false);
+        Restrictions::ensure($restrictions)->check($path, false);
 
         if (!file_exists($path)) {
             if ($type) {

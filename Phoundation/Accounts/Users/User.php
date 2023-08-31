@@ -173,11 +173,11 @@ class User extends DataEntry implements UserInterface
     public static function getForRole(RolesInterface|Stringable|string $role): userInterface
     {
         $role = Role::get($role);
-        $id   = sql()->getColumn('SELECT `accounts_users`.`id`
+        $id   = sql()->getColumn('SELECT `accounts_users`.`id` 
                                     FROM   `accounts_users`
-                                    JOIN   `accounts_users_roles`
+                                    JOIN   `accounts_users_roles`  
                                     ON     `accounts_users_roles`.`users_id` = `accounts_users`.`id`
-                                    WHERE  `accounts_users_roles`.`roles_id` = :roles_id
+                                    WHERE  `accounts_users_roles`.`roles_id` = :roles_id 
                                       AND  `accounts_users_roles`.`status`   IS NULL', [
                                           ':roles_id' => $role->getId()
         ]);
