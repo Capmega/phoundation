@@ -250,7 +250,7 @@ class Rsync extends Command
      *
      * @return bool
      */
-    public function getSudo(): bool
+    public function getRemoteSudo(): bool
     {
         return $this->rsync_path === 'sudo rsync';
     }
@@ -262,7 +262,7 @@ class Rsync extends Command
      * @param bool $sudo
      * @return static
      */
-    public function setSudo(bool $sudo): static
+    public function setRemoteSudo(bool $sudo): static
     {
         $this->rsync_path = 'sudo rsync';
         return $this;

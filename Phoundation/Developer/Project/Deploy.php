@@ -252,7 +252,7 @@ class Deploy implements DeployInterface
                 ->setArchive(true)
                 ->setVerbose(true)
                 ->setCompress(true)
-                ->setSudo($env_config['server']['sudo'])
+                ->setRemoteSudo($env_config['server']['sudo'])
                 ->setPort($env_config['server']['port'])
                 ->setSource(PATH_ROOT)
                 ->setTarget(Strings::endsWith($rsync_target, '/') . $project)
