@@ -31,10 +31,10 @@ class Incidents extends DataList
      */
     public function __construct()
     {
-        $this->setQuery('SELECT   `id`, `type`, `severity`, `title` 
-                                   FROM     `security_incidents` 
-                                   WHERE    `status` IS NULL 
-                                   ORDER BY `created_on` DESC');
+        $this->setQuery('SELECT   `id`, `type`, `created_on`, `severity`, `title` 
+                               FROM     `security_incidents` 
+                               WHERE    `status` IS NULL 
+                               ORDER BY `created_on` DESC');
         parent::__construct();
     }
 
