@@ -39,7 +39,9 @@ use Stringable;
  */
 abstract class DataList extends Iterator implements DataListInterface
 {
-    use DataParent;
+    use DataParent {
+        setParent as setParentTrait;
+    }
 
 
     /**
@@ -344,9 +346,9 @@ abstract class DataList extends Iterator implements DataListInterface
             $select->setSource($this->getSourceColumn($value_column));
 
         } else {
-            $query = 'SELECT   `' . $key_column . '`, ' . $value_column . ' 
-                                                FROM     `' . static::getTable() . '` 
-                                                WHERE    `status` IS NULL';
+            $query = 'SELECT `' . $key_column . '`, ' . $value_column . ' 
+                      FROM   `' . static::getTable() . '` 
+                      WHERE  `status` IS NULL';
 
             if ($order === null) {
                 // Default order by the value column. Value column may have SQL, make sure its stripped
@@ -650,5 +652,19 @@ abstract class DataList extends Iterator implements DataListInterface
     public function getTotals(array|string $columns): array
     {
         return array_combine($columns, array_fill(0, count($columns), null));
+    }
+
+
+    /**
+     * Sets the parent
+     *
+     * @param DataEntryInterface $parent
+     * @return static
+     */
+    public function setParent(DataEntryInterface $parent): static
+    {
+        // Clear the source to avoid having a parent with the wrong children
+        $this->source = [];
+        return $this->setParentTrait($parent);
     }
 }
