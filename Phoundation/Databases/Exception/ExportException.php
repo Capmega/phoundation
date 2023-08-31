@@ -8,7 +8,7 @@ namespace Phoundation\Databases\Exception;
 /**
  * Class ExportException
  *
- *
+ * This is the default exception for the Iterator class
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

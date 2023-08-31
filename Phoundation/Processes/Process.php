@@ -87,4 +87,45 @@ Class Process extends ProcessCore implements ProcessInterface
     {
         return $this->setInternalCommand($command, $which_command);
     }
+
+
+    /**
+     * Command exception handler
+     *
+     * @param string $command
+     * @param Exception $e
+     * @param callable|null $function
+     * @return void
+     */
+    protected static function handleException(string $command, Exception $e, ?callable $function = null): void
+    {
+        if ($e->getData()['output']) {
+            $data       = $e->getData()['output'];
+            $first_line = Arrays::firstValue($data);
+            $first_line = strtolower($first_line);
+            $last_line  = Arrays::lastValue($data);
+            $last_line  = strtolower($last_line);
+
+            // Process specified handlers
+            if ($function) {
+                $function($first_line, $last_line, $e);
+            }
+
+            // Handlers were unable to make a clear exception out of this, show the standard command exception
+            throw new CommandsException(tr('The command :command failed with ":output"', [
+                ':command' => $command,
+                ':output' => $data
+            ]));
+        }
+
+        // The process generated no output. Process specified handlers
+        if ($function) {
+            $function(null, null, $e);
+        }
+
+        // Something else went wrong, no CLI output available
+        throw new CommandsException(tr('The command :command failed for unknown reasons', [
+            ':command' => $command
+        ]));
+    }
 }

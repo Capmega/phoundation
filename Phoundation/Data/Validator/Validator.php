@@ -1921,7 +1921,7 @@ abstract class Validator implements ValidatorInterface
      */
     public function isPath(?string $check_in_path = null, RestrictionsInterface|array|string|null $restrictions = null, bool $exists = true): static
     {
-        $restrictions->setLabel(tr('Validator'));
+        $restrictions = Restrictions::ensure($restrictions)->setLabel(tr('Validator'));
 
         return $this->validateValues(function(&$value) use($check_in_path, $restrictions, $exists) {
             $this->hasMinCharacters(1)->hasMaxCharacters(2048);
@@ -1960,7 +1960,7 @@ abstract class Validator implements ValidatorInterface
      */
     public function isDirectory(?string $check_in_path = null, RestrictionsInterface|array|string|null $restrictions = null, bool $exists = true): static
     {
-        $restrictions->setLabel(tr('Validator'));
+        $restrictions = Restrictions::ensure($restrictions)->setLabel(tr('Validator'));
 
         return $this->validateValues(function(&$value) use($check_in_path, $restrictions, $exists) {
             $this->hasMinCharacters(1)->hasMaxCharacters(2048);

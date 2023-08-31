@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Phoundation\Processes;
 
 use Phoundation\Core\Arrays;
-use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
