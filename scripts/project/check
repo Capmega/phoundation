@@ -39,7 +39,6 @@ ARGUMENTS
 // Validate arguments
 $argv = ArgvValidator::new()
     ->select('-r,--repair')->isOptional()->isBoolean()
-    ->noArgumentsLeft()
     ->validate();
 
 

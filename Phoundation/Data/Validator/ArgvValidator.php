@@ -233,7 +233,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
      * @param bool $apply
      * @return static
      */
-    public function noArgumentsLeft(bool $apply = true): static
+    protected function noArgumentsLeft(bool $apply = true): static
     {
         if (!$apply) {
              return $this;
@@ -448,6 +448,26 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         }
 
         unset(static::$argv[$key]);
+    }
+
+
+    /**
+     * Called at the end of defining all validation rules.
+     *
+     * This method will check the failures array and if any failures were registered, it will throw an exception
+     *
+     * @note For command line arguments, this will check if any unvalidated arguments were left and throw a validation
+     *       exception if there are
+     * @param bool $clean_source
+     * @return array
+     */
+    public function validate(bool $clean_source = true): array
+    {
+        if ($clean_source) {
+            $this->noArgumentsLeft();
+        }
+
+        return parent::validate();
     }
 
 

@@ -45,7 +45,7 @@ ARGUMENTS
                                         data for all systems. Since this requires (amongst things) downloading and 
                                         importing (sometimes) very large data sets, this may take a little while
 
-[-l / --libraries]                      Comma delimited field. Only available if --import was specified. If specified,  
+[-l / --libraries] LIBRARIES            Comma delimited field. Only available if --import was specified. If specified,  
                                         will only execute import for libraries matching the names specified 
                                         
 [--min] (10)                            If demo mode is enabled, this will specified the minimum amount of records added 
@@ -53,17 +53,15 @@ ARGUMENTS
 
 [--max] (1000)                          If demo mode is enabled, this will specified the maximum amount of records added 
                                         in each library 
-project
+
 [-d / --demo]                           If specified, will load demo data into the database tables so the system can 
                                         quickly show actual functionality 
 
--l / --library LIBRARY                  Only initialize the specified library
-
--p / --plugins                          Only initalize plugin libraries
+-p / --no-plugins                       Do NOT initalize plugin libraries
                                        
--s / --system                           Only initialize system libraries
+-s / --no-system                        Do NOT initialize system libraries
                                        
--t / --templates                        Only initialize template libraries
+-t / --no-templates                     Do NOT initialize template libraries
                                        
 -c / --comments                         The optional comments to add in the versions table about this init');
 
@@ -73,16 +71,14 @@ $argv = ArgvValidator::new()
     ->select('--set-version', true)->isOptional()->sanitizeForceArray()->each()->matchesRegex('/[a-z]+\/\d{1,3}\.\d{1,3}\.\d{1,3}/i')
     ->select('--drop')->isOptional(false)->isBoolean()
     ->select('--import')->isOptional(false)->isBoolean()
-    ->select('-l,--libraries', true)->isOptional()->isString()->sanitizeForceArray()
     ->select('--min', true)->isOptional(10)->isNatural()
     ->select('--max', true)->isOptional(1000)->isNatural()
     ->select('-c,--comments', true)->isOptional()->isPrintable()
     ->select('-d,--demo')->isOptional()->isBoolean()
-    ->select('-l,--library', true)->isOptional()->isVariable()
-    ->select('-p,--plugins')->isOptional(true)->isBoolean()
-    ->select('-s,--system')->isOptional(true)->isBoolean()
-    ->select('-t,--templates')->isOptional(true)->isBoolean()
-    ->noArgumentsLeft()
+    ->select('-l,--libraries', true)->isOptional()->isString()->sanitizeForceArray()
+    ->select('-p,--plugins')->isOptional(false)->isBoolean()
+    ->select('-s,--system')->isOptional(false)->isBoolean()
+    ->select('-t,--templates')->isOptional(false)->isBoolean()
     ->validate();
 
 
@@ -102,7 +98,7 @@ foreach ($argv['set_version'] as $lib_version) {
 
 
 // Initialize the system
-Libraries::initialize($argv['system'], $argv['plugins'], $argv['templates'], $argv['comments'], $argv['library']);
+Libraries::initialize(!$argv['system'], !$argv['plugins'], !$argv['templates'], $argv['comments'], $argv['libraries']);
 
 
 // Run import?
@@ -120,4 +116,3 @@ if ($argv['import']) {
 //                PDO::ATTR_STRINGIFY_FETCHES => true);
 //        }
 //    }
-

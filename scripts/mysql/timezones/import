@@ -7,13 +7,13 @@ use Phoundation\Cli\Color;
 use Phoundation\Cli\Documentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Databases\Mysql;
+use Phoundation\Processes\Commands\Databases\MySql;
 
 
 /**
  * Script mysql/timezones/import
  *
- *
+ * This script will import the mysql timezones
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -22,12 +22,18 @@ use Phoundation\Databases\Mysql;
  */
 Documentation::usage('./pho mysql timezones import');
 
-Documentation::help('');
+Documentation::help('This script will import the mysql timezones
 
-$argv = ArgvValidator::new()->noArgumentsLeft();
+
+ARGUMENTS
+
+
+-');
+
+ArgvValidator::new()->validate();
 
 Log::cli(Color::apply(tr('Importing timezone data files in MySQL, this may take a couple of seconds'), 'white'));
 Log::cli(tr('You may ignore any "Warning: Unable to load \'/usr/share/zoneinfo/........\' as time zone. Skipping it." messages'));
 Log::cli(tr('Please fill in MySQL root password in the following "Enter password:" request'));
 
-Mysql::getInstance()->importTimezones();
+Mysql::new()->importTimezones();

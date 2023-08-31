@@ -27,10 +27,16 @@ use Phoundation\Developer\Debug;
  * @package Phoundation\Scripts
  */
 Documentation::usage('./pho info');
-Documentation::help('The info script will show detailed information about the current framework, project, database and more');
+Documentation::help('The info script will show detailed information about the current framework, project, database and more
 
 
-$argv  = ArgvValidator::new()->noArgumentsLeft();
+ARGUMENTS
+
+
+-');
+
+
+$argv  = ArgvValidator::new()->validate();
 $no_db =  false;
 
 try {

@@ -29,7 +29,6 @@ useful- beyond testing the git library');
 
 // Get command line arguments
 $argv = ArgvValidator::new()
-    ->noArgumentsLeft()
     ->validate();
 
 

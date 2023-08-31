@@ -22,7 +22,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 Documentation::usage('./pho tools textsize');
 Documentation::help('The textsize tool script will display the size of the specified text');
 
-ArgvValidator::new()->noArgumentsLeft()->validate();
+ArgvValidator::new()->validate();
 
 $text    = '';
 $message = tr('Please paste string to calculate size and finish with a double <enter>:');
@@ -40,5 +40,3 @@ while (true) {
 
 $text = trim($text);
 Log::cli(strlen($text));
-
-

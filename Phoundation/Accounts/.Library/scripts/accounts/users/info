@@ -35,7 +35,6 @@ USER                                    The user to display information about. S
 // Validate arguments
 $argv = ArgvValidator::new()
     ->select('user')->hasMinCharacters(2)->hasMaxCharacters(255)
-    ->noArgumentsLeft()
     ->validate();
 
 

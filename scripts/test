@@ -14,3 +14,10 @@ declare(strict_types=1);
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
+
+use Phoundation\Accounts\Rights\Right;
+
+$right = Right::get('billing', 'seo_name');
+
+show($right->getSource());
+show($right->getRoles()->getSource());

@@ -43,9 +43,7 @@ Command::new()->sudoAvailable('service', true);
 
 
 // Get process ids
-$pids = Pgrep::new()
-    ->setProcessName($argv['service'])
-    ->execute();
+$pids = Pgrep::new()->do($argv['service']);
 
 
 try {
@@ -94,5 +92,3 @@ try {
             ->send(true);
     }
 }
-
-

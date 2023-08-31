@@ -40,7 +40,7 @@ ARGUMENTS
 
 $argv = ArgvValidator::new()
     ->select('-t,--task', true)->isInteger()
-    ->noArgumentsLeft();
+    ->validate();
 
 
 if (empty($argv['task'])) {

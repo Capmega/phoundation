@@ -20,13 +20,15 @@ use Phoundation\Data\Validator\Validator;
  */
 Documentation::usage('./pho info');
 
-Documentation::help('The info script will show detailed information about the current framework, project, database and more');
-
-ArgvValidator::new()->noArgumentsLeft();
+Documentation::help('The info script will show detailed information about the current framework, project, database and more
 
 
+ARGUMENTS 
 
 
+-');
+
+ArgvValidator::new()->validate();
 
 
 $array = [
@@ -137,6 +139,3 @@ show($array);
 //file_put_contents(PATH_ROOT . 'a/b/c/d/e/f', 'This the first test file');
 //FilesystemCommands::local()->delete(PATH_ROOT . 'a/b/e');
 //FilesystemCommands::local()->delete(PATH_ROOT . 'a/b/c', true, true);
-
-
-

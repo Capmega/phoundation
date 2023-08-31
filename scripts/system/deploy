@@ -133,7 +133,6 @@ $argv = ArgvValidator::new()
     ->select('--no-test-syntax')->isOptional()->isBoolean()
     ->select('--do-test-unit')->isOptional()->isBoolean()
     ->select('--no-test-unit')->isOptional()->isBoolean()
-    ->noArgumentsLeft()
     ->validate();
 
 

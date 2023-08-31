@@ -37,7 +37,6 @@ USER                                    The role to display information about. S
 // Validate arguments
 $argv = ArgvValidator::new()
     ->select('role')->hasMinCharacters(2)->hasMaxCharacters(255)
-    ->noArgumentsLeft()
     ->validate();
 
 

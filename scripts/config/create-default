@@ -22,12 +22,18 @@ use Phoundation\Data\Validator\ArgvValidator;
  */
 Documentation::usage('./pho config create-default');
 
-Documentation::help('This script will create a default configuration file ROOT/config/default.yaml containing ALL possible configuration paths and their default values');
+Documentation::help('This script will create a default configuration file ROOT/config/default.yaml containing ALL possible configuration paths and their default values
+
+
+ARGUMENTS 
+
+
+-');
 
 
 
 // Validate no arguments
-$argv = ArgvValidator::new()->noArgumentsLeft();
+$argv = ArgvValidator::new()->validate();
 
 
 

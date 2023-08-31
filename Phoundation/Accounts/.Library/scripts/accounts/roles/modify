@@ -46,7 +46,6 @@ $argv = ArgvValidator::new()
     ->select('-n,--name', true)->isOptional(null)->isName()
     ->select('-d,--description', true)->isOptional(null)->isDescription()
     ->select('-r,--rights,--right', true)->isOptional(null)->sanitizeForceArray()->each()->isName()
-    ->noArgumentsLeft()
     ->validate();
 
 

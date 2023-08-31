@@ -38,7 +38,6 @@ ARGUMENTS
 $argv = ArgvValidator::new()
     ->select('--status')->isOptional(null)->isVariable()
     ->select('-r,--rights,--right', true)->isOptional(null)->sanitizeForceArray()->each()->isName()
-    ->noArgumentsLeft()
     ->validate();
 
 

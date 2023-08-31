@@ -30,7 +30,6 @@ useful- beyond testing the git library');
 // Get command line arguments
 $argv = ArgvValidator::new()
     ->select('repository')->isVariable()
-    ->noArgumentsLeft()
     ->validate();
 
 

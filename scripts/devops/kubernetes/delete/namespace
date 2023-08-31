@@ -25,7 +25,6 @@ Documentation::help('This script deletes the specified Kubernetes namespaces');
 // Validate arguments
 $argv = ArgvValidator::new()
     ->select('name', true)->matchesRegex('/^[a-z0-9-]+$/')
-    ->noArgumentsLeft()
     ->validate();
 
 

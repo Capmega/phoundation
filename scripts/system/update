@@ -58,7 +58,6 @@ $argv = ArgvValidator::new()
     ->select('-m,--message', true)->isOptional()->isPrintable()->hasMinCharacters(10)->hasMaxCharacters(1024)
     ->select('-p,--phoundation', true)->isOptional()->isPrintable()
     ->select('-s,--signed')->isOptional(false)->isBoolean()
-    ->noArgumentsLeft()
     ->validate();
 
 

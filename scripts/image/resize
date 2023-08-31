@@ -42,7 +42,6 @@ $argv = ArgvValidator::new()
     ->select('-x,--width', true)->isInteger()
     ->select('-y,--height', true)->isInteger()
     ->select('file')->isFile(true)
-    ->noArgumentsLeft()
     ->validate();
 
 

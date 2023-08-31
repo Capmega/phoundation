@@ -59,7 +59,6 @@ $argv = ArgvValidator::new()
     ->select('-l,--libraries', true)->isOptional()->isString()->sanitizeForceArray()
     ->select('--min', true)->isOptional(10)->isNatural()
     ->select('--max', true)->isOptional(1000)->isNatural()
-    ->noArgumentsLeft()
     ->validate();
 
 

@@ -24,6 +24,6 @@ Documentation::help('This script will stop the kubernetes cluster service');
 
 
 // Validate arguments
-$argv = ArgvValidator::new()->noArgumentsLeft()->validate();
+$argv = ArgvValidator::new()->validate();
 
 Kubernetes::new()->dashboard();

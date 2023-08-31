@@ -33,9 +33,7 @@ $argv = ArgvValidator::new()
 
 
 // Get process ids
-$pids = Pgrep::new()
-    ->setProcessName($argv['process'])
-    ->execute();
+$pids = Pgrep::new()->do($argv['process']);
 
 
 // Is it up?

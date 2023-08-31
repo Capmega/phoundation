@@ -28,7 +28,6 @@ Documentation::help('This script creates a Kubernetes service using a service fi
 $argv = ArgvValidator::new()
     ->select('-n,--name', true)->isOptional(strtolower(PROJECT) . '-web')->matchesRegex('/^[a-z0-9-]+$/')
     ->select('-s,--selectors', true)->sanitizeForceArray()->each()->matchesRegex('/^[a-z0-9-]+=[a-z0-9-]+$/')
-    ->noArgumentsLeft()
     ->validate();
 
 

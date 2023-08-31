@@ -38,7 +38,7 @@ ARGUMENTS
 
 [-t / --to]                             If specified, will sync not FROM, but TO the specified environment
 
-[-l / --lock]                           If specified, will readonly lock the target environment until sync has
+[-l / --lock]                           If specified, will readonly lock the target environment until sync has 
                                         finished');
 
 
@@ -46,7 +46,7 @@ ARGUMENTS
 $argv = ArgvValidator::new()
     ->select('-f,--from', true)->isVariable()
     ->select('-l,--lock')->isOptional(false)->isBoolean()
-    ->select('-i,--no-init')->isOptional(true)->isBoolean()
+    ->select('-i,--no-init')->isOptional(false)->isBoolean()
     ->select('-t,--to', true)->isOptional()->isVariable()
     ->validate();
 

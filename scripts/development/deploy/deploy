@@ -49,7 +49,6 @@ $argv = ArgvValidator::new()
     ->select('-t,--tag', true)->isOptional()->isPrintable()
     ->select('-m,--message', true)->isOptional()->isPrintable()->hasMinCharacters(10)->hasMaxCharacters(1024)
     ->select('target_environment')->isPrintable()
-    ->noArgumentsLeft()
     ->validate();
 
 

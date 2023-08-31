@@ -40,7 +40,6 @@ NAME                                    The name of the account to delete');
 // Validate arguments
 $argv = ArgvValidator::new()
     ->select('name')->isEmail()
-    ->noArgumentsLeft()
     ->validate();
 
 

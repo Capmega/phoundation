@@ -9,11 +9,11 @@ use Phoundation\Core\Plugins\Plugins;
 use Phoundation\Data\Validator\ArgvValidator;
 
 
+
 /**
- * Script system/plugins/scan script
+ * Script system/plugins/list script
  *
- * This script allows you to scan the plugins directory PATH_ROOT/Plugins/ for new plugins and update the core_plugins
- * database table accordingly
+ * This script allows you to view your registered plugins
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -21,10 +21,10 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @category Function reference
  * @package Phoundation\Core
  */
-Documentation::usage('./pho system plugins scan');
+Documentation::usage('./pho system plugins list [OPTIONS]
+./pho system plugins list --all');
 
-Documentation::help('This script allows you to scan the plugins directory PATH_ROOT/Plugins/ for new plugins and 
-update the core_plugins database table accordingly
+Documentation::help('This script allows you to view your registered plugins
 
 
 
@@ -35,16 +35,14 @@ ARGUMENTS
 [-A / --all]                            List all plugins, not only the active ones');
 
 
-
 // Get command line arguments
 $argv = ArgvValidator::new()
-    ->noArgumentsLeft()
     ->validate();
 
 
-// Display the results of the plugins scan
-Plugins::new()
-    ->truncate()
-    ->scan();
-
-Cli::displayTable(Plugins::getAvailable());
+// Display the plugins
+if (ALL) {
+    Cli::displayTable(Plugins::getAvailable());
+} else {
+    Cli::displayTable(Plugins::getEnabled());
+}
