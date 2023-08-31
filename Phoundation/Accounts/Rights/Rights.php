@@ -336,24 +336,26 @@ class Rights extends DataList implements RightsInterface
         if ($this->parent) {
             // Load only rights for specified parent
             if ($this->parent instanceof UserInterface) {
-                $this->source = sql()->list('SELECT `accounts_rights`.`seo_name` AS `key`, 
-                                                          `accounts_rights`.*,
-                                                          CONCAT(UPPER(LEFT(`accounts_rights`.`name`, 1)), SUBSTRING(`accounts_rights`.`name`, 2)) AS `name`
-                                                   FROM   `accounts_users_rights` 
-                                                   JOIN   `accounts_rights` 
-                                                   ON     `accounts_users_rights`.`rights_id` = `accounts_rights`.`id`
-                                                   WHERE  `accounts_users_rights`.`users_id`  = :users_id', [
+                $this->source = sql()->list('SELECT   `accounts_rights`.`seo_name` AS `key`, 
+                                                            `accounts_rights`.*,
+                                                            CONCAT(UPPER(LEFT(`accounts_rights`.`name`, 1)), SUBSTRING(`accounts_rights`.`name`, 2)) AS `name`
+                                                   FROM     `accounts_users_rights` 
+                                                   JOIN     `accounts_rights` 
+                                                   ON       `accounts_users_rights`.`rights_id` = `accounts_rights`.`id`
+                                                   WHERE    `accounts_users_rights`.`users_id`  = :users_id
+                                                   ORDER BY `accounts_rights`.`name` ASC', [
                     ':users_id' => $this->parent->getId()
                 ]);
 
             } elseif ($this->parent instanceof RoleInterface) {
-                $this->source = sql()->list('SELECT `accounts_rights`.`seo_name` AS `key`, 
-                                                          `accounts_rights`.*,
-                                                          CONCAT(UPPER(LEFT(`accounts_rights`.`name`, 1)), SUBSTRING(`accounts_rights`.`name`, 2)) AS `name`
-                                                   FROM   `accounts_roles_rights` 
-                                                   JOIN   `accounts_rights` 
-                                                   ON     `accounts_roles_rights`.`rights_id` = `accounts_rights`.`id`
-                                                   WHERE  `accounts_roles_rights`.`roles_id`  = :roles_id', [
+                $this->source = sql()->list('SELECT   `accounts_rights`.`seo_name` AS `key`, 
+                                                            `accounts_rights`.*,
+                                                            CONCAT(UPPER(LEFT(`accounts_rights`.`name`, 1)), SUBSTRING(`accounts_rights`.`name`, 2)) AS `name`
+                                                   FROM     `accounts_roles_rights` 
+                                                   JOIN     `accounts_rights` 
+                                                   ON       `accounts_roles_rights`.`rights_id` = `accounts_rights`.`id`
+                                                   WHERE    `accounts_roles_rights`.`roles_id`  = :roles_id
+                                                   ORDER BY `accounts_rights`.`name` ASC', [
                     ':roles_id' => $this->parent->getId()
                 ]);
 
@@ -500,7 +502,7 @@ class Rights extends DataList implements RightsInterface
 
         if ($this->parent instanceof UserInterface) {
             // Delete the current list
-            sql()->query('DELETE FROM `accounts_users_rights` 
+            sql()->query('DELETE FROM `accounts_users_rights`
                                 WHERE       `accounts_users_rights`.`users_id` = :users_id', [
                 ':users_id' => $this->parent->getId()
             ]);
@@ -519,7 +521,7 @@ class Rights extends DataList implements RightsInterface
 
         } elseif ($this->parent instanceof RoleInterface) {
             // Delete the current list
-            sql()->query('DELETE FROM `accounts_roles_rights` 
+            sql()->query('DELETE FROM `accounts_roles_rights`
                                 WHERE       `accounts_roles_rights`.`roles_id` = :roles_id', [
                 ':roles_id' => $this->parent->getId()
             ]);
