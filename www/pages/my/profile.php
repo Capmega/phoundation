@@ -122,7 +122,6 @@ $buttons = Buttons::new()
 
 // Build the user form
 $card = Card::new()
-    ->setMaximizeSwitch(true)
     ->setCollapseSwitch(true)
     ->setTitle(tr('Manage your profile information here'))
     ->setContent($user->getHtmlForm()->render())

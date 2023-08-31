@@ -86,11 +86,7 @@ $relevant = Card::new()
 $documentation = Card::new()
     ->setMode(DisplayMode::info)
     ->setTitle(tr('Documentation'))
-    ->setContent(tr('Here you can find all new notifications that you have not yet read. These notifications will 
-                         also show in the notifications drop down at the top of your screen (Click the bell icon to see 
-                         them). You can here click on each notification and view them, or mark them all as read. Once 
-                         marked as read they will no longer show up either here or in the notifications drop down at the 
-                         top of your screen.'));
+    ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
 
 
 // Build and render the page grid

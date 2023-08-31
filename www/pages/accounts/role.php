@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Phoundation\Accounts\Roles\Role;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;

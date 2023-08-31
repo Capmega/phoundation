@@ -45,7 +45,7 @@ if (Page::isPostRequestMethod()) {
         switch (PostValidator::getSubmitButton()) {
             case tr('Delete'):
                 // Delete selected users
-                $count = $users->delete($post['id']);
+                $count = $users->remove($post['id']);
 
                 Page::getFlashMessages()->addSuccessMessage(tr('Deleted ":count" users', [':count' => $count]));
                 Page::redirect('this');

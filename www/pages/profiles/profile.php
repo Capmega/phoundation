@@ -101,7 +101,7 @@ $definitions->get('description')
 
 // Build the user form
 $card = Card::new()
-    ->setMaximizeSwitch(true)
+    ->setCollapseSwitch(true)
     ->setTitle(tr('View the profile information for :user here', [':user' => $user->getDisplayName()]))
     ->setContent($user->getHtmlForm()->render());
 

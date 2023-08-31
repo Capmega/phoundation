@@ -13,19 +13,17 @@ use Phoundation\Web\Http\Html\Components\Buttons;
 use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Html\Enums\DisplaySize;
+use Phoundation\Web\Http\Html\Enums\TableIdColumn;
 use Phoundation\Web\Http\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
 
 $signins = SignIns::new();
-
-
-$table = $signins->getHtmlDataTable()->setCheckboxSelectors(false);
-
+$table   = $signins->getHtmlDataTable()->setTableIdColumn(TableIdColumn::hidden);
 $signins = Card::new()
     ->setTitle('Your signin history')
-    ->setMaximizeSwitch(true)
+    ->setSwitches('reload')
     ->setContent($table->render())
     ->useForm(true);
 
