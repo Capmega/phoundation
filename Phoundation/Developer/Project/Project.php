@@ -671,6 +671,8 @@ class Project implements ProjectInterface
     /**
      * Copy all files from the local phoundation installation.
      *
+     * @note This method will actually delete Phoundation system files! Because of this, it will manually include some
+     *       required library files to avoid crashes when these files are needed during this time of deletion
      * @param string|null $path
      * @param string $branch
      * @return void
@@ -684,6 +686,11 @@ class Project implements ProjectInterface
         $rsync       = Rsync::new();
         $phoundation = Phoundation::new($path)->switchBranch($branch);
 
+        // ATTENTION! Next up, we're going to delete the Phoundation main libraries! To avoid any next commands not
+        // finding files they require, include them here so that we have them available in memory
+        include_once(PATH_ROOT . '/Phoundation/Processes/Commands/Rsync.php');
+        include_once(PATH_ROOT . '/Phoundation/Processes/Enum/ExecuteMethod.php');
+
         // Move /Phoundation and /scripts out of the way
         try {
             Path::new(PATH_ROOT . 'data/garbage/', Restrictions::new(PATH_ROOT . 'data/', true, tr('Project management')))->delete();
@@ -693,12 +700,14 @@ class Project implements ProjectInterface
 
             // Copy new script versions
             $rsync
-                ->setSource($phoundation->getPath() . 'scripts/')->setTarget(PATH_ROOT . 'scripts/')
+                ->setSource($phoundation->getPath() . 'scripts/')
+                ->setTarget(PATH_ROOT . 'scripts/')
                 ->execute();
 
             // Copy new core library versions
             $rsync
-                ->setSource($phoundation->getPath() . 'Phoundation/')->setTarget(PATH_ROOT . 'Phoundation/')
+                ->setSource($phoundation->getPath() . 'Phoundation/')
+                ->setTarget(PATH_ROOT . 'Phoundation/')
                 ->execute();
 
             // All is well? Get rid of the garbage
