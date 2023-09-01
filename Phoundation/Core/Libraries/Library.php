@@ -5,13 +5,17 @@ declare(strict_types=1);
 namespace Phoundation\Core\Libraries;
 
 use Error;
+use Phoundation\Core\Enums\Interfaces\EnumLibraryTypeInterface;
 use Phoundation\Core\Libraries\Exception\LibrariesException;
+use Phoundation\Core\Libraries\Exception\LibraryExistsException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Restrictions;
+use Phoundation\Processes\Commands\Cp;
 use Phoundation\Utils\Json;
 
 
@@ -441,6 +445,45 @@ class Library
                 'comments' => $comments
             ]);
         }
+    }
+
+
+    /**
+     * Creates a new library of the specified type
+     *
+     * @param string $name
+     * @param EnumLibraryTypeInterface $type
+     * @return static
+     */
+    public static function create(string $name, EnumLibraryTypeInterface $type): static
+    {
+        // Library names must be CamelCased
+        if (!Strings::isCamelCase($name)) {
+            throw new OutOfBoundsException(tr('Invalid library name ":name" specified, the library name must be CamelCase', [
+                ':name' => $name
+            ]));
+        }
+
+        if (file_exists(PATH_ROOT . $type->value . $name)) {
+            throw new LibraryExistsException(tr('Cannot create ":type" type library ":name", it already exists', [
+                ':type' => $type,
+                ':name' => $name
+            ]));
+        }
+
+        // Copy the library from the TemplateLibrary and run a search / replace
+        Cp::new()->archive(PATH_ROOT . 'Phoundation/.TemplateLibrary', Restrictions::new(PATH_ROOT . 'Phoundation/'), PATH_ROOT . $type->value . $name, Restrictions::new(PATH_ROOT . $type->value, true));
+
+        foreach (['.Library.php', 'Updates.php'] as $file) {
+            File::new(PATH_ROOT . $type->value . $name . '/.Library/' . $file, Restrictions::new(PATH_ROOT . $type->value, true))
+                ->replace([
+                    ':type' => $type,
+                    ':name' => $name
+            ]);
+        }
+
+        // Done, return the library as an object
+        return Library::get($name);
     }
 
 
