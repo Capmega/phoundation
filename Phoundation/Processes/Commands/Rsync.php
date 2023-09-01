@@ -378,7 +378,7 @@ class Rsync extends Command
             $this->addArgument('--exclude=' . escapeshellarg($exclude), false);
         }
 
-        $results = $this->execute($method);
+        $results = parent::execute($method);
 
         if ($this->debug) {
             Log::information(tr('Output of the rsync command:'), 4);
