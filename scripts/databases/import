@@ -41,8 +41,8 @@ ARGUMENTS
 Documentation::autoComplete([
     'arguments' => [
         '--file' => [
-            'word'   => function ($word) { return Path::new(PATH_DATA . 'sources/', PATH_DATA . 'sources/')->scandir($word . '*.sql'); },
-            'noword' => function ()      { return Path::new(PATH_DATA . 'sources/', PATH_DATA . 'sources/')->scandir('*.sql'); },
+            'word'   => function ($word) { return Path::new(PATH_DATA . 'sources/', PATH_DATA . 'sources/')->scan($word . '*.{sql,sql.gz}'); },
+            'noword' => function ()      { return Path::new(PATH_DATA . 'sources/', PATH_DATA . 'sources/')->scan(        '*.{sql,sql.gz}'); },
         ],
         '--driver' => [
             'word'   => function ($word) { return Arrays::match(['mysql'], $word); },
@@ -61,6 +61,7 @@ $argv = ArgvValidator::new()
     ->select('-f,--file'    , true)->isFile(PATH_DATA . 'sources/', PATH_DATA . 'sources/')
     ->select('-d,--driver'  , true)->sanitizeLowercase()->isInArray(['mysql', 'redis', 'mongo', 'mongodb', 'elastic', 'elasticsearch'])
     ->select('-b,--database', true)->isVariable()
+    ->select('--no-drop')->isOptional(false)->isBoolean()
     ->validate();
 
 
@@ -71,7 +72,7 @@ switch ($argv['driver']) {
             ':database' => $argv['database'],
         ]));
 
-        MySql::new(Restrictions::new('/'))->import($argv['database'], $argv['file']);
+        MySql::new(Restrictions::new('/'))->import($argv['database'], $argv['file'], !$argv['no_drop']);
 
         Log::success(tr('Finished importing MySQL dump file ":file" to database ":database"', [
             ':file'     => $argv['file'],

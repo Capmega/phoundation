@@ -11,9 +11,11 @@ use Phoundation\Data\Traits\DataHostnamePort;
 use Phoundation\Data\Traits\DataSource;
 use Phoundation\Data\Traits\DataUserPass;
 use Phoundation\Databases\Exception\MysqlException;
+use Phoundation\Filesystem\Exception\FileTypeNotSupportedException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Commands\Command;
+use Phoundation\Processes\Commands\Zcat;
 use Phoundation\Processes\Enum\ExecuteMethod;
 use Phoundation\Processes\Enum\Interfaces\ExecuteMethodInterface;
 use Phoundation\Processes\Process;
@@ -42,9 +44,10 @@ class MySql extends Command
      * Imports the specified MySQL dump file into the specified database
      *
      * @param string $instance
+     * @param bool $drop
      * @param string $file
      */
-    public function import(string $instance, string $file, int $timeout = 3600): void
+    public function import(string $instance, string $file, bool $drop, int $timeout = 3600): void
     {
         //
         $file         = PATH_DATA . 'sources/' . $file;
@@ -53,20 +56,45 @@ class MySql extends Command
         $config       = Config::getArray('databases.sql.instances.' . $instance);
 
         // Drop the requested database
-        sql($instance, false)->schema(false)
-            ->database($config['name'])
-            ->drop()
-            ->create();
+        if ($drop) {
+            sql($instance, false)->schema(false)
+                ->database($config['name'])
+                ->drop()
+                ->create();
+        }
 
         // Check file restrictions and start the import
         Log::setThreshold($threshold);
-        File::new($file, $restrictions)->checkReadable();
 
-        $this->setInternalCommand('mysql')
-             ->setTimeout($timeout)
-             ->addArguments(['-h', $config['host'], '-u', $config['user'], '-p' . $config['pass'], '-B', $config['name']])
-             ->setInputRedirect($file)
-             ->executeNoReturn();
+        $file = File::new($file, $restrictions)->checkReadable();
+
+        switch ($file->getMimetype()) {
+            case 'text/plain':
+                $this->setInternalCommand('mysql')
+                    ->setTimeout($timeout)
+                    ->addArguments(['-h', $config['host'], '-u', $config['user'], '-p' . $config['pass'], '-B', $config['name']])
+                    ->setInputRedirect($file)
+                    ->executeNoReturn();
+                break;
+
+            case 'application/gzip':
+                $this->setInternalCommand('mysql')
+                    ->setTimeout($timeout)
+                    ->addArguments(['-h', $config['host'], '-u', $config['user'], '-p' . $config['pass'], '-B', $config['name']]);
+
+                Zcat::new()
+                    ->setTimeout($timeout)
+                    ->setFile($file)
+                    ->setPipe($this)
+                    ->execute();
+                break;
+
+            default:
+                throw new FileTypeNotSupportedException(tr('The specified file ":file" has the unsupported filetype ":type"', [
+                    ':file' => $file->getFile(),
+                    ':type' => $file->getMimetype()
+                ]));
+        }
     }
 
 
