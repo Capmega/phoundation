@@ -228,16 +228,16 @@ class Phoundation extends Project
         ]));
 
         // Update the local project
-        $stash    = new Iterator();
-        $sections = ['Phoundation', 'scripts'];
-        $project  = Project::new();
-        $project->updateLocalProject($branch, $message, $sign);
+        Project::new()->updateLocalProject($branch, $message, $sign);
 
         // Detect Phoundation installation and ensure its clean and on the right branch
         $this->selectPhoundationBranch($branch);
 
         try {
             // Execute the patching
+            $stash    = new Iterator();
+            $sections = ['Phoundation', 'scripts'];
+
             foreach ($sections as $section) {
                 // Patch phoundation target section and remove the changes locally
                 while(true) {
