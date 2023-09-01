@@ -20,7 +20,7 @@ use Phoundation\Processes\Commands\Which;
 use Phoundation\Processes\Exception\ProcessesException;
 use Phoundation\Processes\Exception\ProcessException;
 use Phoundation\Processes\Exception\ProcessFailedException;
-use Phoundation\Processes\Interfaces\ProcessInterface;
+use Phoundation\Processes\Interfaces\ProcessCoreInterface;
 use Phoundation\Servers\Server;
 use Stringable;
 
@@ -140,9 +140,9 @@ trait ProcessVariables
     /**
      * If specified, output from this command will be piped to the next command
      *
-     * @var ProcessInterface|string|null $pipe
+     * @var ProcessCoreInterface|string|null $pipe
      */
-    protected ProcessInterface|string|null $pipe = null;
+    protected ProcessCoreInterface|string|null $pipe = null;
 
     /**
      * Stores the data on where to redirect input channels
@@ -307,9 +307,9 @@ trait ProcessVariables
     /**
      * Returns the exact time that execution started
      *
-     * @return ProcessInterface|null
+     * @return ProcessCoreInterface|null
      */
-    public function getPreExecution(): ?ProcessInterface
+    public function getPreExecution(): ?ProcessCoreInterface
     {
         return $this->pre_exec;
     }
@@ -318,10 +318,10 @@ trait ProcessVariables
     /**
      * Sets the process to execute before the main process
      *
-     * @param ProcessInterface|null $process
+     * @param ProcessCoreInterface|null $process
      * @return static
      */
-    public function setPreExecution(?ProcessInterface $process): static
+    public function setPreExecution(?ProcessCoreInterface $process): static
     {
         $this->pre_exec = $process;
         return $this;
@@ -331,9 +331,9 @@ trait ProcessVariables
     /**
      * Returns the process to execute after the main process
      *
-     * @return ProcessInterface|null
+     * @return ProcessCoreInterface|null
      */
-    public function getPostExecution(): ?ProcessInterface
+    public function getPostExecution(): ?ProcessCoreInterface
     {
         return $this->post_exec;
     }
@@ -342,10 +342,10 @@ trait ProcessVariables
     /**
      * Sets the process to execute after the main process
      *
-     * @param ProcessInterface|null $process
+     * @param ProcessCoreInterface|null $process
      * @return static
      */
-    public function setPostExecution(?ProcessInterface $process): static
+    public function setPostExecution(?ProcessCoreInterface $process): static
     {
         $this->post_exec = $process;
         return $this;
@@ -1095,10 +1095,10 @@ trait ProcessVariables
     /**
      * Sets the process where the output of this command will be piped to, IF specified
      *
-     * @param ProcessInterface|string|null $pipe
+     * @param ProcessCoreInterface|string|null $pipe
      * @return static
      */
-    public function setPipe(ProcessInterface|string|null $pipe): static
+    public function setPipe(ProcessCoreInterface|string|null $pipe): static
     {
         $this->cached_command_line = null;
         $this->pipe                = $pipe;
@@ -1174,11 +1174,11 @@ trait ProcessVariables
     /**
      * Sets the input redirection for this process
      *
-     * @param string|null $redirect
+     * @param Stringable|string|null $redirect
      * @param int $channel
      * @return static
      */
-    public function setInputRedirect(?string $redirect, int $channel = 1): static
+    public function setInputRedirect(Stringable|string|null $redirect, int $channel = 1): static
     {
         File::new($redirect, $this->restrictions)->checkReadable();
 

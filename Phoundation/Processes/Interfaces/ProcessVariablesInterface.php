@@ -40,32 +40,32 @@ interface ProcessVariablesInterface
     /**
      * Returns the exact time that execution started
      *
-     * @return ProcessInterface|null
+     * @return ProcessCoreInterface|null
      */
-    public function getPreExecution(): ?ProcessInterface;
+    public function getPreExecution(): ?ProcessCoreInterface;
 
     /**
      * Sets the process to execute before the main process
      *
-     * @param ProcessInterface|null $process
+     * @param ProcessCoreInterface|null $process
      * @return static
      */
-    public function setPreExecution(?ProcessInterface $process): static;
+    public function setPreExecution(?ProcessCoreInterface $process): static;
 
     /**
      * Returns the process to execute after the main process
      *
-     * @return ProcessInterface|null
+     * @return ProcessCoreInterface|null
      */
-    public function getPostExecution(): ?ProcessInterface;
+    public function getPostExecution(): ?ProcessCoreInterface;
 
     /**
      * Sets the process to execute after the main process
      *
-     * @param ProcessInterface|null $process
+     * @param ProcessCoreInterface|null $process
      * @return static
      */
-    public function setPostExecution(?ProcessInterface $process): static;
+    public function setPostExecution(?ProcessCoreInterface $process): static;
 
     /**
      * Returns the exact time that a process took to execute
@@ -344,10 +344,10 @@ interface ProcessVariablesInterface
     /**
      * Sets the process where the output of this command will be piped to, IF specified
      *
-     * @param ProcessInterface|string|null $pipe
+     * @param ProcessCoreInterface|string|null $pipe
      * @return static
      */
-    public function setPipe(ProcessInterface|string|null $pipe): static;
+    public function setPipe(ProcessCoreInterface|string|null $pipe): static;
 
     /**
      * Sets the output redirection for this process
@@ -376,11 +376,11 @@ interface ProcessVariablesInterface
     /**
      * Sets the input redirection for this process
      *
-     * @param string|null $redirect
+     * @param Stringable|string|null $redirect
      * @param int $channel
      * @return static
      */
-    public function setInputRedirect(?string $redirect, int $channel = 1): static;
+    public function setInputRedirect(Stringable|string|null $redirect, int $channel = 1): static;
 
     /**
      * Returns the input redirection for the specified channel this process
