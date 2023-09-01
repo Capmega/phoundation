@@ -49,7 +49,7 @@ if (Page::isPostRequestMethod()) {
         switch (PostValidator::getSubmitButton()) {
             case tr('Save'):
                 // Update right
-                $right->setDebug(true)
+                $right
                     ->apply()
                     ->save();
 
