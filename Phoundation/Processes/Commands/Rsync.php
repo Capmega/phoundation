@@ -384,6 +384,6 @@ class Rsync extends Command
             Log::notice($results, 4);
         }
 
-        return $this;
+        return $results;
     }
 }
