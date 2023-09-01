@@ -357,22 +357,21 @@ class Rsync extends Command
         }
 
         // Build the process parameters, then execute
-        $this
-            ->clearArguments()
-            ->setInternalCommand('rsync')
-            ->addArgument($this->progress   ? '--progress'   : null)
-            ->addArgument($this->archive    ? '-a'           : null)
-            ->addArgument($this->quiet      ? '-q'           : null)
-            ->addArgument($this->verbose    ? '-v'           : null)
-            ->addArgument($this->compress   ? '-z'           : null)
-            ->addArgument($this->safe_links ? '--safe-links' : null)
-            ->addArgument($this->rsh        ? '-e'           : null)
-            ->addArgument($this->rsh)
-            ->addArgument($this->ssh_key    ? '-i'           : null)
-            ->addArgument($this->ssh_key)
-            ->addArgument($this->rsync_path ? '--rsync-path=' . escapeshellarg($this->rsync_path) : null, false)
-            ->addArgument($this->source)
-            ->addArgument($this->target);
+        $this->setInternalCommand('rsync')
+             ->clearArguments()
+             ->addArgument($this->progress   ? '--progress'   : null)
+             ->addArgument($this->archive    ? '-a'           : null)
+             ->addArgument($this->quiet      ? '-q'           : null)
+             ->addArgument($this->verbose    ? '-v'           : null)
+             ->addArgument($this->compress   ? '-z'           : null)
+             ->addArgument($this->safe_links ? '--safe-links' : null)
+             ->addArgument($this->rsh        ? '-e'           : null)
+             ->addArgument($this->rsh)
+             ->addArgument($this->ssh_key    ? '-i'           : null)
+             ->addArgument($this->ssh_key)
+             ->addArgument($this->rsync_path ? '--rsync-path=' . escapeshellarg($this->rsync_path) : null, false)
+             ->addArgument($this->source)
+             ->addArgument($this->target);
 
         foreach ($this->exclude as $exclude) {
             $this->addArgument('--exclude=' . escapeshellarg($exclude), false);
