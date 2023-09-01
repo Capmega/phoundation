@@ -105,11 +105,11 @@ interface RestrictionsInterface
     public function getLabel(): string;
 
     /**
-     * @param string|array $patterns
+     * @param Stringable|array|string $patterns
      * @param bool $write
      * @return void
      */
-    public function check(string|array &$patterns, bool $write): void;
+    public function check(Stringable|array|string &$patterns, bool $write): void;
 
     /**
      * Returns system general file access restrictions

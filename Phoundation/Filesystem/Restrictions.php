@@ -312,11 +312,11 @@ class Restrictions implements RestrictionsInterface
 
 
     /**
-     * @param string|array $patterns
+     * @param Stringable|array|string $patterns
      * @param bool $write
      * @return void
      */
-    public function check(string|array &$patterns, bool $write): void
+    public function check(Stringable|array|string &$patterns, bool $write): void
     {
         if (!$this->paths) {
             throw new RestrictionsException(tr('The ":label" restrictions have no paths specified', [
