@@ -2034,4 +2034,51 @@ throw new UnderConstructionException();
 
         return self::escape($string, $standard_delimiters . $delimiters);
     }
+
+
+    /**
+     * Returns true if the specified string is completely uppercase
+     *
+     * @param string $source
+     * @return bool
+     */
+    public static function isUppercase(string $source): bool
+    {
+        return ($source === strtoupper($source));
+    }
+
+
+    /**
+     * Returns true if the specified string is completely lowercase
+     *
+     * @param string $source
+     * @return bool
+     */
+    public static function isLowercase(string $source): bool
+    {
+        return ($source === strtolower($source));
+    }
+
+
+    /**
+     * Returns true if the specified string is CamelCase format
+     *
+     * @note This requires a string of at least 2 characters, and only the first two characters will be tested
+     * @param string $source
+     * @return bool
+     */
+    public static function isCamelCase(string $source): bool
+    {
+        if (strlen($source) < 2) {
+            throw new OutOfBoundsException(tr('Cannot check source string ":source" for camelcase, it has less than 2 characters', [
+                ':source' => $source
+            ]));
+        }
+
+        if ((str_contains($source, '-')) or (str_contains($source, '_'))) {
+            return false;
+        }
+
+        return ($source[0] === strtoupper($source[0])) and ($source[1] === strtolower($source[1]));
+    }
 }
