@@ -153,6 +153,11 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
         $this->start = microtime(true);
         exec($this->getFullCommandLine(), $output, $exit_code);
         $this->setExitCode($exit_code, $output);
+
+        if ($this->debug) {
+            Log::notice($output, 3);
+        }
+
         return $output;
     }
 
