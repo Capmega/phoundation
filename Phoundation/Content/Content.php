@@ -31,7 +31,7 @@ class Content extends File implements ContentInterface
     public function view(): void
     {
         $file     = File::new($this->file)->checkReadable('image');
-        $mimetype = $file->mimetype();
+        $mimetype = $file->getMimetype();
         $primary  = Strings::until($mimetype, '/');
 
         match ($primary) {

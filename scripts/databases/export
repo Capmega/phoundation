@@ -51,8 +51,8 @@ Documentation::autoComplete([
         '-t,--timeout' => false,
         '-g,--gzip'    => false,
         '--file' => [
-            'word'   => function ($word) { return Path::new(PATH_DATA . 'sources/', PATH_DATA . 'sources/')->scandir($word . '*.sql'); },
-            'noword' => function ()      { return Path::new(PATH_DATA . 'sources/', PATH_DATA . 'sources/')->scandir('*.sql'); },
+            'word'   => function ($word) { return Path::new(PATH_DATA . 'sources/', PATH_DATA . 'sources/')->scan($word . '*.sql'); },
+            'noword' => function ()      { return Path::new(PATH_DATA . 'sources/', PATH_DATA . 'sources/')->scan('*.sql'); },
         ],
         '--driver' => [
             'word'   => function ($word) { return Arrays::match(['mysql'], $word); },

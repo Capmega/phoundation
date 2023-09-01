@@ -94,7 +94,7 @@ class Image extends Content implements ImageInterface
         }
 
         if ($return['size']) {
-            $return['mimetype'] = File::new($this->file, $this->restrictions)->mimetype();
+            $return['mimetype'] = File::new($this->file, $this->restrictions)->getMimetype();
         }
 
         if (Strings::until($return['mimetype'], '/') === 'image') {

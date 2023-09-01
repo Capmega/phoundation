@@ -454,7 +454,7 @@ class FileBasics implements Stringable, FileBasicsInterface
      * @return string The mimetype data for the object file
      * @version 2.4: Added documentation
      */
-    public function mimetype(): string
+    public function getMimetype(): string
     {
         // TODO Make this an object property
         static $finfo = null;

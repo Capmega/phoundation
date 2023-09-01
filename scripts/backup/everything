@@ -40,8 +40,8 @@ ARGUMENTS
 Documentation::autoComplete([
     'arguments' => [
         '-t,--target'  => [
-            'word'   => function ($word) { return Path::new('/', '/')->scandir('*' . $word . '*', GLOB_MARK | GLOB_ONLYDIR); },
-            'noword' => function ()      { return Path::new('/', '/')->scandir('*'              , GLOB_MARK | GLOB_ONLYDIR); },
+            'word'   => function ($word) { return Path::new('/', '/')->scan('*' . $word . '*', GLOB_MARK | GLOB_ONLYDIR); },
+            'noword' => function ()      { return Path::new('/', '/')->scan('*'              , GLOB_MARK | GLOB_ONLYDIR); },
         ],
     ]
 ]);

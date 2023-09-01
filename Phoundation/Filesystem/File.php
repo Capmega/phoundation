@@ -268,7 +268,7 @@ class File extends FileBasics implements FileInterface
      */
     public function isBinary(): bool
     {
-        $mimetype = $this->mimetype();
+        $mimetype = $this->getMimetype();
         return Filesystem::isBinary(Strings::until($mimetype, '/'), Strings::from($mimetype, '/'));
     }
 

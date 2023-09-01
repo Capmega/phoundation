@@ -110,7 +110,7 @@ interface FileBasicsInterface
      * @return string The mimetype data for the object file
      * @version 2.4: Added documentation
      */
-    public function mimetype(): string;
+    public function getMimetype(): string;
 
     /**
      * Securely delete a file weather it exists or not, without error, using the "shred" command

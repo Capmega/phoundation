@@ -6,6 +6,7 @@ namespace Phoundation\Data;
 
 use PDOStatement;
 use Phoundation\Core\Arrays;
+use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\DataCallbacks;
 use Phoundation\Data\Traits\UsesNew;
@@ -396,7 +397,7 @@ class Iterator implements IteratorInterface
 
 
     /**
-     * Returns an array with array values containing an array with only the specified columns
+     * Returns an array with array values containing only the specified columns
      *
      * @note This only works on sources that contains array / DataEntry object values. Any other value will cause an
      *       OutOfBoundsException
@@ -457,11 +458,18 @@ class Iterator implements IteratorInterface
      *
      * @param mixed $value
      * @param array|string $columns
-     * @return void
+     * @return array
      */
     protected function validateValue(mixed $value, array|string $columns): array
     {
+        // Ensure we have arrays
         if (is_object($value)) {
+            if (!$value instanceof ArrayableInterface) {
+                throw new OutOfBoundsException(tr('Cannot get source columns for ":this", the source contains non arrayable objects', [
+                    ':this' => get_class($this)
+                ]));
+            }
+
             $value = $value->__toArray();
         }
 

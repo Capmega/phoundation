@@ -208,7 +208,7 @@ class DataEntryForm extends Renderer
 
             if ($definition->getDisplayCallback()) {
                 // Execute the specified callback on the data before displaying it
-                $source[$field] = $definition->getDisplayCallback()($source[$field], $source);
+                $source[$field] = $definition->getDisplayCallback()(isset_get($source[$field]), $source);
             }
 
             // Set default value and override key entry values if value is null

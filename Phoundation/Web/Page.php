@@ -1664,7 +1664,7 @@ class Page
                 static::$headers['link'][$url] = [
                     'rel'  => 'icon',
                     'href' => UrlBuilder::getImg($url),
-                    'type' => File::new($file)->mimetype()
+                    'type' => File::new($file)->getMimetype()
                 ];
             } else {
                 // Unknown (likely remote?) link
