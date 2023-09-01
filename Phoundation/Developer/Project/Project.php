@@ -19,6 +19,7 @@ use Phoundation\Developer\Versioning\Git\Traits\Git;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\File;
+use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Filesystem\Traits\DataRestrictions;
@@ -685,17 +686,19 @@ class Project implements ProjectInterface
 
         // Move /Phoundation and /scripts out of the way
         try {
-            $files['phoundation'] = Path::new(PATH_ROOT . 'Phoundation/', Restrictions::new([PATH_ROOT . 'Phoundation/', PATH_DATA], true))->move(PATH_ROOT . 'data/garbage/');
-            $files['scripts']     = Path::new(PATH_ROOT . 'scripts/'    , Restrictions::new([PATH_ROOT . 'scripts/'    , PATH_DATA], true))->move(PATH_ROOT . 'data/garbage/');
+            Path::new(PATH_ROOT . 'data/garbage/', Restrictions::new(PATH_ROOT . 'data/', true, tr('Project management')))->delete();
 
-            // Copy new versions
-            $rsync
-                ->setSource($phoundation->getPath() . 'Phoundation/')->setTarget(PATH_ROOT . 'Phoundation/')
-                ->execute();
+            $files['scripts']     = Path::new(PATH_ROOT . 'scripts/'    , Restrictions::new([PATH_ROOT . 'scripts/'    , PATH_DATA], true, tr('Project management')))->move(PATH_ROOT . 'data/garbage/');
+            $files['phoundation'] = Path::new(PATH_ROOT . 'Phoundation/', Restrictions::new([PATH_ROOT . 'Phoundation/', PATH_DATA], true, tr('Project management')))->move(PATH_ROOT . 'data/garbage/');
 
-            // Copy new versions
+            // Copy new script versions
             $rsync
                 ->setSource($phoundation->getPath() . 'scripts/')->setTarget(PATH_ROOT . 'scripts/')
+                ->execute();
+
+            // Copy new core library versions
+            $rsync
+                ->setSource($phoundation->getPath() . 'Phoundation/')->setTarget(PATH_ROOT . 'Phoundation/')
                 ->execute();
 
             // All is well? Get rid of the garbage
