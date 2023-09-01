@@ -174,12 +174,12 @@ interface FileInterface extends FileBasicsInterface
     /**
      * Search / replace the object files
      *
-     * @param string $target
      * @param array $replaces The list of keys that will be replaced by values
+     * @param string|null $target
      * @param bool $regex
      * @return static
      */
-    public function replace(string $target, array $replaces, bool $regex = false): static;
+    public function replace(array $replaces, ?string $target, bool $regex = false): static;
 
     /**
      * Return line count for the specified text file

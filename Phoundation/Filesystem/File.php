@@ -462,15 +462,20 @@ class File extends FileBasics implements FileInterface
     /**
      * Search / replace the object files
      *
-     * @param string $target
      * @param array $replaces The list of keys that will be replaced by values
+     * @param string|null $target
      * @param bool $regex
      * @return static
      */
-    public function replace(string $target, array $replaces, bool $regex = false): static
+    public function replace(array $replaces, ?string $target, bool $regex = false): static
     {
+        if (!$target) {
+            // Default to replacing within the same file
+            $target = $this->file;
+        }
+
         // Check filesystem restrictions and if file exists
-        $this->restrictions->check($this->file, true);
+        $this->restrictions->check($this->file, false);
         $this->restrictions->check($target, true);
 
         // Source file and target path exist?
