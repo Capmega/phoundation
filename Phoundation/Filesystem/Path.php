@@ -852,64 +852,74 @@ class Path extends FileBasics
     /**
      * Returns a list of all available files in this path matching the specified (multiple) pattern(s)
      *
-     * @param string $file_patterns The single or multiple pattern(s) that should be matched
-     * @param int $glob_flags       Flags for the internal glob() call
-     * @param int $match_flags      Flags for the internal fnmatch() call
-     * @return array                The resulting file paths
+     * @param string|null $file_patterns The single or multiple pattern(s) that should be matched
+     * @param int $glob_flags            Flags for the internal glob() call
+     * @param int $match_flags           Flags for the internal fnmatch() call
+     * @return array                     The resulting file paths
      */
-    public function scan(string $file_patterns, int $glob_flags = GLOB_MARK, int $match_flags = FNM_PERIOD|FNM_CASEFOLD): array
+    public function scan(?string $file_patterns = null, int $glob_flags = GLOB_MARK, int $match_flags = FNM_PERIOD|FNM_CASEFOLD): array
     {
         $this->restrictions->check($this->file, false);
 
         $return = [];
 
         // Get path pattern part and file pattern part
-        $path_pattern  = dirname($file_patterns);
-        $file_patterns = basename($file_patterns);
+        if ($file_patterns) {
+            $path_pattern  = dirname($file_patterns);
+            $file_patterns = basename($file_patterns);
 
-        // Parse file patterns
-        switch (substr_count($file_patterns, '{')) {
-            case 0:
-                $base_pattern  = '';
-                $file_patterns = [$file_patterns];
-                break;
+            // Parse file patterns
+            switch (substr_count($file_patterns, '{')) {
+                case 0:
+                    $base_pattern  = '';
+                    $file_patterns = [$file_patterns];
+                    break;
 
-            case 1:
-                switch (substr_count($file_patterns, '}')) {
-                    case 0:
-                        throw new OutOfBoundsException(tr('Invalid file patterns ":patterns" specified, the pattern should contain either one set of matching { and } or none', [
-                            ':patterns' => $file_patterns
-                        ]));
+                case 1:
+                    switch (substr_count($file_patterns, '}')) {
+                        case 0:
+                            throw new OutOfBoundsException(tr('Invalid file patterns ":patterns" specified, the pattern should contain either one set of matching { and } or none', [
+                                ':patterns' => $file_patterns
+                            ]));
 
-                    case 1:
-                        // Remove the {} and explode on ,
-                        $base_pattern  = Strings::until($file_patterns, '{');
-                        $file_patterns = Strings::cut($file_patterns, '{', '}');
-                        $file_patterns = explode(',', $file_patterns);
-                        break;
+                        case 1:
+                            // Remove the {} and explode on ,
+                            $base_pattern  = Strings::until($file_patterns, '{');
+                            $file_patterns = Strings::cut($file_patterns, '{', '}');
+                            $file_patterns = explode(',', $file_patterns);
+                            break;
 
-                    default:
-                        throw new OutOfBoundsException(tr('Invalid file patterns ":patterns" specified, the pattern should contain either one set of matching { and } or none', [
-                            ':patterns' => $file_patterns
-                        ]));
-                }
+                        default:
+                            throw new OutOfBoundsException(tr('Invalid file patterns ":patterns" specified, the pattern should contain either one set of matching { and } or none', [
+                                ':patterns' => $file_patterns
+                            ]));
+                    }
 
-                break;
+                    break;
 
-            default:
-                throw new OutOfBoundsException(tr('Invalid file patterns ":patterns" specified, the pattern should contain either one set of matching { and } or none', [
-                    ':patterns' => $file_patterns
-                ]));
-        }
+                default:
+                    throw new OutOfBoundsException(tr('Invalid file patterns ":patterns" specified, the pattern should contain either one set of matching { and } or none', [
+                        ':patterns' => $file_patterns
+                    ]));
+            }
 
-        if ($path_pattern === '.') {
-            $path_pattern  = '';
+            // Fix path pattern
+            if ($path_pattern === '.') {
+                $path_pattern  = '';
+
+            } else {
+                $path_pattern .= '/';
+            }
 
         } else {
-            $path_pattern .= '/';
+            // All
+            $path_pattern  =  '';
+            $base_pattern  =  '';
+            $file_patterns = [''];
         }
 
-        $glob = glob($this->file . $path_pattern . '*', $glob_flags);
+        // Get files
+         $glob = glob($this->file . $path_pattern . '*', $glob_flags);
 
         if (empty($glob)) {
             // This path pattern search had no results
@@ -924,17 +934,19 @@ class Path extends FileBasics
                 $file = Strings::from($file, $this->real_file);
                 $test = Strings::fromReverse(Strings::endsNotWith($file, '/'), '/');
 
-                if (is_dir($this->file . $file)) {
-                    $directory_pattern = Strings::until($file_pattern, '.');
+                if ($file_pattern){
+                    if (is_dir($this->file . $file)) {
+                        $directory_pattern = Strings::until($file_pattern, '.');
 
-                    if (!fnmatch($directory_pattern, $test, $match_flags)) {
-                        // This directory doesn't match the test pattern
+                        if (!fnmatch($directory_pattern, $test, $match_flags)) {
+                            // This directory doesn't match the test pattern
+                            continue;
+                        }
+
+                    } elseif (!fnmatch($file_pattern, $test, $match_flags)) {
+                        // This file doesn't match the test pattern
                         continue;
                     }
-
-                } elseif (!fnmatch($file_pattern, $test, $match_flags)) {
-                    // This file doesn't match the test pattern
-                    continue;
                 }
 
                 // Add the file for the found match and continue to the next file
