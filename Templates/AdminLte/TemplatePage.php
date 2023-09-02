@@ -162,10 +162,13 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
      */
     public function buildBody(string $target): ?string
     {
+        // Apply default classes for page sections
+        Page::defaultClass('content-wrapper', 'content-wrapper');
+
         $body = parent::buildBody($target);
 
         if (Page::getBuildBody()) {
-            $body = '   <div class="content-wrapper" style="min-height: 1518.06px;">
+            $body = '   <div class="' . Page::getClass('content-wrapper') . '" style="min-height: 1518.06px;">
                            ' . $this->buildBodyHeader() . '
                             <section class="content">
                                 <div class="container-fluid">
