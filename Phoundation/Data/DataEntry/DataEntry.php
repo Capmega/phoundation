@@ -1873,7 +1873,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      * @param string|null $column
      * @return void
      */
-    protected function load(string|int $identifier, ?string $column = 'id'): void
+    protected function load(string|int $identifier, ?string $column): void
     {
         $this->is_loading = true;
 
