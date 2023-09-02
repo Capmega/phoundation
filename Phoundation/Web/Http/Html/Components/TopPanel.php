@@ -53,7 +53,7 @@ class TopPanel extends Panel
         ]);
 
         if (Session::getUser()->hasAllRights('demos')) {
-            $this->source['menu']->add(tr('Demos'), (string) UrlBuilder::getWww('demos.html'));
+            $this->source['menu']->add((string) UrlBuilder::getWww('demos.html'), tr('Demos'));
         }
 
         parent::__construct();
