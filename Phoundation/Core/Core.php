@@ -15,6 +15,7 @@ use Phoundation\Cli\Script;
 use Phoundation\Core\Enums\EnumRequestTypes;
 use Phoundation\Core\Enums\Interfaces\EnumRequestTypesInterface;
 use Phoundation\Core\Exception\CoreException;
+use Phoundation\Core\Exception\MaintenanceModeException;
 use Phoundation\Core\Exception\NoProjectException;
 use Phoundation\Core\Interfaces\CoreInterface;
 use Phoundation\Core\Log\Log;
@@ -29,6 +30,7 @@ use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpException;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
@@ -395,6 +397,76 @@ class Core implements CoreInterface
         // We're done, transfer control to script
         static::$state  = 'script';
         static::$script = true;
+    }
+
+
+    /**
+     * Returns information on if the system is in maintenance mode or not.
+     *
+     * This method will return null if the system is not in maintenance mode
+     *
+     * This method will return an email address if the system is in maintenance mode. The email address will be the
+     * email for the person who placed the system in maintenance mode
+     *
+     * @return string|null
+     */
+    public static function getMaintenanceMode(): ?string
+    {
+        if (file_exists(PATH_DATA . 'system/maintenance')) {
+            // System is in maintenance mode, show who put it there
+            $files = Path::new(PATH_DATA . 'system/maintenance')->scan();
+
+            if ($files) {
+                return array_first(Path::new(PATH_DATA . 'system/maintenance')->scan());
+            }
+
+            // ??? The maintenance directory is empty? It should contain a file with the email address of who locked it
+            return tr('Unknown');
+        }
+
+        return null;
+    }
+
+
+    /**
+     * Returns true if the system is in maintenance mode
+     *
+     * @note This mode is global, and will immediately block all future web requests and block all future commands with
+     * the exception of commands under ./pho system. Maintenance mode will remain enabled until disabled either by this
+     * call or manually with ./pho system maintenance disable
+     *
+     * @param bool $enable
+     * @return void
+     */
+    public static function enableMaintenanceMode(bool $enable): void
+    {
+        $enabled = static::getMaintenanceMode();
+
+        if ($enable) {
+            // Enable maintenance mode
+            if ($enabled) {
+                throw MaintenanceModeException::new(tr('Cannot place the system in maintenance mode, the system was already placed in maintenance mode by ":user"', [
+                    ':user' => $enabled
+                ]))->makeWarning();
+            }
+
+            Path::new(PATH_DATA . 'system/maintenance', Restrictions::new(PATH_DATA, true))->ensure();
+            touch(PATH_DATA . 'system/maintenance/' . (Session::getUser()->getEmail() ?? get_current_user()));
+
+            throw MaintenanceModeException::new(tr('System has been placed in maintenance mode. All web requests will be blocked, all commands (except those under ./pho system ...) are blocked'))
+                ->makeWarning();
+        }
+
+        // Disable maintenance mode
+        if (!$enabled) {
+            throw MaintenanceModeException::new(tr('Cannot disable maintenance mode, the system is not in maintenance mode'))
+                ->makeWarning();
+        }
+
+        File::new(PATH_DATA . 'system/maintenance', Restrictions::new(PATH_DATA, true))->delete();
+
+        throw MaintenanceModeException::new(tr('System has been relieved from maintenance mode. All web requests will now again be answered, all commands are available'))
+            ->makeWarning();
     }
 
 

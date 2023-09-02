@@ -19,6 +19,25 @@ use Throwable;
 interface CoreInterface
 {
     /**
+     * Returns true if the system is in maintenance mode
+     *
+     * @return string|null
+     */
+    public static function getMaintenanceMode(): ?string;
+
+    /**
+     * Sets if the system is in maintenance mode
+     *
+     * @note This mode is global, and will immediately block all future web requests and block all future commands with
+     * the exception of commands under ./pho system. Maintenance mode will remain enabled until disabled either by this
+     * call or manually with ./pho system maintenance disable
+     *
+     * @param bool $enable
+     * @return void
+     */
+    public static function enableMaintenanceMode(bool $enable): void;
+
+    /**
      * Singleton
      *
      * @return static

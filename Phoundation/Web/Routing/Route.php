@@ -164,6 +164,12 @@ class Route
      */
     protected static function init(): void
     {
+        if (Core::getMaintenanceMode()) {
+            // We're running in maintenance mode, show the maintenance page
+            Log::warning('WARNING: Not processing routes, system is in maintenance mode');
+            static::executeSystem(503);
+        }
+
         // URI may not be more than 2048 bytes
         if (strlen(static::$uri) > 2048) {
             Log::warning(tr('Requested URI ":uri" has ":count" characters, where 2048 is a hardcoded limit (See Route() class). 400-ing the request', [
