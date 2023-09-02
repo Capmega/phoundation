@@ -48,6 +48,7 @@ use Phoundation\Web\Http\Html\Menus\Menus;
 use Phoundation\Web\Http\Html\Template\Template;
 use Phoundation\Web\Http\Html\Template\TemplatePage;
 use Phoundation\Web\Http\Http;
+use Phoundation\Web\Http\Interfaces\PageInterface;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Routing\Route;
 use Phoundation\Web\Routing\RoutingParameters;
@@ -65,8 +66,15 @@ use Throwable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class Page
+class Page implements PageInterface
 {
+    /**
+     * Classes to apply on default sections of the page
+     *
+     * @var array $page_classes
+     */
+    protected static array $page_classes = [];
+
     /**
      * Singleton
      *
@@ -537,6 +545,46 @@ class Page
     public static function getBuildBody(): bool
     {
         return static::$build_body;
+    }
+
+
+    /**
+     * Sets the class for the given page section
+     *
+     * @param string $class
+     * @param string $section
+     * @return void
+     */
+    public static function setClass(string $class, string $section): void
+    {
+        static::$page_classes[$section] = $class;
+    }
+
+
+    /**
+     * Sets the class for the given page section
+     *
+     * @param string $class
+     * @param string $section
+     * @return void
+     */
+    public static function defaultClass(string $class, string $section): void
+    {
+        if (empty(static::$page_classes[$section])) {
+            static::$page_classes[$section] = $class;
+        }
+    }
+
+
+    /**
+     * Returns the class for the given section, if available
+     *
+     * @param string $section
+     * @return string|null
+     */
+    public static function getClass(string $section): ?string
+    {
+        return isset_get(static::$page_classes[$section]);
     }
 
 
