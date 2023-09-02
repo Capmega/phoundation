@@ -72,7 +72,7 @@ class TableAlter extends SchemaAbstract
     public function addColumn(string $column, string $after): static
     {
         if ($column) {
-            $this->sql->query('ALTER TABLE ' . $this->name .  ' ADD COLUMN ' . $column . ' ' . $after);
+            $this->sql->query('ALTER TABLE `' . $this->name .  '` ADD COLUMN ' . $column . ' ' . $after);
         }
 
         return $this;
@@ -88,7 +88,10 @@ class TableAlter extends SchemaAbstract
     public function dropColumn(string $column): static
     {
         if ($column) {
-            $this->sql->query('ALTER TABLE ' . $this->name .  ' DROP COLUMN `' . Strings::endsNotWith(Strings::startsNotWith($column, '`'), '`') . '`');
+            $column = Strings::startsNotWith($column, '`');
+            $column = Strings::EndsNotWith($column  , '`');
+
+            $this->sql->query('ALTER TABLE ' . $this->name .  ' DROP COLUMN `' . $column . '`');
         }
 
         return $this;
@@ -105,7 +108,10 @@ class TableAlter extends SchemaAbstract
     public function modifyColumn(string $column, string $to_definition): static
     {
         if ($column) {
-            $this->sql->query('ALTER TABLE ' . $this->name .  ' MODIFY COLUMN `' . $column . '` ' . $to_definition);
+            $column = Strings::startsNotWith($column, '`');
+            $column = Strings::EndsNotWith($column  , '`');
+
+            $this->sql->query('ALTER TABLE `' . $this->name .  '` MODIFY COLUMN `' . $column . '` ' . $to_definition);
         }
 
         return $this;
@@ -122,7 +128,10 @@ class TableAlter extends SchemaAbstract
     public function changeColumn(string $column, string $to_definition): static
     {
         if ($column) {
-            $this->sql->query('ALTER TABLE ' . $this->name .  ' CHANGE COLUMN `' . $column . '` ' . $to_definition);
+            $column = Strings::startsNotWith($column, '`');
+            $column = Strings::EndsNotWith($column  , '`');
+
+            $this->sql->query('ALTER TABLE `' . $this->name . '` CHANGE COLUMN `' . $column . '` ' . $to_definition);
         }
 
         return $this;
