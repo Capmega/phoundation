@@ -22,6 +22,7 @@ use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Restrictions;
+use Phoundation\Processes\Commands\Cp;
 use Phoundation\Processes\Exception\ProcessFailedException;
 
 
@@ -196,6 +197,24 @@ class Phoundation extends Project
         }
 
         return $this;
+    }
+
+
+    /**
+     * Copies only the specified file back to Phoundation
+     *
+     * @param string $file
+     * @return void
+     */
+    public function copy(string $file): void
+    {
+        if (!file_exists(PATH_ROOT . $file)) {
+            throw new FileNotExistException(tr('The specified file "" does not exist', [
+                ':file' => $file
+            ]));
+        }
+
+        Cp::new()->archive(PATH_ROOT . $file, Restrictions::new(PATH_ROOT), $this->getPath() . $file, Restrictions::new($this->getPath()), true);
     }
 
 
