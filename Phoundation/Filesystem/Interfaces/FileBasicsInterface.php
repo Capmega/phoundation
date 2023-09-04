@@ -220,7 +220,16 @@ interface FileBasicsInterface
     /**
      * Returns the amount of available files in the current file path
      *
+     * @param bool $recursive
      * @return int
      */
-    public function count(): int;
+    public function count(bool $recursive = true): int;
+
+    /**
+     * Returns the size in bytes of this file or path
+     *
+     * @param bool $recursive
+     * @return int
+     */
+    public function size(bool $recursive = true): int;
 }
