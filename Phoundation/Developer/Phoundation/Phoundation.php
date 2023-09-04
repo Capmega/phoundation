@@ -225,11 +225,17 @@ class Phoundation extends Project
      * Copies only the specified file back to Phoundation
      *
      * @param string $file
+     * @param string|null $branch
+     * @param bool $require_no_changes
      * @return void
      */
-    public function copy(string $file, ?string $branch): void
+    public function copy(string $file, ?string $branch, bool $require_no_changes = true): void
     {
-        $this->selectPhoundationBranch($this->defaultBranch($branch))->ensureNoChanges();
+        $this->selectPhoundationBranch($this->defaultBranch($branch));
+
+        if ($require_no_changes) {
+            $this->ensureNoChanges();
+        }
 
         if (!file_exists(PATH_ROOT . $file)) {
             throw new FileNotExistException(tr('The specified file "" does not exist', [
