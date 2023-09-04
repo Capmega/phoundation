@@ -216,4 +216,11 @@ interface FileBasicsInterface
      * @return bool
      */
     public function ensureFileWritable(?int $mode = null): bool;
+
+    /**
+     * Returns the amount of available files in the current file path
+     *
+     * @return int
+     */
+    public function count(): int;
 }
