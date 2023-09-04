@@ -120,7 +120,7 @@ class Script
         static::onlyCommandLine();
 
         if (AutoComplete::isActive()) {
-            static::autoComplete();
+            $script = static::autoComplete();
 
         } else {
             try {
@@ -257,10 +257,10 @@ class Script
                 throw MethodNotExistsException::new(tr('The specified command file ":file" does not exist', [
                     ':file' => $file
                 ]))->makeWarning()
-                   ->setData([
-                       'position' => $position,
-                       'methods'  => Arrays::filterValues(scandir(dirname($file)), '/^\./', EnumMatchMode::regex)
-                   ]);
+                    ->setData([
+                        'position' => $position,
+                        'methods'  => Arrays::filterValues(scandir(dirname($file)), '/^\./', EnumMatchMode::regex)
+                    ]);
             }
 
             if (!is_dir($file)) {
@@ -671,7 +671,7 @@ class Script
      */
     protected static function completeReadline(string $input, int $index): array
     {
- showdie($input);
+        showdie($input);
 //        // Get info about the current buffer
 //        // Figure out what the entire input is
 //        $matches    = [];
@@ -733,9 +733,9 @@ class Script
     /**
      * Process auto complete requests
      *
-     * @return void
+     * @return string|null
      */
-    #[NoReturn] protected static function autoComplete(): void
+    #[NoReturn] protected static function autoComplete(): ?string
     {
         // We're doing auto complete mode!
         try {
@@ -760,6 +760,9 @@ class Script
                 // complete but execute normally which is not what we want. we're done here.
                 static::die();
             }
+
+            return $script;
+
         } catch (ValidationFailedException $e) {
             // Whoops, somebody typed something weird or naughty. Either way, just ignore it
             Log::warning($e);
