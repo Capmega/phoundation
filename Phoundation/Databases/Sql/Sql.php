@@ -1692,12 +1692,12 @@ class Sql implements SqlInterface
      *
      * @param string $table
      * @param string $column
-     * @param int|string|null $value
+     * @param string|int|null $value
      * @param int|null $id ONLY WORKS WITH TABLES HAVING `id` column! (almost all do) If specified, will NOT select the
      *                     row with this id
      * @return bool
      */
-    public function DataEntryExists(string $table, string $column, int|string|null $value, ?int $id = null): bool
+    public function DataEntryExists(string $table, string $column, string|int|null $value, ?int $id = null): bool
     {
         if ($id) {
             return (bool) $this->get('SELECT `id` FROM `' . $table . '` WHERE `' . $column . '` = :' . $column . ' AND `id` != :id', [
@@ -2619,10 +2619,10 @@ class Sql implements SqlInterface
      * @package sql
      *
      * @param array $in
-     * @param int|string|null $column_starts_with
+     * @param string|int|null $column_starts_with
      * @return string a comma delimited string of columns
      */
-    public static function inColumns(array $in, int|string|null $column_starts_with = null): string
+    public static function inColumns(array $in, string|int|null $column_starts_with = null): string
     {
         if ($column_starts_with) {
             // Only return those columns that start with this string

@@ -22,7 +22,7 @@ class DateRangePickerRanges extends Iterator implements DateRangePickerRangesInt
     /**
      * @inheritDoc
      */
-    public function add(mixed $value, float|int|string|null $key = null): static
+    public function add(mixed $value, float|string|int|null $key = null): static
     {
         if (!is_string($value)) {
             throw new OutOfBoundsException(tr('Specified value ":value" must be string', [

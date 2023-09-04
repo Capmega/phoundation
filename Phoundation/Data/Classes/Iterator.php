@@ -196,10 +196,10 @@ class Iterator implements \Phoundation\Data\Interfaces\Iterator
     /**
      * Deletes the specified key
      *
-     * @param float|int|string $key
+     * @param float|string|int $key
      * @return static
      */
-    public function delete(float|int|string $key): static
+    public function delete(float|string|int $key): static
     {
         unset($this->list[$key]);
         return $this;

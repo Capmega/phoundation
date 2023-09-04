@@ -241,11 +241,11 @@ class Json
     /**
      * Send a JSON message
      *
-     * @param int|string|object $code
+     * @param string|int|object $code
      * @param mixed $data
      * @return void
      */
-    public static function message(int|string|object $code, mixed $data = null): void
+    public static function message(string|int|object $code, mixed $data = null): void
     {
         if (is_object($code)) {
             if (!$code instanceof Throwable) {

@@ -367,12 +367,12 @@ interface SqlInterface
      *
      * @param string $table
      * @param string $column
-     * @param int|string|null $value
+     * @param string|int|null $value
      * @param int|null $id ONLY WORKS WITH TABLES HAVING `id` column! (almost all do) If specified, will NOT select the
      *                     row with this id
      * @return bool
      */
-    public function DataEntryExists(string $table, string $column, int|string|null $value, ?int $id = null): bool;
+    public function DataEntryExists(string $table, string $column, string|int|null $value, ?int $id = null): bool;
 
     /**
      * NOTE: Use only on huge tables (> 1M rows)

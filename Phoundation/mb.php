@@ -179,7 +179,7 @@ if (!function_exists('mb_preg_replace')) {
  *
  */
 if (!function_exists('mb_str_word_count')) {
-    function mb_str_word_count(string $string, int $format = 0, ?string $charlist = UTF8_DECODED_CHARLIST): array|int|string
+    function mb_str_word_count(string $string, int $format = 0, ?string $charlist = UTF8_DECODED_CHARLIST): array|string|int
     {
         // format
         // 0 - returns the number of words found

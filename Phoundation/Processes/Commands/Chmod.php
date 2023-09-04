@@ -25,11 +25,11 @@ class Chmod extends Command
      * Returns the realpath for the specified command
      *
      * @param string $file
-     * @param int|string $mode
+     * @param string|int $mode
      * @param bool $recurse
      * @return void
      */
-    public function do(string $file, int|string $mode, bool $recurse = false): void
+    public function do(string $file, string|int $mode, bool $recurse = false): void
     {
         try {
             $mode = Strings::fromOctal($mode);

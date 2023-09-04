@@ -771,10 +771,10 @@ function get_integer(mixed $source, bool $allow_null = true): ?int
 /**
  * Return the value quoted if non-numeric string
  *
- * @param int|string $value
- * @return int|string
+ * @param string|int $value
+ * @return string|int
  */
-function quote(int|string $value): int|string
+function quote(string|int $value): string|int
 {
     if (!is_numeric($value) and is_string($value)) {
         return '"' . $value . '"';
@@ -787,12 +787,12 @@ function quote(int|string $value): int|string
 /**
  * Returns either the specified value if it exists in the array, or the default vaule if it does not
  *
- * @param int|string $value
+ * @param string|int $value
  * @param array $array
  * @param mixed $default
  * @return mixed
  */
-function ensure_value(int|string $value, array $array, mixed $default): mixed
+function ensure_value(string|int $value, array $array, mixed $default): mixed
 {
     if (in_array($value, $array)) {
         return $value;

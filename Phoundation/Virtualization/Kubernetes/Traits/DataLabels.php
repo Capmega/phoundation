@@ -80,10 +80,10 @@ trait DataLabels
      * Adds the specified label
      *
      * @param string $key
-     * @param int|string $value
+     * @param string|int $value
      * @return static
      */
-    public function addLabel(string $key, int|string $value): static
+    public function addLabel(string $key, string|int $value): static
     {
         $this->labels[$key] = $value;
         return $this;
