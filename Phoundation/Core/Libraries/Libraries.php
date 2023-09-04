@@ -118,30 +118,21 @@ class Libraries
             static::force();
         }
 
-        if ($libraries) {
-            foreach ($libraries as $library) {
-                // Init only the specified library
-                $library = static::findLibrary($library);
-                $library->init($comments);
-            }
+        // Wipe all temporary data
+        Tmp::clear();
 
-        } else {
-            // Wipe all temporary data
-            Tmp::clear();
-
-            try {
-                // Wipe all cache data
-                Cache::clear();
-            } catch (ConfigurationDoesNotExistsException $e) {
-                Log::warning($e->getMessage());
-            }
-
-            // Ensure the system database exists
-            static::ensureSystemsDatabase();
-
-            // Go over all system libraries and initialize them, then do the same for the plugins
-            static::initializeLibraries($system, $plugins, $templates);
+        try {
+            // Wipe all cache data
+            Cache::clear();
+        } catch (ConfigurationDoesNotExistsException $e) {
+            Log::warning($e->getMessage());
         }
+
+        // Ensure the system database exists
+        static::ensureSystemsDatabase();
+
+        // Go over all system libraries and initialize them, then do the same for the plugins
+        static::initializeLibraries($system, $plugins, $templates, $comments, $libraries);
 
         // Initialization done!
         static::$initializing = false;
@@ -399,7 +390,7 @@ class Libraries
      * @param string|null $comments
      * @return int
      */
-    protected static function initializeLibraries(bool $system = true, bool $plugins = true, bool $templates = true, ?string $comments = null): int
+    protected static function initializeLibraries(bool $system = true, bool $plugins = true, bool $templates = true, ?string $comments = null, array $filter_libraries = null): int
     {
         // Get a list of all available libraries and their versions
         $libraries     = static::listLibraries($system, $plugins, $templates);
@@ -409,7 +400,7 @@ class Libraries
         // Keep initializing libraries until none of them have inits available anymore
         while ($libraries) {
             // Order to have the nearest next init version first
-            static::orderLibraries($libraries);
+            static::orderLibraries($libraries, $filter_libraries);
 
             // Go over the libraries list and try to update each one
             foreach ($libraries as $path => $library) {
@@ -418,14 +409,14 @@ class Libraries
                     // Library has been initialized. Break so that we can check which library should be updated next.
                     $update_count++;
                     break;
-                } else {
-                    // This library has nothing more to initialize, remove it from the list
-                    Log::success(tr('Finished updates for library ":library"', [
-                        ':library' => $library->getName()
-                    ]));
-
-                    unset($libraries[$path]);
                 }
+
+                // This library has nothing more to initialize, remove it from the list
+                Log::success(tr('Finished updates for library ":library"', [
+                    ':library' => $library->getName()
+                ]));
+
+                unset($libraries[$path]);
             }
         }
 
@@ -447,18 +438,33 @@ class Libraries
      * Order the libraries by next_init_version first
      *
      * @param array $libraries
+     * @param array|null $filter_libraries
      * @return void
      */
-    protected static function orderLibraries(array &$libraries): void
+    protected static function orderLibraries(array &$libraries, array $filter_libraries = null): void
     {
+        // Prepare libraries filter if specified
+        if ($filter_libraries) {
+            $filter_libraries = Arrays::lowerCase($filter_libraries);
+            $filter_libraries = array_flip($filter_libraries);
+        }
+
         // Remove libraries that have nothing to execute anymore
         foreach ($libraries as $path => $library) {
+            if ($filter_libraries) {
+                if (!array_key_exists(strtolower($library->getName()), $filter_libraries)) {
+                    // This library should not be initialized
+                    unset($libraries[$path]);
+                    continue;
+                }
+            }
+
             if ($library->getNextInitVersion() === null) {
                 unset($libraries[$path]);
             }
         }
 
-        // Order
+        // Order the libraries
         uasort($libraries, function ($a, $b) {
             return version_compare($a->getNextInitVersion(), $b->getNextInitVersion());
         });

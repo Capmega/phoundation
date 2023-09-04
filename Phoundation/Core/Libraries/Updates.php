@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Libraries;
 
-use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
+use Phoundation\Data\Validator\Validate;
 use Phoundation\Developer\Exception\DoubleVersionException;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnexpectedValueException;
-use Throwable;
 
 
 /**
@@ -149,34 +148,72 @@ abstract class Updates
      */
     public function getNextInitVersion(): ?string
     {
-        if ($this->isFuture(array_key_first($this->updates))) {
-            // The first available init version is already future version and will not be executed!
-            return null;
-        }
-
         // Get the current version for the database
         $version = $this->getDatabaseVersion();
 
         if (($version === null) or ($version === '0.0.0')) {
             // There is no version registered in the database at all, so the first available init is it!
-            return array_key_first($this->updates);
-        }
-
-        try {
-            // Get the next available version
-            $version = Arrays::nextKey($this->updates, $version);
-
-            if ($this->isFuture($version)) {
-                // The next available version is a future version and will not be executed
-                return null;
+            if ($this->updates) {
+                return array_key_first($this->updates);
             }
 
-            return $version;
-
-        } catch (OutOfBoundsException) {
-            // There is no next available!
+            // Err, the update file contains no updates!
             return null;
         }
+
+        // Get the next available update version in the updates file. NULL if there are no versions
+        $next_version = static::getNextVersion($this->updates, $version);
+
+        if ($next_version) {
+            if ($this->isFuture($next_version)) {
+                // The next available init version is beyond the current version and will not be executed!
+                return null;
+            }
+        }
+
+        // This is the next version that should be executed
+        return $next_version;
+    }
+
+
+    /**
+     * Returns the next key right after specified $key
+     *
+     * @param array $source
+     * @param string|int $current_version
+     * @return string|null
+     * @throws OutOfBoundsException Thrown if the specified $current_version does not exist
+     * @throws OutOfBoundsException Thrown if the specified $current_version does exist, but only at the end of the
+     *                              specified array, so there is no next key
+     */
+    protected static function getNextVersion(array &$source, string|int $current_version): ?string
+    {
+        $found = null;
+
+        foreach ($source as $version => $callback) {
+            // Check if version is valid
+            Validate::new($version)->isVersion();
+
+            switch (version_compare($version, $current_version)) {
+                case -1:
+                    // This is a previous version, ignore it.
+                    break;
+
+                case 0:
+                    // It's the same version, ignore it
+                    break;
+
+                case 1:
+                    // This IS a higher version! But is it the next? Let's see...
+                    // Either it's the first we found ($found ie empty) or its lower than the currently found one.
+                    if (!$found or version_compare($version, $found) === -1) {
+                        // This is the lowest version, yay!
+                        $found = $version;
+                    }
+            }
+        }
+
+        return $found;
     }
 
 
