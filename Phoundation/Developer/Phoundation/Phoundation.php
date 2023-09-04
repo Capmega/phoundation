@@ -201,20 +201,43 @@ class Phoundation extends Project
 
 
     /**
+     * Returns either the specified branch or the current Phoundation branch as default
+     *
+     * @param string|null $branch
+     * @return string
+     */
+    protected function defaultBranch(?string $branch): string
+    {
+        if (!$branch) {
+            // Select the current branch
+            $branch = $this->git->getBranch();
+
+            Log::notice(tr('Trying to patch updates on Phoudation using current project branch ":branch"', [
+                ':branch' => $branch
+            ]));
+        }
+
+        return $branch;
+    }
+
+
+    /**
      * Copies only the specified file back to Phoundation
      *
      * @param string $file
      * @return void
      */
-    public function copy(string $file): void
+    public function copy(string $file, ?string $branch): void
     {
+        $this->selectPhoundationBranch($this->defaultBranch($branch))->ensureNoChanges();
+
         if (!file_exists(PATH_ROOT . $file)) {
             throw new FileNotExistException(tr('The specified file "" does not exist', [
                 ':file' => $file
             ]));
         }
 
-        Cp::new()->archive(PATH_ROOT . $file, Restrictions::new(PATH_ROOT), $this->getPath() . $file, Restrictions::new($this->getPath()), true);
+        Cp::new()->archive(PATH_ROOT . $file, Restrictions::new(PATH_ROOT), $this->getPath() . $file, Restrictions::new($this->getPath(), true));
     }
 
 
@@ -229,20 +252,13 @@ class Phoundation extends Project
      */
     public function patch(?string $branch, ?string $message, ?bool $sign = null, bool $checkout = true): void
     {
-        if (!$branch) {
-            // Select the current branch
-            $branch = $this->git->getBranch();
-
-            Log::notice(tr('Trying to patch updates on Phoudation using current project branch ":branch"', [
-                ':branch' => $branch
-            ]));
-        }
-
         if ($sign === null) {
             $sign = Config::getBoolean('developer.phoundation.patch.sign', true);
         }
 
-        Log::information(tr('Patching branch ":branch" on your local Phoundation repository from this project', [
+        $branch = $this->defaultBranch($branch);
+
+        Log::action(tr('Patching branch ":branch" on your local Phoundation repository from this project', [
             ':branch' => $branch
         ]));
 
@@ -250,7 +266,7 @@ class Phoundation extends Project
         Project::new()->updateLocalProject($branch, $message, $sign);
 
         // Detect Phoundation installation and ensure its clean and on the right branch
-        $this->selectPhoundationBranch($branch);
+        $this->selectPhoundationBranch($branch)->ensureNoChanges();
 
         try {
             // Execute the patching
@@ -344,9 +360,9 @@ class Phoundation extends Project
     /**
      * Ensures that the Phoundation installation has no changes
      *
-     * @return void
+     * @return static
      */
-    protected function ensureNoChanges(): void
+    protected function ensureNoChanges(): static
     {
         // Ensure Phoundation has no changes
         if ($this->git->hasChanges()) {
@@ -354,6 +370,8 @@ class Phoundation extends Project
                 ':path' => $this->path
             ]))->makeWarning();
         }
+
+        return $this;
     }
 
 
@@ -363,10 +381,10 @@ class Phoundation extends Project
      * @param string|null $branch
      * @return void
      */
-    protected function selectPhoundationBranch(?string $branch): void
+    protected function selectPhoundationBranch(?string $branch): static
     {
         if (!$branch) {
-            return;
+            return $this;
         }
 
         // Ensure phoundation is on the right branch
@@ -382,6 +400,8 @@ class Phoundation extends Project
 
             $this->git->checkout($branch);
         }
+
+        return $this;
     }
 
 
