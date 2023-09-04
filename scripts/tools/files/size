@@ -1,0 +1,51 @@
+#!/usr/bin/php
+<?php
+
+declare(strict_types=1);
+
+use Phoundation\Cli\Cli;
+use Phoundation\Cli\Documentation;
+use Phoundation\Cli\Script;
+use Phoundation\Core\Log\Log;
+use Phoundation\Core\Numbers;
+use Phoundation\Core\Strings;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Filesystem\Filesystem;
+use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Restrictions;
+
+
+/**
+ * Script tools/files/size
+ *
+ *
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Scripts
+ */
+Documentation::autoComplete([
+    'positions' => [
+        '0' => [
+            'word'   => function ($word) { return Path::new(Path::default($word), '/')->scan($word . '*'); },
+            'noword' => function ()      { return Path::new(             '/', '/')->scan(        '*'); },
+        ],
+    ]
+]);
+
+Documentation::usage('./pho tools files size PATH');
+
+Documentation::help('This command will count the sizes of all the files in the specified path recursively and
+display the amount found');
+
+$argv = ArgvValidator::new()
+    ->select('path')->isPath('/', '/')
+    ->select('-h,--human-readable')->isOptional(false)->isBoolean()
+    ->validate();
+
+if ($argv['human_readable']) {
+    Script::echo(Numbers::getHumanReadableBytes(Filesystem::get($argv['path'], Restrictions::new('/'))->size()));
+} else {
+    Script::echo(Filesystem::get($argv['path'], Restrictions::new('/'))->size());
+}

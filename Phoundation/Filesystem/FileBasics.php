@@ -14,6 +14,7 @@ use Phoundation\Filesystem\Exception\FileNotWritableException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\PathNotExistsException;
 use Phoundation\Filesystem\Interfaces\FileBasicsInterface;
+use Phoundation\Filesystem\Interfaces\FileInterface;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Processes\Exception\ProcessesException;
 use Phoundation\Processes\Process;
@@ -97,7 +98,7 @@ class FileBasics implements Stringable, FileBasicsInterface
 
 
     /**
-     * Returns a new File object with the specified restrictions
+     * Returns a new Path object with the specified restrictions
      *
      * @param FileBasics|Stringable|string|null $file
      * @param RestrictionsInterface|array|string|null $restrictions_restrictions
@@ -105,6 +106,48 @@ class FileBasics implements Stringable, FileBasicsInterface
      */
     public static function new(FileBasics|Stringable|string|null $file = null, RestrictionsInterface|array|string|null $restrictions_restrictions = null): static
     {
+        return new static($file, $restrictions_restrictions);
+    }
+
+
+    /**
+     * Returns a new Path object with the specified restrictions starting from the specified path, applying a number of
+     * defaults
+     *
+     * . is PATH_ROOT
+     * ~ is the current shell's user home directory
+     *
+     * @param FileBasics|Stringable|string|null $file
+     * @param RestrictionsInterface|array|string|null $restrictions_restrictions
+     * @return static
+     */
+    public static function default(FileBasics|Stringable|string|null $file = null, RestrictionsInterface|array|string|null $restrictions_restrictions = null): static
+    {
+        // Determine what path to choose from the specified file
+        if ($file) {
+            $file = trim((string) $file);
+
+            switch ($file[0]) {
+                case '/':
+                    // This is an absolute path already
+                    break;
+
+                case '.':
+                    // This is a path starting at PATH_ROOT
+                    $file = PATH_ROOT . Strings::startsNotWith(substr($file, 1), '/');
+                    break;
+
+                case '~':
+                    // This starts at the users home directory
+                    if (empty($_SERVER['HOME'])) {
+                        throw new OutOfBoundsException(tr('Cannot determine this users home directory'));
+                    }
+
+                    $file = Strings::endsWith($_SERVER['HOME'], '/') . Strings::startsNotWith(substr($file, 1), '/');
+                    break;
+            }
+        }
+Log::warning($file, echo_screen: false);
         return new static($file, $restrictions_restrictions);
     }
 
@@ -838,5 +881,102 @@ class FileBasics implements Stringable, FileBasicsInterface
         Path::new(dirname($this->file), $this->restrictions->getParent())->ensure();
 
         return false;
+    }
+
+
+    /**
+     * Returns the amount of available files in the current file path
+     *
+     * @param bool $recursive
+     * @return int
+     */
+    public function count(bool $recursive = true): int
+    {
+        if ($this instanceof FileInterface) {
+            if ($this->exists()) {
+                // This is a single file!
+                return 1;
+            }
+
+            return 0;
+        }
+
+        // Return the amount of all files in this directory
+        $files = scandir($this->file);
+        $count = count($files);
+
+        // Recurse?
+        if ($recursive) {
+            // Recurse!
+            foreach ($files as $file) {
+                if (($file === '.') or ($file === '..')) {
+                    // Skip crap
+                    continue;
+                }
+
+                // Filename must have complete absolute path
+                $file = $this->file . $file;
+
+                if (is_dir($file)) {
+                    // Count all files in this sub directory, minus the directory itself
+                    $count += Filesystem::get($file, $this->restrictions)->count($recursive) - 1;
+                }
+            }
+        }
+
+        return $count;
+    }
+
+
+    /**
+     * Returns the size in bytes of this file or path
+     *
+     * @param bool $recursive
+     * @return int
+     */
+    public function size(bool $recursive = true): int
+    {
+        if ($this instanceof FileInterface) {
+            if ($this->exists()) {
+                // This is a single file!
+                return filesize($this->file);
+            }
+
+            return 0;
+        }
+
+        // Return the amount of all files in this directory
+        $files = scandir($this->file);
+        $size  = 0;
+
+        foreach ($files as $file) {
+            if (($file === '.') or ($file === '..')) {
+                // Skip crap
+                continue;
+            }
+
+            // Filename must have complete absolute path
+            $file = $this->file . $file;
+
+            if (is_dir($file)) {
+                if ($recursive) {
+                    // Get file size of this entire directory
+                    $size += Filesystem::get($file, $this->restrictions)->size($recursive);
+                }
+            } else {
+                // Get file size of this file
+                try {
+                    $size += filesize($file);
+                } catch (Throwable $e) {
+                    if (file_exists($file)) {
+                        throw $e;
+                    }
+
+                    // This is likely a dead soft symlink, we can simply ignore it.
+                }
+            }
+        }
+
+        return $size;
     }
 }
