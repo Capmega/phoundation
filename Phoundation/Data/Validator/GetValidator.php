@@ -131,10 +131,10 @@ class GetValidator extends Validator
     /**
      * Selects the specified key within the array that we are validating
      *
-     * @param int|string $field The array key (or HTML form field) that needs to be validated / sanitized
+     * @param string|int $field The array key (or HTML form field) that needs to be validated / sanitized
      * @return static
      */
-    public function select(int|string $field): static
+    public function select(string|int $field): static
     {
         return $this->standardSelect($field);
     }

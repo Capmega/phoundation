@@ -1066,8 +1066,8 @@ interface ValidatorInterface
     /**
      * Selects the specified key within the array that we are validating
      *
-     * @param int|string $field The array key (or HTML form field) that needs to be validated / sanitized
+     * @param string|int $field The array key (or HTML form field) that needs to be validated / sanitized
      * @return static
      */
-    public function standardSelect(int|string $field): static;
+    public function standardSelect(string|int $field): static;
 }

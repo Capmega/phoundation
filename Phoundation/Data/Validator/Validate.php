@@ -2,6 +2,8 @@
 
 namespace Phoundation\Data\Validator;
 
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Traits\DataMaxStringSize;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 
 
@@ -17,6 +19,9 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
  */
 class Validate
 {
+    use DataMaxStringSize;
+
+
     /**
      * The source data that will be validated
      *
@@ -94,7 +99,7 @@ class Validate
 
 
     /**
-     * Validates if the selected field is a string
+     * Validates if the selected field is a string value
      *
      * @return static
      */
@@ -102,6 +107,21 @@ class Validate
     {
         if (!is_string($this->source)) {
             throw new ValidationFailedException(tr('The specified value must be a string'));
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Validates if the selected field is a scalar value
+     *
+     * @return static
+     */
+    public function isScalar(): static
+    {
+        if (!is_scalar($this->source)) {
+            throw new ValidationFailedException(tr('The specified value must be a scalar'));
         }
 
         return $this;
@@ -185,6 +205,7 @@ class Validate
     /**
      * Validates if the specified value is a valid port
      *
+     * @param array $compare
      * @return static
      */
     public function isInArray(array $compare): static
@@ -200,6 +221,103 @@ class Validate
 
 
     /**
+     * Validates that the selected field is equal or larger than the specified amount of characters
+     *
+     * @param int $characters
+     * @return static
+     */
+    public function hasCharacters(int $characters): static
+    {
+        $this->isString();
+
+        if (strlen($this->source) != $characters) {
+            throw new ValidationFailedException(tr('The specified valuemust have exactly ":count" characters', [':count' => $characters]));
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Validates that the selected field is equal or larger than the specified amount of characters
+     *
+     * @param int $characters
+     * @return static
+     */
+    public function hasMinCharacters(int $characters): static
+    {
+        $this->isString();
+
+        if (strlen($this->source) < $characters) {
+            throw new ValidationFailedException(tr('The specified value must have ":count" characters or more', [':count' => $characters]));
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Validates that the selected field is equal or shorter than the specified amount of characters
+     *
+     * @param int|null $characters
+     * @return static
+     */
+    public function hasMaxCharacters(?int $characters = null): static
+    {
+        $this->isString();
+
+        // Validate the maximum amount of characters
+        $characters = $this->getMaxStringSize($characters);
+
+        if (strlen($this->source) > $characters) {
+            throw new ValidationFailedException(tr('The specified value must have ":count" characters or less', [':count' => $characters]));
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Validates that the selected field matches the specified regex
+     *
+     * @param string $regex
+     * @return static
+     */
+    public function matchesRegex(string $regex): static
+    {
+        return $this->contains($regex, true);
+    }
+
+
+    /**
+     * Ensures that the value has the specified string
+     *
+     * This method ensures that the specified array key contains the specified string
+     *
+     * @param string $string
+     * @param bool $regex
+     * @return static
+     */
+    public function contains(string $string, bool $regex = false): static
+    {
+        // This value must be scalar
+        $this->isScalar();
+
+        if ($regex) {
+            if (!preg_match($string, $this->source)) {
+                throw new ValidationFailedException(tr('The specified value must match regex ":value"', [':value' => $string]));
+            }
+        } else {
+            if (!str_contains($this->source, $string)) {
+                throw new ValidationFailedException(tr('The specified value must contain ":value"', [':value' => $string]));
+            }
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Validates if the specified value is a valid port
      *
      * @return static
@@ -207,5 +325,23 @@ class Validate
     public function isPort(): static
     {
         return $this->isNumeric()->isMoreThan(0)->isLessThan(65536);
+    }
+
+
+    /**
+     * Validates if the selected field is a valid version number
+     *
+     * @param int $characters
+     * @return static
+     */
+    public function isVersion(int $characters = 11): static
+    {
+        $this->hasMaxCharacters($characters);
+
+        if (!preg_match('/\d{1,3}\.\d{1,3}\.\d{1,3}/', $this->source)) {
+            throw new ValidationFailedException(tr('The specified value must contain a valid version number'));
+        }
+
+        return $this;
     }
 }

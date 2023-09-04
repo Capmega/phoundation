@@ -112,11 +112,11 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
     /**
      * Selects the specified key within the array that we are validating
      *
-     * @param int|string $fields The array key (or HTML form field) that needs to be validated / sanitized
+     * @param string|int $fields The array key (or HTML form field) that needs to be validated / sanitized
      * @param string|bool $next
      * @return static
      */
-    public function select(int|string $fields, string|bool $next = false): static
+    public function select(string|int $fields, string|bool $next = false): static
     {
         if ($this->source === null) {
             throw new OutOfBoundsException(tr('Cannot select fields ":fields", no source array specified', [

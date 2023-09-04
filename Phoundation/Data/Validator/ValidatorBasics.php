@@ -9,6 +9,7 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Traits\DataIntId;
+use Phoundation\Data\Traits\DataMaxStringSize;
 use Phoundation\Data\Validator\Exception\NoKeySelectedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
@@ -31,6 +32,7 @@ use ReflectionProperty;
 trait ValidatorBasics
 {
     use DataIntId;
+    use DataMaxStringSize;
 
 
     /**
@@ -108,7 +110,7 @@ trait ValidatorBasics
     /**
      * The single key that actually will be tested.
      *
-     * @var int|string $process_key
+     * @var string|int $process_key
      */
     protected mixed $process_key = null;
 
@@ -157,13 +159,6 @@ trait ValidatorBasics
      * @var array $children
      */
     protected array $children = [];
-
-    /**
-     * The maximum string size that this validator will touch
-     *
-     * @var int $max_string_size
-     */
-    protected int $max_string_size = 1073741824;
 
     /**
      * Required to test if selected_optional property is initialized or not
@@ -287,29 +282,6 @@ trait ValidatorBasics
     {
         $this->clear_failed_fields = $clear_failed_fields;
         return $this;
-    }
-
-
-    /**
-     * Returns the maximum string size that this Validator will touch
-     *
-     * @return int|null
-     */
-    public function getMaximumStringSize(): ?int
-    {
-        return $this->max_string_size;
-    }
-
-
-    /**
-     * Returns the maximum string size that this Validator will touch
-     *
-     * @param int|null $max_string_size
-     * @return void
-     */
-    public function setMaximumStringSize(?int $max_string_size): void
-    {
-        $this->max_string_size = $max_string_size;
     }
 
 

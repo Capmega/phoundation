@@ -733,11 +733,11 @@ abstract class Validator implements ValidatorInterface
             }
 
             if ($regex) {
-                if (!preg_match($string, $value)) {
-                    $this->addFailure(tr('must contain ":value"', [':value' => $string]));
+                if (!preg_match($string, (string) $value)) {
+                    $this->addFailure(tr('must match regex ":value"', [':value' => $string]));
                 }
             } else {
-                if (!str_contains($value, $string)) {
+                if (!str_contains((string) $value, $string)) {
                     $this->addFailure(tr('must contain ":value"', [':value' => $string]));
                 }
             }
@@ -999,16 +999,7 @@ abstract class Validator implements ValidatorInterface
             }
 
             // Validate the maximum amount of characters
-            if ($characters === null) {
-                $characters = $this->max_string_size;
-            } elseif ($characters > $this->max_string_size) {
-                Log::warning(tr('The specified amount of maximum characters ":specified" surpasses the configured amount of ":configured". Forcing configured amount instead', [
-                    ':specified'  => $characters,
-                    ':configured' => $this->max_string_size
-                ]));
-
-                $characters = $this->max_string_size;
-            }
+            $characters = $this->getMaxStringSize($characters);
 
             if (strlen($value) > $characters) {
                 $this->addFailure(tr('must have ":count" characters or less', [':count' => $characters]));
@@ -2414,6 +2405,29 @@ abstract class Validator implements ValidatorInterface
 
 
     /**
+     * Validates if the selected field is a valid version number
+     *
+     * @param int $characters
+     * @return static
+     */
+    public function isVersion(int $characters = 11): static
+    {
+        return $this->validateValues(function(&$value) use ($characters) {
+            $this->hasMinCharacters(3)->hasMaxCharacters();
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return;
+            }
+
+            if (!preg_match('/\d{1,3}\.\d{1,3}\.\d{1,3}/', $value)) {
+                $this->addFailure(tr('must contain a valid version number'));
+            }
+        });
+    }
+
+
+    /**
      * Validates if the specified function returns TRUE for this value
      *
      * @param callable $function
@@ -3133,10 +3147,10 @@ abstract class Validator implements ValidatorInterface
     /**
      * Selects the specified key within the array that we are validating
      *
-     * @param int|string $field The array key (or HTML form field) that needs to be validated / sanitized
+     * @param string|int $field The array key (or HTML form field) that needs to be validated / sanitized
      * @return static
      */
-    public function standardSelect(int|string $field): static
+    public function standardSelect(string|int $field): static
     {
         // Unset various values first to ensure the byref link is broken
         unset($this->process_value);
