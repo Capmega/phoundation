@@ -8,8 +8,6 @@ use DateTime;
 use PDOStatement;
 use Phoundation\Accounts\Users\Password;
 use Phoundation\Core\Arrays;
-use Phoundation\Core\Core;
-use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Exception\KeyAlreadySelectedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
@@ -25,6 +23,7 @@ use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Html\Enums\Interfaces\DisplayModeInterface;
 use Phoundation\Web\Http\Url;
 use ReflectionProperty;
+use Stringable;
 use Throwable;
 use UnitEnum;
 
@@ -1905,12 +1904,12 @@ abstract class Validator implements ValidatorInterface
     /**
      * Validates if the selected field is a valid file path
      *
-     * @param string|null $check_in_path
+     * @param Stringable|string|null $check_in_path
      * @param RestrictionsInterface|array|string|null $restrictions
      * @param bool $exists
      * @return static
      */
-    public function isPath(?string $check_in_path = null, RestrictionsInterface|array|string|null $restrictions = null, bool $exists = true): static
+    public function isPath(Stringable|string|null $check_in_path = null, RestrictionsInterface|array|string|null $restrictions = null, bool $exists = true): static
     {
         $restrictions = Restrictions::ensure($restrictions)->setLabel(tr('Validator'));
 
@@ -1944,12 +1943,12 @@ abstract class Validator implements ValidatorInterface
     /**
      * Validates if the selected field is a valid directory
      *
-     * @param string|null $check_in_path
+     * @param Stringable|string|null $check_in_path
      * @param RestrictionsInterface|array|string|null $restrictions
      * @param bool $exists
      * @return static
      */
-    public function isDirectory(?string $check_in_path = null, RestrictionsInterface|array|string|null $restrictions = null, bool $exists = true): static
+    public function isDirectory(Stringable|string|null $check_in_path = null, RestrictionsInterface|array|string|null $restrictions = null, bool $exists = true): static
     {
         $restrictions = Restrictions::ensure($restrictions)->setLabel(tr('Validator'));
 
@@ -1983,12 +1982,12 @@ abstract class Validator implements ValidatorInterface
     /**
      * Validates if the selected field is a valid file
      *
-     * @param string|null $check_in_path
+     * @param Stringable|string|null $check_in_path
      * @param RestrictionsInterface|array|string|null $restrictions
      * @param bool $exists
      * @return static
      */
-    public function isFile(?string $check_in_path = null, RestrictionsInterface|array|string|null $restrictions = null, bool $exists = true): static
+    public function isFile(Stringable|string|null $check_in_path = null, RestrictionsInterface|array|string|null $restrictions = null, bool $exists = true): static
     {
         $restrictions = Restrictions::ensure($restrictions)->setLabel(tr('Validator'));
 
@@ -2023,12 +2022,12 @@ abstract class Validator implements ValidatorInterface
      * Checks if the specified path exists or not, and if its of the correct type
      *
      * @param string|bool $value
-     * @param string|null $exists_in_path
+     * @param Stringable|string|null $exists_in_path
      * @param RestrictionsInterface|array|string|null $restrictions
      * @param bool $directory
      * @return void
      */
-    protected function checkFile(string|bool $value, ?string $exists_in_path = null, RestrictionsInterface|array|string|null $restrictions = null, ?bool $directory = false): void
+    protected function checkFile(string|bool $value, Stringable|string|null $exists_in_path = null, RestrictionsInterface|array|string|null $restrictions = null, ?bool $directory = false): void
     {
         if ($directory) {
             $type = 'directory';

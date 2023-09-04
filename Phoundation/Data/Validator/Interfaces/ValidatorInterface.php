@@ -7,6 +7,7 @@ use DateTime;
 use PDOStatement;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
+use Stringable;
 use UnitEnum;
 
 /**
@@ -633,32 +634,32 @@ interface ValidatorInterface
     /**
      * Validates if the selected field is a valid directory
      *
-     * @param string|null $check_in_path
+     * @param Stringable|string|null $check_in_path
      * @param RestrictionsInterface|array|string|null $restrictions
      * @param bool $exists
      * @return static
      */
-    public function isPath(?string $check_in_path = null, RestrictionsInterface|array|string|null $restrictions = null, bool $exists = true): static;
+    public function isPath(Stringable|string|null $check_in_path = null, RestrictionsInterface|array|string|null $restrictions = null, bool $exists = true): static;
 
     /**
      * Validates if the selected field is a valid directory
      *
-     * @param string|null $check_in_path
+     * @param Stringable|string|null $check_in_path
      * @param RestrictionsInterface|array|string|null $restrictions
      * @param bool $exists
      * @return static
      */
-    public function isDirectory(?string $check_in_path = null, RestrictionsInterface|array|string|null $restrictions = null, bool $exists = true): static;
+    public function isDirectory(Stringable|string|null $check_in_path = null, RestrictionsInterface|array|string|null $restrictions = null, bool $exists = true): static;
 
     /**
      * Validates if the selected field is a valid file
      *
-     * @param string|null $check_in_path
+     * @param Stringable|string|null $check_in_path
      * @param RestrictionsInterface|array|string|null $restrictions
      * @param bool $exists
      * @return static
      */
-    public function isFile(?string $check_in_path = null, RestrictionsInterface|array|string|null $restrictions = null, bool $exists = true): static;
+    public function isFile(Stringable|string|null $check_in_path = null, RestrictionsInterface|array|string|null $restrictions = null, bool $exists = true): static;
 
     /**
      * Validates if the selected field is a valid description
