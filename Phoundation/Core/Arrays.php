@@ -83,14 +83,14 @@ class Arrays {
      * Returns the next key right after specified $key
      *
      * @param array $source
-     * @param int|string $current_key
+     * @param string|int $current_key
      * @param bool $delete
-     * @return int|string
+     * @return string|int
      * @throws OutOfBoundsException Thrown if the specified $current_key does not exist
      * @throws OutOfBoundsException Thrown if the specified $current_key does exist, but only at the end of the
      *                              specified array, so there is no next key
      */
-    public static function nextKey(array &$source, int|string $current_key, bool $delete = false): int|string
+    public static function nextKey(array &$source, string|int $current_key, bool $delete = false): string|int
     {
         // Scan for the specified $current_key
         $next = false;
@@ -231,7 +231,7 @@ class Arrays {
      * values are each initialized with specific values, if they do not exist yet
      *
      * @param array $source The array that is being worked on
-     * @param int|string $key The key that must exist in the $source array
+     * @param string|int $key The key that must exist in the $source array
      * @param mixed $default The default value in case $source[$key] does not exist
      * @return mixed The new value of $source[$key]. This will be either the original value of $source[$key], or the $default value if $source[$key] did not exist
      * @see Arrays::ensure()
@@ -247,7 +247,7 @@ class Arrays {
      * code
      * array('foo' => 'bar')
      */
-    public static function default(array &$source, int|string $key, mixed $default): mixed
+    public static function default(array &$source, string|int $key, mixed $default): mixed
     {
         if (!isset($source[$key])) {
             $source[$key] = $default;
@@ -510,10 +510,10 @@ class Arrays {
      * Return an array with the amount of values where each value name is $base_value_name# and # is a sequential number
      *
      * @param int $count
-     * @param int|string $base_value_name
+     * @param string|int $base_value_name
      * @return array
      */
-    public static function sequentialValues(int $count, int|string $base_value_name): array
+    public static function sequentialValues(int $count, string|int $base_value_name): array
     {
         if ($count < 1) {
             throw new OutOfBoundsException(tr('Invalid count specified. Make sure count is numeric, and greater than 0'));
@@ -533,12 +533,12 @@ class Arrays {
      * Return the source array with the keys all replaced by sequential values based on base_keyname
      *
      * @param array $source
-     * @param int|string $base_key_name
+     * @param string|int $base_key_name
      * @param bool $filter_null
      * @param bool $null_string
      * @return array
      */
-    public static function sequentialKeys(array $source, int|string $base_key_name, bool $filter_null = false, bool $null_string = false): array
+    public static function sequentialKeys(array $source, string|int $base_key_name, bool $filter_null = false, bool $null_string = false): array
     {
         $i      = 0;
         $return = [];
@@ -629,12 +629,12 @@ class Arrays {
      * Return all array parts from (but without) the specified key
      *
      * @param array $source
-     * @param int|string $from_key
+     * @param string|int $from_key
      * @param bool $delete
      * @param bool $skip
      * @return array
      */
-    public static function from(array &$source, int|string $from_key, bool $delete = false, bool $skip = true): array
+    public static function from(array &$source, string|int $from_key, bool $delete = false, bool $skip = true): array
     {
         $return = [];
         $add    = false;
@@ -673,11 +673,11 @@ class Arrays {
      * Return all array parts until (but without) the specified key
      *
      * @param array $source
-     * @param int|string $until_key
+     * @param string|int $until_key
      * @param bool $delete
      * @return array
      */
-    public static function until(array $source, int|string $until_key, bool $delete = false): array
+    public static function until(array $source, string|int $until_key, bool $delete = false): array
     {
         $return = [];
 
@@ -701,11 +701,11 @@ class Arrays {
      * Prefix all keys in this array with the specified prefix
      *
      * @param array $source
-     * @param int|string $prefix
+     * @param string|int $prefix
      * @param bool $auto
      * @return array
      */
-    public static function prefix(array $source, int|string $prefix, bool $auto = false): array
+    public static function prefix(array $source, string|int $prefix, bool $auto = false): array
     {
         $count  = 0;
         $return = [];
@@ -729,10 +729,10 @@ class Arrays {
      * NOTE: Non string values will be quietly ignored!
      *
      * @param array $array
-     * @param int|string $keyword
+     * @param string|int $keyword
      * @return array
      */
-    public static function find(array $array, int|string $keyword): array
+    public static function find(array $array, string|int $keyword): array
     {
         $return = [];
 
@@ -777,10 +777,10 @@ class Arrays {
      * Return an array with all the values in the specified column
      *
      * @param array $source
-     * @param int|string $column
+     * @param string|int $column
      * @return array
      */
-    public static function getColumn(array $source, int|string $column): array
+    public static function getColumn(array $source, string|int $column): array
     {
         $return = [];
 
@@ -1153,11 +1153,11 @@ class Arrays {
      * @version 2.7.100: Added function and documentation
      *
      * @param array $source
-     * @param int|string $old_key
-     * @param int|string $new_key
+     * @param string|int $old_key
+     * @param string|int $new_key
      * @return array The array with the specified key renamed
      */
-    public static function renameKey(array $source, int|string $old_key, int|string $new_key): array
+    public static function renameKey(array $source, string|int $old_key, string|int $new_key): array
     {
         if (!array_key_exists($old_key, $source)) {
             throw new OutOfBoundsException(tr('Specified $old_key does not exist in the specified source array'));
@@ -2210,5 +2210,65 @@ class Arrays {
         }
 
         return $highest;
+    }
+
+
+    /**
+     * Returns an array with all values uppercase strings
+     *
+     * @note Non scalar values (except NULL) will cause OutOfBoundsException
+     * @note NULL values will remain NULL
+     * @param array $source
+     * @return array
+     */
+    public static function lowercase(array $source): array
+    {
+        foreach ($source as &$value) {
+            if (!is_scalar($value)) {
+                if ($value) {
+                    throw OutOfBoundsException::new(tr('Cannot lowercase the specified array, the value ":value" is not scalar', [
+                        ':value' => $value
+                    ]));
+                }
+
+                // Value is just null, continue
+                continue;
+            }
+
+            $value = strtolower($value);
+        }
+
+        unset($value);
+        return $source;
+    }
+
+
+    /**
+     * Returns an array with all values uppercase strings
+     *
+     * @note Non scalar values (except NULL) will cause OutOfBoundsException
+     * @note NULL values will remain NULL
+     * @param array $source
+     * @return array
+     */
+    public static function uppercase(array $source): array
+    {
+        foreach ($source as &$value) {
+            if (!is_scalar($value)) {
+                if ($value) {
+                    throw OutOfBoundsException::new(tr('Cannot lowercase the specified array, the value ":value" is not scalar', [
+                        ':value' => $value
+                    ]));
+                }
+
+                // Value is just null, continue
+                continue;
+            }
+
+            $value = strtoupper($value);
+        }
+
+        unset($value);
+        return $source;
     }
 }
