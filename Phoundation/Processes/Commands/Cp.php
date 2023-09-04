@@ -41,11 +41,11 @@ class Cp extends Command
         $source = (string) $source;
         $target = (string) $target;
 
-        $source_restrictions->check($source);
-        $target_restrictions->check($target);
+        $source_restrictions->check($source, false);
+        $target_restrictions->check($target, true);
 
         // Build the process parameters, then execute
-        $this->setInternalCommand('axel')
+        $this->setInternalCommand('cp')
              ->clearArguments()
              ->addArgument('-a')
              ->addArguments($source)
