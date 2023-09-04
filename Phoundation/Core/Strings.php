@@ -1470,7 +1470,7 @@ throw new UnderConstructionException();
      */
     public static function slash(Stringable|string|null $string): string
     {
-        return static::endsWith($string, '/');
+        return static::endsWith((string) $string, '/');
     }
 
 
@@ -1483,7 +1483,7 @@ throw new UnderConstructionException();
      */
     public static function unslash(Stringable|string|null $string, bool $loop = true): string
     {
-        return static::endsNotWith($string, '/', $loop);
+        return static::endsNotWith((string) $string, '/', $loop);
     }
 
 
