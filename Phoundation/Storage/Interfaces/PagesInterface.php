@@ -1,21 +1,20 @@
 <?php
 
-namespace Phoundation\Templates;
+namespace Phoundation\Storage\Interfaces;
 
-use Phoundation\Storage\Pages;
-use Phoundation\Templates\Interfaces\TemplatesInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
 
 
 /**
- * Class Templates
+ * Interface PagesInterface
  *
  *
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Templates
+ * @package Phoundation\Pages
  */
-class Templates extends Pages implements TemplatesInterface
+interface PagesInterface extends DataListInterface
 {
 }

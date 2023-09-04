@@ -1,13 +1,12 @@
 <?php
 
-namespace Phoundation\Templates;
+namespace Phoundation\Templates\Interfaces;
 
-use Phoundation\Storage\Pages;
-use Phoundation\Templates\Interfaces\TemplatesInterface;
+use Phoundation\Storage\Interfaces\PagesInterface;
 
 
 /**
- * Class Templates
+ * Interface TemplatesInterface
  *
  *
  *
@@ -16,6 +15,6 @@ use Phoundation\Templates\Interfaces\TemplatesInterface;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Templates
  */
-class Templates extends Pages implements TemplatesInterface
+interface TemplatesInterface extends PagesInterface
 {
 }
