@@ -8,6 +8,7 @@ use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Templates\Template;
+use PHPMailer\PHPMailer\PHPMailer;
 
 
 /**
@@ -22,8 +23,6 @@ use Phoundation\Templates\Template;
  */
 class Email extends DataEntry
 {
-    use
-
     /**
      * The template for this email
      *
@@ -72,6 +71,35 @@ class Email extends DataEntry
      */
     public function send(bool $background = true): static
     {
+        $account   = new EmailAccount($this->from);
+        $phpmailer = new PHPMailer();
+        $phpmailer->isSMTP();
+
+        // Setup email host configuration
+        $phpmailer->Host       = $account->getHost();
+        $phpmailer->SMTPAuth   = $account->getSmtpAuth();
+        $phpmailer->SMTPSecure = $account->getSmtpSecure();
+        $phpmailer->Port       = $account->getPort();
+        $phpmailer->Username   = $account->getUser();
+        $phpmailer->Password   = $account->getPass();
+
+        // Build email
+        $phpmailer->body    = $this->body->;
+        $phpmailer->subject = $this->subject;
+
+        $phpmailer->isHTML($this->is_html);
+        $phpmailer->setFrom($this->from->getEmail(), $this->from->getName());
+        $phpmailer->setReplyTo($this->reply_to->getEmail(), $this->reply_to->getName());
+
+        foreach ($this->cc as $cc) {
+            $phpmailer->setCc($cc->getEmail(), $cc->getName());
+        }
+
+        foreach ($this->bcc as $bcc) {
+            $phpmailer->setBcc($bcc->getEmail(), $bcc->getName());
+        }
+
+
     }
 
 
