@@ -17,24 +17,4 @@ use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
  */
 interface PageInterface extends DataEntryInterface
 {
-    /**
-     * Returns the page text
-     *
-     * @return string|null
-     */
-    public function getText(): ?string;
-
-    /**
-     * Set the page text
-     *
-     * @param string|null $text
-     * @return static
-     */
-    public function setText(?string $text): static;
-
-    /**
-     * @param array $source
-     * @return string
-     */
-    public function render(array $source): string;
 }

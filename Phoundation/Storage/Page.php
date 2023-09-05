@@ -129,14 +129,14 @@ class Page extends DataEntry implements PageInterface
      */
     protected function initDefinitions(DefinitionsInterface $definitions): void
     {
-`view_rights_id` bigint DEFAULT NULL,
-`collections_id` bigint NOT NULL,
-`books_id` bigint NOT NULL,
-`chapters_id` bigint NOT NULL,
-`parents_id` bigint DEFAULT NULL,
-`categories_id` bigint DEFAULT NULL,
-`templates_id` bigint DEFAULT NULL,
-`is_template` tinyint DEFAULT NULL,
+//`view_rights_id` bigint DEFAULT NULL,
+//`collections_id` bigint NOT NULL,
+//`books_id` bigint NOT NULL,
+//`chapters_id` bigint NOT NULL,
+//`parents_id` bigint DEFAULT NULL,
+//`categories_id` bigint DEFAULT NULL,
+//`templates_id` bigint DEFAULT NULL,
+//`is_template` tinyint DEFAULT NULL,
 
 
 
