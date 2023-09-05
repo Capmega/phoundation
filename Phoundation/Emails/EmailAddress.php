@@ -12,7 +12,7 @@ use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
 
 
 /**
- * Class EmailAccount
+ * Class EmailAddress
  *
  *
  *
@@ -21,14 +21,14 @@ use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Plugins\Emails
  */
-class EmailAccount extends DataEntry
+class EmailAddress extends DataEntry
 {
     /**
      * @inheritDoc
      */
     public static function getTable(): string
     {
-        return 'email_accounts';
+        return 'email_address';
     }
 
 
@@ -37,7 +37,7 @@ class EmailAccount extends DataEntry
      */
     public static function getDataEntryName(): string
     {
-        return tr('Email account');
+        return tr('Email address');
     }
 
 

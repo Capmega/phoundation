@@ -6,17 +6,13 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
-use Phoundation\Processes\Commands\PhoCommand;
-use Phoundation\Processes\Enum\ExecuteMethod;
-use Phoundation\Templates\Template;
-use Phoundation\Web\Http\Html\Enums\InputType;
-use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
-use PHPMailer\PHPMailer\PHPMailer;
+use Phoundation\Data\DataEntry\Traits\DataEntryEmail;
+use Phoundation\Data\DataEntry\Traits\DataEntryName;
+use Phoundation\Emails\Enums\Interfaces\EnumEmailAddressTypeInterface;
 
 
 /**
- * Class Email
+ * Class EmailAddressLinked
  *
  *
  *
@@ -25,17 +21,19 @@ use PHPMailer\PHPMailer\PHPMailer;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Plugins\Emails
  */
-class Email extends DataEntry
+class EmailAddressLinked extends DataEntry
 {
-    protected ?EmailAddress $from = null;
+    use DataEntryName;
+    use DataEntryEmail;
 
 
     /**
-     * The template for this email
+     * The type of email address for this email, to, from, cc, or bcc
      *
-     * @var Template $template
+     * @var EnumEmailAddressTypeInterface|null $type
      */
-    protected Template $template;
+    protected ?EnumEmailAddressTypeInterface $type = null;
+
 
     /**
      * Returns the table name used by this object
@@ -44,7 +42,7 @@ class Email extends DataEntry
      */
     public static function getTable(): string
     {
-        return 'emails';
+        return 'emails_addresses_linked';
     }
 
 
@@ -55,7 +53,7 @@ class Email extends DataEntry
      */
     public static function getDataEntryName(): string
     {
-        return tr('Email');
+        return tr('Email to');
     }
 
 
@@ -67,56 +65,6 @@ class Email extends DataEntry
     public static function getUniqueField(): ?string
     {
         return null;
-    }
-
-
-    /**
-     * Sends the email
-     *
-     * @param bool $background
-     * @return $this
-     */
-    public function send(bool $background = true): static
-    {
-        if ($background) {
-            // Set status to SEND so that it will send as a background process
-            $this->setStatus('PENDING-SEND');
-            PhoCommand::new('emails/pending/send')->execute(ExecuteMethod::background);
-
-        } else {
-            $from      = $this->from;
-            $phpmailer = new PHPMailer();
-            $phpmailer->isSMTP();
-
-            // Setup email host configuration
-            $phpmailer->Host       = $from->getSmtpHost();
-            $phpmailer->SMTPAuth   = $from->getSmtpAuth();
-            $phpmailer->SMTPSecure = $from->getSmtpSecure();
-            $phpmailer->Port       = $from->getPort();
-            $phpmailer->Username   = $from->getUser();
-            $phpmailer->Password   = $from->getPass();
-
-            // Build email
-            $phpmailer->body    = $this->body->;
-            $phpmailer->subject = $this->subject;
-
-            $phpmailer->isHTML($this->is_html);
-            $phpmailer->setFrom($this->from->getEmail(), $this->from->getName());
-            $phpmailer->setReplyTo($this->reply_to->getEmail(), $this->reply_to->getName());
-
-            foreach ($this->cc as $cc) {
-                $phpmailer->setCc($cc->getEmail(), $cc->getName());
-            }
-
-            foreach ($this->bcc as $bcc) {
-                $phpmailer->setBcc($bcc->getEmail(), $bcc->getName());
-            }
-
-            // Send the email
-            $phpmailer->send();
-            $this->setStatus('SENT');
-            return $this;
-        }
     }
 
 
@@ -178,45 +126,20 @@ class Email extends DataEntry
     protected function initDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->addDefinition(DefinitionFactory::getUsersEmail($this)
+            ->addDefinition(DefinitionFactory::getDatabaseId($this, 'emails_id')
                 ->setVisible(false))
-            ->addDefinition(DefinitionFactory::getUsersId($this)
+            ->addDefinition(DefinitionFactory::getDatabaseId($this, 'address_id')
                 ->setVisible(false))
-            ->addDefinition(Definition::new($this, 'parents_id')
+            ->addDefinition(Definition::new($this, 'type')
                 ->setVisible(false)
-                ->setInputType(InputTypeExtended::dbid)
-                ->addValidationFunction(function (ValidatorInterface $validator) {
-                    // Ensure the specified parents_id exists
-                    $validator->isOptional()->isQueryResult('SELECT `id` FROM `emails` WHERE `id` = :id', [':id' => '$parents_id']);
-                }))
-            ->addDefinition(Definition::new($this, 'main')
-                ->setVisible(false)
-                ->setInputType(InputType::checkbox))
-            ->addDefinition(Definition::new($this, 'read')
-                ->setVisible(false)
-                ->setInputType(InputType::checkbox))
-            ->addDefinition(Definition::new($this, 'categories_id')
-                ->setVisible(false)
-                ->setInputType(InputTypeExtended::dbid)
-                ->addValidationFunction(function (ValidatorInterface $validator) {
-                    // Ensure the specified parents_id exists
-                    $validator->isOptional()->isQueryResult('SELECT `id` FROM `categories` WHERE `id` = :id', [':id' => '$categories']);
-                }))
-            ->addDefinition(Definition::new($this, 'templates_id')
-                ->setVisible(false)
-                ->setInputType(InputTypeExtended::dbid)
-                ->addValidationFunction(function (ValidatorInterface $validator) {
-                    // Ensure the specified parents_id exists
-                    $validator->isOptional()->isQueryResult('SELECT `id` FROM `storage_pages` WHERE `id` = :id AND `template` = 1', [':id' => '$templates_id']);
-                }))
-            ->addDefinition(DefinitionFactory::getCode($this)
-                ->setSize(3))
-            ->addDefinition(Definition::new($this, 'subject')
-                ->setSize(3)
-                ->setMaxlength(255))
-            ->addDefinition(Definition::new($this, 'body')
-                ->setSize(3)
-                ->setSize(12)
-                ->setMaxlength(16_777_215));
+                ->setSource([
+                    'from' => tr('From'),
+                    'to'   => tr('To'),
+                    'cc'   => tr('Cc'),
+                    'bcc'  => tr('Bcc')
+                ])
+                ->setMaxlength(4))
+            ->addDefinition(DefinitionFactory::getEmail($this))
+            ->addDefinition(DefinitionFactory::getName($this));
     }
 }

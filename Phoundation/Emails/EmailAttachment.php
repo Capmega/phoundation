@@ -6,13 +6,11 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Web\Http\Html\Enums\InputType;
-use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
 
 
 /**
- * Class EmailAccount
+ * Class EmailAttachment
  *
  *
  *
@@ -21,14 +19,14 @@ use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Plugins\Emails
  */
-class EmailAccount extends DataEntry
+class EmailAttachment extends DataEntry
 {
     /**
      * @inheritDoc
      */
     public static function getTable(): string
     {
-        return 'email_accounts';
+        return 'email_attachments';
     }
 
 
@@ -37,7 +35,7 @@ class EmailAccount extends DataEntry
      */
     public static function getDataEntryName(): string
     {
-        return tr('Email account');
+        return tr('Email attachment');
     }
 
 
