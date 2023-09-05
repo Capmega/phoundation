@@ -8,11 +8,12 @@ use Exception;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Interfaces\ExecuteInterface;
 use Throwable;
 
 
 /**
- * Execute class
+ * class Execute
  *
  * This library contains various filesystem file related functions
  *
@@ -22,7 +23,7 @@ use Throwable;
  * @category Function reference
  * @package Phoundation\Filesystem
  */
-class Execute extends Path
+class Execute extends Path implements ExecuteInterface
 {
     /**
      * The server object
@@ -103,9 +104,9 @@ class Execute extends Path
      * Sets the extensions that are blacklisted
      *
      * @param string|array|null $blacklist_extensions
-     * @return Execute
+     * @return static
      */
-    public function setBlacklistExtensions(array|string|null $blacklist_extensions): Execute
+    public function setBlacklistExtensions(array|string|null $blacklist_extensions): static
     {
         $this->blacklist_extensions = Arrays::force($blacklist_extensions);
         return $this;
@@ -127,9 +128,9 @@ class Execute extends Path
      * Sets the extensions that are whitelisted
      *
      * @param string|array|null $whitelist_extensions
-     * @return Execute
+     * @return static
      */
-    public function setWhitelistExtensions(array|string|null $whitelist_extensions): Execute
+    public function setWhitelistExtensions(array|string|null $whitelist_extensions): static
     {
         $this->whitelist_extensions = Arrays::force($whitelist_extensions);
         return $this;
@@ -151,10 +152,10 @@ class Execute extends Path
      * Sets the path mode that will be set for each path
      *
      * @param string|int|null $mode
-     * @return Execute
+     * @return static
      * @throws OutOfBoundsException if the specified threshold is invalid.
      */
-    public function setMode(string|int|null $mode): Execute
+    public function setMode(string|int|null $mode): static
     {
         $this->mode = get_null($mode);
         return $this;
@@ -176,10 +177,10 @@ class Execute extends Path
      * Sets if exceptions will be ignored during the processing of multiple files
      *
      * @param bool $ignore_exceptions
-     * @return Execute
+     * @return static
      * @throws OutOfBoundsException if the specified threshold is invalid.
      */
-    public function setIgnoreExceptions(bool $ignore_exceptions): Execute
+    public function setIgnoreExceptions(bool $ignore_exceptions): static
     {
         $this->ignore_exceptions = $ignore_exceptions;
         return $this;
@@ -201,10 +202,10 @@ class Execute extends Path
      * Sets if symlinks should be processed
      *
      * @param bool $follow_symlinks
-     * @return Execute
+     * @return static
      * @throws OutOfBoundsException if the specified threshold is invalid.
      */
-    public function setFollowSymlinks(bool $follow_symlinks): Execute
+    public function setFollowSymlinks(bool $follow_symlinks): static
     {
         $this->follow_symlinks = $follow_symlinks;
         return $this;
@@ -226,10 +227,10 @@ class Execute extends Path
      * Sets if hidden file should be processed
      *
      * @param bool $follow_hidden
-     * @return Execute
+     * @return static
      * @throws OutOfBoundsException if the specified threshold is invalid.
      */
-    public function setFollowHidden(bool $follow_hidden): Execute
+    public function setFollowHidden(bool $follow_hidden): static
     {
         $this->follow_hidden = $follow_hidden;
         return $this;
@@ -250,9 +251,9 @@ class Execute extends Path
     /**
      * Clears the paths that will be skipped
      *
-     * @return Execute
+     * @return static
      */
-    public function clearSkipPaths(): Execute
+    public function clearSkipPaths(): static
     {
         $this->skip = [];
         return $this;
@@ -263,10 +264,10 @@ class Execute extends Path
      * Sets the paths that will be skipped
      *
      * @param string|array $paths
-     * @return Execute
+     * @return static
      * @throws OutOfBoundsException if the specified threshold is invalid.
      */
-    public function setSkipPaths(string|array $paths): Execute
+    public function setSkipPaths(string|array $paths): static
     {
         $this->skip = [];
         return $this->addSkipPaths(Arrays::force($paths, ''));
@@ -277,10 +278,10 @@ class Execute extends Path
      * Adds the paths that will be skipped
      *
      * @param string|array $paths
-     * @return Execute
+     * @return static
      * @throws OutOfBoundsException if the specified threshold is invalid.
      */
-    public function addSkipPaths(string|array $paths): Execute
+    public function addSkipPaths(string|array $paths): static
     {
         foreach ($paths as $path) {
             $this->addSkipPath($path);
@@ -294,10 +295,10 @@ class Execute extends Path
      * Sets the path that will be skipped
      *
      * @param string $path
-     * @return Execute
+     * @return static
      * @throws OutOfBoundsException if the specified threshold is invalid.
      */
-    public function addSkipPath(string $path): Execute
+    public function addSkipPath(string $path): static
     {
         if ($path) {
             $this->skip[] = Filesystem::absolute($path);
@@ -322,9 +323,9 @@ class Execute extends Path
      * Returns if the object will recurse or not
      *
      * @param bool $recurse
-     * @return Execute
+     * @return static
      */
-    public function setRecurse(bool $recurse): Execute
+    public function setRecurse(bool $recurse): static
     {
         $this->recurse = $recurse;
         return $this;
@@ -511,4 +512,3 @@ class Execute extends Path
         return false;
     }
 }
-

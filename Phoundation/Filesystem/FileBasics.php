@@ -531,11 +531,11 @@ Log::warning($file, echo_screen: false);
      * Since shred doesn't have a recursive option, this function will use "find" to find all files matching the
      * specified pattern, and will delete them all
      *
-     * @param bool $clean_path
+     * @param string|bool $clean_path
      * @param bool $sudo
      * @return $this
      */
-    public function secureDelete(bool $clean_path = true, bool $sudo = false): static
+    public function secureDelete(string|bool $clean_path = true, bool $sudo = false): static
     {
         // Check filesystem restrictions
         $this->restrictions->check($this->file, true);
@@ -559,7 +559,12 @@ Log::warning($file, echo_screen: false);
 
         // If specified to do so, clear the path upwards from the specified pattern
         if ($clean_path) {
-            Path::new(dirname($this->file))->clear($sudo);
+            if ($clean_path === true) {
+                // This will clean path until a non-empty directory is encountered.
+                $clean_path = null;
+            }
+
+            Path::new(dirname($this->file))->clear($clean_path, $sudo);
         }
 
         return $this;
@@ -569,16 +574,16 @@ Log::warning($file, echo_screen: false);
     /**
      * Delete a file weather it exists or not, without error, using the "rm" command
      *
-     * @param boolean $clean_path If specified true, all directories above each specified pattern will be deleted as
-     *                            well as long as they are empty. This way, no empty directories will be left lying
-     *                            around
-     * @param boolean $sudo If specified true, the rm command will be executed using sudo
-     * @param bool $escape If true, will escape the filename. This may cause issues when using wildcards, for
-     *                            example
+     * @param string|bool $clean_path If specified true, all directories above each specified pattern will be deleted as
+     *                                well as long as they are empty. This way, no empty directories will be left lying
+     *                                around
+     * @param boolean $sudo           If specified true, the rm command will be executed using sudo
+     * @param bool $escape            If true, will escape the filename. This may cause issues when using wildcards, for
+     *                                example
      * @return static
      * @see Restrictions::check() This function uses file location restrictions
      */
-    public function delete(bool $clean_path = true, bool $sudo = false, bool $escape = true): static
+    public function delete(string|bool $clean_path = true, bool $sudo = false, bool $escape = true, bool $use_run_file = true): static
     {
         // Check filesystem restrictions
         $this->restrictions->check($this->file, true);
@@ -587,6 +592,7 @@ Log::warning($file, echo_screen: false);
         // Execute the rm command
         Process::new('rm', $this->restrictions)
             ->setSudo($sudo)
+            ->setUseRunFile($use_run_file)
             ->setTimeout(10)
             ->addArgument($this->file, $escape)
             ->addArgument('-rf')
@@ -594,7 +600,12 @@ Log::warning($file, echo_screen: false);
 
         // If specified to do so, clear the path upwards from the specified pattern
         if ($clean_path) {
-            Path::new(dirname($this->file))->clear($sudo);
+            if ($clean_path === true) {
+                // This will clean path until a non-empty directory is encountered.
+                $clean_path = null;
+            }
+
+            Path::new(dirname($this->file), $this->restrictions->getParent())->clear($clean_path, $sudo, use_run_file: $use_run_file);
         }
 
         return $this;

@@ -118,25 +118,25 @@ interface FileBasicsInterface
      * Since shred doesn't have a recursive option, this function will use "find" to find all files matching the
      * specified pattern, and will delete them all
      *
-     * @param bool $clean_path
+     * @param string|bool $clean_path
      * @param bool $sudo
      * @return static
      */
-    public function secureDelete(bool $clean_path = true, bool $sudo = false): static;
+    public function secureDelete(string|bool $clean_path = true, bool $sudo = false): static;
 
     /**
      * Delete a file weather it exists or not, without error, using the "rm" command
      *
-     * @param boolean $clean_path If specified true, all directories above each specified pattern will be deleted as
-     *                            well as long as they are empty. This way, no empty directories will be left lying
-     *                            around
-     * @param boolean $sudo If specified true, the rm command will be executed using sudo
-     * @param bool $escape If true, will escape the filename. This may cause issues when using wildcards, for
-     *                            example
+     * @param string|bool $clean_path If specified true, all directories above each specified pattern will be deleted as
+     *                                well as long as they are empty. This way, no empty directories will be left lying
+     *                                around
+     * @param boolean $sudo           If specified true, the rm command will be executed using sudo
+     * @param bool $escape            If true, will escape the filename. This may cause issues when using wildcards, for
+     *                                example
      * @return ImageInterface
      * @see Restrictions::check() This function uses file location restrictions
      */
-    public function delete(bool $clean_path = true, bool $sudo = false, bool $escape = true): static;
+    public function delete(string|bool $clean_path = true, bool $sudo = false, bool $escape = true): static;
 
     /**
      * Moves this file to the specified target, will try to ensure target path exists

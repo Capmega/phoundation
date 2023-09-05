@@ -15,10 +15,12 @@ use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\PathException;
 use Phoundation\Filesystem\Exception\PathNotDirectoryException;
 use Phoundation\Filesystem\Exception\RestrictionsException;
-use Phoundation\Processes\Commands\FilesystemCommands;
+use Phoundation\Filesystem\Interfaces\ExecuteInterface;
+use Phoundation\Filesystem\Interfaces\FileInterface;
+use Phoundation\Filesystem\Interfaces\PathInterface;
+use Phoundation\Processes\Commands\Tar;
 use Stringable;
 use Throwable;
-use const PhpConsole\Test\PATH_TMP_DIR;
 
 
 /**
@@ -32,7 +34,7 @@ use const PhpConsole\Test\PATH_TMP_DIR;
  * @category Function reference
  * @package Phoundation\Filesystem
  */
-class Path extends FileBasics
+class Path extends FileBasics implements PathInterface
 {
     /**
      * Temporary path, if set
@@ -63,9 +65,9 @@ class Path extends FileBasics
     /**
      * Returns an Execute object to execute callbacks on each file in specified paths
      *
-     * @return Execute
+     * @return ExecuteInterface
      */
-    public function execute(): Execute
+    public function execute(): ExecuteInterface
     {
         $this->file = Strings::slash($this->file);
         return new Execute($this->file, $this->restrictions);
@@ -263,14 +265,19 @@ class Path extends FileBasics
 
 
     /**
-     * Delete the path, and each parent directory until a non empty directory is encountered
+     * Delete the path, and each parent directory until a non-empty directory is encountered
      *
+     * @param string|null $until_path If specified as a path, the method will stop deleting upwards when the specified
+     *                                path is encountered as well. If specified as true, the method will continue
+     *                                deleting until either Restrictions stops it, or a non empty directory has been
+     *                                encountered
+     * @param bool $sudo
+     * @param bool $use_run_file
+     * @return void
      * @see Restrict::restrict() This function uses file location restrictions, see Restrict::restrict() for more information
      *
-     * @param bool $sudo
-     * @return void
      */
-    public function clear(bool $sudo = false): void
+    public function clear(?string $until_path = null, bool $sudo = false, bool $use_run_file = true): void
     {
         $this->file = Strings::slash($this->file);
 
@@ -292,6 +299,11 @@ class Path extends FileBasics
                     ]));
                 }
 
+                if ($until_path and ($this->file === $until_path)){
+                    // We've cleaned until the requested directory, so we're good!
+                    break;
+                }
+
                 if (!Path::new($this->file, $this->restrictions)->isEmpty()) {
                     // Do not remove anything more, there is contents here!
                     break;
@@ -299,15 +311,13 @@ class Path extends FileBasics
 
                 // Remove this entry and continue;
                 try {
-                    File::new($this->file, $this->restrictions)->delete(false, $sudo);
+                    $this->delete(false, $sudo, use_run_file: $use_run_file);
 
                 }catch(Exception $e) {
-                    /*
-                     * The directory WAS empty, but cannot be removed
-                     *
-                     * In all probability, a parallel process added a new content in this directory, so it's no longer empty.
-                     * Just register the event and leave it be.
-                     */
+                    // The directory WAS empty, but cannot be removed
+
+                    // In all probability, a parallel process added a new content in this directory, so it's no longer empty.
+                    // Just register the event and leave it be.
                     Log::warning(tr('Failed to remove empty pattern ":pattern" with exception ":e"', [
                         ':pattern' => $this->file,
                         ':e'       => $e
@@ -317,7 +327,7 @@ class Path extends FileBasics
                 }
 
                 // Go one entry up, check if we're still within restrictions, and continue deleting
-                $this->file = dirname($this->file);
+                $this->file = dirname($this->file) . '/';
             }
         } catch (RestrictionsException) {
             // We're out of our territory, stop scanning!
@@ -686,9 +696,9 @@ class Path extends FileBasics
      * Returns a temporary path specific for this process
      *
      * @param bool $public
-     * @return Path
+     * @return PathInterface
      */
-    public static function getTemporary(bool $public = false): Path
+    public static function getTemporary(bool $public = false): PathInterface
     {
         $restrictions = Restrictions::new(PATH_TMP, true);
 
@@ -713,9 +723,9 @@ class Path extends FileBasics
      * Returns a temporary sub path specific for this process
      *
      * @param bool $public
-     * @return Path
+     * @return PathInterface
      */
-    public static function getTemporarySub(bool $public = false): Path
+    public static function getTemporarySub(bool $public = false): PathInterface
     {
         $path = static::getTemporary($public);
         $path = $path . Strings::random(8, characters: 'alphanumeric') . '/';
@@ -744,11 +754,11 @@ class Path extends FileBasics
     /**
      * Tars this path and returns a file object for the tar file
      *
-     * @return File
+     * @return FileInterface
      */
-    public function tar(): File
+    public function tar(): FileInterface
     {
-        return File::new(FilesystemCommands::new()->tar($this->file), $this->restrictions);
+        return File::new(Tar::new($this->restrictions)->tar($this->file), $this->restrictions);
     }
 
 
@@ -756,11 +766,12 @@ class Path extends FileBasics
      * Returns the single one file in this path IF there is only one file
      *
      * @param string|null $regex
-     * @return File
+     * @param bool $allow_multiple
+     * @return FileInterface
      */
-    public function getSingleFile(?string $regex = null): File
+    public function getSingleFile(?string $regex = null, bool $allow_multiple = false): FileInterface
     {
-        return File::new($this->file . $this->getSingle($regex, false), $this->restrictions);
+        return File::new($this->file . $this->getSingle($regex, false, $allow_multiple), $this->restrictions);
     }
 
 
@@ -768,11 +779,12 @@ class Path extends FileBasics
      * Returns the single one directory in this path IF there is only one file
      *
      * @param string|null $regex
-     * @return Path
+     * @param bool $allow_multiple
+     * @return PathInterface
      */
-    public function getSingleDirectory(?string $regex = null): Path
+    public function getSingleDirectory(?string $regex = null, bool $allow_multiple = false): PathInterface
     {
-        return Path::new($this->file . $this->getSingle($regex, true), $this->restrictions);
+        return Path::new($this->file . $this->getSingle($regex, true, $allow_multiple), $this->restrictions);
     }
 
 
@@ -781,9 +793,10 @@ class Path extends FileBasics
      *
      * @param string|null $regex
      * @param bool|null $directory
+     * @param bool $allow_multiple
      * @return string
      */
-    protected function getSingle(?string $regex = null, ?bool $directory = null): string
+    protected function getSingle(?string $regex = null, ?bool $directory = null, bool $allow_multiple = false): string
     {
         $files = scandir($this->file);
 
@@ -839,10 +852,13 @@ class Path extends FileBasics
                 break;
 
             default:
-                throw new FilesystemException(tr('Cannot return a single file, the path ":path" matches ":count" files', [
-                    ':path'  => $this->file,
-                    ':count' => count($files)
-                ]));
+                if (!$allow_multiple) {
+                    throw new FilesystemException(tr('Cannot return a single file, the path ":path" matches ":count" files', [
+                        ':path'  => $this->file,
+                        ':count' => count($files)
+                    ]));
+
+                }
         }
 
         return array_shift($files);
@@ -953,6 +969,47 @@ class Path extends FileBasics
                 $return[] = $file;
                 break;
             }
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Returns a list of all available files in this path matching the specified (multiple) pattern(s)
+     *
+     * @param string|null $file_pattern The single or multiple pattern(s) that should be matched
+     * @param int $glob_flags           Flags for the internal glob() call
+     * @return array                    The resulting file paths
+     */
+    public function scanRegex(?string $file_pattern = null, int $glob_flags = GLOB_MARK): array
+    {
+        $this->restrictions->check($this->file, false);
+
+        // Get files
+        $return = [];
+        $glob   = glob($this->file . '*', $glob_flags);
+
+        if (empty($glob)) {
+            // This path pattern search had no results
+            return [];
+        }
+
+        // Check file patterns
+        foreach ($glob as $file) {
+            $file = Strings::from($file, $this->real_file);
+            $test = Strings::fromReverse(Strings::endsNotWith($file, '/'), '/');
+
+            if ($file_pattern){
+                if (!preg_match($file_pattern, $test)) {
+                    // This file doesn't match the test pattern
+                    continue;
+                }
+            }
+
+            // Add the file for the found match and continue to the next file
+            $return[] = $file;
+            break;
         }
 
         return $return;

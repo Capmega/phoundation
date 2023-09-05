@@ -792,7 +792,7 @@ class File extends FileBasics implements FileInterface
 
                 } else {
                     rename($target);
-                    Path::new(dirname($this->file))->clear(false);
+                    Path::new(dirname($this->file))->clear();
                 }
             }
         }
