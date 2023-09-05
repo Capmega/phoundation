@@ -464,11 +464,7 @@ class Project implements ProjectInterface
     {
         // Don't check for root user, check if we have sudo access to these commands individually, perhaps the user has
         // it?
-        Command::new()->sudoAvailable('chown', true);
-        Command::new()->sudoAvailable('chmod', true);
-        Command::new()->sudoAvailable('mkdir', true);
-        Command::new()->sudoAvailable('touch', true);
-        Command::new()->sudoAvailable('rm'   , true);
+        Command::sudoAvailable('chown,chmod,mkdir,touch,rm', Restrictions::new('/bin,/usr/bin'), true);
 
         // Fix file modes, first make everything readonly
         Process::new('chmod')
