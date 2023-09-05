@@ -10,7 +10,7 @@ use PDOException;
 use PDOStatement;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\Cli;
-use Phoundation\Cli\Script;
+use Phoundation\Cli\CliCommand;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
@@ -317,7 +317,7 @@ class Sql implements SqlInterface
             // PDO statement can be specified instead of a query
             if (is_object($query)) {
                 if (Config::getBoolean('databases.sql.debug', false) or ($query->queryString[0] == ' ')) {
-                    if (!PLATFORM_CLI or !Script::isScript('init')) {
+                    if (!PLATFORM_CLI or !CliCommand::isScript('init')) {
                         // Log query
                         Log::sql('(' . $this->uniqueid . ') ' . $query, $execute);
                     }
@@ -335,7 +335,7 @@ class Sql implements SqlInterface
 
             // Log all queries?
             if (Config::getBoolean('databases.sql.debug', false)) {
-                if (!PLATFORM_CLI or !Script::isScript('system/init', true)) {
+                if (!PLATFORM_CLI or !CliCommand::isScript('system/init', true)) {
                     $query = ' ' . $query;
                 }
             }
@@ -424,7 +424,7 @@ class Sql implements SqlInterface
                         Log::error('(' . $this->uniqueid . ') ' . $message);
                     }
 
-                    die(1);
+                    exit(1);
 
                 case 'HY093':
                     // Invalid parameter number: number of bound variables does not match number of tokens
@@ -2141,7 +2141,7 @@ class Sql implements SqlInterface
                             if (isset_get($this->configuration['ssh_tunnel']['required'])) {
                                 // The tunneling server has "AllowTcpForwarding" set to "no" in the sshd_config, attempt
                                 // auto fix
-                                Command::new($this->configuration['server'])->enableTcpForwarding($this->configuration['ssh_tunnel']['server']);
+                                CliCommand::new($this->configuration['server'])->enableTcpForwarding($this->configuration['ssh_tunnel']['server']);
                                 continue;
                             }
                         }
@@ -2205,7 +2205,7 @@ class Sql implements SqlInterface
             }
 
             if (PLATFORM_CLI) {
-                switch (Script::getCurrent(true)) {
+                switch (CliCommand::getCurrent(true)) {
                     case 'system/init/drop':
                         // no break
                     case 'system/init/init':

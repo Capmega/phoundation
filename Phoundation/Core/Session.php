@@ -126,7 +126,7 @@ class Session
      *
      * @return void
      */
-    public static function shutdown(): void
+    public static function exit(): void
     {
         if (PLATFORM_HTTP) {
             // If this page has flash messages that have not yet been displayed then store them in the session variable

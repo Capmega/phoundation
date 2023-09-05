@@ -937,7 +937,7 @@ class Route
 
             if ($block) {
                 // Block the request by dying
-                Page::die();
+                Core::exit();
             }
 
         } catch (Exception $e) {
@@ -1112,10 +1112,10 @@ class Route
             ]));
         }
 
-        // Route the requested system page. The called method will die(), so the following die() call is there more to
+        // Route the requested system page. The called method will exit(), so the following exit() call is there more to
         // make the static analyzers shut up :)
         RouteSystem::new(static::getParameters()->select(static::$uri, true))->$method();
-        die();
+        exit();
     }
 
 
@@ -1193,7 +1193,7 @@ class Route
             include($target);
         }
 
-        Page::die();
+        Core::exit();
     }
 
 

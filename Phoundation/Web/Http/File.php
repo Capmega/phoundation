@@ -400,7 +400,7 @@ Log::checkpoint();
 
         // Terminate process?
         if ($this->die) {
-            Page::die();
+            Page::exit();
         }
     }
 

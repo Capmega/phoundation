@@ -6,7 +6,7 @@ namespace Phoundation\Core\Meta;
 
 use DateTime;
 use Exception;
-use Phoundation\Cli\Script;
+use Phoundation\Cli\CliCommand;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Exception\MetaException;
 use Phoundation\Core\Session;
@@ -268,7 +268,7 @@ throw new UnderConstructionException();
                                 VALUES                     (:meta_id , :created_by , :action , :source , :comments , :data )', [
                 ':meta_id'    => $this->id,
                 ':created_by' => Session::getUser()->getId(),
-                ':source'     => (string) (PLATFORM_HTTP ? UrlBuilder::getCurrent() : Script::getCurrent()),
+                ':source'     => (string) (PLATFORM_HTTP ? UrlBuilder::getCurrent() : CliCommand::getCurrent()),
                 ':action'     => $action,
                 ':comments'   => $comments,
                 ':data'       => $data

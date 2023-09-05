@@ -19,7 +19,7 @@ use Phoundation\Databases\Sql\Sql;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Databases
  */
-die('Killed by Databases\Sql\Simple');
+exit('Killed by Databases\Sql\Simple');
 class SqlSimple
 {
     /**
@@ -242,7 +242,7 @@ class SqlSimple
         $column = Strings::from($column, '.');
 
         if (!$values) {
-            die('Simple::simpleWhere() TEST THIS WHERE VALUES IS NULL');
+            exit('Simple::simpleWhere() TEST THIS WHERE VALUES IS NULL');
             return $extra;
         }
 

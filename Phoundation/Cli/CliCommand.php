@@ -26,8 +26,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\ScriptException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Path;
-use Phoundation\Processes\Commands\Command;
-use Phoundation\Processes\Commands\Id;
 use Throwable;
 
 
@@ -49,8 +47,15 @@ use Throwable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Cli
  */
-class Script
+class CliCommand
 {
+    /**
+     * Management object for the runfile for this command
+     *
+     * @var RunFile $run_file
+     */
+    protected static RunFile $run_file;
+
     /**
      * The exit code for this process
      *
@@ -113,19 +118,19 @@ class Script
         }
 
         // Define the readline completion function
-        readline_completion_function(['\Phoundation\Cli\Script', 'completeReadline']);
+        readline_completion_function(['\Phoundation\Cli\CliCommand', 'completeReadline']);
 
         // Only allow this to be run by the cli script
         // TODO This should be done before Core::startup() but then the PLATFORM_CLI define would not exist yet. Fix this!
         static::onlyCommandLine();
 
         if (AutoComplete::isActive()) {
-            $script = static::autoComplete();
+            $command = static::autoComplete();
 
         } else {
             try {
                 // Get the script file to execute
-                $script = static::findScript();
+                $command = static::findScript();
 
             } catch (NoMethodSpecifiedException) {
                 global $argv;
@@ -136,7 +141,9 @@ class Script
             }
         }
 
-        static::$script = static::limitScript($script, isset_get($limit), isset_get($reason));
+        // See if the script execution should be stopped for some reason. If not, setup a run file
+        static::$script   = static::limitScript($command, isset_get($limit), isset_get($reason));
+        static::$run_file = new RunFile($command);
 
         Log::action(tr('Executing script ":script"', [
             ':script' => static::getCurrent()
@@ -145,7 +152,7 @@ class Script
         // Execute the script and finish execution
         execute_script(static::$script);
         AutoComplete::ensureAvailable();
-        static::die();
+        exit();
     }
 
 
@@ -189,21 +196,6 @@ class Script
         if (!$only_if_null or !static::$exit_code) {
             static::$exit_code = $code;
         }
-    }
-
-
-    /**
-     * Returns the UID for the current process
-     *
-     * @return int The user id for this process
-     */
-    public static function getProcessUid(): int
-    {
-        if (function_exists('posix_getuid')) {
-            return posix_getuid();
-        }
-
-        return Id::new()->do('u');
     }
 
 
@@ -372,12 +364,12 @@ class Script
      * Only allow execution on shell scripts
      *
      * @param bool $exclusive
-     * @throws CliException
+     * @throws ScriptException
      */
     public static function onlyCommandLine(bool $exclusive = false): void
     {
         if (!PLATFORM_CLI) {
-            throw new CliException(tr('This can only be done from command line'));
+            throw new ScriptException(tr('This can only be done from command line'));
         }
 
         if ($exclusive) {
@@ -389,7 +381,10 @@ class Script
     /**
      * Ensure that the current script file cannot be run twice
      *
-     * This function will ensure that the current script file cannot be run twice. In order to do this, it will create a run file in data/run/SCRIPTNAME with the current process id. If, upon starting, the script file already exists, it will check if the specified process id is available, and if its process name matches the current script name. If so, then the system can be sure that this script is already running, and the function will throw an exception
+     * This function will ensure that the current script file cannot be run twice. In order to do this, it will create a
+     * run file in data/run/SCRIPTNAME with the current process id. If, upon starting, the script file already exists,
+     * it will check if the specified process id is available, and if its process name matches the current script name.
+     * If so, then the system can be sure that this script is already running, and the function will throw an exception
      *
      * @category Function reference
      * @version 1.27.1: Added documentation
@@ -576,11 +571,17 @@ class Script
      *
      * @param Throwable|int $exit_code
      * @param string|null $exit_message
+     * @param bool $sig_kill
      * @return never
      * @todo Add required functionality
      */
-    #[NoReturn] public static function die(Throwable|int $exit_code = 0, string $exit_message = null): never
+    #[NoReturn] public static function exit(Throwable|int $exit_code = 0, ?string $exit_message = null, bool $sig_kill = false): never
     {
+        // If something went really, really wrong...
+        if ($sig_kill) {
+            exit($exit_message);
+        }
+
         if (is_object($exit_code)) {
             // Specified exit code is an exception, we're in trouble...
             $e         = $exit_code;
@@ -588,9 +589,15 @@ class Script
         }
 
         if ($exit_code) {
-            Script::setExitCode($exit_code, true);
+            static::setExitCode($exit_code, true);
         }
 
+        // Terminate the run file
+        if (isset(static::$run_file)) {
+            static::$run_file->delete();
+        }
+
+        // Did we encounter an exception?
         if (isset($e)) {
             if (($e instanceof Exception) and $e->isWarning()) {
                 $exit_code = $exit_code ?? 1;
@@ -651,14 +658,40 @@ class Script
             }
 
             // Script ended successfully
-            Log::success(tr('Finished ":script" script in ":time" with ":usage" peak memory usage', [
+            Log::success(tr('Finished ":script" command with PID ":pid" in ":time" with ":usage" peak memory usage', [
+                ':pid'    => getmypid(),
                 ':script' => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
                 ':time'   => Time::difference(STARTTIME, microtime(true), 'auto', 5),
                 ':usage'  => Numbers::getHumanReadableBytes(memory_get_peak_usage())
             ]), 8);
         }
 
-        die($exit_code);
+        exit($exit_code);
+    }
+
+
+    /**
+     * This process can only run once at the time
+     *
+     * @param bool $global
+     * @return void
+     */
+    public static function exclusive(bool $global = false): void
+    {
+        static::limitCount(1, $global);
+    }
+
+
+    /**
+     * Limit the amount of processes to the specified amount
+     *
+     * @param int $count
+     * @param bool $global
+     * @return void
+     */
+    public static function limitCount(int $count, bool $global = false): void
+    {
+        static::$run_file->getCount();
     }
 
 
@@ -758,7 +791,7 @@ class Script
             if (!AutoComplete::hasSupport($script)) {
                 // This script has no auto complete support, so if we execute the script it won't go for auto
                 // complete but execute normally which is not what we want. we're done here.
-                static::die();
+                exit();
             }
 
             return $script;
@@ -766,7 +799,7 @@ class Script
         } catch (ValidationFailedException $e) {
             // Whoops, somebody typed something weird or naughty. Either way, just ignore it
             Log::warning($e);
-            static::die(1);
+            exit(1);
 
         } catch (NoMethodSpecifiedException|MethodNotFoundException|MethodNotExistsException $e) {
             // Auto complete the method
@@ -903,6 +936,6 @@ The following arguments are available to ALL scripts
                                         WARNING: This may result in weak and or compromised passwords in your database
                 ', [':environment' => 'PHOUNDATION_' . PROJECT . '_ENVIRONMENT']));
 
-        die();
+        exit();
     }
 }

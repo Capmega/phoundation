@@ -195,7 +195,7 @@ class RouteSystem
                     ':body'  => $variables['details']
                 ]);
 
-                die();
+                exit();
             }
 
             // Something crashed whilst trying to execute the system page
@@ -206,7 +206,7 @@ class RouteSystem
             Log::setBacktraceDisplay('BACKTRACE_DISPLAY_BOTH');
             Log::error($e);
 
-            die($variables['code'] . ' - ' . $variables['title']);
+            exit($variables['code'] . ' - ' . $variables['title']);
         }
     }
 }

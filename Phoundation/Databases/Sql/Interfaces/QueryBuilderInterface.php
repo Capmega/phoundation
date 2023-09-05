@@ -6,7 +6,7 @@ namespace Phoundation\Databases\Sql\Interfaces;
 use PDOStatement;
 
 /**
- * queryBuilder class
+ * QueryBuilder class
  *
  * This class helps building queries with multiple variables
  *
@@ -108,6 +108,15 @@ interface QueryBuilderInterface
     public function addExecute(string $column, string|float|int|null $value): static;
 
     /**
+     * Add a ORDER BY part of the query
+     *
+     * @param int $count
+     * @param int $offset
+     * @return static
+     */
+    public function setLimit(int $count, int $offset = 0): static;
+
+    /**
      * Returns a column comparison and adds the bound variable to the execute list
      *
      * @param string $column
@@ -151,9 +160,9 @@ interface QueryBuilderInterface
      * Executes the query and returns the single column from the single result
      *
      * @param bool $debug
-     * @return mixed
+     * @return string|float|int|bool|null
      */
-    public function getColumn(bool $debug = false): mixed;
+    public function getColumn(bool $debug = false): string|float|int|bool|null;
 
     /**
      * Executes the query and returns the list of results

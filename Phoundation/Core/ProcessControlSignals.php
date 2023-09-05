@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Core;
 
 use JetBrains\PhpStorm\NoReturn;
-use Phoundation\Cli\Script;
+use Phoundation\Cli\CliCommand;
 use Phoundation\Core\Log\Log;
 use Phoundation\Date\Time;
 use Phoundation\Exception\OutOfBoundsException;
@@ -141,7 +141,7 @@ class ProcessControlSignals
         Log::backtrace();
         Log::warning(tr('Signal information:'), 10);
         Log::table($info);
-        Script::die($exit_code, tr('Script ":script" was terminated because of signal ":signal" with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
+        Core::exit($exit_code, tr('Script ":script" was terminated because of signal ":signal" with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
             ':signal'   => $signal,
             ':script'   => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
             ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),

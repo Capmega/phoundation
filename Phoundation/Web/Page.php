@@ -1462,7 +1462,7 @@ class Page implements PageInterface
             header('Location:' . $redirect, true, $http_code);
         }
 
-        static::die();
+        exit();
     }
 
 
@@ -2068,16 +2068,17 @@ class Page implements PageInterface
     /**
      * Kill this web page script process
      *
-     * @note Even if $kill_message was specified, the normal shutdown functions will still be called
-     * @param string|null $kill_message If specified, this message will be displayed and the process will be terminated
+     * @note Even if $exit_message was specified, the normal shutdown functions will still be called
+     * @param string|null $exit_message If specified, this message will be displayed and the process will be terminated
+     * @param bool $sig_kill
      * @return never
      * @todo Implement this and add required functionality
      */
-    #[NoReturn] public static function die(?string $kill_message = null): never
+    #[NoReturn] public static function exit(?string $exit_message = null, bool $sig_kill = false): never
     {
         // If something went really, really wrong...
-        if ($kill_message) {
-            die($kill_message);
+        if ($sig_kill) {
+            exit($exit_message);
         }
 
         // POST requests should always show a flash message for feedback!
@@ -2089,7 +2090,7 @@ class Page implements PageInterface
 
         // Normal kill request
         Log::action(tr('Killing web page process'), 2);
-        die();
+        exit();
     }
 
 
@@ -2257,7 +2258,7 @@ class Page implements PageInterface
             if (empty($core->register['flash'])) {
                 // The client sent an etag which is still valid, no body (or anything else) necessary
                 http_response_code(304);
-                die();
+                exit();
             }
         }
 
@@ -2518,7 +2519,7 @@ class Page implements PageInterface
             static::send($output);
         }
 
-        static::die();
+        exit();
     }
 
 

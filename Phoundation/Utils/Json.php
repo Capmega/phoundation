@@ -75,7 +75,7 @@ class Json
         switch ($action_after) {
             case JsonAfterReply::die:
                 // We're done, kill the connection % process (default)
-                die();
+                exit();
 
             case JsonAfterReply::continue:
                 // Continue running, keep the HTTP connection open

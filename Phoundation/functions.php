@@ -726,6 +726,19 @@ function is_really_integer(mixed $source, ?int $larger_than = null): bool
 
 
 /**
+ * Returns if the specified variable (string or not) is actually an integer, or not
+ *
+ * @param mixed $source
+ * @param bool $allow_zero
+ * @return bool
+ */
+function is_really_natural(mixed $source, bool $allow_zero = false): bool
+{
+    return is_really_integer($source, $allow_zero ? 0 : 1);
+}
+
+
+/**
  * Ensures the specified source either is NULL or INT value. Non NULL/INT values will cause an exception
  *
  * @param mixed $source
@@ -1011,7 +1024,7 @@ function has_trait(string $trait, object|string $class): bool
     echo '"' . PHP_EOL;
 
     if ($die) {
-        die('die-'.random_int(1,10000) . PHP_EOL);
+        exit('die-'.random_int(1,10000) . PHP_EOL);
     }
 
     return $source;

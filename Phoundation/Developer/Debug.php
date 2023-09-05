@@ -448,7 +448,7 @@ class Debug {
                 print_r($e);
             }
 
-            die();
+            Core::exit(sig_kill: true);
         }
     }
 
@@ -986,7 +986,7 @@ class Debug {
             // Ensure that the shutdown function doesn't try to show the 404 page
             Core::unregisterShutdown('route[postprocess]');
 
-            die(Strings::endsWith(str_replace('%count%', $count, $message), PHP_EOL));
+            exit(Strings::endsWith(str_replace('%count%', $count, $message), PHP_EOL));
         }
     }
 

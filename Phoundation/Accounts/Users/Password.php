@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Accounts\Users;
 
 use Phoundation\Accounts\Users\Interfaces\PasswordInterface;
-use Phoundation\Cli\Script;
+use Phoundation\Cli\CliCommand;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
@@ -351,7 +351,7 @@ class Password extends DataEntry implements PasswordInterface
                 $start = microtime(true);
                 password_hash('test', PASSWORD_BCRYPT, ['cost' => $cost]);
                 $end = microtime(true);
-                Script::dot();
+                CliCommand::dot();
             } while (($end - $start) < $time);
 
             $costs[] = $cost;

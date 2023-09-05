@@ -191,7 +191,7 @@ class AutoComplete
 
         } elseif (static::$position > count($cli_methods)) {
             // Invalid situation, supposedly the location was beyond, after the amount of arguments?
-            die('Invalid auto complete arguments' . PHP_EOL);
+            exit('Invalid auto complete arguments' . PHP_EOL);
 
         } elseif ($data['position'] > static::$position) {
             // The findScript() method already found this particular word, so we know it exists!
@@ -257,7 +257,7 @@ class AutoComplete
         }
 
         // We're done,
-        Script::die();
+        Core::exit();
     }
 
 
@@ -318,7 +318,7 @@ class AutoComplete
                 }
 
                 // Die here as we have echoed results!
-                Script::die();
+                Core::exit();
             }
         }
     }
@@ -487,7 +487,7 @@ complete -F _phoundation pho');
             }
 
             // Die here as we have echoed results!
-            Script::die();
+            Core::exit();
         }
     }
 

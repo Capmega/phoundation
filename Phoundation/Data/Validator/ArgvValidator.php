@@ -6,7 +6,7 @@ namespace Phoundation\Data\Validator;
 
 use Phoundation\Cli\Exception\ArgumentsException;
 use Phoundation\Cli\Exception\CliInvalidArgumentsException;
-use Phoundation\Cli\Script;
+use Phoundation\Cli\CliCommand;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
@@ -484,7 +484,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
      *                             of the output
      *
      * @see cli_arguments()
-     * @see Script::argument()
+     * @see CliCommand::argument()
      */
     protected static function method(?int $index = null, ?string $default = null): string
     {
