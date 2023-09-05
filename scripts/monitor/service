@@ -8,6 +8,7 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Debug;
+use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Processes\Commands\Command;
 use Phoundation\Processes\Commands\Pgrep;
@@ -39,7 +40,7 @@ $argv = ArgvValidator::new()
 
 
 // Ensure that the process command has sudo privileges
-Command::new()->sudoAvailable('service', true);
+Command::sudoAvailable('service', Restrictions::new('/sbin,/usr/sbin'), true);
 
 
 // Get process ids

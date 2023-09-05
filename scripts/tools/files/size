@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\Documentation;
-use Phoundation\Cli\Script;
+use Phoundation\Cli\CliCommand;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Numbers;
 use Phoundation\Core\Strings;
@@ -45,7 +45,7 @@ $argv = ArgvValidator::new()
     ->validate();
 
 if ($argv['human_readable']) {
-    Script::echo(Numbers::getHumanReadableBytes(Filesystem::get($argv['path'], Restrictions::new('/'))->size()));
+    CliCommand::echo(Numbers::getHumanReadableBytes(Filesystem::get($argv['path'], Restrictions::new('/'))->size()));
 } else {
-    Script::echo(Filesystem::get($argv['path'], Restrictions::new('/'))->size());
+    CliCommand::echo(Filesystem::get($argv['path'], Restrictions::new('/'))->size());
 }
