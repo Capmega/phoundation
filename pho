@@ -1,7 +1,7 @@
 #!/usr/bin/php
 <?php
 
-use Phoundation\Cli\Script;
+use Phoundation\Cli\CliCommand;
 
 
 /**
@@ -22,7 +22,7 @@ use Phoundation\Cli\Script;
 try {
     // Load the PHP autoloader and execute the static Script::execute() method that will execute the requested command
     @require('./vendor/autoload.php');
-    Script::execute();
+    CliCommand::execute();
 
 } catch (Throwable $e) {
     $message = $e->getMessage();
@@ -58,7 +58,7 @@ try {
 
         echo 'WARNING: Libraries successfully installed, retrying execution of PHO script' . PHP_EOL;
         include('./vendor/autoload.php');
-        Script::execute();
+        CliCommand::execute();
     }
 
     // Some other issue occurred, continue throwing exception
