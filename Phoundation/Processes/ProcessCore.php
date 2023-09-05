@@ -244,7 +244,7 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
         }
 
         $this->start = microtime(true);
-        $result      = passthru($this->getFullCommandLine(), $exit_code);
+        $result = passthru($this->getFullCommandLine(), $exit_code);
 
         // Output available in output file?
         if (file_exists($output_file)) {
@@ -400,12 +400,12 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
 
         // Add sudo
         if ($this->sudo) {
-            $this->cached_command_line = 'sudo -Esu ' . escapeshellarg($this->sudo) . ' ' . $this->cached_command_line;
+            $this->cached_command_line = $this->sudo . ' ' . $this->cached_command_line;
         }
 
         // Add timeout
         if ($this->timeout) {
-            $this->cached_command_line = 'timeout --foreground ' . escapeshellarg((string) $this->timeout) . ' ' . $this->cached_command_line;
+            $this->cached_command_line = 'timeout --foreground ' . escapeshellarg((string)$this->timeout) . ' ' . $this->cached_command_line;
         }
 
         // Add wait
@@ -449,7 +449,7 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
 
                 case '>>':
                     // Redirect to file and append
-                    $file     = substr($file, 2);
+                    $file = substr($file, 2);
                     $redirect = ' ' . $channel . '>> ' . $file;
                     break;
 
@@ -467,11 +467,24 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
         }
 
         // Background commands get some extra options around
-        if ($background) {
-            $this->cached_command_line = "(nohup bash -c 'set -o pipefail; " . str_replace("'", '"', $this->cached_command_line) . " ; EXIT=\$?; echo \$\$; exit \$EXIT' > " . $this->log_file . " 2>&1 & echo \$! >&3) 3> " . $this->run_file;
-        } elseif ($this->register_run_file) {
-            // Make sure the PID will be registered in the run file
-            $this->cached_command_line = "bash -c 'set -o pipefail; " . str_replace("'", '"', $this->cached_command_line) . "; exit \$?'; EXIT=\$?; echo \$\$ > " . $this->run_file . "; exit \$EXIT;";
+        if ($this->use_run_file) {
+            // Create command line with run file
+            if ($background) {
+                $this->cached_command_line = "(nohup bash -c 'set -o pipefail; " . str_replace("'", '"', $this->cached_command_line) . " ; EXIT=\$?; echo \$\$; exit \$EXIT' > " . $this->log_file . " 2>&1 & echo \$! >&3) 3> " . $this->run_file;
+
+            } elseif ($this->register_run_file) {
+                // Make sure the PID will be registered in the run file
+                $this->cached_command_line = "bash -c 'set -o pipefail; " . str_replace("'", '"', $this->cached_command_line) . "; exit \$?'; EXIT=\$?; echo \$\$ > " . $this->run_file . "; exit \$EXIT;";
+            }
+        } else {
+            // Create command line without run file
+            if ($background) {
+                $this->cached_command_line = "(nohup bash -c 'set -o pipefail; " . str_replace("'", '"', $this->cached_command_line) . " ; EXIT=\$?; echo \$\$; exit \$EXIT' > " . $this->log_file . " 2>&1 & echo \$! >&3)";
+
+            } elseif ($this->register_run_file) {
+                // Make sure the PID will be registered in the run file
+                $this->cached_command_line = "bash -c 'set -o pipefail; " . str_replace("'", '"', $this->cached_command_line) . "; exit \$?';";
+            }
         }
 
         return $this->cached_command_line;
@@ -489,11 +502,11 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
     protected static function handleException(string $command, Exception $e, ?callable $function = null): void
     {
         if ($e->getData()['output']) {
-            $data       = $e->getData()['output'];
+            $data = $e->getData()['output'];
             $first_line = Arrays::firstValue($data);
             $first_line = strtolower($first_line);
-            $last_line  = Arrays::lastValue($data);
-            $last_line  = strtolower($last_line);
+            $last_line = Arrays::lastValue($data);
+            $last_line = strtolower($last_line);
 
             // Process specified handlers
             if ($function) {

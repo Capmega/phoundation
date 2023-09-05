@@ -5,24 +5,16 @@ declare(strict_types=1);
 namespace Phoundation\Processes;
 
 use Phoundation\Core\Arrays;
-use Phoundation\Core\Log\Log;
-use Phoundation\Core\Strings;
-use Phoundation\Developer\Debug;
+use Phoundation\Core\Core;
 use Phoundation\Exception\Exception;
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
-use Phoundation\Processes\Commands\Command;
+use Phoundation\Processes\Commands\Exception\CommandNotFoundException;
 use Phoundation\Processes\Commands\Exception\CommandsException;
-use Phoundation\Processes\Enum\ExecuteMethod;
-use Phoundation\Processes\Enum\Interfaces\ExecuteMethodInterface;
-use Phoundation\Processes\Exception\ProcessException;
+use Phoundation\Processes\Commands\Exception\NoSudoException;
 use Phoundation\Processes\Exception\ProcessFailedException;
 use Phoundation\Processes\Interfaces\ProcessInterface;
-use Phoundation\Processes\Interfaces\ProcessVariablesInterface;
-use Phoundation\Servers\Server;
 
 
 /**
@@ -47,8 +39,7 @@ Class Process extends ProcessCore implements ProcessInterface
      */
     public function __construct(?string $command = null, RestrictionsInterface|array|string|null $restrictions = null, ?string $packages = null)
     {
-        // Ensure that the run files directory is available
-        Path::new(PATH_ROOT . 'data/run/', Restrictions::new(PATH_DATA . 'run', true))->ensure();
+        parent::__construct($restrictions);
 
         $this->setRestrictions($restrictions);
 
@@ -73,6 +64,43 @@ Class Process extends ProcessCore implements ProcessInterface
     public static function new(?string $command = null, RestrictionsInterface|array|string|null $restrictions = null, ?string $packages = null): static
     {
         return new static($command, $restrictions, $packages);
+    }
+
+
+    /**
+     * Returns true if the process can execute the specified command with sudo privileges
+     *
+     * @param string $command
+     * @param bool $exception
+     * @return bool
+     * @todo Find a better option than "--version" which may not be available for everything. What about shell commands like "true", or "which", etc?
+     */
+    public function sudoAvailable(string $command, bool $exception = false): bool
+    {
+        try {
+            Process::new($this->command, $this->getRestrictions())
+                ->setSudo(true)
+                ->addArgument('--version')
+                ->executeReturnArray();
+
+            return true;
+
+        } catch (CommandNotFoundException) {
+            if ($exception) {
+                throw new NoSudoException(tr('Cannot check for sudo privileges for the ":command" command, the command was not found', [
+                    ':command' => $command
+                ]));
+            }
+
+        } catch (ProcessFailedException) {
+            if ($exception) {
+                throw new NoSudoException(tr('The current process owner has no sudo privileges available for the ":command" command', [
+                    ':command' => $command
+                ]));
+            }
+        }
+
+        return false;
     }
 
 

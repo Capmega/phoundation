@@ -151,6 +151,22 @@ interface ProcessVariablesInterface
     public function getRunFile(): string;
 
     /**
+     * Sets if a runfile will be used
+     *
+     * @return bool
+     */
+    public function getUseRunFile(): bool;
+
+    /**
+     * Sets if a runfile should be used
+     *
+     * @param bool $use_run_file
+     * @return static This process so that multiple methods can be chained
+     * @throws ProcessException
+     */
+    public function setUseRunFile(bool $use_run_file): static;
+
+    /**
      * Return the process identifier
      *
      * @return string
@@ -179,9 +195,9 @@ interface ProcessVariablesInterface
      * If this returns NULL, the command will not execute with sudo. If a string is returned, the command will execute
      * as that user.
      *
-     * @return ?string
+     * @return string|bool
      */
-    public function getSudo(): ?string;
+    public function getSudo(): string|bool;
 
     /**
      * Sets if the command should be executed as a different user using sudo.
@@ -189,9 +205,10 @@ interface ProcessVariablesInterface
      * If $sudo is NULL or FALSE, the command will not execute with sudo. If a string is specified, the command will
      * execute as that user. If TRUE is specified, the command will execute as root (This is basically just a shortcut)
      *
+     * @param string|bool $sudo
      * @return static This process so that multiple methods can be chained
      */
-    public function setSudo(bool|string $sudo): static;
+    public function setSudo(string|bool $sudo): static;
 
     /**
      * Returns the CLI return values that are accepted as "success" and won't cause an exception
@@ -450,13 +467,6 @@ interface ProcessVariablesInterface
      * @return static
      */
     public function setTimeout(int $timeout): static;
-
-    /**
-     * Get the process PID file from the run_file and remove the file
-     *
-     * @return void
-     */
-    public function setPid(): void;
 
     /**
      * Returns the pid value for this process when it is running in the background.

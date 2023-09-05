@@ -43,7 +43,7 @@ class Id extends Command
             $output = $this->executeReturnArray();
             $result = reset($output);
 
-            if (!$result or !is_numeric($result)) {
+            if (!is_numeric($result)) {
                 // So which gave us a path that doesn't exist or that we can't access
                 throw new CommandsException(tr('Failed to get id'));
             }

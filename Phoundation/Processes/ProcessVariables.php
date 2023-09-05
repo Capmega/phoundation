@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Processes;
 
 use Phoundation\Core\Arrays;
+use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
@@ -15,11 +16,9 @@ use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Commands\Command;
 use Phoundation\Processes\Commands\Exception\CommandNotFoundException;
 use Phoundation\Processes\Commands\Exception\CommandsException;
-use Phoundation\Processes\Commands\Exception\NoSudoException;
 use Phoundation\Processes\Commands\Which;
 use Phoundation\Processes\Exception\ProcessesException;
 use Phoundation\Processes\Exception\ProcessException;
-use Phoundation\Processes\Exception\ProcessFailedException;
 use Phoundation\Processes\Interfaces\ProcessCoreInterface;
 use Phoundation\Servers\Server;
 use Stringable;
@@ -45,13 +44,6 @@ trait ProcessVariables
     protected ?string $command = null;
 
     /**
-     * The command that will be executed for this process
-     *
-     * @var bool $delayed
-     */
-    protected bool $delayed = false;
-
-    /**
      * The actual command that was specified
      *
      * @var string|null $real_command
@@ -74,6 +66,20 @@ trait ProcessVariables
 
     /**
      * The run path where command output will be written to
+     *
+     * @var string|null $run_path
+     */
+    protected static ?string $run_path = null;
+
+    /**
+     * Sets if run files should be used or not
+     *
+     * @var bool $use_run_file
+     */
+    protected bool $use_run_file = true;
+
+    /**
+     * The run file where command output will be written to
      *
      * @var string|null $run_file
      */
@@ -117,11 +123,11 @@ trait ProcessVariables
 
     /**
      * Sets whether the command should be executed with sudo or not. If not NULL, it should contain the user as which
-     * the command should be exeuted
+     * the command should be executed
      *
-     * @var string|null $sudo
+     * @var string|bool $sudo
      */
-    protected ?string $sudo = null;
+    protected string|bool $sudo = false;
 
     /**
      * A cached version of the command line
@@ -265,6 +271,12 @@ trait ProcessVariables
      */
     public function __construct(RestrictionsInterface|array|string|null $restrictions)
     {
+        // Ensure that the run files directory is available
+        static::$run_path = PATH_DATA . 'run/pids/' . getmypid() . '/' . Core::getLocalId() . '/';
+
+        Path::new(static::$run_path, Restrictions::new(PATH_DATA . 'run', true, 'processes runfile'))
+            ->ensure();
+
         // Set server filesystem restrictions
         $this->setRestrictions($restrictions);
     }
@@ -510,7 +522,7 @@ trait ProcessVariables
 //
 //        if (!$path) {
 //            // Set the default log path
-//            $path = PATH_ROOT . 'data/log/';
+//            $path = PATH_DATA . 'log/';
 //        }
 //
 //        // Ensure the path ends with a slash and that it is writable
@@ -527,9 +539,45 @@ trait ProcessVariables
      *
      * @return string
      */
+    public function getRunPath(): string
+    {
+        return static::$run_path;
+    }
+
+
+    /**
+     * Returns the run file path
+     *
+     * @return string
+     */
     public function getRunFile(): string
     {
         return $this->run_file;
+    }
+
+
+    /**
+     * Sets if a runfile will be used
+     *
+     * @return bool
+     */
+    public function getUseRunFile(): bool
+    {
+        return $this->use_run_file;
+    }
+
+
+    /**
+     * Sets if a runfile should be used
+     *
+     * @param bool $use_run_file
+     * @return static This process so that multiple methods can be chained
+     * @throws ProcessException
+     */
+    public function setUseRunFile(bool $use_run_file): static
+    {
+        $this->use_run_file = $use_run_file;
+        return $this;
     }
 
 
@@ -560,8 +608,9 @@ trait ProcessVariables
         $identifier = $this->getIdentifier();
 
         $this->cached_command_line = null;
-        $this->log_file            = PATH_ROOT . 'data/log/' . $identifier;
-        $this->run_file            = PATH_ROOT . 'data/run/' . $identifier;
+
+        $this->log_file = PATH_DATA . 'log/' . $identifier;
+        $this->run_file = static::$run_path . $identifier;
 
         Log::notice(tr('Set process identifier ":identifier"', [':identifier' => $identifier]), 2);
 
@@ -577,7 +626,7 @@ trait ProcessVariables
     protected function setRunFile(): static
     {
         $this->cached_command_line = null;
-        $this->run_file            = PATH_ROOT . 'data/run/' . $this->getIdentifier();
+        $this->run_file            = static::$run_path . $this->getIdentifier();
 
         return $this;
     }
@@ -596,7 +645,7 @@ trait ProcessVariables
 //
 //        if (!$path) {
 //            // Set the default log path
-//            $path = PATH_ROOT . 'data/run/';
+//            $path = PATH_DATA . 'run/';
 //        }
 //
 //        // Ensure the path ends with a slash and that it is writable
@@ -642,49 +691,11 @@ trait ProcessVariables
      * If this returns NULL, the command will not execute with sudo. If a string is returned, the command will execute
      * as that user.
      *
-     * @return ?string
+     * @return string|bool
      */
-    public function getSudo(): ?string
+    public function getSudo(): string|bool
     {
         return $this->sudo;
-    }
-
-
-    /**
-     * Returns true if the process can execute the specified command with sudo privileges
-     *
-     * @param string $command
-     * @param bool $exception
-     * @return bool
-     * @todo Find a better option than "--version" which may not be available for everything. What about shell commands like "true", or "which", etc?
-     */
-    public function sudoAvailable(string $command, bool $exception = false): bool
-    {
-        try {
-            Process::new($command, $this->getRestrictions())
-                ->setSudo(true)
-                ->setInternalCommand($command)
-                ->addArgument('--version')
-                ->executeReturnArray();
-
-            return true;
-
-        } catch (CommandNotFoundException) {
-            if ($exception) {
-                throw new NoSudoException(tr('Cannot check for sudo privileges for the ":command" command, the command was not found', [
-                    ':command' => $command
-                ]));
-            }
-
-        } catch (ProcessFailedException) {
-            if ($exception) {
-                throw new NoSudoException(tr('The current process owner has no sudo privileges available for the ":command" command', [
-                    ':command' => $command
-                ]));
-            }
-        }
-
-        return false;
     }
 
 
@@ -694,18 +705,24 @@ trait ProcessVariables
      * If $sudo is NULL or FALSE, the command will not execute with sudo. If a string is specified, the command will
      * execute as that user. If TRUE is specified, the command will execute as root (This is basically just a shortcut)
      *
+     * @param string|bool $sudo
      * @return static This process so that multiple methods can be chained
      */
-    public function setSudo(bool|string $sudo): static
+    public function setSudo(string|bool $sudo, ?string $user = null): static
     {
         $this->cached_command_line = null;
 
         if (!$sudo) {
-            $this->sudo = null;
+            $this->sudo = false;
 
         } else {
             if ($sudo === true) {
-                $sudo = 'root';
+                $sudo = 'sudo -Es';
+
+                if ($user) {
+                    // Sudo specifically to a non root user
+                    $sudo .= 'u ' . escapeshellarg($user);
+                }
             }
 
 // TODO Validate that $sudo contains ONLY alphanumeric characters!
@@ -864,7 +881,7 @@ trait ProcessVariables
                                 ]));
                             }
 
-                            if (!Command::new()->sudoAvailable('apt-get')) {
+                            if (!Command::sudoAvailable('apt-get', Restrictions::new('/bin,/usr/bin,/sbin,/usr/sbin'))) {
                                 throw new ProcessesException(tr('Specified process command ":command" does not exist and this process does not have sudo access to apt-get', [
                                     ':command' => $command
                                 ]));
@@ -1316,7 +1333,7 @@ trait ProcessVariables
      *
      * @return void
      */
-    public function setPid(): void
+    protected function setPid(): void
     {
         if (!$this->register_run_file) {
             // Don't register PID information
@@ -1333,7 +1350,8 @@ trait ProcessVariables
         $pid  = file_get_contents($file);
         $pid  = trim($pid);
 
-        unlink($this->run_file);
+        // Delete the run file, don't clean up as that is not needed. When the process terminates, cleanup will happen
+        File::new($this->run_file, Restrictions::new(PATH_DATA . 'run/pids/', true))->delete(false);
         $this->run_file = null;
 
         if (!$pid) {
