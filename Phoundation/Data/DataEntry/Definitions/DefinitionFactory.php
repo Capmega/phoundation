@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Definitions;
 
+use Phoundation\Accounts\Roles\Roles;
 use Phoundation\Accounts\Users\Users;
 use Phoundation\Business\Companies\Companies;
 use Phoundation\Business\Customers\Customers;
@@ -36,6 +37,22 @@ use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
  */
 class DefinitionFactory
 {
+    /**
+     * Returns Definition object for any database id
+     *
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
+     * @return DefinitionInterface
+     */
+    public static function getDatabaseId(DataEntryInterface $data_entry, ?string $field = 'id'): DefinitionInterface
+    {
+        return Definition::new($data_entry, $field)
+            ->setOptional(true)
+            ->setInputType(InputTypeExtended::dbid)
+            ->setSize(3);
+    }
+
+
     /**
      * Returns Definition object for column categories_id
      *
@@ -650,6 +667,64 @@ class DefinitionFactory
             ])
             ->addValidationFunction(function (ValidatorInterface $validator) {
                 $validator->or('users_id')->setColumnFromQuery('users_id', 'SELECT `id` FROM `accounts_users` WHERE `email` = :email', [':email' => '$email']);
+            });
+    }
+
+
+    /**
+     * Returns Definition object for column roles_id
+     *
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
+     * @param array|null $filters
+     * @return DefinitionInterface
+     */
+    public static function getRolesId(DataEntryInterface $data_entry, ?string $field = 'roles_id', array $filters = null): DefinitionInterface
+    {
+        return Definition::new($data_entry, $field)
+            ->setOptional(true)
+            ->setInputType(InputTypeExtended::dbid)
+            ->setSize(3)
+            ->setCliAutoComplete(true)
+            ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) use ($filters, $field) {
+                return Roles::new()->getHtmlSelect()
+                    ->setId($field)
+                    ->setName($field)
+                    ->setSelected(isset_get($source[$key]))
+                    ->render();
+            })
+            ->addValidationFunction(function (ValidatorInterface $validator) use ($field) {
+                $validator->isDbId()->isQueryResult('SELECT `id` FROM `accounts_roles` WHERE `id` = :id AND `status` IS NULL', [':id' => '$' . $field]);
+            });
+    }
+
+
+    /**
+     * Returns Definition object for column roles_id
+     *
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
+     * @return DefinitionInterface
+     */
+    public static function getRolesName(DataEntryInterface $data_entry, ?string $field = 'name'): DefinitionInterface
+    {
+        return Definition::new($data_entry, $field)
+            ->setOptional(true)
+            ->setVisible(false)
+            ->setVirtual(true)
+            ->setInputType(InputTypeExtended::name)
+            ->setCliField('-r,--role EMAIL')
+            ->setLabel(tr('Role'))
+            ->setCliAutoComplete([
+                'word' => function ($word) {
+                    return Roles::new()->getMatchingKeys($word);
+                },
+                'noword' => function () {
+                    return Roles::new()->getSource();
+                },
+            ])
+            ->addValidationFunction(function (ValidatorInterface $validator) {
+                $validator->or('roles_id')->setColumnFromQuery('roles_id', 'SELECT `id` FROM `accounts_roles` WHERE `name` = :name', [':name' => '$name']);
             });
     }
 
