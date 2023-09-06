@@ -17,7 +17,7 @@ use Throwable;
  * @category Function reference
  * @package Phoundation\Filesystem
  */
-interface PathInterface
+interface PathInterface extends FileBasicsInterface
 {
     /**
      * Returns an Execute object to execute callbacks on each file in specified paths
