@@ -633,7 +633,7 @@ abstract class DataList extends Iterator implements DataListInterface
     public function addSource(DataListInterface|array|null $source): static
     {
         foreach ($source as $key => $value) {
-            $this->add($key, $value);
+            $this->add($value, $key);
         }
 
         return $this;
