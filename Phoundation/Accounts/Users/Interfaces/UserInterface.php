@@ -69,14 +69,6 @@ interface UserInterface extends DataEntryInterface
     public function getName(): ?string;
 
     /**
-     * Sets the name for this user
-     *
-     * @param string|null $name
-     * @return static
-     */
-    public function setName(?string $name): static;
-
-    /**
      * Returns the first_names for this user
      *
      * @return string|null

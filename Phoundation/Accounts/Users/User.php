@@ -28,6 +28,7 @@ use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryAddress;
 use Phoundation\Data\DataEntry\Traits\DataEntryCode;
 use Phoundation\Data\DataEntry\Traits\DataEntryComments;
+use Phoundation\Data\DataEntry\Traits\DataEntryDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryDomain;
 use Phoundation\Data\DataEntry\Traits\DataEntryEmail;
 use Phoundation\Data\DataEntry\Traits\DataEntryFirstNames;
@@ -50,6 +51,7 @@ use Phoundation\Exception\NotSupportedException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Security\Incidents\Severity;
+use Phoundation\Seo\Seo;
 use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\Html\Components\Form;
 use Phoundation\Web\Http\Html\Components\Interfaces\FormInterface;
@@ -87,7 +89,7 @@ class User extends DataEntry implements UserInterface
     use DataEntryTimezone;
     use DataEntryLastNames;
     use DataEntryFirstNames;
-    use DataEntryNameDescription;
+    use DataEntryDescription;
 
 
     /**
@@ -211,6 +213,28 @@ class User extends DataEntry implements UserInterface
 
 
     /**
+     * Returns Search Engine Optimized id for this user entry that can be used in logs
+     *
+     * @return string
+     */
+    public function getSeoLogId(): string
+    {
+        return Seo::string($this->getLogId());
+    }
+
+
+    /**
+     * Returns id for this user entry that can be used as a variable
+     *
+     * @return string
+     */
+    public function getVarLogId(): string
+    {
+        return str_replace(' ', '', $this->getLogId());
+    }
+
+
+    /**
      * Authenticates the specified user id / email with its password
      *
      * @param string|int $identifier
@@ -306,18 +330,6 @@ class User extends DataEntry implements UserInterface
     public function getName(): ?string
     {
         return trim($this->getSourceValue('string', 'first_names') . ' ' . $this->getSourceValue('string', 'last_names'));
-    }
-
-
-    /**
-     * Sets the name for this user
-     *
-     * @param string|null $name
-     * @return static
-     */
-    public function setName(?string $name): static
-    {
-        throw new NotSupportedException(tr('The Accounts\User class does not support the User::setName() method. Please use User::setFirstNames() and User::setLastNames() instead'));
     }
 
 
