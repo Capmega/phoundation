@@ -46,7 +46,7 @@ class Documentation
         if (isset_get($argv['help'])) {
             Log::information(tr('Command help:'), 9, use_prefix: false);
             Log::notice(trim($help), 10, false, use_prefix: false);
-            Core::exit();
+            exit();
         }
     }
 
@@ -64,7 +64,7 @@ class Documentation
         if (isset_get($argv['usage'])) {
             Log::information(tr('Command usage:'), 9, use_prefix: false);
             Log::notice(trim($usage) . PHP_EOL, 10, false, use_prefix: false);
-            Core::exit();
+            exit();
         }
     }
 
@@ -81,7 +81,7 @@ class Documentation
             if (AutoComplete::isActive()) {
                 AutoComplete::processScriptPositions(isset_get($definitions['positions']));
                 AutoComplete::processScriptArguments(isset_get($definitions['arguments']));
-                Core::exit();
+                exit();
             }
 
         } catch (Throwable $e) {

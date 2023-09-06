@@ -10,7 +10,7 @@ use Phoundation\Cli\CliCommand;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Exception\MetaException;
 use Phoundation\Core\Session;
-use Phoundation\Data\Exception\DataEntryNotExistsException;
+use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\Validate;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\Sql;

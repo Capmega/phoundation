@@ -937,7 +937,7 @@ class Route
 
             if ($block) {
                 // Block the request by dying
-                Core::exit();
+                exit();
             }
 
         } catch (Exception $e) {
@@ -1193,7 +1193,7 @@ class Route
             include($target);
         }
 
-        Core::exit();
+        exit();
     }
 
 

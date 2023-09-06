@@ -257,7 +257,7 @@ class AutoComplete
         }
 
         // We're done,
-        Core::exit();
+        exit();
     }
 
 
@@ -318,7 +318,7 @@ class AutoComplete
                 }
 
                 // Die here as we have echoed results!
-                Core::exit();
+                exit();
             }
         }
     }
@@ -487,7 +487,7 @@ complete -F _phoundation pho');
             }
 
             // Die here as we have echoed results!
-            Core::exit();
+            exit();
         }
     }
 
