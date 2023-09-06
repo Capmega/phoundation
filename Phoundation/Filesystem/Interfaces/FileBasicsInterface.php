@@ -21,12 +21,12 @@ use Throwable;
 interface FileBasicsInterface
 {
     /**
-     * Returns the file for this File object
+     * Sets the file for this File object
      *
      * @param Stringable|string|null $file
      * @param string|null $prefix
      * @param bool $must_exist
-     * @return ImageInterface
+     * @return static
      */
     public function setFile(Stringable|string|null $file, string $prefix = null, bool $must_exist = false): static;
 
@@ -232,4 +232,12 @@ interface FileBasicsInterface
      * @return int
      */
     public function size(bool $recursive = true): int;
+
+    /**
+     * Returns the parent directory for this file
+     *
+     * @param RestrictionsInterface $restrictions
+     * @return PathInterface
+     */
+    public function getDirectory(RestrictionsInterface $restrictions): PathInterface;
 }

@@ -15,6 +15,7 @@ use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\PathNotExistsException;
 use Phoundation\Filesystem\Interfaces\FileBasicsInterface;
 use Phoundation\Filesystem\Interfaces\FileInterface;
+use Phoundation\Filesystem\Interfaces\PathInterface;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Processes\Exception\ProcessesException;
 use Phoundation\Processes\Process;
@@ -37,7 +38,6 @@ use Throwable;
 class FileBasics implements Stringable, FileBasicsInterface
 {
     use UsesRestrictions;
-    use DataFile;
 
 
     /**
@@ -63,6 +63,13 @@ class FileBasics implements Stringable, FileBasicsInterface
      * @var string|null $target
      */
     protected ?string $target = null;
+
+    /**
+     * The file for this object
+     *
+     * @var string|null $file
+     */
+    protected ?string $file = null;
 
 
     /**
@@ -153,7 +160,18 @@ Log::warning($file, echo_screen: false);
 
 
     /**
-     * Returns the file for this File object
+     * Returns the file
+     *
+     * @return string|null
+     */
+    public function getFile(): ?string
+    {
+        return $this->file;
+    }
+
+
+    /**
+     * Sets the file for this File object
      *
      * @param Stringable|string|null $file
      * @param string|null $prefix
@@ -673,6 +691,43 @@ Log::warning($file, echo_screen: false);
 
 
     /**
+     * Creates a symlink $target that points to this file.
+     *
+     * @param Stringable|string $source
+     * @param Restrictions|null $restrictions
+     * @return $this
+     */
+    public function link(Stringable|string $source, ?Restrictions $restrictions = null): static
+    {
+        $source = (string) $source;
+
+        if (file_exists($source)) {
+            if (readlink($source) === $this->file) {
+                // Symlink already exists and points to the same file, all fine
+                return $this;
+            }
+
+            throw new FileExistsException(tr('Cannot create symlink ":target" that points to ":source", the file already exists and points to ":current" instead', [
+                ':target'  => $source,
+                ':source'  => $this->file,
+                ':current' => readlink($source)
+            ]));
+        }
+
+        // Ensure target is absolute
+        $source = Filesystem::absolute($source, must_exist: false);
+
+        // Ensure that we have restrictions access and target path exists
+        Restrictions::default($restrictions, $this->restrictions)->check($source, true);
+        Path::new(dirname($source), $this->restrictions->getParent())->ensure();
+
+        // Symlink
+        symlink($this->file, $source);
+        return $this;
+    }
+
+
+    /**
      * Switches file mode to the new value and returns the previous value
      *
      * @param string|int $mode
@@ -989,5 +1044,17 @@ Log::warning($file, echo_screen: false);
         }
 
         return $size;
+    }
+
+
+    /**
+     * Returns the parent directory for this file
+     *
+     * @param RestrictionsInterface $restrictions
+     * @return PathInterface
+     */
+    public function getDirectory(RestrictionsInterface $restrictions): PathInterface
+    {
+        return Path::new(dirname($this->file), $restrictions);
     }
 }
