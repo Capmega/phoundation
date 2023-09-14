@@ -23,6 +23,7 @@ use Phoundation\Security\Incidents\Incident;
 use Phoundation\Security\Incidents\Severity;
 use Phoundation\Web\Http\Html\Components\Input\InputSelect;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
+use Stringable;
 
 
 /**
@@ -203,10 +204,10 @@ class Rights extends DataList implements RightsInterface
     /**
      * Remove the specified data entry from the data list
      *
-     * @param RightInterface|array|string|float|int $right
+     * @param RightInterface|Stringable|array|string|float|int $right
      * @return static
      */
-    public function remove(RightInterface|array|string|float|int $right): static
+    public function remove(RightInterface|Stringable|array|string|float|int $right): static
     {
         $this->ensureParent('remove entry from parent');
 

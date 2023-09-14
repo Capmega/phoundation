@@ -20,6 +20,7 @@ use Phoundation\Databases\Sql\QueryBuilder;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Http\Html\Components\Input\InputSelect;
+use Stringable;
 
 
 /**
@@ -203,10 +204,10 @@ class Roles extends DataList implements RolesInterface
     /**
      * Remove the specified role from the roles list
      *
-     * @param RoleInterface|array|string|float|int $role
+     * @param RoleInterface|Stringable|array|string|float|int $role
      * @return static
      */
-    public function remove(RoleInterface|array|string|float|int $role): static
+    public function remove(RoleInterface|Stringable|array|string|float|int $role): static
     {
         $this->ensureParent('remove entry from parent');
 

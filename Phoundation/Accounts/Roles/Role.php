@@ -6,15 +6,20 @@ namespace Phoundation\Accounts\Roles;
 
 use Phoundation\Accounts\Rights\Interfaces\RightsInterface;
 use Phoundation\Accounts\Rights\Rights;
+use Phoundation\Accounts\Roles\Exception\Interfaces\RoleNotExistsExceptionInterface;
+use Phoundation\Accounts\Roles\Exception\RoleNotExistsException;
 use Phoundation\Accounts\Roles\Interfaces\RoleInterface;
 use Phoundation\Accounts\Users\Interfaces\UsersInterface;
 use Phoundation\Accounts\Users\Users;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
+use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryNotExistsExceptionInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Geo\Timezones\Timezone;
 use Phoundation\Web\Http\Html\Components\Form;
 use Phoundation\Web\Http\Html\Components\Interfaces\FormInterface;
@@ -122,11 +127,33 @@ class Role extends DataEntry implements RoleInterface
 
 
     /**
+     * Returns a DataEntry object matching the specified identifier
+     *
+     * @note This method also accepts DataEntry objects, in which case it will simply return this object. This is to
+     *       simplify "if this is not DataEntry object then this is new DataEntry object" into
+     *       "PossibleDataEntryVariable is DataEntry::new(PossibleDataEntryVariable)"
+     * @param DataEntryInterface|string|int|null $identifier
+     * @param string|null $column
+     * @return static|null
+     * @throws RoleNotExistsExceptionInterface
+     */
+    public static function get(DataEntryInterface|string|int|null $identifier = null, ?string $column = null): ?static
+    {
+        try {
+            return parent::get($identifier, $column);
+
+        } catch (DataEntryNotExistsExceptionInterface $e) {
+            throw new RoleNotExistsException($e);
+        }
+    }
+
+
+    /**
      * Sets the available data keys for this entry
      *
      * @param DefinitionsInterface $definitions
      */
-    protected function initDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
             ->addDefinition(DefinitionFactory::getName($this)
