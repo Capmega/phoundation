@@ -11,7 +11,7 @@ use Phoundation\Cli\Color;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Meta;
-use Phoundation\Core\Session;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\Definitions;
@@ -23,7 +23,9 @@ use Phoundation\Data\DataEntry\Exception\DataEntryException;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntry\Exception\DataEntryReadonlyException;
 use Phoundation\Data\DataEntry\Exception\DataEntryStateMismatchException;
+use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryNotExistsExceptionInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntry\Traits\DataEntryDefinitions;
 use Phoundation\Data\Traits\DataDebug;
 use Phoundation\Data\Traits\DataReadonly;
 use Phoundation\Data\Validator\ArgvValidator;
@@ -35,6 +37,7 @@ use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\QueryBuilder;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Date\DateTime;
+use Phoundation\Exception\Interfaces\OutOfBoundsExceptionInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Json;
@@ -43,7 +46,6 @@ use Phoundation\Web\Http\Html\Components\Input\InputText;
 use Phoundation\Web\Http\Html\Components\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Http\Html\Enums\InputType;
 use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
-use Stringable;
 use Throwable;
 
 
@@ -57,10 +59,11 @@ use Throwable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
-abstract class DataEntry implements DataEntryInterface, Stringable
+abstract class DataEntry implements DataEntryInterface
 {
     use DataDebug;
     use DataReadonly;
+    use DataEntryDefinitions;
 
 
     /**
@@ -69,13 +72,6 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      * @var array $source
      */
     protected array $source = [];
-
-    /**
-     * Meta information about the keys in this DataEntry
-     *
-     * @var DefinitionsInterface|null $definitions
-     */
-    protected ?DefinitionsInterface $definitions = null;
 
     /**
      * The unique column identifier, next to id
@@ -255,8 +251,8 @@ abstract class DataEntry implements DataEntryInterface, Stringable
         }
 
         // Set up the fields for this object
-        $this->initMetaDefinitions();
-        $this->initDefinitions($this->definitions);
+        $this->setMetaDefinitions();
+        $this->setDefinitions($this->definitions);
 
         if ($identifier) {
 // TODO WTF was the thought behind this section? Just load, the identifier should be loaded with the DataEntry::load() call
@@ -288,6 +284,18 @@ abstract class DataEntry implements DataEntryInterface, Stringable
     public static function new(DataEntryInterface|string|int|null $identifier = null, ?string $column = null): static
     {
         return new static($identifier, $column);
+    }
+
+
+    /**
+     * Returns a new DataEntry object from the specified array source
+     *
+     * @param array $source
+     * @return $this
+     */
+    public static function fromSource(array $source): static
+    {
+        return static::new()->setSource($source);
     }
 
 
@@ -549,6 +557,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      * @param DataEntryInterface|string|int|null $identifier
      * @param string|null $column
      * @return static|null
+     * @throws DataEntryNotExistsExceptionInterface|OutOfBoundsExceptionInterface
      */
     public static function get(DataEntryInterface|string|int|null $identifier = null, ?string $column = null): ?static
     {
@@ -628,19 +637,19 @@ abstract class DataEntry implements DataEntryInterface, Stringable
         }
 
         $exists = sql()->getColumn('SELECT `id` 
-                                           FROM   `' . static::getTable() . '` 
-                                           WHERE  `' . $field . '`   = :identifier
-                                           ' . ($not_id ? 'AND `id` != :id' : '') . ' 
-                                           LIMIT  1', $execute);
+                                          FROM   `' . static::getTable() . '` 
+                                          WHERE  `' . $field . '`   = :identifier
+                                          ' . ($not_id ? 'AND `id` != :id' : '') . ' 
+                                          LIMIT  1', $execute);
 
         if (!$exists and $throw_exception) {
             throw DataEntryAlreadyExistsException::new(tr('The ":type" type data entry with identifier ":id" already exists', [
                 ':type' => static::getClassName(),
-                ':id' => $identifier
+                ':id'   => $identifier
             ]))->makeWarning();
         }
 
-        return (bool)$exists;
+        return (bool) $exists;
     }
 
 
@@ -671,15 +680,15 @@ abstract class DataEntry implements DataEntryInterface, Stringable
         }
 
         $exists = sql()->getColumn('SELECT `id` 
-                                           FROM   `' . static::getTable() . '` 
-                                           WHERE  `' . $field . '` = :identifier
-                                           ' . ($id ? 'AND `id`   != :id' : '') . ' 
-                                           LIMIT  1', $execute);
+                                          FROM   `' . static::getTable() . '` 
+                                          WHERE  `' . $field . '` = :identifier
+                                          ' . ($id ? 'AND `id`   != :id' : '') . ' 
+                                          LIMIT  1', $execute);
 
         if ($exists and $throw_exception) {
             throw DataEntryAlreadyExistsException::new(tr('The ":type" type data entry with identifier ":id" already exists', [
                 ':type' => static::getClassName(),
-                ':id' => $identifier
+                ':id'   => $identifier
             ]))->makeWarning();
         }
 
@@ -734,11 +743,23 @@ abstract class DataEntry implements DataEntryInterface, Stringable
     /**
      * Returns status for this database entry
      *
-     * @return ?String
+     * @return ?string
      */
     public function getStatus(): ?string
     {
         return $this->getSourceValue('string', 'status');
+    }
+
+
+    /**
+     * Returns true if this DataEntry has the specified status
+     *
+     * @param string|null $status
+     * @return bool
+     */
+    public function isStatus(?string $status): bool
+    {
+        return $this->getSourceValue('string', 'status') === $status;
     }
 
 
@@ -751,6 +772,8 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      */
     public function setStatus(?string $status, ?string $comments = null): static
     {
+        $this->checkReadonly('set-status ' . $status);
+
         if ($this->getId()) {
             sql()->dataEntrySetStatus($status, static::getTable(), [
                 'id'      => $this->getId(),
@@ -758,14 +781,16 @@ abstract class DataEntry implements DataEntryInterface, Stringable
             ], $comments);
         }
 
-        return $this->setSourceValue('status', $status);
+        $this->source['status'] = $status;
+        return $this;
+//        return $this->setSourceValue('status', $status);
     }
 
 
     /**
      * Returns the meta state for this database entry
      *
-     * @return ?String
+     * @return ?string
      */
     public function getMetaState(): ?string
     {
@@ -829,6 +854,8 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      */
     public function erase(): static
     {
+        $this->checkReadonly('erase');
+
         sql()->erase(static::getTable(), ['id' => $this->getId()]);
         return $this;
     }
@@ -899,9 +926,11 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      *
      * @note Returns NULL if this class has no support for meta information available, or hasn't been written to disk
      *       yet
+     *
+     * @param bool $load
      * @return Meta|null
      */
-    public function getMeta(): ?Meta
+    public function getMeta(bool $load = true): ?Meta
     {
         $meta_id = $this->getSourceValue('int', 'meta_id');
 
@@ -909,7 +938,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
             return null;
         }
 
-        return new Meta($meta_id);
+        return new Meta($meta_id, $load);
     }
 
 
@@ -944,7 +973,7 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      */
     public function apply(bool $clear_source = true, ValidatorInterface|array|null &$source = null): static
     {
-        return $this->doApply($clear_source, $source, false);
+        return $this->checkReadonly('save')->doApply($clear_source, $source, false);
     }
 
 
@@ -1897,22 +1926,11 @@ abstract class DataEntry implements DataEntryInterface, Stringable
 
 
     /**
-     * Returns the definitions for the fields in this table
-     *
-     * @return DefinitionsInterface
-     */
-    public function getDefinitions(): DefinitionsInterface
-    {
-        return $this->definitions;
-    }
-
-
-    /**
      * Returns the meta fields that apply for all DataEntry objects
      *
      * @return void
      */
-    protected function initMetaDefinitions(): void
+    protected function setMetaDefinitions(): void
     {
         $this->definitions = Definitions::new()
             ->setTable(static::getTable())
@@ -2036,5 +2054,5 @@ abstract class DataEntry implements DataEntryInterface, Stringable
      *
      * @param DefinitionsInterface $definitions
      */
-    abstract protected function initDefinitions(DefinitionsInterface $definitions): void;
+    abstract protected function setDefinitions(DefinitionsInterface $definitions): void;
 }
