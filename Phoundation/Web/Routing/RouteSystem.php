@@ -66,9 +66,9 @@ class RouteSystem
     /**
      * Show the 400 - BAD REQUEST page
      *
-     * @see Route::add()
-     * @see Route::shutdown()
      * @return never
+     *@see Route::exit()
+     * @see Route::add()
      */
     #[NoReturn] public function execute400(): never
     {
@@ -83,9 +83,9 @@ class RouteSystem
     /**
      * Show the 403 - FORBIDDEN page
      *
-     * @see Route::add()
-     * @see Route::shutdown()
      * @return never
+     *@see Route::exit()
+     * @see Route::add()
      */
     #[NoReturn] public function execute401(): never
     {
@@ -100,9 +100,9 @@ class RouteSystem
     /**
      * Show the 403 - FORBIDDEN page
      *
-     * @see Route::add()
-     * @see Route::shutdown()
      * @return never
+     *@see Route::exit()
+     * @see Route::add()
      */
     #[NoReturn] public function execute403(): never
     {
@@ -117,9 +117,9 @@ class RouteSystem
     /**
      * Show the 404 - NOT FOUND page
      *
-     * @see Route::add()
-     * @see Route::shutdown()
      * @return never
+     *@see Route::exit()
+     * @see Route::add()
      */
     #[NoReturn] public function execute404(): never
     {
@@ -134,9 +134,9 @@ class RouteSystem
     /**
      * Show the 500 - Internal Server Error page
      *
-     * @see Route::add()
-     * @see Route::shutdown()
      * @return never
+     *@see Route::exit()
+     * @see Route::add()
      */
     #[NoReturn] public function execute500(): never
     {
@@ -151,9 +151,9 @@ class RouteSystem
     /**
      * Show the 503 - Service unavailable page
      *
-     * @see Route::add()
-     * @see Route::shutdown()
      * @return never
+     *@see Route::exit()
+     * @see Route::add()
      */
     #[NoReturn] public function execute503(): never
     {

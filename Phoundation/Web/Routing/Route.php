@@ -11,7 +11,7 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Exception\NoProjectException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Numbers;
-use Phoundation\Core\Session;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
@@ -151,7 +151,6 @@ class Route
             ':client' => $_SERVER['REMOTE_ADDR'] . (empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: ' . $_SERVER['HTTP_X_REAL_IP'] . ')')
         ]));
 
-        Core::registerShutdown('route[shutdown]'   , ['\Phoundation\Web\Routing\Route', 'shutdown']);
         Core::registerShutdown('route[postprocess]', ['\Phoundation\Web\Routing\Route', 'postProcess']);
     }
 
@@ -1022,38 +1021,6 @@ class Route
         // Set specific language map
         Log::notice(tr('Setting specified URL map'));
         Core::register($map, 'route', 'map');
-    }
-
-
-    /**
-     * Shutdown the URL routing
-     *
-     * @see Route::postProcess()
-     * @return void
-     */
-    public static function shutdown(?int $http_code = null): void
-    {
-        if (!$http_code) {
-            // Use page HTTP code
-            $http_code = Page::getHttpCode();
-        }
-
-        if ($http_code === 200) {
-            Log::success(tr('Script ":script" ended successfully with HTTP code ":httpcode" in ":time" with ":usage" peak memory usage', [
-                ':script'   => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
-                ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
-                ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
-                ':httpcode' => $http_code
-            ]));
-
-        } else {
-            Log::warning(tr('Script ":script" ended with HTTP warning code ":httpcode" in ":time" with ":usage" peak memory usage', [
-                ':script'   => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
-                ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
-                ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
-                ':httpcode' => $http_code
-            ]));
-        }
     }
 
 

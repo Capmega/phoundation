@@ -7,8 +7,7 @@ namespace Phoundation\Web\Routing;
 use Phoundation\Accounts\Rights\Right;
 use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Core\Arrays;
-use Phoundation\Core\Core;
-use Phoundation\Core\Session;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Filesystem;
@@ -16,7 +15,6 @@ use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\Html\Template\Template;
-use Phoundation\Web\Http\Protocols;
 use Phoundation\Web\Http\UrlBuilder;
 use Templates\AdminLte\AdminLte;
 

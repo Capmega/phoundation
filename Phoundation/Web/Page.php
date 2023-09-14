@@ -9,22 +9,29 @@ use JetBrains\PhpStorm\ExpectedValues;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
+use Phoundation\Accounts\Users\Exception\Interfaces\AuthenticationExceptionInterface;
 use Phoundation\Api\ApiInterface;
 use Phoundation\Cache\Cache;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Enums\EnumRequestTypes;
+use Phoundation\Core\Exception\Interfaces\CoreReadonlyExceptionInterface;
 use Phoundation\Core\Locale\Language\Interfaces\LanguageInterface;
 use Phoundation\Core\Locale\Language\Language;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Session;
+use Phoundation\Core\Numbers;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Core\Strings;
-use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
-use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\DataEntry\Exception\DataEntryReadonlyException;
+use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryNotExistsExceptionInterface;
+use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryReadonlyExceptionInterface;
+use Phoundation\Data\Validator\Exception\Interfaces\ValidationFailedExceptionInterface;
 use Phoundation\Date\Date;
+use Phoundation\Date\Time;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\AccessDeniedException;
+use Phoundation\Exception\Interfaces\AccessDeniedExceptionInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\Exception\FilesystemException;
@@ -32,13 +39,15 @@ use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
-use Phoundation\Security\Incidents\Exception\IncidentsException;
+use Phoundation\Security\Incidents\Exception\Interfaces\IncidentsExceptionInterface;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Security\Incidents\Severity;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Exception\PageException;
 use Phoundation\Web\Exception\WebException;
 use Phoundation\Web\Http\Domains;
+use Phoundation\Web\Http\Exception\Http405Exception;
+use Phoundation\Web\Http\Exception\Http409Exception;
 use Phoundation\Web\Http\Exception\HttpException;
 use Phoundation\Web\Http\Flash;
 use Phoundation\Web\Http\Html\Components\BreadCrumbs;
@@ -1299,7 +1308,7 @@ class Page implements PageInterface
             $output = static::filterOutput($output);
             static::sendOutputToClient($output, $target, $attachment);
 
-        } catch (ValidationFailedException $e) {
+        } catch (ValidationFailedExceptionInterface $e) {
             // TODO Improve this uncaught validation failure handling
             Log::warning('Page did not catch the following "ValidationFailedException" warning. Executing "system/400" instead');
             Log::warning($e);
@@ -1307,27 +1316,41 @@ class Page implements PageInterface
             Core::writeRegister($e, 'e');
             Route::executeSystem(400);
 
-        } catch (AuthenticationException $e) {
+        } catch (AuthenticationExceptionInterface $e) {
             Log::warning('Page did not catch the following "AuthenticationException" warning. Executing "system/401" instead');
             Log::warning($e);
 
             Core::writeRegister($e, 'e');
             Route::executeSystem(401);
 
-        } catch (IncidentsException|AccessDeniedException $e) {
+        } catch (IncidentsExceptionInterface|AccessDeniedExceptionInterface $e) {
             // TODO Should we also catch AccessDenied exception here?
-            Log::warning('Page did not catch the following "IncidentsException" warning. Executing "system/401" instead');
+            Log::warning('Page did not catch the following "IncidentsExceptionInterface or AccessDeniedExceptionInterface" warning. Executing "system/401" instead');
             Log::warning($e);
 
             Core::writeRegister($e, 'e');
             Route::executeSystem(403);
 
-        } catch (DataEntryNotExistsException $e) {
+        } catch (DataEntryNotExistsExceptionInterface $e) {
             Log::warning('Page did not catch the following "DataEntryNotExistsException" warning. Executing "system/404" instead');
             Log::warning($e);
 
             Core::writeRegister($e, 'e');
             Route::executeSystem(404);
+
+        } catch (Http405Exception|DataEntryReadonlyExceptionInterface|CoreReadonlyExceptionInterface $e) {
+            Log::warning('Page did not catch the following "Http405Exception or DataEntryReadonlyExceptionInterface or CoreReadonlyExceptionInterface" warning. Executing "system/405" instead');
+            Log::warning($e);
+
+            Core::writeRegister($e, 'e');
+            Route::executeSystem(405);
+
+        } catch (Http409Exception $e) {
+            Log::warning('Page did not catch the following "Http409Exception" warning. Executing "system/409" instead');
+            Log::warning($e);
+
+            Core::writeRegister($e, 'e');
+            Route::executeSystem(409);
 
         } catch (Exception $e) {
             Notification::new()
@@ -2086,6 +2109,23 @@ class Page implements PageInterface
             if (!Page::getFlashMessages()->getCount()) {
                 Log::warning('Detected POST request without a flash message to give user feedback on what happened with this request!');
             }
+        }
+
+        if (static::$http_code === 200) {
+            Log::success(tr('Script ":script" ended successfully with HTTP code ":httpcode" in ":time" with ":usage" peak memory usage', [
+                ':script'   => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
+                ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+                ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
+                ':httpcode' => static::$http_code
+            ]));
+
+        } else {
+            Log::warning(tr('Script ":script" ended with HTTP warning code ":httpcode" in ":time" with ":usage" peak memory usage', [
+                ':script'   => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
+                ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+                ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
+                ':httpcode' => static::$http_code
+            ]));
         }
 
         // Normal kill request
