@@ -74,7 +74,7 @@ $notification_card = Card::new()
     ->setContent($notification->getHtmlForm()->render())
     ->setButtons(Buttons::new()
         ->addButton(tr('Mark unread'))
-        ->addButton(tr('Back'), DisplayMode::secondary, 'prev', true)
+        ->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getPrevious('/notifications/notifications.html'), true)
         ->addButton(isset_get($go)));
 
 

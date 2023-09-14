@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Phoundation\Accounts\Users\User;
+use Phoundation\Data\DataEntry\Exception\DataEntryReadonlyException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
@@ -61,7 +62,7 @@ if (Page::isPostRequestMethod()) {
 // TODO Implement timers
 //showdie(Timers::get('query'));
 
-                Page::getFlashMessages()->addSuccessMessage(tr('User ":user" has been saved', [':user' => $user->getDisplayName()]));
+                Page::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been saved', [':user' => $user->getDisplayName()]));
                 Page::redirect('referer');
 
             case tr('Impersonate'):
@@ -71,12 +72,17 @@ if (Page::isPostRequestMethod()) {
 
             case tr('Delete'):
                 $user->delete();
-                Page::getFlashMessages()->addSuccessMessage(tr('The user ":user" has been deleted', [':user' => $user->getDisplayName()]));
+                Page::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been deleted', [':user' => $user->getDisplayName()]));
+                Page::redirect();
+
+            case tr('Lock'):
+                $user->lock();
+                Page::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been lock', [':user' => $user->getDisplayName()]));
                 Page::redirect();
 
             case tr('Undelete'):
                 $user->undelete();
-                Page::getFlashMessages()->addSuccessMessage(tr('The user ":user" has been undeleted', [':user' => $user->getDisplayName()]));
+                Page::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been undeleted', [':user' => $user->getDisplayName()]));
                 Page::redirect();
         }
 
@@ -116,6 +122,12 @@ if ($user->canBeStatusChanged()) {
         ->setOutlined(true)
         ->setValue(tr('Delete'))
         ->setContent(tr('Delete'));
+
+    $lock = Button::new()
+        ->setRight(true)
+        ->setMode(DisplayMode::warning)
+        ->setValue(tr('Lock'))
+        ->setContent(tr('Lock'));
 }
 
 
@@ -139,9 +151,10 @@ $user_card = Card::new()
     ->setContent($user->getHtmlForm()->render())
     ->setButtons(Buttons::new()
         ->addButton(isset_get($save))
-        ->addButton(tr('Back'), DisplayMode::secondary, 'prev', true)
+        ->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getPrevious('/accounts/users.html'), true)
         ->addButton(isset_get($audit))
         ->addButton(isset_get($delete))
+        ->addButton(isset_get($lock))
         ->addButton(isset_get($impersonate)));
 
 
@@ -157,7 +170,7 @@ if ($user->getId()) {
             ->render())
         ->setButtons(Buttons::new()
             ->addButton(tr('Save'))
-            ->addButton(tr('Back'), DisplayMode::secondary, 'prev', true));
+            ->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getPrevious('/accounts/users.html'), true));
 
     $rights_card = Card::new()
         ->setCollapseSwitch(true)
@@ -221,8 +234,9 @@ $grid = Grid::new()
 echo $grid->render();
 
 // Set page meta data
+Page::setPageTitle(tr('User :user', [':user' => $user->getDisplayName()]));
 Page::setHeaderTitle(tr('User'));
-Page::setHeaderSubTitle($user->getName());
+Page::setHeaderSubTitle($user->getDisplayName());
 Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                    => tr('Home'),
     '/accounts/users.html' => tr('Users'),

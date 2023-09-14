@@ -29,35 +29,31 @@ use Phoundation\Web\Page;
  */
 
 
-// Get users list
-$users = Users::new();
-
-
 // Button clicked?
 if (Page::isPostRequestMethod()) {
     // Validate POST
     $post = PostValidator::new()
+        ->select('accounts_users_length')->isOptional()->isNumeric()    // This is paging length, ignore
+        ->select('submit')->isOptional()->isVariable()
         ->select('id')->isOptional()->isArray()->each()->isDbId()
         ->validate();
 
     try {
         // Process buttons
-        switch (PostValidator::getSubmitButton()) {
+        switch ($post['submit']) {
             case tr('Delete'):
                 // Delete selected users
-                $count = $users->remove($post['id']);
+                $count = Users::directOperations()->delete($post['id']);
 
                 Page::getFlashMessages()->addSuccessMessage(tr('Deleted ":count" users', [':count' => $count]));
                 Page::redirect('this');
-                break;
 
             case tr('Undelete'):
                 // Undelete selected users
-                $count = $users->undelete($post['id']);
+                $count = Users::directOperations()->undelete($post['id']);
 
                 Page::getFlashMessages()->addSuccessMessage(tr('Undeleted ":count" users', [':count' => $count]));
                 Page::redirect('this');
-                break;
         }
 
     } catch (ValidationFailedException $e) {
@@ -65,6 +61,10 @@ if (Page::isPostRequestMethod()) {
         Page::getFlashMessages()->addMessage($e);
     }
 }
+
+
+// Get users list
+$users = Users::new();
 
 
 // Build the page content
@@ -79,7 +79,6 @@ $filters = Card::new()
 
 
 // Build users table
-
 $buttons = Buttons::new()
     ->addButton(tr('Create'), DisplayMode::primary, '/accounts/user.html')
     ->addButton(tr('Delete'), DisplayMode::warning, ButtonType::submit, true, true);

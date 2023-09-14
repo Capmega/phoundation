@@ -26,7 +26,7 @@ $incident = Incident::get($get['id']);
 // Build the buttons
 $buttons = Buttons::new()
     ->addButton('Submit')
-    ->addButton(tr('Back'), DisplayMode::secondary, 'prev', true);
+    ->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getPrevious('/accounts/incidents.html'), true);
 
 
 // Build the incident form

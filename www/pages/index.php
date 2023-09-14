@@ -1,9 +1,8 @@
 <?php
 
-use Phoundation\Core\Session;
-use Phoundation\Web\Page;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Web\Http\Html\Components\BreadCrumbs;
-
+use Phoundation\Web\Page;
 
 
 // Set page meta data

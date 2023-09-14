@@ -28,7 +28,7 @@ $card     = Card::new()
     ->setTitle($incident->getTitle())
     ->setMaximizeSwitch(true)
     ->setContent($form->render())
-    ->setButtons(Buttons::new()->addButton(tr('Back'), DisplayMode::secondary, 'prev', true));
+    ->setButtons(Buttons::new()->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getPrevious('/security/incidents.html'), true));
 
 
 // Build relevant links

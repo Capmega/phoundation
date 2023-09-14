@@ -45,7 +45,7 @@ if (Page::isPostRequestMethod()) {
             $user->setPassword($post['password'] ,$post['passwordv']);
 
             Page::getFlashMessages()->addSuccessMessage(tr('The password for user ":user" has been updated', [':user' => $user->getDisplayName()]));
-            Page::redirect(UrlBuilder::getWww('prev'));
+            Page::redirect(UrlBuilder::getPrevious('accounts/users/user-' . $user->getId() . '.html'));
 
         } catch (ValidationFailedException $e) {
             // Oops! Show validation errors and remain on page
@@ -61,7 +61,7 @@ if (Page::isPostRequestMethod()) {
 // Build the buttons
 $buttons = Buttons::new()
     ->addButton(tr('Save'))
-    ->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getWww('prev'), true);
+    ->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getPrevious('/accounts/users.html'), true);
 
 
 // Build the user form

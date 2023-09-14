@@ -57,6 +57,6 @@ echo Template::page('admin/system/detail-error')->render([
 Page::setHttpCode(404);
 Page::setBuildBody(false);
 Page::setPageTitle('404 - Page not found');
-Page::setHeaderTitle(tr('404 - Error'));
+Page::setHeaderTitle(tr('404 - Page not found'));
 Page::setDescription(tr('The specified page is not found'));
 Page::setBreadCrumbs();

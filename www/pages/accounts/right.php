@@ -3,20 +3,20 @@
 declare(strict_types=1);
 
 use Phoundation\Accounts\Rights\Right;
-use Phoundation\Core\Session;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
+use Phoundation\Web\Http\Html\Components\BreadCrumbs;
 use Phoundation\Web\Http\Html\Components\Button;
 use Phoundation\Web\Http\Html\Components\Buttons;
+use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Html\Enums\DisplaySize;
 use Phoundation\Web\Http\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
-use Phoundation\Web\Http\Html\Components\BreadCrumbs;
-use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
 
 Session::getUser()->hasAllRights('blergh');
 
@@ -104,7 +104,7 @@ $card  = Card::new()
     ->setContent($form->render())
     ->setButtons(Buttons::new()
         ->addButton(tr('Save'))
-        ->addButton(tr('Back'), DisplayMode::secondary, 'prev', true)
+        ->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getPrevious('/accounts/rights.html'), true)
         ->addButton(isset_get($delete))
         ->addButton(isset_get($audit)));
 

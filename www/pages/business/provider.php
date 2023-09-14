@@ -49,7 +49,7 @@ if (Page::isPostRequestMethod()) {
 // Build the buttons
 $buttons = Buttons::new()
     ->addButton('Submit')
-    ->addButton(tr('Back'), DisplayMode::secondary, 'prev', true)
+    ->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getPrevious('/accounts/providers.html'), true)
     ->addButton(tr('Audit'), DisplayMode::information, '/audit/meta-' . $provider->getMeta() . '.html', false, true);
 
 // Build the provider form

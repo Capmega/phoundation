@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-use Phoundation\Core\Session;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Notifications\Notification;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
+use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
 
@@ -33,4 +34,4 @@ Notification::new()
     ->send();
 
 // Redirect to the all notifications page
-Page::redirect('prev');
+Page::redirect(UrlBuilder::getPrevious('/notifications/notifications.html'));
