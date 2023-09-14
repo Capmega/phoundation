@@ -53,7 +53,7 @@ class EmailAccount extends DataEntry
     /**
      * @inheritDoc
      */
-    protected function initDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
             ->addDefinition(DefinitionFactory::getUsersEmail($this)

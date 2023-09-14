@@ -208,7 +208,7 @@ class SqlSimple
      * @param bool $not
      * @return string
      */
-    protected static function whereNull(?String $value, bool $not = false): string
+    protected static function whereNull(?string $value, bool $not = false): string
     {
         if ($value === null) {
             if ($not) {

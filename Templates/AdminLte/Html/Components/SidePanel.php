@@ -6,7 +6,7 @@ declare(strict_types=1);
 namespace Templates\AdminLte\Html\Components;
 
 use Phoundation\Core\Config;
-use Phoundation\Core\Session;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Web\Http\Html\Renderer;
 use Phoundation\Web\Http\UrlBuilder;
@@ -16,7 +16,7 @@ use Phoundation\Web\Page;
 /**
  * AdminLte Plugin SidePanel class
  *
- * 
+ *
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

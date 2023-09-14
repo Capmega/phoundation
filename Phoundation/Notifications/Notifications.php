@@ -6,12 +6,14 @@ namespace Phoundation\Notifications;
 
 use Phoundation\Audio\Audio;
 use Phoundation\Core\Config;
-use Phoundation\Core\Session;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Notifications\Interfaces\NotificationsInterface;
-use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Http\Html\Components\Input\InputSelect;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Http\Html\Components\Script;
+use Phoundation\Web\Http\Html\Enums\Interfaces\TableRowTypeInterface;
 use Phoundation\Web\Http\UrlBuilder;
 
 
@@ -207,7 +209,7 @@ class Notifications extends DataList implements NotificationsInterface
      */
     public function markSeverityColumn(): static
     {
-        return $this->addCallback(function (&$row, &$params) {
+        return $this->addCallback(function (IteratorInterface|array &$row, TableRowTypeInterface $type, &$params) {
             if (!array_key_exists('severity', $row)) {
                 return;
             }

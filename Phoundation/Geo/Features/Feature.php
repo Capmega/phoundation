@@ -65,7 +65,7 @@ class Feature extends DataEntry
      * @param DefinitionsInterface $definitions
      * @return void
      */
-    protected function initDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions;
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Templates;
 
-use Phoundation\Core\Session;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Storage\Page;
 use Phoundation\Templates\Interfaces\TemplateInterface;
 use Phoundation\Web\Http\UrlBuilder;

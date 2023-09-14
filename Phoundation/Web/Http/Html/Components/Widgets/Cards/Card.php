@@ -261,13 +261,10 @@ class Card extends Widget
         $this->collapsed = $collapsed;
 
         if ($this->collapsed) {
-            if (!$this->collapse_switch) {
-                throw new OutOfBoundsException(tr('Cannot create collapsed card ":title" without collapse switch', [
-                    ':title' => $this->title
-                ]));
-            }
-
             $this->addClass('collapsed-card');
+
+        } else {
+            $this->removeClass('collapsed-card');
         }
 
         return $this;

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html\Components;
 
-use Phoundation\Core\Session;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Traits\DataStatus;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Notifications\Interfaces\NotificationsInterface;

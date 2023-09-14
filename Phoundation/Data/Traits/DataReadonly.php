@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
+use Phoundation\Core\Strings;
+use Phoundation\Data\DataEntry\Exception\DataEntryReadonlyException;
+
 
 /**
  * Trait DataReadonly
@@ -23,6 +26,26 @@ trait DataReadonly
      * @var bool $readonly
      */
     protected bool $readonly = false;
+
+
+    /**
+     * Throws an exception for the given action if the object is readonly
+     *
+     * @param string $action
+     * @return static
+     * @throws DataEntryReadonlyException
+     */
+    public function checkReadonly(string $action): static
+    {
+        if ($this->readonly) {
+            throw new DataEntryReadonlyException(tr('Unable to perform action ":action", the ":object" object is readonly', [
+                ':action' => $action,
+                ':object' => Strings::fromReverse(get_class($this), '\\')
+            ]));
+        }
+
+        return $this;
+    }
 
 
     /**

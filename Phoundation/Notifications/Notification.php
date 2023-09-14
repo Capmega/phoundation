@@ -31,6 +31,7 @@ use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Exception\NotificationBusyException;
+use Phoundation\Notifications\Interfaces\NotificationInterface;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
@@ -51,7 +52,7 @@ use Throwable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Notification
  */
-class Notification extends DataEntry
+class Notification extends DataEntry implements NotificationInterface
 {
     use DataEntryUrl;
     use DataEntryCode;
@@ -65,6 +66,7 @@ class Notification extends DataEntry
     use DataEntryMessage;
     use DataEntryDetails;
     use DataEntryTrace;
+
 
     /**
      * Keeps track of if this noticication was logged or not
@@ -503,7 +505,7 @@ class Notification extends DataEntry
      *
      * @param DefinitionsInterface $definitions
      */
-    protected function initDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
             ->addDefinition(Definition::new($this, 'users_id')

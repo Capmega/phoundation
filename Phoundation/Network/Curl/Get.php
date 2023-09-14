@@ -7,7 +7,7 @@ namespace Phoundation\Network\Curl;
 use Exception;
 use Phoundation\Cli\Color;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Session;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;

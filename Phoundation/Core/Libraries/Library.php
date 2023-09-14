@@ -396,14 +396,16 @@ class Library
     /**
      * Get the .php file for the specified class path
      *
-     * @param string $class_path
-     * @return void
+     * @param object|string $class_path
+     * @param bool $check_php
+     * @return string
      */
-    public static function loadClassFile(string $class_path): void
+    public static function loadClassFile(object|string $class_path, bool $check_php = true): string
     {
-        $file = static::getClassFile($class_path);
+        $file = Library::getClassFile($class_path, $check_php);
         Log::action(tr('Including class file ":file"', [':file' => $file]), 2);
         include_once($file);
+        return $class_path;
     }
 
 

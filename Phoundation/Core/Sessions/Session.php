@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Core;
+namespace Phoundation\Core\Sessions;
 
 use DateTimeZone;
 use Exception;
@@ -13,10 +13,15 @@ use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\SignIn;
 use Phoundation\Accounts\Users\SystemUser;
 use Phoundation\Accounts\Users\User;
+use Phoundation\Core\Arrays;
+use Phoundation\Core\Config;
+use Phoundation\Core\Core;
 use Phoundation\Core\Enums\EnumRequestTypes;
 use Phoundation\Core\Exception\ConfigException;
 use Phoundation\Core\Exception\SessionException;
 use Phoundation\Core\Log\Log;
+use Phoundation\Core\Sessions\Interfaces\SessionInterface;
+use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntry\Exception\DataEntryStatusException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
@@ -50,7 +55,7 @@ use Throwable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
-class Session
+class Session implements SessionInterface
 {
     /**
      * The current user for this session

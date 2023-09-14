@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Storage;
 
-use Phoundation\Core\Session;
 use Phoundation\Data\Categories\Categories;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
@@ -18,7 +17,6 @@ use Phoundation\Data\DataEntry\Traits\DataEntryName;
 use Phoundation\Data\DataEntry\Traits\DataEntryParent;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Storage\Interfaces\PageInterface;
-use Phoundation\Web\Http\UrlBuilder;
 
 
 /**
@@ -127,7 +125,7 @@ class Page extends DataEntry implements PageInterface
      *
      * @param DefinitionsInterface $definitions
      */
-    protected function initDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): void
     {
 //`view_rights_id` bigint DEFAULT NULL,
 //`collections_id` bigint NOT NULL,

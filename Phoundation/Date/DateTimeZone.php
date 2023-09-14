@@ -6,7 +6,7 @@ namespace Phoundation\Date;
 
 use Phoundation\Core\Config;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Session;
+use Phoundation\Core\Sessions\Session;
 
 
 /**

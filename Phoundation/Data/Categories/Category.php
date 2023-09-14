@@ -134,7 +134,7 @@ class Category extends DataEntry implements CategoryInterface
      * @param DefinitionsInterface $definitions
      * @return void
      */
-    protected function initDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
             ->addDefinition(Definition::new($this, 'parents_id')

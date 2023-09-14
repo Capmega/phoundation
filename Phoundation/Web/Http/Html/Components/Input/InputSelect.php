@@ -10,7 +10,6 @@ use Phoundation\Core\Strings;
 use Phoundation\Data\Iterator;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
-use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 use Phoundation\Web\Http\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Http\Html\Components\ResourceElement;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
@@ -18,7 +17,7 @@ use Stringable;
 
 
 /**
- * Class Select
+ * class InputSelect
  *
  *
  *
@@ -336,7 +335,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
         }
 
         if ($this->source_query) {
-            $return .= $this->renderBodyQuery();
+            $this->renderBodyQuery();
         }
 
         if ($this->source?->getCount()) {

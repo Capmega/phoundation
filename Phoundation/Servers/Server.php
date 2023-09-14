@@ -47,7 +47,7 @@ class Server extends DataEntry
     use DataEntryProvider;
     use DataEntrySshAccount;
 
-    
+
     /**
      * Returns the table name used by this object
      *
@@ -324,7 +324,7 @@ class Server extends DataEntry
      *
      * @param DefinitionsInterface $definitions
      */
-    protected function initDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
             ->addDefinition(Definition::new($this, 'seo_hostname')
