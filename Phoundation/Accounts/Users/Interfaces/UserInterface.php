@@ -7,6 +7,7 @@ use Phoundation\Accounts\Rights\Interfaces\RightsInterface;
 use Phoundation\Accounts\Roles\Interfaces\RolesInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Date\DateTime;
+use Phoundation\Notifications\Interfaces\NotificationInterface;
 use Phoundation\Web\Http\Html\Components\Interfaces\FormInterface;
 use Stringable;
 
@@ -578,4 +579,11 @@ interface UserInterface extends DataEntryInterface
      * @return static
      */
     public function setNotificationsHash(string|null $notifications_hash): static;
+
+    /**
+     * Send a notification to only this user.
+     *
+     * @return NotificationInterface
+     */
+    public function notify(): NotificationInterface;
 }

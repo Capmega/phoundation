@@ -2,11 +2,11 @@
 
 namespace Phoundation\Web\Http\Html\Components\Input\Interfaces;
 
+use Phoundation\Web\Http\Html\Components\Interfaces\ResourceElementInterface;
 
-use Phoundation\Web\Http\Html\Components\Input\InputSelect;
 
 /**
- * Class Select
+ * interface InputSelectInterface
  *
  *
  *
@@ -15,7 +15,7 @@ use Phoundation\Web\Http\Html\Components\Input\InputSelect;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-interface InputSelectInterface
+interface InputSelectInterface extends ResourceElementInterface
 {
     /**
      * Sets if the select element allows multiple options to be selected

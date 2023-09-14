@@ -10,6 +10,7 @@ use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Date\DateTime;
 use Phoundation\Web\Http\Html\Components\Interfaces\DataEntryFormInterface;
+use Stringable;
 
 
 /**
@@ -22,7 +23,7 @@ use Phoundation\Web\Http\Html\Components\Interfaces\DataEntryFormInterface;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
-interface DataEntryInterface extends ArrayableInterface
+interface DataEntryInterface extends ArrayableInterface, Stringable
 {
     /**
      * Returns if this DataEntry will validate data before saving
@@ -125,9 +126,17 @@ interface DataEntryInterface extends ArrayableInterface
     public function getLogId(): string;
 
     /**
+     * Returns true if this DataEntry has the specified status
+     *
+     * @param string|null $status
+     * @return bool
+     */
+    public function isStatus(?string $status): bool;
+
+    /**
      * Returns status for this database entry
      *
-     * @return ?String
+     * @return ?string
      */
     public function getStatus(): ?string;
 
@@ -143,7 +152,7 @@ interface DataEntryInterface extends ArrayableInterface
     /**
      * Returns the meta state for this database entry
      *
-     * @return ?String
+     * @return ?string
      */
     public function getMetaState(): ?string;
 
@@ -206,9 +215,11 @@ interface DataEntryInterface extends ArrayableInterface
      *
      * @note Returns NULL if this class has no support for meta information available, or hasn't been written to disk
      *       yet
+     *
+     * @param bool $load
      * @return Meta|null
      */
-    public function getMeta(): ?Meta;
+    public function getMeta(bool $load = false): ?Meta;
 
     /**
      * Returns the meta id for this entry

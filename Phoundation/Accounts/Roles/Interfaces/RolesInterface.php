@@ -4,6 +4,7 @@ namespace Phoundation\Accounts\Roles\Interfaces;
 
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
+use Stringable;
 
 
 /**
@@ -38,10 +39,10 @@ interface RolesInterface extends DataListInterface
     /**
      * Remove the specified role from the roles list
      *
-     * @param RoleInterface|array|string|float|int $role
+     * @param RoleInterface|Stringable|array|string|float|int $role
      * @return static
      */
-    public function remove(RoleInterface|array|string|float|int $role): static;
+    public function remove(RoleInterface|Stringable|array|string|float|int $role): static;
 
     /**
      * Remove all rights for this right

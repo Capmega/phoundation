@@ -5,6 +5,7 @@ namespace Phoundation\Accounts\Users\Interfaces;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
+use Stringable;
 
 
 /**
@@ -39,10 +40,10 @@ interface UsersInterface extends DataListInterface
     /**
      * Remove the specified data entry from the data list
      *
-     * @param User|array|string|float|int $user
+     * @param User|Stringable|array|string|float|int $user
      * @return static
      */
-    public function remove(User|array|string|float|int $user): static;
+    public function remove(User|Stringable|array|string|float|int $user): static;
 
     /**
      * Remove all rights for this right

@@ -5,7 +5,6 @@ namespace Phoundation\Accounts\Roles\Interfaces;
 use Phoundation\Accounts\Rights\Interfaces\RightsInterface;
 use Phoundation\Accounts\Users\Interfaces\UsersInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Web\Http\Html\Components\Form;
 use Phoundation\Web\Http\Html\Components\Interfaces\FormInterface;
 
 

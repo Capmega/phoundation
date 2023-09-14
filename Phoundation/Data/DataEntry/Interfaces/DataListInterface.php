@@ -24,6 +24,11 @@ use Stringable;
 interface DataListInterface extends IteratorInterface
 {
     /**
+     * Returns a new DataList object
+     */
+    public static function new(?array $ids = null): static;
+
+    /**
      * Returns if the specified data entry key exists in the data list
      *
      * @param DataEntryInterface|Stringable|string|float|int $key
@@ -208,4 +213,11 @@ interface DataListInterface extends IteratorInterface
      * @return $this
      */
     public function addSource(DataListInterface|array|null $source): static;
+
+    /**
+     * Access the direct list operations for this class
+     *
+     * @return ListOperationsInterface
+     */
+    public static function directOperations(): ListOperationsInterface;
 }
