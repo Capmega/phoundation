@@ -9,8 +9,10 @@ use Phoundation\Core\Meta\Meta;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
+use Phoundation\Data\DataEntry\Interfaces\ListOperationsInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\DataParent;
+use Phoundation\Data\Traits\DataReadonly;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\QueryBuilder;
 use Phoundation\Databases\Sql\Sql;
@@ -39,6 +41,7 @@ use Stringable;
  */
 abstract class DataList extends Iterator implements DataListInterface
 {
+    use DataReadonly;
     use DataParent {
         setParent as setParentTrait;
     }
@@ -104,20 +107,24 @@ abstract class DataList extends Iterator implements DataListInterface
 
 
     /**
-     * Iterator class constructor
+     * DataList class constructor
      */
-    public function __construct()
+    public function __construct(?array $ids = null)
     {
         parent::__construct();
+
+        if ($ids) {
+            $this->load();
+        }
     }
 
 
     /**
-     * Returns a new Iterator object
+     * Returns a new DataList object
      */
-    public static function new(): static
+    public static function new(?array $ids = null): static
     {
-        return new static();
+        return new static($ids);
     }
 
 
@@ -223,9 +230,13 @@ abstract class DataList extends Iterator implements DataListInterface
     {
         // Does this entry exist?
         if (!array_key_exists($key, $this->source)) {
-            throw new OutOfBoundsException(tr('Key ":key" does not exist in this DataList', [
-                ':key' => $key
-            ]));
+            if ($exception) {
+                throw new OutOfBoundsException(tr('Key ":key" does not exist in this DataList', [
+                    ':key' => $key
+                ]));
+            }
+
+            return null;
         }
 
         return $this->ensureDataEntry($key);
@@ -413,6 +424,17 @@ abstract class DataList extends Iterator implements DataListInterface
     public function delete(?string $comments = null): int
     {
         return $this->setStatus('deleted', $comments);
+    }
+
+
+    /**
+     * Access the direct list operations for this class
+     *
+     * @return ListOperationsInterface
+     */
+    public static function directOperations(): ListOperationsInterface
+    {
+        return new ListOperations(static::class);
     }
 
 
