@@ -2434,7 +2434,10 @@ class Core implements CoreInterface
 
         // Log debug information?
         if (Debug::enabled()) {
-            static::logDebug();
+            // Only when auto complete is not active, of course!
+            if (!AutoComplete::isActive()) {
+                static::logDebug();
+            }
         }
 
         // Cleanup
