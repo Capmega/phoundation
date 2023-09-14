@@ -5,6 +5,7 @@ declare(strict_types=1);
 
 namespace Templates\AdminLte\Html\Components\Input;
 
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Renderer;
 
 
@@ -25,7 +26,23 @@ class InputCheckbox extends Renderer
      */
     public function __construct(\Phoundation\Web\Http\Html\Components\Input\InputCheckbox $element)
     {
-        $element->addClass('form-check-input');
+        $element->addClasses('form-check-input');
         parent::__construct($element);
+    }
+
+
+    /**
+     * Render and return the HTML for this object
+     *
+     * @return string|null
+     */
+    public function render(): ?string
+    {
+        $object = $this->getRenderobject();
+
+        return '<div class="custom-control custom-checkbox">
+                    ' . parent::render() . '
+                    ' . ($object->getLabel() ? '<label for="' . $object->getId() . '" class="custom-control-label">' . $object->getLabel() . '</label>' : '') . '
+                </div>';
     }
 }
