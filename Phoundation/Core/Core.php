@@ -9,16 +9,24 @@ use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Audio\Audio;
 use Phoundation\Cli\AutoComplete;
 use Phoundation\Cli\Cli;
+use Phoundation\Cli\CliCommand;
 use Phoundation\Cli\Exception\MethodNotFoundException;
 use Phoundation\Cli\Exception\NoMethodSpecifiedException;
-use Phoundation\Cli\CliCommand;
 use Phoundation\Core\Enums\EnumRequestTypes;
 use Phoundation\Core\Enums\Interfaces\EnumRequestTypesInterface;
 use Phoundation\Core\Exception\CoreException;
+use Phoundation\Core\Exception\CoreReadonlyException;
+use Phoundation\Core\Exception\CoreStartupFailedException;
+use Phoundation\Core\Exception\Interfaces\CoreStartupFailedExceptionInterface;
 use Phoundation\Core\Exception\MaintenanceModeException;
 use Phoundation\Core\Exception\NoProjectException;
 use Phoundation\Core\Interfaces\CoreInterface;
+use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Log;
+use Phoundation\Core\Meta\Meta;
+use Phoundation\Core\Sessions\Session;
+use Phoundation\Data\DataEntry\Exception\DataEntryReadonlyException;
+use Phoundation\Data\Traits\DataStaticReadonly;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Validator;
@@ -56,6 +64,9 @@ use Throwable;
  */
 class Core implements CoreInterface
 {
+    use DataStaticReadonly;
+
+
     /**
      * Framework version and minimum required PHP version
      */
@@ -186,6 +197,13 @@ class Core implements CoreInterface
      */
     protected static array $storage = [];
 
+    /**
+     * The Core main timer
+     *
+     * @var Timer
+     */
+    protected static Timer $timer;
+
 
     /**
      * Core class constructor
@@ -195,9 +213,6 @@ class Core implements CoreInterface
         static::$state = 'startup';
         static::$register['system']['startup'] = microtime(true);
         static::$register['system']['script']  = Strings::until(Strings::fromReverse($_SERVER['PHP_SELF'], '/'), '.');
-
-        // Register the process start
-        define('STARTTIME', Timer::create('process')->getStart());
 
         // Set local and global process identifiers
         // TODO Implement support for global process identifier
@@ -237,6 +252,10 @@ class Core implements CoreInterface
         require(PATH_ROOT . 'Phoundation/functions.php');
         require(PATH_ROOT . 'Phoundation/mb.php');
 
+        // Register the process start
+        static::$timer = Timers::new('core', 'system');
+        define('STARTTIME', static::$timer->getStart());
+
         // Set timeout and request type, ensure safe PHP configuration, apply general server restrictions, set the
         // project name, platform and request type
         static::securePhpSettings();
@@ -269,6 +288,7 @@ class Core implements CoreInterface
      * This method starts the correct call type handler
      *
      * @return void
+     * @throws CoreStartupFailedExceptionInterface
      */
     public static function startup(): void
     {
@@ -296,7 +316,24 @@ class Core implements CoreInterface
                 }
             }
 
-            throw $e;
+            throw new CoreStartupFailedException('Failed core startup because "' . $e->getMessage() . '"', $e);
+        }
+    }
+
+
+    /**
+     * Throws an exception for the given action if Core (and thus the entire system) is readonly
+     *
+     * @param string $action
+     * @return void
+     * @throws DataEntryReadonlyException
+     */
+    public static function checkReadonly(string $action): void
+    {
+        if (static::$readonly) {
+            throw new CoreReadonlyException(tr('Unable to perform action ":action", the entire system is readonly', [
+                ':action' => $action,
+            ]));
         }
     }
 
@@ -2185,12 +2222,12 @@ class Core implements CoreInterface
      */
     public static function registerShutdown(string $identifier, array|string|callable $function, mixed $data = null): void
     {
-        if (!is_array(static::readRegister('system', 'shutdown'))) {
+        if (!is_array(static::readRegister('system', 'shutdown_callback'))) {
             // Libraries shutdown list
-            static::$register['system']['shutdown'] = [];
+            static::$register['system']['shutdown_callback'] = [];
         }
 
-        static::$register['system']['shutdown'][$identifier] = [
+        static::$register['system']['shutdown_callback'][$identifier] = [
             'data'     => $data,
             'function' => $function
         ];
@@ -2216,13 +2253,13 @@ class Core implements CoreInterface
      */
     public static function unregisterShutdown(string $identifier): bool
     {
-        if (!is_array(static::readRegister('system', 'shutdown'))) {
+        if (!is_array(static::readRegister('system', 'shutdown_callback'))) {
             // Libraries shutdown list
-            static::$register['system']['shutdown'] = [];
+            static::$register['system']['shutdown_callback'] = [];
         }
 
-        if (array_key_exists($identifier, static::$register['system']['shutdown'])) {
-            unset(static::$register['system']['shutdown'][$identifier]);
+        if (array_key_exists($identifier, static::$register['system']['shutdown_callback'])) {
+            unset(static::$register['system']['shutdown_callback'][$identifier]);
             return true;
         }
 
@@ -2274,18 +2311,15 @@ class Core implements CoreInterface
                     ':script' => static::readRegister('system', 'script')
                 ]), 2);
 
-                Session::exit();
-                Path::removeTemporary();
-
-                if (!is_array(static::readRegister('system', 'shutdown'))) {
+                if (!is_array(static::readRegister('system', 'shutdown_callback'))) {
                     // Libraries shutdown list
-                    static::$register['system']['shutdown'] = [];
+                    static::$register['system']['shutdown_callback'] = [];
                 }
 
                 // Reverse the shutdown calls to execute them last added first, first added last
-                static::$register['system']['shutdown'] = array_reverse(static::$register['system']['shutdown']);
+                static::$register['system']['shutdown_callback'] = array_reverse(static::$register['system']['shutdown_callback']);
 
-                foreach (static::$register['system']['shutdown'] as $identifier => $data) {
+                foreach (static::$register['system']['shutdown_callback'] as $identifier => $data) {
                     try {
                         $function = $data['function'];
                         $data     = Arrays::force($data['data'], null);
@@ -2335,7 +2369,7 @@ class Core implements CoreInterface
                                     } elseif (is_string($function[0])) {
                                         if (is_string($function[1])) {
                                             // Ensure the class file is loaded
-                                            Debug::loadClassFile($function[0]);
+                                            Library::loadClassFile($function[0]);
 
                                             // Execute this shutdown function with the specified value
                                             $function[0]::{$function[1]}($value);
@@ -2391,6 +2425,21 @@ class Core implements CoreInterface
                 Core::uncaughtException($e);
             }
         }
+
+        // Flush the meta data
+        Meta::flush();
+
+        // Stop time measuring here
+        static::$timer->stop();
+
+        // Log debug information?
+        if (Debug::enabled()) {
+            static::logDebug();
+        }
+
+        // Cleanup
+        Session::exit();
+        Path::removeTemporary();
 
         if (PLATFORM_HTTP) {
             // Kill a web page
@@ -2606,5 +2655,30 @@ class Core implements CoreInterface
     protected static function securePhpSettings(): void
     {
         ini_set('yaml.decode_php', 'off'); // Do this to avoid the ability to unserialize PHP code
+    }
+
+
+    /**
+     * Log debug information
+     *
+     * @return void
+     */
+    protected static function logDebug(): void
+    {
+        // Log debug information
+        Log::information('DEBUG INFORMATION:');
+        Log::information('Query timers:');
+
+        foreach (Timers::pop('sql', false) as $timer) {
+            Log::write('[' . number_format($timer->getTotal(), 6) . '] ' . $timer->getLabel(), 'debug');
+        }
+
+        Log::information('Other timers:');
+        foreach (Timers::getAll() as $group => $timers) {
+            foreach ($timers as $timer) {
+                $timer->stop(true);
+                Log::write('[' . number_format($timer->getTotal(), 6) . '] ' . $group . ' > ' . $timer->getLabel(), 'debug');
+            }
+        }
     }
 }
