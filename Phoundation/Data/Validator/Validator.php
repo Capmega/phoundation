@@ -778,6 +778,42 @@ abstract class Validator implements ValidatorInterface
 
 
     /**
+     *
+     *
+     * This method ensures that the specified key is the same as the column value in the specified query
+     *
+     * @param string $column
+     * @param callable $callback
+     * @param bool $ignore_case
+     * @param bool $fail_on_null = true
+     * @return static
+     */
+    public function setColumnFromCallback(string $column, callable $callback, bool $ignore_case = false, bool $fail_on_null = true): static
+    {
+        return $this->validateValues(function(&$value) use ($column, $callback, $ignore_case, $fail_on_null) {
+            // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
+            $this->isScalar();
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return;
+            }
+
+            $result = $callback($value, $this->source, $this);
+
+            if (!$result and $fail_on_null) {
+                $this->addFailure(Strings::plural(count($value),
+                    tr('value ":values" does not exist', [':values' => implode(', ', $value)]),
+                    tr('values ":values" do not exist' , [':values' => implode(', ', $value)]))
+                );
+            }
+
+            $this->source[$this->field_prefix . $column] = $result;
+        });
+    }
+
+
+    /**
      * Validates the datatype for the selected field
      *
      * This method ensures that the specified key is the same as the column value in the specified query
@@ -842,7 +878,10 @@ abstract class Validator implements ValidatorInterface
             $result  = sql()->getColumn($query, $execute);
 
             if (!$result and $fail_on_null) {
-                $this->addFailure(Strings::plural(count($execute), tr('value ":values" does not exist', [':values' => implode(', ', $execute)]), tr('values ":values" do not exist', [':values' => implode(', ', $execute)])));
+                $this->addFailure(Strings::plural(count($execute),
+                    tr('value ":values" does not exist', [':values' => implode(', ', $execute)]),
+                    tr('values ":values" do not exist' , [':values' => implode(', ', $execute)])
+                ));
             }
 
             $this->source[$this->field_prefix . $column] = $result;
