@@ -69,6 +69,7 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
      */
     protected int $line;
 
+
     /**
      * Exception constructor
      *

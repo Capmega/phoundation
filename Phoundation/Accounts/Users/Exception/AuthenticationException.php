@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Users\Exception;
 
-use Phoundation\Exception\AccessDeniedException;
+use Phoundation\Accounts\Users\Exception\Interfaces\AuthenticationExceptionInterface;
 use Throwable;
 
 
@@ -18,7 +18,7 @@ use Throwable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
-class AuthenticationException extends UsersException
+class AuthenticationException extends UsersException implements AuthenticationExceptionInterface
 {
     /**
      * The new target that should be executed because of this access denied

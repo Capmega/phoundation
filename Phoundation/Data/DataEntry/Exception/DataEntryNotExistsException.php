@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Exception;
 
+use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryNotExistsExceptionInterface;
+
 
 /**
  * Class DataEntryAlreadyExistsException
@@ -15,6 +17,6 @@ namespace Phoundation\Data\DataEntry\Exception;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-class DataEntryNotExistsException extends DataEntryException
+class DataEntryNotExistsException extends DataEntryException implements DataEntryNotExistsExceptionInterface
 {
 }

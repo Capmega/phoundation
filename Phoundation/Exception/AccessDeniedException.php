@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Exception;
 
+use Phoundation\Exception\Interfaces\AccessDeniedExceptionInterface;
+
 
 /**
  * Class AccessDeniedException
@@ -12,6 +14,6 @@ namespace Phoundation\Exception;
  *
  * @package Phoundation\Exception
  */
-class AccessDeniedException extends Exception
+class AccessDeniedException extends Exception implements AccessDeniedExceptionInterface
 {
 }
