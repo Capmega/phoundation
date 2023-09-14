@@ -6,9 +6,8 @@ namespace Phoundation\Web\Http;
 
 use Phoundation\Core\Config;
 use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
-use Phoundation\Core\Locale\Language\Languages;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Session;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\ArrayValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
@@ -141,6 +140,49 @@ class UrlBuilder implements UrlBuilderInterface
         }
 
         return static::buildUrl($url, null, $use_configured_root);
+    }
+
+
+    /**
+     * Returns a complete www URL for the previous page, or the specified URL
+     *
+     * This will return either the $_GET[previous], $_GET[redirect], or $_SERVER[referer] URL. If none of these exist,
+     * or if they are the current page, then the specified URL will be sent instead.
+     *
+     * @param UrlBuilder|string|null $url The URL to build if no valid previous page is available
+     * @param bool $use_configured_root If true, the builder will not use the root URI from the routing parameters but
+     *                                  from the static configuration
+     * @return static
+     */
+    public static function getPrevious(UrlBuilder|string|null $url = null, bool $use_configured_root = false): static
+    {
+        if (empty($_SERVER['HTTP_REFERER'])) {
+            if (empty($_GET['previous'])) {
+                if (!empty($_GET['redirect'])) {
+                    $option = $_GET['redirect'];
+                }
+
+            } else {
+                $option = $_GET['previous'];
+            }
+
+        } else {
+            $option = $_SERVER['HTTP_REFERER'];
+        }
+
+        if (!empty($option)) {
+            // We found an option, yay!
+            $option  = static::getWww($option, $use_configured_root);
+            $current = static::getWww(null, $use_configured_root);
+
+            if ((string) $current !== (string) $option) {
+                // Option is not current page, return it!
+                return $option;
+            }
+        }
+
+        // No URL found in any of the options, or option was current page. use the specified URL
+        return static::getWww($url, $use_configured_root);
     }
 
 
@@ -808,7 +850,7 @@ throw new UnderConstructionException();
         return match ($url) {
             'self', 'this' , 'here'       => static::getCurrent(),
             'root'                        => static::getCurrentDomainRootUrl(),
-            'prev', 'previous', 'referer' => static::getReferer(),
+            'prev', 'previous', 'referer' => static::getPrevious(),
             default                       => new static($url),
         };
 
