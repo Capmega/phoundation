@@ -68,6 +68,8 @@ class DefinitionFactory
             ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) use ($filters) {
                 return Categories::new()->getHtmlSelect()
                     ->setName($key)
+                    ->setReadonly($definition->getReadonly())
+                    ->setDisabled($definition->getDisabled())
                     ->setSelected(isset_get($source[$key]))
                     ->render();
             })
@@ -159,6 +161,8 @@ class DefinitionFactory
             ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) use ($filters) {
                 return Companies::new()->getHtmlSelect()
                     ->setName($key)
+                    ->setReadonly($definition->getReadonly())
+                    ->setDisabled($definition->getDisabled())
                     ->setSelected(isset_get($source[$key]))
                     ->render();
             })
@@ -217,6 +221,8 @@ class DefinitionFactory
             ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) use ($filters) {
                 return Languages::new()->getHtmlSelect()
                     ->setName($key)
+                    ->setReadonly($definition->getReadonly())
+                    ->setDisabled($definition->getDisabled())
                     ->setSelected(isset_get($source[$key]))
                     ->render();
             })
@@ -278,6 +284,8 @@ class DefinitionFactory
             ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) use ($filters) {
                 return Providers::new()->getHtmlSelect()
                     ->setName($key)
+                    ->setReadonly($definition->getReadonly())
+                    ->setDisabled($definition->getDisabled())
                     ->setSelected(isset_get($source[$key]))
                     ->render();
             })
@@ -334,6 +342,8 @@ class DefinitionFactory
             ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) use ($filters) {
                 return Customers::new()->getHtmlSelect()
                     ->setName($key)
+                    ->setReadonly($definition->getReadonly())
+                    ->setDisabled($definition->getDisabled())
                     ->setSelected(isset_get($source[$key]))
                     ->render();
             })
@@ -390,7 +400,10 @@ class DefinitionFactory
             ->setInputType(InputType::number)
             ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) use ($filters) {
                 return Timezones::new()->getHtmlSelect()
-                    ->setSelected(isset_get($source['timezones_id']))
+                    ->setName($key)
+                    ->setReadonly($definition->getReadonly())
+                    ->setDisabled($definition->getDisabled())
+                    ->setSelected(isset_get($source[$key]))
                     ->render();
             })
             ->setCliField('--timezones-id TIMEZONE-DATABASE-ID')
@@ -452,6 +465,8 @@ class DefinitionFactory
             ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) use ($filters) {
                 return Countries::getHtmlCountriesSelect()
                     ->setName($key)
+                    ->setReadonly($definition->getReadonly())
+                    ->setDisabled($definition->getDisabled())
                     ->setSelected(isset_get($source[$key]))
                     ->render();
             })
@@ -511,6 +526,8 @@ class DefinitionFactory
             ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) use ($filters) {
                 return Country::get($source['countries_id'])->getHtmlStatesSelect($key)
                     ->setName($key)
+                    ->setReadonly($definition->getReadonly())
+                    ->setDisabled($definition->getDisabled())
                     ->setSelected(isset_get($source[$key]))
                     ->render();
             })
@@ -570,6 +587,8 @@ class DefinitionFactory
             ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) use ($filters) {
                 return State::get($source['states_id'])->getHtmlCitiesSelect($key)
                     ->setName($key)
+                    ->setReadonly($definition->getReadonly())
+                    ->setDisabled($definition->getDisabled())
                     ->setSelected(isset_get($source[$key]))
                     ->render();
             })
@@ -632,6 +651,8 @@ class DefinitionFactory
                 return Users::new()->getHtmlSelect()
                     ->setId($field)
                     ->setName($field)
+                    ->setReadonly($definition->getReadonly())
+                    ->setDisabled($definition->getDisabled())
                     ->setSelected(isset_get($source[$key]))
                     ->render();
             })
@@ -690,6 +711,8 @@ class DefinitionFactory
                 return Roles::new()->getHtmlSelect()
                     ->setId($field)
                     ->setName($field)
+                    ->setReadonly($definition->getReadonly())
+                    ->setDisabled($definition->getDisabled())
                     ->setSelected(isset_get($source[$key]))
                     ->render();
             })
