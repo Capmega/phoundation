@@ -18,7 +18,8 @@ use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Session;
+use Phoundation\Core\Sessions\Session;
+use Phoundation\Core\Sessions\Sessions;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
@@ -35,7 +36,6 @@ use Phoundation\Data\DataEntry\Traits\DataEntryFirstNames;
 use Phoundation\Data\DataEntry\Traits\DataEntryGeo;
 use Phoundation\Data\DataEntry\Traits\DataEntryLanguage;
 use Phoundation\Data\DataEntry\Traits\DataEntryLastNames;
-use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryPhones;
 use Phoundation\Data\DataEntry\Traits\DataEntryPicture;
 use Phoundation\Data\DataEntry\Traits\DataEntryTimezone;
@@ -47,8 +47,11 @@ use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Date\DateTime;
 use Phoundation\Exception\NotExistsException;
-use Phoundation\Exception\NotSupportedException;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Restrictions;
+use Phoundation\Notifications\Interfaces\NotificationInterface;
+use Phoundation\Notifications\Notification;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Security\Incidents\Severity;
 use Phoundation\Seo\Seo;
@@ -1183,6 +1186,33 @@ class User extends DataEntry implements UserInterface
 
 
     /**
+     * Delete the specified entries
+     *
+     * @param string|null $comments
+     * @return static
+     */
+    public function lock(?string $comments = null): static
+    {
+        Sessions::new()->drop($this);
+        return $this->setStatus('locked', $comments);
+    }
+
+
+    /**
+     * Erase this user and its data
+     *
+     * @param bool $secure
+     * @return static
+     */
+    public function erase(bool $secure = false): static
+    {
+        // Delete the users data directory, then erase the user from the database
+        Path::new(PATH_DATA . 'home/' . $this->getId(), Restrictions::new(PATH_DATA . 'home/', true))->delete(PATH_DATA . 'home/');
+        return parent::erase();
+    }
+
+
+    /**
      * Save the user to database
      *
      * @param bool $force
@@ -1340,6 +1370,16 @@ class User extends DataEntry implements UserInterface
 
 
     /**
+     * Send a notification to only this user.
+     *
+     * @return NotificationInterface
+     */
+    public function notify(): NotificationInterface
+    {
+        return Notification::new()->setUsersId($this->getId());
+    }
+
+    /**
      * Authenticates the specified user id / email with its password
      *
      * @param string|int $identifier
@@ -1429,7 +1469,7 @@ class User extends DataEntry implements UserInterface
      * @param DefinitionsInterface $definitions
      * @return void
      */
-    protected function initDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
             ->addDefinition(Definition::new($this, 'last_sign_in')

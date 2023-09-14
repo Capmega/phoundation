@@ -43,10 +43,20 @@ class Users extends DataList implements UsersInterface
      */
     public function __construct()
     {
-        $this->setQuery('SELECT   `id`, TRIM(CONCAT(`first_names`, " ", `last_names`)) AS `name`, `nickname`, `email`, `status`, `created_on`
-                               FROM     `accounts_users` 
-                               WHERE    `status` IS NULL 
-                               ORDER BY `name`');
+        $this->setQuery('SELECT    `accounts_users`.`id`, 
+                                         TRIM(CONCAT(`first_names`, " ", `last_names`)) AS `name`, 
+                                         GROUP_CONCAT(CONCAT(UPPER(LEFT(`accounts_roles`.`name`, 1)), SUBSTRING(`accounts_roles`.`name`, 2)) SEPARATOR ", ") AS `roles`, 
+                                         `accounts_users`.`email`, 
+                                         `accounts_users`.`status`, 
+                                         `accounts_users`.`created_on`
+                               FROM      `accounts_users` 
+                               LEFT JOIN `accounts_users_roles`
+                               ON        `accounts_users_roles`.`users_id` = `accounts_users`.`id`  
+                               LEFT JOIN `accounts_roles`
+                               ON        `accounts_roles`.`id` = `accounts_users_roles`.`roles_id`
+                               WHERE     `accounts_users`.`status` IS NULL AND `email` != "guest" 
+                               GROUP BY  `accounts_users`.`id`
+                               ORDER BY  `name`');
 
         parent::__construct();
     }
@@ -186,10 +196,10 @@ class Users extends DataList implements UsersInterface
     /**
      * Remove the specified data entry from the data list
      *
-     * @param UserInterface|array|string|float|int $user
+     * @param UserInterface|Stringable|array|string|float|int $user
      * @return static
      */
-    public function remove(UserInterface|array|string|float|int $user): static
+    public function remove(UserInterface|Stringable|array|string|float|int $user): static
     {
         $this->ensureParent('remove entry from parent');
 
@@ -499,8 +509,8 @@ class Users extends DataList implements UsersInterface
 
         return InputSelect::new()
             ->setSourceQuery('SELECT `' . $key_column . '`, ' . $value_column . ' 
-                                          FROM  `accounts_users`
-                                          WHERE `status` IS NULL ORDER BY `' . Strings::fromReverse($value_column, ' ') . '`')
+                                         FROM  `accounts_users`
+                                         WHERE `status` IS NULL ORDER BY `' . Strings::fromReverse($value_column, ' ') . '`')
             ->setName('users_id')
             ->setNone(tr('Select a user'))
             ->setEmpty(tr('No users available'));
@@ -516,16 +526,15 @@ class Users extends DataList implements UsersInterface
      * @return UsersInterface
      * @throws SqlMultipleResultsException, NotExistsException
      */
-    public static function getForRole(RolesInterface|Stringable|string $role): usersInterface
+    public function loadForRole(RolesInterface|Stringable|string $role): UsersInterface
     {
         $role  = Role::get($role, 'seo_name');
-        $users = Users::new();
-        $users->getQueryBuilder()->setDebug(true)
+        $this->getQueryBuilder()
             ->addSelect('`accounts_users`.*')
             ->addJoin('JOIN `accounts_users_roles` ON `accounts_users_roles`.`users_id` = `accounts_users`.`id`')
             ->addWhere('`accounts_users_roles`.`roles_id` = :roles_id', [':roles_id' => $role->getId()])
             ->addWhere('`accounts_users`.`status`   IS NULL');
 
-        return $users->load();
+        return $this->load();
     }
 }
