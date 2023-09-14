@@ -93,11 +93,13 @@ if ($argv['drop']) {
 
 
 // Update version for specified libraries
-foreach ($argv['version'] as $lib_version) {
-    $library = Strings::until($lib_version, '/');
-    $version = Strings::from($lib_version, '/');
+if ($argv['version']) {
+    foreach ($argv['version'] as $lib_version) {
+        $library = Strings::until($lib_version, '/');
+        $version = Strings::from($lib_version, '/');
 
-    Library::get($library)->setVersion($version);
+        Library::get($library)->setVersion($version);
+    }
 }
 
 
