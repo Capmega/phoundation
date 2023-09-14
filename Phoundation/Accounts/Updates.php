@@ -29,7 +29,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.0.17';
+        return '0.0.18';
     }
 
 
@@ -552,6 +552,35 @@ class Updates extends \Phoundation\Core\Libraries\Updates
         })->addUpdate('0.0.17', function () {
             // Add support for notifications_hash
             sql()->schema()->table('accounts_users')->alter()->addColumn('`notifications_hash` varchar(40) DEFAULT NULL', 'AFTER `fingerprint`');
+
+        })->addUpdate('0.0.18', function () {
+            sql()->schema()->table('accounts_emails')->drop();
+
+            sql()->schema()->table('accounts_emails')->define()
+                ->setColumns('
+                    `id` bigint NOT NULL AUTO_INCREMENT,
+                    `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `created_by` bigint DEFAULT NULL,
+                    `meta_id` bigint NOT NULL,
+                    `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `users_id` bigint DEFAULT NULL,
+                    `type` enum("personal", "business") DEFAULT NULL,
+                    `email` varchar(128) DEFAULT NULL,
+                ')->setIndices('
+                    PRIMARY KEY (`id`),
+                    KEY `created_on` (`created_on`),
+                    KEY `created_by` (`created_by`),
+                    KEY `status` (`status`),
+                    KEY `meta_id` (`meta_id`),
+                    KEY `users_id` (`users_id`),
+                    KEY `email` (`email`),
+                    KEY `type` (`type`),
+                ')->setForeignKeys('
+                    CONSTRAINT `fk_accounts_emails_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
+                    CONSTRAINT `fk_accounts_emails_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_accounts_emails_users_id` FOREIGN KEY (`users_id`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
+                ')->create();
         });
     }
 }
