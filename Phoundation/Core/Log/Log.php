@@ -779,6 +779,7 @@ Class Log {
      * @param int $threshold
      * @param bool $clean
      * @param bool $newline
+     * @param bool $use_prefix
      * @param bool $echo_screen
      * @return bool
      */
