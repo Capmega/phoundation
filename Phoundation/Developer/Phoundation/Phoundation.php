@@ -15,6 +15,7 @@ use Phoundation\Developer\Phoundation\Exception\PatchPartiallySuccessfulExceptio
 use Phoundation\Developer\Phoundation\Exception\PhoundationNotFoundException;
 use Phoundation\Developer\Project\Project;
 use Phoundation\Developer\Versioning\Git\Exception\GitHasChangesException;
+use Phoundation\Developer\Versioning\Git\Exception\GitPatchException;
 use Phoundation\Developer\Versioning\Git\Git;
 use Phoundation\Developer\Versioning\Git\StatusFiles;
 use Phoundation\Exception\OutOfBoundsException;
@@ -293,19 +294,44 @@ class Phoundation extends Project
                     } catch (ProcessFailedException $e) {
                         // Fork me, the patch failed! What file? Stash the little forker and retry without, then unstash it
                         // after for manual review / copy
-                        Log::warning(tr('Trying to fix by stashing problematic file(s)'));
-
                         $output = $e->getDataKey('output');
                         $output = Arrays::match($output, 'patch failed', Arrays::MATCH_ALL | Arrays::MATCH_ANYWHERE| Arrays::MATCH_NO_CASE);
 
-                        foreach ($output as $file) {
-                            $file = Strings::fromReverse($file, ' ');
-                            $file = Strings::untilReverse($file, ':');
+                        if ($output) {
+                            Log::warning(tr('Trying to fix by stashing ":count" problematic file(s) ":files"', [
+                                ':count' => count($output),
+                                ':files' => $output
+                            ]));
 
-                            $stash->add($file);
+                            foreach ($output as $file) {
+                                $file = Strings::fromReverse($file, ' ');
+                                $file = Strings::untilReverse($file, ':');
 
-                            Log::warning(tr('Stashing problematic file ":file"', [':file' => $file]));
-                            Git::new(PATH_ROOT)->add($file)->getStash()->stash($file);
+                                $stash->add($file);
+
+                                Log::warning(tr('Stashing problematic file ":file"', [':file' => $file]));
+                                Git::new(PATH_ROOT)->add($file)->getStash()->stash($file);
+                            }
+
+                        } else {
+                            // There are no problematic files found, look for other issues.
+                            $output = $e->getDataKey('output');
+                            $output = Arrays::match($output, 'already exists in working directory', Arrays::MATCH_ALL | Arrays::MATCH_ANYWHERE| Arrays::MATCH_NO_CASE);
+
+                            if ($output) {
+                                // Found already existing files that cannot be merged. Delete on this side
+                                foreach ($output as $file) {
+                                    $file = Strings::untilReverse($file, ':');
+                                    $file = Strings::from($file, ':');
+                                    $file = trim($file);
+
+                                    Log::warning(tr('Stashing already existing and unmergable file ":file"', [':file' => $file]));
+                                    Git::new(PATH_ROOT)->add($file)->getStash()->stash($file);
+                                }
+                            } else {
+                                // Other unknown error
+                                throw new GitPatchException(tr('Encountered unknown patch exception'), $e);
+                            }
                         }
                     }
                 }
