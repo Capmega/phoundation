@@ -195,7 +195,7 @@ Log::warning($file, echo_screen: false);
      */
     public function setTarget(Stringable|string $target): static
     {
-        $this->target = Filesystem::absolute($target);
+        $this->target = Filesystem::absolute($target, null, false);
         return $this;
     }
 
