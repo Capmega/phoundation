@@ -286,9 +286,8 @@ class DataEntryForm extends Renderer
                             default          => Strings::capitalize($definition_array['type']),
                         };
 
-                        $element_class = '\\Phoundation\\Web\\Http\\Html\\Components\\Input\\Input' . $type;
-                        $file          = Library::getClassFile($element_class);
-                        include_once($file);
+                        // Get the class for this element and ensure the library file is loaded
+                        $element_class = Library::loadClassFile('\\Phoundation\\Web\\Http\\Html\\Components\\Input\\Input' . $type);
 
                         // Depending on input type we might need different code
 
@@ -392,10 +391,8 @@ class DataEntryForm extends Renderer
                             $source[$field] = sql()->getColumn($definition_array['source'], $execute);
                         }
 
-                        // Build the element class path and load the required class file
-                        $element_class = '\\Phoundation\\Web\\Http\\Html\\Components\\Input\\InputTextArea';
-                        $file          = Library::getClassFile($element_class);
-                        include_once($file);
+                        // Get the class for this element and ensure the library file is loaded
+                        $element_class = Library::loadClassFile('\\Phoundation\\Web\\Http\\Html\\Components\\Input\\InputTextArea');
 
                         $html = InputTextArea::new()
                             ->setDisabled((bool) $definition_array['disabled'])
@@ -422,10 +419,8 @@ class DataEntryForm extends Renderer
                             $source[$field] = sql()->getColumn($definition_array['source'], $execute);
                         }
 
-                        // Build the element class path and load the required class file
-                        $element_class = '\\Phoundation\\Web\\Http\\Html\\Components\\' . $element_class;
-                        $file          = Library::getClassFile($element_class);
-                        include_once($file);
+                        // Get the class for this element and ensure the library file is loaded
+                        $element_class = Library::loadClassFile('\\Phoundation\\Web\\Http\\Html\\Components\\' . $element_class);
 
                         $html = $element_class::new()
                             ->setName($field_name)
@@ -438,10 +433,8 @@ class DataEntryForm extends Renderer
                         break;
 
                     case 'select':
-                        // Build the element class path and load the required class file
-                        $element_class = '\\Phoundation\\Web\\Http\\Html\\Components\\Input\\InputSelect';
-                        $file          = Library::getClassFile($element_class);
-                        include_once($file);
+                        // Get the class for this element and ensure the library file is loaded
+                        Library::loadClassFile('\\Phoundation\\Web\\Http\\Html\\Components\\Input\\InputSelect');
 
                         $html = InputSelect::new()
                             ->setSource(isset_get($definition_array['source']), $execute)
@@ -458,12 +451,9 @@ class DataEntryForm extends Renderer
                         break;
 
                     case 'inputmultibuttontext':
-                        // Build the element class path and load the required class file
-                        $element_class = '\\Phoundation\\Web\\Http\\Html\\Components\\Input\\InputMultiButtonText';
-                        $file          = Library::getClassFile($element_class);
-                        include_once($file);
-
-                        $input = InputMultiButtonText::new()
+                        // Get the class for this element and ensure the library file is loaded
+                        $element_class = Library::loadClassFile('\\Phoundation\\Web\\Http\\Html\\Components\\Input\\InputMultiButtonText');
+                        $input         = InputMultiButtonText::new()
                             ->setSource($definition_array['source']);
 
                         $input->getButton()
