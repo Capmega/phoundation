@@ -715,7 +715,7 @@ class Path extends FileBasics implements PathInterface
             link(PATH_PUBTMP . 'p-' . posix_getpid() . '/', static::$temp_path);
         }
 
-        return Path::new(static::$temp_path, $restrictions);
+        return Path::new(static::$temp_path, $restrictions)->ensureWritable();
     }
 
 
