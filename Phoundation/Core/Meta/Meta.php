@@ -7,18 +7,19 @@ namespace Phoundation\Core\Meta;
 use DateTime;
 use Exception;
 use Phoundation\Cli\CliCommand;
+use Phoundation\Core\Config;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Exception\MetaException;
-use Phoundation\Core\Session;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\Validate;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\Sql;
-use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Web\Http\Html\Components\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Http\Html\Components\HtmlTable;
+use Phoundation\Web\Http\Html\Components\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Http\UrlBuilder;
+use Throwable;
 
 
 /**
@@ -41,11 +42,11 @@ class Meta
     protected ?int $id = null;
 
     /**
-     * If true will store and process meta data. If false, it won't
+     * If true will store and process metadata. If false, it won't
      *
-     * @var bool $enbabled
+     * @var bool $enabled
      */
-    protected static bool $enbabled = true;
+    protected static bool $enabled = true;
 
     /**
      * The history of this meta entry
@@ -55,16 +56,48 @@ class Meta
     protected array $history = [];
 
     /**
+     * If true will buffer all meta updates until the system shuts down
+     *
+     * @var bool $buffer
+     */
+    protected static bool $buffer;
+
+    /**
+     * In case buffer mode is enabled, all meta updates will be stored here until flushing
+     *
+     * @var array $updates
+     */
+    protected static array $updates = [];
+
+    /**
+     * In case buffer mode is enabled, this is the buffer pointer
+     *
+     * @var int $pointer
+     */
+    protected static int $pointer = 1;
+
+
+    /**
      * Meta constructor
      *
      * @param int|null $id
+     * @param bool $load
      * @throws Exception
      */
-    public function __construct(?int $id = null)
+    public function __construct(?int $id = null, bool $load = true)
     {
+        if (!isset(static::$buffer)) {
+            static::$buffer = Config::getBoolean('meta.buffer', false);
+        }
+
         if ($id) {
-            // Load the specified metadata
-            $this->load($id);
+            if ($load) {
+                // Load the specified metadata
+                $this->load($id);
+            } else {
+                // We're assuming this ID exists in the meta system
+                $this->id = $id;
+            }
 
         } else {
             if ($id === 0) {
@@ -113,12 +146,13 @@ class Meta
     /**
      * Returns a new Meta object
      *
+     * @param bool $load
      * @return static
      * @throws Exception
      */
-    public static function new(): static
+    public static function new(bool $load = true): static
     {
-        return new static();
+        return new static(null, $load);
     }
 
 
@@ -129,7 +163,7 @@ class Meta
      */
     public static function isEnabled(): bool
     {
-        return static::$enbabled;
+        return static::$enabled;
     }
 
 
@@ -140,7 +174,7 @@ class Meta
      */
     public static function enable(): void
     {
-        static::$enbabled = true;
+        static::$enabled = true;
     }
 
 
@@ -151,7 +185,7 @@ class Meta
      */
     public static function disable(): void
     {
-        static::$enbabled = false;
+        static::$enabled = false;
     }
 
 
@@ -159,11 +193,12 @@ class Meta
      * Returns a metadata object for the specified id
      *
      * @param int|null $id
-     * @return Meta
+     * @param bool $load
+     * @return static
      */
-    public static function get(?int $id = null): Meta
+    public static function get(?int $id = null, bool $load = true): static
     {
-        return new Meta($id);
+        return new static($id, $load);
     }
 
 
@@ -240,7 +275,7 @@ throw new UnderConstructionException();
      */
     public static function init(?string $comments = null, ?string $data = null): Meta
     {
-        if (static::$enbabled) {
+        if (static::$enabled) {
             $meta = new Meta();
             $meta->action('created', $comments, $data);
 
@@ -262,17 +297,28 @@ throw new UnderConstructionException();
      */
     public function action(string $action, ?string $comments = null, ?string $data = null): static
     {
-        if (static::$enbabled and $this->id) {
-            // Insert the action in the meta_history table
-            sql()->query('INSERT INTO `meta_history` (`meta_id`, `created_by`, `action`, `source`, `comments`, `data`) 
+        if (static::$enabled and $this->id) {
+            if (static::$buffer) {
+                static::$updates[++static::$pointer] = [
+                    ':meta_id_' . static::$pointer    => $this->id,
+                    ':created_by_' . static::$pointer => Session::getUser()->getId(),
+                    ':source_' . static::$pointer     => (string) (PLATFORM_HTTP ? UrlBuilder::getCurrent() : CliCommand::getCurrent()),
+                    ':action_' . static::$pointer     => $action,
+                    ':comments_' . static::$pointer   => $comments,
+                    ':data_' . static::$pointer       => $data
+                ];
+            } else {
+                // Insert the action in the meta_history table
+                sql()->query('INSERT INTO `meta_history` (`meta_id`, `created_by`, `action`, `source`, `comments`, `data`) 
                                 VALUES                     (:meta_id , :created_by , :action , :source , :comments , :data )', [
-                ':meta_id'    => $this->id,
-                ':created_by' => Session::getUser()->getId(),
-                ':source'     => (string) (PLATFORM_HTTP ? UrlBuilder::getCurrent() : CliCommand::getCurrent()),
-                ':action'     => $action,
-                ':comments'   => $comments,
-                ':data'       => $data
-            ]);
+                    ':meta_id'    => $this->id,
+                    ':created_by' => Session::getUser()->getId(),
+                    ':source'     => (string) (PLATFORM_HTTP ? UrlBuilder::getCurrent() : CliCommand::getCurrent()),
+                    ':action'     => $action,
+                    ':comments'   => $comments,
+                    ':data'       => $data
+                ]);
+            }
         }
 
         return $this;
@@ -289,6 +335,41 @@ throw new UnderConstructionException();
     {
         // Create and return the table
         return HtmlTable::new()->setSourceQuery('SELECT * FROM `meta_history` WHERE `meta_id` = :meta_id', [':meta_id' => $this->id]);
+    }
+
+
+    /**
+     * Flush the entire meta buffer to the database.
+     *
+     * @return void
+     */
+    public static function flush(): void
+    {
+        try {
+            if (static::$updates) {
+                $values  = ' (:meta_id_:ID , :created_by_:ID , :action_:ID , :source_:ID , :comments_:ID , :data_:ID)';
+                $execute = [];
+
+                // Build query and execute arrays
+                foreach (static::$updates as $pointer => $update) {
+                    $query[] = str_replace(':ID', (string) $pointer, $values);
+                    $execute = array_merge($execute, $update);
+                }
+
+                // Complete query
+                $query = 'INSERT INTO `meta_history` (`meta_id`, `created_by`, `action`, `source`, `comments`, `data`) VALUES ' . implode(', ', $query);
+
+                // Flush!
+                sql()->query($query, $execute);
+            }
+
+        } catch (Throwable $e) {
+            Log::error(tr('Failed to flush ":count" meta entries with following exception', [
+                ':count' => count(static::$updates)
+            ]));
+
+            Log::error($e);
+        }
     }
 
 
