@@ -197,7 +197,13 @@ class Iterator implements IteratorInterface
      */
     public function add(mixed $value, string|float|int|null $key = null): static
     {
-        $this->source[$key] = $value;
+        if ($key === null) {
+            $this->source[] = $value;
+
+        } else {
+            $this->source[$key] = $value;
+        }
+
         return $this;
     }
 
@@ -624,16 +630,12 @@ class Iterator implements IteratorInterface
     /**
      * Deletes the specified key(s)
      *
-     * @param array|string|float|int $keys
+     * @param Stringable|array|string|float|int $keys
      * @return static
      */
-    public function remove(array|string|float|int $keys): static
+    public function remove(Stringable|array|string|float|int $keys): static
     {
-        if (!is_array($keys)) {
-            $keys = [$keys];
-        }
-
-        foreach ($keys as $key) {
+        foreach (Arrays::force($keys, null) as $key) {
             unset($this->source[$key]);
         }
 
