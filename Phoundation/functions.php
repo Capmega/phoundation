@@ -7,7 +7,7 @@ use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreException;
-use Phoundation\Core\Session;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Databases\Databases;
@@ -54,6 +54,18 @@ function is_version(string $version): bool
     }
 
     return (bool) $return;
+}
+
+
+/**
+ * Sleep for the specified amount of milliseconds
+ *
+ * @param int $milliseconds
+ * @return void
+ */
+function msleep(int $milliseconds): void
+{
+    usleep($milliseconds * 1000);
 }
 
 
