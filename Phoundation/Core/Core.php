@@ -817,15 +817,6 @@ class Core implements CoreInterface
             $_SERVER['PHP_SELF'] = $_SERVER['_'];
         }
 
-        // Process command line system arguments if we have no exception so far
-        if ($argv['version']) {
-            Log::information(tr('Phoundation framework code version ":fv"', [
-                ':fv' => static::FRAMEWORKCODEVERSION
-            ]));
-
-            $die = 0;
-        }
-
         // Set more system parameters
         if ($argv['debug']) {
             Debug::enabled();
@@ -837,6 +828,15 @@ class Core implements CoreInterface
 
         if ($argv['no_prefix']) {
             Log::setUsePrefix(!$argv['no_prefix']);
+        }
+
+        // Process command line system arguments if we have no exception so far
+        if ($argv['version']) {
+            Log::information(tr('Phoundation framework version ":fv"', [
+                ':fv' => static::FRAMEWORKCODEVERSION
+            ]), 10);
+
+            $die = 0;
         }
 
         // Check if the owner of this process is the same as the owner of this script (Required to avoid issues)
@@ -2672,15 +2672,17 @@ class Core implements CoreInterface
         Log::information('DEBUG INFORMATION:');
         Log::information('Query timers:');
 
+        Timers::sortHighLow('sql', false);
+
         foreach (Timers::pop('sql', false) as $timer) {
-            Log::write('[' . number_format($timer->getTotal(), 6) . '] ' . $timer->getLabel(), 'debug');
+            Log::write('[' . number_format($timer->getTotal(), 6) . '] ' . $timer->getLabel(), 'debug', 8);
         }
 
         Log::information('Other timers:');
         foreach (Timers::getAll() as $group => $timers) {
             foreach ($timers as $timer) {
                 $timer->stop(true);
-                Log::write('[' . number_format($timer->getTotal(), 6) . '] ' . $group . ' > ' . $timer->getLabel(), 'debug');
+                Log::write('[' . number_format($timer->getTotal(), 6) . '] ' . $group . ' > ' . $timer->getLabel(), 'debug', 8);
             }
         }
     }
