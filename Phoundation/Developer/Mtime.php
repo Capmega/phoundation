@@ -69,7 +69,7 @@ class Mtime
      */
     public static function isModified(Stringable|string $file, string $class = 'default'): bool
     {
-        return filemtime($file) === self::read($class);
+        return filemtime($file) === static::read($class);
     }
 
 
@@ -82,7 +82,7 @@ class Mtime
      */
     public static function updateClass(string $class = 'default', DateTime|int|null $datetime = null): void
     {
-        self::write($class, $datetime);
+        static::write($class, $datetime);
     }
 
 

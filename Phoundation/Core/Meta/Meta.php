@@ -259,7 +259,7 @@ throw new UnderConstructionException();
         $ids = [];
 
         if ($ids) {
-            self::erase($ids);
+            static::erase($ids);
         }
 
         return count($ids);

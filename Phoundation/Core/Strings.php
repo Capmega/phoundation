@@ -2032,7 +2032,7 @@ throw new UnderConstructionException();
         $skip_symbols        = mb_str_split($skip_symbols, 1);
         $standard_delimiters = str_replace($skip_symbols, '', '\\()[]{}<>.?+*^$=!|:-');
 
-        return self::escape($string, $standard_delimiters . $delimiters);
+        return static::escape($string, $standard_delimiters . $delimiters);
     }
 
 

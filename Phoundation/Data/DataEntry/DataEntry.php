@@ -34,7 +34,7 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
-use Phoundation\Databases\Sql\QueryBuilder;
+use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Date\DateTime;
 use Phoundation\Exception\Interfaces\OutOfBoundsExceptionInterface;
@@ -72,13 +72,6 @@ abstract class DataEntry implements DataEntryInterface
      * @var array $source
      */
     protected array $source = [];
-
-    /**
-     * The unique column identifier, next to id
-     *
-     * @var string $unique_field
-     */
-    protected string $unique_field = 'seo_name';
 
     /**
      * Default protected keys, keys that may not leave this object
@@ -245,7 +238,7 @@ abstract class DataEntry implements DataEntryInterface
                     $column = 'id';
 
                 } else {
-                    $column = $this->unique_field;
+                    $column = $this->getUniqueField();
                 }
             }
         }
@@ -1225,7 +1218,7 @@ abstract class DataEntry implements DataEntryInterface
 
         foreach ($this->definitions->getKeys() as $key) {
             // Meta keys cannot be set through DataEntry::setData()
-            if (in_array($key, self::$meta_fields)) {
+            if (in_array($key, static::$meta_fields)) {
                 continue;
             }
 
@@ -1399,7 +1392,7 @@ abstract class DataEntry implements DataEntryInterface
     protected function setMetaData(?array $data = null): static
     {
         // Reset meta fields
-        foreach (self::$meta_fields as $field) {
+        foreach (static::$meta_fields as $field) {
             $this->source[$field] = null;
         }
 
@@ -1416,7 +1409,7 @@ abstract class DataEntry implements DataEntryInterface
 
         foreach ($data as $key => $value) {
             // Only these keys will be set through setMetaData()
-            if (!in_array($key, self::$meta_fields)) {
+            if (!in_array($key, static::$meta_fields)) {
                 continue;
             }
 
@@ -1457,7 +1450,7 @@ abstract class DataEntry implements DataEntryInterface
         }
 
         // Skip all meta fields like id, created_on, meta_id, etc etc etc..
-        if (in_array($field, self::$meta_fields)) {
+        if (in_array($field, static::$meta_fields)) {
             return $this;
         }
 
