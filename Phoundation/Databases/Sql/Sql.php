@@ -15,7 +15,6 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
-use Phoundation\Core\Exception\CoreReadonlyException;
 use Phoundation\Core\Log\Exception\LogException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Meta;
@@ -356,7 +355,7 @@ class Sql implements SqlInterface
         $database             = $this->getDatabaseName($database);
         $this->using_database = $database;
 
-        Log::action(tr('(:id) Using database ":database"', [':id' => $this->uniqueid, ':database' => $database]));
+        Log::action(tr('(:uniqueid) Using database ":database"', [':uniqueid' => $this->uniqueid, ':database' => $database]));
 
         try {
             $this->pdo->query('USE `' . $database . '`');
@@ -455,8 +454,8 @@ class Sql implements SqlInterface
                             }
                         }
 
-                        throw new SqlException(tr('(:id-:database) Sql query ":query" failed with ":e"', [
-                            ':id'       => $this->uniqueid,
+                        throw new SqlException(tr('(:uniqueid-:database) Sql query ":query" failed with ":e"', [
+                            ':uniqueid' => $this->uniqueid,
                             ':database' => static::getDatabase(),
                             ':query'    => $query,
                             ':e'        => $e->getMessage()
@@ -530,8 +529,8 @@ class Sql implements SqlInterface
 
                     if ($column === 'id') {
                         // Duplicate ID, try with a different random number
-                        Log::warning(static::getLogPrefix() . tr('Duplicate ID entry ":id" encountered for insert in table ":table", retrying', [
-                            ':id'    => $insert_row['id'],
+                        Log::warning(static::getLogPrefix() . tr('Duplicate ID entry ":rowid" encountered for insert in table ":table", retrying', [
+                            ':rowid' => $insert_row['id'],
                             ':table' => $table
                         ]));
 
@@ -2053,8 +2052,7 @@ class Sql implements SqlInterface
                     switch ($e->getCode()) {
                         case 1045:
                             // Access  denied!
-                            throw new SqlAccessDeniedException(tr('(:id) Failed to connect to database instance ":instance" with connection string ":string" and user ":user", access was denied by the database server', [
-                                ':id'       => $this->uniqueid,
+                            throw new SqlAccessDeniedException(static::getLogPrefix() . tr('Failed to connect to database instance ":instance" with connection string ":string" and user ":user", access was denied by the database server', [
                                 ':instance' => $this->instance,
                                 ':string'   => $connect_string,
                                 ':user'     => $this->configuration['user']
@@ -2062,8 +2060,7 @@ class Sql implements SqlInterface
 
                         case 1049:
                             // Database doesn't exist!
-                            throw new SqlDatabaseDoesNotExistException(tr('(:id) Failed to connect to database instance ":instance" with connection string ":string" and user ":user" because the database ":database" does not exist', [
-                                ':id'       => $this->uniqueid,
+                            throw new SqlDatabaseDoesNotExistException(static::getLogPrefix() . tr('Failed to connect to database instance ":instance" with connection string ":string" and user ":user" because the database ":database" does not exist', [
                                 ':instance' => $this->instance,
                                 ':string'   => $connect_string,
                                 ':database' => $this->configuration['name'],
@@ -2779,11 +2776,9 @@ class Sql implements SqlInterface
             ->log()
             ->send();
 
-        throw SqlException::new(tr('(:id-:database) Query ":query" failed with ":messages"', [
-            ':database' => static::getDatabase(),
+        throw SqlException::new(static::getLogPrefix() . tr('Query ":query" failed with ":messages"', [
             ':query'    => static::buildQueryString($query, $execute),
             ':messages' => $e->getMessage(),
-            ':id'       => $this->uniqueid
         ]), $e)->setCode(isset_get($error[1]));
     }
 //    /**
