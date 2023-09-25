@@ -1,21 +1,19 @@
 <?php
 
-namespace Phoundation\Databases\Sql\Interfaces;
+namespace Phoundation\Databases\Sql\QueryBuilder\Interfaces;
 
-
-use PDOStatement;
 
 /**
- * QueryBuilder class
+ * interface QueryObjectInterface
  *
- * This class helps building queries with multiple variables
+ *
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Databases
  */
-interface QueryBuilderInterface
+interface QueryObjectInterface
 {
     /**
      * Make this a SELECT query by adding the select clause here
@@ -126,49 +124,10 @@ interface QueryBuilderInterface
     public function compareQuery(string $column, array|string|int|null $value): string;
 
     /**
-     * Returns the complete query that can be executed
+     * Add the specified execute array to the internal execute array
      *
-     * @param bool $debug
-     * @return string
+     * @param array|null $execute
+     * @return static
      */
-    public function getQuery(bool $debug = false): string;
-
-    /**
-     * Returns the bound variables execute array
-     *
-     * @return array|null
-     */
-    public function getExecute(): ?array;
-
-    /**
-     * Executes the query and returns a PDO statement
-     *
-     * @param bool $debug
-     * @return PDOStatement
-     */
-    public function execute(bool $debug = false): PDOStatement;
-
-    /**
-     * Executes the query and returns the single result
-     *
-     * @param bool $debug
-     * @return array|null
-     */
-    public function get(bool $debug = false): ?array;
-
-    /**
-     * Executes the query and returns the single column from the single result
-     *
-     * @param bool $debug
-     * @return string|float|int|bool|null
-     */
-    public function getColumn(bool $debug = false): string|float|int|bool|null;
-
-    /**
-     * Executes the query and returns the list of results
-     *
-     * @param bool $debug
-     * @return array
-     */
-    public function list(bool $debug = false): array;
+    public function addExecuteArray(?array $execute): static;
 }

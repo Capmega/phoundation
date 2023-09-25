@@ -338,4 +338,27 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      * @return DefinitionsInterface
      */
     public function getDefinitions(): DefinitionsInterface;
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string;
+
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getDataEntryName(): string;
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string;
 }
