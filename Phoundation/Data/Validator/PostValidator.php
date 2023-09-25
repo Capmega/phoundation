@@ -203,7 +203,7 @@ class PostValidator extends Validator
             $prefix = $submit;
             $button = null;
 
-            foreach (self::$post as $key => $value) {
+            foreach (static::$post as $key => $value) {
                 if (str_ends_with($key, $submit)) {
                     $submit = $key;
                     $button = trim((string) $value);
@@ -213,7 +213,7 @@ class PostValidator extends Validator
 
         } else {
             // Button must be an exact match
-            $button = trim((string) isset_get(self::$post[$submit]));
+            $button = trim((string) isset_get(static::$post[$submit]));
         }
 
         if (!$submit) {
@@ -221,7 +221,7 @@ class PostValidator extends Validator
             return null;
         }
 
-        unset(self::$post[$submit]);
+        unset(static::$post[$submit]);
 
         if ($button) {
             if ((strlen($button) > 32) or !ctype_print($button)) {

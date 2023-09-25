@@ -405,7 +405,7 @@ class Definition implements DefinitionInterface
      */
     public function getMeta(): bool
     {
-        return in_array($this->field, self::$meta_fields);
+        return in_array($this->field, static::$meta_fields);
     }
 
 
@@ -786,7 +786,7 @@ class Definition implements DefinitionInterface
      */
     public function getReadonly(): ?bool
     {
-        return in_array($this->field, self::$meta_fields) or isset_get_typed('bool', $this->rules['readonly'], false);
+        return in_array($this->field, static::$meta_fields) or isset_get_typed('bool', $this->rules['readonly'], false);
     }
 
 
@@ -836,7 +836,7 @@ class Definition implements DefinitionInterface
      */
     public function getDisabled(): ?bool
     {
-        return in_array($this->field, self::$meta_fields) or isset_get_typed('bool', $this->rules['disabled'], false);
+        return in_array($this->field, static::$meta_fields) or isset_get_typed('bool', $this->rules['disabled'], false);
     }
 
 
@@ -1592,7 +1592,7 @@ class Definition implements DefinitionInterface
      */
     public function inputTypeSupported(string $type): bool
     {
-        return in_array($type, self::$supported_input_types);
+        return in_array($type, static::$supported_input_types);
     }
 
 
@@ -1890,7 +1890,7 @@ class Definition implements DefinitionInterface
                 ':key'   => $key,
                 ':value' => $value,
                 ':field' => $this->field,
-                ':types' => self::$supported_input_types
+                ':types' => static::$supported_input_types
             ]));
         }
     }
