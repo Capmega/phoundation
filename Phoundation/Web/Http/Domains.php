@@ -281,6 +281,7 @@ class Domains {
     {
         try {
             if (!$domain) {
+                $empty  = true;
                 $domain = static::getCurrent();
             }
 
@@ -290,6 +291,18 @@ class Domains {
             return str_replace(':LANGUAGE', $language, $url);
 
         } catch (ConfigurationDoesNotExistsException) {
+            if (isset($empty)) {
+                // Okay, this is a bit of a problem. The CURRENT domain apparently is not configured anywhere.
+                // This MIGHT be caused by "http://phoundation.org./foobar" instead of "http://phoundation.org/foobar"
+                // Log this, and redirect to main-domain/current-url
+                Log::warning(tr('The current domain ":domain" is not configured. Redirecting', [
+                    ':domain' => $domain
+                ]));
+
+                Page::redirect(UrlBuilder::getRootDomainUrl());
+            }
+
+            // The specified domain isn't configured
             throw new ConfigurationDoesNotExistsException(tr('Cannot get root URL for domain ":domain", there is no configuration for that domain', [
                 ':domain' => $domain
             ]));
