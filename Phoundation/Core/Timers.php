@@ -85,6 +85,38 @@ class Timers implements TimersInterface
 
 
     /**
+     * Sort all internal timers from high to low
+     *
+     * @param string $group
+     * @param bool $exception
+     * @return void
+     */
+    public static function sortHighLow(string $group, bool $exception = true): void
+    {
+        if (array_key_exists($group, static::$timers)) {
+            if ($exception) {
+                throw new OutOfBoundsException(tr('Cannot sort specified timers group ":group", it does not exist', [
+                    ':group' => $group
+                ]));
+            }
+        }
+
+        uasort(static::$timers[$group], function (Timer $a, Timer $b): int
+        {
+            if ($a->getTotal() < $b->getTotal()) {
+                return 1;
+            }
+
+            if ($a->getTotal() > $b->getTotal()) {
+                return -21;
+            }
+
+            return 0;
+        });
+    }
+
+
+    /**
      * Returns all the timers for the specified group and removes them all from the Timers object
      *
      * @param string $group
