@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Users;
 
-use PDOStatement;
 use Phoundation\Accounts\Rights\Interfaces\RightInterface;
 use Phoundation\Accounts\Roles\Interfaces\RoleInterface;
-use Phoundation\Accounts\Roles\Interfaces\RolesInterface;
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\Interfaces\UsersInterface;
@@ -15,13 +13,11 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataList;
-use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
-use Phoundation\Databases\Sql\QueryBuilder;
-use Phoundation\Exception\NotExistsException;
+use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Http\Html\Components\Input\InputSelect;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
 use Stringable;
 
 
@@ -522,11 +518,11 @@ class Users extends DataList implements UsersInterface
      *
      * Will throw an NotEx
      *
-     * @param RolesInterface|Stringable|string $role
-     * @return UsersInterface
+     * @param RoleInterface|Stringable|string $role
+     * @return static
      * @throws SqlMultipleResultsException, NotExistsException
      */
-    public function loadForRole(RolesInterface|Stringable|string $role): UsersInterface
+    public function loadForRole(RoleInterface|Stringable|string $role): static
     {
         $role  = Role::get($role, 'seo_name');
         $this->getQueryBuilder()
