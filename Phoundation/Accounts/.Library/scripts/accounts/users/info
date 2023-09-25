@@ -31,25 +31,22 @@ USER                                    The user to display information about. S
                                         address';
 
 
-
 // Validate arguments
 $argv = ArgvValidator::new()
     ->select('user')->hasMinCharacters(2)->hasMaxCharacters(255)
     ->validate();
 
 
+$user = User::get($argv['user']);
 
-try {
-    // Display user data
-    User::get($argv['user'])->getCliForm();
+// Display user data
+$user->getCliForm();
 
-    Log::information('Roles assigned to this user:');
-    User::get($argv['user'])->getRoles()->CliDisplayTable();
+Log::information('Alternative email accounts for this user:');
+$user->getEmails()->CliDisplayTable();
 
-    Log::information('Roles assigned to this user through its roles:');
-    User::get($argv['user'])->getRights()->CliDisplayTable();
+Log::information('Roles assigned to this user:');
+$user->getRoles()->CliDisplayTable();
 
-
-}catch (DataEntryNotExistsException $e) {
-    throw $e->makeWarning();
-}
+Log::information('Roles assigned to this user through its roles:');
+$user->getRights()->CliDisplayTable();
