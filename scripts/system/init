@@ -65,13 +65,12 @@ ARGUMENTS
                                        
 -c / --comments COMMENTS                The optional comments to add in the versions table about this init
 
--v / --version LIBRARY/VERSION,L/V,...  Will update the specified libraries to the specified version before 
-                                        initialization is executed. This is useful to re-run a specific version update');
+-v / --set-version NAME/VERSION,        Will update the specified libraries to the specified version before 
+                   NAME/VERSION, ...    initialization is executed. This is useful to re-run a specific version update');
 
 
 // Get command line arguments
 $argv = ArgvValidator::new()
-    ->select('--set-version', true)->isOptional()->sanitizeForceArray()->each()->matchesRegex('/[a-z]+\/\d{1,3}\.\d{1,3}\.\d{1,3}/i')
     ->select('--drop')->isOptional(false)->isBoolean()
     ->select('--import')->isOptional(false)->isBoolean()
     ->select('--min', true)->isOptional(10)->isNatural()
@@ -82,7 +81,7 @@ $argv = ArgvValidator::new()
     ->select('-p,--plugins')->isOptional(false)->isBoolean()
     ->select('-s,--system')->isOptional(false)->isBoolean()
     ->select('-t,--templates')->isOptional(false)->isBoolean()
-    ->select('-v,--version', true)->isOptional()->hasMaxCharacters(2048)->sanitizeForceArray()->each()->matchesRegex('/[a-z0-9-_]+\/\d{1,3}\.\d{1,3}\.\d{1,3}/i')
+    ->select('-v,--set-version', true)->isOptional()->hasMaxCharacters(2048)->sanitizeForceArray()->each()->matchesRegex('/[a-z0-9-_]+\/\d{1,3}\.\d{1,3}\.\d{1,3}/i')
     ->validate();
 
 
@@ -93,8 +92,8 @@ if ($argv['drop']) {
 
 
 // Update version for specified libraries
-if ($argv['version']) {
-    foreach ($argv['version'] as $lib_version) {
+if ($argv['set_version']) {
+    foreach ($argv['set_version'] as $lib_version) {
         $library = Strings::until($lib_version, '/');
         $version = Strings::from($lib_version, '/');
 
