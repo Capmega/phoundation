@@ -2672,18 +2672,27 @@ class Core implements CoreInterface
         Log::information('DEBUG INFORMATION:');
         Log::information('Query timers:');
 
-        Timers::sortHighLow('sql', false);
+        if (Timers::exists('sql')) {
+            Timers::sortHighLow('sql', false);
 
-        foreach (Timers::pop('sql', false) as $timer) {
-            Log::write('[' . number_format($timer->getTotal(), 6) . '] ' . $timer->getLabel(), 'debug', 8);
+            foreach (Timers::pop('sql', false) as $timer) {
+                Log::write('[' . number_format($timer->getTotal(), 6) . '] ' . $timer->getLabel(), 'debug', 8);
+            }
+        } else {
+            Log::warning('-');
         }
 
         Log::information('Other timers:');
-        foreach (Timers::getAll() as $group => $timers) {
-            foreach ($timers as $timer) {
-                $timer->stop(true);
-                Log::write('[' . number_format($timer->getTotal(), 6) . '] ' . $group . ' > ' . $timer->getLabel(), 'debug', 8);
+
+        if (Timers::getCount()) {
+            foreach (Timers::getAll() as $group => $timers) {
+                foreach ($timers as $timer) {
+                    $timer->stop(true);
+                    Log::write('[' . number_format($timer->getTotal(), 6) . '] ' . $group . ' > ' . $timer->getLabel(), 'debug', 8);
+                }
             }
+        } else {
+            Log::warning('-');
         }
     }
 }
