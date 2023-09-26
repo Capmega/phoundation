@@ -7,6 +7,7 @@ namespace Phoundation\Web\Routing;
 use Exception;
 use Phoundation\Core\Log\Log;
 use Phoundation\Web\Exception\RouteException;
+use Stringable;
 
 
 /**
@@ -95,16 +96,17 @@ class RoutingParametersList
     /**
      * Add the specified parameters
      *
-     * @param string $uri
+     * @param Stringable|string $uri
      * @param bool $system
      * @return RoutingParameters
      */
-    public function select(string $uri, bool $system = false): RoutingParameters
+    public function select(Stringable|string $uri, bool $system = false): RoutingParameters
     {
         if (!$this->ordered) {
             $this->order();
         }
 
+        $uri     = (string) $uri;
         $pattern = null;
 
         // Search in the system or normal pages list for the parameters

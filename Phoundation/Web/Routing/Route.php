@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Routing;
 
 use Exception;
+use GeoIp2\Model\Domain;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
@@ -25,6 +26,7 @@ use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Notifications\Notification;
 use Phoundation\Web\Exception\RouteException;
+use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\File;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Url;
@@ -368,6 +370,7 @@ class Route
         static $count = 1;
 
         static::getInstance();
+        static::validateHost();
 
         try {
             if (!$url_regex) {
@@ -1226,5 +1229,54 @@ class Route
 //
 //        return FirewallEntry;
 //        return $route;
+    }
+
+
+    /**
+     * Ensure that the requested host name is valid
+     *
+     * @todo implement
+     * @return void
+     */
+    protected static function validateHost(): void
+    {
+        // Check only once
+        static $validated = false;
+return;
+
+        if (!$validated) {
+            $validated = true;
+
+            // Check that the domain doesn't start or end with a dot (.) if it does, redirect to the domain without the .
+            // In principle, this should already cause a shitload of other issues, like SSL certs not working, etc. but
+            // still, just to be sure
+            if (empty($_SERVER['HTTP_HOST'])) {
+                // No host name WTF? Redirect to the main site
+                Page::setRoutingParameters(static::getParameters()->select(UrlBuilder::getRootDomainRootUrl()));
+                Page::redirect(UrlBuilder::getRootDomainRootUrl());
+            }
+
+            if (str_starts_with($_SERVER['HTTP_HOST'], '.') or str_ends_with($_SERVER['HTTP_HOST'], '.')) {
+                Log::warning(tr('Encountered invalid HTTP HOST ":host", it starts or ends with a dot. Redirecting to clean hostname', [
+                    ':host' => $_SERVER['HTTP_HOST']
+                ]));
+
+                // Remove dots, whitespaces, etc.
+                $domain = trim(trim($_SERVER['HTTP_HOST'], '.'));
+
+                if (Domains::isConfigured($domain)) {
+                    Log::warning(tr('HTTP HOST ":host" is not configured, redirecting to main site main page', [
+                        ':host' => $_SERVER['HTTP_HOST']
+                    ]));
+
+                    Page::setRoutingParameters(static::getParameters()->select(UrlBuilder::getRootDomainRootUrl()));
+                    Page::redirect(UrlBuilder::getRootDomainRootUrl());
+                }
+
+                // Redirect to correct page
+                Page::setRoutingParameters(static::getParameters()->select(UrlBuilder::getRootDomainUrl()));
+                Page::redirect(UrlBuilder::getRootDomainUrl());
+            }
+        }
     }
 }
