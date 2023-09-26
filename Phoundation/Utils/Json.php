@@ -53,6 +53,7 @@ class Json
                 }
 
                 return $value;
+
             }, $data);
         }
 
@@ -98,7 +99,7 @@ class Json
     /**
      * Send JSON error to client
      *
-     * @param string|array $message
+     * @param string|array|null $message
      * @param mixed $data
      * @param mixed $result
      * @param int $http_code The HTTP code to send out with Json::reply()
@@ -114,7 +115,7 @@ class Json
      * @note Uses Json::reply() to send the error to the client
      * @todo Fix $data and $result parameters. Are they used correctly? They are sometimes overwritten in the method
      */
-    public static function error(string|array $message, $data = null, $result = null, int $http_code = 500): void
+    public static function error(string|array|null $message, $data = null, $result = null, int $http_code = 500): void
     {
         if (!$message) {
             $message = '';
