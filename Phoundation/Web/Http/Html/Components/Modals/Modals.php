@@ -21,12 +21,12 @@ use Phoundation\Web\Http\Html\Components\ElementsBlock;
  */
 class Modals extends ElementsBlock
 {
-    /**
-     * An optional list of modals that are required before rendering can be done
-     *
-     * @var array|null $required
-     */
-    protected ?array $required = null;
+//    /**
+//     * An optional list of modals that are required before rendering can be done
+//     *
+//     * @var array|null $required
+//     */
+//    protected ?array $required = null;
 
 
     /**
@@ -43,22 +43,22 @@ class Modals extends ElementsBlock
     }
 
 
-    /**
-     * Returns true if the specified modal exists
-     *
-     * @param array|string|null $required
-     * @return Modals
-     */
-    public function setRequired(array|string|null $required): static
-    {
-        if (!$required) {
-            $this->required = null;
-        } else {
-            $this->required = Arrays::force($required);
-        }
-
-        return $this;
-    }
+//    /**
+//     * ???
+//     *
+//     * @param array|string|null $required
+//     * @return Modals
+//     */
+//    public function setRequired(array|string|null $required): static
+//    {
+//        if (!$required) {
+//            $this->required = null;
+//        } else {
+//            $this->required = Arrays::force($required);
+//        }
+//
+//        return $this;
+//    }
 
 
     /**

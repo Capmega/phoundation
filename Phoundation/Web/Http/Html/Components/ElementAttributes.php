@@ -99,6 +99,13 @@ trait ElementAttributes
     protected bool $disabled = false;
 
     /**
+     * The HTML required attribute
+     *
+     * @var bool $required
+     */
+    protected bool $required = false;
+
+    /**
      * The tabindex for this element
      *
      * @var int|null
@@ -674,6 +681,41 @@ trait ElementAttributes
 
 
     /**
+     * Returns the HTML required element attribute
+     *
+     * @return bool
+     */
+    public function getRequired(): bool
+    {
+        return $this->required;
+    }
+
+
+    /**
+     * Set the HTML required element attribute
+     *
+     * @param bool $required
+     * @return static
+     */
+    public function setRequired(bool $required): static
+    {
+        $this->required = $required;
+        return $this;
+    }
+
+
+    /**
+     * Returns the HTML disabled element attribute
+     *
+     * @return bool
+     */
+    public function getDisabled(): bool
+    {
+        return $this->disabled;
+    }
+
+
+    /**
      * Set the HTML disabled element attribute
      *
      * @param bool $disabled
@@ -694,13 +736,13 @@ trait ElementAttributes
 
 
     /**
-     * Returns the HTML disabled element attribute
+     * Returns the HTML readonly element attribute
      *
      * @return bool
      */
-    public function getDisabled(): bool
+    public function getReadonly(): bool
     {
-        return $this->disabled;
+        return $this->readonly;
     }
 
 
@@ -721,17 +763,6 @@ trait ElementAttributes
 
         $this->readonly = $readonly;
         return $this;
-    }
-
-
-    /**
-     * Returns the HTML readonly element attribute
-     *
-     * @return bool
-     */
-    public function getReadonly(): bool
-    {
-        return $this->readonly;
     }
 
 

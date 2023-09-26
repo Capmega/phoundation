@@ -85,7 +85,7 @@ abstract class Element implements ElementInterface
 
 
     /**
-     * Renders and returns the HTML for this object using the template renderer if avaialable
+     * Renders and returns the HTML for this object using the template renderer if available
      *
      * @note Templates work as follows: Any component that renders HTML must be in a Html/ directory, either in a
      *       Phoundation library, or in a Plugins library. The path of the component, starting from Html/ is the path

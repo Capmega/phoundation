@@ -208,13 +208,14 @@ class InputAutoSuggest extends InputText
             $variables = null;
         }
 
-
         // This input element requires some javascript
         Page::loadJavascript('adminlte/plugins/jquery-ui/jquery-ui');
 
         // Setup javascript for the component
         $script = Script::new()->setContent('$( "#' . $this->id . '" ).autocomplete({
               source: function(request, response) {
+                let $selected = $( "#' . $this->id . '" );
+
                 $.ajax({
                   url: "' . $this->source_url . '",
                   dataType: "jsonp",
