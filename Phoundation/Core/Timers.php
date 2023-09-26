@@ -85,6 +85,29 @@ class Timers implements TimersInterface
 
 
     /**
+     * Returns the amount of timer groups
+     *
+     * @return int
+     */
+    public static function getCount(): int
+    {
+        return count(static::$timers);
+    }
+
+
+    /**
+     * Returns true if the specified timer group exists, false otherwise
+     *
+     * @param string $group
+     * @return bool
+     */
+    public static function exists(string $group): bool
+    {
+        return array_key_exists($group, static::$timers);
+    }
+
+
+    /**
      * Sort all internal timers from high to low
      *
      * @param string $group
@@ -108,7 +131,7 @@ class Timers implements TimersInterface
             }
 
             if ($a->getTotal() > $b->getTotal()) {
-                return -21;
+                return -1;
             }
 
             return 0;
