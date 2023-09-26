@@ -383,4 +383,19 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      * @return string|null
      */
     public function render(): ?string;
+
+    /**
+     * Returns date format for date ordering
+     *
+     * @return string|null
+     */
+    public function getDateFormat(): ?string;
+
+    /**
+     * Sets date format for date ordering
+     *
+     * @param string|null $date_format
+     * @return $this
+     */
+    public function setDateFormat(?string $date_format): static;
 }

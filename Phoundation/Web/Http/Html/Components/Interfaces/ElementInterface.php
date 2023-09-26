@@ -1,23 +1,19 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Phoundation\Web\Http\Html\Components\Interfaces;
-
-use Stringable;
 
 
 /**
- * Interface ElementInterface
+ * Class Element
  *
- *
+ * This class is an abstract HTML element object class
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-interface ElementInterface extends ElementAttributesInterface, Stringable
+interface ElementInterface
 {
     /**
      * Sets the type of element to display
@@ -35,7 +31,7 @@ interface ElementInterface extends ElementAttributesInterface, Stringable
     public function getElement(): string;
 
     /**
-     * Renders and returns the HTML for this object using the template renderer if avaialable
+     * Renders and returns the HTML for this object using the template renderer if available
      *
      * @note Templates work as follows: Any component that renders HTML must be in a Html/ directory, either in a
      *       Phoundation library, or in a Plugins library. The path of the component, starting from Html/ is the path
@@ -47,4 +43,4 @@ interface ElementInterface extends ElementAttributesInterface, Stringable
      * @see ElementsBlock::render()
      */
     public function render(): ?string;
- }
+}
