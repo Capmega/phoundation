@@ -342,12 +342,20 @@ class Definition implements DefinitionInterface
     /**
      * Returns the extra HTML classes for this DataEntryForm object
      *
+     * @param bool $add_prefixless_names
      * @return array
      * @see Definition::getVirtual()
      */
-    public function getClasses(): array
+    public function getClasses(bool $add_prefixless_names = true): array
     {
-        return isset_get_typed('array', $this->rules['classes'], []);
+        $classes = isset_get_typed('array', $this->rules['classes'], []);
+
+        if ($add_prefixless_names) {
+            // Add the field name without prefix as a class name
+            $classes[] = $this->field;
+        }
+
+        return $classes;
     }
 
 
@@ -1106,6 +1114,19 @@ class Definition implements DefinitionInterface
     public function getOptional(): bool
     {
         return isset_get_typed('bool', $this->rules['optional'], false);
+    }
+
+
+    /**
+     * Returns if this field is required or not
+     *
+     * @note Is the exact opposite of Definition::getOptional()
+     * @note Defaults to true
+     * @return bool
+     */
+    public function getRequired(): bool
+    {
+        return !$this->getOptional();
     }
 
 
