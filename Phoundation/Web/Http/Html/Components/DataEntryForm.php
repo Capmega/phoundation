@@ -105,7 +105,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
      */
     public function inputTypeSupported(string $input): bool
     {
-        return in_array($input, self::$supported_input);
+        return in_array($input, static::$supported_input);
     }
 
 
