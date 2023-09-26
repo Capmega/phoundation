@@ -272,6 +272,18 @@ class UrlBuilder implements UrlBuilderInterface
 
 
     /**
+     * Returns the current URL for the specified domain
+     *
+     * @param string $domain
+     * @return static
+     */
+    public static function getDomainCurrentUrl(string $domain): static
+    {
+        return new static($domain . Page::getUri());
+    }
+
+
+    /**
      * Returns the root URL for the primary domain
      *
      * @return static

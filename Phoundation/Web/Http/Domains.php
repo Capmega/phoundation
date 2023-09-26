@@ -97,7 +97,7 @@ class Domains {
         if (!static::$primary_domain) {
             // Build cache
             static::loadConfiguration();
-            static::$primary_domain = UrlBuilder::getDomainFromUrl((string) isset_get(static::$domains_configuration['primary']['www']));
+            static::$primary_domain = (string) UrlBuilder::getDomainFromUrl((string) isset_get(static::$domains_configuration['primary']['www']));
 
             if (!static::$primary_domain) {
                 // Whoops! We didn't get our primary domain from configuration, likely configuration isn't available yet
@@ -116,18 +116,6 @@ class Domains {
 
 
     /**
-     * Returns true if the specified domain is the primary domain
-     *
-     * @param string $domain
-     * @return bool
-     */
-    public static function isPrimary(string $domain): bool
-    {
-        return static::getPrimary() === $domain;
-    }
-
-
-    /**
      * Returns the current domain
      *
      * @note This is a wrapper for Page::getDomain();
@@ -139,8 +127,10 @@ class Domains {
             return $_SERVER['HTTP_HOST'];
         }
 
+        // Ensure $domain doesn't end with . (which IS valid, but would mess up
         $domain = Strings::from(Config::getString('web.domains.primary.www'), '//');
         $domain = Strings::until($domain, '/');
+        $domain = Strings::endsNotWith($domain, '.');
 
         return $domain;
     }
@@ -189,9 +179,37 @@ class Domains {
      * @param string $domain
      * @return bool
      */
+    public static function isPrimary(string $domain): bool
+    {
+        return static::getPrimary() === $domain;
+    }
+
+
+    /**
+     * Returns true if the specified domain is whitelisted
+     *
+     * @param string $domain
+     * @return bool
+     */
     public static function isWhitelist(string $domain): bool
     {
         return in_array($domain, static::getWhitelist());
+    }
+
+
+    /**
+     * Returns true if the specified domain is configured either as primary or whitelisted domain
+     *
+     * @param string $domain
+     * @return bool
+     */
+    public static function isConfigured(string $domain): bool
+    {
+        if (static::isPrimary($domain)) {
+            return true;
+        }
+
+        return static::isWhitelist($domain);
     }
 
 
