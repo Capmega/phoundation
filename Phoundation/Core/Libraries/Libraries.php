@@ -315,12 +315,17 @@ class Libraries
      *
      * @return HtmlTableInterface
      */
-    public static function getHtmlTable(): HtmlTable
+    public static function getHtmlTable(): HtmlTableInterface
     {
         // Create and return the table
-        return HtmlTable::new()
-            ->setColumnHeaders([tr('Library'), tr('Version'), tr('Description')])
-            ->setSource(static::listLibraries());
+        $table = HtmlTable::new()->setSource(static::listLibraries());
+        $table->getHeaders()->setSource([
+            tr('Library'),
+            tr('Version'),
+            tr('Description')
+        ]);
+
+        return $table;
     }
 
 
