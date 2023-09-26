@@ -1413,7 +1413,7 @@ class Page implements PageInterface
      * @see UrlBuilder::addQueries()
      *
      */
-    #[NoReturn] public static function redirect(UrlBuilder|string|bool|null $url = null, int $http_code = 301, ?int $time_delay = null): never
+    #[NoReturn] public static function redirect(UrlBuilder|string|bool|null $url = null, int $http_code = 302, ?int $time_delay = null): never
     {
         if (!PLATFORM_HTTP) {
             throw new WebException(tr('Page::redirect() can only be called on web sessions'));
@@ -1457,6 +1457,7 @@ class Page implements PageInterface
             case 301:
                 $http_code = 301;
                 break;
+
             case 302:
                 // no-break
             case 303:
@@ -1730,6 +1731,7 @@ class Page implements PageInterface
         try {
             if (!$url) {
                 $url  = 'img/favicons/' . Page::getProjectName() . '/project.png';
+                $url  = static::versionFile($url, 'img');
                 $file = Filesystem::absolute(LANGUAGE . '/' . $url, PATH_CDN);
 
                 static::$headers['link'][$url] = [
@@ -1738,6 +1740,8 @@ class Page implements PageInterface
                     'type' => File::new($file)->getMimetype()
                 ];
             } else {
+                $url = static::versionFile($url, 'img');
+
                 // Unknown (likely remote?) link
                 static::$headers['link'][$url] = [
                     'rel'  => 'icon',
@@ -1775,7 +1779,10 @@ class Page implements PageInterface
 
         $scripts = [];
 
+        // Convert the given URL (parts) to real URLs
         foreach (Arrays::force($urls, ',') as $url) {
+            $url = static::versionFile($url, 'js');
+
             $scripts[$url] = [
                 'type' => 'text/javascript',
                 'src'  => UrlBuilder::getJs($url)
@@ -1811,7 +1818,10 @@ class Page implements PageInterface
     {
         $scripts = [];
 
+        // Convert the given URL (parts) to real URLs
         foreach (Arrays::force($urls, '') as $url) {
+            $url = static::versionFile($url, 'css');
+
             $scripts[$url] = [
                 'rel'  => 'stylesheet',
                 'href' => UrlBuilder::getCss($url),
@@ -2572,5 +2582,37 @@ class Page implements PageInterface
     protected static function getAbsoluteTarget(string $target): string
     {
         return Filesystem::absolute($target, PATH_WWW . 'pages/');
+    }
+
+
+    /**
+     * Will automatically add the timestamp of the specified file as a versioning string
+     *
+     * This is done for efficient caching where you can pretty much set cache to 10 years as changes are picked up by
+     * updated versions of the files
+     *
+     * @see http://particletree.com/notebook/automatically-version-your-css-and-javascript-files/
+     *
+     * @param string $url
+     * @param string $type
+     * @return string
+     */
+    protected static function versionFile(string $url, string $type): string
+    {
+        static $minified;
+
+        if (!isset($minified)) {
+            // All files are minified or none are
+            $minified = (Config::get('web.minified', true) ? '.min' : '');
+        }
+
+        if (Config::getBoolean('cache.version-files', true)) {
+            // Determine the absolute file path
+            // then get timestamp and inject it into the given file
+            $file = PATH_DATA . 'content/cdn/' . LANGUAGE . '/' . $type . '/' . $url . $minified . $type;
+            $url  = Strings::untilReverse($url, '.') . '.' . filectime($file) . '.' . Strings::fromReverse($url, '.');
+        }
+
+        return $url;
     }
 }
