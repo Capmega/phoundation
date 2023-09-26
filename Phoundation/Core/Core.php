@@ -71,7 +71,7 @@ class Core implements CoreInterface
      * Framework version and minimum required PHP version
      */
     public const FRAMEWORKCODEVERSION = '4.2.0';
-    public const PHP_MINIMUM_VERSION  = '8.1.0';
+    public const PHP_MINIMUM_VERSION = '8.1.0';
 
     /**
      * Singleton variable
@@ -129,12 +129,12 @@ class Core implements CoreInterface
      * General purpose data register
      */
     protected static array $register = [
-        'tabindex'      => 0,
-        'js_header'     => [],
-        'js_footer'     => [],
-        'css'           => [],
-        'quiet'         => true,
-        'footer'        => '',
+        'tabindex' => 0,
+        'js_header' => [],
+        'js_footer' => [],
+        'css' => [],
+        'quiet' => true,
+        'footer' => '',
         'debug_queries' => []
     ];
 
@@ -212,7 +212,7 @@ class Core implements CoreInterface
     {
         static::$state = 'startup';
         static::$register['system']['startup'] = microtime(true);
-        static::$register['system']['script']  = Strings::until(Strings::fromReverse($_SERVER['PHP_SELF'], '/'), '.');
+        static::$register['system']['script'] = Strings::until(Strings::fromReverse($_SERVER['PHP_SELF'], '/'), '.');
 
         // Set local and global process identifiers
         // TODO Implement support for global process identifier
@@ -225,27 +225,27 @@ class Core implements CoreInterface
         // PATH_ROOT   is the root directory of this project and should be used as the root for all other paths
         // PATH_TMP    is a private temporary directory
         // PATH_PUBTMP is a public (accessible by web server) temporary directory
-        define('REQUEST'     , substr(uniqid(), 7));
-        define('PATH_ROOT'   , realpath(__DIR__ . '/../..') . '/');
-        define('PATH_WWW'    , PATH_ROOT . 'www/');
-        define('PATH_DATA'   , PATH_ROOT . 'data/');
-        define('PATH_CDN'    , PATH_DATA . 'content/cdn/');
-        define('PATH_TMP'    , PATH_DATA . 'tmp/');
-        define('PATH_PUBTMP' , PATH_DATA . 'content/cdn/tmp/');
+        define('REQUEST', substr(uniqid(), 7));
+        define('PATH_ROOT', realpath(__DIR__ . '/../..') . '/');
+        define('PATH_WWW', PATH_ROOT . 'www/');
+        define('PATH_DATA', PATH_ROOT . 'data/');
+        define('PATH_CDN', PATH_DATA . 'content/cdn/');
+        define('PATH_TMP', PATH_DATA . 'tmp/');
+        define('PATH_PUBTMP', PATH_DATA . 'content/cdn/tmp/');
         define('PATH_SCRIPTS', PATH_ROOT . 'scripts/');
 
         // Setup error handling, report ALL errors, setup shutdown functions
         error_reporting(E_ALL);
-        set_error_handler(['\Phoundation\Core\Core'         , 'phpErrorHandler']);
-        set_exception_handler(['\Phoundation\Core\Core'     , 'uncaughtException']);
+        set_error_handler(['\Phoundation\Core\Core', 'phpErrorHandler']);
+        set_exception_handler(['\Phoundation\Core\Core', 'uncaughtException']);
         register_shutdown_function(['\Phoundation\Core\Core', 'exit']);
 
         // Catch and handle process control signals
         if (function_exists('pcntl_signal')) {
             pcntl_async_signals(true);
-            pcntl_signal(SIGINT ,['\Phoundation\Core\ProcessControlSignals', 'execute']);
-            pcntl_signal(SIGTERM,['\Phoundation\Core\ProcessControlSignals', 'execute']);
-            pcntl_signal(SIGHUP ,['\Phoundation\Core\ProcessControlSignals', 'execute']);
+            pcntl_signal(SIGINT, ['\Phoundation\Core\ProcessControlSignals', 'execute']);
+            pcntl_signal(SIGTERM, ['\Phoundation\Core\ProcessControlSignals', 'execute']);
+            pcntl_signal(SIGHUP, ['\Phoundation\Core\ProcessControlSignals', 'execute']);
         }
 
         // Load the functions and mb files
@@ -504,7 +504,7 @@ class Core implements CoreInterface
         }
 
         // We're done, transfer control to script
-        static::$state  = 'script';
+        static::$state = 'script';
         static::$script = true;
     }
 
@@ -611,20 +611,20 @@ class Core implements CoreInterface
 //                    static::$register['http']['accepts_languages'] = Page::acceptsLanguages();
 
         // Define basic platform constants
-        define('ADMIN'   , '');
-        define('PWD'     , Strings::slash(isset_get($_SERVER['PWD'])));
+        define('ADMIN', '');
+        define('PWD', Strings::slash(isset_get($_SERVER['PWD'])));
         define('STARTDIR', Strings::slash(getcwd()));
-        define('PAGE'    , $_GET['page'] ?? 1);
-        define('ALL'     , (getenv('ALL')     ? 'ALL'     : false));
-        define('DELETED' , (getenv('DELETED') ? 'DELETED' : false));
-        define('FORCE'   , (getenv('FORCE')   ? 'FORCE'   : false));
-        define('ORDERBY' , (getenv('ORDERBY') ? 'ORDERBY' : ''));
-        define('STATUS'  , (getenv('STATUS')  ? 'STATUS'  : ''));
-        define('QUIET'   , (getenv('QUIET')   ? 'QUIET'   : false));
-        define('TEST'    , (getenv('TEST')    ? 'TEST'    : false));
-        define('VERBOSE' , (getenv('VERBOSE') ? 'VERBOSE' : false));
-        define('NOAUDIO' , (getenv('NOAUDIO') ? 'NOAUDIO' : false));
-        define('LIMIT'   , (getenv('LIMIT')   ? 'LIMIT'   : Config::getNatural('paging.limit', 50)));
+        define('PAGE', $_GET['page'] ?? 1);
+        define('ALL', (getenv('ALL') ? 'ALL' : false));
+        define('DELETED', (getenv('DELETED') ? 'DELETED' : false));
+        define('FORCE', (getenv('FORCE') ? 'FORCE' : false));
+        define('ORDERBY', (getenv('ORDERBY') ? 'ORDERBY' : ''));
+        define('STATUS', (getenv('STATUS') ? 'STATUS' : ''));
+        define('QUIET', (getenv('QUIET') ? 'QUIET' : false));
+        define('TEST', (getenv('TEST') ? 'TEST' : false));
+        define('VERBOSE', (getenv('VERBOSE') ? 'VERBOSE' : false));
+        define('NOAUDIO', (getenv('NOAUDIO') ? 'NOAUDIO' : false));
+        define('LIMIT', (getenv('LIMIT') ? 'LIMIT' : Config::getNatural('paging.limit', 50)));
 
         // Check HEAD and OPTIONS requests. If HEAD was requested, just return basic HTTP headers
 // :TODO: Should pages themselves not check for this and perhaps send other headers?
@@ -754,11 +754,11 @@ class Core implements CoreInterface
 
         if ($argv['auto_complete']) {
             // We're in auto complete mode. Show only direct output, don't use any color
-            $argv['log_level']     = 10;
-            $argv['no_color']      = true;
+            $argv['log_level'] = 10;
+            $argv['no_color'] = true;
             $argv['auto_complete'] = explode(' ', trim($argv['auto_complete']));
 
-            $location = (int) array_shift($argv['auto_complete']);
+            $location = (int)array_shift($argv['auto_complete']);
 
             // Reset the $argv array to the auto complete data
             ArgvValidator::hideData($argv['auto_complete']);
@@ -793,20 +793,20 @@ class Core implements CoreInterface
         Config::setEnvironment(ENVIRONMENT);
 
         // Define basic platform constants
-        define('ADMIN'   , '');
-        define('PWD'     , Strings::slash(isset_get($_SERVER['PWD'])));
+        define('ADMIN', '');
+        define('PWD', Strings::slash(isset_get($_SERVER['PWD'])));
         define('STARTDIR', Strings::slash(getcwd()));
-        define('QUIET'   , $argv['quiet']);
-        define('VERBOSE' , $argv['verbose']);
-        define('FORCE'   , $argv['force']);
-        define('NOCOLOR' , $argv['no_color']);
-        define('TEST'    , $argv['test']);
-        define('DELETED' , $argv['deleted']);
-        define('ALL'     , $argv['all']);
-        define('STATUS'  , $argv['status']);
-        define('PAGE'    , $argv['page']);
-        define('NOAUDIO' , $argv['no_audio']);
-        define('LIMIT'   , get_null($argv['limit']) ?? Config::getNatural('paging.limit', 50));
+        define('QUIET', $argv['quiet']);
+        define('VERBOSE', $argv['verbose']);
+        define('FORCE', $argv['force']);
+        define('NOCOLOR', $argv['no_color']);
+        define('TEST', $argv['test']);
+        define('DELETED', $argv['deleted']);
+        define('ALL', $argv['all']);
+        define('STATUS', $argv['status']);
+        define('PAGE', $argv['page']);
+        define('NOAUDIO', $argv['no_audio']);
+        define('LIMIT', get_null($argv['limit']) ?? Config::getNatural('paging.limit', 50));
 
         // Correct $_SERVER['PHP_SELF'], sometimes seems empty
         if (empty($_SERVER['PHP_SELF'])) {
@@ -1024,16 +1024,16 @@ class Core implements CoreInterface
         // Check what platform we're in
         switch (php_sapi_name()) {
             case 'cli':
-                define('PLATFORM'     , 'cli');
+                define('PLATFORM', 'cli');
                 define('PLATFORM_HTTP', false);
-                define('PLATFORM_CLI' , true);
+                define('PLATFORM_CLI', true);
                 break;
 
             default:
-                define('PLATFORM'     , 'http');
+                define('PLATFORM', 'http');
                 define('PLATFORM_HTTP', true);
-                define('PLATFORM_CLI' , false);
-                define('NOCOLOR'      , (getenv('NOCOLOR') ? 'NOCOLOR' : null));
+                define('PLATFORM_CLI', false);
+                define('NOCOLOR', (getenv('NOCOLOR') ? 'NOCOLOR' : null));
                 break;
         }
     }
@@ -1048,7 +1048,7 @@ class Core implements CoreInterface
     {
         // Get the project name
         try {
-            define('PROJECT', strtoupper(trim(file_get_contents( PATH_ROOT . 'config/project'))));
+            define('PROJECT', strtoupper(trim(file_get_contents(PATH_ROOT . 'config/project'))));
 
             if (!PROJECT) {
                 throw new OutOfBoundsException('No project defined in PATH_ROOT/config/project file');
@@ -1063,7 +1063,7 @@ class Core implements CoreInterface
             }
 
             // Project file is not readable
-            if(!is_readable(PATH_ROOT . 'config/project')) {
+            if (!is_readable(PATH_ROOT . 'config/project')) {
                 if (file_exists(PATH_ROOT . 'config/project')) {
                     // Okay, we have a problem here! The project file DOES exist but is not readable. This is either
                     // (likely) a security file owner / group / mode issue, or a filesystem problem. Either way, we
@@ -1249,7 +1249,7 @@ class Core implements CoreInterface
      * @param string|null $subkey
      * @return bool
      */
-    public static function compareRegister(mixed $value, string $key,?string $subkey = null): bool
+    public static function compareRegister(mixed $value, string $key, ?string $subkey = null): bool
     {
         if ($subkey === null) {
             return $value === isset_get(static::$register[$key]);
@@ -1357,7 +1357,7 @@ class Core implements CoreInterface
 
         return match ($state) {
             'init', 'startup' => true,
-            default           => false,
+            default => false,
         };
     }
 
@@ -1397,8 +1397,8 @@ class Core implements CoreInterface
      *
      * @param string|null $state If specified will return the startup state for the specified state instead of the
      *                           internal Core state
-     * @see Core::getState()
      * @return bool
+     * @see Core::getState()
      */
     public static function readyState(?string $state = null): bool
     {
@@ -1409,14 +1409,14 @@ class Core implements CoreInterface
     /**
      * Returns true if the system is in error state
      *
-     * @see Core::getState()
      * @return bool
+     * @see Core::getState()
      */
     public static function errorState(): bool
     {
         return match (static::$state) {
             'error', 'phperror' => true,
-            default             => false,
+            default => false,
         };
     }
 
@@ -1424,13 +1424,13 @@ class Core implements CoreInterface
     /**
      *
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @return void
      * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package system
      *
-     * @return void
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      */
     public static function executedQuery($query_data)
     {
@@ -1497,11 +1497,11 @@ class Core implements CoreInterface
     /**
      * This function is called automatically
      *
-     * @todo Refactor this, its a godawful mess
      * @param Throwable $e
      * @param boolean $die Specify false if this exception should be a warning and continue, true if it should die
      * @return never
      * @note: This function should never be called directly
+     * @todo Refactor this, its a godawful mess
      */
     #[NoReturn] public static function uncaughtException(Throwable $e, bool $die = true): never
     {
@@ -1551,17 +1551,17 @@ class Core implements CoreInterface
 
         // Ensure that definitions exist
         $defines = [
-            'ADMIN'    => '',
-            'PWD'      => Strings::slash(isset_get($_SERVER['PWD'])),
+            'ADMIN' => '',
+            'PWD' => Strings::slash(isset_get($_SERVER['PWD'])),
             'STARTDIR' => Strings::slash(getcwd()),
-            'FORCE'    => (getenv('FORCE')   ? 'FORCE'   : null),
-            'TEST'     => (getenv('TEST')    ? 'TEST'    : null),
-            'QUIET'    => (getenv('QUIET')   ? 'QUIET'   : null),
-            'LIMIT'    => (getenv('LIMIT')   ? 'LIMIT'   : Config::getNatural('paging.limit', 50)),
-            'ORDERBY'  => (getenv('ORDERBY') ? 'ORDERBY' : null),
-            'ALL'      => (getenv('ALL')     ? 'ALL'     : null),
-            'DELETED'  => (getenv('DELETED') ? 'DELETED' : null),
-            'STATUS'   => (getenv('STATUS')  ? 'STATUS'  : null)
+            'FORCE' => (getenv('FORCE') ? 'FORCE' : null),
+            'TEST' => (getenv('TEST') ? 'TEST' : null),
+            'QUIET' => (getenv('QUIET') ? 'QUIET' : null),
+            'LIMIT' => (getenv('LIMIT') ? 'LIMIT' : Config::getNatural('paging.limit', 50)),
+            'ORDERBY' => (getenv('ORDERBY') ? 'ORDERBY' : null),
+            'ALL' => (getenv('ALL') ? 'ALL' : null),
+            'DELETED' => (getenv('DELETED') ? 'DELETED' : null),
+            'STATUS' => (getenv('STATUS') ? 'STATUS' : null)
         ];
 
         foreach ($defines as $key => $value) {
@@ -1589,8 +1589,8 @@ class Core implements CoreInterface
                 if (!defined('PLATFORM')) {
                     // System crashed before platform detection.
                     Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', [
-                        ':code'   => $e->getCode(),
-                        ':type'   => static::getRequestType()->value,
+                        ':code' => $e->getCode(),
+                        ':type' => static::getRequestType()->value,
                         ':script' => static::readRegister('system', 'script')
                     ]));
 
@@ -1699,10 +1699,10 @@ class Core implements CoreInterface
 //                            }
 
                         Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" CLI PLATFORM SCRIPT ":script" WITH ENVIRONMENT ":environment" DURING CORE STATE ":state" ***', [
-                            ':code'        => $e->getCode(),
-                            ':type'        => static::getRequestType()->value,
-                            ':state'       => static::$state,
-                            ':script'      => static::readRegister('system', 'script'),
+                            ':code' => $e->getCode(),
+                            ':type' => static::getRequestType()->value,
+                            ':state' => static::$state,
+                            ':script' => static::readRegister('system', 'script'),
                             ':environment' => (defined('ENVIRONMENT') ? ENVIRONMENT : null)
                         ]));
 
@@ -1732,10 +1732,10 @@ class Core implements CoreInterface
                         } else {
                             // Log exception data
                             Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" WEB PLATFORM SCRIPT ":script" WITH ENVIRONMENT ":environment" DURING CORE STATE ":state" ***', [
-                                ':code'        => $e->getCode(),
-                                ':type'        => static::getRequestType()->value,
-                                ':state'       => static::$state,
-                                ':script'      => static::readRegister('system', 'script'),
+                                ':code' => $e->getCode(),
+                                ':type' => static::getRequestType()->value,
+                                ':state' => static::$state,
+                                ':script' => static::readRegister('system', 'script'),
                                 ':environment' => (defined('ENVIRONMENT') ? ENVIRONMENT : null)
                             ]));
 
@@ -1850,33 +1850,33 @@ class Core implements CoreInterface
                                         <table class="exception">
                                             <thead>
                                                 <td colspan="2" class="center">
-                                                    '.tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', [
-                                                        ':code'   => $e->getCode(),
-                                                        ':script' => static::readRegister('system', 'script'),
-                                                        ':type'   => Core::getRequestType()->value
-                                                    ]).'
+                                                    ' . tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', [
+                                    ':code' => $e->getCode(),
+                                    ':script' => static::readRegister('system', 'script'),
+                                    ':type' => Core::getRequestType()->value
+                                ]) . '
                                                 </td>
                                             </thead>
                                             <tbody>
                                                 <tr>
                                                     <td colspan="2" class="center">
-                                                        '.tr('An uncaught exception with code ":code" occured in script ":script". See the exception core dump below for more information on how to fix this issue', array(':code' => $e->getCode(), ':script' => static::readRegister('system', 'script'))).'
+                                                        ' . tr('An uncaught exception with code ":code" occured in script ":script". See the exception core dump below for more information on how to fix this issue', array(':code' => $e->getCode(), ':script' => static::readRegister('system', 'script'))) . '
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td>
-                                                        '.tr('File').'
+                                                        ' . tr('File') . '
                                                     </td>
                                                     <td>
-                                                        ' . $e->getFile().'
+                                                        ' . $e->getFile() . '
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td>
-                                                        '.tr('Line').'
+                                                        ' . tr('Line') . '
                                                     </td>
                                                     <td>
-                                                        ' . $e->getLine().'
+                                                        ' . $e->getLine() . '
                                                     </td>
                                                 </tr>
                                             </tbody>
@@ -1917,7 +1917,7 @@ class Core implements CoreInterface
                         Route::executeSystem($e->getCode());
                 }
 
-            }catch(Throwable $f) {
+            } catch (Throwable $f) {
 //                if (!isset($core)) {
 //                    Log::error(tr('*** UNCAUGHT PRE CORE AVAILABLE EXCEPTION HANDLER CRASHED ***'));
 //                    Log::error(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
@@ -1965,7 +1965,7 @@ class Core implements CoreInterface
                 }
             }
 
-        }catch(Throwable $g) {
+        } catch (Throwable $g) {
             // Well, we tried. Here we just give up all together. Don't do anything anymore because every step from here
             // will fail anyway. Just die
             exit("Fatal error. check data/syslog, application server logs, or webserver logs for more information\n");
@@ -1976,11 +1976,11 @@ class Core implements CoreInterface
     /**
      * Set the timeout value for this script
      *
+     * @param null|int $timeout The amount of seconds this script can run until it is aborted automatically
+     * @return bool Returns TRUE on success, or FALSE on failure.
      * @see set_time_limit()
      * @version 2.7.5: Added function and documentation
      *
-     * @param null|int $timeout The amount of seconds this script can run until it is aborted automatically
-     * @return bool Returns TRUE on success, or FALSE on failure.
      */
     public static function setTimeout(int $timeout = null): bool
     {
@@ -2019,7 +2019,7 @@ class Core implements CoreInterface
                     $language = Config::get('languages.default', 'en');
 
                     Log::warning(tr('Detected language ":language" is not supported, falling back to default. See configuration path "languages.supported"', [
-                        ':language' => $language]
+                            ':language' => $language]
                     ));
                 }
 
@@ -2049,8 +2049,8 @@ class Core implements CoreInterface
     /**
      * Apply the specified or configured locale
      *
-     * @todo what is this supposed to return anyway?
      * @return void
+     * @todo what is this supposed to return anyway?
      */
     public static function setLocale(): void
     {
@@ -2059,12 +2059,12 @@ class Core implements CoreInterface
         ini_set('default_charset', Config::get('languages.encoding.charset', 'UTF-8'));
 
         $locale = Config::get('locale', [
-            LC_ALL      => ':LANGUAGE_:COUNTRY.UTF8',
-            LC_COLLATE  => null,
-            LC_CTYPE    => null,
+            LC_ALL => ':LANGUAGE_:COUNTRY.UTF8',
+            LC_COLLATE => null,
+            LC_CTYPE => null,
             LC_MONETARY => null,
-            LC_NUMERIC  => null,
-            LC_TIME     => null,
+            LC_NUMERIC => null,
+            LC_TIME => null,
             LC_MESSAGES => null
         ]);
 
@@ -2092,7 +2092,7 @@ class Core implements CoreInterface
         // First set LC_ALL as a baseline, then each individual entry
         if (isset($locale[LC_ALL])) {
             $locale[LC_ALL] = str_replace(':LANGUAGE', $language, $locale[LC_ALL]);
-            $locale[LC_ALL] = str_replace(':COUNTRY' , $country , $locale[LC_ALL]);
+            $locale[LC_ALL] = str_replace(':COUNTRY', $country, $locale[LC_ALL]);
 
             setlocale(LC_ALL, $locale[LC_ALL]);
             unset($locale[LC_ALL]);
@@ -2110,8 +2110,8 @@ class Core implements CoreInterface
                 continue;
             }
 
-            $value = str_replace(':LANGUAGE', $language, (string) $value);
-            $value = str_replace(':COUNTRY' , $country , (string) $value);
+            $value = str_replace(':LANGUAGE', $language, (string)$value);
+            $value = str_replace(':COUNTRY', $country, (string)$value);
 
             setlocale($key, $value);
         }
@@ -2133,14 +2133,14 @@ class Core implements CoreInterface
         $paths = [
             '/var/lib/data/',
             '/var/www/data/',
-            PATH_ROOT.'../data/',
-            PATH_ROOT.'../../data/'
+            PATH_ROOT . '../data/',
+            PATH_ROOT . '../../data/'
         ];
 
         if (!empty($_SERVER['HOME'])) {
             // Also check the users home directory
-            $paths[] = $_SERVER['HOME'].'/projects/data/';
-            $paths[] = $_SERVER['HOME'].'/data/';
+            $paths[] = $_SERVER['HOME'] . '/projects/data/';
+            $paths[] = $_SERVER['HOME'] . '/data/';
         }
 
         $found = false;
@@ -2181,7 +2181,7 @@ class Core implements CoreInterface
                 // Its now created! Strip "data/"
                 $path = Strings::slash($path);
 
-            }catch(Exception $e) {
+            } catch (Exception $e) {
                 throw new CoreException('get_global_data_path(): Global data path not found, or init_global_data_path failed / aborted', $e);
             }
         }
@@ -2228,7 +2228,7 @@ class Core implements CoreInterface
         }
 
         static::$register['system']['shutdown_callback'][$identifier] = [
-            'data'     => $data,
+            'data' => $data,
             'function' => $function
         ];
     }
@@ -2241,7 +2241,7 @@ class Core implements CoreInterface
      *
      * @param string $identifier
      * @return bool
-     *@author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -2292,14 +2292,13 @@ class Core implements CoreInterface
 
         if (!$sig_kill) {
             try {
-                static::$state = 'shutdown';
-
                 // Do we need to run other shutdown functions?
                 if (static::startupState()) {
                     if (!$exit_code) {
                         Log::error(tr('Shutdown procedure started before static::$register[script] was ready, possibly on script ":script"', [
                             ':script' => $_SERVER['PHP_SELF']
                         ]));
+
                         return;
                     }
 
@@ -2307,118 +2306,9 @@ class Core implements CoreInterface
                     return;
                 }
 
-                Log::action(tr('Starting shutdown procedure for script ":script"', [
-                    ':script' => static::readRegister('system', 'script')
-                ]), 2);
-
-                if (!is_array(static::readRegister('system', 'shutdown_callback'))) {
-                    // Libraries shutdown list
-                    static::$register['system']['shutdown_callback'] = [];
-                }
-
-                // Reverse the shutdown calls to execute them last added first, first added last
-                static::$register['system']['shutdown_callback'] = array_reverse(static::$register['system']['shutdown_callback']);
-
-                foreach (static::$register['system']['shutdown_callback'] as $identifier => $data) {
-                    try {
-                        $function = $data['function'];
-                        $data     = Arrays::force($data['data'], null);
-
-                        // If no data was specified at all, then ensure at least one NULL value
-                        if (!$data) {
-                            $data = [null];
-                        }
-
-                        // Execute this shutdown function for each data value
-                        foreach ($data as $value) {
-                            Log::action(tr('Executing shutdown function ":identifier" with data value ":value"', [
-                                ':identifier' => $identifier,
-                                ':value'      => $value
-                            ]), 1);
-
-                            if (is_callable($function)) {
-                                // Execute this call directly
-                                $function($value);
-                                continue;
-                            }
-
-                            if (is_string($function)) {
-                                if (str_contains($function, ',')) {
-                                    // This is an array containing components. Explode and treat as array
-                                    $function = explode(',', $function);
-                                } else {
-                                    $function[0]::{$function[1]}($value);
-                                    continue;
-                                }
-                            }
-
-                            // Execute this shutdown function with the specified value
-                            if (is_array($function)) {
-                                // Decode the array contents. If anything is not correct, it will no-break fall through to the
-                                // warning log
-                                if (count($function) === 2) {
-                                    // The first entry can either be a class name string or an object
-                                    if (is_object($function[0])) {
-                                        if (is_string($function[1])) {
-                                            // Execute the method in the specified object
-                                            $function[0]->$function[1]($value);
-                                            continue;
-                                        }
-
-                                        // no-break
-                                    } elseif (is_string($function[0])) {
-                                        if (is_string($function[1])) {
-                                            // Ensure the class file is loaded
-                                            Library::loadClassFile($function[0]);
-
-                                            // Execute this shutdown function with the specified value
-                                            $function[0]::{$function[1]}($value);
-                                            continue;
-                                        }
-
-                                        // no-break
-                                    }
-
-                                    // no-break
-                                }
-
-                                // no-break
-                            }
-
-                            Log::warning(tr('Unknown function information ":function" encountered, quietly skipping', [
-                                ':function' => $function
-                            ]));
-                        }
-
-                    } catch (Throwable $e) {
-                        Notification::new()
-                            ->setException($e)
-                            ->send(true);
-
-                        throw $e;
-                    }
-                }
-
-                // Periodically execute the following functions
-                if (!$exit_code) {
-                    $level = random_int(0, 100);
-
-                    if (Config::get('system.shutdown', false)) {
-                        if (!is_array(Config::get('system.shutdown', false))) {
-                            throw new OutOfBoundsException(tr('Invalid system.shutdown configuration, it should be an array'));
-                        }
-
-                        foreach (Config::get('system.shutdown', false) as $name => $parameters) {
-                            if ($parameters['interval'] and ($level < $parameters['interval'])) {
-                                Log::notice(tr('Executing periodical shutdown function ":function()"', [
-                                    ':function' => $name
-                                ]));
-
-                                $parameters['function']();
-                            }
-                        }
-                    }
-                }
+                static::$state = 'shutdown';
+                static::executeShutdownCallbacks($exit_code, $exit_message, $sig_kill);
+                static::executePeriodicals($exit_code, $exit_message, $sig_kill);
 
             } catch (Throwable $e) {
                 // Uncaught exception handler for shutdown
@@ -2451,6 +2341,145 @@ class Core implements CoreInterface
 
         // Kill a CLI command
         CliCommand::exit($exit_code, $exit_message, $sig_kill);
+    }
+
+
+    /**
+     * This method will execute all registered shutdown callback functions
+     *
+     * @param Throwable|int $exit_code
+     * @param string|null $exit_message
+     * @param bool $sig_kill
+     * @return void
+     * @throws Throwable
+     */
+    protected static function executePeriodicals(Throwable|int $exit_code = 0, ?string $exit_message = null, bool $sig_kill = false): void
+    {
+        // Periodically execute the following functions
+        if (!$exit_code) {
+            $level = random_int(0, 100);
+
+            if (Config::get('system.shutdown', false)) {
+                if (!is_array(Config::get('system.shutdown', false))) {
+                    throw new OutOfBoundsException(tr('Invalid system.shutdown configuration, it should be an array'));
+                }
+
+                foreach (Config::get('system.shutdown', false) as $name => $parameters) {
+                    if ($parameters['interval'] and ($level < $parameters['interval'])) {
+                        Log::notice(tr('Executing periodical shutdown function ":function()"', [
+                            ':function' => $name
+                        ]));
+
+                        $parameters['function']();
+                    }
+                }
+            }
+        }
+    }
+
+
+    /**
+     * This method will execute all registered shutdown callback functions
+     *
+     * @param Throwable|int $exit_code
+     * @param string|null $exit_message
+     * @param bool $sig_kill
+     * @return void
+     * @throws Throwable
+     */
+    protected static function executeShutdownCallbacks(Throwable|int $exit_code = 0, ?string $exit_message = null, bool $sig_kill = false): void
+    {
+        Log::action(tr('Starting shutdown procedure for script ":script"', [
+            ':script' => static::readRegister('system', 'script')
+        ]), 2);
+
+        if (!is_array(static::readRegister('system', 'shutdown_callback'))) {
+            // Libraries shutdown list
+            static::$register['system']['shutdown_callback'] = [];
+        }
+
+        // Reverse the shutdown calls to execute them last added first, first added last
+        static::$register['system']['shutdown_callback'] = array_reverse(static::$register['system']['shutdown_callback']);
+
+        foreach (static::$register['system']['shutdown_callback'] as $identifier => $data) {
+            try {
+                $function = $data['function'];
+                $data     = Arrays::force($data['data'], null);
+
+                // If no data was specified at all, then ensure at least one NULL value
+                if (!$data) {
+                    $data = [null];
+                }
+
+                // Execute this shutdown function for each data value
+                foreach ($data as $value) {
+                    Log::action(tr('Executing shutdown function ":identifier" with data value ":value"', [
+                        ':identifier' => $identifier,
+                        ':value'      => $value
+                    ]), 1);
+
+                    if (is_callable($function)) {
+                        // Execute this call directly
+                        $function($value);
+                        continue;
+                    }
+
+                    if (is_string($function)) {
+                        if (str_contains($function, ',')) {
+                            // This is an array containing components. Explode and treat as array
+                            $function = explode(',', $function);
+                        } else {
+                            $function[0]::{$function[1]}($value);
+                            continue;
+                        }
+                    }
+
+                    // Execute this shutdown function with the specified value
+                    if (is_array($function)) {
+                        // Decode the array contents. If anything is not correct, it will no-break fall through to the
+                        // warning log
+                        if (count($function) === 2) {
+                            // The first entry can either be a class name string or an object
+                            if (is_object($function[0])) {
+                                if (is_string($function[1])) {
+                                    // Execute the method in the specified object
+                                    $function[0]->$function[1]($value);
+                                    continue;
+                                }
+
+                                // no-break
+                            } elseif (is_string($function[0])) {
+                                if (is_string($function[1])) {
+                                    // Ensure the class file is loaded
+                                    Library::loadClassFile($function[0]);
+
+                                    // Execute this shutdown function with the specified value
+                                    $function[0]::{$function[1]}($value);
+                                    continue;
+                                }
+
+                                // no-break
+                            }
+
+                            // no-break
+                        }
+
+                        // no-break
+                    }
+
+                    Log::warning(tr('Unknown function information ":function" encountered, quietly skipping', [
+                        ':function' => $function
+                    ]));
+                }
+
+            } catch (Throwable $e) {
+                Notification::new()
+                    ->setException($e)
+                    ->send(true);
+
+                throw $e;
+            }
+        }
     }
 
 
