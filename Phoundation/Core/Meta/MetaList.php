@@ -8,6 +8,8 @@ use Phoundation\Core\Arrays;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Components\HtmlDataTable;
+use Phoundation\Web\Http\Html\Components\Interfaces\HtmlDataTableInterface;
+use Phoundation\Web\Http\Html\Components\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Url;
 
@@ -56,9 +58,10 @@ class MetaList
     /**
      * Returns a DataTable object
      *
-     * @return HtmlDataTable
+     * @param array|string|null $columns
+     * @return HtmlDataTableInterface
      */
-    public function getHtmlDataTable(array|string|null $columns = null): HtmlDataTable
+    public function getHtmlDataTable(array|string|null $columns = null): HtmlDataTableInterface
     {
         // Create and return the table
         $in     = Sql::in($this->meta_list);
@@ -124,17 +127,20 @@ class MetaList
 
         unset($row);
 
-        return HtmlDataTable::new()
+         $table = HtmlDataTable::new()
             ->setId('meta')
             ->setProcessEntities(false)
-            ->setColumnHeaders([
-                tr('Date'),
-                tr('User'),
-                tr('Action'),
-                tr('Source'),
-                tr('Comments'),
-                tr('Data'),
-            ])
             ->setSource($source);
+
+         $table->getHeaders()->setSource([
+             tr('Date'),
+             tr('User'),
+             tr('Action'),
+             tr('Source'),
+             tr('Comments'),
+             tr('Data'),
+         ]);
+
+        return $table;
     }
 }
