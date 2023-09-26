@@ -2,6 +2,11 @@ ul.ui-autocomplete {
     border: solid 1px #ced4da !important;
 }
 
+ul.ui-autocomplete li div.ui-state-active {
+    background: rgb(0, 85, 129);
+    color: white;
+}
+
 /* Navy blue primary card header */
 .card-primary:not(.card-outline) > .card-header {
     background-color: rgb(0, 85, 129);
@@ -144,10 +149,9 @@ a.h1 span {
 
 .timesheet label
 {
-    text-wrap: nowrap;
+    white-space: nowrap;
 }
 
 a.disabled {
     background-color: rgb(4, 165, 206) !important;
 }
-
