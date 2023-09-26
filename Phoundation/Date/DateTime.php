@@ -53,13 +53,13 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
         }
 
         // Return Phoundation DateTime object for whatever given $datetime
-        if (is_object($datetime)) {
-            // Return a new DateTime object with the specified date in the specified timezone
-            parent::__construct($datetime->format('Y-m-d H:i:s.u'), $timezone);
-        }
-
         try {
-            parent::__construct($datetime, $timezone);
+            if (is_object($datetime)) {
+                // Return a new DateTime object with the specified date in the specified timezone
+                parent::__construct($datetime->format('Y-m-d H:i:s.u'), $timezone);
+            } else {
+                parent::__construct($datetime, $timezone);
+            }
 
         } catch (Throwable $e) {
             throw new DateTimeException(tr('Failed to create DateTime object for given $datetime ":datetime" / timezone ":timezone" because ":e"', [
@@ -96,11 +96,59 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      *
      * @param DateTimeInterface $targetObject
      * @param bool $absolute
+     * @param bool $roundup
      * @return DateInterval
+     * @throws Exception
      */
-    public function diff($targetObject, $absolute = false): DateInterval
+    public function diff($targetObject, $absolute = false, bool $roundup = true): DateInterval
     {
-        return new DateInterval(parent::diff($targetObject, $absolute));
+        // DateInterval doesn't calculate milliseconds / microseconds, do that manually
+        $diff    = new DateInterval(parent::diff($targetObject, $absolute), $roundup);
+        $diff->u = (int) $this->format('u') - (int) $targetObject->format('u');
+
+        if ($diff->u < 0) {
+            if ($diff->u < -10) {
+                // Negative microseconds, subtract a second and convert negative microseconds
+                $diff->s--;
+                $diff->u = 1_000_000 + $diff->u;
+            } else {
+                // This is likely a small offset from PHP DateInterval object, ignore it
+                $diff->u = 0;
+            }
+        }
+
+        $diff->f = round($diff->u / 1000);
+        $diff->u = $diff->u - ($diff->f * 1000);
+
+        return $diff;
+    }
+
+
+    /**
+     * Subtracts an amount of days, months, years, hours, minutes and seconds from a DateTime object
+     * @link https://secure.php.net/manual/en/datetime.diff.php
+     *
+     * @param \DateInterval $interval
+     * @return \DateTime
+     * @throws Exception
+     */
+    public function sub(\DateInterval $interval): \DateTime
+    {
+        return new DateTime(parent::sub($interval));
+    }
+
+
+    /**
+     * Adds an amount of days, months, years, hours, minutes and seconds to a DateTime object
+     * @link https://secure.php.net/manual/en/datetime.diff.php
+     *
+     * @param \DateInterval $interval
+     * @return \DateTime
+     * @throws Exception
+     */
+    public function add(\DateInterval $interval): \DateTime
+    {
+        return new DateTime(parent::add($interval));
     }
 
 
@@ -148,6 +196,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      *
      * @param \DateTimeZone|string|null $timezone
      * @return bool
+     * @throws Exception
      */
     public function isToday(\DateTimeZone|string|null $timezone = null): bool
     {
@@ -160,6 +209,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      *
      * @param \DateTimeZone|string|null $timezone
      * @return bool
+     * @throws Exception
      */
     public function isTomorrow(\DateTimeZone|string|null $timezone = null): bool
     {
@@ -172,6 +222,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      *
      * @param \DateTimeZone|string|null $timezone
      * @return bool
+     * @throws Exception
      */
     public function isYesterday(\DateTimeZone|string|null $timezone = null): bool
     {
@@ -213,7 +264,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
 
 
     /**
-     * Round the
+     * Round the current date time object contents to the specified segment
      *
      * @param DateTimeSegmentInterface $segment
      * @return $this
@@ -231,39 +282,37 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
             case DateTimeSegment::century:
                 // no break
             case DateTimeSegment::week:
-                throw new OutOfBoundsException(tr('Cannot round date to requested segment ":segment"', [
+            // no break
+            case DateTimeSegment::microsecond:
+               throw new OutOfBoundsException(tr('Cannot round date to requested segment ":segment"', [
                     ':segment' => $segment
                 ]));
 
             case DateTimeSegment::year:
-                $date[0] = 0;
-                // no break
-
-            case DateTimeSegment::month:
                 $date[1] = 0;
                 // no break
 
-            case DateTimeSegment::day:
+            case DateTimeSegment::month:
                 $date[2] = 0;
                 // no break
 
-            case DateTimeSegment::hour:
+            case DateTimeSegment::day:
                 $date[3] = 0;
                 // no break
 
-            case DateTimeSegment::minute:
+            case DateTimeSegment::hour:
                 $date[4] = 0;
                 // no break
 
-            case DateTimeSegment::second:
+            case DateTimeSegment::minute:
                 $date[5] = 0;
                 // no break
 
-            case DateTimeSegment::millisecond:
+            case DateTimeSegment::second:
                 $date[6] = 0;
                 // no break
 
-            case DateTimeSegment::microsecond:
+            case DateTimeSegment::millisecond:
                 $date[7] = 0;
         }
 
@@ -312,6 +361,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      * Makes this date have the current time
      *
      * @return $this
+     * @throws Exception
      */
     public function makeCurrentTime(\DateTimeZone|DateTimeZone|string|null $timezone = null): static
     {
