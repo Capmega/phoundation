@@ -6,9 +6,9 @@ namespace Phoundation\Accounts\Users;
 
 use Phoundation\Accounts\Rights\Interfaces\RightsInterface;
 use Phoundation\Accounts\Rights\Rights;
-use Phoundation\Accounts\Users\Exception\EmailNotExistsException;
-use Phoundation\Accounts\Users\Exception\Interfaces\EmailNotExistsExceptionInterface;
-use Phoundation\Accounts\Users\Interfaces\EmailInterface;
+use Phoundation\Accounts\Users\Exception\PhoneNotExistsException;
+use Phoundation\Accounts\Users\Exception\Interfaces\PhoneNotExistsExceptionInterface;
+use Phoundation\Accounts\Users\Interfaces\PhoneInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\Interfaces\UsersInterface;
 use Phoundation\Core\Arrays;
@@ -20,7 +20,7 @@ use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryNotExistsExceptionI
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryAccountType;
 use Phoundation\Data\DataEntry\Traits\DataEntryDescription;
-use Phoundation\Data\DataEntry\Traits\DataEntryEmail;
+use Phoundation\Data\DataEntry\Traits\DataEntryPhone;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryUser;
 use Phoundation\Data\DataEntry\Traits\DataEntryVerificationCode;
@@ -33,7 +33,7 @@ use Phoundation\Web\Http\Html\Enums\InputType;
 
 
 /**
- * Class Email
+ * Class Phone
  *
  *
  *
@@ -43,10 +43,10 @@ use Phoundation\Web\Http\Html\Enums\InputType;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
-class Email extends DataEntry
+class Phone extends DataEntry
 {
     use DataEntryUser;
-    use DataEntryEmail;
+    use DataEntryPhone;
     use DataEntryVerifiedOn;
     use DataEntryAccountType;
     use DataEntryDescription;
@@ -60,7 +60,7 @@ class Email extends DataEntry
      */
     public static function getTable(): string
     {
-        return 'accounts_emails';
+        return 'accounts_phones';
     }
 
 
@@ -71,7 +71,7 @@ class Email extends DataEntry
      */
     public static function getDataEntryName(): string
     {
-        return tr('Email');
+        return tr('Phone');
     }
 
 
@@ -95,7 +95,7 @@ class Email extends DataEntry
      * @param DataEntryInterface|string|int|null $identifier
      * @param string|null $column
      * @return static|null
-     * @throws EmailNotExistsExceptionInterface
+     * @throws PhoneNotExistsExceptionInterface
      */
     public static function get(DataEntryInterface|string|int|null $identifier = null, ?string $column = null): ?static
     {
@@ -103,7 +103,7 @@ class Email extends DataEntry
             return parent::get($identifier, $column);
 
         } catch (DataEntryNotExistsExceptionInterface $e) {
-            throw new EmailNotExistsException($e);
+            throw new PhoneNotExistsException($e);
         }
     }
 
@@ -137,15 +137,15 @@ class Email extends DataEntry
                     'noword' => function ()             { return [tr('Business'), tr('Personal'), tr('Other')]; },
                 ])
                 ->setLabel(tr('Type'))
-                ->setHelpText(tr('The type of email address'))
+                ->setHelpText(tr('The type of phone'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->hasMaxCharacters(6);
                 }))
-            ->addDefinition(DefinitionFactory::getEmail($this)
+            ->addDefinition(DefinitionFactory::getPhone($this)
                 ->setSize(6)
-                ->setHelpText(tr('The extra email address for the user'))
+                ->setHelpText(tr('The extra phone for the user'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->isUnique(tr('value ":email" already exists', [':email' => $validator->getSourceValue()]));
+                    $validator->isUnique(tr('value ":phone" already exists', [':phone' => $validator->getSourceValue()]));
                 }))
             ->addDefinition(DefinitionFactory::getDateTime($this, 'verified_on')
                 ->setReadonly(true)
@@ -155,8 +155,8 @@ class Email extends DataEntry
                 ->addClasses('text-center')
                 ->setLabel(tr('Verified on'))
                 ->setHelpGroup(tr('Account information'))
-                ->setHelpText(tr('The date when this user was email verified. Empty if not yet verified')))
+                ->setHelpText(tr('The date when this user was phone verified. Empty if not yet verified')))
             ->addDefinition(DefinitionFactory::getDescription($this)
-                ->setHelpText(tr('The description for this email')));
+                ->setHelpText(tr('The description for this phone')));
     }
 }

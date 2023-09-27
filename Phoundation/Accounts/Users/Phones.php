@@ -10,6 +10,8 @@ use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Http\Html\Components\Form;
+use Phoundation\Web\Http\Html\Components\Interfaces\FormInterface;
 
 
 /**
@@ -107,5 +109,26 @@ class Phones extends DataList implements PhonesInterface
         $this->execute = [':users_id' => $this->parent->getId()];
 
         return parent::load();
+    }
+
+
+    /**
+     * Creates and returns an HTML for the phones
+     *
+     * @param string $name
+     * @return FormInterface
+     */
+    public function getHtmlForm(string $name = 'phones[]'): FormInterface
+    {
+        // Add extra entry with nothing selected
+        $form      = Form::new();
+        $content[] = Phone::new()->getHtmlForm()->render();
+
+        foreach ($this->getSource() as $phone) {
+            $content[] = $phone->getHtmlForm()->render();
+        }
+
+        $form->addContent(implode('<hr>', $content));
+        return $form;
     }
 }

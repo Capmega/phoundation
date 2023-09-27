@@ -50,14 +50,15 @@ if (Page::isPostRequestMethod()) {
                 // Validate roles
                 $post = PostValidator::new()
                     ->select('roles_id')->isOptional()->isArray()->each()->isOptional()->isDbId()
+                    ->select('emails')->isOptional()->isArray()->each()->isArray()
+                    ->select('phones')->isOptional()->isArray()->each()->isArray()
                     ->validate(false);
 
-                // Update user and roles
-                $user
-                    ->apply()
-                    ->save()
-                    ->getRoles()
-                        ->setRoles($post['roles_id']);
+                // Update user, roles, emails, and phones
+                $user->apply()->save();
+                $user->getRoles()->setRoles($post['roles_id']);
+                $user->getEmails()->setEmails($post['emails']);
+                $user->getPhones()->setPhones($post['phones']);
 
 // TODO Implement timers
 //showdie(Timers::get('query'));
@@ -160,6 +161,34 @@ $user_card = Card::new()
 
 // Build the roles list management section
 if ($user->getId()) {
+    $emails_card = Card::new()
+        ->setCollapseSwitch(true)
+        ->setCollapsed(true)
+        ->setTitle(tr('Extra email addresses for this user [:count]', [':count' => $user->getEmails()->getCount()]))
+        ->setContent($user
+            ->getEmails()
+                ->getHtmlForm()
+                    ->setAction('#')
+                    ->setMethod('POST')
+                    ->render())
+        ->setButtons(Buttons::new()
+            ->addButton(tr('Save'))
+            ->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getPrevious('/accounts/users.html'), true));
+
+    $phones_card = Card::new()
+        ->setCollapseSwitch(true)
+        ->setCollapsed(true)
+        ->setTitle(tr('Extra phone numbers for this user [:count]', [':count' => $user->getPhones()->getCount()]))
+        ->setContent($user
+            ->getPhones()
+                ->getHtmlForm()
+                    ->setAction('#')
+                    ->setMethod('POST')
+                    ->render())
+        ->setButtons(Buttons::new()
+            ->addButton(tr('Save'))
+            ->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getPrevious('/accounts/users.html'), true));
+
     $roles_card = Card::new()
         ->setCollapseSwitch(true)
         ->setCollapsed(true)
@@ -193,7 +222,11 @@ if ($user->getId()) {
 
 // Build the grid column with a form containing the user and roles cards
 $column = GridColumn::new()
-    ->addContent($user_card->render() . (isset($roles_card) ? $roles_card->render() : '') . (isset($rights_card) ? $rights_card->render() : ''))
+    ->addContent($user_card->render() .
+        (isset($roles_card)  ? $roles_card->render()  : '') .
+        (isset($rights_card) ? $rights_card->render() : '') .
+        (isset($emails_card) ? $emails_card->render() : '') .
+        (isset($phones_card) ? $phones_card->render() : ''))
     ->setSize(9)
     ->useForm(true);
 

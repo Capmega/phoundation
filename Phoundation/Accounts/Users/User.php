@@ -13,7 +13,9 @@ use Phoundation\Accounts\Roles\Roles;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\Exception\PasswordNotChangedException;
 use Phoundation\Accounts\Users\Exception\UsersException;
+use Phoundation\Accounts\Users\Interfaces\EmailsInterface;
 use Phoundation\Accounts\Users\Interfaces\PasswordInterface;
+use Phoundation\Accounts\Users\Interfaces\PhonesInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
@@ -42,6 +44,8 @@ use Phoundation\Data\DataEntry\Traits\DataEntryTimezone;
 use Phoundation\Data\DataEntry\Traits\DataEntryTitle;
 use Phoundation\Data\DataEntry\Traits\DataEntryType;
 use Phoundation\Data\DataEntry\Traits\DataEntryUrl;
+use Phoundation\Data\DataEntry\Traits\DataEntryVerificationCode;
+use Phoundation\Data\DataEntry\Traits\DataEntryVerifiedOn;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
@@ -92,8 +96,24 @@ class User extends DataEntry implements UserInterface
     use DataEntryTimezone;
     use DataEntryLastNames;
     use DataEntryFirstNames;
+    use DataEntryVerifiedOn;
     use DataEntryDescription;
+    use DataEntryVerificationCode;
 
+
+    /**
+     * The extra email addresses for this user
+     *
+     * @var EmailsInterface $emails
+     */
+    protected EmailsInterface $emails;
+
+    /**
+     * The extra phones for this user
+     *
+     * @var PhonesInterface $phones
+     */
+    protected PhonesInterface $phones;
 
     /**
      * The roles for this user
@@ -567,52 +587,6 @@ class User extends DataEntry implements UserInterface
 
 
     /**
-     * Returns the verification_code for this user
-     *
-     * @return string|null
-     */
-    public function getVerificationCode(): ?string
-    {
-        return $this->getSourceValue('string', 'verification_code');
-    }
-
-
-    /**
-     * Sets the verification_code for this user
-     *
-     * @param string|null $verification_code
-     * @return static
-     */
-    public function setVerificationCode(?string $verification_code): static
-    {
-        return $this->setSourceValue('verification_code', $verification_code);
-    }
-
-
-    /**
-     * Returns the verified_on for this user
-     *
-     * @return string|null
-     */
-    public function getVerifiedOn(): ?string
-    {
-        return $this->getSourceValue('string', 'verified_on');
-    }
-
-
-    /**
-     * Sets the verified_on for this user
-     *
-     * @param string|null $verified_on
-     * @return static
-     */
-    public function setVerifiedOn(?string $verified_on): static
-    {
-        return $this->setSourceValue('verified_on', $verified_on);
-    }
-
-
-    /**
      * Returns the priority for this user
      *
      * @return int|null
@@ -1041,6 +1015,48 @@ class User extends DataEntry implements UserInterface
 
 
     /**
+     * Returns the extra email addresses for this user
+     *
+     * @return EmailsInterface
+     */
+    public function getEmails(): EmailsInterface
+    {
+        if (!isset($this->emails)) {
+            if ($this->getId()) {
+                $this->emails = Emails::new()->setParent($this)->load();
+
+            } else {
+                $this->emails = Emails::new()->setParent($this);
+            }
+
+        }
+
+        return $this->emails;
+    }
+
+
+    /**
+     * Returns the extra phones for this user
+     *
+     * @return PhonesInterface
+     */
+    public function getPhones(): PhonesInterface
+    {
+        if (!isset($this->phones)) {
+            if ($this->getId()) {
+                $this->phones = Phones::new()->setParent($this)->load();
+
+            } else {
+                $this->phones = Phones::new()->setParent($this);
+            }
+
+        }
+
+        return $this->phones;
+    }
+
+
+    /**
      * Returns the roles for this user
      *
      * @return RolesInterface
@@ -1064,6 +1080,8 @@ class User extends DataEntry implements UserInterface
     /**
      * Returns the roles for this user
      *
+     * @param bool $reload
+     * @param bool $order
      * @return RightsInterface
      */
     public function getRights(bool $reload = false, bool $order = false): RightsInterface

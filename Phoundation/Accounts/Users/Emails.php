@@ -9,8 +9,9 @@ use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
-use Phoundation\Emails\Email;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Http\Html\Components\Form;
+use Phoundation\Web\Http\Html\Components\Interfaces\FormInterface;
 
 
 /**
@@ -108,5 +109,26 @@ class Emails extends DataList implements EmailsInterface
         $this->execute = [':users_id' => $this->parent->getId()];
 
         return parent::load();
+    }
+
+
+    /**
+     * Creates and returns an HTML for the emails
+     *
+     * @param string $name
+     * @return FormInterface
+     */
+    public function getHtmlForm(string $name = 'emails[]'): FormInterface
+    {
+        // Add extra entry with nothing selected
+        $form      = Form::new();
+        $content[] = Email::new()->getHtmlForm()->render();
+
+        foreach ($this->getSource() as $email) {
+            $content[] = $email->getHtmlForm()->render();
+        }
+
+        $form->addContent(implode('<hr>', $content));
+        return $form;
     }
 }

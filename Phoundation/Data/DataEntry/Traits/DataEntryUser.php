@@ -53,7 +53,7 @@ trait DataEntryUser
         $users_id = $this->getSourceValue('int', 'users_id');
 
         if ($users_id) {
-            return new User($users_id);
+            return User::get($users_id);
         }
 
         return null;
