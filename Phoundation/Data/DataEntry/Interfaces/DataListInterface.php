@@ -5,6 +5,7 @@ namespace Phoundation\Data\DataEntry\Interfaces;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
+use Phoundation\Databases\Sql\Schema\Table;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Http\Html\Components\Interfaces\HtmlDataTableInterface;
 use Phoundation\Web\Http\Html\Components\Interfaces\HtmlTableInterface;
@@ -62,9 +63,9 @@ interface DataListInterface extends IteratorInterface
     /**
      * Returns the schema Table object for the table that is the source for this DataList object
      *
-     * @return \Phoundation\Databases\Sql\Schema\Table
+     * @return Table
      */
-    public function getTableSchema(): \Phoundation\Databases\Sql\Schema\Table;
+    public function getTableSchema(): Table;
 
     /**
      * Returns the item with the specified identifier
@@ -122,6 +123,7 @@ interface DataListInterface extends IteratorInterface
      *
      * @param array|null $columns
      * @param array $filters
+     * @param string|null $id_column
      * @return void
      */
     public function CliDisplayTable(?array $columns = null, array $filters = [], ?string $id_column = 'id'): void;
