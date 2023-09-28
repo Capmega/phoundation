@@ -1891,7 +1891,7 @@ class Core implements CoreInterface
 
                             if ($e instanceof Exception) {
                                 // Clean data
-                                $e->setData(Arrays::hide(Arrays::force($e->getData()), 'GLOBALS,%pass,ssh_key'));
+                                $e->addData(Arrays::hide(Arrays::force($e->getData()), 'GLOBALS,%pass,ssh_key'));
                             }
 
                             showdie($e);
@@ -2698,8 +2698,12 @@ class Core implements CoreInterface
     protected static function logDebug(): void
     {
         // Log debug information
-        Log::information('DEBUG INFORMATION:');
-        Log::information('Query timers:');
+        Log::information(tr('DEBUG INFORMATION:'));
+        Log::information(tr('Query timers [:count]:', [
+            ':count' => count(Timers::get('sql', false)) ?? 0
+        ]));
+
+        Timers::stop(true);
 
         if (Timers::exists('sql')) {
             Timers::sortHighLow('sql', false);
@@ -2711,12 +2715,13 @@ class Core implements CoreInterface
             Log::warning('-');
         }
 
-        Log::information('Other timers:');
+        Log::information(tr('Other timers [:count]:', [
+            ':count' => Timers::getCount()
+        ]));
 
         if (Timers::getCount()) {
             foreach (Timers::getAll() as $group => $timers) {
                 foreach ($timers as $timer) {
-                    $timer->stop(true);
                     Log::write('[' . number_format($timer->getTotal(), 6) . '] ' . $group . ' > ' . $timer->getLabel(), 'debug', 8);
                 }
             }
