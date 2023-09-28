@@ -6,6 +6,7 @@ namespace Phoundation\Cli;
 
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
+use Phoundation\Core\Numbers;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Iterator;
 use Phoundation\Exception\OutOfBoundsException;
@@ -139,6 +140,7 @@ class Cli
 
             // Display header
             foreach ($headers as $column => $header) {
+                $column_sizes[$column] = Numbers::getHighest($column_sizes[$column], strlen($header));
                 Log::cli(Color::apply(Strings::size((string) $header, $column_sizes[$column]), 'white') . Strings::size(' ', $column_spacing), 10, false);
             }
 
@@ -162,7 +164,9 @@ class Cli
                         $column = $id_column;
                     }
 
-                    Log::cli(Strings::size((string) $value, $column_sizes[$column], ' ', is_numeric($value)) . Strings::size(' ', $column_spacing), 10, false);
+                    if (array_key_exists($column, $headers)) {
+                        Log::cli(Strings::size((string) $value, $column_sizes[$column], ' ', is_numeric($value)) . Strings::size(' ', $column_spacing), 10, false);
+                    }
                 }
 
                 Log::cli();
