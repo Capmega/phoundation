@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html\Components\FlashMessages;
 
+use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
@@ -139,8 +140,16 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
 
         if ($message instanceof ValidationFailedException) {
             // Title was specified as an exception, add each validation failure as a separate flash message
+            $title = trim((string) $title);
+
             if (empty($title)) {
                 $title = tr('Validation failed');
+            }
+
+            if (str_starts_with($title, '(')) {
+                // This message is prefixed with the class name. Remove the class name as we don't want to show this to
+                // the end users.
+                $title = trim(Strings::from($title, '('));
             }
 
             if ($message->getData()) {

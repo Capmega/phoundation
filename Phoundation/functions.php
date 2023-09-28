@@ -351,7 +351,7 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
                 ':variable' => $variable,
                 ':has'      => gettype($variable),
                 ':types'    => $types,
-            ]))->setData(['variable' => $variable]);
+            ]))->addData(['variable' => $variable]);
         }
 
         // Don't throw an exception, return null instead.
