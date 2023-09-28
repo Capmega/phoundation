@@ -7,6 +7,7 @@ namespace Phoundation\Core;
 use Exception;
 use Phoundation\Cli\Color;
 use Phoundation\Core\Exception\CoreException;
+use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Exception\UnderConstructionException;
@@ -224,8 +225,8 @@ class Strings
                 break;
         }
 
-        $string     = '';
-        $charlen    = mb_strlen($characters);
+        $string  = '';
+        $charlen = mb_strlen($characters);
 
         if ($unique and ($length > $charlen)) {
             throw new OutOfBoundsException(tr('Can not create unique character random string with size ":length". When $unique is requested, the string length can not be larger than ":charlen" because there are no more then that amount of unique characters', ['length' => $length, 'charlen' => $charlen]));
@@ -244,6 +245,29 @@ class Strings
         }
 
         return $string;
+    }
+
+
+    /**
+     * Return a random string without possible exception
+     *
+     * @param int $length
+     * @param bool $unique
+     * @param Stringable|string $characters
+     * @return string
+     * @throws OutOfBoundsException
+     */
+    public static function randomSafe(int $length = 8, bool $unique = false, Stringable|string $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'): string
+    {
+        try {
+            return Strings::random();
+
+        } catch (\Exception $e) {
+            Log::warning(tr('Failed to find random string, see following exception'));
+            Log::error($e);
+
+            return '????????';
+        }
     }
 
 
