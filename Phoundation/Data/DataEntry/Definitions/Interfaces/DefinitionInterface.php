@@ -399,10 +399,9 @@ interface DefinitionInterface
     /**
      * Returns the alternative CLI field names for this field
      *
-     * @param ValidatorInterface|null $validator
      * @return string|null
      */
-    public function getCliField(?ValidatorInterface $validator = null): ?string;
+    public function getCliField(): ?string;
 
     /**
      * Sets the alternative CLI field names for this field
