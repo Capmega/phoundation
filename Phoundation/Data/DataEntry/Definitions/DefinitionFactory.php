@@ -907,7 +907,7 @@ class DefinitionFactory
             ->setInputType(InputType::url)
             ->setMaxlength(2048)
             ->setCliAutoComplete(true)
-            ->setCliField('--w,--website WEBSITE-URL')
+            ->setCliField('-w,--website WEBSITE-URL')
             ->setLabel(tr('Website URL'))
             ->addValidationFunction(function (ValidatorInterface $validator) {
                 $validator->isOptional()->isUrl();

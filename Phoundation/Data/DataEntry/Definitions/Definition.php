@@ -1068,10 +1068,9 @@ class Definition implements DefinitionInterface
     /**
      * Returns the alternative CLI field names for this field
      *
-     * @param ValidatorInterface|null $validator
      * @return string|null
      */
-    public function getCliField(?ValidatorInterface $validator = null): ?string
+    public function getCliField(): ?string
     {
         if (PLATFORM_HTTP) {
             // We're not on CLI, we're on HTTP. Return the HTTP field instead
@@ -1079,17 +1078,13 @@ class Definition implements DefinitionInterface
         }
 
         // We're on the command line
-        if ($validator instanceof ArgvValidatorInterface) {
-            // We're working with data from the $argv command line
-            if (empty($this->rules['cli_field'])) {
-                // This field cannot be modified on the command line, no definition available
-                return null;
-            }
-
-            return isset_get_typed('string', $this->rules['cli_field']);
+        // We're working with data from the $argv command line
+        if (empty($this->rules['cli_field'])) {
+            // This field cannot be modified on the command line, no definition available
+            return null;
         }
 
-        return $this->field;
+        return isset_get_typed('string', $this->rules['cli_field']);
     }
 
 
@@ -1640,7 +1635,7 @@ class Definition implements DefinitionInterface
 
         // Checkbox inputs always are boolean and does this field have a prefix?
         $bool  = ($this->getType() === 'checkbox');
-        $field = $this->getCliField($validator);
+        $field = $this->getCliField();
 
         if (!$field) {
             // This field name is empty. Coming from static::getCliField() this means that this field should NOT be
