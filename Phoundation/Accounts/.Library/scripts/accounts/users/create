@@ -48,7 +48,7 @@ EXTRA INFORMATION
 $argv = ArgvValidator::new()
     ->select('--no-password')->isOptional(false)->isBoolean()
     ->select('--roles', true)->isOptional()->sanitizeForceArray()->each()->isName()
-    ->validate();
+    ->validate(false);
 
 
 // Ensure that specified roles exist
@@ -64,6 +64,8 @@ if ($argv['roles']) {
 // Create user and set users roles
 $user = User::new()->apply()->save();
 $user->getRoles()->addRole($argv['roles']);
+$user->getEmails()->apply()->save();
+$user->getPhones()->apply()->save();
 
 
 // Get update the users password
