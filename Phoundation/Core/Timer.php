@@ -6,6 +6,7 @@ namespace Phoundation\Core;
 
 use Phoundation\Core\Exception\TimerException;
 use Phoundation\Core\Interfaces\TimerInterface;
+use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
 
 
@@ -164,6 +165,17 @@ class Timer implements TimerInterface
 
 
     /**
+     * Returns the amount of laps
+     *
+     * @return int
+     */
+    public function getLapsCount(): int
+    {
+        return count($this->laps);
+    }
+
+
+    /**
      * Starts the timer
      *
      * @return static
@@ -198,7 +210,7 @@ class Timer implements TimerInterface
 
 
     /**
-     * Stop the specified stopwatch and returns the passed time
+     * Stop the specified timer and returns the passed time
      *
      * @param bool $force
      * @return static
@@ -234,15 +246,15 @@ class Timer implements TimerInterface
     {
         if ($null xor ($this->$status === null)) {
             $status = match ($status) {
-                'start' => tr('started'),
-                'stop'  => tr('stopped'),
+                'start' => tr('not yet started'),
+                'stop'  => tr('already stopped'),
                 default =>
                     throw new OutOfBoundsException(tr('Unknown status ":status" specified, only "start" and "stop" are allowed', [
                         ':status' => $status
                     ]))
             };
 
-            throw new TimerException(tr('Cannot :message for timer ":label", it has not yet :status', [
+            throw new TimerException(tr('Cannot :message for timer ":label", it has :status', [
                 ':status'  => $status,
                 ':message' => $message,
                 ':label'   => $this->label

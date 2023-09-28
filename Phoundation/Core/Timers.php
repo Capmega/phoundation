@@ -7,6 +7,7 @@ namespace Phoundation\Core;
 use Phoundation\Core\Exception\TimerException;
 use Phoundation\Core\Interfaces\TimerInterface;
 use Phoundation\Core\Interfaces\TimersInterface;
+use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
 
 
@@ -34,6 +35,7 @@ class Timers implements TimersInterface
     /**
      * Add the specified timer object to the timer register
      *
+     * @param string $group
      * @param TimerInterface $timer
      * @return TimerInterface
      */
@@ -235,6 +237,22 @@ class Timers implements TimersInterface
     {
         if (!array_key_exists($group, static::$timers)) {
             static::$timers[$group] = [];
+        }
+    }
+
+
+    /**
+     * Stop all timers
+     *
+     * @param bool $force
+     * @return void
+     */
+    public static function stop(bool $force = false): void
+    {
+        foreach (static::$timers as $group) {
+            foreach ($group as $timer) {
+                $timer->stop($force);
+            }
         }
     }
 }
