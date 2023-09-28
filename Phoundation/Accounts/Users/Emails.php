@@ -160,26 +160,28 @@ class Emails extends DataList implements EmailsInterface
             ->validate(false);
 
         // Parse and sub validate
-        foreach ($post['emails'] as $email) {
-            $email = trim($email);
+        if ($post['emails']) {
+            foreach ($post['emails'] as $email) {
+                $email = trim($email);
 
-            // Email type specified? extract, else default
-            if (preg_match('/^\|(?:personal|business|other)$/i', $email)) {
-                $type  = Strings::fromReverse($email, '|');
-                $type  = strtolower($type);
-                $email = Strings::untilReverse($email, '|');
+                // Email type specified? extract, else default
+                if (preg_match('/^\|(?:personal|business|other)$/i', $email)) {
+                    $type  = Strings::fromReverse($email, '|');
+                    $type  = strtolower($type);
+                    $email = Strings::untilReverse($email, '|');
 
-            } else {
-                $type  = 'other';
+                } else {
+                    $type  = 'other';
+                }
+
+                // Validate the email address
+                Validate::new($email)->isEmail();
+
+                $emails[$email] = [
+                    'account_type' => $type,
+                    'email'        => $email
+                ];
             }
-
-            // Validate the email address
-            Validate::new($email)->isEmail();
-
-            $emails[$email] = [
-                'account_type' => $type,
-                'email'        => $email
-            ];
         }
 
         // Get a list of what we should add and remove and apply this

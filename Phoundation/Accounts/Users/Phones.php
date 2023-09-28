@@ -160,26 +160,28 @@ class Phones extends DataList implements PhonesInterface
             ->validate(false);
 
         // Parse and sub validate
-        foreach ($post['phones'] as $phone) {
-            $phone = trim($phone);
+        if ($post['phones']) {
+            foreach ($post['phones'] as $phone) {
+                $phone = trim($phone);
 
-            // Phone type specified? extract, else default
-            if (preg_match('/^\|(?:personal|business|other)$/i', $phone)) {
-                $type  = Strings::fromReverse($phone, '|');
-                $type  = strtolower($type);
-                $phone = Strings::untilReverse($phone, '|');
+                // Phone type specified? extract, else default
+                if (preg_match('/^\|(?:personal|business|other)$/i', $phone)) {
+                    $type = Strings::fromReverse($phone, '|');
+                    $type = strtolower($type);
+                    $phone = Strings::untilReverse($phone, '|');
 
-            } else {
-                $type  = 'other';
+                } else {
+                    $type = 'other';
+                }
+
+                // Validate the phone address
+                Validate::new($phone)->isPhone();
+
+                $phones[$phone] = [
+                    'account_type' => $type,
+                    'phone' => $phone
+                ];
             }
-
-            // Validate the phone address
-            Validate::new($phone)->isPhone();
-
-            $phones[$phone] = [
-                'account_type' => $type,
-                'phone'        => $phone
-            ];
         }
 
         // Get a list of what we should add and remove and apply this
