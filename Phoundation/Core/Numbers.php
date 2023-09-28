@@ -335,4 +335,44 @@ class Numbers
     {
         return (random_int(0, PHP_INT_MAX) / PHP_INT_MAX);
     }
+
+
+    /**
+     * Returns the highest specified number
+     *
+     * @param float|int ...$numbers
+     * @return float|int
+     */
+    public static function getHighest(float|int ...$numbers): float|int
+    {
+        $highest = PHP_FLOAT_MIN;
+
+        foreach ($numbers as $number) {
+            if ($number > $highest) {
+                $highest = $number;
+            }
+        }
+
+        return $highest;
+    }
+
+
+    /**
+     * Returns the lowest specified number
+     *
+     * @param float|int ...$numbers
+     * @return float|int
+     */
+    public static function getLowest(float|int ...$numbers): float|int
+    {
+        $lowest = PHP_FLOAT_MAX;
+
+        foreach ($numbers as $number) {
+            if ($number < $lowest) {
+                $lowest = $number;
+            }
+        }
+
+        return $lowest;
+    }
 }
