@@ -124,6 +124,7 @@ class StatusFiles extends Iterator
             ]));
 
             Log::warning($e->getMessages());
+            Log::warning($e->getDataKey('output'));
 
             if (isset($patch_file)) {
                 // Delete the temporary patch file
