@@ -573,7 +573,7 @@ class DataEntryForm extends Renderer
                     ':label' => $data['label'] . ' [' . $id . ']',
                     ':size'  => abs($data['size']),
                     ':count' => abs($col_size),
-                ]))->setData([
+                ]))->addData([
                     'Columns on this row' => $cols,
                     'HTML so far'         => $return
                 ]);
