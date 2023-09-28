@@ -27,6 +27,7 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryAddress;
 use Phoundation\Data\DataEntry\Traits\DataEntryCode;
@@ -189,7 +190,7 @@ class User extends DataEntry implements UserInterface
     /**
      * Returns a single user object for a single user that has the specified role.
      *
-     * Will throw an NotEx
+     * @note Will throw a NotExistsException if the specified role does not exist
      *
      * @param RolesInterface|Stringable|string $role
      * @return UserInterface
@@ -204,7 +205,7 @@ class User extends DataEntry implements UserInterface
                                     ON     `accounts_users_roles`.`users_id` = `accounts_users`.`id`
                                     WHERE  `accounts_users_roles`.`roles_id` = :roles_id 
                                       AND  `accounts_users_roles`.`status`   IS NULL', [
-                                          ':roles_id' => $role->getId()
+            ':roles_id' => $role->getId()
         ]);
 
         if (empty($user)) {
@@ -214,6 +215,59 @@ class User extends DataEntry implements UserInterface
         }
 
         return User::get($id);
+    }
+
+
+    /**
+     * Returns a single user object for a single user that has the specified alternate email address.
+     *
+     * @param DataEntryInterface|string|int|null $identifier
+     * @param string|null $column
+     * @return User|null
+     */
+    public static function get(DataEntryInterface|string|int|null $identifier = null, ?string $column = null): ?static
+    {
+        try {
+            return parent::get($identifier, $column);
+
+        } catch (DataEntryNotExistsException $e) {
+            switch ($column) {
+                case 'email':
+                    // Try to find user by alternative email address
+                    $user = sql()->get('SELECT `id` 
+                                              FROM   `accounts_emails` 
+                                              WHERE  `email` = :email 
+                                                AND  `status` IS NULL', [
+                        ':email' => $identifier
+                    ]);
+
+                    if ($user) {
+                        if ($user['verified'] or !Config::getBoolean('security.accounts.identify.alternates.require-verified', true)) {
+                            return User::get($user['id']);
+                        }
+                    }
+
+                    break;
+
+                case 'phone':
+                    // Try to find user by alternative phone
+                    $user = sql()->get('SELECT `id` 
+                                              FROM   `accounts_phones` 
+                                              WHERE  `phone` = :phone 
+                                                AND  `status` IS NULL', [
+                        ':phone' => $identifier
+                    ]);
+
+                    if ($user) {
+                        if ($user['verified'] or !Config::getBoolean('security.accounts.identify.alternates.require-verified', true)) {
+                            return User::get($user['id']);
+                        }
+                    }
+            }
+
+            // The requested user identifier doesn't exist
+            throw $e;
+        }
     }
 
 
