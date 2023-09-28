@@ -86,6 +86,21 @@ class DateInterval extends \DateInterval implements Stringable
      */
     public $days;
 
+    /**
+     * If the DateInterval object was created by DateInterval::createFromDateString(), then this property's value will
+     * be true
+     *
+     * @var bool $from_string
+     */
+    public bool $from_string;
+
+    /**
+     * The string used as argument to DateInterval::createFromDateString().
+     *
+     * @var string $date_string
+     */
+    public string $date_string;
+
 
     /**
      * DateInterval constructor
