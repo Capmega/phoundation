@@ -48,6 +48,13 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     protected ?string $row_classes = null;
 
     /**
+     * The status name for NULL status
+     *
+     * @var string|null $null_status
+     */
+    protected ?string $null_status = null;
+
+    /**
      * The HTML class element attribute cache for the <td> element
      *
      * @var string|null $column_classes
@@ -160,6 +167,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     {
         parent::__construct();
         parent::setElement('table');
+        $this->setNullStatus(tr('Active'));
     }
 
 
@@ -183,6 +191,30 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     public function setHeaderText(?string $header_text): static
     {
         $this->header_text = $header_text;
+        return $this;
+    }
+
+
+    /**
+     * Returns the label for status column NULL values
+     *
+     * @return string|null
+     */
+    public function getNullStatus(): ?string
+    {
+        return $this->null_status;
+    }
+
+
+    /**
+     * Sets the label for status column NULL values
+     *
+     * @param string|null $null_status
+     * @return static
+     */
+    public function setNullStatus(?string $null_status): static
+    {
+        $this->null_status = $null_status;
         return $this;
     }
 
@@ -824,13 +856,17 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
      */
     protected function renderCell(string|float|int|null $row_id, string|float|int|null $column, Stringable|string|float|int|null $value, array $param): string
     {
+        if (($column === 'status') and $value === null) {
+            // Default status label for when status is NULL
+            $value = $this->null_status;
+        }
+
         // Use row or column URL's?
         // Use column convert?
         $attributes = '';
         $value      = (string) $value;
         $url        = $this->getColumnUrls()->get($column, false);
         $convert    = $this->getConvertColumns()->get($column, false);
-
 
         if (!$url and $this->row_url) {
             $url = $this->row_url;
