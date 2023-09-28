@@ -1573,25 +1573,25 @@ class Arrays {
             'remove' => []
         ];
 
-        foreach ($source1 as $value) {
+        foreach ($source1 as $key => $value) {
             if ($value and !is_scalar($value)) {
                 throw new OutOfBoundsException(tr('Can only take diffs from scalar values while source 1 has a non-scalar value'));
             }
 
             if (!in_array($value, $source2)) {
                 // Key doesn't exist in source2, add it
-                $return['remove'][] = $value;
+                $return['remove'][$key] = $value;
             }
         }
 
-        foreach ($source2 as $value) {
+        foreach ($source2 as $key => $value) {
             if (!is_scalar($value)) {
                 throw new OutOfBoundsException(tr('Only scalar values are supported while source 2 has a non-scalar value'));
             }
 
             if (!in_array($value, $source1)) {
                 // Key doesn't exist in source1, add it and next
-                $return['add'][] = $value;
+                $return['add'][$key] = $value;
             }
         }
 
@@ -2269,6 +2269,26 @@ class Arrays {
         }
 
         unset($value);
+        return $source;
+    }
+
+
+    /**
+     * Renames the keys in the specified source
+     *
+     *
+     * $rename must be an array with FROM_KEY => TO_KEY, FROM_KEY => TO_KEY, ...
+     * @param array $source
+     * @param array $rename
+     * @return array
+     */
+    public static function renameKeys(array $source, array $rename): array
+    {
+        foreach ($rename as $from => $to) {
+            $source[$to] = $source[$from];
+            unset($source[$from]);
+        }
+
         return $source;
     }
 }
