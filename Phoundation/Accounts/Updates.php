@@ -90,7 +90,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `phones` varchar(64) CHARACTER SET latin1 DEFAULT NULL,
                     `address` varchar(255) DEFAULT NULL,
                     `zipcode` varchar(8) DEFAULT NULL,
-                    `verified_on` datetime DEFAULT NULL,
+                    `verified_on` datetime NULL DEFAULT NULL,
                     `verification_code` varchar(128) DEFAULT NULL,
                     `priority` int DEFAULT NULL,
                     `is_leader` int DEFAULT NULL,

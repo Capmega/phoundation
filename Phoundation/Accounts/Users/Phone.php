@@ -4,13 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Users;
 
-use Phoundation\Accounts\Rights\Interfaces\RightsInterface;
-use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Accounts\Users\Exception\PhoneNotExistsException;
 use Phoundation\Accounts\Users\Exception\Interfaces\PhoneNotExistsExceptionInterface;
 use Phoundation\Accounts\Users\Interfaces\PhoneInterface;
-use Phoundation\Accounts\Users\Interfaces\UserInterface;
-use Phoundation\Accounts\Users\Interfaces\UsersInterface;
 use Phoundation\Core\Arrays;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
@@ -21,13 +17,10 @@ use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryAccountType;
 use Phoundation\Data\DataEntry\Traits\DataEntryDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryPhone;
-use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryUser;
 use Phoundation\Data\DataEntry\Traits\DataEntryVerificationCode;
 use Phoundation\Data\DataEntry\Traits\DataEntryVerifiedOn;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
-use Phoundation\Web\Http\Html\Components\Form;
-use Phoundation\Web\Http\Html\Components\Interfaces\FormInterface;
 use Phoundation\Web\Http\Html\Enums\InputElement;
 use Phoundation\Web\Http\Html\Enums\InputType;
 
@@ -43,7 +36,7 @@ use Phoundation\Web\Http\Html\Enums\InputType;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
-class Phone extends DataEntry
+class Phone extends DataEntry implements PhoneInterface
 {
     use DataEntryUser;
     use DataEntryPhone;
@@ -82,7 +75,7 @@ class Phone extends DataEntry
      */
     public static function getUniqueField(): ?string
     {
-        return 'seo_name';
+        return 'phone';
     }
 
 
@@ -122,7 +115,7 @@ class Phone extends DataEntry
                 ->setReadonly(true))
             ->addDefinition(DefinitionFactory::getUsersId($this)
                 ->setVisible(false))
-            ->addDefinition(Definition::new($this, 'type')
+            ->addDefinition(Definition::new($this, 'account_type')
                 ->setOptional(true)
                 ->setElement(InputElement::select)
                 ->setSize(3)

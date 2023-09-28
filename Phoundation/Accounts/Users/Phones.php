@@ -4,10 +4,16 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Users;
 
+use Exception;
 use Phoundation\Accounts\Users\Interfaces\PhonesInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
+use Phoundation\Core\Arrays;
+use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Data\Validator\Validate;
+use Phoundation\Data\Validator\Validator;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Form;
@@ -34,7 +40,7 @@ class Phones extends DataList implements PhonesInterface
     {
         $this->setQuery('SELECT   `accounts_phones`.`id`,
                                         `accounts_phones`.`phone`,
-                                        `accounts_phones`.`type`
+                                        `accounts_phones`.`account_type`
                                FROM     `accounts_phones`
                                WHERE    `accounts_phones`.`users_id` = :users_id
                                  AND    `accounts_phones`.`status` IS NULL
@@ -124,11 +130,99 @@ class Phones extends DataList implements PhonesInterface
         $form      = Form::new();
         $content[] = Phone::new()->getHtmlForm()->render();
 
-        foreach ($this->getSource() as $phone) {
+        foreach ($this->ensureDataEntries()->getSource() as $phone) {
             $content[] = $phone->getHtmlForm()->render();
         }
 
         $form->addContent(implode('<hr>', $content));
         return $form;
+    }
+
+
+    /**
+     * Apply all phone updates
+     *
+     * @param bool $clear_source
+     * @return static
+     * @throws Exception
+     */
+    public function apply(bool $clear_source = true): static
+    {
+        $this->checkReadonly('apply');
+
+        if (empty($this->parent)) {
+            throw new OutOfBoundsException(tr('Cannot apply phones, no parent user specified'));
+        }
+
+        $phones = [];
+        $post   = Validator::get()
+            ->select('--phones', true)->isOptional()->hasMaxCharacters(32768)->sanitizeForceArray()->isArray()->each()->hasMaxCharacters(276)
+            ->validate(false);
+
+        // Parse and sub validate
+        foreach ($post['phones'] as $phone) {
+            $phone = trim($phone);
+
+            // Phone type specified? extract, else default
+            if (preg_match('/^\|(?:personal|business|other)$/i', $phone)) {
+                $type  = Strings::fromReverse($phone, '|');
+                $type  = strtolower($type);
+                $phone = Strings::untilReverse($phone, '|');
+
+            } else {
+                $type  = 'other';
+            }
+
+            // Validate the phone address
+            Validate::new($phone)->isPhone();
+
+            $phones[$phone] = [
+                'account_type' => $type,
+                'phone'        => $phone
+            ];
+        }
+
+        // Get a list of what we should add and remove and apply this
+        $diff = Arrays::valueDiff(array_keys($this->getSource()), array_keys($phones));
+
+        foreach ($diff['remove'] as $phone) {
+            Phone::new($phone, 'phone')->delete();
+            $this->removeByColumnValue($diff['remove'], 'phone');
+        }
+
+        foreach ($diff['add'] as $phone) {
+            $phone = Phone::new()->setSource($phones[$phone])->setUsersId($this->parent->getId())->save();
+            $this->add($phone);
+        }
+
+        // Clear source if required
+        if ($clear_source) {
+            PostValidator::new()->noArgumentsLeft();
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Save all the phones for this user
+     *
+     * @param bool $force
+     * @param string|null $comments
+     * @return static
+     */
+    public function save(bool $force = false, ?string $comments = null): static
+    {
+        $this->checkReadonly('save');
+
+        if (empty($this->parent)) {
+            throw new OutOfBoundsException(tr('Cannot apply phones, no parent user specified'));
+        }
+
+        foreach ($this->getSource() as $phone) {
+            $phone->save($force, $comments);
+        }
+
+        return $this;
     }
 }
