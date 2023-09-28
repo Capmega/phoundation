@@ -1811,7 +1811,7 @@ abstract class Validator implements ValidatorInterface
                 return;
             }
 
-            $this->matchesRegex('/[0-9- ].+?/');
+            $this->matchesRegex('/^\+?[0-9-#\* ].+?$/');
         });
     }
 

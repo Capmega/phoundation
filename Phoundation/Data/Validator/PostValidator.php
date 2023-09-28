@@ -113,7 +113,7 @@ class PostValidator extends Validator
 
         throw ValidatorException::new(tr('Unknown POST fields ":fields" encountered', [
             ':fields' => Strings::force($fields, ', ')
-        ]))->setData($messages)->makeWarning()->log();
+        ]))->addData($messages)->makeWarning()->log();
     }
 
 
@@ -225,7 +225,7 @@ class PostValidator extends Validator
 
         if ($button) {
             if ((strlen($button) > 32) or !ctype_print($button)) {
-                throw ValidationFailedException::new(tr('Invalid submit button specified'))->setData([
+                throw ValidationFailedException::new(tr('Invalid submit button specified'))->addData([
                     'submit' => tr('The specified submit button is invalid'),
                 ]);
             }

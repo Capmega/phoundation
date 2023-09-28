@@ -344,4 +344,39 @@ class Validate
 
         return $this;
     }
+
+
+    /**
+     * Validates if the selected field is a valid email address
+     *
+     * @param int $characters
+     * @return static
+     */
+    public function isEmail(int $characters = 2048): static
+    {
+        $this->hasMaxCharacters($characters);
+
+        if (!filter_var($this->source, FILTER_VALIDATE_EMAIL)) {
+            throw new ValidationFailedException(tr('The specified value must contain a valid email address'));
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Validates if the selected field is a valid phone number
+     *
+     * @param int $min_characters
+     * @param int $max_characters
+     * @return static
+     */
+    public function isPhone(int $min_characters = 10, int $max_characters = 20): static
+    {
+        $this->hasMinCharacters($min_characters)
+             ->hasMaxCharacters($max_characters)
+             ->matchesRegex('/^\+?[0-9-#\* ].+?$/');
+
+        return $this;
+    }
 }

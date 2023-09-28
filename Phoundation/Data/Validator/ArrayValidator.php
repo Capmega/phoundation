@@ -95,6 +95,6 @@ class ArrayValidator extends Validator
 
         throw ValidatorException::new(tr('Unknown ARRAY fields ":fields" encountered', [
             ':fields' => Strings::force($fields, ', ')
-        ]))->setData($messages)->makeWarning()->log();
+        ]))->addData($messages)->makeWarning()->log();
     }
 }

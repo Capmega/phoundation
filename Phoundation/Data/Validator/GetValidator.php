@@ -111,7 +111,7 @@ class GetValidator extends Validator
 
         throw ValidatorException::new(tr('Unknown GET fields ":fields" encountered', [
             ':fields' => Strings::force($get, ', ')
-        ]))->setData($messages)->makeWarning()->log();
+        ]))->addData($messages)->makeWarning()->log();
     }
 
 

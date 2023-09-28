@@ -530,13 +530,13 @@ trait ValidatorBasics
 
         if ($this->failures) {
             throw ValidationFailedException::new(tr('Data validation failed with the following issues:'))
-                ->setData($this->failures)
+                ->addData($this->failures)
                 ->makeWarning();
         }
 
         if (isset($unclean)) {
             throw ValidationFailedException::new(tr('Data validation failed because of the following unknown fields'))
-                ->setData($unclean)
+                ->addData($unclean)
                 ->makeWarning();
         }
 
@@ -735,5 +735,34 @@ trait ValidatorBasics
                 ':key' => $this->selected_field
             ]));
         }
+    }
+
+
+    /**
+     * Returns the required validator, depending on the specified source
+     *
+     * @param ValidatorInterface|array|null &$source
+     * @return ValidatorInterface
+     */
+    public static function get(ValidatorInterface|array|null &$source = null): ValidatorInterface
+    {
+        // Determine data source for this modification
+        if (!$source) {
+            // Use default data depending on platform
+            if (PLATFORM_HTTP) {
+                return PostValidator::new();
+            }
+
+            // This is the default for the CLI platform
+            return ArgvValidator::new();
+        }
+
+        if (is_object($source)) {
+            // The specified data source is a DataValidatorInterface type validator
+            return $source;
+        }
+
+        // Data source is an array, put it in an ArrayValidator.
+        return ArrayValidator::new($source);
     }
 }

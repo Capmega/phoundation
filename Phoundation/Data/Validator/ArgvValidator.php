@@ -197,7 +197,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
         if (in_array($clean_field, $this->selected_fields)) {
             throw new KeyAlreadySelectedException(tr('The specified key ":key" has already been selected before', [
-                ':key' => $fields
+                ':key' => $clean_field
             ]));
         }
 
@@ -685,7 +685,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
                 throw ArgumentsException::new(tr('Argument ":keys" has no assigned value. It is immediately followed by argument ":value"', [
                     ':keys'  => $keys,
                     ':value' => $value
-                ]))->setData(['keys' => $keys])->makeWarning();
+                ]))->addData(['keys' => $keys])->makeWarning();
             }
 
             return $value;
