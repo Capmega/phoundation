@@ -27,7 +27,7 @@ trait DataEntryDepartment
      */
     public function getDepartmentsId(): ?int
     {
-        return $this->getDataValue('int', 'departments_id');
+        return $this->getSourceValue('int', 'departments_id');
     }
 
 
@@ -39,7 +39,7 @@ trait DataEntryDepartment
      */
     public function setDepartmentsId(?int $departments_id): static
     {
-        return $this->setDataValue('departments_id', $departments_id);
+        return $this->setSourceValue('departments_id', $departments_id);
     }
 
 
@@ -50,7 +50,7 @@ trait DataEntryDepartment
      */
     public function getDepartment(): ?Department
     {
-        $departments_id = $this->getDataValue('departments_id');
+        $departments_id = $this->getSourceValue('departments_id');
 
         if ($departments_id) {
             return new Department($departments_id);
@@ -67,7 +67,7 @@ trait DataEntryDepartment
      */
     public function getDepartmentsName(): ?string
     {
-        return $this->getDataValue('string', 'departments_name');
+        return $this->getSourceValue('string', 'departments_name');
     }
 
 
@@ -79,6 +79,6 @@ trait DataEntryDepartment
      */
     public function setDepartmentsName(?string $departments_name): static
     {
-        return $this->setDataValue('departments_name', $departments_name);
+        return $this->setSourceValue('departments_name', $departments_name);
     }
 }

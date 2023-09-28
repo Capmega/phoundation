@@ -27,7 +27,7 @@ trait DataEntryUsersId
      */
     public function getUsersId(): ?int
     {
-        return $this->getDataValue('int', 'users_id');
+        return $this->getSourceValue('int', 'users_id');
     }
 
 
@@ -39,6 +39,6 @@ trait DataEntryUsersId
      */
     public function setUsersId(int|null $users_id): static
     {
-        return $this->setDataValue('users_id', $users_id);
+        return $this->setSourceValue('users_id', $users_id);
     }
 }
