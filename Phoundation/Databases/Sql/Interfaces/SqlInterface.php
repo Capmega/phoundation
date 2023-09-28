@@ -343,18 +343,6 @@ interface SqlInterface
     public function insertId(): ?int;
 
     /**
-     * Return a unique, non-existing ID for the specified table.column
-     *
-     * @param string $table
-     * @param array $data
-     * @param string|null $comments
-     * @return int
-     * @throws Exception
-     * @todo This is sort of the same as Sql::randomId(), merge these two!
-     */
-    public function reserveRandomId(string $table, array $data, ?string $comments = null): int;
-
-    /**
      * Enable / Disable all query logging on mysql server
      *
      * @param bool $enable
