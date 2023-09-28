@@ -408,15 +408,16 @@ class Iterator implements IteratorInterface
      * @note This only works on sources that contains array / DataEntry object values. Any other value will cause an
      *       OutOfBoundsException
      *
+     * @note If no columns were specified, then all columns will be assumed and the complete source will be returned
+     *
      * @param array|string|null $columns
      * @return array
      */
     protected function getSourceColumns(array|string|null $columns): array
     {
         if (!$columns) {
-            throw new OutOfBoundsException(tr('Cannot return source columns for ":this", no columns specified', [
-                ':this' => get_class($this)
-            ]));
+            // Return all columns
+            return $this->source;
         }
 
         // Already ensure columns is an array here to avoid Arrays::keep() having to convert all the time, just in case.
@@ -637,6 +638,43 @@ class Iterator implements IteratorInterface
     {
         foreach (Arrays::force($keys, null) as $key) {
             unset($this->source[$key]);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Deletes the entries that have columns with the specified value(s)
+     *
+     * @param Stringable|array|string|float|int $values
+     * @param string $column
+     * @return static
+     */
+    public function removeByColumnValue(Stringable|array|string|float|int $values, string $column): static
+    {
+        foreach (Arrays::force($values, null) as $value) {
+            foreach ($this->source as $key => $data) {
+                if (!is_array($data)) {
+                    throw new OutOfBoundsException(tr('Cannot delete entries by column value, encountered a non array value on key ":key"', [
+                        ':key'    => $key,
+                        ':value'  => $value,
+                        ':column' => $column
+                    ]));
+                }
+
+                if (!array_key_exists($key, $data)) {
+                    throw new OutOfBoundsException(tr('Cannot delete entries by column ":column" value ":value", encountered a non array value on key ":key"', [
+                        ':key'    => $key,
+                        ':value'  => $value,
+                        ':column' => $column
+                    ]));
+                }
+
+                if ($data[$key] === $value) {
+                    unset($this->source[$key]);
+                }
+            }
         }
 
         return $this;
