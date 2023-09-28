@@ -50,15 +50,13 @@ if (Page::isPostRequestMethod()) {
                 // Validate roles
                 $post = PostValidator::new()
                     ->select('roles_id')->isOptional()->isArray()->each()->isOptional()->isDbId()
-                    ->select('emails')->isOptional()->isArray()->each()->isArray()
-                    ->select('phones')->isOptional()->isArray()->each()->isArray()
                     ->validate(false);
 
                 // Update user, roles, emails, and phones
                 $user->apply()->save();
                 $user->getRoles()->setRoles($post['roles_id']);
-                $user->getEmails()->setEmails($post['emails']);
-                $user->getPhones()->setPhones($post['phones']);
+                $user->getEmails()->apply()->save();
+                $user->getPhones()->apply()->save();
 
 // TODO Implement timers
 //showdie(Timers::get('query'));
@@ -90,7 +88,6 @@ if (Page::isPostRequestMethod()) {
     } catch (IncidentsException|ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
         Page::getFlashMessages()->addMessage($e);
-
         $user->forceApply();
     }
 }
