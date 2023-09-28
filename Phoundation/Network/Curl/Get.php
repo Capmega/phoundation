@@ -91,7 +91,7 @@ class Get extends Curl
                     ':errno' => curl_errno($this->curl),
                     ':error' => curl_error($this->curl),
                 ]))
-                    ->setData([
+                    ->addData([
                         'headers' => $this->result_headers,
                         'data'    => $this->result_data,
                         'info'    => $this->result_status

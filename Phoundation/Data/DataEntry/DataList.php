@@ -384,6 +384,7 @@ abstract class DataList extends Iterator implements DataListInterface
      *
      * @param array|null $columns
      * @param array $filters
+     * @param string|null $id_column
      * @return void
      */
     public function CliDisplayTable(?array $columns = null, array $filters = [], ?string $id_column = 'id'): void
@@ -640,7 +641,7 @@ abstract class DataList extends Iterator implements DataListInterface
     public function load(): static
     {
         $this->selectQuery();
-        $this->source = sql()->list($this->query, $this->execute);
+        $this->source = sql()->listKeyValues($this->query, $this->execute);
 
         return $this;
     }

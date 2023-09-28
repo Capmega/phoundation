@@ -29,9 +29,9 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
     /**
      * Exception data, if available
      *
-     * @var mixed
+     * @var array
      */
-    protected mixed $data = null;
+    protected array $data = [];
 
     /**
      * Exception messages
@@ -141,9 +141,9 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
     /**
      * Return the exception related data
      *
-     * @return mixed
+     * @return array
      */
-    public function getData(): mixed
+    public function getData(): array
     {
         return $this->data;
     }
@@ -171,7 +171,7 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
     public function getDataMatch(array|string $needles, int $options = Arrays::MATCH_ALL | Arrays::MATCH_ANYWHERE| Arrays::MATCH_NO_CASE): array
     {
         if (!is_array($this->data)) {
-            throw OutOfBoundsException::new(tr('Cannot return exception data match, the data is not an array'), $this)->setData([
+            throw OutOfBoundsException::new(tr('Cannot return exception data match, the data is not an array'), $this)->addData([
                 'exception' => $this,
                 'data'      => $this->getData()
             ]);
@@ -182,14 +182,26 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
 
 
     /**
-     * Set the exception data
+     * Add relevant exception data
      *
      * @param mixed $data
+     * @param string|null $key
      * @return static
      */
-    public function setData(mixed $data): static
+    public function addData(mixed $data, ?string $key = null): static
     {
-        $this->data = $data;
+        if (is_array($data) and ($key === null)) {
+            // Add this exception data to the existing data
+            $this->data = array_merge($this->data, $data);
+
+        } else {
+            if ($key === null) {
+                $key = Strings::randomSafe();
+            }
+
+            $this->data[$key] = $data;
+        }
+
         return $this;
     }
 
@@ -209,7 +221,7 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
      * Returns the exception messages
      *
      * @param array $messages
-     * @return Exception
+     * @return static
      */
     public function addMessages(array $messages): static
     {
@@ -217,6 +229,32 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
             $this->messages[] = $message;
         }
 
+        return $this;
+    }
+
+
+    /**
+     * Changes the exception messages list to the specified messages
+     *
+     * @param array $messages
+     * @return static
+     */
+    public function setMessages(array $messages): static
+    {
+        $this->messages = $messages;
+        return $this;
+    }
+
+
+    /**
+     * Changes the exception message to the specified message
+     *
+     * @param string $message
+     * @return static
+     */
+    public function setMessage(string $message): static
+    {
+        $this->message = $message;
         return $this;
     }
 
@@ -236,7 +274,7 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
      * Set the exception code
      *
      * @param string|int|null $code
-     * @return Exception
+     * @return static
      */
     public function setCode(string|int|null $code = null): static
     {
@@ -250,7 +288,7 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
      *
      * @note This method returns $this, allowing chaining
      * @param bool $warning True if this exception is a warning, false if not
-     * @return Exception
+     * @return static
      */
     public function setWarning(bool $warning): static
     {
@@ -267,7 +305,7 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
      * Sets that this exception is a warning. If an exception is a warning, its message may be displayed completely
      *
      * @note This method returns $this, allowing chaining
-     * @return Exception
+     * @return static
      */
     public function makeWarning(): static
     {
@@ -323,7 +361,7 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
     /**
      * Write this exception to the log file
      *
-     * @return Exception
+     * @return static
      */
     public function log(): static
     {
@@ -351,7 +389,7 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
     /**
      * Register this exception in the developer incidents log
      *
-     * @return Exception
+     * @return static
      */
     public function register(): static
     {

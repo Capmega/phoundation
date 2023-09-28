@@ -335,7 +335,7 @@ class Restrictions implements RestrictionsInterface
                         throw RestrictionsException::new(tr('Write access to path patterns ":patterns" denied by ":label" restrictions', [
                             ':patterns' => $pattern,
                             ':label'    => $this->label
-                        ]))->setData([
+                        ]))->addData([
                             'label'    => $this->label,
                             'patterns' => $patterns,
                             'paths'    => $this->paths
@@ -351,7 +351,7 @@ class Restrictions implements RestrictionsInterface
             throw RestrictionsException::new(tr('Access to requested path patterns ":patterns" denied by ":label" restrictions', [
                 ':patterns' => $pattern,
                 ':label'    => $this->label
-            ]))->setData([
+            ]))->addData([
                 'label'    => $this->label,
                 'patterns' => $patterns,
                 'paths'    => $this->paths

@@ -391,7 +391,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
             if (!is_scalar($value)) {
                 if (!($value instanceof Stringable)) {
                     throw OutOfBoundsException::new(tr('The specified select source array is invalid. Format should be [key => value, key => value, ...]'))
-                        ->setData($this->source);
+                        ->addData($this->source);
                 }
 
                 // So value is a stringable object. Force value to be a string

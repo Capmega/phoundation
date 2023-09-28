@@ -356,7 +356,7 @@ class Phoundation extends Project
                 }
 
                 throw PatchPartiallySuccessfulException::new(tr('Phoundating patch was partially successful, some files failed'))
-                    ->setData(['files' => $bad_files]);
+                    ->addData(['files' => $bad_files]);
             }
 
         } catch (GitHasChangesException $e) {

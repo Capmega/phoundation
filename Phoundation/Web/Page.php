@@ -2381,7 +2381,7 @@ class Page implements PageInterface
         } catch (FileNotExistException $e) {
             throw FileNotExistException::new(tr('The specified target ":target" does not exist', [
                 ':target' => $target
-            ]), $e)->setData(['target' => $target]);
+            ]), $e)->addData(['target' => $target]);
         }
 
         // Set the page hash and check if we have access to this page?

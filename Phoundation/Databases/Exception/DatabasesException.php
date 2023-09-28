@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases\Exception;
 
+use Phoundation\Databases\Exception\Interfaces\DatabasesExceptionInterface;
 use Phoundation\Exception\Exception;
 
 
@@ -17,6 +18,6 @@ use Phoundation\Exception\Exception;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Databases
  */
-class DatabasesException extends Exception
+class DatabasesException extends Exception implements DatabasesExceptionInterface
 {
 }

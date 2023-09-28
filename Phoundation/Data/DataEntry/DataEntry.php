@@ -26,6 +26,7 @@ use Phoundation\Data\DataEntry\Exception\DataEntryStateMismatchException;
 use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryNotExistsExceptionInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryDefinitions;
+use Phoundation\Data\DataEntry\Traits\SelectValidator;
 use Phoundation\Data\Traits\DataDebug;
 use Phoundation\Data\Traits\DataReadonly;
 use Phoundation\Data\Validator\ArgvValidator;
@@ -33,6 +34,7 @@ use Phoundation\Data\Validator\ArrayValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Data\Validator\Validator;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Databases\Sql\Sql;
@@ -729,7 +731,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function getLogId(): string
     {
-        return $this->getSourceValue('int', 'id') . ' / ' . (static::getUniqueField() ?? '-');
+        return $this->getSourceValue('int', 'id') . ' / ' . (static::getUniqueField() ? $this->getSourceValue('string', static::getUniqueField()) : '-');
     }
 
 
@@ -966,7 +968,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function apply(bool $clear_source = true, ValidatorInterface|array|null &$source = null): static
     {
-        return $this->checkReadonly('save')->doApply($clear_source, $source, false);
+        return $this->checkReadonly('apply')->doApply($clear_source, $source, false);
     }
 
 
@@ -1021,7 +1023,7 @@ abstract class DataEntry implements DataEntryInterface
         //
         // When in force mode we will NOT clear the failed fields so that they can be sent back to the user for
         // corrections
-        $data_source = $this->selectValidator($source);
+        $data_source = Validator::get($source);
 
         if ($this->debug) {
             Log::information('APPLY ' . static::getDataEntryName() . ' (' . get_class($this) . ')', 10);
@@ -1064,35 +1066,6 @@ abstract class DataEntry implements DataEntryInterface
         }
 
         return $this;
-    }
-
-
-    /**
-     * Validates the source data and returns it
-     *
-     * @param ValidatorInterface|array|null &$source
-     * @return ValidatorInterface
-     */
-    protected function selectValidator(ValidatorInterface|array|null &$source = null): ValidatorInterface
-    {
-        // Determine data source for this modification
-        if (!$source) {
-            // Use default data depending on platform
-            if (PLATFORM_HTTP) {
-                return PostValidator::new();
-            }
-
-            // This is the default for the CLI platform
-            return ArgvValidator::new();
-        }
-
-        if (is_object($source)) {
-            // The specified data source is a DataValidatorInterface type validator
-            return $source;
-        }
-
-        // Data source is an array, put it in an ArrayValidator.
-        return ArrayValidator::new($source);
     }
 
 
@@ -1664,9 +1637,12 @@ abstract class DataEntry implements DataEntryInterface
      * @param bool $force
      * @param string|null $comments
      * @return static
+     * @throws Exception
      */
     public function save(bool $force = false, ?string $comments = null): static
     {
+        $this->checkReadonly('save');
+
         if (!$this->is_modified and !$force) {
             // Nothing changed, no reason to save
             if ($this->debug) {
@@ -1675,9 +1651,9 @@ abstract class DataEntry implements DataEntryInterface
             return $this;
         }
 
-        if (!$this->is_validated) {
+        if ($this->is_applying and !$this->is_validated) {
             if ($this->debug) {
-                Log::information('SAVED DATAENTRY WITH ID "' . $this->source['id'] . '"', 10);
+                Log::information('VALIDATING DATAENTRY WITH ID "' . $this->source['id'] . '"', 10);
             }
 
             // The data in this object hasn't been validated yet! Do so now...
@@ -1695,6 +1671,7 @@ abstract class DataEntry implements DataEntryInterface
 
         // Debug this specific entry?
         if ($this->debug) {
+            Log::information('SAVING DATAENTRY WITH ID "' . $this->source['id'] . '"', 10);
             $debug = Sql::debug(true);
         }
 
@@ -1816,11 +1793,15 @@ abstract class DataEntry implements DataEntryInterface
             $definition->validate($validator, $prefix);
         }
 
-        // Check if no arguments are left and execute the validate method to get the results of the validation
-        // TODO Seems like "noArgumentsLeft()" method has no real use anymore. Get rid of it
-        $validator->noArgumentsLeft($clear_source);
-        $source = $validator->validate($clear_source);
-        $this->is_validated = true;
+        try {
+            // Execute the validate method to get the results of the validation
+            $source = $validator->validate($clear_source);
+            $this->is_validated = true;
+
+        } catch (ValidationFailedException $e) {
+            // Add the DataEntry object type to the exception message
+            throw $e->setMessage('(' . get_class($this) . ') ' . $e->getMessage());
+        }
 
         // Fix field names if prefix was specified
         if ($prefix) {

@@ -297,7 +297,7 @@ class Notification extends DataEntry implements NotificationInterface
                 throw NotificationBusyException::new(tr('The notifications system is already busy sending another notification and cannot send the new ":title" notification with message ":message"', [
                     ':title'   => $this->getTitle(),
                     ':message' => $this->getMessage()
-                ]))->setData($this->source);
+                ]))->addData($this->source);
             }
 
             $sending = true;

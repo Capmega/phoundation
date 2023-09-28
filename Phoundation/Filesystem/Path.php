@@ -210,7 +210,7 @@ class Path extends FileBasics implements PathInterface
                     if (!file_exists($this->file)) {
                         throw PathException::new(tr('Failed to create directory ":path"', [
                             ':path' => $this->file
-                        ]), $e)->setData(['path' => $this->file]);
+                        ]), $e)->addData(['path' => $this->file]);
                     }
                 }
             }

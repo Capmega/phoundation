@@ -58,7 +58,7 @@ throw new UnderConstructionException();
      */
     public function drop(UserInterface|int $user): void
     {
-        throw new UnderConstructionException();
+        //throw new UnderConstructionException();
 
     }
 
@@ -71,6 +71,5 @@ throw new UnderConstructionException();
     public function dropAll(): void
     {
         throw new UnderConstructionException();
-
     }
 }

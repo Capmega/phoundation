@@ -125,7 +125,7 @@ class RoutingParametersList
                 throw RouteException::new(tr('Routing regular expression pattern ":regex" failed with error ":e"', [
                     ':e'     => $e->getMessage(),
                     ':regex' => $pattern
-                ]), $e)->setData(['failed_pattern' => $pattern]);
+                ]), $e)->addData(['failed_pattern' => $pattern]);
             }
 
             $parameters

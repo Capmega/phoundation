@@ -224,7 +224,7 @@ class CliCommand
         if (!ArgvValidator::getMethodCount()) {
             throw NoMethodSpecifiedException::new('No method specified!')
                 ->makeWarning()
-                ->setData([
+                ->addData([
                     'position' => 0,
                     'methods'  => Arrays::filterValues(scandir(PATH_ROOT . 'scripts/'), '/^\./', EnumMatchMode::regex)
                 ]);
@@ -249,7 +249,7 @@ class CliCommand
                 throw MethodNotExistsException::new(tr('The specified command file ":file" does not exist', [
                     ':file' => $file
                 ]))->makeWarning()
-                    ->setData([
+                    ->addData([
                         'position' => $position,
                         'methods'  => Arrays::filterValues(scandir(dirname($file)), '/^\./', EnumMatchMode::regex)
                     ]);
@@ -295,7 +295,7 @@ class CliCommand
             ':file' => $file
         ]))
             ->makeWarning()
-            ->setData([
+            ->addData([
                 'position' => $position + 1,
                 'methods'  => Arrays::filterValues(scandir($file), '/^\./', EnumMatchMode::regex)
             ]);
@@ -781,7 +781,7 @@ class CliCommand
                 throw MethodNotExistsException::new(tr('The specified command file ":file" does exist but requires auto complete extension', [
                     ':file' => $script
                 ]))->makeWarning()
-                    ->setData([
+                    ->addData([
                         'position' => AutoComplete::getPosition(),
                         'methods' => [basename($script)]
                     ]);

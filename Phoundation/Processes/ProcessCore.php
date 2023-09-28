@@ -108,7 +108,7 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
             throw ProcessFailedException::new(tr('The command ":command" failed with exit code ":code"', [
                 ':command' => $this->command,
                 ':code'    => $exit_code
-            ]))->setCode($exit_code)->setData([
+            ]))->setCode($exit_code)->addData([
                 'command'              => $this->command,
                 'full_command'         => $this->getFullCommandLine(),
                 'pipe'                 => $this->getPipeCommandLine(),

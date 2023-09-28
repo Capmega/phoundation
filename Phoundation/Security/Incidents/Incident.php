@@ -273,7 +273,7 @@ class Incident extends DataEntry
      */
     #[NoReturn] public function throw(): never
     {
-        throw IncidentsException::new($this->getTitle())->setData(['details' => $this->getDetails()]);
+        throw IncidentsException::new($this->getTitle())->addData(['details' => $this->getDetails()]);
     }
 
 
