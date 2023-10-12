@@ -159,9 +159,9 @@ Class Log {
                     // Be... normal, I guess
                     if (Debug::enabled()) {
                         // Debug shows a bit more
-                        $threshold = Config::getInteger('log.threshold', Core::errorState() ? 10 : 5);
+                        $threshold = Config::getInteger('log.threshold', Core::errorState() ? 1 : 3);
                     } else {
-                        $threshold = Config::getInteger('log.threshold', Core::errorState() ? 10 : 3);
+                        $threshold = Config::getInteger('log.threshold', Core::errorState() ? 1 : 5);
                     }
                 }
 
