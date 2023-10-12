@@ -138,6 +138,8 @@ class CliCommand
                 $argv['help'] = true;
 
                 static::documentation();
+                AutoComplete::ensureAvailable();
+                exit();
             }
         }
 
@@ -813,14 +815,14 @@ class CliCommand
      *
      * @return void
      */
-    #[NoReturn] protected static function documentation(): void
+    protected static function documentation(): void
     {
         Documentation::usage('./pho METHODS [ARGUMENTS]
 ./pho info
 ./pho accounts users create --help
 ./pho system update
 ./pho system maintenance disable
-./pho system <TAB>');
+./pho system <TAB>', false);
 
         Documentation::help(tr('This is the Phoundation CLI interface command "pho"
 
@@ -934,8 +936,6 @@ The following arguments are available to ALL scripts
 --no-password-validation                Will not validate passwords.
 
                                         WARNING: This may result in weak and or compromised passwords in your database
-                ', [':environment' => 'PHOUNDATION_' . PROJECT . '_ENVIRONMENT']));
-
-        exit();
+                ', [':environment' => 'PHOUNDATION_' . PROJECT . '_ENVIRONMENT']), false);
     }
 }
