@@ -866,6 +866,50 @@ class Path extends FileBasics implements PathInterface
 
 
     /**
+     * Returns the amount of available files in the current file path
+     *
+     * @param bool $recursive
+     * @return int
+     */
+    public function getCount(bool $recursive = true): int
+    {
+        if ($this instanceof FileInterface) {
+            if ($this->exists()) {
+                // This is a single file!
+                return 1;
+            }
+
+            return 0;
+        }
+
+        // Return the amount of all files in this directory
+        $files = scandir($this->file);
+        $count = count($files);
+
+        // Recurse?
+        if ($recursive) {
+            // Recurse!
+            foreach ($files as $file) {
+                if (($file === '.') or ($file === '..')) {
+                    // Skip crap
+                    continue;
+                }
+
+                // Filename must have complete absolute path
+                $file = $this->file . $file;
+
+                if (is_dir($file)) {
+                    // Count all files in this sub directory, minus the directory itself
+                    $count += Filesystem::get($file, $this->restrictions)->getCount($recursive) - 1;
+                }
+            }
+        }
+
+        return $count;
+    }
+
+
+    /**
      * Returns a list of all available files in this path matching the specified (multiple) pattern(s)
      *
      * @param string|null $file_patterns The single or multiple pattern(s) that should be matched

@@ -42,7 +42,7 @@ $argv = ArgvValidator::new()
     ->validate();
 
 if ($argv['human_readable']) {
-    CliCommand::echo(number_format(Filesystem::get($argv['path'], Restrictions::new('/'))->count()));
+    CliCommand::echo(number_format(Filesystem::get($argv['path'], Restrictions::new('/'))->getCount()));
 } else {
-    CliCommand::echo(Filesystem::get($argv['path'], Restrictions::new('/'))->count());
+    CliCommand::echo(Filesystem::get($argv['path'], Restrictions::new('/'))->getCount());
 }

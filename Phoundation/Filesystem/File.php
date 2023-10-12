@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Phoundation\Filesystem;
 
 use Exception;
-use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
@@ -46,11 +45,12 @@ class File extends FileBasics implements FileInterface
     /**
      * Returns the configured file buffer size
      *
+     * @param int|null $requested_buffer_size
      * @return int
      */
-    public function getBufferSize(): int
+    public function getBufferSize(?int $requested_buffer_size = null): int
     {
-        $required  = Config::get('filesystem.buffer.size', $this->buffer_size ?? 4096);
+        $required  = $requested_buffer_size ?? Config::get('filesystem.buffer.size', $this->buffer_size ?? 4096);
         $available = Core::getMemoryAvailable();
 
         if ($required > $available) {
@@ -85,78 +85,6 @@ class File extends FileBasics implements FileInterface
     public function setBufferSize(?int $buffer_size): static
     {
         $this->buffer_size = $buffer_size;
-        return $this;
-    }
-
-
-    /**
-     * Append specified data string to the end of the object file
-     *
-     * @param string $data
-     * @return static
-     * @throws FilesystemException
-     */
-    public function append(string $data): static
-    {
-        return $this->write($data, 'a');
-    }
-
-
-    /**
-     * Append specified data string to the end of the object file
-     *
-     * @param string $data
-     * @return static
-     * @throws FilesystemException
-     */
-    public function create(string $data): static
-    {
-        return $this->write($data, 'w');
-    }
-
-
-    /**
-     * Concatenates a list of files to a target file
-     *
-     * @param string|array $sources The source files
-     * @return static
-     */
-    public function appendFiles(string|array $sources): static
-    {
-        // Check filesystem restrictions
-        $this->restrictions->check($this->file, true);
-
-        // Ensure the target path exists
-        Path::new(dirname($this->file), $this->restrictions)->ensure();
-
-        // Open target file
-        try {
-            $target_h = $this->open('a');
-        } catch (Throwable $e) {
-            // Failed to open the target file
-            $this->checkReadable('target', $e);
-        }
-
-        // Open each source file
-        foreach (Arrays::force($sources, null) as $source) {
-            try {
-                $source_h = File::new($source, $this->restrictions)->open('r');
-
-                while (!feof($source_h)) {
-                    $data = fread($source_h, 8192);
-                    fwrite($target_h, $data);
-                }
-
-                fclose($source_h);
-            } catch (Throwable $e) {
-                // Failed to open one of the sources, get rid of the partial target file
-                $this->delete();
-                $this->checkReadable('source', $e);
-            }
-        }
-
-        fclose($target_h);
-
         return $this;
     }
 
@@ -319,52 +247,6 @@ class File extends FileBasics implements FileInterface
 
 
     /**
-     * This is an fopen() wrapper with some built-in error handling
-     *
-     * @param string $mode
-     * @param resource $context
-     * @return resource
-     */
-    public function open(#[ExpectedValues(values: ['r', 'r+', 'w', 'w+', 'a', 'a+', 'x', 'x+', 'c', 'c+', 'ce+'])] string $mode, $context = null)
-    {
-        if (!$mode) {
-            throw new OutOfBoundsException(tr('No file open mode specified'));
-        }
-
-        $this->restrictions->check($this->file, ($mode[0] !== 'r'));
-
-        // Check filesystem restrictions
-        $handle = fopen($this->file, $mode, false, $context);
-
-        if (!$handle) {
-            // Check if the mode is valid and if the file can be opened for the requested mode
-            $method = match ($mode) {
-                'r' => FileBasics::READ,
-                'r+', 'w', 'w+', 'a', 'a+', 'x', 'x+', 'c', 'c+', 'ce+' => FileBasics::WRITE,
-                default => throw new FilesystemException(tr('Could not open file ":file"', [
-                    ':file' => $this->file
-                ])),
-            };
-
-            // Mode is valid, check if file is accessible.
-            switch ($method) {
-                case FileBasics::READ:
-                    $this->checkReadable();
-                    break;
-
-                case FileBasics::WRITE:
-                    $this->checkWritable();
-                    break;
-            }
-
-            throw new FilesystemException(tr('Failed to open file ":file"', [':file' => $this->file]));
-        }
-
-        return $handle;
-    }
-
-
-    /**
      * Check if the object file exists and is readable. If not both, an exception will be thrown
      *
      * On various occasions, this method could be used AFTER a file read action failed and is used to explain WHY the
@@ -415,7 +297,7 @@ class File extends FileBasics implements FileInterface
      */
     public function checkWritable(?string $type = null, ?Throwable $previous_e = null) : static
     {
-        parent::checkWritable($type, $previous_e);
+        $this::checkWritable($type, $previous_e);
 
         if (is_dir($this->file)) {
             throw new FilesystemException(tr('The:type file ":file" cannot be written because it is a directory', [
@@ -429,32 +311,6 @@ class File extends FileBasics implements FileInterface
         }
 
         return $this;
-    }
-
-
-    /**
-     * Returns if the link target exists or not
-     *
-     * @return bool
-     */
-    public function linkTargetExists(): bool
-    {
-        throw new UnderConstructionException();
-        if (file_exists($this->file)) {
-            return false;
-        }
-
-        if (is_link()) {
-            throw new FilesystemException(tr('Symlink ":source" has non existing target ":target"', [
-                'source' => $this->file,
-                ':target' => readlink()
-            ]));
-        }
-
-        throw new FilesystemException(tr('Symlink ":source" has non existing target ":target"', [
-            'source' => $this->file,
-            ':target' => readlink()
-        ]));
     }
 
 
@@ -1396,79 +1252,6 @@ class File extends FileBasics implements FileInterface
     public function unzip(): static
     {
         Zip::new($this->restrictions)->unzip($this->file);
-        return $this;
-    }
-
-
-    /**
-     * Reads and returns the specified amount of bytes from this file
-     *
-     * @param int $count
-     * @param int $start
-     * @return string
-     */
-    public function readBytes(int $count, int $start = 0): string
-    {
-        $h    = $this->open('r');
-        $data = fread($h, $start + $count);
-        $data = substr($data, $start);
-
-        fclose($h);
-
-        return $data;
-    }
-
-
-    /**
-     * Write the specified data to this file with the requested file mode
-     *
-     * @param string $data
-     * @param string $write_mode
-     * @return $this
-     */
-    protected function write(string $data, string $write_mode = 'w'): static
-    {
-        // Validate the specified filemode
-        switch (substr($write_mode, 0, 1)) {
-            case 'w':
-                // no break
-            case 'a':
-                // no break
-            case 'x':
-                // no break
-            case 'c':
-                break;
-
-            default:
-                throw new FilesystemException(tr('Invalid file mode ":mode" specified, please use one of "w", "w+", "a", "a+", "c", "c+", , "x", or "x+"', [
-                    ':mode' => $write_mode
-                ]));
-        }
-
-        switch (substr($write_mode, 1, 1)) {
-            case '+':
-                // no break
-            case null:
-                // All fine
-                break;
-
-            default:
-                throw new FilesystemException(tr('Invalid file mode ":mode" specified, please use one of "w", "w+", "a", "a+", "c", "c+", , "x", or "x+"', [
-                    ':mode' => $write_mode
-                ]));
-        }
-
-        // Check filesystem restrictions
-        $this->restrictions->check($this->file, true);
-
-        // Make sure the file path exists. NOTE: Restrictions MUST be at least 2 levels above to be able to generate the
-        // PARENT directory IN the PARENT directory OF the PARENT!
-        Path::new(dirname($this->file), $this->restrictions->getParent()->getParent())->ensure();
-
-        $h = $this->open($write_mode);
-        fwrite($h, $data);
-        fclose($h);
-
         return $this;
     }
 }

@@ -2,17 +2,18 @@
 
 namespace Phoundation\Filesystem\Interfaces;
 
+
 use Exception;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Filesystem\Exception\FilesystemException;
+use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Path;
 use Throwable;
 
-
 /**
- * Interface FileInterface
+ * File class
  *
- *
+ * This library contains various filesystem file related functions
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -20,14 +21,15 @@ use Throwable;
  * @category Function reference
  * @package Phoundation\Filesystem
  */
-interface FileInterface extends FileBasicsInterface
+interface FileInterface
 {
     /**
      * Returns the configured file buffer size
      *
+     * @param int|null $requested_buffer_size
      * @return int
      */
-    public function getBufferSize(): int;
+    public function getBufferSize(?int $requested_buffer_size = null): int;
 
     /**
      * Sets the configured file buffer size
@@ -122,15 +124,6 @@ interface FileInterface extends FileBasicsInterface
     public function copyProgress(string $target, callable $callback): static;
 
     /**
-     * This is an fopen() wrapper with some built-in error handling
-     *
-     * @param string $mode
-     * @param resource $context
-     * @return resource
-     */
-    public function open(string $mode, $context = null);
-
-    /**
      * Check if the object file exists and is readable. If not both, an exception will be thrown
      *
      * On various occasions, this method could be used AFTER a file read action failed and is used to explain WHY the
@@ -163,13 +156,6 @@ interface FileInterface extends FileBasicsInterface
      * @return static
      */
     public function checkWritable(?string $type = null, ?Throwable $previous_e = null): static;
-
-    /**
-     * Returns if the link target exists or not
-     *
-     * @return bool
-     */
-    public function linkTargetExists(): bool;
 
     /**
      * Search / replace the object files

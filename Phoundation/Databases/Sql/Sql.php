@@ -36,6 +36,7 @@ use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Filesystem\Enums\EnumFileOpenMode;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Notifications\Notification;
@@ -1260,10 +1261,10 @@ class Sql implements SqlInterface
     {
         throw new UnderConstructionException();
 
-        $tel = 0;
-        $handle = File::new($file, $restrictions)->open('r');
+        $tel  = 0;
+        $file = File::new($file, $restrictions)->open(EnumFileOpenMode::readOnly);
 
-        while (($buffer = fgets($handle)) !== false) {
+        while (($buffer = $file->gets()) !== false) {
             $buffer = trim($buffer);
 
             if (!empty($buffer)) {

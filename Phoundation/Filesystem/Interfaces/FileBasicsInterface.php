@@ -218,20 +218,12 @@ interface FileBasicsInterface
     public function ensureFileWritable(?int $mode = null): bool;
 
     /**
-     * Returns the amount of available files in the current file path
-     *
-     * @param bool $recursive
-     * @return int
-     */
-    public function count(bool $recursive = true): int;
-
-    /**
      * Returns the size in bytes of this file or path
      *
      * @param bool $recursive
      * @return int
      */
-    public function size(bool $recursive = true): int;
+    public function getSize(bool $recursive = true): int;
 
     /**
      * Returns the parent directory for this file

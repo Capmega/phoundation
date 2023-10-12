@@ -5,14 +5,23 @@ declare(strict_types=1);
 namespace Phoundation\Filesystem;
 
 use Exception;
+use JetBrains\PhpStorm\ExpectedValues;
+use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Traits\DataFile;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Filesystem\Enums\EnumFileOpenMode;
+use Phoundation\Filesystem\Enums\Interfaces\EnumFileOpenModeInterface;
+use Phoundation\Filesystem\Exception\FileActionFailedException;
 use Phoundation\Filesystem\Exception\FileExistsException;
+use Phoundation\Filesystem\Exception\FileNotOpenException;
 use Phoundation\Filesystem\Exception\FileNotWritableException;
+use Phoundation\Filesystem\Exception\FileOpenException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\PathNotExistsException;
+use Phoundation\Filesystem\Exception\ReadOnlyModeException;
 use Phoundation\Filesystem\Interfaces\FileBasicsInterface;
 use Phoundation\Filesystem\Interfaces\FileInterface;
 use Phoundation\Filesystem\Interfaces\PathInterface;
@@ -70,6 +79,20 @@ class FileBasics implements Stringable, FileBasicsInterface
      * @var string|null $file
      */
     protected ?string $file = null;
+
+    /**
+     * The stream, if this file is opened
+     *
+     * @var mixed $stream
+     */
+    protected mixed $stream = null;
+
+    /**
+     * If the file is opened, specifies how it was opened
+     *
+     * @var EnumFileOpenModeInterface|null $open_mode
+     */
+    protected ?EnumFileOpenModeInterface $open_mode = null;
 
 
     /**
@@ -180,6 +203,7 @@ Log::warning($file, echo_screen: false);
      */
     public function setFile(Stringable|string|null $file, string $prefix = null, bool $must_exist = false): static
     {
+        $this->close();
         $this->file      = Filesystem::absolute($file, $prefix, $must_exist);
         $this->real_file = realpath($this->file);
 
@@ -691,43 +715,6 @@ Log::warning($file, echo_screen: false);
 
 
     /**
-     * Creates a symlink $target that points to this file.
-     *
-     * @param Stringable|string $source
-     * @param Restrictions|null $restrictions
-     * @return $this
-     */
-    public function link(Stringable|string $source, ?Restrictions $restrictions = null): static
-    {
-        $source = (string) $source;
-
-        if (file_exists($source)) {
-            if (readlink($source) === $this->file) {
-                // Symlink already exists and points to the same file, all fine
-                return $this;
-            }
-
-            throw new FileExistsException(tr('Cannot create symlink ":target" that points to ":source", the file already exists and points to ":current" instead', [
-                ':target'  => $source,
-                ':source'  => $this->file,
-                ':current' => readlink($source)
-            ]));
-        }
-
-        // Ensure target is absolute
-        $source = Filesystem::absolute($source, must_exist: false);
-
-        // Ensure that we have restrictions access and target path exists
-        Restrictions::default($restrictions, $this->restrictions)->check($source, true);
-        Path::new(dirname($source), $this->restrictions->getParent())->ensure();
-
-        // Symlink
-        symlink($this->file, $source);
-        return $this;
-    }
-
-
-    /**
      * Switches file mode to the new value and returns the previous value
      *
      * @param string|int $mode
@@ -951,56 +938,12 @@ Log::warning($file, echo_screen: false);
 
 
     /**
-     * Returns the amount of available files in the current file path
-     *
-     * @param bool $recursive
-     * @return int
-     */
-    public function count(bool $recursive = true): int
-    {
-        if ($this instanceof FileInterface) {
-            if ($this->exists()) {
-                // This is a single file!
-                return 1;
-            }
-
-            return 0;
-        }
-
-        // Return the amount of all files in this directory
-        $files = scandir($this->file);
-        $count = count($files);
-
-        // Recurse?
-        if ($recursive) {
-            // Recurse!
-            foreach ($files as $file) {
-                if (($file === '.') or ($file === '..')) {
-                    // Skip crap
-                    continue;
-                }
-
-                // Filename must have complete absolute path
-                $file = $this->file . $file;
-
-                if (is_dir($file)) {
-                    // Count all files in this sub directory, minus the directory itself
-                    $count += Filesystem::get($file, $this->restrictions)->count($recursive) - 1;
-                }
-            }
-        }
-
-        return $count;
-    }
-
-
-    /**
      * Returns the size in bytes of this file or path
      *
      * @param bool $recursive
      * @return int
      */
-    public function size(bool $recursive = true): int
+    public function getSize(bool $recursive = true): int
     {
         if ($this instanceof FileInterface) {
             if ($this->exists()) {
@@ -1027,7 +970,7 @@ Log::warning($file, echo_screen: false);
             if (is_dir($file)) {
                 if ($recursive) {
                     // Get file size of this entire directory
-                    $size += Filesystem::get($file, $this->restrictions)->size($recursive);
+                    $size += Filesystem::get($file, $this->restrictions)->getSize($recursive);
                 }
             } else {
                 // Get file size of this file
@@ -1056,5 +999,532 @@ Log::warning($file, echo_screen: false);
     public function getDirectory(RestrictionsInterface $restrictions): PathInterface
     {
         return Path::new(dirname($this->file), $restrictions);
+    }
+
+
+    /**
+     * This is an fopen() wrapper with some built-in error handling
+     *
+     * @param EnumFileOpenModeInterface $mode
+     * @param resource $context
+     * @return static
+     */
+    public function open(EnumFileOpenModeInterface $mode, $context = null): static
+    {
+        // Check filesystem restrictions and open the file
+        $this
+            ->ensureClosed('open')
+            ->restrictions->check($this->file, ($mode[0] !== EnumFileOpenMode::readOnly));
+
+        try {
+            $stream = fopen($this->file, $mode->value, false, $context);
+
+        } catch (Throwable $e) {
+            // Failed to open the target file
+            $this->checkReadable('target', $e);
+        }
+
+        if ($stream) {
+            // All okay!
+            $this->stream    = $stream;
+            $this->open_mode = $mode;
+            return $this;
+        }
+
+        // File couldn't be opened. check if file is accessible.
+        switch ($mode) {
+            case EnumFileOpenMode::readOnly:
+                $this->checkReadable();
+                break;
+
+            default:
+                $this->checkWritable();
+                break;
+        }
+
+        throw new FilesystemException(tr('Failed to open file ":file"', [':file' => $this->file]));
+    }
+
+
+    /**
+     * Returns true if the file is a symlink, whether its target exists or not
+     *
+     * @return bool
+     */
+    public function isLink(): bool
+    {
+        $link = linkinfo($this->file);
+
+        if (!$link) {
+            return false;
+        }
+
+        // Whether the target exists or not, this IS a link
+        return true;
+    }
+
+
+    /**
+     * Returns true if the file is a symlink AND its target exists
+     *
+     * @return bool
+     */
+    public function isLinkAndTargetExists(): bool
+    {
+        return is_link($this->file);
+    }
+
+
+    /**
+     * Returns true if the file is a directory
+     *
+     * @return bool
+     */
+    public function isDir(): bool
+    {
+        return is_dir($this->file);
+    }
+
+
+    /**
+     * Returns true if the file is opened
+     *
+     * @return bool
+     */
+    public function isOpen(): bool
+    {
+        return $this->stream !== null;
+    }
+
+
+//    /**
+//     * Will create a symbolic link to the specified target
+//     *
+//     * @param string $target
+//     * @return static
+//     */
+//    public function symlink(string $target): static
+//    {
+//        symlink($this->file, $target);
+//        return $this;
+//    }
+
+
+    /**
+     * Creates a symlink $target that points to this file.
+     *
+     * @param Stringable|string $source
+     * @param Restrictions|null $restrictions
+     * @return $this
+     */
+    public function symlink(Stringable|string $source, ?Restrictions $restrictions = null): static
+    {
+        $source = (string) $source;
+
+        if (file_exists($source)) {
+            if (readlink($source) === $this->file) {
+                // Symlink already exists and points to the same file, all fine
+                return $this;
+            }
+
+            throw new FileExistsException(tr('Cannot create symlink ":target" that points to ":source", the file already exists and points to ":current" instead', [
+                ':target'  => $source,
+                ':source'  => $this->file,
+                ':current' => readlink($source)
+            ]));
+        }
+
+        // Ensure target is absolute
+        $source = Filesystem::absolute($source, must_exist: false);
+
+        // Ensure that we have restrictions access and target path exists
+        Restrictions::default($restrictions, $this->restrictions)->check($source, true);
+        Path::new(dirname($source), $this->restrictions->getParent())->ensure();
+
+        // Symlink
+        symlink($this->file, $source);
+        return $this;
+    }
+
+
+//    /**
+//     * Will create a hard link to the specified target
+//     *
+//     * @note The target may NOT cross filesystem boundaries (that is, source is on one filesystem, target on another).
+//     *       If this is required, use File::symlink() instead. This is not a limitation of Phoundation, but of
+//     *       filesystems in general. See
+//     * @param string $target
+//     * @return static
+//     */
+//    public function link(string $target): static
+//    {
+//        link($this->file, $target);
+//        return $this;
+//    }
+
+
+    /**
+     * Returns true if the file pointer is at EOF
+     *
+     * @return bool
+     */
+    public function getEof(): bool
+    {
+        $this->ensureOpen('getEof');
+        return feof($this->stream);
+    }
+
+
+    /**
+     * Returns how the file was opened, NULL if the file is not open
+     *
+     * @return EnumFileOpenModeInterface|null
+     */
+    public function getOpenMode(): ?EnumFileOpenModeInterface
+    {
+        return $this->open_mode;
+    }
+
+
+    /**
+     * Sets the internal file pointer to the specified offset
+     *
+     * @param int $offset
+     * @param int $whence
+     * @return static
+     * @throws FileNotOpenException|FileActionFailedException
+     */
+    public function seek(int $offset, int $whence = SEEK_SET): static
+    {
+        $this->ensureOpen('seek');
+
+        $result = fseek($this->stream, $offset, $whence);
+
+        if ($result) {
+            // The file seek failed
+            if (empty(stream_get_meta_data($this->stream)['seekable'])) {
+                // File mode is not seekable
+                throw new FileActionFailedException(tr('Failed to seek in file ":file" because file mode ":mode" does not allow seek', [
+                    ':mode' => $this->open_mode->value,
+                    ':file' => $this->file
+                ]));
+            }
+
+            // No idea why
+            throw new FileActionFailedException(tr('Failed to seek in file ":file"', [
+                ':file' => $this->file
+            ]));
+
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Returns the current position of the file read/write pointer
+     *
+     * @return int
+     * @throws FileNotOpenException|FileActionFailedException
+     */
+    public function tell(): int
+    {
+        $this->ensureOpen('tell');
+
+        $result = ftell($this->stream);
+
+        if ($result === false) {
+            // ftell() failed
+            throw new FileActionFailedException(tr('Failed to tell file pointer for file ":file"', [
+                ':file' => $this->file
+            ]));
+
+        }
+
+        return $result;
+    }
+
+
+    /**
+     * Rewinds the position of the file pointer
+     *
+     * @return static
+     * @throws FileNotOpenException|FileActionFailedException
+     */
+    public function rewind(): static
+    {
+        $this->ensureOpen('rewind');
+
+        $result = rewind($this->stream);
+
+        if ($result === false) {
+            // ftell() failed
+            throw new FileActionFailedException(tr('Failed to rewind file ":file"', [
+                ':file' => $this->file
+            ]));
+
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Reads and returns the specified amount of bytes from the current pointer location
+     *
+     * @param int $length
+     * @param int|null $seek
+     * @return string
+     */
+    public function read(int $length, ?int $seek = null): string
+    {
+        $this->ensureOpen('read');
+
+        if ($seek) {
+            $this->seek($seek);
+        }
+
+        $data = fread($this->stream, $length);
+
+        return $data;
+    }
+
+
+    /**
+     * Reads and returns the specified amount of bytes at the specified location from this CLOSED file
+     *
+     * @note Will throw an exception if the file is already open
+     * @param int $count
+     * @param int $start
+     * @return string
+     */
+    public function readBytes(int $count, int $start = 0): string
+    {
+        $data = $this
+            ->ensureClosed('readBytes')
+            ->open(EnumFileOpenMode::readOnly)
+            ->read($start + $count);
+
+        $data = substr($data, $start);
+        $this->close();
+
+        return $data;
+    }
+
+
+    /**
+     * Write the specified data to this file with the requested file mode
+     *
+     * @param string $data
+     * @param EnumFileOpenModeInterface $write_mode
+     * @return $this
+     */
+    protected function save(string $data, EnumFileOpenModeInterface $write_mode = EnumFileOpenMode::writeOnly): static
+    {
+        $this->restrictions->check($this->file, true);
+        $this->ensureWriteMode($write_mode);
+
+        // Make sure the file path exists. NOTE: Restrictions MUST be at least 2 levels above to be able to generate the
+        // PARENT directory IN the PARENT directory OF the PARENT!
+        Path::new(dirname($this->file), $this->restrictions->getParent()->getParent())->ensure();
+        return $this->open($write_mode)->write($data)->close();
+    }
+
+
+    /**
+     * Write the specified data to this
+     *
+     * @param string $data
+     * @return $this
+     */
+    protected function write(string $data): static
+    {
+        // Make sure the file path exists. NOTE: Restrictions MUST be at least 2 levels above to be able to generate the
+        // PARENT directory IN the PARENT directory OF the PARENT!
+        $this->ensureOpen('write');
+        Path::new(dirname($this->file), $this->restrictions->getParent()->getParent())->ensure();
+
+        fwrite($h, $data);
+
+        return $this;
+    }
+
+
+    /**
+     * Append specified data string to the end of the object file
+     *
+     * @param string $data
+     * @return static
+     * @throws FilesystemException
+     */
+    public function append(string $data): static
+    {
+        if ($this->isOpen()) {
+            return $this->write($data, 'a');
+        }
+
+        return $this->open(EnumFileOpenMode::writeOnlyAppend)->write($data)->close();
+    }
+
+
+    /**
+     * Create the specified file
+     *
+     * @param string $data
+     * @param bool $force
+     * @return static
+     */
+    public function create(string $data, bool $force = false): static
+    {
+        if ($this->exists()) {
+            if (!$force) {
+                throw new FileExistsException(tr('Cannot create file ":file", it already exists', [
+                    ':file' => $this->file
+                ]));
+            }
+        }
+
+        if ($this->isOpen()) {
+            // Yeah, so it exists anyway because we have it open. Perhaps the file was removed while open, so the inode
+            // is still there?
+            if (!$force) {
+                throw new FileExistsException(tr('Cannot create file ":file", it does not exist, but is open. Perhaps the file was deleted but the open inode is still there?', [
+                    ':file' => $this->file
+                ]));
+            }
+
+            $this->close();
+        }
+
+        return $this->open(EnumFileOpenMode::writeOnlyCreateOnly)->write($data)->close();
+    }
+
+
+    /**
+     * Concatenates a list of files to a target file
+     *
+     * @param string|array $sources The source files
+     * @return static
+     */
+    public function appendFiles(string|array $sources): static
+    {
+        // Check filesystem restrictions
+        $this
+            ->ensureClosed('appendFiles')
+            ->restrictions->check($this->file, true);
+
+        // Ensure the target path exists
+        Path::new(dirname($this->file), $this->restrictions)->ensure();
+
+        // Open target file
+        $this->open(EnumFileOpenMode::writeOnlyAppend);
+
+
+        // Open each source file
+        foreach (Arrays::force($sources, null) as $source) {
+            try {
+                $source = File::new($source, $this->restrictions)->open(EnumFileOpenMode::readOnly);
+
+                while (!$source->getEof()) {
+                    $this->write($source->read(1048576));
+                }
+
+                $this->close();
+
+            } catch (Throwable $e) {
+                // Failed to open one of the sources, get rid of the partial target file
+                $this->close()->delete();
+                $source->checkReadable('source', $e);
+            }
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Closes this file
+     *
+     * @param bool $force
+     * @return static
+     */
+    public function close(bool $force = false): static
+    {
+        if (!$this->stream) {
+            if ($force) {
+                throw new FileNotOpenException(tr('The file ":file" cannot be closed, it is not open', [
+                    ':file' => $this->file
+                ]));
+            }
+        }
+
+        $this->stream    = null;
+        $this->open_mode = null;
+        fclose($this->stream);
+
+        return $this->stream;
+    }
+
+
+    /**
+     * Throws an exception if the file is not closed
+     *
+     * @param string $method
+     * @return $this
+     * @throws FileOpenException
+     */
+    protected function ensureClosed(string $method): static
+    {
+        if ($this->isOpen()) {
+            throw new FileOpenException(tr('Cannot execute method ":method()" on file ":file", it is already open', [
+                ':file'   => $this->file,
+                ':method' => $method
+            ]));
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Throws an exception if the file is not open
+     *
+     * @param string $method
+     * @param EnumFileOpenModeInterface|null $mode
+     * @return $this
+     */
+    protected function ensureOpen(string $method, ?EnumFileOpenModeInterface $mode = null): static
+    {
+        if (!$this->isOpen()) {
+            throw new FileOpenException(tr('Cannot execute method ":method()" on file ":file", it is closed', [
+                ':file'   => $this->file,
+                ':method' => $method
+            ]));
+        }
+
+        if ($mode) {
+            return $this->ensureWriteMode($this->open_mode);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Ensure that the specified mode allows writing
+     *
+     * @param EnumFileOpenModeInterface $mode
+     * @return $this
+     */
+    protected function ensureWriteMode(EnumFileOpenModeInterface $mode): static
+    {
+        switch ($mode) {
+            case EnumFileOpenMode::readOnly:
+                throw new ReadOnlyModeException(tr('Cannot write to file ":file", the file is opened in readonly mode', [
+                    ':file' => $this->file
+                ]));
+        }
+
+        return $this;
     }
 }
