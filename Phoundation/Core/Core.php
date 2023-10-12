@@ -594,7 +594,7 @@ class Core implements CoreInterface
 
             if (empty($env)) {
                 // No environment set in ENV, maybe given by parameter?
-                Core::exit('startup: No required web environment specified for project "' . PROJECT . '"');
+                Core::exit(2, 'startup: No required web environment specified for project "' . PROJECT . '"');
             }
         }
 
@@ -784,6 +784,10 @@ class Core implements CoreInterface
 
                 $env = '';
             }
+        }
+
+        if (empty($env)) {
+            Core::exit(2, 'startup: No required cli environment specified for project "' . PROJECT . '"');
         }
 
         // Set environment and protocol
@@ -1347,9 +1351,9 @@ class Core implements CoreInterface
      *                           internal Core state
      * @return bool
      * @see Core::getState()
-     * @see Core::initState()
+     * @see Core::inInitState()
      */
-    public static function startupState(?string $state = null): bool
+    public static function inStartupState(?string $state = null): bool
     {
         if ($state === null) {
             $state = static::$state;
@@ -1369,9 +1373,9 @@ class Core implements CoreInterface
      *                           internal Core state
      * @return bool
      * @see Core::getState()
-     * @see Core::startupState()
+     * @see Core::inStartupState()
      */
-    public static function initState(?string $state = null): bool
+    public static function inInitState(?string $state = null): bool
     {
         if ($state === null) {
             $state = static::$state;
@@ -1402,7 +1406,7 @@ class Core implements CoreInterface
      */
     public static function readyState(?string $state = null): bool
     {
-        return !static::startupState($state);
+        return !static::inStartupState($state);
     }
 
 
@@ -1478,7 +1482,7 @@ class Core implements CoreInterface
      */
     public static function phpErrorHandler(int $errno, string $errstr, string $errfile, int $errline): void
     {
-        if (static::startupState()) {
+        if (static::inStartupState()) {
             // Wut? We're not even ready to go! Likely we don't have configuration available, so we cannot even send out
             // notifications. Just crash with a standard PHP exception
             throw PhpException::new('Core startup PHP ERROR "' . $errstr . '"')
@@ -1766,7 +1770,7 @@ class Core implements CoreInterface
                             ->setException($e)
                             ->send();
 
-                        if (static::startupState($state)) {
+                        if (static::inStartupState($state)) {
                             /*
                              * Configuration hasn't been loaded yet, we cannot even know
                              * if we are in debug mode or not!
@@ -1925,7 +1929,7 @@ class Core implements CoreInterface
 //                    exit('Pre core available exception with handling failure. Please your application or webserver error log files, or enable the first line in the exception handler file for more information');
 //                }
 
-                if (!defined('PLATFORM') or static::startupState($state)) {
+                if (!defined('PLATFORM') or static::inStartupState($state)) {
                     Log::error(tr('*** UNCAUGHT SYSTEM STARTUP EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => static::readRegister('system', 'script'))));
                     Log::error(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
                     Log::error($f->getMessage());
@@ -2290,32 +2294,48 @@ class Core implements CoreInterface
 
         $exit = true;
 
-        if (!$sig_kill) {
+        if ($sig_kill) {
+            Log::warning(tr('Not cleaning up due to kill signal!'));
+
+        } elseif (static::inStartupState()) {
+            // Exit during startup == baaaad. We should have an error code
+            if (!$exit_code) {
+                Log::error(tr('Shutdown procedure started before static::$register[script] was ready, possibly on script ":script"', [
+                    ':script' => $_SERVER['PHP_SELF']
+                ]));
+            }
+        } else {
+            // Try shutdown with cleanup
             try {
-                // Do we need to run other shutdown functions?
-                if (static::startupState()) {
-                    if (!$exit_code) {
-                        Log::error(tr('Shutdown procedure started before static::$register[script] was ready, possibly on script ":script"', [
-                            ':script' => $_SERVER['PHP_SELF']
-                        ]));
-
-                        return;
-                    }
-
-                    // We're in error mode and already know it, don't do normal shutdown
-                    return;
-                }
-
                 static::$state = 'shutdown';
                 static::executeShutdownCallbacks($exit_code, $exit_message, $sig_kill);
                 static::executePeriodicals($exit_code, $exit_message, $sig_kill);
 
+                static::exitCleanup();
             } catch (Throwable $e) {
-                // Uncaught exception handler for shutdown
+                // Uncaught exception handler for exit
                 Core::uncaughtException($e);
             }
         }
 
+        // Execute platform specific exit
+        if (PLATFORM_HTTP) {
+            // Kill a web page
+            Page::exit($exit_message, $sig_kill);
+        }
+
+        // Kill a CLI command
+        CliCommand::exit($exit_code, $exit_message, $sig_kill);
+    }
+
+
+    /**
+     * Runs cleanup functions when exiting the process
+     *
+     * @return void
+     */
+    protected static function exitCleanup(): void
+    {
         // Flush the meta data
         Meta::flush();
 
@@ -2333,14 +2353,6 @@ class Core implements CoreInterface
         // Cleanup
         Session::exit();
         Path::removeTemporary();
-
-        if (PLATFORM_HTTP) {
-            // Kill a web page
-            Page::exit($exit_message, $sig_kill);
-        }
-
-        // Kill a CLI command
-        CliCommand::exit($exit_code, $exit_message, $sig_kill);
     }
 
 
