@@ -204,6 +204,13 @@ class Core implements CoreInterface
      */
     protected static Timer $timer;
 
+    /**
+     * Tracks if the system is in an init state or not
+     *
+     * @var bool $init
+     */
+    protected static bool $init = false;
+
 
     /**
      * Core class constructor
@@ -984,7 +991,7 @@ class Core implements CoreInterface
             Log::warning(tr('Running in FORCE mode'));
 
         } elseif (TEST) {
-            Log::warning(tr('Running in TEST mode'));
+            Log::warning(tr('Running in TEST mode, various modifications may not be executed!'));
         }
 
         if (!is_natural(PAGE)) {
@@ -1369,19 +1376,25 @@ class Core implements CoreInterface
     /**
      * Returns true if the system is still starting up
      *
-     * @param string|null $state If specified will return the startup state for the specified state instead of the
-     *                           internal Core state
      * @return bool
      * @see Core::getState()
      * @see Core::inStartupState()
      */
-    public static function inInitState(?string $state = null): bool
+    public static function inInitState(): bool
     {
-        if ($state === null) {
-            $state = static::$state;
-        }
+        return static::$init;
+    }
 
-        return $state === 'init';
+
+    /**
+     * Sets the internal INIT state to true. Can NOT be disabled!
+     *
+     * @return bool
+     * @see Core::inInitState()
+     */
+    public static function setInitState(): void
+    {
+        static::$init = true;
     }
 
 

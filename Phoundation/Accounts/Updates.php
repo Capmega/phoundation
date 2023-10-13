@@ -29,7 +29,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.0.18';
+        return '0.0.19';
     }
 
 
@@ -51,7 +51,148 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function updates(): void
     {
-        $this->addUpdate('0.0.4', function () {
+        $this->addUpdate('post_once', function () {
+            // Ensure Guest user is available
+            GuestUser::new()
+                ->save();
+
+            // Create default rights and roles
+            $god = Right::new()
+                ->setName('God')
+                ->setDescription('This right will give the user access to everything, everywhere')
+                ->save();
+
+            $admin = Right::new()
+                ->setName('Admin')
+                ->setDescription('This right will give the user access to the administrative area of the site, but no specific pages yet')
+                ->save();
+
+            $developer = Right::new()
+                ->setName('Developer')
+                ->setDescription('This right will give the user access to the developer area of the site')
+                ->save();
+
+            $accounts = Right::new()
+                ->setName('Accounts')
+                ->setDescription('This right will give the user access to the administrative user accounts management section of the site')
+                ->save();
+
+            $security = Right::new()
+                ->setName('Security')
+                ->setDescription('This right will give the user access to the administrative security pages of the site')
+                ->save();
+
+            $phoundation = Right::new()
+                ->setName('Phoundation')
+                ->setDescription('This right will give the user access to the administrative phoundation system management section of the site')
+                ->save();
+
+            $audit = Right::new()
+                ->setName('Audit')
+                ->setDescription('This right will give the user access to the audit information system of the site')
+                ->save();
+
+            // Define basic roles
+            Role::new()
+                ->setName('God')
+                ->setDescription('This role will give the user the "God" right which will give it access to everything, everywhere')
+                ->save()
+                ->getRights()
+                ->addRight($god);
+
+            Role::new()
+                ->setName('Audit')
+                ->setDescription('This role will give the user access to the audit system')
+                ->save()
+                ->getRights()
+                ->addRight($audit);
+
+            Role::new()
+                ->setName('Accounts')
+                ->setDescription('This role will give the user access to the accounts management system')
+                ->save()
+                ->getRights()
+                ->addRight($accounts);
+
+            Role::new()
+                ->setName('Security')
+                ->setDescription('This role will give the user access to the security system')
+                ->save()
+                ->getRights()
+                ->addRight($security);
+
+            Role::new()
+                ->setName('Administrator')
+                ->setDescription('This role gives access to all the administrative pages except user account management')
+                ->save()
+                ->getRights()
+                ->addRight($admin)
+                ->addRight($audit)
+                ->addRight($security)
+                ->addRight($phoundation);
+
+            Role::new()
+                ->setName('Accounts administrator')
+                ->setDescription('This role gives access to only the administrative user account pages')
+                ->save()
+                ->getRights()
+                ->addRight($admin)
+                ->addRight($accounts);
+
+            Role::new()
+                ->setName('Developer')
+                ->setDescription('This role will give the user access to the developer pages of the site')
+                ->save()
+                ->getRights()
+                ->addRight($developer);
+
+            Role::new()
+                ->setName('Moderator')
+                ->setDescription('This role will give the user basic access to the administrative pages of the site')
+                ->save()
+                ->getRights()
+                ->addRight($admin);
+
+            // Create some default roles and rights
+            $rights = [
+                'Logs',
+                'Admin',
+                'Accounts',
+                'Impersonate',
+                'Notifications',
+            ];
+
+            // Add default rights
+            foreach ($rights as $right) {
+                if (!Right::exists($right, 'name')) {
+                    Right::new()
+                        ->setName($right)
+                        ->save();
+                }
+            }
+
+            // Add default roles and assign the default rights to them
+            foreach ($rights as $role) {
+                if (!Role::exists($role, 'name')) {
+                    Role::new()
+                        ->setName($role)
+                        ->save()
+                        ->getRights()
+                        ->addRight($role);
+                }
+            }
+
+            // Various rights go together...
+            Role::get('Audit')->getRights()->addRight('Admin');
+
+            Role::get('Security')->getRights()->addRight('Admin');
+
+            Role::get('Impersonate')
+                ->getRights()
+                ->addRight('Admin')
+                ->addRight('Accounts');
+
+        })->addUpdate('0.0.4', function () {
             // Drop the tables to be sure we have a clean slate
             sql()->schema()->table('accounts_roles_rights')->drop();
             sql()->schema()->table('accounts_users_roles')->drop();
@@ -374,86 +515,6 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
         })->addUpdate('0.0.6', function () {
-            // Ensure Guest user is available
-            GuestUser::new()
-                ->save();
-
-            // Create default rights and roles
-            $god = Right::new()
-                ->setName('God')
-                ->setDescription('This right will give the user access to everything, everywhere')
-                ->save();
-
-            $admin = Right::new()
-                ->setName('Admin')
-                ->setDescription('This right will give the user access to the administrative area of the site, but no specific pages yet')
-                ->save();
-
-            $developer = Right::new()
-                ->setName('Developer')
-                ->setDescription('This right will give the user access to the developer area of the site')
-                ->save();
-
-            $accounts = Right::new()
-                ->setName('Accounts')
-                ->setDescription('This right will give the user access to the administrative user accounts management section of the site')
-                ->save();
-
-            $security = Right::new()
-                ->setName('Security')
-                ->setDescription('This right will give the user access to the administrative security pages of the site')
-                ->save();
-
-            $phoundation = Right::new()
-                ->setName('Phoundation')
-                ->setDescription('This right will give the user access to the administrative phoundation system management section of the site')
-                ->save();
-
-            $audit = Right::new()
-                ->setName('Audit')
-                ->setDescription('This right will give the user access to the audit information system of the site')
-                ->save();
-
-            // Define basic roles
-            Role::new()
-                ->setName('God')
-                ->setDescription('This role will give the user the "God" right which will give it access to everything, everywhere')
-                ->save()
-                ->getRights()
-                    ->addRight($god);
-
-            Role::new()
-                ->setName('Administrator')
-                ->setDescription('This role gives access to all the administrative pages except user account management')
-                ->save()
-                ->getRights()
-                    ->addRight($admin)
-                    ->addRight($audit)
-                    ->addRight($security)
-                    ->addRight($phoundation);
-
-            Role::new()
-                ->setName('Accounts administrator')
-                ->setDescription('This role gives access to only the administrative user account pages')
-                ->save()
-                ->getRights()
-                    ->addRight($admin)
-                    ->addRight($accounts);
-
-            Role::new()
-                ->setName('Developer')
-                ->setDescription('This role will give the user access to the developer pages of the site')
-                ->save()
-                ->getRights()
-                    ->addRight($developer);
-
-            Role::new()
-                ->setName('Moderator')
-                ->setDescription('This role will give the user basic access to the administrative pages of the site')
-                ->save()
-                ->getRights()
-                    ->addRight($admin);
-
             // Drop the tables to be sure we have a clean slate
             sql()->schema()->table('accounts_signins')->drop();
 
@@ -494,6 +555,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_accounts_signins_states_id` FOREIGN KEY (`states_id`) REFERENCES `geo_states` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_accounts_signins_cities_id` FOREIGN KEY (`cities_id`) REFERENCES `geo_cities` (`id`) ON DELETE RESTRICT,
                 ')->create();
+
         })->addUpdate('0.0.7', function () {
             // Drop the tables to be sure we have a clean slate
             sql()->schema()->table('accounts_authentication_failures')->drop();
@@ -615,6 +677,12 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_accounts_phones_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_accounts_phones_users_id` FOREIGN KEY (`users_id`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                 ')->create();
+
+        })->addUpdate('0.0.19', function () {
+            sql()->schema()->table('accounts_users')->alter()
+                ->changeColumn('phones', '`phone` varchar(15) CHARACTER SET latin1 DEFAULT NULL')
+                ->dropIndex('phones')
+                ->addIndex('KEY `phone` (`phone`)');
         });
     }
 }

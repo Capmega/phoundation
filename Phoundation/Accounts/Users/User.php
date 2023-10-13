@@ -19,6 +19,7 @@ use Phoundation\Accounts\Users\Interfaces\PhonesInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
+use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Core\Sessions\Sessions;
@@ -39,7 +40,7 @@ use Phoundation\Data\DataEntry\Traits\DataEntryFirstNames;
 use Phoundation\Data\DataEntry\Traits\DataEntryGeo;
 use Phoundation\Data\DataEntry\Traits\DataEntryLanguage;
 use Phoundation\Data\DataEntry\Traits\DataEntryLastNames;
-use Phoundation\Data\DataEntry\Traits\DataEntryPhones;
+use Phoundation\Data\DataEntry\Traits\DataEntryPhone;
 use Phoundation\Data\DataEntry\Traits\DataEntryPicture;
 use Phoundation\Data\DataEntry\Traits\DataEntryTimezone;
 use Phoundation\Data\DataEntry\Traits\DataEntryTitle;
@@ -88,7 +89,7 @@ class User extends DataEntry implements UserInterface
     use DataEntryType;
     use DataEntryTitle;
     use DataEntryEmail;
-    use DataEntryPhones;
+    use DataEntryPhone;
     use DataEntryDomain;
     use DataEntryPicture;
     use DataEntryAddress;
@@ -1316,32 +1317,37 @@ class User extends DataEntry implements UserInterface
             }
         }
 
+        $meta_id = $this->getMetaId();
+
         parent::save();
 
-        $meta_id = $this->getMeta()?->getId();
+        // Send out Account change notification, but not during init states.
+show(Core::getState());
+showdie(Core::inInitState());
+        if (!Core::inInitState()) {
+            if ($meta_id) {
+                Incident::new()
+                    ->setType('Accounts change')
+                    ->setSeverity(Severity::low)
+                    ->setTitle(tr('The user ":user" was modified, see audit ":meta_id" for more information', [
+                        ':user'    => $this->getLogId(),
+                        ':meta_id' => $meta_id
+                    ]))
+                    ->setDetails(['user' => $this->getLogId()])
+                    ->notifyRoles('accounts')
+                    ->save();
 
-        if ($meta_id) {
-            Incident::new()
-                ->setType('User information changed')
-                ->setSeverity(Severity::low)
-                ->setTitle(tr('The user ":user" was modified, see audit ":meta_id" for more information', [
-                    ':user'    => $this->getLogId(),
-                    ':meta_id' => $meta_id
-                ]))
-                ->setDetails(['user' => $this->getLogId()])
-                ->notifyRoles('accounts')
-                ->save();
-
-        } else {
-            Incident::new()
-                ->setType('User information changed')
-                ->setSeverity(Severity::low)
-                ->setTitle(tr('The user ":user" was created', [
-                    ':user' => $this->getLogId()
-                ]))
-                ->setDetails(['user' => $this->getLogId()])
-                ->notifyRoles('accounts')
-                ->save();
+            } else {
+                Incident::new()
+                    ->setType('Accounts change')
+                    ->setSeverity(Severity::low)
+                    ->setTitle(tr('The user ":user" was created', [
+                        ':user' => $this->getLogId()
+                    ]))
+                    ->setDetails(['user' => $this->getLogId()])
+                    ->notifyRoles('accounts')
+                    ->save();
+            }
         }
 
         return $this;
@@ -1699,9 +1705,9 @@ class User extends DataEntry implements UserInterface
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isDate()->isBefore();
                 }))
-            ->addDefinition(DefinitionFactory::getPhones($this)
+            ->addDefinition(DefinitionFactory::getPhone($this)
                 ->setHelpGroup(tr('Personal information'))
-                ->setHelpText(tr('Multiple phone numbers where this user may be contacted')))
+                ->setHelpText(tr('Main phone number where this user may be contacted')))
             ->addDefinition(Definition::new($this, 'address')
                 ->setOptional(true)
                 ->setMaxlength(255)
