@@ -6,6 +6,7 @@ namespace Phoundation\Filesystem;
 
 use Exception;
 use JetBrains\PhpStorm\ExpectedValues;
+use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
@@ -15,11 +16,16 @@ use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Enums\EnumFileOpenMode;
 use Phoundation\Filesystem\Enums\Interfaces\EnumFileOpenModeInterface;
 use Phoundation\Filesystem\Exception\FileActionFailedException;
+use Phoundation\Filesystem\Exception\FileEofException;
 use Phoundation\Filesystem\Exception\FileExistsException;
 use Phoundation\Filesystem\Exception\FileNotOpenException;
 use Phoundation\Filesystem\Exception\FileNotWritableException;
 use Phoundation\Filesystem\Exception\FileOpenException;
+use Phoundation\Filesystem\Exception\FileReadException;
+use Phoundation\Filesystem\Exception\FileRenameException;
+use Phoundation\Filesystem\Exception\FileSyncException;
 use Phoundation\Filesystem\Exception\FilesystemException;
+use Phoundation\Filesystem\Exception\FileTruncateException;
 use Phoundation\Filesystem\Exception\PathNotExistsException;
 use Phoundation\Filesystem\Exception\ReadOnlyModeException;
 use Phoundation\Filesystem\Interfaces\FileBasicsInterface;
@@ -110,7 +116,7 @@ class FileBasics implements Stringable, FileBasicsInterface
             $this->setRestrictions($restrictions_restrictions ?? $file->getRestrictions());
 
         } else {
-            $this->setFile((string) $file);
+            $this->setFile((string)$file);
             $this->setRestrictions($restrictions_restrictions);
         }
     }
@@ -177,7 +183,8 @@ class FileBasics implements Stringable, FileBasicsInterface
                     break;
             }
         }
-Log::warning($file, echo_screen: false);
+
+        Log::warning($file, echo_screen: false);
         return new static($file, $restrictions_restrictions);
     }
 
@@ -204,7 +211,7 @@ Log::warning($file, echo_screen: false);
     public function setFile(Stringable|string|null $file, string $prefix = null, bool $must_exist = false): static
     {
         $this->close();
-        $this->file      = Filesystem::absolute($file, $prefix, $must_exist);
+        $this->file = Filesystem::absolute($file, $prefix, $must_exist);
         $this->real_file = realpath($this->file);
 
         return $this;
@@ -232,7 +239,7 @@ Log::warning($file, echo_screen: false);
     public function getTarget(): ?string
     {
         if ($this->target === null) {
-            // By default assume target is the same as the source file
+            // By default, assume target is the same as the source file
             return $this->file;
         }
 
@@ -256,6 +263,63 @@ Log::warning($file, echo_screen: false);
 
 
     /**
+     * Renames a file or directory
+     *
+     * @param string $to_filename
+     * @param $context
+     * @return $this
+     */
+    public function rename(string $to_filename, $context = null): static
+    {
+        $result = rename($this->file, $to_filename, $context);
+
+        if (!$result) {
+            throw new FileRenameException(tr('Failed to rename file or directory ":file" to ":to"', [
+                ':file' => $this->file,
+                ':to'   => $to_filename
+            ]));
+        }
+
+        $this->file = $to_filename;
+        return $this;
+    }
+
+
+    /**
+     * Truncates a file to a given length
+     *
+     * @param int $size
+     * @return $this
+     */
+    public function truncate(int $size): static
+    {
+        $result = ftruncate($this->stream, $size);
+
+        if (!$result) {
+            throw new FileTruncateException(tr('Failed to truncate file ":file" to ":size" bytes', [
+                ':file' => $this->file,
+                ':size' => $size
+            ]));
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Output all remaining data on a file pointer to the output buffer
+     *
+     * @return int The amount of bytes
+     */
+    public function fpassthru(): int
+    {
+        $size = fpassthru($this->stream);
+
+        return $size;
+    }
+
+
+    /**
      * Check if the object file exists and is readable. If not both, an exception will be thrown
      *
      * On various occasions, this method could be used AFTER a file read action failed and is used to explain WHY the
@@ -270,7 +334,7 @@ Log::warning($file, echo_screen: false);
      *                                      be thrown
      * @return static
      */
-    public function checkReadable(?string $type = null, ?Throwable $previous_e = null) : static
+    public function checkReadable(?string $type = null, ?Throwable $previous_e = null): static
     {
         // Check filesystem restrictions
         $this->restrictions->check($this->file, false);
@@ -321,13 +385,13 @@ Log::warning($file, echo_screen: false);
      * would not be readable (ie, the file exists, and can be read accessed), it will throw an exception with the
      * previous exception attached to it
      *
-     * @param string|null $type          This is the label that will be added in the exception indicating what type of
+     * @param string|null $type This is the label that will be added in the exception indicating what type of
      *                                   file it is
      * @param Throwable|null $previous_e If the file is okay, but this exception was specified, this exception will be
      *                                   thrown
      * @return static
      */
-    public function checkWritable(?string $type = null, ?Throwable $previous_e = null) : static
+    public function checkWritable(?string $type = null, ?Throwable $previous_e = null): static
     {
         // Check filesystem restrictions
         $this->restrictions->check($this->file, true);
@@ -370,15 +434,15 @@ Log::warning($file, echo_screen: false);
         $this->exists();
 
         $return = [];
-        $perms  = fileperms($this->file);
+        $perms = fileperms($this->file);
 
-        $socket    = (($perms & 0xC000) == 0xC000);
-        $symlink   = (($perms & 0xA000) == 0xA000);
-        $regular   = (($perms & 0x8000) == 0x8000);
-        $bdevice   = (($perms & 0x6000) == 0x6000);
-        $cdevice   = (($perms & 0x2000) == 0x2000);
+        $socket = (($perms & 0xC000) == 0xC000);
+        $symlink = (($perms & 0xA000) == 0xA000);
+        $regular = (($perms & 0x8000) == 0x8000);
+        $bdevice = (($perms & 0x6000) == 0x6000);
+        $cdevice = (($perms & 0x2000) == 0x2000);
         $directory = (($perms & 0x4000) == 0x4000);
-        $fifopipe  = (($perms & 0x1000) == 0x1000);
+        $fifopipe = (($perms & 0x1000) == 0x1000);
 
         if ($socket) {
             // This file is a socket
@@ -429,18 +493,18 @@ Log::warning($file, echo_screen: false);
         $this->restrictions->check($this->file, false);
         $this->exists();
 
-        $perms  = fileperms($this->file);
+        $perms = fileperms($this->file);
         $return = [];
 
-        $return['socket']    = (($perms & 0xC000) == 0xC000);
-        $return['symlink']   = (($perms & 0xA000) == 0xA000);
-        $return['regular']   = (($perms & 0x8000) == 0x8000);
-        $return['bdevice']   = (($perms & 0x6000) == 0x6000);
-        $return['cdevice']   = (($perms & 0x2000) == 0x2000);
+        $return['socket'] = (($perms & 0xC000) == 0xC000);
+        $return['symlink'] = (($perms & 0xA000) == 0xA000);
+        $return['regular'] = (($perms & 0x8000) == 0x8000);
+        $return['bdevice'] = (($perms & 0x6000) == 0x6000);
+        $return['cdevice'] = (($perms & 0x2000) == 0x2000);
         $return['directory'] = (($perms & 0x4000) == 0x4000);
-        $return['fifopipe']  = (($perms & 0x1000) == 0x1000);
-        $return['perms']     = $perms;
-        $return['unknown']   = false;
+        $return['fifopipe'] = (($perms & 0x1000) == 0x1000);
+        $return['perms'] = $perms;
+        $return['unknown'] = false;
 
         if ($return['socket']) {
             // This file is a socket
@@ -479,54 +543,54 @@ Log::warning($file, echo_screen: false);
 
         } else {
             // This file is an unknown type
-            $return['mode']    = 'u';
-            $return['type']    = 'unknown';
+            $return['mode'] = 'u';
+            $return['type'] = 'unknown';
             $return['unknown'] = true;
         }
 
         $return['owner'] = [
-            'r' =>  ($perms & 0x0100),
-            'w' =>  ($perms & 0x0080),
+            'r' => ($perms & 0x0100),
+            'w' => ($perms & 0x0080),
             'x' => (($perms & 0x0040) and !($perms & 0x0800)),
-            's' => (($perms & 0x0040) and  ($perms & 0x0800)),
-            'S' =>  ($perms & 0x0800)
+            's' => (($perms & 0x0040) and ($perms & 0x0800)),
+            'S' => ($perms & 0x0800)
         ];
 
         $return['group'] = [
-            'r' =>  ($perms & 0x0020),
-            'w' =>  ($perms & 0x0010),
+            'r' => ($perms & 0x0020),
+            'w' => ($perms & 0x0010),
             'x' => (($perms & 0x0008) and !($perms & 0x0400)),
-            's' => (($perms & 0x0008) and  ($perms & 0x0400)),
-            'S' =>  ($perms & 0x0400)
+            's' => (($perms & 0x0008) and ($perms & 0x0400)),
+            'S' => ($perms & 0x0400)
         ];
 
         $return['other'] = [
-            'r' =>  ($perms & 0x0004),
-            'w' =>  ($perms & 0x0002),
+            'r' => ($perms & 0x0004),
+            'w' => ($perms & 0x0002),
             'x' => (($perms & 0x0001) and !($perms & 0x0200)),
-            't' => (($perms & 0x0001) and  ($perms & 0x0200)),
-            'T' =>  ($perms & 0x0200)
+            't' => (($perms & 0x0001) and ($perms & 0x0200)),
+            'T' => ($perms & 0x0200)
         ];
 
         // Owner
         $return['mode'] .= (($perms & 0x0100) ? 'r' : '-');
         $return['mode'] .= (($perms & 0x0080) ? 'w' : '-');
         $return['mode'] .= (($perms & 0x0040) ?
-            (($perms & 0x0800) ? 's' : 'x' ) :
+            (($perms & 0x0800) ? 's' : 'x') :
             (($perms & 0x0800) ? 'S' : '-'));
 
         // Group
         $return['mode'] .= (($perms & 0x0020) ? 'r' : '-');
         $return['mode'] .= (($perms & 0x0010) ? 'w' : '-');
         $return['mode'] .= (($perms & 0x0008) ?
-            (($perms & 0x0400) ? 's' : 'x' ) :
+            (($perms & 0x0400) ? 's' : 'x') :
             (($perms & 0x0400) ? 'S' : '-'));
 
         // Other
         $return['mode'] .= (($perms & 0x0004) ? 'r' : '-');
         $return['mode'] .= (($perms & 0x0002) ? 'w' : '-');
         $return['mode'] .= (($perms & 0x0001) ?
-            (($perms & 0x0200) ? 't' : 'x' ) :
+            (($perms & 0x0200) ? 't' : 'x') :
             (($perms & 0x0200) ? 'T' : '-'));
 
         return $return;
@@ -619,8 +683,8 @@ Log::warning($file, echo_screen: false);
      * @param string|bool $clean_path If specified true, all directories above each specified pattern will be deleted as
      *                                well as long as they are empty. This way, no empty directories will be left lying
      *                                around
-     * @param boolean $sudo           If specified true, the rm command will be executed using sudo
-     * @param bool $escape            If true, will escape the filename. This may cause issues when using wildcards, for
+     * @param boolean $sudo If specified true, the rm command will be executed using sudo
+     * @param bool $escape If true, will escape the filename. This may cause issues when using wildcards, for
      *                                example
      * @return static
      * @see Restrictions::check() This function uses file location restrictions
@@ -956,7 +1020,7 @@ Log::warning($file, echo_screen: false);
 
         // Return the amount of all files in this directory
         $files = scandir($this->file);
-        $size  = 0;
+        $size = 0;
 
         foreach ($files as $file) {
             if (($file === '.') or ($file === '..')) {
@@ -1026,7 +1090,7 @@ Log::warning($file, echo_screen: false);
 
         if ($stream) {
             // All okay!
-            $this->stream    = $stream;
+            $this->stream = $stream;
             $this->open_mode = $mode;
             return $this;
         }
@@ -1119,7 +1183,7 @@ Log::warning($file, echo_screen: false);
      */
     public function symlink(Stringable|string $source, ?Restrictions $restrictions = null): static
     {
-        $source = (string) $source;
+        $source = (string)$source;
 
         if (file_exists($source)) {
             if (readlink($source) === $this->file) {
@@ -1128,8 +1192,8 @@ Log::warning($file, echo_screen: false);
             }
 
             throw new FileExistsException(tr('Cannot create symlink ":target" that points to ":source", the file already exists and points to ":current" instead', [
-                ':target'  => $source,
-                ':source'  => $this->file,
+                ':target' => $source,
+                ':source' => $this->file,
                 ':current' => readlink($source)
             ]));
         }
@@ -1286,6 +1350,72 @@ Log::warning($file, echo_screen: false);
 
         $data = fread($this->stream, $length);
 
+        if ($data === false) {
+            $this->processReadFailure('data');
+        }
+
+        return $data;
+    }
+
+
+    /**
+     * Reads and returns the next text line in this file
+     *
+     * @param int|null $max_length
+     * @return string
+     */
+    public function readLine(?int $max_length = null): string
+    {
+        $this->ensureOpen('read');
+
+        $data = fgets($this->stream, $max_length);
+
+        if ($data === false) {
+            $this->processReadFailure('line');
+        }
+
+        return $data;
+    }
+
+
+    /**
+     * Reads line from file pointer and parse for CSV fields
+     *
+     * @param int|null $max_length
+     * @param string $separator
+     * @param string $enclosure
+     * @param string $escape
+     * @return array
+     */
+    public function readCsv(?int $max_length = null, string $separator = ",", string $enclosure = "\"", string $escape = "\\"): array
+    {
+        $this->ensureOpen('read');
+
+        $data = fgetcsv($this->stream, $max_length, $separator, $enclosure, $escape);
+
+        if ($data === false) {
+            $this->processReadFailure('CSV');
+        }
+
+        return $data;
+    }
+
+
+    /**
+     * Reads and returns a single character from the current file pointer
+     *
+     * @return string
+     */
+    public function readCharacter(): string
+    {
+        $this->ensureOpen('read');
+
+        $data = fgetc($this->stream);
+
+        if ($data === false) {
+            $this->processReadFailure('character');
+        }
+
         return $data;
     }
 
@@ -1294,16 +1424,16 @@ Log::warning($file, echo_screen: false);
      * Reads and returns the specified amount of bytes at the specified location from this CLOSED file
      *
      * @note Will throw an exception if the file is already open
-     * @param int $count
+     * @param int $length
      * @param int $start
      * @return string
      */
-    public function readBytes(int $count, int $start = 0): string
+    public function readBytes(int $length, int $start = 0): string
     {
         $data = $this
             ->ensureClosed('readBytes')
             ->open(EnumFileOpenMode::readOnly)
-            ->read($start + $count);
+            ->read($start + $length);
 
         $data = substr($data, $start);
         $this->close();
@@ -1332,19 +1462,63 @@ Log::warning($file, echo_screen: false);
 
 
     /**
-     * Write the specified data to this
+     * Binary-safe write the specified data to this file
      *
      * @param string $data
+     * @param int|null $length
      * @return $this
      */
-    protected function write(string $data): static
+    protected function write(string $data, ?int $length = null): static
+    {
+        $this->ensureOpen('write');
+
+        fwrite($this->stream, $data, $length);
+
+        return $this;
+    }
+
+
+    /**
+     * Write the specified data to this
+     *
+     * @param bool $use_include_path
+     * @param resource|null $context
+     * @param int $offset
+     * @param int|null $length
+     * @return $this
+     */
+    protected function getContents(bool $use_include_path = false, $context = null, int $offset = 0, ?int $length = null): string
     {
         // Make sure the file path exists. NOTE: Restrictions MUST be at least 2 levels above to be able to generate the
         // PARENT directory IN the PARENT directory OF the PARENT!
-        $this->ensureOpen('write');
+        $this->ensureClosed('getContents');
+
+        $data = file_get_contents($this->file, $use_include_path, $context, $offset, $length);
+
+        if ($data === false) {
+            $this->processReadFailure('contents');
+        }
+
+        return $data;
+    }
+
+
+    /**
+     * Write the specified data to this
+     *
+     * @param string $data
+     * @param int $flags
+     * @param null $context
+     * @return $this
+     */
+    protected function putContents(string $data, int $flags = 0, $context = null): static
+    {
+        // Make sure the file path exists. NOTE: Restrictions MUST be at least 2 levels above to be able to generate the
+        // PARENT directory IN the PARENT directory OF the PARENT!
+        $this->ensureClosed('putContents');
         Path::new(dirname($this->file), $this->restrictions->getParent()->getParent())->ensure();
 
-        fwrite($h, $data);
+        file_put_contents($this->file, $data, $flags, $context);
 
         return $this;
     }
@@ -1458,11 +1632,49 @@ Log::warning($file, echo_screen: false);
             }
         }
 
-        $this->stream    = null;
+        $this->stream = null;
         $this->open_mode = null;
         fclose($this->stream);
 
         return $this->stream;
+    }
+
+
+    /**
+     * Synchronizes changes to the file (including meta-data)
+     *
+     * @return $this
+     */
+    public function sync(): static
+    {
+        $this->ensureOpen('sync');
+
+        if (!fsync($this->stream)) {
+            throw new FileSyncException(tr('Failed to sync file ":file"', [
+                ':file' => $this->file
+            ]));
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Synchronizes data (but not meta-data) to the file
+     *
+     * @return $this
+     */
+    public function syncData(): static
+    {
+        $this->ensureOpen('syncData');
+
+        if (!fdatasync($this->stream)) {
+            throw new FileSyncException(tr('Failed to data sync file ":file"', [
+                ':file' => $this->file
+            ]));
+        }
+
+        return $this;
     }
 
 
@@ -1526,5 +1738,27 @@ Log::warning($file, echo_screen: false);
         }
 
         return $this;
+    }
+
+
+    /**
+     * Determines what exception to throw for a read failure
+     *
+     * @param string $type
+     * @return never
+     */
+    #[NoReturn] protected function processReadFailure(string $type): never
+    {
+        if ($this->eof()) {
+            throw new FileEofException(tr('Cannot read :type from file ":file", the file pointer is at the end of the file', [
+                ':type' => $type,
+                ':file' => $this->file
+            ]));
+        }
+
+        throw new FileReadException(tr('Cannot read :type from file ":file", the file pointer is at the end of the file', [
+            ':type' => $type,
+            ':file' => $this->file
+        ]));
     }
 }
