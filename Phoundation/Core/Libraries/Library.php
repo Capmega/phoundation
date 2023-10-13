@@ -52,6 +52,13 @@ class Library
      */
     protected ?Updates $updates = null;
 
+    /**
+     * Tracks if the structure check has been executed and what the result was
+     *
+     * @var bool|null
+     */
+    protected bool|null $structure_ok = null;
+
 
     /**
      * Library constructor
@@ -151,14 +158,42 @@ class Library
 
         if ($this->updates === null) {
             // This library has no Init available, skip!
-            Log::warning(tr('Not processing library ":library", it has no versioning control available', [
+            Log::warning(tr('Not processing library ":library", it has no versioning control defined', [
                 ':library' => $this->library
-            ]));
+            ]), 3);
             return false;
         }
 
         $this->updates->init($comments);
         return true;
+    }
+
+
+    /**
+     * Executes POST init files for this library
+     *
+     * @param string|null $comments
+     * @return bool True if the library had updates applied
+     */
+    public function initPost(?string $comments): bool
+    {
+        // TODO Check later if we should be able to let init initialize itself
+        if ($this->library === 'libraries') {
+            // Never initialize the Init library itself!
+            Log::warning(tr('Not initializing library "library", it has no versioning control available'));
+            return false;
+        }
+
+        if ($this->updates === null) {
+            // This library has no Init available, skip!
+            Log::warning(tr('Not processing library ":library", it has no versioning control defined', [
+                ':library' => $this->library
+            ]), 3);
+
+            return false;
+        }
+
+        return $this->updates->initPost($comments);
     }
 
 
@@ -537,10 +572,28 @@ class Library
      * This method will check the structure of the library and make sure everything is in working order
      *
      * @param string|null $comments
-     * @return void
+     * @return bool
      */
-    protected function checkStructure(?string $comments)
+    protected function checkStructure(?string $comments): bool
     {
+        if ($this->structure_ok === null) {
+            // Execute the structural check for this library
+            // TODO IMPLEMENT
 
+            $this->structure_ok = true;
+        }
+
+        return $this->structure_ok;
+    }
+
+
+    /**
+     * Returns true if the structure for this library is okay, false otherwise
+     *
+     * @return bool
+     */
+    public function getStructureOk(): bool
+    {
+        return $this->checkStructure();
     }
 }

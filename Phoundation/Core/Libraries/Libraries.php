@@ -7,6 +7,7 @@ namespace Phoundation\Core\Libraries;
 use Phoundation\Cache\Cache;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
+use Phoundation\Core\Core;
 use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
@@ -71,7 +72,9 @@ class Libraries
             switch ($driver) {
                 case 'sql':
                     foreach ($data['instances'] as $instance => $configuration) {
-                        sql($instance, false)->schema(false)->database()->drop();
+                        if (($instance === 'system') or isset_get($configuration['init'])) {
+                            sql($instance, false)->schema(false)->database()->drop();
+                        }
                     }
 
                     break;
@@ -118,8 +121,9 @@ class Libraries
             static::force();
         }
 
-        // Wipe all temporary data
+        // Wipe all temporary data and set the core in INIT mode
         Tmp::clear();
+        Core::setInitState();
 
         try {
             // Wipe all cache data
@@ -400,9 +404,10 @@ class Libraries
     protected static function initializeLibraries(bool $system = true, bool $plugins = true, bool $templates = true, ?string $comments = null, array $filter_libraries = null): int
     {
         // Get a list of all available libraries and their versions
-        $libraries     = static::listLibraries($system, $plugins, $templates);
-        $library_count = count($libraries);
-        $update_count  = 0;
+        $libraries      = static::listLibraries($system, $plugins, $templates);
+        $post_libraries = $libraries;
+        $library_count  = count($libraries);
+        $update_count   = 0;
 
         // Keep initializing libraries until none of them have inits available anymore
         while ($libraries) {
@@ -424,6 +429,28 @@ class Libraries
                 ]));
 
                 unset($libraries[$path]);
+            }
+        }
+
+        // Post initialize all libraries
+        // Go over the libraries list and try to update each one
+        if (false) {
+//        if (TEST) {
+            Log::warning('Not executing post init files due to test mode');
+
+        } else {
+            Log::action(tr('Executing post init updates'));
+
+            foreach ($post_libraries as $library) {
+                // Execute the update inits for this library and update the library information and start over
+                if ($library->initPost($comments)) {
+                    // Library has been post initialized. Break so that we can check which library should be updated next.
+                    $update_count++;
+
+                    Log::success(tr('Finished post updates for library ":library"', [
+                        ':library' => $library->getName()
+                    ]));
+                }
             }
         }
 

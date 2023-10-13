@@ -332,14 +332,29 @@ class Validate
      * Validates if the selected field is a valid version number
      *
      * @param int $characters
+     * @param bool $allow_post If true, the version "post" will be allowed as a valid version
      * @return static
      */
-    public function isVersion(int $characters = 11): static
+    public function isVersion(int $characters = 11, bool $allow_post = false): static
     {
         $this->hasMaxCharacters($characters);
 
         if (!preg_match('/\d{1,3}\.\d{1,3}\.\d{1,3}/', $this->source)) {
-            throw new ValidationFailedException(tr('The specified value must contain a valid version number'));
+            switch($this->source) {
+                case 'post_once':
+                    // no break
+
+                case 'post_always':
+                    if ($allow_post) {
+                        break;
+                    }
+
+                    // no break
+                default:
+                    throw new ValidationFailedException(tr('The specified value must contain a valid version number'));
+            }
+
+            // This is a valid "post" version, and it's allowed. Continue!
         }
 
         return $this;
