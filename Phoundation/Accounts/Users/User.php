@@ -1322,8 +1322,6 @@ class User extends DataEntry implements UserInterface
         parent::save();
 
         // Send out Account change notification, but not during init states.
-show(Core::getState());
-showdie(Core::inInitState());
         if (!Core::inInitState()) {
             if ($meta_id) {
                 Incident::new()
