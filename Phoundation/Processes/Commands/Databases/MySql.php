@@ -18,6 +18,7 @@ use Phoundation\Processes\Commands\Command;
 use Phoundation\Processes\Commands\Zcat;
 use Phoundation\Processes\Enum\ExecuteMethod;
 use Phoundation\Processes\Enum\Interfaces\ExecuteMethodInterface;
+use Phoundation\Processes\Exception\ProcessesException;
 use Phoundation\Processes\Process;
 use Phoundation\Servers\Servers;
 use Throwable;
@@ -223,13 +224,27 @@ class MySql extends Command
      *
      * @note: This was designed for Ubuntu Linux and currently any support for other operating systems is NON-EXISTENT
      *        I'll gladly add support later if I ever have time
+     * @param string $password
      * @return void
      */
-    public function importTimezones(): void
+    public function importTimezones(string $password): void
     {
-        $mysql = Process::new('mysql')
+        // Test the specified root password
+        $result = Process::new('mysql')
+            ->setSudo(true)
             ->setTimeout(10)
-            ->addArguments(['-p', '-u', 'root', 'mysql']);
+            ->addArguments(['-p' . $password, '-u', 'root', 'mysql', '-e', 'SELECT 1\G'])
+            ->executeReturnString();
+
+        if (!str_ends_with($result, '1: 1')) {
+            throw new ProcessesException(tr('Failed to connect with MySQL server'));
+        }
+
+        // Import timezones
+        $mysql = Process::new('mysql')
+            ->setSudo(true)
+            ->setTimeout(10)
+            ->addArguments(['-p' . $password, '-u', 'root', 'mysql']);
 
         Process::new('mysql_tzinfo_to_sql', Restrictions::new('/usr/share/zoneinfo'))
             ->setTimeout(10)
