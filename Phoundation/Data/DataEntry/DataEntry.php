@@ -250,17 +250,6 @@ abstract class DataEntry implements DataEntryInterface
         $this->setDefinitions($this->definitions);
 
         if ($identifier) {
-// TODO WTF was the thought behind this section? Just load, the identifier should be loaded with the DataEntry::load() call
-//            if (is_numeric($identifier)) {
-//                $this->source['id'] = $identifier;
-//
-//            } elseif (is_object($identifier)) {
-//                $this->source['id'] = $identifier->getId();
-//
-//            } else {
-//                $this->source[$column] = $identifier;
-//            }
-
             $this->load($identifier, $column);
 
         } else {
