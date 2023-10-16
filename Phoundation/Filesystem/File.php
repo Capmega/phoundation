@@ -17,6 +17,8 @@ use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\Sha256MismatchException;
 use Phoundation\Filesystem\Interfaces\FileInterface;
 use Phoundation\Processes\Commands\Gzip;
+use Phoundation\Processes\Commands\Sha256;
+use Phoundation\Processes\Commands\Tar;
 use Phoundation\Processes\Commands\Zip;
 use Throwable;
 
@@ -1157,7 +1159,7 @@ class File extends FileBasics implements FileInterface
      */
     public function checkSha256(string $sha256, bool $ignore_sha_fail = false): static
     {
-        $file_sha = FilesystemCommands::new($this->restrictions)->sha256($this->file);
+        $file_sha = Sha256::new($this->restrictions)->sha256($this->file);
 
         if ($sha256 !== $file_sha) {
             if (!$ignore_sha_fail) {
@@ -1193,7 +1195,7 @@ class File extends FileBasics implements FileInterface
      */
     public function untar(): Path
     {
-        FilesystemCommands::new($this->restrictions)->untar($this->file);
+        Tar::new($this->restrictions)->untar($this->file);
         return Path::new(dirname($this->file), $this->restrictions);
     }
 
