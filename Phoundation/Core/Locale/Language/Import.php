@@ -6,6 +6,7 @@ namespace Phoundation\Core\Locale\Language;
 
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
+use Phoundation\Filesystem\Enums\EnumFileOpenMode;
 use Phoundation\Filesystem\File;
 
 
@@ -48,8 +49,7 @@ class Import extends \Phoundation\Developer\Project\Import
             Log::notice('Ignoring "demo" mode for Languages, this does not do anything for this library');
         }
 
-        $file  = File::new(PATH_DATA . 'sources/languages/languages');
-        $h     = $file->open('r');
+        $file  = File::new(PATH_DATA . 'sources/languages/languages')->open(EnumFileOpenMode::readOnly);
         $table = sql()->schema()->table('core_languages');
         $count = $table->getCount();
 
@@ -65,7 +65,7 @@ class Import extends \Phoundation\Developer\Project\Import
 
         Log::action(tr('Importing languages, this may take a few seconds...'));
 
-        while($line = fgets($h, $buffer)) {
+        while($line = $file->readLine($buffer)) {
             $count++;
 
             // Parse the line
@@ -91,6 +91,7 @@ class Import extends \Phoundation\Developer\Project\Import
             $language->save();
         }
 
+        $file->close();
         return $count;
     }
 }

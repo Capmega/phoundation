@@ -10,6 +10,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Enums\EnumFileOpenMode;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Path;
@@ -230,7 +231,7 @@ class Get extends Curl
 
         // Log cURL request?
         if ($this->log_path) {
-            curl_setopt($this->curl, CURLOPT_STDERR, File::new($this->log_path . getmypid(), $this->log_restrictions)->open('a'));
+            curl_setopt($this->curl, CURLOPT_STDERR, File::new($this->log_path . getmypid(), $this->log_restrictions)->open(EnumFileOpenMode::writeOnlyAppend)->getStream());
 
             Log::action(tr('Preparing ":method" cURL request to ":url"', [
                 ':method' => $this->method,

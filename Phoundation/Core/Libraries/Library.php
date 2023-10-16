@@ -368,7 +368,8 @@ class Library
         // Scan for namespace and class lines
         $namespace = null;
         $class     = null;
-        $results   = File::new($file, [PATH_ROOT . 'Phoundation', PATH_ROOT . 'Plugins', PATH_ROOT . 'Templates'])->grep(['namespace ', 'class '], 100);
+        $results   = File::new($file, [PATH_ROOT . 'Phoundation', PATH_ROOT . 'Plugins', PATH_ROOT . 'Templates'])
+            ->grep(['namespace ', 'class '], 100);
 
         // Get the namespace
         foreach ($results['namespace '] as $line) {
@@ -448,9 +449,11 @@ class Library
      * Update the version registration for this version to be the specified version
      *
      * @param string $version
+     * @param string|null $comments
      * @return void
      */
-    public function setVersion(string $version, ?string $comments = null) {
+    public function setVersion(string $version, ?string $comments = null): void
+    {
         Log::action(tr('Forcing version for library ":library" to ":version"', [
             ':library' => $this->getName(),
             ':version' => $version

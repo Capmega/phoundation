@@ -1264,11 +1264,11 @@ class Sql implements SqlInterface
         $tel  = 0;
         $file = File::new($file, $restrictions)->open(EnumFileOpenMode::readOnly);
 
-        while (($buffer = $file->gets()) !== false) {
-            $buffer = trim($buffer);
+        while (($line = $file->readLine()) !== false) {
+            $line = trim($line);
 
-            if (!empty($buffer)) {
-                $this->pdo->query($buffer);
+            if (!empty($line)) {
+                $this->pdo->query($line);
 
                 $tel++;
                 // :TODO:SVEN:20130717: Right now it updates the display for each record. This may actually slow down import. Make display update only every 10 records or so
@@ -1280,11 +1280,11 @@ class Sql implements SqlInterface
 
         echo "\nDone\n";
 
-        if (!feof($handle)) {
+        if (!$file->getEof()) {
             throw new SqlException(tr('Import of file ":file" unexpectedly halted', [':file' => $file]));
         }
 
-        fclose($handle);
+        $file->close();
     }
 
 

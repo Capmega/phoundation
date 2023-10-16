@@ -17,6 +17,7 @@ use Phoundation\Databases\Sql\Sql;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Enums\EnumFileOpenMode;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Restrictions;
@@ -62,7 +63,7 @@ Class Log {
     /**
      * Keeps track of what log files we're logging to
      */
-    protected static array $handles = [];
+    protected static array $streams = [];
 
     /**
      * Keeps track of the LOG FAILURE status
@@ -348,9 +349,10 @@ Class Log {
             }
 
             // Open the specified log file
-            if (empty(static::$handles[$file])) {
-                File::new($file, static::$restrictions)->ensureWritable(0640);
-                static::$handles[$file] = File::new($file, static::$restrictions)->open('a+');
+            if (empty(static::$streams[$file])) {
+                static::$streams[$file] = File::new($file, static::$restrictions)
+                    ->ensureWritable(0640)
+                    ->open(EnumFileOpenMode::writeOnlyAppend);
             }
 
             // Set the class file to the specified file and return the old value and
@@ -360,7 +362,10 @@ Class Log {
         } catch (Throwable $e) {
             // Something went wrong trying to open the log file. Log the error but do continue
             static::$fail = true;
-            static::error(tr('Failed to open log file ":file" because of exception ":e"', [':file' => $file, ':e' => $e->getMessage()]));
+            static::error(tr('Failed to open log file ":file" because of exception ":e"', [
+                ':file' => $file,
+                ':e' => $e->getMessage()
+            ]));
         }
 
         return $return;
@@ -380,11 +385,11 @@ Class Log {
             $file = PATH_ROOT . 'data/log/syslog';
         }
 
-        if (empty(static::$handles[$file])) {
+        if (empty(static::$streams[$file])) {
             throw new FilesystemException(tr('Cannot close log file ":file", it was never opened', [':file' => $file]));
         }
 
-        fclose(static::$handles[$file]);
+        static::$streams[$file]->close();
     }
 
 
@@ -970,7 +975,7 @@ Class Log {
 
             $prefix_string = date('Y-m-d H:i:s.') . substr(microtime(FALSE), 2, 3) . ' ' . ($threshold === 10 ? 10 : ' ' . $threshold) . ' ' . getmypid() . ' ' . Core::getGlobalId() . ' / ' . Core::getLocalId() . ' ';
 
-            fwrite(static::$handles[static::$file], $prefix_string . $messages . ($newline ? PHP_EOL : null));
+            static::$streams[static::$file]->write($prefix_string . $messages . ($newline ? PHP_EOL : null));
 
             // In Command Line mode, if requested, always log to the screen too but not during PHPUnit test!
             if ($echo_screen and (PHP_SAPI === 'cli') and !Core::isPhpUnitTest()) {
