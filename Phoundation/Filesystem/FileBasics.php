@@ -5,14 +5,13 @@ declare(strict_types=1);
 namespace Phoundation\Filesystem;
 
 use Exception;
-use JetBrains\PhpStorm\ExpectedValues;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Arrays;
+use Phoundation\Core\Config;
+use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
-use Phoundation\Data\Traits\DataFile;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Enums\EnumFileOpenMode;
 use Phoundation\Filesystem\Enums\Interfaces\EnumFileOpenModeInterface;
 use Phoundation\Filesystem\Exception\FileActionFailedException;
@@ -116,7 +115,7 @@ class FileBasics implements Stringable, FileBasicsInterface
             $this->setRestrictions($restrictions_restrictions ?? $file->getRestrictions());
 
         } else {
-            $this->setFile((string)$file);
+            $this->setFile((string) $file);
             $this->setRestrictions($restrictions_restrictions);
         }
     }
@@ -190,6 +189,64 @@ class FileBasics implements Stringable, FileBasicsInterface
 
 
     /**
+     * Returns the configured file buffer size
+     *
+     * @param int|null $requested_buffer_size
+     * @return int
+     */
+    public function getBufferSize(?int $requested_buffer_size = null): int
+    {
+        $required  = $requested_buffer_size ?? Config::get('filesystem.buffer.size', $this->buffer_size ?? 4096);
+        $available = Core::getMemoryAvailable();
+
+        if ($required > $available) {
+            // The required file buffer is larger than the available memory, oops...
+            if (Config::get('filesystem.buffer.auto', false)) {
+                throw new FilesystemException(tr('Failed to set file buffer of ":required", only ":available" memory available', [
+                    ':required'  => $required,
+                    ':available' => $available
+                ]));
+            }
+
+            // Just auto adjust to half of the available memory
+            Log::warning(tr('File buffer of ":required" requested but only ":available" memory available. Created buffer of ":size" instead', [
+                ':required'  => $required,
+                ':available' => $available,
+                ':size'      => floor($available * .5)
+            ]));
+
+            $required = floor($available * .5);
+        }
+
+        return $required;
+    }
+
+
+    /**
+     * Sets the configured file buffer size
+     *
+     * @param int|null $buffer_size
+     * @return static
+     */
+    public function setBufferSize(?int $buffer_size): static
+    {
+        $this->buffer_size = $buffer_size;
+        return $this;
+    }
+
+
+    /**
+     * Returns the stream for this file if its opened. Will return NULL if closed
+     *
+     * @return mixed
+     */
+    public function getStream(): mixed
+    {
+        return $this->stream;
+    }
+
+
+    /**
      * Returns the file
      *
      * @return string|null
@@ -210,7 +267,10 @@ class FileBasics implements Stringable, FileBasicsInterface
      */
     public function setFile(Stringable|string|null $file, string $prefix = null, bool $must_exist = false): static
     {
-        $this->close();
+        if ($this->isOpen()) {
+            $this->close();
+        }
+
         $this->file = Filesystem::absolute($file, $prefix, $must_exist);
         $this->real_file = realpath($this->file);
 
@@ -1078,7 +1138,8 @@ class FileBasics implements Stringable, FileBasicsInterface
         // Check filesystem restrictions and open the file
         $this
             ->ensureClosed('open')
-            ->restrictions->check($this->file, ($mode[0] !== EnumFileOpenMode::readOnly));
+            ->restrictions
+                ->check($this->file, ($mode !== EnumFileOpenMode::readOnly));
 
         try {
             $stream = fopen($this->file, $mode->value, false, $context);
@@ -1361,16 +1422,24 @@ class FileBasics implements Stringable, FileBasicsInterface
     /**
      * Reads and returns the next text line in this file
      *
-     * @param int|null $max_length
-     * @return string
+     * @param int|null $buffer
+     * @return string|false
      */
-    public function readLine(?int $max_length = null): string
+    public function readLine(?int $buffer = null): string|false
     {
         $this->ensureOpen('read');
 
-        $data = fgets($this->stream, $max_length);
+        if (!$buffer) {
+            $buffer = $this->getBufferSize();
+        }
+
+        $data = fgets($this->stream, $buffer);
 
         if ($data === false) {
+            if (feof($this->stream)) {
+                return false;
+            }
+
             $this->processReadFailure('line');
         }
 
@@ -1468,7 +1537,7 @@ class FileBasics implements Stringable, FileBasicsInterface
      * @param int|null $length
      * @return $this
      */
-    protected function write(string $data, ?int $length = null): static
+    public function write(string $data, ?int $length = null): static
     {
         $this->ensureOpen('write');
 
@@ -1528,13 +1597,13 @@ class FileBasics implements Stringable, FileBasicsInterface
      * Append specified data string to the end of the object file
      *
      * @param string $data
+     * @param int|null $length
      * @return static
-     * @throws FilesystemException
      */
-    public function append(string $data): static
+    public function append(string $data, ?int $length = null): static
     {
         if ($this->isOpen()) {
-            return $this->write($data, 'a');
+            return $this->write($data, $length);
         }
 
         return $this->open(EnumFileOpenMode::writeOnlyAppend)->write($data)->close();
@@ -1593,7 +1662,6 @@ class FileBasics implements Stringable, FileBasicsInterface
         // Open target file
         $this->open(EnumFileOpenMode::writeOnlyAppend);
 
-
         // Open each source file
         foreach (Arrays::force($sources, null) as $source) {
             try {
@@ -1603,7 +1671,7 @@ class FileBasics implements Stringable, FileBasicsInterface
                     $this->write($source->read(1048576));
                 }
 
-                $this->close();
+                $source->close();
 
             } catch (Throwable $e) {
                 // Failed to open one of the sources, get rid of the partial target file
@@ -1632,11 +1700,12 @@ class FileBasics implements Stringable, FileBasicsInterface
             }
         }
 
-        $this->stream = null;
-        $this->open_mode = null;
         fclose($this->stream);
 
-        return $this->stream;
+        $this->stream = null;
+        $this->open_mode = null;
+
+        return $this;
     }
 
 

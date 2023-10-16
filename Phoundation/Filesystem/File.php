@@ -13,6 +13,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Filesystem\Enums\EnumFileOpenMode;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\Sha256MismatchException;
 use Phoundation\Filesystem\Interfaces\FileInterface;
@@ -42,53 +43,6 @@ class File extends FileBasics implements FileInterface
      * @var int|null $buffer_size
      */
     protected ?int $buffer_size = null;
-
-
-    /**
-     * Returns the configured file buffer size
-     *
-     * @param int|null $requested_buffer_size
-     * @return int
-     */
-    public function getBufferSize(?int $requested_buffer_size = null): int
-    {
-        $required  = $requested_buffer_size ?? Config::get('filesystem.buffer.size', $this->buffer_size ?? 4096);
-        $available = Core::getMemoryAvailable();
-
-        if ($required > $available) {
-            // The required file buffer is larger than the available memory, oops...
-            if (Config::get('filesystem.buffer.auto', false)) {
-                throw new FilesystemException(tr('Failed to set file buffer of ":required", only ":available" memory available', [
-                    ':required'  => $required,
-                    ':available' => $available
-                ]));
-            }
-
-            // Just auto adjust to half of the available memory
-            Log::warning(tr('File buffer of ":required" requested but only ":available" memory available. Created buffer of ":size" instead', [
-                ':required'  => $required,
-                ':available' => $available,
-                ':size'      => floor($available * .5)
-            ]));
-
-            $required = floor($available * .5);
-        }
-
-        return $required;
-    }
-
-
-    /**
-     * Sets the configured file buffer size
-     *
-     * @param int|null $buffer_size
-     * @return static
-     */
-    public function setBufferSize(?int $buffer_size): static
-    {
-        $this->buffer_size = $buffer_size;
-        return $this;
-    }
 
 
     /**
@@ -482,12 +436,12 @@ class File extends FileBasics implements FileInterface
         }
 
         // Open the file and start scanning each line
-        $handle = $this->open('r');
+        $this->ensureClosed('grep')->open(EnumFileOpenMode::readOnly);
+
         $count  = 0;
         $return = [];
-        $buffer = $this->getBufferSize();
 
-        while (($line = fgets($handle, $buffer)) !== false) {
+        while (($line = $this->readLine()) !== false) {
             foreach ($filters as $filter) {
                 if (str_contains($line, $filter)) {
                     $return[$filter][] = $line;
@@ -500,7 +454,7 @@ class File extends FileBasics implements FileInterface
             }
         }
 
-        fclose($handle);
+        $this->close();
         return $return;
     }
 
