@@ -7,6 +7,7 @@ namespace Phoundation\Accounts;
 use Phoundation\Accounts\Rights\Right;
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\GuestUser;
+use Phoundation\Accounts\Users\User;
 
 
 /**
@@ -53,75 +54,74 @@ class Updates extends \Phoundation\Core\Libraries\Updates
     {
         $this->addUpdate('post_once', function () {
             // Ensure Guest user is available
-            GuestUser::new()
-                ->save();
+            GuestUser::new('guest', 'email')->save();
 
             // Create default rights and roles
-            $god = Right::new()
+            $god = Right::new('God', 'name')
                 ->setName('God')
                 ->setDescription('This right will give the user access to everything, everywhere')
                 ->save();
 
-            $admin = Right::new()
+            $admin = Right::new('Admin', 'name')
                 ->setName('Admin')
                 ->setDescription('This right will give the user access to the administrative area of the site, but no specific pages yet')
                 ->save();
 
-            $developer = Right::new()
+            $developer = Right::new('Developer', 'name')
                 ->setName('Developer')
                 ->setDescription('This right will give the user access to the developer area of the site')
                 ->save();
 
-            $accounts = Right::new()
+            $accounts = Right::new('Accounts', 'name')
                 ->setName('Accounts')
                 ->setDescription('This right will give the user access to the administrative user accounts management section of the site')
                 ->save();
 
-            $security = Right::new()
+            $security = Right::new('Security', 'name')
                 ->setName('Security')
                 ->setDescription('This right will give the user access to the administrative security pages of the site')
                 ->save();
 
-            $phoundation = Right::new()
+            $phoundation = Right::new('Phoundation', 'name')
                 ->setName('Phoundation')
                 ->setDescription('This right will give the user access to the administrative phoundation system management section of the site')
                 ->save();
 
-            $audit = Right::new()
+            $audit = Right::new('Audit', 'name')
                 ->setName('Audit')
                 ->setDescription('This right will give the user access to the audit information system of the site')
                 ->save();
 
             // Define basic roles
-            Role::new()
+            Role::new('God', 'name')
                 ->setName('God')
                 ->setDescription('This role will give the user the "God" right which will give it access to everything, everywhere')
                 ->save()
                 ->getRights()
                 ->addRight($god);
 
-            Role::new()
+            Role::new('Audit', 'name')
                 ->setName('Audit')
                 ->setDescription('This role will give the user access to the audit system')
                 ->save()
                 ->getRights()
                 ->addRight($audit);
 
-            Role::new()
+            Role::new('Accounts', 'name')
                 ->setName('Accounts')
                 ->setDescription('This role will give the user access to the accounts management system')
                 ->save()
                 ->getRights()
                 ->addRight($accounts);
 
-            Role::new()
+            Role::new('Security', 'name')
                 ->setName('Security')
                 ->setDescription('This role will give the user access to the security system')
                 ->save()
                 ->getRights()
                 ->addRight($security);
 
-            Role::new()
+            Role::new('Administrator', 'name')
                 ->setName('Administrator')
                 ->setDescription('This role gives access to all the administrative pages except user account management')
                 ->save()
@@ -131,7 +131,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ->addRight($security)
                 ->addRight($phoundation);
 
-            Role::new()
+            Role::new('Accounts administrator', 'name')
                 ->setName('Accounts administrator')
                 ->setDescription('This role gives access to only the administrative user account pages')
                 ->save()
@@ -139,14 +139,14 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ->addRight($admin)
                 ->addRight($accounts);
 
-            Role::new()
+            Role::new('Developer', 'name')
                 ->setName('Developer')
                 ->setDescription('This role will give the user access to the developer pages of the site')
                 ->save()
                 ->getRights()
                 ->addRight($developer);
 
-            Role::new()
+            Role::new('Moderator', 'name')
                 ->setName('Moderator')
                 ->setDescription('This role will give the user basic access to the administrative pages of the site')
                 ->save()
@@ -165,7 +165,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             // Add default rights
             foreach ($rights as $right) {
                 if (!Right::exists($right, 'name')) {
-                    Right::new()
+                    Right::new($right, 'name')
                         ->setName($right)
                         ->save();
                 }
@@ -174,7 +174,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             // Add default roles and assign the default rights to them
             foreach ($rights as $role) {
                 if (!Role::exists($role, 'name')) {
-                    Role::new()
+                    Role::new($role, 'name')
                         ->setName($role)
                         ->save()
                         ->getRights()
