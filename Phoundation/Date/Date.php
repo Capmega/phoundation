@@ -12,7 +12,6 @@ use Exception;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Exception\CoreException;
-use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Date\Exception\DateException;
 use Phoundation\Exception\OutOfBoundsException;

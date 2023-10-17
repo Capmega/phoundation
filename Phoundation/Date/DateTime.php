@@ -59,6 +59,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
             if (is_object($datetime)) {
                 // Return a new DateTime object with the specified date in the specified timezone
                 parent::__construct($datetime->format('Y-m-d H:i:s.u'), $timezone);
+
             } else {
                 parent::__construct($datetime, $timezone);
             }
@@ -256,6 +257,57 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
     public static function getLastDayOfWeek(\DateTimeZone|string|null $timezone = null): static
     {
         return new static(Session::getConfig()->getString('datetime.week.stop', 'sunday') . ' this week', DateTimeZone::new($timezone));
+    }
+
+
+    /**
+     * Returns a new DateTime object for the first day of this week
+     *
+     * @param \DateTimeZone|string|null $timezone
+     * @return static
+     */
+    public static function getFirstPeriodOfMonth(\DateTimeZone|string|null $timezone = null): static
+    {
+        return static::getFirstDayOfMonth();
+    }
+
+
+    /**
+     * Returns a new DateTime object for the last day of this week
+     *
+     * @param \DateTimeZone|string|null $timezone
+     * @return static
+     */
+    public static function getLastPeriodOfMonth(\DateTimeZone|string|null $timezone = null): static
+    {
+        return new static('Y-m-15', DateTimeZone::new($timezone));
+    }
+
+
+    /**
+     * Returns a new DateTime object for the first day of this week
+     *
+     * @param DateTime|string|null $datetime
+     * @param \DateTimeZone|string|null $timezone
+     * @return static
+     */
+    public static function getPreviousPeriodOfMonth(DateTime|string|null $datetime, \DateTimeZone|string|null $timezone = null): static
+    {
+
+        return static::getFirstDayOfMonth();
+    }
+
+
+    /**
+     * Returns a new DateTime object for the last day of this week
+     *
+     * @param DateTime|string|null $datetime
+     * @param \DateTimeZone|string|null $timezone
+     * @return static
+     */
+    public static function getNextPeriodOfMonth(DateTime|string|null $datetime, \DateTimeZone|string|null $timezone = null): static
+    {
+        return new static('Y-m-15', DateTimeZone::new($timezone));
     }
 
 
