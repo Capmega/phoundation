@@ -103,21 +103,21 @@ class InputDateRange extends InputText
 
 
     /**
-     * Specify what pre-programmed range to use
+     * Specify what pre-programmed ranges to use
      *
-     * @param string $range
+     * @param string $ranges
      * @return $this
      */
-    public function useRange(string $range): static
+    public function useRanges(string $ranges): static
     {
-        switch ($range) {
+        switch ($ranges) {
             case 'default':
                 $this->getRanges()->useDefault();
                 break;
 
             default:
-                throw new OutOfBoundsException(tr('Unknown range ":range" specified, specify one of "default"', [
-                    ':range' => $range
+                throw new OutOfBoundsException(tr('Unknown ranges ":ranges" specified, specify one of "default"', [
+                    ':ranges' => $ranges
                 ]));
         }
 
