@@ -1442,6 +1442,17 @@ class Core implements CoreInterface
 
 
     /**
+     * Returns true if the system is running in production environment
+     *
+     * @return bool
+     */
+    public static function isProduction(): bool
+    {
+        return ENVIRONMENT === 'production';
+    }
+
+
+    /**
      * Returns true if the system has finished starting up
      *
      * @param string|null $state If specified will return the startup state for the specified state instead of the
