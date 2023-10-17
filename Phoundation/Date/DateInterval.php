@@ -7,6 +7,7 @@ namespace Phoundation\Date;
 use Exception;
 use Phoundation\Core\Strings;
 use Phoundation\Date\Enums\DateTimeSegment;
+use Phoundation\Date\Exception\DateIntervalException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Json;
 use Stringable;
@@ -109,19 +110,23 @@ class DateInterval extends \DateInterval implements Stringable
      *
      * @param \DateInterval|DateInterval|array|string|float|int $date_interval
      * @param bool $round_up
-     * @throws Exception
+     * @throws DateIntervalException
      */
     public function __construct(\DateInterval|DateInterval|array|string|float|int $date_interval, bool $round_up = true)
     {
         if (is_string($date_interval)) {
-            $round_up      = not_null($round_up, true);
-            parent::__construct($date_interval);
-            return;
+            try {
+                parent::__construct($date_interval);
+                return;
+
+            } catch (Exception $e) {
+                throw new DateIntervalException($e);
+            }
 
         } elseif (is_int($date_interval)) {
             // Diff will always give a tiny amount of micro/milliseconds difference. Since we're on seconds resolution
             // here we can round that off
-            $round_up      = not_null($round_up, true);
+            $round_up = not_null($round_up, true);
             $date_interval = DateTime::new($date_interval . ' seconds')->diff(DateTime::new());
 
             if ($date_interval->f > 500) {

@@ -6,8 +6,11 @@ namespace Phoundation\Date;
 
 use DateTimeInterface;
 use Exception;
+use Phoundation\Core\Config;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Date\Enums\DateTimeSegment;
 use Phoundation\Date\Enums\Interfaces\DateTimeSegmentInterface;
+use Phoundation\Date\Exception\DateIntervalException;
 use Phoundation\Date\Exception\DateTimeException;
 use Phoundation\Exception\OutOfBoundsException;
 use Stringable;
@@ -41,11 +44,10 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      *
      * @param DateTime|string|null $datetime
      * @param \DateTimeZone|string|null $timezone
-     * @throws Exception
      */
     public function __construct(DateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null)
     {
-        // Ensure we have NULL or datetimezone object for parent constructor
+        // Ensure we have NULL or timezone object for parent constructor
         $timezone = get_null($timezone);
 
         if (is_string($timezone)) {
@@ -77,7 +79,6 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      * @param DateTime|string|null $datetime
      * @param \DateTimeZone|string|null $timezone
      * @return static
-     * @throws Exception
      */
     public static function new(DateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): static
     {
@@ -98,7 +99,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      * @param bool $absolute
      * @param bool $roundup
      * @return DateInterval
-     * @throws Exception
+     * @throws DateIntervalException
      */
     public function diff($targetObject, $absolute = false, bool $roundup = true): DateInterval
     {
@@ -130,7 +131,6 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      *
      * @param \DateInterval $interval
      * @return \DateTime
-     * @throws Exception
      */
     public function sub(\DateInterval $interval): \DateTime
     {
@@ -144,7 +144,6 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      *
      * @param \DateInterval $interval
      * @return \DateTime
-     * @throws Exception
      */
     public function add(\DateInterval $interval): \DateTime
     {
@@ -157,7 +156,6 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      *
      * @param \DateTimeZone|string|null $timezone
      * @return static
-     * @throws Exception
      */
     public static function getToday(\DateTimeZone|string|null $timezone = null): static
     {
@@ -170,7 +168,6 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      *
      * @param \DateTimeZone|string|null $timezone
      * @return static
-     * @throws Exception
      */
     public static function getTomorrow(\DateTimeZone|string|null $timezone = null): static
     {
@@ -183,7 +180,6 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      *
      * @param \DateTimeZone|string|null $timezone
      * @return static
-     * @throws Exception
      */
     public static function getYesterday(\DateTimeZone|string|null $timezone = null): static
     {
@@ -192,11 +188,82 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
 
 
     /**
-     * Returns a new DateTime object
+     * Returns a new DateTime object for the first day of this year
+     *
+     * @param \DateTimeZone|string|null $timezone
+     * @return static
+     */
+    public static function getFirstDayOfYear(\DateTimeZone|string|null $timezone = null): static
+    {
+        return new static('Y-01-01', DateTimeZone::new($timezone));
+    }
+
+
+    /**
+     * Returns a new DateTime object for the last day of this year
+     *
+     * @param \DateTimeZone|string|null $timezone
+     * @return static
+     */
+    public static function getLastDayOfYear(\DateTimeZone|string|null $timezone = null): static
+    {
+        return new static('Y-12-31', DateTimeZone::new($timezone));
+    }
+
+
+    /**
+     * Returns a new DateTime object for the first day of this month
+     *
+     * @param \DateTimeZone|string|null $timezone
+     * @return static
+     */
+    public static function getFirstDayOfMonth(\DateTimeZone|string|null $timezone = null): static
+    {
+        return new static('Y-m-01', DateTimeZone::new($timezone));
+    }
+
+
+    /**
+     * Returns a new DateTime object for the last day of this month
+     *
+     * @param \DateTimeZone|string|null $timezone
+     * @return static
+     */
+    public static function getLastDayOfMonth(\DateTimeZone|string|null $timezone = null): static
+    {
+        return new static('Y-m-t', DateTimeZone::new($timezone));
+    }
+
+
+    /**
+     * Returns a new DateTime object for the first day of this week
+     *
+     * @param \DateTimeZone|string|null $timezone
+     * @return static
+     */
+    public static function getFirstDayOfWeek(\DateTimeZone|string|null $timezone = null): static
+    {
+        return new static(Session::getConfig()->getString('datetime.week.start', 'monday') . ' this week', DateTimeZone::new($timezone));
+    }
+
+
+    /**
+     * Returns a new DateTime object for the last day of this week
+     *
+     * @param \DateTimeZone|string|null $timezone
+     * @return static
+     */
+    public static function getLastDayOfWeek(\DateTimeZone|string|null $timezone = null): static
+    {
+        return new static(Session::getConfig()->getString('datetime.week.stop', 'sunday') . ' this week', DateTimeZone::new($timezone));
+    }
+
+
+    /**
+     * Returns true if the current date is today
      *
      * @param \DateTimeZone|string|null $timezone
      * @return bool
-     * @throws Exception
      */
     public function isToday(\DateTimeZone|string|null $timezone = null): bool
     {
@@ -205,11 +272,10 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
 
 
     /**
-     * Returns a new DateTime object for tomorrow
+     * Returns true if the current date is tomorrow
      *
      * @param \DateTimeZone|string|null $timezone
      * @return bool
-     * @throws Exception
      */
     public function isTomorrow(\DateTimeZone|string|null $timezone = null): bool
     {
@@ -218,11 +284,10 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
 
 
     /**
-     * Returns a new DateTime object for yesterday
+     * Returns true if the current date is yesterday
      *
      * @param \DateTimeZone|string|null $timezone
      * @return bool
-     * @throws Exception
      */
     public function isYesterday(\DateTimeZone|string|null $timezone = null): bool
     {
@@ -361,7 +426,6 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      * Makes this date have the current time
      *
      * @return $this
-     * @throws Exception
      */
     public function makeCurrentTime(\DateTimeZone|DateTimeZone|string|null $timezone = null): static
     {
