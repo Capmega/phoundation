@@ -20,6 +20,7 @@ use Phoundation\Core\Enums\EnumRequestTypes;
 use Phoundation\Core\Exception\ConfigException;
 use Phoundation\Core\Exception\SessionException;
 use Phoundation\Core\Log\Log;
+use Phoundation\Core\Sessions\Interfaces\ConfigInterface;
 use Phoundation\Core\Sessions\Interfaces\SessionInterface;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
@@ -98,6 +99,13 @@ class Session implements SessionInterface
      * @var FlashMessages|null $flash_messages
      */
     protected static ?FlashMessages $flash_messages = null;
+
+    /**
+     * The user session configuration object
+     *
+     * @var ConfigInterface $config
+     */
+    protected static ConfigInterface $config;
 
 
     /**
@@ -618,6 +626,21 @@ Log::warning('RESTART SESSION');
             ->save();
 
         session_destroy();
+    }
+
+
+    /**
+     * Returns the user session configuration object
+     *
+     * @return ConfigInterface
+     */
+    public static function getConfig(): ConfigInterface
+    {
+        if (empty(static::$config)) {
+            static::$config = new \Phoundation\Core\Sessions\Config();
+        }
+
+        return static::$config;
     }
 
 
