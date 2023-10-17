@@ -130,7 +130,7 @@ class Route
 
         // Start the Core object, hide $_GET & $_POST
         try {
-            if (Core::stateIs('init')) {
+            if (Core::isState(null)) {
                 Core::startup();
                 GetValidator::hideData();
                 PostValidator::hideData();

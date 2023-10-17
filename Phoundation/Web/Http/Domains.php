@@ -239,7 +239,7 @@ class Domains {
             Arrays::default($domain_config, 'index'  , '/');
             Arrays::default($domain_config, 'cloaked', false);
         } catch (ConfigurationDoesNotExistsException $e) {
-            if (!Core::stateIs('setup')) {
+            if (!Core::isState('setup')) {
                 // In setup mode we won't have any configuration but we will be able to continue
                 throw $e;
             }
@@ -385,7 +385,7 @@ class Domains {
             $configuration = Config::get('web.domains');
 
             if ($configuration === null) {
-                if (!Core::stateIs('setup')) {
+                if (!Core::isState('setup')) {
                     // In set up we won't have configuration and that is fine. If we're not in set up, then it is not
                     // so fine
                     throw new ConfigurationDoesNotExistsException(tr('The configuration path "web.domains" does not exist'));

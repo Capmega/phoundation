@@ -1322,10 +1322,10 @@ class Core implements CoreInterface
 
     /**
      * Returns true if the Core state is the same as the specified state
-     * @param string $state
+     * @param string|null $state
      * @return bool
      */
-    public static function stateIs(#[ExpectedValues(values: ['setup', 'startup', 'script', 'shutdown', 'maintenance'])] string $state): bool
+    public static function isState(#[ExpectedValues(values: [null, 'setup', 'startup', 'script', 'shutdown', 'maintenance'])] ?string $state): bool
     {
         return static::$state === $state;
     }

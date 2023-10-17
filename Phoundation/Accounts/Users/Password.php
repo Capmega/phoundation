@@ -105,7 +105,7 @@ class Password extends DataEntry implements PasswordInterface
             }
 
             // In setup mode we won't have database access yet, so these 2 tests may be skipped in that case.
-            if (!Core::stateIs('setup')) {
+            if (!Core::isState('setup')) {
                 if (static::isCompromised($password)) {
                     throw new ValidationFailedException(tr('This password has been compromised'));
                 }
