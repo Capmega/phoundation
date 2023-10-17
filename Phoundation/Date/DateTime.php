@@ -293,8 +293,17 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      */
     public static function getPreviousPeriodOfMonth(DateTime|string|null $datetime, \DateTimeZone|string|null $timezone = null): static
     {
+        $datetime = static::new($datetime);
+        $date_day = $datetime->format('d');
 
-        return static::getFirstDayOfMonth();
+        if ($date_day > 15) {
+            // 1 - 15 this month
+            return DateTime::new($datetime->format('Y-m-1 00:00:00'), $timezone);
+        }
+
+        // 16 - 3(0|1) previous month
+        $start = $datetime->sub(new DateInterval('1 month'));
+        return DateTime::new($start->format('Y-m-16 00:00:00'), $timezone);
     }
 
 
