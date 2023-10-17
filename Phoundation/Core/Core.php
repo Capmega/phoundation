@@ -146,21 +146,27 @@ class Core implements CoreInterface
     protected static bool $ready = false;
 
     /**
-     * Keep track of system status
+     * Keep track of system state
      *
      * Can be one of:
      *
-     * init     Core is initializing
-     * startup  Core is starting up
-     * script   Script execution is now running
-     * shutdown Core is shutting down after normal script execution
-     * error    Core is processing an uncaught exception and will die soon
-     * phperror Core encountered a PHP error, which (typically, but not always) will end un an uncaught exception,
-     *          switching system state to "error"
+     * NULL        state has not yet been defined
+     * startup     Core is starting up
+     * script      Script execution is now running
+     * maintenance System is in maintenance state
+     * setup       System is in setup state
+     * shutdown    Core is shutting down after normal script execution
      *
-     * @var string $state
+     * @var string|null $state
      */
-    protected static string $state = 'init';
+    protected static ?string $state = null;
+
+    /**
+     * Keep track of system error state. If true, system is in error
+     *
+     * @var bool $error_state
+     */
+    protected static bool $error_state = false;
 
     /**
      * Internal flag indicating if there is a failure or not
@@ -300,7 +306,7 @@ class Core implements CoreInterface
     public static function startup(): void
     {
         try {
-            if (static::$state !== 'init') {
+            if (static::$init) {
                 throw new CoreException(tr('Core::startup() was run in the ":state" state. Check backtrace to see what caused this', [
                     ':state' => static::$state
                 ]));
@@ -1283,12 +1289,23 @@ class Core implements CoreInterface
      * phperror System encountered a PHP error, which (typically, but not always) will end un an uncaught exception,
      *          switching system state to "error"
      *
-     * @return string
+     * @return string|null
      */
-    #[ExpectedValues(values: ['setup', 'startup', 'script', 'shutdown', 'error', 'phperror'])]
-    public static function getState(): string
+    #[ExpectedValues(values: [null, 'setup', 'startup', 'script', 'shutdown', 'maintenance'])]
+    public static function getState(): ?string
     {
         return static::$state;
+    }
+
+
+    /**
+     * Returns true if the Core class is in error state
+     *
+     * @return bool
+     */
+    public static function getErrorState(): bool
+    {
+        return static::$error_state;
     }
 
 
@@ -1308,47 +1325,39 @@ class Core implements CoreInterface
      * @param string $state
      * @return bool
      */
-    public static function stateIs(#[ExpectedValues(values: ['setup', 'startup', 'script', 'shutdown', 'error', 'phperror'])] string $state): bool
+    public static function stateIs(#[ExpectedValues(values: ['setup', 'startup', 'script', 'shutdown', 'maintenance'])] string $state): bool
     {
         return static::$state === $state;
     }
 
 
-    /**
-     * Allows to change the Core class state
-     *
-     * @note This method only allows a change to the states "error" or "phperror"
-     * @param string|null $state
-     * @return void
-     */
-    public static function setState(#[ExpectedValues(values: ['error', 'phperror'])] ?string $state): void
-    {
-        switch ($state) {
-            case 'error':
-                // no-break
-            case 'phperror':
-                static::$state = $state;
-                break;
-
-            case 'init':
-                // no-break
-            case 'startup':
-                // no-break
-            case 'script':
-                // no-break
-            case 'shutdown':
-                // These are not allowed
-                throw new OutOfBoundsException(tr('Core state update to ":state" is not allowed. Core state can only be updated to "error" or "phperror"', [
-                    ':state' => $state
-                ]));
-
-            default:
-                // Wut?
-                throw new OutOfBoundsException(tr('Unknown core state ":state" specified. Core state can only be updated to "error" or "phperror"', [
-                    ':state' => $state
-                ]));
-        }
-    }
+//    /**
+//     * Allows to change the Core class state
+//     *
+//     * @note This method only allows a change to the states "error" or "phperror"
+//     * @param string|null $state
+//     * @return void
+//     */
+//    public static function setState(#[ExpectedValues(values: ['error', 'phperror'])] ?string $state): void
+//    {
+//        switch ($state) {
+//            case 'startup':
+//                // no-break
+//            case 'script':
+//                // no-break
+//            case 'shutdown':
+//                // These are not allowed
+//                throw new OutOfBoundsException(tr('Core state update to ":state" is not allowed. Core state can only be updated to "error" or "phperror"', [
+//                    ':state' => $state
+//                ]));
+//
+//            default:
+//                // Wut?
+//                throw new OutOfBoundsException(tr('Unknown core state ":state" specified. Core state can only be updated to "error" or "phperror"', [
+//                    ':state' => $state
+//                ]));
+//        }
+//    }
 
 
     /**
@@ -1362,19 +1371,42 @@ class Core implements CoreInterface
      */
     public static function inStartupState(?string $state = null): bool
     {
-        if ($state === null) {
-            $state = static::$state;
-        }
-
-        return match ($state) {
-            'init', 'startup' => true,
-            default => false,
-        };
+        return ($state ?? static::$state) === 'startup';
     }
 
 
     /**
-     * Returns true if the system is still starting up
+     * Returns true if the system is shutting down
+     *
+     * @param string|null $state If specified will return the startup state for the specified state instead of the
+     *                           internal Core state
+     * @return bool
+     * @see Core::getState()
+     * @see Core::inInitState()
+     */
+    public static function inShutdownState(?string $state = null): bool
+    {
+        return ($state ?? static::$state) === 'shutdown';
+    }
+
+
+    /**
+     * Returns true if the system is executing a script
+     *
+     * @param string|null $state If specified will return the startup state for the specified state instead of the
+     *                           internal Core state
+     * @return bool
+     * @see Core::getState()
+     * @see Core::inInitState()
+     */
+    public static function inScriptExecutionState(?string $state = null): bool
+    {
+        return ($state ?? static::$state) === 'script';
+    }
+
+
+    /**
+     * Returns true if the system is in initialization mode
      *
      * @return bool
      * @see Core::getState()
@@ -1431,10 +1463,7 @@ class Core implements CoreInterface
      */
     public static function errorState(): bool
     {
-        return match (static::$state) {
-            'error', 'phperror' => true,
-            default => false,
-        };
+        return static::$error_state;
     }
 
 
@@ -1564,7 +1593,7 @@ class Core implements CoreInterface
         static $executed = false;
 
         $state = static::$state;
-        static::$state = 'error';
+        static::$error_state = true;
 
         // Ensure that definitions exist
         $defines = [
