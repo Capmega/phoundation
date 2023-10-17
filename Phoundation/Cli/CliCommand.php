@@ -10,6 +10,7 @@ use Phoundation\Cli\Exception\CliException;
 use Phoundation\Cli\Exception\MethodNotExistsException;
 use Phoundation\Cli\Exception\MethodNotFoundException;
 use Phoundation\Cli\Exception\NoMethodSpecifiedException;
+use Phoundation\Cli\Exception\StdInException;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Core;
 use Phoundation\Core\Enums\EnumMatchMode;
@@ -25,6 +26,8 @@ use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\ScriptException;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Filesystem\Enums\EnumFileOpenMode;
+use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Path;
 use Throwable;
 
@@ -84,6 +87,27 @@ class CliCommand
      * @var array $found_methods
      */
     protected static array $found_methods = [];
+
+    /**
+     * Contains the data that was sent to this script over stdin
+     *
+     * @var string $stdin
+     */
+    protected static string $stdin_data;
+
+    /**
+     * Tracks all input / output streams
+     *
+     * @var array $streams
+     */
+    protected static array $streams;
+
+    /**
+     * True if STDIN stream has been read
+     *
+     * @var bool $stdin_has_been_read
+     */
+    protected static bool $stdin_has_been_read = false;
 
 
     /**
@@ -154,18 +178,12 @@ class CliCommand
         // Execute the script and finish execution
         execute_script(static::$script);
         AutoComplete::ensureAvailable();
+
+        if (!stream_isatty(STDIN) and !static::$stdin_has_been_read) {
+            Log::warning(tr('Warning: STDIN stream was specified but not used'));
+        }
+
         exit();
-    }
-
-
-    /**
-     * Returns the process exit code
-     *
-     * @return int
-     */
-    public static function getExitCode(): int
-    {
-        return static::$exit_code;
     }
 
 
@@ -177,6 +195,17 @@ class CliCommand
     public static function getMethods(): array
     {
         return static::$methods;
+    }
+
+
+    /**
+     * Returns the process exit code
+     *
+     * @return int
+     */
+    public static function getExitCode(): int
+    {
+        return static::$exit_code;
     }
 
 
@@ -411,6 +440,7 @@ class CliCommand
         static $executed = false;
 
         throw new UnderConstructionException();
+
         try {
             $run_dir = PATH_ROOT.'data/run/';
             $script  = $core->register['script'];
@@ -842,7 +872,7 @@ that does not support it, it will simply be ignored. See the --help output for e
 A few useful commands to execute are:
 
 
-./pho system maintenance disable        Disables maintenace mode manually. This may be needed if some command that  
+./pho system maintenance disable        Disables maintenance mode manually. This may be needed if some command that  
                                         placed the system in maintenance mode crashed, leaving the system unusable
 
 ./pho info                              Gives general information about your Phoundation installation
@@ -937,5 +967,62 @@ The following arguments are available to ALL scripts
 
                                         WARNING: This may result in weak and or compromised passwords in your database
                 ', [':environment' => 'PHOUNDATION_' . PROJECT . '_ENVIRONMENT']), false);
+    }
+
+
+    /**
+     * Returns true if there is a piped or redirected STDIN data stream available
+     *
+     * @return bool
+     */
+    public static function hasStdInStream(): bool
+    {
+        return !stream_isatty(STDIN);
+    }
+
+
+    /**
+     * Reads and returns the contents of the STDIN
+     *
+     * @param bool $binary_safe
+     * @return string|null
+     */
+    public static function readStdInStream(bool $binary_safe = true): ?string
+    {
+        if (stream_isatty(STDIN)) {
+            throw new StdInException(tr('Cannot read STDIN stream, the file descriptor is a TTY'));
+        }
+
+        $return = null;
+        $stdin  = File::new(STDIN);
+
+        while (!$stdin->isEof()) {
+            if ($binary_safe) {
+                $data = $stdin->read();
+            } else {
+                $data = $stdin->readLine();
+            }
+
+            if ($data === false) {
+                break;
+            }
+
+            $return .= $data;
+            usleep(5);
+        }
+
+        static::$stdin_has_been_read = true;
+        return $return;
+    }
+
+
+    /**
+     * Returns true if the STDIN stream has been read
+     *
+     * @return bool
+     */
+    public static function stdInHasBeenRead(): bool
+    {
+        return static::$stdin_has_been_read;
     }
 }
