@@ -75,6 +75,7 @@ class Debug {
 
         if (Core::inStartupState()) {
             // System startup has not yet completed, disable debug!
+            $loop = false;
             return false;
         }
 
