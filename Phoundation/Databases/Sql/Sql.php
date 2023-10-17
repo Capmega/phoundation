@@ -1280,7 +1280,7 @@ class Sql implements SqlInterface
 
         echo "\nDone\n";
 
-        if (!$file->getEof()) {
+        if (!$file->isEof()) {
             throw new SqlException(tr('Import of file ":file" unexpectedly halted', [':file' => $file]));
         }
 

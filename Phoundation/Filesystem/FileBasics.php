@@ -39,7 +39,7 @@ use Throwable;
 
 
 /**
- * FileVariables class
+ * FileBasics class
  *
  * This library contains the variables used in the File class
  *
@@ -53,16 +53,6 @@ class FileBasics implements Stringable, FileBasicsInterface
 {
     use UsesRestrictions;
 
-
-    /**
-     * File READ method
-     */
-    public const READ = 1;
-
-    /**
-     * File WRITE method
-     */
-    public const WRITE = 2;
 
     /**
      * The real path to this file
@@ -93,6 +83,14 @@ class FileBasics implements Stringable, FileBasicsInterface
     protected mixed $stream = null;
 
     /**
+     * The type for this file
+     *
+     * @var int $type
+     */
+    protected int $type;
+
+
+    /**
      * If the file is opened, specifies how it was opened
      *
      * @var EnumFileOpenModeInterface|null $open_mode
@@ -103,20 +101,31 @@ class FileBasics implements Stringable, FileBasicsInterface
     /**
      * File class constructor
      *
-     * @param FileBasicsInterface|Stringable|string|null $file
+     * @param mixed $file
      * @param RestrictionsInterface|array|string|null $restrictions_restrictions
      */
-    public function __construct(FileBasicsInterface|Stringable|string|null $file = null, RestrictionsInterface|array|string|null $restrictions_restrictions = null)
+    public function __construct(mixed $file = null, RestrictionsInterface|array|string|null $restrictions_restrictions = null)
     {
-        // Specified file was actually a File or Path object, get the file from there
-        if ($file instanceof FileBasics) {
-            $this->setFile($file->getFile());
-            $this->setTarget($file->getTarget());
-            $this->setRestrictions($restrictions_restrictions ?? $file->getRestrictions());
+        if (is_null($file) or is_string($file) or ($file instanceof Stringable)) {
+            // Specified file was actually a File or Path object, get the file from there
+            if ($file instanceof FileBasics) {
+                $this->setFile($file->getFile());
+                $this->setTarget($file->getTarget());
+                $this->setRestrictions($restrictions_restrictions ?? $file->getRestrictions());
+
+            } else {
+                $this->setFile((string)$file);
+                $this->setRestrictions($restrictions_restrictions);
+            }
+        } elseif (is_resource($file)) {
+            // This is an input stream resource
+            $this->stream = $file;
+            $this->file = '?';
 
         } else {
-            $this->setFile((string) $file);
-            $this->setRestrictions($restrictions_restrictions);
+            throw new OutOfBoundsException(tr('Invalid file ":file" specified. Must be one if FileBasicsInterface, Stringable, string, null, or resource', [
+                ':file' => $file
+            ]));
         }
     }
 
@@ -135,11 +144,11 @@ class FileBasics implements Stringable, FileBasicsInterface
     /**
      * Returns a new Path object with the specified restrictions
      *
-     * @param FileBasics|Stringable|string|null $file
+     * @param mixed $file
      * @param RestrictionsInterface|array|string|null $restrictions_restrictions
      * @return static
      */
-    public static function new(FileBasics|Stringable|string|null $file = null, RestrictionsInterface|array|string|null $restrictions_restrictions = null): static
+    public static function new(mixed $file = null, RestrictionsInterface|array|string|null $restrictions_restrictions = null): static
     {
         return new static($file, $restrictions_restrictions);
     }
@@ -866,12 +875,29 @@ class FileBasics implements Stringable, FileBasicsInterface
 
 
     /**
+     * Returns the file type
+     *
+     * @return string|int|null
+     */
+    public function getType(): string|int|null
+    {
+        if (!$this->type) {
+            $this->type = $this->getStat()['mode'] & 0170000;
+        }
+
+        return $this->type;
+    }
+
+
+    /**
      * Returns the stat data for the object file
      *
      * @return array
      */
     public function getStat(): array
     {
+        if ($this->str)
+
         // Check filesystem restrictions
         $this->restrictions->check($this->file, false);
 
@@ -881,6 +907,7 @@ class FileBasics implements Stringable, FileBasicsInterface
             if ($stat) {
                 return $stat;
             }
+
         } catch (Throwable $e) {
             $this->checkReadable(null, $e);
         }
@@ -1212,6 +1239,81 @@ class FileBasics implements Stringable, FileBasicsInterface
 
 
     /**
+     * Returns true if this file is a FIFO
+     *
+     * @return bool
+     */
+    public function isFifo(): bool
+    {
+        if (!$this->type) {
+            $this->getType();
+        }
+
+        return $this->type == 0010000; // S_IFIFO
+    }
+
+
+    /**
+     * Returns true if this file is a Character device
+     *
+     * @return bool
+     */
+    public function isChr(): bool
+    {
+        if (!$this->type) {
+            $this->getType();
+        }
+
+        return $this->type == 0020000; // S_IFCHR
+    }
+
+
+    /**
+     * Returns true if this file is a block device
+     *
+     * @return bool
+     */
+    public function isBlk(): bool
+    {
+        if (!$this->type) {
+            $this->getType();
+        }
+
+        return $this->type == 0060000; // S_IFBLK
+    }
+
+
+    /**
+     * Returns true if this file is ???
+     *
+     * @return bool
+     */
+    public function isReg(): bool
+    {
+        if (!$this->type) {
+            $this->getType();
+        }
+
+        return $this->type == 0100000; // S_IFREG
+    }
+
+
+    /**
+     * Returns true if this file is a socket device
+     *
+     * @return bool
+     */
+    public function isSock(): bool
+    {
+        if (!$this->type) {
+            $this->getType();
+        }
+
+        return $this->type == 0140000; // S_IFSOCK
+    }
+
+
+    /**
      * Returns true if the file is opened
      *
      * @return bool
@@ -1293,7 +1395,7 @@ class FileBasics implements Stringable, FileBasicsInterface
      *
      * @return bool
      */
-    public function getEof(): bool
+    public function isEof(): bool
     {
         $this->ensureOpen('getEof');
         return feof($this->stream);
@@ -1397,11 +1499,11 @@ class FileBasics implements Stringable, FileBasicsInterface
     /**
      * Reads and returns the specified amount of bytes from the current pointer location
      *
-     * @param int $length
+     * @param int|null $buffer
      * @param int|null $seek
-     * @return string
+     * @return string|false
      */
-    public function read(int $length, ?int $seek = null): string
+    public function read(?int $buffer = null, ?int $seek = null): string|false
     {
         $this->ensureOpen('read');
 
@@ -1409,10 +1511,11 @@ class FileBasics implements Stringable, FileBasicsInterface
             $this->seek($seek);
         }
 
-        $data = fread($this->stream, $length);
+        $buffer = $this->getBufferSize($buffer);
+        $data = fread($this->stream, $buffer);
 
         if ($data === false) {
-            $this->processReadFailure('data');
+            return $this->processReadFailure('data', $data);
         }
 
         return $data;
@@ -1436,11 +1539,7 @@ class FileBasics implements Stringable, FileBasicsInterface
         $data = fgets($this->stream, $buffer);
 
         if ($data === false) {
-            if (feof($this->stream)) {
-                return false;
-            }
-
-            $this->processReadFailure('line');
+            return $this->processReadFailure('line', $data);
         }
 
         return $data;
@@ -1454,16 +1553,16 @@ class FileBasics implements Stringable, FileBasicsInterface
      * @param string $separator
      * @param string $enclosure
      * @param string $escape
-     * @return array
+     * @return array|false
      */
-    public function readCsv(?int $max_length = null, string $separator = ",", string $enclosure = "\"", string $escape = "\\"): array
+    public function readCsv(?int $max_length = null, string $separator = ",", string $enclosure = "\"", string $escape = "\\"): array|false
     {
         $this->ensureOpen('read');
 
         $data = fgetcsv($this->stream, $max_length, $separator, $enclosure, $escape);
 
         if ($data === false) {
-            $this->processReadFailure('CSV');
+            return $this->processReadFailure('CSV', $data);
         }
 
         return $data;
@@ -1473,16 +1572,16 @@ class FileBasics implements Stringable, FileBasicsInterface
     /**
      * Reads and returns a single character from the current file pointer
      *
-     * @return string
+     * @return string|false
      */
-    public function readCharacter(): string
+    public function readCharacter(): string|false
     {
         $this->ensureOpen('read');
 
         $data = fgetc($this->stream);
 
         if ($data === false) {
-            $this->processReadFailure('character');
+            return $this->processReadFailure('character', $data);
         }
 
         return $data;
@@ -1565,7 +1664,7 @@ class FileBasics implements Stringable, FileBasicsInterface
         $data = file_get_contents($this->file, $use_include_path, $context, $offset, $length);
 
         if ($data === false) {
-            $this->processReadFailure('contents');
+            return $this->processReadFailure('contents', $data, false);
         }
 
         return $data;
@@ -1667,7 +1766,7 @@ class FileBasics implements Stringable, FileBasicsInterface
             try {
                 $source = File::new($source, $this->restrictions)->open(EnumFileOpenMode::readOnly);
 
-                while (!$source->getEof()) {
+                while (!$source->isEof()) {
                     $this->write($source->read(1048576));
                 }
 
@@ -1814,15 +1913,15 @@ class FileBasics implements Stringable, FileBasicsInterface
      * Determines what exception to throw for a read failure
      *
      * @param string $type
-     * @return never
+     * @param string|false|null $data
+     * @param bool $test_feof If false will skip FEOF test
+     * @return string|false|null
      */
-    #[NoReturn] protected function processReadFailure(string $type): never
+    protected function processReadFailure(string $type, string|false|null $data, bool $test_feof = true): string|false|null
     {
-        if ($this->eof()) {
-            throw new FileEofException(tr('Cannot read :type from file ":file", the file pointer is at the end of the file', [
-                ':type' => $type,
-                ':file' => $this->file
-            ]));
+        // FEOF errors are only checked if we didn't try to read full file contents
+        if ($test_feof and $this->isEof()) {
+            return $data;
         }
 
         throw new FileReadException(tr('Cannot read :type from file ":file", the file pointer is at the end of the file', [
