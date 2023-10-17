@@ -1847,7 +1847,7 @@ class Page implements PageInterface
         <html lang="' . Session::getLanguage() . '">' . PHP_EOL;
 
         if (static::$page_title) {
-            $return .= '<title>' . static::$page_title . '</title>' . PHP_EOL;
+            $return .= '<title>' . (Core::isProduction() ? null : '(' . ENVIRONMENT . ') ') . static::$page_title . '</title>' . PHP_EOL;
         }
 
         foreach (static::$headers['meta'] as $key => $value) {
