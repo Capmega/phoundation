@@ -23,9 +23,9 @@ use Phoundation\Os\Processes\Interfaces\ProcessInterface;
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Os
- * @uses \Phoundation\Os\Processes\ProcessVariables
+ * @uses ProcessVariables
  */
-Class Process extends ProcessCore implements ProcessInterface
+class Process extends ProcessCore implements ProcessInterface
 {
     /**
      * Processes constructor.

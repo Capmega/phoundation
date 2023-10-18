@@ -20,6 +20,8 @@ use Phoundation\Os\Processes\Commands\Which;
 use Phoundation\Os\Processes\Exception\ProcessesException;
 use Phoundation\Os\Processes\Exception\ProcessException;
 use Phoundation\Os\Processes\Interfaces\ProcessCoreInterface;
+use Phoundation\Os\Processes\Enum\EnumIoNiceClass;
+use Phoundation\Os\Processes\Enum\Interfaces\EnumIoNiceClassInterface;
 use Phoundation\Servers\Server;
 use Stringable;
 
@@ -138,6 +140,27 @@ trait ProcessVariables
      * @var int|bool $sudo
      */
     protected int|bool $nocache = false;
+
+    /**
+     * Sets the nice level for this process
+     *
+     * @var int $nice
+     */
+    protected int $nice = 0;
+
+    /**
+     * Sets the ionice class for this process
+     *
+     * @var EnumIoNiceClassInterface $ionice_class
+     */
+    protected EnumIoNiceClassInterface $ionice_class = EnumIoNiceClass::none;
+
+    /**
+     * Sets the ionice level for this process
+     *
+     * @var int $ionice_level
+     */
+    protected int $ionice_level = 0;
 
     /**
      * A cached version of the command line
@@ -1113,9 +1136,9 @@ trait ProcessVariables
     /**
      * Returns the process where the output of this command will be piped to, IF specified
      *
-     * @return Process|null
+     * @return ProcessCoreInterface|string|null
      */
-    public function getPipe(): ?Process
+    public function getPipe(): ProcessCoreInterface|string|null
     {
         return $this->pipe;
     }

@@ -354,9 +354,9 @@ interface ProcessVariablesInterface
     /**
      * Returns the process where the output of this command will be piped to, IF specified
      *
-     * @return Process|null
+     * @return ProcessCoreInterface|string|null
      */
-    public function getPipe(): ?Process;
+    public function getPipe(): ProcessCoreInterface|string|null;
 
     /**
      * Sets the process where the output of this command will be piped to, IF specified

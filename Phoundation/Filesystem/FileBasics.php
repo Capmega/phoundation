@@ -753,6 +753,7 @@ class FileBasics implements Stringable, FileBasicsInterface
      * @param boolean $sudo If specified true, the rm command will be executed using sudo
      * @param bool $escape If true, will escape the filename. This may cause issues when using wildcards, for
      *                                example
+     * @param bool $use_run_file
      * @return static
      * @see Restrictions::check() This function uses file location restrictions
      */
