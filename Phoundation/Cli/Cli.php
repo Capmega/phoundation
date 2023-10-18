@@ -248,7 +248,7 @@ class Cli
      */
     public static function readPassword(string $prompt): ?string
     {
-        static::checkTty(STDIN);
+        static::checkTty(STDIN, 'stdin');
 
         if (static::$show_passwords) {
             // We show passwords!
@@ -276,7 +276,7 @@ class Cli
      */
     public static function readInput(string $prompt, ?string $default = null): ?string
     {
-        static::checkTty(STDIN);
+        static::checkTty(STDIN, 'stdin');
 
         $prompt = Strings::endsWith($prompt, ' ');
 
