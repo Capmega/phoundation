@@ -6,6 +6,7 @@ declare(strict_types=1);
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\Cli;
+use Phoundation\Cli\CliCommand;
 use Phoundation\Cli\Documentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
@@ -69,18 +70,32 @@ $user->getPhones()->apply()->save();
 
 
 // Get update the users password
-if (!$argv['no_password']) {
-    try {
-        $password          = Cli::readPassword(tr('Please type the users password:'));
-        $password_validate = Cli::readPassword(tr('Please re-type the users password:'));
-
-        $user->setPassword($password, $password_validate);
-
-    } catch (Throwable $e) {
-        // Password update failed, remove the user and continue, so we can retry later
-        $user->erase();
-        throw $e;
+if ($argv['no_password']) {
+    if (CliCommand::hasStdInStream()) {
+        throw new OutOfBoundsException(tr('--no-password option specified but received password through pipe'));
     }
+
+    Log::warning(tr('Not setting password due to "--no-password" flag'));
+
+} else {
+    // Read password from stdin stream?
+    if (CliCommand::hasStdInStream()) {
+        $password = CliCommand::readStdInStream();
+        $password_validate = $password;
+
+    } else {
+        try {
+            $password = Cli::readPassword(tr('Please type the users password:'));
+            $password_validate = Cli::readPassword(tr('Please re-type the users password:'));
+
+        } catch (Throwable $e) {
+            // Password update failed, remove the user and continue, so we can retry later
+            $user->erase();
+            throw $e;
+        }
+    }
+
+    $user->setPassword($password, $password_validate);
 }
 
 
