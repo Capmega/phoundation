@@ -7,6 +7,8 @@ namespace Phoundation\Os\Processes;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Iterator;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
@@ -31,7 +33,7 @@ use Phoundation\Servers\Server;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Processes
+ * @package Phoundation\Os
  * @uses ProcessVariables
  */
 abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInterface
@@ -137,6 +139,17 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
     /**
      * Execute the command using the PHP exec() call and return an array
      *
+     * @return IteratorInterface The output from the executed command
+     */
+    public function executeReturnIterator(): IteratorInterface
+    {
+        return Iterator::new()->setSource($this->executeReturnArray());
+    }
+
+
+    /**
+     * Execute the command using the PHP exec() call and return an array
+     *
      * @return array The output from the executed command
      */
     public function executeReturnArray(): array
@@ -191,9 +204,9 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
      * Execute the command and depending on specified method, return or log output
      *
      * @param EnumExecuteMethodInterface $method
-     * @return string|int|bool|array|null
+     * @return IteratorInterface|array|string|int|bool|null
      */
-    public function execute(EnumExecuteMethodInterface $method): string|int|bool|array|null
+    public function execute(EnumExecuteMethodInterface $method): IteratorInterface|array|string|int|bool|null
     {
         switch ($method) {
             case EnumExecuteMethod::log:
@@ -212,6 +225,9 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
 
             case EnumExecuteMethod::returnArray:
                 return $this->executeReturnArray();
+
+            case EnumExecuteMethod::returnIterator:
+                return $this->executeReturnIterator();
 
             case EnumExecuteMethod::noReturn:
                 $this->executeNoReturn();

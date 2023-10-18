@@ -15,6 +15,7 @@ use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Utils\Exception\JsonException;
@@ -2066,7 +2067,7 @@ abstract class Validator implements ValidatorInterface
      * @param bool $directory
      * @return void
      */
-    protected function checkFile(string|bool $value, Stringable|string|null $exists_in_path = null, RestrictionsInterface|array|string|null $restrictions = null, ?bool $directory = false): void
+    protected function checkFile(string|bool &$value, Stringable|string|null $exists_in_path = null, RestrictionsInterface|array|string|null $restrictions = null, ?bool $directory = false): void
     {
         if ($directory) {
             $type = 'directory';
@@ -2088,6 +2089,11 @@ abstract class Validator implements ValidatorInterface
             throw new ValidatorException(tr('Cannot validate the specified :type, no restrictions specified', [
                 ':type' => $type
             ]));
+        }
+
+        // It's okay if the specified file STARTS with PATH, just strip it from the start
+        if (str_starts_with($value, '/')) {
+            $value = Strings::from($value, $exists_in_path);
         }
 
         $path = ($exists_in_path ? Strings::slash($exists_in_path) : null) . $value;

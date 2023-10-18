@@ -100,20 +100,20 @@ class FileBasics implements Stringable, FileBasicsInterface
      * File class constructor
      *
      * @param mixed $file
-     * @param RestrictionsInterface|array|string|null $restrictions_restrictions
+     * @param RestrictionsInterface|array|string|null $restrictions
      */
-    public function __construct(mixed $file = null, RestrictionsInterface|array|string|null $restrictions_restrictions = null)
+    public function __construct(mixed $file = null, RestrictionsInterface|array|string|null $restrictions = null)
     {
         if (is_null($file) or is_string($file) or ($file instanceof Stringable)) {
             // Specified file was actually a File or Path object, get the file from there
             if ($file instanceof FileBasics) {
                 $this->setFile($file->getFile());
                 $this->setTarget($file->getTarget());
-                $this->setRestrictions($restrictions_restrictions ?? $file->getRestrictions());
+                $this->setRestrictions($restrictions ?? $file->getRestrictions());
 
             } else {
                 $this->setFile((string)$file);
-                $this->setRestrictions($restrictions_restrictions);
+                $this->setRestrictions($restrictions);
             }
         } elseif (is_resource($file)) {
             // This is an input stream resource
@@ -143,12 +143,12 @@ class FileBasics implements Stringable, FileBasicsInterface
      * Returns a new Path object with the specified restrictions
      *
      * @param mixed $file
-     * @param RestrictionsInterface|array|string|null $restrictions_restrictions
+     * @param RestrictionsInterface|array|string|null $restrictions
      * @return static
      */
-    public static function new(mixed $file = null, RestrictionsInterface|array|string|null $restrictions_restrictions = null): static
+    public static function new(mixed $file = null, RestrictionsInterface|array|string|null $restrictions = null): static
     {
-        return new static($file, $restrictions_restrictions);
+        return new static($file, $restrictions);
     }
 
 
@@ -160,10 +160,10 @@ class FileBasics implements Stringable, FileBasicsInterface
      * ~ is the current shell's user home directory
      *
      * @param FileBasics|Stringable|string|null $file
-     * @param RestrictionsInterface|array|string|null $restrictions_restrictions
+     * @param RestrictionsInterface|array|string|null $restrictions
      * @return static
      */
-    public static function default(FileBasics|Stringable|string|null $file = null, RestrictionsInterface|array|string|null $restrictions_restrictions = null): static
+    public static function default(FileBasics|Stringable|string|null $file = null, RestrictionsInterface|array|string|null $restrictions = null): static
     {
         // Determine what path to choose from the specified file
         if ($file) {
@@ -191,7 +191,7 @@ class FileBasics implements Stringable, FileBasicsInterface
         }
 
         Log::warning($file, echo_screen: false);
-        return new static($file, $restrictions_restrictions);
+        return new static($file, $restrictions);
     }
 
 

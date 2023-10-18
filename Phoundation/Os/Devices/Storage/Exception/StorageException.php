@@ -2,19 +2,21 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Os\Processes\Exception;
+namespace Phoundation\Os\Devices\Storage\Exception;
+
+use Phoundation\Exception\Exception;
 
 
 /**
- * Class ProcessException
+ * Class StorageException
  *
- * This exception is thrown in case a single process encounters a problem
+ * This is the standard exception for all Phoundation Storage Devices classes
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Os
  */
-class ProcessException extends ProcessesException
+class StorageException extends Exception
 {
 }

@@ -2,6 +2,7 @@
 
 namespace Phoundation\Os\Processes\Interfaces;
 
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 use Phoundation\Servers\Server;
 
@@ -14,7 +15,7 @@ use Phoundation\Servers\Server;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Processes
+ * @package Phoundation\Os
  * @uses \Phoundation\Os\Processes\ProcessVariables
  */
 interface ProcessCoreInterface
@@ -59,9 +60,9 @@ interface ProcessCoreInterface
      * Execute the command and depending on specified method, return or log output
      *
      * @param EnumExecuteMethodInterface $method
-     * @return string|int|bool|array|null
+     * @return IteratorInterface|array|string|int|bool|null
      */
-    public function execute(EnumExecuteMethodInterface $method): string|int|bool|array|null;
+    public function execute(EnumExecuteMethodInterface $method): IteratorInterface|array|string|int|bool|null;
 
     /**
      * Execute the command using passthru and send the output directly to the client

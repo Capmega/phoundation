@@ -18,7 +18,7 @@ use Phoundation\Os\Processes\Process;
 
 
 /**
- * Script tools/devices/storage/shred
+ * Script tools/devices/storage/encrypt
  *
  *
  *
@@ -29,10 +29,9 @@ use Phoundation\Os\Processes\Process;
  */
 $restrictions = Restrictions::new('/dev', true);
 
-Documentation::usage('./pho tools devices storage shred');
+Documentation::usage('./pho tools devices storage encrypt');
 
-Documentation::help('The shred script will shred the specified device by copying random data over it with 
-(optionally and by default) multiple passes 
+Documentation::help('The encrypt script will encrypt the specified device by reformatting it and applying full disk encryption
 
 NOTE: This will irreparably destroy all information on the specified device. Proceed with caution, here be dragons!
 
@@ -40,9 +39,13 @@ NOTE: This will irreparably destroy all information on the specified device. Pro
 ARGUMENTS
 
 
-DEVICE                                  The device file to be shredded
+DEVICE                                  The device file to be encrypted
 
--p,--passes                             The amount of passes it should make over the disk to completely scramble it');
+-k,--key                                The encryption key to use
+
+--key-file                              The file containing the encryption key 
+
+-s,--scramble                           Scrambles the disk with random data before encrypting it, more secure');
 
 Documentation::autoComplete([
     'positions' => [
@@ -52,7 +55,9 @@ Documentation::autoComplete([
         ],
     ],
     'arguments' => [
-        '-p,--passes' => true,
+        '-k,--key' => true,
+        '--key-file' => true,
+        '-s,--scramble' => false,
     ]
 ]);
 
@@ -60,11 +65,13 @@ Documentation::autoComplete([
 // Validate data
 $argv = ArgvValidator::new()
     ->select('device')->hasMaxCharacters(64)->isFile('/dev/', new Restrictions('/dev', true))->sanitizeCallback(function(mixed $value, array $source) { return '/dev/' . $value; })
-    ->select('-p,--passes')->isOptional(3)->isNatural(false)->isBetween(1, 10)
+    ->select('-k,--key')->isOptional()->xor('--key-file')->isPassword()
+    ->select('-s,--scramble')->isOptional(3)->isNatural(false)->isBetween(1, 10)
+    ->select('--key-file')->isOptional()->xor('-k,--key')->isFile('/', '/')
     ->validate();
 
 
-// Ensure this is a device that can be shredded
+// Ensure this is a device that can be encrypted
 try {
     $device = Device::new($argv['device'])->checkUnmounted();
 
@@ -79,18 +86,18 @@ CliCommand::requestConfirmation(tr('This will irreparably destroy all informatio
 ]));
 
 
-// Shred!
-for ($i = 1; $i <= $argv['passes']; $i++) {
-    Log::warning(tr('Shredding device ":device", pass ":pass". Depending on device size this may take a while...', [
-        ':pass' => $i,
+// Scramble?
+if ($argv['scramble']) {
+    Log::warning(tr('Scrambling device ":device". Depending on device size this may take a while...', [
         ':device' => $argv['device']
     ]));
 
-    // Ensure this is a device that can be shredded
-    try {
-        Device::new($argv['device'])->scramble();
-
-    } catch (StorageException $e) {
-        throw $e->makeWarning();
-    }
+    Process::new('dd')
+        ->setSudo(true)
+        ->addArguments(['if=/dev/urandom', 'of=' . $argv['device'], 'bs=4096', 'status=progress'])
+        ->execute(EnumExecuteMethod::passthru);
 }
+
+
+// Encrypt!
+

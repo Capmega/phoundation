@@ -123,11 +123,11 @@ class CliCommand
             Core::startup();
 
         } catch (SqlException $e) {
-            $limit  = 'system/project/init';
+            $limit = 'system/project/init';
             $reason = tr('Core database not found, please execute "./cli system project setup"');
 
         } catch (NoProjectException $e) {
-            $limit  = 'system/project/setup';
+            $limit = 'system/project/setup';
             $reason = tr('Project file not found, please execute "./cli system project setup"');
         }
 
@@ -135,7 +135,7 @@ class CliCommand
 
         if ($maintenance) {
             // We're running in maintenance mode, limit script execution to system/
-            $limit  = ['system/', 'info'];
+            $limit = ['system/', 'info'];
             $reason = tr('system has been placed in maintenance mode by user ":user" and only ./pho system ... commands are available right now. If maintenance mode is stuck then please run "./pho system maintenance disable" to disable maintenance mode. Please note that all web requests are being blocked as well during maintenance mode!', [
                 ':user' => $maintenance
             ]);
@@ -168,7 +168,7 @@ class CliCommand
         }
 
         // See if the script execution should be stopped for some reason. If not, setup a run file
-        static::$script   = static::limitScript($command, isset_get($limit), isset_get($reason));
+        static::$script = static::limitScript($command, isset_get($limit), isset_get($reason));
         static::$run_file = new RunFile($command);
 
         Log::action(tr('Executing script ":script"', [
@@ -257,13 +257,13 @@ class CliCommand
                 ->makeWarning()
                 ->addData([
                     'position' => 0,
-                    'methods'  => Arrays::filterValues(scandir(PATH_ROOT . 'scripts/'), '/^\./', EnumMatchMode::regex)
+                    'methods' => Arrays::filterValues(scandir(PATH_ROOT . 'scripts/'), '/^\./', EnumMatchMode::regex)
                 ]);
         }
 
-        $position      = 0;
-        $file          = PATH_ROOT . 'scripts/';
-        $methods       = ArgvValidator::getMethods();
+        $position = 0;
+        $file = PATH_ROOT . 'scripts/';
+        $methods = ArgvValidator::getMethods();
         static::$methods = $methods;
 
         foreach ($methods as $position => $method) {
@@ -282,7 +282,7 @@ class CliCommand
                 ]))->makeWarning()
                     ->addData([
                         'position' => $position,
-                        'methods'  => Arrays::filterValues(scandir(dirname($file)), '/^\./', EnumMatchMode::regex)
+                        'methods' => Arrays::filterValues(scandir(dirname($file)), '/^\./', EnumMatchMode::regex)
                     ]);
             }
 
@@ -328,7 +328,7 @@ class CliCommand
             ->makeWarning()
             ->addData([
                 'position' => $position + 1,
-                'methods'  => Arrays::filterValues(scandir($file), '/^\./', EnumMatchMode::regex)
+                'methods' => Arrays::filterValues(scandir($file), '/^\./', EnumMatchMode::regex)
             ]);
     }
 
@@ -417,8 +417,8 @@ class CliCommand
      * it will check if the specified process id is available, and if its process name matches the current script name.
      * If so, then the system can be sure that this script is already running, and the function will throw an exception
      *
-     * @category Function reference
-     * @version 1.27.1: Added documentation
+     * @param bool $close If set true, the function will stop ensuring that the script won't be run again
+     * @return void
      * @example Have a script run itself recursively, which will be stopped by cli_run_once_local()
      * code
      * log_console('Started test');
@@ -432,8 +432,8 @@ class CliCommand
      * cli_run_once_local(): The script ":script" for this project is already running
      * /code
      *
-     * @param bool $close If set true, the function will stop ensuring that the script won't be run again
-     * @return void
+     * @category Function reference
+     * @version 1.27.1: Added documentation
      */
     public static function runOnceLocal(bool $close = false)
     {
@@ -442,10 +442,10 @@ class CliCommand
         throw new UnderConstructionException();
 
         try {
-            $run_dir = PATH_ROOT.'data/run/';
-            $script  = $core->register['script'];
+            $run_dir = PATH_ROOT . 'data/run/';
+            $script = $core->register['script'];
 
-            Path::ensure(dirname($run_dir.$script));
+            Path::ensure(dirname($run_dir . $script));
 
             if ($close) {
                 if (!$executed) {
@@ -453,9 +453,9 @@ class CliCommand
                     Log::warning(tr('The cli_run_once_local() function has been called with close option, but it was already closed or never opened.'));
                 }
 
-                file_delete(array('patterns'     => $run_dir.$script,
-                    'restrictions' => PATH_ROOT.'data/run/',
-                    'clean_path'   => false));
+                file_delete(array('patterns' => $run_dir . $script,
+                    'restrictions' => PATH_ROOT . 'data/run/',
+                    'clean_path' => false));
                 $executed = false;
                 return;
             }
@@ -470,22 +470,22 @@ class CliCommand
 
             $executed = true;
 
-            if (file_exists($run_dir.$script)) {
+            if (file_exists($run_dir . $script)) {
                 // Run file exists, so either a process is running, or a process was running but crashed before it could
                 // delete the run file. Check if the registered PID exists, and if the process name matches this one
-                $pid = file_get_contents($run_dir.$script);
+                $pid = file_get_contents($run_dir . $script);
                 $pid = trim($pid);
 
                 if (!is_numeric($pid) or !is_natural($pid) or ($pid > 65536)) {
-                    Log::warning(tr('The run file ":file" contains invalid information, ignoring', [':file' => $run_dir.$script]));
+                    Log::warning(tr('The run file ":file" contains invalid information, ignoring', [':file' => $run_dir . $script]));
 
                 } else {
-                    $name = safe_exec(array('commands' => array('ps'  , array('-p', $pid, 'connector' => '|'),
+                    $name = safe_exec(array('commands' => array('ps', array('-p', $pid, 'connector' => '|'),
                         'tail', array('-n', 1))));
                     $name = array_pop($name);
 
                     if ($name) {
-                        preg_match_all('/.+?\d{2}:\d{2}:\d{2}\s+('.str_replace('/', '\/', $script).')/', $name, $matches);
+                        preg_match_all('/.+?\d{2}:\d{2}:\d{2}\s+(' . str_replace('/', '\/', $script) . ')/', $name, $matches);
 
                         if (!empty($matches[1][0])) {
                             throw new CliException(tr('The script ":script" for this project is already running', [
@@ -497,17 +497,17 @@ class CliCommand
 
                 // File exists, or contains invalid data, but PID either doesn't exist, or is used by a different
                 // process. Remove the PID file
-                Log::warning(tr('cli_run_once_local(): Cleaning up stale run file ":file"', [':file' => $run_dir.$script]));
-                file_delete(array('patterns'     => $run_dir.$script,
-                    'restrictions' => PATH_ROOT.'data/run/',
-                    'clean_path'   => false));
+                Log::warning(tr('cli_run_once_local(): Cleaning up stale run file ":file"', [':file' => $run_dir . $script]));
+                file_delete(array('patterns' => $run_dir . $script,
+                    'restrictions' => PATH_ROOT . 'data/run/',
+                    'clean_path' => false));
             }
 
             // No run file exists yet, create one now
-            file_put_contents($run_dir.$script, getmypid());
+            file_put_contents($run_dir . $script, getmypid());
             Core::readRegister('shutdown_cli_run_once_local', array(true));
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             if ($e->getCode() == 'already-running') {
                 /*
                 * Just keep throwing this one
@@ -524,7 +524,11 @@ class CliCommand
      * Show a dot on the console each $each call if $each is false, "DONE" will be printed, with next line. Internal counter will reset if a different $each is received.
      *
      * @note While log_console() will log towards the PATH_ROOT/data/log/ log files, cli_dot() will only log one single dot even though on the command line multiple dots may be shown
-     * @see log_console()
+     * @param int $each
+     * @param string $color
+     * @param string $dot
+     * @param boolean $quiet
+     * @return boolean True if a dot was printed, false if not
      * @example
      * code
      * for($i=0; $i < 100; $i++) {
@@ -538,11 +542,7 @@ class CliCommand
      * ..........
      * /code
      *
-     * @param int $each
-     * @param string $color
-     * @param string $dot
-     * @param boolean $quiet
-     * @return boolean True if a dot was printed, false if not
+     * @see log_console()
      */
     public static function dot(int $each = 10, string $color = 'green', string $dot = '.', bool $quiet = false): bool
     {
@@ -565,7 +565,7 @@ class CliCommand
             }
 
             $l_each = 0;
-            $count  = 0;
+            $count = 0;
             return true;
         }
 
@@ -616,7 +616,7 @@ class CliCommand
 
         if (is_object($exit_code)) {
             // Specified exit code is an exception, we're in trouble...
-            $e         = $exit_code;
+            $e = $exit_code;
             $exit_code = $exit_code->getCode();
         }
 
@@ -636,9 +636,9 @@ class CliCommand
 
                 Log::warning($e->getMessage());
                 Log::warning(tr('Script ":script" ended with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
-                    ':script'   => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
-                    ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
-                    ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
+                    ':script' => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
+                    ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+                    ':usage' => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
                     ':exitcode' => $exit_code
                 ]), 10);
             } else {
@@ -646,9 +646,9 @@ class CliCommand
 
                 Log::error($e->getMessage());
                 Log::error(tr('Script ":script" ended with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
-                    ':script'   => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
-                    ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
-                    ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
+                    ':script' => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
+                    ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+                    ':usage' => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
                     ':exitcode' => $exit_code
                 ]), 10);
             }
@@ -661,9 +661,9 @@ class CliCommand
                 } else {
                     // Script ended with warning
                     Log::warning(tr('Script ":script" ended with exit code ":exitcode" warning in ":time" with ":usage" peak memory usage', [
-                        ':script'   => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
-                        ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
-                        ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
+                        ':script' => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
+                        ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+                        ':usage' => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
                         ':exitcode' => $exit_code
                     ]), 8);
                 }
@@ -676,9 +676,9 @@ class CliCommand
                 } else {
                     // Script ended with error
                     Log::error(tr('Script ":script" failed with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
-                        ':script'   => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
-                        ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
-                        ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
+                        ':script' => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
+                        ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+                        ':usage' => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
                         ':exitcode' => $exit_code
                     ]), 8);
                 }
@@ -691,10 +691,10 @@ class CliCommand
 
             // Script ended successfully
             Log::success(tr('Finished ":script" command with PID ":pid" in ":time" with ":usage" peak memory usage', [
-                ':pid'    => getmypid(),
+                ':pid' => getmypid(),
                 ':script' => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
-                ':time'   => Time::difference(STARTTIME, microtime(true), 'auto', 5),
-                ':usage'  => Numbers::getHumanReadableBytes(memory_get_peak_usage())
+                ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+                ':usage' => Numbers::getHumanReadableBytes(memory_get_peak_usage())
             ]), 8);
         }
 
@@ -994,7 +994,7 @@ The following arguments are available to ALL scripts
         }
 
         $return = null;
-        $stdin  = File::new(STDIN);
+        $stdin = File::new(STDIN);
 
         while (!$stdin->isEof()) {
             if ($binary_safe) {
@@ -1024,5 +1024,23 @@ The following arguments are available to ALL scripts
     public static function stdInHasBeenRead(): bool
     {
         return static::$stdin_has_been_read;
+    }
+
+
+    /**
+     * Requires the user to type YES to confirm, unless -F,--force was specified on command line
+     *
+     * @param string $message
+     * @return void
+     */
+    public static function requestConfirmation(string $message): void
+    {
+        if (!FORCE) {
+            $result = Cli::readInput($message);
+
+            if ($result !== 'YES') {
+                throw new ValidationFailedException(tr('No "YES" specified on prompt'));
+            }
+        }
     }
 }

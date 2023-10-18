@@ -48,11 +48,11 @@ class Path extends FileBasics implements PathInterface
      * Path class constructor
      *
      * @param FileBasics|string|null $file
-     * @param array|string|Restrictions|null $restrictions_restrictions
+     * @param array|string|Restrictions|null $restrictions
      */
-    public function __construct(FileBasics|string|null $file = null, array|string|Restrictions|null $restrictions_restrictions = null)
+    public function __construct(FileBasics|string|null $file = null, array|string|Restrictions|null $restrictions = null)
     {
-        parent::__construct($file, $restrictions_restrictions);
+        parent::__construct($file, $restrictions);
 
         $this->file = Strings::slash($this->file);
 

@@ -24,9 +24,9 @@ use Stringable;
  */
 class BomFile extends File
 {
-    public function __construct(FileBasics|Stringable|string|null $file = null, RestrictionsInterface|array|string|null $restrictions_restrictions = null)
+    public function __construct(FileBasics|Stringable|string|null $file = null, RestrictionsInterface|array|string|null $restrictions = null)
     {
-        parent::__construct($file, $restrictions_restrictions);
+        parent::__construct($file, $restrictions);
 
         // Only allow PHP files
         if (!str_ends_with($this->file, '.php')) {

@@ -8,21 +8,22 @@ use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 
 
 /**
- * Enum ExecuteMethod
+ * Enum EnumExecuteMethod
  *
  * This enum defines the ways processes can be executed and return their output
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Processes
+ * @package Phoundation\Os
  */
 enum EnumExecuteMethod: string implements EnumExecuteMethodInterface
 {
-    case background   = 'background';
-    case passthru     = 'passthru';
-    case log          = 'log';
+    case background = 'background';
+    case passthru = 'passthru';
+    case log = 'log';
     case returnString = 'return string';
-    case returnArray  = 'return array';
-    case noReturn     = 'return nothing';
+    case returnArray = 'return array';
+    case returnIterator = 'return iterator';
+    case noReturn = 'return nothing';
 }

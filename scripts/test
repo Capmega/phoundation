@@ -15,9 +15,12 @@ declare(strict_types=1);
  * @package Phoundation\Scripts
  */
 
-use Phoundation\Accounts\Rights\Right;
+use Phoundation\Os\Devices\Storage\Device;
+use Phoundation\Os\Processes\Commands\Lsblk;
 
-$right = Right::get('billing', 'seo_name');
+//show(Lsblk::new()->getStorageDevices()->getSource());
+//show(Lsblk::new()->isStorageDevice('/dev/sdb'));
 
-show($right->getSource());
-show($right->getRoles()->getSource());
+show(Device::new('/dev/sdb')->isMounted());
+show(Device::new('/dev/nvme0n1')->isMounted());
+show(Device::new('/dev/ttyS4'));

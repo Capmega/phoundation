@@ -32,7 +32,7 @@ use Stringable;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Processes
+ * @package Phoundation\Os
  */
 trait ProcessVariables
 {
@@ -988,15 +988,17 @@ trait ProcessVariables
     {
         $this->cached_command_line = null;
 
-        foreach (Arrays::force($arguments, null) as $argument) {
-            if (!$argument) {
-                if ($argument !== 0) {
-                    // Ignore empty arguments
-                    continue;
+        if ($arguments) {
+            foreach (Arrays::force($arguments, null) as $argument) {
+                if (!$argument) {
+                    if ($argument !== 0) {
+                        // Ignore empty arguments
+                        continue;
+                    }
                 }
-            }
 
-            $this->addArgument($argument, $escape);
+                $this->addArgument($argument, $escape);
+            }
         }
 
         return $this;
