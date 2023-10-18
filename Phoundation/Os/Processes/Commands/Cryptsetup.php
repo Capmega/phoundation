@@ -6,9 +6,11 @@ namespace Phoundation\Os\Processes\Commands;
 
 use Phoundation\Core\Config;
 use Phoundation\Core\Strings;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Os\Devices\Storage\Device;
 use Phoundation\Os\Processes\Commands\Exception\CommandsException;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
+use Phoundation\Os\Processes\Process;
 
 
 /**
@@ -28,16 +30,41 @@ class Cryptsetup extends Command
      *
      * @param Device|string $device
      * @param string|null $key
+     * @param string|null $file_key
      * @return void
      */
-    public function luksFormat(Device|string $device, string $key = null): void
+    public function luksFormat(Device|string $device, string $key = null, string $file_key = null): void
     {
         $device = Device::new($device)->getFile();
 
-        $this
-            ->setInternalCommand('cryptsetup')
-            ->addArguments(['-y', '-v', 'luksFormat', $device])
-            ->setTimeout(10)
-            ->executePassthru();
+        if ($key) {
+            if ($file_key) {
+                throw new OutOfBoundsException(tr('Cannot luks format device ":device", both key and file key specified', [
+                    ':device' => $device
+                ]));
+            }
+
+            Process::new('echo')
+                ->addArgument($key)
+                ->setPipe($this
+                    ->setInternalCommand('cryptsetup')
+                    ->setSudo(true)
+                    ->addArguments(['-q', '-v', 'luksFormat', $device])
+                    ->setTimeout(10))
+                ->executePassthru();
+        } else {
+            if (!$file_key) {
+                throw new OutOfBoundsException(tr('Cannot luks format device ":device", no key or file key specified', [
+                    ':device' => $device
+                ]));
+            }
+
+            $this
+                ->setInternalCommand('cryptsetup')
+                ->setSudo(true)
+                ->addArguments(['-q', '-v', 'luksFormat', $device, '--key-file', $file_key])
+                ->setTimeout(10)
+                ->executePassthru();
+        }
    }
 }

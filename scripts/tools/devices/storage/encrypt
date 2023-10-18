@@ -65,9 +65,9 @@ Documentation::autoComplete([
 // Validate data
 $argv = ArgvValidator::new()
     ->select('device')->hasMaxCharacters(64)->isFile('/dev/', new Restrictions('/dev', true))->sanitizeCallback(function(mixed $value, array $source) { return '/dev/' . $value; })
-    ->select('-k,--key')->isOptional()->xor('--key-file')->isPassword()
-    ->select('-s,--scramble')->isOptional(3)->isNatural(false)->isBetween(1, 10)
-    ->select('--key-file')->isOptional()->xor('-k,--key')->isFile('/', '/')
+    ->select('-k,--key', true)->isOptional()->xor('key_file')->isPassword()
+    ->select('-s,--scramble')->isOptional()->isBoolean()
+    ->select('--key-file', true)->isOptional()->xor('key')->isFile('/', '/')
     ->validate();
 
 
