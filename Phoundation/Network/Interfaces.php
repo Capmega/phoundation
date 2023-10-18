@@ -7,7 +7,7 @@ namespace Phoundation\Network;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Strings;
 use Phoundation\Network\Exception\NetworkException;
-use Phoundation\Processes\Process;
+use Phoundation\Os\Processes\Process;
 
 
 /**

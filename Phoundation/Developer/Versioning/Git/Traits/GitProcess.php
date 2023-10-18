@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Versioning\Git\Traits;
 
-use Phoundation\Developer\Versioning\Git\Git;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Filesystem;
-use Phoundation\Processes\Process;
+use Phoundation\Os\Processes\Process;
 
 
 /**

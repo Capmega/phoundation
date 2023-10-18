@@ -14,7 +14,7 @@ use Phoundation\Developer\Versioning\Git\Exception\GitPatchException;
 use Phoundation\Developer\Versioning\Git\Traits\GitProcess;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Restrictions;
-use Phoundation\Processes\Exception\ProcessFailedException;
+use Phoundation\Os\Processes\Exception\ProcessFailedException;
 
 
 /**

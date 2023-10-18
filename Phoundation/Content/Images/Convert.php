@@ -7,7 +7,7 @@ namespace Phoundation\Content\Images;
 use Phoundation\Content\Images\Interfaces\ImageInterface;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Path;
-use Phoundation\Processes\Commands\Command;
+use Phoundation\Os\Processes\Commands\Command;
 
 
 /**

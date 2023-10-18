@@ -19,13 +19,12 @@ use Phoundation\Developer\Versioning\Git\Traits\Git;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Filesystem\Traits\DataRestrictions;
-use Phoundation\Processes\Commands\Command;
-use Phoundation\Processes\Commands\Rsync;
-use Phoundation\Processes\Process;
+use Phoundation\Os\Processes\Commands\Command;
+use Phoundation\Os\Processes\Commands\Rsync;
+use Phoundation\Os\Processes\Process;
 use Throwable;
 
 

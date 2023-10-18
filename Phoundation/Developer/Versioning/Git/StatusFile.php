@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Developer\Versioning\Git;
 
 use Phoundation\Developer\Versioning\Git\Exception\GitPatchException;
-use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Restrictions;
-use Phoundation\Processes\Exception\ProcessFailedException;
+use Phoundation\Os\Processes\Exception\ProcessFailedException;
 
 
 /**

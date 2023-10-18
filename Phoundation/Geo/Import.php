@@ -14,7 +14,7 @@ use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
-use Phoundation\Processes\Commands\Wget;
+use Phoundation\Os\Processes\Commands\Wget;
 use Stringable;
 use Throwable;
 

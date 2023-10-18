@@ -18,7 +18,7 @@ use Phoundation\Filesystem\Exception\RestrictionsException;
 use Phoundation\Filesystem\Interfaces\ExecuteInterface;
 use Phoundation\Filesystem\Interfaces\FileInterface;
 use Phoundation\Filesystem\Interfaces\PathInterface;
-use Phoundation\Processes\Commands\Tar;
+use Phoundation\Os\Processes\Commands\Tar;
 use Stringable;
 use Throwable;
 

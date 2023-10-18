@@ -7,7 +7,6 @@ namespace Phoundation\Filesystem;
 use Exception;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
-use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
@@ -17,10 +16,10 @@ use Phoundation\Filesystem\Enums\EnumFileOpenMode;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\Sha256MismatchException;
 use Phoundation\Filesystem\Interfaces\FileInterface;
-use Phoundation\Processes\Commands\Gzip;
-use Phoundation\Processes\Commands\Sha256;
-use Phoundation\Processes\Commands\Tar;
-use Phoundation\Processes\Commands\Zip;
+use Phoundation\Os\Processes\Commands\Gzip;
+use Phoundation\Os\Processes\Commands\Sha256;
+use Phoundation\Os\Processes\Commands\Tar;
+use Phoundation\Os\Processes\Commands\Zip;
 use Throwable;
 
 

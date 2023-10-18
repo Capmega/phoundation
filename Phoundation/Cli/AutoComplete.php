@@ -16,8 +16,8 @@ use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Geo\Timezones\Timezones;
-use Phoundation\Processes\Commands\Grep;
-use Phoundation\Processes\Enum\EnumExecuteMethod;
+use Phoundation\Os\Processes\Commands\Grep;
+use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 
 /**
  * Class AutoComplete

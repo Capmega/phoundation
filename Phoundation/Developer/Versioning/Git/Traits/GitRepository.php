@@ -6,7 +6,7 @@ namespace Phoundation\Developer\Versioning\Git\Traits;
 
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Filesystem;
-use Phoundation\Processes\Process;
+use Phoundation\Os\Processes\Process;
 
 
 /**

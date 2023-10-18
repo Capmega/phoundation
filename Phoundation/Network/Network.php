@@ -8,9 +8,8 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Network\Curl\Exception\CurlException;
 use Phoundation\Network\Curl\Get;
 use Phoundation\Network\Exception\NetworkException;
-use Phoundation\Processes\Exception\ProcessFailedException;
-use Phoundation\Processes\Process;
-
+use Phoundation\Os\Processes\Exception\ProcessFailedException;
+use Phoundation\Os\Processes\Process;
 
 
 /**
