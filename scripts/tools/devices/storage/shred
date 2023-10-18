@@ -1,0 +1,88 @@
+#!/usr/bin/php
+<?php
+
+declare(strict_types=1);
+
+use Phoundation\Cli\Cli;
+use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliCommand;
+use Phoundation\Core\Log\Log;
+use Phoundation\Core\Strings;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Restrictions;
+use Phoundation\Processes\Enum\EnumExecuteMethod;
+use Phoundation\Processes\Process;
+
+
+/**
+ * Script tools/devices/storage/shred
+ *
+ *
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Scripts
+ */
+$restrictions = Restrictions::new('/dev', true);
+
+Documentation::usage('./pho tools devices storage shred');
+
+Documentation::help('The destroy script will destroy all data on the specified storage device by overwriting it with random information in multiple passed
+
+NOTE: This will irreparably destroy all information on the specified device. Proceed with caution, here be dragons!
+
+
+ARGUMENTS
+
+
+DEVICE                                  The device file to be shredded
+
+');
+
+Documentation::autoComplete([
+    'positions' => [
+        0 => [
+            'word'   => function ($word) use ($restrictions) { return Path::new('/dev/', $restrictions)->scan($word . '*'); },
+            'noword' => function ()      use ($restrictions) { return Path::new('/dev/', $restrictions)->scan('*'); },
+        ],
+    ]
+]);
+
+
+// Validate data
+$argv = ArgvValidator::new()
+    ->select('device')->hasMaxCharacters(64)->isFile('/dev/', new Restrictions('/dev', true))->sanitizeCallback(function(mixed $value, array $source) { return '/dev/' . $value; })
+    ->validate();
+
+
+// Have user confirm that they're sure
+if (!FORCE) {
+    $result = Cli::readInput(tr('This will irreparably destroy all information on device ":device", please type YES in all uppercase to continue:', [
+        ':device' => $argv['device']
+    ]));
+
+    if ($result !== 'YES') {
+        throw new ValidationFailedException(tr('No "YES" specified on prompt'));
+    }
+}
+
+
+// Shred!
+Log::warning(tr('Shredding device ":device". Depending on device size this may take a while...', [
+    ':device' => $argv['device']
+]));
+
+//show(Process::new('cat', $restrictions)
+//    ->setSudo(true)
+//    ->addArgument('/dev/random')
+//    ->setOutputRedirect($argv['device'])
+//    ->getFullCommandLine());
+
+Process::new('cat')
+    ->setSudo(true)
+    ->addArgument('/dev/random')
+    ->setOutputRedirect($argv['device'])
+    ->execute(EnumExecuteMethod::passthru);
