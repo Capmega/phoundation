@@ -685,7 +685,7 @@ class Project implements ProjectInterface
         // ATTENTION! Next up, we're going to delete the Phoundation main libraries! To avoid any next commands not
         // finding files they require, include them here so that we have them available in memory
         include_once(PATH_ROOT . '/Phoundation/Processes/Commands/Rsync.php');
-        include_once(PATH_ROOT . '/Phoundation/Processes/Enum/ExecuteMethod.php');
+        include_once(PATH_ROOT . '/Phoundation/Processes/Enum/EnumExecuteMethod.php');
 
         // Move /Phoundation and /scripts out of the way
         try {
