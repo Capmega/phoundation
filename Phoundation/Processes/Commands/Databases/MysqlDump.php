@@ -19,8 +19,8 @@ use Phoundation\Filesystem\Filesystem;
 use Phoundation\Processes\Commands\Command;
 use Phoundation\Processes\Commands\Databases\Interfaces\MysqlDumpInterface;
 use Phoundation\Processes\Commands\Ps;
-use Phoundation\Processes\Enum\ExecuteMethod;
-use Phoundation\Processes\Enum\Interfaces\ExecuteMethodInterface;
+use Phoundation\Processes\Enum\EnumExecuteMethod;
+use Phoundation\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 
 
 /**
@@ -397,10 +397,10 @@ class MysqlDump extends Command implements MysqlDumpInterface
     /**
      * Execute the rsync operation and return the PID (background) or -1
      *
-     * @param ExecuteMethodInterface $method
+     * @param EnumExecuteMethodInterface $method
      * @return string|int|bool|array|null
      */
-    public function dump(ExecuteMethodInterface $method = ExecuteMethod::passthru): string|int|bool|array|null
+    public function dump(EnumExecuteMethodInterface $method = EnumExecuteMethod::passthru): string|int|bool|array|null
     {
         // Add restrictions for the log file
         $this->target = Filesystem::absolute($this->target, PATH_DATA . 'sources/', false);

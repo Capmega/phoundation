@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Processes\Enum;
 
-use Phoundation\Processes\Enum\Interfaces\ExecuteMethodInterface;
+use Phoundation\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 
 
 /**
@@ -17,7 +17,7 @@ use Phoundation\Processes\Enum\Interfaces\ExecuteMethodInterface;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Processes
  */
-enum ExecuteMethod: string implements ExecuteMethodInterface
+enum EnumExecuteMethod: string implements EnumExecuteMethodInterface
 {
     case background   = 'background';
     case passthru     = 'passthru';

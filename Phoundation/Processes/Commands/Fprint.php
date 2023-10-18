@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Phoundation\Processes\Commands;
 
 use Phoundation\Core\Log\Log;
-use Phoundation\Processes\Enum\ExecuteMethod;
-use Phoundation\Processes\Enum\Interfaces\ExecuteMethodInterface;
+use Phoundation\Processes\Enum\EnumExecuteMethod;
+use Phoundation\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 
 
 /**
@@ -27,14 +27,14 @@ class Fprint extends Command
      * @param string|int $id
      * @return int
      */
-    public function enroll(string|int $id, ExecuteMethodInterface $method = ExecuteMethod::background): ?int
+    public function enroll(string|int $id, EnumExecuteMethodInterface $method = EnumExecuteMethod::background): ?int
     {
         // Build the process parameters, then execute
         $this->setInternalCommand('fprint-enroll')
              ->clearArguments()
              ->addArgument($id);
 
-        if ($method === ExecuteMethod::background) {
+        if ($method === EnumExecuteMethod::background) {
             $pid = $this->executeBackground();
 
             Log::success(tr('Executed fprint-enroll as a background process with PID ":pid"', [

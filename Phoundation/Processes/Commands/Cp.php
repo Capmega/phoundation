@@ -9,8 +9,8 @@ use Phoundation\Data\Traits\DataBindAddress;
 use Phoundation\Data\Traits\DataSource;
 use Phoundation\Data\Traits\DataTarget;
 use Phoundation\Filesystem\Restrictions;
-use Phoundation\Processes\Enum\ExecuteMethod;
-use Phoundation\Processes\Enum\Interfaces\ExecuteMethodInterface;
+use Phoundation\Processes\Enum\EnumExecuteMethod;
+use Phoundation\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 use Stringable;
 
 
@@ -33,10 +33,10 @@ class Cp extends Command
      * @param Restrictions $source_restrictions
      * @param Stringable|string $target
      * @param Restrictions $target_restrictions
-     * @param ExecuteMethodInterface $method
+     * @param EnumExecuteMethodInterface $method
      * @return void
      */
-    public function archive(Stringable|string $source, Restrictions $source_restrictions, Stringable|string $target, Restrictions $target_restrictions, ExecuteMethodInterface $method = ExecuteMethod::noReturn): void
+    public function archive(Stringable|string $source, Restrictions $source_restrictions, Stringable|string $target, Restrictions $target_restrictions, EnumExecuteMethodInterface $method = EnumExecuteMethod::noReturn): void
     {
         $source = (string) $source;
         $target = (string) $target;

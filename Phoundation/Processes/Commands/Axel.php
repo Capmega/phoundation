@@ -8,8 +8,8 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\DataBindAddress;
 use Phoundation\Data\Traits\DataSource;
 use Phoundation\Data\Traits\DataTarget;
-use Phoundation\Processes\Enum\ExecuteMethod;
-use Phoundation\Processes\Enum\Interfaces\ExecuteMethodInterface;
+use Phoundation\Processes\Enum\EnumExecuteMethod;
+use Phoundation\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 
 
 /**
@@ -32,10 +32,10 @@ class Axel extends Command
     /**
      * Execute the rsync operation and return the PID (background) or -1
      *
-     * @param ExecuteMethodInterface $method
+     * @param EnumExecuteMethodInterface $method
      * @return string|int|bool|array|null
      */
-    public function download(ExecuteMethodInterface $method = ExecuteMethod::noReturn): string|int|bool|array|null
+    public function download(EnumExecuteMethodInterface $method = EnumExecuteMethod::noReturn): string|int|bool|array|null
     {
         // Build the process parameters, then execute
         $this
@@ -45,7 +45,7 @@ class Axel extends Command
             ->addArguments($this->target ? ['-O ', $this->target] : null)
             ->addArgument($this->source);
 
-        if ($method === ExecuteMethod::background) {
+        if ($method === EnumExecuteMethod::background) {
             $pid = $this->executeBackground();
 
             Log::success(tr('Executed wget as a background process with PID ":pid"', [

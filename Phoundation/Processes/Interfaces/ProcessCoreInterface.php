@@ -2,7 +2,7 @@
 
 namespace Phoundation\Processes\Interfaces;
 
-use Phoundation\Processes\Enum\Interfaces\ExecuteMethodInterface;
+use Phoundation\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 use Phoundation\Servers\Server;
 
 
@@ -58,10 +58,10 @@ interface ProcessCoreInterface
     /**
      * Execute the command and depending on specified method, return or log output
      *
-     * @param ExecuteMethodInterface $method
+     * @param EnumExecuteMethodInterface $method
      * @return string|int|bool|array|null
      */
-    public function execute(ExecuteMethodInterface $method): string|int|bool|array|null;
+    public function execute(EnumExecuteMethodInterface $method): string|int|bool|array|null;
 
     /**
      * Execute the command using passthru and send the output directly to the client

@@ -253,7 +253,7 @@ class File extends FileBasics implements FileInterface
      */
     public function checkWritable(?string $type = null, ?Throwable $previous_e = null) : static
     {
-        $this::checkWritable($type, $previous_e);
+        parent::checkWritable($type, $previous_e);
 
         if (is_dir($this->file)) {
             throw new FilesystemException(tr('The:type file ":file" cannot be written because it is a directory', [

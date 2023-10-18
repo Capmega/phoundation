@@ -12,7 +12,7 @@ use Phoundation\Data\Traits\DataSource;
 use Phoundation\Data\Traits\DataTarget;
 use Phoundation\Data\Traits\DataValue;
 use Phoundation\Processes\Commands\Exception\CommandsException;
-use Phoundation\Processes\Enum\Interfaces\ExecuteMethodInterface;
+use Phoundation\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 
 
 /**
@@ -35,10 +35,10 @@ class Grep extends Command
     /**
      * Execute the rsync operation and return the PID (background) or -1
      *
-     * @param ExecuteMethodInterface $method
+     * @param EnumExecuteMethodInterface $method
      * @return array
      */
-    public function grep(ExecuteMethodInterface $method): array
+    public function grep(EnumExecuteMethodInterface $method): array
     {
         if (!$this->path and !$this->file) {
             throw new CommandsException(tr('Cannot execute grep, no file or path specified'));

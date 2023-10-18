@@ -7,8 +7,8 @@ namespace Phoundation\Processes\Commands;
 use Phoundation\Data\Traits\DataBindAddress;
 use Phoundation\Data\Traits\DataSource;
 use Phoundation\Data\Traits\DataTarget;
-use Phoundation\Processes\Enum\ExecuteMethod;
-use Phoundation\Processes\Enum\Interfaces\ExecuteMethodInterface;
+use Phoundation\Processes\Enum\EnumExecuteMethod;
+use Phoundation\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 
 
 /**
@@ -31,10 +31,10 @@ class Wget extends Command
     /**
      * Execute the rsync operation and return the PID (background) or -1
      *
-     * @param ExecuteMethod $method
+     * @param EnumExecuteMethod $method
      * @return int|null
      */
-    public function execute(ExecuteMethodInterface $method = ExecuteMethod::passthru): ?int
+    public function execute(EnumExecuteMethodInterface $method = EnumExecuteMethod::passthru): ?int
     {
         // Build the process parameters, then execute
         $this->clearArguments()

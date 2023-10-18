@@ -17,7 +17,7 @@ use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Geo\Timezones\Timezones;
 use Phoundation\Processes\Commands\Grep;
-use Phoundation\Processes\Enum\ExecuteMethod;
+use Phoundation\Processes\Enum\EnumExecuteMethod;
 
 /**
  * Class AutoComplete
@@ -377,7 +377,7 @@ class AutoComplete
             $results = Grep::new(Restrictions::new($file, true))
                 ->setValue('complete -F _phoundation pho')
                 ->setFile($file)
-                ->grep(ExecuteMethod::returnArray);
+                ->grep(EnumExecuteMethod::returnArray);
 
             if ($results) {
                 // bash_completion contains rule for phoundation

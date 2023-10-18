@@ -3,8 +3,8 @@
 namespace Phoundation\Processes\Commands\Interfaces;
 
 
-use Phoundation\Processes\Enum\ExecuteMethod;
-use Phoundation\Processes\Enum\Interfaces\ExecuteMethodInterface;
+use Phoundation\Processes\Enum\EnumExecuteMethod;
+use Phoundation\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 
 /**
  * Class MysqlDump
@@ -170,8 +170,8 @@ interface MysqlDumpInterface
     /**
      * Execute the rsync operation and return the PID (background) or -1
      *
-     * @param ExecuteMethodInterface $method
+     * @param EnumExecuteMethodInterface $method
      * @return static
      */
-    public function execute(ExecuteMethodInterface $method = ExecuteMethod::passthru): static;
+    public function execute(EnumExecuteMethodInterface $method = EnumExecuteMethod::passthru): static;
 }

@@ -1151,8 +1151,11 @@ trait ProcessVariables
                 }
 
             } else {
-                // Redirect output to a file
-                File::new($redirect, $this->restrictions)->checkWritable('output redirect file');
+                if (!$this->getSudo()) {
+                    // Redirect output to a file
+                    File::new($redirect, $this->restrictions)->checkWritable('output redirect file');
+                }
+
                 $this->output_redirect[$channel] = ($append ? '>>' : '') . $redirect;
             }
 

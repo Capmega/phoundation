@@ -15,7 +15,7 @@ use Phoundation\Databases\Sql\Exception\SqlAccessDeniedException;
 use Phoundation\Databases\Sql\Exception\SqlDatabaseDoesNotExistException;
 use Phoundation\Developer\Debug;
 use Phoundation\Emails\Email;
-use Phoundation\Emails\Emails;use Phoundation\Processes\Commands\PhoCommand;use Phoundation\Processes\Enum\ExecuteMethod;
+use Phoundation\Emails\Emails;use Phoundation\Processes\Commands\PhoCommand;use Phoundation\Processes\Enum\EnumExecuteMethod;
 
 
 /**
@@ -87,10 +87,10 @@ if ($count) {
         if ($argv['auto_restart']) {
             if ($argv['background']) {
                 Log::action(tr('Restarting send process as background process'));
-                $method = ExecuteMethod::background;
+                $method = EnumExecuteMethod::background;
             } else {
                 Log::action(tr('Restarting send process as background process'));
-                $method = ExecuteMethod::passthru;
+                $method = EnumExecuteMethod::passthru;
             }
 
             // Restart the command

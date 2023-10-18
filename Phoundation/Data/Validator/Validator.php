@@ -3113,6 +3113,31 @@ abstract class Validator implements ValidatorInterface
 
 
     /**
+     * Sanitize the selected value by executing the specified callback over it
+     *
+     * @note The callback should accept values mixed $value and array $source
+     * @param callback $callback
+     * @return static
+     * @see trim()
+     */
+    public function sanitizeCallback(callable $callback): static
+    {
+        return $this->validateValues(function(&$value) use ($callback) {
+            $this->hasMaxCharacters();
+
+            if ($this->process_value_failed) {
+                if (!$this->selected_is_default) {
+                    // Validation already failed, don't test anything more
+                    return;
+                }
+            }
+
+            $value = $callback($value, $this->source);
+        });
+    }
+
+
+    /**
      * Constructor for all validator types
      *
      * @param ValidatorInterface|null $parent

@@ -10,8 +10,8 @@ use Phoundation\Data\Traits\DataDebug;
 use Phoundation\Data\Traits\DataNetworkConnection;
 use Phoundation\Data\Traits\DataSource;
 use Phoundation\Data\Traits\DataTarget;
-use Phoundation\Processes\Enum\ExecuteMethod;
-use Phoundation\Processes\Enum\Interfaces\ExecuteMethodInterface;
+use Phoundation\Processes\Enum\EnumExecuteMethod;
+use Phoundation\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 
 
 /**
@@ -344,10 +344,10 @@ class Rsync extends Command
     /**
      * Execute the rsync operation and return the PID (background) or -1
      *
-     * @param ExecuteMethodInterface $method
+     * @param EnumExecuteMethodInterface $method
      * @return string|int|bool|array|null
      */
-    public function execute(ExecuteMethodInterface $method = ExecuteMethod::passthru): string|int|bool|array|null
+    public function execute(EnumExecuteMethodInterface $method = EnumExecuteMethod::passthru): string|int|bool|array|null
     {
         // If port is a non-default SSH port, then generate the RSH variable
         if (empty($this->rsh)) {

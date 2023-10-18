@@ -11,8 +11,8 @@ use Phoundation\Data\Traits\DataFile;
 use Phoundation\Data\Traits\DataSource;
 use Phoundation\Data\Traits\DataTarget;
 use Phoundation\Filesystem\Restrictions;
-use Phoundation\Processes\Enum\ExecuteMethod;
-use Phoundation\Processes\Enum\Interfaces\ExecuteMethodInterface;
+use Phoundation\Processes\Enum\EnumExecuteMethod;
+use Phoundation\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 use Phoundation\Processes\Process;
 
 
@@ -44,6 +44,6 @@ class Mplayer extends Command
              ->setRestrictions(Restrictions::default($this->restrictions, Restrictions::new(PATH_DATA . 'mplayer', true, 'audio')))
              ->setInternalCommand('mplayer')
              ->addArgument($this->file)
-             ->execute($background ? ExecuteMethod::background : ExecuteMethod::noReturn);
+             ->execute($background ? EnumExecuteMethod::background : EnumExecuteMethod::noReturn);
     }
 }

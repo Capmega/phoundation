@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Virtualization\Kubernetes;
 
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Processes\Enum\ExecuteMethod;
+use Phoundation\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Processes\Process;
 use Phoundation\Virtualization\Kubernetes\Enums\Services;
 
@@ -104,9 +104,9 @@ class Kubernetes
     /**
      * Starts the kubernetes service
      *
-     * @param ExecuteMethod $method
+     * @param EnumExecuteMethod $method
      */
-    public function start(ExecuteMethod $method = ExecuteMethod::passthru): void
+    public function start(EnumExecuteMethod $method = EnumExecuteMethod::passthru): void
     {
         Process::new($this->command)
             ->setTimeout($this->start_timeout)
@@ -118,9 +118,9 @@ class Kubernetes
     /**
      * Stops the kubernetes service
      *
-     * @param ExecuteMethod $method
+     * @param EnumExecuteMethod $method
      */
-    public function stop(ExecuteMethod $method = ExecuteMethod::passthru): void
+    public function stop(EnumExecuteMethod $method = EnumExecuteMethod::passthru): void
     {
         Process::new($this->command)
             ->addArguments('stop')
@@ -146,10 +146,10 @@ class Kubernetes
     /**
      * Deletes the local kubernetes cluster
      *
-     * @param ExecuteMethod $method
+     * @param EnumExecuteMethod $method
      * @return void
      */
-    public function delete(ExecuteMethod $method = ExecuteMethod::passthru): void
+    public function delete(EnumExecuteMethod $method = EnumExecuteMethod::passthru): void
     {
         Process::new($this->command)
             ->addArguments('delete')
@@ -160,9 +160,9 @@ class Kubernetes
     /**
      * Pauses the local kubernetes cluster
      *
-     * @param ExecuteMethod $method
+     * @param EnumExecuteMethod $method
      */
-    public function pause(ExecuteMethod $method = ExecuteMethod::passthru): void
+    public function pause(EnumExecuteMethod $method = EnumExecuteMethod::passthru): void
     {
         Process::new($this->command)
             ->addArguments('pause')
@@ -173,9 +173,9 @@ class Kubernetes
     /**
      * Unpauses the local kubernetes cluster
      *
-     * @param ExecuteMethod $method
+     * @param EnumExecuteMethod $method
      */
-    public function unpause(ExecuteMethod $method = ExecuteMethod::passthru): void
+    public function unpause(EnumExecuteMethod $method = EnumExecuteMethod::passthru): void
     {
         Process::new($this->command)
             ->addArguments('unpause')

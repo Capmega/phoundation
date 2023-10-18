@@ -14,8 +14,8 @@ use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Processes\Commands\Exception\CommandsException;
 use Phoundation\Processes\Commands\Kill;
-use Phoundation\Processes\Enum\ExecuteMethod;
-use Phoundation\Processes\Enum\Interfaces\ExecuteMethodInterface;
+use Phoundation\Processes\Enum\EnumExecuteMethod;
+use Phoundation\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 use Phoundation\Processes\Exception\ProcessException;
 use Phoundation\Processes\Exception\ProcessFailedException;
 use Phoundation\Processes\Interfaces\ProcessCoreInterface;
@@ -32,7 +32,7 @@ use Phoundation\Servers\Server;
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Processes
- * @uses \Phoundation\Processes\ProcessVariables
+ * @uses ProcessVariables
  */
 abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInterface
 {
@@ -190,30 +190,30 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
     /**
      * Execute the command and depending on specified method, return or log output
      *
-     * @param ExecuteMethodInterface $method
+     * @param EnumExecuteMethodInterface $method
      * @return string|int|bool|array|null
      */
-    public function execute(ExecuteMethodInterface $method): string|int|bool|array|null
+    public function execute(EnumExecuteMethodInterface $method): string|int|bool|array|null
     {
         switch ($method) {
-            case ExecuteMethod::log:
+            case EnumExecuteMethod::log:
                 $results = $this->executeReturnArray();
                 Log::notice($results, 4);
                 return null;
 
-            case ExecuteMethod::background:
+            case EnumExecuteMethod::background:
                 return $this->executeBackground();
 
-            case ExecuteMethod::passthru:
+            case EnumExecuteMethod::passthru:
                 return $this->executePassthru();
 
-            case ExecuteMethod::returnString:
+            case EnumExecuteMethod::returnString:
                 return $this->executeReturnString();
 
-            case ExecuteMethod::returnArray:
+            case EnumExecuteMethod::returnArray:
                 return $this->executeReturnArray();
 
-            case ExecuteMethod::noReturn:
+            case EnumExecuteMethod::noReturn:
                 $this->executeNoReturn();
                 return null;
 
@@ -398,10 +398,10 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
         // Add arguments to the command
         $this->cached_command_line = $this->real_command . ' ' . implode(' ', $arguments);
 
-        // Add sudo
-        if ($this->sudo) {
-            $this->cached_command_line = $this->sudo . ' ' . $this->cached_command_line;
-        }
+//        // Add sudo
+//        if ($this->sudo) {
+//            $this->cached_command_line = $this->sudo . ' ' . $this->cached_command_line;
+//        }
 
         // Add timeout
         if ($this->timeout) {
@@ -485,6 +485,11 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
                 // Make sure the PID will be registered in the run file
                 $this->cached_command_line = "bash -c 'set -o pipefail; " . str_replace("'", '"', $this->cached_command_line) . "; exit \$?';";
             }
+        }
+
+        // Add sudo
+        if ($this->sudo) {
+            $this->cached_command_line = $this->sudo . ' ' . $this->cached_command_line;
         }
 
         return $this->cached_command_line;

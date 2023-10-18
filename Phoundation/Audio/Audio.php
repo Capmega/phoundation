@@ -12,7 +12,7 @@ use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Commands\Mplayer;
-use Phoundation\Processes\Enum\ExecuteMethod;
+use Phoundation\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Processes\Exception\ProcessesException;
 use Phoundation\Processes\Process;
 use Phoundation\Web\Page;

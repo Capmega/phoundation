@@ -12,8 +12,8 @@ use Phoundation\Data\Traits\DataTarget;
 use Phoundation\Data\Traits\DataUser;
 use Phoundation\Data\Traits\DataUserPass;
 use Phoundation\Processes\Commands\Interfaces\MysqlDumpInterface;
-use Phoundation\Processes\Enum\ExecuteMethod;
-use Phoundation\Processes\Enum\Interfaces\ExecuteMethodInterface;
+use Phoundation\Processes\Enum\EnumExecuteMethod;
+use Phoundation\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 
 
 /**
@@ -374,10 +374,10 @@ class MysqlDump extends Command implements MysqlDumpInterface
     /**
      * Execute the rsync operation and return the PID (background) or -1
      *
-     * @param ExecuteMethodInterface $method
+     * @param EnumExecuteMethodInterface $method
      * @return static
      */
-    public function execute(ExecuteMethodInterface $method = ExecuteMethod::passthru): static
+    public function execute(EnumExecuteMethodInterface $method = EnumExecuteMethod::passthru): static
     {
         // Build the process parameters, then execute
         $this->setInternalCommand('mysqldump')

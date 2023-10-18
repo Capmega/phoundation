@@ -14,7 +14,7 @@ use Phoundation\Developer\Project\Interfaces\ProjectInterface;
 use Phoundation\Developer\Tests\BomPath;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Processes\Commands\Rsync;
-use Phoundation\Processes\Enum\ExecuteMethod;
+use Phoundation\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Processes\Process;
 use Phoundation\Servers\Server;
 use Phoundation\Translator\Translation;
@@ -245,7 +245,7 @@ class Deploy implements DeployInterface
                     ->setPort($env_config['server']['port'])
                     ->setSshAccount())
                 ->addArguments(['-p', $env_config['server']['path']])
-                ->execute(ExecuteMethod::noReturn);
+                ->execute(EnumExecuteMethod::noReturn);
 
             // And then rsync!
             Rsync::new()

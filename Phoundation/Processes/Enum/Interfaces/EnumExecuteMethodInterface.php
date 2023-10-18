@@ -13,6 +13,6 @@ namespace Phoundation\Processes\Enum\Interfaces;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Processes
  */
-interface ExecuteMethodInterface
+interface EnumExecuteMethodInterface
 {
 }

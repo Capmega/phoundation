@@ -16,8 +16,8 @@ use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Processes\Commands\Command;
 use Phoundation\Processes\Commands\Zcat;
-use Phoundation\Processes\Enum\ExecuteMethod;
-use Phoundation\Processes\Enum\Interfaces\ExecuteMethodInterface;
+use Phoundation\Processes\Enum\EnumExecuteMethod;
+use Phoundation\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 use Phoundation\Processes\Exception\ProcessesException;
 use Phoundation\Processes\Process;
 use Phoundation\Servers\Servers;
@@ -143,10 +143,10 @@ class MySql extends Command
     /**
      * Execute the rsync operation and return the PID (background) or -1
      *
-     * @param ExecuteMethodInterface $method
+     * @param EnumExecuteMethodInterface $method
      * @return int|null
      */
-    public function execute(ExecuteMethodInterface $method = ExecuteMethod::passthru): ?int
+    public function execute(EnumExecuteMethodInterface $method = EnumExecuteMethod::passthru): ?int
     {
         $password_file = static::createPasswordFile();
 
@@ -162,7 +162,7 @@ class MySql extends Command
                 $this->setInputRedirect($this->source);
             }
 
-            if ($method === ExecuteMethod::background) {
+            if ($method === EnumExecuteMethod::background) {
                 $pid = $this->executeBackground();
 
                 Log::success(tr('Executed wget as a background process with PID ":pid"', [

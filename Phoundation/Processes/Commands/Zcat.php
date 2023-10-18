@@ -8,8 +8,8 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Traits\DataFile;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
-use Phoundation\Processes\Enum\ExecuteMethod;
-use Phoundation\Processes\Enum\Interfaces\ExecuteMethodInterface;
+use Phoundation\Processes\Enum\EnumExecuteMethod;
+use Phoundation\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 
 
 /**
@@ -56,10 +56,10 @@ class Zcat extends Command
     /**
      * Cats the output unzipped to the specified output
      *
-     * @param ExecuteMethodInterface $method
+     * @param EnumExecuteMethodInterface $method
      * @return string|int|bool|array|null
      */
-    public function execute(ExecuteMethodInterface $method = ExecuteMethod::passthru): string|int|bool|array|null
+    public function execute(EnumExecuteMethodInterface $method = EnumExecuteMethod::passthru): string|int|bool|array|null
     {
         return parent::execute($method);
     }
