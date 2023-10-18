@@ -48,6 +48,9 @@ Documentation::autoComplete([
             'word'   => function ($word) use ($restrictions) { return Path::new('/dev/', $restrictions)->scan($word . '*'); },
             'noword' => function ()      use ($restrictions) { return Path::new('/dev/', $restrictions)->scan('*'); },
         ],
+    ],
+    'arguments' => [
+        '-p,--passes' => true,
     ]
 ]);
 
@@ -55,6 +58,7 @@ Documentation::autoComplete([
 // Validate data
 $argv = ArgvValidator::new()
     ->select('device')->hasMaxCharacters(64)->isFile('/dev/', new Restrictions('/dev', true))->sanitizeCallback(function(mixed $value, array $source) { return '/dev/' . $value; })
+    ->select('-p,--passes')->isOptional(3)->isNatural(false)->isBetween(1, 10)
     ->validate();
 
 
@@ -71,18 +75,14 @@ if (!FORCE) {
 
 
 // Shred!
-Log::warning(tr('Shredding device ":device". Depending on device size this may take a while...', [
-    ':device' => $argv['device']
-]));
+for ($i = 1; $i <= $argv['passes']; $i++) {
+    Log::warning(tr('Shredding device ":device", pass ":pass". Depending on device size this may take a while...', [
+        ':pass' => $i,
+        ':device' => $argv['device']
+    ]));
 
-//show(Process::new('cat', $restrictions)
-//    ->setSudo(true)
-//    ->addArgument('/dev/random')
-//    ->setOutputRedirect($argv['device'])
-//    ->getFullCommandLine());
-
-Process::new('cat')
-    ->setSudo(true)
-    ->addArgument('/dev/random')
-    ->setOutputRedirect($argv['device'])
-    ->execute(EnumExecuteMethod::passthru);
+    Process::new('dd')
+        ->setSudo(true)
+        ->addArguments(['if=/dev/urandom', 'of=' . $argv['device'], 'bs=4096', 'status=progress'])
+        ->execute(EnumExecuteMethod::passthru);
+}
