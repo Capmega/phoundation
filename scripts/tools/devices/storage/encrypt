@@ -92,12 +92,9 @@ if ($argv['scramble']) {
         ':device' => $argv['device']
     ]));
 
-    Process::new('dd')
-        ->setSudo(true)
-        ->addArguments(['if=/dev/urandom', 'of=' . $argv['device'], 'bs=4096', 'status=progress'])
-        ->execute(EnumExecuteMethod::passthru);
+    $device->scramble();
 }
 
 
 // Encrypt!
-
+$device->encrypt($argv['key']);

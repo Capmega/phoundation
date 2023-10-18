@@ -10,6 +10,7 @@ use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Os\Devices\Storage\Exception\StorageException;
 use Phoundation\Os\Devices\Storage\Interfaces\DeviceInterface;
+use Phoundation\Os\Processes\Commands\Cryptsetup;
 use Phoundation\Os\Processes\Commands\Lsblk;
 use Phoundation\Os\Processes\Commands\Mount;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
@@ -113,10 +114,26 @@ class Device extends File implements DeviceInterface
     {
         $this->checkUnmounted();
 
-        Process::new('dd')
+        Process::new('dd', $this->restrictions)
             ->setSudo(true)
             ->addArguments(['if=/dev/urandom', 'of=' . $this->file, 'bs=4096', 'status=progress'])
             ->execute(EnumExecuteMethod::passthru);
+
+        return $this;
+    }
+
+
+    /**
+     * Formats this device for encryption using LUKS
+     *
+     * @param string $key
+     * @return $this
+     */
+    public function encrypt(string $key): static
+    {
+        $this->checkUnmounted();
+
+        Cryptsetup::new($this->restrictions)->luksFormat($this, $key);
 
         return $this;
     }
