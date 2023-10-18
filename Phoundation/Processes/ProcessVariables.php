@@ -130,6 +130,16 @@ trait ProcessVariables
     protected string|bool $sudo = false;
 
     /**
+     * Sets whether the command should be executed with nocache or not. If not NULL, it should contain the user as which
+     * the command should be executed.
+     *
+     * @note This may require nocache to be installed first!
+     *
+     * @var int|bool $sudo
+     */
+    protected int|bool $nocache = false;
+
+    /**
      * A cached version of the command line
      *
      * @var string|null
