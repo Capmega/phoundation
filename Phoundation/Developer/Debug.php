@@ -35,6 +35,18 @@ use Throwable;
  */
 class Debug {
     /**
+     * @var bool $enabled
+     */
+    protected static bool $enabled;
+
+    /**
+     * If true will return the opposite of $enabled
+     *
+     * @var bool $switched
+     */
+    protected static bool $switched = false;
+
+    /**
      * If true, will clean up debug data string before returning them.
      *
      * @var bool $clean_data
@@ -57,40 +69,55 @@ class Debug {
 
 
     /**
-     * Sets or returns if the system is running in debug mode or not
+     * Returns if the system is running in debug mode or not
      *
-     * @param bool|null $enabled
      * @return bool
      */
-    public static function enabled(?bool $enabled = null): bool
+    public static function getEnabled(): bool
     {
         static $loop = false;
 
-        if ($loop) {
-            // We're in a loop!
-            return false;
-        }
+        if (!isset(static::$enabled)) {
+            // Avoid endless loops
+            if ($loop) {
+                // We're in a loop!
+                return false;
+            }
 
-        $loop = true;
-
-        if (Core::inStartupState()) {
-            // System startup has not yet completed, disable debug!
+            $loop = true;
+            static::$enabled = Config::getBoolean('debug.enabled', false);
             $loop = false;
-            return false;
         }
 
-        if ($enabled === null) {
-            // Return the setting
-            $return = Config::getBoolean('debug.enabled', false);
-            $loop   = false;
-
-            return $return;
+        if (static::$switched) {
+            // Return the opposite
+            return !static::$enabled;
         }
 
-        // Make the setting
-        Config::set('debug.enabled', $enabled);
-        $loop = false;
-        return $enabled;
+        return static::$enabled;
+    }
+
+
+    /**
+     * Sets or returns if the system is running in debug mode or not
+     *
+     * @param bool|null $enabled
+     * @return void
+     */
+    public static function setEnabled(?bool $enabled = null): void
+    {
+        static::$enabled = $enabled;
+    }
+
+
+    /**
+     * This will switch the current "enabled" setting to its opposite
+     *
+     * @return bool
+     */
+    public static function switch(): bool
+    {
+        return static::$switched = !static::$switched;
     }
 
 
@@ -296,7 +323,7 @@ class Debug {
      */
     public static function show(mixed $value = null, int $trace_offset = 0, bool $quiet = false): mixed
     {
-        if (!static::enabled()) {
+        if (!static::getEnabled()) {
             return null;
         }
 
@@ -434,7 +461,7 @@ class Debug {
      */
     #[NoReturn] public static function showDie(mixed $value = null, int $trace_offset = 1, bool $quiet = false): void
     {
-        if (static::enabled()) {
+        if (static::getEnabled()) {
             try {
                 static::show($value, $trace_offset, $quiet);
                 Log::warning(tr('Reached showdie() call at :location', [':location' => static::currentLocation($trace_offset)]));
@@ -769,7 +796,7 @@ class Debug {
         }
 
         // Debug::enabled() already logs the query, don't log it again
-        if (!Debug::enabled()) {
+        if (!Debug::getEnabled()) {
             Log::printr(Strings::endsWith($query, ';'));
         }
 
@@ -791,7 +818,7 @@ class Debug {
      */
     function debugTrace(array|string|null $filters = 'args', bool $skip_own = true): array
     {
-        if (!Debug::enabled()) {
+        if (!Debug::getEnabled()) {
             return [];
         }
 
@@ -821,7 +848,7 @@ class Debug {
      */
     function debugBar(): ?string
     {
-        if (!Debug::enabled()) return '';
+        if (!Debug::getEnabled()) return '';
 
         $enabled = Config::get('debug.bar.enabled', false);
 

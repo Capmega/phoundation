@@ -642,7 +642,7 @@ trait ValidatorBasics
 
         $failure = trim($failure);
 
-        if (Debug::enabled()) {
+        if (Debug::getEnabled()) {
             Log::warning(tr('Validation failed for field ":field" with value ":value" because it :failure', [
                 ':field'   => ($this->parent_field ?? '-') . ' / ' . $selected_field . ' / ' . ($this->process_key ?? '-'),
                 ':failure' => $failure,

@@ -401,7 +401,7 @@ class Bundler
                         $data = $this->processCssData($file, $org_file, $data);
                     }
     
-                    if (Debug::enabled()) {
+                    if (Debug::getEnabled()) {
                         File::new($this->bundle_file, $this->restrictions)->append("\n/* *** BUNDLER FILE \"" . $org_file . "\" *** */\n" . $data . (Config::get('web.minify', true) ? '' : "\n"));
     
                     } else {

@@ -836,7 +836,7 @@ class Core implements CoreInterface
 
         // Set more system parameters
         if ($argv['debug']) {
-            Debug::enabled();
+            Debug::switch();
         }
 
         if ($argv['log_level']) {
@@ -970,13 +970,8 @@ class Core implements CoreInterface
         static::$register['ready'] = true;
 
         // Validate parameters and give some startup messages, if needed
-        if (Debug::enabled()) {
-            if (QUIET) {
-                // Quiet takes precedence over debug as it has to be manually specified as a command line parameter
-                Debug::enabled(false);
-            }
-
-            if (Debug::enabled()) {
+        if (Debug::getEnabled()) {
+            if (Debug::getEnabled()) {
                 Log::warning(tr('Running in DEBUG mode, started @ ":datetime"', [
                     ':datetime' => Date::convert(STARTTIME, 'ISO8601')
                 ]), 8);
@@ -1852,7 +1847,7 @@ class Core implements CoreInterface
                             $e->setCode(400);
                         }
 
-                        if (Debug::enabled()) {
+                        if (Debug::getEnabled()) {
                             switch (Core::getRequestType()) {
                                 case EnumRequestTypes::api:
                                     // no-break
@@ -1998,7 +1993,7 @@ class Core implements CoreInterface
                         Log::error(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => static::readRegister('system', 'script'))));
                         Log::error(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
 
-                        Debug::enabled(true);
+                        Debug::setEnabled(true);
                         show($f);
                         showdie($e);
 
@@ -2008,7 +2003,7 @@ class Core implements CoreInterface
                             header('Content-Type: text/html');
                         }
 
-                        if (!Debug::enabled()) {
+                        if (!Debug::getEnabled()) {
                             Notification::new()->setException($f)->send();
                             Notification::new()->setException($e)->send();
                             Route::executeSystem(500);
@@ -2389,14 +2384,14 @@ class Core implements CoreInterface
      */
     protected static function exitCleanup(): void
     {
-        // Flush the meta data
+        // Flush the metadata
         Meta::flush();
 
         // Stop time measuring here
         static::$timer->stop();
 
         // Log debug information?
-        if (Debug::enabled()) {
+        if (Debug::getEnabled()) {
             // Only when auto complete is not active, of course!
             if (!AutoComplete::isActive()) {
                 static::logDebug();
@@ -2763,10 +2758,10 @@ class Core implements CoreInterface
     protected static function logDebug(): void
     {
         // Log debug information
-        Log::information(tr('DEBUG INFORMATION:'));
+        Log::information(tr('DEBUG INFORMATION:'), 10);
         Log::information(tr('Query timers [:count]:', [
             ':count' => count(Timers::get('sql', false)) ?? 0
-        ]));
+        ]), 10);
 
         Timers::stop(true);
 
@@ -2774,24 +2769,24 @@ class Core implements CoreInterface
             Timers::sortHighLow('sql', false);
 
             foreach (Timers::pop('sql', false) as $timer) {
-                Log::write('[' . number_format($timer->getTotal(), 6) . '] ' . $timer->getLabel(), 'debug', 8);
+                Log::write('[' . number_format($timer->getTotal(), 6) . '] ' . $timer->getLabel(), 'debug', 10);
             }
         } else {
-            Log::warning('-');
+            Log::warning('-', 10);
         }
 
         Log::information(tr('Other timers [:count]:', [
             ':count' => Timers::getCount()
-        ]));
+        ]), 10);
 
         if (Timers::getCount()) {
             foreach (Timers::getAll() as $group => $timers) {
                 foreach ($timers as $timer) {
-                    Log::write('[' . number_format($timer->getTotal(), 6) . '] ' . $group . ' > ' . $timer->getLabel(), 'debug', 8);
+                    Log::write('[' . number_format($timer->getTotal(), 6) . '] ' . $group . ' > ' . $timer->getLabel(), 'debug', 10);
                 }
             }
         } else {
-            Log::warning('-');
+            Log::warning('-', 10);
         }
     }
 }

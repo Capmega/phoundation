@@ -116,6 +116,7 @@ class Device extends File implements DeviceInterface
 
         Process::new('dd', $this->restrictions)
             ->setSudo(true)
+            ->setTimeout(0)
             ->addArguments(['if=/dev/urandom', 'of=' . $this->file, 'bs=4096', 'status=progress'])
             ->execute(EnumExecuteMethod::passthru);
 

@@ -551,7 +551,7 @@ Class Html
     function footer() {
         $this->render = '';
 
-        if (Debug::enabled()) {
+        if (Debug::getEnabled()) {
             $this->render .= debug_bar();
         }
 

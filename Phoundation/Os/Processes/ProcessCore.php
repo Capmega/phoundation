@@ -255,7 +255,7 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
 
         if ($this->debug) {
             Log::printr(Strings::untilReverse($this->getFullCommandLine(), 'exit '));
-        } elseif (Debug::enabled()) {
+        } elseif (Debug::getEnabled()) {
             Log::action(tr('Executing command ":commands" using passthru()', [':commands' => $commands]), 2);
         }
 

@@ -864,7 +864,7 @@ Log::warning('RESTART SESSION');
                     ini_set('session.referer_check', static::$domain);
                 }
 
-                if (Debug::enabled() or !Config::getBoolean('cache.http.enabled', true)) {
+                if (Debug::getEnabled() or !Config::getBoolean('cache.http.enabled', true)) {
                     ini_set('session.cache_limiter', 'nocache');
 
                 } else {

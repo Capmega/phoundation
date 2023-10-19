@@ -609,7 +609,7 @@ function pick_random_multiple(int $count, mixed ...$arguments): string|array
  */
 function show(mixed $source = null, int $trace_offset = 1, bool $quiet = false): mixed
 {
-    if (Debug::enabled()) {
+    if (Debug::getEnabled()) {
         if (Core::scriptStarted()) {
             return Debug::show($source, $trace_offset, $quiet);
         }
@@ -631,7 +631,7 @@ function show(mixed $source = null, int $trace_offset = 1, bool $quiet = false):
  */
 function showhex(mixed $source = null, int $trace_offset = 1, bool $quiet = false): mixed
 {
-    if (Debug::enabled()) {
+    if (Debug::getEnabled()) {
         $source = bin2hex($source);
         return show($source, $trace_offset);
     }
@@ -650,7 +650,7 @@ function showhex(mixed $source = null, int $trace_offset = 1, bool $quiet = fals
  */
 function showbacktrace(int $count = 10, int $trace_offset = 1, bool $quiet = false): mixed
 {
-    if (Debug::enabled()) {
+    if (Debug::getEnabled()) {
         $backtrace = Debug::backtrace();
 
         if ($count) {
@@ -674,7 +674,7 @@ function showbacktrace(int $count = 10, int $trace_offset = 1, bool $quiet = fal
  */
 #[NoReturn] function showdie(mixed $source = null, int $trace_offset = 2, bool $quiet = false): void
 {
-    if (Debug::enabled()) {
+    if (Debug::getEnabled()) {
         if (Core::scriptStarted()) {
             Debug::showdie($source, $trace_offset, $quiet);
         }

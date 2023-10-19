@@ -180,7 +180,7 @@ class Json
 
                 $code = $message->getCode();
 
-                if (Debug::enabled()) {
+                if (Debug::getEnabled()) {
                     /*
                      * This is a user visible message
                      */
@@ -210,7 +210,7 @@ class Json
                     $data = $message->getMessage();
 
                 } else {
-                    if (Debug::enabled()) {
+                    if (Debug::getEnabled()) {
                         // This is a user visible message
                         $messages = $message->getMessages();
 
@@ -373,7 +373,7 @@ class Json
                     ->setTitle('Unknown message specified')
                     ->setMessage(tr('Json::message(): Unknown code ":code" specified', [':code' => $code]));
 
-                Json::error(null, (Debug::enabled() ? $data : null), 'ERROR', 500);
+                Json::error(null, (Debug::getEnabled() ? $data : null), 'ERROR', 500);
         }
     }
 

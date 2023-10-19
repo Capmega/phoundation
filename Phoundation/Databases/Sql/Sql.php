@@ -1778,7 +1778,7 @@ class Sql implements SqlInterface
         }
 
         // Debug::enabled() already logs the query, don't log it again
-        if (!Debug::enabled()) {
+        if (!Debug::getEnabled()) {
             Log::debug(static::getLogPrefix() . Strings::endsWith($query, ';'));
         }
 

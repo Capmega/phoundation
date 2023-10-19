@@ -266,7 +266,7 @@ abstract class Curl implements CurlInterface
         }
 
         // Verbose is always on when running in debug mode
-        if (Debug::enabled()) {
+        if (Debug::getEnabled()) {
             $this->verbose = true;
         }
 
