@@ -116,6 +116,7 @@ class Device extends File implements DeviceInterface
 
         Process::new('dd', $this->restrictions)
             ->setSudo(true)
+            ->setAcceptedExitCodes([0, 1]) // Accept 1 if the DD process stopped due to disk full, which is expected
             ->setTimeout(0)
             ->addArguments(['if=/dev/urandom', 'of=' . $this->file, 'bs=4096', 'status=progress'])
             ->execute(EnumExecuteMethod::passthru);
@@ -127,14 +128,15 @@ class Device extends File implements DeviceInterface
     /**
      * Formats this device for encryption using LUKS
      *
-     * @param string $key
+     * @param string|null $key
+     * @param string|null $key_file
      * @return $this
      */
-    public function encrypt(string $key): static
+    public function encrypt(?string $key, ?string $key_file = null): static
     {
         $this->checkUnmounted();
 
-        Cryptsetup::new($this->restrictions)->luksFormat($this, $key);
+        Cryptsetup::new($this->restrictions)->luksFormat($this, $key, $key_file);
 
         return $this;
     }
