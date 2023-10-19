@@ -472,6 +472,30 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
 
     /**
+     * Adds the STDIN stream to the ARGV source with the specified key
+     *
+     * @note If the key already exists in the internal argv source, then an exception will be thrown
+     * @param string $key
+     * @return $this
+     */
+    public function addStdInStreamAsKey(string $key): static
+    {
+        if (CliCommand::hasStdInStream()) {
+            if (in_array($key, static::$argv)) {
+                throw new ValidationFailedException(tr('Cannot add STDIN stream as key ":key", the key already exists', [
+                    ':key' => $key
+                ]));
+            }
+
+            static::$argv[] = $key;
+            static::$argv[] = CliCommand::readStdInStream();
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Find the specified method, basically any argument without - or --
      *
      * The result will be removed from $argv, but will remain stored in a static
