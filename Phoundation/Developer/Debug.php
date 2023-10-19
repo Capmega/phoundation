@@ -77,6 +77,11 @@ class Debug {
     {
         static $loop = false;
 
+        if (Core::inStartupState()) {
+            // Can't read config and as such neither the debug configuration
+            return false;
+        }
+
         if (!isset(static::$enabled)) {
             // Avoid endless loops
             if ($loop) {
