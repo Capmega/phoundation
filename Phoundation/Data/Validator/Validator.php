@@ -2154,15 +2154,13 @@ abstract class Validator implements ValidatorInterface
                 return;
             }
 
-            $this->hasMinCharacters(10)->hasMaxCharacters(128);
-
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
 
             try {
-                Password::testSecurity($value);
+                $value = Password::testSecurity($value);
 
             } catch (ValidationFailedException $e) {
                 $this->addFailure(tr('failed because ":e"', [':e' => $e->getMessage()]));

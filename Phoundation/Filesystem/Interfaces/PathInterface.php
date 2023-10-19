@@ -65,7 +65,8 @@ interface PathInterface extends FileBasicsInterface
      *
      * @param string|null $mode octal $mode If the specified $this->path does not exist, it will be created with this directory mode. Defaults to $_CONFIG[fs][dir_mode]
      * @param boolean $clear If set to true, and the specified path already exists, it will be deleted and then re-created
-     * @return string The specified file
+     * @param bool $sudo
+     * @return static
      * @category Function reference
      * @package file
      * @version 2.4.16: Added documentation
@@ -74,7 +75,7 @@ interface PathInterface extends FileBasicsInterface
      * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      */
-    public function ensure(?string $mode = null, ?bool $clear = false, bool $sudo = false): string;
+    public function ensure(?string $mode = null, ?bool $clear = false, bool $sudo = false): static;
 
     /**
      * Returns true if the object paths are all empty

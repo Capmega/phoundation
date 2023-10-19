@@ -1008,7 +1008,6 @@ The following arguments are available to ALL scripts
             }
 
             $return .= $data;
-            usleep(5);
         }
 
         static::$stdin_has_been_read = true;

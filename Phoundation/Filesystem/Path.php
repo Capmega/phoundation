@@ -8,6 +8,7 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
@@ -18,6 +19,7 @@ use Phoundation\Filesystem\Exception\RestrictionsException;
 use Phoundation\Filesystem\Interfaces\ExecuteInterface;
 use Phoundation\Filesystem\Interfaces\FileInterface;
 use Phoundation\Filesystem\Interfaces\PathInterface;
+use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Os\Processes\Commands\Tar;
 use Stringable;
 use Throwable;
@@ -37,11 +39,17 @@ use Throwable;
 class Path extends FileBasics implements PathInterface
 {
     /**
-     * Temporary path, if set
+     * Temporary path (public data), if set
      *
-     * @var Stringable|string|null
+     * @var PathInterface|null $temp_path_private
      */
-    protected static Stringable|string|null $temp_path = null;
+    protected static ?PathInterface $temp_path_private = null;
+    /**
+     * Temporary path (private data), if set
+     *
+     * @var PathInterface|null $temp_path_public
+     */
+    protected static ?PathInterface $temp_path_public = null;
 
 
     /**
@@ -147,6 +155,10 @@ class Path extends FileBasics implements PathInterface
     /**
      * Ensures existence of the specified path
      *
+     * @param string|null $mode octal $mode If the specified $this->path does not exist, it will be created with this directory mode. Defaults to $_CONFIG[fs][dir_mode]
+     * @param boolean $clear If set to true, and the specified path already exists, it will be deleted and then re-created
+     * @param bool $sudo
+     * @return static
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -154,11 +166,8 @@ class Path extends FileBasics implements PathInterface
      * @package file
      * @version 2.4.16: Added documentation
      *
-     * @param string|null $mode octal $mode If the specified $this->path does not exist, it will be created with this directory mode. Defaults to $_CONFIG[fs][dir_mode]
-     * @param boolean $clear If set to true, and the specified path already exists, it will be deleted and then re-created
-     * @return string The specified file
      */
-    public function ensure(?string $mode = null, ?bool $clear = false, bool $sudo = false): string
+    public function ensure(?string $mode = null, ?bool $clear = false, bool $sudo = false): static
     {
         $this->file = Strings::slash($this->file);
         Filesystem::validateFilename($this->file);
@@ -222,7 +231,7 @@ class Path extends FileBasics implements PathInterface
             return $this->ensure($mode, $clear, $sudo);
         }
 
-        return $this->file;
+        return $this;
     }
 
 
@@ -358,7 +367,7 @@ class Path extends FileBasics implements PathInterface
             $single = Config::getBoolean('filesystem.target-path.single', false);
         }
 
-        $this->file = Strings::unslash(Path::new($this->file, $this->restrictions)->ensure());
+        $this->file = Strings::unslash(Path::new($this->file, $this->restrictions)->ensure()->getFile());
 
         if ($single) {
             // Assign path in one dir, like abcde/
@@ -372,7 +381,7 @@ class Path extends FileBasics implements PathInterface
         }
 
         // Ensure again to be sure the target directories too have been created
-        return Strings::slash(Path::new($this->file, $this->restrictions)->ensure());
+        return Strings::slash(Path::new($this->file, $this->restrictions)->ensure()->getFile());
     }
 
 
@@ -698,56 +707,57 @@ class Path extends FileBasics implements PathInterface
      * @param bool $public
      * @return PathInterface
      */
-    public static function getTemporary(bool $public = false): PathInterface
+    public static function getTemporaryBase(bool $public): PathInterface
     {
-        $restrictions = Restrictions::new(PATH_TMP, true);
+        if ($public) {
+            // Return public temp path
+            if (!static::$temp_path_public) {
+                static::$temp_path_public = static::new(PATH_PUBTMP . Session::getUUID(), Restrictions::new(PATH_PUBTMP, true, 'base private temporary path'))
+                    ->delete()
+                    ->ensureWritable();
+            }
 
-        if (!static::$temp_path) {
-            static::$temp_path = PATH_TMP . 'process-' . posix_getpid() . '/';
+            return static::$temp_path_public;
+        }
 
-            static::$temp_path = Path::new(static::$temp_path, $restrictions)
+        if (!static::$temp_path_private) {
+            // Return private temp path
+            static::$temp_path_private = static::new(PATH_TMP . Session::getUUID(), Restrictions::new(PATH_TMP, true, 'base public temporary path'))
                 ->delete()
                 ->ensureWritable();
         }
 
-        if ($public) {
-            // TODO IMPROVE THIS, THIS WOULD INDICATE INTERNAL PROCESS ID TO THE OUTSIDE WORLD
-            link(PATH_PUBTMP . 'p-' . posix_getpid() . '/', static::$temp_path);
-        }
-
-        return Path::new(static::$temp_path, $restrictions)->ensureWritable();
-    }
-
-
-    /**
-     * Returns a temporary sub path specific for this process
-     *
-     * @param bool $public
-     * @return PathInterface
-     */
-    public static function getTemporarySub(bool $public = false): PathInterface
-    {
-        $path = static::getTemporary($public);
-        $path = $path . Strings::random(8, characters: 'alphanumeric') . '/';
-
-        return Path::new($path);
+        return static::$temp_path_private;
     }
 
 
     /**
      * Removes the temporary path specific for this process
      *
+     * @note Will not delete temporary paths in debug mode as these paths may be required for debugging purposes
      * @return void
      */
     public static function removeTemporary(): void
     {
-        if (static::$temp_path) {
-            Core::ExecuteNotInTestMode(function() {
-                File::new(static::$temp_path, Restrictions::new(static::$temp_path, true))->delete();
-            }, tr('Cleaning up temporary directory ":path"', [
-                ':path' => Strings::from(static::$temp_path, PATH_ROOT)
-            ]));
-        }
+        Core::ExecuteNotInTestMode(function() {
+            $action = false;
+
+            if (static::$temp_path_private) {
+                File::new(static::$temp_path_private, Restrictions::new(PATH_TMP, true))->delete();
+                $action = true;
+            }
+
+            if (static::$temp_path_public) {
+                File::new(static::$temp_path_public, Restrictions::new(PATH_PUBTMP, true))->delete();
+                $action = true;
+            }
+
+            return $action;
+
+        }, tr('Cleaned up temporary directories ":private, :public"', [
+            ':private' => Strings::from(static::$temp_path_private, PATH_ROOT),
+            ':public'  => Strings::from(static::$temp_path_public, PATH_ROOT)
+        ]));
     }
 
 

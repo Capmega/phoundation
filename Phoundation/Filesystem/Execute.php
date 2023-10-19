@@ -9,6 +9,7 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Interfaces\ExecuteInterface;
+use Phoundation\Filesystem\Traits\DataRestrictions;
 use Throwable;
 
 
@@ -25,12 +26,8 @@ use Throwable;
  */
 class Execute extends Path implements ExecuteInterface
 {
-    /**
-     * The server object
-     *
-     * @var Restrictions $restrictions
-     */
-    protected Restrictions $restrictions;
+    use DataRestrictions;
+
 
     /**
      * Sets if the object will recurse or not

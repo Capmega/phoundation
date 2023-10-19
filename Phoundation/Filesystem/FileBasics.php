@@ -11,6 +11,7 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Enums\EnumFileOpenMode;
 use Phoundation\Filesystem\Enums\Interfaces\EnumFileOpenModeInterface;
 use Phoundation\Filesystem\Exception\FileActionFailedException;
@@ -23,15 +24,15 @@ use Phoundation\Filesystem\Exception\FileRenameException;
 use Phoundation\Filesystem\Exception\FileSyncException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\FileTruncateException;
-use Phoundation\Filesystem\Exception\PathNotExistsException;
 use Phoundation\Filesystem\Exception\ReadOnlyModeException;
 use Phoundation\Filesystem\Interfaces\FileBasicsInterface;
 use Phoundation\Filesystem\Interfaces\FileInterface;
 use Phoundation\Filesystem\Interfaces\PathInterface;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
+use Phoundation\Filesystem\Traits\DataRestrictions;
+use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Exception\ProcessesException;
 use Phoundation\Os\Processes\Process;
-use Phoundation\Servers\Traits\UsesRestrictions;
 use Stringable;
 use Throwable;
 
@@ -49,7 +50,7 @@ use Throwable;
  */
 class FileBasics implements Stringable, FileBasicsInterface
 {
-    use UsesRestrictions;
+    use DataRestrictions;
 
 
     /**
@@ -106,7 +107,7 @@ class FileBasics implements Stringable, FileBasicsInterface
     {
         if (is_null($file) or is_string($file) or ($file instanceof Stringable)) {
             // Specified file was actually a File or Path object, get the file from there
-            if ($file instanceof FileBasics) {
+            if ($file instanceof FileBasicsInterface) {
                 $this->setFile($file->getFile());
                 $this->setTarget($file->getTarget());
                 $this->setRestrictions($restrictions ?? $file->getRestrictions());
@@ -115,6 +116,7 @@ class FileBasics implements Stringable, FileBasicsInterface
                 $this->setFile((string)$file);
                 $this->setRestrictions($restrictions);
             }
+
         } elseif (is_resource($file)) {
             // This is an input stream resource
             $this->stream = $file;
@@ -140,7 +142,7 @@ class FileBasics implements Stringable, FileBasicsInterface
 
 
     /**
-     * Returns a new Path object with the specified restrictions
+     * Returns a new File object with the specified restrictions
      *
      * @param mixed $file
      * @param RestrictionsInterface|array|string|null $restrictions
@@ -149,6 +151,26 @@ class FileBasics implements Stringable, FileBasicsInterface
     public static function new(mixed $file = null, RestrictionsInterface|array|string|null $restrictions = null): static
     {
         return new static($file, $restrictions);
+    }
+
+
+    /**
+     * Returns a new temporary file with the specified restrictions
+     *
+     * @param bool $public
+     * @return static
+     */
+    public static function newTemporary(bool $public, ?string $name = null, bool $create = true): static
+    {
+        $directory = Path::getTemporaryBase($public);
+        $name = ($name ?? Strings::generateUuid());
+        $file = static::new($directory->getFile() . $name, $directory->getRestrictions());
+
+        if ($create) {
+            $file->create();
+        }
+
+        return $file;
     }
 
 
@@ -317,9 +339,20 @@ class FileBasics implements Stringable, FileBasicsInterface
     /**
      * Checks if the specified file exists
      *
+     * @return bool
+     */
+    public function exists(): bool
+    {
+        return file_exists($this->file);
+    }
+
+
+    /**
+     * Checks if the specified file exists, throws exception if it doesn't
+     *
      * @return static
      */
-    protected function exists(): static
+    public function checkExists(): static
     {
         if (!file_exists($this->file)) {
             throw new FilesystemException(tr('Specified file ":file" does not exist', [':file' => $this->file]));
@@ -759,6 +792,8 @@ class FileBasics implements Stringable, FileBasicsInterface
      */
     public function delete(string|bool $clean_path = true, bool $sudo = false, bool $escape = true, bool $use_run_file = true): static
     {
+        Log::action(tr('Deleting file ":file"', [':file' => $this->file]), 3);
+
         // Check filesystem restrictions
         $this->restrictions->check($this->file, true);
 
@@ -790,12 +825,14 @@ class FileBasics implements Stringable, FileBasicsInterface
      * Moves this file to the specified target, will try to ensure target path exists
      *
      * @param Stringable|string $target
-     * @param bool $ensure_path
+     * @param Restrictions|null $restrictions
      * @return $this
      */
-    public function move(Stringable|string $target, bool $ensure_path = true): static
+    public function move(Stringable|string $target, ?Restrictions $restrictions = null): static
     {
-        // Ensure target is absolute
+        // Ensure restrictions and ensure target is absolute
+        // Restrictions are either specified, included in the target, or this object's restrictions
+        $restrictions = Restrictions::default($restrictions, ($target instanceof FileBasicsInterface ? $target->getRestrictions() : null), $this->getRestrictions());
         $target = Filesystem::absolute($target, must_exist: false);
 
         // Ensure the target directory exists
@@ -824,13 +861,6 @@ class FileBasics implements Stringable, FileBasicsInterface
             }
 
             if (isset($create)) {
-                // Target directory does not exist can we create it?
-                if (!$ensure_path) {
-                    throw new PathNotExistsException(tr('The specified target parent directory does not exist', [
-                        ':path' => $create
-                    ]));
-                }
-
                 // Ensure the target directory exist
                 Path::new(dirname($target), $this->restrictions)->ensure();
             }
@@ -842,6 +872,7 @@ class FileBasics implements Stringable, FileBasicsInterface
 
         // Update this file to the new location, and done
         $this->file = $target;
+        $this->setRestrictions($restrictions);
         return $this;
     }
 
@@ -1323,53 +1354,44 @@ class FileBasics implements Stringable, FileBasicsInterface
     }
 
 
-//    /**
-//     * Will create a symbolic link to the specified target
-//     *
-//     * @param string $target
-//     * @return static
-//     */
-//    public function symlink(string $target): static
-//    {
-//        symlink($this->file, $target);
-//        return $this;
-//    }
-
-
     /**
      * Creates a symlink $target that points to this file.
      *
-     * @param Stringable|string $source
+     * @note Will return a NEW FileBasics object (File or Path, basically) for the specified target
+     * @param Stringable|string $target
      * @param Restrictions|null $restrictions
      * @return $this
      */
-    public function symlink(Stringable|string $source, ?Restrictions $restrictions = null): static
+    public function symlink(Stringable|string $target, ?Restrictions $restrictions = null): static
     {
-        $source = (string)$source;
+        // Ensure default restrictions and absolute target.
+        // Restrictions are either specified, included in the target, or this object's restrictions
+        $restrictions = Restrictions::default($restrictions, (($target instanceof FileBasicsInterface) ? $target->getRestrictions() : null), $this->getRestrictions());
+        $target = Filesystem::absolute($target, must_exist: false);
 
-        if (file_exists($source)) {
-            if (readlink($source) === $this->file) {
+show('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb');
+show($restrictions->getPaths());
+
+        if (file_exists($target)) {
+            if (readlink($target) === $this->file) {
                 // Symlink already exists and points to the same file, all fine
-                return $this;
+                return static::new($target, $restrictions);
             }
 
             throw new FileExistsException(tr('Cannot create symlink ":target" that points to ":source", the file already exists and points to ":current" instead', [
-                ':target' => $source,
+                ':target' => $target,
                 ':source' => $this->file,
-                ':current' => readlink($source)
+                ':current' => readlink($target)
             ]));
         }
 
-        // Ensure target is absolute
-        $source = Filesystem::absolute($source, must_exist: false);
-
         // Ensure that we have restrictions access and target path exists
-        Restrictions::default($restrictions, $this->restrictions)->check($source, true);
-        Path::new(dirname($source), $this->restrictions->getParent())->ensure();
+        $restrictions->check($target, true);
+        Path::new(dirname($target), $this->restrictions->getParent())->ensure();
 
         // Symlink
-        symlink($this->file, $source);
-        return $this;
+        symlink($this->file, $target);
+        return static::new($target, $this->restrictions);
     }
 
 
@@ -1711,11 +1733,10 @@ class FileBasics implements Stringable, FileBasicsInterface
     /**
      * Create the specified file
      *
-     * @param string $data
      * @param bool $force
      * @return static
      */
-    public function create(string $data, bool $force = false): static
+    public function create(bool $force = false): static
     {
         if ($this->exists()) {
             if (!$force) {
@@ -1737,7 +1758,31 @@ class FileBasics implements Stringable, FileBasicsInterface
             $this->close();
         }
 
-        return $this->open(EnumFileOpenMode::writeOnlyCreateOnly)->write($data)->close();
+        return $this->touch();
+    }
+
+
+    /**
+     * Sets access and modification time of file
+     *
+     * @return $this
+     */
+    public function touch(): static
+    {
+        if ($this->exists()) {
+            // Just touch it, I dare you.
+            touch($this->file);
+
+        } elseif ($this instanceof PathInterface) {
+            // If this is supposed to be a directory, create it
+            return $this->ensure();
+
+        } else {
+            // Create it by touching it. Or something like that
+            touch($this->file);
+        }
+
+        return $this;
     }
 
 
@@ -1842,6 +1887,44 @@ class FileBasics implements Stringable, FileBasicsInterface
         }
 
         return $this;
+    }
+
+
+    /**
+     * Will overwrite the file with random data before deleting it
+     *
+     * @param int $passes
+     * @return $this
+     */
+    public function shred(int $passes = 3): static
+    {
+        if ($passes < 1) {
+            throw new OutOfBoundsException(tr('Invalid amount of passes ":passes" specified, must be 1 or higher', [
+                ':passes' => $passes
+            ]));
+        }
+
+        if ($this instanceof PathInterface) {
+throw new UnderConstructionException();
+        }
+
+        $count = (int) ceil($this->getSize() / 4096);
+
+        for ($pass = 1; $pass <= $passes; $pass++) {
+            Log::action(tr('Shredding file ":file" with pass ":pass"', [
+                ':file' => $this->file,
+                ':pass' => $pass
+            ]), 4);
+
+            Process::new('dd', $this->restrictions)
+                ->setSudo(true)
+                ->setAcceptedExitCodes([0, 1]) // Accept 1 if the DD process stopped due to disk full, which is expected
+                ->setTimeout(0)
+                ->addArguments(['if=/dev/urandom', 'of=' . $this->file, 'bs=4096', 'count=' . $count])
+                ->execute(EnumExecuteMethod::passthru);
+        }
+
+        return $this->delete();
     }
 
 

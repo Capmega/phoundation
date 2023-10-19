@@ -95,11 +95,13 @@ class Password extends DataEntry implements PasswordInterface
      * @param string $password
      * @param string|null $email
      * @param int|null $id
-     * @return void
+     * @return string
      */
-    public static function testSecurity(string $password, ?string $email = null, ?int $id = null): void
+    public static function testSecurity(string $password, ?string $email = null, ?int $id = null): string
     {
         try {
+            $password = trim($password);
+
             if (static::isWeak($password, $email)) {
                 throw new ValidationFailedException(tr('This password is not secure enough'));
             }
@@ -116,11 +118,14 @@ class Password extends DataEntry implements PasswordInterface
                     }
                 }
             }
+
         } catch (ValidationFailedException $e) {
             if (!Validator::disabled()) {
                 throw $e;
             }
         }
+
+        return $password;
     }
 
 

@@ -2,6 +2,7 @@
 
 namespace Phoundation\Data\Validator;
 
+use Phoundation\Accounts\Users\Password;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\DataMaxStringSize;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
@@ -50,6 +51,17 @@ class Validate
     public static function new(mixed $source): static
     {
         return new static($source);
+    }
+
+
+    /**
+     * Returns the source data
+     *
+     * @return mixed
+     */
+    public function getSource(): mixed
+    {
+        return $this->source;
     }
 
 
@@ -391,6 +403,21 @@ class Validate
         $this->hasMinCharacters($min_characters)
              ->hasMaxCharacters($max_characters)
              ->matchesRegex('/^\+?[0-9-#\* ].+?$/');
+
+        return $this;
+    }
+
+
+    /**
+     * Validates if the specified field is a valid password
+     */
+    public function isPassword(string $validation_password): static
+    {
+        if ($this->source !== $validation_password) {
+            throw new ValidationFailedException(tr('The specified password must match the validation password'));
+        }
+
+        $this->source = Password::testSecurity($this->source);
 
         return $this;
     }

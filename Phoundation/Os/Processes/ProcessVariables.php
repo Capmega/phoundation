@@ -13,6 +13,7 @@ use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\Traits\DataRestrictions;
 use Phoundation\Os\Processes\Commands\Command;
 use Phoundation\Os\Processes\Commands\Exception\CommandNotFoundException;
 use Phoundation\Os\Processes\Commands\Exception\CommandsException;
@@ -38,6 +39,9 @@ use Stringable;
  */
 trait ProcessVariables
 {
+    use DataRestrictions;
+
+
     /**
      * The command that will be executed for this process
      *
@@ -632,7 +636,7 @@ trait ProcessVariables
      */
     public function setExecutionPathToTemp(bool $public = false): static
     {
-        $path               = Path::getTemporary($public);
+        $path               = Path::getTemporaryBase($public);
         $this->restrictions = $path->getRestrictions();
 
         $this->setExecutionPath($path, $path->getRestrictions());
@@ -902,10 +906,10 @@ trait ProcessVariables
     /**
      * Sets the CLI return values that are accepted as "success" and won't cause an exception
      *
-     * @param array $exit_codes
+     * @param array|int $exit_codes
      * @return static This process so that multiple methods can be chained
      */
-    public function setAcceptedExitCodes(array $exit_codes): static
+    public function setAcceptedExitCodes(array|int $exit_codes): static
     {
         $this->cached_command_line = null;
         $this->accepted_exit_codes = [];
@@ -917,12 +921,12 @@ trait ProcessVariables
     /**
      * Sets the CLI return values that are accepted as "success" and won't cause an exception
      *
-     * @param array $exit_codes
+     * @param array|int $exit_codes
      * @return static This process so that multiple methods can be chained
      */
-    public function addAcceptedExitCodes(array $exit_codes): static
+    public function addAcceptedExitCodes(array|int $exit_codes): static
     {
-        foreach ($exit_codes as $exit_code) {
+        foreach (Arrays::force($exit_codes) as $exit_code) {
             $this->addAcceptedExitCode($exit_code);
         }
 
@@ -945,18 +949,6 @@ trait ProcessVariables
         $this->accepted_exit_codes[] = $exit_code;
 
         return $this;
-    }
-
-
-    /**
-     * Returns the server on which the command should be executed for this process
-     *
-     * @note NULL means this local server
-     * @return Restrictions
-     */
-    public function getRestrictions(): Restrictions
-    {
-        return $this->restrictions;
     }
 
 

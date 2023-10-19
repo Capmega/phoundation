@@ -2,13 +2,13 @@
 
 namespace Phoundation\Filesystem\Interfaces;
 
-
 use Exception;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Path;
 use Throwable;
+
 
 /**
  * File class
@@ -21,7 +21,7 @@ use Throwable;
  * @category Function reference
  * @package Phoundation\Filesystem
  */
-interface FileInterface
+interface FileInterface extends FileBasicsInterface
 {
     /**
      * Returns the configured file buffer size
@@ -47,15 +47,6 @@ interface FileInterface
      * @throws FilesystemException
      */
     public function append(string $data): static;
-
-    /**
-     * Append specified data string to the end of the object file
-     *
-     * @param string $data
-     * @return static
-     * @throws FilesystemException
-     */
-    public function create(string $data): static;
 
     /**
      * Concatenates a list of files to a target file
@@ -213,30 +204,6 @@ interface FileInterface
      * @return array
      */
     public function grep(string|array $filters, ?int $until_line = null): array;
-
-    /**
-     * Create a target, but don't put anything in it
-     *
-     * @param string $path
-     * @param bool $extension
-     * @param bool $singledir
-     * @param int $length
-     * @return string
-     * @throws Exception
-     */
-    public function assignTarget(string $path, bool $extension = false, bool $singledir = false, int $length = 4): string;
-
-    /**
-     * Create a target, but don't put anything in it, and return path+filename without extension
-     *
-     * @param string $path
-     * @param bool $extension
-     * @param bool $singledir
-     * @param int $length
-     * @return string
-     * @throws Exception
-     */
-    public function assignTargetClean(string $path, bool $extension = false, bool $singledir = false, int $length = 4): string;
 
     /**
      * Copy object file, see file_move_to_target for implementation

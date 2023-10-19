@@ -298,8 +298,8 @@ class Cli
      * Checks if we have a TTY and throws exception if we don't
      *
      * @param mixed $file_descriptor
+     * @param string $tty_name
      * @return void
-     * @throws NoTtyException
      */
     public static function checkTty(mixed $file_descriptor, string $tty_name): void
     {

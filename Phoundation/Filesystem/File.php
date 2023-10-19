@@ -16,6 +16,7 @@ use Phoundation\Filesystem\Enums\EnumFileOpenMode;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\Sha256MismatchException;
 use Phoundation\Filesystem\Interfaces\FileInterface;
+use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Os\Processes\Commands\Gzip;
 use Phoundation\Os\Processes\Commands\Sha256;
 use Phoundation\Os\Processes\Commands\Tar;
@@ -458,39 +459,6 @@ class File extends FileBasics implements FileInterface
     }
 
 
-    // GARBAGE BELOW, REIMPLEMENT
-    /**
-     * Create a target, but don't put anything in it
-     *
-     * @param string $path
-     * @param bool $extension
-     * @param bool $singledir
-     * @param int $length
-     * @return string
-     * @throws Exception
-     */
-    public function assignTarget(string $path, bool $extension = false, bool $singledir = false, int $length = 4): string
-    {
-        return $this->moveToTarget('', $path, $extension, $singledir, $length);
-    }
-
-
-    /**
-     * Create a target, but don't put anything in it, and return path+filename without extension
-     *
-     * @param string $path
-     * @param bool $extension
-     * @param bool $singledir
-     * @param int $length
-     * @return string
-     * @throws Exception
-     */
-    public function assignTargetClean(string $path, bool $extension = false, bool $singledir = false, int $length = 4): string
-    {
-        return str_replace($extension, '', $this->moveToTarget('', $path, $extension, $singledir, $length));
-    }
-
-
     /**
      * Copy object file, see file_move_to_target for implementation
      *
@@ -543,7 +511,7 @@ class File extends FileBasics implements FileInterface
             throw new FilesystemException(tr('Copy option has been set, but object file ":file" is an uploaded file, and uploaded files cannot be copied, only moved', [':file' => $this->file]));
         }
 
-        $path     = Path::new($path, $this->restrictions)->ensure();
+        $path = Path::new($path, $this->restrictions)->ensure();
         $this->filename = basename($this->file);
 
         if (!$this->filename) {
@@ -1185,6 +1153,21 @@ class File extends FileBasics implements FileInterface
     public function getContentsAsString(): string
     {
         return file_get_contents($this->file);
+    }
+
+
+    /**
+     * Returns the contents of this file as a string
+     *
+     * @param string $data
+     * @param int $flags
+     * @param $context
+     * @return static
+     */
+    public function putContents(string $data, int $flags = 0, $context = null): static
+    {
+        file_put_contents($this->file, $data, $flags, $context);
+        return $this;
     }
 
 

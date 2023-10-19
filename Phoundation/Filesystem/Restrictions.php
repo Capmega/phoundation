@@ -97,17 +97,21 @@ class Restrictions implements RestrictionsInterface
     /**
      * Returns the default restrictions object if the given specified restrictions are empty
      *
-     * @param RestrictionsInterface|null $restrictions
-     * @param RestrictionsInterface $default
+     * @param RestrictionsInterface|null ...$restrictions
      * @return static
      */
-    public static function default(RestrictionsInterface|null $restrictions, RestrictionsInterface $default): static
+    public static function default(RestrictionsInterface|null ...$restrictions): static
     {
-        if ($restrictions) {
-            return $restrictions->ensureLabel($default->getLabel());
+        $restriction = null;
+
+        // Find the first restrictions object
+        foreach ($restrictions as $restriction) {
+            if ($restriction) {
+                break;
+            }
         }
 
-        return static::ensure($default);
+        return static::ensure($restriction);
     }
 
 

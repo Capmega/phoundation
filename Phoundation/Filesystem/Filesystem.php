@@ -222,15 +222,13 @@ class Filesystem
      */
     public static function absolute(Stringable|string|null $path = null, string $prefix = null, bool $must_exist = true): string
     {
-        $path = (string) $path;
-
-        Filesystem::validateFilename($path);
+        $path = trim((string) $path);
 
         if (!$path) {
             return PATH_ROOT;
         }
 
-        $path = trim($path);
+        Filesystem::validateFilename($path);
 
         if (str_starts_with($path, '/')) {
         // This is already an absolute path
@@ -475,7 +473,7 @@ class Filesystem
 
         // Temp directory can not exist yet
         if (file_exists($file)) {
-            File::new($file, $tmp_path)->delete();
+            File::new($file, Restrictions::new($tmp_path, true, 'temporary'))->delete();
         }
 
         return $file;

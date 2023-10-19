@@ -374,9 +374,9 @@ class RoutingParameters
     /**
      * Returns the server restrictions
      *
-     * @return RestrictionsInterface|array|string|null
+     * @return RestrictionsInterface
      */
-    public function getRestrictions(): RestrictionsInterface|array|string|null
+    public function getRestrictions(): RestrictionsInterface
     {
         return Restrictions::default($this->restrictions, Restrictions::new(PATH_WWW, false, 'Route'));
     }

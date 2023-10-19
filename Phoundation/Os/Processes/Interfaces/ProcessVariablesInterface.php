@@ -252,9 +252,9 @@ interface ProcessVariablesInterface
      * Returns the server on which the command should be executed for this process
      *
      * @note NULL means this local server
-     * @return Restrictions
+     * @return RestrictionsInterface
      */
-    public function getRestrictions(): Restrictions;
+    public function getRestrictions(): RestrictionsInterface;
 
     /**
      * Set the server on which the command should be executed for this process

@@ -24,16 +24,16 @@ trait DataRestrictions
     /**
      * Server object where the image conversion commands will be executed
      *
-     * @var Restrictions $restrictions
+     * @var RestrictionsInterface $restrictions
      */
-    protected Restrictions $restrictions;
+    protected RestrictionsInterface $restrictions;
 
     /**
      * Returns the server restrictions
      *
-     * @return Restrictions
+     * @return RestrictionsInterface
      */
-    public function getRestrictions(): Restrictions
+    public function getRestrictions(): RestrictionsInterface
     {
         return $this->restrictions;
     }

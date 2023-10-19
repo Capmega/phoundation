@@ -3,6 +3,8 @@
 namespace Phoundation\Filesystem\Interfaces;
 
 use Phoundation\Content\Images\Interfaces\ImageInterface;
+use Phoundation\Filesystem\Exception\FilesystemException;
+use Phoundation\Filesystem\Restrictions;
 use Stringable;
 use Throwable;
 
@@ -141,11 +143,11 @@ interface FileBasicsInterface
     /**
      * Moves this file to the specified target, will try to ensure target path exists
      *
-     * @param string $target
-     * @param bool $ensure_path
+     * @param Stringable|string $target
+     * @param Restrictions|null $restrictions
      * @return static
      */
-    public function move(string $target, bool $ensure_path = true): static;
+    public function move(Stringable|string $target, ?Restrictions $restrictions = null): static;
 
     /**
      * Switches file mode to the new value and returns the previous value
@@ -232,4 +234,27 @@ interface FileBasicsInterface
      * @return PathInterface
      */
     public function getDirectory(RestrictionsInterface $restrictions): PathInterface;
+
+    /**
+     * Checks if the specified file exists
+     *
+     * @return bool
+     */
+    function exists(): bool;
+
+    /**
+     * Checks if the specified file exists, throws exception if it doesn't
+     *
+     * @return static
+     */
+    function checkExists(): static;
+
+    /**
+     * Append specified data string to the end of the object file
+     *
+     * @param bool $force
+     * @return static
+     * @throws FilesystemException
+     */
+    public function create(bool $force = false): static;
 }

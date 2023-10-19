@@ -13,9 +13,9 @@ use Phoundation\Core\Strings;
 use Phoundation\Developer\Debug;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
-use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\Traits\DataRestrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Page;
@@ -34,6 +34,9 @@ use Throwable;
  */
 class Bundler
 {
+    use DataRestrictions;
+
+
     /**
      * The path where the bundled file should be stored
      *
@@ -62,13 +65,6 @@ class Bundler
      */
     protected int $count = 0;
 
-    /**
-     * Filesystem access restrictions
-     *
-     * @var Restrictions $restrictions
-     */
-    protected Restrictions $restrictions;
-
 
     /**
      * Bundler class constructor
@@ -87,30 +83,6 @@ class Bundler
     public static function new(): static
     {
         return new static();
-    }
-
-
-    /**
-     * Returns the server and filesystem restrictions for this File object
-     *
-     * @return Restrictions
-     */
-    public function getRestrictions(): Restrictions
-    {
-        return $this->restrictions;
-    }
-
-
-    /**
-     * Sets the server and filesystem restrictions for this File object
-     *
-     * @param RestrictionsInterface|array|string|null $restrictions
-     * @return static
-     */
-    public function setRestrictions(RestrictionsInterface|array|string|null $restrictions = null): static
-    {
-        $this->restrictions = Restrictions::ensure($restrictions);
-        return $this;
     }
 
 
