@@ -59,11 +59,11 @@ Documentation::autoComplete([
 
 // Validate data
 $argv = ArgvValidator::new()
-    ->select('device')->hasMaxCharacters(64)->isFile('/dev/', new Restrictions('/dev', true))->sanitizeCallback(function(mixed $value, array $source) { return '/dev/' . $value; })
+    ->select('device')->hasMaxCharacters(64)->isFile('/dev/', new Restrictions('/dev', true))
     ->select('-p,--passes')->isOptional(3)->isNatural(false)->isBetween(1, 10)
     ->validate();
 
-
+showdie($argv);
 // Ensure this is a device that can be shredded
 try {
     $device = Device::new($argv['device'])->checkUnmounted();
