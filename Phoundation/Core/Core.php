@@ -2613,9 +2613,12 @@ class Core implements CoreInterface
         if (TEST) {
             Log::warning(tr('Not executing ":task" while running in test mode', [
                 ':task' => $task
-            ]));
+            ]), 3);
+
         } else {
-            $function();
+            if ($function()) {
+                Log::success($task, 3);
+            }
         }
     }
 
