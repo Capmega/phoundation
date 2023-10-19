@@ -1533,13 +1533,13 @@ class Core implements CoreInterface
         if (static::inStartupState()) {
             // Wut? We're not even ready to go! Likely we don't have configuration available, so we cannot even send out
             // notifications. Just crash with a standard PHP exception
-            throw PhpException::new('Core startup PHP ERROR "' . $errstr . '"')
+            throw PhpException::new('Core startup PHP ERROR: ' . $errstr)
                 ->setCode($errno)
                 ->setFile($errfile)
                 ->setLine($errline);
         }
 
-        throw PhpException::new('PHP ERROR "' . $errstr . '"')
+        throw PhpException::new('PHP ERROR: ' . $errstr)
             ->setCode($errno)
             ->setFile($errfile)
             ->setLine($errline);
