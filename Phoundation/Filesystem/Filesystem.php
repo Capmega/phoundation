@@ -217,11 +217,11 @@ class Filesystem
      * @note If the specified path exists, and it is a directory, this function will automatically add a trailing / to
      *       the path name
      * @param Stringable|string|null $path
-     * @param string|null $prefix
+     * @param Stringable|string|null $prefix
      * @param bool $must_exist
      * @return string The absolute path
      */
-    public static function absolute(Stringable|string|null $path = null, string $prefix = null, bool $must_exist = true): string
+    public static function absolute(Stringable|string|null $path = null, Stringable|string|null $prefix = null, bool $must_exist = true): string
     {
         $path = trim((string) $path);
 
