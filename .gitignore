@@ -40,4 +40,4 @@ nohup.out
 docker-compose.y*
 config/kubernetes
 data/garbage
-
+/test
