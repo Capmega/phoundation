@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "041ac590f248e172bf6c789868eae543",
+    "content-hash": "f25e264c661fdfd1e7ff844b8a6b5cd4",
     "packages": [
         {
             "name": "clausnz/php-helpers",
@@ -5873,7 +5873,8 @@
         "ext-pcntl": "*",
         "ext-exif": "*",
         "ext-readline": "*",
-        "ext-curl": "*"
+        "ext-curl": "*",
+        "ext-uuid": "^1.2"
     },
     "platform-dev": [],
     "plugin-api-version": "2.3.0"

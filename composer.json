@@ -19,7 +19,8 @@
     "ext-readline": "*",
     "ext-curl": "*",
     "clausnz/php-helpers": "^0.2.1",
-    "phpoffice/phpspreadsheet": "^1.29"
+    "phpoffice/phpspreadsheet": "^1.29",
+    "ext-uuid": "^1.2"
   },
   "require-dev": {
     "phpmd/phpmd": "@stable",
