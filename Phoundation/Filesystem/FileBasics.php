@@ -16,6 +16,7 @@ use Phoundation\Filesystem\Enums\EnumFileOpenMode;
 use Phoundation\Filesystem\Enums\Interfaces\EnumFileOpenModeInterface;
 use Phoundation\Filesystem\Exception\FileActionFailedException;
 use Phoundation\Filesystem\Exception\FileExistsException;
+use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\Exception\FileNotOpenException;
 use Phoundation\Filesystem\Exception\FileNotWritableException;
 use Phoundation\Filesystem\Exception\FileOpenException;
@@ -350,12 +351,41 @@ class FileBasics implements Stringable, FileBasicsInterface
     /**
      * Checks if the specified file exists, throws exception if it doesn't
      *
+     * @param bool $force
      * @return static
+     * @throws FileNotExistException
      */
-    public function checkExists(): static
+    public function checkExists(bool $force = false): static
     {
         if (!file_exists($this->file)) {
-            throw new FilesystemException(tr('Specified file ":file" does not exist', [':file' => $this->file]));
+            if (!$force) {
+                throw new FileNotExistException(tr('Specified file ":file" does not exist', [':file' => $this->file]));
+            }
+
+            // Force the file to exist
+            $this->touch();
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Checks if the specified file does not exist, throws exception if it does
+     *
+     * @param bool $force
+     * @return static
+     * @throws FileExistsException
+     */
+    public function checkNotExists(bool $force = false): static
+    {
+        if (file_exists($this->file)) {
+            if (!$force) {
+                throw new FileExistsException(tr('Specified file ":file" already exist', [':file' => $this->file]));
+            }
+
+            // Delete the file
+            $this->delete();
         }
 
         return $this;
@@ -1174,12 +1204,12 @@ class FileBasics implements Stringable, FileBasicsInterface
     /**
      * Returns the parent directory for this file
      *
-     * @param RestrictionsInterface $restrictions
+     * @param RestrictionsInterface|null $restrictions
      * @return PathInterface
      */
-    public function getDirectory(RestrictionsInterface $restrictions): PathInterface
+    public function getParentDirectory(?RestrictionsInterface $restrictions = null): PathInterface
     {
-        return Path::new(dirname($this->file), $restrictions);
+        return Path::new(dirname($this->file), $restrictions ?? $this->restrictions->getParent());
     }
 
 
@@ -1898,8 +1928,8 @@ show($restrictions->getPaths());
      */
     public function shred(int $passes = 3): static
     {
-        if ($passes < 1) {
-            throw new OutOfBoundsException(tr('Invalid amount of passes ":passes" specified, must be 1 or higher', [
+        if (($passes < 1) or ($passes > 20)) {
+            throw new OutOfBoundsException(tr('Invalid amount of passes ":passes" specified, must be between 1 and 20', [
                 ':passes' => $passes
             ]));
         }
@@ -1921,7 +1951,7 @@ throw new UnderConstructionException();
                 ->setAcceptedExitCodes([0, 1]) // Accept 1 if the DD process stopped due to disk full, which is expected
                 ->setTimeout(0)
                 ->addArguments(['if=/dev/urandom', 'of=' . $this->file, 'bs=4096', 'count=' . $count])
-                ->execute(EnumExecuteMethod::passthru);
+                ->execute(EnumExecuteMethod::noReturn);
         }
 
         return $this->delete();

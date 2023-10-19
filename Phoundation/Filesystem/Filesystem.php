@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Filesystem;
 
+use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
@@ -237,6 +238,10 @@ class Filesystem
         } elseif (str_starts_with($path, '~')) {
             // This is a user home directory
             $return = Strings::unslash($_SERVER['HOME']) . Strings::startsWith(substr($path, 1), '/');
+
+        } elseif (str_starts_with($path, './')) {
+            // This is a user home directory
+            $return = STARTDIR . substr($path, 2);
 
         } else {
             // This is not an absolute path, make it an absolute path

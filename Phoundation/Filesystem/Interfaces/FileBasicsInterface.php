@@ -233,7 +233,7 @@ interface FileBasicsInterface
      * @param RestrictionsInterface $restrictions
      * @return PathInterface
      */
-    public function getDirectory(RestrictionsInterface $restrictions): PathInterface;
+    public function getParentDirectory(RestrictionsInterface $restrictions): PathInterface;
 
     /**
      * Checks if the specified file exists
