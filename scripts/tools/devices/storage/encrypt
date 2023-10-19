@@ -122,3 +122,9 @@ if ($argv['scramble']) {
 
 // Encrypt!
 $device->encrypt($argv['password'], $argv['key_file']);
+
+
+// Done!
+Log::success(tr('Finished encrypting device ":device"', [
+    ':device' => $argv['device']
+]));

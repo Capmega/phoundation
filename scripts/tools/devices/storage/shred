@@ -99,3 +99,9 @@ for ($i = 1; $i <= $argv['passes']; $i++) {
         throw $e->makeWarning();
     }
 }
+
+
+// Done!
+Log::success(tr('Finished shredding device ":device"', [
+    ':device' => $argv['device']
+]));
