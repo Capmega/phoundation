@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Sessions;
 
+use Cassandra\Uuid;
 use DateTimeZone;
 use Exception;
 use GeoIP;
@@ -151,6 +152,16 @@ class Session implements SessionInterface
                 $_SESSION['flash_messages'] = static::$flash_messages->export();
             }
         }
+    }
+
+
+    public static function getUUID(): string
+    {
+        if (empty($_SESSION['uuid'])) {
+            $_SESSION['uuid'] = Strings::generateUuid();
+        }
+
+        return $_SESSION['uuid'];
     }
 
 
@@ -448,7 +459,7 @@ class Session implements SessionInterface
         switch (Config::getString('web.sessions.handler', 'files')) {
             case 'files':
                 $path = Path::new(Config::getString('web.sessions.path', PATH_DATA . 'sessions/'), Restrictions::new([PATH_DATA, '/var/lib/php/sessions/'], true, 'system/sessions'))->ensure();
-                session_save_path($path);
+                session_save_path($path->getFile());
                 break;
 
             case 'memcached':
