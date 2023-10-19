@@ -63,7 +63,7 @@ $argv = ArgvValidator::new()
     ->select('-p,--passes')->isOptional(3)->isNatural(false)->isBetween(1, 10)
     ->validate();
 
-showdie($argv);
+
 // Ensure this is a device that can be shredded
 try {
     $device = Device::new($argv['device'])->checkUnmounted();
