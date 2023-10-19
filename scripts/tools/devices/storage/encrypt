@@ -6,9 +6,12 @@ declare(strict_types=1);
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\CliCommand;
 use Phoundation\Cli\Documentation;
+use Phoundation\Core\Config;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\Validate;
+use Phoundation\Developer\Debug;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Os\Devices\Storage\Device;
@@ -29,19 +32,22 @@ use Phoundation\Os\Processes\Process;
  */
 $restrictions = Restrictions::new('/dev', true);
 
-Documentation::usage('./pho tools devices storage encrypt');
+Documentation::usage('./pho tools devices storage encrypt
+echo PASSWORD | ./pho tools devices storage encrypt -s');
 
 Documentation::help('The encrypt script will encrypt the specified device by reformatting it and applying full disk encryption
 
 NOTE: This will irreparably destroy all information on the specified device. Proceed with caution, here be dragons!
+
+NOTE: This script is interactive as it asks the password for the user on the command line! 
+
+NOTE This can run into non-interactive mode and accept the password through a CLI pipe. See USAGE for an example of this 
 
 
 ARGUMENTS
 
 
 DEVICE                                  The device file to be encrypted
-
--k,--key                                The encryption key to use
 
 --key-file                              The file containing the encryption key 
 
@@ -55,7 +61,6 @@ Documentation::autoComplete([
         ],
     ],
     'arguments' => [
-        '-k,--key' => true,
         '--key-file' => true,
         '-s,--scramble' => false,
     ]
@@ -65,9 +70,8 @@ Documentation::autoComplete([
 // Validate data
 $argv = ArgvValidator::new()
     ->select('device')->hasMaxCharacters(64)->isFile('/dev/', new Restrictions('/dev', true))->sanitizeCallback(function(mixed $value, array $source) { return '/dev/' . $value; })
-    ->select('-k,--key', true)->isOptional()->xor('key_file')->isPassword()
     ->select('-s,--scramble')->isOptional()->isBoolean()
-    ->select('--key-file', true)->isOptional()->xor('key')->isFile('/', '/')
+    ->select('--key-file', true)->isOptional()->isFile('/', '/')
     ->validate();
 
 
@@ -77,6 +81,26 @@ try {
 
 } catch (StorageException $e) {
     throw $e->makeWarning();
+}
+
+
+// Read password from stdin stream?
+if (empty($argv['key_file'])) {
+    if (CliCommand::hasStdInStream()) {
+        $argv['password'] = CliCommand::readStdInStream();
+        $argv['password_validate'] = $argv['password'];
+
+        if (!FORCE) {
+            throw new ValidationFailedException(tr('Sending password through a pipe disables the TTY and requires "-F,--force" to be specified for safety'));
+        }
+
+    } else {
+        // Read password in interactive mode instead
+        $argv['password'] = Cli::readPassword(tr('Please type the users password:'));
+        $argv['password_validate'] = Cli::readPassword(tr('Please re-type the users password:'));
+    }
+
+    $argv['password'] = Validate::new($argv['password'])->isPassword($argv['password_validate'])->getSource();
 }
 
 
@@ -97,4 +121,4 @@ if ($argv['scramble']) {
 
 
 // Encrypt!
-$device->encrypt($argv['key']);
+$device->encrypt($argv['password'], $argv['key_file']);
