@@ -2022,16 +2022,16 @@ abstract class Validator implements ValidatorInterface
     /**
      * Validates if the selected field is a valid file
      *
-     * @param Stringable|string|null $check_in_path
+     * @param Stringable|string|null $check_in_directory
      * @param RestrictionsInterface|array|string|null $restrictions
-     * @param bool $exists
+     * @param bool|null $exists
      * @return static
      */
-    public function isFile(Stringable|string|null $check_in_path = null, RestrictionsInterface|array|string|null $restrictions = null, bool $exists = true): static
+    public function isFile(Stringable|string|null $check_in_directory = null, RestrictionsInterface|array|string|null $restrictions = null, ?bool $exists = true): static
     {
         $restrictions = Restrictions::ensure($restrictions)->setLabel(tr('Validator'));
 
-        return $this->validateValues(function(&$value) use($check_in_path, $restrictions, $exists) {
+        return $this->validateValues(function(&$value) use($check_in_directory, $restrictions, $exists) {
             $this->hasMinCharacters(1)->hasMaxCharacters(2048);
 
             if ($this->process_value_failed) {
@@ -2039,15 +2039,18 @@ abstract class Validator implements ValidatorInterface
                 return;
             }
 
-            if ($check_in_path !== null) {
+            if ($check_in_directory !== null) {
                 if ($exists) {
                     // The specified file must exist
-                    $this->checkFile($value, $check_in_path, $restrictions);
+                    $this->checkFile($value, $check_in_directory, $restrictions);
 
-                } else {
+                } elseif ($exists !== null) {
+                    // So $exists is explicitly false.
                     // The specified directory must NOT exist, but ensure the parent path is available so that we can
                     // create it
-                    $this->checkFile(dirname($value), $check_in_path, $restrictions, true);
+                    $parent = dirname($value);
+
+                    $this->checkFile($parent, $check_in_directory, $restrictions, true);
 
                     if (file_exists($value)) {
                         $this->addFailure(tr('is a file that already exists'));
@@ -2062,12 +2065,12 @@ abstract class Validator implements ValidatorInterface
      * Checks if the specified path exists or not, and if its of the correct type
      *
      * @param string|bool $value
-     * @param Stringable|string|null $exists_in_path
-     * @param RestrictionsInterface|array|string|null $restrictions
+     * @param Stringable|string|null $exists_in_directory
+     * @param RestrictionsInterface|null $restrictions
      * @param bool $directory
      * @return void
      */
-    protected function checkFile(string|bool &$value, Stringable|string|null $exists_in_path = null, RestrictionsInterface|array|string|null $restrictions = null, ?bool $directory = false): void
+    protected function checkFile(string|bool &$value, Stringable|string|null $exists_in_directory = null, RestrictionsInterface $restrictions = null, ?bool $directory = false): void
     {
         if ($directory) {
             $type = 'directory';
@@ -2091,16 +2094,11 @@ abstract class Validator implements ValidatorInterface
             ]));
         }
 
-        // It's okay if the specified file STARTS with PATH, just strip it from the start
-        if (str_starts_with($value, '/')) {
-            $value = Strings::from($value, $exists_in_path);
-        }
+        $value = Filesystem::absolute($value, $exists_in_directory, false);
 
-        $path = ($exists_in_path ? Strings::slash($exists_in_path) : null) . $value;
+        Restrictions::ensure($restrictions)->check($value, false);
 
-        Restrictions::ensure($restrictions)->check($path, false);
-
-        if (!file_exists($path)) {
+        if (!file_exists($value)) {
             if ($type) {
                 $this->addFailure(tr('must be an existing :type', [':type' => $type]));
             } else {
@@ -2109,11 +2107,11 @@ abstract class Validator implements ValidatorInterface
         }
 
         if ($directory) {
-            if (!is_dir($path)) {
+            if (!is_dir($value)) {
                 $this->addFailure(tr('must be a directory'));
             }
         } elseif (is_bool($directory)) {
-            if (is_dir($path)) {
+            if (is_dir($value)) {
                 $this->addFailure(tr('cannot be a directory'));
             }
         }

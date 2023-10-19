@@ -654,12 +654,12 @@ interface ValidatorInterface
     /**
      * Validates if the selected field is a valid file
      *
-     * @param Stringable|string|null $check_in_path
+     * @param Stringable|string|null $check_in_directory
      * @param RestrictionsInterface|array|string|null $restrictions
      * @param bool $exists
      * @return static
      */
-    public function isFile(Stringable|string|null $check_in_path = null, RestrictionsInterface|array|string|null $restrictions = null, bool $exists = true): static;
+    public function isFile(Stringable|string|null $check_in_directory = null, RestrictionsInterface|array|string|null $restrictions = null, bool $exists = true): static;
 
     /**
      * Validates if the selected field is a valid description
