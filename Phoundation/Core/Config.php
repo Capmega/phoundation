@@ -493,9 +493,6 @@ class Config implements ConfigInterface
             $data = &$data[$section];
         }
 
-        // Clear config cache
-        static::$cache = [];
-
         // The variable $data should now be the correct leaf node. Assign it $value and return it.
         $data = $value;
         return static::$cache[$cache_key] = $value;
