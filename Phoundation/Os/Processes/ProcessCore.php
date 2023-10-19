@@ -17,6 +17,7 @@ use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Os\Processes\Commands\Exception\CommandsException;
 use Phoundation\Os\Processes\Commands\Kill;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
+use Phoundation\Os\Processes\Enum\EnumIoNiceClass;
 use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 use Phoundation\Os\Processes\Exception\ProcessException;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
@@ -501,6 +502,29 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
                 // Make sure the PID will be registered in the run file
                 $this->cached_command_line = "bash -c 'set -o pipefail; " . str_replace("'", '"', $this->cached_command_line) . "; exit \$?';";
             }
+        }
+
+        // Add nice
+        if ($this->nice) {
+            $this->cached_command_line = 'nice -n ' . $this->nice . ' ' . $this->cached_command_line;
+        }
+
+        // Add ionice
+        switch ($this->ionice_class) {
+            case EnumIoNiceClass::none:
+                break;
+
+            case EnumIoNiceClass::idle:
+                // no break
+            case EnumIoNiceClass::realtime:
+                // no break
+            case EnumIoNiceClass::best_effort:
+                $this->cached_command_line = 'ionice --class ' . $this->ionice_class->value . ' --classdata ' . $this->ionice_level . ' ' . $this->cached_command_line;
+        }
+
+        // Add nocache
+        if ($this->nocache) {
+            $this->cached_command_line = 'nocache' . (is_numeric($this->nocache) ? ' -n ' . $this->nocache . ' ' : ' ') . $this->cached_command_line;
         }
 
         // Add sudo

@@ -160,7 +160,7 @@ trait ProcessVariables
      *
      * @var int $ionice_level
      */
-    protected int $ionice_level = 0;
+    protected int $ionice_level = 7;
 
     /**
      * A cached version of the command line
@@ -456,6 +456,115 @@ trait ProcessVariables
     public function setClearLogs(bool $clear_logs): static
     {
         $this->clear_logs = $clear_logs;
+        return $this;
+    }
+
+
+    /**
+     * Returns the nice level for this process
+     *
+     * @return EnumIoNiceClassInterface
+     */
+    public function getIoNiceClass(): EnumIoNiceClassInterface
+    {
+        return $this->ionice_class;
+    }
+
+
+    /**
+     * Sets the ionice class for this process
+     *
+     * @param EnumIoNiceClassInterface $ionice_class
+     * @return static This process so that multiple methods can be chained
+     */
+    public function setIoNiceClass(EnumIoNiceClassInterface $ionice_class): static
+    {
+        $this->ionice_class = $ionice_class;
+        return $this;
+    }
+
+
+    /**
+     * Returns the nice level for this process
+     *
+     * @return int
+     */
+    public function getIoNiceLevel(): int
+    {
+        return $this->ionice_level;
+    }
+
+
+    /**
+     * Sets the ionice level for this process
+     *
+     * @param int $ionice_level
+     * @return static This process so that multiple methods can be chained
+     */
+    public function setIoNiceLevel(int $ionice_level): static
+    {
+        switch ($this->ionice_class) {
+            case EnumIoNiceClass::realtime:
+                // no break
+
+            case EnumIoNiceClass::best_effort:
+                break;
+
+            default:
+                throw new OutOfBoundsException(tr('Cannot set IO nice level, the IO nice class ":class" is not one of "EnumIoNiceClass::realtime, EnumIoNiceClass::best_effort"', [
+                    ':class' => $this->ionice_class->value
+                ]));
+        }
+
+        $this->ionice_level = $ionice_level;
+        return $this;
+    }
+
+
+    /**
+     * Returns the nice level for this process
+     *
+     * @return int
+     */
+    public function getNice(): int
+    {
+        return $this->nice;
+    }
+
+
+    /**
+     * Sets the nice level for this process
+     *
+     * @param int $nice
+     * @return static This process so that multiple methods can be chained
+     */
+    public function setNice(int $nice): static
+    {
+        $this->nice = $nice;
+        return $this;
+    }
+
+
+    /**
+     * Returns the nocache option for this process
+     *
+     * @return int|bool
+     */
+    public function getNoCache(): int|bool
+    {
+        return $this->nocache;
+    }
+
+
+    /**
+     * Sets the nocache option for this process
+     *
+     * @param int|bool $nocache
+     * @return static This process so that multiple methods can be chained
+     */
+    public function setNoCache(int|bool $nocache): static
+    {
+        $this->nocache = $nocache;
         return $this;
     }
 
