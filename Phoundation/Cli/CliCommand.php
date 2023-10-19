@@ -1031,15 +1031,18 @@ The following arguments are available to ALL scripts
      * Requires the user to type YES to confirm, unless -F,--force was specified on command line
      *
      * @param string $message
+     * @param string $reply
      * @return void
      */
-    public static function requestConfirmation(string $message): void
+    public static function requestConfirmation(string $message, string $reply = 'YES'): void
     {
         if (!FORCE) {
             $result = Cli::readInput($message);
 
-            if ($result !== 'YES') {
-                throw new ValidationFailedException(tr('No "YES" specified on prompt'));
+            if ($result !== $reply) {
+                throw new ValidationFailedException(tr('No ":reply" specified on prompt', [
+                    ':reply' => $reply
+                ]));
             }
         }
     }
