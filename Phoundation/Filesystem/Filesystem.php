@@ -502,6 +502,8 @@ class Filesystem
             return File::new($file, $restrictions);
         }
 
-        throw new FileNotExistException(tr('The specified file "" does not exist'));
+        throw new FileNotExistException(tr('The specified file ":file" does not exist', [
+            ':file' => $file
+        ]));
     }
 }

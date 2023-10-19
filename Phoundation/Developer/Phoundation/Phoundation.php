@@ -239,7 +239,7 @@ class Phoundation extends Project
         }
 
         if (!file_exists(PATH_ROOT . $file)) {
-            throw new FileNotExistException(tr('The specified file "" does not exist', [
+            throw new FileNotExistException(tr('The specified file ":file" does not exist', [
                 ':file' => $file
             ]));
         }
