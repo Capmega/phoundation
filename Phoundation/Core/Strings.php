@@ -1965,7 +1965,7 @@ throw new UnderConstructionException();
      * @return string
      * @throws Exception
      */
-    public static function uuid(Stringable|string|null $data = null): string
+    public static function generateUuid(Stringable|string|null $data = null): string
     {
         // Generate 16 bytes (128 bits) of random data or use the data passed into the function.
         $data = $data ?? random_bytes(16);
