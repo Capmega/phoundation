@@ -42,7 +42,6 @@ use Stringable;
  */
 class Iterator implements IteratorInterface
 {
-    use UsesNew;
     use DataCallbacks;
 
 
@@ -52,6 +51,31 @@ class Iterator implements IteratorInterface
      * @var array $source
      */
     protected array $source = [];
+
+
+    /**
+     * Iterator class constructor
+     *
+     * @param array|null $source
+     */
+    public function __construct(?array $source = null)
+    {
+        if ($source) {
+            $this->source = $source;
+        }
+    }
+
+
+    /**
+     * Returns a new static object
+     *
+     * @param array|null $source
+     * @return static
+     */
+    public static function new(?array $source = null): static
+    {
+        return new static($source);
+    }
 
 
     /**
@@ -701,5 +725,30 @@ class Iterator implements IteratorInterface
     public function isEmpty(): bool
     {
         return !count($this->source);
+    }
+
+
+    /**
+     * Returns a new Iterator (or subclass) object containing data filtered from the data of this object
+     *
+     * @param string $key
+     * @param mixed $values
+     * @param bool $strict
+     * @return static
+     */
+    public function getFiltered(string $key, mixed $values, bool $strict = true): static
+    {
+        $return = new static();
+        $values = Arrays::force($values);
+
+        foreach ($this->source as $source_key => $source_value) {
+            if ($source_key === $key) {
+                if (in_array($source_value, $values, $strict)) {
+                    $return->add($source_value, $source_key);
+                }
+            }
+        }
+
+        return $return;
     }
 }

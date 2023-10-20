@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Versioning\Git\Traits;
 
+use Phoundation\Data\Traits\NewSource;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Os\Processes\Process;
@@ -21,6 +22,9 @@ use Phoundation\Os\Processes\Process;
  */
 trait GitProcess
 {
+    use NewSource;
+
+
     /**
      * The path that will be checked
      *
@@ -34,17 +38,6 @@ trait GitProcess
      * @var Process $git_process
      */
     protected Process $git_process;
-
-
-    /**
-     * Returns a new GitPath object
-     *
-     * @return static
-     */
-    public static function new(): static
-    {
-        return new static();
-    }
 
 
     /**

@@ -6,9 +6,8 @@ namespace Phoundation\Web\Http\Html\Components;
 
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Strings;
-use Phoundation\Data\Traits\UsesNew;
+use Phoundation\Data\Traits\NewSource;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Html;
 use Stringable;
 
@@ -25,7 +24,7 @@ use Stringable;
  */
 trait ElementAttributes
 {
-    use UsesNew;
+    use NewSource;
 
 
     /**
