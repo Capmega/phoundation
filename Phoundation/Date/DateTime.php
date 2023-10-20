@@ -293,7 +293,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      */
     public static function getPreviousPeriodOfMonth(DateTime|string|null $datetime, \DateTimeZone|string|null $timezone = null): static
     {
-        $datetime = static::new($datetime);
+        $datetime = static::new($datetime, $timezone);
         $date_day = $datetime->format('d');
 
         if ($date_day > 15) {
@@ -316,7 +316,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      */
     public static function getNextPeriodOfMonth(DateTime|string|null $datetime, \DateTimeZone|string|null $timezone = null): static
     {
-        $datetime = static::new($datetime);
+        $datetime = static::new($datetime, $timezone);
         $date_day = $datetime->format('d');
 
         if ($date_day > 15) {
