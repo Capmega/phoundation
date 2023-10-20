@@ -302,7 +302,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
         }
 
         // 16 - 3(0|1) previous month
-        $start = $datetime->sub(new DateInterval('1 month'));
+        $start = $datetime->sub(DateInterval::createFromDateString('1 month'));
         return DateTime::new($start->format('Y-m-16 00:00:00'), $timezone);
     }
 
@@ -316,7 +316,17 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      */
     public static function getNextPeriodOfMonth(DateTime|string|null $datetime, \DateTimeZone|string|null $timezone = null): static
     {
-        return new static('Y-m-15', DateTimeZone::new($timezone));
+        $datetime = static::new($datetime);
+        $date_day = $datetime->format('d');
+
+        if ($date_day > 15) {
+            // 1 - 15 next month
+            $start = $datetime->add(DateInterval::createFromDateString('1 month'));
+            return DateTime::new($start->format('Y-m-1 00:00:00'), $timezone);
+        }
+
+        // 16 - 3(0|1) this month
+        return DateTime::new($datetime->format('Y-m-16 00:00:00'), $timezone);
     }
 
 
