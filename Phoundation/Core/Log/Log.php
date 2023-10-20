@@ -1055,12 +1055,29 @@ Class Log {
      * @param int $threshold The log level for this backtrace data
      * @param int|null $display How to display the backtrace. Must be one of Log::BACKTRACE_DISPLAY_FILE,
      *                          Log::BACKTRACE_DISPLAY_FUNCTION or Log::BACKTRACE_DISPLAY_BOTH.
+     * @param string $class
+     * @param bool $echo_screen
+     * @param bool $from_script
      * @return int The amount of lines that were logged. -1 in case of an exception while trying to log the backtrace.
      */
-    protected static function dumpTrace(array $backtrace, int $threshold = 9, ?int $display = null, string $class = 'debug', bool $echo_screen = true): int
+    protected static function dumpTrace(array $backtrace, int $threshold = 9, ?int $display = null, string $class = 'debug', bool $echo_screen = true, bool $from_script = true): int
     {
         try {
             $lines = Debug::formatBackTrace($backtrace);
+
+            if ($from_script) {
+                // Filter out all entries before the script start
+                $copy = $lines;
+                $lines = [];
+
+                foreach ($copy as $line) {
+                    if (str_contains($line, 'functions.php') and str_contains($line, 'include()')) {
+                        break;
+                    }
+
+                    $lines[] = $line;
+                }
+            }
 
             foreach ($lines as $line) {
                 static::write($line, $class, $threshold, false, echo_screen: $echo_screen);

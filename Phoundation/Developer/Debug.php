@@ -16,6 +16,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\Exception;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Notification;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Html\Html;
@@ -190,18 +191,33 @@ class Debug {
     /**
      * Returns a backtrace
      *
-     * @param int $start
+     * @param string|int $start
      * @param array|string[] $remove_sections
      * @return array
      */
-    public static function backtrace(int $start = 1, array|string $remove_sections = ['args', 'object']): array
+    public static function backtrace(string|int $start = 1, array|string $remove_sections = ['args', 'object']): array
     {
         $trace           = [];
         $remove_sections = Arrays::force($remove_sections);
 
         foreach (debug_backtrace() as $key => $value) {
-            if ($start and ($key < $start)) {
-                continue;
+showdie($value);
+            if ($start) {
+                if (is_string($start)) {
+                    if ($start === 'auto') {
+                        if (str_contains($value['file'], 'functions.php') and str_contains($value['function'], 'include(')) {
+                            break;
+                        }
+
+                    } else {
+                        throw new OutOfBoundsException(tr('Invalid backtrace start ":start" specified. Must be a positive integer or "auto"', [
+                            ':start' => $start
+                        ]));
+                    }
+                } elseif ($key < $start) {
+                    // Start building backtrace at specified entry
+                    continue;
+                }
             }
 
             foreach ($remove_sections as $section) {
@@ -324,12 +340,20 @@ class Debug {
      * @param mixed $value
      * @param int $trace_offset
      * @param bool $quiet
+     * @param bool|null $full_backtrace If true will dump full backtraces. If false, will dump limited backtraces
+     *                                  starting from the executed script. If NULL, will determine true or false from
+     *                                  config path "debug.backtrace.full"
      * @return mixed
      */
-    public static function show(mixed $value = null, int $trace_offset = 0, bool $quiet = false): mixed
+    public static function show(mixed $value = null, int $trace_offset = 0, bool $quiet = false, ?bool $full_backtrace = null): mixed
     {
         if (!static::getEnabled()) {
             return null;
+        }
+
+        if ($full_backtrace === null) {
+            // Show debug backtraces starting from scripts or full?
+            $full_backtrace = Config::getBoolean('debug.backtrace.full', false);
         }
 
         try {
@@ -373,7 +397,7 @@ class Debug {
 
                         default:
                             // Force HTML content type, and show HTML data
-                            $output = static::showHtml($value, tr('Unknown'), $trace_offset);
+                            $output = static::showHtml($value, tr('Unknown'), $trace_offset, $full_backtrace);
                     }
 
                     // Show output on web
@@ -438,8 +462,6 @@ class Debug {
                 echo $return;
             }
 
-            return $value;
-
         } catch (Throwable $e) {
             if (php_sapi_name() !== 'cli') {
                 // Only add this on browsers
@@ -449,6 +471,8 @@ class Debug {
             echo 'Debug::show() call failed with following exception';
             print_r($e);
         }
+
+        return $value;
     }
 
 
@@ -505,9 +529,10 @@ class Debug {
      * @param mixed $value
      * @param string|null $key
      * @param int $trace_offset
+     * @param bool $full_backtrace
      * @return string
      */
-    protected static function showHtml(mixed $value, string|null $key = null, int $trace_offset = 0): string
+    protected static function showHtml(mixed $value, string|null $key = null, int $trace_offset = 0, bool $full_backtrace = false): string
     {
         static $style;
 
@@ -550,7 +575,7 @@ class Debug {
         return $return . '  <table class="debug">
                               <thead class="debug-header"><td colspan="4">'.static::currentFile(1 + $trace_offset) . '@'.static::currentLine(1 + $trace_offset) . '</td></thead>
                               <thead class="debug-columns"><td>'.tr('Key') . '</td><td>'.tr('Type') . '</td><td>'.tr('Size') . '</td><td>'.tr('Value') . '</td></thead>
-                              '.static::showHtmlRow($value, $key) . '
+                              '.static::showHtmlRow($value, $key, $full_backtrace) . '
                             </table>';
     }
 
@@ -560,9 +585,10 @@ class Debug {
      *
      * @param mixed $value
      * @param string|null $key
+     * @param bool $full_backtrace
      * @return string
      */
-    protected static function showHtmlRow(mixed $value, ?string $key = null): string
+    protected static function showHtmlRow(mixed $value, ?string $key = null, bool $full_backtrace = false): string
     {
         if ($key === null) {
             $key = tr('Unknown');
@@ -644,7 +670,7 @@ class Debug {
                 ksort($value);
 
                 foreach ($value as $subkey => $subvalue) {
-                    $return .= static::showHtmlRow($subvalue, (string) $subkey);
+                    $return .= static::showHtmlRow($subvalue, (string) $subkey, $full_backtrace);
                 }
 
                 return '<tr>
@@ -675,6 +701,12 @@ class Debug {
                     $exception .= '<br>' . tr('Location: ') . htmlspecialchars($value->getFile()) . '@' . $value->getLine() . '<br><br>' . tr('Backtrace: ') . '<br>';
 
                     foreach (Debug::formatBacktrace($value->getTrace()) as $line) {
+                        if (!$full_backtrace) {
+                            if (str_contains($line, 'Phoundation/functions.php@') and str_contains($line, 'include()')) {
+                                break;
+                            }
+                        }
+
                         $exception .= htmlspecialchars((string) $line) . '<br>';
                     }
 
@@ -1047,7 +1079,7 @@ class Debug {
      * @param array $backtrace The backtrace data
      * @return array The backtrace lines
      */
-    public static function formatBackTrace(array $backtrace): array
+    public static function formatBackTrace(array $backtrace, bool $full_backtrace = false): array
     {
         $lines   = static::buildBackTrace($backtrace);
         $longest = Arrays::getLongestValueSize($lines, 'call');
