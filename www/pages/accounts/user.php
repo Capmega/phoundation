@@ -161,7 +161,7 @@ if ($user->getId()) {
     $emails_card = Card::new()
         ->setCollapseSwitch(true)
         ->setCollapsed(true)
-        ->setTitle(tr('Extra email addresses for this user [:count]', [':count' => $user->getEmails()->getCount()]))
+        ->setTitle(tr('Additional email addresses for this user [:count]', [':count' => $user->getEmails()->getCount()]))
         ->setContent($user
             ->getEmails()
                 ->getHtmlForm()
@@ -175,7 +175,7 @@ if ($user->getId()) {
     $phones_card = Card::new()
         ->setCollapseSwitch(true)
         ->setCollapsed(true)
-        ->setTitle(tr('Extra phone numbers for this user [:count]', [':count' => $user->getPhones()->getCount()]))
+        ->setTitle(tr('Additional phone numbers for this user [:count]', [':count' => $user->getPhones()->getCount()]))
         ->setContent($user
             ->getPhones()
                 ->getHtmlForm()

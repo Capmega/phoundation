@@ -78,9 +78,9 @@ $users   = Users::new();
 $builder = $users->getQueryBuilder()
     ->addSelect('`accounts_users`.`id`, 
                  TRIM(CONCAT(`first_names`, " ", `last_names`)) AS `name`, 
-                 GROUP_CONCAT(CONCAT(UPPER(LEFT(`accounts_roles`.`name`, 1)), SUBSTRING(`accounts_roles`.`name`, 2)) SEPARATOR ", ") AS `roles`, 
                  `accounts_users`.`email`, 
                  `accounts_users`.`status`, 
+                 GROUP_CONCAT(CONCAT(UPPER(LEFT(`accounts_roles`.`name`, 1)), SUBSTRING(`accounts_roles`.`name`, 2)) SEPARATOR ", ") AS `roles`, 
                  `accounts_users`.`created_on`')
     ->addJoin('LEFT JOIN `accounts_users_roles`
                ON        `accounts_users_roles`.`users_id` = `accounts_users`.`id`')
