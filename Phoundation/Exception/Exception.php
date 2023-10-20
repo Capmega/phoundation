@@ -182,6 +182,19 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
 
 
     /**
+     * Sets the specified data for this exception
+     *
+     * @param mixed $data
+     * @return $this
+     */
+    public function setData(mixed $data): static
+    {
+        $this->data = Arrays::force($data);
+        return $this;
+    }
+
+
+    /**
      * Add relevant exception data
      *
      * @param mixed $data
