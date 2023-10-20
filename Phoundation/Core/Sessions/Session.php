@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Sessions;
 
-use Cassandra\Uuid;
 use DateTimeZone;
 use Exception;
 use GeoIP;
