@@ -160,7 +160,7 @@ class Emails extends DataList implements EmailsInterface
             ->validate(false);
 
         // Parse and sub validate
-        if ($post['emails']) {
+        if (isset($post['emails'])) {
             foreach ($post['emails'] as $email) {
                 $email = trim($email);
 

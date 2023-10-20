@@ -1704,6 +1704,7 @@ class User extends DataEntry implements UserInterface
                     $validator->isDate()->isBefore();
                 }))
             ->addDefinition(DefinitionFactory::getPhone($this)
+                ->setSize(3)
                 ->setHelpGroup(tr('Personal information'))
                 ->setHelpText(tr('Main phone number where this user may be contacted')))
             ->addDefinition(Definition::new($this, 'address')

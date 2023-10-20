@@ -160,7 +160,7 @@ class Phones extends DataList implements PhonesInterface
             ->validate(false);
 
         // Parse and sub validate
-        if ($post['phones']) {
+        if (isset($post['phones'])) {
             foreach ($post['phones'] as $phone) {
                 $phone = trim($phone);
 
