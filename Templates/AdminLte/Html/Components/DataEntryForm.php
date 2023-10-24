@@ -10,6 +10,7 @@ use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Http\Html\Components\Input\InputHidden;
 use Phoundation\Web\Http\Html\Components\Input\InputMultiButtonText;
 use Phoundation\Web\Http\Html\Components\Input\InputSelect;
 use Phoundation\Web\Http\Html\Components\Input\InputTextArea;
@@ -169,6 +170,7 @@ class DataEntryForm extends Renderer
             Arrays::default($definition_array, 'pattern'     , null);
             Arrays::default($definition_array, 'placeholder' , null);
             Arrays::default($definition_array, 'readonly'    , $render_object->getReadonly());
+            Arrays::default($definition_array, 'hidden'      , $definition->getHidden());
             Arrays::default($definition_array, 'size'        , 12);
             Arrays::default($definition_array, 'source'      , null);
             Arrays::default($definition_array, 'step'        , null);
@@ -181,6 +183,11 @@ class DataEntryForm extends Renderer
             switch ($field) {
                 case 'password':
                     $source[$field] = '';
+            }
+
+            // Hidden objects have size 0
+            if ($definition_array['hidden']) {
+                $definition_array['size'] = 0;
             }
 
             $execute = isset_get($definition_array['execute']);
@@ -297,6 +304,8 @@ class DataEntryForm extends Renderer
                                 $html = $element_class::new()
                                     ->setDisabled((bool) $definition_array['disabled'])
                                     ->setReadOnly((bool) $definition_array['readonly'])
+                                    ->setHidden($definition->getHidden())
+                                    ->setHidden($definition->getHidden())
                                     ->setRequired($definition->getRequired())
                                     ->setClasses($definition->getClasses())
                                     ->setName($field_name)
@@ -311,6 +320,7 @@ class DataEntryForm extends Renderer
                                 $html = $element_class::new()
                                     ->setDisabled((bool) $definition_array['disabled'])
                                     ->setReadOnly((bool) $definition_array['readonly'])
+                                    ->setHidden($definition->getHidden())
                                     ->setRequired($definition->getRequired())
                                     ->setMin(isset_get_typed('integer', $definition_array['min']))
                                     ->setMax(isset_get_typed('integer', $definition_array['max']))
@@ -327,6 +337,7 @@ class DataEntryForm extends Renderer
                                 $html = $element_class::new()
                                     ->setDisabled((bool) $definition_array['disabled'])
                                     ->setReadOnly((bool) $definition_array['readonly'])
+                                    ->setHidden($definition->getHidden())
                                     ->setRequired($definition->getRequired())
                                     ->setMin(isset_get_typed('integer', $definition_array['min']))
                                     ->setMax(isset_get_typed('integer', $definition_array['max']))
@@ -342,6 +353,7 @@ class DataEntryForm extends Renderer
                                 $html = $element_class::new()
                                     ->setDisabled((bool) $definition_array['disabled'])
                                     ->setReadOnly((bool) $definition_array['readonly'])
+                                    ->setHidden($definition->getHidden())
                                     ->setRequired($definition->getRequired())
                                     ->setAutoComplete(false)
                                     ->setMinLength(isset_get_typed('integer', $definition_array['minlength']))
@@ -362,6 +374,7 @@ class DataEntryForm extends Renderer
                                 $html = $element_class::new()
                                     ->setDisabled((bool) $definition_array['disabled'])
                                     ->setReadOnly((bool) $definition_array['readonly'])
+                                    ->setHidden($definition->getHidden())
                                     ->setName($field_name)
                                     ->setClasses($definition->getClasses())
                                     ->setValue($source[$field])
@@ -374,6 +387,7 @@ class DataEntryForm extends Renderer
                                 $html = $element_class::new()
                                     ->setDisabled((bool) $definition_array['disabled'])
                                     ->setReadOnly((bool) $definition_array['readonly'])
+                                    ->setHidden($definition->getHidden())
                                     ->setRequired($definition->getRequired())
                                     ->setMinLength(isset_get_typed('integer', $definition_array['minlength']))
                                     ->setMaxLength(isset_get_typed('integer', $definition_array['maxlength']))
@@ -402,6 +416,7 @@ class DataEntryForm extends Renderer
                         $html = InputTextArea::new()
                             ->setDisabled((bool) $definition_array['disabled'])
                             ->setReadOnly((bool) $definition_array['readonly'])
+                            ->setHidden($definition->getHidden())
                             ->setMaxLength(isset_get_typed('integer', $definition_array['maxlength']))
                             ->setRows(isset_get_typed('integer', $definition_array['rows'], 5))
                             ->setAutoComplete($definition->getAutoComplete())
@@ -445,6 +460,7 @@ class DataEntryForm extends Renderer
                             ->setSource(isset_get($definition_array['source']), $execute)
                             ->setDisabled((bool) $definition_array['disabled'])
                             ->setReadOnly((bool) $definition_array['readonly'])
+                            ->setHidden($definition->getHidden())
                             ->setClasses($definition->getClasses())
                             ->setName($field_name)
                             ->setAutoComplete($definition->getAutoComplete())
@@ -468,6 +484,7 @@ class DataEntryForm extends Renderer
                         $input->getInput()
                             ->setDisabled((bool) $definition_array['disabled'])
                             ->setReadOnly((bool) $definition_array['readonly'])
+                            ->setHidden($definition->getHidden())
                             ->setName($field_name)
                             ->setClasses($definition->getClasses())
                             ->setValue($source[$field])
@@ -496,8 +513,18 @@ class DataEntryForm extends Renderer
                 }
 
             } elseif(is_callable($definition_array['content'])) {
-                $html          = $definition_array['content']($definition, $field, $field_name, $source);
-                $this->render .= $this->renderItem($field, $html, $definition_array);
+                if ($definition->getHidden()) {
+                    $value = Strings::force($source[$field_name], ' - ');
+
+                    $this->render .= InputHidden::new()
+                        ->setName($field_name)
+                        ->setValue($value)
+                        ->render();
+
+                } else {
+                    $html          = $definition_array['content']($definition, $field, $field_name, $source);
+                    $this->render .= $this->renderItem($field, $html, $definition_array);
+                }
 
             } else {
                 $this->render .= $this->renderItem($field, $definition_array['content'], $definition_array);
@@ -535,6 +562,11 @@ class DataEntryForm extends Renderer
             $col_size = 0;
 
         } else {
+            if ($data['hidden']) {
+                // Hidden elements don't display anything beyond the hidden <input>
+                return $html;
+            }
+
             $cols[] = isset_get($data['label']) . ' = "' . $id . '" [' . $data['size'] . ']';
 
             // Keep track of column size, close each row when size 12 is reached
@@ -568,12 +600,12 @@ class DataEntryForm extends Renderer
             $col_size -= $data['size'];
 
             if ($col_size < 0) {
-                throw OutOfBoundsException::new(tr('Cannot add column ":label" for ":class" form with size ":size", the row would surpass size 12 by ":count"', [
+                throw OutOfBoundsException::new(tr('Cannot add column ":label" for table / class ":class" form with size ":size", the row would surpass size 12 by ":count"', [
                     ':class' => $this->render_object->getDefinitions()->getTable(),
                     ':label' => $data['label'] . ' [' . $id . ']',
                     ':size'  => abs($data['size']),
                     ':count' => abs($col_size),
-                ]))->addData([
+                ]))->setData([
                     'Columns on this row' => $cols,
                     'HTML so far'         => $return
                 ]);

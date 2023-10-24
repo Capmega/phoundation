@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http\Html\Components;
 
 use PDOStatement;
-use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputInterface;
 use Phoundation\Web\Http\Html\Components\Input\Traits\InputElement;
 use Phoundation\Web\Http\Html\Components\Interfaces\ResourceElementInterface;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
@@ -23,7 +23,7 @@ use Phoundation\Web\Http\Html\Exception\HtmlException;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-abstract class ResourceElement extends Element implements ResourceElementInterface
+abstract class ResourceElement extends Element implements ResourceElementInterface, InputInterface
 {
     use InputElement;
 
@@ -135,7 +135,7 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
      * @param string|null $empty
      * @return static
      */
-    public function setEmpty(?string $empty): static
+    public function setObjectEmpty(?string $empty): static
     {
         $this->empty = $empty;
         return $this;

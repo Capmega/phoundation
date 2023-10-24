@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html\Components\Input;
 
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Enums\InputType;
 
 
@@ -26,5 +27,23 @@ class InputHidden extends Input
     {
         $this->type = InputType::hidden;
         parent::__construct();
+    }
+
+
+    /**
+     * Sets the HTML class element attribute
+     *
+     * @param bool $auto_focus
+     * @return static
+     */
+    public function setAutofocus(bool $auto_focus): static
+    {
+        if ($auto_focus) {
+            throw new OutOfBoundsException(tr('The HTML hidden input element ":name" is not visible and thus cannot receive auto focus', [
+                ':name' => $this->name
+            ]));
+        }
+
+        return $this;
     }
 }

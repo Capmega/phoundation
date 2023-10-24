@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http\Html\Components\Interfaces;
 
 use Phoundation\Data\DataEntry\Definitions\Definitions;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 
 
 /**
@@ -60,9 +61,9 @@ interface DataEntryFormInterface extends ElementsBlockInterface
     /**
      * Returns the data fields for this DataEntryForm
      *
-     * @return Definitions
+     * @return DefinitionsInterface
      */
-    public function getDefinitions(): Definitions;
+    public function getDefinitions(): DefinitionsInterface;
 
     /**
      * Set the data source for this DataEntryForm

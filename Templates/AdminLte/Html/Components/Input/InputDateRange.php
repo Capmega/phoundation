@@ -7,7 +7,6 @@ namespace Templates\AdminLte\Html\Components\Input;
 
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Script;
-use Phoundation\Web\Http\Html\Renderer;
 use Phoundation\Web\Page;
 
 
@@ -21,7 +20,7 @@ use Phoundation\Web\Page;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\AdminLte
  */
-class InputDateRange extends Renderer
+class InputDateRange extends Input
 {
     /**
      * InputText class constructor

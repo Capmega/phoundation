@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http\Html\Components;
 
 use Phoundation\Data\DataEntry\Definitions\Definitions;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Web\Http\Html\Components\Interfaces\DataEntryFormInterface;
 
 
@@ -136,9 +137,9 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
     /**
      * Returns the data fields for this DataEntryForm
      *
-     * @return Definitions
+     * @return DefinitionsInterface
      */
-    public function getDefinitions(): Definitions
+    public function getDefinitions(): DefinitionsInterface
     {
         return $this->definitions;
     }

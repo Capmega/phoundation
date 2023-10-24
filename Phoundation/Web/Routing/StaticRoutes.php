@@ -88,6 +88,6 @@ class StaticRoutes extends DataList
                                          ORDER BY `created_on` ASC')
             ->setName('routes_id')
             ->setNone(tr('Select a static route'))
-            ->setEmpty(tr('No static routes available'));
+            ->setObjectEmpty(tr('No static routes available'));
     }
 }

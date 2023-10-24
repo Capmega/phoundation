@@ -46,7 +46,7 @@ interface ResourceElementInterface extends ElementInterface
      * @param string|null $empty
      * @return static
      */
-    public function setEmpty(?string $empty): static;
+    public function setObjectEmpty(?string $empty): static;
 
     /**
      * Returns whether query sources will be cached or not

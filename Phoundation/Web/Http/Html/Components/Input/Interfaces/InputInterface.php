@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html\Components\Input\Interfaces;
 
-
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
+use Phoundation\Web\Http\Html\Components\Interfaces\ElementInterface;
 
 
 /**
@@ -18,7 +18,7 @@ use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-interface Input
+interface InputInterface extends ElementInterface
 {
     /**
      * Input class constructor
@@ -31,7 +31,7 @@ interface Input
      * @param DefinitionInterface $field
      * @return static
      */
-    public static function newFromDAtaEntryField(DefinitionInterface $field): static;
+    public static function newFromDataEntryField(DefinitionInterface $field): static;
 
     /**
      * Render and return the HTML for this Input Element

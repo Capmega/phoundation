@@ -12,7 +12,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Http\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Http\Html\Components\ResourceElement;
-use Phoundation\Web\Http\Html\Exception\HtmlException;
 use Stringable;
 
 
@@ -324,29 +323,18 @@ class InputSelect extends ResourceElement implements InputSelectInterface
     public function renderBody(): ?string
     {
         $return = null;
-        $none   = null;
-
-        if (($this->source === null) and ($this->source_query === null)) {
-            throw new HtmlException(tr('No source specified'));
-        }
-
-        if ($this->none) {
-            $none = '<option' . $this->buildOptionClassString() . $this->buildSelectedString(null) . ' value="">' . $this->none . '</option>';
-        }
-
-        if ($this->source_query) {
-            $this->renderBodyQuery();
-        }
-
-        if ($this->source?->getCount()) {
-            $return .= $this->renderBodyArray();
-        }
+        $return .= $this->renderBodyQuery();
+        $return .= $this->renderBodyArray();
 
         if (!$return) {
             return $this->renderBodyEmpty();
         }
 
-        return $none . $return;
+        if ($this->none) {
+            return '<option' . $this->buildOptionClassString() . $this->buildSelectedString(null) . ' value="">' . $this->none . '</option>' . $return;
+        }
+
+        return $return;
     }
 
 
@@ -418,8 +406,12 @@ class InputSelect extends ResourceElement implements InputSelectInterface
      * @see ResourceElement::renderBody()
      * @see ElementInterface::render()
      */
-    protected function renderBodyQuery(): void
+    protected function renderBodyQuery(): null
     {
+        if (empty($this->source_query)) {
+            return null;
+        }
+
         if (empty($this->source)) {
             $this->source = new Iterator();
         }
@@ -432,6 +424,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
         }
 
         $this->source_query = null;
+        return null;
 
 //        $return = '';
 //

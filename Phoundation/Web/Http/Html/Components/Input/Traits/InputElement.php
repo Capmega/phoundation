@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http\Html\Components\Input\Traits;
 
 use Phoundation\Core\Log\Log;
+use Phoundation\Core\Strings;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Web\Http\Html\Components\Interfaces\InputTypeInterface;
 use Phoundation\Web\Http\Html\Components\Mode;
 use Phoundation\Web\Http\Html\Enums\InputType;
@@ -35,6 +37,13 @@ trait InputElement
     protected ?InputTypeInterface $type = null;
 
     /**
+     * Input hidden or not
+     *
+     * @var bool $type
+     */
+    protected bool $hidden = false;
+
+    /**
      * Input element value
      *
      * @var string|null $value
@@ -62,6 +71,30 @@ trait InputElement
     public function setType(?InputTypeInterface $type): static
     {
         $this->type = $type;
+        return $this;
+    }
+
+
+    /**
+     * Returns if this input element is hidden or not
+     *
+     * @return bool
+     */
+    public function getHidden(): bool
+    {
+        return $this->hidden;
+    }
+
+
+    /**
+     * Returns if this input element is hidden or not
+     *
+     * @param bool $hidden
+     * @return static
+     */
+    public function setHidden(bool $hidden): static
+    {
+        $this->hidden = $hidden;
         return $this;
     }
 
@@ -141,6 +174,30 @@ trait InputElement
     public function getOnChange(): ?string
     {
         return isset_get($this->attributes['on_change']);
+    }
+
+
+    /**
+     * Returns a new input element from the specified data entry field
+     *
+     * @param DefinitionInterface $field
+     * @return static
+     */
+    public static function newFromDataEntryField(DefinitionInterface $field): static
+    {
+        $element    = new static();
+        $attributes = $field->getRules();
+
+        // Set all attributes from the definitions file
+        foreach($attributes as $key => $value) {
+            $method = 'set' . Strings::capitalize($key);
+
+            if (method_exists($element, $method)) {
+                $element->$method($value);
+            }
+        }
+
+        return $element;
     }
 
 
