@@ -628,19 +628,23 @@ class UrlBuilder implements UrlBuilderInterface
             }
 
             $key = Strings::until($query, '=');
+            $value = Strings::from($query, '=');
+
+            $key = urlencode($key);
+            $value = urlencode($value);
 
             if (!str_contains($this->url, '?')) {
                 // This URL has no query yet, begin one
-                $this->url .= '?' . $query;
+                $this->url .= '?' . $key . '=' . $value;
 
             } elseif (str_contains($this->url, $key . '=')) {
                 // The query already exists in the specified URL, replace it.
                 $replace   = Strings::cut($this->url, $key . '=', '&');
-                $this->url = str_replace($key . '=' . $replace, $key . '=' . Strings::from($query, '='), $this->url);
+                $this->url = str_replace($key . '=' . $replace, $key . '=' . $value, $this->url);
 
             } else {
                 // Append the query to the URL
-                $this->url .= '&' . $query;
+                $this->url .= '&' . $key . '=' . $value;
             }
         }
 
