@@ -85,6 +85,6 @@ class Branches extends DataList implements BranchesInterface
         return parent::getHtmlSelect($value_column, $key_column, $order)
             ->setName('branches_id')
             ->setNone(tr('Select a branch'))
-            ->setEmpty(tr('No branches available'));
+            ->setObjectEmpty(tr('No branches available'));
     }
 }

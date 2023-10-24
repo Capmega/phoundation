@@ -102,7 +102,7 @@ class SshAccounts extends DataList
         return parent::getHtmlSelect($value_column, $key_column, $order)
             ->setName('ssh_accounts_id')
             ->setNone(tr('Select an SSH account'))
-            ->setEmpty(tr('No SSH accounts available'));
+            ->setObjectEmpty(tr('No SSH accounts available'));
     }
 
 

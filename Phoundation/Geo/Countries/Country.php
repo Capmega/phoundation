@@ -100,7 +100,7 @@ class Country extends DataEntry
             ])
             ->setName($name)
             ->setNone(tr('Select a state'))
-            ->setEmpty(tr('No states available'));
+            ->setObjectEmpty(tr('No states available'));
     }
 
 

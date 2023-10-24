@@ -97,6 +97,6 @@ throw new UnderConstructionException();
                                          ORDER BY `' . $value_column . '` ASC')
             ->setName('translations_id')
             ->setNone(tr('Select a translation'))
-            ->setEmpty(tr('No translations available'));
+            ->setObjectEmpty(tr('No translations available'));
     }
 }

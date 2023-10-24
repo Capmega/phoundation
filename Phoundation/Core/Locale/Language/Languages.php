@@ -85,7 +85,7 @@ class Languages extends DataList implements LanguagesInterface
         return parent::getHtmlSelect($value_column, $key_column, $order)
             ->setName('languages_id')
             ->setNone(tr('Select a language'))
-            ->setEmpty(tr('No languages available'));
+            ->setObjectEmpty(tr('No languages available'));
     }
 
 

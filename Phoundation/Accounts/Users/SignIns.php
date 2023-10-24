@@ -114,6 +114,6 @@ class SignIns extends DataList
                                          ORDER BY  `created_on`', [':created_by' => Session::getUser()->getId()])
             ->setName('sign_ins_id')
             ->setNone(tr('Select a sign-in'))
-            ->setEmpty(tr('No sign-ins available'));
+            ->setObjectEmpty(tr('No sign-ins available'));
     }
 }

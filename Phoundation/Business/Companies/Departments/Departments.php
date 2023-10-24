@@ -82,6 +82,6 @@ class Departments extends DataList implements DepartmentsInterface
         return parent::getHtmlSelect($value_column, $key_column, $order)
             ->setName('departments_id')
             ->setNone(tr('Select a department'))
-            ->setEmpty(tr('No departments available'));
+            ->setObjectEmpty(tr('No departments available'));
     }
 }

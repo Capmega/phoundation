@@ -30,7 +30,7 @@ use Throwable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
-class Config implements ConfigInterface
+class Config implements Interfaces\ConfigInterface
 {
     /**
      * Singleton variable for main config object

@@ -112,7 +112,7 @@ class State extends DataEntry
             ])
             ->setName($name)
             ->setNone(tr('Select a city'))
-            ->setEmpty(tr('No cities available'));
+            ->setObjectEmpty(tr('No cities available'));
     }
 
 

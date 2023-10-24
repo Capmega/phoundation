@@ -103,7 +103,7 @@ class Countries extends DataList
                                           WHERE `status` IS NULL ORDER BY `name`')
             ->setName($name)
             ->setNone(tr('Select a country'))
-            ->setEmpty(tr('No countries available'));
+            ->setObjectEmpty(tr('No countries available'));
     }
 
 
@@ -120,6 +120,6 @@ class Countries extends DataList
         return parent::getHtmlSelect($value_column, $key_column, $order)
             ->setName('countries_id')
             ->setNone(tr('Select a country'))
-            ->setEmpty(tr('No countries available'));
+            ->setObjectEmpty(tr('No countries available'));
     }
 }

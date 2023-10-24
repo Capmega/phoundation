@@ -369,6 +369,6 @@ class Plugins extends DataList implements PluginsInterface
         return parent::getHtmlSelect($value_column, $key_column, $order)
             ->setName('plugins_id')
             ->setNone(tr('Select a plugin'))
-            ->setEmpty(tr('No plugins available'));
+            ->setObjectEmpty(tr('No plugins available'));
     }
 }

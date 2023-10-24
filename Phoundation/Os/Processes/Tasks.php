@@ -75,6 +75,6 @@ class Tasks extends DataList
                                          ORDER BY `created_on` ASC')
             ->setName('tasks_id')
             ->setNone(tr('Select a task'))
-            ->setEmpty(tr('No tasks available'));
+            ->setObjectEmpty(tr('No tasks available'));
     }
 }

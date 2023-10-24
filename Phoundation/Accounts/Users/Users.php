@@ -509,7 +509,7 @@ class Users extends DataList implements UsersInterface
                                          WHERE `status` IS NULL ORDER BY `' . Strings::fromReverse($value_column, ' ') . '`')
             ->setName('users_id')
             ->setNone(tr('Select a user'))
-            ->setEmpty(tr('No users available'));
+            ->setObjectEmpty(tr('No users available'));
     }
 
 

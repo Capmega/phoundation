@@ -102,6 +102,6 @@ class Cities extends DataList
         return parent::getHtmlSelect($value_column, $key_column, $order)
             ->setName('cities_id')
             ->setNone(tr('Select a city'))
-            ->setEmpty(tr('No cities available'));
+            ->setObjectEmpty(tr('No cities available'));
     }
 }

@@ -547,7 +547,7 @@ class Rights extends DataList implements RightsInterface
         return parent::getHtmlSelect($value_column, $key_column, $order)
             ->setName('rights_id')
             ->setNone(tr('Select a right'))
-            ->setEmpty(tr('No rights available'));
+            ->setObjectEmpty(tr('No rights available'));
     }
 
 

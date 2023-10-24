@@ -85,6 +85,6 @@ class Incidents extends DataList
         return parent::getHtmlSelect($value_column, $key_column, $order)
             ->setName('incidents_id')
             ->setNone(tr('Select an incident'))
-            ->setEmpty(tr('No incidents available'));
+            ->setObjectEmpty(tr('No incidents available'));
     }
 }

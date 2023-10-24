@@ -107,6 +107,6 @@ class Incidents extends DataList
                                          ORDER BY `title` ASC')
             ->setName('incidents_id')
             ->setNone(tr('Select an incident'))
-            ->setEmpty(tr('No incidents available'));
+            ->setObjectEmpty(tr('No incidents available'));
     }
 }

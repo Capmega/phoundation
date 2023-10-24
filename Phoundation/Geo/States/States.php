@@ -101,6 +101,6 @@ class States extends DataList
         return parent::getHtmlSelect($value_column, $key_column, $order)
             ->setName('states_id')
             ->setNone(tr('Select a state'))
-            ->setEmpty(tr('No states available'));
+            ->setObjectEmpty(tr('No states available'));
     }
 }

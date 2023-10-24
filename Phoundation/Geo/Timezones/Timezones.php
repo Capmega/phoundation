@@ -103,7 +103,7 @@ class Timezones extends DataList
                                           WHERE `status` IS NULL ORDER BY `name`')
             ->setName($name)
             ->setNone(tr('Select a timezone'))
-            ->setEmpty(tr('No timezones available'));
+            ->setObjectEmpty(tr('No timezones available'));
     }
 
 
@@ -120,6 +120,6 @@ class Timezones extends DataList
         return parent::getHtmlSelect($value_column, $key_column, $order)
             ->setName('timezones_id')
             ->setNone(tr('Select a timezone'))
-            ->setEmpty(tr('No timezones available'));
+            ->setObjectEmpty(tr('No timezones available'));
     }
 }

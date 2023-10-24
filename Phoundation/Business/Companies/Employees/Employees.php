@@ -84,6 +84,6 @@ class Employees extends DataList
         return parent::getHtmlSelect($value_column, $key_column, $order)
             ->setName('employees_id')
             ->setNone(tr('Select a employee'))
-            ->setEmpty(tr('No employees available'));
+            ->setObjectEmpty(tr('No employees available'));
     }
 }

@@ -105,6 +105,6 @@ class Customers extends DataList
         return parent::getHtmlSelect($value_column, $key_column, $order)
             ->setName('customers_id')
             ->setNone(tr('Select a customer'))
-            ->setEmpty(tr('No customers available'));
+            ->setObjectEmpty(tr('No customers available'));
     }
 }

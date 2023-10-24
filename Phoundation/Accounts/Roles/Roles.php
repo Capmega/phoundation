@@ -528,6 +528,6 @@ class Roles extends DataList implements RolesInterface
         return parent::getHtmlSelect($value_column, $key_column, $order)
             ->setName('roles_id')
             ->setNone(tr('Select a role'))
-            ->setEmpty(tr('No roles available'));
+            ->setObjectEmpty(tr('No roles available'));
     }
 }

@@ -85,6 +85,6 @@ class Messages extends DataList
                                          ORDER BY `title` ASC')
             ->setName('messages_id')
             ->setNone(tr('Select a message'))
-            ->setEmpty(tr('No messages available'));
+            ->setObjectEmpty(tr('No messages available'));
     }
 }

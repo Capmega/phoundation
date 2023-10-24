@@ -105,6 +105,6 @@ class Providers extends DataList
         return parent::getHtmlSelect($value_column, $key_column, $order)
             ->setName('providers_id')
             ->setNone(tr('Select a provider'))
-            ->setEmpty(tr('No providers available'));
+            ->setObjectEmpty(tr('No providers available'));
     }
 }

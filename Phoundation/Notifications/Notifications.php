@@ -198,7 +198,7 @@ class Notifications extends DataList implements NotificationsInterface
                                          ORDER BY `title` ASC')
             ->setName('notifications_id')
             ->setNone(tr('Select a notification'))
-            ->setEmpty(tr('No notifications available'));
+            ->setObjectEmpty(tr('No notifications available'));
     }
 
 

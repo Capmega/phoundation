@@ -1521,21 +1521,30 @@ class User extends DataEntry implements UserInterface
      * Returns true if the user has the specified role
      *
      * @param RolesInterface|Stringable|string $role
-     * @param bool $exception
      * @return bool
      */
-    public function hasRole(RolesInterface|Stringable|string $role, bool $exception = false): bool
+    public function hasRole(RolesInterface|Stringable|string $role): bool
     {
-        $return = $this->getRoles()->exists($role);
+        return $this->getRoles()->exists($role);
+    }
 
-        if (!$return and $exception) {
+
+    /**
+     * Returns true if the user has the specified role
+     *
+     * @param RolesInterface|Stringable|string $role
+     * @return static
+     */
+    public function checkRole(RolesInterface|Stringable|string $role): static
+    {
+        if (!$this->hasRole($role)) {
             throw new NotExistsException(tr('The user ":user" does not have the required role ":role"', [
                 ':user' => $this->getLogId(),
                 ':role' => $role
             ]));
         }
 
-        return $return;
+        return $this;
     }
 
 
