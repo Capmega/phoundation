@@ -58,7 +58,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
         try {
             if (is_object($datetime)) {
                 // Return a new DateTime object with the specified date in the specified timezone
-                parent::__construct($datetime->format('Y-m-d H:i:s.u'), $timezone);
+                parent::__construct($datetime->format('Y-m-d H:i:s.u'), $timezone ?? $datetime->getTimezone());
 
             } else {
                 parent::__construct($datetime, $timezone);
@@ -83,11 +83,6 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      */
     public static function new(DateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): static
     {
-        if (is_object($datetime)) {
-            // Return a new DateTime object with the specified date in the specified timezone
-            return new static($datetime->format('Y-m-d H:i:s.u'), $timezone);
-        }
-
         return new static($datetime, $timezone);
     }
 
@@ -266,7 +261,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      * @param \DateTimeZone|string|null $timezone
      * @return static
      */
-    public static function getFirstPeriodOfMonth(\DateTimeZone|string|null $timezone = null): static
+    public static function getFirstPeriodStart(\DateTimeZone|string|null $timezone = null): static
     {
         return static::getFirstDayOfMonth();
     }
@@ -278,55 +273,102 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      * @param \DateTimeZone|string|null $timezone
      * @return static
      */
-    public static function getLastPeriodOfMonth(\DateTimeZone|string|null $timezone = null): static
+    public static function getLastPeriodStart(\DateTimeZone|string|null $timezone = null): static
     {
         return new static('Y-m-15', DateTimeZone::new($timezone));
     }
 
 
     /**
-     * Returns a new DateTime object for the first day of this week
+     * Returns a new DateTime object for the first day of the previous monthly period
      *
-     * @param DateTime|string|null $datetime
-     * @param \DateTimeZone|string|null $timezone
      * @return static
      */
-    public static function getPreviousPeriodOfMonth(DateTime|string|null $datetime, \DateTimeZone|string|null $timezone = null): static
+    public function getPreviousPeriodStart(): static
     {
-        $datetime = static::new($datetime, $timezone);
+        $datetime = static::new($this);
         $date_day = $datetime->format('d');
 
-        if ($date_day > 15) {
+        if ($date_day >= 16) {
             // 1 - 15 this month
-            return DateTime::new($datetime->format('Y-m-1 00:00:00'), $timezone);
+            return DateTime::new($datetime->format('Y-m-1 00:00:00'), $datetime->getTimezone());
         }
 
         // 16 - 3(0|1) previous month
         $start = $datetime->sub(DateInterval::createFromDateString('1 month'));
-        return DateTime::new($start->format('Y-m-16 00:00:00'), $timezone);
+        return DateTime::new($start->format('Y-m-16 00:00:00'), $datetime->getTimezone());
     }
 
 
     /**
-     * Returns a new DateTime object for the last day of this week
+     * Returns a new DateTime object for the first day of the current monthly period
      *
-     * @param DateTime|string|null $datetime
-     * @param \DateTimeZone|string|null $timezone
      * @return static
      */
-    public static function getNextPeriodOfMonth(DateTime|string|null $datetime, \DateTimeZone|string|null $timezone = null): static
+    public function getCurrentPeriodStart(): static
     {
-        $datetime = static::new($datetime, $timezone);
+        $datetime = static::new($this);
         $date_day = $datetime->format('d');
 
-        if ($date_day > 15) {
-            // 1 - 15 next month
-            $start = $datetime->add(DateInterval::createFromDateString('1 month'));
-            return DateTime::new($start->format('Y-m-1 00:00:00'), $timezone);
+        if ($date_day >= 16) {
+            // 15-30 this month
+            return DateTime::new($datetime->format('Y-m-16 00:00:00'), $datetime->getTimezone());
         }
 
         // 16 - 3(0|1) this month
-        return DateTime::new($datetime->format('Y-m-16 00:00:00'), $timezone);
+        return DateTime::new($datetime->format('Y-m-1 00:00:00'), $datetime->getTimezone());
+    }
+
+
+    /**
+     * Returns a new DateTime object for the first day of the next monthly period
+     *
+     * @return static
+     */
+    public function getNextPeriodStart(): static
+    {
+        $datetime = static::new($this);
+        $date_day = $datetime->format('d');
+
+        if ($date_day >= 16) {
+            // 1 - 15 next month
+            $start = $datetime->add(DateInterval::createFromDateString('1 month'));
+            return DateTime::new($start->format('Y-m-1 00:00:00'), $datetime->getTimezone());
+        }
+
+        // 16 - 3(0|1) this month
+        return DateTime::new($datetime->format('Y-m-16 00:00:00'), $datetime->getTimezone());
+    }
+
+
+    /**
+     * Returns true if this date is the first day of a period (the 1st or 16th of a month)
+     *
+     * @return bool
+     */
+    public function isPeriodStart(): bool
+    {
+        return in_array($this->format('d'), [1, 16]);
+    }
+
+
+    /**
+     * Returns the stop date for the period in which this date is
+     *
+     * @return static
+     */
+    public function getCurrentPeriodStop(): static
+    {
+        $datetime = static::new($this);
+        $date_day = $datetime->format('d');
+
+        if ($date_day >= 16) {
+            // 15-30 this month
+            return DateTime::new($datetime->format('Y-m-t 00:00:00'), $datetime->getTimezone());
+        }
+
+        // 16 - 3(0|1) this month
+        return DateTime::new($datetime->format('Y-m-15 00:00:00'), $datetime->getTimezone());
     }
 
 
