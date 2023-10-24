@@ -758,4 +758,21 @@ interface DefinitionInterface
      * @return static
      */
     public function setDisplayCallback(?callable $value): static;
+
+    /**
+     * Returns if the entry is hidden (and will be rendered as a hidden element)
+     *
+     * @note Defaults to false
+     * @return bool|null
+     */
+    public function getHidden(): ?bool;
+
+    /**
+     * Sets if the entry is hidden (and will be rendered as a hidden element)
+     *
+     * @note Defaults to false
+     * @param bool|null $value
+     * @return static
+     */
+    public function setHidden(?bool $value): static;
 }

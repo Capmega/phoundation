@@ -68,9 +68,37 @@ class Definitions extends Iterator implements DefinitionsInterface
      * @param bool $exception
      * @return DefinitionInterface
      */
-    public function get(Stringable|string|float|int $key, bool $exception = false): DefinitionInterface
+    public function get(Stringable|string|float|int $key, bool $exception = true): DefinitionInterface
     {
         return $this->source[$key];
+    }
+
+
+    /**
+     * Direct method to hide entries
+     *
+     * @param Stringable|string|float|int $key
+     * @param bool $exception
+     * @return static
+     */
+    public function hide(Stringable|string|float|int $key, bool $exception = true): static
+    {
+        $this->get($key, $exception)->setHidden(true);
+        return $this;
+    }
+
+
+    /**
+     * Direct method to unhide entries
+     *
+     * @param Stringable|string|float|int $key
+     * @param bool $exception
+     * @return static
+     */
+    public function unhide(Stringable|string|float|int $key, bool $exception = true): static
+    {
+        $this->get($key, $exception)->setHidden(false);
+        return $this;
     }
 
 

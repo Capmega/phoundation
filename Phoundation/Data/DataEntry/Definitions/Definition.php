@@ -812,6 +812,31 @@ class Definition implements DefinitionInterface
 
 
     /**
+     * Returns if the entry is hidden (and will be rendered as a hidden element)
+     *
+     * @note Defaults to false
+     * @return bool|null
+     */
+    public function getHidden(): ?bool
+    {
+        return in_array($this->field, static::$meta_fields) or isset_get_typed('bool', $this->rules['hidden'], false);
+    }
+
+
+    /**
+     * Sets if the entry is hidden (and will be rendered as a hidden element)
+     *
+     * @note Defaults to false
+     * @param bool|null $value
+     * @return static
+     */
+    public function setHidden(?bool $value): static
+    {
+        return $this->setKey('hidden', (bool) $value);
+    }
+
+
+    /**
      * If true, will enable browser auto suggest for this input control
      *
      * @note Defaults to false

@@ -22,7 +22,7 @@ trait DataTable
      *
      * @var string|null $table
      */
-    protected ?string $table;
+    protected ?string $table = null;
 
 
     /**
