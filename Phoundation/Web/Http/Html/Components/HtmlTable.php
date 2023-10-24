@@ -540,22 +540,12 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
      */
     public function renderBody(): string
     {
-        if (($this->source === null) and ($this->source_query === null)) {
-            throw new HtmlException(tr('No source specified'));
-        }
-
-        $return = '';
-
-        if ($this->none) {
-            // Add the none element as an array source
-            $this->source[''] = [$this->none];
-        }
-
+        $return = null;
         $return .= $this->renderBodyQuery();
         $return .= $this->renderBodyArray();
 
         if (!$return) {
-            $return = $this->renderBodyEmpty();
+            return $this->renderBodyEmpty();
         }
 
         return $this->renderHeaders() . $return . $this->renderFooters();
