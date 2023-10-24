@@ -23,7 +23,6 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Core\Numbers;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Core\Strings;
-use Phoundation\Data\DataEntry\Exception\DataEntryReadonlyException;
 use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryNotExistsExceptionInterface;
 use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryReadonlyExceptionInterface;
 use Phoundation\Data\Validator\Exception\Interfaces\ValidationFailedExceptionInterface;
@@ -1309,50 +1308,26 @@ class Page implements PageInterface
             static::sendOutputToClient($output, $target, $attachment);
 
         } catch (ValidationFailedExceptionInterface $e) {
-            // TODO Improve this uncaught validation failure handling
-            Log::warning('Page did not catch the following "ValidationFailedException" warning. Executing "system/400" instead');
-            Log::warning($e);
-
-            Core::writeRegister($e, 'e');
-            Route::executeSystem(400);
+            Page::executeSystemAfterPageException($e, 400, tr('Page did not catch the following "ValidationFailedException" warning. Executing "system/400" instead'));
 
         } catch (AuthenticationExceptionInterface $e) {
-            Log::warning('Page did not catch the following "AuthenticationException" warning. Executing "system/401" instead');
-            Log::warning($e);
-
-            Core::writeRegister($e, 'e');
-            Route::executeSystem(401);
+            Page::executeSystemAfterPageException($e, 401, tr('Page did not catch the following "AuthenticationException" warning. Executing "system/401" instead'));
 
         } catch (IncidentsExceptionInterface|AccessDeniedExceptionInterface $e) {
-            // TODO Should we also catch AccessDenied exception here?
-            Log::warning('Page did not catch the following "IncidentsExceptionInterface or AccessDeniedExceptionInterface" warning. Executing "system/401" instead');
-            Log::warning($e);
-
-            Core::writeRegister($e, 'e');
-            Route::executeSystem(403);
+            Page::executeSystemAfterPageException($e, 403, tr('Page did not catch the following "IncidentsExceptionInterface or AccessDeniedExceptionInterface" warning. Executing "system/401" instead'));
 
         } catch (DataEntryNotExistsExceptionInterface $e) {
-            Log::warning('Page did not catch the following "DataEntryNotExistsException" warning. Executing "system/404" instead');
-            Log::warning($e);
-
-            Core::writeRegister($e, 'e');
-            Route::executeSystem(404);
+            Page::executeSystemAfterPageException($e, 404, tr('Page did not catch the following "DataEntryNotExistsException" warning. Executing "system/404" instead'));
 
         } catch (Http405Exception|DataEntryReadonlyExceptionInterface|CoreReadonlyExceptionInterface $e) {
-            Log::warning('Page did not catch the following "Http405Exception or DataEntryReadonlyExceptionInterface or CoreReadonlyExceptionInterface" warning. Executing "system/405" instead');
-            Log::warning($e);
-
-            Core::writeRegister($e, 'e');
-            Route::executeSystem(405);
+            Page::executeSystemAfterPageException($e, 405, tr('Page did not catch the following "Http405Exception or DataEntryReadonlyExceptionInterface or CoreReadonlyExceptionInterface" warning. Executing "system/405" instead'));
 
         } catch (Http409Exception $e) {
-            Log::warning('Page did not catch the following "Http409Exception" warning. Executing "system/409" instead');
-            Log::warning($e);
-
-            Core::writeRegister($e, 'e');
-            Route::executeSystem(409);
+            Page::executeSystemAfterPageException($e, 409, tr('Page did not catch the following "Http409Exception" warning. Executing "system/409" instead'));
 
         } catch (Exception $e) {
+            // This will cause a 500 page on non debug environments, core dump on debug environments
+            // TODO Test if this assumption is correct!
             Notification::new()
                 ->setTitle(tr('Failed to execute ":type" page ":page" with language ":language"', [
                     ':type'     => Core::getRequestType()->value,
@@ -1364,6 +1339,27 @@ class Page implements PageInterface
 
             throw $e;
         }
+    }
+
+
+    /**
+     * Executes the specified system page after a page had an exception
+     *
+     * @param int $page
+     * @param Throwable $e
+     * @param string $message
+     * @return void
+     */
+    #[NoReturn] protected static function executeSystemAfterPageException(Throwable $e, int $page, string $message): void
+    {
+        Log::warning($message);
+        Log::warning($e);
+
+        // Clear flash messages
+        Session::getFlashMessages()->clear();
+
+        Core::writeRegister($e, 'e');
+        Route::executeSystem($page);
     }
 
 
