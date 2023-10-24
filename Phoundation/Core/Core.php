@@ -329,6 +329,10 @@ class Core implements CoreInterface
                 }
             }
 
+            if ($e instanceof ValidationFailedException) {
+                throw $e;
+            }
+
             throw new CoreStartupFailedException('Failed core startup because "' . $e->getMessage() . '"', $e);
         }
     }
@@ -1774,7 +1778,7 @@ class Core implements CoreInterface
                             // This is just a simple validation warning, show warning messages in the exception data
                             Log::warning($e->getMessage());
                             Log::warning($e->getData());
-                            Core::exit(255);
+                            Route::executeSystem(400);
 
                         } elseif (($e instanceof Exception) and ($e->isWarning())) {
                             // This is just a simple general warning, no backtrace and such needed, only show the
@@ -1794,6 +1798,8 @@ class Core implements CoreInterface
                             Log::error(tr('Exception data:'));
                             Log::error($e);
                         }
+
+                        Route::executeSystem(500);
 
                         // Make sure the Router shutdown won't happen so it won't send a 404
                         Core::unregisterShutdown('route[postprocess]');
@@ -1840,7 +1846,7 @@ class Core implements CoreInterface
                                 Log::error($e->getMessage());
                             }
 
-                            Core::exit(tr('System startup exception. Please check your PATH_ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information'));
+                            Core::exit(1, tr('System startup exception. Please check your PATH_ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information'));
                         }
 
                         if ($e->getCode() === 'validation') {
