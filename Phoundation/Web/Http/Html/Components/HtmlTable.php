@@ -16,10 +16,8 @@ use Phoundation\Web\Http\Html\Components\Input\InputCheckbox;
 use Phoundation\Web\Http\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Http\Html\Components\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Http\Html\Enums\Interfaces\TableIdColumnInterface;
-use Phoundation\Web\Http\Html\Enums\Interfaces\TableRowTypeInterface;
 use Phoundation\Web\Http\Html\Enums\TableIdColumn;
 use Phoundation\Web\Http\Html\Enums\TableRowType;
-use Phoundation\Web\Http\Html\Exception\HtmlException;
 use Phoundation\Web\Http\UrlBuilder;
 use Stringable;
 
@@ -817,16 +815,21 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         $first  = true;
 
         foreach($row_values as $column => $value) {
+            $made_checkbox = false;
+
             if ($first) {
                 // Convert first column to checkboxes?
-                $value = $this->renderCheckboxColumn($column, $value);
+                $value = $this->renderCheckboxColumn($column, $value, $made_checkbox);
                 $first = false;
+
+                $params['no_url'] = $made_checkbox;
 
                 if ($value !== null) {
                     $return .= $this->renderCell($row_id, $column, $value, $params);
                 }
 
             } else {
+                $params['no_url'] = $made_checkbox;
                 $return .= $this->renderCell($row_id, $column, $value, $params);
             }
         }
@@ -841,10 +844,10 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
      * @param string|float|int|null $row_id
      * @param string|float|int|null $column
      * @param Stringable|string|float|int|null $value
-     * @param array $param
+     * @param array $params
      * @return string
      */
-    protected function renderCell(string|float|int|null $row_id, string|float|int|null $column, Stringable|string|float|int|null $value, array $param): string
+    protected function renderCell(string|float|int|null $row_id, string|float|int|null $column, Stringable|string|float|int|null $value, array $params): string
     {
         if (($column === 'status') and $value === null) {
             // Default status label for when status is NULL
@@ -862,6 +865,10 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
             $url = $this->row_url;
         }
 
+        if (isset_get($params['no_url'])) {
+            $url = null;
+        }
+
         if ($convert) {
             if (is_callable($convert)) {
                 // Convert this column
@@ -877,7 +884,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
             }
 
         } else {
-            if ($param['htmlentities'] and empty($param['skiphtmlentities'][$column])) {
+            if ($params['htmlentities'] and empty($params['skiphtmlentities'][$column])) {
                 $value = htmlspecialchars($value);
                 $value = str_replace(PHP_EOL, '<br>', $value);
             }
@@ -909,9 +916,10 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
      *
      * @param string $column
      * @param string|float|int $value
+     * @param bool $made_checkbox
      * @return string|int|null
      */
-    protected function renderCheckboxColumn(string $column, string|float|int $value): string|int|null
+    protected function renderCheckboxColumn(string $column, string|float|int $value, bool &$made_checkbox): string|int|null
     {
         switch ($this->checkbox_selectors) {
             case TableIdColumn::hidden:
@@ -922,7 +930,9 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
 
             case TableIdColumn::checkbox:
                 // no break
+
             default:
+                $made_checkbox = true;
                 return InputCheckbox::new()
                     ->setName($column . '[]')
                     ->setValue($value)
@@ -940,14 +950,18 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
      */
     protected function renderUrl(string $value, string $url): string
     {
-        $attributes = '';
+        if ($url) {
+            $attributes = '';
 
-        if ($this->anchor_data_attributes) {
-            foreach ($this->anchor_data_attributes as $data_key => $data_value) {
-                $attributes .= ' data-' . $data_key . '="' . $data_value . '"';
+            if ($this->anchor_data_attributes) {
+                foreach ($this->anchor_data_attributes as $data_key => $data_value) {
+                    $attributes .= ' data-' . $data_key . '="' . $data_value . '"';
+                }
             }
-       }
 
-        return '<a' . $this->renderAnchorClassString() . ' href="' . UrlBuilder::getWww($url) . '"' . $attributes . '>' . $value . '</a>';
+            return '<a' . $this->renderAnchorClassString() . ' href="' . UrlBuilder::getWww($url) . '"' . $attributes . '>' . $value . '</a>';
+        }
+
+        return $url;
     }
 }
