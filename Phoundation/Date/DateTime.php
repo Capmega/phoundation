@@ -97,7 +97,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      * @return DateInterval
      * @throws DateIntervalException
      */
-    public function diff($targetObject, $absolute = false, bool $roundup = true): DateInterval
+    public function diff(\DateTimeInterface $targetObject, bool $absolute = false, bool $roundup = true): DateInterval
     {
         // DateInterval doesn't calculate milliseconds / microseconds, do that manually
         $diff    = new DateInterval(parent::diff($targetObject, $absolute), $roundup);
