@@ -2399,7 +2399,7 @@ class Sql implements SqlInterface
 // TODO Check here what tokens do not match to make debugging easier
                 preg_match_all('/:\w+/imus', $query, $matches);
 
-                throw $e->addData(Arrays::renameKeys(Arrays::valueDiff($matches, $execute), [
+                throw $e->addData(Arrays::renameKeys(Arrays::valueDiff($matches[0], array_flip($execute)), [
                     'add'    => 'variables missing in query',
                     'remove' => 'variables missing in execute'
                 ]));
