@@ -135,7 +135,7 @@ interface DataListInterface extends IteratorInterface
      * @param string|null $comments
      * @return int
      */
-    public function setStatus(?string $status, ?string $comments = null): int;
+    public function updateStatus(?string $status, ?string $comments = null): int;
 
     /**
      * Delete the specified entries
