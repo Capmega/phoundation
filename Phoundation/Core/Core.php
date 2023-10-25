@@ -1778,28 +1778,34 @@ class Core implements CoreInterface
                             // This is just a simple validation warning, show warning messages in the exception data
                             Log::warning($e->getMessage());
                             Log::warning($e->getData());
-                            Route::executeSystem(400);
+
+                            if (!Debug::getEnabled()) {
+                                Route::executeSystem(400);
+                            }
 
                         } elseif (($e instanceof Exception) and ($e->isWarning())) {
                             // This is just a simple general warning, no backtrace and such needed, only show the
                             // principal message
                             Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
+                            Route::executeSystem(500);
 
-                        } else {
-                            // Log exception data
-                            Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" WEB PLATFORM SCRIPT ":script" WITH ENVIRONMENT ":environment" DURING CORE STATE ":state" ***', [
-                                ':code' => $e->getCode(),
-                                ':type' => static::getRequestType()->value,
-                                ':state' => static::$state,
-                                ':script' => static::readRegister('system', 'script'),
-                                ':environment' => (defined('ENVIRONMENT') ? ENVIRONMENT : null)
-                            ]));
-
-                            Log::error(tr('Exception data:'));
-                            Log::error($e);
                         }
 
-                        Route::executeSystem(500);
+                        // Log exception data
+                        Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" WEB PLATFORM SCRIPT ":script" WITH ENVIRONMENT ":environment" DURING CORE STATE ":state" ***', [
+                            ':code' => $e->getCode(),
+                            ':type' => static::getRequestType()->value,
+                            ':state' => static::$state,
+                            ':script' => static::readRegister('system', 'script'),
+                            ':environment' => (defined('ENVIRONMENT') ? ENVIRONMENT : null)
+                        ]));
+
+                        Log::error(tr('Exception data:'));
+                        Log::error($e);
+
+                        if (!Debug::getEnabled()) {
+                            Route::executeSystem(500);
+                        }
 
                         // Make sure the Router shutdown won't happen so it won't send a 404
                         Core::unregisterShutdown('route[postprocess]');
