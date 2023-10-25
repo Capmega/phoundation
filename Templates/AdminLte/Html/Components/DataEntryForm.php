@@ -514,10 +514,10 @@ class DataEntryForm extends Renderer
 
             } elseif(is_callable($definition_array['content'])) {
                 if ($definition->getHidden()) {
-                    $value = Strings::force($source[$field_name], ' - ');
+                    $value = Strings::force($source[$field], ' - ');
 
                     $this->render .= InputHidden::new()
-                        ->setName($field_name)
+                        ->setName($field)
                         ->setValue($value)
                         ->render();
 
