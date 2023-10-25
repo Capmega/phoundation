@@ -819,7 +819,7 @@ class Definition implements DefinitionInterface
      */
     public function getHidden(): ?bool
     {
-        return in_array($this->field, static::$meta_fields) or isset_get_typed('bool', $this->rules['hidden'], false);
+        return isset_get_typed('bool', $this->rules['hidden'], false);
     }
 
 
