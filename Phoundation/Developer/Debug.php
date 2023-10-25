@@ -201,7 +201,6 @@ class Debug {
         $remove_sections = Arrays::force($remove_sections);
 
         foreach (debug_backtrace() as $key => $value) {
-showdie($value);
             if ($start) {
                 if (is_string($start)) {
                     if ($start === 'auto') {
@@ -1079,7 +1078,7 @@ showdie($value);
      * @param array $backtrace The backtrace data
      * @return array The backtrace lines
      */
-    public static function formatBackTrace(array $backtrace, bool $full_backtrace = false): array
+    public static function formatBackTrace(array $backtrace): array
     {
         $lines   = static::buildBackTrace($backtrace);
         $longest = Arrays::getLongestValueSize($lines, 'call');
