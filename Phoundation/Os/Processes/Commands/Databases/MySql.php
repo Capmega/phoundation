@@ -13,6 +13,7 @@ use Phoundation\Data\Traits\DataUserPass;
 use Phoundation\Databases\Exception\MysqlException;
 use Phoundation\Filesystem\Exception\FileTypeNotSupportedException;
 use Phoundation\Filesystem\File;
+use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Os\Processes\Commands\Command;
 use Phoundation\Os\Processes\Commands\Zcat;
@@ -51,7 +52,7 @@ class MySql extends Command
     public function import(string $instance, string $file, bool $drop, int $timeout = 3600): void
     {
         //
-        $file         = PATH_DATA . 'sources/' . $file;
+        $file         = Filesystem::absolute($file, PATH_DATA . 'sources/');
         $restrictions = Restrictions::new(PATH_DATA . 'sources/', false, 'Mysql importer');
         $threshold    = Log::setThreshold(3);
         $config       = Config::getArray('databases.sql.instances.' . $instance);
