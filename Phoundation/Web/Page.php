@@ -1660,14 +1660,14 @@ class Page implements PageInterface
 
         // Headers have been sent, from here we know if its a 200 or something else
         if (static::$http_code === 200) {
-            Log::success(tr('Sent :http with ":bytes bytes" for URL ":url"', [
+            Log::success(tr('Sent :http with ":length bytes" for URL ":url"', [
                 ':length' => $length,
                 ':http'   => (static::$http_code ? 'HTTP ' . static::$http_code : 'HTTP 0'),
                 ':url'    => (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']
             ]), 4);
 
         } else {
-            Log::warning(tr('Sent ":http" with ":bytes bytes" for URL ":url"', [
+            Log::warning(tr('Sent ":http" with ":length bytes" for URL ":url"', [
                 ':length' => $length,
                 ':http'   => (static::$http_code ? 'HTTP ' . static::$http_code : 'HTTP 0'),
                 ':url'    => (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']
