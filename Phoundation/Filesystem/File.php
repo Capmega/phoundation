@@ -176,17 +176,17 @@ class File extends FileBasics implements FileInterface
     /**
      * Copy a file with progress notification
      *
-     * @
+     * @param string $target
+     * @param callable $callback
+     * @return static
      * @example:
-     * function stream_notification_callback($notification_code, $severity, $message, $message_code, $bytes_transferred, $bytes_max) {
-     *     if ($notification_code == STREAM_Notification_PROGRESS) {
-     *         // save $bytes_transferred and $bytes_max to file or database
-     *     }
-     * }
-     *
-     * file_copy_progress($source, $target, 'stream_notification_callback');
+     * File::new($source)->copy($target, function ($notification_code, $severity, $message, $message_code, $bytes_transferred, $bytes_max) {
+     *      if ($notification_code == STREAM_Notification_PROGRESS) {
+     *          // save $bytes_transferred and $bytes_max to file or database
+     *      }
+     *  });
      */
-    public function copyProgress(string $target, callable $callback): static
+    public function copy(string $target, callable $callback): static
     {
         $this->restrictions->check($this->file, true);
         $this->restrictions->check($target, false);
