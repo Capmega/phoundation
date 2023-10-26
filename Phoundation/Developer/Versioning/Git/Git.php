@@ -10,6 +10,7 @@ use Phoundation\Developer\Versioning\Git\Exception\GitException;
 use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
 use Phoundation\Developer\Versioning\Versioning;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Path;
 use Phoundation\Os\Processes\Process;
@@ -362,9 +363,9 @@ class Git extends Versioning implements GitInterface
         $diff = $this->getDiff($files, $cached);
 
         if ($diff) {
-            $file = Path::getTemporaryBase(false) . sha1(Strings::force($files, '-')) . '.patch';
-            file_put_contents($file, $diff . PHP_EOL);
-            return $file;
+            return File::newTemporary(false, sha1(Strings::force($files, '-')) . '.patch', false)
+                ->putContents($diff . PHP_EOL)
+                ->getFile();
         }
 
         Log::warning(tr('Files ":files" has / have no diff', [':files' => $files]));
