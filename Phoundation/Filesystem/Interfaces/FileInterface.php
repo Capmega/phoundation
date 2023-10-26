@@ -112,7 +112,7 @@ interface FileInterface extends FileBasicsInterface
      *
      * file_copy_progress($source, $target, 'stream_notification_callback');
      */
-    public function copyProgress(string $target, callable $callback): static;
+    public function copy(string $target, callable $callback): static;
 
     /**
      * Check if the object file exists and is readable. If not both, an exception will be thrown
