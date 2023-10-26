@@ -536,11 +536,12 @@ class Arrays {
      * @param string|int $base_key_name
      * @param bool $filter_null
      * @param bool $null_string
+     * @param int $start
      * @return array
      */
-    public static function sequentialKeys(array $source, string|int $base_key_name, bool $filter_null = false, bool $null_string = false): array
+    public static function sequentialKeys(array $source, string|int $base_key_name, bool $filter_null = false, bool $null_string = false, int $start = 0): array
     {
-        $i      = 0;
+        $i      = $start;
         $return = [];
 
         foreach ($source as $value) {
@@ -558,7 +559,7 @@ class Arrays {
                 }
             }
 
-            $return[$base_key_name.$i++] = $value;
+            $return[$base_key_name . $i++] = $value;
         }
 
         return $return;
