@@ -232,18 +232,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null)
     {
-        if (!$column) {
-            // If the column on which to select wasn't specified, assume `id` for numeric identifiers, or the unique
-            // field otherwise
-            if ($identifier) {
-                if (is_numeric($identifier)) {
-                    $column = 'id';
-
-                } else {
-                    $column = $this->getUniqueField();
-                }
-            }
-        }
+        $column = static::ensureColumn($identifier, $column);
 
         // Set up the fields for this object
         $this->setMetaDefinitions();
@@ -598,15 +587,15 @@ abstract class DataEntry implements DataEntryInterface
     /**
      * Returns true if an entry with the specified identifier exists
      *
-     * @param string $field
      * @param string|int $identifier The unique identifier, but typically not the database id, usually the seo_email,
      *                               or seo_name
+     * @param string|null $column
      * @param int|null $not_id
      * @param bool $throw_exception If the entry does not exist, instead of returning false will throw a
      *                                    DataEntryNotExistsException
      * @return bool
      */
-    public static function exists(string|int $identifier, string $field, ?int $not_id = null, bool $throw_exception = false): bool
+    public static function exists(string|int $identifier, ?string $column = null, ?int $not_id = null, bool $throw_exception = false): bool
     {
         if (!$identifier) {
             throw new OutOfBoundsException(tr('Cannot check if ":class" class DataEntry exists, no identifier specified', [
@@ -614,6 +603,7 @@ abstract class DataEntry implements DataEntryInterface
             ]));
         }
 
+        $column  = static::ensureColumn($identifier, $column);
         $execute = [':identifier' => $identifier];
 
         if ($not_id) {
@@ -622,7 +612,7 @@ abstract class DataEntry implements DataEntryInterface
 
         $exists = sql()->getColumn('SELECT `id` 
                                           FROM   `' . static::getTable() . '` 
-                                          WHERE  `' . $field . '`   = :identifier
+                                          WHERE  `' . $column . '`   = :identifier
                                           ' . ($not_id ? 'AND `id` != :id' : '') . ' 
                                           LIMIT  1', $execute);
 
@@ -640,16 +630,16 @@ abstract class DataEntry implements DataEntryInterface
     /**
      * Returns true if an entry with the specified identifier does not exist
      *
-     * @param string $field
-     * @param string|int|null $identifier The unique identifier, but typically not the database id, usually the
+     * @param string|int $identifier The unique identifier, but typically not the database id, usually the
      *                                    seo_email, or seo_name
+     * @param string|null $column
      * @param int|null $id If specified, will ignore the found entry if it has this ID as it will be THIS
      *                                    object
      * @param bool $throw_exception If the entry exists (and does not match id, if specified), instead of
      *                                    returning false will throw a DataEntryNotExistsException
      * @return bool
      */
-    public static function notExists(string|int $identifier, string $field, ?int $id = null, bool $throw_exception = false): bool
+    public static function notExists(string|int $identifier, ?string $column = null, ?int $id = null, bool $throw_exception = false): bool
     {
         if (!$identifier) {
             throw new OutOfBoundsException(tr('Cannot check if ":class" class DataEntry not exists, no identifier specified', [
@@ -657,6 +647,7 @@ abstract class DataEntry implements DataEntryInterface
             ]));
         }
 
+        $column  = static::ensureColumn($identifier, $column);
         $execute = [':identifier' => $identifier];
 
         if ($id) {
@@ -665,7 +656,7 @@ abstract class DataEntry implements DataEntryInterface
 
         $exists = sql()->getColumn('SELECT `id` 
                                           FROM   `' . static::getTable() . '` 
-                                          WHERE  `' . $field . '` = :identifier
+                                          WHERE  `' . $column . '` = :identifier
                                           ' . ($id ? 'AND `id`   != :id' : '') . ' 
                                           LIMIT  1', $execute);
 
@@ -1855,6 +1846,34 @@ abstract class DataEntry implements DataEntryInterface
         $this->is_loading  = false;
         $this->is_saved    = false;
         return $this;
+    }
+
+
+    /**
+     * Returns either the specified valid column, or if empty, a default column
+     *
+     * @param DataEntryInterface|string|int|null $identifier
+     * @param string|null $column
+     * @return string
+     */
+    protected static function ensureColumn(DataEntryInterface|string|int|null $identifier = null, ?string $column = null): string
+    {
+        if ($column) {
+            return $column;
+        }
+
+        // If the column on which to select wasn't specified, assume `id` for numeric identifiers, or the unique
+        // field otherwise
+        if ($identifier) {
+            if (is_numeric($identifier)) {
+                return 'id';
+
+            } else {
+                return static::getUniqueField();
+            }
+        }
+
+        return '';
     }
 
 
