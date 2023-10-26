@@ -12,6 +12,7 @@ use Phoundation\Cli\Exception\MethodNotFoundException;
 use Phoundation\Cli\Exception\NoMethodSpecifiedException;
 use Phoundation\Cli\Exception\StdInException;
 use Phoundation\Core\Arrays;
+use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Enums\EnumMatchMode;
 use Phoundation\Core\Exception\NoProjectException;
@@ -118,6 +119,8 @@ class CliCommand
      */
     #[NoReturn] public static function execute(): void
     {
+        static::ensureProcessUser();
+
         // All scripts will execute the cli_done() call, register basic script information
         try {
             Core::startup();
@@ -184,6 +187,53 @@ class CliCommand
         }
 
         exit();
+    }
+
+
+    /**
+     * Ensures that the process owner and file owner are the same.
+     *
+     * @return void
+     */
+    protected static function ensureProcessUser(): void
+    {
+        $uid = fileowner(__DIR__ . '/../../pho');
+
+        if (posix_geteuid() === $uid) {
+            return;
+        }
+
+        if (!Config::getBoolean('cli.require-same-uid', true)) {
+            // According to configuration we don't need to have the same UID.
+            return;
+        }
+
+        // Restart the process using SUDO with the correct user
+        global $argv;
+
+        foreach ($argv as &$argument) {
+            if (in_array($argument, ['-Q', '--quiet'])) {
+                $quiet = true;
+            } elseif (in_array($argument, ['-V', '--verbose'])) {
+                $verbose = true;
+            }
+
+            $argument = escapeshellarg($argument);
+        }
+
+        $user = posix_getpwuid($uid);
+        $command = 'sudo -Eu ' . escapeshellarg($user['name']) . ' ' . implode(' ', $argv);
+
+        if (empty($quiet)) {
+            if (isset($verbose)) {
+                echo 'Executing ./pho command as user "' . $user['name'] . '" with command "' . $command . '"' . PHP_EOL;
+            } else {
+                echo 'Executing ./pho command as user "' . $user['name'] . '"' . PHP_EOL;
+            }
+        }
+
+        passthru($command, $result_code);
+        die($result_code);
     }
 
 
