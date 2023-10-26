@@ -891,7 +891,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         }
 
         if (isset($url)) {
-            $value = $this->renderUrl($value, $url);
+            $value = $this->renderUrl($row_id, $column, $value, $url);
         }
 
         // Add data attributes?
@@ -902,12 +902,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         }
 
         // Build row with TD tags with attributes
-        // Ensure all :ROW and :COLUMN markings are converted
-        $value = '<td' . $attributes . $this->renderColumnClassString() . '>' . $value . '</td>';
-        $value = str_replace(':ROW'   , (string) $row_id, $value);
-        $value = str_replace(':COLUMN', (string) $column, $value);
-
-        return $value;
+        return '<td' . $attributes . $this->renderColumnClassString() . '>' . $value . '</td>';
     }
 
 
@@ -944,13 +939,21 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     /**
      * Builds a URL around the specified column value
      *
+     * @param mixed $row_id
+     * @param mixed $column
      * @param string $value
      * @param string $url
      * @return string
      */
-    protected function renderUrl(string $value, string $url): string
+    protected function renderUrl(mixed $row_id, mixed $column, string $value, string $url): string
     {
         if ($url) {
+            // Ensure all :ROW and :COLUMN markings are converted
+            $url = str_replace(':ROW'     , urlencode((string) $row_id), $url);
+            $url = str_replace('%3AROW'   , urlencode((string) $row_id), $url);
+            $url = str_replace(':COLUMN'  , urlencode((string) $column), $url);
+            $url = str_replace('%3ACOLUMN', urlencode((string) $column), $url);
+
             $attributes = '';
 
             if ($this->anchor_data_attributes) {
