@@ -238,13 +238,16 @@ class Phoundation extends Project
             $this->ensureNoChanges();
         }
 
-        if (!file_exists(PATH_ROOT . $file)) {
+        $source = Filesystem::absolute($file, PATH_ROOT);
+        $file = Strings::from($source, PATH_ROOT);
+
+        if (!file_exists($source)) {
             throw new FileNotExistException(tr('The specified file ":file" does not exist', [
                 ':file' => $file
             ]));
         }
 
-        Cp::new()->archive(PATH_ROOT . $file, Restrictions::new(PATH_ROOT), $this->getPath() . $file, Restrictions::new($this->getPath(), true));
+        Cp::new()->archive($source, Restrictions::new(PATH_ROOT), $this->getPath() . $file, Restrictions::new($this->getPath(), true));
     }
 
 
