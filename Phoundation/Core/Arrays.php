@@ -1565,23 +1565,29 @@ class Arrays {
      *
      * @param array $source1
      * @param array $source2
+     * @param bool $keep If true, the result array will also contain a "keep" column with entries that exists in both
+     *                   and should not be added nor deleted (but perhaps updated, for example)
      * @return array
      */
-    public static function valueDiff(array $source1, array $source2): array
+    public static function valueDiff(array $source1, array $source2, bool $keep = false): array
     {
         $return = [
             'add'    => [],
-            'remove' => []
+            'delete' => []
         ];
+
+        $keep_list = [];
 
         foreach ($source1 as $key => $value) {
             if ($value and !is_scalar($value)) {
                 throw new OutOfBoundsException(tr('Can only take diffs from scalar values while source 1 has a non-scalar value'));
             }
 
-            if (!in_array($value, $source2)) {
+            if (in_array($value, $source2)) {
+                $keep_list[$key] = $value;
+            } else {
                 // Key doesn't exist in source2, add it
-                $return['remove'][$key] = $value;
+                $return['delete'][$key] = $value;
             }
         }
 
@@ -1596,7 +1602,38 @@ class Arrays {
             }
         }
 
+        if ($keep) {
+            $return['keep'] = $keep_list;
+        }
+
         return $return;
+    }
+
+
+    /**
+     * Compares the given source list to the add / keep / remove diff and places all entries in remove that are marked
+     * with "delete", or "remove" keys
+     *
+     * @param array $diff
+     * @param array $source
+     * @return array
+     */
+    public static function deleteDiff(array $diff, array $source): array
+    {
+        foreach ($source as $id => $entry) {
+            if (array_key_exists('delete', $entry)) {
+                if ($entry['delete']) {
+                    $key = array_search($id, $diff['keep']);
+
+                    if ($key) {
+                        $diff['delete'][$key] = $diff['keep'][$key];
+                        unset($diff['keep'][$key]);
+                    }
+                }
+            }
+        }
+
+        return $diff;
     }
 
 
