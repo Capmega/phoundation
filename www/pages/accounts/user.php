@@ -101,7 +101,6 @@ if (Page::isPostRequestMethod()) {
         }
 
     } catch (IncidentsException|ValidationFailedException $e) {
-showdie($e);
         // Oops! Show validation errors and remain on page
         Page::getFlashMessages()->addMessage($e);
         $user->forceApply();

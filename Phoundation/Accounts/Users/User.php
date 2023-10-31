@@ -1855,6 +1855,8 @@ class User extends DataEntry implements UserInterface
                 ->setHelpText(tr('The date when this user was email verified. Empty if not yet verified')))
             ->addDefinition(DefinitionFactory::getUrl($this, 'redirect')
                 ->setSize(3)
+                ->setSource(UrlBuilder::getAjax('system/accounts/users/redirect/autosuggest.json'))
+                ->setInputType(InputType::auto_suggest)
                 ->setInitialDefault(Config::getString('security.accounts.users.new.defaults.redirect', ':PROTOCOL://:DOMAIN/:LANGUAGE/force-password-update.html'))
                 ->setLabel(tr('Redirect URL'))
                 ->setHelpGroup(tr('Account information'))
