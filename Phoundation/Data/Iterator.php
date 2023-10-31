@@ -7,6 +7,7 @@ namespace Phoundation\Data;
 use PDOStatement;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Interfaces\ArrayableInterface;
+use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\DataCallbacks;
 use Phoundation\Data\Traits\UsesNew;
@@ -32,8 +33,6 @@ use Stringable;
  * - clear() Clears all the internal content for this object
  *
  * - delete() Deletes the specified key
- *
- *
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -398,7 +397,7 @@ class Iterator implements IteratorInterface
         $value = $this->get($key, $exception);
         $value = $this->validateValue($value, $columns);
 
-        return Arrays::keep($value, $columns, true);
+        return Arrays::keep($value, $columns);
     }
 
 
@@ -464,9 +463,9 @@ class Iterator implements IteratorInterface
      *       OutOfBoundsException
      *
      * @param string $column
-     * @return mixed
+     * @return array
      */
-    protected function getSourceColumn(string $column): mixed
+    protected function getSourceColumn(string $column): array
     {
         if (!$column) {
             throw new OutOfBoundsException(tr('Cannot return source column for ":this", no column specified', [
@@ -474,6 +473,7 @@ class Iterator implements IteratorInterface
             ]));
         }
 
+        $return = [];
 
         foreach ($this->source as $key => $value) {
             $value = $this->validateValue($value, $column);
@@ -658,7 +658,7 @@ class Iterator implements IteratorInterface
      * @param Stringable|array|string|float|int $keys
      * @return static
      */
-    public function remove(Stringable|array|string|float|int $keys): static
+    public function deleteKeys(Stringable|array|string|float|int $keys): static
     {
         foreach (Arrays::force($keys, null) as $key) {
             unset($this->source[$key]);
@@ -675,28 +675,35 @@ class Iterator implements IteratorInterface
      * @param string $column
      * @return static
      */
-    public function removeByColumnValue(Stringable|array|string|float|int $values, string $column): static
+    public function deleteByColumnValue(Stringable|array|string|float|int $values, string $column): static
     {
         foreach (Arrays::force($values, null) as $value) {
             foreach ($this->source as $key => $data) {
-                if (!is_array($data)) {
-                    throw new OutOfBoundsException(tr('Cannot delete entries by column value, encountered a non array value on key ":key"', [
-                        ':key'    => $key,
-                        ':value'  => $value,
-                        ':column' => $column
-                    ]));
-                }
+                if (is_array($data)) {
+                    if (!array_key_exists($column, $data)) {
+                        throw new OutOfBoundsException(tr('Cannot delete entries by column ":column" value ":value" because entry ":key" does not have the requested column ":column"', [
+                            ':key'    => $key,
+                            ':value'  => $value,
+                            ':column' => $column
+                        ]));
+                    }
 
-                if (!array_key_exists($key, $data)) {
-                    throw new OutOfBoundsException(tr('Cannot delete entries by column ":column" value ":value", encountered a non array value on key ":key"', [
-                        ':key'    => $key,
-                        ':value'  => $value,
-                        ':column' => $column
-                    ]));
-                }
+                    if ($data[$key] === $value) {
+                        unset($this->source[$key]);
+                    }
+                } else {
+                    if (!$data instanceof DataEntry) {
+                        throw new OutOfBoundsException(tr('Cannot delete entries by column ":column" value ":value" because key ":key" is neither array nor DataEntry', [
+                            ':key'    => $key,
+                            ':value'  => $value,
+                            ':column' => $column
+                        ]));
+                    }
 
-                if ($data[$key] === $value) {
-                    unset($this->source[$key]);
+                    // This entry is not an array but DataEntry object. Compare using DataEntry::getSourceValue()
+                    if ($data->getSourceValue($key) === $value) {
+                        unset($this->source[$key]);
+                    }
                 }
             }
         }
