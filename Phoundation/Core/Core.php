@@ -2604,7 +2604,7 @@ class Core implements CoreInterface
                 ':limit'  => $limit,
                 ':used'   => $used,
                 ':memory' => $available
-            ]));
+            ]), 2);
 
             return 4096;
         }
