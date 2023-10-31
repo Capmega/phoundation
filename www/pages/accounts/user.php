@@ -64,7 +64,8 @@ if (Page::isPostRequestMethod()) {
                     ':user' => $user->getDisplayName()
                 ]));
 
-                Page::redirect('referer');
+                // Redirect away from POST
+                Page::redirect(UrlBuilder::getWww('/accounts/user-' . $user->getId() . '.html'));
 
             case tr('Impersonate'):
                 $user->impersonate();
