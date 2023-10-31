@@ -714,7 +714,7 @@ class Path extends FileBasics implements PathInterface
             if (!static::$temp_path_public) {
                 static::$temp_path_public = static::new(PATH_PUBTMP . Session::getUUID(), Restrictions::new(PATH_PUBTMP, true, 'base private temporary path'))
                     ->delete()
-                    ->ensureWritable();
+                    ->ensure();
             }
 
             return static::$temp_path_public;
@@ -724,7 +724,7 @@ class Path extends FileBasics implements PathInterface
             // Return private temp path
             static::$temp_path_private = static::new(PATH_TMP . Session::getUUID(), Restrictions::new(PATH_TMP, true, 'base public temporary path'))
                 ->delete()
-                ->ensureWritable();
+                ->ensure();
         }
 
         return static::$temp_path_private;
