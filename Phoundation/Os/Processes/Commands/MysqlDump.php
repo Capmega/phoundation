@@ -376,7 +376,7 @@ class MysqlDump extends Command implements MysqlDumpInterface
      * @param EnumExecuteMethodInterface $method
      * @return static
      */
-    public function execute(EnumExecuteMethodInterface $method = EnumExecuteMethod::passthru): static
+    public function dump(EnumExecuteMethodInterface $method = EnumExecuteMethod::passthru): static
     {
         // Build the process parameters, then execute
         $this->setInternalCommand('mysqldump')

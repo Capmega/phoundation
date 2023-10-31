@@ -173,5 +173,5 @@ interface MysqlDumpInterface
      * @param EnumExecuteMethodInterface $method
      * @return static
      */
-    public function execute(EnumExecuteMethodInterface $method = EnumExecuteMethod::passthru): static;
+    public function dump(EnumExecuteMethodInterface $method = EnumExecuteMethod::passthru): static;
 }
