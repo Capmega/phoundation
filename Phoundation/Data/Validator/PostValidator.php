@@ -87,6 +87,7 @@ class PostValidator extends Validator
      *
      * @param bool $apply
      * @return static
+     * @throws ValidationFailedException
      */
     public function noArgumentsLeft(bool $apply = true): static
     {
@@ -111,7 +112,7 @@ class PostValidator extends Validator
             }
         }
 
-        throw ValidatorException::new(tr('Unknown POST fields ":fields" encountered', [
+        throw ValidationFailedException::new(tr('Unknown POST fields ":fields" encountered', [
             ':fields' => Strings::force($fields, ', ')
         ]))->addData($messages)->makeWarning()->log();
     }

@@ -328,6 +328,19 @@ trait ValidatorBasics
 
 
     /**
+     * Copy the current value to the specified field
+     *
+     * @param string $field
+     * @return $this
+     */
+    public function copyTo(string $field): static
+    {
+        $this->source[$field] = $this->selected_value;
+        return $this;
+    }
+
+
+    /**
      * Renames the current field to the specified field name
      *
      * @param string $field_name

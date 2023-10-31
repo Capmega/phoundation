@@ -8,6 +8,7 @@ use DateTime;
 use PDOStatement;
 use Phoundation\Accounts\Users\Password;
 use Phoundation\Core\Arrays;
+use Phoundation\Core\Sessions\Config;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Exception\KeyAlreadySelectedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
@@ -253,16 +254,15 @@ abstract class Validator implements ValidatorInterface
 
         return $this->validateValues(function(&$value) {
             if (!$this->checkIsOptional($value)) {
-                if (Strings::toBoolean($value, false) === null) {
-                    if ($value !== null) {
-                        $this->addFailure(tr('must have a boolean value'));
-                    }
-
-                    $value = false;
+                if ($value === $this->selected_optional) {
+                    $value = (bool) $this->selected_optional;
                 }
 
-                // Sanitize value, must be a boolean
-                $value = Strings::toBoolean($value);
+                $value = Strings::toBoolean($value, false);
+
+                if ($value === null) {
+                    $this->addFailure(tr('must have a boolean value'));
+                }
             }
         });
     }
@@ -1805,14 +1805,14 @@ abstract class Validator implements ValidatorInterface
     public function isPhoneNumber(): static
     {
         return $this->validateValues(function(&$value) {
-            $this->hasMinCharacters(10)->hasMaxCharacters(20);
+            $this->hasMinCharacters(10)->hasMaxCharacters(30);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
 
-            $this->matchesRegex('/^\+?[0-9-#\* ].+?$/');
+            $this->matchesRegex('/^\+?[0-9-#\*\(\) ].+?$/');
         });
     }
 
@@ -2560,6 +2560,23 @@ abstract class Validator implements ValidatorInterface
 
 
     /**
+     * Makes the current field a boolean value
+     *
+     * This method ensures that the specified array key is a boolean
+     *
+     * @return static
+     */
+    public function sanitizeToBoolean(): static
+    {
+        return $this->validateValues(function(&$value) {
+            if (!$this->checkIsOptional($value)) {
+                $value = (bool) $value;
+            }
+        });
+    }
+
+
+    /**
      * Sanitize the selected value by applying htmlentities()
      *
      * @return static
@@ -2913,8 +2930,6 @@ abstract class Validator implements ValidatorInterface
     public function sanitizeForceArray(string $characters = ','): static
     {
         return $this->validateValues(function(&$value) use ($characters) {
-            $this->hasMinCharacters(3)->hasMaxCharacters();
-
             if ($this->process_value_failed) {
                 if (!$this->selected_is_default) {
                     // Validation already failed, don't test anything more
@@ -3135,6 +3150,39 @@ abstract class Validator implements ValidatorInterface
             }
 
             $value = $callback($value, $this->source);
+        });
+    }
+
+
+    /**
+     * Sanitize the phone number in the selected value
+     *
+     * @return static
+     * @see trim()
+     */
+    public function sanitizePhoneNumber(): static
+    {
+        return $this->validateValues(function(&$value) {
+            $this->isPhoneNumber();
+
+            if ($this->process_value_failed) {
+                if (!$this->selected_is_default) {
+                    // Validation already failed, don't test anything more
+                    return;
+                }
+            }
+
+            $value  = trim((string) $value);
+            $prefix = (str_starts_with($value, '+') ? '+' : Config::getString('validation.defaults.phones.country-code', '+1'));
+            $ext    = Strings::from($value, 'ext', require: true);
+            $value  = preg_replace('/[^0-9]+/', '', $value);
+            $ext    = preg_replace('/[^0-9]+/', '', $ext);
+
+            if ($value) {
+                $value = $prefix . $value . ($ext ? ' ext. ' . $ext : null);
+            } else {
+                $value = null;
+            }
         });
     }
 
