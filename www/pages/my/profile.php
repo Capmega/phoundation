@@ -124,7 +124,7 @@ $buttons = Buttons::new()
 $card = Card::new()
     ->setCollapseSwitch(true)
     ->setTitle(tr('Manage your profile information here'))
-    ->setContent($user->getHtmlForm()->render())
+    ->setContent($user->getHtmlDataEntryForm()->render())
     ->setButtons($buttons);
 
 

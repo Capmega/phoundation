@@ -103,7 +103,7 @@ if (!$role->isNew()) {
 
 
 // Build the role card
-$form = $role->getHtmlForm();
+$form = $role->getHtmlDataEntryForm();
 $card = Card::new()
     ->setTitle(tr('Edit data for role :name', [':name' => $role->getName()]))
     ->setContent($form->render())
@@ -132,7 +132,7 @@ $documentation = Card::new()
 // Build the rights list management section
 $rights = Card::new()
     ->setTitle(tr('Rights for this role'))
-    ->setContent($role->getRightsHtmlForm()
+    ->setContent($role->getRightsHtmlDataEntryForm()
         ->setAction('#')
         ->setMethod('POST')
         ->render());

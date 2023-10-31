@@ -68,7 +68,7 @@ $buttons = Buttons::new()
 $card = Card::new()
     ->setCollapseSwitch(true)
     ->setTitle(tr('Change your password'))
-    ->setContent($password->getHtmlForm()->render())
+    ->setContent($password->getHtmlDataEntryForm()->render())
     ->setButtons($buttons);
 
 

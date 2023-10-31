@@ -33,7 +33,7 @@ $buttons = Buttons::new()
 $incident_card = Card::new()
     ->setCollapseSwitch(true)
     ->setTitle(tr('Edit data for Incident :name', [':name' => $incident->getTitle()]))
-    ->setContent($incident->getHtmlForm()->render())
+    ->setContent($incident->getHtmlDataEntryForm()->render())
     ->setButtons($buttons);
 
 

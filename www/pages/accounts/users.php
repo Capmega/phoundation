@@ -53,14 +53,14 @@ if (Page::isPostRequestMethod()) {
         switch ($post['submit']) {
             case tr('Delete'):
                 // Delete selected users
-                $count = Users::directOperations()->delete($post['id']);
+                $count = Users::directOperations()->deleteKeys($post['id']);
 
                 Page::getFlashMessages()->addSuccessMessage(tr('Deleted ":count" users', [':count' => $count]));
                 Page::redirect('this');
 
             case tr('Undelete'):
                 // Undelete selected users
-                $count = Users::directOperations()->undelete($post['id']);
+                $count = Users::directOperations()->undeleteKeys($post['id']);
 
                 Page::getFlashMessages()->addSuccessMessage(tr('Undeleted ":count" users', [':count' => $count]));
                 Page::redirect('this');

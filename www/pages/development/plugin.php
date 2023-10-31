@@ -32,7 +32,7 @@ $buttons = Buttons::new()
 $plugin_card = Card::new()
     ->setCollapseSwitch(true)
     ->setTitle(tr('Edit data for Plugin :name', [':name' => $plugin->getName()]))
-    ->setContent($plugin->getHtmlForm()->render())
+    ->setContent($plugin->getHtmlDataEntryForm()->render())
     ->setButtons($buttons);
 
 

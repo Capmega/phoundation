@@ -103,7 +103,7 @@ $definitions->get('description')
 $card = Card::new()
     ->setCollapseSwitch(true)
     ->setTitle(tr('View the profile information for :user here', [':user' => $user->getDisplayName()]))
-    ->setContent($user->getHtmlForm()->render());
+    ->setContent($user->getHtmlDataEntryForm()->render());
 
 
 // Build the grid column with a form containing the user and roles cards

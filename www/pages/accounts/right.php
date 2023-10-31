@@ -98,7 +98,7 @@ if (!$right->isNew()) {
 
 
 // Build the right card
-$form  = $right->getHtmlForm();
+$form  = $right->getHtmlDataEntryForm();
 $card  = Card::new()
     ->setTitle(tr('Edit data for right :name', [':name' => $right->getName()]))
     ->setContent($form->render())
