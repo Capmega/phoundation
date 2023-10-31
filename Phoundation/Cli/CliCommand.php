@@ -226,9 +226,9 @@ class CliCommand
 
         if (empty($quiet)) {
             if (isset($verbose)) {
-                echo 'Executing ./pho command as user "' . $user['name'] . '" with command "' . $command . '"' . PHP_EOL;
+                echo 'Re-executing ./pho command as user "' . $user['name'] . '" with command "' . $command . '"' . PHP_EOL;
             } else {
-                echo 'Executing ./pho command as user "' . $user['name'] . '"' . PHP_EOL;
+                echo 'Re-executing ./pho command as user "' . $user['name'] . '"' . PHP_EOL;
             }
         }
 
