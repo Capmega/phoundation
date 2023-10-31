@@ -35,6 +35,14 @@ use Stringable;
 class DataEntryForm extends Renderer
 {
     /**
+     * Counter for list forms
+     *
+     * @var int $list_count
+     */
+    protected static int $list_count = 0;
+
+
+    /**
      * DataEntryForm class constructor
      *
      * @param ElementsBlockInterface|ElementInterface $element
@@ -63,7 +71,20 @@ class DataEntryForm extends Renderer
         $definitions   = $render_object->getDefinitions();
         $prefix        = $render_object->getDefinitions()->getPrefix();
         $auto_focus_id = $render_object->getAutofocusId();
-        $array         = str_ends_with((string) $prefix, '[');
+
+        if ($prefix) {
+            if (str_ends_with((string) $prefix, '[]')) {
+                // This is an array prefix with the closing tag attached, just remove the closing tag
+                $prefix = substr($prefix, 0, -1);
+            }
+
+            if (str_contains($prefix, '[]')) {
+                // This prefix contains a [] to indicate a list item. Specify correct ID's
+                $prefix = str_replace('[]', '[' . static::$list_count . ']', $prefix);
+            }
+        }
+
+        $is_array = str_ends_with((string) $prefix, '[');
 
         /*
          * $data field keys: (Or just use Definitions class)
@@ -119,7 +140,7 @@ class DataEntryForm extends Renderer
                 $definition->setAutoFocus(true);
             }
 
-            if ($array) {
+            if ($is_array) {
                 // The field name prefix is an HTML form array prefix, close that array
                 $field_name .= ']';
             }
@@ -135,11 +156,15 @@ class DataEntryForm extends Renderer
                     ]));
                 }
 
-                if ($definition->getMeta()) {
-                    // This is an unmutable meta field, virtual field, or readonly field.
+                if ($definition->isMeta()) {
+                    // This is an immutable meta field, virtual field, or readonly field.
                     // In creation mode we're not even going to show this, in edit mode don't put a field name because
                     // users aren't even supposed to be able to submit this
                     if (empty($source['id'])) {
+                        continue;
+                    }
+
+                    if (!$definitions->getMetaVisible()) {
                         continue;
                     }
 
@@ -245,7 +270,9 @@ class DataEntryForm extends Renderer
 
                 // Apply variables
                 foreach ($source as $source_key => $source_value) {
-                    $source[$field] = str_replace(':' . $source_key, (string) $source_value, $source[$field]);
+                    if ($definitions->exists($source_key)) {
+                        $source[$field] = str_replace(':' . $source_key, (string) $source_value, $source[$field]);
+                    }
                 }
             }
 
@@ -533,6 +560,7 @@ class DataEntryForm extends Renderer
 
         // Add one empty element to (if required) close any rows
         $this->render .= $this->renderItem(null, null, null);
+        static::$list_count++;
         return parent::render();
     }
 
@@ -540,12 +568,12 @@ class DataEntryForm extends Renderer
     /**
      * Renders and returns the HTML for this component
      *
-     * @param string|int|null $id
+     * @param string|int|null $name
      * @param string|null $html
      * @param array|null $data
      * @return string|null
      */
-    protected function renderItem(string|int|null $id, ?string $html, ?array $data): ?string
+    protected function renderItem(string|int|null $name, ?string $html, ?array $data): ?string
     {
         static $col_size = 12;
         static $cols     = [];
@@ -567,7 +595,7 @@ class DataEntryForm extends Renderer
                 return $html;
             }
 
-            $cols[] = isset_get($data['label']) . ' = "' . $id . '" [' . $data['size'] . ']';
+            $cols[] = isset_get($data['label']) . ' = "' . $name . '" [' . $data['size'] . ']';
 
             // Keep track of column size, close each row when size 12 is reached
             if ($col_size === 12) {
@@ -579,10 +607,10 @@ class DataEntryForm extends Renderer
                 case 'checkbox':
                     $return .= '    <div class="col-sm-' . Html::safe($data['size']) . '">
                                         <div class="form-group">
-                                            <label for="' . Html::safe($id) . '">' . Html::safe($data['label']) . '</label>
+                                            <label for="' . Html::safe($name) . '">' . Html::safe($data['label']) . '</label>
                                             <div class="form-check">
                                                 ' . $html . '
-                                                <label class="form-check-label" for="' . Html::safe($id) . '">' . Html::safe($data['label']) . '</label>
+                                                <label class="form-check-label" for="' . Html::safe($name) . '">' . Html::safe($data['label']) . '</label>
                                             </div>
                                         </div>
                                     </div>';
@@ -591,7 +619,7 @@ class DataEntryForm extends Renderer
                 default:
                     $return .= '    <div class="col-sm-' . Html::safe($data['size']) . '">
                                         <div class="form-group">
-                                            <label for="' . Html::safe($id) . '">' . Html::safe($data['label']) . '</label>
+                                            <label for="' . Html::safe($name) . '">' . Html::safe($data['label']) . '</label>
                                             ' . $html . '
                                         </div>
                                     </div>';
@@ -602,7 +630,7 @@ class DataEntryForm extends Renderer
             if ($col_size < 0) {
                 throw OutOfBoundsException::new(tr('Cannot add column ":label" for table / class ":class" form with size ":size", the row would surpass size 12 by ":count"', [
                     ':class' => $this->render_object->getDefinitions()->getTable(),
-                    ':label' => $data['label'] . ' [' . $id . ']',
+                    ':label' => $data['label'] . ' [' . $name . ']',
                     ':size'  => abs($data['size']),
                     ':count' => abs($col_size),
                 ]))->setData([

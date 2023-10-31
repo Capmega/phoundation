@@ -39,14 +39,14 @@ class InputDateRange extends Input
      */
     public function render(): ?string
     {
-        if (!$this->render_object->getId()) {
-            throw new OutOfBoundsException(tr('Cannot render InputDateRange object, no HTML id attribute specified'));
+        if (!$this->render_object->getName()) {
+            throw new OutOfBoundsException(tr('Cannot render InputDateRange object, no HTML name attribute specified'));
         }
 
         // Ensure these two classes are always available
         $this->render_object->addClasses(['form-control', 'float-right']);
 
-        $html  = '  <div class="input-group">
+        $html = '   <div class="input-group">
                         <div class="input-group-prepend">
                             <span class="input-group-text">
                                 <i class="far fa-calendar-alt"></i>

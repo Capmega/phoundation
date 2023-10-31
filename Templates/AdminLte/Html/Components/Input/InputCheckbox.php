@@ -40,7 +40,7 @@ class InputCheckbox extends Input
 
         return '<div class="custom-control custom-checkbox">
                     ' . parent::render() . '
-                    ' . ($object->getLabel() ? '<label for="' . $object->getId() . '" class="custom-control-label">' . $object->getLabel() . '</label>' : '') . '
+                    ' . ($object->getLabel() ? '<label for="' . $object->getName() . '" class="custom-control-label">' . $object->getLabel() . '</label>' : '') . '
                 </div>';
     }
 }
