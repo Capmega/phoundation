@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
 
+use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
@@ -39,6 +40,8 @@ class Cp extends Command
 
         $source_restrictions->check($source, false);
         $target_restrictions->check($target, true);
+
+        Path::new(dirname($target), $target_restrictions)->ensure();
 
         // Build the process parameters, then execute
         $this->setInternalCommand('cp')
