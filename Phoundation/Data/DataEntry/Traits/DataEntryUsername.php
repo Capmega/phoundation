@@ -24,7 +24,7 @@ trait DataEntryUsername
      */
     public function getUsername(): ?string
     {
-        return $this->getSourceValue('string', 'username');
+        return $this->getSourceFieldValue('string', 'username');
     }
 
 

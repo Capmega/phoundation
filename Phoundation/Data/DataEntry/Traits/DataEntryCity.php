@@ -26,7 +26,7 @@ trait DataEntryCity
      */
     public function getCitiesId(): ?int
     {
-        return $this->getSourceValue('int', 'cities_id');
+        return $this->getSourceFieldValue('int', 'cities_id');
     }
 
 
@@ -49,7 +49,7 @@ trait DataEntryCity
      */
     public function getCity(): ?City
     {
-        $cities_id = $this->getSourceValue('int', 'cities_id');
+        $cities_id = $this->getSourceFieldValue('int', 'cities_id');
 
         if ($cities_id) {
             return new City($cities_id);
@@ -66,7 +66,7 @@ trait DataEntryCity
      */
     public function getCitiesName(): ?string
     {
-        return $this->getSourceValue('string', 'cities_name') ?? City::new($this->getCitiesId(), 'id')?->getName();
+        return $this->getSourceFieldValue('string', 'cities_name') ?? City::new($this->getCitiesId(), 'id')?->getName();
     }
 
 

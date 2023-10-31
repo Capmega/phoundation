@@ -145,7 +145,7 @@ class InputDateRange extends InputText
         Script::new()
             ->setJavascriptWrapper(JavascriptWrappers::window)
             ->setContent('
-                $("#' . $this->getId() . '").daterangepicker(
+                $("[name=' . $this->getName() . ']").daterangepicker(
                 {
                     onSelect: function(dateText, inst) {
                         return $(this).trigger("change");
@@ -156,7 +156,7 @@ class InputDateRange extends InputText
 //                    endDate  : moment()
                 },
                 function (start, end) {
-//                  $("#' . $this->getId() . '").html(start.format("MMMM D, YYYY") + " - " + end.format("MMMM D, YYYY"))
+//                  $("[name=' . $this->getName() . ']").html(start.format("MMMM D, YYYY") + " - " + end.format("MMMM D, YYYY"))
                 });')
             ->render();
 

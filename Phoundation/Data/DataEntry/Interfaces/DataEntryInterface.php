@@ -2,8 +2,10 @@
 
 namespace Phoundation\Data\DataEntry\Interfaces;
 
+use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Interfaces\ArrayableInterface;
+use Phoundation\Core\Meta\Interfaces\MetaInterface;
 use Phoundation\Core\Meta\Meta;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
@@ -198,9 +200,9 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      * Returns the object that created this data entry
      *
      * @note Returns NULL if this class has no support for created_by information or has not been written to disk yet
-     * @return User|null
+     * @return UserInterface|null
      */
-    public function getCreatedBy(): ?User;
+    public function getCreatedBy(): ?UserInterface;
 
     /**
      * Returns the object that created this data entry
@@ -217,9 +219,9 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      *       yet
      *
      * @param bool $load
-     * @return Meta|null
+     * @return MetaInterface|null
      */
-    public function getMeta(bool $load = false): ?Meta;
+    public function getMeta(bool $load = false): ?MetaInterface;
 
     /**
      * Returns the meta id for this entry
@@ -285,7 +287,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      *       will not become available outside this object
      * @return array
      */
-    public function getSourceKey(string $key): mixed;
+    public function getSourceValue(string $key): mixed;
 
     /**
      * Sets the value for the specified data key
@@ -319,7 +321,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      *
      * @return DataEntryFormInterface
      */
-    public function getHtmlForm(): DataEntryFormInterface;
+    public function getHtmlDataEntryForm(): DataEntryFormInterface;
 
     /**
      * Load all data directly from the specified array.
@@ -335,9 +337,9 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
     /**
      * Returns the definitions for the fields in this table
      *
-     * @return DefinitionsInterface
+     * @return DefinitionsInterface|null
      */
-    public function getDefinitions(): DefinitionsInterface;
+    public function getDefinitions(): ?DefinitionsInterface;
 
     /**
      * Returns the table name used by this object

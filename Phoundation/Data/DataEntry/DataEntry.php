@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry;
 
 use Exception;
+use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\Color;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
+use Phoundation\Core\Meta\Interfaces\MetaInterface;
 use Phoundation\Core\Meta\Meta;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Core\Strings;
@@ -482,7 +484,7 @@ abstract class DataEntry implements DataEntryInterface
         // Get the required fields and gather a list of available help groups
         foreach ($fields as $id => $definitions) {
             if (!$definitions->getOptional()) {
-                $fields->remove($id);
+                $fields->deleteKeys($id);
                 $return .= PHP_EOL . PHP_EOL . Strings::size($definitions->getCliField(), 39) . ' ' . $definitions->getHelpText();
             }
 
@@ -501,7 +503,7 @@ abstract class DataEntry implements DataEntryInterface
 
             foreach ($fields as $id => $definitions) {
                 if ($definitions->getHelpGroup() === $group) {
-                    $fields->remove($id);
+                    $fields->deleteKeys($id);
                     $body .= PHP_EOL . PHP_EOL . Strings::size($definitions->getCliField(), 39) . ' ' . $definitions->getHelpText();
                 }
             }
@@ -700,7 +702,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function getId(): int|null
     {
-        return $this->getSourceValue('int', 'id');
+        return $this->getSourceFieldValue('int', 'id');
     }
 
 
@@ -711,7 +713,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function getLogId(): string
     {
-        return $this->getSourceValue('int', 'id') . ' / ' . (static::getUniqueField() ? $this->getSourceValue('string', static::getUniqueField()) : '-');
+        return $this->getSourceFieldValue('int', 'id') . ' / ' . (static::getUniqueField() ? $this->getSourceFieldValue('string', static::getUniqueField()) : '-');
     }
 
 
@@ -722,7 +724,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function getStatus(): ?string
     {
-        return $this->getSourceValue('string', 'status');
+        return $this->getSourceFieldValue('string', 'status');
     }
 
 
@@ -734,7 +736,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function isStatus(?string $status): bool
     {
-        return $this->getSourceValue('string', 'status') === $status;
+        return $this->getSourceFieldValue('string', 'status') === $status;
     }
 
 
@@ -769,7 +771,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function getMetaState(): ?string
     {
-        return $this->getSourceValue('string', 'meta_state');
+        return $this->getSourceFieldValue('string', 'meta_state');
     }
 
 
@@ -864,11 +866,11 @@ abstract class DataEntry implements DataEntryInterface
      * Returns the object that created this data entry
      *
      * @note Returns NULL if this class has no support for created_by information or has not been written to disk yet
-     * @return User|null
+     * @return UserInterface|null
      */
-    public function getCreatedBy(): ?User
+    public function getCreatedBy(): ?UserInterface
     {
-        $created_by = $this->getSourceValue('int', 'created_by');
+        $created_by = $this->getSourceFieldValue('int', 'created_by');
 
         if ($created_by === null) {
             return null;
@@ -886,7 +888,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function getCreatedOn(): ?DateTime
     {
-        $created_on = $this->getSourceValue('string', 'created_on');
+        $created_on = $this->getSourceFieldValue('string', 'created_on');
 
         if ($created_on === null) {
             return null;
@@ -903,11 +905,11 @@ abstract class DataEntry implements DataEntryInterface
      *       yet
      *
      * @param bool $load
-     * @return Meta|null
+     * @return MetaInterface|null
      */
-    public function getMeta(bool $load = true): ?Meta
+    public function getMeta(bool $load = true): ?MetaInterface
     {
-        $meta_id = $this->getSourceValue('int', 'meta_id');
+        $meta_id = $this->getSourceFieldValue('int', 'meta_id');
 
         if ($meta_id === null) {
             return null;
@@ -924,7 +926,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function getMetaId(): ?int
     {
-        return $this->getSourceValue('int', 'meta_id');
+        return $this->getSourceFieldValue('int', 'meta_id');
     }
 
 
@@ -1112,7 +1114,7 @@ abstract class DataEntry implements DataEntryInterface
 
                 // Check all keys and register changes
                 foreach ($this->definitions as $key => $definition) {
-                    if ($definition->getReadonly() or $definition->getDisabled() or $definition->getMeta()) {
+                    if ($definition->getReadonly() or $definition->getDisabled() or $definition->isMeta()) {
                         continue;
                     }
 
@@ -1301,7 +1303,7 @@ abstract class DataEntry implements DataEntryInterface
      *       will not become available outside this object
      * @return array
      */
-    public function getSourceKey(string $key): mixed
+    public function getSourceValue(string $key): mixed
     {
         if (array_key_exists($key, $this->source)) {
             return $this->source[$key];
@@ -1311,6 +1313,21 @@ abstract class DataEntry implements DataEntryInterface
             ':class' => get_class($this),
             ':key'   => $key
         ]));
+    }
+
+
+    /**
+     * Returns the value for the specified data key
+     *
+     * @param string $type
+     * @param string $field
+     * @param mixed|null $default
+     * @return mixed
+     */
+    protected function getSourceFieldValue(string $type, string $field, mixed $default = null): mixed
+    {
+        $this->checkProtected($field);
+        return isset_get_typed($type, $this->source[$field], $default, false);
     }
 
 
@@ -1477,21 +1494,6 @@ abstract class DataEntry implements DataEntryInterface
 
 
     /**
-     * Returns the value for the specified data key
-     *
-     * @param string $type
-     * @param string $field
-     * @param mixed|null $default
-     * @return mixed
-     */
-    protected function getSourceValue(string $type, string $field, mixed $default = null): mixed
-    {
-        $this->checkProtected($field);
-        return isset_get_typed($type, $this->source[$field], $default, false);
-    }
-
-
-    /**
      * Returns if the specified DataValue key can be visible outside this object or not
      *
      * @param string $field
@@ -1617,7 +1619,6 @@ abstract class DataEntry implements DataEntryInterface
      * @param bool $force
      * @param string|null $comments
      * @return static
-     * @throws Exception
      */
     public function save(bool $force = false, ?string $comments = null): static
     {
@@ -1628,6 +1629,7 @@ abstract class DataEntry implements DataEntryInterface
             if ($this->debug) {
                 Log::information('NOTHING CHANGED FOR ID "' . $this->source['id'] . '"', 10);
             }
+
             return $this;
         }
 
@@ -1696,7 +1698,7 @@ abstract class DataEntry implements DataEntryInterface
      *
      * @return DataEntryFormInterface
      */
-    public function getHtmlForm(): DataEntryFormInterface
+    public function getHtmlDataEntryForm(): DataEntryFormInterface
     {
         return DataEntryForm::new()
             ->setSource($this->source)
@@ -1757,7 +1759,7 @@ abstract class DataEntry implements DataEntryInterface
 
         // Go over each field and let the field definition do the validation since it knows the specs
         foreach ($this->definitions as $definition) {
-            if ($definition->getMeta()) {
+            if ($definition->isMeta()) {
                 // This field is metadata and should not be modified or validated, plain ignore it.
                 continue;
             }

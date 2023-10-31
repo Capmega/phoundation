@@ -26,7 +26,7 @@ trait DataEntryLine
      */
     public function getLine(): ?int
     {
-        return $this->getSourceValue('int', 'line');
+        return $this->getSourceFieldValue('int', 'line');
     }
 
 

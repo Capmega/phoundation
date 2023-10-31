@@ -34,6 +34,14 @@ class Definitions extends Iterator implements DefinitionsInterface
 
 
     /**
+     * Tracks if meta information can be visible or not
+     *
+     * @var bool
+     */
+    protected bool $meta_visible = true;
+
+
+    /**
      * Adds the specified Definition to the fields list
      *
      * @param DefinitionInterface $field
@@ -89,15 +97,39 @@ class Definitions extends Iterator implements DefinitionsInterface
 
 
     /**
-     * Direct method to unhide entries
+     * Direct method to show entries
      *
      * @param Stringable|string|float|int $key
      * @param bool $exception
      * @return static
      */
-    public function unhide(Stringable|string|float|int $key, bool $exception = true): static
+    public function show(Stringable|string|float|int $key, bool $exception = true): static
     {
         $this->get($key, $exception)->setHidden(false);
+        return $this;
+    }
+
+
+    /**
+     * Returns if meta information is visible at all, or not
+     *
+     * @return bool
+     */
+    public function getMetaVisible(): bool
+    {
+        return $this->meta_visible;
+    }
+
+
+    /**
+     * Sets if meta information is visible at all, or not
+     *
+     * @param bool $meta_visible
+     * @return static
+     */
+    public function setMetaVisible(bool $meta_visible): static
+    {
+        $this->meta_visible = $meta_visible;
         return $this;
     }
 

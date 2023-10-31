@@ -10,6 +10,7 @@ use Phoundation\Cli\CliCommand;
 use Phoundation\Core\Config;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Exception\MetaException;
+use Phoundation\Core\Meta\Interfaces\MetaInterface;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\Validate;
@@ -32,7 +33,7 @@ use Throwable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package \Phoundation\Core
  */
-class Meta
+class Meta implements MetaInterface
 {
     /**
      * The database entry for this meta id
@@ -82,7 +83,6 @@ class Meta
      *
      * @param int|null $id
      * @param bool $load
-     * @throws Exception
      */
     public function __construct(?int $id = null, bool $load = true)
     {

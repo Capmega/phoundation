@@ -406,7 +406,7 @@ abstract class DataList extends Iterator implements DataListInterface
      * @param string|null $comments
      * @return int
      */
-    public function updateStatus(?string $status, ?string $comments = null): int
+    public function updateStatusAll(?string $status, ?string $comments = null): int
     {
         foreach ($this->source as $entry) {
             sql()->dataEntrySetStatus($status, static::getTable(), $entry, $comments);
@@ -417,14 +417,14 @@ abstract class DataList extends Iterator implements DataListInterface
 
 
     /**
-     * Delete the specified entries
+     * Delete all the entries in this list
      *
      * @param string|null $comments
      * @return int
      */
-    public function delete(?string $comments = null): int
+    public function deleteAll(?string $comments = null): int
     {
-        return $this->updateStatus('deleted', $comments);
+        return $this->updateStatusAll('deleted', $comments);
     }
 
 
@@ -444,7 +444,7 @@ abstract class DataList extends Iterator implements DataListInterface
      *
      * @return int
      */
-    public function erase(): int
+    public function eraseAll(): int
     {
         $ids  = [];
         $meta = [];
@@ -476,9 +476,9 @@ abstract class DataList extends Iterator implements DataListInterface
      * @param string|null $comments
      * @return int
      */
-    public function undelete(?string $comments = null): int
+    public function undeleteAll(?string $comments = null): int
     {
-        return $this->updateStatus(null, $comments);
+        return $this->updateStatusAll(null, $comments);
     }
 
 

@@ -115,6 +115,13 @@ class Phone extends DataEntry implements PhoneInterface
                 ->setReadonly(true))
             ->addDefinition(DefinitionFactory::getUsersId($this)
                 ->setVisible(false))
+            ->addDefinition(DefinitionFactory::getPhone($this)
+                ->setSize(4)
+                ->setOptional(false)
+                ->setHelpText(tr('The extra phone for the user'))
+                ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->isUnique(tr('value ":phone" already exists', [':phone' => $validator->getSourceValue()]));
+                }))
             ->addDefinition(Definition::new($this, 'account_type')
                 ->setOptional(true)
                 ->setElement(InputElement::select)
@@ -130,16 +137,7 @@ class Phone extends DataEntry implements PhoneInterface
                     'noword' => function ()             { return [tr('Business'), tr('Personal'), tr('Other')]; },
                 ])
                 ->setLabel(tr('Type'))
-                ->setHelpText(tr('The type of phone'))
-                ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->hasMaxCharacters(6);
-                }))
-            ->addDefinition(DefinitionFactory::getPhone($this)
-                ->setSize(6)
-                ->setHelpText(tr('The extra phone for the user'))
-                ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->isUnique(tr('value ":phone" already exists', [':phone' => $validator->getSourceValue()]));
-                }))
+                ->setHelpText(tr('The type of phone')))
             ->addDefinition(DefinitionFactory::getDateTime($this, 'verified_on')
                 ->setReadonly(true)
                 ->setSize(3)
@@ -149,6 +147,13 @@ class Phone extends DataEntry implements PhoneInterface
                 ->setLabel(tr('Verified on'))
                 ->setHelpGroup(tr('Account information'))
                 ->setHelpText(tr('The date when this user was phone verified. Empty if not yet verified')))
+            ->addDefinition(Definition::new($this, 'delete')
+                ->setVirtual(true)
+                ->setInputType(InputType::submit)
+                ->setSize(2)
+                ->setLabel(tr('Delete'))
+                ->addClasses('btn btn-outline-warning')
+                ->setValue(tr('Delete')))
             ->addDefinition(DefinitionFactory::getDescription($this)
                 ->setHelpText(tr('The description for this phone')));
     }

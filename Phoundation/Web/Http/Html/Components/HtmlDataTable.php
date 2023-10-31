@@ -1048,8 +1048,8 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     /**
      * Generates and returns the HTML string for this resource element
      *
-     * @todo load javascript libraries only when required, when functionality is enabled
      * @return string|null
+     *@todo load javascript libraries only when required, when functionality is enabled
      */
     public function render(): ?string
     {

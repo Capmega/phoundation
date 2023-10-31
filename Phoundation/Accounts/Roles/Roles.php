@@ -115,8 +115,8 @@ class Roles extends DataList implements RolesInterface
                 $this->addRole($role);
             }
 
-            foreach ($diff['remove'] as $role) {
-                $this->remove($role);
+            foreach ($diff['delete'] as $role) {
+                $this->deleteKeys($role);
             }
         }
 
@@ -203,7 +203,7 @@ class Roles extends DataList implements RolesInterface
      * @param RoleInterface|Stringable|array|string|float|int $role
      * @return static
      */
-    public function remove(RoleInterface|Stringable|array|string|float|int $role): static
+    public function deleteKeys(RoleInterface|Stringable|array|string|float|int $role): static
     {
         $this->ensureParent('remove entry from parent');
 
@@ -211,7 +211,7 @@ class Roles extends DataList implements RolesInterface
             if (is_array($role)) {
                 // Add multiple rights
                 foreach ($role as $entry) {
-                    $this->remove($entry);
+                    $this->deleteKeys($entry);
                 }
 
             } else {
@@ -230,7 +230,7 @@ class Roles extends DataList implements RolesInterface
                     ]);
 
                     // Delete role from internal list
-                    parent::remove($role->getId());
+                    parent::deleteAll($role->getId());
 
                     // Remove the rights related to this role
                     foreach ($role->getRights() as $right) {
@@ -242,7 +242,7 @@ class Roles extends DataList implements RolesInterface
                             }
                         }
 
-                        $this->parent->getRights()->remove($right);
+                        $this->parent->getRights()->deleteKeys($right);
                     }
 
                 } elseif ($this->parent instanceof RightInterface) {
@@ -257,11 +257,11 @@ class Roles extends DataList implements RolesInterface
                     ]);
 
                     // Remove right from internal list
-                    parent::remove($role->getId());
+                    parent::deleteAll($role->getId());
 
                     // Update all users with this right to remove the new right as well!
                     foreach ($this->parent->getUsers() as $user) {
-                        User::get($user)->getRights()->remove($this->parent);
+                        User::get($user)->getRights()->deleteKeys($this->parent);
                     }
                 }
             }

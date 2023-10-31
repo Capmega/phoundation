@@ -30,9 +30,9 @@ trait DataEntryDefinitions
     /**
      * Returns the definitions for the fields in this table
      *
-     * @return DefinitionsInterface
+     * @return DefinitionsInterface|null
      */
-    public function getDefinitions(): DefinitionsInterface
+    public function getDefinitions(): ?DefinitionsInterface
     {
         return $this->definitions;
     }

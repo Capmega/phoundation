@@ -170,7 +170,7 @@ interface DefinitionInterface
      * @return bool
      * @see Definition::getVisible()
      */
-    public function getMeta(): bool;
+    public function isMeta(): bool;
 
     /**
      * Returns if this field updates directly, bypassing DataEntry::setSourceValue()

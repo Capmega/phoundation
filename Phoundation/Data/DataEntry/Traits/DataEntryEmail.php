@@ -24,18 +24,18 @@ trait DataEntryEmail
      */
     public function getEmail(): ?string
     {
-        return $this->getSourceValue('string', 'email');
+        return $this->getSourceFieldValue('string', 'email');
     }
 
 
     /**
      * Sets the email for this object
      *
-     * @param string|null $number
+     * @param string|null $email
      * @return static
      */
-    public function setEmail(?string $number): static
+    public function setEmail(?string $email): static
     {
-        return $this->setSourceValue('email', $number);
+        return $this->setSourceValue('email', $email);
     }
 }

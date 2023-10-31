@@ -61,9 +61,9 @@ interface DataEntryFormInterface extends ElementsBlockInterface
     /**
      * Returns the data fields for this DataEntryForm
      *
-     * @return DefinitionsInterface
+     * @return DefinitionsInterface|null
      */
-    public function getDefinitions(): DefinitionsInterface;
+    public function getDefinitions(): ?DefinitionsInterface;
 
     /**
      * Set the data source for this DataEntryForm

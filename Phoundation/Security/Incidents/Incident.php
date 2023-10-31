@@ -171,7 +171,7 @@ class Incident extends DataEntry
      */
     public function getSeverity(): string
     {
-        return $this->getSourceValue('string', 'severity', Severity::unknown->value);
+        return $this->getSourceFieldValue('string', 'severity', Severity::unknown->value);
     }
 
 

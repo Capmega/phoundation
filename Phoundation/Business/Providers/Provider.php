@@ -89,7 +89,7 @@ class Provider extends DataEntry
      */
     public function getAddress2(): ?string
     {
-        return $this->getSourceValue('string', 'address2');
+        return $this->getSourceFieldValue('string', 'address2');
     }
 
 
@@ -112,7 +112,7 @@ class Provider extends DataEntry
      */
     public function getAddress3(): ?string
     {
-        return $this->getSourceValue('string', 'address3');
+        return $this->getSourceFieldValue('string', 'address3');
     }
 
 

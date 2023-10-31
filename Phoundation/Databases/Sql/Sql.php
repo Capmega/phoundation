@@ -2489,7 +2489,7 @@ class Sql implements SqlInterface
 
                 throw $e->addData(Arrays::renameKeys(Arrays::valueDiff($matches[0], array_flip($execute)), [
                     'add'    => 'variables missing in query',
-                    'remove' => 'variables missing in execute'
+                    'delete' => 'variables missing in execute'
                 ]));
 
             default:

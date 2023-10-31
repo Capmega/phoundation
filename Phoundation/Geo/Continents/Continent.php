@@ -67,7 +67,7 @@ class Continent extends DataEntry
      */
     public function getTimezone(): Timezone
     {
-        return new Timezone($this->getSourceValue('int', 'timezones_id'));
+        return new Timezone($this->getSourceFieldValue('int', 'timezones_id'));
     }
 
 

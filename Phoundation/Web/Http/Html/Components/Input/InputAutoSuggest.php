@@ -190,13 +190,13 @@ class InputAutoSuggest extends InputText
             return parent::render();
         }
 
-        if (empty($this->id)) {
-            throw new OutOfBoundsException(tr('No ID or name specified for id auto suggest component'));
+        if (empty($this->name)) {
+            throw new OutOfBoundsException(tr('No required HTML name attribute specified for auto suggest component'));
         }
 
         if (empty($this->source_url)) {
-            throw new OutOfBoundsException(tr('No source URL specified for auto suggest component ":id"', [
-                ':id' => $this->id
+            throw new OutOfBoundsException(tr('No source URL specified for auto suggest component ":name"', [
+                ':name' => $this->name
             ]));
         }
 
@@ -212,9 +212,9 @@ class InputAutoSuggest extends InputText
         Page::loadJavascript('adminlte/plugins/jquery-ui/jquery-ui');
 
         // Setup javascript for the component
-        $script = Script::new()->setContent('$( "#' . $this->id . '" ).autocomplete({
+        $script = Script::new()->setContent('$(\'[name="' . $this->name . '"]\').autocomplete({
               source: function(request, response) {
-                let $selected = $( "#' . $this->id . '" );
+                let $selected = $(\'[name="' . $this->name . '"]\');
 
                 $.ajax({
                   url: "' . $this->source_url . '",

@@ -24,7 +24,7 @@ trait DataEntryVerificationCode
      */
     public function getVerificationCode(): ?string
     {
-        return $this->getSourceValue('string', 'verification_code');
+        return $this->getSourceFieldValue('string', 'verification_code');
     }
 
 

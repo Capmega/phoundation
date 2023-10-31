@@ -21,7 +21,11 @@ use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Geo\Timezones\Timezone;
+use Phoundation\Web\Http\Html\Components\DataEntryForm;
+use Phoundation\Web\Http\Html\Components\Entry;
 use Phoundation\Web\Http\Html\Components\Form;
+use Phoundation\Web\Http\Html\Components\Interfaces\DataEntryFormInterface;
+use Phoundation\Web\Http\Html\Components\Interfaces\EntryInterface;
 use Phoundation\Web\Http\Html\Components\Interfaces\FormInterface;
 use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
 
@@ -102,27 +106,27 @@ class Role extends DataEntry implements RoleInterface
 
 
     /**
-     * Creates and returns an HTML for the fir
+     * Creates and returns an HTML data entry form
      *
      * @param string $name
-     * @return FormInterface
+     * @return DataEntryFormInterface
      */
-    public function getRightsHtmlForm(string $name = 'rights_id[]'): FormInterface
+    public function getRightsHtmlDataEntryForm(string $name = 'rights_id[]'): DataEntryFormInterface
     {
-        $form   = Form::new();
+        $entry  = DataEntryForm::new();
         $rights = Rights::new();
         $select = $rights->getHtmlSelect()->setCache(true)->setName($name);
 
         // Add extra entry with nothing selected
         $select->clearSelected();
-        $form->addContent($select->render() . '<br>');
+        $entry->addContent($select->render() . '<br>');
 
         foreach ($this->getRights() as $right) {
             $select->setSelected($right->getId());
-            $form->addContent($select->render() . '<br>');
+            $entry->addContent($select->render() . '<br>');
         }
 
-        return $form;
+        return $entry;
     }
 
 

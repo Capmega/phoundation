@@ -24,7 +24,7 @@ trait DataEntryContent
      */
     public function getContent(): ?string
     {
-        return $this->getSourceValue('string', 'content');
+        return $this->getSourceFieldValue('string', 'content');
     }
 
 

@@ -8,6 +8,8 @@ use Phoundation\Accounts\Roles\Interfaces\RolesInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Date\DateTime;
 use Phoundation\Notifications\Interfaces\NotificationInterface;
+use Phoundation\Web\Http\Html\Components\Interfaces\DataEntryFormInterface;
+use Phoundation\Web\Http\Html\Components\Interfaces\EntryInterface;
 use Phoundation\Web\Http\Html\Components\Interfaces\FormInterface;
 
 
@@ -535,12 +537,12 @@ interface UserInterface extends DataEntryInterface
     public function hasSomeRights(array|string $rights): bool;
 
     /**
-     * Creates and returns an HTML for the fir
+     * Creates and returns an HTML DataEntry form
      *
      * @param string $name
-     * @return FormInterface
+     * @return DataEntryFormInterface
      */
-    public function getRolesHtmlForm(string $name = 'roles_id[]'): FormInterface;
+    public function getRolesHtmlDataEntryForm(string $name = 'roles_id[]'): DataEntryFormInterface;
 
     /**
      * Save the user to database

@@ -298,8 +298,8 @@ class Numbers
             // Cleanup the number
             if ($value) {
                 $value = str_replace(',', '.', $value);
-                $value = number_format($value, 10, '.', '');
                 $value = abs($value);
+                $value = number_format($value, 10, '.', '');
                 $value = trim($value, '0');
 
             } else {

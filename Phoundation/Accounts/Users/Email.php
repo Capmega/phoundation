@@ -30,7 +30,7 @@ use Phoundation\Web\Http\Html\Enums\InputType;
  *
  *
  *
- * @see \Phoundation\Data\DataEntry\DataEntry
+ * @see DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -115,6 +115,13 @@ class Email extends DataEntry implements EmailInterface
                 ->setReadonly(true))
             ->addDefinition(DefinitionFactory::getUsersId($this)
                 ->setVisible(false))
+            ->addDefinition(DefinitionFactory::getEmail($this)
+                ->setSize(4)
+                ->setOptional(false)
+                ->setHelpText(tr('The extra email address for the user'))
+                ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->isUnique(tr('value ":email" already exists', [':email' => $validator->getSourceValue()]));
+                }))
             ->addDefinition(Definition::new($this, 'account_type')
                 ->setOptional(true)
                 ->setElement(InputElement::select)
@@ -130,16 +137,7 @@ class Email extends DataEntry implements EmailInterface
                     'noword' => function ()             { return [tr('Business'), tr('Personal'), tr('Other')]; },
                 ])
                 ->setLabel(tr('Type'))
-                ->setHelpText(tr('The type of email address'))
-                ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->hasMaxCharacters(6);
-                }))
-            ->addDefinition(DefinitionFactory::getEmail($this)
-                ->setSize(6)
-                ->setHelpText(tr('The extra email address for the user'))
-                ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->isUnique(tr('value ":email" already exists', [':email' => $validator->getSourceValue()]));
-                }))
+                ->setHelpText(tr('The type of email address')))
             ->addDefinition(DefinitionFactory::getDateTime($this, 'verified_on')
                 ->setReadonly(true)
                 ->setSize(3)
@@ -149,6 +147,13 @@ class Email extends DataEntry implements EmailInterface
                 ->setLabel(tr('Verified on'))
                 ->setHelpGroup(tr('Account information'))
                 ->setHelpText(tr('The date when this user was email verified. Empty if not yet verified')))
+            ->addDefinition(Definition::new($this, 'delete')
+                ->setVirtual(true)
+                ->setInputType(InputType::submit)
+                ->setSize(2)
+                ->setLabel(tr('Delete'))
+                ->addClasses('btn btn-outline-warning')
+                ->setValue(tr('Delete')))
             ->addDefinition(DefinitionFactory::getDescription($this)
                 ->setHelpText(tr('The description for this email')));
     }

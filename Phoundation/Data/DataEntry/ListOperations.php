@@ -58,7 +58,7 @@ class ListOperations implements ListOperationsInterface
      * @param string|null $comments
      * @return int
      */
-    public function setStatus(array|string $ids, ?string $status, ?string $comments = null): int
+    public function setStatusKeys(array|string $ids, ?string $status, ?string $comments = null): int
     {
         $count = 0;
 
@@ -79,9 +79,9 @@ class ListOperations implements ListOperationsInterface
      * @param string|null $comments
      * @return int
      */
-    public function delete(array|string $ids, ?string $comments = null): int
+    public function deleteKeys(array|string $ids, ?string $comments = null): int
     {
-        return $this->setStatus($ids, 'deleted', $comments);
+        return $this->setStatusKeys($ids, 'deleted', $comments);
     }
 
 
@@ -91,7 +91,7 @@ class ListOperations implements ListOperationsInterface
      * @param array|string $ids
      * @return int
      */
-    public function erase(array|string $ids): int
+    public function eraseKeys(array|string $ids): int
     {
         $meta = [];
 
@@ -113,8 +113,8 @@ class ListOperations implements ListOperationsInterface
      * @param string|null $comments
      * @return int
      */
-    public function undelete(array|string $ids, ?string $comments = null): int
+    public function undeleteKeys(array|string $ids, ?string $comments = null): int
     {
-        return $this->setStatus($ids, null, $comments);
+        return $this->setStatusKeys($ids, null, $comments);
     }
 }

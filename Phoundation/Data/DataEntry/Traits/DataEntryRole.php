@@ -24,7 +24,7 @@ trait DataEntryRole
      */
     public function getRole(): ?string
     {
-        return $this->getSourceValue('string', 'role');
+        return $this->getSourceFieldValue('string', 'role');
     }
 
 

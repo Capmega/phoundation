@@ -411,7 +411,7 @@ class Definition implements DefinitionInterface
      * @return bool
      * @see Definition::getVisible()
      */
-    public function getMeta(): bool
+    public function isMeta(): bool
     {
         return in_array($this->field, static::$meta_fields);
     }
@@ -700,19 +700,19 @@ class Definition implements DefinitionInterface
                         $value = InputType::tel;
 
                         $this->addValidationFunction(function (ValidatorInterface $validator) {
-                            $validator->isPhoneNumber();
+                            $validator->sanitizePhoneNumber();
                         });
 
                         break;
 
-                    case InputTypeExtended::phones:
-                        $value = InputType::text;
-
-                        $this->addValidationFunction(function (ValidatorInterface $validator) {
-                            $validator->isPhoneNumbers();
-                        });
-
-                        break;
+//                    case InputTypeExtended::phones:
+//                        $value = InputType::text;
+//
+//                        $this->addValidationFunction(function (ValidatorInterface $validator) {
+//                            $validator->isPhoneNumbers();
+//                        });
+//
+//                        break;
 
                     case InputTypeExtended::username:
                         $value = InputType::text;
@@ -1646,7 +1646,7 @@ class Definition implements DefinitionInterface
      */
     public function validate(ValidatorInterface $validator, ?string $prefix): bool
     {
-        if ($this->getMeta()) {
+        if ($this->isMeta()) {
             // This field is metadata and should not be modified or validated, plain ignore it.
             return false;
         }

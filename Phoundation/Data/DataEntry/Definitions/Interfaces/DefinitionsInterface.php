@@ -110,5 +110,5 @@ interface DefinitionsInterface extends IteratorInterface
      * @param bool $exception
      * @return static
      */
-    public function unhide(Stringable|string|float|int $key, bool $exception = true): static;
+    public function show(Stringable|string|float|int $key, bool $exception = true): static;
 }

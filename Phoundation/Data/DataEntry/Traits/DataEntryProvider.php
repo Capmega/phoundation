@@ -27,7 +27,7 @@ trait DataEntryProvider
      */
     public function getProvidersId(): ?int
     {
-        return $this->getSourceValue('int', 'providers_id');
+        return $this->getSourceFieldValue('int', 'providers_id');
     }
 
 
@@ -50,7 +50,7 @@ trait DataEntryProvider
      */
     public function getProvider(): ?Provider
     {
-        $providers_id = $this->getSourceValue('int', 'providers_id');
+        $providers_id = $this->getSourceFieldValue('int', 'providers_id');
 
         if ($providers_id) {
             return new Provider($providers_id, 'id');
@@ -67,7 +67,7 @@ trait DataEntryProvider
      */
     public function getProvidersName(): ?string
     {
-        return $this->getSourceValue('string', 'providers_name');
+        return $this->getSourceFieldValue('string', 'providers_name');
     }
 
 

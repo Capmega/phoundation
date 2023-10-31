@@ -366,6 +366,7 @@ class Git extends Versioning implements GitInterface
             return File::newTemporary(false, sha1(Strings::force($files, '-')) . '.patch', false)
                 ->putContents($diff . PHP_EOL)
                 ->getFile();
+
         }
 
         Log::warning(tr('Files ":files" has / have no diff', [':files' => $files]));

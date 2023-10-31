@@ -1,18 +1,18 @@
 <?php
 
-namespace Phoundation\Core\Sessions\Interfaces;
+namespace Phoundation\Web\Http\Html\Components\Interfaces;
 
 
 /**
- * Class Config
+ * interface EntryInterface
  *
- * This class will try to return configuration data from the user or if missing, the system
+ *
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-interface ConfigInterface extends \Phoundation\Core\Interfaces\ConfigInterface
+interface EntryInterface
 {
 }

@@ -9,7 +9,9 @@ use Phoundation\Accounts\Users\Users;
 use Phoundation\Business\Companies\Companies;
 use Phoundation\Business\Customers\Customers;
 use Phoundation\Business\Providers\Providers;
+use Phoundation\Core\CoreLocale;
 use Phoundation\Core\Locale\Language\Languages;
+use Phoundation\Core\Sessions\Config;
 use Phoundation\Data\Categories\Categories;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
@@ -929,7 +931,10 @@ class DefinitionFactory
             ->setInputType(InputTypeExtended::phone)
             ->setLabel(tr('Phone number'))
             ->setCliField(tr('-p,--phone-number PHONE-NUMBER'))
-            ->setMaxlength(16);
+            ->setMaxlength(22)
+            ->setDisplayCallback(function (mixed $value, array $source) {
+                return CoreLocale::formatPhoneNumber($value);
+            });
     }
 
 

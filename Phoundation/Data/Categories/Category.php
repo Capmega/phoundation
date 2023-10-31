@@ -72,7 +72,7 @@ class Category extends DataEntry implements CategoryInterface
      */
     public function getParentsId(): ?int
     {
-        return $this->getSourceValue('int', 'parents_id');
+        return $this->getSourceFieldValue('int', 'parents_id');
     }
 
 
@@ -95,7 +95,7 @@ class Category extends DataEntry implements CategoryInterface
      */
     public function getParent(): ?Category
     {
-        $parents_id = $this->getSourceValue('int', 'parents_id');
+        $parents_id = $this->getSourceFieldValue('int', 'parents_id');
 
         if ($parents_id) {
             return new static($parents_id);
@@ -112,7 +112,7 @@ class Category extends DataEntry implements CategoryInterface
      */
     public function getParentsName(): ?string
     {
-        return $this->getSourceValue('string', 'parents_name');
+        return $this->getSourceFieldValue('string', 'parents_name');
     }
 
 

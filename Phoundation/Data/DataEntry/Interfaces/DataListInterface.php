@@ -135,7 +135,7 @@ interface DataListInterface extends IteratorInterface
      * @param string|null $comments
      * @return int
      */
-    public function updateStatus(?string $status, ?string $comments = null): int;
+    public function updateStatusAll(?string $status, ?string $comments = null): int;
 
     /**
      * Delete the specified entries
@@ -143,7 +143,7 @@ interface DataListInterface extends IteratorInterface
      * @param string|null $comments
      * @return int
      */
-    public function delete(?string $comments = null): int;
+    public function deleteAll(?string $comments = null): int;
 
     /**
      * Undelete the specified entries
@@ -151,7 +151,7 @@ interface DataListInterface extends IteratorInterface
      * @param string|null $comments
      * @return int
      */
-    public function undelete(?string $comments = null): int;
+    public function undeleteAll(?string $comments = null): int;
 
     /**
      * Returns an array with all id's for the specified entry identifiers

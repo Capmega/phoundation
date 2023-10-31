@@ -10,13 +10,19 @@ use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Data\DataEntry\Exception\DataEntryReadonlyException;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Data\Validator\Validate;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Http\Html\Components\DataEntryForm;
+use Phoundation\Web\Http\Html\Components\Entry;
 use Phoundation\Web\Http\Html\Components\Form;
+use Phoundation\Web\Http\Html\Components\Interfaces\DataEntryFormInterface;
+use Phoundation\Web\Http\Html\Components\Interfaces\EntryInterface;
 use Phoundation\Web\Http\Html\Components\Interfaces\FormInterface;
 
 
@@ -25,7 +31,7 @@ use Phoundation\Web\Http\Html\Components\Interfaces\FormInterface;
  *
  *
  *
- * @see \Phoundation\Data\DataEntry\DataList
+ * @see DataList
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -40,7 +46,8 @@ class Emails extends DataList implements EmailsInterface
     {
         $this->setQuery('SELECT   `accounts_emails`.`id`,
                                         `accounts_emails`.`email`,
-                                        `accounts_emails`.`account_type`
+                                        `accounts_emails`.`account_type`,
+                                        `accounts_emails`.`description`
                                FROM     `accounts_emails`
                                WHERE    `accounts_emails`.`users_id` = :users_id
                                  AND    `accounts_emails`.`status` IS NULL
@@ -122,20 +129,32 @@ class Emails extends DataList implements EmailsInterface
      * Creates and returns an HTML for the emails
      *
      * @param string $name
-     * @return FormInterface
+     * @param bool $meta_visible
+     * @return DataEntryFormInterface
      */
-    public function getHtmlForm(string $name = 'emails[]'): FormInterface
+    public function getHtmlDataEntryForm(string $name = 'emails[][]', bool $meta_visible = false): DataEntryFormInterface
     {
         // Add extra entry with nothing selected
-        $form      = Form::new();
-        $content[] = Email::new()->getHtmlForm()->render();
+        $email = Email::new()->setFieldPrefix($name)->getHtmlDataEntryForm()->setMetaVisible($meta_visible);
+        $definitions = $email->getDefinitions();
+        $definitions->get('email')->setSize(6);
+        $definitions->get('account_type')->setSize(6);
+        $definitions->get('verified_on')->setVisible(false);
+        $definitions->get('delete')->setVisible(false);
 
-        foreach ($this->ensureDataEntries()->getSource() as $email) {
-            $content[] = $email->getHtmlForm()->render();
+        $content[] = $email->render();
+
+        foreach ($this->ensureDataEntries() as $email) {
+            $content[] = $email
+                ->setFieldPrefix($name)
+                ->getHtmlDataEntryForm()
+                ->setMetaVisible($meta_visible)
+                ->render();
         }
 
-        $form->addContent(implode('<hr>', $content));
-        return $form;
+        return DataEntryForm::new()
+            ->addContent(implode('<hr>', $content))
+            ->setRenderContentsOnly(true);
     }
 
 
@@ -156,45 +175,60 @@ class Emails extends DataList implements EmailsInterface
 
         $emails = [];
         $post   = Validator::get()
-            ->select('--emails', true)->isOptional()->hasMaxCharacters(32768)->sanitizeForceArray()->isArray()->each()->hasMaxCharacters(276)
-            ->validate(false);
+            ->select('emails')->isOptional()->sanitizeForceArray()
+            ->validate($clear_source);
 
         // Parse and sub validate
         if (isset($post['emails'])) {
             foreach ($post['emails'] as $email) {
-                $email = trim($email);
+                // Command line specified emails will have a EMAIL|TYPE|DESCRIPTION string format instead of an array
+                if (!is_array($email)) {
+                    if (!is_string($email)) {
+                        throw new ValidationFailedException(tr('Specified phone number has an invalid datatype'));
+                    }
 
-                // Email type specified? extract, else default
-                if (preg_match('/^\|(?:personal|business|other)$/i', $email)) {
-                    $type  = Strings::fromReverse($email, '|');
-                    $type  = strtolower($type);
-                    $email = Strings::untilReverse($email, '|');
-
-                } else {
-                    $type  = 'other';
+                    $email = trim($email);
+                    $email = explode('|', $email);
+                    $email = [
+                        'email'        => isset_get($email[0]),
+                        'account_type' => isset_get($email[1]),
+                        'description'  => isset_get($email[2])
+                    ];
                 }
 
-                // Validate the email address
-                Validate::new($email)->isEmail();
+                // Ignore empty entries
+                if (empty($email['email'])) {
+                    continue;
+                }
 
-                $emails[$email] = [
-                    'account_type' => $type,
-                    'email'        => $email
-                ];
+                $emails[isset_get($email['email'])] = $email;
             }
-        }
 
-        // Get a list of what we should add and remove and apply this
-        $diff = Arrays::valueDiff(array_keys($this->getSource()), array_keys($emails));
+            // Get a list of what we should add and remove and apply this
+            $diff = Arrays::valueDiff($this->getSourceColumn('email'), array_keys($emails), true);
+            $diff = Arrays::deleteDiff($diff, $emails);
 
-        foreach ($diff['remove'] as $email) {
-            Email::new($email, 'email')->delete();
-            $this->removeByColumnValue($diff['remove'], 'email');
-        }
+            foreach ($diff['delete'] as $id => $email) {
+                Email::get($id, 'id')->setEmail(null)->save()->erase();
+                $this->deleteKeys($id);
+            }
 
-        foreach ($diff['add'] as $email) {
-            $email = Email::new()->setSource($emails[$email])->setUsersId($this->parent->getId())->save();
-            $this->add($email);
+            foreach ($diff['add'] as $email) {
+                if ($email) {
+                    $this->add(Email::new()
+                        ->apply(false, $emails[$email])
+                        ->setUsersId($this->parent->getId())
+                        ->save());
+                }
+            }
+
+            // Update all other email addresses
+            foreach ($diff['keep'] as $id => $email) {
+                Email::get($id, 'id')
+                    ->apply(false, $emails[$email])
+                    ->setUsersId($this->parent->getId())
+                    ->save();
+            }
         }
 
         // Clear source if required
@@ -212,6 +246,7 @@ class Emails extends DataList implements EmailsInterface
      * @param bool $force
      * @param string|null $comments
      * @return static
+     * @throws OutOfBoundsException|DataEntryReadonlyException
      */
     public function save(bool $force = false, ?string $comments = null): static
     {
@@ -221,7 +256,7 @@ class Emails extends DataList implements EmailsInterface
             throw new OutOfBoundsException(tr('Cannot apply emails, no parent user specified'));
         }
 
-        foreach ($this->getSource() as $email) {
+        foreach ($this->ensureDataEntries() as $email) {
             $email->save($force, $comments);
         }
 

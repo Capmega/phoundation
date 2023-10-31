@@ -32,9 +32,9 @@ abstract class Element implements ElementInterface
     /**
      * The element type
      *
-     * @var string $element
+     * @var string|null $element
      */
-    protected string $element;
+    protected ?string $element;
 
     /**
      * If true, will produce <element></element> instead of <element />
@@ -58,15 +58,21 @@ abstract class Element implements ElementInterface
     /**
      * Sets the type of element to display
      *
-     * @param string $element
+     * @param string|null $element
      * @return static
      */
-    public function setElement(string $element): static
+    public function setElement(?string $element): static
     {
-        $this->requires_closing_tag = match ($element) {
-            'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'source', 'track', 'wbr' => false,
-            default => true,
-        };
+        if ($element) {
+            $this->requires_closing_tag = match ($element) {
+                'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'source', 'track', 'wbr' => false,
+                default => true,
+            };
+        } elseif ($element !== null) {
+            throw new OutOfBoundsException(tr('Invalid element ":element" specified, must be NULL or valid HTML element', [
+                ':element' => $element
+            ]));
+        }
 
         $this->element = $element;
         return $this;
@@ -99,6 +105,11 @@ abstract class Element implements ElementInterface
     public function render(): ?string
     {
         if (!$this->element) {
+            if ($this->element === null) {
+                // This is a NULL element, only return the contents
+                return $this->content;
+            }
+
             throw new OutOfBoundsException(tr('Cannot render HTML element, no element type specified'));
         }
 
@@ -107,7 +118,7 @@ abstract class Element implements ElementInterface
         if (isset_get($this->attributes['auto_submit'])) {
             // Add javascript to automatically submit on change
             $postfix .= Script::new()
-                ->setContent('$("#' . $this->id . '").change(function (e){ e.target.closest("form").submit(); });')
+                ->setContent('$("[name=' . $this->name . ']").change(function (e){ e.target.closest("form").submit(); });')
                 ->setJavascriptWrapper(JavascriptWrappers::window);
             unset($this->attributes['auto_submit']);
         }

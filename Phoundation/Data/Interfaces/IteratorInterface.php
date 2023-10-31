@@ -242,7 +242,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @param Stringable|array|string|float|int $keys
      * @return static
      */
-    public function remove(Stringable|array|string|float|int $keys): static;
+    public function deleteKeys(Stringable|array|string|float|int $keys): static;
 
     /**
      * Deletes the entries that have columns with the specified value(s)
@@ -251,7 +251,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @param string $column
      * @return static
      */
-    public function removeByColumnValue(Stringable|array|string|float|int $values, string $column): static;
+    public function deleteByColumnValue(Stringable|array|string|float|int $values, string $column): static;
 
     /**
      * Returns if the specified key exists or not

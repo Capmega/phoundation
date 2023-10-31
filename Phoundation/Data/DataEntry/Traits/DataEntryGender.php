@@ -37,7 +37,7 @@ trait DataEntryGender
      */
     public function getGender(): ?string
     {
-        return $this->getSourceValue('string', 'gender');
+        return $this->getSourceFieldValue('string', 'gender');
     }
 
 

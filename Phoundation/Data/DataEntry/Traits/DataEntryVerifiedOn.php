@@ -24,7 +24,7 @@ trait DataEntryVerifiedOn
      */
     public function getVerifiedOn(): ?string
     {
-        return $this->getSourceValue('string', 'verified_on');
+        return $this->getSourceFieldValue('string', 'verified_on');
     }
 
 

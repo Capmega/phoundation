@@ -98,7 +98,7 @@ class Plugin extends DataEntry implements PluginInterface
             return true;
         }
 
-        return $this->getSourceValue('bool', 'enabled', false);
+        return $this->getSourceFieldValue('bool', 'enabled', false);
     }
 
 

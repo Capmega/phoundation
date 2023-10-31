@@ -368,7 +368,7 @@ class Notification extends DataEntry implements NotificationInterface
                 Log::error(tr('Failed to display notifications detail due to the following exception. Details following after exception'));
                 Log::error($f);
 
-                Log::write(print_r($this->getSourceValue('string', 'details'), true), 'debug', 10, false);
+                Log::write(print_r($this->getSourceFieldValue('string', 'details'), true), 'debug', 10, false);
             }
 
             Log::error(tr('Notification sending exception:'));

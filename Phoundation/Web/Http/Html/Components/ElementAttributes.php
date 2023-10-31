@@ -207,7 +207,7 @@ trait ElementAttributes
      * @param bool $id_too
      * @return static
      */
-    public function setName(?string $name, bool $id_too = true): static
+    public function setName(?string $name, bool $id_too = false): static
     {
         $this->name      = $name;
         $this->real_name = Strings::until($name, '[');
@@ -634,27 +634,27 @@ trait ElementAttributes
     {
         if ($auto_focus) {
             if (static::$autofocus !== null) {
-                if (static::$autofocus !== $this->id) {
-                    throw new OutOfBoundsException(tr('Cannot set autofocus on element ":id", its already being used by id ":already"', [
-                        ':id'      => $this->id,
+                if (static::$autofocus !== $this->name) {
+                    throw new OutOfBoundsException(tr('Cannot set autofocus on element ":name", its already being used by HTML element name ":already"', [
+                        ':name'      => $this->name,
                         ':already' => static::$autofocus
                     ]));
                 }
             }
 
-            if (!$this->id) {
-                throw new OutOfBoundsException(tr('Cannot set autofocus on element, it has no id specified yet'));
+            if (!$this->name) {
+                throw new OutOfBoundsException(tr('Cannot set autofocus on element, it has no HTML element name specified yet'));
             }
 
-            static::$autofocus = $this->id;
+            static::$autofocus = $this->name;
 
         } else {
             // Unset autofocus? Only if this is the element that had it in the first place!
             if (static::$autofocus !== null) {
                 // Some element has auto focus, is it this one?
-                if (static::$autofocus === $this->id) {
-                    throw new OutOfBoundsException(tr('Cannot remove autofocus from element ":id", it does not have autofocus', [
-                        ':id' => $this->id
+                if (static::$autofocus === $this->name) {
+                    throw new OutOfBoundsException(tr('Cannot remove autofocus from element name ":name", it does not have autofocus', [
+                        ':name' => $this->name
                     ]));
                 }
 
@@ -675,7 +675,7 @@ trait ElementAttributes
      */
     public function getAutofocus(): bool
     {
-        return static::$autofocus and (static::$autofocus === $this->id);
+        return static::$autofocus and (static::$autofocus === $this->name);
     }
 
 

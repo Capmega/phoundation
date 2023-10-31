@@ -24,7 +24,7 @@ trait DataEntryType
      */
     public function getType(): ?string
     {
-        return $this->getSourceValue('string', 'type');
+        return $this->getSourceFieldValue('string', 'type');
     }
 
 

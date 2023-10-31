@@ -119,8 +119,8 @@ class Rights extends DataList implements RightsInterface
                 $this->addRight($right);
             }
 
-            foreach ($diff['remove'] as $right) {
-                $this->remove($right);
+            foreach ($diff['delete'] as $right) {
+                $this->deleteKeys($right);
             }
         }
 
@@ -204,7 +204,7 @@ class Rights extends DataList implements RightsInterface
      * @param RightInterface|Stringable|array|string|float|int $right
      * @return static
      */
-    public function remove(RightInterface|Stringable|array|string|float|int $right): static
+    public function deleteKeys(RightInterface|Stringable|array|string|float|int $right): static
     {
         $this->ensureParent('remove entry from parent');
 
@@ -212,7 +212,7 @@ class Rights extends DataList implements RightsInterface
             if (is_array($right)) {
                 // Add multiple rights
                 foreach ($right as $entry) {
-                    $this->remove($entry);
+                    $this->deleteKeys($entry);
                 }
 
             } else {
@@ -231,7 +231,7 @@ class Rights extends DataList implements RightsInterface
                     ]);
 
                     // Delete right from internal list
-                    parent::remove($right->getId());
+                    parent::deleteAll($right->getId());
 
                 } elseif ($this->parent instanceof RoleInterface) {
                     Log::action(tr('Removing right ":right" from role ":role"', [
@@ -246,11 +246,11 @@ class Rights extends DataList implements RightsInterface
 
                     // Update all users with this role to get the new right as well!
                     foreach ($this->parent->getUsers() as $user) {
-                        User::get($user)->getRights()->remove($right);
+                        User::get($user)->getRights()->deleteKeys($right);
                     }
 
                     // Delete right from internal list
-                    parent::remove($right->getId());
+                    parent::deleteAll($right->getId());
                 }
             }
         }

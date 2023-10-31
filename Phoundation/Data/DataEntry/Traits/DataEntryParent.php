@@ -26,7 +26,7 @@ trait DataEntryParent
      */
     public function getParentsId(): ?int
     {
-        return $this->getSourceValue('int', 'parents_id');
+        return $this->getSourceFieldValue('int', 'parents_id');
     }
 
 
@@ -49,7 +49,7 @@ trait DataEntryParent
      */
     public function getParentsName(): ?string
     {
-        return $this->getSourceValue('string', 'parents_name');
+        return $this->getSourceFieldValue('string', 'parents_name');
     }
 
 
@@ -60,7 +60,7 @@ trait DataEntryParent
      */
     public function getParent(): ?DataEntryInterface
     {
-        $parents_id = $this->getSourceValue('int', 'parents_id');
+        $parents_id = $this->getSourceFieldValue('int', 'parents_id');
 
         if ($parents_id) {
             return new static($parents_id);
