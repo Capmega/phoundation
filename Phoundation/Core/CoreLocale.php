@@ -17,7 +17,7 @@ use Phoundation\Exception\OutOfBoundsException;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
-class Locale
+class CoreLocale
 {
 ///*
 // *
@@ -164,5 +164,22 @@ class Locale
         }
 
         return $return;
+    }
+
+
+    /**
+     * Returns a formatted version of the specified phone number
+     *
+     * @param string|int|null $phone_number
+     * @param bool $international
+     * @return string|null
+     */
+    public static function formatPhoneNumber(string|int|null $phone_number, bool $international = true): ?string
+    {
+        if (!$phone_number) {
+            return null;
+        }
+
+        return preg_replace('~(.*)(\d{3})[^\d]{0,7}(\d{3})[^\d]{0,7}(\d{4}).*~', ($international ? '$1 ' : '') . '($2) $3-$4', $phone_number);
     }
 }
