@@ -242,7 +242,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @param Stringable|array|string|float|int $keys
      * @return static
      */
-    public function deleteKeys(Stringable|array|string|float|int $keys): static;
+    public function deleteEntries(Stringable|array|string|float|int $keys): static;
 
     /**
      * Deletes the entries that have columns with the specified value(s)
