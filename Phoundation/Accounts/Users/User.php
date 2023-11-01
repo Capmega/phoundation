@@ -883,17 +883,17 @@ class User extends DataEntry implements UserInterface
     /**
      * Sets the redirect for this user
      *
-     * @param string|null $redirect
+     * @param Stringable|string|null $redirect
      * @return static
      */
-    public function setRedirect(?string $redirect = null): static
+    public function setRedirect(Stringable|string|null $redirect = null): static
     {
         if ($redirect) {
             // Ensure we have a valid redirect URL
             $redirect = UrlBuilder::getWww($redirect);
         }
 
-        return $this->setSourceValue('redirect', get_null($redirect));
+        return $this->setSourceValue('redirect', get_null((string) $redirect));
     }
 
 

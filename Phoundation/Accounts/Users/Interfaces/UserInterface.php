@@ -11,6 +11,7 @@ use Phoundation\Notifications\Interfaces\NotificationInterface;
 use Phoundation\Web\Http\Html\Components\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Http\Html\Components\Interfaces\EntryInterface;
 use Phoundation\Web\Http\Html\Components\Interfaces\FormInterface;
+use Stringable;
 
 
 /**
@@ -417,10 +418,10 @@ interface UserInterface extends DataEntryInterface
     /**
      * Sets the redirect for this user
      *
-     * @param string|null $redirect
+     * @param Stringable|string|null $redirect
      * @return static
      */
-    public function setRedirect(?string $redirect = null): static;
+    public function setRedirect(Stringable|string|null $redirect = null): static;
 
     /**
      * Returns the gender for this user
