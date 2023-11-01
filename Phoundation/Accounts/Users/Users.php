@@ -15,6 +15,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
+use Phoundation\Exception\Interfaces\OutOfBoundsExceptionInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Input\InputSelect;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
@@ -95,29 +96,33 @@ class Users extends DataList implements UsersInterface
      * Set the new users for the current parents to the specified list
      *
      * @param array|null $list
+     * @param string|null $column
      * @return static
+     * @throws OutOfBoundsExceptionInterface
      */
-    public function setUsers(?array $list): static
+    public function setUsers(?array $list, ?string $column = null): static
     {
         $this->ensureParent('save entries');
 
         if (is_array($list)) {
             // Convert the list to id's
-            $rights_list = [];
+            $users_list = [];
 
-            foreach ($list as $right) {
-                $rights_list[] = static::getEntryClass()::get($right)->getId();
+            foreach ($list as $user) {
+                if ($user) {
+                    $users_list[] = static::getEntryClass()::get($user)->getId();
+                }
             }
 
             // Get a list of what we have to add and remove to get the same list, and apply
-            $diff = Arrays::valueDiff($this->source, $rights_list);
+            $diff = Arrays::valueDiff(array_keys($this->source), $users_list);
 
-            foreach ($diff['add'] as $right) {
-                $this->parent->getRoles()->addRole($right);
+            foreach ($diff['add'] as $user) {
+                $this->addUser($user, $column);
             }
 
-            foreach ($diff['delete'] as $right) {
-                $this->parent->getRoles()->remove($right);
+            foreach ($diff['delete'] as $user) {
+                $this->deleteEntries($user);
             }
         }
 
@@ -196,7 +201,7 @@ class Users extends DataList implements UsersInterface
      * @param UserInterface|Stringable|array|string|float|int $user
      * @return static
      */
-    public function deleteKeys(UserInterface|Stringable|array|string|float|int $user): static
+    public function deleteEntries(UserInterface|Stringable|array|string|float|int $user): static
     {
         $this->ensureParent('delete entry from parent');
 
@@ -204,7 +209,7 @@ class Users extends DataList implements UsersInterface
             if (is_array($user)) {
                 // Add multiple rights
                 foreach ($user as $entry) {
-                    $this->deleteKeys($entry);
+                    $this->deleteEntries($entry);
                 }
 
             } else {

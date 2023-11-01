@@ -658,7 +658,7 @@ class Iterator implements IteratorInterface
      * @param Stringable|array|string|float|int $keys
      * @return static
      */
-    public function deleteKeys(Stringable|array|string|float|int $keys): static
+    public function deleteEntries(Stringable|array|string|float|int $keys): static
     {
         foreach (Arrays::force($keys, null) as $key) {
             unset($this->source[$key]);

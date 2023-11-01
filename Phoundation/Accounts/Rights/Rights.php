@@ -97,9 +97,10 @@ class Rights extends DataList implements RightsInterface
      * Set the new rights for the current parents to the specified list
      *
      * @param array|null $list
+     * @param string|null $column
      * @return static
      */
-    public function setRights(?array $list): static
+    public function setRights(?array $list, ?string $column = null): static
     {
         $this->ensureParent('save entries');
 
@@ -117,11 +118,11 @@ class Rights extends DataList implements RightsInterface
             $diff = Arrays::valueDiff(array_keys($this->source), $rights_list);
 
             foreach ($diff['add'] as $right) {
-                $this->addRight($right);
+                $this->addRight($right, $column);
             }
 
             foreach ($diff['delete'] as $right) {
-                $this->deleteKeys($right);
+                $this->deleteEntries($right);
             }
         }
 
@@ -207,7 +208,7 @@ class Rights extends DataList implements RightsInterface
      * @param RightInterface|Stringable|array|string|float|int $right
      * @return static
      */
-    public function deleteKeys(RightInterface|Stringable|array|string|float|int $right): static
+    public function deleteEntries(RightInterface|Stringable|array|string|float|int $right): static
     {
         $this->ensureParent('remove entry from parent');
 
@@ -215,7 +216,7 @@ class Rights extends DataList implements RightsInterface
             if (is_array($right)) {
                 // Add multiple rights
                 foreach ($right as $entry) {
-                    $this->deleteKeys($entry);
+                    $this->deleteEntries($entry);
                 }
 
             } else {
@@ -249,7 +250,7 @@ class Rights extends DataList implements RightsInterface
 
                     // Update all users with this role to get the new right as well!
                     foreach ($this->parent->getUsers() as $user) {
-                        User::get($user)->getRights()->deleteKeys($right);
+                        User::get($user)->getRights()->deleteEntries($right);
                     }
 
                     // Delete right from internal list
