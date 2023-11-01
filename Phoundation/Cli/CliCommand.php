@@ -179,7 +179,20 @@ class CliCommand
         ]), 1);
 
         // Execute the script and finish execution
-        execute_script(static::$script);
+        try {
+            execute_script(static::$script);
+
+        } catch (Throwable $e) {
+            // In auto complete mode, do not dump the exception on screen, it will fubar everything
+            if (AutoComplete::isActive()) {
+                Log::error($e, echo_screen: false);
+                exit('autocomplete-failed-see-system-log');
+            }
+
+            // Continue throwing
+            throw $e;
+        }
+
         AutoComplete::ensureAvailable();
 
         if (!stream_isatty(STDIN) and !static::$stdin_has_been_read) {

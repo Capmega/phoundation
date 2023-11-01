@@ -95,7 +95,7 @@ class Documentation
 
         } catch (Throwable $e) {
             Log::error($e, echo_screen: false);
-            exit('Autocomplete-failure-see-system-log');
+            exit('autocomplete-failed-see-system-log');
         }
     }
 }
