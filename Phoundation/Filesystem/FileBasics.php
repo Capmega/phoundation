@@ -1399,9 +1399,6 @@ class FileBasics implements Stringable, FileBasicsInterface
         $restrictions = Restrictions::default($restrictions, (($target instanceof FileBasicsInterface) ? $target->getRestrictions() : null), $this->getRestrictions());
         $target = Filesystem::absolute($target, must_exist: false);
 
-show('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb');
-show($restrictions->getPaths());
-
         if (file_exists($target)) {
             if (readlink($target) === $this->file) {
                 // Symlink already exists and points to the same file, all fine
@@ -1552,9 +1549,9 @@ show($restrictions->getPaths());
      *
      * @param int|null $buffer
      * @param int|null $seek
-     * @return string|false
+     * @return string
      */
-    public function read(?int $buffer = null, ?int $seek = null): string|false
+    public function read(?int $buffer = null, ?int $seek = null): string
     {
         $this->ensureOpen('read');
 
@@ -1566,7 +1563,7 @@ show($restrictions->getPaths());
         $data = fread($this->stream, $buffer);
 
         if ($data === false) {
-            return $this->processReadFailure('data', $data);
+            return $this->processReadFailure('data', '');
         }
 
         return $data;
@@ -1577,9 +1574,9 @@ show($restrictions->getPaths());
      * Reads and returns the next text line in this file
      *
      * @param int|null $buffer
-     * @return string|false
+     * @return string
      */
-    public function readLine(?int $buffer = null): string|false
+    public function readLine(?int $buffer = null): string
     {
         $this->ensureOpen('read');
 
@@ -1590,7 +1587,7 @@ show($restrictions->getPaths());
         $data = fgets($this->stream, $buffer);
 
         if ($data === false) {
-            return $this->processReadFailure('line', $data);
+            return $this->processReadFailure('line', '');
         }
 
         return $data;
@@ -1604,16 +1601,16 @@ show($restrictions->getPaths());
      * @param string $separator
      * @param string $enclosure
      * @param string $escape
-     * @return array|false
+     * @return array
      */
-    public function readCsv(?int $max_length = null, string $separator = ",", string $enclosure = "\"", string $escape = "\\"): array|false
+    public function readCsv(?int $max_length = null, string $separator = ",", string $enclosure = "\"", string $escape = "\\"): array
     {
         $this->ensureOpen('read');
 
         $data = fgetcsv($this->stream, $max_length, $separator, $enclosure, $escape);
 
         if ($data === false) {
-            return $this->processReadFailure('CSV', $data);
+            return $this->processReadFailure('CSV', []);
         }
 
         return $data;
@@ -1623,16 +1620,16 @@ show($restrictions->getPaths());
     /**
      * Reads and returns a single character from the current file pointer
      *
-     * @return string|false
+     * @return string
      */
-    public function readCharacter(): string|false
+    public function readCharacter(): string
     {
         $this->ensureOpen('read');
 
         $data = fgetc($this->stream);
 
         if ($data === false) {
-            return $this->processReadFailure('character', $data);
+            return $this->processReadFailure('character', '');
         }
 
         return $data;
@@ -1706,7 +1703,7 @@ show($restrictions->getPaths());
      * @param int|null $length
      * @return $this
      */
-    protected function getContents(bool $use_include_path = false, $context = null, int $offset = 0, ?int $length = null): string
+    public function getContentsAsString(bool $use_include_path = false, $context = null, int $offset = 0, ?int $length = null): string
     {
         // Make sure the file path exists. NOTE: Restrictions MUST be at least 2 levels above to be able to generate the
         // PARENT directory IN the PARENT directory OF the PARENT!
@@ -1715,7 +1712,7 @@ show($restrictions->getPaths());
         $data = file_get_contents($this->file, $use_include_path, $context, $offset, $length);
 
         if ($data === false) {
-            return $this->processReadFailure('contents', $data, false);
+            return $this->processReadFailure('contents', '', false);
         }
 
         return $data;
@@ -1723,14 +1720,37 @@ show($restrictions->getPaths());
 
 
     /**
-     * Write the specified data to this
+     * Returns the contents of this file as an array
+     *
+     * @param int $flags
+     * @param $context
+     * @return array
+     */
+    public function getContentsAsArray(int $flags = 0, $context = null): array
+    {
+        // Make sure the file path exists. NOTE: Restrictions MUST be at least 2 levels above to be able to generate the
+        // PARENT directory IN the PARENT directory OF the PARENT!
+        $this->ensureClosed('getContents');
+
+        $data = file($this->file, $flags, $context);
+
+        if ($data === false) {
+            return $this->processReadFailure('contents', [], false);
+        }
+
+        return $data;
+    }
+
+
+    /**
+     * Write the specified data to this file
      *
      * @param string $data
      * @param int $flags
      * @param null $context
      * @return $this
      */
-    protected function putContents(string $data, int $flags = 0, $context = null): static
+    public function putContents(string $data, int $flags = 0, $context = null): static
     {
         // Make sure the file path exists. NOTE: Restrictions MUST be at least 2 levels above to be able to generate the
         // PARENT directory IN the PARENT directory OF the PARENT!
@@ -2025,11 +2045,11 @@ throw new UnderConstructionException();
      * Determines what exception to throw for a read failure
      *
      * @param string $type
-     * @param string|false|null $data
+     * @param array|string|null $data
      * @param bool $test_feof If false will skip FEOF test
-     * @return string|false|null
+     * @return array|string|null
      */
-    protected function processReadFailure(string $type, string|false|null $data, bool $test_feof = true): string|false|null
+    protected function processReadFailure(string $type, array|string|null $data, bool $test_feof = true): array|string|null
     {
         // FEOF errors are only checked if we didn't try to read full file contents
         if ($test_feof and $this->isEof()) {

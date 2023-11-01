@@ -2,7 +2,6 @@
 
 namespace Phoundation\Filesystem\Interfaces;
 
-use Phoundation\Filesystem\Execute;
 use Throwable;
 
 
@@ -67,13 +66,13 @@ interface PathInterface extends FileBasicsInterface
      * @param boolean $clear If set to true, and the specified path already exists, it will be deleted and then re-created
      * @param bool $sudo
      * @return static
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package file
      * @version 2.4.16: Added documentation
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      */
     public function ensure(?string $mode = null, ?bool $clear = false, bool $sudo = false): static;
 
@@ -85,13 +84,17 @@ interface PathInterface extends FileBasicsInterface
     public function isEmpty(): bool;
 
     /**
-     * Delete the path, and each parent directory until a non empty directory is encountered
+     * Delete the path, and each parent directory until a non-empty directory is encountered
      *
-     * @param string|null $until_path
+     * @param string|null $until_path If specified as a path, the method will stop deleting upwards when the specified
+     *                                path is encountered as well. If specified as true, the method will continue
+     *                                deleting until either Restrictions stops it, or a non empty directory has been
+     *                                encountered
      * @param bool $sudo
      * @param bool $use_run_file
      * @return void
      * @see Restrict::restrict() This function uses file location restrictions, see Restrict::restrict() for more information
+     *
      */
     public function clear(?string $until_path = null, bool $sudo = false, bool $use_run_file = true): void;
 
@@ -187,9 +190,17 @@ interface PathInterface extends FileBasicsInterface
      *
      * @param string|null $regex
      * @param bool $allow_multiple
-     * @return PathInterface
+     * @return \Phoundation\Filesystem\Interfaces\PathInterface
      */
     public function getSingleDirectory(?string $regex = null, bool $allow_multiple = false): PathInterface;
+
+    /**
+     * Returns the amount of available files in the current file path
+     *
+     * @param bool $recursive
+     * @return int
+     */
+    public function getCount(bool $recursive = true): int;
 
     /**
      * Returns a list of all available files in this path matching the specified (multiple) pattern(s)
@@ -200,4 +211,13 @@ interface PathInterface extends FileBasicsInterface
      * @return array                     The resulting file paths
      */
     public function scan(?string $file_patterns = null, int $glob_flags = GLOB_MARK, int $match_flags = FNM_PERIOD | FNM_CASEFOLD): array;
+
+    /**
+     * Returns a list of all available files in this path matching the specified (multiple) pattern(s)
+     *
+     * @param string|null $file_pattern The single or multiple pattern(s) that should be matched
+     * @param int $glob_flags Flags for the internal glob() call
+     * @return array                    The resulting file paths
+     */
+    public function scanRegex(?string $file_pattern = null, int $glob_flags = GLOB_MARK): array;
 }

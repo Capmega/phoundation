@@ -1146,43 +1146,6 @@ class File extends FileBasics implements FileInterface
 
 
     /**
-     * Returns the contents of this file as a string
-     *
-     * @return string
-     */
-    public function getContentsAsString(): string
-    {
-        return file_get_contents($this->file);
-    }
-
-
-    /**
-     * Returns the contents of this file as a string
-     *
-     * @param string $data
-     * @param int $flags
-     * @param $context
-     * @return static
-     */
-    public function putContents(string $data, int $flags = 0, $context = null): static
-    {
-        file_put_contents($this->file, $data, $flags, $context);
-        return $this;
-    }
-
-
-    /**
-     * Returns the contents of this file as an array
-     *
-     * @return array
-     */
-    public function getContentsAsArray(): array
-    {
-        return file($this->file);
-    }
-
-
-    /**
      * Will unzip this file
      *
      * @return static

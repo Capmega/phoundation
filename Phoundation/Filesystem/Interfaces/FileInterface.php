@@ -4,14 +4,12 @@ namespace Phoundation\Filesystem\Interfaces;
 
 use Exception;
 use Phoundation\Core\Exception\CoreException;
-use Phoundation\Filesystem\Exception\FilesystemException;
-use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Path;
 use Throwable;
 
 
 /**
- * File class
+ * interface FileInterface
  *
  * This library contains various filesystem file related functions
  *
@@ -23,39 +21,6 @@ use Throwable;
  */
 interface FileInterface extends FileBasicsInterface
 {
-    /**
-     * Returns the configured file buffer size
-     *
-     * @param int|null $requested_buffer_size
-     * @return int
-     */
-    public function getBufferSize(?int $requested_buffer_size = null): int;
-
-    /**
-     * Sets the configured file buffer size
-     *
-     * @param int|null $buffer_size
-     * @return static
-     */
-    public function setBufferSize(?int $buffer_size): static;
-
-    /**
-     * Append specified data string to the end of the object file
-     *
-     * @param string $data
-     * @return static
-     * @throws FilesystemException
-     */
-    public function append(string $data): static;
-
-    /**
-     * Concatenates a list of files to a target file
-     *
-     * @param string|array $sources The source files
-     * @return static
-     */
-    public function appendFiles(string|array $sources): static;
-
     /**
      * Move uploaded image to correct target
      *
@@ -102,15 +67,15 @@ interface FileInterface extends FileBasicsInterface
     /**
      * Copy a file with progress notification
      *
-     * @
+     * @param string $target
+     * @param callable $callback
+     * @return static
      * @example:
-     * function stream_notification_callback($notification_code, $severity, $message, $message_code, $bytes_transferred, $bytes_max) {
-     *     if ($notification_code == STREAM_Notification_PROGRESS) {
-     *         // save $bytes_transferred and $bytes_max to file or database
-     *     }
-     * }
-     *
-     * file_copy_progress($source, $target, 'stream_notification_callback');
+     * File::new($source)->copy($target, function ($notification_code, $severity, $message, $message_code, $bytes_transferred, $bytes_max) {
+     *      if ($notification_code == STREAM_Notification_PROGRESS) {
+     *          // save $bytes_transferred and $bytes_max to file or database
+     *      }
+     *  });
      */
     public function copy(string $target, callable $callback): static;
 
@@ -337,20 +302,6 @@ interface FileInterface extends FileBasicsInterface
      * @return $this
      */
     public function gunzip(): static;
-
-    /**
-     * Returns the contents of this file as a string
-     *
-     * @return string
-     */
-    public function getContentsAsString(): string;
-
-    /**
-     * Returns the contents of this file as an array
-     *
-     * @return array
-     */
-    public function getContentsAsArray(): array;
 
     /**
      * Will unzip this file

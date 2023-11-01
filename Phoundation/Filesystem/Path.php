@@ -712,9 +712,12 @@ class Path extends FileBasics implements PathInterface
         if ($public) {
             // Return public temp path
             if (!static::$temp_path_public) {
-                static::$temp_path_public = static::new(PATH_PUBTMP . Session::getUUID(), Restrictions::new(PATH_PUBTMP, true, 'base private temporary path'))
+                static::$temp_path_public = static::new(PATH_PUBTMP . Session::getUUID(), Restrictions::new(PATH_PUBTMP, true, 'base public temporary path'))
                     ->delete()
                     ->ensure();
+
+                // Put lock file to avoid delete cleanup removing this session directory
+                touch(static::$temp_path_public->getFile() . '.lock');
             }
 
             return static::$temp_path_public;
@@ -722,9 +725,12 @@ class Path extends FileBasics implements PathInterface
 
         if (!static::$temp_path_private) {
             // Return private temp path
-            static::$temp_path_private = static::new(PATH_TMP . Session::getUUID(), Restrictions::new(PATH_TMP, true, 'base public temporary path'))
+            static::$temp_path_private = static::new(PATH_TMP . Session::getUUID(), Restrictions::new(PATH_TMP, true, 'base private temporary path'))
                 ->delete()
                 ->ensure();
+
+            // Put lock file to avoid delete cleanup removing this session directory
+            touch(static::$temp_path_private->getFile() . '.lock');
         }
 
         return static::$temp_path_private;
