@@ -215,7 +215,7 @@ class Users extends DataList implements UsersInterface
                     Log::action(tr('Removing user ":user" from role ":role"', [
                         ':role' => $this->parent->getLogId(),
                         ':user' => $user->getLogId()
-                    ]));
+                    ]), 3);
 
                     sql()->dataEntryDelete('accounts_users_rights', [
                         'roles_id' => $this->parent->getId(),
