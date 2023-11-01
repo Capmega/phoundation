@@ -43,16 +43,24 @@ command.') . '
 EXTRA INFORMATION
 
 
+[--roles / --role / -r ROLE[,ROLE,ROLE]]                    A comma separated list of the roles that this user has on 
+                                                            this system. The roles must already exist. These roles will 
+                                                            grant the user rights which will give him or her access to 
+                                                            the various parts of the system
 
-[--roles / --role / -r ROLE[,ROLE,ROLE]] A comma separated list of the roles that this user has on this system. The 
-                                         roles must already exist. These roles will grant the user rights which will 
-                                         give him or her access to the various parts of the system');
+[--emails EMAIL/TYPE/DESCRIPTION[,EMAIL/TYPE/DESCRIPTION]]  A comma separated list of extra email addresses, and their 
+                                                            types
+
+[--phones PHONE/TYPE/DESCRIPTION[,PHONE/TYPE/DESCRIPTION]]  A comma separated list of extra phone numbers, and their 
+                                                            types');
 
 
 // Validate user
 $argv = ArgvValidator::new()
     ->select('user', true)->hasMaxCharacters(128)->isEmail()
     ->select('roles', true)->isOptional()->sanitizeForceArray()->each()->isName()
+    ->select('emails', true)->isOptional()->sanitizeForceArray()->each()->matchesRegex('/^.+?\/(?:personal|business|other/.+?)$/i')
+    ->select('phones', true)->isOptional()->sanitizeForceArray()->each()->matchesRegex('/^.+?\/(?:personal|business|other/.+?)$/i')
     ->validate();
 
 
@@ -69,6 +77,8 @@ if ($argv['roles']) {
 // Get the user and modify, then update roles
 $user = User::get($argv['user'])->apply()->save();
 $user->getRoles()->setRoles($argv['roles']);
+$user->getEmails()->apply()->save();
+$user->getPhones()->apply()->save();
 
 
 // Done!

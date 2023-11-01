@@ -38,11 +38,20 @@ NOTE: This script is interactive as it asks the password for the user on the com
 EXTRA INFORMATION
 
 
-[--roles ROLE[,ROLE,ROLE]               A comma separated list of the roles that this user has on this system. The roles 
-[--role  ROLE[,ROLE,ROLE]               must already exist. These roles will grant the user rights which will give him 
-[-r      ROLE[,ROLE,ROLE]               or her access to the various parts of the system
+[--roles / --role / -r ROLE[,ROLE,ROLE]]                    A comma separated list of the roles that this user has on 
+                                                            this system. The roles must already exist. These roles will 
+                                                            grant the user rights which will give him or her access to 
+                                                            the various parts of the system
 
---no-password                           If this flag has been specified, the user password will not be set.');
+--no-password                                               If this flag has been specified, the user password will not 
+                                                            be set.
+
+[--emails EMAIL/TYPE/DESCRIPTION[,EMAIL/TYPE/DESCRIPTION]]  A comma separated list of extra email addresses, and their 
+                                                            types
+
+[--phones PHONE/TYPE/DESCRIPTION[,PHONE/TYPE/DESCRIPTION]]  A comma separated list of extra phone numbers, and their 
+                                                            types');
+
 
 
 // Validate user roles
