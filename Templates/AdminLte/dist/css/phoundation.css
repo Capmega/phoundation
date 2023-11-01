@@ -36,3 +36,7 @@ li div.ui-state-active {
 ul.ui-autocomplete li.ui-menu-item {
     list-style-type: none;
 }
+
+div.row {
+    overflow-x: auto;
+}
