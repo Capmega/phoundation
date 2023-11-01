@@ -135,7 +135,7 @@ class Roles extends DataList implements RolesInterface
      */
     public function addRole(RoleInterface|array|string|int|null $role, ?string $column = null): static
     {
-        $this->ensureParent('add entry to parent');
+        $this->ensureParent('add Role entry to parent');
 
         if ($role) {
             if (is_array($role)) {
@@ -159,7 +159,7 @@ class Roles extends DataList implements RolesInterface
                     Log::action(tr('Adding role ":role" to user ":user"', [
                         ':user' => $this->parent->getLogId(),
                         ':role' => $role->getLogId()
-                    ]));
+                    ]), 3);
 
                     sql()->dataEntryInsert('accounts_users_roles', [
                         'users_id' => $this->parent->getId(),
@@ -178,7 +178,7 @@ class Roles extends DataList implements RolesInterface
                     Log::action(tr('Adding right ":right" to role ":role"', [
                         ':right' => $this->parent->getLogId(),
                         ':role'  => $role->getLogId()
-                    ]));
+                    ]), 3);
 
                     sql()->dataEntryInsert('accounts_roles_rights', [
                         'rights_id' => $this->parent->getId(),
@@ -252,7 +252,7 @@ class Roles extends DataList implements RolesInterface
                     Log::action(tr('Removing role ":role" from right ":right"', [
                         ':right' => $this->parent->getLogId(),
                         ':role'  => $role->getLogId()
-                    ]));
+                    ]), 3);
 
                     sql()->dataEntryDelete('accounts_roles_rights', [
                         'rights_id' => $this->parent->getId(),
@@ -328,7 +328,7 @@ class Roles extends DataList implements RolesInterface
         } elseif ($this->parent instanceof RightInterface) {
             Log::action(tr('Removing right ":right" from all roles', [
                 ':right' => $this->parent->getLogId(),
-            ]));
+            ]), 3);
 
             sql()->query('DELETE FROM `accounts_roles_rights` WHERE `rights_id` = :rights_id', [
                 'rights_id'  => $this->parent->getId()
