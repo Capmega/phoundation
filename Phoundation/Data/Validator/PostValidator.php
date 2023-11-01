@@ -9,6 +9,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
+use Phoundation\Web\Page;
 
 
 /**
@@ -31,6 +32,20 @@ class PostValidator extends Validator
      * @var array|null $post
      */
     protected static ?array $post = null;
+
+    /**
+     * Tracks what button was pressed for the POST request
+     *
+     * @var string|false|null $button
+     */
+    protected static string|false|null $button = null;
+
+    /**
+     * Tracks prefix for the pressed button
+     *
+     * @var string|null $key
+     */
+    protected static ?string $key = null;
 
 
     /**
@@ -195,12 +210,27 @@ class PostValidator extends Validator
      *
      * @param string $submit
      * @param bool $prefix
-     * @return string|bool|null
+     * @param bool $return_key
+     * @return string|false|null
      */
-    public static function getSubmitButton(string $submit = 'submit', bool $prefix = false, bool $return_key = false): string|bool|null
+    public static function getSubmitButton(string $submit = 'submit', bool $prefix = false, bool $return_key = false): string|false|null
     {
+        if (!Page::isPostRequestMethod()) {
+            return null;
+        }
+
+        // Return cache
+        if ($return_key and static::$key) {
+            return static::$key;
+
+        }
+
+        if (static::$button !== null) {
+            return static::$button;
+        }
+
+        // Search for the specified prefix code for the button
         if ($prefix) {
-            // Find the specified prefix code for the button
             $prefix = $submit;
             $button = null;
 
@@ -225,7 +255,7 @@ class PostValidator extends Validator
         unset(static::$post[$submit]);
 
         if ($button) {
-            if ((strlen($button) > 32) or !ctype_print($button)) {
+            if ((strlen($button) > 255) or !ctype_print($button)) {
                 throw ValidationFailedException::new(tr('Invalid submit button specified'))->addData([
                     'submit' => tr('The specified submit button is invalid'),
                 ]);
@@ -233,12 +263,22 @@ class PostValidator extends Validator
         }
 
         if ($return_key) {
+            static::$key = Strings::until($submit, $prefix);
+
+            if ((strlen(static::$key) > 32) or !ctype_print(static::$key)) {
+                throw ValidationFailedException::new(tr('Invalid submit button specified'))->addData([
+                    'submit' => tr('The specified submit button is invalid'),
+                ]);
+            }
+
             return Strings::until($submit, $prefix);
         }
 
+        static::$button = $button;
+
         if (!$button) {
             // Button exists, but has no value
-            return true;
+            return false;
         }
 
         return $button;

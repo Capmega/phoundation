@@ -44,7 +44,7 @@ interface ValidatorInterface
      *
      * @return mixed
      */
-    public function getSourceValue(): mixed;
+    public function getSelectedValue(): mixed;
 
     /**
      * Allow the validator to check each element in a list of values.

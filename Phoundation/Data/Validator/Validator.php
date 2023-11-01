@@ -143,7 +143,7 @@ abstract class Validator implements ValidatorInterface
      *
      * @return mixed
      */
-    public function getSourceValue(): mixed
+    public function getSelectedValue(): mixed
     {
         return $this->selected_value;
     }

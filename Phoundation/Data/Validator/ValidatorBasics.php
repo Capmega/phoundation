@@ -229,7 +229,7 @@ trait ValidatorBasics
      *
      * @return array
      */
-    public function getSourceKey(string $key): mixed
+    public function getSourceValue(string $key): mixed
     {
         return array_get_safe($this->source, $key);
     }
