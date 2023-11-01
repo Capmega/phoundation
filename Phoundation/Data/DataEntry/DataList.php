@@ -461,7 +461,7 @@ abstract class DataList extends Iterator implements DataListInterface
             }
         }
 
-        Meta::erase($meta);
+        Meta::eraseEntries($meta);
 
         // Delete the entries themselves
         $ids = Sql::in($ids);

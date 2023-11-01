@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
+use Phoundation\Accounts\Enums\EnumAccountType;
 use Phoundation\Accounts\Enums\Interfaces\EnumAccountTypeInterface;
 
 
@@ -38,12 +39,13 @@ trait DataEntryAccountType
      */
     public function setAccountType(EnumAccountTypeInterface|string|null $account_type): static
     {
-        if (is_enum($account_type)) {
+        if ($account_type instanceof EnumAccountTypeInterface) {
             $account_type = $account_type->value;
+
+        } elseif ($account_type) {
+            $account_type = EnumAccountType::from($account_type)->value;
         }
 
-        return $this->setSourceValue('account_type', $account_type);
+        return $this->setSourceValue('account_type', get_null($account_type));
     }
-
-
 }

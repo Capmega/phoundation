@@ -555,14 +555,14 @@ abstract class DataEntry implements DataEntryInterface
 
         $entry = new static($identifier, $column);
 
-        if ($entry->getId()) {
-            return $entry;
+        if ($entry->isNew()) {
+            throw DataEntryNotExistsException::new(tr('The ":label" entry ":identifier" does not exist', [
+                ':label'      => static::getClassName(),
+                ':identifier' => $identifier
+            ]))->makeWarning();
         }
 
-        throw DataEntryNotExistsException::new(tr('The ":label" entry ":identifier" does not exist', [
-            ':label'      => static::getClassName(),
-            ':identifier' => $identifier
-        ]))->makeWarning();
+        return $entry;
     }
 
 
@@ -832,6 +832,7 @@ abstract class DataEntry implements DataEntryInterface
     public function erase(): static
     {
         $this->checkReadonly('erase');
+        $this->getMeta()->erase();
 
         sql()->erase(static::getTable(), ['id' => $this->getId()]);
         return $this;
@@ -1843,7 +1844,7 @@ abstract class DataEntry implements DataEntryInterface
             $this->source = $source;
         }
 
-        $this->is_new      = false;
+        $this->is_new      = !$this->getId();
         $this->is_modified = false;
         $this->is_loading  = false;
         $this->is_saved    = false;
@@ -1902,10 +1903,15 @@ abstract class DataEntry implements DataEntryInterface
             ->copyValuesToSource((array) $data, false);
 
         // Reset state
-        $this->is_new      = false;
+        $this->is_new      = !$this->getId();
         $this->is_loading  = false;
         $this->is_saved    = false;
         $this->is_modified = false;
+
+        // If this is a new entry, assign the identifier by default (NOT id though, since that is a DB identifier!)
+        if ($this->is_new and $column !== 'id') {
+            $this->setSourceValue($column, $identifier, true);
+        }
     }
 
 
