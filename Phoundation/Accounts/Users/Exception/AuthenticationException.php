@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Accounts\Users\Exception;
 
 use Phoundation\Accounts\Users\Exception\Interfaces\AuthenticationExceptionInterface;
+use Phoundation\Data\Traits\DataNewTarget;
 use Throwable;
 
 
@@ -20,12 +21,7 @@ use Throwable;
  */
 class AuthenticationException extends UsersException implements AuthenticationExceptionInterface
 {
-    /**
-     * The new target that should be executed because of this access denied
-     *
-     * @var string|int|null
-     */
-    protected string|int|null $new_target;
+    use DataNewTarget;
 
 
     /**
@@ -38,29 +34,5 @@ class AuthenticationException extends UsersException implements AuthenticationEx
     {
         parent::__construct($messages, $previous);
         $this->makeWarning();
-    }
-
-
-    /**
-     * Returns the new target
-     *
-     * @return string|int|null
-     */
-    public function getNewTarget(): string|int|null
-    {
-        return $this->new_target;
-    }
-
-
-    /**
-     * Sets the new target
-     *
-     * @param string|int|null $new_target
-     * @return static
-     */
-    public function setNewTarget(string|int|null $new_target): static
-    {
-        $this->new_target = $new_target;
-        return $this;
     }
 }

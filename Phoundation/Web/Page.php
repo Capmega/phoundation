@@ -794,7 +794,7 @@ class Page implements PageInterface
     public static function requiresNotGuest(string|int|null $new_target = 'sign-in'): void
     {
         if (Session::getUser()->isGuest()) {
-            throw AuthenticationException::new(tr('You do not have the required rights to view this page'))
+            throw AuthenticationException::new(tr('You have to sign in to view this page'))
                 ->setNewTarget($new_target);
         }
     }
@@ -811,11 +811,6 @@ class Page implements PageInterface
     public static function requiresAllRights(array|Stringable|string $rights, string|int|null $missing_rights_target = 403, string|int|null $guest_target = 401): void
     {
         static::requiresNotGuest();
-
-        if (Session::getUser()->isGuest()) {
-            throw AccessDeniedException::new(tr('You have to sign in to view this page'))
-                ->setNewTarget($guest_target);
-        }
 
         if (!Session::getUser()->hasAllRights($rights)) {
             throw AccessDeniedException::new(tr('You do not have the required rights to view this page'))
@@ -835,11 +830,6 @@ class Page implements PageInterface
     public static function requiresSomeRights(array|string $rights, string|int|null $missing_rights_target = 403, string|int|null $guest_target = 401): void
     {
         static::requiresNotGuest();
-
-        if (Session::getUser()->isGuest()) {
-            throw AccessDeniedException::new(tr('You have to sign in to view this page'))
-                ->setNewTarget($guest_target);
-        }
 
         if (!Session::getUser()->hasSomeRights($rights)) {
             throw AccessDeniedException::new(tr('You do not have the required rights to view this page'))
