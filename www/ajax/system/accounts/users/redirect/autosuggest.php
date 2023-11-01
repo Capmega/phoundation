@@ -8,9 +8,9 @@ use Plugins\Medinet\Programs\Programs;
 
 
 /**
- * AJAX REST request medinet/sources/programs/autosuggest
+ * AJAX REST request system/accounts/users/redirect/autosuggest
  *
- * This request will return a list of available programs
+ * This request will return a list of redirect URLs
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
