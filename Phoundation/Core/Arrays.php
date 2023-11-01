@@ -1592,7 +1592,7 @@ class Arrays {
         }
 
         foreach ($source2 as $key => $value) {
-            if (!is_scalar($value)) {
+            if ($value and !is_scalar($value)) {
                 throw new OutOfBoundsException(tr('Only scalar values are supported while source 2 has a non-scalar value'));
             }
 
