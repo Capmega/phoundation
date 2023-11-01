@@ -1287,12 +1287,9 @@ trait ProcessVariables
                 }
 
             } else {
-                if (!$this->getSudo()) {
-                    // Redirect output to a file
-                    File::new($redirect, $this->restrictions)->checkWritable('output redirect file');
-                }
-
-                $this->output_redirect[$channel] = ($append ? '>>' : '') . $redirect;
+                // Redirect output to a file
+                Path::new(dirname($redirect), $this->restrictions->getParent())->ensure('output redirect file');
+                $this->output_redirect[$channel] = ($append ? '>>' : '> ') . $redirect;
             }
 
         } else {

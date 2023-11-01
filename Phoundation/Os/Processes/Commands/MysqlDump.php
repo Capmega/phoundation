@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
 
+use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\DataDebug;
 use Phoundation\Data\Traits\DataHost;
@@ -130,12 +131,12 @@ class MysqlDump extends Command implements MysqlDumpInterface
     /**
      * Sets the databases that will be dumped
      *
-     * @param array $databases
+     * @param array|string $databases
      * @return static
      */
-    public function setDatabases(array $databases): static
+    public function setDatabases(array|string $databases): static
     {
-        $this->databases = $databases;
+        $this->databases = Arrays::force($databases);
         return $this;
     }
 
@@ -403,9 +404,8 @@ class MysqlDump extends Command implements MysqlDumpInterface
         }
 
         // Add databases
-        $this->process
-            ->addArgument('--databases')
-            ->addArguments($this->databases);
+        $this->addArgument('--databases')
+             ->addArguments($this->databases);
 
         // Optionally add gzip
         if ($this->gzip) {
@@ -413,7 +413,6 @@ class MysqlDump extends Command implements MysqlDumpInterface
         }
 
         // Add pipe to output and execute
-showdie($this->setOutputRedirect($this->target)->getFullCommandLine());
         $results = $this->setOutputRedirect($this->target)->executeReturnArray();
 
         if ($this->debug) {

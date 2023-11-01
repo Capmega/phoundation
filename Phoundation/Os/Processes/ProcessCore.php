@@ -466,13 +466,12 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
 
                 case '>>':
                     // Redirect to file and append
-                    $file = substr($file, 2);
-                    $redirect = ' ' . $channel . '>> ' . $file;
+                    $redirect = ' ' . $channel . '>> ' . substr($file, 2);
                     break;
 
                 default:
                     // Redirect to file and overwrite
-                    $redirect = ' ' . $channel . '> ' . $file;
+                    $redirect = ' ' . $channel . '> ' . substr($file, 2);
             }
 
             $this->cached_command_line .= $redirect;
