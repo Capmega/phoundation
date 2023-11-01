@@ -910,10 +910,17 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function getMeta(bool $load = true): ?MetaInterface
     {
+        if ($this->isNew()) {
+            // New DataEntry objects have no meta information
+            return null;
+        }
+
         $meta_id = $this->getSourceFieldValue('int', 'meta_id');
 
         if ($meta_id === null) {
-            return null;
+            throw new DataEntryException(tr('DataEntry ":id" does not have meta_id information', [
+                ':id' => $this->getId()
+            ]));
         }
 
         return new Meta($meta_id, $load);
