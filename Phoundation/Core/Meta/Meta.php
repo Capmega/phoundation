@@ -7,6 +7,7 @@ namespace Phoundation\Core\Meta;
 use DateTime;
 use Exception;
 use Phoundation\Cli\CliCommand;
+use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Exception\MetaException;
@@ -16,6 +17,7 @@ use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\Validate;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\Sql;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Web\Http\Html\Components\HtmlTable;
 use Phoundation\Web\Http\Html\Components\Interfaces\HtmlTableInterface;
@@ -219,10 +221,26 @@ class Meta implements MetaInterface
      * @param array|string|int $ids
      * @return void
      */
-    public static function erase(array|string|int $ids): void
+    public static function eraseEntries(array|string|int $ids): void
     {
         // Erase the meta entry, the history will cascade
-        sql()->query('DELETE FROM `meta` WHERE `id` IN (' . Sql::in($ids) . ')', $ids);
+        $ids = Sql::in(Arrays::force($ids));
+        sql()->query('DELETE FROM `meta` WHERE `id` IN (' . Sql::inColumns($ids) . ')', $ids);
+    }
+
+
+    /**
+     * Erases all meta history for this meta id
+     *
+     * @return void
+     */
+    public function erase(): void
+    {
+        if (empty($this->id)) {
+            throw new OutOfBoundsException(tr('Cannot erase this meta object, it does not yet exist in the database'));
+        }
+
+        static::eraseEntries($this->id);
     }
 
 
@@ -259,7 +277,7 @@ throw new UnderConstructionException();
         $ids = [];
 
         if ($ids) {
-            static::erase($ids);
+            static::eraseEntries($ids);
         }
 
         return count($ids);
