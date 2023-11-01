@@ -233,10 +233,7 @@ class Phoundation extends Project
     public function copy(string $file, ?string $branch, bool $require_no_changes = true): void
     {
         $this->selectPhoundationBranch($this->defaultBranch($branch));
-
-        if ($require_no_changes) {
-            $this->ensureNoChanges();
-        }
+        $this->ensureNoChanges(!$require_no_changes);
 
         $source = Filesystem::absolute($file, PATH_ROOT);
         $file = Strings::from($source, PATH_ROOT);
@@ -395,15 +392,18 @@ class Phoundation extends Project
     /**
      * Ensures that the Phoundation installation has no changes
      *
+     * @param bool $force
      * @return static
      */
-    protected function ensureNoChanges(): static
+    protected function ensureNoChanges(bool $force = false): static
     {
         // Ensure Phoundation has no changes
         if ($this->git->hasChanges()) {
-            throw GitHasChangesException::new(tr('Cannot copy changes, your Phoundation installation ":path" has uncommitted changes', [
-                ':path' => $this->path
-            ]))->makeWarning();
+            if (!$force) {
+                throw GitHasChangesException::new(tr('Cannot copy changes, your Phoundation installation ":path" has uncommitted changes', [
+                    ':path' => $this->path
+                ]))->makeWarning();
+            }
         }
 
         return $this;
