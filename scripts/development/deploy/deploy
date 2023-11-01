@@ -65,3 +65,16 @@ Project::deploy()
     ->sendMessage($argv['message'])
     ->setTargetEnvironment($argv['target_environment'])
     ->execute();
+
+//rsync --progress --rsync-path="sudo rsync" --exclude=data/log --exclude=.git --exclude=.gitignore --exclude=data/sessions --exclude=data/run --exclude=data/sources --exclude=data/tmp  -avze "ssh -p PORT" /home/sven/projects/medinet/PROJECT/ SERVER:/var/www/html/PROJECT/;
+//echo "fixing ownsership";
+//ssh -p PORT SERVER "sudo chown www-data:www-data /var/www/html/PROJECT -R";
+//echo "fixing file mode";
+//ssh -p PORT SERVER "sudo chmod u+rw,g+rw,o-rwx /var/www/html/PROJECT -R";
+//echo "fixing sticky bit";
+//ssh -p PORT SERVER "sudo find /var/www/html/PROJECT -type d -exec chmod u+x,g+xs {} \\\;" \; ;
+//echo "fixing file exec permissions";
+//ssh -p PORT SERVER "sudo find /var/www/html/PROJECT -type f -exec chmod u+rw-x,g+r-wx,o-rwx {} \;"
+//echo "fixing pho";
+//ssh -p PORT SERVER "sudo chmod 750 /var/www/html/PROJECT/pho";
+//echo "done!"
