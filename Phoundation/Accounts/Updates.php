@@ -30,7 +30,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.0.20';
+        return '0.0.21';
     }
 
 
@@ -697,6 +697,14 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ->dropForeignKey('fk_accounts_emails_users_id')
                 ->changeColumn('users_id', '`users_id` BIGINT NOT NULL')
                 ->addForeignKey('CONSTRAINT `fk_accounts_emails_users_id` FOREIGN KEY (`users_id`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT');
+
+        })->addUpdate('0.0.21', function () {
+            // Ensure that all roles and rights are lowercase
+            sql()->query('UPDATE `accounts_roles`
+                                SET    `name` = LOWER(REPLACE(REPLACE(`name`, "_", "-"), " ", "-"))');
+
+            sql()->query('UPDATE `accounts_rights`
+                                SET    `name` = LOWER(REPLACE(REPLACE(`name`, "_", "-"), " ", "-"))');
         });
     }
 }

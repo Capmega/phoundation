@@ -17,7 +17,9 @@ use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryNotExistsExceptionInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntry\Traits\DataEntryDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
+use Phoundation\Data\DataEntry\Traits\DataEntryNameLowercaseDash;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\Interfaces\OutOfBoundsExceptionInterface;
 use Phoundation\Exception\OutOfBoundsException;
@@ -36,7 +38,7 @@ use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
  *
  *
  *
- * @see \Phoundation\Data\DataEntry\DataEntry
+ * @see DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -44,7 +46,8 @@ use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
  */
 class Role extends DataEntry implements RoleInterface
 {
-    use DataEntryNameDescription;
+    use DataEntryNameLowercaseDash;
+    use DataEntryDescription;
 
 
     /**
@@ -159,10 +162,11 @@ class Role extends DataEntry implements RoleInterface
      * @param RoleInterface|string|int|null $from_identifier
      * @param string|null $column
      * @return $this
+     * @throws OutOfBoundsExceptionInterface|RoleNotExistsExceptionInterface
      */
     public function mergeFrom(RoleInterface|string|int|null $from_identifier = null, ?string $column = null): static
     {
-        $from = Role::new($from_identifier, $column);
+        $from = Role::get($from_identifier, $column);
 
         if (!$this->getId()) {
             throw new OutOfBoundsException(tr('Cannot merge role ":from" to this role ":this" because this role does not yet exist in the database', [
