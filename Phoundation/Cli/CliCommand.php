@@ -119,7 +119,7 @@ class CliCommand
      */
     #[NoReturn] public static function execute(): void
     {
-        static::ensureProcessUser();
+        static::ensureProcessUidMatchesPhoundationOwner();
 
         // All scripts will execute the cli_done() call, register basic script information
         try {
@@ -193,19 +193,44 @@ class CliCommand
     /**
      * Ensures that the process owner and file owner are the same.
      *
+     * @param bool $auto_switch
+     * @param bool $permit_root
      * @return void
      */
-    protected static function ensureProcessUser(): void
+    protected static function ensureProcessUidMatchesPhoundationOwner(bool $auto_switch = true, bool $permit_root = false): void
     {
         $uid = fileowner(__DIR__ . '/../../pho');
 
-        if (posix_geteuid() === $uid) {
+        if (Core::getProcessUid() === $uid) {
+            // Correct user, yay!
             return;
         }
 
         if (!Config::getBoolean('cli.require-same-uid', true)) {
             // According to configuration we don't need to have the same UID.
             return;
+        }
+
+        if (AutoComplete::isActive()) {
+            // Auto complete does not require same UID
+            return;
+        }
+
+        if (Core::isPhpUnitTest()) {
+            // Don't restart PHPUnit processes
+            return;
+        }
+
+        if (!Core::getProcessUid() and $permit_root) {
+            // This script is ran as root and root is authorized!
+            return;
+        }
+
+        if (!$auto_switch) {
+            throw new CliException(tr('The user ":puser" is not allowed to execute these scripts, only user ":fuser" can do this. use "sudo -u :fuser COMMANDS instead.', [
+                ':puser' => CliCommand::getProcessUser(),
+                ':fuser' => get_current_user()
+            ]));
         }
 
         // Restart the process using SUDO with the correct user

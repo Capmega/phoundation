@@ -860,9 +860,6 @@ class Core implements CoreInterface
             $die = 0;
         }
 
-        // Check if the owner of this process is the same as the owner of this script (Required to avoid issues)
-        static::processFileUidMatches(true);
-
         if ($argv['order_by']) {
             define('ORDERBY', ' ORDER BY `' . Strings::until($argv['order_by'], ' ') . '` ' . Strings::from($argv['order_by'], ' ') . ' ');
 
@@ -2658,69 +2655,6 @@ class Core implements CoreInterface
     public static function processIsRoot(): bool
     {
         return !static::getProcessUid();
-    }
-
-
-    /**
-     * Ensures that the UID of the user executing this script is the same as the UID of this libraries' owner
-     *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package cli
-     *
-     * @param boolean $auto_switch If set to true, the script will automatically restart with the correct user, instead of causing an exception
-     * @param boolean $permit_root If set to true, and the script was run by root, it will be authorized anyway
-     * @return void
-     */
-    protected static function processFileUidMatches(bool $auto_switch = false, bool $permit_root = true): void
-    {
-        if (static::isPhpUnitTest()) {
-            // Don't restart PHPUnit
-            return;
-        }
-
-        if (static::getProcessUid() !== getmyuid()) {
-            if (!static::getProcessUid() and $permit_root) {
-                // This script is ran as root and root is authorized!
-                return;
-            }
-
-            if (!$auto_switch) {
-                throw new CoreException(tr('The user ":puser" is not allowed to execute these scripts, only user ":fuser" can do this. use "sudo -u :fuser COMMANDS instead.', [
-                    ':puser' => CliCommand::getProcessUser(),
-                    ':fuser' => get_current_user()
-                ]));
-            }
-
-            // Re-execute this command as the specified user
-            Log::warning(tr('Current user ":user" is not authorized to execute this script, re-executing script as user ":reuser"', [
-                ':user'   => CliCommand::getProcessUser(),
-                ':reuser' => get_current_user()
-            ]));
-
-            // Get the arguments to send to the re-execute script
-            $argv = ArgvValidator::getArguments();
-
-            if (AutoComplete::isActive()) {
-                // For auto complete mode, add required arguments and reformat $argv correctly
-                $argv = array_merge([AutoComplete::getPosition() + 1, './pho'], $argv);
-                $argv = implode(' ', $argv);
-                $argv = ['--auto-complete', $argv];
-            }
-
-            // Execute the process
-            Process::new(PATH_ROOT . 'pho')
-                ->setWait(100)
-                ->setSudo(get_current_user())
-                ->setAcceptedExitCodes([0, 255])
-                ->setArguments($argv)
-                ->executePassthru();
-
-            Log::success(tr('Finished re-executed script ":script"', [':script' => static::$register['system']['script']]));
-            exit();
-        }
     }
 
 
