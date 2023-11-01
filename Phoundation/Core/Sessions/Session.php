@@ -600,40 +600,63 @@ Log::warning('RESTART SESSION');
             return;
         }
 
-        if (isset($_SESSION['user']['impersonate_id'])) {
+        try {
+            if (isset($_SESSION['user']['impersonate_id'])) {
+                try {
+                    Incident::new()
+                        ->setType('User impersonation')->setSeverity(Severity::low)
+                        ->setTitle(tr('The user ":user" stopped impersonating user ":impersonate"', [
+                            ':user' => User::get($_SESSION['user']['id'])->getLogId(),
+                            ':impersonate' => User::get($_SESSION['user']['impersonate_id'])->getLogId()
+                        ]))
+                        ->setDetails([
+                            'user' => User::get($_SESSION['user']['id'])->getLogId(),
+                            'impersonate' => User::get($_SESSION['user']['impersonate_id'])->getLogId()
+                        ])
+                        ->notifyRoles('accounts')
+                        ->save();
+
+                    // We're impersonating a user, return to the original user.
+                    $url = $_SESSION['user']['impersonate_url'];
+                    $users_id = $_SESSION['user']['impersonate_id'];
+
+                    unset($_SESSION['user']['impersonate_id']);
+                    unset($_SESSION['user']['impersonate_url']);
+
+                    Page::getFlashMessages()->addSuccessMessage(tr('You have stopped impersonating user ":user"', [
+                        ':user' => User::get($users_id)->getLogId()
+                    ]));
+
+                    Page::redirect($url);
+
+                } catch (Throwable $e) {
+                    // Oops?
+                    Log::error($e);
+
+                    Notification::new()->setException($e)->save();
+
+                    Incident::new()
+                        ->setType('User impersonation sign out failed')
+                        ->setSeverity(Severity::low)
+                        ->setTitle(tr('User impersonation sign out failed users id ":id", impersonate id ":impersonate_id", closing sessions', [
+                            ':id' => isset_get($_SESSION['user']['id']),
+                            ':impersonate_id' => isset_get($_SESSION['user']['impersonate_id'])
+                        ]))
+                        ->save();
+                }
+            }
+
             Incident::new()
-                ->setType('User impersonation')->setSeverity(Severity::low)
-                ->setTitle(tr('The user ":user" stopped impersonating user ":impersonate"', [
-                    ':user'        => User::get($_SESSION['user']['id'])->getLogId(),
-                    ':impersonate' => User::get($_SESSION['user']['impersonate_id'])->getLogId()
-                ]))
-                ->setDetails([
-                    'user'        => User::get($_SESSION['user']['id'])->getLogId(),
-                    'impersonate' => User::get($_SESSION['user']['impersonate_id'])->getLogId()
-                ])
-                ->notifyRoles('accounts')
+                ->setType('User sign out')
+                ->setSeverity(Severity::notice)
+                ->setTitle(tr('The user ":user" signed out', [':user' => static::getUser()]))
+                ->setDetails(['user' => static::getUser()->getLogId()])
                 ->save();
 
-            // We're impersonating a user, return to the original user.
-            $url      = $_SESSION['user']['impersonate_url'];
-            $users_id = $_SESSION['user']['impersonate_id'];
-
-            unset($_SESSION['user']['impersonate_id']);
-            unset($_SESSION['user']['impersonate_url']);
-
-            Page::getFlashMessages()->addSuccessMessage(tr('You have stopped impersonating user ":user"', [
-                ':user' => User::get($users_id)->getLogId()
-            ]));
-
-            Page::redirect($url);
+        } catch (Throwable $e) {
+            // Oops! Session sign out just completely failed for some reason. Just log, destroy the session, and continue
+            Log::error($e);
         }
-
-        Incident::new()
-            ->setType('User sign out')
-            ->setSeverity(Severity::notice)
-            ->setTitle(tr('The user ":user" signed out', [':user' => static::getUser()]))
-            ->setDetails(['user' => static::getUser()->getLogId()])
-            ->save();
 
         session_destroy();
     }
