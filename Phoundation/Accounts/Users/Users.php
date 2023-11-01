@@ -129,9 +129,10 @@ class Users extends DataList implements UsersInterface
      * Add the specified user to the data list
      *
      * @param UserInterface|array|string|int|null $user
+     * @param string|null $column
      * @return static
      */
-    public function addUser(UserInterface|array|string|int|null $user): static
+    public function addUser(UserInterface|array|string|int|null $user, ?string $column = null): static
     {
         $this->ensureParent('add entry to parent');
 
@@ -139,12 +140,12 @@ class Users extends DataList implements UsersInterface
             if (is_array($user)) {
                 // Add multiple rights
                 foreach ($user as $entry) {
-                    $this->addUser($entry);
+                    $this->addUser($entry, $column);
                 }
 
             } else {
                 // Add single right. Since this is a User object, the entry already exists in the database
-                $user = User::get($user);
+                $user = User::get($user, $column);
 
                 // User already exists for this parent?
                 if ($this->hasUser($user)) {
@@ -448,42 +449,42 @@ class Users extends DataList implements UsersInterface
      */
     public function save(): static
     {
-        $this->ensureParent('save parent entries');
-
-        if ($this->parent instanceof RoleInterface) {
-            // Delete the current list
-            sql()->query('DELETE FROM `accounts_users_roles` 
-                                WHERE       `accounts_users_roles`.`roles_id` = :roles_id', [
-                ':roles_id' => $this->parent->getId()
-            ]);
-
-            // Add the new list
-            foreach ($this->source as $id) {
-                sql()->dataEntryInsert('accounts_users_roles', [
-                    'roles_id' => $this->parent->getId(),
-                    'users_id' => $id
-                ]);
-            }
-
-        } elseif ($this->parent instanceof RightInterface) {
-            // Delete the current list
-            sql()->query('DELETE FROM `accounts_users_rights` 
-                                WHERE       `accounts_users_rights`.`rights_id` = :rights_id', [
-                ':rights_id' => $this->parent->getId()
-            ]);
-
-            // Add the new list
-            foreach ($this->source as $id) {
-                sql()->dataEntryInsert('accounts_users_rights', [
-                    'rights_id' => $this->parent->getId(),
-                    'users_id'  => $id,
-                    'name'      => $this->parent->getName(),
-                    'seo_name'  => $this->parent->getSeoName()
-                ]);
-            }
-
-            unset($user);
-        }
+//        $this->ensureParent('save parent entries');
+//
+//        if ($this->parent instanceof RoleInterface) {
+//            // Delete the current list
+//            sql()->query('DELETE FROM `accounts_users_roles`
+//                                WHERE       `accounts_users_roles`.`roles_id` = :roles_id', [
+//                ':roles_id' => $this->parent->getId()
+//            ]);
+//
+//            // Add the new list
+//            foreach ($this->source as $id) {
+//                sql()->dataEntryInsert('accounts_users_roles', [
+//                    'roles_id' => $this->parent->getId(),
+//                    'users_id' => $id
+//                ]);
+//            }
+//
+//        } elseif ($this->parent instanceof RightInterface) {
+//            // Delete the current list
+//            sql()->query('DELETE FROM `accounts_users_rights`
+//                                WHERE       `accounts_users_rights`.`rights_id` = :rights_id', [
+//                ':rights_id' => $this->parent->getId()
+//            ]);
+//
+//            // Add the new list
+//            foreach ($this->source as $id) {
+//                sql()->dataEntryInsert('accounts_users_rights', [
+//                    'rights_id' => $this->parent->getId(),
+//                    'users_id'  => $id,
+//                    'name'      => $this->parent->getName(),
+//                    'seo_name'  => $this->parent->getSeoName()
+//                ]);
+//            }
+//
+//            unset($user);
+//        }
 
         return $this;
     }

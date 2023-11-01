@@ -2,6 +2,8 @@
 <?php
 
 use Phoundation\Accounts\Users\User;
+use Phoundation\Cli\Documentation;
+use Phoundation\Core\Config;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
@@ -17,9 +19,18 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-$usage = './pho accounts users info USER';
+Documentation::autoComplete(User::getAutoComplete([
+    'positions' => [
+        0 => [
+            'word'   => 'SELECT `email` FROM `accounts_users` WHERE `email` LIKE :word AND `status` IS NULL',
+            'noword' => 'SELECT `email` FROM `accounts_users` WHERE `status` IS NULL LIMIT ' . Config::getInteger('shell.autocomplete.limit', 50)
+        ]
+    ],
+]));
 
-$help  = 'This script displays information about the specified user.  
+Documentation::usage('./pho accounts users info USER');
+
+Documentation::help('This script displays information about the specified user  
 
 
 
@@ -28,7 +39,7 @@ ARGUMENTS
 
 
 USER                                    The user to display information about. Specify either by user id or email 
-                                        address';
+                                        address');
 
 
 // Validate arguments

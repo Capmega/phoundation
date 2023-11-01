@@ -14,6 +14,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
+use Phoundation\Exception\Interfaces\OutOfBoundsExceptionInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
 use Stringable;
@@ -24,7 +25,7 @@ use Stringable;
  *
  *
  *
- * @see \Phoundation\Data\DataEntry\DataList
+ * @see DataList
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -128,9 +129,11 @@ class Roles extends DataList implements RolesInterface
      * Add the specified role to the data list
      *
      * @param RoleInterface|array|string|int|null $role
+     * @param string|null $column
      * @return static
+     * @throws OutOfBoundsExceptionInterface
      */
-    public function addRole(RoleInterface|array|string|int|null $role): static
+    public function addRole(RoleInterface|array|string|int|null $role, ?string $column = null): static
     {
         $this->ensureParent('add entry to parent');
 
@@ -138,12 +141,12 @@ class Roles extends DataList implements RolesInterface
             if (is_array($role)) {
                 // Add multiple rights
                 foreach ($role as $entry) {
-                    $this->addRole($entry);
+                    $this->addRole($entry, $column);
                 }
 
             } else {
                 // Add single right. Since this is a Role object, the entry already exists in the database
-                $role = Role::get($role);
+                $role = Role::get($role, $column);
 
                 // Role already exists for this parent?
                 if ($this->hasRole($role)) {
@@ -482,34 +485,34 @@ class Roles extends DataList implements RolesInterface
      */
     public function save(): static
     {
-        $this->ensureParent('save parent entries');
-
-        if ($this->parent instanceof UserInterface) {
-            // Delete the current list
-            sql()->query('DELETE FROM `accounts_users_roles` 
-                                WHERE       `accounts_users_roles`.`users_id` = :users_id', [
-                ':users_id' => $this->parent->getId()
-            ]);
-
-            // Add the new list
-            sql()->query('DELETE FROM `accounts_users_roles` 
-                                WHERE       `accounts_users_roles`.`users_id` = :users_id', [
-                ':users_id' => $this->parent->getId()
-            ]);
-
-        } elseif ($this->parent instanceof RightInterface) {
-            // Delete the current list
-            sql()->query('DELETE FROM `accounts_roles_rights` 
-                                WHERE       `accounts_roles_rights`.`rights_id` = :rights_id', [
-                ':rights_id' => $this->parent->getId()
-            ]);
-
-            // Add the new list
-            sql()->query('DELETE FROM `accounts_roles_rights` 
-                                WHERE       `accounts_roles_rights`.`rights_id` = :rights_id', [
-                ':rights_id' => $this->parent->getId()
-            ]);
-        }
+//        $this->ensureParent('save parent entries');
+//
+//        if ($this->parent instanceof UserInterface) {
+//            // Delete the current list
+//            sql()->query('DELETE FROM `accounts_users_roles`
+//                                WHERE       `accounts_users_roles`.`users_id` = :users_id', [
+//                ':users_id' => $this->parent->getId()
+//            ]);
+//
+//            // Add the new list
+//            sql()->query('DELETE FROM `accounts_users_roles`
+//                                WHERE       `accounts_users_roles`.`users_id` = :users_id', [
+//                ':users_id' => $this->parent->getId()
+//            ]);
+//
+//        } elseif ($this->parent instanceof RightInterface) {
+//            // Delete the current list
+//            sql()->query('DELETE FROM `accounts_roles_rights`
+//                                WHERE       `accounts_roles_rights`.`rights_id` = :rights_id', [
+//                ':rights_id' => $this->parent->getId()
+//            ]);
+//
+//            // Add the new list
+//            sql()->query('DELETE FROM `accounts_roles_rights`
+//                                WHERE       `accounts_roles_rights`.`rights_id` = :rights_id', [
+//                ':rights_id' => $this->parent->getId()
+//            ]);
+//        }
 
         return $this;
     }
