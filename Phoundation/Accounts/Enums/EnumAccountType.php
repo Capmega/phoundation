@@ -19,7 +19,7 @@ use Phoundation\Accounts\Enums\Interfaces\EnumAccountTypeInterface;
  */
 enum EnumAccountType: string implements EnumAccountTypeInterface
 {
-    case business = 'restrict';
-    case personal = 'allow_override';
+    case business = 'business';
+    case personal = 'personal';
     case other    = 'other';
 }

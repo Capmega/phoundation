@@ -50,7 +50,7 @@ Right::notExists('name', $argv['name'], null, true);
 
 
 // Create right and save it
-$right = Right::new()->apply($argv)->save();
+$right = Right::new()->apply(true, $argv)->save();
 
 
 

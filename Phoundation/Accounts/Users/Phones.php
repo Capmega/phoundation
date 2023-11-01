@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Phoundation\Accounts\Users;
 
 use Exception;
+use Phoundation\Accounts\Users\Interfaces\EmailInterface;
+use Phoundation\Accounts\Users\Interfaces\PhoneInterface;
 use Phoundation\Accounts\Users\Interfaces\PhonesInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Core\Arrays;
@@ -155,6 +157,51 @@ class Phones extends DataList implements PhonesInterface
         return DataEntryForm::new()
             ->addContent(implode('<hr>', $content))
             ->setRenderContentsOnly(true);
+    }
+
+
+    /**
+     * Add the specified phone to the iterator array
+     *
+     * @param mixed $value
+     * @param string|float|int|null $key
+     * @return static
+     */
+    public function add(mixed $value, string|float|int|null $key = null): static
+    {
+        if (!$value instanceof PhoneInterface) {
+            if (!is_string($value)) {
+                throw new OutOfBoundsException(tr('Invalid value ":value" specified, can only add "PhoneInterface" to Phones Iterator class', [
+                    ':value' => $value
+                ]));
+            }
+
+            $value = Phone::new()
+                ->setPhone($value)
+                ->setAccountType('other');
+        }
+
+        // Ensure that the phones list has a parent
+        if (empty($this->parent)) {
+            throw new OutOfBoundsException(tr('Cannot add phone ":phone" to this phones list, the list has no parent specified', [
+                ':phone' => $value->getLogId()
+            ]));
+        }
+
+        // Ensure that the phone has a users id and that the users id matches the id of the users parent
+        if ($value->getUsersId()) {
+            if ($value->getUsersId() !== $this->parent->getId()) {
+                throw new OutOfBoundsException(tr('Specified phone ":phone" has a different users id than the users id ":parent" for the phones in this list', [
+                    ':phone' => $value->getId(),
+                    ':parent' => $this->parent->getId()
+                ]));
+            }
+
+        } else {
+            $value->setUsersId($this->parent->getId())->save();
+        }
+
+        return parent::add($value, $key);
     }
 
 

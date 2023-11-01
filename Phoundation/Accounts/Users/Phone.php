@@ -8,6 +8,7 @@ use Phoundation\Accounts\Users\Exception\PhoneNotExistsException;
 use Phoundation\Accounts\Users\Exception\Interfaces\PhoneNotExistsExceptionInterface;
 use Phoundation\Accounts\Users\Interfaces\PhoneInterface;
 use Phoundation\Core\Arrays;
+use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
@@ -30,7 +31,7 @@ use Phoundation\Web\Http\Html\Enums\InputType;
  *
  *
  *
- * @see \Phoundation\Data\DataEntry\DataEntry
+ * @see DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -120,7 +121,25 @@ class Phone extends DataEntry implements PhoneInterface
                 ->setOptional(false)
                 ->setHelpText(tr('The extra phone for the user'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->isUnique(tr('value ":phone" already exists', [':phone' => $validator->getSourceValue()]));
+                    // Phone cannot already exist in accounts_users or accounts_emails for THIS user!
+                    $exists = sql()->get('SELECT `id` FROM `accounts_users` WHERE `id` != :id AND `phone` = :value', [
+                        ':phone' => $validator->getSelectedValue(),
+                        ':id' => (int) $validator->getSourceValue('users_id')
+                    ]);
+
+                    if ($exists) {
+                        $validator->addFailure($failure ?? tr('with value ":value" already exists', [':value' => $validator->getSelectedValue()]));
+                    }
+
+                    $exists = sql()->get('SELECT `id` FROM `accounts_phones` WHERE `users_id` = :users_id AND `phone` = :value AND `id` != :id', [
+                        ':users_id' => (int) $validator->getSourceValue('users_id'),
+                        ':phone' => $validator->getSelectedValue(),
+                        ':id' => (int) $validator->getSourceValue('id')
+                    ]);
+
+                    if ($exists) {
+                        $validator->addFailure($failure ?? tr('with value ":value" already exists', [':value' => $validator->getSelectedValue()]));
+                    }
                 }))
             ->addDefinition(Definition::new($this, 'account_type')
                 ->setOptional(true)

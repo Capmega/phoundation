@@ -92,7 +92,7 @@ class Right extends DataEntry implements RightInterface
                 ->setMaxlength(64)
                 ->setHelpText(tr('The name for this right'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->isUnique(tr('value ":name" already exists', [':name' => $validator->getSourceValue()]));
+                    $validator->isUnique(tr('value ":name" already exists', [':name' => $validator->getSelectedValue()]));
                 }))
             ->addDefinition(DefinitionFactory::getSeoName($this))
             ->addDefinition(DefinitionFactory::getDescription($this)

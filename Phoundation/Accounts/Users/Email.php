@@ -21,6 +21,7 @@ use Phoundation\Data\DataEntry\Traits\DataEntryUser;
 use Phoundation\Data\DataEntry\Traits\DataEntryVerificationCode;
 use Phoundation\Data\DataEntry\Traits\DataEntryVerifiedOn;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
+use Phoundation\Exception\Interfaces\OutOfBoundsExceptionInterface;
 use Phoundation\Web\Http\Html\Enums\InputElement;
 use Phoundation\Web\Http\Html\Enums\InputType;
 
@@ -88,7 +89,7 @@ class Email extends DataEntry implements EmailInterface
      * @param DataEntryInterface|string|int|null $identifier
      * @param string|null $column
      * @return static|null
-     * @throws EmailNotExistsExceptionInterface
+     * @throws EmailNotExistsExceptionInterface|OutOfBoundsExceptionInterface
      */
     public static function get(DataEntryInterface|string|int|null $identifier = null, ?string $column = null): ?static
     {
@@ -120,7 +121,16 @@ class Email extends DataEntry implements EmailInterface
                 ->setOptional(false)
                 ->setHelpText(tr('The extra email address for the user'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->isUnique(tr('value ":email" already exists', [':email' => $validator->getSourceValue()]));
+                    // Email cannot exist in accounts_users or accounts_emails!
+                    $validator->isUnique(tr('value ":email" already exists', [':email' => $validator->getSelectedValue()]));
+
+                    $exists = sql()->get('SELECT `id` FROM `accounts_users` WHERE `email` = :email', [
+                        ':email' => $validator->getSelectedValue()
+                    ]);
+
+                    if ($exists) {
+                        $validator->addFailure(tr('value ":email" already exists', [':email' => $validator->getSelectedValue()]));
+                    }
                 }))
             ->addDefinition(Definition::new($this, 'account_type')
                 ->setOptional(true)

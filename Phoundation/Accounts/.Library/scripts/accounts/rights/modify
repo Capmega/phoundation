@@ -53,7 +53,7 @@ if ($argv['name']) {
     Right::notExists('name', $argv['name'], $right->getId(), true);
 }
 
-$right->apply($argv)->save();
+$right->apply(true, $argv)->save();
 
 
 

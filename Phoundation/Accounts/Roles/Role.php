@@ -19,6 +19,7 @@ use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryNotExistsExceptionI
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
+use Phoundation\Exception\Interfaces\OutOfBoundsExceptionInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Geo\Timezones\Timezone;
 use Phoundation\Web\Http\Html\Components\DataEntryForm;
@@ -139,7 +140,7 @@ class Role extends DataEntry implements RoleInterface
      * @param DataEntryInterface|string|int|null $identifier
      * @param string|null $column
      * @return static|null
-     * @throws RoleNotExistsExceptionInterface
+     * @throws RoleNotExistsExceptionInterface|OutOfBoundsExceptionInterface
      */
     public static function get(DataEntryInterface|string|int|null $identifier = null, ?string $column = null): ?static
     {
@@ -149,6 +150,41 @@ class Role extends DataEntry implements RoleInterface
         } catch (DataEntryNotExistsExceptionInterface $e) {
             throw new RoleNotExistsException($e);
         }
+    }
+
+
+    /**
+     * Merge this role with the rights from the specified role
+     *
+     * @param RoleInterface|string|int|null $from_identifier
+     * @param string|null $column
+     * @return $this
+     */
+    public function mergeFrom(RoleInterface|string|int|null $from_identifier = null, ?string $column = null): static
+    {
+        $from = Role::new($from_identifier, $column);
+
+        if (!$this->getId()) {
+            throw new OutOfBoundsException(tr('Cannot merge role ":from" to this role ":this" because this role does not yet exist in the database', [
+                ':from' => $from->getLogId(),
+                ':this' => $this->getLogId()
+            ]));
+        }
+
+        // This role must get all rights from the $FROM role
+        foreach ($from->getRights() as $right) {
+            $this->getRights()->addRight($right);
+        }
+
+        // All users that have the $FROM role must get this role too
+        foreach ($from->getUsers() as $user) {
+            $user->getRoles()->addRole($this);
+        }
+
+        // Remove the "from" role
+        $from->erase();
+
+        return $this;
     }
 
 
@@ -166,7 +202,7 @@ class Role extends DataEntry implements RoleInterface
                 ->setMaxlength(64)
                 ->setHelpText(tr('The name for this role'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->isUnique(tr('value ":name" already exists', [':name' => $validator->getSourceValue()]));
+                    $validator->isUnique(tr('value ":name" already exists', [':name' => $validator->getSelectedValue()]));
                 }))
             ->addDefinition(DefinitionFactory::getSeoName($this))
             ->addDefinition(DefinitionFactory::getDescription($this)

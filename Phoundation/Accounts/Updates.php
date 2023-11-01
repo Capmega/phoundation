@@ -30,7 +30,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.0.19';
+        return '0.0.20';
     }
 
 
@@ -683,6 +683,20 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ->changeColumn('phones', '`phone` varchar(15) CHARACTER SET latin1 DEFAULT NULL')
                 ->dropIndex('phones')
                 ->addIndex('KEY `phone` (`phone`)');
+
+        })->addUpdate('0.0.20', function () {
+            sql()->schema()->table('accounts_phones')->alter()
+                ->dropForeignKey('fk_accounts_phones_users_id')
+                ->changeColumn('phone', '`phone` varchar(24) CHARACTER SET latin1 DEFAULT NULL')
+                ->changeColumn('users_id', '`users_id` BIGINT NOT NULL')
+                ->addForeignKey('CONSTRAINT `fk_accounts_phones_users_id` FOREIGN KEY (`users_id`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT')
+                ->dropIndex('phone')
+                ->addIndex('KEY `phone` (`phone`)');
+
+            sql()->schema()->table('accounts_emails')->alter()
+                ->dropForeignKey('fk_accounts_emails_users_id')
+                ->changeColumn('users_id', '`users_id` BIGINT NOT NULL')
+                ->addForeignKey('CONSTRAINT `fk_accounts_emails_users_id` FOREIGN KEY (`users_id`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT');
         });
     }
 }

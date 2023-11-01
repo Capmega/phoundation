@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Phoundation\Accounts\Users;
 
 use Exception;
+use Phoundation\Accounts\Users\Interfaces\EmailInterface;
 use Phoundation\Accounts\Users\Interfaces\EmailsInterface;
+use Phoundation\Accounts\Users\Interfaces\PhoneInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Strings;
@@ -17,6 +19,7 @@ use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Data\Validator\Validate;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
+use Phoundation\Exception\Interfaces\OutOfBoundsExceptionInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\DataEntryForm;
 use Phoundation\Web\Http\Html\Components\Entry;
@@ -159,11 +162,56 @@ class Emails extends DataList implements EmailsInterface
 
 
     /**
+     * Add the specified email to the iterator array
+     *
+     * @param mixed $value
+     * @param string|float|int|null $key
+     * @return static
+     */
+    public function add(mixed $value, string|float|int|null $key = null): static
+    {
+        if (!$value instanceof EmailInterface) {
+            if (!is_string($value)) {
+                throw new OutOfBoundsException(tr('Invalid value ":value" specified, can only add "EmailInterface" to Emails Iterator class', [
+                    ':value' => $value
+                ]));
+            }
+
+            $value = Email::new()
+                ->setEmail($value)
+                ->setAccountType('other');
+        }
+
+        // Ensure that the emails list has a parent
+        if (empty($this->parent)) {
+            throw new OutOfBoundsException(tr('Cannot add email ":email" to this emails list, the list has no parent specified', [
+                ':email' => $value->getLogId()
+            ]));
+        }
+
+        // Ensure that the email has a users id and that the users id matches the id of the users parent
+        if ($value->getUsersId()) {
+            if ($value->getUsersId() !== $this->parent->getId()) {
+                throw new OutOfBoundsException(tr('Specified email ":email" has a different users id than the users id ":parent" for the emails in this list', [
+                    ':email' => $value->getId(),
+                    ':parent' => $this->parent->getId()
+                ]));
+            }
+
+        } else {
+            $value->setUsersId($this->parent->getId())->save();
+        }
+
+        return parent::add($value, $key);
+    }
+
+
+    /**
      * Apply all email account updates
      *
      * @param bool $clear_source
      * @return static
-     * @throws Exception
+     * @throws ValidationFailedException|OutOfBoundsExceptionInterface
      */
     public function apply(bool $clear_source = true): static
     {
