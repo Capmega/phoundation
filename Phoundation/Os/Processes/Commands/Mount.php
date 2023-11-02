@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
 
+use Phoundation\Core\Arrays;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Filesystem\Interfaces\FileInterface;
 use Phoundation\Os\Processes\Process;
+use Stringable;
 
 
 /**
@@ -24,21 +26,40 @@ class Mount extends Command
     /**
      * Mount the specified source to the specified target
      *
-     * @param string $source
-     * @param string $target
+     * @param Stringable|string $source
+     * @param Stringable|string $target
      * @param array|null $options
      * @param string|null $filesystem
      * @return void
      */
-    public function mount(string $source, string $target, ?array $options = null, ?string $filesystem = null): void
+    public function mount(Stringable|string $source, Stringable|string $target, ?array $options = null, ?string $filesystem = null): void
     {
         // Build the process parameters, then execute
         $this->clearArguments()
             ->setSudo(true)
             ->setInternalCommand('mount')
-            ->addArguments([$source, $target])
+            ->addArguments([(string) $source, (string) $target])
             ->addArguments($options ? ['-o', $options] : null)
             ->addArguments($filesystem ? ['-t', $filesystem] : null)
+            ->executeNoReturn();
+    }
+
+
+    /**
+     * Unmount the specified source to the specified target
+     *
+     * @param Stringable|string $target
+     * @param array|string|null $options
+     * @return void
+     */
+    public function unmount(Stringable|string $target, array|string|null $options = null): void
+    {
+        // Build the process parameters, then execute
+        $this->clearArguments()
+            ->setSudo(true)
+            ->setInternalCommand('umount')
+            ->addArguments((string) $target)
+            ->addArguments(Arrays::force($options))
             ->executeNoReturn();
     }
 
