@@ -1,0 +1,55 @@
+#!/usr/bin/php
+<?php
+
+declare(strict_types=1);
+
+use Phoundation\Cli\Cli;
+use Phoundation\Cli\CliCommand;
+use Phoundation\Cli\Documentation;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Filesystem\File;
+use Phoundation\Filesystem\Directory;
+use Phoundation\Filesystem\Restrictions;
+
+
+/**
+ * Script tools/devices/storage/encrypt
+ *
+ *
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Scripts
+ */
+$restrictions = Restrictions::new('/');
+
+Documentation::usage('./pho tools devices storage location
+./pho tools devices storage location /home/user/filename');
+
+Documentation::help('This script will display the device where the specified file is stored
+
+
+ARGUMENTS
+
+
+FILE                                    The path to the file (or directory) which needs to be examined');
+
+Documentation::autoComplete([
+    'positions' => [
+        0 => [
+            'word'   => function ($word) use ($restrictions) { return Directory::new('/', $restrictions)->scan($word . '*'); },
+            'noword' => function ()      use ($restrictions) { return Directory::new('/', $restrictions)->scan('*'); },
+        ],
+    ]
+]);
+
+
+// Validate data
+$argv = ArgvValidator::new()
+    ->select('file')->hasMaxCharacters(2048)->isFile('/', $restrictions)->sanitizeCallback(function(mixed $value, array $source) { return '/' . $value; })
+    ->validate();
+
+
+// Echo the device path
+CliCommand::echo(File::new($argv['file'])->getMountDevice());

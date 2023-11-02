@@ -14,6 +14,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Enums\EnumFileOpenMode;
 use Phoundation\Filesystem\Enums\Interfaces\EnumFileOpenModeInterface;
+use Phoundation\Filesystem\Exception\DirectoryNotMountedException;
 use Phoundation\Filesystem\Exception\FileActionFailedException;
 use Phoundation\Filesystem\Exception\FileExistsException;
 use Phoundation\Filesystem\Exception\FileNotExistException;
@@ -26,6 +27,7 @@ use Phoundation\Filesystem\Exception\FileSyncException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\FileTruncateException;
 use Phoundation\Filesystem\Exception\FileTypeNotSupportedException;
+use Phoundation\Filesystem\Exception\MountLocationNotFoundException;
 use Phoundation\Filesystem\Exception\ReadOnlyModeException;
 use Phoundation\Filesystem\Interfaces\FileBasicsInterface;
 use Phoundation\Filesystem\Interfaces\FileInterface;
@@ -2093,6 +2095,17 @@ throw new UnderConstructionException();
      */
     public function getMountDevice(): string
     {
+        $this->checkExists();
+        $mounts = Mounts::listTargets();
 
+        foreach ($mounts as $path => $mount) {
+            if (str_starts_with($this->file, $path)) {
+                return $mount['source'];
+            }
+        }
+
+        throw new MountLocationNotFoundException(tr('Failed to find a mount location for the path ":path"', [
+            ':path' => $this->file
+        ]));
     }
 }
