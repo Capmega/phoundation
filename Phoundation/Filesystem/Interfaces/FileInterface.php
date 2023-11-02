@@ -4,7 +4,7 @@ namespace Phoundation\Filesystem\Interfaces;
 
 use Exception;
 use Phoundation\Core\Exception\CoreException;
-use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Directory;
 use Throwable;
 
 
@@ -285,9 +285,9 @@ interface FileInterface extends FileBasicsInterface
     /**
      * Untars the file
      *
-     * @return Path
+     * @return Directory
      */
-    public function untar(): Path;
+    public function untar(): Directory;
 
     /**
      * Gzips the file

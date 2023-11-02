@@ -3,7 +3,7 @@
 namespace Phoundation\Developer\Tests;
 
 use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Directory;
 
 
 /**
@@ -17,7 +17,7 @@ use Phoundation\Filesystem\Path;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Developer
  */
-class BomPath extends Path
+class BomDirectory extends Directory
 {
     /**
      * Checks for BOM bytes from all files in this path and returns the amount of files that have it

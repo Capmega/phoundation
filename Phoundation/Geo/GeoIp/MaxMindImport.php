@@ -10,7 +10,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
-use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Os\Processes\Commands\Wget;
 use Stringable;
@@ -90,7 +90,7 @@ class MaxMindImport extends GeoIpImport
         $target_path  = Config::getString('geo.ip.max-mind.path', PATH_DATA . 'sources/geoip/maxmind/', $target_path);
         $target_path  = Filesystem::absolute($target_path, PATH_ROOT, false);
 
-        Path::new($target_path, $restrictions)->ensure();
+        Directory::new($target_path, $restrictions)->ensure();
         Log::action(tr('Processing GeoIP files and moving to path ":path"', [':path' => $target_path]));
 
         try {
@@ -98,7 +98,7 @@ class MaxMindImport extends GeoIpImport
             File::new(PATH_DATA . 'garbage/maxmind', $restrictions->addPath(PATH_DATA . 'garbage/'))->delete();
             File::new($source_path . 'GeoLite2-*', $restrictions)->delete(false, false, false);
 
-            $previous = Path::new($target_path, $restrictions)->move(PATH_DATA . 'garbage/');
+            $previous = Directory::new($target_path, $restrictions)->move(PATH_DATA . 'garbage/');
             $shas     = [];
 
             // Perform sha256 check on all files

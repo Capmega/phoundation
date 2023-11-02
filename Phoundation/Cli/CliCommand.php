@@ -29,7 +29,7 @@ use Phoundation\Exception\ScriptException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Enums\EnumFileOpenMode;
 use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Directory;
 use Throwable;
 
 
@@ -533,7 +533,7 @@ class CliCommand
             $run_dir = PATH_ROOT . 'data/run/';
             $script = $core->register['script'];
 
-            Path::ensure(dirname($run_dir . $script));
+            Directory::ensure(dirname($run_dir . $script));
 
             if ($close) {
                 if (!$executed) {

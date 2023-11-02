@@ -12,7 +12,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Validate;
 use Phoundation\Developer\Debug;
-use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Os\Devices\Storage\Device;
 use Phoundation\Os\Devices\Storage\Exception\StorageException;
@@ -56,8 +56,8 @@ DEVICE                                  The device file to be encrypted
 Documentation::autoComplete([
     'positions' => [
         0 => [
-            'word'   => function ($word) use ($restrictions) { return Path::new('/dev/', $restrictions)->scan($word . '*'); },
-            'noword' => function ()      use ($restrictions) { return Path::new('/dev/', $restrictions)->scan('*'); },
+            'word'   => function ($word) use ($restrictions) { return Directory::new('/dev/', $restrictions)->scan($word . '*'); },
+            'noword' => function ()      use ($restrictions) { return Directory::new('/dev/', $restrictions)->scan('*'); },
         ],
     ],
     'arguments' => [

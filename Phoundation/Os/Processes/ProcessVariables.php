@@ -11,7 +11,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
-use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Filesystem\Traits\DataRestrictions;
 use Phoundation\Os\Processes\Commands\Command;
@@ -311,7 +311,7 @@ trait ProcessVariables
         // Ensure that the run files directory is available
         static::$run_path = PATH_DATA . 'run/pids/' . getmypid() . '/' . Core::getLocalId() . '/';
 
-        Path::new(static::$run_path, Restrictions::new(PATH_DATA . 'run', true, 'processes runfile'))
+        Directory::new(static::$run_path, Restrictions::new(PATH_DATA . 'run', true, 'processes runfile'))
             ->ensure();
 
         // Set server filesystem restrictions
@@ -600,22 +600,22 @@ trait ProcessVariables
     /**
      * Returns if the process will first CD to this directory before continuing
      *
-     * @return Path
+     * @return Directory
      */
-    public function getExecutionPath(): Path
+    public function getExecutionPath(): Directory
     {
-        return Path::new($this->execution_path);
+        return Directory::new($this->execution_path);
     }
 
 
     /**
      * Sets if the process will first CD to this directory before continuing
      *
-     * @param Path|Stringable|string|null $execution_path
+     * @param Directory|Stringable|string|null $execution_path
      * @param RestrictionsInterface|array|string|null $restrictions
      * @return static This process so that multiple methods can be chained
      */
-    public function setExecutionPath(Path|Stringable|string|null $execution_path, RestrictionsInterface|array|string|null $restrictions = null): static
+    public function setExecutionPath(Directory|Stringable|string|null $execution_path, RestrictionsInterface|array|string|null $restrictions = null): static
     {
         $this->cached_command_line = null;
         $this->execution_path      = (string) $execution_path;
@@ -636,7 +636,7 @@ trait ProcessVariables
      */
     public function setExecutionPathToTemp(bool $public = false): static
     {
-        $path               = Path::getTemporaryBase($public);
+        $path               = Directory::getTemporaryBase($public);
         $this->restrictions = $path->getRestrictions();
 
         $this->setExecutionPath($path, $path->getRestrictions());
@@ -1288,7 +1288,7 @@ trait ProcessVariables
 
             } else {
                 // Redirect output to a file
-                Path::new(dirname($redirect), $this->restrictions->getParent())->ensure('output redirect file');
+                Directory::new(dirname($redirect), $this->restrictions->getParent())->ensure('output redirect file');
                 $this->output_redirect[$channel] = ($append ? '>>' : '> ') . $redirect;
             }
 

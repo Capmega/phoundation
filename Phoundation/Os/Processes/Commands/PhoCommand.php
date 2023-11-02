@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
 
-use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Os\Processes\Commands\Interfaces\PhoCommandInterface;
 use Phoundation\Os\Processes\ProcessCore;
@@ -30,7 +30,7 @@ class PhoCommand extends ProcessCore implements PhoCommandInterface
     public function __construct(string $command)
     {
         // Ensure that the run files directory is available
-        Path::new(PATH_ROOT . 'data/run/', Restrictions::new(PATH_DATA . 'run', true))->ensure();
+        Directory::new(PATH_ROOT . 'data/run/', Restrictions::new(PATH_DATA . 'run', true))->ensure();
 
         parent::__construct(Restrictions::new(PATH_ROOT . 'pho'));
 

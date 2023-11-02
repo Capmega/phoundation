@@ -17,7 +17,7 @@ use Phoundation\Filesystem\Execute;
  * @category Function reference
  * @package Phoundation\Filesystem
  */
-interface ExecuteInterface extends PathInterface
+interface ExecuteInterface extends DirectoryInterface
 {
     /**
      * Returns the extensions that are blacklisted

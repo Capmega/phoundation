@@ -10,7 +10,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Filesystem\Filesystem;
-use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Restrictions;
 
 
@@ -27,8 +27,8 @@ use Phoundation\Filesystem\Restrictions;
 Documentation::autoComplete([
     'positions' => [
         '0' => [
-            'word'   => function ($word) { return Path::new(Path::default($word), '/')->scan($word . '*'); },
-            'noword' => function ()      { return Path::new(             '/', '/')->scan(        '*'); },
+            'word'   => function ($word) { return Directory::new(Directory::default($word), '/')->scan($word . '*'); },
+            'noword' => function ()      { return Directory::new(             '/', '/')->scan(        '*'); },
         ],
     ]
 ]);

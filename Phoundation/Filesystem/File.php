@@ -74,7 +74,7 @@ class File extends FileBasics implements FileInterface
         }
 
         is_file($source);
-        Path::new($destination)->ensure();
+        Directory::new($destination)->ensure();
 
         // Ensure we're not overwriting anything!
         if (file_exists($destination . $real)) {
@@ -111,11 +111,11 @@ class File extends FileBasics implements FileInterface
 
         $this->restrictions->check($path, true);
 
-        Path::new(dirname($this->file), $this->restrictions)->ensure($pattern_mode);
+        Directory::new(dirname($this->file), $this->restrictions)->ensure($pattern_mode);
 
         if (!file_exists($this->file)) {
             // Create the file
-            Path::new(dirname($this->file), $this->restrictions)->execute()
+            Directory::new(dirname($this->file), $this->restrictions)->execute()
                 ->setMode(0770)
                 ->onPathOnly(function () use ($mode) {
                     Log::warning(tr('File ":file" did not exist and was created empty to ensure system stability, but information may be missing', [
@@ -511,7 +511,7 @@ class File extends FileBasics implements FileInterface
             throw new FilesystemException(tr('Copy option has been set, but object file ":file" is an uploaded file, and uploaded files cannot be copied, only moved', [':file' => $this->file]));
         }
 
-        $path = Path::new($path, $this->restrictions)->ensure();
+        $path = Directory::new($path, $this->restrictions)->ensure();
         $this->filename = basename($this->file);
 
         if (!$this->filename) {
@@ -570,7 +570,7 @@ class File extends FileBasics implements FileInterface
 
                 } else {
                     rename($target);
-                    Path::new(dirname($this->file))->clear();
+                    Directory::new(dirname($this->file))->clear();
                 }
             }
         }
@@ -1112,12 +1112,12 @@ class File extends FileBasics implements FileInterface
     /**
      * Untars the file
      *
-     * @return Path
+     * @return Directory
      */
-    public function untar(): Path
+    public function untar(): Directory
     {
         Tar::new($this->restrictions)->untar($this->file);
-        return Path::new(dirname($this->file), $this->restrictions);
+        return Directory::new(dirname($this->file), $this->restrictions);
     }
 
 

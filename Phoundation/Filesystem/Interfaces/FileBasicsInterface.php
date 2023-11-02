@@ -313,9 +313,9 @@ interface FileBasicsInterface
      * Returns the parent directory for this file
      *
      * @param RestrictionsInterface|null $restrictions
-     * @return PathInterface
+     * @return DirectoryInterface
      */
-    public function getParentDirectory(?RestrictionsInterface $restrictions = null): PathInterface;
+    public function getParentDirectory(?RestrictionsInterface $restrictions = null): DirectoryInterface;
 
     /**
      * This is an fopen() wrapper with some built-in error handling

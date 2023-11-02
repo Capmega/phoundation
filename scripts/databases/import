@@ -8,7 +8,7 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Os\Processes\Commands\Databases\MySql;
 
@@ -41,8 +41,8 @@ ARGUMENTS
 Documentation::autoComplete([
     'arguments' => [
         '--file' => [
-            'word'   => function ($word) { return Path::new(PATH_DATA . 'sources/', PATH_DATA . 'sources/')->scan($word . '*.{sql,sql.gz}'); },
-            'noword' => function ()      { return Path::new(PATH_DATA . 'sources/', PATH_DATA . 'sources/')->scan(        '*.{sql,sql.gz}'); },
+            'word'   => function ($word) { return Directory::new(PATH_DATA . 'sources/', PATH_DATA . 'sources/')->scan($word . '*.{sql,sql.gz}'); },
+            'noword' => function ()      { return Directory::new(PATH_DATA . 'sources/', PATH_DATA . 'sources/')->scan(        '*.{sql,sql.gz}'); },
         ],
         '--driver' => [
             'word'   => function ($word) { return Arrays::match(['mysql'], $word); },

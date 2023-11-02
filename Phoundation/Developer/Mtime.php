@@ -4,7 +4,7 @@ namespace Phoundation\Developer;
 
 
 use DateTime;
-use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Directory;
 use Stringable;
 
 /**
@@ -40,7 +40,7 @@ class Mtime
      */
     protected function __construct()
     {
-        Path::new(static::$path)->ensure();
+        Directory::new(static::$path)->ensure();
     }
 
 

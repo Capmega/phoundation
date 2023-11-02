@@ -6,7 +6,7 @@ namespace Phoundation\Os\Processes\Commands;
 
 use Phoundation\Core\Arrays;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
-use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Os\Processes\Commands\Exception\CommandNotFoundException;
 use Phoundation\Os\Processes\Commands\Exception\NoSudoException;
@@ -39,7 +39,7 @@ abstract class Command extends ProcessCore implements CommandInterface
         parent::__construct($restrictions);
 
         // Ensure that the run files directory is available
-        Path::new(PATH_ROOT . 'data/run/', Restrictions::new(PATH_DATA . 'run', true))->ensure();
+        Directory::new(PATH_ROOT . 'data/run/', Restrictions::new(PATH_DATA . 'run', true))->ensure();
 
         $this->setRestrictions($restrictions);
 

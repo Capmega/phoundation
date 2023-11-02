@@ -13,7 +13,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Enums\EnumFileOpenMode;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
-use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Directory;
 use Phoundation\Network\Curl\Exception\Curl404Exception;
 use Phoundation\Network\Curl\Exception\CurlGetException;
 use Phoundation\Network\Curl\Exception\CurlNon200Exception;
@@ -250,7 +250,7 @@ class Get extends Curl
             }
 
             // Make sure the specified cookie path exists
-            Path::new(dirname($this->cookie_file))->ensure();
+            Directory::new(dirname($this->cookie_file))->ensure();
 
             // Set cookie options
             curl_setopt($this->curl, CURLOPT_COOKIEJAR    , $this->cookie_file);

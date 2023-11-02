@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-use Phoundation\Cli\Documentation;use Phoundation\Core\Config;use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;use Phoundation\Core\Log\Log;use Phoundation\Data\Validator\ArgvValidator;use Phoundation\Databases\Exception\ExportException;use Phoundation\Exception\UnderConstructionException;use Phoundation\Filesystem\File;use Phoundation\Filesystem\Path;use Phoundation\Filesystem\Restrictions;use Phoundation\Os\Processes\Commands\Databases\MysqlDump;
+use Phoundation\Cli\Documentation;use Phoundation\Core\Config;use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;use Phoundation\Core\Log\Log;use Phoundation\Data\Validator\ArgvValidator;use Phoundation\Databases\Exception\ExportException;use Phoundation\Exception\UnderConstructionException;use Phoundation\Filesystem\File;use Phoundation\Filesystem\Directory;use Phoundation\Filesystem\Restrictions;use Phoundation\Os\Processes\Commands\Databases\MysqlDump;
 
 
 /**
@@ -29,8 +29,8 @@ ARGUMENTS
 Documentation::autoComplete([
     'arguments' => [
         '-t,--target'  => [
-            'word'   => function ($word) { return Path::new('/', '/')->scan('*' . $word . '*', GLOB_MARK | GLOB_ONLYDIR); },
-            'noword' => function ()      { return Path::new('/', '/')->scan('*'              , GLOB_MARK | GLOB_ONLYDIR); },
+            'word'   => function ($word) { return Directory::new('/', '/')->scan('*' . $word . '*', GLOB_MARK | GLOB_ONLYDIR); },
+            'noword' => function ()      { return Directory::new('/', '/')->scan('*'              , GLOB_MARK | GLOB_ONLYDIR); },
         ],
     ]
 ]);

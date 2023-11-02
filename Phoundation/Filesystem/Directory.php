@@ -19,7 +19,7 @@ use Phoundation\Filesystem\Exception\DirectoryNotMountedException;
 use Phoundation\Filesystem\Exception\RestrictionsException;
 use Phoundation\Filesystem\Interfaces\ExecuteInterface;
 use Phoundation\Filesystem\Interfaces\FileInterface;
-use Phoundation\Filesystem\Interfaces\PathInterface;
+use Phoundation\Filesystem\Interfaces\DirectoryInterface;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Os\Processes\Commands\Tar;
 use Stringable;
@@ -27,9 +27,11 @@ use Throwable;
 
 
 /**
- * Path class
+ * Directory class
  *
- * This library contains various filesystem path related functions
+ * This class represents a single directory and contains various methods to manipulate directories.
+ *
+ * It can rename, copy, traverse, mount, and much more
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -37,20 +39,20 @@ use Throwable;
  * @category Function reference
  * @package Phoundation\Filesystem
  */
-class Path extends FileBasics implements PathInterface
+class Directory extends FileBasics implements DirectoryInterface
 {
     /**
      * Temporary path (public data), if set
      *
-     * @var PathInterface|null $temp_path_private
+     * @var DirectoryInterface|null $temp_path_private
      */
-    protected static ?PathInterface $temp_path_private = null;
+    protected static ?DirectoryInterface $temp_path_private = null;
     /**
      * Temporary path (private data), if set
      *
-     * @var PathInterface|null $temp_path_public
+     * @var DirectoryInterface|null $temp_path_public
      */
-    protected static ?PathInterface $temp_path_public = null;
+    protected static ?DirectoryInterface $temp_path_public = null;
 
 
     /**
@@ -214,7 +216,7 @@ class Path extends FileBasics implements PathInterface
 
                 try {
                     // Make sure that the parent path is writable when creating the directory
-                    Path::new(dirname($this->file), $this->restrictions->getParent())->execute()
+                    Directory::new(dirname($this->file), $this->restrictions->getParent())->execute()
                         ->setMode(0770)
                         ->onPathOnly(function() use ($mode) {
                             mkdir($this->file, $mode);
@@ -323,7 +325,7 @@ class Path extends FileBasics implements PathInterface
                     break;
                 }
 
-                if (!Path::new($this->file, $this->restrictions)->isEmpty()) {
+                if (!Directory::new($this->file, $this->restrictions)->isEmpty()) {
                     // Do not remove anything more, there is contents here!
                     break;
                 }
@@ -377,7 +379,7 @@ class Path extends FileBasics implements PathInterface
             $single = Config::getBoolean('filesystem.target-path.single', false);
         }
 
-        $this->file = Strings::unslash(Path::new($this->file, $this->restrictions)->ensure()->getFile());
+        $this->file = Strings::unslash(Directory::new($this->file, $this->restrictions)->ensure()->getFile());
 
         if ($single) {
             // Assign path in one dir, like abcde/
@@ -391,7 +393,7 @@ class Path extends FileBasics implements PathInterface
         }
 
         // Ensure again to be sure the target directories too have been created
-        return Strings::slash(Path::new($this->file, $this->restrictions)->ensure()->getFile());
+        return Strings::slash(Directory::new($this->file, $this->restrictions)->ensure()->getFile());
     }
 
 
@@ -437,7 +439,7 @@ class Path extends FileBasics implements PathInterface
             // Add the file to the list. If the file is a directory, then recurse instead. Do NOT add the directory
             // itself, only files!
             if (is_dir($file) and $recursive) {
-                $return = array_merge($return, Path::new($file, $this->restrictions)->listTree());
+                $return = array_merge($return, Directory::new($file, $this->restrictions)->listTree());
 
             } else {
                 $return[] = $file;
@@ -549,7 +551,7 @@ class Path extends FileBasics implements PathInterface
 
             if (is_dir($this->file . $file)) {
                 // Recurse
-                $return += Path::new($this->file . $file, $this->restrictions)->treeFileSize();
+                $return += Directory::new($this->file . $file, $this->restrictions)->treeFileSize();
 
             } else {
                 $return += filesize($this->file . $file);
@@ -578,7 +580,7 @@ class Path extends FileBasics implements PathInterface
             if (($file == '.') or ($file == '..')) continue;
 
             if (is_dir($this->file . $file)) {
-                $return += Path::new($this->file . $file, $this->restrictions)->treeFileCount();
+                $return += Directory::new($this->file . $file, $this->restrictions)->treeFileCount();
 
             } else {
                 $return++;
@@ -735,9 +737,9 @@ class Path extends FileBasics implements PathInterface
      * Returns a temporary path specific for this process
      *
      * @param bool $public
-     * @return PathInterface
+     * @return DirectoryInterface
      */
-    public static function getTemporaryBase(bool $public): PathInterface
+    public static function getTemporaryBase(bool $public): DirectoryInterface
     {
         if ($public) {
             // Return public temp path
@@ -826,11 +828,11 @@ class Path extends FileBasics implements PathInterface
      *
      * @param string|null $regex
      * @param bool $allow_multiple
-     * @return PathInterface
+     * @return DirectoryInterface
      */
-    public function getSingleDirectory(?string $regex = null, bool $allow_multiple = false): PathInterface
+    public function getSingleDirectory(?string $regex = null, bool $allow_multiple = false): DirectoryInterface
     {
-        return Path::new($this->file . $this->getSingle($regex, true, $allow_multiple), $this->restrictions);
+        return Directory::new($this->file . $this->getSingle($regex, true, $allow_multiple), $this->restrictions);
     }
 
 
@@ -1127,7 +1129,7 @@ class Path extends FileBasics implements PathInterface
             if ($source) {
                 // But is it mounted at the right place?
                 $mount = Mounts::getDirectoryMountInformation($this);
-                return $mount['source'] == Path::new($source)->getFile();
+                return $mount['source'] == Directory::new($source)->getFile();
             }
 
             return true;
@@ -1156,7 +1158,7 @@ class Path extends FileBasics implements PathInterface
         if ($status === false) {
             throw new DirectoryNotMountedException(tr('The path ":path" should be mounted from ":source" but has mount status ":status"', [
                 ':path'   => $this->getFile(),
-                ':source' => Path::new($source)->getFile(),
+                ':source' => Directory::new($source)->getFile(),
                 ':status' => gettype($status)
             ]));
         }
@@ -1164,7 +1166,7 @@ class Path extends FileBasics implements PathInterface
         if (!$status) {
             throw new DirectoryNotMountedException(tr('The path ":path" should be mounted from ":source" but has mount status ":status"', [
                 ':path'   => $this->getFile(),
-                ':source' => Path::new($source)->getFile(),
+                ':source' => Directory::new($source)->getFile(),
                 ':status' => gettype($status)
             ]));
         }
@@ -1233,7 +1235,7 @@ class Path extends FileBasics implements PathInterface
         $options[] = '--bind';
 
         // Source must be a directory
-        return $this->mount(Path::new($source), $options);
+        return $this->mount(Directory::new($source), $options);
     }
 
 

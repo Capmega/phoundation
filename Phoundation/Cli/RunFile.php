@@ -8,7 +8,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Os\Processes\Commands\Ps;
 
@@ -181,7 +181,7 @@ class RunFile implements RunFileInterface
      */
     protected function create(): static
     {
-        Path::new(static::$path . $this->command . '/', static::$restrictions)->ensure();
+        Directory::new(static::$path . $this->command . '/', static::$restrictions)->ensure();
 
         $this->file = static::$path . $this->command . '/' . $this->pid;
 
@@ -229,7 +229,7 @@ class RunFile implements RunFileInterface
 
         try {
             // Yay, a directory for this command exists! Return the first run file (PID file) we can find.
-            return (int) Path::new($path)->getSingleFile('/\d+/');
+            return (int) Directory::new($path)->getSingleFile('/\d+/');
 
         } catch (FilesystemException) {
             // No run file found
@@ -254,7 +254,7 @@ class RunFile implements RunFileInterface
         }
 
         // Yay, a directory for this command exists! Return all the run files (PID files) we can find.
-        $pids   = Path::new($path)->scanRegex('/\d+/');
+        $pids   = Directory::new($path)->scanRegex('/\d+/');
         $return = [];
 
         // Build PID > MTIME array
@@ -285,7 +285,7 @@ class RunFile implements RunFileInterface
     public static function purge(): void
     {
         // Purge orphaned run files
-        Path::new(static::$path)
+        Directory::new(static::$path)
             ->execute()
             ->setRecurse(true)
             ->onFiles(function(string $file) {
@@ -319,7 +319,7 @@ class RunFile implements RunFileInterface
         });
 
         // Purge orphaned PID files
-        Path::new(static::$path)
+        Directory::new(static::$path)
             ->execute()
             ->setRecurse(true)
             ->onPathOnly(function(string $path) {
@@ -338,7 +338,7 @@ class RunFile implements RunFileInterface
         // Delete the runfile and delete all possible PID files associated with this PID
         // Don't use runfiles here because we're deleting the runfile paths...
         File::new(PATH_DATA . 'run/' . $this->command . '/' . $this->pid, static::$restrictions)->delete(PATH_DATA . 'run/', use_run_file: false);
-        Path::new(PATH_DATA . 'run/pids/' . $this->pid, static::$restrictions)->delete(PATH_DATA . 'run/', use_run_file: false);
+        Directory::new(PATH_DATA . 'run/pids/' . $this->pid, static::$restrictions)->delete(PATH_DATA . 'run/', use_run_file: false);
         return $this;
     }
 

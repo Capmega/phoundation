@@ -9,7 +9,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Core\Plugins\Interfaces\PluginsInterface;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Directory;
 use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
 use Throwable;
 
@@ -289,7 +289,7 @@ class Plugins extends DataList implements PluginsInterface
         $path = PATH_ROOT . 'Plugins/';
 
         File::new($path)->delete();
-        Path::new($path)->ensure();
+        Directory::new($path)->ensure();
 
         return $this;
     }

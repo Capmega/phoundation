@@ -6,7 +6,7 @@ namespace Phoundation\Content\Images;
 
 use Phoundation\Content\Images\Interfaces\ImageInterface;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Directory;
 use Phoundation\Os\Processes\Commands\Command;
 
 
@@ -203,10 +203,10 @@ class Convert extends Command
      * Returns a new Path object with the restrictions for this image object
      *
      * @param string $path
-     * @return Path
+     * @return Directory
      */
-    protected function path(string $path): Path
+    protected function path(string $path): Directory
     {
-        return new Path($path, $this->restrictions);
+        return new Directory($path, $this->restrictions);
     }
 }

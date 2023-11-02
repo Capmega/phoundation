@@ -13,7 +13,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Developer\Debug;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
-use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Filesystem\Traits\DataRestrictions;
 use Phoundation\Notifications\Notification;
@@ -337,7 +337,7 @@ class Bundler
     protected function bundleFiles(array $files): void
     {
         // Generate new bundle file. This requires the pub/$files path to be writable
-        Path::new(dirname($this->bundle_file), $this->restrictions)->execute()
+        Directory::new(dirname($this->bundle_file), $this->restrictions)->execute()
             ->setMode(0770)
             ->onPathOnly(function() use ($files) {
                 foreach ($files as $file => $data) {

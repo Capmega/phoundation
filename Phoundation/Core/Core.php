@@ -39,7 +39,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Os\Processes\Commands\Free;
@@ -540,10 +540,10 @@ class Core implements CoreInterface
     {
         if (file_exists(PATH_DATA . 'system/maintenance')) {
             // System is in maintenance mode, show who put it there
-            $files = Path::new(PATH_DATA . 'system/maintenance')->scan();
+            $files = Directory::new(PATH_DATA . 'system/maintenance')->scan();
 
             if ($files) {
-                return array_first(Path::new(PATH_DATA . 'system/maintenance')->scan());
+                return array_first(Directory::new(PATH_DATA . 'system/maintenance')->scan());
             }
 
             // ??? The maintenance directory is empty? It should contain a file with the email address of who locked it
@@ -576,7 +576,7 @@ class Core implements CoreInterface
                 ]))->makeWarning();
             }
 
-            Path::new(PATH_DATA . 'system/maintenance', Restrictions::new(PATH_DATA, true))->ensure();
+            Directory::new(PATH_DATA . 'system/maintenance', Restrictions::new(PATH_DATA, true))->ensure();
             touch(PATH_DATA . 'system/maintenance/' . (Session::getUser()->getEmail() ?? get_current_user()));
 
             throw MaintenanceModeException::new(tr('System has been placed in maintenance mode. All web requests will be blocked, all commands (except those under ./pho system ...) are blocked'))
@@ -2249,7 +2249,7 @@ class Core implements CoreInterface
 
         // Now check if the specified section exists
         if ($section and !file_exists($path . $section)) {
-            Path::ensure($path . $section);
+            Directory::ensure($path . $section);
         }
 
         if ($writable and !is_writable($path . $section)) {
@@ -2409,7 +2409,7 @@ class Core implements CoreInterface
 
         // Cleanup
         Session::exit();
-        Path::removeTemporary();
+        Directory::removeTemporary();
     }
 
 

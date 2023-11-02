@@ -7,7 +7,7 @@ use Phoundation\Cli\Documentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Phoundation\Phoundation;
-use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Directory;
 
 
 /**
@@ -42,7 +42,7 @@ FILE                                    The file to copy
 
 // Get command line arguments
 $argv = ArgvValidator::new()
-    ->select('file')->isFile(Path::default(PATH_ROOT), PATH_ROOT)
+    ->select('file')->isFile(Directory::default(PATH_ROOT), PATH_ROOT)
     ->select('-b,--branch', true)->isOptional()->isVariable()
     ->select('-c,--allow-changes')->isOptional(false)->isBoolean()
     ->validate();

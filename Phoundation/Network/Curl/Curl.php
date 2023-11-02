@@ -10,7 +10,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Data\Traits\DataUrl;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Network\Browsers\UserAgents;
 use Phoundation\Network\Curl\Exception\Curl404Exception;
@@ -477,7 +477,7 @@ abstract class Curl implements CurlInterface
     {
         if ($log_path) {
             $this->log_restrictions = Restrictions::new($restrictions, true);
-            Path::new($log_path, $this->log_restrictions)->ensure();
+            Directory::new($log_path, $this->log_restrictions)->ensure();
         }
 
         $this->log_path = $log_path;

@@ -6,9 +6,11 @@ use Throwable;
 
 
 /**
- * interface PathInterface
+ * interface DirectoryInterface
  *
- * This library contains various filesystem path related functions
+ * This class represents a single directory and contains various methods to manipulate directories.
+ *
+ *  It can rename, copy, traverse, mount, and much more
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -16,7 +18,7 @@ use Throwable;
  * @category Function reference
  * @package Phoundation\Filesystem
  */
-interface PathInterface extends FileBasicsInterface
+interface DirectoryInterface extends FileBasicsInterface
 {
     /**
      * Returns an Execute object to execute callbacks on each file in specified paths
@@ -190,9 +192,9 @@ interface PathInterface extends FileBasicsInterface
      *
      * @param string|null $regex
      * @param bool $allow_multiple
-     * @return \Phoundation\Filesystem\Interfaces\PathInterface
+     * @return \Phoundation\Filesystem\Interfaces\DirectoryInterface
      */
-    public function getSingleDirectory(?string $regex = null, bool $allow_multiple = false): PathInterface;
+    public function getSingleDirectory(?string $regex = null, bool $allow_multiple = false): DirectoryInterface;
 
     /**
      * Returns the amount of available files in the current file path

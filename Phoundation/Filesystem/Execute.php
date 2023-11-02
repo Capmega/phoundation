@@ -24,7 +24,7 @@ use Throwable;
  * @category Function reference
  * @package Phoundation\Filesystem
  */
-class Execute extends Path implements ExecuteInterface
+class Execute extends Directory implements ExecuteInterface
 {
     use DataRestrictions;
 
@@ -394,7 +394,7 @@ class Execute extends Path implements ExecuteInterface
         try {
             $files = scandir($this->file);
         } catch (Exception $e) {
-            Path::new($this->file, $this->restrictions)->checkReadable(previous_e: $e);
+            Directory::new($this->file, $this->restrictions)->checkReadable(previous_e: $e);
         }
 
         foreach ($files as $file) {

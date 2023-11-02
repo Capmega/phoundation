@@ -54,7 +54,7 @@ use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Date\DateTime;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Interfaces\NotificationInterface;
 use Phoundation\Notifications\Notification;
@@ -1282,7 +1282,7 @@ class User extends DataEntry implements UserInterface
     public function erase(bool $secure = false): static
     {
         // Delete the users data directory, then erase the user from the database
-        Path::new(PATH_DATA . 'home/' . $this->getId(), Restrictions::new(PATH_DATA . 'home/', true))->delete(PATH_DATA . 'home/');
+        Directory::new(PATH_DATA . 'home/' . $this->getId(), Restrictions::new(PATH_DATA . 'home/', true))->delete(PATH_DATA . 'home/');
         return parent::erase();
     }
 

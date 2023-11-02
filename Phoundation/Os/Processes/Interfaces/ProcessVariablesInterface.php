@@ -3,7 +3,7 @@
 namespace Phoundation\Os\Processes\Interfaces;
 
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
-use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Os\Processes\Exception\ProcessException;
 use Phoundation\Os\Processes\Process;
@@ -115,18 +115,18 @@ interface ProcessVariablesInterface
     /**
      * Returns if the process will first CD to this directory before continuing
      *
-     * @return Path
+     * @return Directory
      */
-    public function getExecutionPath(): Path;
+    public function getExecutionPath(): Directory;
 
     /**
      * Sets if the process will first CD to this directory before continuing
      *
-     * @param Path|Stringable|string|null $execution_path
+     * @param Directory|Stringable|string|null $execution_path
      * @param RestrictionsInterface|array|string|null $restrictions
      * @return static This process so that multiple methods can be chained
      */
-    public function setExecutionPath(Path|Stringable|string|null $execution_path, RestrictionsInterface|array|string|null $restrictions = null): static;
+    public function setExecutionPath(Directory|Stringable|string|null $execution_path, RestrictionsInterface|array|string|null $restrictions = null): static;
 
     /**
      * Sets the execution path to private temp dir

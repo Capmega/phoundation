@@ -8,7 +8,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Filesystem\Exception\FileExistsException;
 use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Security\Crypt;
 
@@ -42,8 +42,8 @@ FILE                                    The file where to write the
 Documentation::autoComplete([
     'positions' => [
         0 => [
-            'word'   => function ($word) use ($directory, $restrictions) { return Path::new($directory, $restrictions)->scan($word . '*'); },
-            'noword' => function ()      use ($directory, $restrictions) { return Path::new($directory, $restrictions)->scan('*'); },
+            'word'   => function ($word) use ($directory, $restrictions) { return Directory::new($directory, $restrictions)->scan($word . '*'); },
+            'noword' => function ()      use ($directory, $restrictions) { return Directory::new($directory, $restrictions)->scan('*'); },
         ],
     ],
     'arguments' => [

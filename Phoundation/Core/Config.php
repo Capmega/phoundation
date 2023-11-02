@@ -13,7 +13,7 @@ use Phoundation\Developer\Debug;
 use Phoundation\Developer\Project\Configuration;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Restrictions;
 use Throwable;
 
@@ -596,7 +596,7 @@ class Config implements Interfaces\ConfigInterface
         $store = [];
 
         // Scan all files for Config::get() and Config::set() calls
-        Path::new(PATH_ROOT, PATH_ROOT)->execute()
+        Directory::new(PATH_ROOT, PATH_ROOT)->execute()
             ->addSkipPaths([PATH_DATA, PATH_ROOT . 'tests', PATH_ROOT . 'garbage'])
             ->setRecurse(true)
             ->setRestrictions(new Restrictions(PATH_ROOT))

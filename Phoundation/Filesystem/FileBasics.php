@@ -28,7 +28,7 @@ use Phoundation\Filesystem\Exception\FileTruncateException;
 use Phoundation\Filesystem\Exception\ReadOnlyModeException;
 use Phoundation\Filesystem\Interfaces\FileBasicsInterface;
 use Phoundation\Filesystem\Interfaces\FileInterface;
-use Phoundation\Filesystem\Interfaces\PathInterface;
+use Phoundation\Filesystem\Interfaces\DirectoryInterface;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Traits\DataRestrictions;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
@@ -163,7 +163,7 @@ class FileBasics implements Stringable, FileBasicsInterface
      */
     public static function newTemporary(bool $public, ?string $name = null, bool $create = true): static
     {
-        $directory = Path::getTemporaryBase($public);
+        $directory = Directory::getTemporaryBase($public);
         $name = ($name ?? Strings::generateUuid());
         $file = static::new($directory->getFile() . $name, $directory->getRestrictions());
 
@@ -537,7 +537,7 @@ class FileBasics implements Stringable, FileBasicsInterface
             }
 
             // File doesn't exist, check if the parent directory is writable so that the file can be created
-            Path::new(dirname($this->file), $this->restrictions)->checkWritable($type, $previous_e);
+            Directory::new(dirname($this->file), $this->restrictions)->checkWritable($type, $previous_e);
 
         } elseif (!is_writable($this->file)) {
             throw new FilesystemException(tr('The:type file ":file" cannot be written', [
@@ -800,7 +800,7 @@ class FileBasics implements Stringable, FileBasicsInterface
                 $clean_path = null;
             }
 
-            Path::new(dirname($this->file))->clear($clean_path, $sudo);
+            Directory::new(dirname($this->file))->clear($clean_path, $sudo);
         }
 
         return $this;
@@ -844,7 +844,7 @@ class FileBasics implements Stringable, FileBasicsInterface
                 $clean_path = null;
             }
 
-            Path::new(dirname($this->file), $this->restrictions->getParent())->clear($clean_path, $sudo, use_run_file: $use_run_file);
+            Directory::new(dirname($this->file), $this->restrictions->getParent())->clear($clean_path, $sudo, use_run_file: $use_run_file);
         }
 
         return $this;
@@ -892,7 +892,7 @@ class FileBasics implements Stringable, FileBasicsInterface
 
             if (isset($create)) {
                 // Ensure the target directory exist
-                Path::new(dirname($target), $this->restrictions)->ensure();
+                Directory::new(dirname($target), $this->restrictions)->ensure();
             }
         }
 
@@ -1090,7 +1090,7 @@ class FileBasics implements Stringable, FileBasicsInterface
         }
 
         // As of here we know the file doesn't exist. Attempt to create it. First ensure the parent path exists.
-        Path::new(dirname($this->file), $this->restrictions)->ensure();
+        Directory::new(dirname($this->file), $this->restrictions)->ensure();
 
         Log::action(tr('Creating non existing file ":file" with file mode ":mode"', [
             ':mode' => Strings::fromOctal($mode),
@@ -1142,7 +1142,7 @@ class FileBasics implements Stringable, FileBasicsInterface
         }
 
         // As of here we know the file doesn't exist. Attempt to create it. First ensure the parent path exists.
-        Path::new(dirname($this->file), $this->restrictions->getParent())->ensure();
+        Directory::new(dirname($this->file), $this->restrictions->getParent())->ensure();
 
         return false;
     }
@@ -1205,11 +1205,11 @@ class FileBasics implements Stringable, FileBasicsInterface
      * Returns the parent directory for this file
      *
      * @param RestrictionsInterface|null $restrictions
-     * @return PathInterface
+     * @return DirectoryInterface
      */
-    public function getParentDirectory(?RestrictionsInterface $restrictions = null): PathInterface
+    public function getParentDirectory(?RestrictionsInterface $restrictions = null): DirectoryInterface
     {
-        return Path::new(dirname($this->file), $restrictions ?? $this->restrictions->getParent());
+        return Directory::new(dirname($this->file), $restrictions ?? $this->restrictions->getParent());
     }
 
 
@@ -1414,7 +1414,7 @@ class FileBasics implements Stringable, FileBasicsInterface
 
         // Ensure that we have restrictions access and target path exists
         $restrictions->check($target, true);
-        Path::new(dirname($target), $this->restrictions->getParent())->ensure();
+        Directory::new(dirname($target), $this->restrictions->getParent())->ensure();
 
         // Symlink
         symlink($this->file, $target);
@@ -1672,7 +1672,7 @@ class FileBasics implements Stringable, FileBasicsInterface
 
         // Make sure the file path exists. NOTE: Restrictions MUST be at least 2 levels above to be able to generate the
         // PARENT directory IN the PARENT directory OF the PARENT!
-        Path::new(dirname($this->file), $this->restrictions->getParent()->getParent())->ensure();
+        Directory::new(dirname($this->file), $this->restrictions->getParent()->getParent())->ensure();
         return $this->open($write_mode)->write($data)->close();
     }
 
@@ -1755,7 +1755,7 @@ class FileBasics implements Stringable, FileBasicsInterface
         // Make sure the file path exists. NOTE: Restrictions MUST be at least 2 levels above to be able to generate the
         // PARENT directory IN the PARENT directory OF the PARENT!
         $this->ensureClosed('putContents');
-        Path::new(dirname($this->file), $this->restrictions->getParent()->getParent())->ensure();
+        Directory::new(dirname($this->file), $this->restrictions->getParent()->getParent())->ensure();
 
         file_put_contents($this->file, $data, $flags, $context);
 
@@ -1823,7 +1823,7 @@ class FileBasics implements Stringable, FileBasicsInterface
             // Just touch it, I dare you.
             touch($this->file);
 
-        } elseif ($this instanceof PathInterface) {
+        } elseif ($this instanceof DirectoryInterface) {
             // If this is supposed to be a directory, create it
             return $this->ensure();
 
@@ -1850,7 +1850,7 @@ class FileBasics implements Stringable, FileBasicsInterface
             ->restrictions->check($this->file, true);
 
         // Ensure the target path exists
-        Path::new(dirname($this->file), $this->restrictions)->ensure();
+        Directory::new(dirname($this->file), $this->restrictions)->ensure();
 
         // Open target file
         $this->open(EnumFileOpenMode::writeOnlyAppend);
@@ -1954,7 +1954,7 @@ class FileBasics implements Stringable, FileBasicsInterface
             ]));
         }
 
-        if ($this instanceof PathInterface) {
+        if ($this instanceof DirectoryInterface) {
 throw new UnderConstructionException();
         }
 

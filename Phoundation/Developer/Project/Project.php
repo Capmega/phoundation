@@ -19,7 +19,7 @@ use Phoundation\Developer\Versioning\Git\Traits\Git;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Filesystem\Traits\DataRestrictions;
 use Phoundation\Os\Processes\Commands\Command;
@@ -231,7 +231,7 @@ class Project implements ProjectInterface
     public function isPhoundationProject(string $path): bool
     {
         // Is the path readable?
-        $path = Path::new($path, $this->restrictions)->checkReadable()->getFile();
+        $path = Directory::new($path, $this->restrictions)->checkReadable()->getFile();
 
         // All these files and directories must be available.
         $files = [
@@ -688,10 +688,10 @@ class Project implements ProjectInterface
 
         // Move /Phoundation and /scripts out of the way
         try {
-            Path::new(PATH_ROOT . 'data/garbage/', Restrictions::new(PATH_ROOT . 'data/', true, tr('Project management')))->delete();
+            Directory::new(PATH_ROOT . 'data/garbage/', Restrictions::new(PATH_ROOT . 'data/', true, tr('Project management')))->delete();
 
-            $files['scripts']     = Path::new(PATH_ROOT . 'scripts/'    , Restrictions::new([PATH_ROOT . 'scripts/'    , PATH_DATA], true, tr('Project management')))->move(PATH_ROOT . 'data/garbage/');
-            $files['phoundation'] = Path::new(PATH_ROOT . 'Phoundation/', Restrictions::new([PATH_ROOT . 'Phoundation/', PATH_DATA], true, tr('Project management')))->move(PATH_ROOT . 'data/garbage/');
+            $files['scripts']     = Directory::new(PATH_ROOT . 'scripts/'    , Restrictions::new([PATH_ROOT . 'scripts/'    , PATH_DATA], true, tr('Project management')))->move(PATH_ROOT . 'data/garbage/');
+            $files['phoundation'] = Directory::new(PATH_ROOT . 'Phoundation/', Restrictions::new([PATH_ROOT . 'Phoundation/', PATH_DATA], true, tr('Project management')))->move(PATH_ROOT . 'data/garbage/');
 
             // Copy new script versions
             $rsync

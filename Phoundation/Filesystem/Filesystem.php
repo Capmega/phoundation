@@ -349,9 +349,9 @@ class Filesystem
      * Creates a temporary directory
      *
      * @param bool $public
-     * @return Path A Path object with the temp directory
+     * @return Directory A Path object with the temp directory
      */
-    public static function createTempDirectory(bool $public = true) : Path
+    public static function createTempDirectory(bool $public = true) : Directory
     {
         // Public or private TMP?
         $tmp_path = ($public ? PATH_PUBTMP : PATH_TMP);
@@ -359,7 +359,7 @@ class Filesystem
 
         mkdir($path);
 
-        return new Path($path, Restrictions::new($tmp_path, true));
+        return new Directory($path, Restrictions::new($tmp_path, true));
     }
 
 
@@ -460,7 +460,7 @@ class Filesystem
     protected static function createTemp(string $tmp_path, ?string $extension = null) : string
     {
         // Ensure that the TMP path exists
-        Path::new($tmp_path, $tmp_path)->ensure();
+        Directory::new($tmp_path, $tmp_path)->ensure();
 
         // All temp files and directories are limited to their sessions
         $session_id = session_id();
@@ -495,7 +495,7 @@ class Filesystem
     public static function get(Stringable|string $file, RestrictionsInterface $restrictions): FileBasicsInterface
     {
         if (is_dir($file)) {
-            return Path::new($file, $restrictions);
+            return Directory::new($file, $restrictions);
         }
 
         if (file_exists($file)) {
