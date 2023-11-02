@@ -175,10 +175,10 @@ class Bundler
         $admin_path = (Core::isRequestType(EnumRequestTypes::admin) ? 'admin/' : '');
 
         $this->extension   = (Config::get('web.minify', true) ? '.min.' . $extension : '.' . $extension);
-        $this->path        =  DIRECTORY_WWW . LANGUAGE . '/' . $admin_path . 'pub/' . $extension.'/';
+        $this->directory        =  DIRECTORY_WWW . LANGUAGE . '/' . $admin_path . 'pub/' . $extension.'/';
         $this->bundle_file =  Strings::force($files);
         $this->bundle_file =  substr(sha1($this->bundle . Core::FRAMEWORKCODEVERSION), 1, 32);
-        $this->bundle_file =  $this->path . 'bundle-' . $this->bundle_file . $this->extension;
+        $this->bundle_file =  $this->directory . 'bundle-' . $this->bundle_file . $this->extension;
         $this->count       =  0;
     }
 
@@ -239,7 +239,7 @@ class Bundler
 // :TODO: What if specified URLs are absolute? WHat if start with either / or http(s):// ????
                     $import = Strings::cut($match, '"', '"');
 
-                    if (!file_exists($this->path . $import)) {
+                    if (!file_exists($this->directory . $import)) {
                         Notification::new()
                             ->setUrl('developer/incidents.html')
                             ->setMode(DisplayMode::exception)
@@ -255,7 +255,7 @@ class Bundler
                         $import = '';
 
                     } else {
-                        $import = file_get_contents($this->path . $import);
+                        $import = file_get_contents($this->directory . $import);
                     }
 
                 } elseif (preg_match('/@import\surl\(.+?\)/', $match)) {
@@ -342,7 +342,7 @@ class Bundler
             ->onDirectoryOnly(function() use ($files) {
                 foreach ($files as $file => $data) {
                     $org_file = $file;
-                    $file     = $this->path . $file . $this->extension;
+                    $file     = $this->directory . $file . $this->extension;
     
                     Log::action(tr('Adding file ":file" to bundle file ":bundle"', [
                         ':file'   => $file,

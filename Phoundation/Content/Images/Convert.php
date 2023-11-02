@@ -122,11 +122,11 @@ class Convert extends Command
     {
         if ($this->target) {
             // Target already exists. See if we need to clean the directory for this target
-            $this->path(dirname($this->target))->clear();
+            $this->directory(dirname($this->target))->clear();
         }
 
         // Ensure that a path for the target file exists
-        $this->path(dirname($this->target))->ensure();
+        $this->directory(dirname($this->target))->ensure();
         $this->target = $target;
         return $this;
     }
@@ -205,7 +205,7 @@ class Convert extends Command
      * @param string $directory
      * @return Directory
      */
-    protected function path(string $directory): Directory
+    protected function getDirectory(string $directory): Directory
     {
         return new Directory($directory, $this->restrictions);
     }

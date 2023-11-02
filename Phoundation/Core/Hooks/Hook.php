@@ -53,7 +53,7 @@ class Hook
         $this->class = Strings::endsNotWith(trim($class), '/') . '/';
 
         if ($this->class) {
-            $this->path .= $this->class;
+            $this->directory .= $this->class;
         }
     }
 
@@ -79,7 +79,7 @@ class Hook
     public function execute(array|string $hooks): static
     {
         foreach (Arrays::force($hooks) as $hook) {
-            $file = $this->path . $hook;
+            $file = $this->directory . $hook;
 
             if (!file_exists($file)) {
                 // Only execute existing files
@@ -87,7 +87,7 @@ class Hook
             }
 
             // Ensure its readable, not a path, within the filesystem restrictions, etc...
-            File::new($file, $this->path)->checkReadable();
+            File::new($file, $this->directory)->checkReadable();
 
             // Try executing it!
             try {

@@ -448,7 +448,7 @@ Log::checkpoint();
             $this->files          = $this->temp();
             $is_downloaded = true;
 
-            $this->path()->ensure(dirname($this->files));
+            $this->directory()->ensure(dirname($this->files));
             file_put_contents(file_get_contents($url, false, $context));
 
             return $this->files;

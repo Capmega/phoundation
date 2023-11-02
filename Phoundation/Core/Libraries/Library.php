@@ -68,7 +68,7 @@ class Library
     public function __construct(string $directory)
     {
         $directory          = Strings::slash($directory);
-        $this->path    = $directory;
+        $this->directory    = $directory;
         $this->library = Strings::fromReverse(Strings::unslash($directory), '/');
         $this->library = strtolower($this->library);
 
@@ -204,7 +204,7 @@ class Library
      */
     public function getType(): string
     {
-        $directory = Strings::unslash($this->path);
+        $directory = Strings::unslash($this->directory);
         $directory = Strings::untilReverse($directory, '/');
         $directory = Strings::fromReverse($directory, '/');
         $directory = strtolower($directory);
@@ -261,7 +261,7 @@ class Library
      */
     public function getDirectory(): string
     {
-        return $this->path;
+        return $this->directory;
     }
 
 
@@ -316,7 +316,7 @@ class Library
      */
     public function getSize(): int
     {
-        return Directory::new($this->path, DIRECTORY_ROOT)->treeFileSize();
+        return Directory::new($this->directory, DIRECTORY_ROOT)->treeFileSize();
     }
 
 
@@ -532,7 +532,7 @@ class Library
      */
     protected function loadUpdatesObject(): void
     {
-        $file = Strings::slash($this->path) . 'Updates.php';
+        $file = Strings::slash($this->directory) . 'Updates.php';
 
         if (!file_exists($file)) {
             // There is no init class available
@@ -548,7 +548,7 @@ class Library
 
             if (!($updates instanceof Updates)) {
                 Log::Warning(tr('The Updates.php file for the library ":library" in ":directory" is invalid, it should contain a class being an instance of the \Phoundation\Libraries\Updates. This updates file will be ignored', [
-                    ':directory'    => $this->path,
+                    ':directory'    => $this->directory,
                     ':library' => $this->library
                 ]));
             }
