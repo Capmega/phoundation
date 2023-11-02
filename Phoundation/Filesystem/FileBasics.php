@@ -2061,4 +2061,15 @@ throw new UnderConstructionException();
             ':file' => $this->file
         ]));
     }
+
+
+    /**
+     * Returns the device path of the filesystem where this file is stored
+     *
+     * @return string
+     */
+    public function getMountDevice(): string
+    {
+
+    }
 }

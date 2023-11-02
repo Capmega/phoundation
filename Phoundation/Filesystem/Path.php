@@ -15,6 +15,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\PathException;
 use Phoundation\Filesystem\Exception\PathNotDirectoryException;
+use Phoundation\Filesystem\Exception\DirectoryNotMountedException;
 use Phoundation\Filesystem\Exception\RestrictionsException;
 use Phoundation\Filesystem\Interfaces\ExecuteInterface;
 use Phoundation\Filesystem\Interfaces\FileInterface;
@@ -64,6 +65,15 @@ class Path extends FileBasics implements PathInterface
 
         $this->file = Strings::slash($this->file);
 
+        if (file_exists($this->file)) {
+            // This exists, it must be a directory!
+            if (!is_dir($this->file)) {
+                throw new PathNotDirectoryException(tr('The specified path ":path" is not a directory', [
+                    ':path' => $file
+                ]));
+            }
+        }
+
         if ($this->real_file) {
             $this->real_file = Strings::slash($this->real_file);
         }
@@ -91,9 +101,9 @@ class Path extends FileBasics implements PathInterface
      * would not be readable (ie, the file exists, and can be read accessed), it will throw an exception with the
      * previous exception attached to it
      *
-     * @param string|null $type             This is the label that will be added in the exception indicating what type
+     * @param string|null $type This is the label that will be added in the exception indicating what type
      *                                      of file it is
-     * @param Throwable|null $previous_e    If the file is okay, but this exception was specified, this exception will
+     * @param Throwable|null $previous_e If the file is okay, but this exception was specified, this exception will
      *                                      be thrown
      * @return static
      */
@@ -497,6 +507,26 @@ class Path extends FileBasics implements PathInterface
         }
 
         return null;
+    }
+
+
+    /**
+     * Returns true if the specified file exists in this directory
+     *
+     * If the object file doesn't exist in the specified path, go one dir up,
+     * all the way to root /
+     *
+     * @param string $filename
+     * @return bool
+     */
+    public function hasFile(string $filename): bool
+    {
+        // Check filesystem restrictions
+        $this->file = Strings::slash($this->file);
+        $this->restrictions->check($this->file, false);
+        $this->exists();
+
+        return file_exists($this->file . Strings::startsNotWith($filename, '/'));
     }
 
 
@@ -1073,5 +1103,147 @@ class Path extends FileBasics implements PathInterface
         }
 
         return $return;
+    }
+
+
+    /**
+     * Returns true if this specific directory is mounted from somewhere, false if not mounted, NULL if mounted, but
+     * with issues
+     *
+     * Issues can be either that the .isnotmounted file is visible (which it should NOT be if mounted) or (if specified)
+     * $source does not match the mounted source
+     *
+     * @param Stringable|string|null $source
+     * @return bool|null
+     */
+    public function isMounted(Stringable|string|null $source): ?bool
+    {
+        $is_mounted  = false;
+        $mounted     = $this->hasFile('.ismounted');
+        $not_mounted = $this->hasFile('.isnotmounted');
+
+        if ($mounted and !$not_mounted) {
+            // This directory is mounted, yay!
+            if ($source) {
+                // But is it mounted at the right place?
+                $mount = Mounts::getDirectoryMountInformation($this);
+                return $mount['source'] == Path::new($source)->getFile();
+            }
+
+            return true;
+        }
+
+        if (!$mounted and $not_mounted) {
+            return false;
+        }
+
+        // Either none of the files are available, or both are. Either case is an "unknown" state
+        return null;
+    }
+
+
+    /**
+     * Returns true if this specific directory is mounted from somewhere, false otherwise
+     *
+     * @param Stringable|string|null $source
+     * @return static
+     * @throws DirectoryNotMountedException
+     */
+    public function checkMounted(Stringable|string|null $source): static
+    {
+        $status = $this->isMounted($source);
+
+        if ($status === false) {
+            throw new DirectoryNotMountedException(tr('The path ":path" should be mounted from ":source" but has mount status ":status"', [
+                ':path'   => $this->getFile(),
+                ':source' => Path::new($source)->getFile(),
+                ':status' => gettype($status)
+            ]));
+        }
+
+        if (!$status) {
+            throw new DirectoryNotMountedException(tr('The path ":path" should be mounted from ":source" but has mount status ":status"', [
+                ':path'   => $this->getFile(),
+                ':source' => Path::new($source)->getFile(),
+                ':status' => gettype($status)
+            ]));
+        }
+
+        // We're mounted and from the right source, yay!
+
+        return $this;
+    }
+
+
+    /**
+     * Returns true if this specific directory is mounted from somewhere, false otherwise
+     *
+     * @param Stringable|string|null $source
+     * @param array|null $options
+     * @param string|null $filesystem
+     * @return static
+     */
+    public function ensureMounted(Stringable|string|null $source, ?array $options = null, ?string $filesystem = null): static
+    {
+        if (!$this->isMounted($source)) {
+            $this->mount($source, $options, $filesystem);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Returns true if this specific directory is mounted from somewhere, false otherwise
+     *
+     * @param Stringable|string|null $source
+     * @param array|null $options
+     * @param string|null $filesystem
+     * @return static
+     */
+    public function mount(Stringable|string|null $source, ?array $options = null, ?string $filesystem = null): static
+    {
+        Mounts::mount(File::new($source), $this, $options, $filesystem);
+        return $this;
+    }
+
+
+    /**
+     * Returns true if this specific directory is mounted from somewhere, false otherwise
+     *
+     * @return static
+     */
+    public function unmount(): static
+    {
+        Mounts::unmount($this);
+        return $this;
+    }
+
+
+    /**
+     * Returns true if this specific directory is mounted from somewhere, false otherwise
+     *
+     * @param Stringable|string|null $source
+     * @param array|null $options
+     * @return static
+     */
+    public function bind(Stringable|string|null $source, ?array $options = null): static
+    {
+        // Add bind option
+        $options[] = '--bind';
+
+        // Source must be a directory
+        return $this->mount(Path::new($source), $options);
+    }
+
+
+    /**
+     * Returns true if this specific directory is mounted from somewhere, false otherwise
+     *
+     * @return static
+     */
+    public function unbind(): static
+    {
+        return $this->unmount();
     }
 }
