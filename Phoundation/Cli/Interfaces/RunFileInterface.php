@@ -40,7 +40,7 @@ interface RunFileInterface
      *
      * @return string
      */
-    public function getPath(): string;
+    public function getDirectory(): string;
 
     /**
      * Returns the run file for this process

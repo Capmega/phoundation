@@ -34,7 +34,7 @@ class Zip extends Command
                 $target_path = dirname($file);
             }
 
-            $this->setExecutionPath($target_path)
+            $this->setExecutionDirectory($target_path)
                  ->setInternalCommand('unzip')
                  ->addArguments($file)
                  ->setTimeout(120)

@@ -6,15 +6,15 @@ namespace Phoundation\Filesystem\Exception;
 
 
 /**
- * Class PathNotDirectoryException
+ * Class DirectoryUnknownMountStateException
  *
- * This exception indicates that a specified path was not a directory as expected
+ * This exception is thrown when a specified path has a weird and unknown mount state
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Filesystem
  */
-class PathNotDirectoryException extends PathException
+class DirectoryUnknownMountStateException extends DirectoryException
 {
 }

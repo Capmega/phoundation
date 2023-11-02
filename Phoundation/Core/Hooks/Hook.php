@@ -38,9 +38,9 @@ class Hook
     /**
      * The place where all hook scripts live
      *
-     * @var string $path
+     * @var string $directory
      */
-    protected string $path = DIRECTORY_ROOT . 'scripts/hooks';
+    protected string $directory = DIRECTORY_ROOT . 'scripts/hooks';
 
 
     /**

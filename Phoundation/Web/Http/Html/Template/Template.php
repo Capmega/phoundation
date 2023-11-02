@@ -176,7 +176,7 @@ abstract class Template
 
             // Find the file to include
             $include_file   = str_replace('\\', '/', $class_path);
-            $include_file   = $this->getPath() . 'Html/' . $include_file . '.php';
+            $include_file   = $this->getDirectory() . 'Html/' . $include_file . '.php';
 
             // Find the class path that is in the file, we will return this as the class that should be used for
             // rendering
@@ -216,5 +216,5 @@ abstract class Template
      *
      * @return string
      */
-    abstract public function getPath(): string;
+    abstract public function getDirectory(): string;
 }

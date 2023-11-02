@@ -51,7 +51,7 @@ if ($argv['library']) {
 
         Log::cli(Color::apply(Strings::size(tr('Name:')        , 28), 'white') . ' ' . $library->getName());
         Log::cli(Color::apply(Strings::size(tr('Version:')     , 28), 'white') . ' ' . $library->getVersion());
-        Log::cli(Color::apply(Strings::size(tr('Path:')        , 28), 'white') . ' ' . $library->getPath());
+        Log::cli(Color::apply(Strings::size(tr('Path:')        , 28), 'white') . ' ' . $library->getDirectory());
         Log::cli(Color::apply(Strings::size(tr('Description:') , 28), 'white') . ' ' . $library->getDescription());
 
         Log::cli();

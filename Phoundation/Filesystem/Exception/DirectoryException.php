@@ -6,7 +6,7 @@ namespace Phoundation\Filesystem\Exception;
 
 
 /**
- * Class PathNotExistsException
+ * Class DirectoryException
  *
  *
  *
@@ -15,6 +15,6 @@ namespace Phoundation\Filesystem\Exception;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Filesystem
  */
-class PathNotExistsException extends PathException
+class DirectoryException extends FilesystemException
 {
 }

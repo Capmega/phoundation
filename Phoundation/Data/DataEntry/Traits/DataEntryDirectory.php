@@ -6,36 +6,36 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 
 /**
- * Trait DataEntryPath
+ * Trait DataEntryDirectory
  *
- * This trait contains methods for DataEntry objects that require a path
+ * This trait contains methods for DataEntry objects that require a directory
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-trait DataEntryPath
+trait DataEntryDirectory
 {
     /**
      * Returns the path for this object
      *
      * @return string|null
      */
-    public function getPath(): ?string
+    public function getDirectory(): ?string
     {
-        return $this->getSourceFieldValue('string', 'path');
+        return $this->getSourceFieldValue('string', 'directory');
     }
 
 
     /**
      * Sets the path for this object
      *
-     * @param string|null $path
+     * @param string|null $directory
      * @return static
      */
-    public function setPath(?string $path): static
+    public function setDirectory(?string $directory): static
     {
-        return $this->setSourceValue('path', $path);
+        return $this->setSourceValue('directory', $directory);
     }
 }

@@ -52,7 +52,7 @@ class AdminLte extends Template
      *
      * @return string
      */
-    public function getPath(): string
+    public function getDirectory(): string
     {
         return __DIR__ . '/';
     }

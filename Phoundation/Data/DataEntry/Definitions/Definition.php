@@ -727,7 +727,7 @@ class Definition implements DefinitionInterface
                         $value = InputType::text;
 
                         $this->addValidationFunction(function (ValidatorInterface $validator) {
-                            $validator->isPath();
+                            $validator->isDirectory();
                         });
 
                         break;

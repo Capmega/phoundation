@@ -160,13 +160,13 @@ class Rsync extends Command
     /**
      * Adds the specified paths to the list that will be excluded
      *
-     * @param array|string $paths
+     * @param array|string $directories
      * @return static
      */
-    public function addExclude(array|string $paths): static
+    public function addExclude(array|string $directories): static
     {
-        foreach (Arrays::force($paths) as $path) {
-            $this->exclude[] = $path;
+        foreach (Arrays::force($directories) as $directory) {
+            $this->exclude[] = $directory;
         }
 
         return $this;

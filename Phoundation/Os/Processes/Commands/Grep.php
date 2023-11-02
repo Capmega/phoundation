@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Os\Processes\Commands;
 
 use Phoundation\Data\Traits\DataFile;
-use Phoundation\Data\Traits\DataPath;
+use Phoundation\Data\Traits\DataDirectory;
 use Phoundation\Data\Traits\DataValue;
 use Phoundation\Os\Processes\Commands\Exception\CommandsException;
 use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
@@ -24,7 +24,7 @@ use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 class Grep extends Command
 {
     use DataFile;
-    use DataPath;
+    use DataDirectory;
     use DataValue;
 
 
@@ -36,7 +36,7 @@ class Grep extends Command
      */
     public function grep(EnumExecuteMethodInterface $method): array
     {
-        if (!$this->path and !$this->file) {
+        if (!$this->directory and !$this->file) {
             throw new CommandsException(tr('Cannot execute grep, no file or path specified'));
         }
 
@@ -49,8 +49,8 @@ class Grep extends Command
             ->clearArguments()
             ->setInternalCommand('grep')
             ->addArgument($this->value)
-            ->addArgument($this->path ?? $this->file)
-            ->addArgument($this->path ? '-R' : null)
+            ->addArgument($this->directory ?? $this->file)
+            ->addArgument($this->directory ? '-R' : null)
             ->execute($method);
    }
 }

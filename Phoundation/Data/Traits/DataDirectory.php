@@ -9,7 +9,7 @@ use Phoundation\Filesystem\Filesystem;
 
 
 /**
- * Trait DataPath
+ * Trait DataDirectory
  *
  *
  *
@@ -18,41 +18,42 @@ use Phoundation\Filesystem\Filesystem;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-trait DataPath
+trait DataDirectory
 {
     /**
-     * The path for this object
+     * The directory for this object
      *
-     * @var string|null $path
+     * @var string|null $directory
      */
-    protected ?string $path = null;
+    protected ?string $directory = null;
 
 
     /**
-     * Returns the path
+     * Returns the directory
      *
      * @return string|null
      */
-    public function getPath(): ?string
+    public function getDirectory(): ?string
     {
-        return $this->path;
+        return $this->directory;
     }
 
 
     /**
-     * Sets the path
+     * Sets the directory
      *
-     * @param string|null $path
+     * @param string|null $directory
      * @param string|null $prefix
      * @param bool $must_exist
      * @return static
      */
-    public function setPath(?string $path, string $prefix = null, bool $must_exist = true): static
+    public function setDirectory(?string $directory, string $prefix = null, bool $must_exist = true): static
     {
-        if ($path) {
-            $this->path = Strings::slash(Filesystem::absolute($path, $prefix, $must_exist));
+        if ($directory) {
+            $this->directory = Strings::slash(Filesystem::absolute($directory, $prefix, $must_exist));
+
         } else {
-            $this->path = null;
+            $this->directory = null;
         }
 
         return $this;

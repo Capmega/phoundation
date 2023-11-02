@@ -47,13 +47,13 @@ class RemoteRepository extends Iterator
     /**
      * Repository class constructor
      *
-     * @param string $path
+     * @param string $directory
      * @param string $repository
      */
-    public function __construct(string $path, string $repository)
+    public function __construct(string $directory, string $repository)
     {
         $this->repository = $repository;
-        $this->construct($path);
+        $this->construct($directory);
         $this->loadData();
     }
 
@@ -61,13 +61,13 @@ class RemoteRepository extends Iterator
     /**
      * Returns a new Repository object
      *
-     * @param string $path
+     * @param string $directory
      * @param string $repository
      * @return static
      */
-    public static function new(string $path, string $repository): static
+    public static function new(string $directory, string $repository): static
     {
-        return new static($path, $repository);
+        return new static($directory, $repository);
     }
 
 

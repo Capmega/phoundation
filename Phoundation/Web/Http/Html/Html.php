@@ -2065,7 +2065,7 @@ Class Html
 
                     } else {
                         // Image doesn't exist.
-                        log_console(tr('html_img(): Can not analyze image ":src", the local path ":path" does not exist', array(':src' => $params['src'], ':path' => $file_src)), 'yellow');
+                        log_console(tr('html_img(): Can not analyze image ":src", the local directory ":directory" does not exist', array(':src' => $params['src'], ':directory' => $file_src)), 'yellow');
                         $image[0] = 0;
                         $image[1] = 0;
                     }
@@ -2269,14 +2269,14 @@ Class Html
                     if (!file_exists(DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy/jquery.lazy.js')) {
                         // jquery.lazy is not available, auto install it.
                         $file = File::download('https://github.com/eisbehr-/jquery.lazy/archive/master.zip');
-                        $path = cli_unzip($file);
+                        $directory = cli_unzip($file);
 
-                        File::new()->executeMode(DIRECTORY_ROOT.'www/en/pub/js', 0770, function() use ($path) {
+                        File::new()->executeMode(DIRECTORY_ROOT.'www/en/pub/js', 0770, function() use ($directory) {
                             File::delete(DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy/', DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js/');
-                            rename($path.'jquery.lazy-master/', DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy');
+                            rename($directory.'jquery.lazy-master/', DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy');
                         });
 
-                        file_delete($path);
+                        file_delete($directory);
                     }
 
                     html_load_js('jquery.lazy/jquery.lazy');

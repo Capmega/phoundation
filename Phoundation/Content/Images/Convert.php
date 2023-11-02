@@ -200,13 +200,13 @@ class Convert extends Command
 
 
     /**
-     * Returns a new Path object with the restrictions for this image object
+     * Returns a new Directory object with the restrictions for this image object
      *
-     * @param string $path
+     * @param string $directory
      * @return Directory
      */
-    protected function path(string $path): Directory
+    protected function path(string $directory): Directory
     {
-        return new Directory($path, $this->restrictions);
+        return new Directory($directory, $this->restrictions);
     }
 }

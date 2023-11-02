@@ -81,28 +81,28 @@ class Project implements ProjectInterface
     /**
      * Project constructor
      *
-     * @param string|null $path
+     * @param string|null $directory
      */
-    public function __construct(?string $path = null)
+    public function __construct(?string $directory = null)
     {
-        if (!$path) {
+        if (!$directory) {
             // Default to this project
-            $path = DIRECTORY_ROOT;
+            $directory = DIRECTORY_ROOT;
         }
 
-        $this->construct($path);
+        $this->construct($directory);
     }
 
 
     /**
      * Returns a new Phoundation object
      *
-     * @param string|null $path
+     * @param string|null $directory
      * @return static
      */
-    public static function new(?string $path = null): static
+    public static function new(?string $directory = null): static
     {
-        return new static($path);
+        return new static($directory);
     }
 
 
@@ -225,13 +225,13 @@ class Project implements ProjectInterface
     /**
      * Returns true if the specified filesystem location contains a valid Phoundation project installation
      *
-     * @param string $path
+     * @param string $directory
      * @return bool
      */
-    public function isPhoundationProject(string $path): bool
+    public function isPhoundationProject(string $directory): bool
     {
         // Is the path readable?
-        $path = Directory::new($path, $this->restrictions)->checkReadable()->getFile();
+        $directory = Directory::new($directory, $this->restrictions)->checkReadable()->getFile();
 
         // All these files and directories must be available.
         $files = [
@@ -247,7 +247,7 @@ class Project implements ProjectInterface
         ];
 
         foreach ($files as $file) {
-            if (!file_exists($path . $file)) {
+            if (!file_exists($directory . $file)) {
                 return false;
             }
         }
@@ -467,42 +467,42 @@ class Project implements ProjectInterface
 
         // Fix file modes, first make everything readonly
         Process::new('chmod')
-            ->setExecutionPath(DIRECTORY_ROOT)
+            ->setExecutionDirectory(DIRECTORY_ROOT)
             ->setSudo(true)
             ->addArguments(['-x,ug+r,g-w,o-rwx', '.', '-R'])
             ->executePassthru();
 
         // All directories must have the "execute" bit for users and groups
         Process::new('find')
-            ->setExecutionPath(DIRECTORY_ROOT)
+            ->setExecutionDirectory(DIRECTORY_ROOT)
             ->setSudo(true)
             ->addArguments(['.' , '-type' , 'd', '-exec', 'chmod', 'ug+x', '{}', '\\;'])
             ->executePassthru();
 
         // No file should be executable
         Process::new('find')
-            ->setExecutionPath(DIRECTORY_ROOT)
+            ->setExecutionDirectory(DIRECTORY_ROOT)
             ->setSudo(true)
             ->addArguments(['.' , '-type' , 'f', '-exec', 'chmod', 'ug-x', '{}', '\\;'])
             ->executePassthru();
 
         // ./cli is the only file that can be executed
         Process::new('chmod')
-            ->setExecutionPath(DIRECTORY_ROOT)
+            ->setExecutionDirectory(DIRECTORY_ROOT)
             ->setSudo(true)
             ->addArguments(['ug+w', './pho'])
             ->executePassthru();
 
         // Writable directories: data/tmp, data/log, data/run, data/cookies, data/content,
         Process::new('chmod')
-            ->setExecutionPath(DIRECTORY_ROOT)
+            ->setExecutionDirectory(DIRECTORY_ROOT)
             ->setSudo(true)
             ->addArguments(['-x,ug+r,g-w,o-rwx', DIRECTORY_DATA . 'tmp', DIRECTORY_DATA . 'log', DIRECTORY_DATA . 'run', DIRECTORY_DATA . 'cookies', DIRECTORY_DATA . 'cookies', '-R'])
             ->executePassthru();
 
         // Fix file ownership
         Process::new('chown')
-            ->setExecutionPath(DIRECTORY_ROOT)
+            ->setExecutionDirectory(DIRECTORY_ROOT)
             ->setSudo(true)
             ->addArguments(['www-data:www-data', '.', '-R'])
             ->executePassthru();
@@ -668,18 +668,18 @@ class Project implements ProjectInterface
      *
      * @note This method will actually delete Phoundation system files! Because of this, it will manually include some
      *       required library files to avoid crashes when these files are needed during this time of deletion
-     * @param string|null $path
+     * @param string|null $directory
      * @param string $branch
      * @return void
      */
-    protected function copyPhoundationFilesLocal(?string $path, string $branch): void
+    protected function copyPhoundationFilesLocal(?string $directory, string $branch): void
     {
         if (!$branch) {
             throw new OutOfBoundsException(tr('Cannot copy local Phoundation files, no Phoundation branch specified'));
         }
 
         $rsync       = Rsync::new();
-        $phoundation = Phoundation::new($path)->switchBranch($branch);
+        $phoundation = Phoundation::new($directory)->switchBranch($branch);
 
         // ATTENTION! Next up, we're going to delete the Phoundation main libraries! To avoid any next commands not
         // finding files they require, include them here so that we have them available in memory
@@ -695,13 +695,13 @@ class Project implements ProjectInterface
 
             // Copy new script versions
             $rsync
-                ->setSource($phoundation->getPath() . 'scripts/')
+                ->setSource($phoundation->getDirectory() . 'scripts/')
                 ->setTarget(DIRECTORY_ROOT . 'scripts/')
                 ->execute();
 
             // Copy new core library versions
             $rsync
-                ->setSource($phoundation->getPath() . 'Phoundation/')
+                ->setSource($phoundation->getDirectory() . 'Phoundation/')
                 ->setTarget(DIRECTORY_ROOT . 'Phoundation/')
                 ->execute();
 

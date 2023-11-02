@@ -58,15 +58,15 @@ Log::information(tr('Downloading and importing max mind Geo IP data'));
 
 if ($argv['source_path']) {
     // Use files that are available in the specified source path
-    $path = $argv['source_path'];
+    $directory = $argv['source_path'];
 } else {
     // Download the files
-    $path = $provider::download();
+    $directory = $provider::download();
 }
 
 
 // Process the files
-$provider::process($path, $argv['target_path'], Restrictions::new([$path->getRestrictions(), DIRECTORY_DATA], true));
+$provider::process($directory, $argv['target_path'], Restrictions::new([$directory->getRestrictions(), DIRECTORY_DATA], true));
 
 Log::success(tr('Finished importing all GeoIP data for provider ":provider"', [
     ':provider' => $provider->getName()

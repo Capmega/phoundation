@@ -58,9 +58,9 @@ class MaxMindImport extends GeoIpImport
     {
         $license_key = Config::getString('geo.ip.max-mind.api-key');
         $wget        = Wget::new();
-        $path        = $wget->getProcess()->setTimeout(1200)->setExecutionPathToTemp()->getExecutionPath();
+        $directory        = $wget->setTimeout(1200)->setExecutionDirectoryToTemp()->getExecutionDirectory();
 
-        Log::action(tr('Storing GeoIP files in path ":path"', [':path' => $path]));
+        Log::action(tr('Storing GeoIP files in directory ":directory"', [':directory' => $directory]));
 
         foreach (static::getMaxMindFiles(true) as $file => $url) {
             Log::action(tr('Downloading MaxMind URL ":url"', [':url' => $url]));
@@ -71,7 +71,7 @@ class MaxMindImport extends GeoIpImport
                 ->execute();
         }
 
-        return $path;
+        return $directory;
     }
 
 
@@ -91,11 +91,11 @@ class MaxMindImport extends GeoIpImport
         $target_path  = Filesystem::absolute($target_path, DIRECTORY_ROOT, false);
 
         Directory::new($target_path, $restrictions)->ensure();
-        Log::action(tr('Processing GeoIP files and moving to path ":path"', [':path' => $target_path]));
+        Log::action(tr('Processing GeoIP files and moving to directory ":directory"', [':directory' => $target_path]));
 
         try {
             // Clean source path GeoLite2 directories and garbage path and move the current data files to the garbage
-            File::new(DIRECTORY_DATA . 'garbage/maxmind', $restrictions->addPath(DIRECTORY_DATA . 'garbage/'))->delete();
+            File::new(DIRECTORY_DATA . 'garbage/maxmind', $restrictions->addDirectory(DIRECTORY_DATA . 'garbage/'))->delete();
             File::new($source_path . 'GeoLite2-*', $restrictions)->delete(false, false, false);
 
             $previous = Directory::new($target_path, $restrictions)->move(DIRECTORY_DATA . 'garbage/');
@@ -116,15 +116,15 @@ class MaxMindImport extends GeoIpImport
 
                 // Take the downloaded file, check sha256, untar it, and move the datafile from the resulting directory
                 // to the target
-                $path = File::new($source_path . $file, $restrictions)
+                $directory = File::new($source_path . $file, $restrictions)
                     ->checkReadable()
                     ->checkSha256($shas[$file])
                     ->untar()
                     ->getSingleDirectory('/GeoLite2.+?/i');
 
                 // Move the file to the target path and delete the source path
-                $path->getSingleFile('/.+?.mmdb/i')->move($target_path);
-                $path->delete();
+                $directory->getSingleFile('/.+?.mmdb/i')->move($target_path);
+                $directory->delete();
             }
 
             // Delete the previous data files from garbage

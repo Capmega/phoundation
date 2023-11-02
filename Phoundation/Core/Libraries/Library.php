@@ -41,9 +41,9 @@ class Library
     /**
      * The library path
      *
-     * @var string $path
+     * @var string $directory
      */
-    protected string $path;
+    protected string $directory;
 
     /**
      * The Updates object for this library
@@ -63,13 +63,13 @@ class Library
     /**
      * Library constructor
      *
-     * @param string $path
+     * @param string $directory
      */
-    public function __construct(string $path)
+    public function __construct(string $directory)
     {
-        $path          = Strings::slash($path);
-        $this->path    = $path;
-        $this->library = Strings::fromReverse(Strings::unslash($path), '/');
+        $directory          = Strings::slash($directory);
+        $this->path    = $directory;
+        $this->library = Strings::fromReverse(Strings::unslash($directory), '/');
         $this->library = strtolower($this->library);
 
         // Get the Init object
@@ -204,16 +204,16 @@ class Library
      */
     public function getType(): string
     {
-        $path = Strings::unslash($this->path);
-        $path = Strings::untilReverse($path, '/');
-        $path = Strings::fromReverse($path, '/');
-        $path = strtolower($path);
+        $directory = Strings::unslash($this->path);
+        $directory = Strings::untilReverse($directory, '/');
+        $directory = Strings::fromReverse($directory, '/');
+        $directory = strtolower($directory);
 
-        if ($path === 'phoundation') {
+        if ($directory === 'phoundation') {
             return 'system';
         }
 
-        if ($path === 'templates') {
+        if ($directory === 'templates') {
             return 'template';
         }
 
@@ -259,7 +259,7 @@ class Library
      *
      * @return string
      */
-    public function getPath(): string
+    public function getDirectory(): string
     {
         return $this->path;
     }
@@ -349,7 +349,7 @@ class Library
      */
     public function getPhpStatistics(): array
     {
-        return Directory::new($this->getPath(), [DIRECTORY_WWW, DIRECTORY_ROOT . '/scripts/', LIBRARIES::CLASS_DIRECTORY_SYSTEM, LIBRARIES::CLASS_DIRECTORY_PLUGINS, LIBRARIES::CLASS_DIRECTORY_TEMPLATES])->getPhpStatistics(true);
+        return Directory::new($this->getDirectory(), [DIRECTORY_WWW, DIRECTORY_ROOT . '/scripts/', LIBRARIES::CLASS_DIRECTORY_SYSTEM, LIBRARIES::CLASS_DIRECTORY_PLUGINS, LIBRARIES::CLASS_DIRECTORY_TEMPLATES])->getPhpStatistics(true);
     }
 
 
@@ -547,8 +547,8 @@ class Library
             $updates            = new $updates_class_path();
 
             if (!($updates instanceof Updates)) {
-                Log::Warning(tr('The Updates.php file for the library ":library" in ":path" is invalid, it should contain a class being an instance of the \Phoundation\Libraries\Updates. This updates file will be ignored', [
-                    ':path'    => $this->path,
+                Log::Warning(tr('The Updates.php file for the library ":library" in ":directory" is invalid, it should contain a class being an instance of the \Phoundation\Libraries\Updates. This updates file will be ignored', [
+                    ':directory'    => $this->path,
                     ':library' => $this->library
                 ]));
             }

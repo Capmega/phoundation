@@ -31,11 +31,11 @@ class RemoteRepositories extends Iterator
     /**
      * RemoteRepositories class constructor
      */
-    public function __construct(string $path)
+    public function __construct(string $directory)
     {
-        $this->construct($path);
+        $this->construct($directory);
         $this->source = Process::new('git')
-            ->setExecutionPath($this->path)
+            ->setExecutionDirectory($this->directory)
             ->addArgument('remote')
             ->addArgument('show')
             ->executeReturnArray();
@@ -76,6 +76,6 @@ class RemoteRepositories extends Iterator
             }
         }
 
-        return RemoteRepository::new($this->path, $key);
+        return RemoteRepository::new($this->directory, $key);
     }
 }

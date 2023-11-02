@@ -40,7 +40,7 @@ class Tmp
 
 
     /**
-     * Clear all temp files and paths
+     * Clear all temp files and directories
      *
      * @return void
      */

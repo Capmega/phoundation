@@ -14,7 +14,7 @@ use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
-use Phoundation\Data\DataEntry\Traits\DataEntryPath;
+use Phoundation\Data\DataEntry\Traits\DataEntryDirectory;
 use Phoundation\Data\DataEntry\Traits\DataEntryPriority;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
@@ -37,7 +37,7 @@ use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
 class Plugin extends DataEntry implements PluginInterface
 {
     use DataEntryNameDescription;
-    use DataEntryPath;
+    use DataEntryDirectory;
     use DataEntryPriority {
         setPriority as setTraitPriority;
     }
@@ -150,10 +150,10 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function getClass(): ?string
     {
-        $path = $this->getPath();
+        $directory = $this->getDirectory();
 
-        if ($path) {
-            return Library::getClassPath(DIRECTORY_ROOT . $path . 'Plugin.php');
+        if ($directory) {
+            return Library::getClassPath(DIRECTORY_ROOT . $directory . 'Plugin.php');
         }
 
         return null;
@@ -204,7 +204,7 @@ class Plugin extends DataEntry implements PluginInterface
      *
      * @return string
      */
-    public function getPath(): string
+    public function getDirectory(): string
     {
         return Strings::from(dirname(Library::getClassFile($this)) . '/', DIRECTORY_ROOT);
     }
@@ -259,7 +259,7 @@ class Plugin extends DataEntry implements PluginInterface
         // Register the plugin
         $plugin
             ->setName($name)
-            ->setPath($plugin->getPath())
+            ->setDirectory($plugin->getDirectory())
             ->setClass($plugin->getClass())
             ->setEnabled($enabled)
             ->setPriority($plugin->getPriority())
@@ -393,7 +393,7 @@ class Plugin extends DataEntry implements PluginInterface
                     $validator->hasMaxCharacters(1024)->matchesRegex('/Plugins\\\[\\\A-Za-z0-9]+\\\Plugin/');
                 }))
             ->addDefinition(Definition::new($this, 'path')
-                ->setLabel(tr('Path'))
+                ->setLabel(tr('Directory'))
                 ->setInputType(InputTypeExtended::path)
                 ->setMaxlength(128)
                 ->setSize(6)

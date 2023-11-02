@@ -40,7 +40,7 @@ Documentation::help('This command will count the sizes of all the files in the s
 display the amount found');
 
 $argv = ArgvValidator::new()
-    ->select('path')->isPath('/', '/')
+    ->select('path')->isDirectory('/', '/')
     ->select('-h,--human-readable')->isOptional(false)->isBoolean()
     ->validate();
 

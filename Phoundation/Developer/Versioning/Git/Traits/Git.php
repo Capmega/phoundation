@@ -24,9 +24,9 @@ trait Git
     /**
      * The path that will be checked
      *
-     * @var string $path
+     * @var string $directory
      */
-    protected string $path;
+    protected string $directory;
 
     /**
      * The git process
@@ -39,23 +39,23 @@ trait Git
     /**
      * GitPath class constructor
      *
-     * @param string $path
+     * @param string $directory
      */
-    public function __construct(string $path)
+    public function __construct(string $directory)
     {
-        $this->setPath($path);
+        $this->setDirectory($directory);
     }
 
 
     /**
      * Returns a new GitPath object
      *
-     * @param string $path
+     * @param string $directory
      * @return static
      */
-    public static function new(string $path): static
+    public static function new(string $directory): static
     {
-        return new static($path);
+        return new static($directory);
     }
 
 
@@ -75,27 +75,27 @@ trait Git
      *
      * @return string
      */
-    public function getPath(): string
+    public function getDirectory(): string
     {
-        return $this->path;
+        return $this->directory;
     }
 
 
     /**
      * Returns the path for this ChangedFiles object
      *
-     * @param string $path
+     * @param string $directory
      * @return static
      */
-    public function setPath(string $path): static
+    public function setDirectory(string $directory): static
     {
-        $this->path = Filesystem::absolute($path);
-        $this->git  = \Phoundation\Developer\Versioning\Git\Git::new($this->path);
+        $this->directory = Filesystem::absolute($directory);
+        $this->git  = \Phoundation\Developer\Versioning\Git\Git::new($this->directory);
 
-        if (!$this->path) {
-            if (!file_exists($path)) {
-                throw new OutOfBoundsException(tr('The specified path ":path" does not exist', [
-                    ':path' => $path
+        if (!$this->directory) {
+            if (!file_exists($directory)) {
+                throw new OutOfBoundsException(tr('The specified directory ":directory" does not exist', [
+                    ':directory' => $directory
                 ]));
             }
         }

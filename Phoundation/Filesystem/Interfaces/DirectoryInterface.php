@@ -21,7 +21,7 @@ use Throwable;
 interface DirectoryInterface extends FileBasicsInterface
 {
     /**
-     * Returns an Execute object to execute callbacks on each file in specified paths
+     * Returns an Execute object to execute callbacks on each file in specified directories
      *
      * @return ExecuteInterface
      */
@@ -62,10 +62,10 @@ interface DirectoryInterface extends FileBasicsInterface
     public function checkWritable(?string $type = null, ?Throwable $previous_e = null): static;
 
     /**
-     * Ensures existence of the specified path
+     * Ensures existence of the specified directories
      *
-     * @param string|null $mode octal $mode If the specified $this->path does not exist, it will be created with this directory mode. Defaults to $_CONFIG[fs][dir_mode]
-     * @param boolean $clear If set to true, and the specified path already exists, it will be deleted and then re-created
+     * @param string|null $mode octal $mode If the specified $this->directory does not exist, it will be created with this directory mode. Defaults to $_CONFIG[fs][dir_mode]
+     * @param boolean $clear If set to true, and the specified directory already exists, it will be deleted and then re-created
      * @param bool $sudo
      * @return static
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -79,17 +79,17 @@ interface DirectoryInterface extends FileBasicsInterface
     public function ensure(?string $mode = null, ?bool $clear = false, bool $sudo = false): static;
 
     /**
-     * Returns true if the object paths are all empty
+     * Returns true if the object directories are all empty
      *
      * @return bool
      */
     public function isEmpty(): bool;
 
     /**
-     * Delete the path, and each parent directory until a non-empty directory is encountered
+     * Delete the directory, and each parent directory until a non-empty directory is encountered
      *
-     * @param string|null $until_path If specified as a path, the method will stop deleting upwards when the specified
-     *                                path is encountered as well. If specified as true, the method will continue
+     * @param string|null $until_directory If specified as a directory, the method will stop deleting upwards when the specified
+     *                                directory is encountered as well. If specified as true, the method will continue
      *                                deleting until either Restrictions stops it, or a non empty directory has been
      *                                encountered
      * @param bool $sudo
@@ -98,10 +98,10 @@ interface DirectoryInterface extends FileBasicsInterface
      * @see Restrict::restrict() This function uses file location restrictions, see Restrict::restrict() for more information
      *
      */
-    public function clear(?string $until_path = null, bool $sudo = false, bool $use_run_file = true): void;
+    public function clear(?string $until_directory = null, bool $sudo = false, bool $use_run_file = true): void;
 
     /**
-     * Creates a random path in specified base path (If it does not exist yet), and returns that path
+     * Creates a random directory in specified base directory (If it does not exist yet), and returns that directory
      *
      * @param bool $single
      * @param int $length
@@ -113,24 +113,24 @@ interface DirectoryInterface extends FileBasicsInterface
      * Return all files in a directory that match the specified pattern with optional recursion.
      *
      * @param array|string|null $filters One or multiple regex filters
-     * @param boolean $recursive If set to true, return all files below the specified path, including in sub-directories
+     * @param boolean $recursive If set to true, return all files below the specified directory, including in sub-directories
      * @return array The matched files
      */
     public function listTree(array|string|null $filters = null, bool $recursive = true): array;
 
     /**
-     * Pick and return a random file name from the specified path
+     * Pick and return a random file name from the specified directory
      *
      * @note This function reads all files into memory, do NOT use with huge directory (> 10000 files) listings!
      *
-     * @return string A random file from a random path from the object paths
+     * @return string A random file from a random directory from the object directories
      */
     public function random(): string;
 
     /**
-     * Scan the entire object path STRING upward for the specified file.
+     * Scan the entire object directory STRING upward for the specified file.
      *
-     * If the object file doesn't exist in the specified path, go one dir up,
+     * If the object file doesn't exist in the specified directory, go one dir up,
      * all the way to root /
      *
      * @param string $filename
@@ -139,21 +139,21 @@ interface DirectoryInterface extends FileBasicsInterface
     public function scanUpwardsForFile(string $filename): ?string;
 
     /**
-     * Returns the total size in bytes of the tree under the specified path
+     * Returns the total size in bytes of the tree under the specified directory
      *
      * @return int The amount of bytes this tree takes
      */
     public function treeFileSize(): int;
 
     /**
-     * Returns the amount of files under the object path (directories not included in count)
+     * Returns the amount of files under the object directory (directories not included in count)
      *
      * @return int The amount of files
      */
     public function treeFileCount(): int;
 
     /**
-     * Returns PHP code statistics for this path
+     * Returns PHP code statistics for this directory
      *
      * @param bool $recurse
      * @return array
@@ -172,14 +172,14 @@ interface DirectoryInterface extends FileBasicsInterface
     public function ensureWritable(?int $mode = null): static;
 
     /**
-     * Tars this path and returns a file object for the tar file
+     * Tars this directory and returns a file object for the tar file
      *
      * @return FileInterface
      */
     public function tar(): FileInterface;
 
     /**
-     * Returns the single one file in this path IF there is only one file
+     * Returns the single one file in this directory IF there is only one file
      *
      * @param string|null $regex
      * @param bool $allow_multiple
@@ -188,7 +188,7 @@ interface DirectoryInterface extends FileBasicsInterface
     public function getSingleFile(?string $regex = null, bool $allow_multiple = false): FileInterface;
 
     /**
-     * Returns the single one directory in this path IF there is only one file
+     * Returns the single one directory in this directory IF there is only one file
      *
      * @param string|null $regex
      * @param bool $allow_multiple
@@ -197,7 +197,7 @@ interface DirectoryInterface extends FileBasicsInterface
     public function getSingleDirectory(?string $regex = null, bool $allow_multiple = false): DirectoryInterface;
 
     /**
-     * Returns the amount of available files in the current file path
+     * Returns the amount of available files in the current file directory
      *
      * @param bool $recursive
      * @return int
@@ -205,21 +205,21 @@ interface DirectoryInterface extends FileBasicsInterface
     public function getCount(bool $recursive = true): int;
 
     /**
-     * Returns a list of all available files in this path matching the specified (multiple) pattern(s)
+     * Returns a list of all available files in this directory matching the specified (multiple) pattern(s)
      *
      * @param string|null $file_patterns The single or multiple pattern(s) that should be matched
      * @param int $glob_flags Flags for the internal glob() call
      * @param int $match_flags Flags for the internal fnmatch() call
-     * @return array                     The resulting file paths
+     * @return array                     The resulting file directories
      */
     public function scan(?string $file_patterns = null, int $glob_flags = GLOB_MARK, int $match_flags = FNM_PERIOD | FNM_CASEFOLD): array;
 
     /**
-     * Returns a list of all available files in this path matching the specified (multiple) pattern(s)
+     * Returns a list of all available files in this directory matching the specified (multiple) pattern(s)
      *
      * @param string|null $file_pattern The single or multiple pattern(s) that should be matched
      * @param int $glob_flags Flags for the internal glob() call
-     * @return array                    The resulting file paths
+     * @return array                    The resulting file directories
      */
     public function scanRegex(?string $file_pattern = null, int $glob_flags = GLOB_MARK): array;
 }

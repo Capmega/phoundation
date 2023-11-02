@@ -217,7 +217,7 @@ interface FileBasicsInterface
     public function delete(string|bool $clean_path = true, bool $sudo = false, bool $escape = true, bool $use_run_file = true): static;
 
     /**
-     * Moves this file to the specified target, will try to ensure target path exists
+     * Moves this file to the specified target, will try to ensure target directory exists
      *
      * @param Stringable|string $target
      * @param Restrictions|null $restrictions
@@ -270,8 +270,8 @@ interface FileBasicsInterface
     /**
      * Change file mode, optionally recursively
      *
-     * @param string|int $mode The mode to apply to the specified path (and all files below if recursive is specified)
-     * @param boolean $recursive If set to true, apply specified mode to the specified path and all files below by
+     * @param string|int $mode The mode to apply to the specified file (and all files below if recursive is specified)
+     * @param boolean $recursive If set to true, apply specified mode to the specified file and all files below by
      *                           recursion
      * @param bool $sudo
      * @return static
@@ -302,7 +302,7 @@ interface FileBasicsInterface
     public function ensureFileWritable(?int $mode = null): bool;
 
     /**
-     * Returns the size in bytes of this file or path
+     * Returns the size in bytes of this file or directory
      *
      * @param bool $recursive
      * @return int
@@ -392,7 +392,7 @@ interface FileBasicsInterface
     /**
      * Creates a symlink $target that points to this file.
      *
-     * @note Will return a NEW FileBasics object (File or Path, basically) for the specified target
+     * @note Will return a NEW FileBasics object (File or Directory, basically) for the specified target
      * @param Stringable|string $target
      * @param Restrictions|null $restrictions
      * @return $this

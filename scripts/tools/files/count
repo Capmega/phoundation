@@ -37,7 +37,7 @@ Documentation::usage('./pho tools files count PATH');
 Documentation::help('This command will count all the files in the specified path recursively and display the amount found');
 
 $argv = ArgvValidator::new()
-    ->select('path')->isPath('/', '/')
+    ->select('path')->isDirectory('/', '/')
     ->select('-h,--human-readable')->isOptional(false)->isBoolean()
     ->validate();
 

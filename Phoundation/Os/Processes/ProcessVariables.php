@@ -73,9 +73,9 @@ trait ProcessVariables
     /**
      * The run path where command output will be written to
      *
-     * @var string|null $run_path
+     * @var string|null $run_directory
      */
-    protected static ?string $run_path = null;
+    protected static ?string $run_directory = null;
 
     /**
      * Sets if run files should be used or not
@@ -309,9 +309,9 @@ trait ProcessVariables
     public function __construct(RestrictionsInterface|array|string|null $restrictions)
     {
         // Ensure that the run files directory is available
-        static::$run_path = DIRECTORY_DATA . 'run/pids/' . getmypid() . '/' . Core::getLocalId() . '/';
+        static::$run_directory = DIRECTORY_DATA . 'run/pids/' . getmypid() . '/' . Core::getLocalId() . '/';
 
-        Directory::new(static::$run_path, Restrictions::new(DIRECTORY_DATA . 'run', true, 'processes runfile'))
+        Directory::new(static::$run_directory, Restrictions::new(DIRECTORY_DATA . 'run', true, 'processes runfile'))
             ->ensure();
 
         // Set server filesystem restrictions
@@ -602,7 +602,7 @@ trait ProcessVariables
      *
      * @return Directory
      */
-    public function getExecutionPath(): Directory
+    public function getExecutionDirectory(): Directory
     {
         return Directory::new($this->execution_path);
     }
@@ -615,7 +615,7 @@ trait ProcessVariables
      * @param RestrictionsInterface|array|string|null $restrictions
      * @return static This process so that multiple methods can be chained
      */
-    public function setExecutionPath(Directory|Stringable|string|null $execution_path, RestrictionsInterface|array|string|null $restrictions = null): static
+    public function setExecutionDirectory(Directory|Stringable|string|null $execution_path, RestrictionsInterface|array|string|null $restrictions = null): static
     {
         $this->cached_command_line = null;
         $this->execution_path      = (string) $execution_path;
@@ -634,12 +634,12 @@ trait ProcessVariables
      * @param bool $public
      * @return static This process so that multiple methods can be chained
      */
-    public function setExecutionPathToTemp(bool $public = false): static
+    public function setExecutionDirectoryToTemp(bool $public = false): static
     {
-        $path               = Directory::getTemporaryBase($public);
-        $this->restrictions = $path->getRestrictions();
+        $directory               = Directory::getTemporaryBase($public);
+        $this->restrictions = $directory->getRestrictions();
 
-        $this->setExecutionPath($path, $path->getRestrictions());
+        $this->setExecutionDirectory($directory, $directory->getRestrictions());
         return $this;
     }
 
@@ -659,22 +659,22 @@ trait ProcessVariables
 //    /**
 //     * Returns the log file where the process output will be redirected to
 //     *
-//     * @param string $path
+//     * @param string $directory
 //     * @return static This process so that multiple methods can be chained
 //     */
-//    public function setLogFile(string $path): static
+//    public function setLogFile(string $directory): static
 //    {
 //        $this->cached_command_line = null;
 //
-//        if (!$path) {
+//        if (!$directory) {
 //            // Set the default log path
-//            $path = DIRECTORY_DATA . 'log/';
+//            $directory = DIRECTORY_DATA . 'log/';
 //        }
 //
 //        // Ensure the path ends with a slash and that it is writable
-//        $path = Strings::slash($path);
-//        $path = File::new($path)->ensureWritable();
-//        $this->log_file = $path;
+//        $directory = Strings::slash($directory);
+//        $directory = File::new($directory)->ensureWritable();
+//        $this->log_file = $directory;
 //
 //        return $this;
 //    }
@@ -685,9 +685,9 @@ trait ProcessVariables
      *
      * @return string
      */
-    public function getRunPath(): string
+    public function getRunDirectory(): string
     {
-        return static::$run_path;
+        return static::$run_directory;
     }
 
 
@@ -756,7 +756,7 @@ trait ProcessVariables
         $this->cached_command_line = null;
 
         $this->log_file = DIRECTORY_DATA . 'log/' . $identifier;
-        $this->run_file = static::$run_path . $identifier;
+        $this->run_file = static::$run_directory . $identifier;
 
         Log::notice(tr('Set process identifier ":identifier"', [':identifier' => $identifier]), 2);
 
@@ -772,7 +772,7 @@ trait ProcessVariables
     protected function setRunFile(): static
     {
         $this->cached_command_line = null;
-        $this->run_file            = static::$run_path . $this->getIdentifier();
+        $this->run_file            = static::$run_directory . $this->getIdentifier();
 
         return $this;
     }
@@ -782,22 +782,22 @@ trait ProcessVariables
 //    /**
 //     * Sets the run path where the process run file will be written
 //     *
-//     * @param string $path
+//     * @param string $directory
 //     * @return static This process so that multiple methods can be chained
 //     */
-//    public function setRunFile(string $path): static
+//    public function setRunFile(string $directory): static
 //    {
 //        $this->cached_command_line = null;
 //
-//        if (!$path) {
+//        if (!$directory) {
 //            // Set the default log path
-//            $path = DIRECTORY_DATA . 'run/';
+//            $directory = DIRECTORY_DATA . 'run/';
 //        }
 //
 //        // Ensure the path ends with a slash and that it is writable
-//        $path = Strings::slash($path);
-//        $path = File::new($path)->ensureWritable();
-//        $this->run_file = $path;
+//        $directory = Strings::slash($directory);
+//        $directory = File::new($directory)->ensureWritable();
+//        $this->run_file = $directory;
 //
 //        return $this;
 //    }

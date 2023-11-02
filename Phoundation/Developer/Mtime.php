@@ -28,11 +28,11 @@ class Mtime
     protected static Mtime $instance;
 
     /**
-     * The root path for this class
+     * The root directory for this class
      *
-     * @var string $path
+     * @var string $directory
      */
-    protected static string $path = DIRECTORY_DATA . 'system/mtime/';
+    protected static string $directory = DIRECTORY_DATA . 'system/mtime/';
 
 
     /**
@@ -40,7 +40,7 @@ class Mtime
      */
     protected function __construct()
     {
-        Directory::new(static::$path)->ensure();
+        Directory::new(static::$directory)->ensure();
     }
 
 
@@ -103,7 +103,7 @@ class Mtime
             }
         }
 
-        touch(static::$path . $class, $datetime);
+        touch(static::$directory . $class, $datetime);
     }
 
 
@@ -117,8 +117,8 @@ class Mtime
     {
         static::getInstance();
 
-        if(file_exists(static::$path . $class)){
-            return filemtime(static::$path . $class);
+        if(file_exists(static::$directory . $class)){
+            return filemtime(static::$directory . $class);
         }
 
         return null;

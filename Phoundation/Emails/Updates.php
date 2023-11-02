@@ -25,7 +25,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.0.16';
+        return '0.0.18';
     }
 
 
@@ -243,6 +243,13 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_emails_attachments_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_emails_attachments_emails_id` FOREIGN KEY (`emails_id`) REFERENCES `emails` (`id`) ON DELETE RESTRICT,
                 ')->create();
+
+        })->addUpdate('0.0.17', function () {
+            sql()->schema()->table('emails_attachments')
+                ->alter()
+                    ->changeColumn('local_path', '`local_directory` varchar(128) NOT NULL')
+                    ->dropIndex('local_path')
+                    ->addIndex('UNIQUE KEY local_path (`local_directory`)');
         });
     }
 }

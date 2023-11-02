@@ -20,9 +20,9 @@ use Stringable;
 interface RestrictionsInterface
 {
     /**
-     * Returns a restrictions object with parent paths for all paths in this restrictions object
+     * Returns a restrictions object with parent directories for all directories in this restrictions object
      *
-     * This is useful for the Path object where one will want to be able to access or create the parent path of the file
+     * This is useful for the Directory object where one will want to be able to access or create the parent directory of the file
      * that needs to be accessed
      *
      * @return Restrictions
@@ -30,56 +30,56 @@ interface RestrictionsInterface
     public function getParent(): Restrictions;
 
     /**
-     * Returns a restrictions object with the current path and the specified child path attached
+     * Returns a restrictions object with the current directory and the specified child directory attached
      *
      * This is useful when we want more strict restrictions
      *
-     * @param string|array $child_paths
+     * @param string|array $child_directories
      * @param bool|null $write
      * @return Restrictions
      */
-    public function getChild(string|array $child_paths, ?bool $write = null): Restrictions;
+    public function getChild(string|array $child_directories, ?bool $write = null): Restrictions;
 
     /**
-     * Clear all paths for this restriction
+     * Clear all directories for this restriction
      *
      * @return static
      */
-    public function clearPaths(): static;
+    public function clearDirectories(): static;
 
     /**
-     * Set all paths for this restriction
+     * Set all directories for this restriction
      *
-     * @param Stringable|array|string $paths
+     * @param Stringable|array|string $directories
      * @param bool $write
      * @return static
      */
-    public function setPaths(Stringable|array|string $paths, bool $write = false): static;
+    public function setDirectories(Stringable|array|string $directories, bool $write = false): static;
 
     /**
-     * Set all paths for this restriction
+     * Set all directories for this restriction
      *
-     * @param Stringable|array|string $paths
+     * @param Stringable|array|string $directories
      * @param bool $write
      * @return static
      */
-    public function addPaths(Stringable|array|string $paths, bool $write = false): static;
+    public function addDirectories(Stringable|array|string $directories, bool $write = false): static;
 
     /**
-     * Add new path for this restriction
+     * Add new directory for this restriction
      *
-     * @param Stringable|string $path
+     * @param Stringable|string $directory
      * @param bool $write
      * @return static
      */
-    public function addPath(Stringable|string $path, bool $write = false): static;
+    public function addDirectory(Stringable|string $directory, bool $write = false): static;
 
     /**
-     * Returns all paths for this restriction
+     * Returns all directories for this restriction
      *
      * @return array
      */
-    public function getPaths(): array;
+    public function getDirectories(): array;
 
     /**
      * Sets the label for this restriction

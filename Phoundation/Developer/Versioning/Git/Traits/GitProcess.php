@@ -26,11 +26,11 @@ trait GitProcess
 
 
     /**
-     * The path that will be checked
+     * The directory that will be checked
      *
-     * @var string $path
+     * @var string $directory
      */
-    protected string $path;
+    protected string $directory;
 
     /**
      * The git process
@@ -41,31 +41,31 @@ trait GitProcess
 
 
     /**
-     * Returns the path for this ChangedFiles object
+     * Returns the directory for this ChangedFiles object
      *
      * @return string
      */
-    public function getPath(): string
+    public function getDirectory(): string
     {
-        return $this->path;
+        return $this->directory;
     }
 
 
     /**
-     * Returns the path for this ChangedFiles object
+     * Returns the directory for this ChangedFiles object
      *
-     * @param string $path
+     * @param string $directory
      * @return static
      */
-    public function setPath(string $path): static
+    public function setDirectory(string $directory): static
     {
-        $this->path        = Filesystem::absolute($path);
-        $this->git_process = Process::new('git')->setExecutionPath($this->path);
+        $this->directory   = Filesystem::absolute($directory);
+        $this->git_process = Process::new('git')->setExecutionDirectory($this->directory);
 
-        if (!$this->path) {
-            if (!file_exists($path)) {
-                throw new OutOfBoundsException(tr('The specified path ":path" does not exist', [
-                    ':path' => $path
+        if (!$this->directory) {
+            if (!file_exists($directory)) {
+                throw new OutOfBoundsException(tr('The specified directory ":directory" does not exist', [
+                    ':directory' => $directory
                 ]));
             }
         }

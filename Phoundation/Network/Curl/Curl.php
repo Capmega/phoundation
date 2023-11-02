@@ -88,9 +88,9 @@ abstract class Curl implements CurlInterface
     /**
      * The path where the cURL requests will be logged
      *
-     * @var string|null $log_path
+     * @var string|null $log_directory
      */
-    protected ?string $log_path = null;
+    protected ?string $log_directory = null;
 
     /**
      * File access restrictions for logging
@@ -273,7 +273,7 @@ abstract class Curl implements CurlInterface
         $this->url   = (string) $url;
         $this->retry = 0;
 
-        $this->setLogPath(DIRECTORY_DATA . 'log/curl/');
+        $this->setLogDirectory(DIRECTORY_DATA . 'log/curl/');
 
         // Setup new cURL request
         $this->curl = curl_init();
@@ -445,17 +445,6 @@ abstract class Curl implements CurlInterface
 
 
     /**
-     * Returns the path to where cURL will log. "" if logging was disabled
-     *
-     * @return string
-     */
-    public function getLogPath(): string
-    {
-        return $this->log_path;
-    }
-
-
-    /**
      * Returns the restrictions for curl output logging
      *
      * @return Restrictions|null
@@ -467,20 +456,31 @@ abstract class Curl implements CurlInterface
 
 
     /**
+     * Returns the path to where cURL will log. "" if logging was disabled
+     *
+     * @return string
+     */
+    public function getLogDirectory(): string
+    {
+        return $this->log_directory;
+    }
+
+
+    /**
      * Sets the path to where cURL will log. NULL or "" if logging has to be disabled
      *
-     * @param string $log_path
+     * @param string $log_directory
      * @param string $restrictions
      * @return static
      */
-    public function setLogPath(string $log_path, string $restrictions = DIRECTORY_DATA . 'log/'): static
+    public function setLogDirectory(string $log_directory, string $restrictions = DIRECTORY_DATA . 'log/'): static
     {
-        if ($log_path) {
+        if ($log_directory) {
             $this->log_restrictions = Restrictions::new($restrictions, true);
-            Directory::new($log_path, $this->log_restrictions)->ensure();
+            Directory::new($log_directory, $this->log_restrictions)->ensure();
         }
 
-        $this->log_path = $log_path;
+        $this->log_directory = $log_directory;
         return $this;
     }
 

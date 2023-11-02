@@ -403,7 +403,7 @@ class MysqlDump extends Command implements MysqlDumpInterface
     {
         // Add restrictions for the log file
         $this->target = Filesystem::absolute($this->target, DIRECTORY_DATA . 'sources/', false);
-        $this->restrictions->addPath(DIRECTORY_DATA . 'log', true);
+        $this->restrictions->addDirectory(DIRECTORY_DATA . 'log', true);
 
         // Apply file restrictions
         File::new($this->target, $this->restrictions)->checkWritable();

@@ -107,7 +107,7 @@ class FileBasics implements Stringable, FileBasicsInterface
     public function __construct(mixed $file = null, RestrictionsInterface|array|string|null $restrictions = null)
     {
         if (is_null($file) or is_string($file) or ($file instanceof Stringable)) {
-            // Specified file was actually a File or Path object, get the file from there
+            // Specified file was actually a File or Directory object, get the file from there
             if ($file instanceof FileBasicsInterface) {
                 $this->setFile($file->getFile());
                 $this->setTarget($file->getTarget());
@@ -176,8 +176,8 @@ class FileBasics implements Stringable, FileBasicsInterface
 
 
     /**
-     * Returns a new Path object with the specified restrictions starting from the specified path, applying a number of
-     * defaults
+     * Returns a new Directory object with the specified restrictions starting from the specified path, applying a
+     * number of defaults
      *
      * . is DIRECTORY_ROOT
      * ~ is the current shell's user home directory
@@ -472,10 +472,10 @@ class FileBasics implements Stringable, FileBasicsInterface
         if (!file_exists($this->file)) {
             if (!file_exists(dirname($this->file))) {
                 // The file doesn't exist and neither does its parent directory
-                throw new FilesystemException(tr('The:type file ":file" cannot be read because the directory ":path" does not exist', [
+                throw new FilesystemException(tr('The:type file ":file" cannot be read because the directory ":directory" does not exist', [
                     ':type' => ($type ? '' : ' ' . $type),
                     ':file' => $this->file,
-                    ':path' => dirname($this->file)
+                    ':directory' => dirname($this->file)
                 ]), $previous_e);
             }
 
@@ -529,10 +529,10 @@ class FileBasics implements Stringable, FileBasicsInterface
         if (!file_exists($this->file)) {
             if (!file_exists(dirname($this->file))) {
                 // The file doesn't exist and neither does its parent directory
-                throw new FilesystemException(tr('The:type file ":file" cannot be written because it does not exist and neither does the parent path ":path"', [
+                throw new FilesystemException(tr('The:type file ":file" cannot be written because it does not exist and neither does the parent directory ":directory"', [
                     ':type' => ($type ? '' : ' ' . $type),
                     ':file' => $this->file,
-                    ':path' => dirname($this->file)
+                    ':directory' => dirname($this->file)
                 ]), $previous_e);
             }
 
@@ -852,7 +852,7 @@ class FileBasics implements Stringable, FileBasicsInterface
 
 
     /**
-     * Moves this file to the specified target, will try to ensure target path exists
+     * Moves this file to the specified target, will try to ensure target directory exists
      *
      * @param Stringable|string $target
      * @param Restrictions|null $restrictions
@@ -1016,8 +1016,8 @@ class FileBasics implements Stringable, FileBasicsInterface
     /**
      * Change file mode, optionally recursively
      *
-     * @param string|int $mode The mode to apply to the specified path (and all files below if recursive is specified)
-     * @param boolean $recursive If set to true, apply specified mode to the specified path and all files below by
+     * @param string|int $mode The mode to apply to the specified file (and all files below if recursive is specified)
+     * @param boolean $recursive If set to true, apply specified mode to the specified file and all files below by
      *                           recursion
      * @param bool $sudo
      * @return static
@@ -1073,23 +1073,23 @@ class FileBasics implements Stringable, FileBasicsInterface
         if (file_exists($this->file)) {
             // Great! The file exists, but it is not writable at this moment. Try to make it writable.
             try {
-                Log::warning(tr('The file ":file" (Realpath ":path") is not readable. Attempting to apply default file mode ":mode"', [
+                Log::warning(tr('The file ":file" (Realdirectory ":directory") is not readable. Attempting to apply default file mode ":mode"', [
                     ':file' => $this->file,
-                    ':path' => $this->real_file,
+                    ':directory' => $this->real_file,
                     ':mode' => $mode
                 ]));
 
                 $this->chmod('u+w');
 
             } catch (ProcessesException) {
-                throw new FileNotWritableException(tr('The file ":file" (Realpath ":path") is not writable, and could not be made writable', [
+                throw new FileNotWritableException(tr('The file ":file" (Realdirectory ":directory") is not writable, and could not be made writable', [
                     ':file' => $this->file,
-                    ':path' => $this->real_file
+                    ':directory' => $this->real_file
                 ]));
             }
         }
 
-        // As of here we know the file doesn't exist. Attempt to create it. First ensure the parent path exists.
+        // As of here we know the file doesn't exist. Attempt to create it. First ensure the parent directory exists.
         Directory::new(dirname($this->file), $this->restrictions)->ensure();
 
         Log::action(tr('Creating non existing file ":file" with file mode ":mode"', [
@@ -1125,23 +1125,23 @@ class FileBasics implements Stringable, FileBasicsInterface
         if (file_exists($this->file)) {
             // Great! The file exists, but it is not writable at this moment. Try to make it writable.
             try {
-                Log::warning(tr('The file ":file" (Realpath ":path") is not writable. Attempting to apply default file mode ":mode"', [
+                Log::warning(tr('The file ":file" (Realdirectory ":directory") is not writable. Attempting to apply default file mode ":mode"', [
                     ':file' => $this->file,
-                    ':path' => $this->real_file,
+                    ':directory' => $this->real_file,
                     ':mode' => $mode
                 ]));
 
                 $this->chmod('u+w');
 
             } catch (ProcessesException) {
-                throw new FileNotWritableException(tr('The file ":file" (Realpath ":path") is not writable, and could not be made writable', [
+                throw new FileNotWritableException(tr('The file ":file" (Realdirectory ":directory") is not writable, and could not be made writable', [
                     ':file' => $this->file,
-                    ':path' => $this->real_file
+                    ':directory' => $this->real_file
                 ]));
             }
         }
 
-        // As of here we know the file doesn't exist. Attempt to create it. First ensure the parent path exists.
+        // As of here we know the file doesn't exist. Attempt to create it. First ensure the parent directory exists.
         Directory::new(dirname($this->file), $this->restrictions->getParent())->ensure();
 
         return false;
@@ -1149,7 +1149,7 @@ class FileBasics implements Stringable, FileBasicsInterface
 
 
     /**
-     * Returns the size in bytes of this file or path
+     * Returns the size in bytes of this file or directory
      *
      * @param bool $recursive
      * @return int
@@ -1387,7 +1387,7 @@ class FileBasics implements Stringable, FileBasicsInterface
     /**
      * Creates a symlink $target that points to this file.
      *
-     * @note Will return a NEW FileBasics object (File or Path, basically) for the specified target
+     * @note Will return a NEW FileBasics object (File or Directory, basically) for the specified target
      * @param Stringable|string $target
      * @param Restrictions|null $restrictions
      * @return $this

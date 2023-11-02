@@ -457,8 +457,8 @@ class Session implements SessionInterface
         // What handler to use?
         switch (Config::getString('web.sessions.handler', 'files')) {
             case 'files':
-                $path = Directory::new(Config::getString('web.sessions.path', DIRECTORY_DATA . 'sessions/'), Restrictions::new([DIRECTORY_DATA, '/var/lib/php/sessions/'], true, 'system/sessions'))->ensure();
-                session_save_path($path->getFile());
+                $directory = Directory::new(Config::getString('web.sessions.path', DIRECTORY_DATA . 'sessions/'), Restrictions::new([DIRECTORY_DATA, '/var/lib/php/sessions/'], true, 'system/sessions'))->ensure();
+                session_save_path($directory->getFile());
                 break;
 
             case 'memcached':
@@ -915,8 +915,8 @@ Log::warning('RESTART SESSION');
 
             } else {
                 if (!is_writable(session_save_path())) {
-                    throw new SessionException(tr('Session startup failed because the session path ":path" is not writable for platform ":platform"', [
-                        ':path'     => session_save_path(),
+                    throw new SessionException(tr('Session startup failed because the session directory ":directory" is not writable for platform ":platform"', [
+                        ':directory'     => session_save_path(),
                         ':platform' => PLATFORM
                     ]), $e);
                 }

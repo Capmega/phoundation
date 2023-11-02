@@ -18,10 +18,10 @@ interface ProjectInterface
     /**
      * Returns true if the specified filesystem location contains a valid Phoundation project installation
      *
-     * @param string $path
+     * @param string $directory
      * @return bool
      */
-    public function isPhoundationProject(string $path): bool;
+    public function isPhoundationProject(string $directory): bool;
 
     /**
      * Updates your Phoundation installation

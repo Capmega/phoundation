@@ -38,8 +38,8 @@ use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
  *     ],
  *     'arguments' => [
  *         '--file' => [
- *             'word'   => function ($word) { return Path::new(DIRECTORY_DATA . 'sources/', DIRECTORY_DATA . 'sources/')->scandir($word . '*.csv'); },
- *             'noword' => function ()      { return Path::new(DIRECTORY_DATA . 'sources/', DIRECTORY_DATA . 'sources/')->scandir('*.csv'); },
+ *             'word'   => function ($word) { return Directory::new(DIRECTORY_DATA . 'sources/', DIRECTORY_DATA . 'sources/')->scandir($word . '*.csv'); },
+ *             'noword' => function ()      { return Directory::new(DIRECTORY_DATA . 'sources/', DIRECTORY_DATA . 'sources/')->scandir('*.csv'); },
  *         ],
  *         '--user' => [
  *             'word'   => function ($word) { return Arrays::match(Users::new()->load()->getSourceColumn('email'), $word); },

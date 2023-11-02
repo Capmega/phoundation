@@ -25,15 +25,15 @@ interface GitInterface
      *
      * @return string
      */
-    public function getPath(): string;
+    public function getDirectory(): string;
 
     /**
      * Returns the path for this ChangedFiles object
      *
-     * @param string $path
+     * @param string $directory
      * @return static
      */
-    public function setPath(string $path): static;
+    public function setDirectory(string $directory): static;
 
     /**
      * Clone the specified URL to this path
@@ -81,10 +81,10 @@ interface GitInterface
     /**
      * Checks out the specified branches or paths for this git path
      *
-     * @param array|string $branches_or_paths
+     * @param array|string $branches_or_directories
      * @return static
      */
-    public function checkout(array|string $branches_or_paths): static;
+    public function checkout(array|string $branches_or_directories): static;
 
     /**
      * Resets the current branch to the specified revision
@@ -115,10 +115,10 @@ interface GitInterface
     /**
      * Returns a ChangedFiles object containing all the files that have changes according to git
      *
-     * @param string|null $path
+     * @param string|null $directory
      * @return StatusFiles
      */
-    public function getStatus(?string $path = null): StatusFiles;
+    public function getStatus(?string $directory = null): StatusFiles;
 
     /**
      * Returns if this git path has any changes

@@ -114,7 +114,7 @@ interface CurlInterface
      *
      * @return string
      */
-    public function getLogPath(): string;
+    public function getLogDirectory(): string;
 
     /**
      * Returns the restrictions for curl output logging
@@ -126,11 +126,11 @@ interface CurlInterface
     /**
      * Sets the path to where cURL will log. NULL or "" if logging has to be disabled
      *
-     * @param string $log_path
+     * @param string $log_directory
      * @param string $restrictions
      * @return static
      */
-    public function setLogPath(string $log_path, string $restrictions = DIRECTORY_DATA . 'log/'): static;
+    public function setLogDirectory(string $log_directory, string $restrictions = DIRECTORY_DATA . 'log/'): static;
 
     /**
      * Returns the amount of retries executed for this request

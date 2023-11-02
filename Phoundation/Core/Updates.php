@@ -29,7 +29,7 @@ class Updates extends Libraries\Updates
      */
     public function version(): string
     {
-        return '0.0.11';
+        return '0.0.12';
     }
 
 
@@ -286,6 +286,9 @@ class Updates extends Libraries\Updates
                     CONSTRAINT `fk_core_templates_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_core_templates_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                 ')->create();
+
+        })->addUpdate('0.0.11', function () {
+            sql()->schema()->table('core_templates')->alter()->changeColumn('path', '`directory` varchar(128) NOT NULL');
         });
     }
 }

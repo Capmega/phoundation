@@ -137,7 +137,7 @@ class Deploy implements DeployInterface
 
             if ($env_config['bom_check']) {
                 Log::action(tr('Executing BOM check'));
-//                BomPath::new(DIRECTORY_ROOT, DIRECTORY_ROOT)->clearBom();
+//                BomDirectory::new(DIRECTORY_ROOT, DIRECTORY_ROOT)->clearBom();
             }
 
             static::executeHook('post-bom-check,pre-test-syntax');

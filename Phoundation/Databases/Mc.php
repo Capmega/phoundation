@@ -428,8 +428,8 @@ class Mc
         foreach ($this->configuration['connections'] as $weight => &$connection) {
             if (!is_array($connection)) {
                 if ($connection) {
-                    throw new ConfigurationInvalidException(tr('Configuration path ":path" contains invalid information', [
-                        ':path' => 'databases.memcached.instances.' . $this->instance_name . '.connections.' . $weight
+                    throw new ConfigurationInvalidException(tr('Configuration directory ":directory" contains invalid information', [
+                        ':directory' => 'databases.memcached.instances.' . $this->instance_name . '.connections.' . $weight
                     ]));
                 }
 
@@ -469,10 +469,10 @@ class Mc
                     $this->connections[] = $connection;
 
                 } catch (Throwable $e) {
-                    Log::warning(tr('Failed to connect to memcached server ":host::port" in configuration path ":path"', [
+                    Log::warning(tr('Failed to connect to memcached server ":host::port" in configuration directory ":directory"', [
                         ':host' => $connection['host'],
                         ':port' => $connection['port'],
-                        ':path' => 'databases.memcached.instances.' . $this->instance_name . '.connections.' . $weight
+                        ':directory' => 'databases.memcached.instances.' . $this->instance_name . '.connections.' . $weight
                     ]));
                     Log::error($e);
                     $failed++;

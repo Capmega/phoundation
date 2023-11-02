@@ -61,12 +61,12 @@ trait GitRepository
     public function setRepository(string $repository): static
     {
         $this->repository = Filesystem::absolute($repository);
-        $this->git  = Process::new('git')->setExecutionPath($this->repository);
+        $this->git  = Process::new('git')->setExecutionDirectory($this->repository);
 
         if (!$this->repository) {
             if (!file_exists($repository)) {
-                throw new OutOfBoundsException(tr('The specified path ":path" does not exist', [
-                    ':path' => $repository
+                throw new OutOfBoundsException(tr('The specified directory ":directory" does not exist', [
+                    ':directory' => $repository
                 ]));
             }
         }

@@ -40,9 +40,9 @@ class Bundler
     /**
      * The path where the bundled file should be stored
      *
-     * @var string $path
+     * @var string $directory
      */
-    protected string $path = '';
+    protected string $directory = '';
 
     /**
      * The extension to be used for the bundle file
@@ -339,7 +339,7 @@ class Bundler
         // Generate new bundle file. This requires the pub/$files path to be writable
         Directory::new(dirname($this->bundle_file), $this->restrictions)->execute()
             ->setMode(0770)
-            ->onPathOnly(function() use ($files) {
+            ->onDirectoryOnly(function() use ($files) {
                 foreach ($files as $file => $data) {
                     $org_file = $file;
                     $file     = $this->path . $file . $this->extension;

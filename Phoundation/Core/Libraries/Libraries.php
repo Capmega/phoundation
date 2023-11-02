@@ -178,13 +178,13 @@ class Libraries
 
         // List system libraries
         if ($system) {
-            $return = array_merge($return, static::listLibraryPaths(static::CLASS_DIRECTORY_SYSTEM));
+            $return = array_merge($return, static::listLibraryDirectories(static::CLASS_DIRECTORY_SYSTEM));
         }
 
         // List plugin libraries
         if ($plugins) {
             try {
-                $return = array_merge($return, static::listLibraryPaths(static::CLASS_DIRECTORY_PLUGINS));
+                $return = array_merge($return, static::listLibraryDirectories(static::CLASS_DIRECTORY_PLUGINS));
 
             } catch (NotExistsException $e) {
                 // The plugins path does not exist. No biggie, note it in the logs and create it for next time.
@@ -195,7 +195,7 @@ class Libraries
         // List templates libraries
         if ($templates) {
             try {
-                $return = array_merge($return, static::listLibraryPaths(static::CLASS_DIRECTORY_TEMPLATES));
+                $return = array_merge($return, static::listLibraryDirectories(static::CLASS_DIRECTORY_TEMPLATES));
 
             } catch (NotExistsException $e) {
                 // The templates path does not exist. No biggie, note it in the logs and create it for next time.
@@ -232,40 +232,40 @@ class Libraries
     public static function findLibrary(string $library, bool $system = true, bool $plugin = true, bool $template = true): Library
     {
         $return = null;
-        $paths  = [];
+        $directories  = [];
 
         if ($system) {
-            $paths[] = static::CLASS_DIRECTORY_SYSTEM;
+            $directories[] = static::CLASS_DIRECTORY_SYSTEM;
         }
 
         if ($plugin) {
-            $paths[] = static::CLASS_DIRECTORY_PLUGINS;
+            $directories[] = static::CLASS_DIRECTORY_PLUGINS;
         }
 
         if ($template) {
-            $paths[] = static::CLASS_DIRECTORY_TEMPLATES;
+            $directories[] = static::CLASS_DIRECTORY_TEMPLATES;
         }
 
-        if (empty($paths)) {
+        if (empty($directories)) {
             throw new OutOfBoundsException(tr('Neither system not plugin nor template paths specified to search'));
         }
 
         $directory = Strings::capitalize($library);
 
         // Library must exist in either SYSTEM or PLUGINS paths
-        foreach($paths as $path) {
-            $path = Strings::slash($path);
+        foreach($directories as $directory) {
+            $directory = Strings::slash($directory);
 
             // Library must exist and be a directory
-            if (file_exists($path . $directory)) {
-                if (is_dir($path . $directory)) {
+            if (file_exists($directory . $directory)) {
+                if (is_dir($directory . $directory)) {
                     if ($return) {
                         throw new OutOfBoundsException(tr('The specified library ":library" is both a system library and a plugin', [
                             ':library' => $library
                         ]));
                     }
 
-                    $return = new Library($path . $directory);
+                    $return = new Library($directory . $directory);
                 }
             }
         }
@@ -353,21 +353,21 @@ class Libraries
     /**
      * Returns a list with all libraries for the specified path
      *
-     * @param string $path
+     * @param string $directory
      * @return array
      */
-    protected static function listLibraryPaths(string $path): array
+    protected static function listLibraryDirectories(string $directory): array
     {
         $return  = [];
-        $path    = Strings::endsWith($path, '/');
+        $directory    = Strings::endsWith($directory, '/');
 
-        if (!file_exists($path)) {
-            throw new NotExistsException(tr('The specified library base path ":path" does not exist', [
-                ':path' => $path
+        if (!file_exists($directory)) {
+            throw new NotExistsException(tr('The specified library base directory ":directory" does not exist', [
+                ':directory' => $directory
             ]));
         }
 
-        $libraries = scandir($path);
+        $libraries = scandir($directory);
 
         foreach ($libraries as $library) {
             // Skip hidden files, current and parent directory
@@ -380,7 +380,7 @@ class Libraries
                 continue;
             }
 
-            $file = $path . $library . '/';
+            $file = $directory . $library . '/';
 
             // Library paths MUST be directories
             if (is_dir($file)) {
@@ -415,7 +415,7 @@ class Libraries
             static::orderLibraries($libraries, $filter_libraries);
 
             // Go over the libraries list and try to update each one
-            foreach ($libraries as $path => $library) {
+            foreach ($libraries as $directory => $library) {
                 // Execute the update inits for this library and update the library information and start over
                 if ($library->init($comments)) {
                     // Library has been initialized. Break so that we can check which library should be updated next.
@@ -428,7 +428,7 @@ class Libraries
                     ':library' => $library->getName()
                 ]));
 
-                unset($libraries[$path]);
+                unset($libraries[$directory]);
             }
         }
 
@@ -484,17 +484,17 @@ class Libraries
         }
 
         // Remove libraries that have nothing to execute anymore
-        foreach ($libraries as $path => $library) {
+        foreach ($libraries as $directory => $library) {
             if ($filter_libraries) {
                 if (!array_key_exists(strtolower($library->getName()), $filter_libraries)) {
                     // This library should not be initialized
-                    unset($libraries[$path]);
+                    unset($libraries[$directory]);
                     continue;
                 }
             }
 
             if ($library->getNextInitVersion() === null) {
-                unset($libraries[$path]);
+                unset($libraries[$directory]);
             }
         }
 

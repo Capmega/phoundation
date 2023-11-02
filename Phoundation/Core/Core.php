@@ -2188,10 +2188,10 @@ class Core implements CoreInterface
      * @param bool $writable
      * @return string
      */
-    public static function getGlobalDataPath(string $section = '', bool $writable = true): string
+    public static function getGlobalDataDirectory(string $section = '', bool $writable = true): string
     {
         // First find the global data path. For now, either same height as this project, OR one up the filesystem tree
-        $paths = [
+        $directories = [
             '/var/lib/data/',
             '/var/www/data/',
             DIRECTORY_ROOT . '../data/',
@@ -2200,15 +2200,15 @@ class Core implements CoreInterface
 
         if (!empty($_SERVER['HOME'])) {
             // Also check the users home directory
-            $paths[] = $_SERVER['HOME'] . '/projects/data/';
-            $paths[] = $_SERVER['HOME'] . '/data/';
+            $directories[] = $_SERVER['HOME'] . '/projects/data/';
+            $directories[] = $_SERVER['HOME'] . '/data/';
         }
 
         $found = false;
 
-        foreach ($paths as $path) {
-            if (file_exists($path)) {
-                $found = $path;
+        foreach ($directories as $directory) {
+            if (file_exists($directory)) {
+                $found = $directory;
                 break;
             }
         }
@@ -2216,7 +2216,7 @@ class Core implements CoreInterface
         if ($found) {
             // Cleanup path. If realpath fails, we know something is amiss
             if (!$found = realpath($found)) {
-                throw new CoreException(tr('Found path ":path" failed realpath() check', [':path' => $path]));
+                throw new CoreException(tr('Found directory ":directory" failed realpath() check', [':directory' => $directory]));
             }
         }
 
@@ -2230,17 +2230,17 @@ class Core implements CoreInterface
                 Log::warning(tr('Warning: If you are sure this simply does not exist yet, it can be created now automatically. If it should exist already, then abort this script and check the location!'));
 
                 // TODO Do this better, this is crap
-                $path = Process::newCliScript('base/init_global_data_path')->executeReturnArray();
+                $directory = Process::newCliScript('base/init_global_data_path')->executeReturnArray();
 
-                if (!file_exists($path)) {
+                if (!file_exists($directory)) {
                     // Something went wrong and it was not created anyway
-                    throw new CoreException(tr('Configured path ":path" was created but it could not be found', [
-                        ':path' => $path
+                    throw new CoreException(tr('Configured directory ":directory" was created but it could not be found', [
+                        ':directory' => $directory
                     ]));
                 }
 
                 // Its now created! Strip "data/"
-                $path = Strings::slash($path);
+                $directory = Strings::slash($directory);
 
             } catch (Exception $e) {
                 throw new CoreException('get_global_data_path(): Global data path not found, or init_global_data_path failed / aborted', $e);
@@ -2248,21 +2248,21 @@ class Core implements CoreInterface
         }
 
         // Now check if the specified section exists
-        if ($section and !file_exists($path . $section)) {
-            Directory::ensure($path . $section);
+        if ($section and !file_exists($directory . $section)) {
+            Directory::ensure($directory . $section);
         }
 
-        if ($writable and !is_writable($path . $section)) {
-            throw new CoreException(tr('The global path ":path" is not writable', [
-                ':path' => $path . $section
+        if ($writable and !is_writable($directory . $section)) {
+            throw new CoreException(tr('The global directory ":directory" is not writable', [
+                ':directory' => $directory . $section
             ]));
         }
 
-        if (!$global_path = realpath($path . $section)) {
+        if (!$global_path = realpath($directory . $section)) {
             // Curious, the path exists, but realpath failed and returned false. This should never happen since we
             // ensured the path above! This is just an extra check in case of.. weird problems :)
-            throw new CoreException(tr('The found global data path ":path" is invalid (realpath returned false)', [
-                ':path' => $path
+            throw new CoreException(tr('The found global data directory ":directory" is invalid (realpath returned false)', [
+                ':directory' => $directory
             ]));
         }
 

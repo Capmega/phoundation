@@ -118,41 +118,41 @@ interface ExecuteInterface extends DirectoryInterface
      *
      * @return array
      */
-    public function getSkipPaths(): array;
+    public function getSkipDirectories(): array;
 
     /**
      * Clears the paths that will be skipped
      *
      * @return static
      */
-    public function clearSkipPaths(): static;
+    public function clearSkipDirectories(): static;
 
     /**
      * Sets the paths that will be skipped
      *
-     * @param string|array $paths
+     * @param string|array $directories
      * @return static
      * @throws OutOfBoundsException if the specified threshold is invalid.
      */
-    public function setSkipPaths(string|array $paths): static;
+    public function setSkipDirectories(string|array $directories): static;
 
     /**
      * Adds the paths that will be skipped
      *
-     * @param string|array $paths
+     * @param string|array $directories
      * @return static
      * @throws OutOfBoundsException if the specified threshold is invalid.
      */
-    public function addSkipPaths(string|array $paths): static;
+    public function addSkipDirectories(string|array $directories): static;
 
     /**
      * Sets the path that will be skipped
      *
-     * @param string $path
+     * @param string $directory
      * @return static
      * @throws OutOfBoundsException if the specified threshold is invalid.
      */
-    public function addSkipPath(string $path): static;
+    public function addSkipDirectory(string $directory): static;
 
     /**
      * Returns if the object will recurse or not
@@ -175,7 +175,7 @@ interface ExecuteInterface extends DirectoryInterface
      * @param callable $callback
      * @return void
      */
-    public function onPathOnly(callable $callback): void;
+    public function onDirectoryOnly(callable $callback): void;
 
     /**
      * Execute the callback function on each file in the specified path

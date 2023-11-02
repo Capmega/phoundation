@@ -129,7 +129,7 @@ interface FileInterface extends FileBasicsInterface
      * @param string $source
      * @return int
      */
-    public function lineCount(string $source): int;
+    public function getLineCount(string $source): int;
 
     /**
      * Return word count for the specified text file
@@ -137,7 +137,7 @@ interface FileInterface extends FileBasicsInterface
      * @param string $source
      * @return int
      */
-    public function wordCount(string $source): int;
+    public function getWordCount(string $source): int;
 
     /**
      * Returns true if any part of the object file path is a symlink
@@ -173,14 +173,14 @@ interface FileInterface extends FileBasicsInterface
     /**
      * Copy object file, see file_move_to_target for implementation
      *
-     * @param string $path
+     * @param string $directory
      * @param bool $extension
      * @param bool $singledir
      * @param int $length
      * @return string
      * @throws Exception
      */
-    public function copyToTarget(string $path, bool $extension = false, bool $singledir = false, int $length = 4): string;
+    public function copyToTarget(string $directory, bool $extension = false, bool $singledir = false, int $length = 4): string;
 
     /**
      * Move object file (must be either file string or PHP uploaded file array) to a target and returns the target name
@@ -193,7 +193,7 @@ interface FileInterface extends FileBasicsInterface
      * If $singledir is set to false, the resulting file will be in a/b/c/d/e/, if its set to true, it will be in abcde
      * $length specifies howmany characters the subdir should have (4 will make a/b/c/d/ or abcd/)
      *
-     * @param string $path
+     * @param string $directory
      * @param bool $extension
      * @param bool $singledir
      * @param int $length
@@ -202,7 +202,7 @@ interface FileInterface extends FileBasicsInterface
      * @return string The target file
      * @throws Exception
      */
-    public function moveToTarget(string $path, bool $extension = false, bool $singledir = false, int $length = 4, bool $copy = false, mixed $context = null): string;
+    public function moveToTarget(string $directory, bool $extension = false, bool $singledir = false, int $length = 4, bool $copy = false, mixed $context = null): string;
 
     /**
      * Copy an entire tree with replace option

@@ -43,9 +43,9 @@ class Import extends \Phoundation\Developer\Project\Import
     public function execute(): int
     {
         $provider = static::getProvider();
-        $path     = $provider->download();
+        $directory     = $provider->download();
 
-        $provider->process($path);
+        $provider->process($directory);
         return 0;
     }
 

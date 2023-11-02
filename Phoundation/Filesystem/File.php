@@ -49,7 +49,7 @@ class File extends FileBasics implements FileInterface
      * Move uploaded image to correct target
      *
      * @param array|string $source The source file to process
-     * @return string The new file path
+     * @return string The new file directory
      * @throws CoreException
      */
     public function getUploaded(array|string $source): string
@@ -63,7 +63,7 @@ class File extends FileBasics implements FileInterface
         if (is_array($source)) {
             // Assume this is a PHP file upload array entry
             if (empty($source['tmp_name'])) {
-                throw new FilesystemException(tr('Invalid source specified, must either be a string containing an absolute file path or a PHP $_FILES entry'));
+                throw new FilesystemException(tr('Invalid source specified, must either be a string containing an absolute file directory or a PHP $_FILES entry'));
             }
 
             $real = $source['name'];
@@ -94,11 +94,11 @@ class File extends FileBasics implements FileInterface
 
 
     /**
-     * Ensure that the object file exists in the specified path
+     * Ensure that the object file exists in the specified directory
      *
      * @note Will log to the console in case the file was created
      * @param null $mode If the specified $this->file does not exist, it will be created with this file mode. Defaults to $_CONFIG[fs][file_mode]
-     * @param null $pattern_mode If parts of the path for the file do not exist, these will be created as well with this directory mode. Defaults to $_CONFIG[fs][dir_mode]
+     * @param null $pattern_mode If parts of the directory for the file do not exist, these will be created as well with this directory mode. Defaults to $_CONFIG[fs][dir_mode]
      * @return void
      * @version 2.4.16: Added documentation, improved log output
      *
@@ -106,10 +106,10 @@ class File extends FileBasics implements FileInterface
     public function ensureFile($mode = null, $pattern_mode = null): void
     {
         // Check filesystem restrictions
-        $path = dirname($this->file);
+        $directory = dirname($this->file);
         $mode = Config::get('filesystem.modes.defaults.file', 0640, $mode);
 
-        $this->restrictions->check($path, true);
+        $this->restrictions->check($directory, true);
 
         Directory::new(dirname($this->file), $this->restrictions)->ensure($pattern_mode);
 
@@ -117,7 +117,7 @@ class File extends FileBasics implements FileInterface
             // Create the file
             Directory::new(dirname($this->file), $this->restrictions)->execute()
                 ->setMode(0770)
-                ->onPathOnly(function () use ($mode) {
+                ->onDirectoryOnly(function () use ($mode) {
                     Log::warning(tr('File ":file" did not exist and was created empty to ensure system stability, but information may be missing', [
                         ':file' => $this->file
                     ]));
@@ -289,7 +289,7 @@ class File extends FileBasics implements FileInterface
         $this->restrictions->check($this->file, false);
         $this->restrictions->check($target, true);
 
-        // Source file and target path exist?
+        // Source file and target directory exist?
         $this->exists();
         File::new(dirname($target), $this->restrictions)->exists();
 
@@ -317,7 +317,7 @@ class File extends FileBasics implements FileInterface
      * @param string $source
      * @return int
      */
-    public function lineCount(string $source): int
+    public function getLineCount(string $source): int
     {
         throw new UnderConstructionException();
         $this->isText($source);
@@ -330,7 +330,7 @@ class File extends FileBasics implements FileInterface
      * @param string $source
      * @return int
      */
-    public function wordCount(string $source): int
+    public function getWordCount(string $source): int
     {
         throw new UnderConstructionException();
         $this->isText($source);
@@ -338,7 +338,7 @@ class File extends FileBasics implements FileInterface
 
 
     /**
-     * Returns true if any part of the object file path is a symlink
+     * Returns true if any part of the object file directory is a symlink
      *
      * @param string|null $prefix
      * @return boolean True if the specified $pattern (optionally prefixed by $prefix) contains a symlink, false if not
@@ -348,7 +348,7 @@ class File extends FileBasics implements FileInterface
         // Check filesystem restrictions and if file exists
         $this->restrictions->check($this->file, true);
 
-        // Build up the path
+        // Build up the directory
         if (str_starts_with($this->file, '/')) {
             if ($prefix) {
                 throw new FilesystemException(tr('The specified file ":file" is absolute, which requires $prefix to be null, but it is ":prefix"', [
@@ -380,8 +380,8 @@ class File extends FileBasics implements FileInterface
             $location .= $section;
 
             if (!file_exists($location)) {
-                throw new FilesystemException(tr('The specified path ":path" with prefix ":prefix" leads to ":location" which does not exist', [
-                    ':path'     => $this->file,
+                throw new FilesystemException(tr('The specified directory ":directory" with prefix ":prefix" leads to ":location" which does not exist', [
+                    ':directory'     => $this->file,
                     ':prefix'   => $prefix,
                     ':location' => $location
                 ]));
@@ -462,16 +462,16 @@ class File extends FileBasics implements FileInterface
     /**
      * Copy object file, see file_move_to_target for implementation
      *
-     * @param string $path
+     * @param string $directory
      * @param bool $extension
      * @param bool $singledir
      * @param int $length
      * @return string
      * @throws Exception
      */
-    public function copyToTarget(string $path, bool $extension = false, bool $singledir = false, int $length = 4): string
+    public function copyToTarget(string $directory, bool $extension = false, bool $singledir = false, int $length = 4): string
     {
-        return $this->moveToTarget($path, $extension, $singledir, $length, true);
+        return $this->moveToTarget($directory, $extension, $singledir, $length, true);
     }
 
 
@@ -481,12 +481,12 @@ class File extends FileBasics implements FileInterface
      * IMPORTANT! Extension here is just "the rest of the filename", which may be _small.jpg, or just the extension, .jpg
      * If only an extension is desired, it is VERY important that its specified as ".jpg" and not "jpg"!!
      *
-     * $pattern sets the base path for where the file should be stored
+     * $pattern sets the base directory for where the file should be stored
      * If $extension is false, the files original extension will be retained. If set to a value, the extension will be that value
      * If $singledir is set to false, the resulting file will be in a/b/c/d/e/, if its set to true, it will be in abcde
      * $length specifies howmany characters the subdir should have (4 will make a/b/c/d/ or abcd/)
      *
-     * @param string $path
+     * @param string $directory
      * @param bool $extension
      * @param bool $singledir
      * @param int $length
@@ -495,11 +495,11 @@ class File extends FileBasics implements FileInterface
      * @return string The target file
      * @throws Exception
      */
-    public function moveToTarget(string $path, bool $extension = false, bool $singledir = false, int $length = 4, bool $copy = false, mixed $context = null): string
+    public function moveToTarget(string $directory, bool $extension = false, bool $singledir = false, int $length = 4, bool $copy = false, mixed $context = null): string
     {
         throw new UnderConstructionException();
         $this->restrictions->check($this->file, false);
-        $this->restrictions->check($path, true);
+        $this->restrictions->check($directory, true);
 
         if (is_array($this->file)) {
             // Assume this is a PHP $_FILES array entry
@@ -511,7 +511,7 @@ class File extends FileBasics implements FileInterface
             throw new FilesystemException(tr('Copy option has been set, but object file ":file" is an uploaded file, and uploaded files cannot be copied, only moved', [':file' => $this->file]));
         }
 
-        $path = Directory::new($path, $this->restrictions)->ensure();
+        $directory = Directory::new($directory, $this->restrictions)->ensure();
         $this->filename = basename($this->file);
 
         if (!$this->filename) {
@@ -529,13 +529,13 @@ class File extends FileBasics implements FileInterface
         }
 
         if ($length) {
-            $targetpath = Strings::slash(file_create_target_path($path, $singledir, $length));
+            $targetdirectory = Strings::slash(file_create_target_directory($directory, $singledir, $length));
 
         } else {
-            $targetpath = Strings::slash($path);
+            $targetdirectory = Strings::slash($directory);
         }
 
-        $target = $targetpath . strtolower(Strings::convertAccents(Strings::untilReverse($this->filename, '.'), '-'));
+        $target = $targetdirectory . strtolower(Strings::convertAccents(Strings::untilReverse($this->filename, '.'), '-'));
 
         // Check if there is a "point" already in the extension not obligatory at the start of the string
         if ($extension) {
@@ -551,13 +551,13 @@ class File extends FileBasics implements FileInterface
         if (file_exists($target)) {
             if (isset($upload)) {
                 // File was specified as an upload array
-                return $this->moveToTarget($upload, $path, $extension, $singledir, $length, $copy);
+                return $this->moveToTarget($upload, $directory, $extension, $singledir, $length, $copy);
             }
 
-            return $this->moveToTarget($path, $extension, $singledir, $length, $copy);
+            return $this->moveToTarget($directory, $extension, $singledir, $length, $copy);
         }
 
-        // Only move if file was specified. If no file specified, then we will only return the available path
+        // Only move if file was specified. If no file specified, then we will only return the available directory
         if ($this->file) {
             if (isset($upload)) {
                 // This is an uploaded file
@@ -575,7 +575,7 @@ class File extends FileBasics implements FileInterface
             }
         }
 
-        return Strings::from($target, $path);
+        return Strings::from($target, $directory);
     }
 
 
@@ -613,7 +613,7 @@ class File extends FileBasics implements FileInterface
         }
 
         if (substr($destination, 0, 1) != '/') {
-            // This is not an absolute path
+            // This is not an absolute directory
             $destination = PWD.$destination;
         }
 
@@ -721,7 +721,7 @@ class File extends FileBasics implements FileInterface
                 if (is_dir($source . $this->file)) {
                     // Recurse
                     if (file_exists($destination . $this->file)) {
-                        // Destination path already exists. This -by the way- means that the destination tree was not
+                        // Destination directory already exists. This -by the way- means that the destination tree was not
                         // clean
                         if (!is_dir($destination . $this->file)) {
                             // Were overwriting here!
@@ -729,7 +729,7 @@ class File extends FileBasics implements FileInterface
                         }
                     }
 
-                    $this->path($destination . $this->file)->ensure($this->filemode);
+                    $this->directory($destination . $this->file)->ensure($this->filemode);
                 }
 
                 file_copy_tree($source . $this->file, $destination . $this->file, $search, $replace, $extensions, $mode, true);
@@ -744,7 +744,7 @@ class File extends FileBasics implements FileInterface
                     $reallink = $link;
 
                 } else {
-                    // Relative link, get the absolute path
+                    // Relative link, get the absolute directory
                     $reallink = Strings::slash(dirname($source)).$link;
                 }
 
@@ -755,7 +755,7 @@ class File extends FileBasics implements FileInterface
                     ]));
                 }
 
-                // This is a symlink. Just create a new symlink that points to the same path
+                // This is a symlink. Just create a new symlink that points to the same directory
                 return symlink($link, $destination);
             }
 

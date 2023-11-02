@@ -46,11 +46,11 @@ class RunFile implements RunFileInterface
     protected string $command;
 
     /**
-     * The path where all runfiles are located
+     * The directory where all run files are located
      *
-     * @var string $path
+     * @var string $directory
      */
-    protected static string $path = DIRECTORY_ROOT . 'data/run/';
+    protected static string $directory = DIRECTORY_ROOT . 'data/run/';
 
     /**
      * The exact run file for this command
@@ -74,7 +74,7 @@ class RunFile implements RunFileInterface
      */
     public function __construct(string $command)
     {
-        static::$restrictions = Restrictions::new(static::$path, true, 'runfile');
+        static::$restrictions = Restrictions::new(static::$directory, true, 'runfile');
 
         $this->setCommand(Strings::from($command, DIRECTORY_ROOT . 'scripts/'));
         $this->setPid(getmypid());
@@ -153,13 +153,13 @@ class RunFile implements RunFileInterface
 
 
     /**
-     * Returns the path where all run files are located
+     * Returns the directory where all run files are located
      *
      * @return string
      */
-    public function getPath(): string
+    public function getDirectory(): string
     {
-        return static::$path;
+        return static::$directory;
     }
 
 
@@ -181,9 +181,9 @@ class RunFile implements RunFileInterface
      */
     protected function create(): static
     {
-        Directory::new(static::$path . $this->command . '/', static::$restrictions)->ensure();
+        Directory::new(static::$directory . $this->command . '/', static::$restrictions)->ensure();
 
-        $this->file = static::$path . $this->command . '/' . $this->pid;
+        $this->file = static::$directory . $this->command . '/' . $this->pid;
 
         touch($this->file);
         return $this;
@@ -220,16 +220,16 @@ class RunFile implements RunFileInterface
      */
     public function getPidForCommand(): ?int
     {
-        $path = static::findCommandPath($this->command);
+        $directory = static::findCommandDirectory($this->command);
 
-        if (!$path) {
+        if (!$directory) {
             // The command currently isn't running
             return null;
         }
 
         try {
             // Yay, a directory for this command exists! Return the first run file (PID file) we can find.
-            return (int) Directory::new($path)->getSingleFile('/\d+/');
+            return (int) Directory::new($directory)->getSingleFile('/\d+/');
 
         } catch (FilesystemException) {
             // No run file found
@@ -246,15 +246,15 @@ class RunFile implements RunFileInterface
      */
     public function getPidsForCommand(): array
     {
-        $path = static::findCommandPath($this->command);
+        $directory = static::findCommandDirectory($this->command);
 
-        if (!$path) {
+        if (!$directory) {
             // The command currently isn't running
             return [];
         }
 
         // Yay, a directory for this command exists! Return all the run files (PID files) we can find.
-        $pids   = Directory::new($path)->scanRegex('/\d+/');
+        $pids   = Directory::new($directory)->scanRegex('/\d+/');
         $return = [];
 
         // Build PID > MTIME array
@@ -285,12 +285,12 @@ class RunFile implements RunFileInterface
     public static function purge(): void
     {
         // Purge orphaned run files
-        Directory::new(static::$path)
+        Directory::new(static::$directory)
             ->execute()
             ->setRecurse(true)
             ->onFiles(function(string $file) {
                 if (Strings::fromReverse($file, '/') === 'pids') {
-                    // This is the pids path, ignore it.
+                    // This is the pids directory, ignore it.
                     return;
                 }
 
@@ -314,29 +314,29 @@ class RunFile implements RunFileInterface
                 if ($cmd !== $command) {
                     // The PID exists, but its a different command. Remove the runfile and all PID files
                     File::new($runfile, static::$restrictions)->delete(DIRECTORY_DATA . 'run/');
-                    File::new(static::$path . 'pids/' . $pid, static::$restrictions)->delete(DIRECTORY_DATA . 'run/pids/');
+                    File::new(static::$directory . 'pids/' . $pid, static::$restrictions)->delete(DIRECTORY_DATA . 'run/pids/');
                 }
         });
 
         // Purge orphaned PID files
-        Directory::new(static::$path)
+        Directory::new(static::$directory)
             ->execute()
             ->setRecurse(true)
-            ->onPathOnly(function(string $path) {
+            ->onDirectoryOnly(function(string $directory) {
 // TODO
             });
     }
 
 
     /**
-     * Delete the run file and clean up the run path
+     * Delete the run file and clean up the run directory
      *
      * @return static
      */
     public function delete(): static
     {
         // Delete the runfile and delete all possible PID files associated with this PID
-        // Don't use runfiles here because we're deleting the runfile paths...
+        // Don't use runfiles here because we're deleting the runfile directories...
         File::new(DIRECTORY_DATA . 'run/' . $this->command . '/' . $this->pid, static::$restrictions)->delete(DIRECTORY_DATA . 'run/', use_run_file: false);
         Directory::new(DIRECTORY_DATA . 'run/pids/' . $this->pid, static::$restrictions)->delete(DIRECTORY_DATA . 'run/', use_run_file: false);
         return $this;
@@ -367,26 +367,26 @@ class RunFile implements RunFileInterface
 
 
     /**
-     * Returns the run path for the command, if it exists, NULL otherwise
+     * Returns the run directory for the command, if it exists, NULL otherwise
      *
      * @param string $command
      * @return string|null
      */
-    protected function findCommandPath(string $command): ?string
+    protected function findCommandDirectory(string $command): ?string
     {
-        $path     = static::$path;
+        $directory     = static::$directory;
         $sections = explode('/', $command);
 
         // Search the command as a hierarchical tree.
         foreach ($sections as $section) {
-            $path .= $section;
+            $directory .= $section;
 
-            if (!file_exists($path)) {
+            if (!file_exists($directory)) {
                 // Run file does not exist
                 return null;
             }
         }
 
-        return $path;
+        return $directory;
     }
 }

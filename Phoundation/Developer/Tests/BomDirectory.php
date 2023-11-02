@@ -2,12 +2,11 @@
 
 namespace Phoundation\Developer\Tests;
 
-use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Directory;
 
 
 /**
- * Class BomPath
+ * Class BomDirectory
  *
  * This class can check and remove the Unicode Byte Order Mark from multiple PHP files in the specified path. This is
  * important as PHP can choke on this BOM

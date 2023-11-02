@@ -113,7 +113,7 @@ class Get extends Curl
         }
 
         // Do we log?
-        if ($this->log_path) {
+        if ($this->log_directory) {
             // We log!
             Log::notice(tr('cURL result status:'));
 
@@ -230,8 +230,8 @@ class Get extends Curl
         //curl_setopt($this->curl, CURLOPT_HTTPHEADER    , true);
 
         // Log cURL request?
-        if ($this->log_path) {
-            curl_setopt($this->curl, CURLOPT_STDERR, File::new($this->log_path . getmypid(), $this->log_restrictions)->open(EnumFileOpenMode::writeOnlyAppend)->getStream());
+        if ($this->log_directory) {
+            curl_setopt($this->curl, CURLOPT_STDERR, File::new($this->log_directory . getmypid(), $this->log_restrictions)->open(EnumFileOpenMode::writeOnlyAppend)->getStream());
 
             Log::action(tr('Preparing ":method" cURL request to ":url"', [
                 ':method' => $this->method,

@@ -364,7 +364,7 @@ class CliCommand
             ArgvValidator::removeMethod($method);
 
             if (!file_exists($file)) {
-                // The specified path doesn't exist
+                // The specified directory doesn't exist
                 throw MethodNotExistsException::new(tr('The specified command file ":file" does not exist', [
                     ':file' => $file
                 ]))->makeWarning()

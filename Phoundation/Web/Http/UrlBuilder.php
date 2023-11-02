@@ -448,7 +448,7 @@ class UrlBuilder implements UrlBuilderInterface
             return new static($url);
         }
 
-//        if ($path) {
+//        if ($directory) {
 //            throw new UnderConstructionException();
 //            // Return the local filesystem path instead of a public URL
 //            if (Url::isValid($url)) {
@@ -456,13 +456,13 @@ class UrlBuilder implements UrlBuilderInterface
 //                return new static($url);
 //            }
 //
-//            $path = Strings::startsNotWith($this->url, '/');
+//            $directory = Strings::startsNotWith($this->url, '/');
 //
-//            if (!str_starts_with($path, 'img/')) {
-//                $path = 'img/' . $path;
+//            if (!str_starts_with($directory, 'img/')) {
+//                $directory = 'img/' . $directory;
 //            }
 //
-//            return $path;
+//            return $directory;
 //        }
 
         return static::buildCdn($url);

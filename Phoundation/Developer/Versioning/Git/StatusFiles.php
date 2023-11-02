@@ -51,7 +51,7 @@ class StatusFiles extends Iterator
         $files = $this->git_process
             ->clearArguments()
             ->addArgument('status')
-            ->addArgument($this->path)
+            ->addArgument($this->directory)
             ->addArgument('--porcelain')
             ->executeReturnArray();
 
@@ -119,8 +119,8 @@ class StatusFiles extends Iterator
             return $this;
 
         } catch(ProcessFailedException $e) {
-            Log::warning(tr('Patch failed to apply for target path ":path" with following exception', [
-                ':path' => $target_path
+            Log::warning(tr('Patch failed to apply for target directory ":directory" with following exception', [
+                ':directory' => $target_path
             ]));
 
             Log::warning($e->getMessages());
@@ -138,9 +138,9 @@ class StatusFiles extends Iterator
             $data = array_pop($data);
 
             if (str_contains($data, 'patch does not apply')) {
-                throw new GitPatchException(tr('Failed to apply patch ":patch" to path ":path"', [
+                throw new GitPatchException(tr('Failed to apply patch ":patch" to directory ":directory"', [
                     ':patch' => isset_get($patch_file),
-                    ':path'  => $target_path
+                    ':directory'  => $target_path
                 ]));
             }
 
@@ -157,7 +157,7 @@ class StatusFiles extends Iterator
      */
     public function getPatchFile(bool $cached = false): ?string
     {
-        return Git::new(dirname($this->path))->saveDiff(basename($this->path), $cached);
+        return Git::new(dirname($this->directory))->saveDiff(basename($this->directory), $cached);
     }
 
 
@@ -169,7 +169,7 @@ class StatusFiles extends Iterator
     public function getGit(): Git
     {
         if (!isset($this->git)) {
-            $this->git = Git::new($this->path);
+            $this->git = Git::new($this->directory);
         }
 
         return $this->git;

@@ -22,23 +22,23 @@ use Phoundation\Developer\Versioning\Versioning;
 class Stash extends Versioning
 {
     use GitProcess {
-        setPath as protected setTraitPath;
+        setDirectory as protected setTraitDirectory;
     }
 
 
     /**
      * Unstashes the git changes
      *
-     * @param string|null $path
+     * @param string|null $directory
      * @return static
      */
-    public function stash(?string $path = null): static
+    public function stash(?string $directory = null): static
     {
         $output = $this->git_process
             ->clearArguments()
             ->addArgument('stash')
             ->addArgument('--')
-            ->addArgument($path)
+            ->addArgument($directory)
             ->executeReturnArray();
 
         Log::notice($output, 4, false);

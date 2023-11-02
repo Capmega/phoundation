@@ -33,7 +33,7 @@ class Branches extends Iterator
     public function getSource(): array
     {
         if (!$this->source) {
-            $results = Process::new('git')->setExecutionPath($this->path)
+            $results = Process::new('git')->setExecutionDirectory($this->directory)
                 ->addArgument('branch')
                 ->addArgument('--quiet')
                 ->addArgument('--no-color')

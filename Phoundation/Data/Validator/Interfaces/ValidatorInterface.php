@@ -632,7 +632,7 @@ interface ValidatorInterface
     public function isVariable(): static;
 
     /**
-     * Validates if the selected field is a valid directory
+     * Validates if the selected field is a valid path
      *
      * @param Stringable|string|null $check_in_path
      * @param RestrictionsInterface|array|string|null $restrictions

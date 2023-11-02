@@ -1101,7 +1101,7 @@ class Route
             $parameters = static::getParameters()->select(static::$uri);
         }
 
-        $target = Filesystem::absolute($parameters->getRootPath() . Strings::unslash($target));
+        $target = Filesystem::absolute($parameters->getRootDirectory() . Strings::unslash($target));
 
         // Check if configured page exists
         if ($target === 'index.php') {

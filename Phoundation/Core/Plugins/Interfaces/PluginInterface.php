@@ -74,7 +74,7 @@ interface PluginInterface
      *
      * @return string
      */
-    public function getPath(): string;
+    public function getDirectory(): string;
 
     /**
      * Returns the plugin name

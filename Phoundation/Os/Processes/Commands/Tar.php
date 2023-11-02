@@ -34,7 +34,7 @@ class Tar extends Command
             }
 
             $this
-                ->setExecutionPath($target_path)
+                ->setExecutionDirectory($target_path)
                 ->setInternalCommand('tar')
                 ->addArguments(['-x', '-f'])
                 ->addArguments($file)
@@ -55,24 +55,24 @@ class Tar extends Command
     /**
      * Tars the specified path
      *
-     * @param string $path
+     * @param string $directory
      * @param string|null $target_file
      * @param bool $compression
      * @return string
      */
-    public function tar(string $path, ?string $target_file = null, bool $compression = true): string
+    public function tar(string $directory, ?string $target_file = null, bool $compression = true): string
     {
         try {
             if (!$target_file) {
-                $target_file = $path . '.tar.gz';
+                $target_file = $directory . '.tar.gz';
             }
 
             $this
-                ->setExecutionPath(dirname($path))
+                ->setExecutionDirectory(dirname($directory))
                 ->setInternalCommand('tar')
                 ->addArguments(['-c', ($compression ? 'j' : null), '-f'])
                 ->addArguments($target_file)
-                ->addArguments($path)
+                ->addArguments($directory)
                 ->setTimeout(120)
                 ->executeNoReturn();
 
@@ -80,8 +80,8 @@ class Tar extends Command
 
         } catch (ProcessFailedException $e) {
             // The command tar failed, most of the time either $file doesn't exist, or we don't have access
-            static::handleException('tar', $e, function() use ($path) {
-                File::new($path)->checkReadable();
+            static::handleException('tar', $e, function() use ($directory) {
+                File::new($directory)->checkReadable();
             });
         }
     }

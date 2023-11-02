@@ -286,10 +286,10 @@ class Plugins extends DataList implements PluginsInterface
     public function purge(): static
     {
         // Delete all plugins from disk
-        $path = DIRECTORY_ROOT . 'Plugins/';
+        $directory = DIRECTORY_ROOT . 'Plugins/';
 
-        File::new($path)->delete();
-        Directory::new($path)->ensure();
+        File::new($directory)->delete();
+        Directory::new($directory)->ensure();
 
         return $this;
     }
@@ -302,9 +302,9 @@ class Plugins extends DataList implements PluginsInterface
      */
     protected static function scanPlugins(): array
     {
-        $path    = DIRECTORY_ROOT . 'Plugins/';
+        $directory    = DIRECTORY_ROOT . 'Plugins/';
         $return  = [];
-        $plugins = scandir($path);
+        $plugins = scandir($directory);
 
         foreach ($plugins as $id => $plugin) {
             // Filter . .. and hidden files
@@ -312,7 +312,7 @@ class Plugins extends DataList implements PluginsInterface
                 continue;
             }
 
-            $file = $path . $plugin . '/Plugin.php';
+            $file = $directory . $plugin . '/Plugin.php';
 
             if ($plugin === 'disabled') {
                 // The "disabled" directory is for disabled plugins, ignore it completely

@@ -418,9 +418,9 @@ class Script extends Element
 //                        // The javascript file is empty
 //                        Log::warning(tr('Deleting externally cached javascript file ":file" because the file is 0 bytes', [':file' => $file.'.js']));
 //
-//                        Path::new(DIRECTORY_CDN . LANGUAGE . '/js', DIRECTORY_CDN . LANGUAGE . '/js')->execute()
+//                        Directory::new(DIRECTORY_CDN . LANGUAGE . '/js', DIRECTORY_CDN . LANGUAGE . '/js')->execute()
 //                            ->setMode(0770)
-//                            ->onPathOnly(function() use ($file) {
+//                            ->onDirectoryOnly(function() use ($file) {
 //                            file_chmod($file.'.js,'.$file.'.min.js', 'ug+w', DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js');
 //                            file_delete([
 //                                'patterns'       => $file.'.js,'.$file.'.min.js',
@@ -439,9 +439,9 @@ class Script extends Element
 //                // If file does not exist, create it now. Check again if it exist, because the previous function may
 //                // have possibly deleted it
 //                if (!file_exists($file.'.js')) {
-//                    Path::new(dirname($file), Restrictions::new(DIRECTORY_CDN . LANGUAGE . 'js', true))->execute()
+//                    Directory::new(dirname($file), Restrictions::new(DIRECTORY_CDN . LANGUAGE . 'js', true))->execute()
 //                        ->setMode(0770)
-//                        ->onPathOnly(function() use ($file, $return) {
+//                        ->onDirectoryOnly(function() use ($file, $return) {
 //                            Log::action(tr('Writing internal javascript to externally cached file ":file"', [':file' => $file.'.js']));
 //                            file_put_contents($file.'.js', $return);
 //                        });

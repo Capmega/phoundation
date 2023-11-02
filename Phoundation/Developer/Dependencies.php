@@ -41,9 +41,9 @@ class Dependencies
          * Test available files
          */
         if (isset($params['checks'])) {
-            foreach (Arrays::force($params['checks']) as $path) {
-                if (!file_exists($path)) {
-                    $fail = 'path ' . $path;
+            foreach (Arrays::force($params['checks']) as $directory) {
+                if (!file_exists($directory)) {
+                    $fail = 'path ' . $directory;
                     break;
                 }
             }

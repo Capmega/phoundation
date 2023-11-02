@@ -117,7 +117,7 @@ interface ProcessVariablesInterface
      *
      * @return Directory
      */
-    public function getExecutionPath(): Directory;
+    public function getExecutionDirectory(): Directory;
 
     /**
      * Sets if the process will first CD to this directory before continuing
@@ -126,7 +126,7 @@ interface ProcessVariablesInterface
      * @param RestrictionsInterface|array|string|null $restrictions
      * @return static This process so that multiple methods can be chained
      */
-    public function setExecutionPath(Directory|Stringable|string|null $execution_path, RestrictionsInterface|array|string|null $restrictions = null): static;
+    public function setExecutionDirectory(Directory|Stringable|string|null $execution_path, RestrictionsInterface|array|string|null $restrictions = null): static;
 
     /**
      * Sets the execution path to private temp dir
@@ -134,7 +134,7 @@ interface ProcessVariablesInterface
      * @param bool $public
      * @return static This process so that multiple methods can be chained
      */
-    public function setExecutionPathToTemp(bool $public = false): static;
+    public function setExecutionDirectoryToTemp(bool $public = false): static;
 
     /**
      * Sets the log path where the process output will be redirected to

@@ -46,15 +46,15 @@ class Mkdir extends Command
             static::handleException('mkdir', $e, function($first_line, $last_line, $e) use ($file) {
                 if ($e->getCode() == 1) {
                     if (str_contains($first_line, 'not a directory')) {
-                        $path = Strings::from($first_line, 'directory \'');
-                        $path = Strings::until($path, '\':');
-                        throw new CommandsException(tr('Failed to create directory file ":file" because the section ":path" already exists and is not a directory', [':file' => $file, ':path' => $path]));
+                        $directory = Strings::from($first_line, 'directory \'');
+                        $directory = Strings::until($directory, '\':');
+                        throw new CommandsException(tr('Failed to create directory file ":file" because the section ":directory" already exists and is not a directory', [':file' => $file, ':directory' => $directory]));
                     }
 
                     if (str_contains($first_line, 'permission denied')) {
-                        $path = Strings::from($first_line, 'directory \'');
-                        $path = Strings::until($path, '\':');
-                        throw new CommandsException(tr('Failed to create directory file ":file", permission denied to create section ":path" ', [':file' => $file, ':path' => $path]));
+                        $directory = Strings::from($first_line, 'directory \'');
+                        $directory = Strings::until($directory, '\':');
+                        throw new CommandsException(tr('Failed to create directory file ":file", permission denied to create section ":directory" ', [':file' => $file, ':directory' => $directory]));
                     }
                 }
             });
